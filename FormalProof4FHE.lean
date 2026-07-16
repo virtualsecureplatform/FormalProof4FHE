@@ -1,4 +1,5 @@
 import FormalProof4FHE.LWE.Basic
+import FormalProof4FHE.LWE.BlockBinaryReduction
 import FormalProof4FHE.LWE.Regev
 import FormalProof4FHE.LWE.Security
 import FormalProof4FHE.Probability.LeftoverHash

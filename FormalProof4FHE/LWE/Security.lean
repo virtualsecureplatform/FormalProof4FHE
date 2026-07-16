@@ -50,6 +50,30 @@ theorem advantage_nonneg
   rw [advantage_eq_boolDistAdvantage]
   exact abs_nonneg _
 
+/-- A Boolean distinguishing advantage is always at most one. -/
+theorem advantage_le_one
+    (problem : LearningWithErrors.Problem Sample Secret Output)
+    (adversary : LearningWithErrors.Adversary problem) :
+    LearningWithErrors.advantage problem adversary ≤ 1 := by
+  rw [advantage_eq_boolDistAdvantage]
+  unfold ProbComp.boolDistAdvantage
+  have hreal :
+      (Pr[= true | LearningWithErrors.game0 problem adversary]).toReal ≤ 1 := by
+    rw [← ENNReal.toReal_one]
+    exact ENNReal.toReal_mono ENNReal.one_ne_top probOutput_le_one
+  have huniform :
+      (Pr[= true | LearningWithErrors.game1 problem adversary]).toReal ≤ 1 := by
+    rw [← ENNReal.toReal_one]
+    exact ENNReal.toReal_mono ENNReal.one_ne_top probOutput_le_one
+  have hreal_nonneg :
+      0 ≤ (Pr[= true | LearningWithErrors.game0 problem adversary]).toReal :=
+    ENNReal.toReal_nonneg
+  have huniform_nonneg :
+      0 ≤ (Pr[= true | LearningWithErrors.game1 problem adversary]).toReal :=
+    ENNReal.toReal_nonneg
+  rw [abs_le]
+  constructor <;> linarith
+
 /-- A concrete LWE problem is hard against the selected adversaries up to `bound`. -/
 def HardAgainst (problem : LearningWithErrors.Problem Sample Secret Output)
     (allowed : LearningWithErrors.Adversary problem → Prop) (bound : ℝ) : Prop :=

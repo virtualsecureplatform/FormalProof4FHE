@@ -14,6 +14,17 @@ example {Sample Secret Output : Type} [Add Output]
     0 ≤ LearningWithErrors.advantage problem adversary := by
   exact FormalProof4FHE.LWE.advantage_nonneg problem adversary
 
+example {Sample Secret Output : Type} [Add Output]
+    (problem : LearningWithErrors.Problem Sample Secret Output)
+    (adversary : LearningWithErrors.Adversary problem) :
+    LearningWithErrors.advantage problem adversary ≤ 1 := by
+  exact FormalProof4FHE.LWE.advantage_le_one problem adversary
+
+example (blockLength blockCount : ℕ) :
+    Fintype.card (FormalProof4FHE.BlockBinary.Key blockLength blockCount) =
+      (blockLength + 1) ^ blockCount := by
+  exact FormalProof4FHE.BlockBinary.card_key blockLength blockCount
+
 example {R : Type} [Semiring R] [DecidableEq R] [SampleableType R]
     (n k m : ℕ)
     (prefixSampler : ProbComp (Fin n → R))

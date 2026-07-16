@@ -6,6 +6,10 @@
 | Regev IND-CPA from decisional LWE and a leftover-hash masking term | `FormalProof4FHE.Regev.oneTime_abs_signedAdvantage_le_lwe_add_masking` | Implemented |
 | Finite leftover hash lemma and binary subset-sum two-universality | `FormalProof4FHE.LeftoverHash.leftover_hash_lemma`, `binarySubsetSum_isTwoUniversal` | Implemented |
 | Concrete Regev leftover-hash and one-time security bound | `FormalProof4FHE.Regev.maskingAdvantage_le_explicit`, `oneTime_abs_signedAdvantage_le_lwe_add_leftover` | Implemented |
+| Block-binary key encoding, at-most-one structure, and exact key-space size | `FormalProof4FHE.BlockBinary.pairedBits_atMostOne`, `bits_injective`, `card_key` | Implemented |
+| Block-key subset-sum extractor and tight finite leftover-hash bound | `FormalProof4FHE.BlockBinary.extractorHash_isTwoUniversal`, `extractorHash_leftover_tight` | Implemented; numerator improved from `|R|^d` to `|R|^d - 1` |
+| Parallel matrix-mask LWE reduces to one randomized ordinary-LWE adversary | `FormalProof4FHE.BlockBinary.matrixMask_advantage_eq_card_mul_randomRowLWE` | Implemented; exact identity retaining cancellation across rows |
+| End-to-end block-binary LWE reduction of ePrint 2023/958 | `FormalProof4FHE.BlockBinary.advantage_le_randomized_ordinaryLWE_add_jointGap_capped`, `advantage_le_of_ordinaryLWEBounds_tight` | Implemented over finite rings with signed masking-side cancellation, an unsplit exact statistical gap, and a final cap at one; the paper-specific Gaussian noise-absorption estimate remains an explicit `tvDist` hypothesis |
 | Scalar error convolution lifts to IID vectors | `FormalProof4FHE.SharedRandomness.vectorErrorConvolution_of_scalar` | Implemented |
 | Shared-randomness LWE hardness, Theorem 6 of ePrint 2023/979 | `FormalProof4FHE.SharedRandomness.zmod_advantage_eq_batch` | Implemented |
 | Shared-randomness LWE is a nested generalized-SLWE instance | `FormalProof4FHE.GeneralizedSubspaceLWE.shared_problem_eq_generalized`, `sharedSpec_isNested` | Implemented |
@@ -27,3 +31,12 @@ independent matrix batches and view-specific errors. The adaptive affine-project
 a separate oracle model and does not alter that exact specialization. Its concrete reduction now
 closes the formerly named fixed-overlap and simulator-correctness obligations and exposes the
 resulting ordinary batch-LWE adversary directly.
+
+The block-binary development checks the finite computational reduction without adopting the
+paper's heuristic lattice-estimator analysis as a theorem. Its strongest theorem uses one signed
+matrix distinguisher and one randomized row reduction, so it does not separately absolute-value the
+two masking sides or the individual row gaps. It also exposes the unsplit distance
+`jointStatisticalGap`, which may be smaller than the sum of noise absorption and extraction. The
+analytic claim that the correlated narrow error can be absorbed into the selected wide error
+distribution is represented exactly by `noiseAbsorptionGap` and supplied as a bound to the final
+corollary.

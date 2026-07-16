@@ -165,6 +165,38 @@ theorem sum_fiber_card_sq_eq {Input Output : Type}
   · simp [hxy]
   · simp [hxy]
 
+/-- A finite sum with one distinguished value and a constant value off the diagonal. -/
+private theorem sum_ite_eq_else {Input : Type} [Fintype Input] [DecidableEq Input]
+    (x : Input) (diagonal offDiagonal : ℝ) :
+    (∑ y : Input, if x = y then diagonal else offDiagonal) =
+      diagonal + ((Fintype.card Input - 1 : ℕ) : ℝ) * offDiagonal := by
+  classical
+  calc
+    (∑ y : Input, if x = y then diagonal else offDiagonal) =
+        (∑ y ∈ Finset.univ.erase x,
+          if x = y then diagonal else offDiagonal) +
+        (if x = x then diagonal else offDiagonal) :=
+      (Finset.sum_erase_add Finset.univ
+        (fun y : Input => if x = y then diagonal else offDiagonal)
+        (Finset.mem_univ x)).symm
+    (∑ y ∈ Finset.univ.erase x,
+        if x = y then diagonal else offDiagonal) +
+        (if x = x then diagonal else offDiagonal) =
+      diagonal + ((Fintype.card Input - 1 : ℕ) : ℝ) * offDiagonal := by
+      have hsum :
+          (∑ y ∈ Finset.univ.erase x,
+            if x = y then diagonal else offDiagonal) =
+            ∑ _y ∈ Finset.univ.erase x, offDiagonal := by
+        apply Finset.sum_congr rfl
+        intro y hy
+        rw [if_neg]
+        intro hxy
+        exact (Finset.ne_of_mem_erase hy) hxy.symm
+      rw [hsum, if_pos rfl]
+      simp only [Finset.sum_const, nsmul_eq_mul, Finset.card_erase_of_mem,
+        Finset.mem_univ, Finset.card_univ]
+      ring
+
 /-- The second-moment counting bound supplied by two-universality. -/
 theorem sum_fiber_card_sq_le {Seed Input Output : Type}
     [Fintype Seed] [Fintype Input]
@@ -232,6 +264,69 @@ theorem sum_fiber_card_sq_le {Seed Input Output : Type}
           (Fintype.card Seed : ℝ) * (Fintype.card Input : ℝ) ^ 2 /
             Fintype.card Output := by rfl
 
+/-- Tight second-moment counting bound supplied by two-universality.
+
+This counts the off-diagonal input choices exactly instead of including one extra choice. -/
+theorem sum_fiber_card_sq_le_tight {Seed Input Output : Type}
+    [Fintype Seed] [Fintype Input]
+    [Fintype Output] [Nonempty Output] [DecidableEq Output]
+    (hash : Seed → Input → Output)
+    (huniversal : IsTwoUniversal Seed Input Output hash) :
+    (∑ seed, ∑ output,
+        ((Finset.univ.filter fun input : Input => hash seed input = output).card : ℝ) ^ 2) ≤
+      (Fintype.card Seed : ℝ) * Fintype.card Input +
+        (Fintype.card Seed : ℝ) * Fintype.card Input *
+          ((Fintype.card Input - 1 : ℕ) : ℝ) / Fintype.card Output := by
+  classical
+  let S : ℝ := Fintype.card Seed
+  let I : ℝ := Fintype.card Input
+  let J : ℝ := ((Fintype.card Input - 1 : ℕ) : ℝ)
+  let O : ℝ := Fintype.card Output
+  have hO : 0 < O := by
+    have hcard : 0 < Fintype.card Output := Fintype.card_pos
+    change (0 : ℝ) < (Fintype.card Output : ℝ)
+    exact_mod_cast hcard
+  have hreorder :
+      (∑ seed, ∑ output,
+          ((Finset.univ.filter fun input : Input => hash seed input = output).card : ℝ) ^ 2) =
+        ∑ x, ∑ y,
+          ((Finset.univ.filter fun seed : Seed => hash seed x = hash seed y).card : ℝ) := by
+    simp_rw [sum_fiber_card_sq_eq]
+    rw [Finset.sum_comm]
+    apply Finset.sum_congr rfl
+    intro x _
+    rw [Finset.sum_comm]
+    apply Finset.sum_congr rfl
+    intro y _
+    simp
+  rw [hreorder]
+  calc
+    (∑ x, ∑ y,
+        ((Finset.univ.filter fun seed : Seed => hash seed x = hash seed y).card : ℝ))
+        ≤ ∑ x, ∑ y, if x = y then S else S / O := by
+          gcongr with x y
+          by_cases hxy : x = y
+          · subst y
+            simp [S]
+          · rw [if_neg hxy]
+            apply (le_div_iff₀ hO).2
+            have hnat := huniversal x y hxy
+            change
+              ((Finset.univ.filter fun seed : Seed => hash seed x = hash seed y).card : ℝ) *
+                  (Fintype.card Output : ℝ) ≤ (Fintype.card Seed : ℝ)
+            exact_mod_cast hnat
+    _ = ∑ _x : Input, (S + J * (S / O)) := by
+          apply Finset.sum_congr rfl
+          intro x _
+          exact sum_ite_eq_else x S (S / O)
+    _ = S * I + S * I * J / O := by
+          simp [I]
+          ring
+    _ = (Fintype.card Seed : ℝ) * Fintype.card Input +
+          (Fintype.card Seed : ℝ) * Fintype.card Input *
+            ((Fintype.card Input - 1 : ℕ) : ℝ) / Fintype.card Output := by
+          rfl
+
 /-- Finite leftover hash lemma.  A two-universal family extracting from a uniform finite input
 has joint seed/output distance at most `sqrt (|Output| / |Input|) / 2` from uniform. -/
 theorem leftover_hash_lemma {Seed Input Output : Type}
@@ -286,6 +381,74 @@ theorem leftover_hash_lemma {Seed Input Output : Type}
             simp [S, O, Fintype.card_prod]
   simpa [ideal, O, I] using
     (tvDist_uniform_le_of_collision (hashed hash) (O / I) hcollision)
+
+/-- Tight finite leftover hash lemma.
+
+The exact off-diagonal count improves the numerator from the output-space cardinality to that
+cardinality minus one. -/
+theorem leftover_hash_lemma_tight {Seed Input Output : Type}
+    [Fintype Seed] [Nonempty Seed] [SampleableType Seed]
+    [Fintype Input] [Nonempty Input] [SampleableType Input]
+    [Fintype Output] [Nonempty Output] [DecidableEq Output] [SampleableType Output]
+    (hash : Seed → Input → Output)
+    (huniversal : IsTwoUniversal Seed Input Output hash) :
+    tvDist (hashed hash) (ideal (Seed := Seed) (Output := Output)) ≤
+      Real.sqrt
+          (((Fintype.card Output : ℝ) - 1) / (Fintype.card Input : ℝ)) /
+        2 := by
+  classical
+  let S : ℝ := Fintype.card Seed
+  let I : ℝ := Fintype.card Input
+  let J : ℝ := ((Fintype.card Input - 1 : ℕ) : ℝ)
+  let O : ℝ := Fintype.card Output
+  have hcollision_eq :
+      collisionProbability (hashed hash) =
+        (S⁻¹ * I⁻¹) ^ 2 *
+          ∑ seed, ∑ output,
+            ((Finset.univ.filter fun input : Input => hash seed input = output).card : ℝ) ^ 2 := by
+    unfold collisionProbability
+    rw [Fintype.sum_prod_type]
+    simp_rw [probOutput_hashed hash, ENNReal.toReal_mul, ENNReal.toReal_inv,
+      ENNReal.toReal_natCast]
+    dsimp [S, I]
+    simp_rw [mul_pow]
+    simp_rw [← Finset.mul_sum]
+  have hS : 0 < S := by
+    have hcard : 0 < Fintype.card Seed := Fintype.card_pos
+    change (0 : ℝ) < (Fintype.card Seed : ℝ)
+    exact_mod_cast hcard
+  have hI : 0 < I := by
+    have hcard : 0 < Fintype.card Input := Fintype.card_pos
+    change (0 : ℝ) < (Fintype.card Input : ℝ)
+    exact_mod_cast hcard
+  have hO : 0 < O := by
+    have hcard : 0 < Fintype.card Output := Fintype.card_pos
+    change (0 : ℝ) < (Fintype.card Output : ℝ)
+    exact_mod_cast hcard
+  have hJ : J = I - 1 := by
+    have hcard : 1 ≤ Fintype.card Input := Fintype.card_pos
+    dsimp [J, I]
+    rw [Nat.cast_sub hcard]
+    norm_num
+  have hsecond := sum_fiber_card_sq_le_tight hash huniversal
+  have hcollision :
+      collisionProbability (hashed hash) ≤
+        (1 + (O - 1) / I) / Fintype.card (Seed × Output) := by
+    rw [hcollision_eq]
+    calc
+      (S⁻¹ * I⁻¹) ^ 2 *
+          ∑ seed, ∑ output,
+            ((Finset.univ.filter fun input : Input => hash seed input = output).card : ℝ) ^ 2
+          ≤ (S⁻¹ * I⁻¹) ^ 2 * (S * I + S * I * J / O) :=
+            mul_le_mul_of_nonneg_left hsecond (sq_nonneg _)
+      _ = (1 + (O - 1) / I) / (S * O) := by
+            rw [hJ]
+            field_simp
+            ring
+      _ = (1 + (O - 1) / I) / Fintype.card (Seed × Output) := by
+            simp [S, O, Fintype.card_prod]
+  simpa [ideal, O, I] using
+    (tvDist_uniform_le_of_collision (hashed hash) ((O - 1) / I) hcollision)
 
 /-! ## Binary subset-sum hashing -/
 
