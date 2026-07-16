@@ -34,3 +34,24 @@ example {F : Type} [Field F] [Fintype F] [SampleableType F]
       ($ᵗ Matrix (Fin (dimension + slack)) (Fin dimension) F)] ≤
       2 / (Fintype.card F : ℝ≥0∞) ^ (slack + 1) := by
   exact FormalProof4FHE.FiniteFieldRank.rankFailure_le dimension slack
+
+example {F : Type} [Field F] [Fintype F] [DecidableEq F] [SampleableType F]
+    {ambient dimension : ℕ} (slack queryCount : ℕ)
+    (errorSampler : ProbComp F)
+    (adversary :
+      FormalProof4FHE.GeneralizedSubspaceLWE.Adaptive.Adversary F ambient)
+    (hbound : OracleComp.IsQueryBoundP adversary
+      (FormalProof4FHE.GeneralizedSubspaceLWE.Adaptive.isSLWEQuery (F := F))
+      queryCount) :
+    FormalProof4FHE.GeneralizedSubspaceLWE.Adaptive.advantage
+        (dimension + slack) errorSampler adversary ≤
+      LearningWithErrors.advantage
+        (FormalProof4FHE.LWE.batchProblem dimension queryCount
+          ($ᵗ (Fin dimension → F)) errorSampler)
+        (FormalProof4FHE.GeneralizedSubspaceLWE.Adaptive.batchReduction
+          (dimension := dimension) (dimension + slack) queryCount adversary) +
+      2 * ((queryCount : ℝ≥0∞) *
+        FormalProof4FHE.GeneralizedSubspaceLWE.Adaptive.pietrzakRankError F slack).toReal := by
+  exact
+    FormalProof4FHE.GeneralizedSubspaceLWE.Adaptive.advantage_le_batchLWE_add_rankLoss
+      slack queryCount errorSampler adversary hbound

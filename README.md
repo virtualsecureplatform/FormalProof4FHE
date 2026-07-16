@@ -28,7 +28,8 @@ checks run inside the container; no host Lean installation is required.
   `FormalProof4FHE.Probability.LeftoverHash`.
 - `FormalProof4FHE.FiniteFieldRank.rankFailure_le` proves that a uniform
   `(d + δ) × d` finite-field matrix loses column rank with probability at most
-  `2 / |F|^(δ+1)`.
+  `2 / |F|^(δ+1)`. `rankMulFailure_le_rectangular` proves the fixed high-rank
+  overlap bridge used in Pietrzak's reduction.
 - `FormalProof4FHE.SharedRandomness.zmod_advantage_eq_batch` implements Theorem 6 of ePrint
   2023/979 as an exact reduction to ordinary LWE with `m + m` samples. The scalar error-
   convolution premise is proved to lift to IID vectors.
@@ -37,10 +38,13 @@ checks run inside the container; no host Lean installation is required.
   instance.
 - `FormalProof4FHE.GeneralizedSubspaceLWE.shared_zmod_advantage_eq_batch` states the resulting
   ordinary-LWE reduction directly in the generalized-subspace presentation.
-- `FormalProof4FHE.GeneralizedSubspaceLWE.Adaptive.adaptiveRankLossWithTape_le_pietrzak` proves
-  the adaptive first-bad/union-bound step for an arbitrary independently sampled good-transcript
-  tape. The fixed-overlap reduction to the rectangular rank experiment and full LWE simulator
-  correctness remain explicit premises of the final accounting theorem.
+- `FormalProof4FHE.GeneralizedSubspaceLWE.Adaptive.advantage_le_batchLWE_add_rankLoss` gives an
+  explicit reduction from adaptive affine-projection Subspace LWE to ordinary matrix batch LWE:
+  the SLWE advantage is at most the advantage of `batchReduction` plus
+  `2 * (Q * (2 / |F|^(δ+1))).toReal`. The affine-fiber simulator, its real and uniform branch
+  laws, the adaptive logged-transcript rank bound, and the bounded online-to-batch compilation are
+  all checked. Its only operational hypothesis is the adversary's public `Q`-query bound;
+  `advantage_le_of_batchLWE` packages the result against a supplied ordinary-LWE bound.
 
 ## Trust and proof status
 

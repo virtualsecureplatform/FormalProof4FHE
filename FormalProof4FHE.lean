@@ -5,4 +5,5 @@ import FormalProof4FHE.Probability.LeftoverHash
 import FormalProof4FHE.Probability.RankBound
 import FormalProof4FHE.SharedRandomness.Ordinary
 import FormalProof4FHE.SubspaceLWE.Adaptive
+import FormalProof4FHE.SubspaceLWE.Security
 import FormalProof4FHE.SubspaceLWE.SharedRandomness

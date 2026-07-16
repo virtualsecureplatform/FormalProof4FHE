@@ -7,6 +7,7 @@ Authors: Kotaro Matsuoka
 import FormalProof4FHE.SubspaceLWE.Basic
 import Mathlib.Algebra.Order.Field.GeomSum
 import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Card
+import Mathlib.LinearAlgebra.Projection
 
 /-!
 # Rank of a Uniform Finite-Field Matrix
@@ -23,6 +24,211 @@ open Matrix OracleComp
 open scoped ENNReal
 
 namespace FormalProof4FHE.FiniteFieldRank
+
+/-! ## Reducing a fixed high-rank left factor to a rectangular matrix
+
+The lemmas in this section close the linear-algebra bridge used by Pietrzak's Subspace-LWE
+reduction.  If a fixed square matrix `X` has rank at least `d + δ`, then multiplying a uniform
+ambient-by-`d` matrix by `X` loses column rank no more often than a fresh uniform
+`(d + δ)`-by-`d` matrix does. -/
+
+/-- Left multiplication by an invertible square matrix permutes rectangular matrices. -/
+theorem mulLeftRect_bijective {F : Type} [Field F]
+    {rows cols : Type} [Fintype rows] [DecidableEq rows]
+    (unit : Matrix rows rows F) (hunit : IsUnit unit) :
+    Function.Bijective (fun matrix : Matrix rows cols F ↦ unit * matrix) := by
+  let inverse : Matrix rows rows F := (hunit.unit⁻¹ : (Matrix rows rows F)ˣ)
+  have hleft : inverse * unit = 1 := by
+    rw [← hunit.unit_spec]
+    exact Units.inv_mul _
+  have hright : unit * inverse = 1 := by
+    rw [← hunit.unit_spec]
+    exact Units.mul_inv _
+  constructor
+  · intro first second heq
+    have h := congrArg (fun matrix ↦ inverse * matrix) heq
+    simpa [← Matrix.mul_assoc, hleft] using h
+  · intro matrix
+    refine ⟨inverse * matrix, ?_⟩
+    simp [← Matrix.mul_assoc, hright]
+
+/-- Embed the rows of a smaller full-rank block into the rank block of a normal form. -/
+private def rowEmbedding {ambient rank lower : ℕ} {rest : Type} (h : lower ≤ rank)
+    (equiv : Fin ambient ≃ Fin rank ⊕ rest) : Fin lower → Fin ambient :=
+  fun index ↦ equiv.symm (Sum.inl (Fin.castLE h index))
+
+private theorem rowEmbedding_injective {ambient rank lower : ℕ} {rest : Type}
+    (h : lower ≤ rank) (equiv : Fin ambient ≃ Fin rank ⊕ rest) :
+    Function.Injective (rowEmbedding h equiv) :=
+  equiv.symm.injective.comp (Sum.inl_injective.comp (Fin.castLE_injective h))
+
+/-- The leading rows of the rank normal form act as the identity. -/
+private theorem rankNormalForm_mul_restrict {F : Type} [Field F]
+    {ambient rank lower cols : ℕ} {rest : Type} [Fintype rest] (h : lower ≤ rank)
+    (equiv : Fin ambient ≃ Fin rank ⊕ rest)
+    (matrix : Matrix (Fin ambient) (Fin cols) F) :
+    (((fromBlocks 1 0 0 0).submatrix equiv equiv) * matrix).submatrix
+        (rowEmbedding h equiv) (Equiv.refl (Fin cols)) =
+      matrix.submatrix (rowEmbedding h equiv) (Equiv.refl (Fin cols)) := by
+  ext i j
+  simp only [Matrix.submatrix_apply, Equiv.refl_apply, Matrix.mul_apply, rowEmbedding,
+    Equiv.apply_symm_apply]
+  calc
+    (∑ x, fromBlocks 1 0 0 0 (Sum.inl (Fin.castLE h i)) (equiv x) * matrix x j) =
+        ∑ y : Fin rank ⊕ rest,
+          fromBlocks 1 0 0 0 (Sum.inl (Fin.castLE h i)) y * matrix (equiv.symm y) j := by
+      rw [← equiv.sum_comp]
+      simp only [Equiv.symm_apply_apply]
+      rfl
+    _ = matrix (equiv.symm (Sum.inl (Fin.castLE h i))) j := by
+      simp [Matrix.one_apply]
+
+/-- A high-rank square matrix can be normalized so that a row restriction witnesses every
+column-rank failure after multiplication. -/
+private theorem exists_unit_and_restriction_of_rank_ge {F : Type} [Field F]
+    (ambient lower cols : ℕ) (left : Matrix (Fin ambient) (Fin ambient) F)
+    (hleft : lower ≤ left.rank) :
+    ∃ (unit : Matrix (Fin ambient) (Fin ambient) F) (row : Fin lower → Fin ambient),
+      IsUnit unit ∧ Function.Injective row ∧
+        ∀ matrix : Matrix (Fin ambient) (Fin cols) F,
+          (left * (unit * matrix)).rank < cols →
+            (matrix.submatrix row (Equiv.refl (Fin cols))).rank < cols := by
+  classical
+  obtain ⟨rowUnit, columnUnit, equiv, hrowUnit, hcolumnUnit, hnormal⟩ :=
+    Matrix.exists_rank_normal_form left
+  refine ⟨columnUnit, rowEmbedding hleft equiv, hcolumnUnit,
+    rowEmbedding_injective hleft equiv, ?_⟩
+  intro matrix hbad
+  have hdet : IsUnit rowUnit.det := (Matrix.isUnit_iff_isUnit_det rowUnit).1 hrowUnit
+  have hbad' : (rowUnit * (left * (columnUnit * matrix))).rank < cols := by
+    rw [Matrix.rank_mul_eq_right_of_isUnit_det rowUnit (left * (columnUnit * matrix)) hdet]
+    exact hbad
+  have hproduct : rowUnit * (left * (columnUnit * matrix)) =
+      ((fromBlocks 1 0 0 0).submatrix equiv equiv) * matrix := by
+    calc
+      rowUnit * (left * (columnUnit * matrix)) =
+          (rowUnit * left * columnUnit) * matrix := by simp [Matrix.mul_assoc]
+      _ = ((fromBlocks 1 0 0 0).submatrix equiv equiv) * matrix := by rw [hnormal]
+  rw [hproduct] at hbad'
+  apply lt_of_le_of_lt _ hbad'
+  rw [← rankNormalForm_mul_restrict hleft equiv matrix]
+  exact Matrix.rank_submatrix_le _ _ _
+
+/-- Restricting independent uniform matrix rows along an injection remains uniform. -/
+theorem evalDist_restrictRows_uniform {F : Type} [Fintype F] [SampleableType F]
+    (ambient lower cols : ℕ) (row : Fin lower → Fin ambient)
+    (hrow : Function.Injective row) :
+    evalDist (do
+      let matrix ← $ᵗ Matrix (Fin ambient) (Fin cols) F
+      return matrix.submatrix row (Equiv.refl (Fin cols))) =
+      evalDist ($ᵗ Matrix (Fin lower) (Fin cols) F) := by
+  let inputEquiv : Matrix (Fin ambient) (Fin cols) F ≃
+      (Fin ambient → Fin cols → F) := Matrix.of.symm
+  let outputEquiv : (Fin lower → Fin cols → F) ≃
+      Matrix (Fin lower) (Fin cols) F := Matrix.of
+  let restrict : (Fin ambient → Fin cols → F) → (Fin lower → Fin cols → F) :=
+    fun matrix ↦ matrix ∘ row
+  have hgame :
+      (do
+        let matrix ← $ᵗ Matrix (Fin ambient) (Fin cols) F
+        return matrix.submatrix row (Equiv.refl (Fin cols))) =
+        outputEquiv <$> (restrict <$> (inputEquiv <$>
+          ($ᵗ Matrix (Fin ambient) (Fin cols) F))) := by
+    simp only [bind_pure_comp, Functor.map_map]
+    congr 1
+  rw [hgame]
+  have hinput :
+      evalDist (inputEquiv <$> ($ᵗ Matrix (Fin ambient) (Fin cols) F)) =
+        evalDist ($ᵗ (Fin ambient → Fin cols → F)) :=
+    evalDist_map_bijective_uniform_cross
+      (α := Matrix (Fin ambient) (Fin cols) F)
+      (β := Fin ambient → Fin cols → F) inputEquiv inputEquiv.bijective
+  have hrestrict :
+      evalDist (restrict <$> ($ᵗ (Fin ambient → Fin cols → F))) =
+        evalDist ($ᵗ (Fin lower → Fin cols → F)) := by
+    simpa [restrict, bind_pure_comp] using
+      (evalDist_uniformSample_map_comp_injective
+        (A := Fin lower) (B := Fin ambient) (R := Fin cols → F) hrow)
+  have hinput' := hinput
+  rw [evalDist_map] at hinput'
+  have hrestrict' := hrestrict
+  rw [evalDist_map] at hrestrict'
+  calc
+    evalDist (outputEquiv <$> (restrict <$> (inputEquiv <$>
+        ($ᵗ Matrix (Fin ambient) (Fin cols) F)))) =
+        evalDist (outputEquiv <$> (restrict <$> ($ᵗ (Fin ambient → Fin cols → F)))) := by
+      simp only [evalDist_map]
+      rw [hinput']
+    _ = evalDist (outputEquiv <$> ($ᵗ (Fin lower → Fin cols → F))) := by
+      simp only [evalDist_map]
+      rw [hrestrict']
+    _ = evalDist ($ᵗ Matrix (Fin lower) (Fin cols) F) :=
+      evalDist_map_bijective_uniform_cross
+        (α := Fin lower → Fin cols → F)
+        (β := Matrix (Fin lower) (Fin cols) F) outputEquiv outputEquiv.bijective
+
+/-- A fixed high-rank left factor has no larger rank-failure probability than the exposed
+uniform rectangular submatrix. -/
+theorem rankMulFailure_le_rectangular {F : Type} [Field F] [Fintype F]
+    [SampleableType F] (ambient dimension slack : ℕ)
+    (left : Matrix (Fin ambient) (Fin ambient) F)
+    (hleft : dimension + slack ≤ left.rank) :
+    Pr[(fun matrix : Matrix (Fin ambient) (Fin dimension) F ↦
+      (left * matrix).rank < dimension) |
+      ($ᵗ Matrix (Fin ambient) (Fin dimension) F)] ≤
+    Pr[(fun matrix : Matrix (Fin (dimension + slack)) (Fin dimension) F ↦
+      matrix.rank < dimension) |
+      ($ᵗ Matrix (Fin (dimension + slack)) (Fin dimension) F)] := by
+  classical
+  obtain ⟨unit, row, hunit, hrow, himp⟩ :=
+    exists_unit_and_restriction_of_rank_ge ambient (dimension + slack) dimension left hleft
+  let transform := fun matrix : Matrix (Fin ambient) (Fin dimension) F ↦ unit * matrix
+  let restrict := fun matrix : Matrix (Fin ambient) (Fin dimension) F ↦
+    matrix.submatrix row (Equiv.refl (Fin dimension))
+  have htransform : Function.Bijective transform := mulLeftRect_bijective unit hunit
+  have htransformDist :
+      evalDist (transform <$> ($ᵗ Matrix (Fin ambient) (Fin dimension) F)) =
+        evalDist ($ᵗ Matrix (Fin ambient) (Fin dimension) F) :=
+    evalDist_map_bijective_uniform_cross
+      (α := Matrix (Fin ambient) (Fin dimension) F)
+      (β := Matrix (Fin ambient) (Fin dimension) F) transform htransform
+  have hrestrictDist :
+      evalDist (restrict <$> ($ᵗ Matrix (Fin ambient) (Fin dimension) F)) =
+        evalDist ($ᵗ Matrix (Fin (dimension + slack)) (Fin dimension) F) := by
+    rw [show restrict <$> ($ᵗ Matrix (Fin ambient) (Fin dimension) F) =
+        (do
+          let matrix ← $ᵗ Matrix (Fin ambient) (Fin dimension) F
+          return matrix.submatrix row (Equiv.refl (Fin dimension))) by
+      simp only [restrict, bind_pure_comp]]
+    exact evalDist_restrictRows_uniform ambient (dimension + slack) dimension row hrow
+  calc
+    Pr[(fun matrix : Matrix (Fin ambient) (Fin dimension) F ↦
+        (left * matrix).rank < dimension) |
+        ($ᵗ Matrix (Fin ambient) (Fin dimension) F)] =
+      Pr[(fun matrix : Matrix (Fin ambient) (Fin dimension) F ↦
+        (left * matrix).rank < dimension) |
+        transform <$> ($ᵗ Matrix (Fin ambient) (Fin dimension) F)] :=
+      probEvent_congr' (fun _ _ ↦ Iff.rfl) htransformDist.symm
+    _ = Pr[(fun matrix : Matrix (Fin ambient) (Fin dimension) F ↦
+        (left * transform matrix).rank < dimension) |
+        ($ᵗ Matrix (Fin ambient) (Fin dimension) F)] := by
+      rw [probEvent_map]
+      rfl
+    _ ≤ Pr[(fun matrix : Matrix (Fin ambient) (Fin dimension) F ↦
+        (restrict matrix).rank < dimension) |
+        ($ᵗ Matrix (Fin ambient) (Fin dimension) F)] := by
+      apply probEvent_mono
+      intro matrix _ hbad
+      exact himp matrix hbad
+    _ = Pr[(fun matrix : Matrix (Fin (dimension + slack)) (Fin dimension) F ↦
+        matrix.rank < dimension) |
+        restrict <$> ($ᵗ Matrix (Fin ambient) (Fin dimension) F)] := by
+      rw [probEvent_map]
+      rfl
+    _ = Pr[(fun matrix : Matrix (Fin (dimension + slack)) (Fin dimension) F ↦
+        matrix.rank < dimension) |
+        ($ᵗ Matrix (Fin (dimension + slack)) (Fin dimension) F)] :=
+      probEvent_congr' (fun _ _ ↦ Iff.rfl) hrestrictDist
 
 /-- A real-valued union bound for the complement of a finite product. -/
 theorem one_sub_prod_one_sub_le_sum {ι : Type} [Fintype ι] [LinearOrder ι]

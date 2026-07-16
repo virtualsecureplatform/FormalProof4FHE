@@ -24,10 +24,10 @@ fixed-query estimate `ε` lifts to `Q * ε` for `Q` adaptive queries, provided t
 pre-failure view is independent of the hidden matrix.  This is exactly the independence supplied
 by the affine blinding vector in Pietrzak's simulator.
 
-The rectangular finite-field rank estimate is proved in `Probability.RankBound`.  The remaining
-bridge from a high-rank query overlap to that rectangular experiment, and the construction and
-correctness proof of the LWE simulator, are deliberately exposed as separate premises.  Thus the
-adaptive theorem below does not hide either ingredient as an axiom.
+The rectangular finite-field rank estimate and the bridge from a fixed high-rank overlap are
+proved in `Probability.RankBound`.  The companion `Simulator` and `Security` modules construct
+the concrete LWE simulator, compile it to ordinary batch LWE, and discharge the adaptive
+rank-loss accounting against the actual oracle transcript.
 -/
 
 open Matrix OracleComp OracleSpec
@@ -397,20 +397,46 @@ theorem rectangularRankFailure_le_pietrzak {R : Type}
       pietrzakRankError R slack :=
   FormalProof4FHE.FiniteFieldRank.rankFailure_le lweDimension slack
 
-/-- Once the fixed-query rank lemma is supplied with Pietrzak's explicit estimate, the complete
-adaptive loss is `Q · 2 / |R|^(δ+1)`. -/
+/-- Pietrzak's fixed-query overlap lemma: every admissible overlap loses rank after multiplication
+by the uniform hidden matrix with probability at most `2 / |R|^(δ+1)`. -/
+theorem fixedRankLossBound_pietrzak {R : Type}
+    [Field R] [Fintype R] [DecidableEq R] [SampleableType R]
+    (ambientDimension lweDimension slack : ℕ) :
+    FixedRankLossBound (R := R) (ambientDimension := ambientDimension)
+      lweDimension (lweDimension + slack) (pietrzakRankError R slack) := by
+  intro query
+  by_cases hquery : query.IsAdmissible (lweDimension + slack)
+  · calc
+      Pr[(fun hidden ↦ rankLoss lweDimension (lweDimension + slack) hidden query = true) |
+          ($ᵗ HiddenMatrix R ambientDimension lweDimension)] ≤
+        Pr[(fun hidden : Matrix (Fin ambientDimension) (Fin lweDimension) R ↦
+            (query.overlap * hidden).rank < lweDimension) |
+          ($ᵗ Matrix (Fin ambientDimension) (Fin lweDimension) R)] := by
+            apply probEvent_mono
+            intro hidden _ hbad
+            simpa [rankLoss, hquery] using hbad
+      _ ≤ Pr[(fun matrix : Matrix (Fin (lweDimension + slack)) (Fin lweDimension) R ↦
+            matrix.rank < lweDimension) |
+          ($ᵗ Matrix (Fin (lweDimension + slack)) (Fin lweDimension) R)] :=
+        FormalProof4FHE.FiniteFieldRank.rankMulFailure_le_rectangular
+          ambientDimension lweDimension slack query.overlap hquery
+      _ ≤ pietrzakRankError R slack :=
+        rectangularRankFailure_le_pietrzak lweDimension slack
+  · simp [rankLoss, hquery]
+
+/-- Pietrzak's fixed-query rank lemma gives the complete adaptive loss
+`Q · 2 / |R|^(δ+1)`. -/
 theorem adaptiveRankLossWithTape_le_pietrzak {R Tape : Type}
     [Field R] [DecidableEq R] [Fintype R] [SampleableType R]
     (tapeSampler : ProbComp Tape) (ambientDimension lweDimension slack queryCount : ℕ)
-    (strategy : Tape → List Bool → Query R ambientDimension)
-    (hFixed : FixedRankLossBound (R := R) (ambientDimension := ambientDimension)
-      lweDimension (lweDimension + slack) (pietrzakRankError R slack)) :
+    (strategy : Tape → List Bool → Query R ambientDimension) :
     Pr[(fun fired : Bool ↦ fired = true) |
       adaptiveRankLossGameWithTape tapeSampler lweDimension (lweDimension + slack)
         queryCount strategy] ≤
       (queryCount : ℝ≥0∞) * pietrzakRankError R slack :=
   adaptiveRankLossWithTape_le tapeSampler lweDimension (lweDimension + slack)
-    queryCount (pietrzakRankError R slack) strategy hFixed
+    queryCount (pietrzakRankError R slack) strategy
+      (fixedRankLossBound_pietrzak ambientDimension lweDimension slack)
 
 /-! ## Security accounting -/
 
@@ -469,8 +495,9 @@ theorem advantage_le_lwe_add_rankLoss
       dsimp [realGap, uniformGap]
       linarith
 
-/-- End-to-end security accounting after the fixed-query rank estimate and simulator correctness
-have been discharged: adaptive SLWE advantage is at most LWE advantage plus `(Q * ε).toReal`. -/
+/-- Reusable abstract security accounting: supplied fixed-query and simulator-correctness
+properties imply that adaptive SLWE advantage is at most LWE advantage plus `(Q * ε).toReal`.
+The concrete `Security` module discharges these properties without retaining them as premises. -/
 theorem advantage_le_lwe_add_adaptiveRankLoss {R Tape : Type}
     [Field R] [DecidableEq R] [SampleableType R]
     {ambientDimension : ℕ}
