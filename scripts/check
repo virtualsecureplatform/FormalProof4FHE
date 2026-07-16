@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT=$(cd -- "$(dirname -- "$0")/.." && pwd)
+
+"${ROOT}/scripts/in-container" lake exe cache get
+"${ROOT}/scripts/in-container" lake build FormalProof4FHE FormalProof4FHETest
+"${ROOT}/scripts/in-container" lake env lean -DwarningAsError=true \
+  FormalProof4FHETest/AxiomAudit.lean
+"${ROOT}/scripts/in-container" lake env lean -DwarningAsError=true \
+  FormalProof4FHETest/Smoke.lean

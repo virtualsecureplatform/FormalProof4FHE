@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT=$(cd -- "$(dirname -- "$0")/.." && pwd)
+IMAGE=${ROOT}/build/formalproof4fhe.sif
+
+mkdir -p "${ROOT}/build"
+exec singularity build --force --fakeroot "${IMAGE}" "${ROOT}/container/Singularity.def"

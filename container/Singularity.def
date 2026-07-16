@@ -1,0 +1,52 @@
+Bootstrap: docker
+From: ubuntu:24.04@sha256:4fbb8e6a8395de5a7550b33509421a2bafbc0aab6c06ba2cef9ebffbc7092d90
+
+%labels
+    org.opencontainers.image.title FormalProof4FHE Lean environment
+    org.opencontainers.image.version lean-4.32.0
+    org.opencontainers.image.source https://github.com/virtualsecureplatform/FormalProof4FHE
+
+%environment
+    export ELAN_HOME=/opt/elan
+    export PATH=/opt/elan/bin:${PATH}
+    export LANG=C.UTF-8
+    export LC_ALL=C.UTF-8
+
+%post
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update
+    apt-get install -y --no-install-recommends \
+        build-essential \
+        ca-certificates \
+        clang \
+        cmake \
+        curl \
+        git \
+        libatomic1 \
+        libgmp-dev \
+        ninja-build \
+        pkg-config \
+        unzip \
+        xz-utils \
+        zstd
+    rm -rf /var/lib/apt/lists/*
+
+    export ELAN_HOME=/opt/elan
+    export PATH=/opt/elan/bin:${PATH}
+    curl --proto '=https' --tlsv1.2 -fsSL \
+        https://raw.githubusercontent.com/leanprover/elan/v4.2.3/elan-init.sh \
+        -o /tmp/elan-init.sh
+    echo "a620ff1641616222c8d37c54845492004bb84d6877cdbc944dd65c1aa685bf53  /tmp/elan-init.sh" \
+        | sha256sum -c -
+    sh /tmp/elan-init.sh -y --default-toolchain none
+    rm /tmp/elan-init.sh
+    elan toolchain install leanprover/lean4:v4.32.0
+    elan default leanprover/lean4:v4.32.0
+    chmod -R a+rX /opt/elan
+
+%test
+    export ELAN_HOME=/opt/elan
+    export PATH=/opt/elan/bin:${PATH}
+    test "$(lean --version | sed -n '1p')" != ""
+    test "$(lake --version | sed -n '1p')" != ""
+    git --version

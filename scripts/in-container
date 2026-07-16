@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT=$(cd -- "$(dirname -- "$0")/.." && pwd)
+IMAGE=${ROOT}/build/formalproof4fhe.sif
+
+if [[ ! -f "${IMAGE}" ]]; then
+  echo "container image not found: ${IMAGE}" >&2
+  echo "run scripts/container-build first" >&2
+  exit 1
+fi
+
+exec singularity exec --userns --cleanenv \
+  --bind "${ROOT}:/workspace" \
+  --pwd /workspace \
+  "${IMAGE}" "$@"
