@@ -6,6 +6,8 @@ Authors: Kotaro Matsuoka
 
 import FormalProof4FHE
 
+open scoped ENNReal
+
 example {Sample Secret Output : Type} [Add Output]
     (problem : LearningWithErrors.Problem Sample Secret Output)
     (adversary : LearningWithErrors.Adversary problem) :
@@ -24,3 +26,11 @@ example {R : Type} [Semiring R] [DecidableEq R] [SampleableType R]
           prefixSampler suffixSampler smallErrorSampler largeErrorSampler) := by
   exact FormalProof4FHE.GeneralizedSubspaceLWE.shared_problem_eq_generalized
     n k m prefixSampler suffixSampler smallErrorSampler largeErrorSampler
+
+example {F : Type} [Field F] [Fintype F] [SampleableType F]
+    (dimension slack : ℕ) :
+    Pr[(fun matrix : Matrix (Fin (dimension + slack)) (Fin dimension) F ↦
+      matrix.rank < dimension) |
+      ($ᵗ Matrix (Fin (dimension + slack)) (Fin dimension) F)] ≤
+      2 / (Fintype.card F : ℝ≥0∞) ^ (slack + 1) := by
+  exact FormalProof4FHE.FiniteFieldRank.rankFailure_le dimension slack
