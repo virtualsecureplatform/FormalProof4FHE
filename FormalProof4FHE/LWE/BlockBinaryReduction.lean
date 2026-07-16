@@ -21,13 +21,18 @@ The sharp final bound separates three ingredients:
 * one signed, randomized-row ordinary narrow-error LWE reduction for pseudorandomizing
   `C * B + Z`, retaining cancellation between masking sides and rows;
 * ordinary wide-error LWE for the extracted secret;
-* one exact joint statistical gap for noise absorption and extraction.
+* either one exact joint statistical gap, or a proved analytic split into noise absorption and
+  extraction.
 
-The noise-absorption distance is left explicit.  For the Gaussian parameters in the paper this
-is the analytic statement controlled by the ratio of the narrow and wide errors; keeping it as a
-finite `tvDist` makes the computational reduction independent of a particular Gaussian library.
-A convenience corollary splits the joint gap using the tight finite leftover-hash term with
-numerator `|R| ^ extractedDimension - 1`, and all flagship bounds are capped at one.
+The noise-absorption proof works one selected narrow entry at a time.  Translation invariance and
+the TV triangle inequality reduce the vector shift to an average scalar shift cost, while every
+flattened block-key bit is active with exact probability `1 / (blockLength + 1)`.  Consequently the
+full absorption loss is at most
+`sampleCount * blockCount * blockLength / (blockLength + 1)` times the average scalar shift TV,
+capped at one.  A moment corollary accepts a one-dimensional shift inequality and narrow-error
+first-moment bound, which is the remaining Gaussian-specific analytic input.  Extraction uses the
+tight finite leftover-hash numerator `|R| ^ extractedDimension - 1`; all flagship bounds are capped
+at one.
 -/
 
 open Matrix OracleComp
@@ -61,6 +66,26 @@ def matrixErrorSampler {R : Type} (rowCount sampleCount : ℕ)
     ProbComp (Matrix (Fin rowCount) (Fin sampleCount) R) :=
   Matrix.of <$> ProbComp.sampleIID rowCount
     (ProbComp.sampleIID sampleCount errorSampler)
+
+/-- Every entry of the independently sampled error matrix has the original scalar marginal. -/
+theorem tsum_probOutput_matrixErrorSampler_apply_mul {R : Type}
+    (rowCount sampleCount : ℕ) (errorSampler : ProbComp R)
+    (row : Fin rowCount) (output : Fin sampleCount) (cost : R → ENNReal) :
+    (∑' matrix,
+      Pr[= matrix | matrixErrorSampler rowCount sampleCount errorSampler] *
+        cost (matrix row output)) =
+      ∑' error, Pr[= error | errorSampler] * cost error := by
+  rw [matrixErrorSampler, tsum_probOutput_map_mul]
+  change
+    (∑' rows,
+      Pr[= rows |
+        Fin.mOfFn rowCount (fun _ => Fin.mOfFn sampleCount fun _ => errorSampler)] *
+        cost (rows row output)) = _
+  rw [FormalProof4FHE.FiniteProduct.tsum_probOutput_fin_mOfFn_apply_mul
+    rowCount (fun _ => Fin.mOfFn sampleCount fun _ => errorSampler) row
+    (fun values => cost (values output))]
+  exact FormalProof4FHE.FiniteProduct.tsum_probOutput_fin_mOfFn_apply_mul
+    sampleCount (fun _ => errorSampler) output cost
 
 /-- The matrix-LWE problem used to mask the structured challenge `C * B + Z`.
 
@@ -165,6 +190,86 @@ def structuredUniformTranscript {R : Type}
   let uniform ← $ᵗ (Fin sampleCount → R)
   return (extractor * sourceMatrix + matrixError, uniform)
 
+/-- The shared public and narrow-noise state in the real and noise-absorbed transcripts. -/
+structure NoiseAbsorptionContext (R : Type)
+    (blockLength blockCount extractedDimension sampleCount : ℕ) where
+  extractor : Matrix (Fin (blockCount * blockLength)) (Fin extractedDimension) R
+  key : Key blockLength blockCount
+  sourceMatrix : Matrix (Fin extractedDimension) (Fin sampleCount) R
+  matrixError : Matrix (Fin (blockCount * blockLength)) (Fin sampleCount) R
+  deriving Fintype
+
+/-- Sample all state shared by the two sides of the noise-absorption hop. -/
+def noiseAbsorptionContextSampler {R : Type} [SampleableType R]
+    (blockLength blockCount extractedDimension sampleCount : ℕ)
+    (narrowErrorSampler : ProbComp R) :
+    ProbComp
+      (NoiseAbsorptionContext R blockLength blockCount extractedDimension sampleCount) := do
+  let extractor ←
+    $ᵗ Matrix (Fin (blockCount * blockLength)) (Fin extractedDimension) R
+  let key ← $ᵗ (Key blockLength blockCount)
+  let sourceMatrix ←
+    $ᵗ Matrix (Fin extractedDimension) (Fin sampleCount) R
+  let matrixError ← matrixErrorSampler (blockCount * blockLength)
+    sampleCount narrowErrorSampler
+  return ⟨extractor, key, sourceMatrix, matrixError⟩
+
+/-- Continue a fixed shared state with the actual correlated narrow-noise shift. -/
+def structuredNoiseContinuation {R : Type} [Semiring R]
+    (blockLength blockCount extractedDimension sampleCount : ℕ)
+    (wideErrorSampler : ProbComp R)
+    (context :
+      NoiseAbsorptionContext R blockLength blockCount extractedDimension sampleCount) :
+    ProbComp
+      (Matrix (Fin (blockCount * blockLength)) (Fin sampleCount) R ×
+        (Fin sampleCount → R)) := do
+  let wideError ← ProbComp.sampleIID sampleCount wideErrorSampler
+  let challenge := context.extractor * context.sourceMatrix + context.matrixError
+  return (challenge, vecMul (expand R context.key) challenge + wideError)
+
+/-- Continue the same state after dropping the correlated narrow-noise shift. -/
+def absorbedNoiseContinuation {R : Type} [Semiring R]
+    (blockLength blockCount extractedDimension sampleCount : ℕ)
+    (wideErrorSampler : ProbComp R)
+    (context :
+      NoiseAbsorptionContext R blockLength blockCount extractedDimension sampleCount) :
+    ProbComp
+      (Matrix (Fin (blockCount * blockLength)) (Fin sampleCount) R ×
+        (Fin sampleCount → R)) := do
+  let wideError ← ProbComp.sampleIID sampleCount wideErrorSampler
+  let challenge := context.extractor * context.sourceMatrix + context.matrixError
+  return (challenge,
+    vecMul (extractorHash context.extractor context.key) context.sourceMatrix + wideError)
+
+/-- The canonical real transcript factors through the shared absorption context. -/
+theorem structuredRealTranscript_eq_context_bind {R : Type}
+    [Semiring R] [SampleableType R]
+    (blockLength blockCount extractedDimension sampleCount : ℕ)
+    (narrowErrorSampler wideErrorSampler : ProbComp R) :
+    structuredRealTranscript blockLength blockCount extractedDimension sampleCount
+        narrowErrorSampler wideErrorSampler =
+      noiseAbsorptionContextSampler blockLength blockCount extractedDimension sampleCount
+          narrowErrorSampler >>=
+        structuredNoiseContinuation blockLength blockCount extractedDimension sampleCount
+          wideErrorSampler := by
+  simp [structuredRealTranscript, noiseAbsorptionContextSampler,
+    structuredNoiseContinuation, monad_norm]
+
+/-- The noise ideal factors through the same context and only changes the final continuation. -/
+theorem noiseIdealTranscript_eq_context_bind {R : Type}
+    [Ring R] [SampleableType R]
+    (blockLength blockCount extractedDimension sampleCount : ℕ)
+    (narrowErrorSampler wideErrorSampler : ProbComp R) :
+    noiseIdealTranscript blockLength blockCount extractedDimension sampleCount
+        narrowErrorSampler wideErrorSampler =
+      noiseAbsorptionContextSampler blockLength blockCount extractedDimension sampleCount
+          narrowErrorSampler >>=
+        absorbedNoiseContinuation blockLength blockCount extractedDimension sampleCount
+          wideErrorSampler := by
+  simp [noiseIdealTranscript, FormalProof4FHE.LeftoverHash.hashed,
+    extractorContinuation, noiseAbsorptionContextSampler, absorbedNoiseContinuation,
+    monad_norm]
+
 /-- Exact finite statistical cost of absorbing `expand(key) ᵥ* Z` into the wide error. -/
 noncomputable def noiseAbsorptionGap {R : Type}
     [Ring R] [Fintype R] [DecidableEq R] [SampleableType R]
@@ -175,6 +280,661 @@ noncomputable def noiseAbsorptionGap {R : Type}
       narrowErrorSampler wideErrorSampler)
     (noiseIdealTranscript blockLength blockCount extractedDimension sampleCount
       narrowErrorSampler wideErrorSampler)
+
+/-- ENNReal-valued average scalar cost of absorbing one independently sampled narrow error into
+one wide-error sample. -/
+noncomputable def scalarNoiseAbsorptionCostENN {R : Type} [Add R]
+    (narrowErrorSampler wideErrorSampler : ProbComp R) : ENNReal :=
+  ∑' error,
+    Pr[= error | narrowErrorSampler] *
+      ENNReal.ofReal
+        (FormalProof4FHE.FiniteProduct.addShiftDistance wideErrorSampler error)
+
+/-- Exact average scalar absorption cost as a real number.  Unlike a worst-case radius, this
+retains the full narrow-error distribution and therefore needs no Gaussian tail truncation. -/
+noncomputable def scalarNoiseAbsorptionCost {R : Type} [Add R]
+    (narrowErrorSampler wideErrorSampler : ProbComp R) : ℝ :=
+  (scalarNoiseAbsorptionCostENN narrowErrorSampler wideErrorSampler).toReal
+
+/-- Nonnegative selected-entry budget for a fixed shared noise-absorption context. -/
+noncomputable def selectedNoiseAbsorptionCostENN {R : Type} [Add R]
+    (blockLength blockCount extractedDimension sampleCount : ℕ)
+    (wideErrorSampler : ProbComp R)
+    (context :
+      NoiseAbsorptionContext R blockLength blockCount extractedDimension sampleCount) :
+    ENNReal :=
+  ∑ output, ∑ coordinate,
+    if bits context.key coordinate then
+      ENNReal.ofReal
+        (FormalProof4FHE.FiniteProduct.addShiftDistance wideErrorSampler
+          (context.matrixError coordinate output))
+    else 0
+
+/-- The average scalar TV cost is a genuine probability-scale quantity. -/
+theorem scalarNoiseAbsorptionCostENN_le_one {R : Type} [Add R]
+    (narrowErrorSampler wideErrorSampler : ProbComp R) :
+    scalarNoiseAbsorptionCostENN narrowErrorSampler wideErrorSampler ≤ 1 := by
+  unfold scalarNoiseAbsorptionCostENN
+  calc
+    (∑' error,
+      Pr[= error | narrowErrorSampler] *
+        ENNReal.ofReal
+          (FormalProof4FHE.FiniteProduct.addShiftDistance wideErrorSampler error)) ≤
+        ∑' error, Pr[= error | narrowErrorSampler] * 1 := by
+          apply ENNReal.tsum_le_tsum
+          intro error
+          simpa [mul_comm] using mul_le_mul_left
+            (show ENNReal.ofReal
+                (FormalProof4FHE.FiniteProduct.addShiftDistance wideErrorSampler error) ≤ 1 by
+              rw [← ENNReal.ofReal_one]
+              exact ENNReal.ofReal_le_ofReal (tvDist_le_one _ _))
+            Pr[= error | narrowErrorSampler]
+    _ = 1 := FormalProof4FHE.FiniteProduct.tsum_probOutput_mul_const
+      narrowErrorSampler 1
+
+/-- A fixed flattened bit of a uniform compact block key is selected with exact probability
+`1 / (blockLength + 1)`. -/
+theorem probEvent_bits_uniform_key (blockLength blockCount : ℕ)
+    (coordinate : Fin (blockCount * blockLength)) :
+    Pr[(fun key : Key blockLength blockCount => bits key coordinate = true) |
+        $ᵗ (Key blockLength blockCount)] =
+      (blockLength + 1 : ENNReal)⁻¹ := by
+  classical
+  let pair : Fin blockCount × Fin blockLength := finProdFinEquiv.symm coordinate
+  let selected : Fin (blockLength + 1) :=
+    (finSuccEquiv blockLength).symm (some pair.2)
+  have hmarg :=
+    FormalProof4FHE.FiniteProduct.evalDist_map_apply_uniformSample_fun
+      (domain := Fin blockCount) (codomain := Fin (blockLength + 1)) pair.1
+  have hprob :
+      Pr[= selected |
+          (fun key : Key blockLength blockCount => key pair.1) <$>
+            ($ᵗ (Key blockLength blockCount))] =
+        Pr[= selected | $ᵗ (Fin (blockLength + 1))] :=
+    evalDist_ext_iff.mp hmarg selected
+  calc
+    Pr[(fun key : Key blockLength blockCount => bits key coordinate = true) |
+        $ᵗ (Key blockLength blockCount)] =
+        Pr[= selected |
+          (fun key : Key blockLength blockCount => key pair.1) <$>
+            ($ᵗ (Key blockLength blockCount))] := by
+          rw [probOutput_map]
+          congr 1
+          funext key
+          apply propext
+          simp [bits, pairedBits, oneHot, pair, selected]
+    _ = Pr[= selected | $ᵗ (Fin (blockLength + 1))] := hprob
+    _ = (blockLength + 1 : ENNReal)⁻¹ := by
+      simp [probOutput_uniformSample]
+
+/-- Exact expected absorption cost of one fixed matrix entry after averaging over the uniform
+block key and the independent narrow-error matrix. -/
+theorem expected_selected_matrix_entry {R : Type} [Add R]
+    (blockLength blockCount sampleCount : ℕ)
+    (narrowErrorSampler wideErrorSampler : ProbComp R)
+    (coordinate : Fin (blockCount * blockLength)) (output : Fin sampleCount) :
+    (∑' key : Key blockLength blockCount,
+      Pr[= key | $ᵗ (Key blockLength blockCount)] *
+        ∑' matrixError,
+          Pr[= matrixError |
+            matrixErrorSampler (blockCount * blockLength) sampleCount narrowErrorSampler] *
+            if bits key coordinate then
+              ENNReal.ofReal
+                (FormalProof4FHE.FiniteProduct.addShiftDistance wideErrorSampler
+                  (matrixError coordinate output))
+            else 0) =
+      (blockLength + 1 : ENNReal)⁻¹ *
+        scalarNoiseAbsorptionCostENN narrowErrorSampler wideErrorSampler := by
+  let scalarCost : ENNReal :=
+    scalarNoiseAbsorptionCostENN narrowErrorSampler wideErrorSampler
+  have hmatrix :
+      (∑' matrixError,
+        Pr[= matrixError |
+          matrixErrorSampler (blockCount * blockLength) sampleCount narrowErrorSampler] *
+          ENNReal.ofReal
+            (FormalProof4FHE.FiniteProduct.addShiftDistance wideErrorSampler
+              (matrixError coordinate output))) = scalarCost := by
+    exact tsum_probOutput_matrixErrorSampler_apply_mul
+      (blockCount * blockLength) sampleCount narrowErrorSampler coordinate output
+      (fun error => ENNReal.ofReal
+        (FormalProof4FHE.FiniteProduct.addShiftDistance wideErrorSampler error))
+  calc
+    (∑' key : Key blockLength blockCount,
+      Pr[= key | $ᵗ (Key blockLength blockCount)] *
+        ∑' matrixError,
+          Pr[= matrixError |
+            matrixErrorSampler (blockCount * blockLength) sampleCount narrowErrorSampler] *
+            if bits key coordinate then
+              ENNReal.ofReal
+                (FormalProof4FHE.FiniteProduct.addShiftDistance wideErrorSampler
+                  (matrixError coordinate output))
+            else 0) =
+        ∑' key : Key blockLength blockCount,
+          Pr[= key | $ᵗ (Key blockLength blockCount)] *
+            if bits key coordinate then scalarCost else 0 := by
+              apply tsum_congr
+              intro key
+              congr 1
+              by_cases hbit : bits key coordinate <;> simp [hbit, hmatrix]
+    _ = (∑' key : Key blockLength blockCount,
+          if bits key coordinate then
+            Pr[= key | $ᵗ (Key blockLength blockCount)]
+          else 0) * scalarCost := by
+      calc
+        (∑' key : Key blockLength blockCount,
+          Pr[= key | $ᵗ (Key blockLength blockCount)] *
+            if bits key coordinate then scalarCost else 0) =
+            ∑' key : Key blockLength blockCount,
+              (if bits key coordinate then
+                Pr[= key | $ᵗ (Key blockLength blockCount)] else 0) * scalarCost := by
+                  apply tsum_congr
+                  intro key
+                  by_cases hbit : bits key coordinate <;> simp [hbit]
+        _ = (∑' key : Key blockLength blockCount,
+              if bits key coordinate then
+                Pr[= key | $ᵗ (Key blockLength blockCount)] else 0) * scalarCost :=
+          ENNReal.tsum_mul_right
+    _ = Pr[(fun key : Key blockLength blockCount => bits key coordinate = true) |
+          $ᵗ (Key blockLength blockCount)] * scalarCost := by
+      rw [probEvent_eq_tsum_ite]
+    _ = (blockLength + 1 : ENNReal)⁻¹ *
+        scalarNoiseAbsorptionCostENN narrowErrorSampler wideErrorSampler := by
+      rw [probEvent_bits_uniform_key]
+
+/-- Summing the exact single-entry expectation over all samples and flattened coordinates gives
+the exact average active-coordinate factor `sampleCount * blockCount * blockLength /
+(blockLength + 1)`. -/
+theorem expected_selected_matrix_sum {R : Type} [Add R]
+    (blockLength blockCount sampleCount : ℕ)
+    (narrowErrorSampler wideErrorSampler : ProbComp R) :
+    (∑' key : Key blockLength blockCount,
+      Pr[= key | $ᵗ (Key blockLength blockCount)] *
+        ∑' matrixError,
+          Pr[= matrixError |
+            matrixErrorSampler (blockCount * blockLength) sampleCount narrowErrorSampler] *
+            ∑ output, ∑ coordinate,
+              if bits key coordinate then
+                ENNReal.ofReal
+                  (FormalProof4FHE.FiniteProduct.addShiftDistance wideErrorSampler
+                    (matrixError coordinate output))
+              else 0) =
+      (sampleCount : ENNReal) * (blockCount * blockLength : ENNReal) *
+        (blockLength + 1 : ENNReal)⁻¹ *
+          scalarNoiseAbsorptionCostENN narrowErrorSampler wideErrorSampler := by
+  classical
+  let matrixSampler :=
+    matrixErrorSampler (blockCount * blockLength) sampleCount narrowErrorSampler
+  let entryCost (key : Key blockLength blockCount)
+      (matrixError : Matrix (Fin (blockCount * blockLength)) (Fin sampleCount) R)
+      (output : Fin sampleCount) (coordinate : Fin (blockCount * blockLength)) : ENNReal :=
+    if bits key coordinate then
+      ENNReal.ofReal
+        (FormalProof4FHE.FiniteProduct.addShiftDistance wideErrorSampler
+          (matrixError coordinate output))
+    else 0
+  have hmatrixSum (key : Key blockLength blockCount) :
+      (∑' matrixError,
+        Pr[= matrixError | matrixSampler] *
+          ∑ output, ∑ coordinate, entryCost key matrixError output coordinate) =
+        ∑ output, ∑ coordinate,
+          ∑' matrixError,
+            Pr[= matrixError | matrixSampler] *
+              entryCost key matrixError output coordinate := by
+    rw [FormalProof4FHE.FiniteProduct.tsum_probOutput_mul_finset_sum
+      matrixSampler Finset.univ
+      (fun output matrixError =>
+        ∑ coordinate, entryCost key matrixError output coordinate)]
+    apply Finset.sum_congr rfl
+    intro output _
+    exact FormalProof4FHE.FiniteProduct.tsum_probOutput_mul_finset_sum
+      matrixSampler Finset.univ (fun coordinate matrixError =>
+        entryCost key matrixError output coordinate)
+  calc
+    (∑' key : Key blockLength blockCount,
+      Pr[= key | $ᵗ (Key blockLength blockCount)] *
+        ∑' matrixError,
+          Pr[= matrixError |
+            matrixErrorSampler (blockCount * blockLength) sampleCount narrowErrorSampler] *
+            ∑ output, ∑ coordinate,
+              if bits key coordinate then
+                ENNReal.ofReal
+                  (FormalProof4FHE.FiniteProduct.addShiftDistance wideErrorSampler
+                    (matrixError coordinate output))
+              else 0) =
+        ∑' key : Key blockLength blockCount,
+          Pr[= key | $ᵗ (Key blockLength blockCount)] *
+            ∑ output, ∑ coordinate,
+              ∑' matrixError,
+                Pr[= matrixError | matrixSampler] *
+                  entryCost key matrixError output coordinate := by
+                    apply tsum_congr
+                    intro key
+                    rw [hmatrixSum]
+    _ = ∑ output, ∑ coordinate,
+        ∑' key : Key blockLength blockCount,
+          Pr[= key | $ᵗ (Key blockLength blockCount)] *
+            ∑' matrixError,
+              Pr[= matrixError | matrixSampler] *
+                entryCost key matrixError output coordinate := by
+      rw [FormalProof4FHE.FiniteProduct.tsum_probOutput_mul_finset_sum
+        ($ᵗ (Key blockLength blockCount)) Finset.univ
+        (fun output key =>
+          ∑ coordinate,
+            ∑' matrixError,
+              Pr[= matrixError | matrixSampler] *
+                entryCost key matrixError output coordinate)]
+      apply Finset.sum_congr rfl
+      intro output _
+      exact FormalProof4FHE.FiniteProduct.tsum_probOutput_mul_finset_sum
+        ($ᵗ (Key blockLength blockCount)) Finset.univ
+        (fun coordinate key =>
+          ∑' matrixError,
+            Pr[= matrixError | matrixSampler] *
+              entryCost key matrixError output coordinate)
+    _ = ∑ output : Fin sampleCount, ∑ coordinate : Fin (blockCount * blockLength),
+        (blockLength + 1 : ENNReal)⁻¹ *
+          scalarNoiseAbsorptionCostENN narrowErrorSampler wideErrorSampler := by
+      apply Finset.sum_congr rfl
+      intro output _
+      apply Finset.sum_congr rfl
+      intro coordinate _
+      exact expected_selected_matrix_entry blockLength blockCount sampleCount
+        narrowErrorSampler wideErrorSampler coordinate output
+    _ = (sampleCount : ENNReal) * (blockCount * blockLength : ENNReal) *
+        (blockLength + 1 : ENNReal)⁻¹ *
+          scalarNoiseAbsorptionCostENN narrowErrorSampler wideErrorSampler := by
+      simp only [Finset.sum_const, Finset.card_univ, Fintype.card_fin,
+        nsmul_eq_mul, Nat.cast_mul]
+      ring
+
+/-- The same exact expectation for the full shared context; the extractor and source matrix
+integrate out because the selected noise budget depends only on the key and error matrix. -/
+theorem expected_selected_context {R : Type}
+    [Fintype R] [SampleableType R] [Add R]
+    (blockLength blockCount extractedDimension sampleCount : ℕ)
+    (narrowErrorSampler wideErrorSampler : ProbComp R) :
+    (∑' context,
+      Pr[= context |
+        noiseAbsorptionContextSampler blockLength blockCount extractedDimension sampleCount
+          narrowErrorSampler] *
+        selectedNoiseAbsorptionCostENN blockLength blockCount extractedDimension sampleCount
+          wideErrorSampler context) =
+      (sampleCount : ENNReal) * (blockCount * blockLength : ENNReal) *
+        (blockLength + 1 : ENNReal)⁻¹ *
+          scalarNoiseAbsorptionCostENN narrowErrorSampler wideErrorSampler := by
+  rw [noiseAbsorptionContextSampler, tsum_probOutput_bind_mul]
+  simp only [tsum_probOutput_bind_mul, tsum_probOutput_pure_mul]
+  change
+    (∑' extractor,
+      Pr[= extractor |
+        $ᵗ Matrix (Fin (blockCount * blockLength)) (Fin extractedDimension) R] *
+        ∑' key : Key blockLength blockCount,
+          Pr[= key | $ᵗ (Key blockLength blockCount)] *
+            ∑' sourceMatrix,
+              Pr[= sourceMatrix |
+                $ᵗ Matrix (Fin extractedDimension) (Fin sampleCount) R] *
+                ∑' matrixError,
+                  Pr[= matrixError |
+                    matrixErrorSampler (blockCount * blockLength) sampleCount
+                      narrowErrorSampler] *
+                    ∑ output, ∑ coordinate,
+                      if bits key coordinate then
+                        ENNReal.ofReal
+                          (FormalProof4FHE.FiniteProduct.addShiftDistance wideErrorSampler
+                            (matrixError coordinate output))
+                      else 0) = _
+  simp_rw [FormalProof4FHE.FiniteProduct.tsum_probOutput_mul_const]
+  exact expected_selected_matrix_sum blockLength blockCount sampleCount
+    narrowErrorSampler wideErrorSampler
+
+/-- For a fixed block key and error matrix, the cost of the correlated shift in one sample is
+at most the sum of the scalar costs of precisely the selected entries. -/
+theorem addShiftDistance_vecMul_expand_le {R : Type}
+    [Fintype R] [Ring R]
+    (blockLength blockCount sampleCount : ℕ)
+    (wideErrorSampler : ProbComp R) (key : Key blockLength blockCount)
+    (matrixError : Matrix (Fin (blockCount * blockLength)) (Fin sampleCount) R)
+    (output : Fin sampleCount) :
+    FormalProof4FHE.FiniteProduct.addShiftDistance wideErrorSampler
+        (vecMul (expand R key) matrixError output) ≤
+      ∑ coordinate,
+        if bits key coordinate then
+          FormalProof4FHE.FiniteProduct.addShiftDistance wideErrorSampler
+            (matrixError coordinate output)
+        else 0 := by
+  classical
+  simp only [Matrix.vecMul, dotProduct, expand, ite_mul, one_mul, zero_mul]
+  calc
+    FormalProof4FHE.FiniteProduct.addShiftDistance wideErrorSampler
+        (∑ coordinate,
+          if bits key coordinate then matrixError coordinate output else 0) ≤
+      ∑ coordinate,
+        FormalProof4FHE.FiniteProduct.addShiftDistance wideErrorSampler
+          (if bits key coordinate then matrixError coordinate output else 0) := by
+            simpa using
+              (FormalProof4FHE.FiniteProduct.addShiftDistance_sum_le_sum
+                wideErrorSampler Finset.univ
+                (fun coordinate =>
+                  if bits key coordinate then matrixError coordinate output else 0))
+    _ = ∑ coordinate,
+        if bits key coordinate then
+          FormalProof4FHE.FiniteProduct.addShiftDistance wideErrorSampler
+            (matrixError coordinate output)
+        else 0 := by
+          apply Finset.sum_congr rfl
+          intro coordinate _
+          by_cases hbit : bits key coordinate <;> simp [hbit]
+
+/-- Conditioned on all shared public data and narrow errors, absorption costs at most the sum
+of the scalar translation costs of all selected matrix entries. -/
+theorem tvDist_noiseContinuations_le_selected_sum {R : Type}
+    [Fintype R] [Ring R]
+    (blockLength blockCount extractedDimension sampleCount : ℕ)
+    (wideErrorSampler : ProbComp R)
+    (context :
+      NoiseAbsorptionContext R blockLength blockCount extractedDimension sampleCount) :
+    tvDist
+        (structuredNoiseContinuation blockLength blockCount extractedDimension sampleCount
+          wideErrorSampler context)
+        (absorbedNoiseContinuation blockLength blockCount extractedDimension sampleCount
+          wideErrorSampler context) ≤
+      ∑ output, ∑ coordinate,
+        if bits context.key coordinate then
+          FormalProof4FHE.FiniteProduct.addShiftDistance wideErrorSampler
+            (context.matrixError coordinate output)
+        else 0 := by
+  let challenge := context.extractor * context.sourceMatrix + context.matrixError
+  let base := vecMul (extractorHash context.extractor context.key) context.sourceMatrix
+  let shift := vecMul (expand R context.key) context.matrixError
+  let wideVector : ProbComp (Fin sampleCount → R) :=
+    ProbComp.sampleIID sampleCount wideErrorSampler
+  let postprocess : (Fin sampleCount → R) →
+      Matrix (Fin (blockCount * blockLength)) (Fin sampleCount) R ×
+        (Fin sampleCount → R) :=
+    fun wideError => (challenge, base + wideError)
+  have hreal :
+      structuredNoiseContinuation blockLength blockCount extractedDimension sampleCount
+          wideErrorSampler context =
+        postprocess <$>
+          ((fun wideError output => shift output + wideError output) <$> wideVector) := by
+    simp only [structuredNoiseContinuation, map_eq_bind_pure_comp, bind_assoc,
+      pure_bind, Function.comp_apply, wideVector]
+    apply bind_congr
+    intro wideError
+    congr 1
+    apply Prod.ext
+    · rfl
+    · funext output
+      simp [postprocess, base, shift, Matrix.vecMul_add,
+        Matrix.vecMul_vecMul, extractorHash_eq_vecMul, add_assoc]
+  have hideal :
+      absorbedNoiseContinuation blockLength blockCount extractedDimension sampleCount
+          wideErrorSampler context =
+        postprocess <$> wideVector := by
+    simp [absorbedNoiseContinuation, postprocess, challenge, base, wideVector,
+      map_eq_bind_pure_comp]
+  rw [hreal, hideal]
+  calc
+    tvDist
+        (postprocess <$>
+          ((fun wideError output => shift output + wideError output) <$> wideVector))
+        (postprocess <$> wideVector) ≤
+      tvDist
+        ((fun wideError output => shift output + wideError output) <$> wideVector)
+        wideVector := tvDist_map_le postprocess _ _
+    _ ≤ ∑ output,
+        FormalProof4FHE.FiniteProduct.addShiftDistance wideErrorSampler (shift output) := by
+      exact FormalProof4FHE.FiniteProduct.tvDist_add_fin_mOfFn_le_sum
+        sampleCount wideErrorSampler shift
+    _ ≤ ∑ output, ∑ coordinate,
+        if bits context.key coordinate then
+          FormalProof4FHE.FiniteProduct.addShiftDistance wideErrorSampler
+            (context.matrixError coordinate output)
+        else 0 := by
+      apply Finset.sum_le_sum
+      intro output _
+      exact addShiftDistance_vecMul_expand_le blockLength blockCount sampleCount
+        wideErrorSampler context.key context.matrixError output
+
+/-- ENNReal form of the conditioned continuation bound, matching the expectation calculation. -/
+theorem ofReal_tvDist_noiseContinuations_le_selectedCost {R : Type}
+    [Fintype R] [Ring R]
+    (blockLength blockCount extractedDimension sampleCount : ℕ)
+    (wideErrorSampler : ProbComp R)
+    (context :
+      NoiseAbsorptionContext R blockLength blockCount extractedDimension sampleCount) :
+    ENNReal.ofReal
+        (tvDist
+          (structuredNoiseContinuation blockLength blockCount extractedDimension sampleCount
+            wideErrorSampler context)
+          (absorbedNoiseContinuation blockLength blockCount extractedDimension sampleCount
+            wideErrorSampler context)) ≤
+      selectedNoiseAbsorptionCostENN blockLength blockCount extractedDimension sampleCount
+        wideErrorSampler context := by
+  have hreal := tvDist_noiseContinuations_le_selected_sum
+    blockLength blockCount extractedDimension sampleCount wideErrorSampler context
+  refine (ENNReal.ofReal_le_ofReal hreal).trans_eq ?_
+  unfold selectedNoiseAbsorptionCostENN
+  rw [ENNReal.ofReal_sum_of_nonneg]
+  · apply Finset.sum_congr rfl
+    intro output _
+    rw [ENNReal.ofReal_sum_of_nonneg]
+    · apply Finset.sum_congr rfl
+      intro coordinate _
+      by_cases hbit : bits context.key coordinate <;> simp [hbit]
+    · intro coordinate _
+      by_cases hbit : bits context.key coordinate
+      · simp [hbit, FormalProof4FHE.FiniteProduct.addShiftDistance,
+          tvDist_nonneg]
+      · simp [hbit]
+  · intro output _
+    exact Finset.sum_nonneg fun coordinate _ => by
+      by_cases hbit : bits context.key coordinate
+      · simp [hbit, FormalProof4FHE.FiniteProduct.addShiftDistance,
+          tvDist_nonneg]
+      · simp [hbit]
+
+/-- Tight analytic noise-absorption bound before conversion back to real numbers.  It pays the
+exact expected number of selected narrow entries, not the ambient secret dimension. -/
+theorem ofReal_noiseAbsorptionGap_le_expected_blocks {R : Type}
+    [Ring R] [Fintype R] [DecidableEq R] [SampleableType R]
+    (blockLength blockCount extractedDimension sampleCount : ℕ)
+    (narrowErrorSampler wideErrorSampler : ProbComp R) :
+    ENNReal.ofReal
+        (noiseAbsorptionGap blockLength blockCount extractedDimension sampleCount
+          narrowErrorSampler wideErrorSampler) ≤
+      (sampleCount : ENNReal) * (blockCount * blockLength : ENNReal) *
+        (blockLength + 1 : ENNReal)⁻¹ *
+          scalarNoiseAbsorptionCostENN narrowErrorSampler wideErrorSampler := by
+  unfold noiseAbsorptionGap
+  rw [structuredRealTranscript_eq_context_bind,
+    noiseIdealTranscript_eq_context_bind]
+  calc
+    ENNReal.ofReal
+        (tvDist
+          (noiseAbsorptionContextSampler blockLength blockCount extractedDimension sampleCount
+              narrowErrorSampler >>=
+            structuredNoiseContinuation blockLength blockCount extractedDimension sampleCount
+              wideErrorSampler)
+          (noiseAbsorptionContextSampler blockLength blockCount extractedDimension sampleCount
+              narrowErrorSampler >>=
+            absorbedNoiseContinuation blockLength blockCount extractedDimension sampleCount
+              wideErrorSampler)) ≤
+      ∑' context,
+        Pr[= context |
+          noiseAbsorptionContextSampler blockLength blockCount extractedDimension sampleCount
+            narrowErrorSampler] *
+          ENNReal.ofReal
+            (tvDist
+              (structuredNoiseContinuation blockLength blockCount extractedDimension sampleCount
+                wideErrorSampler context)
+              (absorbedNoiseContinuation blockLength blockCount extractedDimension sampleCount
+                wideErrorSampler context)) :=
+      FormalProof4FHE.FiniteProduct.ofReal_tvDist_bind_left_le_expectation _ _ _
+    _ ≤ ∑' context,
+        Pr[= context |
+          noiseAbsorptionContextSampler blockLength blockCount extractedDimension sampleCount
+            narrowErrorSampler] *
+          selectedNoiseAbsorptionCostENN blockLength blockCount extractedDimension sampleCount
+            wideErrorSampler context := by
+      apply ENNReal.tsum_le_tsum
+      intro context
+      simpa [mul_comm] using mul_le_mul_left
+        (ofReal_tvDist_noiseContinuations_le_selectedCost
+          blockLength blockCount extractedDimension sampleCount wideErrorSampler context)
+        Pr[= context |
+          noiseAbsorptionContextSampler blockLength blockCount extractedDimension sampleCount
+            narrowErrorSampler]
+    _ = (sampleCount : ENNReal) * (blockCount * blockLength : ENNReal) *
+        (blockLength + 1 : ENNReal)⁻¹ *
+          scalarNoiseAbsorptionCostENN narrowErrorSampler wideErrorSampler :=
+      expected_selected_context blockLength blockCount extractedDimension sampleCount
+        narrowErrorSampler wideErrorSampler
+
+/-- Real-valued analytic absorption bound.  The coefficient is the exact expected number
+`sampleCount * blockCount * blockLength / (blockLength + 1)` of selected narrow-error entries. -/
+theorem noiseAbsorptionGap_le_expected_blocks {R : Type}
+    [Ring R] [Fintype R] [DecidableEq R] [SampleableType R]
+    (blockLength blockCount extractedDimension sampleCount : ℕ)
+    (narrowErrorSampler wideErrorSampler : ProbComp R) :
+    noiseAbsorptionGap blockLength blockCount extractedDimension sampleCount
+        narrowErrorSampler wideErrorSampler ≤
+      ((sampleCount : ℝ) * (blockCount * blockLength : ℝ) /
+        (blockLength + 1 : ℝ)) *
+          scalarNoiseAbsorptionCost narrowErrorSampler wideErrorSampler := by
+  let budget : ENNReal :=
+    (sampleCount : ENNReal) * (blockCount * blockLength : ENNReal) *
+      (blockLength + 1 : ENNReal)⁻¹ *
+        scalarNoiseAbsorptionCostENN narrowErrorSampler wideErrorSampler
+  have hscalar :
+      scalarNoiseAbsorptionCostENN narrowErrorSampler wideErrorSampler ≠ ⊤ :=
+    ne_top_of_le_ne_top ENNReal.one_ne_top
+      (scalarNoiseAbsorptionCostENN_le_one narrowErrorSampler wideErrorSampler)
+  have hinv : (blockLength + 1 : ENNReal)⁻¹ ≠ ⊤ :=
+    ENNReal.inv_ne_top.mpr (by norm_num)
+  have hbudget : budget ≠ ⊤ := by
+    exact ENNReal.mul_ne_top
+      (ENNReal.mul_ne_top (by finiteness) hinv) hscalar
+  have hENN : ENNReal.ofReal
+      (noiseAbsorptionGap blockLength blockCount extractedDimension sampleCount
+        narrowErrorSampler wideErrorSampler) ≤ budget := by
+    exact ofReal_noiseAbsorptionGap_le_expected_blocks
+      blockLength blockCount extractedDimension sampleCount
+        narrowErrorSampler wideErrorSampler
+  have hreal := (ENNReal.ofReal_le_iff_le_toReal hbudget).mp hENN
+  have hdenominator :
+      (blockLength + 1 : ENNReal).toReal = (blockLength + 1 : ℝ) := by
+    rw [ENNReal.toReal_add (ENNReal.natCast_ne_top blockLength) ENNReal.one_ne_top,
+      ENNReal.toReal_natCast, ENNReal.toReal_one]
+  simpa [budget, scalarNoiseAbsorptionCost, ENNReal.toReal_mul,
+    ENNReal.toReal_inv, ENNReal.toReal_natCast, Nat.cast_mul,
+    hdenominator, div_eq_mul_inv, mul_assoc] using hreal
+
+/-- The analytic absorption bound capped by the universal TV upper bound one. -/
+theorem noiseAbsorptionGap_le_min_expected_blocks {R : Type}
+    [Ring R] [Fintype R] [DecidableEq R] [SampleableType R]
+    (blockLength blockCount extractedDimension sampleCount : ℕ)
+    (narrowErrorSampler wideErrorSampler : ProbComp R) :
+    noiseAbsorptionGap blockLength blockCount extractedDimension sampleCount
+        narrowErrorSampler wideErrorSampler ≤
+      min 1
+        (((sampleCount : ℝ) * (blockCount * blockLength : ℝ) /
+          (blockLength + 1 : ℝ)) *
+            scalarNoiseAbsorptionCost narrowErrorSampler wideErrorSampler) := by
+  apply le_min
+  · unfold noiseAbsorptionGap
+    exact tvDist_le_one _ _
+  · exact noiseAbsorptionGap_le_expected_blocks blockLength blockCount
+      extractedDimension sampleCount narrowErrorSampler wideErrorSampler
+
+/-- Real first moment of a scalar size functional under the narrow-error sampler. -/
+noncomputable def scalarFirstMoment {R : Type} [Fintype R]
+    (sampler : ProbComp R) (size : R → ℝ) : ℝ :=
+  ∑ error, Pr[= error | sampler].toReal * size error
+
+/-- The exact scalar absorption cost is the probability-weighted average of scalar shift TVs. -/
+theorem scalarNoiseAbsorptionCost_eq_sum {R : Type} [Fintype R] [Add R]
+    (narrowErrorSampler wideErrorSampler : ProbComp R) :
+    scalarNoiseAbsorptionCost narrowErrorSampler wideErrorSampler =
+      ∑ error,
+        Pr[= error | narrowErrorSampler].toReal *
+          FormalProof4FHE.FiniteProduct.addShiftDistance wideErrorSampler error := by
+  classical
+  unfold scalarNoiseAbsorptionCost scalarNoiseAbsorptionCostENN
+  rw [tsum_fintype, ENNReal.toReal_sum]
+  · apply Finset.sum_congr rfl
+    intro error _
+    rw [ENNReal.toReal_mul, ENNReal.toReal_ofReal]
+    exact tvDist_nonneg _ _
+  · intro error _
+    exact ENNReal.mul_ne_top probOutput_ne_top ENNReal.ofReal_ne_top
+
+/-- A scalar translation inequality integrates against the exact narrow-error first moment. -/
+theorem scalarNoiseAbsorptionCost_le_shiftMoment {R : Type}
+    [Fintype R] [Add R]
+    (narrowErrorSampler wideErrorSampler : ProbComp R)
+    (size : R → ℝ) (slope : ℝ)
+    (hshift : ∀ error,
+      FormalProof4FHE.FiniteProduct.addShiftDistance wideErrorSampler error ≤
+        slope * size error) :
+    scalarNoiseAbsorptionCost narrowErrorSampler wideErrorSampler ≤
+      slope * scalarFirstMoment narrowErrorSampler size := by
+  rw [scalarNoiseAbsorptionCost_eq_sum]
+  calc
+    (∑ error,
+      Pr[= error | narrowErrorSampler].toReal *
+        FormalProof4FHE.FiniteProduct.addShiftDistance wideErrorSampler error) ≤
+        ∑ error,
+          Pr[= error | narrowErrorSampler].toReal * (slope * size error) := by
+            apply Finset.sum_le_sum
+            intro error _
+            exact mul_le_mul_of_nonneg_left (hshift error) ENNReal.toReal_nonneg
+    _ = slope * scalarFirstMoment narrowErrorSampler size := by
+      simp only [scalarFirstMoment]
+      rw [Finset.mul_sum]
+      apply Finset.sum_congr rfl
+      intro error _
+      ring
+
+/-- Fully analytic moment form.  It combines a scalar shift-TV estimate and a scalar
+first-moment estimate with the exact expected active-block coefficient, and caps the result at
+one. -/
+theorem noiseAbsorptionGap_le_shiftMoment {R : Type}
+    [Ring R] [Fintype R] [DecidableEq R] [SampleableType R]
+    (blockLength blockCount extractedDimension sampleCount : ℕ)
+    (narrowErrorSampler wideErrorSampler : ProbComp R)
+    (size : R → ℝ) (slope momentBound : ℝ)
+    (hslope : 0 ≤ slope)
+    (hshift : ∀ error,
+      FormalProof4FHE.FiniteProduct.addShiftDistance wideErrorSampler error ≤
+        slope * size error)
+    (hmoment : scalarFirstMoment narrowErrorSampler size ≤ momentBound) :
+    noiseAbsorptionGap blockLength blockCount extractedDimension sampleCount
+        narrowErrorSampler wideErrorSampler ≤
+      min 1
+        (((sampleCount : ℝ) * (blockCount * blockLength : ℝ) /
+          (blockLength + 1 : ℝ)) * (slope * momentBound)) := by
+  apply le_min
+  · unfold noiseAbsorptionGap
+    exact tvDist_le_one _ _
+  · calc
+      noiseAbsorptionGap blockLength blockCount extractedDimension sampleCount
+          narrowErrorSampler wideErrorSampler ≤
+        ((sampleCount : ℝ) * (blockCount * blockLength : ℝ) /
+          (blockLength + 1 : ℝ)) *
+            scalarNoiseAbsorptionCost narrowErrorSampler wideErrorSampler :=
+        noiseAbsorptionGap_le_expected_blocks blockLength blockCount
+          extractedDimension sampleCount narrowErrorSampler wideErrorSampler
+      _ ≤ ((sampleCount : ℝ) * (blockCount * blockLength : ℝ) /
+          (blockLength + 1 : ℝ)) *
+            (slope * scalarFirstMoment narrowErrorSampler size) := by
+        apply mul_le_mul_of_nonneg_left
+          (scalarNoiseAbsorptionCost_le_shiftMoment narrowErrorSampler wideErrorSampler
+            size slope hshift)
+        positivity
+      _ ≤ ((sampleCount : ℝ) * (blockCount * blockLength : ℝ) /
+          (blockLength + 1 : ℝ)) * (slope * momentBound) := by
+        gcongr
 
 /-- Exact joint statistical cost of both noise absorption and block-key extraction.
 
@@ -2420,6 +3180,70 @@ theorem advantage_le_randomized_ordinaryLWE_add_gaps_tight {R : Type}
           extractedDimension sampleCount narrowErrorSampler wideErrorSampler
         linarith
 
+/-- Sharpest fully analytic reduction-specific bound.  Noise absorption is discharged by the
+exact expected-active-coordinate calculation rather than retained as an opaque TV premise. -/
+theorem advantage_le_randomized_ordinaryLWE_analytic {R : Type}
+    [Ring R] [Fintype R] [DecidableEq R] [SampleableType R]
+    (blockLength blockCount extractedDimension sampleCount : ℕ)
+    [NeZero (blockCount * blockLength)]
+    (narrowErrorSampler wideErrorSampler : ProbComp R)
+    (adversary : LearningWithErrors.Adversary
+      (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)) :
+    LearningWithErrors.advantage
+        (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
+        adversary ≤
+      min 1
+        (2 * ((blockCount * blockLength : ℕ) : ℝ) *
+            LearningWithErrors.advantage
+              (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
+                ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
+              (randomRowHybridReduction (blockCount * blockLength) extractedDimension sampleCount
+                narrowErrorSampler
+                (combinedMaskReduction blockLength blockCount extractedDimension sampleCount
+                  narrowErrorSampler wideErrorSampler adversary)) +
+          min 1
+            (((sampleCount : ℝ) * (blockCount * blockLength : ℝ) /
+              (blockLength + 1 : ℝ)) *
+                scalarNoiseAbsorptionCost narrowErrorSampler wideErrorSampler) +
+          Real.sqrt
+              (((Fintype.card R : ℝ) ^ extractedDimension - 1) /
+                (blockLength + 1 : ℝ) ^ blockCount) /
+            2 +
+          LearningWithErrors.advantage
+            (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
+              ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
+            (extractedLWReduction blockLength blockCount extractedDimension sampleCount
+              narrowErrorSampler wideErrorSampler adversary)) := by
+  calc
+    LearningWithErrors.advantage
+        (problem (R := R) blockLength blockCount sampleCount wideErrorSampler) adversary ≤
+      min 1
+        (2 * ((blockCount * blockLength : ℕ) : ℝ) *
+            LearningWithErrors.advantage
+              (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
+                ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
+              (randomRowHybridReduction (blockCount * blockLength) extractedDimension sampleCount
+                narrowErrorSampler
+                (combinedMaskReduction blockLength blockCount extractedDimension sampleCount
+                  narrowErrorSampler wideErrorSampler adversary)) +
+          noiseAbsorptionGap blockLength blockCount extractedDimension sampleCount
+            narrowErrorSampler wideErrorSampler +
+          Real.sqrt
+              (((Fintype.card R : ℝ) ^ extractedDimension - 1) /
+                (blockLength + 1 : ℝ) ^ blockCount) /
+            2 +
+          LearningWithErrors.advantage
+            (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
+              ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
+            (extractedLWReduction blockLength blockCount extractedDimension sampleCount
+              narrowErrorSampler wideErrorSampler adversary)) :=
+      advantage_le_randomized_ordinaryLWE_add_gaps_tight blockLength blockCount
+        extractedDimension sampleCount narrowErrorSampler wideErrorSampler adversary
+    _ ≤ _ := by
+      gcongr
+      exact noiseAbsorptionGap_le_min_expected_blocks blockLength blockCount
+        extractedDimension sampleCount narrowErrorSampler wideErrorSampler
+
 /-- End-to-end reduction using only ordinary LWE, plus the two explicit statistical gaps.
 
 There are two narrow-error row hybrids (one on each side of the main game sequence), while the
@@ -2786,5 +3610,107 @@ theorem advantage_le_of_ordinaryLWEBounds_tight {R : Type}
     (advantage_le_of_ordinaryLWEBounds_joint_capped blockLength blockCount
       extractedDimension sampleCount narrowErrorSampler wideErrorSampler adversary
       narrowBound wideBound (noiseBound + leftoverBound) hNarrow hWide hJoint)
+
+/-- Fully discharged analytic concrete bound.  In addition to the ordinary-LWE assumptions, all
+noise absorption is now represented by the exact average scalar shift TV and the exact expected
+active-coordinate factor. -/
+theorem advantage_le_of_ordinaryLWEBounds_analytic {R : Type}
+    [Ring R] [Fintype R] [DecidableEq R] [SampleableType R]
+    (blockLength blockCount extractedDimension sampleCount : ℕ)
+    (narrowErrorSampler wideErrorSampler : ProbComp R)
+    (adversary : LearningWithErrors.Adversary
+      (problem (R := R) blockLength blockCount sampleCount wideErrorSampler))
+    (narrowBound wideBound : ℝ)
+    (hNarrow : ∀ reduction : LearningWithErrors.Adversary
+      (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
+        ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler),
+      LearningWithErrors.advantage
+        (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
+          ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
+        reduction ≤ narrowBound)
+    (hWide : ∀ reduction : LearningWithErrors.Adversary
+      (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
+        ($ᵗ (Fin extractedDimension → R)) wideErrorSampler),
+      LearningWithErrors.advantage
+        (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
+          ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
+        reduction ≤ wideBound) :
+    LearningWithErrors.advantage
+        (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
+        adversary ≤
+      min 1
+        (2 * ((blockCount * blockLength : ℕ) : ℝ) * narrowBound +
+          min 1
+            (((sampleCount : ℝ) * (blockCount * blockLength : ℝ) /
+              (blockLength + 1 : ℝ)) *
+                scalarNoiseAbsorptionCost narrowErrorSampler wideErrorSampler) +
+          Real.sqrt
+              (((Fintype.card R : ℝ) ^ extractedDimension - 1) /
+                (blockLength + 1 : ℝ) ^ blockCount) /
+            2 +
+          wideBound) := by
+  exact advantage_le_of_ordinaryLWEBounds_tight blockLength blockCount
+    extractedDimension sampleCount narrowErrorSampler wideErrorSampler adversary
+    narrowBound wideBound
+    (min 1
+      (((sampleCount : ℝ) * (blockCount * blockLength : ℝ) /
+        (blockLength + 1 : ℝ)) *
+          scalarNoiseAbsorptionCost narrowErrorSampler wideErrorSampler))
+    hNarrow hWide
+    (noiseAbsorptionGap_le_min_expected_blocks blockLength blockCount
+      extractedDimension sampleCount narrowErrorSampler wideErrorSampler)
+
+/-- Moment-specialized analytic concrete bound.  A scalar shift inequality and a first-moment
+bound are the only remaining analytic inputs (for discrete Gaussians, these are the one-dimensional
+translation and moment estimates). -/
+theorem advantage_le_of_ordinaryLWEBounds_shiftMoment {R : Type}
+    [Ring R] [Fintype R] [DecidableEq R] [SampleableType R]
+    (blockLength blockCount extractedDimension sampleCount : ℕ)
+    (narrowErrorSampler wideErrorSampler : ProbComp R)
+    (adversary : LearningWithErrors.Adversary
+      (problem (R := R) blockLength blockCount sampleCount wideErrorSampler))
+    (narrowBound wideBound : ℝ)
+    (size : R → ℝ) (slope momentBound : ℝ)
+    (hslope : 0 ≤ slope)
+    (hshift : ∀ error,
+      FormalProof4FHE.FiniteProduct.addShiftDistance wideErrorSampler error ≤
+        slope * size error)
+    (hmoment : scalarFirstMoment narrowErrorSampler size ≤ momentBound)
+    (hNarrow : ∀ reduction : LearningWithErrors.Adversary
+      (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
+        ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler),
+      LearningWithErrors.advantage
+        (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
+          ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
+        reduction ≤ narrowBound)
+    (hWide : ∀ reduction : LearningWithErrors.Adversary
+      (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
+        ($ᵗ (Fin extractedDimension → R)) wideErrorSampler),
+      LearningWithErrors.advantage
+        (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
+          ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
+        reduction ≤ wideBound) :
+    LearningWithErrors.advantage
+        (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
+        adversary ≤
+      min 1
+        (2 * ((blockCount * blockLength : ℕ) : ℝ) * narrowBound +
+          min 1
+            (((sampleCount : ℝ) * (blockCount * blockLength : ℝ) /
+              (blockLength + 1 : ℝ)) * (slope * momentBound)) +
+          Real.sqrt
+              (((Fintype.card R : ℝ) ^ extractedDimension - 1) /
+                (blockLength + 1 : ℝ) ^ blockCount) /
+            2 +
+          wideBound) := by
+  exact advantage_le_of_ordinaryLWEBounds_tight blockLength blockCount
+    extractedDimension sampleCount narrowErrorSampler wideErrorSampler adversary
+    narrowBound wideBound
+    (min 1
+      (((sampleCount : ℝ) * (blockCount * blockLength : ℝ) /
+        (blockLength + 1 : ℝ)) * (slope * momentBound)))
+    hNarrow hWide
+    (noiseAbsorptionGap_le_shiftMoment blockLength blockCount extractedDimension sampleCount
+      narrowErrorSampler wideErrorSampler size slope momentBound hslope hshift hmoment)
 
 end FormalProof4FHE.BlockBinary

@@ -9,7 +9,7 @@
 | Block-binary key encoding, at-most-one structure, and exact key-space size | `FormalProof4FHE.BlockBinary.pairedBits_atMostOne`, `bits_injective`, `card_key` | Implemented |
 | Block-key subset-sum extractor and tight finite leftover-hash bound | `FormalProof4FHE.BlockBinary.extractorHash_isTwoUniversal`, `extractorHash_leftover_tight` | Implemented; numerator improved from `|R|^d` to `|R|^d - 1` |
 | Parallel matrix-mask LWE reduces to one randomized ordinary-LWE adversary | `FormalProof4FHE.BlockBinary.matrixMask_advantage_eq_card_mul_randomRowLWE` | Implemented; exact identity retaining cancellation across rows |
-| End-to-end block-binary LWE reduction of ePrint 2023/958 | `FormalProof4FHE.BlockBinary.advantage_le_randomized_ordinaryLWE_add_jointGap_capped`, `advantage_le_of_ordinaryLWEBounds_tight` | Implemented over finite rings with signed masking-side cancellation, an unsplit exact statistical gap, and a final cap at one; the paper-specific Gaussian noise-absorption estimate remains an explicit `tvDist` hypothesis |
+| End-to-end block-binary LWE reduction of ePrint 2023/958 | `FormalProof4FHE.BlockBinary.advantage_le_randomized_ordinaryLWE_add_jointGap_capped`, `advantage_le_randomized_ordinaryLWE_analytic`, `advantage_le_of_ordinaryLWEBounds_analytic`, `advantage_le_of_ordinaryLWEBounds_shiftMoment` | Implemented over finite rings with signed masking-side cancellation, an unsplit exact statistical gap, a proved expected-block noise-absorption bound, tight finite extraction, and final caps at one; only one-dimensional distribution-specific shift/moment estimates remain as analytic inputs |
 | Scalar error convolution lifts to IID vectors | `FormalProof4FHE.SharedRandomness.vectorErrorConvolution_of_scalar` | Implemented |
 | Shared-randomness LWE hardness, Theorem 6 of ePrint 2023/979 | `FormalProof4FHE.SharedRandomness.zmod_advantage_eq_batch` | Implemented |
 | Shared-randomness LWE is a nested generalized-SLWE instance | `FormalProof4FHE.GeneralizedSubspaceLWE.shared_problem_eq_generalized`, `sharedSpec_isNested` | Implemented |
@@ -33,10 +33,15 @@ closes the formerly named fixed-overlap and simulator-correctness obligations an
 resulting ordinary batch-LWE adversary directly.
 
 The block-binary development checks the finite computational reduction without adopting the
-paper's heuristic lattice-estimator analysis as a theorem. Its strongest theorem uses one signed
+lattice estimator's heuristic attack costs as a theorem. Its strongest theorem uses one signed
 matrix distinguisher and one randomized row reduction, so it does not separately absolute-value the
 two masking sides or the individual row gaps. It also exposes the unsplit distance
-`jointStatisticalGap`, which may be smaller than the sum of noise absorption and extraction. The
-analytic claim that the correlated narrow error can be absorbed into the selected wide error
-distribution is represented exactly by `noiseAbsorptionGap` and supplied as a bound to the final
-corollary.
+`jointStatisticalGap`, which may be smaller than the sum of noise absorption and extraction.
+
+The split analytic route no longer assumes a bound on the full `noiseAbsorptionGap`. It proves that
+gap is at most `min(1, m * kℓ / (ℓ+1) * δ_scalar)`: TV translation costs add under successive
+shifts, IID products cost at most the sum of coordinate costs, and each flattened bit of a uniform
+block key is selected with probability exactly `1/(ℓ+1)`. Here `δ_scalar` is the exact narrow-error
+average of the one-dimensional wide-error translation TV. The shift-moment corollary bounds it by
+a supplied scalar shift slope times a supplied first-moment bound. Specializing those final scalar
+inputs to a concrete discrete-Gaussian/modulus implementation remains distribution-specific.

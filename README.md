@@ -34,9 +34,15 @@ checks run inside the container; no host Lean installation is required.
   `min(1, 2kℓ · Adv_narrow(B±) + Δ_joint + Adv_wide)`.
   `advantage_le_of_ordinaryLWEBounds_tight` gives the convenient uniform corollary
   `min(1, 2kℓ · ε_narrow + ε_noise + sqrt((|R|^d - 1) / (ℓ+1)^k) / 2 + ε_wide)`.
+  The fully discharged `advantage_le_randomized_ordinaryLWE_analytic` and
+  `advantage_le_of_ordinaryLWEBounds_analytic` prove
+  `ε_noise ≤ min(1, m·kℓ/(ℓ+1) · δ_scalar)`, where `δ_scalar` is the exact average TV cost of
+  translating one wide-error sample by one narrow error. The moment-specialized theorem
+  `advantage_le_of_ordinaryLWEBounds_shiftMoment` reduces `δ_scalar` further to any supplied
+  one-dimensional shift slope times a narrow-error first moment.
   `card_key`, `pairedBits_atMostOne`, and `extractorHash_leftover_tight` check the exact key space,
-  block structure, and finite leftover-hash constant. The paper-specific Gaussian
-  noise-absorption estimate remains the explicit finite `tvDist` premise `ε_noise`.
+  block structure, and finite leftover-hash constant. Only the scalar Gaussian translation and
+  moment estimates remain distribution-specific; the block/vector absorption argument is checked.
 - `FormalProof4FHE.FiniteFieldRank.rankFailure_le` proves that a uniform
   `(d + δ) × d` finite-field matrix loses column rank with probability at most
   `2 / |F|^(δ+1)`. `rankMulFailure_le_rectangular` proves the fixed high-rank
