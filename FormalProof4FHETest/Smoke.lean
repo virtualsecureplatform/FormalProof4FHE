@@ -25,6 +25,13 @@ example (blockLength blockCount : ℕ) :
       (blockLength + 1) ^ blockCount := by
   exact FormalProof4FHE.BlockBinary.card_key blockLength blockCount
 
+example (outputCoordinates suffixCoordinates levelCount : ℕ) :
+    outputCoordinates * levelCount + suffixCoordinates * levelCount =
+      (outputCoordinates + suffixCoordinates) * levelCount := by
+  exact
+    FormalProof4FHE.SharedRandomness.KeySwitching.fullLeveledSampleCount_eq
+      outputCoordinates suffixCoordinates levelCount
+
 example {R : Type} [Semiring R] [DecidableEq R] [SampleableType R]
     (n k m : ℕ)
     (prefixSampler : ProbComp (Fin n → R))

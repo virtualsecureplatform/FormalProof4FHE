@@ -13,6 +13,11 @@
 | Ideal mod-`q` discrete Gaussian and convolution/cancellation comparison | `FormalProof4FHE.ModularGaussian.torusDistribution`, `shiftDistance_distribution_le_valMinAbs`, `convolutionDistance_le_conditionalShiftCost` | Implemented as infinite-support `PMF`s with integer standard deviation `αq`; no identification with a finite executable sampler |
 | Scalar error convolution lifts to IID vectors | `FormalProof4FHE.SharedRandomness.vectorErrorConvolution_of_scalar` | Implemented |
 | Shared-randomness LWE hardness, Theorem 6 of ePrint 2023/979 | `FormalProof4FHE.SharedRandomness.zmod_advantage_eq_batch` | Implemented |
+| Exact batch-LWE sample restriction/monotonicity | `FormalProof4FHE.LWE.sampleRestriction_advantage_eq` | Implemented for arbitrary embedded secret distributions; exact equality after dropping any prefix of columns |
+| Independent affine IKSK messages reduce to encryption-key LWE | `FormalProof4FHE.SharedRandomness.KeySwitching.affineIKSK_advantage_eq_lwe` | Implemented as one correlated whole-batch shift; no per-entry hybrid loss |
+| Shared-randomness IKSK introduces no assumption beyond full independent IKSK | `FormalProof4FHE.SharedRandomness.KeySwitching.sharedIKSK_advantage_eq_fullIndependent`, `sharedIKSK_hardAgainst_of_fullIndependent` | Implemented; exact real/uniform suffix projection, exact advantage equality, and lossless transfer of any full-IKSK bound for reduction-closed adversary classes |
+| Two IKSK-pair projection comparison | `FormalProof4FHE.SharedRandomness.KeySwitching.twoPairProjection_advantage_eq` | Implemented for independently sampled heterogeneous component views with no factor-two hybrid loss; BRKs excluded |
+| Shared IKSK under a block-binary retained key | `FormalProof4FHE.SharedRandomness.KeySwitching.blockBinarySharedIKSK_advantage_eq`, `blockBinarySharedIKSK_advantage_le_of_ordinaryLWEBounds_nonlinear` | Implemented; lossless IKSK-to-block-binary-LWE equality composed with the strongest checked analytic bound |
 | Shared-randomness LWE is a nested generalized-SLWE instance | `FormalProof4FHE.GeneralizedSubspaceLWE.shared_problem_eq_generalized`, `sharedSpec_isNested` | Implemented |
 | Generalized presentation reduces to ordinary LWE | `FormalProof4FHE.GeneralizedSubspaceLWE.shared_zmod_advantage_eq_batch` | Implemented |
 | Adaptive affine-projection SLWE oracle and uniform-response independence | `FormalProof4FHE.GeneralizedSubspaceLWE.Adaptive.queryImpl`, `evalDist_queryImpl_uniform_of_admissible` | Implemented |
@@ -68,3 +73,15 @@ sampler; `ModularGaussian` separately specifies the ideal PMF and its exact shif
 The remaining hypotheses in `advantage_le_of_ordinaryLWEBounds_nonlinear` are precisely bounds on
 the two ordinary-LWE adversaries. They are cryptographic hardness premises, not statistical or
 Gaussian lemmas, and cannot be removed by an information-theoretic reduction.
+
+The shared-IKSK comparison is stronger than merely reusing the shared-randomness LWE assumption.
+For a conventional independent input key `unusedPrefix || suffix`, projecting away the IKSK
+entries for `unusedPrefix` leaves exactly the optimized IKSK for the nested key
+`retainedKey || suffix`. The equality holds because the published shared IKSK never encrypts a
+coordinate of `retainedKey`; its message encoder is typed to receive only the independently
+sampled suffix. The scalar error and unused-prefix samplers are required to be total only where
+their discarded draws must be marginalized in `ProbComp`'s subprobability semantics. This is an
+operational sampler property, not a hardness or circular-security hypothesis. The explicit
+`sharedIKSK_hardAgainst_of_fullIndependent` theorem transfers the same bound whenever the chosen
+full-IKSK adversary class contains the suffix-projection reduction. BRK ciphertexts are not in
+these games; any security claim for a joint `(BRK, IKSK)` view remains a separate target.

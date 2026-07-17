@@ -5,7 +5,9 @@ The repository currently contains a decisional-LWE interface, a concrete Regev o
 reduction, the block-binary secret reduction of ePrint 2023/958, the shared-randomness LWE hardness
 reduction of ePrint 2023/979, and a checked embedding of shared-randomness LWE into a generalized
 heterogeneous two-subspace game. It also contains the adaptive affine-projection oracle and
-rank-loss accounting needed for the broader Subspace-LWE hardness theorem.
+rank-loss accounting needed for the broader Subspace-LWE hardness theorem. The optimized
+shared-randomness IKSK is proved to introduce no security assumption beyond the conventional
+full-size IKSK between independent keys; BRKs are explicitly outside that comparison.
 
 ## Build
 
@@ -56,6 +58,24 @@ checks run inside the container; no host Lean installation is required.
 - `FormalProof4FHE.SharedRandomness.zmod_advantage_eq_batch` implements Theorem 6 of ePrint
   2023/979 as an exact reduction to ordinary LWE with `m + m` samples. The scalar error-
   convolution premise is proved to lift to IID vectors.
+- `FormalProof4FHE.SharedRandomness.KeySwitching.sharedIKSK_advantage_eq_fullIndependent`
+  proves the no-new-assumption result for shrinking/shared-randomness IKSKs. A full-size IKSK for
+  independent input and output keys encrypts gadget messages for `unusedPrefix || suffix`; its
+  public suffix projection has exactly the shared IKSK distribution, which publishes only the
+  suffix messages under the retained key. Both real and uniform branches, and hence advantages,
+  are equal with no hybrid or IKSK-size factor.
+  `sharedIKSK_hardAgainst_of_fullIndependent` states the corresponding bound-preserving transfer
+  for arbitrary adversary classes closed under the explicit projection reduction; this is the
+  formal no-new-security-assumption statement. `affineIKSK_advantage_eq_lwe` independently gives
+  an exact whole-batch reduction to LWE under the retained key, while
+  `sampleRestriction_advantage_eq` proves exact monotonicity in the number of LWE samples.
+  `twoPairProjection_advantage_eq` applies two independently sampled, possibly heterogeneous IKSK
+  projections jointly without a factor-two loss. The theorem does not include or make a claim
+  about BRK security.
+- `FormalProof4FHE.SharedRandomness.KeySwitching.blockBinarySharedIKSK_advantage_le_of_ordinaryLWEBounds_nonlinear`
+  composes that lossless IKSK layer with the checked nonlinear block-binary reduction. Thus, for
+  the ePrint 2023/958 retained key, the only cryptographic premises remain the same ordinary-LWE
+  bounds already exposed by the block-binary theorem.
 - `FormalProof4FHE.GeneralizedSubspaceLWE.shared_problem_eq_generalized` and
   `sharedSpec_isNested` identify shared-randomness LWE with a nested generalized-subspace
   instance.

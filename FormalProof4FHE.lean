@@ -1,11 +1,13 @@
 import FormalProof4FHE.LWE.Basic
 import FormalProof4FHE.LWE.BlockBinaryReduction
 import FormalProof4FHE.LWE.Regev
+import FormalProof4FHE.LWE.SampleRestriction
 import FormalProof4FHE.LWE.Security
 import FormalProof4FHE.Probability.LeftoverHash
 import FormalProof4FHE.Probability.ModularGaussian
 import FormalProof4FHE.Probability.RankBound
 import FormalProof4FHE.SharedRandomness.Ordinary
+import FormalProof4FHE.SharedRandomness.KeySwitching
 import FormalProof4FHE.SubspaceLWE.Adaptive
 import FormalProof4FHE.SubspaceLWE.Security
 import FormalProof4FHE.SubspaceLWE.SharedRandomness
