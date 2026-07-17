@@ -6,6 +6,8 @@ Authors: Kotaro Matsuoka
 
 import FormalProof4FHE.LWE.Security
 import FormalProof4FHE.Probability.LeftoverHash
+import Mathlib.Data.Fin.SuccPred
+import Mathlib.Data.Fintype.Powerset
 
 /-!
 # LWE with Block-Binary Secrets
@@ -101,6 +103,103 @@ theorem card_key (blockLength blockCount : ℕ) :
     Fintype.card (Key blockLength blockCount) =
       (blockLength + 1) ^ blockCount := by
   simp [Key]
+
+/-- The set of blocks whose compact choice is nonzero. -/
+def activeBlocks {blockLength blockCount : ℕ} (key : Key blockLength blockCount) :
+    Finset (Fin blockCount) :=
+  Finset.univ.filter fun block ↦ key block ≠ 0
+
+/-- The number of active blocks in a compact block-binary key. -/
+def activeBlockCount {blockLength blockCount : ℕ} (key : Key blockLength blockCount) : ℕ :=
+  (activeBlocks key).card
+
+private noncomputable def activeKeyEquiv (blockLength blockCount activeCount : ℕ) :
+    {key : Key blockLength blockCount // activeBlockCount key = activeCount} ≃
+      Σ support : {s : Finset (Fin blockCount) // s.card = activeCount},
+        ((block : support.1) → Fin blockLength) where
+  toFun key := ⟨⟨activeBlocks key.1, key.2⟩, fun block ↦
+    (key.1 block.1).pred ((Finset.mem_filter.mp block.2).2)⟩
+  invFun data :=
+    ⟨fun block ↦ if hblock : block ∈ data.1.1 then
+        Fin.succ (data.2 ⟨block, hblock⟩)
+      else 0,
+      by
+        simpa [activeBlockCount, activeBlocks] using data.1.2⟩
+  left_inv key := by
+    apply Subtype.ext
+    funext block
+    by_cases hblock : block ∈ activeBlocks key.1
+    · simp only [hblock, dite_true]
+      exact Fin.succ_pred _ (by simpa [activeBlocks] using hblock)
+    · simp only [hblock, dite_false]
+      exact (not_ne_iff.mp (by simpa [activeBlocks] using hblock)).symm
+  right_inv data := by
+    rcases data with ⟨⟨support, hsupportCard⟩, values⟩
+    have hsupport :
+        activeBlocks
+            (fun block ↦ if hblock : block ∈ support then
+              Fin.succ (values ⟨block, hblock⟩)
+            else 0) = support := by
+      ext block
+      simp [activeBlocks]
+    apply Sigma.ext
+    · apply Subtype.ext
+      exact hsupport
+    apply Function.hfunext
+      (congrArg (fun s : Finset (Fin blockCount) ↦ ↥s) hsupport)
+    intro block block' hblock
+    have hvalue : block.1 = block'.1 :=
+      (Subtype.heq_iff_coe_eq (fun value ↦ by rw [hsupport])).mp hblock
+    have hmem : block.1 ∈ support := hvalue.symm ▸ block'.2
+    apply heq_of_eq
+    simpa only [hmem, dite_true, Fin.pred_succ] using
+      congrArg values (Subtype.ext hvalue)
+
+/-- Exactly `Nat.choose blockCount activeCount * blockLength ^ activeCount` compact keys have
+`activeCount` active blocks.  Consequently a uniform compact key has the exact binomial active
+block law with success probability `blockLength / (blockLength + 1)`. -/
+theorem card_keys_with_activeBlockCount (blockLength blockCount activeCount : ℕ) :
+    Fintype.card
+        {key : Key blockLength blockCount // activeBlockCount key = activeCount} =
+      Nat.choose blockCount activeCount * blockLength ^ activeCount := by
+  rw [Fintype.card_congr (activeKeyEquiv blockLength blockCount activeCount)]
+  simp only [Fintype.card_sigma, Fintype.card_fun, Fintype.card_coe,
+    Fintype.card_fin]
+  calc
+    (∑ support : {s : Finset (Fin blockCount) // s.card = activeCount},
+        blockLength ^ support.1.card) =
+        ∑ _support : {s : Finset (Fin blockCount) // s.card = activeCount},
+          blockLength ^ activeCount := by
+      apply Finset.sum_congr rfl
+      intro support _
+      rw [support.2]
+    _ = Fintype.card {s : Finset (Fin blockCount) // s.card = activeCount} *
+        blockLength ^ activeCount := by simp
+    _ = Nat.choose blockCount activeCount * blockLength ^ activeCount := by
+      rw [Fintype.card_finset_len, Fintype.card_fin]
+
+/-- Exact binomial law for the number of active blocks in a uniform compact key.  The numerator
+counts the support and its nonzero coordinate choices; the denominator is the complete key space. -/
+theorem probEvent_activeBlockCount_uniform_key
+    (blockLength blockCount activeCount : ℕ) :
+    Pr[(fun key : Key blockLength blockCount ↦
+          activeBlockCount key = activeCount) |
+        $ᵗ (Key blockLength blockCount)] =
+      (Nat.choose blockCount activeCount * blockLength ^ activeCount : ENNReal) /
+        ((blockLength + 1) ^ blockCount : ℕ) := by
+  classical
+  rw [probEvent_uniformSample]
+  congr 1
+  · rw [show
+        (Finset.univ.filter fun key : Key blockLength blockCount ↦
+          activeBlockCount key = activeCount).card =
+            Fintype.card
+              {key : Key blockLength blockCount //
+                activeBlockCount key = activeCount} by
+          rw [Fintype.card_subtype]]
+    rw [card_keys_with_activeBlockCount]
+    norm_cast
+  · rw [card_key]
 
 /-- Hash a block key by a public random matrix.  This is binary subset-sum hashing after the
 one-hot expansion. -/

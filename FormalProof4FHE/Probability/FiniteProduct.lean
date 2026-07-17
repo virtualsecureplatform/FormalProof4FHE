@@ -402,6 +402,171 @@ theorem tvDist_fin_mOfFn_le_sum {alpha : Type} [Finite alpha] (count : ℕ)
       exact (tvDist_triangle _ middle _).trans
         (add_le_add hsameHead hsameTail)
 
+/-! ### Multiplicative total-variation bounds
+
+The usual hybrid inequality above is linear and can exceed one.  The following overlap
+formulation retains the exact probability-scale saturation of independent products.  It is the
+sharp universal product bound when only the coordinatewise TV distances are known.
+-/
+
+/-- Common probability mass of two computations.  For total computations this is exactly one
+minus their total-variation distance. -/
+noncomputable def overlapENN {alpha : Type} (left right : ProbComp alpha) : ENNReal :=
+  ∑' value, min Pr[= value | left] Pr[= value | right]
+
+/-- Common mass and total variation are complementary for `ProbComp` computations. -/
+theorem overlapENN_add_ofReal_tvDist_eq_one {alpha : Type}
+    (left right : ProbComp alpha) :
+    overlapENN left right + ENNReal.ofReal (tvDist left right) = 1 := by
+  let P : alpha → ENNReal := fun value => Pr[= value | left]
+  let Q : alpha → ENNReal := fun value => Pr[= value | right]
+  let S : ENNReal := ∑' value, min (P value) (Q value)
+  have hP_sum : ∑' value, P value = 1 := by
+    exact tsum_probOutput_of_liftM_PMF left
+  have hQ_sum : ∑' value, Q value = 1 := by
+    exact tsum_probOutput_of_liftM_PMF right
+  have hS_le : S ≤ 1 := hP_sum ▸ ENNReal.tsum_le_tsum fun value => min_le_left _ _
+  have hS_ne_top : S ≠ ⊤ := ne_top_of_le_ne_top ENNReal.one_ne_top hS_le
+  have hleft : S + ∑' value, (P value - Q value) = 1 := by
+    rw [← ENNReal.tsum_add, ← hP_sum]
+    exact tsum_congr fun value => by
+      rw [add_comm, tsub_add_min]
+  have hright : S + ∑' value, (Q value - P value) = 1 := by
+    rw [← ENNReal.tsum_add, ← hQ_sum]
+    exact tsum_congr fun value => by
+      rw [min_comm]
+      rw [add_comm, tsub_add_min]
+  have hleftSub : ∑' value, (P value - Q value) = 1 - S :=
+    ENNReal.eq_sub_of_add_eq hS_ne_top (by rwa [add_comm] at hleft)
+  have hrightSub : ∑' value, (Q value - P value) = 1 - S :=
+    ENNReal.eq_sub_of_add_eq hS_ne_top (by rwa [add_comm] at hright)
+  have habsDiff :
+      (∑' value, ENNReal.absDiff (P value) (Q value)) = 2 * (1 - S) := by
+    simp only [ENNReal.absDiff, ENNReal.tsum_add, hleftSub, hrightSub, two_mul]
+  have htv : ENNReal.ofReal (tvDist left right) =
+      (∑' value, ENNReal.absDiff (P value) (Q value)) / 2 := by
+    rw [tvDist, SPMF.tvDist, PMF.tvDist,
+      ENNReal.ofReal_toReal (PMF.etvDist_ne_top _ _), PMF.etvDist,
+      tsum_option _ ENNReal.summable]
+    have hfailLeft : (evalDist left).toPMF none = 0 := probFailure_eq_zero (mx := left)
+    have hfailRight : (evalDist right).toPMF none = 0 := probFailure_eq_zero (mx := right)
+    rw [hfailLeft, hfailRight, ENNReal.absDiff_self, zero_add]
+    congr 1
+  change S + ENNReal.ofReal (tvDist left right) = 1
+  rw [htv, habsDiff, mul_comm,
+    ENNReal.mul_div_cancel_right (by norm_num) (by simp)]
+  exact add_tsub_cancel_of_le hS_le
+
+/-- The product of the coordinate overlaps is no larger than the overlap of the independent
+product distributions. -/
+theorem prod_overlapENN_le_overlapENN_fin_mOfFn {alpha : Type} [Finite alpha]
+    (count : ℕ) (left right : Fin count → ProbComp alpha) :
+    ∏ index, overlapENN (left index) (right index) ≤
+      overlapENN (Fin.mOfFn count left) (Fin.mOfFn count right) := by
+  classical
+  letI : Fintype alpha := Fintype.ofFinite alpha
+  simp only [overlapENN, tsum_fintype, probOutput_fin_mOfFn]
+  rw [Fintype.prod_sum]
+  apply Finset.sum_le_sum
+  intro values _
+  exact Finset.prod_min_le
+
+/-- Multiplicative finite-product TV bound.  Unlike the additive hybrid bound, this expression
+never loses the independent-product saturation:
+`TV(⊗ Pᵢ, ⊗ Qᵢ) ≤ 1 - ∏ᵢ (1 - TV(Pᵢ,Qᵢ))`. -/
+theorem ofReal_tvDist_fin_mOfFn_le_one_sub_prod {alpha : Type} [Finite alpha]
+    (count : ℕ) (left right : Fin count → ProbComp alpha) :
+    ENNReal.ofReal (tvDist (Fin.mOfFn count left) (Fin.mOfFn count right)) ≤
+      1 - ∏ index,
+        (1 - ENNReal.ofReal (tvDist (left index) (right index))) := by
+  let totalOverlap := overlapENN (Fin.mOfFn count left) (Fin.mOfFn count right)
+  have htotalAdd := overlapENN_add_ofReal_tvDist_eq_one
+    (Fin.mOfFn count left) (Fin.mOfFn count right)
+  have htotalFinite : totalOverlap ≠ ⊤ := by
+    exact ne_top_of_le_ne_top ENNReal.one_ne_top
+      (calc
+        totalOverlap ≤ totalOverlap +
+            ENNReal.ofReal
+              (tvDist (Fin.mOfFn count left) (Fin.mOfFn count right)) :=
+          le_add_right le_rfl
+        _ = 1 := htotalAdd)
+  have htotal :
+      ENNReal.ofReal (tvDist (Fin.mOfFn count left) (Fin.mOfFn count right)) =
+        1 - totalOverlap := by
+    exact ENNReal.eq_sub_of_add_eq htotalFinite (by rwa [add_comm] at htotalAdd)
+  have hcoordinate : ∀ index : Fin count,
+      overlapENN (left index) (right index) =
+        1 - ENNReal.ofReal (tvDist (left index) (right index)) := by
+    intro index
+    have hadd := overlapENN_add_ofReal_tvDist_eq_one (left index) (right index)
+    exact ENNReal.eq_sub_of_add_eq
+      (show ENNReal.ofReal (tvDist (left index) (right index)) ≠ ⊤ by simp)
+      hadd
+  rw [htotal]
+  calc
+    1 - totalOverlap ≤
+        1 - ∏ index, overlapENN (left index) (right index) :=
+      tsub_le_tsub_left
+        (prod_overlapENN_le_overlapENN_fin_mOfFn count left right) 1
+    _ = 1 - ∏ index,
+        (1 - ENNReal.ofReal (tvDist (left index) (right index))) := by
+      simp_rw [hcoordinate]
+
+/-- Union bound for the complement of a finite product, in real arithmetic. -/
+theorem one_sub_prod_one_sub_le_sum_real {index : Type} [Fintype index]
+    (cost : index → ℝ) (hnonneg : ∀ index, 0 ≤ cost index)
+    (hle : ∀ index, cost index ≤ 1) :
+    1 - ∏ index, (1 - cost index) ≤ ∑ index, cost index := by
+  classical
+  letI : DecidableEq index := Classical.decEq index
+  have hgeneral : ∀ indices : Finset index,
+      1 - ∏ index ∈ indices, (1 - cost index) ≤
+        ∑ index ∈ indices, cost index := by
+    intro indices
+    induction indices using Finset.induction_on with
+    | empty => simp
+    | @insert index indices hindex ih =>
+        rw [Finset.prod_insert hindex, Finset.sum_insert hindex]
+        have hproduct_le_one :
+            ∏ item ∈ indices, (1 - cost item) ≤ 1 :=
+          Finset.prod_le_one
+            (fun item hitem => sub_nonneg.mpr (hle item))
+            (fun item hitem => sub_le_self 1 (hnonneg item))
+        calc
+          1 - (1 - cost index) * ∏ item ∈ indices, (1 - cost item) =
+              (1 - ∏ item ∈ indices, (1 - cost item)) +
+                cost index * ∏ item ∈ indices, (1 - cost item) := by ring
+          _ ≤ (∑ item ∈ indices, cost item) + cost index := by
+            exact add_le_add ih
+              (mul_le_of_le_one_right (hnonneg index) hproduct_le_one)
+          _ = cost index + ∑ item ∈ indices, cost item := add_comm _ _
+  exact hgeneral Finset.univ
+
+/-- Probability-scale union bound `1 - ∏ᵢ(1-dᵢ) ≤ ∑ᵢ dᵢ` for `ENNReal` costs. -/
+theorem one_sub_prod_one_sub_le_sum {index : Type} [Fintype index]
+    (cost : index → ENNReal) (hle : ∀ index, cost index ≤ 1) :
+    1 - ∏ index, (1 - cost index) ≤ ∑ index, cost index := by
+  classical
+  have hcostFinite : ∀ index, cost index ≠ ⊤ := fun index =>
+    ne_top_of_le_ne_top ENNReal.one_ne_top (hle index)
+  have hfactorFinite : ∀ index, 1 - cost index ≠ ⊤ := fun _ => by simp
+  have hproduct_le_one : ∏ index, (1 - cost index) ≤ 1 :=
+    Finset.prod_le_one (fun _ _ => bot_le) (fun index _ => tsub_le_self)
+  have hlhsFinite : 1 - ∏ index, (1 - cost index) ≠ ⊤ :=
+    ne_top_of_le_ne_top ENNReal.one_ne_top tsub_le_self
+  have hrhsFinite : ∑ index, cost index ≠ ⊤ :=
+    ENNReal.sum_ne_top.mpr fun index _ => hcostFinite index
+  apply (ENNReal.toReal_le_toReal hlhsFinite hrhsFinite).mp
+  rw [ENNReal.toReal_sub_of_le hproduct_le_one ENNReal.one_ne_top,
+    ENNReal.toReal_one, ENNReal.toReal_prod, ENNReal.toReal_sum]
+  · simp_rw [ENNReal.toReal_sub_of_le (hle _) ENNReal.one_ne_top,
+      ENNReal.toReal_one]
+    exact one_sub_prod_one_sub_le_sum_real
+      (fun index => (cost index).toReal)
+      (fun _ => ENNReal.toReal_nonneg)
+      (fun index => ENNReal.toReal_mono ENNReal.one_ne_top (hle index))
+  · exact fun index _ => hcostFinite index
+
 /-- ENNReal-valued convexity for a shared bind, retaining the exact average of the conditional
 TV distances. -/
 theorem ofReal_tvDist_bind_left_le_expectation {alpha beta : Type}
@@ -498,6 +663,23 @@ theorem tvDist_add_fin_mOfFn_le_sum {R : Type} [Finite R] [Add R]
   rw [map_fin_mOfFn count (fun _ => sampler)
     (fun index value => shift index + value)]
   exact tvDist_fin_mOfFn_le_sum count
+    (fun index => (fun value => shift index + value) <$> sampler)
+    (fun _ => sampler)
+
+/-- Multiplicative counterpart of `tvDist_add_fin_mOfFn_le_sum`.  It keeps the exact
+probability-scale saturation across independent vector coordinates. -/
+theorem ofReal_tvDist_add_fin_mOfFn_le_one_sub_prod {R : Type} [Finite R] [Add R]
+    (count : ℕ) (sampler : ProbComp R) (shift : Fin count → R) :
+    ENNReal.ofReal
+        (tvDist
+          ((fun values index => shift index + values index) <$>
+            Fin.mOfFn count (fun _ => sampler))
+          (Fin.mOfFn count fun _ => sampler)) ≤
+      1 - ∏ index,
+        (1 - ENNReal.ofReal (addShiftDistance sampler (shift index))) := by
+  rw [map_fin_mOfFn count (fun _ => sampler)
+    (fun index value => shift index + value)]
+  exact ofReal_tvDist_fin_mOfFn_le_one_sub_prod count
     (fun index => (fun value => shift index + value) <$> sampler)
     (fun _ => sampler)
 

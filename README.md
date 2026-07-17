@@ -34,15 +34,21 @@ checks run inside the container; no host Lean installation is required.
   `min(1, 2kℓ · Adv_narrow(B±) + Δ_joint + Adv_wide)`.
   `advantage_le_of_ordinaryLWEBounds_tight` gives the convenient uniform corollary
   `min(1, 2kℓ · ε_narrow + ε_noise + sqrt((|R|^d - 1) / (ℓ+1)^k) / 2 + ε_wide)`.
-  The fully discharged `advantage_le_randomized_ordinaryLWE_analytic` and
-  `advantage_le_of_ordinaryLWEBounds_analytic` prove
-  `ε_noise ≤ min(1, m·kℓ/(ℓ+1) · δ_scalar)`, where `δ_scalar` is the exact average TV cost of
-  translating one wide-error sample by one narrow error. The moment-specialized theorem
-  `advantage_le_of_ordinaryLWEBounds_shiftMoment` reduces `δ_scalar` further to any supplied
-  one-dimensional shift slope times a narrow-error first moment.
-  `card_key`, `pairedBits_atMostOne`, and `extractorHash_leftover_tight` check the exact key space,
-  block structure, and finite leftover-hash constant. Only the scalar Gaussian translation and
-  moment estimates remain distribution-specific; the block/vector absorption argument is checked.
+  The sharper split theorem `advantage_le_randomized_ordinaryLWE_nonlinear` uses the exact finite
+  expectation of `1 - ∏ⱼ(1 - dⱼ)`, where each `dⱼ` is the translation TV of the complete summed
+  narrow-error shift in sample `j`. It has no caller-supplied shift, moment, or tail hypothesis and
+  is formally no worse than the older bound
+  `ε_noise ≤ min(1, m·kℓ/(ℓ+1) · δ_scalar)`.
+  `card_keys_with_activeBlockCount` and `probEvent_activeBlockCount_uniform_key` prove the exact
+  active-block law `Pr[H=h] = choose(k,h)ℓ^h/(ℓ+1)^k`; `extractorHash_leftover_tight` checks the
+  finite extraction constant.
+- `FormalProof4FHE.ModularGaussian.torusDistribution` defines the ideal mod-`q` discrete Gaussian
+  exactly as `D_ℤ,αq mod q`. `shiftDistance_distribution_le_valMinAbs` proves modular data
+  processing through the centered integer lift, and
+  `convolutionDistance_le_conditionalShiftCost` proves that mixing the summed error before TV can
+  only improve on revealing the shift. These are infinite-support mathematical `PMF`s. They are
+  deliberately not identified with an executable `ProbComp`: an implementation has finite support
+  and must be analyzed as the actual sampler used by the finite reduction.
 - `FormalProof4FHE.FiniteFieldRank.rankFailure_le` proves that a uniform
   `(d + δ) × d` finite-field matrix loses column rank with probability at most
   `2 / |F|^(δ+1)`. `rankMulFailure_le_rectangular` proves the fixed high-rank
