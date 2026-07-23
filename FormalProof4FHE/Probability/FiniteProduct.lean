@@ -84,6 +84,28 @@ theorem evalDist_sampleIID_uniform {alpha : Type} [Fintype alpha]
     Fintype.card_fun, Nat.cast_pow]
   exact ENNReal.inv_pow.symm
 
+/-- Sampling two finite types independently agrees with the canonical uniform sampler on their
+product.  Stating this at the level of evaluation distributions makes the result independent of
+which discoverable `SampleableType` instance supplies the product sampler. -/
+theorem evalDist_independent_uniform_product {first second : Type}
+    [Fintype first] [SampleableType first]
+    [Fintype second] [SampleableType second] :
+    𝒟[do
+      let left ← $ᵗ first
+      let right ← $ᵗ second
+      return (left, right)] =
+      𝒟[$ᵗ (first × second)] := by
+  rw [show (do
+      let left ← $ᵗ first
+      let right ← $ᵗ second
+      return (left, right)) =
+      Prod.mk <$> ($ᵗ first) <*> ($ᵗ second) by simp [monad_norm]]
+  apply evalDist_ext
+  intro output
+  simp only [probOutput_seq_map_prod_mk_eq_mul, probOutput_uniformSample,
+    Fintype.card_prod, Nat.cast_mul]
+  rw [ENNReal.mul_inv] <;> simp
+
 /-- Every coordinate of a uniformly sampled finite function is itself uniform. -/
 theorem evalDist_map_apply_uniformSample_fun {domain codomain : Type}
     [Finite domain] [DecidableEq domain]
@@ -139,6 +161,115 @@ theorem evalDist_fin_mOfFn_zip {left right : Type}
   simp [Finset.prod_mul_distrib]
   rw [probOutput_fin_mOfFn, probOutput_fin_mOfFn]
 
+/-- Coordinatewise distributional equality lifts to an independently sampled finite product. -/
+theorem evalDist_fin_mOfFn_congr {alpha : Type} [Finite alpha] (count : ℕ)
+    (left right : Fin count → ProbComp alpha)
+    (h : ∀ index, evalDist (left index) = evalDist (right index)) :
+    evalDist (Fin.mOfFn count left) = evalDist (Fin.mOfFn count right) := by
+  apply evalDist_ext
+  intro values
+  simp only [probOutput_fin_mOfFn]
+  apply Finset.prod_congr rfl
+  intro index _hindex
+  exact evalDist_ext_iff.mp (h index) (values index)
+
+/-- Sampling a finite input tape first and then independently processing every coordinate has
+the same output law as sampling and processing each coordinate consecutively.  This is the
+finite-product deferred-sampling rule used to turn repeated oracle access into an explicit
+finite challenge. -/
+theorem evalDist_presample_fin_mOfFn {alpha beta : Type} [Finite alpha] [Finite beta]
+    (count : ℕ)
+    (source : Fin count → ProbComp alpha)
+    (process : Fin count → alpha → ProbComp beta) :
+    evalDist (do
+      let inputs ← Fin.mOfFn count source
+      Fin.mOfFn count fun index => process index (inputs index)) =
+      evalDist (Fin.mOfFn count fun index => do
+        let input ← source index
+        process index input) := by
+  classical
+  letI : Fintype alpha := Fintype.ofFinite alpha
+  letI : Fintype beta := Fintype.ofFinite beta
+  apply evalDist_ext
+  intro outputs
+  simp only [probOutput_bind_eq_tsum, probOutput_fin_mOfFn, tsum_fintype]
+  rw [Fintype.prod_sum]
+  simp only [Finset.prod_mul_distrib]
+
+/-- A finite product of deterministic coordinate samplers is the deterministic function formed
+from those coordinates. -/
+theorem evalDist_fin_mOfFn_pure {alpha : Type} [Finite alpha]
+    (count : ℕ) (values : Fin count → alpha) :
+    evalDist
+        (Fin.mOfFn count
+          (fun index ↦ pure (values index) : Fin count → ProbComp alpha)) =
+      evalDist (pure values : ProbComp (Fin count → alpha)) := by
+  classical
+  letI : DecidableEq alpha := Classical.decEq alpha
+  apply evalDist_ext
+  intro output
+  rw [probOutput_fin_mOfFn]
+  simp only [probOutput_pure]
+  by_cases h : output = values
+  · subst output
+    simp
+  · rw [if_neg h]
+    obtain ⟨index, hindex⟩ := Function.ne_iff.mp h
+    rw [Finset.prod_eq_zero (Finset.mem_univ index)]
+    simp [hindex]
+
+/-- Sampling scalar sums independently in every coordinate is equivalent to sampling the two
+complete independent vectors first and adding them coordinatewise. -/
+theorem evalDist_sampleIID_add_convolution
+    {alpha : Type} [Finite alpha] [Add alpha]
+    (count : ℕ) (left right : ProbComp alpha) :
+    evalDist
+        (ProbComp.sampleIID count (do
+          let leftValue ← left
+          let rightValue ← right
+          return leftValue + rightValue)) =
+      evalDist (do
+        let leftValues ← ProbComp.sampleIID count left
+        let rightValues ← ProbComp.sampleIID count right
+        return fun index ↦ leftValues index + rightValues index) := by
+  unfold ProbComp.sampleIID
+  let process : Fin count → alpha → ProbComp alpha := fun _index leftValue ↦ do
+    let rightValue ← right
+    return leftValue + rightValue
+  have hLeft := evalDist_presample_fin_mOfFn
+    count (fun _index : Fin count ↦ left) process
+  have hRight (leftValues : Fin count → alpha) :=
+    evalDist_presample_fin_mOfFn
+      count (fun _index : Fin count ↦ right)
+      (fun index rightValue ↦
+        (pure (leftValues index + rightValue) : ProbComp alpha))
+  symm
+  calc
+    evalDist (do
+        let leftValues ← Fin.mOfFn count (fun _index : Fin count ↦ left)
+        let rightValues ← Fin.mOfFn count (fun _index : Fin count ↦ right)
+        return fun index ↦ leftValues index + rightValues index) =
+      evalDist (do
+        let leftValues ← Fin.mOfFn count (fun _index : Fin count ↦ left)
+        Fin.mOfFn count (fun index ↦ do
+          let rightValue ← right
+          return leftValues index + rightValue)) := by
+      apply evalDist_bind_congr'
+      intro leftValues
+      rw [← hRight leftValues]
+      apply evalDist_bind_congr'
+      intro rightValues
+      exact (evalDist_fin_mOfFn_pure count
+        (fun index ↦ leftValues index + rightValues index)).symm
+    _ = evalDist (Fin.mOfFn count (fun index ↦ do
+          let leftValue ← left
+          process index leftValue)) := hLeft
+    _ = evalDist (Fin.mOfFn count (fun _index ↦ do
+          let leftValue ← left
+          let rightValue ← right
+          return leftValue + rightValue)) := by
+      rfl
+
 /-- Pull one coordinate sampler in front of an independent finite product. -/
 theorem evalDist_pull_coordinate {alpha : Type} [Fintype alpha] [DecidableEq alpha]
     (count : ℕ) (samplers : Fin count → ProbComp alpha) (coordinate : Fin count) :
@@ -179,6 +310,174 @@ theorem evalDist_pull_coordinate {alpha : Type} [Fintype alpha] [DecidableEq alp
     (fun index => Pr[= values index | samplers index])
     (Finset.mem_univ coordinate)]
 
+/-- Coordinatewise support membership for an independent finite product. -/
+theorem mem_support_fin_mOfFn_apply {alpha : Type} (count : ℕ)
+    (samplers : Fin count → ProbComp alpha) (values : Fin count → alpha)
+    (hvalues : values ∈ support (Fin.mOfFn count samplers)) (coordinate : Fin count) :
+    values coordinate ∈ support (samplers coordinate) := by
+  induction count with
+  | zero => exact coordinate.elim0
+  | succ count ih =>
+      rw [Fin.mOfFn, mem_support_bind_iff] at hvalues
+      obtain ⟨head, hhead, hvalues⟩ := hvalues
+      rw [mem_support_bind_iff] at hvalues
+      obtain ⟨tail, htail, hvalues⟩ := hvalues
+      simp only [support_pure, Set.mem_singleton_iff] at hvalues
+      subst values
+      refine Fin.cases ?_ (fun index => ?_) coordinate
+      · simpa using hhead
+      · rw [Fin.cons_succ]
+        exact ih (fun index => samplers index.succ) tail htail index
+
+/-- A finite independent product of never-failing coordinate samplers never fails. -/
+theorem probFailure_fin_mOfFn_eq_zero {alpha : Type} (count : ℕ)
+    (samplers : Fin count → ProbComp alpha)
+    (hSamplers : ∀ index, Pr[⊥ | samplers index] = 0) :
+    Pr[⊥ | Fin.mOfFn count samplers] = 0 := by
+  induction count with
+  | zero => simp [Fin.mOfFn]
+  | succ count ih =>
+      simp only [Fin.mOfFn]
+      letI : NeverFail (samplers 0) :=
+        NeverFail.of_probFailure_eq_zero _ (hSamplers 0)
+      have hTail : Pr[⊥ | Fin.mOfFn count (fun index => samplers index.succ)] = 0 :=
+        ih (fun index => samplers index.succ) (fun index => hSamplers index.succ)
+      letI : NeverFail (Fin.mOfFn count (fun index => samplers index.succ)) :=
+        NeverFail.of_probFailure_eq_zero _ hTail
+      have hAll : NeverFail (do
+          let head ← samplers 0
+          let tail ← Fin.mOfFn count (fun index => samplers index.succ)
+          pure (Fin.cons (α := fun _ => alpha) head tail)) := by
+        apply NeverFail.bind_of_forall
+      exact hAll.probFailure_eq_zero
+
+/-- Two distinct coordinates of a never-failing finite independent product may be sampled
+explicitly and independently before any continuation that uses only those coordinates. -/
+theorem evalDist_bind_fin_mOfFn_two_coordinates
+    {alpha beta : Type} [Fintype alpha] [DecidableEq alpha]
+    (count : ℕ) (samplers : Fin count → ProbComp alpha)
+    (first second : Fin count) (hne : first ≠ second)
+    (hSamplers : ∀ index, Pr[⊥ | samplers index] = 0)
+    (finish : alpha → alpha → ProbComp beta) :
+    evalDist (Fin.mOfFn count samplers >>= fun values =>
+        finish (values first) (values second)) =
+      evalDist (samplers first >>= fun firstValue =>
+        samplers second >>= fun secondValue =>
+          finish firstValue secondValue) := by
+  let firstFixed := fun (firstValue : alpha) (index : Fin count) =>
+    if index = first then pure firstValue else samplers index
+  let bothFixed := fun (firstValue secondValue : alpha) (index : Fin count) =>
+    if index = second then pure secondValue else firstFixed firstValue index
+  let continuation := fun (values : Fin count → alpha) =>
+    finish (values first) (values second)
+  have hFirstPull :
+      evalDist (samplers first >>= fun firstValue =>
+          Fin.mOfFn count (firstFixed firstValue)) =
+        evalDist (Fin.mOfFn count samplers) := by
+    simpa only [firstFixed] using evalDist_pull_coordinate count samplers first
+  calc
+    _ = evalDist ((samplers first >>= fun firstValue =>
+          Fin.mOfFn count (firstFixed firstValue)) >>= continuation) := by
+      rw [evalDist_bind, evalDist_bind, hFirstPull]
+    _ = evalDist (samplers first >>= fun firstValue =>
+          Fin.mOfFn count (firstFixed firstValue) >>= continuation) := by
+      simp only [bind_assoc]
+    _ = evalDist (samplers first >>= fun firstValue =>
+          samplers second >>= fun secondValue =>
+            Fin.mOfFn count (bothFixed firstValue secondValue) >>= continuation) := by
+      refine evalDist_bind_congr' (samplers first) fun firstValue => ?_
+      have hSecondPull :
+          evalDist (samplers second >>= fun secondValue =>
+              Fin.mOfFn count (bothFixed firstValue secondValue)) =
+            evalDist (Fin.mOfFn count (firstFixed firstValue)) := by
+        simpa only [firstFixed, bothFixed, if_neg (Ne.symm hne)] using
+          evalDist_pull_coordinate count (firstFixed firstValue) second
+      calc
+        _ = evalDist ((samplers second >>= fun secondValue =>
+            Fin.mOfFn count (bothFixed firstValue secondValue)) >>= continuation) := by
+          rw [evalDist_bind, evalDist_bind, hSecondPull]
+        _ = _ := by simp only [bind_assoc]
+    _ = _ := by
+      refine evalDist_bind_congr' (samplers first) fun firstValue => ?_
+      refine evalDist_bind_congr' (samplers second) fun secondValue => ?_
+      let remaining := Fin.mOfFn count (bothFixed firstValue secondValue)
+      have hContinuation :
+          remaining >>= continuation = remaining >>= fun _ => finish firstValue secondValue := by
+        apply OracleComp.bind_congr_of_forall_mem_support
+        intro values hvalues
+        have hFirstSupport := mem_support_fin_mOfFn_apply count
+          (bothFixed firstValue secondValue) values hvalues first
+        have hSecondSupport := mem_support_fin_mOfFn_apply count
+          (bothFixed firstValue secondValue) values hvalues second
+        have hFirst : values first = firstValue := by
+          rw [show bothFixed firstValue secondValue first = pure firstValue by
+            simp [bothFixed, firstFixed, hne]] at hFirstSupport
+          simpa only [support_pure, Set.mem_singleton_iff] using hFirstSupport
+        have hSecond : values second = secondValue := by
+          rw [show bothFixed firstValue secondValue second = pure secondValue by
+            simp [bothFixed]] at hSecondSupport
+          simpa only [support_pure, Set.mem_singleton_iff] using hSecondSupport
+        simp only [continuation, hFirst, hSecond]
+      rw [hContinuation]
+      apply evalDist_ext
+      intro output
+      rw [probOutput_bind_const]
+      have hRemaining : Pr[⊥ | remaining] = 0 := by
+        apply probFailure_fin_mOfFn_eq_zero
+        intro index
+        by_cases hSecond : index = second
+        · simp [bothFixed, hSecond]
+        · by_cases hFirst : index = first
+          · simp [bothFixed, firstFixed, hFirst]
+          · rw [show bothFixed firstValue secondValue index = samplers index by
+              simp [bothFixed, firstFixed, hSecond, hFirst]]
+            exact hSamplers index
+      rw [hRemaining]
+      simp
+
+/-- Pull one coordinate in front of a finite product while retaining the complete table.  A
+continuation may use both the explicit pulled value and all remaining coordinates; the fixed
+coordinate in the retained table is proved equal to that value support-wise. -/
+theorem evalDist_bind_fin_mOfFn_pull_coordinate
+    {alpha beta : Type} [Fintype alpha] [DecidableEq alpha]
+    (count : ℕ) (samplers : Fin count → ProbComp alpha)
+    (coordinate : Fin count)
+    (finish : alpha → (Fin count → alpha) → ProbComp beta) :
+    evalDist (Fin.mOfFn count samplers >>= fun values =>
+        finish (values coordinate) values) =
+      evalDist (samplers coordinate >>= fun value =>
+        Fin.mOfFn count
+          (fun index => if index = coordinate then pure value else samplers index) >>= fun values =>
+            finish value values) := by
+  let fixed := fun (value : alpha) (index : Fin count) =>
+    if index = coordinate then pure value else samplers index
+  let continuation := fun (values : Fin count → alpha) =>
+    finish (values coordinate) values
+  have hPull :
+      evalDist (samplers coordinate >>= fun value => Fin.mOfFn count (fixed value)) =
+        evalDist (Fin.mOfFn count samplers) := by
+    simpa only [fixed] using evalDist_pull_coordinate count samplers coordinate
+  calc
+    _ = evalDist ((samplers coordinate >>= fun value =>
+          Fin.mOfFn count (fixed value)) >>= continuation) := by
+      rw [evalDist_bind, evalDist_bind, hPull]
+    _ = evalDist (samplers coordinate >>= fun value =>
+          Fin.mOfFn count (fixed value) >>= continuation) := by
+      simp only [bind_assoc]
+    _ = evalDist (samplers coordinate >>= fun value =>
+          Fin.mOfFn count (fixed value) >>= fun values => finish value values) := by
+      refine evalDist_bind_congr' (samplers coordinate) fun value => ?_
+      apply congrArg evalDist
+      apply OracleComp.bind_congr_of_forall_mem_support
+      intro values hvalues
+      have hCoordinateSupport := mem_support_fin_mOfFn_apply count
+        (fixed value) values hvalues coordinate
+      have hCoordinate : values coordinate = value := by
+        rw [show fixed value coordinate = pure value by simp [fixed]] at hCoordinateSupport
+        simpa only [support_pure, Set.mem_singleton_iff] using hCoordinateSupport
+      simp only [continuation, hCoordinate]
+    _ = _ := by rfl
+
 /-- The expectation of a nonnegative functional of one product coordinate is exactly its
 expectation under that coordinate's sampler. -/
 theorem tsum_probOutput_fin_mOfFn_apply_mul {alpha : Type} (count : ℕ)
@@ -198,6 +497,106 @@ theorem tsum_probOutput_fin_mOfFn_apply_mul {alpha : Type} (count : ℕ)
           tsum_probOutput_pure_mul, Fin.cons_succ]
         rw [ih (fun index => samplers index.succ) tailCoordinate]
         rw [ENNReal.tsum_mul_right, tsum_probOutput_of_liftM_PMF, one_mul]
+
+/-- An event depending on one coordinate of an independent finite product has exactly the
+probability of the corresponding event under that coordinate's sampler. -/
+theorem probEvent_fin_mOfFn_apply {alpha : Type} (count : ℕ)
+    (samplers : Fin count → ProbComp alpha) (coordinate : Fin count)
+    (event : alpha → Prop) :
+    Pr[(fun values => event (values coordinate)) | Fin.mOfFn count samplers] =
+      Pr[event | samplers coordinate] := by
+  classical
+  rw [probEvent_eq_tsum_ite, probEvent_eq_tsum_ite]
+  calc
+    (∑' values, if event (values coordinate) then
+        Pr[= values | Fin.mOfFn count samplers] else 0) =
+        ∑' values, Pr[= values | Fin.mOfFn count samplers] *
+          (if event (values coordinate) then 1 else 0) := by
+            refine tsum_congr fun values => ?_
+            by_cases hevent : event (values coordinate) <;> simp [hevent]
+    _ = ∑' value, Pr[= value | samplers coordinate] *
+          (if event value then 1 else 0) :=
+      tsum_probOutput_fin_mOfFn_apply_mul count samplers coordinate
+        (fun value => if event value then 1 else 0)
+    _ = ∑' value, if event value then Pr[= value | samplers coordinate] else 0 := by
+      refine tsum_congr fun value => ?_
+      by_cases hevent : event value <;> simp [hevent]
+
+/-- An event requiring every coordinate of an independent finite product to satisfy its own
+predicate has probability equal to the product of the coordinate probabilities. -/
+theorem probEvent_fin_mOfFn_forall {alpha : Type} [Finite alpha] (count : ℕ)
+    (samplers : Fin count → ProbComp alpha)
+    (events : Fin count → alpha → Prop) :
+    Pr[(fun values => ∀ coordinate, events coordinate (values coordinate)) |
+        Fin.mOfFn count samplers] =
+      ∏ coordinate, Pr[events coordinate | samplers coordinate] := by
+  classical
+  letI : Fintype alpha := Fintype.ofFinite alpha
+  rw [probEvent_eq_tsum_ite, tsum_fintype]
+  simp only [probOutput_fin_mOfFn]
+  simp_rw [probEvent_eq_tsum_ite, tsum_fintype]
+  rw [Fintype.prod_sum]
+  apply Finset.sum_congr rfl
+  intro values _
+  by_cases hall : ∀ coordinate, events coordinate (values coordinate)
+  · simp [hall]
+  · simp only [hall, if_false]
+    symm
+    rw [Finset.prod_eq_zero_iff]
+    obtain ⟨coordinate, hcoordinate⟩ := not_forall.mp hall
+    exact ⟨coordinate, Finset.mem_univ _, by simp [hcoordinate]⟩
+
+/-- Mapping a finite independent product through a function of one coordinate has the same
+distribution as mapping that coordinate's sampler directly. -/
+theorem evalDist_map_fin_mOfFn_apply {alpha beta : Type} (count : ℕ)
+    (samplers : Fin count → ProbComp alpha) (coordinate : Fin count)
+    (transform : alpha → beta) :
+    evalDist ((fun values => transform (values coordinate)) <$> Fin.mOfFn count samplers) =
+      evalDist (transform <$> samplers coordinate) := by
+  apply evalDist_ext
+  intro value
+  simp only [probOutput_map]
+  exact probEvent_fin_mOfFn_apply count samplers coordinate
+    (fun input => transform input = value)
+
+/-- Real-valued expectation obeys the usual map law for nonnegative costs.  The underlying
+`ProbComp` identity is stated for `ENNReal`; this wrapper performs the finite-valued `toReal`
+conversion once so statistical-distance developments can remain on the real scale. -/
+theorem tsum_probOutput_map_toReal_mul {alpha beta : Type}
+    (sampler : ProbComp alpha) (transform : alpha → beta) (cost : beta → ℝ)
+    (hcost : ∀ value, 0 ≤ cost value) :
+    (∑' value, Pr[= value | transform <$> sampler].toReal * cost value) =
+      ∑' input, Pr[= input | sampler].toReal * cost (transform input) := by
+  have hleftTop : ∀ value : beta,
+      Pr[= value | transform <$> sampler] * ENNReal.ofReal (cost value) ≠ ⊤ := by
+    intro value
+    exact ENNReal.mul_ne_top probOutput_ne_top ENNReal.ofReal_ne_top
+  have hrightTop : ∀ input : alpha,
+      Pr[= input | sampler] * ENNReal.ofReal (cost (transform input)) ≠ ⊤ := by
+    intro input
+    exact ENNReal.mul_ne_top probOutput_ne_top ENNReal.ofReal_ne_top
+  calc
+    _ = (∑' value,
+        Pr[= value | transform <$> sampler] * ENNReal.ofReal (cost value)).toReal := by
+      rw [ENNReal.tsum_toReal_eq hleftTop]
+      exact tsum_congr fun value ↦ by
+        rw [ENNReal.toReal_mul, ENNReal.toReal_ofReal (hcost value)]
+    _ = (∑' input,
+        Pr[= input | sampler] * ENNReal.ofReal (cost (transform input))).toReal := by
+      rw [tsum_probOutput_map_mul]
+    _ = _ := by
+      rw [ENNReal.tsum_toReal_eq hrightTop]
+      exact tsum_congr fun input ↦ by
+        rw [ENNReal.toReal_mul, ENNReal.toReal_ofReal (hcost (transform input))]
+
+/-- Equal evaluation distributions give equal real-valued expectations of the same cost. -/
+theorem tsum_probOutput_toReal_mul_congr {alpha : Type}
+    {left right : ProbComp alpha} (hdist : evalDist left = evalDist right)
+    (cost : alpha → ℝ) :
+    (∑' value, Pr[= value | left].toReal * cost value) =
+      ∑' value, Pr[= value | right].toReal * cost value := by
+  exact tsum_congr fun value ↦ by
+    rw [probOutput_congr rfl hdist]
 
 /-- Expectation of a constant under a total probabilistic computation is that constant. -/
 theorem tsum_probOutput_mul_const {alpha : Type} (sampler : ProbComp alpha)
@@ -402,6 +801,37 @@ theorem tvDist_fin_mOfFn_le_sum {alpha : Type} [Finite alpha] (count : ℕ)
       exact (tvDist_triangle _ middle _).trans
         (add_le_add hsameHead hsameTail)
 
+/-- Applying an independent deterministic map to every coordinate of a uniform finite function
+space costs at most the sum of its one-coordinate uniform distances. -/
+theorem tvDist_map_uniform_fun_le_sum {alpha : Type}
+    [SampleableType alpha] (count : ℕ)
+    (transform : Fin count → alpha → alpha) :
+    tvDist
+        ((fun values index => transform index (values index)) <$>
+          ($ᵗ (Fin count → alpha)))
+        ($ᵗ (Fin count → alpha)) ≤
+      ∑ index, tvDist (transform index <$> ($ᵗ alpha)) ($ᵗ alpha) := by
+  letI : Fintype alpha := Fintype.ofFinite alpha
+  let product : ProbComp (Fin count → alpha) :=
+    Fin.mOfFn count fun _ => $ᵗ alpha
+  let pointwise : (Fin count → alpha) → Fin count → alpha :=
+    fun values index => transform index (values index)
+  have huniform : evalDist product = evalDist ($ᵗ (Fin count → alpha)) := by
+    simpa only [ProbComp.sampleIID, product] using
+      (evalDist_sampleIID_uniform (alpha := alpha) count)
+  have hmapped : evalDist (pointwise <$> product) =
+      evalDist (pointwise <$> ($ᵗ (Fin count → alpha))) :=
+    evalDist_map_eq_of_evalDist_eq huniform pointwise
+  unfold tvDist
+  rw [← hmapped, ← huniform]
+  change tvDist (pointwise <$> product) product ≤ _
+  rw [show pointwise <$> product =
+      Fin.mOfFn count (fun index => transform index <$> ($ᵗ alpha)) by
+    simpa only [pointwise, product] using
+      (map_fin_mOfFn count (fun _ => ($ᵗ alpha : ProbComp alpha)) transform)]
+  exact tvDist_fin_mOfFn_le_sum count
+    (fun index => transform index <$> ($ᵗ alpha)) (fun _ => $ᵗ alpha)
+
 /-! ### Multiplicative total-variation bounds
 
 The usual hybrid inequality above is linear and can exceed one.  The following overlap
@@ -604,6 +1034,93 @@ theorem ofReal_tvDist_bind_left_le_expectation {alpha beta : Type}
   exact (ENNReal.ofReal_le_ofReal (tvDist_bind_left_le sampler left right)).trans_eq
     hofRealSum
 
+/-- Real-valued convexity for a shared bind, retaining the exact average of the conditional
+TV distances. -/
+theorem tvDist_bind_left_le_expectation {alpha beta : Type}
+    (sampler : ProbComp alpha) (left right : alpha → ProbComp beta) :
+    tvDist (sampler >>= left) (sampler >>= right) ≤
+      ∑' value,
+        Pr[= value | sampler].toReal * tvDist (left value) (right value) := by
+  have hprob_ne_top : ∀ value : alpha, Pr[= value | sampler] ≠ ⊤ := fun _ =>
+    ne_top_of_le_ne_top ENNReal.one_ne_top probOutput_le_one
+  have hprob_summable : Summable (fun value : alpha => Pr[= value | sampler].toReal) :=
+    ENNReal.summable_toReal (by
+      rw [tsum_probOutput_of_liftM_PMF]
+      exact ENNReal.one_ne_top)
+  have hsummand_nonneg : ∀ value : alpha,
+      0 ≤ Pr[= value | sampler].toReal * tvDist (left value) (right value) :=
+    fun _ => mul_nonneg ENNReal.toReal_nonneg (tvDist_nonneg _ _)
+  have hsummand_summable : Summable
+      (fun value : alpha =>
+        Pr[= value | sampler].toReal * tvDist (left value) (right value)) :=
+    Summable.of_nonneg_of_le hsummand_nonneg
+      (fun _ => mul_le_of_le_one_right ENNReal.toReal_nonneg (tvDist_le_one _ _))
+      hprob_summable
+  have hofRealSum :
+      ENNReal.ofReal
+          (∑' value : alpha,
+            Pr[= value | sampler].toReal * tvDist (left value) (right value)) =
+        ∑' value : alpha,
+          Pr[= value | sampler] *
+            ENNReal.ofReal (tvDist (left value) (right value)) := by
+    rw [ENNReal.ofReal_tsum_of_nonneg hsummand_nonneg hsummand_summable]
+    apply tsum_congr
+    intro value
+    rw [ENNReal.ofReal_mul ENNReal.toReal_nonneg,
+      ENNReal.ofReal_toReal (hprob_ne_top value)]
+  have h := ofReal_tvDist_bind_left_le_expectation sampler left right
+  rw [← hofRealSum] at h
+  have hreal := ENNReal.toReal_mono ENNReal.ofReal_ne_top h
+  simpa only [ENNReal.toReal_ofReal (tvDist_nonneg _ _),
+    ENNReal.toReal_ofReal (tsum_nonneg hsummand_nonneg)] using hreal
+
+/-- Averaging conditional TV bounds expressed by bad events gives the bad probability of the
+combined run.  This form is useful when the good conditional maps are exact permutations and
+rank failure is allowed on a small random set of public contexts. -/
+theorem tvDist_bind_left_le_probEvent_cont {prefixType outputType badOutput : Type}
+    (prefixSampler : ProbComp prefixType)
+    (left right : prefixType → ProbComp outputType)
+    (badRun : prefixType → ProbComp badOutput) (badEvent : badOutput → Prop)
+    (hpoint : ∀ prefixValue,
+      tvDist (left prefixValue) (right prefixValue) ≤
+        Pr[badEvent | badRun prefixValue].toReal) :
+    tvDist (prefixSampler >>= left) (prefixSampler >>= right) ≤
+      Pr[badEvent | prefixSampler >>= badRun].toReal := by
+  have hprobSummable : Summable
+      (fun value : prefixType => Pr[= value | prefixSampler].toReal) :=
+    ENNReal.summable_toReal
+      (ne_top_of_le_ne_top ENNReal.one_ne_top tsum_probOutput_le_one)
+  have hlhsSummable : Summable (fun value : prefixType =>
+      Pr[= value | prefixSampler].toReal *
+        tvDist (left value) (right value)) :=
+    hprobSummable.of_nonneg_of_le
+      (fun _ => mul_nonneg ENNReal.toReal_nonneg (tvDist_nonneg _ _))
+      (fun _ => mul_le_of_le_one_right ENNReal.toReal_nonneg
+        (tvDist_le_one _ _))
+  have hrhsSummable : Summable (fun value : prefixType =>
+      Pr[= value | prefixSampler].toReal * Pr[badEvent | badRun value].toReal) :=
+    hprobSummable.of_nonneg_of_le
+      (fun _ => mul_nonneg ENNReal.toReal_nonneg ENNReal.toReal_nonneg)
+      (fun _ => mul_le_of_le_one_right ENNReal.toReal_nonneg
+        (ENNReal.toReal_mono ENNReal.one_ne_top probEvent_le_one))
+  calc
+    tvDist (prefixSampler >>= left) (prefixSampler >>= right) ≤
+        ∑' value, Pr[= value | prefixSampler].toReal *
+          tvDist (left value) (right value) :=
+      tvDist_bind_left_le_expectation prefixSampler left right
+    _ ≤ ∑' value, Pr[= value | prefixSampler].toReal *
+          Pr[badEvent | badRun value].toReal :=
+      Summable.tsum_le_tsum
+        (fun value => mul_le_mul_of_nonneg_left (hpoint value)
+          ENNReal.toReal_nonneg) hlhsSummable hrhsSummable
+    _ = Pr[badEvent | prefixSampler >>= badRun].toReal := by
+      rw [probEvent_bind_eq_tsum, ENNReal.tsum_toReal_eq]
+      · exact tsum_congr fun value => ENNReal.toReal_mul.symm
+      · intro value
+        exact ENNReal.mul_ne_top
+          (ne_top_of_le_ne_top ENNReal.one_ne_top probOutput_le_one)
+          probEvent_ne_top
+
 /-- TV cost of translating a sampler by a fixed additive shift. -/
 noncomputable def addShiftDistance {R : Type} [Add R]
     (sampler : ProbComp R) (shift : R) : ℝ :=
@@ -651,6 +1168,59 @@ theorem addShiftDistance_sum_le_sum {index R : Type}
       simp only [Finset.sum_insert hindex]
       exact (addShiftDistance_add_le sampler (shift index)
         (∑ item ∈ indices, shift item)).trans (add_le_add le_rfl ih)
+
+/-- A never-failing sampler on a finite additive group that is close to each of its translates
+is close to uniform.  This is the averaging converse to translation invariance: average all
+translates over a uniform shift.  The translated mixture is exactly uniform, while the
+untranslated mixture is the original sampler. -/
+theorem tvDist_uniform_le_of_addShiftDistance_le
+    {R : Type} [AddCommGroup R] [Fintype R] [SampleableType R]
+    (sampler : ProbComp R) (hsampler : Pr[⊥ | sampler] = 0)
+    (bound : ℝ)
+    (hshift : ∀ shift : R, addShiftDistance sampler shift ≤ bound) :
+    tvDist sampler ($ᵗ R) ≤ bound := by
+  let uniform : ProbComp R := $ᵗ R
+  let shiftedMixture : ProbComp R := uniform >>= fun shift ↦
+    (fun value ↦ shift + value) <$> sampler
+  let constantMixture : ProbComp R := uniform >>= fun _shift ↦ sampler
+  have hmixture : tvDist shiftedMixture constantMixture ≤ bound := by
+    refine tvDist_bind_left_le_const' (m := ProbComp)
+      uniform (fun shift ↦ (fun value ↦ shift + value) <$> sampler)
+      (fun _shift ↦ sampler) bound ?_
+    exact hshift
+  have hconstant : evalDist constantMixture = evalDist sampler := by
+    unfold constantMixture
+    refine evalDist_ext fun output ↦ ?_
+    rw [probOutput_bind_const]
+    simp [uniform]
+  have hshifted : evalDist shiftedMixture = evalDist uniform := by
+    calc
+      evalDist shiftedMixture =
+          evalDist (sampler >>= fun value ↦
+            uniform >>= fun shift ↦ pure (shift + value)) := by
+        simpa only [shiftedMixture, Functor.map, bind_pure_comp] using
+          (evalDist_bind_bind_swap uniform sampler
+            (fun shift value ↦ pure (shift + value)))
+      _ = evalDist (sampler >>= fun _value ↦ uniform) := by
+        refine evalDist_bind_congr' sampler fun value ↦ ?_
+        let translation : R ≃ R :=
+          { toFun := fun shift ↦ shift + value
+            invFun := fun output ↦ output - value
+            left_inv := by intro shift; simp
+            right_inv := by intro output; simp }
+        simpa only [uniform, Functor.map, bind_pure_comp] using
+          (evalDist_map_bijective_uniform_cross
+            (α := R) (β := R) (fun shift ↦ shift + value) translation.bijective)
+      _ = evalDist uniform := by
+        refine evalDist_ext fun output ↦ ?_
+        rw [probOutput_bind_const, hsampler]
+        simp
+  have hmixtureEq :
+      tvDist shiftedMixture constantMixture = tvDist uniform sampler := by
+    unfold tvDist
+    rw [hshifted, hconstant]
+  rw [hmixtureEq] at hmixture
+  simpa only [tvDist_comm, uniform] using hmixture
 
 /-- Translating an independent vector costs at most the sum of its scalar translation costs. -/
 theorem tvDist_add_fin_mOfFn_le_sum {R : Type} [Finite R] [Add R]

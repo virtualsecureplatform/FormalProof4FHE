@@ -371,6 +371,87 @@ theorem rankFailure_toReal_eq {F : Type} [Field F] [Fintype F]
   rw [pow_mul, hnormalize]
   field_simp
 
+/-- The zero-first-column event gives a matching-direction lower bound on rectangular rank
+failure.  In particular, for fixed `rows` and nonzero `cols` the rank tail is bounded below by
+the positive constant `|F|⁻ʳᵒʷˢ`. -/
+theorem rankFailure_toReal_ge_inv_card_pow_rows {F : Type} [Field F] [Fintype F]
+    [SampleableType F] (rows cols : ℕ) (hcols : 0 < cols) (h : cols ≤ rows) :
+    ((Fintype.card F : ℝ) ^ rows)⁻¹ ≤
+      (Pr[(fun matrix : Matrix (Fin rows) (Fin cols) F ↦ matrix.rank < cols) |
+        ($ᵗ Matrix (Fin rows) (Fin cols) F)]).toReal := by
+  rw [rankFailure_toReal_eq rows cols h]
+  let first : Fin cols := ⟨0, hcols⟩
+  let factor : Fin cols → ℝ := fun i ↦
+    1 - (Fintype.card F : ℝ) ^ i.val / (Fintype.card F : ℝ) ^ rows
+  change ((Fintype.card F : ℝ) ^ rows)⁻¹ ≤ 1 - ∏ i, factor i
+  have hcard : (0 : ℝ) < Fintype.card F := by
+    exact_mod_cast Fintype.card_pos
+  have hfactor0 : ∀ i, 0 ≤ factor i := by
+    intro i
+    apply sub_nonneg.mpr
+    apply (div_le_one (pow_pos hcard rows)).2
+    exact_mod_cast Nat.pow_le_pow_right Fintype.card_pos (le_trans i.isLt.le h)
+  have hfactor1 : ∀ i, factor i ≤ 1 := by
+    intro i
+    dsimp [factor]
+    have : 0 ≤ (Fintype.card F : ℝ) ^ i.val /
+        (Fintype.card F : ℝ) ^ rows := by positivity
+    linarith
+  have hproduct : (∏ i, factor i) ≤ factor first := by
+    calc
+      (∏ i, factor i) = ∏ i ∈ Finset.univ, factor i := by simp
+      _ ≤ ∏ i ∈ {first}, factor i := by
+        apply Finset.prod_le_prod_of_subset_of_le_one
+        · exact Finset.singleton_subset_iff.mpr (Finset.mem_univ first)
+        · intro i _
+          exact hfactor0 i
+        · intro i _ _
+          exact hfactor1 i
+      _ = factor first := by simp
+  have hfirst : factor first = 1 - ((Fintype.card F : ℝ) ^ rows)⁻¹ := by
+    simp [factor, first, one_div]
+  rw [hfirst] at hproduct
+  linarith
+
+/-- Extended-nonnegative-real form of `rankFailure_toReal_ge_inv_card_pow_rows`. -/
+theorem rankFailure_ge_inv_card_pow_rows {F : Type} [Field F] [Fintype F]
+    [SampleableType F] (rows cols : ℕ) (hcols : 0 < cols) (h : cols ≤ rows) :
+    ((Fintype.card F : ℝ≥0∞) ^ rows)⁻¹ ≤
+      Pr[(fun matrix : Matrix (Fin rows) (Fin cols) F ↦ matrix.rank < cols) |
+        ($ᵗ Matrix (Fin rows) (Fin cols) F)] := by
+  apply (ENNReal.toReal_le_toReal
+    (ENNReal.inv_ne_top.mpr
+      (pow_ne_zero _ (Nat.cast_ne_zero.mpr Fintype.card_ne_zero)))
+    probEvent_ne_top).mp
+  simp only [ENNReal.toReal_inv, ENNReal.toReal_pow, ENNReal.toReal_natCast]
+  exact rankFailure_toReal_ge_inv_card_pow_rows rows cols hcols h
+
+/-- A uniform matrix has a fixed positive rank-failure floor whenever it has at least one
+column.  The event used here is only that the entire matrix is zero, so this deliberately weak
+lower bound is independent of the exact full-rank count and is convenient for proving that a
+constant-size rank tail is not negligible. -/
+theorem rankFailure_ge_inv_card_matrix {F : Type} [Field F] [Fintype F]
+    [SampleableType F] (rows cols : ℕ) (hcols : 0 < cols) :
+    (Fintype.card (Matrix (Fin rows) (Fin cols) F) : ℝ≥0∞)⁻¹ ≤
+      Pr[(fun matrix : Matrix (Fin rows) (Fin cols) F ↦ matrix.rank < cols) |
+        ($ᵗ Matrix (Fin rows) (Fin cols) F)] := by
+  calc
+    (Fintype.card (Matrix (Fin rows) (Fin cols) F) : ℝ≥0∞)⁻¹ =
+        Pr[= (0 : Matrix (Fin rows) (Fin cols) F) |
+          ($ᵗ Matrix (Fin rows) (Fin cols) F)] := by
+      symm
+      exact probOutput_uniformSample _ _
+    _ = Pr[(fun matrix : Matrix (Fin rows) (Fin cols) F ↦ matrix = 0) |
+          ($ᵗ Matrix (Fin rows) (Fin cols) F)] := by
+      symm
+      exact probEvent_eq_eq_probOutput _ _
+    _ ≤ Pr[(fun matrix : Matrix (Fin rows) (Fin cols) F ↦ matrix.rank < cols) |
+          ($ᵗ Matrix (Fin rows) (Fin cols) F)] := by
+      apply probEvent_mono''
+      intro matrix hmatrix
+      subst matrix
+      simpa using hcols
+
 /-- Union-bound form of the finite-field rank-failure estimate. -/
 theorem rankFailure_toReal_le_sum {F : Type} [Field F] [Fintype F]
     [SampleableType F] (rows cols : ℕ) (h : cols ≤ rows) :

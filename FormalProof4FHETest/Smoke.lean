@@ -7,6 +7,273 @@ Authors: Kotaro Matsuoka
 import FormalProof4FHE
 
 open scoped ENNReal
+open OracleComp
+
+#check FormalProof4FHE.RLWE.PowerOfTwoCyclotomic.cyclotomic_two_pow_succ_eq
+#check FormalProof4FHE.RLWE.PowerOfTwoCyclotomic.negacyclicIdeal_eq_cyclotomicIdeal
+#check FormalProof4FHE.RLWE.PowerOfTwoCyclotomic.executableToCyclotomic_injective
+#check FormalProof4FHE.RLWE.PowerOfTwoCyclotomic.executableToCyclotomic_surjective
+#check FormalProof4FHE.RLWE.PowerOfTwoCyclotomic.executableToCyclotomic_bijective
+#check FormalProof4FHE.RLWE.PowerOfTwoCyclotomic.executableEquivCyclotomic
+#check FormalProof4FHE.RLWE.PowerOfTwoCyclotomic.executableToCyclotomic_mul
+#check FormalProof4FHE.RLWE.PowerOfTwoCyclotomic.executableToCyclotomic_zero
+#check FormalProof4FHE.RLWE.PowerOfTwoCyclotomic.executableToCyclotomic_add
+#check FormalProof4FHE.RLWE.PowerOfTwoCyclotomic.executableToCyclotomic_commRing_mul
+#check FormalProof4FHE.RLWE.PowerOfTwoCyclotomic.real_evalDist
+#check FormalProof4FHE.RLWE.PowerOfTwoCyclotomic.uniform_evalDist
+#check FormalProof4FHE.RLWE.PowerOfTwoCyclotomic.reduction_advantage_eq
+#check FormalProof4FHE.RLWE.PowerOfTwoCyclotomic.ofExecutableAdversary_advantage_eq
+#check FormalProof4FHE.RLWE.PowerOfTwoCyclotomic.hardAgainst_of_executable
+#check FormalProof4FHE.RLWE.PowerOfTwoCyclotomic.executableHardAgainst_of_cyclotomic
+#check FormalProof4FHE.RLWE.quotientRingHom
+#check FormalProof4FHE.RLWE.quotientRingHom_injective
+#check FormalProof4FHE.RLWE.quotientOf_zero
+#check FormalProof4FHE.RLWE.quotientOf_add
+#check FormalProof4FHE.RLWE.quotientOf_commRing_mul
+#check FormalProof4FHE.RLWE.quotientOf_surjective
+#check FormalProof4FHE.RLWE.quotientOf_bijective
+#check FormalProof4FHE.RLWE.quotientEquiv
+#check FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput.SearchToDecision.Widened.AveragedCandidateViewTransformerReduction.toPairedSecretReduction
+#check FormalProof4FHE.TFHE.Native.ResidualCandidateView.AveragedResidualCandidateViewTransformer.toAveraged
+#check FormalProof4FHE.TFHE.Native.ResidualCandidateView.AveragedResidualCandidateViewTransformerReduction.publicHardAgainst_of_search
+#check FormalProof4FHE.TFHE.Native.ResidualCandidateView.Asymptotic.publicCircularLWE_advantage_le_search_add_loss
+#check FormalProof4FHE.TFHE.Native.ResidualCandidateView.Asymptotic.publicCircularLWESecurityGame_secureAgainst_of_search_and_loss
+#check FormalProof4FHE.TFHE.Native.ResidualCandidateView.Asymptotic.circularLWESecurityGame_secureAgainst_publicContinuations
+#check FormalProof4FHE.TFHE.Native.ResidualCandidateView.Asymptotic.monomialSecurityGame_secureAgainst_publicContinuations_of_publicCircular_and_zero
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.ScalarTransport.transform_sampleRealView_centeredBinomial_evalDist
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.ScalarTransport.sampleMaskedUniformBootstrapView_evalDist
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.bootstrapReplacementAdvantage_eq_publicKdmAdvantage
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.abs_signedAdvantage_real_le_publicCircular_add_two_jointLwe_add_uniformJointLwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.PublicAuxiliaryInputCircular.securityGame_advantage_le_publicCircular_add_three_jointLWE
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.PublicAuxiliaryInputCircular.secureAgainst_of_publicCircular_and_jointLWE
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.successProbability_completeScalarSolver_eq
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.ScalarSecretReduction.publicHardAgainst_of_search
+#check FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput.Search.PairedRecovery.CoordinateRecovery.ScalarMaskCandidateView.toAveraged
+#check FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput.Search.PairedRecovery.CoordinateRecovery.ScalarMaskCandidateView.candidateCheckGap_toCandidateCheck_eq_zero
+#check FormalProof4FHE.TFHE.Native.KeySwitchCandidateRandomization.randomizeKeySwitchKey_wrong_evalDist
+#check FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput.Search.PairedRecovery.CoordinateRecovery.KeySwitchFirstCandidateView.candidateCheckGap_eq_keySwitchDecisionAdvantage
+#check FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput.Search.PairedRecovery.CoordinateRecovery.KeySwitchFirstCandidateView.one_sub_sum_keySwitchDecisionError_le_pairedSearchSuccess_centeredBinomial
+#check FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput.Search.PairedRecovery.CoordinateRecovery.KeySwitchFirstSearchToDecision.publicAdvantage_eq_keySwitchDecisionAdvantage
+#check FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput.Search.PairedRecovery.CoordinateRecovery.KeySwitchFirstSearchToDecision.reduction
+#check FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput.Search.PairedRecovery.CoordinateRecovery.KeySwitchFirstSearchToDecision.nativePublicHardAgainst_of_nativeSearchHardness
+#check FormalProof4FHE.MajorityAmplification.vectorRecoveryGame_amplify_failure_le_of_common_average
+#check FormalProof4FHE.MajorityAmplification.amplifiedErrorReal_le_warmup_cooldown
+#check FormalProof4FHE.MajorityAmplification.three_pow_logarithmicRounds_le_polynomial
+#check FormalProof4FHE.MajorityAmplification.min_dimension_mul_amplifiedErrorReal_half_advantage_le
+#check FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput.Search.PairedRecovery.CoordinateRecovery.KeySwitchFirstFreshView.fixedCandidateGap_eq_fixedOrientedGap
+#check FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput.Search.PairedRecovery.CoordinateRecovery.KeySwitchFirstFreshView.one_sub_freshAmplifiedError_le_pairedSuccess_centeredBinomial
+#check FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput.Search.PairedRecovery.CoordinateRecovery.KeySwitchFirstFreshView.nativePublicHardAgainst_of_freshSearchHardness
+#check FormalProof4FHE.MajorityAmplification.majorityBatchViewCount_eq_pow
+#check FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput.Search.PairedRecovery.CoordinateRecovery.KeySwitchFirstFiniteView.viewCount_eq
+#check FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput.Search.PairedRecovery.CoordinateRecovery.KeySwitchFirstFiniteView.evalDist_game_amplifiedSolver_eq_freshGame
+#check FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput.Search.PairedRecovery.CoordinateRecovery.KeySwitchFirstFiniteView.nativePublicHardAgainst_of_finiteSearchHardness
+#check FormalProof4FHE.TFHE.Native.KeySwitchFirstCloudSecurity.generateZeroKeySwitchKey_uniformError_evalDist
+#check FormalProof4FHE.TFHE.Native.KeySwitchFirstCloudSecurity.circularAdvantage_le_decision_add_two_moduleLwe_add_lwe
+#check FormalProof4FHE.TFHE.Native.KeySwitchFirstCloudSecurity.circularHardAgainst_of_finiteSearch_and_lwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.KeySwitchFirstSecurity.abs_signedAdvantage_real_le_decision_add_two_moduleLwe_add_inputLwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.KeySwitchFirstSecurity.inputTapeReduction_game1_probOutput_true
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.KeySwitchFirstFiniteView.viewCount_eq
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.KeySwitchFirstFiniteView.abs_signedAdvantage_real_le_finiteSearch_add_loss_add_two_moduleLwe_add_inputLwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.KeySwitchFirstFiniteView.hardAgainst_of_finiteSearch_and_lwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.KeySwitchFirstFiniteView.decisionAdvantage_le_two_mul_success_add_two_mul_balancedError
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.KeySwitchFirstFiniteView.decisionAdvantage_le_two_mul_success_add_two_mul_balancedResidual
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.KeySwitchFirstFiniteView.balancedAmplificationError_eq_natCast_mul
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.KeySwitchFirstFiniteView.abs_signedAdvantage_real_le_two_mul_finiteSearch_add_two_mul_error_add_two_moduleLwe_add_inputLwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.KeySwitchFirstFiniteView.abs_signedAdvantage_real_le_two_mul_finiteSearch_add_two_mul_residual_add_two_moduleLwe_add_inputLwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView.exactViewCount_le_polynomial
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView.securityGame_advantage_le_finiteSearch_add_loss_add_two_ringBatchLWE_add_inputLWE
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView.secureAgainst_of_finiteSearch_and_lwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView.securityGame_advantage_le_two_mul_finiteSearch_add_two_mul_balancedError_add_lwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView.secureAgainst_of_finiteSearch_and_balancedError_and_lwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView.securityGame_advantage_le_two_mul_finiteSearch_add_two_mul_residual_add_lwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView.secureAgainst_of_finiteSearch_and_residual_and_lwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView.balancedErrorSecurityGame_secureAgainst_of_coordinateError
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView.secureAgainst_of_finiteSearch_and_coordinateError_and_lwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView.tendsto_pow_mul_balancedResidual_negligibilitySchedule_zero
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView.secureAgainst_of_universal_finiteSearch_and_lwe
+#check FormalProof4FHE.LWE.AuxiliaryInput.Search.successProbability_exactRecovery_le_circularLwe_add_uniform
+#check FormalProof4FHE.LWE.AuxiliaryInput.Search.probOutput_uniformSecret_recovery_eq_inv_card
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.KeySwitchFirstFiniteView.successProbability_le_batchCircularAdvantage_add_guess
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView.negligible_inv_two_pow
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView.searchSecurityGame_secureAgainst_of_batchCircular
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView.secureAgainst_of_universal_batchCircular_and_lwe
+#check FormalProof4FHE.MajorityAmplification.evalDist_vectorMajorityBatchEquiv_sample
+#check FormalProof4FHE.LWE.AuxiliaryInput.Batch.advantage_eq_card_mul_randomHybrid
+#check FormalProof4FHE.LWE.SearchEquiv.searchExperiment_evalDist_eq
+#check FormalProof4FHE.LWE.TwoBlock.searchExperiment_evalDist_eq_batch
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.KeySwitchFirstFiniteView.fixedUniformBootstrapView_evalDist_eq_fixedSideLweView
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.KeySwitchFirstFiniteView.uniformBootstrapRecoveryGame_evalDist_eq_sideLweSearchExperiment
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.KeySwitchFirstFiniteView.successProbability_le_bootstrapBatchCircular_add_flatSearchLwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.KeySwitchFirstFiniteView.successProbability_le_bootstrapBatchCircular_add_ordinarySearchLwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.KeySwitchFirstFiniteView.bootstrapBatchCircularAdvantage_eq_viewCount_mul_nativeCircularLwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView.searchSecurityGame_advantage_le_bootstrapCircular_add_flatSearchLwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView.searchSecurityGame_advantage_le_bootstrapCircular_add_ordinarySearchLwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView.searchSecurityGame_secureAgainst_of_bootstrapCircular_and_ordinarySearchLwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView.secureAgainst_of_universal_bootstrapCircular_flatSearchLwe_and_lwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView.bootstrapBatchCircularSecurityGame_advantage_eq_viewCount_mul_nativeCircularLWE
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView.securityGame_advantage_le_nativeCircular_add_ordinarySearchLwe_add_finiteLoss_add_postCut
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView.bootstrapBatchCircularSecurityGame_secureAgainst_of_nativeCircularLWE
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView.secureAgainst_of_universal_nativeCircular_flatSearchLwe_and_lwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView.secureAgainst_of_universal_nativeCircular_ordinarySearchLwe_and_lwe
+#check FormalProof4FHE.TFHE.CenteredBinomial.scalarSampler_probFailure
+#check FormalProof4FHE.TFHE.CenteredBinomial.Family.polynomialViewSchedule
+#check FormalProof4FHE.TFHE.CenteredBinomial.Family.secureAgainst_of_finiteSearch_and_lwe
+#check FormalProof4FHE.TFHE.CenteredBinomial.Family.secureAgainst_of_finiteSearch_and_balancedError_and_lwe
+#check FormalProof4FHE.TFHE.CenteredBinomial.Family.secureAgainst_of_finiteSearch_and_residual_and_lwe
+#check FormalProof4FHE.TFHE.CenteredBinomial.Family.secureAgainst_of_finiteSearch_and_coordinateError_and_lwe
+#check FormalProof4FHE.TFHE.CenteredBinomial.Family.secureAgainst_of_universal_finiteSearch_and_lwe
+#check FormalProof4FHE.TFHE.CenteredBinomial.Family.secureAgainst_of_universal_batchCircular_and_lwe
+#check FormalProof4FHE.TFHE.CenteredBinomial.Family.secureAgainst_of_universal_bootstrapCircular_flatSearchLwe_and_lwe
+#check FormalProof4FHE.TFHE.CenteredBinomial.Family.secureAgainst_of_universal_nativeCircular_flatSearchLwe_and_lwe
+#check FormalProof4FHE.TFHE.CenteredBinomial.Family.secureAgainst_of_universal_nativeCircular_ordinarySearchLwe_and_lwe
+#check FormalProof4FHE.TFHE.CenteredBinomial.EndToEnd.secureAgainst_of_universal_batchCircular_and_lwe
+#check FormalProof4FHE.TFHE.CenteredBinomial.EndToEnd.secureAgainst_of_universal_bootstrapCircular_flatSearchLwe_and_lwe
+#check FormalProof4FHE.TFHE.CenteredBinomial.EndToEnd.secureAgainst_of_universal_nativeCircular_flatSearchLwe_and_lwe
+#check FormalProof4FHE.TFHE.CenteredBinomial.EndToEnd.secureAgainst_of_universal_nativeCircular_ordinarySearchLwe_and_lwe
+#check FormalProof4FHE.TFHE.CenteredBinomial.EndToEnd.secureAgainst_and_refreshCorrect_of_nativeCircular_ordinarySearchLwe
+#check FormalProof4FHE.TFHE.SharpRotationNoise.negacyclicConvCoeff_eq_sum_source
+#check FormalProof4FHE.TFHE.SharpRotationNoise.cInfNorm_mul_le_linear
+#check FormalProof4FHE.TFHE.SharpRotationNoise.cInfNorm_externalProductError_ringDigits_le_linear
+#check FormalProof4FHE.TFHE.SharpRotationNoise.cInfNorm_rotationMonomial_mul_le
+#check FormalProof4FHE.TFHE.SharpRotationNoise.cInfNorm_rotationMonomial_sub_one_mul_le_two
+#check FormalProof4FHE.TFHE.SharpRotationNoise.cInfNorm_idealMultiplier_mul_le
+#check FormalProof4FHE.TFHE.BootstrappingCorrectness.cInfNorm_nativeStepError_le_linear
+#check FormalProof4FHE.TFHE.BootstrappingCorrectness.cInfNorm_nativeAccumulatedError_le_linear
+#check FormalProof4FHE.TFHE.BootstrappingCorrectness.decode_nativeBlindRotate_apply_linear
+#check FormalProof4FHE.TFHE.RotationLookup.decode_nativeBlindRotate_apply_bitTable_linear
+#check FormalProof4FHE.TFHE.CenteredBinomialCorrectness.probEvent_bitTableBootstrappingResult_eq_one_linear
+#check FormalProof4FHE.TFHE.CenteredBinomialRefresh.probEvent_fresh_bitTableBootstrappingResult_eq_one_linear
+#check FormalProof4FHE.TFHE.CenteredBinomial.EndToEnd.refreshCorrectLinear
+#check FormalProof4FHE.TFHE.CenteredBinomial.EndToEnd.secureAgainst_and_refreshCorrectLinear_of_nativeCircular_ordinarySearchLwe
+#check FormalProof4FHE.TFHE.CenteredBinomial.EndToEnd.not_exactRotation_linearOutputMargin_of_pos
+#check FormalProof4FHE.TFHE.RotationLookup.nativePhaseExponent_divisibleRoundExponent
+#check FormalProof4FHE.TFHE.RotationLookup.decode_nativeBlindRotate_apply_bitTable_divisible_linear
+#check FormalProof4FHE.TFHE.CenteredBinomialDivisibleRefresh.probEvent_fresh_bitTableBootstrappingResult_eq_one
+#check FormalProof4FHE.TFHE.CenteredBinomial.LargeModulusEndToEnd.outputMargin
+#check FormalProof4FHE.TFHE.CenteredBinomial.LargeModulusEndToEnd.refreshCorrect
+#check FormalProof4FHE.TFHE.CenteredBinomial.LargeModulusEndToEnd.secureAgainst_and_refreshCorrect_of_nativeCircular_ordinarySearchLwe
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.ringDegree_isPowerOfTwo
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.firstTGSWGadget_ne_zero
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.nativeMaskBlockPhase_not_affine
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.nativeBinaryMaskBlockPhase_not_affine
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.nativeBinaryKeyCoordinateProduct_not_affine
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.nativePolynomialMaskBlockPhase_not_affine_on_binaryKeys
+#check FormalProof4FHE.GeneralizedSubspaceLWE.Adaptive.noisyInnerProduct_eq_secretAffine
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.concreteBatchSampleCount_eq
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.concreteBatchSampleCount_le_polynomial
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.concreteBatchLWEProblem
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.concreteBatchLWESecurityGame_eq_batchLWE
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.securityGame_advantage_le_nativeMonomialKDM_add_concreteBatchLWE
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.secureAgainst_of_nativeMonomialKDM_and_concreteBatchLWE
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.evaluationSecureAgainst_of_nativeMonomialKDM_and_concreteBatchLWE
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.securityGame_advantage_le_nativeCircularLWE_add_three_batchLWE
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.CircularConfidentialityFoundation
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.secureAgainst_of_circularConfidentialityFoundation
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.evaluationSecureAgainst_of_circularConfidentialityFoundation
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.securityGame_advantage_le_nativeCircularLWE_add_three_concreteBatchLWE
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.secureAgainst_of_nativeCircularLWE_and_batchLWE
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.secureAgainst_of_nativeCircularLWE_and_concreteBatchLWE
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.compilePublicEvaluation_isQueryBound
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.evaluationSecurityGame_advantage_eq
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.evaluationSecureAgainst_of_security
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.evaluationSecureAgainst_of_nativeCircularLWE_and_concreteBatchLWE
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.securityGame_advantage_le_nativeCircular_add_ordinarySearchLwe_add_finiteLoss_add_two_cyclotomicRLWE_add_inputLWE
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.cyclotomic_two_mul_ringDegree_eq
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.ringQuotientEquivCyclotomic
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.coefficientCyclotomicQuotientOf_injective
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.coefficientCyclotomicQuotientOf_surjective
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.coefficientCyclotomicQuotientOf_bijective
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.coefficientCyclotomicEquiv
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.coefficientCyclotomicQuotientOf_mul
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.targetDegree_le_ringDegree
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.ringDegree_le_sixteen_mul_errorWidth
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.inputMargin
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.keySwitchGadget_recoveryLevel
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.centeredDistance_zero_keySwitchGadget_recoveryLevel
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.keySwitchRecoveryMargin
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.publicCircularLWESecurityGame_secureAgainst_of_search_and_residual
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.nativeCircularLWESecurityGame_secureAgainst_publicContinuations_of_search_and_residual
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.nativeMonomialSecurityGame_secureAgainst_publicContinuations_of_search_residual_and_zero
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.AdaptivePublicCircular.secureAgainst_and_refreshCorrect_of_publicCircular_and_jointLWE
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.PublicAuxiliaryInputCircular.AugmentedResidual.publicCircularLWE_advantage_le_search_add_loss
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.PublicAuxiliaryInputCircular.AugmentedResidual.publicCircularLWESecurityGame_secureAgainst_of_search_and_loss
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.AdaptivePublicCircular.secureAgainst_and_refreshCorrect_of_search_residual_and_jointLWE
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AveragedCandidateViewTransformerReduction.toPairedSecretReduction
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.AveragedResidualCandidateViewTransformer.toAveraged
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.AveragedResidualCandidateViewTransformerReduction.toPairedSecretReduction
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.AveragedResidualCandidateViewTransformerReduction.publicHardAgainst_of_search
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.coefficientModulus_le_polynomial_eval
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.nativeLinearNoiseBudget_eq
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.outputMargin
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.refreshCorrect
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.secureAgainst_and_refreshCorrect_of_nativeCircular_ordinarySearchLwe
+#check FormalProof4FHE.TFHE.Native.BootstrapCutSecurity.batchModuleLweProblem_one_distr_evalDist_eq_binarySecretRLWE
+#check FormalProof4FHE.TFHE.Native.BootstrapCutSecurity.batchModuleLweProblem_one_advantage_eq_binarySecretRLWE
+#check FormalProof4FHE.TFHE.Native.CoefficientStructuredLWE.coefficientEquiv_mul
+#check FormalProof4FHE.TFHE.Native.CoefficientStructuredLWE.card_ringBinarySecret
+#check FormalProof4FHE.TFHE.Native.CoefficientStructuredLWE.probOutput_sampleRingSecret
+#check FormalProof4FHE.TFHE.Native.CoefficientStructuredLWE.problem_noiseless_eq_negacyclicVecMul
+#check FormalProof4FHE.TFHE.Native.CoefficientStructuredLWE.coefficientErrorSampler_centeredBinomial
+#check FormalProof4FHE.TFHE.Native.CoefficientStructuredLWE.advantage_eq_ring
+#check FormalProof4FHE.TFHE.Native.CoefficientStructuredLWE.advantage_eq_binarySecretRLWE
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.CutCycleSecurity.binarySecretRLWESecurityGame
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.postCutBinarySecretRLWESecurityGame_eq_ringBatchLWE
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.secureAgainst_and_refreshCorrect_of_nativeCircular_ordinarySearchLwe_binarySecretRLWE
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.postCutBinarySecretRLWE_advantage_eq_cyclotomic
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.postCutBinarySecretRLWESecurityGame_secureAgainst_of_cyclotomic
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.secureAgainst_and_refreshCorrect_of_nativeCircular_ordinarySearchLwe_cyclotomicRLWE
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.secureAgainst_of_nativeCircular_ordinarySearchLwe_cyclotomicRLWE
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.postCutCoefficientErrorSampler_eq_centeredBinomial
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.postCutRingSecret_pointProbability
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.ringBatchLWESecurityGame_advantage_eq_coefficientStructuredLWE
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.ringBatchLWESecurityGame_secureAgainst_of_coefficientStructuredLWE
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.secureAgainst_and_refreshCorrect_of_nativeCircular_ordinarySearchLwe_coefficientStructuredLWE
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.decomposition_exactCapacity
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.pairedBinaryRankFailure_eq_fixed
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.fixedPairedBinaryRankFailure_exact
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.pairedBinaryRankFailure_ge
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.pairedBinaryRankFailure_not_negligible
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.secureAgainst_and_refreshCorrect_and_pairedRankObstruction_of_nativeCircular_ordinarySearchLwe_cyclotomicRLWE
+
+example {Context : Type} (source : ProbComp (Bool × Context)) (orientation : Bool)
+    (check : Bool → Context → ProbComp Bool) :
+    (Pr[= true | FormalProof4FHE.BinaryGuessCheck.game source orientation check]).toReal =
+      (1 + FormalProof4FHE.BinaryGuessCheck.orientedGap source orientation check) / 2 := by
+  exact FormalProof4FHE.BinaryGuessCheck.successProbability_eq_half_add_orientedGap
+    source orientation check
+
+example {Context : Type} (source : ProbComp (Bool × Context))
+    (guess : Context → ProbComp Bool) (rounds : ℕ) (error : ENNReal)
+    (herror_one : error ≤ 1)
+    (herror : ∀ hiddenAndContext ∈ support source,
+      Pr[= false | FormalProof4FHE.MajorityAmplification.correctness hiddenAndContext.1
+        (guess hiddenAndContext.2)] ≤ error) :
+    Pr[= false | FormalProof4FHE.MajorityAmplification.recoveryGame source
+      (FormalProof4FHE.MajorityAmplification.amplify rounds guess)] ≤
+        FormalProof4FHE.MajorityAmplification.amplifiedError rounds error := by
+  exact FormalProof4FHE.MajorityAmplification.recoveryGame_amplify_failure_le
+    source guess rounds error herror_one herror
+
+example {Context : Type} (source : ProbComp (Bool × Context))
+    (guess : Context → ProbComp Bool) (rounds : ℕ)
+    (threshold averageError : ENNReal) (hthreshold_pos : 0 < threshold)
+    (hthreshold_one : threshold ≤ 1)
+    (haverage :
+      Pr[= false | FormalProof4FHE.MajorityAmplification.recoveryGame source guess] ≤
+        averageError) :
+    Pr[= false | FormalProof4FHE.MajorityAmplification.recoveryGame source
+      (FormalProof4FHE.MajorityAmplification.amplify rounds guess)] ≤
+        FormalProof4FHE.MajorityAmplification.amplifiedError rounds threshold +
+          averageError / threshold := by
+  exact FormalProof4FHE.MajorityAmplification.recoveryGame_amplify_failure_le_of_average
+    source guess rounds threshold averageError hthreshold_pos hthreshold_one haverage
+
+example {Alpha : Type} (count : ℕ) (samplers : Fin count → ProbComp Alpha)
+    (coordinate : Fin count) (event : Alpha → Prop) :
+    Pr[(fun values => event (values coordinate)) | Fin.mOfFn count samplers] =
+      Pr[event | samplers coordinate] := by
+  exact FormalProof4FHE.FiniteProduct.probEvent_fin_mOfFn_apply
+    count samplers coordinate event
 
 example {Sample Secret Output : Type} [Add Output]
     (problem : LearningWithErrors.Problem Sample Secret Output)
@@ -19,6 +286,1271 @@ example {Sample Secret Output : Type} [Add Output]
     (adversary : LearningWithErrors.Adversary problem) :
     LearningWithErrors.advantage problem adversary ≤ 1 := by
   exact FormalProof4FHE.LWE.advantage_le_one problem adversary
+
+example {Secret Challenge Auxiliary : Type}
+    (problem : FormalProof4FHE.LWE.AuxiliaryInput.Problem
+      Secret Challenge Auxiliary)
+    (continuation : FormalProof4FHE.LWE.AuxiliaryInput.Continuation
+      Secret Challenge Auxiliary) :
+    FormalProof4FHE.LWE.AuxiliaryInput.kdmAdvantage problem continuation ≤
+      FormalProof4FHE.LWE.AuxiliaryInput.circularLweAdvantage problem continuation +
+        FormalProof4FHE.LWE.AuxiliaryInput.zeroLweAdvantage problem continuation := by
+  exact FormalProof4FHE.LWE.AuxiliaryInput.kdmAdvantage_le_circularLwe_add_zeroLwe
+    problem continuation
+
+example {Secret Challenge Auxiliary : Type} [DecidableEq Secret]
+    (problem : FormalProof4FHE.LWE.AuxiliaryInput.Problem
+      Secret Challenge Auxiliary)
+    (solver : FormalProof4FHE.LWE.AuxiliaryInput.Search.Solver
+      Secret Challenge Auxiliary) :
+    FormalProof4FHE.LWE.AuxiliaryInput.Search.game
+        (FormalProof4FHE.LWE.AuxiliaryInput.Search.exactRecoveryProblem problem) solver =
+      FormalProof4FHE.LWE.AuxiliaryInput.realGame problem
+        (FormalProof4FHE.LWE.AuxiliaryInput.Search.recoveryContinuation solver) := by
+  exact FormalProof4FHE.LWE.AuxiliaryInput.Search.game_exactRecoveryProblem_eq_realGame
+    problem solver
+
+example {Secret Mask View : Type}
+    (compiler : FormalProof4FHE.LWE.AuxiliaryInput.SearchToDecision.ViewRandomization
+      Secret Mask View)
+    (secret : Secret) :
+    tvDist (compiler.randomizedView secret) compiler.freshWideView ≤ compiler.error := by
+  exact compiler.randomizedView_tvDist_freshWideView_le secret
+
+example {q degree sampleCount : ℕ} [NeZero q]
+    (errorSampler : ProbComp (FormalProof4FHE.RLWE.Rq q degree)) :
+    FormalProof4FHE.RLWE.uniformSecretProblem q degree sampleCount errorSampler =
+      FormalProof4FHE.RLWE.moduleProblem q degree 1 sampleCount errorSampler := by
+  exact FormalProof4FHE.RLWE.uniformSecretProblem_eq_moduleProblem_one
+    q degree sampleCount errorSampler
+
+example {q degree sampleCount : ℕ} [NeZero q]
+    (errorSampler : ProbComp (FormalProof4FHE.RLWE.Rq q degree))
+    (adversary : LearningWithErrors.Adversary
+      (FormalProof4FHE.RLWE.uniformSecretProblem q degree sampleCount errorSampler)) :
+    LearningWithErrors.advantage
+      (FormalProof4FHE.RLWE.uniformSecretProblem q degree sampleCount errorSampler) adversary ≤ 1 := by
+  exact FormalProof4FHE.RLWE.uniformAdvantage_le_one errorSampler adversary
+
+example {q degree eta : ℕ} [NeZero q]
+    {error : FormalProof4FHE.RLWE.Rq q degree}
+    (herror : error ∈ support
+      (FormalProof4FHE.RLWE.CenteredBinomial.sampler q degree eta)) :
+    FormalProof4FHE.RLWE.CenteredBinomial.CoeffBounded eta error := by
+  exact FormalProof4FHE.RLWE.CenteredBinomial.coeffBounded_of_mem_support herror
+
+example {q degree eta : ℕ} [NeZero q]
+    {error : FormalProof4FHE.RLWE.Rq q (degree + 1)}
+    (herror : error ∈ support
+      (FormalProof4FHE.RLWE.CenteredBinomial.sampler q (degree + 1) eta)) :
+    LatticeCrypto.cInfNorm error ≤ eta := by
+  exact
+    FormalProof4FHE.TFHE.CenteredBinomialCorrectness.cInfNorm_le_eta_of_mem_support
+      herror
+
+example {q eta : ℕ} [NeZero q] {error : ZMod q}
+    (herror : error ∈ support
+      (FormalProof4FHE.TFHE.CenteredBinomial.scalarSampler q eta)) :
+    FormalProof4FHE.TFHE.CenteredBinomial.ScalarBounded eta error := by
+  exact FormalProof4FHE.TFHE.CenteredBinomial.scalarBounded_of_mem_support herror
+
+example (q eta : ℕ) [NeZero q] (error : ZMod q) :
+    Pr[= -error | FormalProof4FHE.TFHE.CenteredBinomial.scalarSampler q eta] =
+      Pr[= error | FormalProof4FHE.TFHE.CenteredBinomial.scalarSampler q eta] := by
+  exact FormalProof4FHE.TFHE.CenteredBinomial.scalar_probOutput_neg q eta error
+
+example {rank degree : ℕ}
+    (ringSecret : FormalProof4FHE.TFHE.RingBinarySecret rank degree) :
+    FormalProof4FHE.TFHE.keyUnextract
+        (FormalProof4FHE.TFHE.keyExtract ringSecret) = ringSecret := by
+  exact FormalProof4FHE.TFHE.keyUnextract_keyExtract ringSecret
+
+example (q degree : ℕ) [NeZero q] :
+    Fintype.card (FormalProof4FHE.RLWE.Rq q degree) = q ^ degree := by
+  exact FormalProof4FHE.RLWE.RingRegev.card_rq q degree
+
+example (q degree sampleCount : ℕ) [NeZero q]
+    (errorSampler : ProbComp (FormalProof4FHE.RLWE.Rq q degree)) :
+    FormalProof4FHE.RingRegev.lweProblem
+        (FormalProof4FHE.RLWE.Rq q degree) 1 sampleCount errorSampler =
+      FormalProof4FHE.RLWE.uniformSecretProblem
+        q degree sampleCount errorSampler := by
+  exact FormalProof4FHE.RLWE.RingRegev.lweProblem_eq_uniformSecretProblem
+    q degree sampleCount errorSampler
+
+example {R Secret : Type} [Ring R] [DecidableEq R] [SampleableType R]
+    (dimension samples : ℕ)
+    (secretSampler : ProbComp Secret)
+    (embed : Secret → Fin dimension → R)
+    (coefficients : Matrix (Fin dimension) (Fin samples) R)
+    (offset : Fin samples → R)
+    (errorSampler : ProbComp R)
+    (adversary : LearningWithErrors.Adversary
+      (FormalProof4FHE.LWE.AffineCircular.problem dimension samples secretSampler embed
+        coefficients offset errorSampler)) :
+    LearningWithErrors.advantage
+        (FormalProof4FHE.LWE.AffineCircular.problem dimension samples secretSampler embed
+          coefficients offset errorSampler) adversary =
+      LearningWithErrors.advantage
+        (FormalProof4FHE.LWE.AffineCircular.ordinaryProblem dimension samples secretSampler embed
+          errorSampler)
+        (FormalProof4FHE.LWE.AffineCircular.reduction adversary) := by
+  exact FormalProof4FHE.LWE.AffineCircular.advantage_eq_lwe
+    dimension samples secretSampler embed coefficients offset errorSampler adversary
+
+example {LweSecret RingSecret ExtractedRingSecret BootstrapKey KeySwitchKey Payload : Type}
+    (spec : FormalProof4FHE.TFHE.Circular.CycleSpec LweSecret RingSecret ExtractedRingSecret
+      BootstrapKey KeySwitchKey)
+    (payload : LweSecret → RingSecret → ProbComp Payload)
+    (adversary : FormalProof4FHE.TFHE.Circular.Adversary Payload BootstrapKey KeySwitchKey) :
+    FormalProof4FHE.TFHE.Circular.circularAdvantage spec payload adversary ≤
+      FormalProof4FHE.TFHE.Circular.bootstrapReplacementAdvantage spec payload adversary +
+        FormalProof4FHE.TFHE.Circular.keySwitchReplacementAdvantage spec payload adversary := by
+  exact FormalProof4FHE.TFHE.Circular.circularAdvantage_le_replacements spec payload adversary
+
+example {LweSecret RingSecret ExtractedRingSecret BootstrapKey KeySwitchKey : Type}
+    (spec : FormalProof4FHE.TFHE.Circular.CycleSpec LweSecret RingSecret ExtractedRingSecret
+      BootstrapKey KeySwitchKey)
+    (continuation : FormalProof4FHE.TFHE.Circular.Continuation
+      LweSecret RingSecret BootstrapKey KeySwitchKey) :
+    FormalProof4FHE.TFHE.Circular.continuationCircularAdvantage spec continuation ≤
+      FormalProof4FHE.TFHE.Circular.continuationKeySwitchFirstReplacementAdvantage
+          spec continuation +
+        FormalProof4FHE.TFHE.Circular.continuationBootstrapAfterKeySwitchReplacementAdvantage
+          spec continuation := by
+  exact
+    FormalProof4FHE.TFHE.Circular.continuationCircularAdvantage_le_keySwitchFirst_add_bootstrapAfter
+      spec continuation
+
+example {LweSecret RingSecret ExtractedRingSecret BootstrapKey KeySwitchKey : Type}
+    (spec : FormalProof4FHE.TFHE.Circular.CycleSpec LweSecret RingSecret ExtractedRingSecret
+      BootstrapKey KeySwitchKey)
+    (allowed : FormalProof4FHE.TFHE.Circular.Continuation
+      LweSecret RingSecret BootstrapKey KeySwitchKey → Prop)
+    (keySwitchFirstBound bootstrapAfterBound : ℝ)
+    (hKeySwitchFirst : FormalProof4FHE.TFHE.Circular.KeySwitchFirstHardAgainst
+      spec allowed keySwitchFirstBound)
+    (hBootstrapAfter : FormalProof4FHE.TFHE.Circular.BootstrapAfterKeySwitchHardAgainst
+      spec allowed bootstrapAfterBound) :
+    FormalProof4FHE.TFHE.Circular.ContinuationHardAgainst spec allowed
+      (keySwitchFirstBound + bootstrapAfterBound) := by
+  exact
+    FormalProof4FHE.TFHE.Circular.continuationHardAgainst_of_keySwitchFirst_and_bootstrapAfter
+      spec allowed keySwitchFirstBound bootstrapAfterBound hKeySwitchFirst hBootstrapAfter
+
+example {q degree ringRank tgswLevels lweDimension keySwitchLevels : ℕ} [NeZero q]
+    (ringErrorSampler : ProbComp (FormalProof4FHE.RLWE.Rq q degree))
+    (keySwitchErrorSampler : ProbComp (ZMod q))
+    (tgswGadget : Fin tgswLevels → FormalProof4FHE.RLWE.Rq q degree)
+    (continuation :
+      FormalProof4FHE.TFHE.Native.BootstrapCutSecurity.Continuation
+        q degree ringRank tgswLevels lweDimension keySwitchLevels) :
+    FormalProof4FHE.TFHE.Native.BootstrapCutSecurity.cutBootstrapReplacementAdvantage
+        q degree ringRank tgswLevels lweDimension keySwitchLevels
+        ringErrorSampler keySwitchErrorSampler tgswGadget continuation ≤
+      LearningWithErrors.advantage
+        (FormalProof4FHE.TFHE.Native.BootstrapCutSecurity.parallelModuleLweProblem
+          q degree ringRank tgswLevels lweDimension ringErrorSampler)
+        (FormalProof4FHE.TFHE.Native.BootstrapCutSecurity.realMessageReduction
+          ringErrorSampler keySwitchErrorSampler tgswGadget continuation) +
+      LearningWithErrors.advantage
+        (FormalProof4FHE.TFHE.Native.BootstrapCutSecurity.parallelModuleLweProblem
+          q degree ringRank tgswLevels lweDimension ringErrorSampler)
+        (FormalProof4FHE.TFHE.Native.BootstrapCutSecurity.zeroMessageReduction
+          ringErrorSampler keySwitchErrorSampler continuation) := by
+  exact
+    FormalProof4FHE.TFHE.Native.BootstrapCutSecurity.cutBootstrapReplacementAdvantage_le_two_parallelModuleLwe
+      ringErrorSampler keySwitchErrorSampler tgswGadget continuation
+
+example {R Secret : Type}
+    [Semiring R] [Finite R] [DecidableEq R] [SampleableType R]
+    (dimension firstSamples secondSamples : ℕ)
+    (secretSampler : ProbComp Secret) (embed : Secret → Fin dimension → R)
+    (errorSampler : ProbComp R)
+    (adversary : LearningWithErrors.Adversary
+      (FormalProof4FHE.LWE.TwoBlock.problem dimension firstSamples secondSamples
+        secretSampler embed errorSampler)) :
+    LearningWithErrors.advantage
+        (FormalProof4FHE.LWE.TwoBlock.problem dimension firstSamples secondSamples
+          secretSampler embed errorSampler) adversary =
+      LearningWithErrors.advantage
+        (FormalProof4FHE.LWE.embeddedBatchProblem dimension
+          (firstSamples + secondSamples) secretSampler embed errorSampler)
+        (FormalProof4FHE.LWE.TwoBlock.reduction adversary) := by
+  exact FormalProof4FHE.LWE.TwoBlock.advantage_eq_batch
+    dimension firstSamples secondSamples secretSampler embed errorSampler adversary
+
+example {R Secret : Type}
+    [Semiring R] [Fintype R] [DecidableEq R] [SampleableType R]
+    (dimension blocks samples : ℕ)
+    (secretSampler : ProbComp Secret) (embed : Secret → Fin dimension → R)
+    (errorSampler : ProbComp R)
+    (adversary : LearningWithErrors.Adversary
+      (FormalProof4FHE.LWE.ParallelBatch.problem dimension blocks samples
+        secretSampler embed errorSampler)) :
+    LearningWithErrors.advantage
+        (FormalProof4FHE.LWE.ParallelBatch.problem dimension blocks samples
+          secretSampler embed errorSampler) adversary =
+      LearningWithErrors.advantage
+        (FormalProof4FHE.LWE.embeddedBatchProblem dimension (blocks * samples)
+          secretSampler embed errorSampler)
+        (FormalProof4FHE.LWE.ParallelBatch.reduction adversary) := by
+  exact FormalProof4FHE.LWE.ParallelBatch.advantage_eq_batch
+    dimension blocks samples secretSampler embed errorSampler adversary
+
+example {R Secret : Type}
+    [CommRing R] [Finite R] [DecidableEq R] [SampleableType R]
+    (dimension firstSamples secondSamples : ℕ)
+    (secretSampler : ProbComp Secret) (embed : Secret → Fin dimension → R)
+    (firstErrorSampler secondErrorSampler extraErrorSampler : ProbComp R)
+    (hConvolution : FormalProof4FHE.SharedRandomness.ScalarErrorConvolution
+      secondErrorSampler firstErrorSampler extraErrorSampler)
+    (hExtra : Pr[⊥ | extraErrorSampler] = 0)
+    (adversary : LearningWithErrors.Adversary
+      (FormalProof4FHE.LWE.TwoBlock.heterogeneousProblem
+        dimension firstSamples secondSamples secretSampler embed
+        firstErrorSampler secondErrorSampler)) :
+    LearningWithErrors.advantage
+        (FormalProof4FHE.LWE.TwoBlock.heterogeneousProblem
+          dimension firstSamples secondSamples secretSampler embed
+          firstErrorSampler secondErrorSampler) adversary =
+      LearningWithErrors.advantage
+        (FormalProof4FHE.LWE.embeddedBatchProblem dimension
+          (firstSamples + secondSamples) secretSampler embed firstErrorSampler)
+        (FormalProof4FHE.LWE.TwoBlock.convolutionReduction
+          (extraErrorSampler := extraErrorSampler) adversary) := by
+  exact FormalProof4FHE.LWE.TwoBlock.heterogeneous_advantage_eq_batch_of_convolution
+    dimension firstSamples secondSamples secretSampler embed
+    firstErrorSampler secondErrorSampler extraErrorSampler
+    hConvolution hExtra adversary
+
+example {Message : Type}
+    {q degree ringRank tgswLevels lweDimension keySwitchLevels : ℕ} [NeZero q]
+    (ringErrorSampler : ProbComp (FormalProof4FHE.RLWE.Rq q degree))
+    (keySwitchErrorSampler inputErrorSampler : ProbComp (ZMod q))
+    (tgswGadget : Fin tgswLevels → FormalProof4FHE.RLWE.Rq q degree)
+    (keySwitchGadget : Fin keySwitchLevels → ZMod q)
+    (encode : Message → ZMod q)
+    (adversary : FormalProof4FHE.TFHE.Encryption.NativeAdversary Message q degree
+      ringRank tgswLevels lweDimension keySwitchLevels) :
+    |FormalProof4FHE.TFHE.Encryption.signedAdvantage
+      (FormalProof4FHE.TFHE.Encryption.realGame ringErrorSampler keySwitchErrorSampler
+        inputErrorSampler tgswGadget keySwitchGadget encode adversary)| ≤
+      FormalProof4FHE.TFHE.Encryption.bootstrapReplacementAdvantage ringErrorSampler
+          keySwitchErrorSampler inputErrorSampler tgswGadget keySwitchGadget encode adversary +
+        LearningWithErrors.advantage
+          (FormalProof4FHE.TFHE.Encryption.Security.jointLweProblem q lweDimension
+            (FormalProof4FHE.TFHE.Encryption.Security.keySwitchSamples
+              ringRank degree keySwitchLevels)
+            keySwitchErrorSampler inputErrorSampler)
+          (FormalProof4FHE.TFHE.Encryption.Security.keySwitchMessageReduction
+            ringErrorSampler keySwitchErrorSampler inputErrorSampler tgswGadget
+            (FormalProof4FHE.TFHE.Encryption.Security.nativeKeySwitchMessage keySwitchGadget)
+            encode adversary) := by
+  exact
+    FormalProof4FHE.TFHE.Encryption.Security.abs_signedAdvantage_real_le_bootstrap_add_jointLwe
+      ringErrorSampler keySwitchErrorSampler inputErrorSampler tgswGadget keySwitchGadget
+      encode adversary
+
+example {Message : Type}
+    {q degree ringRank tgswLevels lweDimension keySwitchLevels queryCount : ℕ} [NeZero q]
+    (ringErrorSampler : ProbComp (FormalProof4FHE.RLWE.Rq q degree))
+    (errorSampler : ProbComp (ZMod q))
+    (tgswGadget : Fin tgswLevels → FormalProof4FHE.RLWE.Rq q degree)
+    (keySwitchGadget : Fin keySwitchLevels → ZMod q)
+    (encode : Message → ZMod q)
+    (adversary : FormalProof4FHE.TFHE.Encryption.MultiQuery.NativeAdversary Message q degree
+      ringRank tgswLevels lweDimension keySwitchLevels queryCount) :
+    |FormalProof4FHE.TFHE.Encryption.signedAdvantage
+      (FormalProof4FHE.TFHE.Encryption.MultiQuery.realGame
+        ringErrorSampler errorSampler errorSampler tgswGadget keySwitchGadget encode adversary)| ≤
+      FormalProof4FHE.TFHE.Encryption.MultiQuery.bootstrapReplacementAdvantage
+          ringErrorSampler errorSampler errorSampler tgswGadget keySwitchGadget encode adversary +
+        LearningWithErrors.advantage
+          (FormalProof4FHE.TFHE.Native.KeySwitchSecurity.binaryLweProblem q lweDimension
+            (FormalProof4FHE.TFHE.Encryption.Security.keySwitchSamples
+              ringRank degree keySwitchLevels + queryCount) errorSampler)
+          (FormalProof4FHE.LWE.TwoBlock.reduction
+            (FormalProof4FHE.TFHE.Encryption.MultiQuery.keySwitchMessageReduction
+              ringErrorSampler errorSampler errorSampler tgswGadget
+              (FormalProof4FHE.TFHE.Encryption.MultiQuery.nativeKeySwitchMessage
+                keySwitchGadget) encode adversary)) := by
+  exact
+    FormalProof4FHE.TFHE.Encryption.MultiQuery.abs_signedAdvantage_real_le_bootstrap_add_batchLwe_of_same_noise
+      ringErrorSampler errorSampler tgswGadget keySwitchGadget encode adversary
+
+example {Message : Type}
+    {q degree ringRank tgswLevels lweDimension keySwitchLevels queryCount : ℕ} [NeZero q]
+    (ringErrorSampler : ProbComp (FormalProof4FHE.RLWE.Rq q degree))
+    (errorSampler : ProbComp (ZMod q))
+    (tgswGadget : Fin tgswLevels → FormalProof4FHE.RLWE.Rq q degree)
+    (keySwitchGadget : Fin keySwitchLevels → ZMod q)
+    (encode : Message → ZMod q)
+    (adversary : FormalProof4FHE.TFHE.Encryption.Adaptive.NativeAdversary Message q degree
+      ringRank tgswLevels lweDimension keySwitchLevels)
+    (hbound : FormalProof4FHE.TFHE.Encryption.Adaptive.IsQueryBound
+      adversary queryCount) :
+    |FormalProof4FHE.TFHE.Encryption.signedAdvantage
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.realGame queryCount
+        ringErrorSampler errorSampler errorSampler tgswGadget keySwitchGadget encode adversary)| ≤
+      FormalProof4FHE.TFHE.Encryption.Adaptive.bootstrapReplacementAdvantage queryCount
+          ringErrorSampler errorSampler errorSampler tgswGadget keySwitchGadget encode adversary +
+        LearningWithErrors.advantage
+          (FormalProof4FHE.TFHE.Native.KeySwitchSecurity.binaryLweProblem q lweDimension
+            (FormalProof4FHE.TFHE.Encryption.Security.keySwitchSamples
+              ringRank degree keySwitchLevels + queryCount) errorSampler)
+          (FormalProof4FHE.LWE.TwoBlock.reduction
+            (FormalProof4FHE.TFHE.Encryption.Adaptive.keySwitchMessageReduction
+              ringErrorSampler errorSampler errorSampler tgswGadget
+              (FormalProof4FHE.TFHE.Encryption.Adaptive.nativeKeySwitchMessage
+                keySwitchGadget) encode adversary)) := by
+  exact
+    FormalProof4FHE.TFHE.Encryption.Adaptive.abs_signedAdvantage_real_le_bootstrap_add_batchLwe_of_same_noise
+      queryCount ringErrorSampler errorSampler tgswGadget keySwitchGadget encode adversary hbound
+
+example {R : Type} [Finite R] (count : ℕ) (left right : ProbComp R) :
+    tvDist (ProbComp.sampleIID count left) (ProbComp.sampleIID count right) ≤
+      (count : ℝ) * tvDist left right := by
+  exact FormalProof4FHE.TFHE.SamplerReplacement.tvDist_sampleIID_le count left right
+
+example {Output : Type} [Fintype Output] [DecidableEq Output]
+    {target : PMF Output}
+    (left right :
+      FormalProof4FHE.FinitePMFCompiler.TicketTable.Certificate target) :
+    tvDist left.table.sampler right.table.sampler ≤
+      left.bound.toReal + right.bound.toReal := by
+  exact
+    FormalProof4FHE.FinitePMFCompiler.TicketTable.tvDist_samplers_le_of_common_target
+      left right
+
+example {R : Type} [Fintype R] [DecidableEq R] [Semiring R] [SampleableType R]
+    (dimension samples : ℕ) (wideNoise : ProbComp R)
+    (secret : Fin dimension → R) (message residual : Fin samples → R) :
+    tvDist
+        (FormalProof4FHE.TFHE.TLWE.batchEncryptWithResidual
+          dimension samples wideNoise secret message residual)
+        (FormalProof4FHE.TFHE.TLWE.batchEncrypt
+          dimension samples wideNoise secret message) ≤
+      Finset.univ.sum (fun sample =>
+        FormalProof4FHE.FiniteProduct.addShiftDistance wideNoise (residual sample)) := by
+  exact FormalProof4FHE.TFHE.TLWE.tvDist_batchEncryptWithResidual_batchEncrypt_le_sum
+    dimension samples wideNoise secret message residual
+
+example {q : ℕ} [NeZero q] {alpha : ℝ} {halpha : 0 < alpha}
+    (certificate :
+      FormalProof4FHE.TFHE.DiscreteGaussianSampler.ScalarCertificate q alpha halpha)
+    (shift : ZMod q) :
+    FormalProof4FHE.FiniteProduct.addShiftDistance
+        (FormalProof4FHE.TFHE.DiscreteGaussianSampler.scalarSampler certificate) shift ≤
+      2 * certificate.bound.toReal +
+        FormalProof4FHE.ModularGaussian.shiftDistance
+          (FormalProof4FHE.ModularGaussian.torusDistribution q alpha halpha) shift := by
+  exact FormalProof4FHE.TFHE.DiscreteGaussianSampler.addShiftDistance_scalarSampler_le
+    certificate shift
+
+example {q degree : ℕ} [NeZero q] {alpha : ℝ} {halpha : 0 < alpha}
+    (left right :
+      FormalProof4FHE.TFHE.DiscreteGaussianSampler.ScalarCertificate q alpha halpha) :
+    tvDist
+        (FormalProof4FHE.TFHE.DiscreteGaussianSampler.ringSampler degree left)
+        (FormalProof4FHE.TFHE.DiscreteGaussianSampler.ringSampler degree right) ≤
+      (degree : ℝ) *
+        FormalProof4FHE.TFHE.DiscreteGaussianSampler.pairBound left right := by
+  exact
+    FormalProof4FHE.TFHE.DiscreteGaussianSampler.tvDist_ringSampler_le
+      degree left right
+
+example {Message : Type}
+    (params : FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.Parameters Message)
+    [∀ securityParameter, NeZero (params.q securityParameter)]
+    (implementation :
+      FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.ErrorSamplerFamily params)
+    (hEqualReferenceNoise : ∀ securityParameter,
+      params.inputErrorSampler securityParameter =
+        params.keySwitchErrorSampler securityParameter)
+    (adversary :
+      FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.PolynomialQueryAdversary params)
+    (securityParameter : ℕ) :
+    (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.implementationSecurityGame
+        params implementation).advantage adversary securityParameter ≤
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.MonomialKDM.adaptiveSecurityGame
+        params).advantage adversary securityParameter +
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.batchLWESecurityGame params).advantage
+        (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.batchLWEReduction
+          params adversary) securityParameter +
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.replacementSecurityGame
+        params implementation).advantage adversary securityParameter := by
+  exact
+    FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.MonomialSamplerReplacement.implementationSecurityGame_advantage_le_monomialKDM_add_batchLWE_add_replacement
+      params implementation hEqualReferenceNoise adversary securityParameter
+
+example {Message : Type}
+    {q degree ringRank tgswLevels lweDimension keySwitchLevels queryCount : ℕ} [NeZero q]
+    (ringLeft ringRight : ProbComp (FormalProof4FHE.RLWE.Rq q degree))
+    (keySwitchLeft keySwitchRight inputLeft inputRight : ProbComp (ZMod q))
+    (tgswGadget : Fin tgswLevels → FormalProof4FHE.RLWE.Rq q degree)
+    (keySwitchGadget : Fin keySwitchLevels → ZMod q)
+    (encode : Message → ZMod q)
+    (adversary : FormalProof4FHE.TFHE.Encryption.Adaptive.NativeAdversary Message q degree
+      ringRank tgswLevels lweDimension keySwitchLevels) :
+    tvDist
+        (FormalProof4FHE.TFHE.Encryption.Adaptive.realGame queryCount
+          ringLeft keySwitchLeft inputLeft tgswGadget keySwitchGadget encode adversary)
+        (FormalProof4FHE.TFHE.Encryption.Adaptive.realGame queryCount
+          ringRight keySwitchRight inputRight tgswGadget keySwitchGadget encode adversary) ≤
+      FormalProof4FHE.TFHE.SamplerReplacement.adaptiveReplacementCost
+        q degree ringRank tgswLevels lweDimension keySwitchLevels queryCount
+        ringLeft ringRight keySwitchLeft keySwitchRight inputLeft inputRight := by
+  exact FormalProof4FHE.TFHE.SamplerReplacement.tvDist_adaptiveRealGame_le
+    q degree ringRank tgswLevels lweDimension keySwitchLevels queryCount
+    ringLeft ringRight keySwitchLeft keySwitchRight inputLeft inputRight
+    tgswGadget keySwitchGadget encode adversary
+
+example {Message : Type}
+    (params : FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.Parameters Message)
+    [∀ securityParameter, NeZero (params.q securityParameter)]
+    (adversary :
+      FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.PolynomialQueryAdversary params)
+    (securityParameter : ℕ) :
+    (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.securityGame params).advantage
+        adversary securityParameter ≤
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.directBilinearSecurityGame params).advantage
+          (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.continuationReduction
+            params adversary) securityParameter +
+        (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.jointLWESecurityGame params).advantage
+          (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.jointLWEReduction
+            params adversary) securityParameter := by
+  exact
+    FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.securityGame_advantage_le_directBilinear_add_jointLWE
+      params adversary securityParameter
+
+example {Message : Type}
+    (params : FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.Parameters Message)
+    [∀ securityParameter, NeZero (params.q securityParameter)]
+    (hEqualNoise : ∀ securityParameter,
+      params.inputErrorSampler securityParameter =
+        params.keySwitchErrorSampler securityParameter)
+    (adversary :
+      FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.PolynomialQueryAdversary params)
+    (securityParameter : ℕ) :
+    (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.MonomialKDM.AuxiliaryInput.adaptiveZeroLWESecurityGame
+      params).advantage adversary securityParameter ≤
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.batchLWESecurityGame
+        params).advantage
+          (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.batchLWEReduction
+            params adversary) securityParameter +
+        (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.batchLWESecurityGame
+          params).advantage
+          (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.MonomialKDM.AuxiliaryInput.uniformBootstrapBatchLWEReduction
+            params adversary) securityParameter := by
+  exact
+    FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.MonomialKDM.AuxiliaryInput.adaptiveZeroLWESecurityGame_advantage_le_two_batchLWE
+      params hEqualNoise adversary securityParameter
+
+example {Message : Type}
+    (params : FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.Parameters Message)
+    [∀ securityParameter, NeZero (params.q securityParameter)]
+    (adversary :
+      FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.PolynomialQueryAdversary params)
+    (securityParameter : ℕ) :
+    (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.securityGame params).advantage
+        adversary securityParameter ≤
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.CutCycleSecurity.keySwitchFirstSecurityGame
+          params).advantage
+        (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.continuationReduction
+          params adversary) securityParameter +
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.CutCycleSecurity.ringBatchLWESecurityGame
+          params).advantage
+        (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.CutCycleSecurity.realRingBatchReduction
+          params adversary) securityParameter +
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.CutCycleSecurity.ringBatchLWESecurityGame
+          params).advantage
+        (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.CutCycleSecurity.zeroRingBatchReduction
+          params adversary) securityParameter +
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.jointLWESecurityGame params).advantage
+        (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.CutCycleSecurity.zeroCloudJointLWEReduction
+          params adversary) securityParameter := by
+  exact
+    FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.CutCycleSecurity.securityGame_advantage_le_keySwitchFirst_add_two_ringBatchLWE_add_jointLWE
+      params adversary securityParameter
+
+example {Message : Type}
+    (params : FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.Parameters Message)
+    [∀ securityParameter, NeZero (params.q securityParameter)]
+    (adversary :
+      FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.PolynomialQueryAdversary params)
+    (securityParameter : ℕ) :
+    (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.CutCycleSecurity.adaptiveKeySwitchFirstSecurityGame
+      params).advantage adversary securityParameter ≤
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.CutCycleSecurity.adaptiveDirectBilinearSecurityGame
+        params).advantage adversary securityParameter +
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.CutCycleSecurity.ringBatchLWESecurityGame
+        params).advantage
+          (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.CutCycleSecurity.realRingBatchReduction
+            params adversary) securityParameter +
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.CutCycleSecurity.ringBatchLWESecurityGame
+        params).advantage
+          (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.CutCycleSecurity.zeroRingBatchReduction
+            params adversary) securityParameter +
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.jointLWESecurityGame
+        params).advantage
+          (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.jointLWEReduction
+            params adversary) securityParameter +
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.jointLWESecurityGame
+        params).advantage
+          (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.CutCycleSecurity.zeroCloudJointLWEReduction
+            params adversary) securityParameter := by
+  exact
+    FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.CutCycleSecurity.adaptiveKeySwitchFirst_advantage_le_directBilinear_add_postCutLWE
+      params adversary securityParameter
+
+example {Message : Type}
+    (params : FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.Parameters Message)
+    [∀ securityParameter, NeZero (params.q securityParameter)]
+    (hEqualNoise : ∀ securityParameter,
+      params.inputErrorSampler securityParameter =
+        params.keySwitchErrorSampler securityParameter)
+    (adversary :
+      FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.PolynomialQueryAdversary params)
+    (securityParameter : ℕ) :
+    (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.securityGame params).advantage
+        adversary securityParameter ≤
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.directBilinearSecurityGame params).advantage
+          (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.continuationReduction
+            params adversary) securityParameter +
+        (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.batchLWESecurityGame params).advantage
+          (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.batchLWEReduction
+            params adversary) securityParameter := by
+  exact
+    FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.securityGame_advantage_le_directBilinear_add_batchLWE
+      params hEqualNoise adversary securityParameter
+
+example {Message : Type}
+    (params : FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.Parameters Message)
+    [∀ securityParameter, NeZero (params.q securityParameter)]
+    (hEqualNoise : ∀ securityParameter,
+      params.inputErrorSampler securityParameter =
+        params.keySwitchErrorSampler securityParameter)
+    (isPPT :
+      FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.PolynomialQueryAdversary params → Prop)
+    (continuationIsPPT :
+      FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.ContinuationFamily params → Prop)
+    (batchLWEIsPPT :
+      FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.BatchLWEAdversaryFamily params → Prop)
+    (hContinuationClosed : ∀ adversary, isPPT adversary →
+      continuationIsPPT
+        (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.continuationReduction
+          params adversary))
+    (hBatchLWEClosed : ∀ adversary, isPPT adversary →
+      batchLWEIsPPT
+        (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.batchLWEReduction
+          params adversary))
+    (hCircular :
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.directBilinearSecurityGame params).secureAgainst
+        continuationIsPPT)
+    (hBatchLWE :
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.batchLWESecurityGame params).secureAgainst
+        batchLWEIsPPT) :
+    (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.securityGame params).secureAgainst
+      isPPT := by
+  exact
+    FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.secureAgainst_of_directBilinear_and_batchLWE
+      params hEqualNoise isPPT continuationIsPPT batchLWEIsPPT
+      hContinuationClosed hBatchLWEClosed
+      hCircular hBatchLWE
+
+example {Message : Type}
+    (params : FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.Parameters Message)
+    (implementation :
+      FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.ErrorSamplerFamily params)
+    (growth :
+      FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.PolynomialEvaluationKeyGrowth params)
+    (hRing : negligible
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.ringSamplerGap
+        params implementation))
+    (hKeySwitch : negligible
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.keySwitchSamplerGap
+        params implementation))
+    (hInput : negligible
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.inputSamplerGap
+        params implementation))
+    (adversary :
+      FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.PolynomialQueryAdversary params) :
+    negligible
+      ((FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.replacementSecurityGame
+        params implementation).advantage adversary) := by
+  exact
+    FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.replacementSecurityGame_advantage_negligible
+      params implementation growth hRing hKeySwitch hInput adversary
+
+example {Message : Type}
+    (params : FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.Parameters Message)
+    [∀ securityParameter, NeZero (params.q securityParameter)]
+    (implementation :
+      FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.ErrorSamplerFamily params)
+    (adversary :
+      FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.PolynomialQueryAdversary params)
+    (securityParameter : ℕ) :
+    (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.implementationSecurityGame
+      params implementation).advantage adversary securityParameter ≤
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.directBilinearSecurityGame
+        params).advantage
+          (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.continuationReduction
+            params adversary) securityParameter +
+        (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.jointLWESecurityGame
+          params).advantage
+          (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.jointLWEReduction
+            params adversary) securityParameter +
+        (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.replacementSecurityGame
+          params implementation).advantage adversary securityParameter := by
+  exact
+    FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.implementationSecurityGame_advantage_le_directBilinear_add_jointLWE_add_replacement
+      params implementation adversary securityParameter
+
+example {Message : Type}
+    (params : FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.Parameters Message)
+    [∀ securityParameter, NeZero (params.q securityParameter)]
+    (implementation :
+      FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.ErrorSamplerFamily params)
+    (adversary :
+      FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.PolynomialQueryAdversary params)
+    (securityParameter : ℕ) :
+    (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.implementationSecurityGame
+      params implementation).advantage adversary securityParameter ≤
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.CutCycleSecurity.keySwitchFirstSecurityGame
+        params).advantage
+          (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.continuationReduction
+            params adversary) securityParameter +
+        (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.CutCycleSecurity.ringBatchLWESecurityGame
+          params).advantage
+            (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.CutCycleSecurity.realRingBatchReduction
+              params adversary) securityParameter +
+        (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.CutCycleSecurity.ringBatchLWESecurityGame
+          params).advantage
+            (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.CutCycleSecurity.zeroRingBatchReduction
+              params adversary) securityParameter +
+        (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.jointLWESecurityGame
+          params).advantage
+            (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.CutCycleSecurity.zeroCloudJointLWEReduction
+              params adversary) securityParameter +
+        (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.replacementSecurityGame
+          params implementation).advantage adversary securityParameter := by
+  exact
+    FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.CutCycleSamplerReplacement.implementationSecurityGame_advantage_le_keySwitchFirst_add_two_ringBatchLWE_add_jointLWE_add_replacement
+      params implementation adversary securityParameter
+
+example {Message : Type}
+    (family : FormalProof4FHE.TFHE.CenteredBinomial.Family Message)
+    [∀ securityParameter, NeZero (family.q securityParameter)]
+    (securityParameter : ℕ)
+    (value : FormalProof4FHE.RLWE.Rq
+      (family.q securityParameter) (family.degree securityParameter)) :
+    FormalProof4FHE.TFHE.Gadget.recompose
+        (family.parameters.tgswGadget securityParameter)
+        (FormalProof4FHE.TFHE.Gadget.Base.ringDigit
+          (family.tgswDecomposition securityParameter) value) = value := by
+  exact family.tgswGadget_recompose securityParameter value
+
+example {Message : Type}
+    (family : FormalProof4FHE.TFHE.CenteredBinomial.Family Message)
+    [∀ securityParameter, NeZero (family.q securityParameter)]
+    (hEta : ∀ securityParameter,
+      family.inputEta securityParameter = family.keySwitchEta securityParameter) :
+    ∀ securityParameter,
+      family.parameters.inputErrorSampler securityParameter =
+        family.parameters.keySwitchErrorSampler securityParameter := by
+  exact family.scalarSamplers_eq_of_eta_eq hEta
+
+example {Message : Type}
+    (family : FormalProof4FHE.TFHE.CenteredBinomial.Family Message)
+    [∀ securityParameter, NeZero (family.q securityParameter)]
+    (hEta : ∀ securityParameter,
+      family.inputEta securityParameter = family.keySwitchEta securityParameter)
+    (adversary :
+      FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.PolynomialQueryAdversary
+        family.parameters)
+    (securityParameter : ℕ) :
+    (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.securityGame
+      family.parameters).advantage adversary securityParameter ≤
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.MonomialKDM.adaptiveSecurityGame
+        family.parameters).advantage adversary securityParameter +
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.batchLWESecurityGame
+        family.parameters).advantage
+        (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.batchLWEReduction
+          family.parameters adversary) securityParameter := by
+  exact family.securityGame_advantage_le_monomialKDM_add_batchLWE
+    hEta adversary securityParameter
+
+example (ringEta scalarEta : ℕ → ℕ) (securityParameter : ℕ) :
+    (FormalProof4FHE.TFHE.CenteredBinomial.EndToEnd.exactRotationFamily
+      ringEta scalarEta).q securityParameter =
+      2 * (FormalProof4FHE.TFHE.CenteredBinomial.EndToEnd.exactRotationFamily
+        ringEta scalarEta).degree securityParameter := by
+  exact
+    FormalProof4FHE.TFHE.CenteredBinomial.EndToEnd.exactRotationFamily_q_eq_two_mul_degree
+      ringEta scalarEta securityParameter
+
+example (ringEta scalarEta : ℕ → ℕ) :
+    FormalProof4FHE.TFHE.CenteredBinomial.EndToEnd.RefreshCorrect
+      ringEta scalarEta := by
+  exact FormalProof4FHE.TFHE.CenteredBinomial.EndToEnd.refreshCorrect
+    ringEta scalarEta
+
+example {R : Type} [Ring R] {dimension levels : ℕ}
+    (secret : Fin dimension → R) (gadget : Fin levels → R) (message : R)
+    (level : Fin levels) :
+    FormalProof4FHE.TFHE.TGSW.gadgetPhase secret gadget message
+        (finProdFinEquiv (Fin.last dimension, level)) = message * gadget level := by
+  exact FormalProof4FHE.TFHE.TGSW.gadgetPhase_last secret gadget message level
+
+example {R : Type} [CommRing R] {dimension levels : ℕ}
+    (secret : Fin dimension → R) (gadget : Fin levels → R) (message : R)
+    (input : FormalProof4FHE.TFHE.TLWE.Ciphertext R dimension)
+    (digits : Fin (dimension + 1) → Fin levels → R)
+    (ciphertext : FormalProof4FHE.TFHE.TGSW.Ciphertext R dimension levels)
+    (hDecomposes : FormalProof4FHE.TFHE.Gadget.Decomposes gadget input digits) :
+    FormalProof4FHE.TFHE.TLWE.phase secret
+        (FormalProof4FHE.TFHE.TGSW.externalProduct digits ciphertext) =
+      message * FormalProof4FHE.TFHE.TLWE.phase secret input +
+        FormalProof4FHE.TFHE.TGSW.externalProductError
+          secret gadget message digits ciphertext := by
+  exact FormalProof4FHE.TFHE.TGSW.phase_externalProduct_eq_mul_add_error
+    secret gadget message input digits ciphertext hDecomposes
+
+example {R : Type} [CommRing R]
+    {targetDimension sourceDimension levels : ℕ}
+    (targetSecret : Fin targetDimension → R)
+    (sourceSecret : Fin sourceDimension → R)
+    (gadget : Fin levels → R)
+    (digits : Fin sourceDimension → Fin levels → R)
+    (input : FormalProof4FHE.TFHE.TLWE.Ciphertext R sourceDimension)
+    (keySwitchKey : FormalProof4FHE.TFHE.TLWE.BatchCiphertext R targetDimension
+      (sourceDimension * levels))
+    (hDecomposes : FormalProof4FHE.TFHE.Gadget.DecomposesMask gadget input digits) :
+    FormalProof4FHE.TFHE.TLWE.phase targetSecret
+        (FormalProof4FHE.TFHE.TGSW.KeySwitch.apply digits input keySwitchKey) =
+      FormalProof4FHE.TFHE.TLWE.phase sourceSecret input -
+        FormalProof4FHE.TFHE.TGSW.KeySwitch.error
+          targetSecret sourceSecret gadget digits keySwitchKey := by
+  exact FormalProof4FHE.TFHE.TGSW.KeySwitch.phase_apply_eq_phase_sub_error
+    targetSecret sourceSecret gadget digits input keySwitchKey hDecomposes
+
+example {q : ℕ} [NeZero q]
+    (params : FormalProof4FHE.TFHE.Gadget.Base.Parameters q) (value : ZMod q) :
+    FormalProof4FHE.TFHE.Gadget.recompose
+        (FormalProof4FHE.TFHE.Gadget.Base.gadget params)
+        (FormalProof4FHE.TFHE.Gadget.Base.digit params value) = value := by
+  exact FormalProof4FHE.TFHE.Gadget.Base.recompose params value
+
+example {q degree : ℕ} [NeZero q]
+    (params : FormalProof4FHE.TFHE.Gadget.Base.Parameters q)
+    (value : FormalProof4FHE.RLWE.Rq q degree) :
+    FormalProof4FHE.TFHE.Gadget.recompose
+        (FormalProof4FHE.TFHE.Gadget.Base.ringGadget params)
+        (FormalProof4FHE.TFHE.Gadget.Base.ringDigit params value) = value := by
+  exact FormalProof4FHE.TFHE.Gadget.Base.ring_recompose params value
+
+example {q degree : ℕ} [NeZero q]
+    (params : FormalProof4FHE.TFHE.Gadget.Base.Parameters q)
+    (value : FormalProof4FHE.RLWE.Rq q degree)
+    (level : Fin params.levels) :
+    LatticeCrypto.cInfNorm
+        (FormalProof4FHE.TFHE.Gadget.Base.ringDigit params value level) ≤
+      params.base - 1 := by
+  exact FormalProof4FHE.TFHE.NoiseBounds.cInfNorm_ringDigit_le params value level
+
+example {q degree dimension levels : ℕ} [NeZero q]
+    (secret : Fin dimension → FormalProof4FHE.RLWE.Rq q (degree + 1))
+    (gadget : Fin levels → FormalProof4FHE.RLWE.Rq q (degree + 1))
+    (message : FormalProof4FHE.RLWE.Rq q (degree + 1))
+    (digits : Fin (dimension + 1) → Fin levels →
+      FormalProof4FHE.RLWE.Rq q (degree + 1))
+    (ciphertext : FormalProof4FHE.TFHE.TGSW.Ciphertext
+      (FormalProof4FHE.RLWE.Rq q (degree + 1)) dimension levels)
+    (digitBound rowErrorBound : ℕ)
+    (hdigits : ∀ block level, LatticeCrypto.cInfNorm (digits block level) ≤ digitBound)
+    (hrows : ∀ index, LatticeCrypto.cInfNorm
+      (FormalProof4FHE.TFHE.TGSW.rowError
+        (R := FormalProof4FHE.RLWE.Rq q (degree + 1))
+        secret gadget message ciphertext index) ≤ rowErrorBound) :
+    LatticeCrypto.cInfNorm
+        (FormalProof4FHE.TFHE.TGSW.externalProductError
+          (R := FormalProof4FHE.RLWE.Rq q (degree + 1))
+          secret gadget message digits ciphertext) ≤
+      ((dimension + 1) * levels) *
+        (((degree + 1) * (degree + 1)) * (digitBound * rowErrorBound)) := by
+  exact FormalProof4FHE.TFHE.NoiseBounds.cInfNorm_externalProductError_le
+    secret gadget message digits ciphertext digitBound rowErrorBound hdigits hrows
+
+example {q degree rank : ℕ} [NeZero q]
+    (secret : Fin rank → FormalProof4FHE.RLWE.Rq q (degree + 1))
+    (ciphertext : FormalProof4FHE.TFHE.RingCiphertext q (degree + 1) rank) :
+    FormalProof4FHE.TFHE.TLWE.phase
+        (FormalProof4FHE.TFHE.SampleExtraction.extractedSecret secret)
+        (FormalProof4FHE.TFHE.SampleExtraction.apply ciphertext) =
+      FormalProof4FHE.TFHE.SampleExtraction.constantCoefficient
+        (FormalProof4FHE.TFHE.TLWE.phase secret ciphertext) := by
+  exact FormalProof4FHE.TFHE.SampleExtraction.phase_apply secret ciphertext
+
+example {q : ℕ} [NeZero q]
+    (zeroCode oneCode sample : ZMod q) (radius : ℕ) (bit : Bool)
+    (hmargin : 2 * radius <
+      FormalProof4FHE.TFHE.BootstrappingCorrectness.centeredDistance zeroCode oneCode)
+    (hsample :
+      FormalProof4FHE.TFHE.BootstrappingCorrectness.centeredDistance sample
+          (FormalProof4FHE.TFHE.BootstrappingCorrectness.encodeBit
+            zeroCode oneCode bit) ≤ radius) :
+    FormalProof4FHE.TFHE.BootstrappingCorrectness.decodeNearest
+        zeroCode oneCode sample = bit := by
+  exact
+    FormalProof4FHE.TFHE.BootstrappingCorrectness.decodeNearest_encodeBit_of_distance_le
+      zeroCode oneCode sample radius bit hmargin hsample
+
+example {q degree : ℕ} [NeZero q]
+    (left right : Fin (2 * (degree + 1))) :
+    FormalProof4FHE.TFHE.BlindRotation.rotationMonomial q degree left *
+        FormalProof4FHE.TFHE.BlindRotation.rotationMonomial q degree right =
+      FormalProof4FHE.TFHE.BlindRotation.rotationMonomial q degree (left + right) := by
+  exact FormalProof4FHE.TFHE.RotationLookup.rotationMonomial_mul left right
+
+example {degree lweDimension : ℕ}
+    (input : FormalProof4FHE.TFHE.ScalarCiphertext
+      (2 * (degree + 1)) lweDimension)
+    (secret : FormalProof4FHE.TFHE.BinarySecret lweDimension) :
+    FormalProof4FHE.TFHE.RotationLookup.nativePhaseExponent
+        (FormalProof4FHE.TFHE.RotationLookup.exactRoundExponent degree) input secret =
+      FormalProof4FHE.TFHE.RotationLookup.exactRoundExponent degree
+        (FormalProof4FHE.TFHE.TLWE.phase
+          (FormalProof4FHE.TFHE.embedBinarySecret secret) input) := by
+  exact FormalProof4FHE.TFHE.RotationLookup.nativePhaseExponent_exactRoundExponent
+    input secret
+
+example {q degree : ℕ} [NeZero q]
+    (table : Fin (degree + 1) → ZMod q)
+    (exponent : Fin (2 * (degree + 1))) :
+    FormalProof4FHE.TFHE.RotationLookup.coefficientLookup
+        (FormalProof4FHE.TFHE.RotationLookup.testVectorFromHalfTable table) exponent =
+      if exponent.val < degree + 1 then
+        table (FormalProof4FHE.TFHE.RotationLookup.halfIndex exponent)
+      else -table (FormalProof4FHE.TFHE.RotationLookup.halfIndex exponent) := by
+  exact
+    FormalProof4FHE.TFHE.RotationLookup.coefficientLookup_testVectorFromHalfTable
+      table exponent
+
+example {degree rank lweDimension inputEta bootstrappingEta : ℕ}
+    (params : FormalProof4FHE.TFHE.Gadget.Base.Parameters (2 * (degree + 1)))
+    (lweSecret : FormalProof4FHE.TFHE.BinarySecret lweDimension)
+    (ringSecret : FormalProof4FHE.TFHE.RingBinarySecret rank (degree + 1))
+    (zeroCode oneCode : ZMod (2 * (degree + 1))) (bit : Bool)
+    (hopposite : oneCode = -zeroCode)
+    (hinputMargin : 2 * inputEta < degree + 1)
+    (houtputMargin :
+      2 * FormalProof4FHE.TFHE.BootstrappingCorrectness.nativeNoiseBudget
+          degree rank params.levels params.base lweDimension bootstrappingEta <
+        FormalProof4FHE.TFHE.BootstrappingCorrectness.centeredDistance zeroCode oneCode) :
+    Pr[(fun sample ↦
+      FormalProof4FHE.TFHE.CenteredBinomialCorrectness.bitTableBootstrappingResult
+          params sample.1 sample.2 ringSecret zeroCode oneCode
+          (FormalProof4FHE.TFHE.CenteredBinomialRefresh.firstHalfThreshold degree) = bit) |
+      FormalProof4FHE.TFHE.CenteredBinomialRefresh.freshInputAndBootstrappingKey
+        params inputEta bootstrappingEta lweSecret ringSecret bit] = 1 := by
+  exact
+    FormalProof4FHE.TFHE.CenteredBinomialRefresh.probEvent_fresh_bitTableBootstrappingResult_eq_one
+        params lweSecret ringSecret zeroCode oneCode bit hopposite hinputMargin houtputMargin
+
+example {q degree rank : ℕ} [NeZero q]
+    (params : FormalProof4FHE.TFHE.Gadget.Base.Parameters q)
+    (secret : Fin rank → FormalProof4FHE.RLWE.Rq q degree)
+    (factor message : FormalProof4FHE.RLWE.Rq q degree)
+    (bootstrapKeyEntry : FormalProof4FHE.TFHE.RingGSWCiphertext
+      q degree rank params.levels)
+    (accumulator : FormalProof4FHE.TFHE.RingCiphertext q degree rank) :
+    FormalProof4FHE.TFHE.TLWE.phase secret
+        (FormalProof4FHE.TFHE.BlindRotation.step params factor
+          bootstrapKeyEntry accumulator) =
+      (1 + (factor - 1) * message) *
+          FormalProof4FHE.TFHE.TLWE.phase secret accumulator +
+        (factor - 1) *
+          FormalProof4FHE.TFHE.TGSW.externalProductError secret
+            (FormalProof4FHE.TFHE.Gadget.Base.ringGadget params) message
+            (FormalProof4FHE.TFHE.Gadget.Base.ringExtendedDigits params accumulator)
+            bootstrapKeyEntry := by
+  exact FormalProof4FHE.TFHE.BlindRotation.phase_step params secret factor message
+    bootstrapKeyEntry accumulator
+
+example {Message : Type}
+    {q degree ringRank tgswLevels lweDimension keySwitchLevels : ℕ} [NeZero q]
+    (ringErrorSampler : ProbComp (FormalProof4FHE.RLWE.Rq q degree))
+    (keySwitchErrorSampler inputErrorSampler : ProbComp (ZMod q))
+    (tgswGadget : Fin tgswLevels → FormalProof4FHE.RLWE.Rq q degree)
+    (keySwitchGadget : Fin keySwitchLevels → ZMod q)
+    (encode : Message → ZMod q)
+    (adversary : FormalProof4FHE.TFHE.Encryption.NativeAdversary Message q degree
+      ringRank tgswLevels lweDimension keySwitchLevels) :
+    FormalProof4FHE.TFHE.Encryption.bootstrapReplacementAdvantage
+        ringErrorSampler keySwitchErrorSampler inputErrorSampler
+        tgswGadget keySwitchGadget encode adversary =
+      FormalProof4FHE.TFHE.Native.BootstrapSecurity.directBilinearAdvantage
+        ringErrorSampler keySwitchErrorSampler tgswGadget keySwitchGadget
+        (FormalProof4FHE.TFHE.Encryption.oneTimeContinuation
+          inputErrorSampler encode adversary) := by
+  exact
+    FormalProof4FHE.TFHE.Encryption.Security.bootstrapReplacementAdvantage_eq_directBilinear
+      ringErrorSampler keySwitchErrorSampler inputErrorSampler tgswGadget keySwitchGadget
+      encode adversary
+
+example {users dimension : ℕ}
+    (master : FormalProof4FHE.LWE.MultiKeyAffine.BinaryVector dimension)
+    (masks : FormalProof4FHE.LWE.MultiKeyAffine.BinaryKeys users dimension) :
+    FormalProof4FHE.LWE.MultiKeyAffine.deriveKeys master
+        (FormalProof4FHE.LWE.MultiKeyAffine.deriveKeys master masks) = masks := by
+  exact FormalProof4FHE.LWE.MultiKeyAffine.deriveKeys_involutive master masks
+
+example {R : Type} [CommRing R] [Fintype R] [DecidableEq R] [SampleableType R]
+    (dimension users samples : ℕ)
+    (coefficients : FormalProof4FHE.LWE.MultiKeyAffine.Coefficients
+      R users dimension samples)
+    (offsets : FormalProof4FHE.LWE.MultiKeyAffine.Offsets R users samples)
+    (errorSampler : ProbComp R)
+    (adversary : LearningWithErrors.Adversary
+      (FormalProof4FHE.LWE.MultiKeyAffine.problem
+        dimension users samples coefficients offsets errorSampler)) :
+    LearningWithErrors.advantage
+        (FormalProof4FHE.LWE.MultiKeyAffine.problem
+          dimension users samples coefficients offsets errorSampler) adversary =
+      LearningWithErrors.advantage
+        (FormalProof4FHE.LWE.embeddedBatchProblem dimension (users * samples)
+          ($ᵗ (FormalProof4FHE.LWE.MultiKeyAffine.BinaryVector dimension))
+          (fun key coordinate ↦
+            FormalProof4FHE.LWE.MultiKeyAffine.embedBit (R := R) (key coordinate))
+          errorSampler)
+        (FormalProof4FHE.LWE.MultiKeyAffine.batchReduction adversary) := by
+  exact FormalProof4FHE.LWE.MultiKeyAffine.advantage_eq_batch
+    dimension users samples coefficients offsets errorSampler adversary
+
+example {R : Type} [CommRing R] {dimension levels : ℕ}
+    (secret : Fin dimension → R) (gadget : Fin levels → R) (message : R)
+    (coordinate : Fin dimension) (level : Fin levels) :
+    FormalProof4FHE.TFHE.TGSW.CircularBoundary.crossKeyPhasePart
+        secret gadget message
+        (finProdFinEquiv (Fin.castSucc coordinate, level)) =
+      -(secret coordinate * (message * gadget level)) := by
+  exact FormalProof4FHE.TFHE.TGSW.CircularBoundary.crossKeyPhasePart_castSucc
+    secret gadget message coordinate level
+
+example {R : Type} [CommRing R] {dimension levels : ℕ}
+    (secret : Fin dimension → R) (gadget : Fin levels → R) (message : R) :
+    FormalProof4FHE.TFHE.TGSW.gadgetPhase secret gadget message =
+      FormalProof4FHE.TFHE.TGSW.MonomialKDM.expandedGadgetPhase gadget message
+        (FormalProof4FHE.TFHE.TGSW.MonomialKDM.crossMonomial secret message) := by
+  exact
+    FormalProof4FHE.TFHE.TGSW.MonomialKDM.gadgetPhase_eq_expandedGadgetPhase
+      secret gadget message
+
+example {R : Type} [CommRing R] {dimension levels : ℕ}
+    (weight : Fin dimension → Fin dimension → R)
+    (secret : Fin dimension → R) (gadget : Fin levels → R)
+    (level : Fin levels)
+    (ciphertexts : Fin dimension →
+      FormalProof4FHE.TFHE.TGSW.Ciphertext R dimension levels) :
+    FormalProof4FHE.TFHE.TLWE.phase secret
+        (FormalProof4FHE.TFHE.TGSW.MonomialKDM.FullTable.maskRowCombination
+          weight level ciphertexts) =
+      -(FormalProof4FHE.TFHE.TGSW.MonomialKDM.FullTable.selfQuadraticForm
+          weight secret * gadget level) +
+        FormalProof4FHE.TFHE.TGSW.MonomialKDM.FullTable.maskRowErrorCombination
+          weight secret gadget secret level ciphertexts := by
+  exact
+    FormalProof4FHE.TFHE.TGSW.MonomialKDM.FullTable.phase_selfMaskRowCombination_eq
+      weight secret gadget level ciphertexts
+
+example {R : Type} [CommRing R] {dimension : ℕ}
+    (weight : Fin dimension → Fin dimension → R)
+    (secret : FormalProof4FHE.TFHE.BinarySecret dimension) :
+    FormalProof4FHE.TFHE.TGSW.MonomialKDM.FullTable.selfQuadraticForm
+        weight (FormalProof4FHE.TFHE.embedBinarySecret secret) =
+      FormalProof4FHE.TFHE.TGSW.MonomialKDM.FullTable.diagonalLinearForm
+          weight secret +
+        FormalProof4FHE.TFHE.TGSW.MonomialKDM.FullTable.offDiagonalQuadraticForm
+          weight secret := by
+  exact
+    FormalProof4FHE.TFHE.TGSW.MonomialKDM.FullTable.selfQuadraticForm_embedBinarySecret_eq_diagonal_add_offDiagonal
+      weight secret
+
+example (q degree ringRank : ℕ) [NeZero q]
+    (ringSecret : FormalProof4FHE.TFHE.RingBinarySecret ringRank (degree + 1))
+    (messageComponent maskComponent : Fin ringRank)
+    (messageCoefficient maskCoefficient : Fin (degree + 1)) :
+    LatticeCrypto.Poly.toPi
+        (FormalProof4FHE.TFHE.Native.FullBRKQuadraticSpan.extractedOuterProduct
+          q degree ringRank ringSecret
+          (finProdFinEquiv (messageComponent, messageCoefficient)) maskComponent)
+        maskCoefficient =
+      (FormalProof4FHE.TFHE.embedBit
+          (ringSecret maskComponent maskCoefficient) : ZMod q) *
+        FormalProof4FHE.TFHE.embedBit
+          (ringSecret messageComponent messageCoefficient) := by
+  exact
+    FormalProof4FHE.TFHE.Native.FullBRKQuadraticSpan.extractedOuterProduct_coefficient
+      q degree ringRank ringSecret messageComponent maskComponent
+        messageCoefficient maskCoefficient
+
+example (q degree ringRank : ℕ) [NeZero q]
+    (ringSecret : FormalProof4FHE.TFHE.RingBinarySecret ringRank (degree + 1))
+    (component : Fin ringRank) (coefficient : Fin (degree + 1)) :
+    LatticeCrypto.Poly.toPi
+        (FormalProof4FHE.TFHE.Native.FullBRKQuadraticSpan.extractedOuterProduct
+          q degree ringRank ringSecret
+          (finProdFinEquiv (component, coefficient)) component)
+        coefficient =
+      (FormalProof4FHE.TFHE.embedBit
+        (ringSecret component coefficient) : ZMod q) := by
+  exact
+    FormalProof4FHE.TFHE.Native.FullBRKQuadraticSpan.extractedOuterProduct_diagonal_coefficient
+      q degree ringRank ringSecret component coefficient
+
+example (q degree ringRank : ℕ) [NeZero q]
+    (ringSecret : FormalProof4FHE.TFHE.RingBinarySecret ringRank (degree + 1))
+    (component : Fin ringRank) (coefficient : Fin (degree + 1)) :
+    LatticeCrypto.Poly.toPi
+        (FormalProof4FHE.TFHE.Native.FullBRKQuadraticSpan.extractedSquareFreePart
+          q degree ringRank ringSecret component coefficient component)
+        coefficient = 0 := by
+  exact
+    FormalProof4FHE.TFHE.Native.FullBRKQuadraticSpan.extractedSquareFreePart_diagonal_coefficient
+      q degree ringRank ringSecret component coefficient
+
+#check FormalProof4FHE.TFHE.Native.FullBRKQuadraticSpan.gadgetPhase_self_eq_diagonalAtDegree_add_squareFreeAtDegree
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SquareFreeSecurity.generateBootstrappingKey_evalDist_eq_split
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SquareFreeSecurity.realCloudKeyView_evalDist_eq_split
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SquareFreeSecurity.oneCircularAdvantage_le_squareFree_add_diagonal
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SquareFreeSecurity.oneCircularHardAgainst_of_squareFree_and_diagonal
+#check FormalProof4FHE.TFHE.Native.CoefficientAffineCircularRLWE.coefficientTransfer
+#check FormalProof4FHE.TFHE.Native.CoefficientAffineCircularRLWE.rightNegacyclicMulLinear
+#check FormalProof4FHE.TFHE.Native.CoefficientAffineCircularRLWE.transferredRightMul
+#check FormalProof4FHE.TFHE.Native.CoefficientAffineCircularRLWE.coefficientAffineNoiseless
+#check FormalProof4FHE.TFHE.Native.CoefficientAffineCircularRLWE.diagonalCrossAtDegree_rankOne_eq_selectedCoefficientPolynomial
+#check FormalProof4FHE.TFHE.Native.CoefficientAffineCircularRLWE.coefficientEquiv_diagonalCrossAtDegree_rankOne
+#check FormalProof4FHE.TFHE.Native.CoefficientAffineCircularRLWE.coefficientEquiv_prefixDiagonalCross_mul
+#check FormalProof4FHE.TFHE.Native.CoefficientAffineCircularRLWE.coefficientEquiv_prefixConstantBit_mul
+#check FormalProof4FHE.TFHE.Native.CoefficientAffineCircularRLWE.firstDiagonal_not_ringMultiplicationOnBinary
+#check FormalProof4FHE.TFHE.Native.CoefficientAffineCircularRLWE.nativeFirstDiagonalCross_not_ringMultiplicationOnBinary
+#check FormalProof4FHE.TFHE.Native.CoefficientAffineCircularRLWE.AuxiliaryInput.problem
+#check FormalProof4FHE.TFHE.Native.CoefficientAffineCircularRLWE.AuxiliaryInput.realGame_eq_diagonalOnlyGame
+#check FormalProof4FHE.TFHE.Native.CoefficientAffineCircularRLWE.AuxiliaryInput.zeroGame_eq_bootstrapZeroGame
+#check FormalProof4FHE.TFHE.Native.CoefficientAffineCircularRLWE.AuxiliaryInput.kdmAdvantage_eq_diagonalAdvantage
+#check FormalProof4FHE.TFHE.Native.CoefficientAffineCircularRLWE.AuxiliaryInput.oneCircularAdvantage_le_squareFree_add_circularLwe_add_zeroLwe
+#check FormalProof4FHE.TFHE.Native.CoefficientAffineCircularRLWE.AuxiliaryInput.realSecretContinuationGame_evalDist_eq_split
+#check FormalProof4FHE.TFHE.Native.CoefficientAffineCircularRLWE.AuxiliaryInput.nativeCircularLweAdvantage_le_squareFree_add_coefficientAffine
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.CircularSecurity.circularLWESecurityGame_advantage_le_squareFree_add_coefficientAffine
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.CircularSecurity.circularLWESecurityGame_secureAgainst_of_squareFree_and_coefficientAffine
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.CircularSecurity.implementationSecurityGame_advantage_le_squareFree_add_coefficientAffine_add_batchLWE
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.CircularSecurity.implementationSecureAgainst_of_squareFree_coefficientAffine_and_batchLWE
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.CircularSecurity.implementationEvaluationSecureAgainst_of_squareFree_coefficientAffine_and_batchLWE
+#check FormalProof4FHE.TFHE.TGSW.RLWEToTGSW.entry_convert_castSucc
+#check FormalProof4FHE.TFHE.TGSW.RLWEToTGSW.entry_convert_last
+#check FormalProof4FHE.TFHE.TGSW.RLWEToTGSW.rowError_convert_castSucc_eq
+#check FormalProof4FHE.TFHE.TGSW.RLWEToTGSW.rowError_convert_last_eq
+#check FormalProof4FHE.TFHE.TGSW.RLWEToTGSW.conversionKey_maskPhase_eq_product
+#check FormalProof4FHE.TFHE.TGSW.RLWEToTGSW.conversionKey_maskPhase_rankOne_eq_square
+#check FormalProof4FHE.TFHE.TGSW.RLWEToTGSW.cInfNorm_rowError_convert_castSucc_le
+#check FormalProof4FHE.TFHE.TGSW.RLWEToTGSW.cInfNorm_rowError_convert_last_le
+
+-- Standalone narrow-noise circular-security normal form for RGSW_S(-S).
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.restore_strip
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.stripLinearBlock_bijective
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.phase_entry_strip_castSucc_eq_square_add_error
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.phase_entry_strip_last_eq_error
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.phase_squareFromApproximation
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.residual_squareFromApproximation
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.gadgetApproximation_eq_mul_add_phase
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.phase_preimageCombination_eq_weighted
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.phase_squareFromPreimage
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.residual_squareFromPreimage
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.norm_squareFromPreimageResidual_le
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.compileTranscript_uniform_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.phase_compileRows
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.advantage_eq_twoBlockLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.advantage_eq_batchLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.SingleSourceInverse.selectorSucceeds_of_inverse_mul_mask
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.SingleSourceInverse.residual_compileRows
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.SingleSourceInverse.norm_residual_compileRows_le
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.SingleSourceInverse.unitWeight_uniform_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.SingleSourceInverse.NativeShortness.probEvent_unitWeight_cInfNorm_le
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.SingleSourceInverse.PowerOfTwo.card_units_eq_power_div_two
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.SingleSourceInverse.PowerOfTwo.probEvent_levelZeroInverse_cInfNorm_le
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.MultiSourceCounting.probEvent_maskCombination_eq_of_isUnit
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.MultiSourceCounting.probEvent_exists_candidate_le_of_localRing
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.SingleSourceInverse.PowerOfTwo.card_boundedWeights_le
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.SingleSourceInverse.PowerOfTwo.probEvent_exists_boundedWeights_combination_eq_one_le
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.SingleSourceInverse.PowerOfTwo.probEvent_bounded_selector_combination_eq_one_le
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.SingleSourceInverse.PowerOfTwo.one_sub_countingRatio_le_probEvent_bounded_selector_failure
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinaryPreimageExistence.card_seed_mul_card_input_le_nonempty_mul_add
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinaryPreimageExistence.binarySubsetSum_card_input_div_add_le_exists_toReal
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinaryPreimageExistence.maskCombination_anchoredBinaryWeight_eq
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinaryPreimageExistence.production_cInfNorm_anchoredBinaryWeight_le_one
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinaryPreimageExistence.production_binaryMaskCombination_twoPow_div_add_le_existsTarget_toReal
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinaryPreimageExistence.production_binaryBoundedPreimage_twoPow_div_add_le_exists_toReal
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinaryPreimageExistence.production_completeBinarySelector_failure_toReal_le_card_div_add
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinaryPreimageExistence.production_completeBinarySelector_uniformMasks_failure_toReal_le_card_div_add
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinaryPreimageExistence.production_cInfNorm_binarySelectorWeights_le_one
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinaryPreimageExistence.selectorSucceeds_of_completeBinarySelector
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinaryPreimageExistence.exhaustiveCompleteBitSelector_isComplete
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinarySelectorSecurity.sourceChallengeMasks_uniform_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinarySelectorSecurity.production_challengeSelectors_failure_toReal_le_levels_mul_card_div_add
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinarySelectorSecurity.production_failureFraction_entropyMargin_le_inv_twoPow
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinarySelectorSecurity.contextSelectors_failure_le_challenge
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinarySelectorSecurity.production_contextSelectors_failure_toReal_le_levels_mul_card_div_add
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinarySelectorSecurity.production_rgswMinusSecretAdvantage_centeredBinomial_widenedDiscreteGaussian_le_of_binarySelectors
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinarySelectorSecurity.production_rgswMinusSecretAdvantage_centeredBinomial_widenedDiscreteGaussian_le_of_completeBinarySelectors
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinarySelectorSecurity.Asymptotic.exhaustiveCompleteSelectorFamily
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinarySelectorSecurity.Asymptotic.publicSelectorFailureError_le_selectorFailureError_of_complete
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinarySelectorSecurity.Asymptotic.rgswSecurityGame_advantage_le_publicSelectorFailure_add_smudging_add_batchRLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinarySelectorSecurity.Asymptotic.rgswSecurityGame_advantage_le_statistical_add_batchRLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinarySelectorSecurity.Asymptotic.selectorFailureError_negligible_of_entropyMargin
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinarySelectorSecurity.Asymptotic.publicSelectorFailureError_negligible_of_complete_entropyMargin
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinarySelectorSecurity.Asymptotic.smudgingError_negligible_of_two_pow_window
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinarySelectorSecurity.Asymptotic.secureAgainst_of_entropyMargin_twoPowGaussian_and_batchRLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinarySelectorSecurity.Asymptotic.secureAgainst_of_efficientAnchoredBinaryISIS_twoPowGaussian_and_batchRLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ActualNormalForm.stripLinearBlock_batchAssemble_gadgetPhase_negSecret
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ActualNormalForm.directEncryptSquareView_evalDist_eq_nativeSquareBatch
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ActualNormalForm.encryptSquareView_evalDist_eq_nativeSquareBatch
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ActualNormalForm.actualSquareBatchSampler_evalDist_eq_nativeSquareBatchSampler
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ActualNormalForm.actualDistributionGap_eq_nativeDistributionGap
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ResidualSmudging.squareFromPreimage_assemble_zero_eq_assembleSquareRow
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ResidualSmudging.tvDist_fixedSecretShiftedSquareRowSampler_le_addShiftDistance
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ResidualSmudging.tvDist_contextualShiftedSquareRows_le
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ResidualSmudging.Native.cInfNorm_inducedShiftFromError_le
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ResidualSmudging.Native.tvDist_inducedShiftedError_discreteGaussian_le
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ResidualSmudging.Native.tvDist_randomShiftedError_discreteGaussian_le
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BatchResidualSmudging.sum_addShiftDistance_upperShiftVector_eq
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BatchResidualSmudging.tvDist_fixedSecretShiftedSquareBatchSampler_le_sum
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BatchResidualSmudging.tvDist_contextualShiftedSquareBatches_le
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BatchResidualSmudging.actualDistributionGap_le_of_contextual_normalForms
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BatchResidualSmudging.rgswMinusSecretAdvantage_le_contextualSmudging_add_batchLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.CompilerNormalForm.compiledTargetChallenge_bijective
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.CompilerNormalForm.compileTargets_batchAssemble_zero_eq_shifted
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.CompilerNormalForm.compileFromContext_evalDist_eq_shifted
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.CompilerNormalForm.nativeSquareBatchSampler_evalDist_eq_contextual
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.CompilerNormalForm.compiledBatchSampler_evalDist_eq_contextualShifted
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.CompilerNormalForm.actualDistributionGap_le_of_selectorSuccess
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.CompilerNormalForm.rgswMinusSecretAdvantage_le_selectorResidual_add_batchLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.CompilerNormalForm.tvDist_contextualCompiler_native_le_failure_add_bound
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.CompilerNormalForm.actualDistributionGap_le_failure_add_selectorResidual
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.CompilerNormalForm.rgswMinusSecretAdvantage_le_failure_add_residual_add_batchLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.Heterogeneous.scalarErrorConvolution_convolutionSampler
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.Heterogeneous.addShiftDistance_convolutionSampler_le_right
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.Heterogeneous.compiledBatchSampler_evalDist_eq_contextual
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.Heterogeneous.actualDistributionGap_le_failure_add_selectorResidual
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.Heterogeneous.advantage_eq_batchLWE_of_convolution
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.Heterogeneous.rgswMinusSecretAdvantage_le_failure_add_residual_add_batchLWE_of_convolution
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.Heterogeneous.rgswMinusSecretAdvantage_le_convolution_failure_add_residual_add_batchLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BatchResidualSmudging.Native.sum_addShiftDistance_discreteGaussian_le
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BatchResidualSmudging.Native.actualDistributionGap_discreteGaussian_le_of_selectorSuccess
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BatchResidualSmudging.Native.rgswMinusSecretAdvantage_discreteGaussian_le_of_selectorSuccess
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BatchResidualSmudging.Native.actualDistributionGap_discreteGaussian_le_failure_add_shift
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BatchResidualSmudging.Native.rgswMinusSecretAdvantage_discreteGaussian_le_failure_add_shift_add_batchLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BatchResidualSmudging.Native.rgswMinusSecretAdvantage_widenedDiscreteGaussian_le_failure_add_shift_add_batchLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.SelectorNoise.Native.secretValue_mem_support_of_contextSampler
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.SelectorNoise.Native.sourcePhase_mem_support_of_contextSampler
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.SelectorNoise.Native.cInfNorm_weightedSourcePhase_le
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.SelectorNoise.Native.phase_preimageCombination_eq_weightedSourcePhase
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.SelectorNoise.Native.cInfNorm_phase_preimageCombination_le
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.SelectorNoise.Native.cInfNorm_inducedShift_le
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.SelectorNoise.Native.cInfNorm_contextShift_le_on_sampler_support
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.SelectorNoise.Native.rgswMinusSecretAdvantage_widenedDiscreteGaussian_le_failure_add_explicitNoise_add_batchLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.SelectorNoise.Native.rgswMinusSecretAdvantage_centeredBinomialSource_widenedDiscreteGaussian_le
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.SelectorNoise.Native.inducedShiftBoundForDegree
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.SelectorNoise.Native.rgswMinusSecretAdvantage_centeredBinomialSource_widenedDiscreteGaussian_le_of_degree_pos
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.phase_assembleSquareRow
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.realGame_eq_compiledRowSampler_bind
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.nativeSquareAdvantage_le_nativeDistributionGap_add_advantage
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.nativeSquareAdvantage_le_nativeDistributionGap_add_batchLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.Full.compileTargets_bijective
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.Full.compileTranscript_uniform_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.Full.phase_entry_compileTargets_upper
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.Full.entry_compileTargets_lower
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.Full.advantage_eq_batchLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.Full.nativeSquareAdvantage_le_nativeDistributionGap_add_batchLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.Full.actualSquareAdvantage_le_actualDistributionGap_add_batchLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.Full.rgswMinusSecretAdvantage_eq_actualSquareAdvantage_restore
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.Full.rgswMinusSecretAdvantage_le_actualDistributionGap_add_batchLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.Full.rgswMinusSecretAdvantage_le_of_gap_of_batchLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.cInfNorm_squareApproximationResidual_le
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.encryptSquareView_evalDist_eq_direct
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.strip_uniform_evalDist
+#check FormalProof4FHE.TFHE.Native.RingSquareRGSW.squareGame_restore_eq_realGame
+#check FormalProof4FHE.TFHE.Native.RingSquareRGSW.realGame_strip_eq_squareGame
+#check FormalProof4FHE.TFHE.Native.RingSquareRGSW.circularLweAdvantage_eq_squareAdvantage_restore
+#check FormalProof4FHE.TFHE.Native.RingSquareRGSW.squareAdvantage_eq_circularLweAdvantage_strip
+#check FormalProof4FHE.TFHE.Native.RingSquareRGSW.kdmAdvantage_le_circularLwe_add_zeroLwe
+#check FormalProof4FHE.TFHE.Native.RingSquareRGSW.circularLWEHardAgainst_of_square
+#check FormalProof4FHE.TFHE.Native.RingSquareRGSW.squareHardAgainst_of_circularLWE
+#check FormalProof4FHE.TFHE.Native.RingSquareRGSW.kdmHardAgainst_of_circularLWE_and_zeroLWE
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.CircularSmudging.tvDist_tgswEncrypt_encryptZero_le_sum
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.CircularSmudging.tvDist_generateBootstrappingKey_zero_le_shiftCost
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.CircularSmudging.secretContinuationAdvantage_le_uniformRowBound
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.CircularSmudging.secretContinuationAdvantage_discreteGaussian_le
+#check FormalProof4FHE.FiniteProduct.tvDist_uniform_le_of_addShiftDistance_le
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.CircularSmudging.tvDist_discreteGaussian_uniform_le_universalRowBound
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.CircularSecurity.discreteGaussianCircularSmudgingBound_negligible_of_window
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.CircularSecurity.ringErrorGap_discreteGaussian_negligible
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.CircularSecurity.kdmSecurityGame_advantage_le_discreteGaussianCircularSmudging
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.CircularSecurity.adaptiveKDMSecurityGame_secureAgainst_of_discreteGaussianCircularSmudging
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.CircularSecurity.implementationSecureAgainst_of_discreteGaussianWindow_and_batchLWE
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.CircularSecurity.implementationEvaluationSecureAgainst_of_discreteGaussianWindow_and_batchLWE
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.CircularSecurity.implementationSecureAgainst_of_discreteGaussianSmudging_zeroBootstrapLWE_and_batchLWE
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.CircularSecurity.implementationEvaluationSecureAgainst_of_discreteGaussianSmudging_zeroBootstrapLWE_and_batchLWE
+#check FormalProof4FHE.TFHE.SharedRandomnessOneCycle.ConcreteWideGaussian.wideWindow_eq_integerStddev
+#check FormalProof4FHE.TFHE.SharedRandomnessOneCycle.ConcreteWideGaussian.canonicalCertificate_bound_negligible
+#check FormalProof4FHE.TFHE.SharedRandomnessOneCycle.ConcreteWideGaussian.scaledWindow_negligible
+#check FormalProof4FHE.TFHE.SharedRandomnessOneCycle.ConcreteWideGaussian.polynomialGrowth
+#check FormalProof4FHE.TFHE.SharedRandomnessOneCycle.ConcreteWideGaussian.circularSmudgingBound_negligible
+#check FormalProof4FHE.TFHE.SharedRandomnessOneCycle.ConcreteWideGaussian.ringErrorGap_negligible
+#check FormalProof4FHE.TFHE.SharedRandomnessOneCycle.ConcreteWideGaussian.kdmSecurityGame_secureAgainst
+#check FormalProof4FHE.TFHE.SharedRandomnessOneCycle.ConcreteWideGaussian.adaptiveKDMSecurityGame_secureAgainst
+#check FormalProof4FHE.TFHE.SharedRandomnessOneCycle.ConcreteWideGaussian.secureAgainst_of_batchLWE
+#check FormalProof4FHE.TFHE.SharedRandomnessOneCycle.ConcreteWideGaussian.evaluationSecureAgainst_of_batchLWE
+
+example {R : Type} [CommRing R] {dimension levels lweDimension : ℕ}
+    (gadget : Fin levels → R)
+    (mask : FormalProof4FHE.TFHE.BinarySecret lweDimension) :
+    Function.Bijective
+      (FormalProof4FHE.TFHE.Native.ScalarSecretRandomization.transformBootstrappingKey
+        (dimension := dimension) gadget mask) := by
+  exact
+    FormalProof4FHE.TFHE.Native.ScalarSecretRandomization.transformBootstrappingKey_bijective
+      gadget mask
+
+example {Message : Type}
+    (params : FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.Parameters Message)
+    [∀ securityParameter, NeZero (params.q securityParameter)]
+    (adversary :
+      FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.PolynomialQueryAdversary params)
+    (securityParameter : ℕ) :
+    (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.MonomialKDM.adaptiveSecurityGame
+      params).advantage adversary securityParameter =
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.CutCycleSecurity.adaptiveDirectBilinearSecurityGame
+        params).advantage adversary securityParameter := by
+  exact
+    FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.MonomialKDM.adaptiveSecurityGame_advantage_eq_directBilinear
+      params adversary securityParameter
+
+example {Message : Type}
+    (params : FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.Parameters Message)
+    [∀ securityParameter, NeZero (params.q securityParameter)]
+    (adversary :
+      FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.PolynomialQueryAdversary params)
+    (securityParameter : ℕ) :
+    (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.MonomialKDM.adaptiveSecurityGame
+      params).advantage adversary securityParameter ≤
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.MonomialKDM.AuxiliaryInput.adaptiveCircularLWESecurityGame
+        params).advantage adversary securityParameter +
+      (FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.MonomialKDM.AuxiliaryInput.adaptiveZeroLWESecurityGame
+        params).advantage adversary securityParameter := by
+  exact
+    FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.MonomialKDM.AuxiliaryInput.adaptiveSecurityGame_advantage_le_circularLWE_add_zeroLWE
+      params adversary securityParameter
 
 example (blockLength blockCount : ℕ) :
     Fintype.card (FormalProof4FHE.BlockBinary.Key blockLength blockCount) =
@@ -53,6 +1585,10 @@ example {F : Type} [Field F] [Fintype F] [SampleableType F]
       2 / (Fintype.card F : ℝ≥0∞) ^ (slack + 1) := by
   exact FormalProof4FHE.FiniteFieldRank.rankFailure_le dimension slack
 
+#check FormalProof4FHE.FiniteFieldRank.rankFailure_toReal_ge_inv_card_pow_rows
+#check FormalProof4FHE.FiniteFieldRank.rankFailure_ge_inv_card_pow_rows
+#check FormalProof4FHE.FiniteFieldRank.rankFailure_ge_inv_card_matrix
+
 example {F : Type} [Field F] [Fintype F] [DecidableEq F] [SampleableType F]
     {ambient dimension : ℕ} (slack queryCount : ℕ)
     (errorSampler : ProbComp F)
@@ -73,3 +1609,1293 @@ example {F : Type} [Field F] [Fintype F] [DecidableEq F] [SampleableType F]
   exact
     FormalProof4FHE.GeneralizedSubspaceLWE.Adaptive.advantage_le_batchLWE_add_rankLoss
       slack queryCount errorSampler adversary hbound
+
+example {R : Type} [CommRing R] {dimension levels : ℕ}
+    (secret : Fin dimension → R) (gadget : Fin levels → R)
+    (controlMessage dataMessage : R)
+    (data : FormalProof4FHE.TFHE.TGSW.Ciphertext R dimension levels)
+    (digits : Fin (FormalProof4FHE.TFHE.TGSW.rowCount dimension levels) →
+      Fin (dimension + 1) → Fin levels → R)
+    (control : FormalProof4FHE.TFHE.TGSW.Ciphertext R dimension levels)
+    (index : Fin (dimension + 1) × Fin levels) :
+    FormalProof4FHE.TFHE.TLWE.phase secret
+        (FormalProof4FHE.TFHE.TLWE.entry
+          (FormalProof4FHE.TFHE.TGSW.internalProductWithDigits digits control)
+          (finProdFinEquiv index)) =
+      FormalProof4FHE.TFHE.TGSW.gadgetPhase secret gadget
+          (controlMessage * dataMessage) (finProdFinEquiv index) +
+        FormalProof4FHE.TFHE.TGSW.computedInternalProductRowResidual
+          secret gadget controlMessage dataMessage data digits control index := by
+  exact
+    FormalProof4FHE.TFHE.TGSW.phase_entry_internalProductWithDigits_eq_gadgetPhase_add_computedResidual
+      secret gadget controlMessage dataMessage data digits control index
+
+example (hidden mask : Bool) :
+    FormalProof4FHE.LWE.MultiKeyAffine.maskedBit (!hidden) mask =
+      !(FormalProof4FHE.LWE.MultiKeyAffine.maskedBit hidden mask) := by
+  cases hidden <;> cases mask <;> rfl
+
+#check FormalProof4FHE.TFHE.TGSW.externalProduct_add
+#check FormalProof4FHE.TFHE.TGSW.externalProduct_pureGadget_one
+#check FormalProof4FHE.TFHE.TGSW.externalProduct_addGadget_one
+#check FormalProof4FHE.TFHE.TGSW.internalProductWithDigits_addGadget_one
+#check FormalProof4FHE.TFHE.TGSW.cmuxWithDigits_addGadget_zero
+#check FormalProof4FHE.TFHE.TGSW.cmuxWithDigits_addGadget_one
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.proofZero_eq_zero
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.proofOne_eq_one
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.proofTGSWSub_eq_sub
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.proofNeg_eq_neg
+#check FormalProof4FHE.TFHE.Native.ShiftedResidualBounds.rowError_toggleTGSW
+#check FormalProof4FHE.TFHE.Native.ShiftedResidualBounds.cInfNorm_candidateControl_correct_le
+#check FormalProof4FHE.TFHE.Native.ShiftedResidualBounds.cInfNorm_correctBootstrappingResidual_le_universalBound
+#check FormalProof4FHE.TFHE.Native.ShiftedResidualBounds.cInfNorm_transformMonomialBootstrappingKey_centeredBinomial_le_eta
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.differenceFromSource_uniform_evalDist
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.source_trueBranch_to_independentDifference_evalDist
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.correctBootstrappingResidual_addDifference_eq_sourceError_add_controlResidual
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.cInfNorm_independentControlResidual_le
+#check FormalProof4FHE.FiniteProduct.evalDist_bind_fin_mOfFn_two_coordinates
+#check FormalProof4FHE.FiniteProduct.evalDist_bind_fin_mOfFn_pull_coordinate
+#check FormalProof4FHE.FiniteProduct.tsum_probOutput_map_toReal_mul
+#check FormalProof4FHE.FiniteProduct.tsum_probOutput_toReal_mul_congr
+#check FormalProof4FHE.FiniteProduct.tvDist_map_uniform_fun_le_sum
+#check FormalProof4FHE.FiniteProduct.tvDist_bind_left_le_expectation
+#check FormalProof4FHE.FiniteProduct.tvDist_bind_left_le_probEvent_cont
+#check FormalProof4FHE.TFHE.TGSW.Translation.add_directEncrypt_evalDist
+#check FormalProof4FHE.TFHE.TGSW.Translation.add_independent_directEncrypt_evalDist
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.generateDirectBootstrappingKey_two_coordinates_evalDist
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.correctEntryExperiment_evalDist_eq_residual
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.correctKeyExperiment_evalDist_eq_factorized
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.factorizedKeyExperiment_evalDist_eq_residualized
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.correctKeyExperiment_evalDist_eq_residualized
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.referenceKeyExperiment_evalDist_eq_generateDirectBootstrappingKey
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.tvDist_correctKeyExperiment_generateDirectBootstrappingKey_le
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.offDiagonalReplacedKeyExperiment_evalDist_eq_diagonalCompletion
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.tvDist_residualizedKeyExperiment_offDiagonalReplaced_le
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.tvDist_offDiagonalReplacedKeyExperiment_referenceKeyExperiment_le
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.tvDist_correctKeyExperiment_generateDirectBootstrappingKey_le_averagedDiagonal
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.targetOffDiagonalReplacedKeyExperiment_evalDist_eq_diagonalCompletion
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.directTargetKey_evalDist_eq_coordinateCompletion
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.tvDist_residualizedKeyExperiment_targetOffDiagonalReplaced_le
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.tvDist_targetOffDiagonalReplaced_generateDirectBootstrappingKey_le
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.tvDist_correctKeyExperiment_generateDirectBootstrappingKey_le_twoSamplers
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.averagedOffDiagonalReplacementDistance
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.tvDist_residualizedKeyExperiment_targetOffDiagonalReplaced_le_expectation
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.worstCaseAveragedOffDiagonalReplacementDistance
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.averagedOffDiagonalReplacementDistance_le_worstCase
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.tvDist_correctKeyExperiment_generateDirectBootstrappingKey_le_averagedOffDiagonal
+#check FormalProof4FHE.ConditionalCollision.l2Loss
+#check FormalProof4FHE.ConditionalCollision.tvDist_le_l2Loss
+#check FormalProof4FHE.ConditionalCollision.l2Loss_congr
+#check FormalProof4FHE.ConditionalCollision.twoUniformImagesL2Loss
+#check FormalProof4FHE.ConditionalCollision.l2Loss_uniformImages_eq_twoUniformImagesL2Loss
+#check FormalProof4FHE.FinitePMFCompiler.TicketTable.sampler_eq_ticketValue_map_uniform
+#check FormalProof4FHE.RLWE.CenteredBinomial.sampleIID_sampler_evalDist_eq_uniformCoins
+#check FormalProof4FHE.TFHE.DiscreteGaussianSampler.ringSampler_evalDist_eq_uniformTickets
+#check FormalProof4FHE.TFHE.DiscreteGaussianSampler.sampleIID_ringSampler_evalDist_eq_uniformTickets
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.fixedControlResidualErrorSampler
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.conditionalResidualErrorL2Loss
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.batchPhase_internalProductWithDigits
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.fixedControlResidualErrorSampler_structured_eq_errorOnly
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.structuredControlWitnessSampler_evalDist_eq_directEncrypt
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.conditionalResidualErrorL2Loss_structured_eq_errorOnly
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.residualizedCoordinateSampler_evalDist_eq_entryFromResidualError
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.tvDist_residualizedCoordinateSampler_directEntry_le_residualL2
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.averagedOffDiagonalReplacementDistance_le_residualL2Loss
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.averagedOffDiagonalResidualL2Loss_eq_errorOnly
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.worstCaseAveragedOffDiagonalErrorOnlyL2Loss
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.errorOnlyResidualSampler_centeredBinomial_evalDist_eq_uniformCoins
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.errorOnlyResidualL2Loss_centeredBinomial_ringSampler_eq_fiber
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.averagedOffDiagonalErrorOnlyL2Loss_centeredBinomial_ringSampler_eq_fiber
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.averagedOffDiagonalErrorOnlyL2Loss_true_eq_false_centeredBinomial
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.worstCaseAveragedOffDiagonalErrorOnlyL2Loss_centeredBinomial_eq_false
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.worstCaseAveragedOffDiagonalResidualL2Loss_le_errorOnly
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.worstCaseAveragedOffDiagonalResidualL2Loss
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.tvDist_correctKeyExperiment_generateDirectBootstrappingKey_le_residualL2
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.tvDist_correctKeyExperiment_generateDirectBootstrappingKey_le_errorOnlyL2
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.transformDirectBootstrappingKey_centeredBinomial_evalDist
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.averagedCorrectTransform_evalDist_eq_coupledDirectCorrectView
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.coupledDirectTargetView_evalDist_eq_realPublicView
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.tvDist_averagedCorrectTransform_realPublicView_le_offDiagonalIsolation
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.tvDist_averagedCorrectTransform_realPublicView_le_averagedOffDiagonal
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.tvDist_averagedCorrectTransform_realPublicView_le_residualL2
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.tvDist_averagedCorrectTransform_realPublicView_le_errorOnlyL2
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.DirectStatisticalCertificate.ofCenteredBinomialOffDiagonalIsolation
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.DirectStatisticalCertificate.ofCenteredBinomialAveragedOffDiagonal
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.DirectStatisticalCertificate.ofCenteredBinomialResidualL2
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.DirectStatisticalCertificate.ofCenteredBinomialErrorOnlyL2
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.DirectStatisticalCertificate.toAveragedReductionSameKeySwitch
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.maskedBranchExperiment_evalDist_eq_maskedUniform_of_wrongBranchFresh
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.tvDist_maskedBranchExperiment_maskedUniform_eq_zero_of_wrongBranchFresh
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WholeKeyRankCertificate
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.DiscreteGaussianWholeKeyRankCertificate
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WholeKeyRankCertificate.ofWrongBranchFresh
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WholeKeyRankCertificate.ofMaskedRowBranchDistance
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WholeKeyRankCertificate.ofAveragedRowwiseFailure
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WholeKeyRankCertificate.ofAveragedControlFailure
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WholeKeyRankCertificate.ofCanonicalControlFailure
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WholeKeyRankCertificate.ofCanonicalControlDistance
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WholeKeyRankCertificate.ofMessageOneControlFailure
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WholeKeyRankCertificate.ofMessageOneControlDistance
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WholeKeyRankCertificate.toDirect
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WholeKeyRankCertificate.toAveragedReductionSameKeySwitch
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.PublicAuxiliaryInputCircular.AugmentedCandidate.publicCircularLWE_advantage_le_search_add_loss
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.PublicAuxiliaryInputCircular.AugmentedCandidate.publicCircularLWESecurityGame_secureAgainst_of_search_and_loss
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.AdaptivePublicCircular.securityGame_advantage_le_search_add_candidateLoss_add_three_jointLWE
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.coordinateGame_testerOfCheck_successProbability_toReal
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AveragedCandidateViewTransformer.coordinatePredictionBias_eq_candidateCheckGap
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AveragedCandidateViewTransformer.publicAdvantage_le_coordinatePredictionBias_add_errors
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.PublicAuxiliaryInputCircular.AugmentedCandidate.OneShot.statisticalErrorSecurityGame_secureAgainst_of_components
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.PublicAuxiliaryInputCircular.AugmentedCandidate.OneShot.publicCircularLWE_advantage_le_coordinatePrediction_add_error
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.PublicAuxiliaryInputCircular.AugmentedCandidate.OneShot.publicCircularLWESecurityGame_secureAgainst_of_coordinatePrediction_and_error
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.AdaptivePublicCircular.securityGame_advantage_le_coordinatePrediction_add_statisticalError_add_three_jointLWE
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.AdaptivePublicCircular.secureAgainst_of_coordinatePrediction_and_statisticalError_and_jointLWE
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.AdaptivePublicCircular.secureAgainst_of_directCertificates_coordinatePrediction_and_jointLWE
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.AdaptivePublicCircular.evaluationSecureAgainst_of_coordinatePrediction_and_statisticalError_and_jointLWE
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.AdaptivePublicCircular.evaluationSecureAgainst_of_directCertificates_coordinatePrediction_and_jointLWE
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.AdaptivePublicCircular.secureAgainst_of_publicCircular_and_jointLWE
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.AdaptivePublicCircular.secureAgainst_of_search_residual_and_jointLWE
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.AdaptivePublicCircular.secureAgainst_of_search_candidate_and_jointLWE
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.AdaptivePublicCircular.evaluationSecureAgainst_of_search_candidate_and_jointLWE
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.AdaptivePublicCircular.secureAgainst_and_refreshCorrect_of_search_candidate_and_jointLWE
+#check FormalProof4FHE.ModularGaussian.shiftDistance_neg
+#check FormalProof4FHE.ModularGaussian.distribution_apply_neg
+#check FormalProof4FHE.ModularGaussian.torusDistribution_apply_neg
+#check FormalProof4FHE.ModularGaussian.shiftDistance_zsmul_le
+#check FormalProof4FHE.ModularGaussian.shiftDistance_discreteGaussian_unit_eq_mass_zero
+#check FormalProof4FHE.ModularGaussian.discreteGaussianPMF_zero_le_exp_half_div_nat_succ
+#check FormalProof4FHE.ModularGaussian.shiftDistance_discreteGaussian_unit_le_exp_half_div_nat_succ
+#check FormalProof4FHE.ModularGaussian.shiftDistance_torusDistribution_le_natAbs_mul_unit
+#check FormalProof4FHE.TFHE.DiscreteGaussianSampler.scalarLinearShiftBound
+#check FormalProof4FHE.TFHE.DiscreteGaussianSampler.scalarLinearShiftBound_eq_mass_zero
+#check FormalProof4FHE.TFHE.DiscreteGaussianSampler.scalarLinearShiftBound_le_exp_half_window
+#check FormalProof4FHE.TFHE.DiscreteGaussianSampler.addShiftDistance_ringSampler_le_degree_mul_scalarLinearShiftBound
+#check FormalProof4FHE.TFHE.DiscreteGaussianSampler.addShiftDistance_ringSampler_le_degree_mul_scalarShiftEnvelope
+#check FormalProof4FHE.TFHE.Native.ConditionalSmudging.bootstrappingSmudgingCost_discreteGaussian_le
+#check FormalProof4FHE.TFHE.Native.ConditionalSmudging.bootstrappingSmudgingCost_discreteGaussian_le_linear
+#check FormalProof4FHE.TFHE.Native.ConditionalSmudging.bootstrappingSmudgingCost_discreteGaussian_le_exp_half_window
+#check FormalProof4FHE.TFHE.Native.ConditionalSmudging.addBootstrappingBodyNoise_bijective
+#check FormalProof4FHE.TFHE.Native.ConditionalSmudging.addBootstrappingBodyNoise_uniform_evalDist
+#check FormalProof4FHE.TFHE.Native.ConditionalSmudging.smudge_uniformBootstrappingKey_evalDist
+#check FormalProof4FHE.TFHE.Native.ConditionalSmudging.generateResidualBootstrappingKey_zero_then_smudge_evalDist
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.PostEvaluationSmudging.uniformPublicView_smudge_evalDist
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.PostEvaluationSmudging.tvDist_averagedWrongTransform_uniformPublicView_le
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.PostEvaluationSmudging.coupledAveragedZeroNoiseResidualRealView_smudge_evalDist
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.PostEvaluationSmudging.tvDist_averagedCorrectTransform_coupledResidual_le_zeroNoiseNormalForm
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.differenceDigits_decomposes
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.toggleTGSW_correct
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.toggleTGSW_wrong
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.rowBranchTransform
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.controlBranchTransform
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.controlBranchDistance
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.controlBranchTransform_false_candidateControl
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.controlBranchDistance_false_candidateControl
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.rowTranslationEquiv
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.rowBranchTransform_eq_conjugate
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.rowBranchFresh_iff_controlBranchFresh
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.oneMessageRowTransform
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.controlBranchTransform_eq_oneMessageRowTransform
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.rowBranchDistance_eq_controlBranchDistance
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.branchDistance_le_card_mul_controlBranchDistance
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.entryBranchTransform
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.entry_entryBranchTransform
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.entryBranchFresh_of_rowBranchFresh
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.branchTransform_apply
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.branchFresh_of_rowwiseBranchFresh
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.rowBranchDistance
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.entryBranchDistance_le_sum_rowBranchDistance
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.branchDistance_le_sum_rowBranchDistance
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.proofAddGadget_candidateHomogeneousPart
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.select_zeroMessage_eq_addInternalProduct
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.select_oneMessage_eq_addInternalProduct
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.phase_entry_select_correct
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.phase_entry_select_wrong
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.structuredBootstrappingKey_homogeneousPart
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.selectBootstrappingKey_correct_ciphertext
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.selectBootstrappingKey_wrong_ciphertext
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.phase_entry_selectBootstrappingKey_correct
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.phase_entry_selectBootstrappingKey_correctResidual
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.phase_entry_selectBootstrappingKey_wrong
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.branchTransform_uniform_evalDist
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateKeyChangeBoundary.phase_target_eq_phase_source_add_keyChangeDefect
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateKeyChangeBoundary.rowError_target_eq_rowError_source_add_keyChangeDefect
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateKeyChangeBoundary.phase_assemble_rankOne_uniform_at_target_of_mul_bijective
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateKeyChangeBoundary.rotationMonomial_mul_bijective
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateKeyChangeBoundary.phase_assemble_rankOne_uniform_after_rotationMonomial_keyShift
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateKeyChangeBoundary.embedBinaryPolynomial_sub_flipBinaryCoefficient
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateKeyChangeBoundary.phase_assemble_rankOne_uniform_after_binaryCoefficientFlip
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateKeyChangeBoundary.rankOneTargetPhaseVector_bijective_of_mul_bijective
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateKeyChangeBoundary.rankOneTargetPhaseVector_uniform_of_mul_bijective
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateKeyChangeBoundary.rankOneMaskPhaseView_not_surjective
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateKeyChangeBoundary.rankOneTargetPhaseVector_uniform_after_binaryCoefficientFlip
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateKeyChangeBoundary.rowError_selectBootstrappingKey_correct_at_target
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateKeyChangeBoundary.correctOutputKeyChangeCompatible_iff
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateKeyChangeBoundary.rowError_applyCorrectSelectionSequence_at_target_iff
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.coordinateSource_context_evalDist_eq_realPublicView
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.transportCandidate_correct
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.transportCandidate_wrong
+#check FormalProof4FHE.TFHE.Native.ScalarSecretRandomization.toggleTGSW_maskedBit_comp
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.candidateControl_transformBootstrappingKey_wrong
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.controlBranchTransform_transported_wrong
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.sampleConditionedBitAndMask_evalDist
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.sampleConditionedBitAndCoin_evalDist
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.transformWithCoin_challenge
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.transformWithCoin_challenge_correct_ciphertext
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.transformWithCoin_challenge_wrong_ciphertext
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.phase_transformWithCoin_correct
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.phase_transformWithConditionedCoin_correct
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.probFailure_concreteCorrectResidualSampler
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.branchExperimentAtMask_evalDist_eq_uniform
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.RowwiseBranchFreshAtMask
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.tvDist_branchExperimentAtMask_uniformExperimentAtMask_le_rowwiseFailureIndicator
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.wrongBranchRowwiseFailureSampler
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WrongBranchRowwiseFailure
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.averagedWrongBranchRowwiseFailure
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WrongBranchRowFailure
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.averagedWrongBranchRowFailure
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WrongBranchControlFailure
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WrongBranchSelectedControlFailure
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.generatedControlSampler
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.canonicalWrongBranchControlSampler
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.canonicalMessageOneControlSampler
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.candidateControl_generatedControl_centeredBinomial_wrong_evalDist
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.canonicalWrongBranchControl_candidateControl_evalDist_eq_messageOne
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.wrongBranchSelectedControlSampler_evalDist_eq_canonical
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.wrongBranchRowwiseFailureSampler_selectedControl_evalDist_eq_canonical
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.averagedCanonicalWrongBranchControlDistance
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.averagedCanonicalMessageOneControlFailure
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.averagedCanonicalMessageOneControlDistance
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.averagedCanonicalWrongBranchControlFailure_eq_messageOne
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.averagedCanonicalWrongBranchControlDistance_eq_messageOne
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.wrongBranchRowFailure_iff_controlFailure
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.averagedWrongBranchRowFailure_eq_controlFailure
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.averagedWrongBranchControlFailure_eq_selectedControlFailure
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.averagedWrongBranchControlFailure_eq_canonical
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.averagedWrongBranchRowwiseFailure_le_sum_rowFailure
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.tvDist_averagedWrongTransform_uniformPublicView_le_averagedWrongBranchRowwiseFailure
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.tvDist_averagedWrongTransform_uniformPublicView_le_averagedWrongBranchSelectedControlFailure
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.tvDist_averagedWrongTransform_uniformPublicView_le_averagedCanonicalControlFailure
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.tvDist_averagedWrongTransform_uniformPublicView_le_card_mul_averagedCanonicalControlDistance
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.tvDist_averagedWrongTransform_uniformPublicView_le_averagedMessageOneControlFailure
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.tvDist_averagedWrongTransform_uniformPublicView_le_card_mul_averagedMessageOneControlDistance
+#check FormalProof4FHE.LeftoverHash.fiberSecondMoment
+#check FormalProof4FHE.LeftoverHash.collisionProbability_map_uniform_eq_fiberSecondMoment
+#check FormalProof4FHE.LeftoverHash.tvDist_map_uniform_le_sqrt_fiberExcess
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.messageOneControlFiberSecondMoment
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.messageOneControlDistance_le_fiberLoss
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.messageOneControlDistance_le_cappedFiberLoss
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.averagedCanonicalMessageOneControlDistance_le_of_fiberSecondMoment
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.averagedCanonicalMessageOneControlCappedFiberLoss_le_good_add_badProbability
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.averagedCanonicalMessageOneControlCappedFiberLoss_le_of_goodFiberSecondMoment
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.tvDist_averagedWrongTransform_uniformPublicView_le_card_mul_averagedMessageOneControlFiberLoss
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.tvDist_averagedWrongTransform_uniformPublicView_le_card_mul_averagedMessageOneControlCappedFiberLoss
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WholeKeyRankCertificate.ofMessageOneControlFiberLoss
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WholeKeyRankCertificate.ofMessageOneControlCappedFiberLoss
+#check FormalProof4FHE.TFHE.DiscreteGaussianSampler.TicketNegationSymmetric
+#check FormalProof4FHE.TFHE.DiscreteGaussianSampler.ringSampler_negationSymmetric
+#check FormalProof4FHE.TFHE.Native.ScalarSecretRandomization.transformBootstrappingKey_generate_of_negationSymmetric
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.canonicalWrongBranchControl_candidateControl_evalDist_eq_messageOne_of_negationSymmetric
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.averagedCanonicalWrongBranchControlDistance_eq_messageOne_of_negationSymmetric
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.tvDist_averagedWrongTransform_uniformPublicView_le_symmetricDiscreteGaussianFiberLoss
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.transformDirectBootstrappingKey_symmetricDiscreteGaussian_evalDist
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.branchRowDistanceAtMask
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.maskedRowBranchDistance
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.tvDist_branchExperimentAtMask_uniformExperimentAtMask_le_rowBranchDistance
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.tvDist_maskedBranchExperiment_maskedUniformExperiment_le_maskedRowBranchDistance
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WrongBranchEntrywiseFresh
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WrongBranchRowwiseFresh
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.wrongBranchFresh_of_rowwise
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.averagedCorrectTransform
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.averagedWrongTransform_evalDist_eq_uniformized
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.averagedUniformized_evalDist_eq_uniformPublicView
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.tvDist_averagedWrongTransform_uniformPublicView_le
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.tvDist_freshSampledResidualRealView_realPublicView_le
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.tvDist_averagedSampledResidualRealView_realPublicView_le
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.DirectStatisticalCertificate.toAveraged
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.SampledResidualCertificate.toDirect
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.SampledResidualCertificate.toAveraged
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.ConcreteStatisticalCertificate.toDirect
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.ConcreteStatisticalCertificate.toAveraged
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.evaluationKeySmudgingCost_concreteCorrectResidualSampler_discreteGaussian_le_universal
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.ConcreteStatisticalCertificate.ofDiscreteGaussianUniversalSmudging
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.ConcreteStatisticalCertificate.ofDiscreteGaussianUniversalLinearSmudging
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.pairedSource_project_evalDist
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.cInfNorm_correctResidualAtCoupledTarget_le_centeredBinomialBound
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.evaluationKeySmudgingCost_correctResidualAtCoupledTarget_discreteGaussian_le
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.transform_evalDist_eq_transformFromDifference
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.transformWithDifference_challenge_correct_ciphertext
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.phase_transformWithDifference_eq_gadgetPhase_add_sourceError_add_controlResidual
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.tvDist_coupledAveragedResidualRealView_coupledAveragedMonomialRealView_le
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.coupledAveragedMonomialRealView_evalDist_eq_realPublicView
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.tvDist_coupledAveragedResidualRealView_realPublicView_le
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.DirectStatisticalCertificate.ofCoupledCenteredBinomialDiscreteGaussian
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.tvDist_coupledAveragedResidualRealView_realPublicView_le_linear
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.tvDist_coupledAveragedResidualRealView_realPublicView_le_exp_half_window
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.coupledCenteredBinomialDiscreteGaussianLinearSmudgingError_le_exp_half_window
+#check FormalProof4FHE.TFHE.Native.ShiftedDiscreteGaussian.Asymptotic.PolynomialGrowth.centeredBinomialResidualBound_le_polynomial
+#check FormalProof4FHE.TFHE.Native.ShiftedDiscreteGaussian.Asymptotic.correctSmudgingError_negligible
+#check FormalProof4FHE.TFHE.Native.ShiftedDiscreteGaussian.Asymptotic.correctSmudgingError_negligible_of_two_pow_window
+#check FormalProof4FHE.TFHE.Native.ShiftedDiscreteGaussian.Asymptotic.candidateCorrectError_negligible_of_two_pow_window
+#check FormalProof4FHE.TFHE.Native.ShiftedDiscreteGaussian.Asymptotic.polynomiallyManyCandidateCorrectErrors_negligible_of_two_pow_window
+#check FormalProof4FHE.TFHE.Native.ShiftedDiscreteGaussian.Asymptotic.GrowingNoise.correctSmudgingError_negligible_of_two_pow_window
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.DirectStatisticalCertificate.ofCoupledCenteredBinomialDiscreteGaussianLinearSmudging
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.nativeRingDegree_eq_ringDegree
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.integerStddev_eq_base_pow
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.two_pow_le_integerStddev
+#check FormalProof4FHE.FinitePMFCompiler.TicketTable.roundedCertificate
+#check FormalProof4FHE.FinitePMFCompiler.TicketTable.roundedCertificate_bound
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalCertificate_bound_le
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalCertificate_bound_negligible
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalCertificate_ticketNegationSymmetric
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalWrongViewFiberLoss_le_of_goodFiberSecondMoment
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalWrongViewFiberLoss_negligible_of_goodFiberSecondMoment
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalWrongViewGoodControlCertificate.fiberLoss_negligible
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalWrongViewNonbijectivityError
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalWrongViewNonbijectivityError_nonneg
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalWrongViewFreshnessError_negligible
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalWrongViewFreshnessError_negligible_of_goodFiberSecondMoment
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalWrongViewGoodControlCertificate.freshnessError_negligible
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.correctSmudgingError_negligible
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalCorrectSmudgingError_negligible
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.worstCaseConditionalResidualDistance
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.conditionalResidualDistance_le_worstCase
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.tvDist_residualizedCoordinateSampler_directEntry_le_worstCase
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalCorrectViewLaws.toDirectCertificateFamily
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalSharpDiagonalError
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalAveragedOffDiagonalError
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalAveragedDirectCertificateFamily
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalSelectedAveragedOffDiagonalError
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalAveragedOffDiagonalResidualL2Error
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalResidualL2DirectCertificateFamily
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalSelectedAveragedOffDiagonalResidualL2Error
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalAveragedOffDiagonalErrorOnlyL2Error
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalAveragedOffDiagonalFiberL2Error
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalAveragedOffDiagonalErrorOnlyL2Error_eq_fiber
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.errorOnlyResidualSampler_centeredBinomial_evalDist_eq_uniformDigitCoins
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.averagedOffDiagonalErrorOnlyL2Loss_centeredBinomial_ringSampler_eq_digitFiber
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.cInfNorm_centeredBinomialResidualFromGeneratedDigitCoins_le
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm.one_sub_targetSupportBallMass_le_tvDist_generatedDigitResidual
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalAveragedOffDiagonalDigitFiberL2Error
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalAveragedOffDiagonalErrorOnlyL2Error_eq_digitFiber
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalErrorOnlyL2DirectCertificateFamily
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalErrorOnlyL2ControlFailureDirectCertificateFamily
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalErrorOnlyL2ControlFailureDirectCertificateFamily_correctError
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalErrorOnlyL2ControlFailureDirectCertificateFamily_freshnessError
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalSelectedAveragedOffDiagonalErrorOnlyL2Error
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalSelectedAveragedOffDiagonalFiberL2Error
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalSelectedAveragedOffDiagonalErrorOnlyL2Error_eq_fiber
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalSelectedAveragedOffDiagonalDigitFiberL2Error
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalSelectedAveragedOffDiagonalErrorOnlyL2Error_eq_digitFiber
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalOffDiagonalOperatorError
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalOffDiagonalOperatorLaws
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalOffDiagonalLaws.toCanonicalCorrectViewLaws
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalSelectedOffDiagonalOperatorError
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.NativeViewLaws.toCoupledDirectCertificateFamily
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.selectedCorrectError_negligible
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalSelectedCorrectError_negligible
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalPostSmudgedNormalFormLaws
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalPostSmudgedNormalFormLaws.transformerAt
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalPostSmudgedNormalFormLaws.selectedCorrectError_negligible
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalPostSmudgedMaskNormalFormError
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalPostSmudgedMaskNormalFormLaws
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.securityGame_advantage_le_coordinatePrediction_add_statisticalError_add_three_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.secureAgainst_of_transformer_coordinatePrediction_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.secureAgainst_of_postEvaluationSmudging_normalForm_coordinatePrediction_controlFailure_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.secureAgainst_of_canonicalPostSmudgedMaskLoss_coordinatePrediction_controlFailure_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.secureAgainst_of_directCertificates_coordinatePrediction_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.secureAgainst_of_coordinatePrediction_normalForm_freshness_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.secureAgainst_of_coordinatePrediction_normalForm_freshness_and_jointLWE_canonical
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.secureAgainst_of_explicitNativeLaws_coordinatePrediction_fiber_and_jointLWE_canonical
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.secureAgainst_of_sharpDiagonal_offDiagonal_fiber_and_jointLWE_canonical
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.secureAgainst_of_canonicalOperatorLosses_coordinatePrediction_fiber_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.secureAgainst_of_canonicalAveragedOperatorLosses_coordinatePrediction_fiber_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.secureAgainst_of_canonicalResidualL2Losses_coordinatePrediction_fiber_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.secureAgainst_of_canonicalErrorOnlyL2Losses_coordinatePrediction_fiber_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.secureAgainst_of_canonicalErrorOnlyL2Losses_coordinatePrediction_goodControlFiber_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.secureAgainst_of_canonicalErrorOnlyL2Losses_coordinatePrediction_controlFailure_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.evaluationSecureAgainst_of_postEvaluationSmudging_normalForm_coordinatePrediction_controlFailure_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.evaluationSecureAgainst_of_canonicalPostSmudgedMaskLoss_coordinatePrediction_controlFailure_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.evaluationSecureAgainst_of_coordinatePrediction_normalForm_freshness_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.evaluationSecureAgainst_of_coordinatePrediction_normalForm_freshness_and_jointLWE_canonical
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.evaluationSecureAgainst_of_explicitNativeLaws_coordinatePrediction_fiber_and_jointLWE_canonical
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.evaluationSecureAgainst_of_sharpDiagonal_offDiagonal_fiber_and_jointLWE_canonical
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.evaluationSecureAgainst_of_canonicalOperatorLosses_coordinatePrediction_fiber_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.evaluationSecureAgainst_of_canonicalAveragedOperatorLosses_coordinatePrediction_fiber_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.evaluationSecureAgainst_of_canonicalResidualL2Losses_coordinatePrediction_fiber_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.evaluationSecureAgainst_of_canonicalErrorOnlyL2Losses_coordinatePrediction_fiber_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.evaluationSecureAgainst_of_canonicalErrorOnlyL2Losses_coordinatePrediction_goodControlFiber_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.evaluationSecureAgainst_of_canonicalErrorOnlyL2Losses_coordinatePrediction_controlFailure_and_jointLWE
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.StatisticalCertificate.toSampled
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.StatisticalCertificate.toDirect
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.StatisticalCertificate.toAveraged
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.Certificate.toTransformer
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.homogeneousTransform_batchAssemble_zero
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.diagonalExperiment_evalDist_eq_operator
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.tvDist_transformedChallenge_uniform_le_fiberLoss
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.tvDist_operatorDiagonalExperiment_target_le_sharp
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.tvDist_diagonalExperiment_directEntry_le_worstCaseSharpOperatorLoss
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.transformedChallenge_uniform_evalDist_of_rowOperator_bijective
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.tvDist_operatorDiagonal_maskReplaced_le_rankFailure
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.tvDist_operatorDiagonalExperiment_target_le_rankSharp
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.tvDist_diagonalExperiment_directEntry_le_worstCaseRankSharpOperatorLoss
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.rowMatrix_apply
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.matrix_mulVec_bijective_iff_isUnit_det
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.diagonalRowRankFailureProbability_eq_determinantFailureProbability
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.tvDist_diagonalExperiment_directEntry_le_worstCaseDeterminantBoundedOperatorLoss
+#check FormalProof4FHE.TFHE.Gadget.Base.digitVector_uniform_evalDist
+#check FormalProof4FHE.TFHE.Gadget.Base.ringCoefficientDigitVector_uniform_evalDist
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.differenceDigitCoefficientVector_uniform_evalDist
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.differenceDigitCoefficientVector_cast
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.differenceBinaryRowMatrix_uniform_evalDist
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.rqParityEval_mapMatrix_rowMatrix_difference
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.binaryRankFailure_implies_determinantFailure
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.one_half_le_diagonalRowDeterminantFailureProbability
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.one_half_le_rankSharpDiagonalOperatorLoss
+#check FormalProof4FHE.ConditionalCollision.tvDist_le_sidewiseL2Loss
+#check FormalProof4FHE.ConditionalCollision.tvDist_uniformJointImage_sideIndependent_le
+#check FormalProof4FHE.ConditionalCollision.probOutput_uniformJointImage_eq_jointFiberCard
+#check FormalProof4FHE.ConditionalCollision.conditionalFiberCollisionLoss_eq_cardinalityLoss
+#check FormalProof4FHE.ConditionalCollision.tvDist_uniformJointImage_sideIndependent_le_chiSquare
+#check FormalProof4FHE.ConditionalCollision.conditionalFiberCollisionPairCount_prod
+#check FormalProof4FHE.ConditionalCollision.conditionalFiberChiSquare_eq_secondMoment
+#check FormalProof4FHE.ConditionalCollision.conditionalFiberChiSquare_le_of_secondMoment
+#check FormalProof4FHE.ConditionalCollision.zeroFiberCount_addHom_eq_card_div
+#check FormalProof4FHE.ConditionalCollision.zeroFiberCard_mul_card_range_addHom_eq_card
+#check FormalProof4FHE.ConditionalCollision.card_div_le_zeroFiberCount_addHom
+#check FormalProof4FHE.ConditionalCollision.sum_sameSidePairWeight_div_scaledFiberCard_le_total_div
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.tvDist_jointDiagonalPair_jointMaskReplaced_le
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDiagonalCollisionLoss_eq_cardinalityLoss
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.tvDist_jointDiagonalPair_jointMaskReplaced_le_chiSquare
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.jointCollisionDiagonalExperiment_evalDist_eq_operator
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.jointCollisionMaskReplaced_evalDist_eq_maskReplaced
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.tvDist_operatorDiagonal_maskReplaced_le_jointCollision
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.tvDist_operatorDiagonal_maskReplaced_le_jointChiSquare
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.tvDist_operatorDiagonalExperiment_target_le_jointCollision
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.tvDist_operatorDiagonalExperiment_target_le_jointChiSquare
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.tvDist_diagonalExperiment_directEntry_le_worstCaseJointCollision
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.tvDist_diagonalExperiment_directEntry_le_worstCaseJointChiSquare
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.pairedChallengeCollisionCount_eq_card_of_surjective
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.pairedChallengeCollisionCount_eq_rowZeroFiberCard_pow
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDiagonalCollisionPairCount_eq_differencePairs
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDiagonalCollisionPairCount_eq_baseline_add_excess
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDiagonalChiSquare_eq_normalizedPairCollisionExcess
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDiagonalNormalizedPairCollisionExcess_le_globalBudget
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.averagedSourceErrorDiagonalChiSquareLoss_le_globalDifferencePairCollisionBudget
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.tvDist_diagonalExperiment_directEntry_le_globalDifferencePairCollisionBudget
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.rqParityEval_mapMatrix_pairedRowMatrix_difference
+#check FormalProof4FHE.TFHE.Native.PowerOfTwoLocalRing.binary_negacyclicModulus_eq_X_sub_one_pow
+#check FormalProof4FHE.TFHE.Native.PowerOfTwoLocalRing.quotientCoefficientReduce
+#check FormalProof4FHE.TFHE.Native.PowerOfTwoLocalRing.quotientParityEval_quotientCoefficientReduce
+#check FormalProof4FHE.TFHE.Native.PowerOfTwoLocalRing.zmod_powerOfTwo_isNilpotent_of_castHom_eq_zero
+#check FormalProof4FHE.TFHE.Native.PowerOfTwoLocalRing.quotientCoefficientReduce_kernel_isNilpotent_powerOfTwo
+#check FormalProof4FHE.TFHE.Native.PowerOfTwoLocalRing.quotientParityEval_kernel_isNilpotent_binary_powerOfTwo
+#check FormalProof4FHE.TFHE.Native.PowerOfTwoLocalRing.quotientParityEval_kernel_isNilpotent_powerOfTwo
+#check FormalProof4FHE.TFHE.Native.PowerOfTwoLocalRing.rqParityEval_kernel_isNilpotent_binary_powerOfTwo
+#check FormalProof4FHE.TFHE.Native.PowerOfTwoLocalRing.rqParityEval_kernel_isNilpotent_powerOfTwo
+#check FormalProof4FHE.TFHE.Native.PowerOfTwoLocalRing.rqParityEval_isLocalHom_binary_powerOfTwo
+#check FormalProof4FHE.TFHE.Native.PowerOfTwoLocalRing.rqParityEval_isLocalHom_binary_powerOfTwo_of_degree_eq
+#check FormalProof4FHE.TFHE.Native.PowerOfTwoLocalRing.rqParityEval_isLocalHom_powerOfTwo
+#check FormalProof4FHE.TFHE.Native.PowerOfTwoLocalRing.rqParityEval_isLocalHom_powerOfTwo_of_degree_eq
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.mulVec_surjective_of_map_transpose_mulVec_injective
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.pairedRowMatrix_mulVec_pairedRowInput
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.pairedRowMatrix_surjective_of_differencePairBinaryFullRank
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.pairedChallengeCollisionCount_le_card_sq
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.differencePairChallengeCollisionExcess_le_challengeCard_sq
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.differencePairChallengeCollisionExcess_eq_zero_of_binaryFullRank
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.differencePairBinaryRankFailureCount_eq_filter_card
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.totalDifferencePairChallengeCollisionExcess_le_rankFailureCount_mul
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.globalDifferencePairCollisionBudget_le_rankFailureRatio_mul
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.differencePairChallengeCollisionExcess_eq_zero_of_binaryFullRank_binaryPowerOfTwo
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.differencePairChallengeCollisionExcess_eq_zero_of_binaryFullRank_powerOfTwo
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.totalDifferencePairChallengeCollisionExcess_le_rankFailureCount_mul_powerOfTwo
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.globalDifferencePairCollisionBudget_le_rankFailureRatio_mul_powerOfTwo
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.differencePairBinaryTransposeSampler_uniform_evalDist
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.differencePairBinaryRankFailureProbability_eq_count_div
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.differencePairBinaryRankFailure_le
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.differencePairBinaryRankFailureCount_div_le
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.pairedSelfZeroFiberEquiv
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.diagonalRowRankFailureProbability_le_globalDifferencePairCollisionBudget
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.one_half_le_globalDifferencePairCollisionBudget
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.matrixRangeReductionMap_surjective
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.mulVec_injective_of_map_mulVec_injective
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.card_pow_mappedRank_le_card_matrixRange_of_local
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.card_pow_rank_le_card_matrixRange_of_surjective
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.pairedRowZeroFiberCard_mul_imageCard_eq_domainCard
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.two_pow_differencePairBinaryRank_le_rowImageCard
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.pairedRowZeroFiberCard_mul_two_pow_binaryRank_le_domainCard
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.differencePairChallengeCollisionExcess_le_of_binaryRank
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.rq_card_pow_differencePairBinaryRank_le_rowImageCard
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.pairedRowZeroFiberCard_mul_rqCard_pow_binaryRank_le_domainCard
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.differencePairChallengeCollisionExcess_le_of_binaryRank_local
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.differencePairChallengeCollisionExcess_le_binaryRankEnvelope
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.totalDifferencePairChallengeCollisionExcess_le_binaryRankEnvelope
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.globalDifferencePairCollisionBudget_le_binaryRankWeighted
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDiagonalNormalizedPairCollisionExcess_le_binaryRankWeighted
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.tvDist_diagonalExperiment_directEntry_le_binaryRankWeighted
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.globalDifferencePairCollisionBudget_le_binaryRankWeighted_powerOfTwo
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDiagonalPairCollisionBound_of_excess
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.differencePairChallengeCollisionExcess_self_eq_challengeCard_mul_kernelFactor
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDiagonalNormalizedPairCollisionExcess_eq_self_add_distinct
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDiagonalNormalizedSelfPairCollisionExcess_eq_kernelFiberAverage
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDiagonalNormalizedSelfPairCollisionExcess_le_nonemptyFiberCount_mul
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDifferenceFiberKernelAverageBound_of_pointwise
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.differenceCiphertextCard_eq_challengeCard_mul_errorCard
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDiagonalNormalizedSelfPairCollisionExcess_le_fiberAverage_div_challengeCard
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.averagedSourceErrorDiagonalSelfChiSquareLoss_le_fiberAverage
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDifferenceFiberDistinctCollisionAverageBound
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDiagonalNormalizedDistinctPairCollisionExcess_le_fiberAverage_div_challengeCard
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.averagedSourceErrorDiagonalDistinctChiSquareLoss_le_fiberAverage
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.pairedRowZeroFiberCard_eq_rowCard_mul_differencePairRowCokernelFactor
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.differencePairChallengeCollisionCount_eq_challengeCard_mul_cokernelFactor_pow
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.differencePairChallengeCollisionExcess_eq_challengeCard_mul_cokernelExcess
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.differencePairRowCokernelFactor_eq_one_of_binaryFullRank
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDifferenceFiberDistinctCollisionAverageBound_of_cokernel
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDiagonalChiSquareLoss_le_self_add_distinct
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.averagedSourceErrorDiagonalChiSquareLoss_le_self_add_distinct
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WholeKeyRankCertificate.ofDiagonalJointCollisionAndMessageOneControlFiberLoss
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WholeKeyRankCertificate.ofDiagonalJointChiSquareAndMessageOneControlFiberLoss
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WholeKeyRankCertificate.ofDiagonalPairCollisionBoundAndMessageOneControlFiberLoss
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WholeKeyRankCertificate.ofDiagonalPairCollisionExcessAndMessageOneControlFiberLoss
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WholeKeyRankCertificate.ofDiagonalNormalizedPairCollisionExcessAndMessageOneControlFiberLoss
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WholeKeyRankCertificate.ofDiagonalGlobalPairCollisionBudgetAndMessageOneControlFiberLoss
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WholeKeyRankCertificate.ofDiagonalBinaryRankWeightedBudgetAndMessageOneControlFiberLoss
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WholeKeyRankCertificate.ofDiagonalOperatorAndMessageOneControlFiberLoss
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WholeKeyRankCertificate.ofDiagonalRankFailureAndMessageOneControlFiberLoss
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.WholeKeyRankCertificate.ofDiagonalDeterminantBoundAndMessageOneControlFiberLoss
+
+-- Full-key post-smudging mask-collision normal form.
+#check FormalProof4FHE.ConditionalCollision.outputReplacementL2Loss
+#check FormalProof4FHE.ConditionalCollision.tvDist_sideIndependentOutput_le_outputReplacementL2Loss
+#check FormalProof4FHE.ConditionalCollision.outputReplacementChiSquare_eq_card_mul_secondMoment_sub_one
+#check FormalProof4FHE.ConditionalCollision.tvDist_sideIndependentUniform_le_sqrt_of_conditionalCollisionBound
+#check FormalProof4FHE.ConditionalCollision.probOutput_fst_uniformJointImage_eq_sideFiberCard
+#check FormalProof4FHE.ConditionalCollision.outputConditionalCollisionBound_uniformJointImage_of_fiberBound
+#check FormalProof4FHE.ConditionalCollision.outputConditionalCollisionBound_of_evalDist_eq_uniformJointImage
+#check FormalProof4FHE.TFHE.Native.ConditionalSmudging.BootstrappingMask
+#check FormalProof4FHE.TFHE.Native.ConditionalSmudging.assembleResidualBootstrappingKey
+#check FormalProof4FHE.TFHE.Native.ConditionalSmudging.sampleFreshBootstrappingMask_evalDist_eq_uniform
+#check FormalProof4FHE.TFHE.Native.ConditionalSmudging.generateResidualBootstrappingKey_zero_evalDist_eq_assembleFreshMask
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.proofAdd_eq_add
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.FullMaskCollision.reconstructPublicContext_correctMaskSide_correctEvaluatedMask
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.FullMaskCollision.reconstruct_correctMaskJoint_evalDist_eq_averagedCorrectTransform
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.FullMaskCollision.reconstruct_correctMaskIndependent_evalDist_eq_coupledAveragedZeroNoiseResidualRealView
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.FullMaskCollision.tvDist_averagedCorrectTransform_coupledZeroNoiseResidual_le_correctMaskCollisionLoss
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.FullMaskCollision.correctMaskConditionalCollisionBound_of_uniformTapeFiberBound
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.FullMaskCollision.tvDist_averagedCorrectTransform_coupledZeroNoiseResidual_le_sqrt_of_uniformTapeFiberBound
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.FullMaskCollision.correctResidualErasureCost_centeredBinomial_discreteGaussian_le_linear
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.FullMaskCollision.tvDist_averagedPostSmudgedCorrectTransform_centeredBinomial_realPublicView_le
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalPostSmudgedMaskCollisionLoss
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalPostSmudgedMaskNormalFormError_le_collisionLoss
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalPostSmudgedMaskCollisionNormalFormLaws
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalPostSmudgedMaskConditionalCollisionBound
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalPostSmudgedMaskNormalFormError_le_sqrt_of_collisionBound
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalPostSmudgedMaskCollisionCertificate
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalPostSmudgedMaskCollisionCertificate.normalFormLaws
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.secureAgainst_of_canonicalPostSmudgedMaskCollision_coordinatePrediction_controlFailure_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.secureAgainst_of_canonicalPostSmudgedMaskPairCollision_coordinatePrediction_controlFailure_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.evaluationSecureAgainst_of_canonicalPostSmudgedMaskCollision_coordinatePrediction_controlFailure_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.evaluationSecureAgainst_of_canonicalPostSmudgedMaskPairCollision_coordinatePrediction_controlFailure_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalPostSmudgedResidualErasureCost_le_linearSmudgingError
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalPostSmudgedStaticMaskCollisionCertificate
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalPostSmudgedStaticMaskCollisionCertificate.correctDistance_le
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalPostSmudgedStaticMaskCollisionCertificate.selectedCorrectError_negligible
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.secureAgainst_of_canonicalPostSmudgedStaticMaskPairCollision_coordinatePrediction_controlFailure_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.evaluationSecureAgainst_of_canonicalPostSmudgedStaticMaskPairCollision_coordinatePrediction_controlFailure_and_jointLWE
+
+-- Residual-first selected-diagonal mask reduction.
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.FullMaskCollision.StaticDiagonal.correctKeyExperiment_mask_evalDist_eq_offDiagonalReplaced
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.FullMaskCollision.StaticDiagonal.tvDist_correctKeyExperiment_mask_fresh_le_jointChiSquare
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.FullMaskCollision.StaticDiagonal.tvDist_correctStaticMaskJoint_independent_le_worstCaseStatic
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.FullMaskCollision.StaticDiagonal.tvDist_averagedPostSmudgedCorrectTransform_realPublicView_le_selectedDiagonal
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalPostSmudgedSelectedDiagonalMaskLoss_le_pairCollisionBound
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalPostSmudgedSelectedDiagonalMaskLoss_le_self_add_distinct
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalPostSmudgedSelectedDiagonalMaskLoss_negligible_of_self_and_distinct
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalSelfFiberAverageCertificate
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalSelfFiberAverageCertificate.selfMaskLoss_le
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalSelfFiberAverageCertificate.selfMaskLoss_negligible
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalDistinctFiberAverageCertificate
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalDistinctFiberAverageCertificate.distinctMaskLoss_le
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalDistinctCokernelAverageCertificate
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalDistinctCokernelAverageCertificate.toDistinctFiberAverage
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalDistinctCokernelAverageCertificate.distinctMaskLoss_le
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalDistinctCharacterMomentCertificate
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalDistinctCharacterMomentCertificate.toCokernel
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalDistinctCharacterMomentCertificate.distinctMaskLoss_le
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalDistinctCharacterMomentCertificate.distinctMaskLoss_negligible
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalRetainedFiberAverageCertificate
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalRetainedFiberAverageCertificate.maskLoss_le
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalRetainedFiberAverageCertificate.maskLoss_negligible
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.one_half_le_canonicalPostSmudgedSelectedDiagonalGlobalBudget
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalPostSmudgedSelectedDiagonalPairCollisionBound_not_negligible
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalPostSmudgedSelectedDiagonalCorrectDistance_le
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalPostSmudgedSelectedDiagonalCorrectError_negligible_of_pairCollisionBound
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.secureAgainst_of_canonicalPostSmudgedSelectedDiagonal_coordinatePrediction_controlFailure_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.secureAgainst_of_canonicalPostSmudgedSelectedDiagonalRetainedFiberSlices_coordinatePrediction_controlFailure_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.secureAgainst_of_canonicalPostSmudgedSelectedDiagonalSelfFiberAverage_coordinatePrediction_controlFailure_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.secureAgainst_of_canonicalPostSmudgedSelectedDiagonalRetainedFiberAverage_coordinatePrediction_controlFailure_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.secureAgainst_of_canonicalPostSmudgedSelectedDiagonalPairCollision_coordinatePrediction_controlFailure_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.evaluationSecureAgainst_of_canonicalPostSmudgedSelectedDiagonal_coordinatePrediction_controlFailure_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.evaluationSecureAgainst_of_canonicalPostSmudgedSelectedDiagonalRetainedFiberSlices_coordinatePrediction_controlFailure_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.evaluationSecureAgainst_of_canonicalPostSmudgedSelectedDiagonalSelfFiberAverage_coordinatePrediction_controlFailure_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.evaluationSecureAgainst_of_canonicalPostSmudgedSelectedDiagonalRetainedFiberAverage_coordinatePrediction_controlFailure_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.evaluationSecureAgainst_of_canonicalPostSmudgedSelectedDiagonalPairCollision_coordinatePrediction_controlFailure_and_jointLWE
+
+-- Distribution-weighted selected-diagonal split and canonical source parity.
+#check FormalProof4FHE.FiniteProduct.probEvent_fin_mOfFn_forall
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.digitTensor_eq_of_equalOffColumn_of_fixedError_eq_of_isUnit
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.card_differenceDigitTensorWithoutColumn
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.digitTensorFixedErrorFiberProjection_injective
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDifferenceFiberProjection_injective
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDifferenceFiberCard_le_pow_of_isUnit
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.exists_unitColumn_fixedErrorDifferenceFiberCard_le_pow
+#check FormalProof4FHE.FiniteAdditiveCokernel.natCard_div_natCard_range_eq_natCard_annihilator
+#check FormalProof4FHE.FiniteDistinctPairWitnessMoment.sum_distinct_acceptance_indicator_eq_factorialCard
+#check FormalProof4FHE.FiniteDistinctPairWitnessMoment.sum_distinct_card_common_sub_one_eq_nonzeroWitnessMoment
+#check FormalProof4FHE.FiniteRowKernelMoment.sum_constrainedFiberCard_pow_eq_sum_prod_simultaneousRowChoiceCard
+#check FormalProof4FHE.FinitePiAddCharDual.evaluationEquiv
+#check FormalProof4FHE.FinitePiAddCharDual.sum_ne_zero_evaluationEquiv
+#check FormalProof4FHE.FiniteRowConvolution.card_mul_rowSumZeroFiberCard_eq_sum_prod_rowCharacterSum
+#check FormalProof4FHE.FiniteRowConvolution.card_mul_rowSumZeroFiberCard_sub_rowChoiceCardProduct_eq_nontrivialFourierSum
+#check FormalProof4FHE.FiniteRowConvolution.norm_card_mul_rowSumZeroFiberCard_sub_rowChoiceCardProduct_le
+#check FormalProof4FHE.FiniteRowConvolution.rowSumZeroFiberCard_le_add_nontrivialRowFourierNormSum_div_card
+#check FormalProof4FHE.FiniteSurjectiveFiber.card_preimage_finset_eq_card_mul_zeroFiber
+#check FormalProof4FHE.FiniteSurjectiveFiber.zeroFiberCard_mul_card_eq_card_of_surjective
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.completableOmittedDigitTensorEquivRows
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDifferenceFiberCard_eq_prod_completableRows
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.differenceEntryDigits_reconstructFixedErrorDifferenceFromRows
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDifferenceKernelSum_eq_nonzeroSimultaneousRowMoment
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDiagonalDistinctPairCokernelExcess_eq_rowProductPairSum
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.differencePairRowCokernelFactor_eq_card_commonAnnihilator
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.differencePairRowCokernelFactor_pow_eq_card_commonCharacterTuples
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDiagonalDistinctPairCokernelExcess_eq_characterFactorialMoment'
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDiagonalNormalizedDistinctPairCollisionExcess_eq_characterFactorialFiberAverage
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDifferenceFiberDistinctCokernelAverageBound_iff_characterFactorialMoment
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDifferenceFiberDistinctCollisionAverageBound_of_characterFactorialMoment
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.rowCharacterTupleAccepts_reconstruct_iff_rowPulledTupleSum_eq_zero
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDifferenceCharacterTupleAcceptanceCard_eq_rowSumZeroCard
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDifferenceCharacterFactorialMoment_eq_rowSumZeroMoment
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.card_mul_reconstructedCharacterTupleRowSumZeroCard_eq_sum_prod_rowFourierCoefficient
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.card_mul_reconstructedCharacterTupleRowSumZeroCard_sub_validRowProduct_eq_nontrivial
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.norm_card_mul_reconstructedCharacterTupleRowSumZeroCard_sub_validRowProduct_le
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.reconstructedCharacterTupleRowSumZeroCard_le_rowFourierAcceptanceUpperBound
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.reconstructedCharacterTupleRowFourierCoefficient_evaluationEquiv
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.reconstructedCharacterTupleRowTestFourierCoefficient_ringRank_one
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.reconstructedCharacterTupleRowTestFourierCoefficient_ringRank_one_eq_minorPhase
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.norm_reconstructedCharacterTupleRowTestFourierCoefficient_ringRank_one_eq_minorSum
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.reconstructedCharacterTupleRowTestFourierCoefficient_sourceError_eq_card_mul_character
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.prod_reconstructedCharacterTupleRowTestFourierCoefficient_sourceError_eq
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.reconstructedCharacterTupleRowFourierDeviation_eq_testValues
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.card_mul_reconstructedCharacterTupleRowSumZeroCard_sub_validRowProduct_eq_sourceMode_add
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.reconstructedValidRowChoiceCardProduct_le_rowFourierDeviation_sourceErrorMode
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.sum_nontrivial_rankOneCharacterTuple_apply_eq_ite
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.sum_nontrivial_rankOneCharacterTuple_norm_one_add_apply_sq_eq_sourceFactor
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.card_mul_reconstructedCharacterTupleRowSumZeroCard_sub_validRowProduct_eq_sourceMode_add_remainder
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.reconstructedCharacterTupleRowSumZeroCard_sq_le_phaseAware
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.sum_nontrivial_reconstructedCharacterTupleRowSumZeroCard_sq_le_phaseAware
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDifferenceCharacterFactorialMoment_le_rankOnePhaseAwareSquareMoment
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDifferenceFiberCharacterFactorialMomentAverageBound_of_rankOnePhaseAwareSquareMomentAt
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDifferenceFiberDistinctCollisionAverageBound_of_rankOnePhaseAwareSquareMomentAt
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDifferenceCharacterFactorialMoment_le_rowFourierSquareMoment
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDifferenceFiberCharacterFactorialMomentAverageBound_of_rowFourierSquareMomentAt
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDifferenceFiberDistinctCollisionAverageBound_of_rowFourierSquareMomentAt
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDifferenceFiberKernelAverageBound_iff_completableOmitted
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDifferenceFiberDistinctCokernelAverageBound_iff_completableOmitted
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.completableOmittedDigitRow_eq_of_equalOffPivot_of_accepts_of_isUnitMinor
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.reconstructedRowOperatorEntry_eq_retainedOffset_add_minorSum
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.reconstructedRowOperatorEntry_sourceError
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.reconstructedRowMinorPhase_eq_omittedSum
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.card_acceptingCompletableOmittedDigitRow_le_pow_of_isUnitMinor
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.no_isUnit_retainedKernelColumnMinor_iff_parityDependent
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.card_retainedParityDependent_mul_two_pow_eq_two_mul_card
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.card_retainedParityDependentTuple_mul_two_pow_eq
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.sum_reconstructedSimultaneousRowChoiceProduct_le_good_add_bad_pow
+#check FormalProof4FHE.FiniteNormalizedRowMoment.normalizedProduct_eq_prod_normalizedRatio
+#check FormalProof4FHE.FiniteNormalizedRowMoment.sum_normalizedProduct_eq_sum_prod_rowNormalizedSums_constFiber
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDifferenceNormalizedRowMomentSum_eq_sum_prod_rows
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDiagonalNormalizedSelfPairCollisionExcess_eq_normalizedRowMoment_sub_nonempty
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.reconstructedRowNormalizedMomentSumAt_le_capped
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDifferenceNormalizedRowMomentSum_le_twoColumnCappedMomentBound
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDiagonalNormalizedSelfPairCollisionExcess_le_twoColumnCappedMomentBound
+#check FormalProof4FHE.FiniteNormalizedRowMoment.sum_normalizedRatio_le_nonemptyFiberCount
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.reconstructedRowNonemptyFiberCountAt_le_centeredSupport
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.fixedErrorDiagonalNormalizedSelfPairCollisionExcess_le_centeredSupportMomentRatio
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.fixedErrorDifferenceCenteredSupportMomentRatio_le_invTwoPow
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.fixedErrorDiagonalNormalizedSelfPairCollisionExcess_le_invTwoPow
+#check FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd.canonicalSelfCollisionBound_negligible
+#check FormalProof4FHE.TFHE.Native.PowerOfTwoLocalRing.rqParityEval_isLocalHom_of_modulus_eq_powerOfTwo_of_degree_eq
+#check FormalProof4FHE.TFHE.Native.CenteredBinomialSourceParity.paritySampler_probOutput_zero
+#check FormalProof4FHE.TFHE.Native.CenteredBinomialSourceParity.hasNonzeroParity_exists_isUnit
+#check FormalProof4FHE.TFHE.Native.CenteredBinomialSourceParity.probEvent_not_hasNonzeroParity_sampleIID
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.tvDist_jointDiagonalPair_jointMaskReplaced_le_goodBadRetainedCokernel
+#check FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm.tvDist_operatorDiagonal_maskReplaced_le_goodBadRetainedCokernel
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.FullMaskCollision.StaticDiagonal.RetainedCokernelGoodBadCertificate
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.FullMaskCollision.StaticDiagonal.tvDist_averagedPostSmudgedCorrectTransform_realPublicView_le_retainedCokernelGoodBad
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.gaussianModulus_eq_two_pow
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalRqParityEval_isLocalHom
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalSourceErrorHasNonzeroParity_exists_isUnit
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalSourceErrorHasNonzeroParity_exists_unitColumn_fiberBound
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalUnitColumnFiberBoundFailureProbability_le
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalSourceErrorAllZeroParityProbability
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.canonicalSourceErrorBadProbability_negligible
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalNonzeroParityCokernelCertificate.maskLoss_negligible
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalNonzeroParityCharacterMomentCertificate
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalNonzeroParityCharacterMomentCertificate.toCokernel
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalNonzeroParityCharacterMomentCertificate.maskLoss_eq
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalNonzeroParityCharacterMomentCertificate.maskLoss_negligible
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalNonzeroParityRowFourierCertificate
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalNonzeroParityRowFourierCertificate.toCharacterMoment
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalNonzeroParityRowFourierCertificate.toCokernel
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalNonzeroParityRowFourierCertificate.maskLoss_eq
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalNonzeroParityRowFourierCertificate.maskLoss_negligible
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalNonzeroParityPhaseAwareFourierCertificate
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalNonzeroParityPhaseAwareFourierCertificate.toCharacterMoment
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalNonzeroParityPhaseAwareFourierCertificate.toCokernel
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalNonzeroParityPhaseAwareFourierCertificate.maskLoss_eq
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.CanonicalSelectedDiagonalNonzeroParityPhaseAwareFourierCertificate.maskLoss_negligible
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.secureAgainst_of_canonicalPostSmudgedNonzeroParityRetainedCokernel_coordinatePrediction_controlFailure_and_jointLWE
+#check FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise.secureAgainst_of_canonicalPostSmudgedNonzeroParityPhaseAwareFourier_coordinatePrediction_controlFailure_and_jointLWE
+
+-- Source-ring-prefix to target-ring BRK conversion with a shared KSK.
+#check FormalProof4FHE.TFHE.SharedRandomnessKeyExtension.TLWE.phase_extendCiphertext
+#check FormalProof4FHE.TFHE.SharedRandomnessKeyExtension.TGSW.rowError_assembleExtension_prefix
+#check FormalProof4FHE.TFHE.SharedRandomnessKeyExtension.TGSW.rowError_assembleExtension_suffix
+#check FormalProof4FHE.TFHE.SharedRandomnessKeyExtension.TGSW.rowError_assembleExtension_last
+#check FormalProof4FHE.TFHE.SharedRandomnessKeyExtension.TGSW.rowError_extendWithKeySwitch_suffix
+#check FormalProof4FHE.TFHE.SharedRandomnessKeyExtension.TGSW.tvDist_convertView_le
+#check FormalProof4FHE.TFHE.SharedRandomnessKeyExtension.TGSW.tvDist_convertView_bind_le
+#check FormalProof4FHE.TFHE.SharedRandomnessKeyExtension.Native.embedRingSecret_appendRingSecret
+#check FormalProof4FHE.TFHE.SharedRandomnessKeyExtension.Native.tvDist_realDerivedTarget_zero_le_sourceCircular
+#check FormalProof4FHE.TFHE.SharedRandomnessKeyExtension.Native.tvDist_realDerivedTarget_bind_zero_le_sourceCircular
+
+-- Complete nested-ring cloud key and adaptive/FHE security through one source self-BRK.
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessNestedRing.keyExtract_appendRingSecret_source
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessNestedRing.keyExtract_appendRingSecret_suffix
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessNestedRing.tvDist_continuation_eq_sourceOneCircular
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessNestedRing.sourceContinuationAdvantage_le_uniformError
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessNestedRing.abs_signedAdvantage_realAdaptive_le_sourceOneCircular_add_zero
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessNestedRing.abs_signedAdvantage_realAdaptive_uniformBootstrap_uniformInput_eq_zero
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessNestedRing.abs_signedAdvantage_publicEvaluation_uniformBootstrap_uniformInput_eq_zero
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.targetMessages_source
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.targetMessages_suffix
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.suffixOnlyMessages_source
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.suffixOnlyMessages_suffix
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.tvDist_continuation_eq_sourceTargetMessageCircular
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.sourceTargetMessageCircularAdvantage_le_prefix_add_suffix
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.independentSuffixAdvantage_eq_auxiliaryKDM
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.independentSuffixAdvantage_le_auxiliaryRealUniform_add_zeroUniform
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.bootstrapReplacementAdvantage_eq_sourceTargetMessageCircular
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.abs_signedAdvantage_realAdaptive_le_sourceCircular_add_zero
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.abs_signedAdvantage_realAdaptive_le_prefixCircular_add_suffix_add_zero
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.abs_signedAdvantage_realAdaptive_le_prefixCircular_add_auxiliarySuffix_add_zero
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.abs_signedAdvantage_realAdaptive_uniformBootstrap_uniformInput_eq_zero
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.abs_signedAdvantage_publicEvaluation_le_prefixCircular_add_suffix_add_zero
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.abs_signedAdvantage_publicEvaluation_le_prefixCircular_add_auxiliarySuffix_add_zero
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.abs_signedAdvantage_publicEvaluation_uniformBootstrap_uniformInput_eq_zero
+
+-- Ordinary module-LWE reduction for the public acyclic suffix cloud.
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.CloudReduction.cloudViewEquiv_uniform_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.CloudReduction.suffixOnlyGame_evalDist_eq_game0
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.CloudReduction.zeroGame_evalDist_eq_game0
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.CloudReduction.uniformGame_resampleBootstrapContinuation_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.CloudReduction.publicIndependentSuffixAdvantage_le_two_moduleLwe
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.CloudReduction.independentSuffixAdvantage_public_le_two_moduleLwe
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.PrefixCircLWE.kdmAdvantage_eq_sourcePrefixCircularAdvantage
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.PrefixCircLWE.sourcePrefixCircularAdvantage_le_circularLwe_add_referenceLwe
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.PrefixCircLWE.publicReferenceLweAdvantage_le_two_moduleLwe
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.PrefixCircLWE.publicSourcePrefixCircularAdvantage_le_circularLwe_add_two_moduleLwe
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.PrefixCircLWE.sourceCoordinate_crossMonomial_eq_self
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.PrefixCircLWE.suffixCoordinate_crossMonomial_eq_independent
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.PrefixCircLWE.generateSourceBootstrappingKey_evalDist_eq_monomial
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.PrefixCircLWE.searchSuccess_le_circularLwe_add_uniformRecovery
+
+-- Positive-degree joint module-LWE reduction for the acyclic adaptive target-message branch.
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveReduction.extractedTargetTape_evalDist_eq_batchEncrypt
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveReduction.problem_uniformDistr_eq_uniformSample
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveReduction.convertView_uniform_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveReduction.convertView_fixedReal_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveReduction.generateBootstrappingKey_false_evalDist_eq_zero
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveReduction.suffixOnlyGame_evalDist_eq_game0
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveReduction.zeroGame_evalDist_eq_game0
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveReduction.independentSuffixAdaptiveAdvantage_le_two_moduleLwe
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveReduction.abs_signedAdvantage_realAdaptive_le_nativePrefixCircRLWE_add_two_moduleLwe_add_zero
+
+-- Public BRK challenge: one native degree-two CircRLWE term plus one ordinary joint module-RLWE.
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.realGame_evalDist_eq_realAdaptiveGame
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.kdmAdvantage_eq_sourceTargetMessageCircularAdaptiveAdvantage
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.problem_sampleReal_evalDist_eq_monomialProblem
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.realGame_evalDist_eq_monomialRealGame
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.circularLweAdvantage_eq_monomialCircularLweAdvantage
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.circularLweAdvantage_eq_prefixCircularLweAdvantage
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.monomialCircularLweAdvantage_eq_prefixCircularLweAdvantage
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.monomialSearchSuccess_le_circularLwe_add_uniformRecovery
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.monomialCircularLweAdvantage_le_search_add_reductionLoss
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.monomialCircularLweAdvantage_le_narrowSearch_add_reductionLoss
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.auxiliaryUniformGame_evalDist_eq_zeroViewGame_resampled
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.zeroViewGame_evalDist_eq_jointZeroReduction_game0
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.zeroLweAdvantage_le_two_moduleLwe
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.uniformViewGame_probOutput_true
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.abs_signedAdvantage_realAdaptive_le_circularLwe_add_moduleLwe
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.abs_signedAdvantage_realAdaptive_le_monomialCircularLwe_add_moduleLwe
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.abs_signedAdvantage_realAdaptive_le_monomialSearch_add_reductionLoss_add_moduleLwe
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.abs_signedAdvantage_realAdaptive_le_narrowMonomialSearch_add_reductionLoss_add_moduleLwe
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.hardAgainst_of_circularLwe_and_moduleLwe
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.hardAgainst_of_monomialCircularLwe_and_moduleLwe
+
+-- The BRK-first and tape-first formulations share one exact complete-view recovery problem.
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.SearchEquiv.sampleBootstrapFirstMonomialView_evalDist_eq_tapeFirst
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.SearchEquiv.monomialSearchGame_evalDist_eq_tapeFirstSearchGame
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.SearchEquiv.monomialSearchSuccessProbability_eq_tapeFirst
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.SearchEquiv.realSearchHardAgainst_monomial_iff_tapeFirst
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.SearchEquiv.CrossDecisionToTapeFirstSearchReduction.ofMonomial
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.SearchEquiv.CrossDecisionToTapeFirstSearchReduction.toMonomial
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.SearchEquiv.abs_signedAdvantage_realAdaptive_le_tapeFirstSearch_add_reductionLoss_add_moduleLwe
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.SearchEquiv.hardAgainst_of_tapeFirstSearch_reduction_and_moduleLwe
+
+-- Negligible adaptive security from the common nested-key search foundation.
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.SearchEquiv.Asymptotic.securityGame_advantage_le_tapeFirstSearch_add_loss_add_moduleLWE
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.SearchEquiv.Asymptotic.secureAgainst_of_tapeFirstSearch_reductionLoss_and_moduleLWE
+
+-- Direct public FHE CircLWE: retain the real evaluation key and challenge the target-key tape.
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.secretAction_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.ShiftedViewEvaluator.randomizedView_tvDist_freshWideView_le
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.realGame_evalDist_eq_realAdaptiveGame
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.uniformGame_evalDist_eq_uniformTapeGame
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.uniformTapeGame_probOutput_true
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.abs_signedAdvantage_realAdaptive_eq_circularLwe
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.searchSuccess_le_circularLwe_add_uniformRecovery
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.abs_signedAdvantage_realAdaptive_le_search_add_reductionLoss
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.abs_signedAdvantage_realAdaptive_le_narrowSearch_add_reductionLoss
+
+-- The adaptive tape is exact; global complementation reduces to the rank-one BRK shear term.
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.targetMessages_act
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.transformTargetTape_sampleTargetTape_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.ShiftedEvaluationMaterialEvaluator.completeViewDistance_le
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.transformSourceBootstrappingKeyMessages_generate_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.transformRingExtensionGlobalComplement_centeredBinomial_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.transformCompleteViewGlobalComplement_tvDist_le
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.transformCompleteViewGlobalComplement_discreteGaussian_tvDist_le
+
+-- Every fresh nested mask is uniquely a normalized relative mask plus one checked anchor bit.
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.relativeGlobalMaskEquiv
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.relativeThenGlobalAct_uniform_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.scalarAffineXorTransport_liftRelativeSource_iff_trivial
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.RelativeEvaluationMaterialEvaluator.completeRelativeDistance_le
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.RelativeEvaluationMaterialEvaluator.relativeThenGlobalDistance_le
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.RelativeEvaluationMaterialEvaluator.toRelativeThenGlobalViewRandomization_error
+
+-- Exact BRK message normalization exposes the genuine current-to-shifted ring-key core.
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.transformEvaluationMaterialRelativeMessages_sample_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.RelativeKeyShiftMaterialEvaluator.evaluateFromReal_distance_le
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.RelativeKeyShiftMaterialEvaluator.toRelativeEvaluationMaterialEvaluator_error
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.RelativeKeyShiftMaterialEvaluator.toRelativeThenGlobalViewRandomization_error
+
+-- Exact candidate tape endpoints and both branches of the normalized fresh-key compiler.
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.randomizeTargetTapeCandidate_correct_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.randomizeTargetTapeCandidate_wrong_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.transformTargetTape_uniform_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.RelativeEvaluationMaterialEvaluator.relativeThenGlobalUniformDistance_le
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.RelativeEvaluationMaterialEvaluator.toUniformTapeViewRandomization_error
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.RelativeEvaluationMaterialEvaluator.evaluateCandidateView_correct_tvDist_le
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.RelativeEvaluationMaterialEvaluator.evaluateCandidateView_wrong_tvDist_le
+
+-- Public PKC guess-and-check: one extracted target-key coordinate from direct CircLWE.
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.freshDecisionAdvantage_eq_publicAdvantage
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.RelativeEvaluationMaterialEvaluator.freshDecisionAdvantage_sub_errors_le_orientedGap
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.RelativeEvaluationMaterialEvaluator.coordinateRecoveryGame_successProbability_publicAdvantage_lowerBound
+
+-- One-shot coordinate assembly recovers both nested keys with an explicit finite loss.
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.targetMessagesEquiv
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.RelativeEvaluationMaterialEvaluator.one_sub_sum_targetCoordinateError_le_targetNestedSearchSuccess
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.RelativeEvaluationMaterialEvaluator.publicAdvantage_le_targetNestedSearchSuccess_add_fullRecoveryLoss
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.RelativeEvaluationMaterialEvaluator.toTargetCrossReduction
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.RelativeEvaluationMaterialEvaluator.abs_signedAdvantage_realAdaptive_le_targetNestedSearch_add_fullRecoveryLoss
+
+-- Shared-randomness suffix KSK and the exact native coefficient-nesting boundary.
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.sampleRingSecret_prefix_suffix_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.masterKeySwitchKeyView_evalDist_eq_problem
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.sharedKeySwitchAdvantage_eq_lwe
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.offDiagonalBinarySelfProduct_not_affine
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.diagonalBinarySelfProduct_eq_affine
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.generateBootstrappingKey_eq_native_prefix_under_master
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.realCloudKeyView_eq_prefixUnderMaster
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.generateBootstrappingKey_uniformError_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.oneCircularAdvantage_uniformRingError_eq_zero
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.oneCircularAdvantage_le_uniformRingError
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.oneCircularHardAgainst_of_ringError_close_uniform
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.realSecretContinuationGame_uniformRingError_evalDist_eq_bootstrapZero
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.secretContinuationAdvantage_uniformRingError_eq_zero
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.secretContinuationAdvantage_le_uniformRingError
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.secretContinuationHardAgainst_of_ringError_close_uniform
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.realCloudKeyView_evalDist_eq_selfMonomial
+
+-- Exact one-key auxiliary-input CircLWE classification for the shared-randomness layout.
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.AuxiliaryInput.sampleReal_evalDist_eq_selfMonomial
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.AuxiliaryInput.kdmAdvantage_eq_secretContinuationAdvantage
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.AuxiliaryInput.secretContinuationAdvantage_le_circularLwe_add_zeroLwe
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.AuxiliaryInput.oneCircularAdvantage_eq_kdmAdvantage
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.AuxiliaryInput.oneCircularAdvantage_le_circularLwe_add_zeroLwe
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.AuxiliaryInput.oneCircularHardAgainst_of_circularLwe_and_zeroLwe
+
+-- Exact one-cycle circular-search endpoint and its ordinary search-LWE normalization.
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.AuxiliaryInput.Search.game_eq_nativeRealSecretContinuationGame
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.AuxiliaryInput.Search.fixedSecretRealView_evalDist_eq_selfMonomial
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.AuxiliaryInput.Search.probOutput_fullyUniformRecoveryGame_true
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.AuxiliaryInput.Search.uniformRecoveryGame_evalDist_eq_keySwitchSearchExperiment
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.AuxiliaryInput.Search.keySwitchSearch_success_le_ordinaryPrefixSearch
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.AuxiliaryInput.Search.successProbability_le_circularLwe_add_ordinarySearchLWE
+
+-- Full-master randomization and the exact additive-transport boundary.
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.maskedRingSecret_uniform_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.oneCycle_searchSecretLaw
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.prefixSecret_maskedRingSecret
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.maskedRingSecret_nestedRingSecret
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.additiveTranslateBatch_batchAssemble
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.additiveXorTransport_zmod_two
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.additiveShiftTGSW_batchAssemble
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.rankOneAdditiveShiftNoiseDistance
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.additiveShiftTGSW_encrypt_tvDist_le
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.additiveShiftBootstrappingKey_generate_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.additiveShiftBootstrappingKey_generate_tvDist_le
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.additiveShiftBootstrappingKey_masked_zmod_two_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.no_constant_additive_xor_toggle
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.additiveXorTransport_iff_all_false
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.no_additive_oneCycle_searchSecret_xor_transport
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.scaleChallenge_uniform_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.scalarAffineTranslateBatch_batchAssemble
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.scalarAffineXorTransport_imp_constant
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.scalarAffineXorTransport_iff_constant
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.constantMask_randomization_evalDist_ne_uniform
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.scalarAffineXorTransport_randomization_evalDist_ne_uniform
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.relativeBinarySecretEquiv_uniform_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.relativeBinarySecret_uniform_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.relativeBinarySecret_globalComplementAction
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.relativeBinarySecretEquiv_maskedSecret
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.maskedSecret_eq_relativeMask_then_globalComplement
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.relativeGlobalAction_uniform_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.globalComplementAction_decomposed_uniform_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.complementBatchMessage_batchEncrypt_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.globalComplementKeySwitchKey_generateOneCycle_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.rankOneComplementErrorShear_involutive
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.RankOneComplementNoiseInvariant
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.rankOneComplementNoiseInvariant_uniform
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.globalComplementTGSW_batchAssemble
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.globalComplementTGSW_encrypt_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.globalComplementBootstrappingKey_generate_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.globalComplementEvaluationKeyPair_generate_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.globalComplementEvaluationKeyPair_uniformRingError_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.rankOneComplementNoiseDistance
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.rankOneComplementNoiseDistance_le_mul_addShiftDistance
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.globalComplementTGSW_encrypt_tvDist_le
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.globalComplementBootstrappingKey_generate_tvDist_le
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.globalComplementEvaluationKeyPair_generate_tvDist_le
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.rankOneComplementNoiseDistance_discreteGaussian_le
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.globalComplementEvaluationKeyPair_discreteGaussian_tvDist_le
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.involutiveSymmetrization_invariant
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.mem_support_involutiveSymmetrization_cases
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.TGSW.encryptWithErrorVector_evalDist_eq_direct
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.rankOneShearSymmetrizedIIDErrorVector_invariant
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.globalComplementTGSW_encryptWithErrorVector_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.globalComplementBootstrappingKey_generateWithErrorVector_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.globalComplementEvaluationKeyPair_shearSymmetrized_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.centeredBinomialShearErrorVector_invariant
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.centeredBinomialShearErrorVector_cInfNorm_le
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.globalComplementEvaluationKeyPair_centeredBinomialShear_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.RelativeThenComplementEvaluator.ofExactComplement
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.RelativeThenComplementEvaluator.viewDistance_le
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.RelativeThenComplementEvaluator.toViewRandomization
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.sampleCenteredBinomialShearEvaluationKeyView_complement_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.centeredBinomialShearRelativeThenComplementEvaluator
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.centeredBinomialShearViewRandomizationOfRelative
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.centeredBinomialShearViewRandomizationOfRelative_error
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.maskNegateVector_sampleIID_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.transformKeySwitchSource_batchAssemble
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.transformKeySwitchSource_generate_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.transformKeySwitchSourceTarget_generate_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.transformOneCycleKeySwitchKey_generate_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.transformOneCycleKeySwitchKey_centeredBinomial_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.sampleCenteredBinomialShearEvaluationKeyView_eq_independentPair
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.evaluateCenteredBinomialShearRelativeView_tvDist_le
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.centeredBinomialShearViewRandomizationOfBootstrappingRelative
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.centeredBinomialShearViewRandomizationOfBootstrappingRelative_error
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.rankOneComplementErrorShear_neg
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.EvalDistNegationInvariant
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.centeredBinomialShearErrorVector_negationInvariant
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.toggleTGSW_encryptWithErrorVector_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.transformBootstrappingKey_centeredBinomialShear_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.sampleCenteredBinomialShearBootstrappingKeyWithMessage
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.transformBootstrappingKey_relativeMessage_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.evaluateCenteredBinomialShearRelativeMasterShift_tvDist_le
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.centeredBinomialShearViewRandomizationOfRelativeMasterShift
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.centeredBinomialShearViewRandomizationOfRelativeMasterShift_error
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization.no_uniform_viewRandomization_of_scalarAffineXorTransport
+
+-- Exact characteristic-two closure of the full relative material interface.
+#check FormalProof4FHE.RLWE.CenteredBinomial.coefficientSampler_two_evalDist_eq_uniform
+#check FormalProof4FHE.RLWE.CenteredBinomial.sampler_two_evalDist_eq_uniform
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.rankOneAdditiveShiftNoiseInvariant_centeredBinomial_two
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.rankOneComplementNoiseDistance_centeredBinomial_two_eq_zero
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.transformRingExtensionKeyTwo_generate_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.transformRelativeKeyShiftMaterialTwo_sample_evalDist
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.characteristicTwoRelativeKeyShiftMaterialEvaluator
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.characteristicTwoRelativeKeyShiftMaterialEvaluator_error
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.characteristicTwoRelativeThenGlobalViewRandomization
+#check FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE.characteristicTwoRelativeThenGlobalViewRandomization_error
+
+-- End-to-end one-time encryption security of the shared-randomness one-cycle variant.
+#check FormalProof4FHE.TFHE.Encryption.SharedRandomnessOneCycle.realGame_uniformRingError_evalDist_eq_independent
+#check FormalProof4FHE.TFHE.Encryption.SharedRandomnessOneCycle.independentUniformBootstrapGame_evalDist_eq_jointLwe_game0
+#check FormalProof4FHE.TFHE.Encryption.SharedRandomnessOneCycle.jointLweReduction_game1_probOutput_true
+#check FormalProof4FHE.TFHE.Encryption.SharedRandomnessOneCycle.abs_signedAdvantage_real_uniformRingError_eq_jointLwe
+#check FormalProof4FHE.TFHE.Encryption.SharedRandomnessOneCycle.abs_signedAdvantage_real_le_ringErrorDistance_add_jointLwe
+#check FormalProof4FHE.TFHE.Encryption.SharedRandomnessOneCycle.abs_signedAdvantage_real_le_ringErrorDistance_add_batchLwe_of_same_noise
+
+-- Reusable-key, query-bounded adaptive encryption security for the shared one-cycle variant.
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.realGame_uniformRingError_evalDist_eq_independent
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.independentUniformBootstrapGame_evalDist_eq_jointLwe_game0
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.uniformAdaptive_probOutput_true
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.abs_signedAdvantage_real_uniformRingError_eq_jointLwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.abs_signedAdvantage_real_le_ringErrorDistance_add_jointLwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.abs_signedAdvantage_real_le_ringErrorDistance_add_batchLwe_of_same_noise
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.abs_signedAdvantage_publicEvaluation_le_ringErrorDistance_add_batchLwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.abs_signedAdvantage_real_uniformRingError_eq_batchLwe_of_same_noise
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.HardAgainst
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.hardAgainst_uniformRingError_of_batchLwe_same_noise
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.hardAgainst_of_ringError_close_uniform_and_batchLwe_same_noise
+
+-- Concrete no-circular-premise endpoint: positive-width centered-binomial BRK error modulo two.
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.CenteredBinomialTwo.ringError_tvDist_uniform_eq_zero
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.CenteredBinomialTwo.abs_signedAdvantage_real_le_batchLwe_of_same_noise
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.CenteredBinomialTwo.abs_signedAdvantage_publicEvaluation_le_batchLwe_of_same_noise
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.CenteredBinomialTwo.hardAgainst_of_batchLwe_same_noise
+
+example (degree eta : ℕ) :
+    tvDist
+      (FormalProof4FHE.RLWE.CenteredBinomial.sampler 2 degree (eta + 1))
+      ($ᵗ (FormalProof4FHE.RLWE.Rq 2 degree)) = 0 :=
+  FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.CenteredBinomialTwo.ringError_tvDist_uniform_eq_zero
+    degree eta
+
+-- Narrow-noise adaptive security from one shared-secret CircLWE term and ordinary batch LWE.
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.CircularSecurity.oneCircularKdmAdvantage
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.CircularSecurity.zeroBootstrapLweAdvantage
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.CircularSecurity.oneCircularKdmAdvantage_eq_real_boolDistAdvantage_bootstrapZero
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.CircularSecurity.circularLweAdvantage_le_oneCircularKdm_add_zeroBootstrapLwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.CircularSecurity.circularLweAdvantage_eq_real_boolDistAdvantage_masterUniform
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.CircularSecurity.abs_signedAdvantage_real_le_circularLwe_add_jointLwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.CircularSecurity.abs_signedAdvantage_real_le_circularLwe_add_batchLwe_of_same_noise
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.CircularSecurity.abs_signedAdvantage_real_le_oneCircularKdm_add_zeroBootstrapLwe_add_batchLwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.CircularSecurity.abs_signedAdvantage_publicEvaluation_le_circularLwe_add_batchLwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.CircularSecurity.abs_signedAdvantage_publicEvaluation_le_oneCircularKdm_add_zeroBootstrapLwe_add_batchLwe
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.CircularSecurity.hardAgainst_of_circularLwe_and_batchLwe_same_noise
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.CircularSecurity.hardAgainst_of_oneCircularKdm_zeroBootstrapLwe_and_batchLwe_same_noise
+
+-- Asymptotic shared one-cycle security from ordinary batch LWE alone.
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.securityGame_advantage_eq_batchLWE
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.secureAgainst_of_batchLWE
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.implementationSecurityGame_advantage_le_batchLWE_add_replacement
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.bootstrappingErrorCount_le_polynomial
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.ringReplacementSecurityGame_advantage_negligible
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.implementationSecureAgainst_of_batchLWE
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.evaluationSecureAgainst_of_batchLWE
+
+-- Asymptotic narrow-noise one-cycle security from CircLWE and ordinary batch LWE.
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.CircularSecurity.centeredBinomialRingErrorFamily
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.CircularSecurity.discreteGaussianRingErrorFamily
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.CircularSecurity.kdmSecurityGame_secureAgainst_iff_circularLWE
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.CircularSecurity.implementationSecurityGame_advantage_le_circularLWE_add_batchLWE
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.CircularSecurity.implementationSecurityGame_advantage_le_oneCircularKDM_add_zeroBootstrapLWE_add_batchLWE
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.CircularSecurity.implementationSecureAgainst_of_circularLWE_and_batchLWE
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.CircularSecurity.implementationSecureAgainst_of_oneCircularKDM_zeroBootstrapLWE_and_batchLWE
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.CircularSecurity.implementationEvaluationSecureAgainst_of_circularLWE_and_batchLWE
+#check FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.CircularSecurity.implementationEvaluationSecureAgainst_of_oneCircularKDM_zeroBootstrapLWE_and_batchLWE
+
+-- Practical-modulus packed linear circular RLWE, the proved PKC-2024 baseline.
+#check FormalProof4FHE.TFHE.PackedLinearCircularRLWE.assemble_sampleSplitSecret_evalDist
+#check FormalProof4FHE.TFHE.PackedLinearCircularRLWE.assemble_join_eq_low_add_higherDelta
+#check FormalProof4FHE.TFHE.PackedLinearCircularRLWE.transformTranscript_real
+#check FormalProof4FHE.TFHE.PackedLinearCircularRLWE.real_evalDist
+#check FormalProof4FHE.TFHE.PackedLinearCircularRLWE.uniform_evalDist
+#check FormalProof4FHE.TFHE.PackedLinearCircularRLWE.advantage_eq_binarySecretRLWE
+#check FormalProof4FHE.TFHE.PackedLinearCircularRLWE.hardAgainst_of_binarySecretRLWE
+#check FormalProof4FHE.TFHE.PackedLinearCircularRLWE.linearMessage_gadget_hint
+#check FormalProof4FHE.TFHE.PackedLinearCircularRLWE.linearMessage_gadget_zero
+#check FormalProof4FHE.TFHE.PackedLinearCircularRLWE.gadgetAdvantage_eq_binarySecretRLWE
+
+-- Proved power-of-two lifting selector for standalone RGSW_S(-S).
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.PowerOfTwoLifting.sourceCount_le_depth_mul_power
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.PowerOfTwoLifting.parityKernelCompressedUpper_uniform_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.PowerOfTwoLifting.liftingGood_failure_le
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.PowerOfTwoLifting.powerOfTwoSelector_failure_le
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.PowerOfTwoLifting.productionTailCoefficients_uniform_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.PowerOfTwoLifting.productionBitSelector_failure_le
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.PowerOfTwoLifting.productionChallengeSelectors_failure_toReal_le
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.PowerOfTwoLifting.rgswMinusSecretAdvantage_centeredBinomial_widenedDiscreteGaussian_le
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.PowerOfTwoLifting.Asymptotic.publicSelectorFailureError_negligible
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.PowerOfTwoLifting.Asymptotic.productionExtraCount_le_sourceCountPolynomial
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.PowerOfTwoLifting.Asymptotic.secureAgainst_of_liftingSelector_twoPowGaussian_and_batchRLWE
+
+-- Hidden-source-error strengthening of the standalone RGSW_S(-S) reduction.
+#check FormalProof4FHE.FiniteProduct.evalDist_sampleIID_add_convolution
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.HiddenResidual.residualShift_eq_secret_mul_weightedSourceErrors
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.HiddenResidual.compileFromMaskContext_evalDist_eq_hiddenShifted
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.HiddenResidual.hiddenResidualDistance_convolutionSampler_le_right
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.HiddenResidual.hiddenResidualDistance_le_l2Loss
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.HiddenResidual.hiddenResidualDistance_le_sqrt_pearsonChiSquare_div_two
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.HiddenResidual.actualDistributionGap_le_failure_add_hiddenResidual
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.HiddenResidual.rgswMinusSecretAdvantage_le_convolution_failure_add_hiddenResidual_add_batchLWE
+#check FormalProof4FHE.BoundedMoment.secondMoment_div_two_mul_sq_le_tvDist_independentAdd
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.HiddenResidual.upperResidualCoordinateSampler_eq_weightedSourceErrors
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.HiddenResidual.upperTargetErrorCoordinateSampler_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.HiddenResidual.upperResidualSecondMoment_div_le_hiddenResidualDistance
+#check FormalProof4FHE.BoundedMoment.secondMoment_sampleIID_weightedSum_eq
+#check FormalProof4FHE.RLWE.CenteredBinomial.secondMoment_coefficientSampler_centeredCoefficientLift
+#check FormalProof4FHE.RLWE.CenteredBinomial.coefficientVector_sampler_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.HiddenResidual.residualShift_binarySelectors_eq_anchor_add_tail
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.HiddenResidual.upperResidualCoordinateSampler_binarySelectors_evalDist_eq_independentAdd
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.HiddenResidual.binaryAnchorSecondMoment_div_le_hiddenResidualDistance
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.CenteredBinomialAnchorMoment.secondMoment_embedBinaryPolynomial_mul_sampler
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.CenteredBinomialAnchorMoment.eta_div_two_le_secondMoment_binaryAnchorResidualSampler
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.CenteredBinomialAnchorMoment.eta_div_two_div_le_hiddenResidualDistance
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ExternalProductCancellation.cancelResidual_target_bijective
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ExternalProductCancellation.cancelResidual_uniform_target_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ExternalProductCancellation.phase_cancelResidual_eq_square_add_errors
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ExternalProductCancellation.residual_cancelResidual_eq_target_add_externalProductError
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ExternalProductCancellation.externalProduct_eq_upper_add_lower
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ExternalProductCancellation.externalProductError_eq_upper_add_lower
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ExternalProductCancellation.phase_upperExternalProduct_eq_square_add_error
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ExternalProductCancellation.genericRerandomizationDifference_eq_square_add_lower
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ExternalProductCancellation.phase_genericRerandomizationDifference_eq_target_add_lowerError
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ExternalProductCancellation.upperExternalProduct_add_genericRerandomizationDifference
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ExternalProductCancellation.targetLevelDigits_decomposes_preimageCombination
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ExternalProductCancellation.externalProductError_targetLevelDigits_eq_upper_add_lower
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ExternalProductCancellation.externalProduct_targetLevelDigits_eq_upper_add_lower
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ExternalProductCancellation.phase_cancelResidualAtTargetLevel_eq_upperControl_add_errors
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ExternalProductCancellation.phase_rerandomizationDifference_eq_target_add_lowerErrors
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ExternalProductCancellation.upperControlRow_add_rerandomizationDifference
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ExternalProductCancellation.rerandomizationDifference_eq_square_add_lowerExternalProduct
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ExternalProductCancellation.cInfNorm_target_add_externalProductError_ringDigits_le
+
+-- Lossless BV quadratic KDM telescope and the explicit native two-component boundary.
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.BVQuadraticKDM.assemble_shiftedChallenge
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.BVQuadraticKDM.phase_assemble
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.BVQuadraticKDM.telescopeWithFiber_bijective
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.BVQuadraticKDM.telescope_uniform_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.BVQuadraticKDM.directAdvantage_eq_twoSampleRLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.BVQuadraticKDM.Batch.phase_assemble
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.BVQuadraticKDM.Batch.telescopeWithFiber_bijective
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.BVQuadraticKDM.Batch.realSampler_evalDist_eq_directSquareSampler
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.BVQuadraticKDM.Batch.directAdvantage_eq_batchRLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.BVCompressionBoundary.phase_dropThird_assemble
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.BVCompressionBoundary.dropThird_residual
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.BVCompressionBoundary.phase_sourceTelescope_upper
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.BVCompressionBoundary.phase_sourceTelescope_lower
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.BVCompressionBoundary.sourceTelescopeWithFiber_bijective
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.BVCompressionBoundary.sourceTelescope_uniform_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.BVCompressionBoundary.entry_compressView_upper
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.BVCompressionBoundary.entry_compressView_lower
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.BVCompressionBoundary.actualSquareAdvantage_eq_batchRLWE_of_exactCompression
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.BVCompressionBoundary.actualSquareAdvantage_le_compressionGap_add_batchRLWE
+
+-- Exact highest-two-adic native square-row linearization and its honest RLWE boundary.
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightCoefficientAffine.topWeight_annihilated
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightCoefficientAffine.topWeight_mul_square_eq_linearized
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightCoefficientAffine.squareMessages_topGadget_eq_linearized
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightCoefficientAffine.coefficientEquiv_topSquareLinearized
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightCoefficientAffine.topSquareLinearized_not_ringMultiplicationOnBinary
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightCoefficientAffine.coefficientAffineNoiseless_topRGSWOperators
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightCoefficientAffine.topRGSWCoefficientProblem_same_samplers_as_ordinary
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightCoefficientAffine.topRGSWCoefficientProblem_noiseless
+
+-- Lossless game reduction from the genuine top row to coefficient-affine circular RLWE plus
+-- ordinary binary-secret RLWE, preserving the narrow error sampler.
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightSecurity.outputEquiv_topRGSWRingProblem_noiseless
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightSecurity.map_topRGSWRingDistr_eq_coefficientDistr
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightSecurity.nativeRGSWSquareAdvantage_eq_coefficientAdvantage
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightSecurity.circularLweAdvantage_eq_coefficientAdvantage
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightSecurity.zeroLweAdvantage_eq_ordinaryRLWEAdvantage
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightSecurity.kdmAdvantage_le_coefficientAffine_add_ordinaryRLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightSecurity.kdmHardAgainst_of_coefficientAffine_and_binarySecretRLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightSecurity.centeredBinomial_kdmHardAgainst_of_coefficientAffine_and_binarySecretRLWE
+
+-- Every scalar coefficient marginal is ordinary affine circular LWE, but the full family of
+-- extracted masks obeys a non-surjective common-mask constraint.
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightSampleExtraction.negacyclicProduct_apply_eq_dotProduct
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightSampleExtraction.extractedMask_involutive
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightSampleExtraction.allExtractedMasks_not_surjective
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightSampleExtraction.topMarginalProblem_noiseless_eq_nativeCoefficient
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightSampleExtraction.project_topRGSWCoefficientDistr_evalDist_eq_topMarginalDistr
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightSampleExtraction.project_topRGSWCoefficientUniformDistr_evalDist_eq_topMarginalUniformDistr
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightSampleExtraction.liftedTopMarginalAdvantage_eq_lwe
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightSampleExtraction.topMarginalErrorSampler_centeredBinomial_evalDist
+
+-- Joint reformulation as ordinary RLWE with structured top-square leakage.
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightLeakage.top_noiseless_eq_ordinary_add_leakage
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightLeakage.addLeakage_bijective
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightLeakage.topCoefficientAdvantage_eq_leakageRLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightLeakage.nativeCircularLweAdvantage_eq_leakageRLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightLeakage.kdmAdvantage_le_leakageRLWE_add_ordinaryRLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightLeakage.centeredBinomial_kdmHardAgainst_of_leakageRLWE_and_binarySecretRLWE
+
+-- In even dimension, the structured leakage is exactly the uniform antipodal pair-XOR quotient.
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightPairLeakage.pairXorEquiv
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightPairLeakage.card_pairXor_fiber
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightPairLeakage.pairXor_uniform_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightPairLeakage.topSquareLinearized_eq_pairedTopSquare
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightPairLeakage.pairedTopSquare_injective
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightPairLeakage.topLeakage_eq_iff_ringPairXor_eq
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightPairLeakage.pairLeakageProblem_kdmAdvantage_eq_zero
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightPairLeakage.nativeCircularLweAdvantage_eq_pairLeakageRLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightPairLeakage.kdmAdvantage_le_pairLeakageRLWE_add_ordinaryRLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightPairLeakage.centeredBinomial_kdmHardAgainst_of_pairLeakageRLWE_and_binarySecretRLWE
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.PowerOfTwoLifting.productionMaskContextSelectors_failure_toReal_le
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.PowerOfTwoLifting.productionHiddenResidualDistance_le_widening
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.PowerOfTwoLifting.productionWideningResidualDistance_le_l2Loss
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.PowerOfTwoLifting.rgswMinusSecretAdvantage_centeredBinomial_hiddenResidual_le
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.PowerOfTwoLifting.rgswMinusSecretAdvantage_centeredBinomial_wideningResidual_le
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.PowerOfTwoLifting.rgswMinusSecretAdvantage_centeredBinomial_wideningL2_le
+
+-- Exact additive secret randomization special to genuine RGSW_S(-S).
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.SecretRandomization.squareKeyShiftChallenge_bijective
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.SecretRandomization.squareKeyShift_bijective
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.SecretRandomization.squareKeyShift_batchAssemble
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.SecretRandomization.squareKeyShift_batchEncrypt_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.SecretRandomization.randomizedFixedSecretSquareBatchSampler_evalDist_eq_uniformSecret
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.SecretRandomization.rgswMinusSecretKeyShift_bijective
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.SecretRandomization.rgswMinusSecretKeyShift_encrypt_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.SecretRandomization.randomizedFixedSecretRGSWMinusSecretSampler_evalDist_eq_uniformSecret
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.SecretRandomization.fixedSecretAdvantage_randomizedDistinguisher_eq_uniformSecretAdvantage
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.SecretRandomization.exactRGSWMinusSecretViewRandomization_randomizedView_tvDist_eq_zero
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.SecretRandomization.zeroBatchKeyShift_batchEncrypt_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.SecretRandomization.circularViewKeyShift_real_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.SecretRandomization.circularViewKeyShift_uniform_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.SecretRandomization.exactRealCircularViewRandomization_error
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.SecretRandomization.exactUniformCircularViewRandomization_error
+
+-- Exact unit-difference guess/check and its production local-ring boundary.
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.UnitGuessCheck.candidateTransform_batchAssemble
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.UnitGuessCheck.candidateTapeMap_bijective
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.UnitGuessCheck.candidateTestSampler_correct_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.UnitGuessCheck.candidateTestSampler_unit_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.UnitGuessCheck.fixedSecretCandidateCircularViewSampler_correct_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.UnitGuessCheck.fixedSecretCandidateCircularViewSampler_unit_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.UnitGuessCheck.randomizedCandidateCircularViewSampler_correct_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.UnitGuessCheck.randomizedCandidateCircularViewSampler_unit_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.UnitGuessCheck.Production.card_le_two_of_unitSeparated
+
+-- No-go theorem for the direct vector-LWE-style coefficient candidate action.
+#check FormalProof4FHE.TFHE.Native.CoefficientAffineCircularRLWE.GuessCheckObstruction.ringMultiplicationOnBinary_of_exactRingPadAction
+#check FormalProof4FHE.TFHE.Native.CoefficientAffineCircularRLWE.GuessCheckObstruction.firstDiagonal_no_exactRingPadAction
+#check FormalProof4FHE.TFHE.Native.CoefficientAffineCircularRLWE.GuessCheckObstruction.nativeFirstDiagonalCross_no_exactRingPadAction
+
+-- Coefficient guess/check through exact rank-one RLWE sample extraction.
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.ExtractedGuessCheck.extractTape_batchEncrypt_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.ExtractedGuessCheck.extractTape_uniform_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.ExtractedGuessCheck.extractRingTestView_fixedSecretRingReal_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.ExtractedGuessCheck.extractRingTestView_fixedSecretRingUniform_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.ExtractedGuessCheck.fixedSecretCandidateViewSampler_correct_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.ExtractedGuessCheck.fixedSecretCandidateViewSampler_wrong_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.ExtractedGuessCheck.CoefficientRecovery.correctCandidateView_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.ExtractedGuessCheck.CoefficientRecovery.wrongCandidateView_evalDist
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.ExtractedGuessCheck.CoefficientRecovery.orientedGap_eq_decisionAdvantage
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.ExtractedGuessCheck.CoefficientRecovery.coordinateRecoveryGame_successProbability
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.ExtractedGuessCheck.CoefficientRecovery.ringSecretRecoveryGame_eq_flatSecretRecoveryGame
+#check FormalProof4FHE.TFHE.TGSW.RingSquare.ExtractedGuessCheck.CoefficientRecovery.one_sub_sum_decisionError_le_ringSecretRecovery

@@ -123,6 +123,87 @@ theorem tvDist_uniform_le_of_collision {α : Type}
   simp_rw [huniform]
   nlinarith
 
+/-- Second moment of the fiber sizes of a deterministic map between finite types.  This
+quantity is purely set-theoretic: it does not require the map to be linear or the types to
+carry field structures. -/
+noncomputable def fiberSecondMoment {Input Output : Type}
+    [Fintype Input] [Fintype Output]
+    (transform : Input → Output) : ℝ := by
+  letI : DecidableEq Output := Classical.decEq Output
+  exact ∑ output,
+    ((Finset.univ.filter fun input : Input => transform input = output).card : ℝ) ^ 2
+
+/-- A deterministic image of a uniform finite input assigns to each output exactly its fiber
+size divided by the input-space cardinality. -/
+theorem probOutput_map_uniform_eq_fiberCard {Input Output : Type}
+    [Fintype Input] [SampleableType Input] [DecidableEq Output]
+    (transform : Input → Output) (output : Output) :
+    Pr[= output | transform <$> ($ᵗ Input)] =
+      (Fintype.card Input : ENNReal)⁻¹ *
+        ((Finset.univ.filter fun input : Input => transform input = output).card : ENNReal) := by
+  rw [probOutput_map_eq_sum_fintype_ite]
+  simp only [probOutput_uniformSample]
+  rw [← Finset.sum_filter, Finset.sum_const, nsmul_eq_mul]
+  rw [show
+    (Finset.univ.filter fun input : Input => output = transform input) =
+      Finset.univ.filter fun input : Input => transform input = output by
+        ext input
+        simp [eq_comm]]
+  ring
+
+/-- Exact collision probability of a deterministic image of a uniform finite input, expressed
+as a normalized fiber-size second moment. -/
+theorem collisionProbability_map_uniform_eq_fiberSecondMoment
+    {Input Output : Type}
+    [Fintype Input] [Fintype Output] [SampleableType Input]
+    (transform : Input → Output) :
+    collisionProbability (transform <$> ($ᵗ Input)) =
+      (Fintype.card Input : ℝ)⁻¹ ^ 2 * fiberSecondMoment transform := by
+  letI : DecidableEq Output := Classical.decEq Output
+  unfold collisionProbability fiberSecondMoment
+  simp_rw [probOutput_map_uniform_eq_fiberCard transform,
+    ENNReal.toReal_mul, ENNReal.toReal_inv, ENNReal.toReal_natCast, mul_pow]
+  rw [← Finset.mul_sum]
+
+/-- A fiber second-moment bound controls the distance of a deterministic image of uniform from
+uniform.  In the endomorphism case the permutation baseline is `|State|`; an excess factor
+`1 + ε` costs at most `sqrt ε / 2` in total variation. -/
+theorem tvDist_map_uniform_le_of_fiberSecondMoment {State : Type}
+    [Fintype State] [Nonempty State] [SampleableType State]
+    (transform : State → State) (ε : ℝ)
+    (hsecond : fiberSecondMoment transform ≤
+      (Fintype.card State : ℝ) * (1 + ε)) :
+    tvDist (transform <$> ($ᵗ State)) ($ᵗ State) ≤ Real.sqrt ε / 2 := by
+  let N : ℝ := Fintype.card State
+  have hN : 0 < N := by
+    have hcard : 0 < Fintype.card State := Fintype.card_pos
+    change (0 : ℝ) < (Fintype.card State : ℝ)
+    exact_mod_cast hcard
+  apply tvDist_uniform_le_of_collision
+  rw [collisionProbability_map_uniform_eq_fiberSecondMoment]
+  change N⁻¹ ^ 2 * fiberSecondMoment transform ≤ (1 + ε) / N
+  calc
+    N⁻¹ ^ 2 * fiberSecondMoment transform ≤
+        N⁻¹ ^ 2 * (N * (1 + ε)) :=
+      mul_le_mul_of_nonneg_left hsecond (sq_nonneg _)
+    _ = (1 + ε) / N := by field_simp
+
+/-- Assumption-free fiber form of the preceding bound.  The square-root argument is the exact
+relative excess of the fiber second moment above the permutation baseline. -/
+theorem tvDist_map_uniform_le_sqrt_fiberExcess {State : Type}
+    [Fintype State] [Nonempty State] [SampleableType State]
+    (transform : State → State) :
+    tvDist (transform <$> ($ᵗ State)) ($ᵗ State) ≤
+      Real.sqrt
+          (fiberSecondMoment transform / (Fintype.card State : ℝ) - 1) /
+        2 := by
+  apply tvDist_map_uniform_le_of_fiberSecondMoment
+  have hcard : (Fintype.card State : ℝ) ≠ 0 := by
+    exact_mod_cast (Fintype.card_ne_zero : Fintype.card State ≠ 0)
+  field_simp
+  ring_nf
+  exact le_refl (fiberSecondMoment transform)
+
 /-- Point probability of the joint hashed distribution, expressed by the size of a hash fiber. -/
 theorem probOutput_hashed {Seed Input Output : Type}
     [Fintype Seed] [SampleableType Seed]

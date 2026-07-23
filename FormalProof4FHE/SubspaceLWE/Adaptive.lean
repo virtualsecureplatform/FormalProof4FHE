@@ -100,6 +100,32 @@ def noisyInnerProduct {R : Type} [CommSemiring R] {ambientDimension : ℕ}
     (query : Query R ambientDimension) (error : R) : R :=
   dotProduct (query.randomness.apply randomness) (query.secret.apply secret) + error
 
+/-- Public affine coefficients of one fixed Subspace-LWE response as a function of the hidden
+secret.  They depend on the public query and the sampled public randomness, never on the secret. -/
+def secretAffineCoefficients {R : Type} [CommSemiring R] {ambientDimension : ℕ}
+    (randomness : Fin ambientDimension → R) (query : Query R ambientDimension) :
+    Fin ambientDimension → R :=
+  (query.randomness.apply randomness) ᵥ* query.secret.linear
+
+/-- Constant part of that fixed-response affine function. -/
+def secretAffineOffset {R : Type} [CommSemiring R] {ambientDimension : ℕ}
+    (randomness : Fin ambientDimension → R) (query : Query R ambientDimension)
+    (error : R) : R :=
+  dotProduct (query.randomness.apply randomness) query.secret.offset + error
+
+/-- Every fixed-randomness Subspace-LWE response is exactly affine in the hidden secret.  This
+algebraic statement makes explicit why the Subspace-LWE theorem cannot directly generate a
+secret-secret product such as the native TFHE mask-block KDM message. -/
+theorem noisyInnerProduct_eq_secretAffine {R : Type} [CommSemiring R]
+    {ambientDimension : ℕ}
+    (secret randomness : Fin ambientDimension → R)
+    (query : Query R ambientDimension) (error : R) :
+    noisyInnerProduct secret randomness query error =
+      dotProduct (secretAffineCoefficients randomness query) secret +
+        secretAffineOffset randomness query error := by
+  simp [noisyInnerProduct, secretAffineCoefficients, secretAffineOffset,
+    AffineProjection.apply, Matrix.dotProduct_mulVec, add_assoc]
+
 /-- The adaptive `Γ_{χ,ℓ,d}` query implementation from Pietrzak's definition. -/
 noncomputable def queryImpl {R : Type} [CommSemiring R] [DecidableEq R] [SampleableType R]
     {ambientDimension : ℕ}
