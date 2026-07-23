@@ -67,9 +67,12 @@ checks run inside the container; no host Lean installation is required.
   zero/uniform hops are exact reductions from the complete four-sample leakage view, including
   explicit uniform-branch bijections; their sum bounds square/zero KDM advantage. The leakage
   matrix has checked Gram bound `3`, and the product-noise and weighted-error identities are also
-  formalized. This does not formalize the Gaussian/smoothing theorem that reduces Leaky LWE to
-  ordinary LWE, nor does it solve gadget-weighted relinearization with weight-independent errors;
-  see `docs/RLWE.md`.
+  formalized. `FormalProof4FHE.LWE.Leaky.advantage_le_lwe_add_paperLoss` now checks the complete
+  finite-game reduction from the paper's statistical simulator certificate to ordinary LWE, with
+  exact loss `4ε/(1-ε)`; its Condition-2 specialization permits an arbitrary identical secret
+  law and error-only leakage. The multivariate discrete-Gaussian theorem producing that certificate
+  remains analytic input, and gadget-weighted relinearization with weight-independent errors is not
+  solved; see `docs/RLWE.md`.
 - `FormalProof4FHE.Regev.oneTime_abs_signedAdvantage_le_lwe_add_leftover` proves one-time Regev
   security from decisional LWE with the concrete term `sqrt(q^(n+1) / 2^m) / 2`; the finite
   leftover hash lemma and binary subset-sum two-universality are checked in

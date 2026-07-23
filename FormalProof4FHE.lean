@@ -5,6 +5,7 @@ import FormalProof4FHE.LWE.AuxiliaryInputBatch
 import FormalProof4FHE.LWE.AuxiliaryInputSearch
 import FormalProof4FHE.LWE.AuxiliaryInputSearchToDecision
 import FormalProof4FHE.LWE.BlockBinaryReduction
+import FormalProof4FHE.LWE.Leaky
 import FormalProof4FHE.LWE.MultiKeyAffine
 import FormalProof4FHE.LWE.ParallelBatch
 import FormalProof4FHE.LWE.Regev

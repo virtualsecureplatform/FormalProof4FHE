@@ -144,14 +144,24 @@ weight `g` changes the product error to `e₃ - g*e₀(e₁+ρ₁)`. The develop
 unscaled two-component square ciphertext, not a joint gadget-weighted relinearization key with
 weight-independent narrow errors.
 
-The analytic step from ordinary LWE/RLWE to the full Leaky-RLWE premise is not re-proved here.
-Lai--Swarnakar--Woo, Definition 3, Condition 2, and Theorem 3 permit arbitrary identical source
-secret laws in the error-only case and give loss `4ε/(1-ε)`, subject to their discrete-Gaussian,
-smoothing, covariance, embedding, leakage-norm, and polynomial-time hypotheses. Remark 2 explains
-the ring-valued leakage codomain used by this application. Connecting that theorem to the finite
-`ProbComp` game still requires an exact or statistically controlled Gaussian sampler, a matching
-structured source-matrix distribution (including the unit anchor), and a formal treatment of those
-analytic and efficiency conditions. The local paper is `../refs/leakeylwe.pdf` (with that spelling).
+`FormalProof4FHE.LWE.Leaky` now formalizes the finite-game part of Lai--Swarnakar--Woo,
+Definition 3 and Theorem 3. Given a statistical simulator certificate at branch distance
+`2ε/(1-ε)`, `advantage_le_lwe_add_paperLoss` constructs the ordinary-LWE reduction and proves
+
+```text
+Adv_LLWE(A) <= Adv_LWE(B) + 4ε/(1-ε).
+```
+
+The companion `errorOnly_advantage_le_lwe_add_paperLoss` formalizes Condition 2: the secret law may
+be arbitrary provided source and target use the same law, while leakage depends only on the error.
+The module also supplies the standard batch-matrix LWE additivity and uniform-translation facts and
+the secret/error leakage-matrix interface used by Definition 3.
+
+The preceding analytic discrete-Gaussian theorem that *constructs* the statistical certificate is
+not re-proved. Its smoothing, covariance, embedding, leakage-norm, and polynomial-time hypotheses
+still require new analytic infrastructure, as does a matching structured source-matrix distribution
+(including the unit anchor). Remark 2 explains the ring-valued leakage codomain used by this
+application. The local paper is `../refs/leakeylwe.pdf` (with that spelling).
 
 ## Boundary with the foundational papers
 

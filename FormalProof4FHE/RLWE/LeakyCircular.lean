@@ -26,12 +26,14 @@ checked reduction emits `(A, A * S + E)` with the same independent target secret
 The triangle inequality therefore bounds the quadratic real-versus-zero KDM advantage by two
 error-only Leaky-RLWE advantages.
 
-The module formalizes the finite-game algebra and probability transport.  It does **not**
-reformalize the analytic discrete-Gaussian reduction in Lai--Swarnakar--Woo, *Leaky LWE: Learning
-with Errors with Semi-Adaptive Secret- and Error-Leakage* (2025), Condition 2 and Theorem 3.  That
-theorem applies to the full four-sample view, and its adversary may ignore the two unused source
-samples to obtain the public projection used here.  Invoking it additionally requires its stated
-Gaussian, smoothing, Gram-bound, and efficiency hypotheses.
+The module formalizes the finite-game algebra and probability transport.  The generic finite-game
+reduction from a statistical simulator certificate, including the Condition-2 specialization and
+the exact `4ε/(1-ε)` loss, is formalized in `FormalProof4FHE.LWE.Leaky`.  The preceding analytic
+discrete-Gaussian theorem that constructs that certificate from the hypotheses in Lai--Swarnakar--
+Woo, *Leaky LWE: Learning with Errors with Semi-Adaptive Secret- and Error-Leakage* (2025), remains
+outside the library.  The theorem applies to the full four-sample view, and its adversary may ignore
+the two unused source samples to obtain the public projection used here.  Instantiating it still
+requires the paper's Gaussian, smoothing, Gram-bound, and efficiency hypotheses.
 
 The final section also checks the weighted identity.  A public weight `g` necessarily produces
 the product error `e₃ - g * e₀ * (e₁ + ρ₁)` in this construction; no weight-independent gadget
