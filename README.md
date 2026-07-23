@@ -61,6 +61,15 @@ checks run inside the container; no host Lean installation is required.
   finite masking term `sqrt(q^(2N) / 2^m) / 2`. The corresponding hardness-transfer theorem and
   centered-binomial specialization are checked as well. This is base-encryption security; it does
   not by itself cover homomorphic evaluation keys, relinearization, or circular security.
+- `FormalProof4FHE.RLWE.LeakyCircular.kdmAdvantage_le_two_fullLeaky_probComp` checks the candidate
+  error-only Leaky-RLWE reduction for one unscaled two-component square ciphertext. The target laws
+  are `S=e₂+ρ₂` and `E=e₃-e₀(e₁+ρ₁)` with independent sampler blocks. Both square/uniform and
+  zero/uniform hops are exact reductions from the complete four-sample leakage view, including
+  explicit uniform-branch bijections; their sum bounds square/zero KDM advantage. The leakage
+  matrix has checked Gram bound `3`, and the product-noise and weighted-error identities are also
+  formalized. This does not formalize the Gaussian/smoothing theorem that reduces Leaky LWE to
+  ordinary LWE, nor does it solve gadget-weighted relinearization with weight-independent errors;
+  see `docs/RLWE.md`.
 - `FormalProof4FHE.Regev.oneTime_abs_signedAdvantage_le_lwe_add_leftover` proves one-time Regev
   security from decisional LWE with the concrete term `sqrt(q^(n+1) / 2^m) / 2`; the finite
   leftover hash lemma and binary subset-sum two-universality are checked in

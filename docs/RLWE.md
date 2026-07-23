@@ -92,6 +92,67 @@ security, or circular/KDM security. Ring-Regev also uses many public RLWE sample
 subset-sum randomness; matching a particular FHE scheme requires a separate scheme-specific
 encryption reduction.
 
+## Error-leakage reduction for one unscaled square ciphertext
+
+`FormalProof4FHE.RLWE.LeakyCircular` checks the algebraic and finite-game part of the candidate
+argument in `../rlwecircular.md`. Over any finite commutative ring, let four source errors and two
+leakage errors be independent and define
+
+```text
+S = e₂ + ρ₂,
+E = e₃ - e₀(e₁ + ρ₁).
+```
+
+The two laws are independent because the sampler is explicitly factored into disjoint random
+blocks. The module verifies the error-only leakage matrix
+
+```text
+L = [[-1,-1], [1,0], [0,1], [0,0]],
+```
+
+its integer Gram matrix `LᵀL = [[2,1],[1,2]]`, and the sharp Rayleigh bound `3`. It then models the
+complete four-sample Leaky-RLWE view. The first public mask is sampled as a unit, making its inverse
+part of the transcript. This directly captures a source matrix distribution supported on units;
+the selection/abort reduction needed to start from unconditioned uniform masks is not included.
+
+For the public secant transform, `transform_real` proves the exact phase identity
+
+```text
+B = A*S + S^2 + E.
+```
+
+`randomOutputMap_bijective` proves that the same transform sends the random Leaky-RLWE branch
+exactly to the uniform law on pairs. The zero-message transform independently samples the product
+part of `E` and proves the corresponding exact real and uniform laws. Consequently,
+`squareAdvantage_eq_fullLeaky` and `zeroAdvantage_eq_fullLeaky` identify both target advantages
+with concrete full-view error-only Leaky-RLWE advantages, and
+`kdmAdvantage_le_two_fullLeaky_probComp` proves the real-square versus real-zero bound by their
+sum. The hardness-transfer theorem `kdmHardAgainst_of_fullLeaky_probComp` packages the usual
+factor-two corollary. No unproved axiom represents Leaky-RLWE hardness.
+
+The module also checks the deterministic bounds
+
+```text
+size(S) <= B + Bρ,
+size(E) <= B + γ*B*(B + Bρ),
+```
+
+and the phase identity for an additional ordinary public-key sample. These are generic algebraic
+bounds; specializing `γ` to a concrete negacyclic coefficient norm remains separate. Finally,
+`weighted_intermediate_phase_real` confirms the limitation from the candidate note: a public
+weight `g` changes the product error to `e₃ - g*e₀(e₁+ρ₁)`. The development therefore proves one
+unscaled two-component square ciphertext, not a joint gadget-weighted relinearization key with
+weight-independent narrow errors.
+
+The analytic step from ordinary LWE/RLWE to the full Leaky-RLWE premise is not re-proved here.
+Lai--Swarnakar--Woo, Definition 3, Condition 2, and Theorem 3 permit arbitrary identical source
+secret laws in the error-only case and give loss `4ε/(1-ε)`, subject to their discrete-Gaussian,
+smoothing, covariance, embedding, leakage-norm, and polynomial-time hypotheses. Remark 2 explains
+the ring-valued leakage codomain used by this application. Connecting that theorem to the finite
+`ProbComp` game still requires an exact or statistically controlled Gaussian sampler, a matching
+structured source-matrix distribution (including the unit anchor), and a formal treatment of those
+analytic and efficiency conditions. The local paper is `../refs/leakeylwe.pdf` (with that spelling).
+
 ## Boundary with the foundational papers
 
 The current development does **not** yet formalize the worst-case hardness theorem from

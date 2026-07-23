@@ -14,6 +14,11 @@
 - D. Micciancio and V. Vaikuntanathan,
   *SoK: Learning with Errors, Circular Security, and Fully Homomorphic Encryption*,
   PKC 2024, DOI: 10.1007/978-3-031-57728-4_10.
+- R. W. F. Lai, M. Swarnakar, and I. K. Y. Woo,
+  *Leaky LWE: Learning with Errors with Semi-Adaptive Secret- and Error-Leakage*,
+  IACR Communications in Cryptology 2(3), 2025, DOI: 10.62056/ah89ksuc2.
+  The error-only application uses Definition 3, Condition 2, Theorem 3, and Remark 2; the local
+  file is `../refs/leakeylwe.pdf` relative to the repository root.
 - C. Gentry, A. Sahai, and B. Waters,
   *Homomorphic Encryption from Learning with Errors: Conceptually-Simpler,
   Asymptotically-Faster, Attribute-Based*, CRYPTO 2013.
