@@ -163,6 +163,38 @@ still require new analytic infrastructure, as does a matching structured source-
 (including the unit anchor). Remark 2 explains the ring-valued leakage codomain used by this
 application. The local paper is `../refs/leakeylwe.pdf` (with that spelling).
 
+## Interval-masked quadratic KDM security
+
+`FormalProof4FHE.RLWE.IntervalMaskedQuadratic` formalizes the polynomial-loss completion in the
+final section of `../rlwecircular.md`. For a binary or ternary coefficient secret `S`, it samples
+an independent interval mask `Z ∈ {0,…,M-1}^N` and publishes the finite code for `H=S-Z`.
+The checked affine transformation
+
+```text
+A = C - 2H,
+B = Y - H²
+```
+
+sends a real hinted sample `Y=CS+E` exactly to
+`B=AS+S²+E-Z²`. For every fixed hint, the same map is a bijection on a uniform pair. The zero
+endpoint `(A,AS+E-Z²)` is an exact one-sample short-secret RLWE reduction: sample `Z`
+independently and subtract `Z²` from the challenge body.
+
+The hinted hop uses a checked two-copy Boolean product test. Its true-output probability is
+exactly one half plus one half of the squared conditional signed gap. The map
+`(S,Z) ↦ (hint(S,Z),S)` is proved injective, and a finite Cauchy--Schwarz argument gives the
+exact source/target cardinality ratio. Consequently:
+
+```text
+binary:  Adv_KDM ≤ sqrt(2 ((M+1)/M)^N Adv_2-RLWE) + Adv_1-RLWE,
+ternary: Adv_KDM ≤ sqrt(2 ((M+2)/M)^N Adv_2-RLWE) + Adv_1-RLWE.
+```
+
+The ternary factor is slightly sharper than the loose `(1+4/M)^N` guessing estimate in the note.
+The conclusion is precisely `RLWE_S(S²) ≈ RLWE_S(0)` for the modified error law
+`E∘=E-Z²`. It does not turn this into a gadget-weighted relinearization theorem: applying the
+same map to `gS²` produces the larger term `-gZ²`.
+
 ## Boundary with the foundational papers
 
 The current development does **not** yet formalize the worst-case hardness theorem from

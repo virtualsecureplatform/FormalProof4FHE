@@ -41,6 +41,15 @@ open OracleComp
 #check FormalProof4FHE.RLWE.LeakyCircular.targetSecret_size_le
 #check FormalProof4FHE.RLWE.LeakyCircular.targetError_size_le
 #check FormalProof4FHE.RLWE.LeakyCircular.weighted_intermediate_phase_real
+#check FormalProof4FHE.SquaredBias.probOutput_experiment_true
+#check FormalProof4FHE.SquaredBias.sq_expectation_uniform_comp_le_card_ratio_secondMoment
+#check FormalProof4FHE.RLWE.IntervalMaskedQuadratic.quadraticTransform_real
+#check FormalProof4FHE.RLWE.IntervalMaskedQuadratic.quadraticTransform_hintRandomView_evalDist
+#check FormalProof4FHE.RLWE.IntervalMaskedQuadratic.intervalHintPolynomial_code
+#check FormalProof4FHE.RLWE.IntervalMaskedQuadratic.binary_kdmAdvantage_le
+#check FormalProof4FHE.RLWE.IntervalMaskedQuadratic.ternary_kdmAdvantage_le
+#check FormalProof4FHE.RLWE.IntervalMaskedQuadratic.binary_kdmAdvantage_le_of_rlweBounds
+#check FormalProof4FHE.RLWE.IntervalMaskedQuadratic.ternary_kdmAdvantage_le_of_rlweBounds
 #check FormalProof4FHE.RLWE.quotientRingHom
 #check FormalProof4FHE.RLWE.quotientRingHom_injective
 #check FormalProof4FHE.RLWE.quotientOf_zero

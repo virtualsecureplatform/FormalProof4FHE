@@ -34,10 +34,12 @@ import FormalProof4FHE.Probability.FiniteRowKernelMoment
 import FormalProof4FHE.Probability.FiniteSurjectiveFiber
 import FormalProof4FHE.Probability.ModularGaussian
 import FormalProof4FHE.Probability.RankBound
+import FormalProof4FHE.Probability.SquaredBias
 import FormalProof4FHE.RLWE.Basic
 import FormalProof4FHE.RLWE.CenteredBinomial
 import FormalProof4FHE.RLWE.CenteredBinomialMoment
 import FormalProof4FHE.RLWE.LeakyCircular
+import FormalProof4FHE.RLWE.IntervalMaskedQuadratic
 import FormalProof4FHE.RLWE.PowerOfTwoCyclotomic
 import FormalProof4FHE.RLWE.PowerOfTwoCyclotomicGame
 import FormalProof4FHE.RLWE.RingRegev

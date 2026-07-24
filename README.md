@@ -73,6 +73,18 @@ checks run inside the container; no host Lean installation is required.
   law and error-only leakage. The multivariate discrete-Gaussian theorem producing that certificate
   remains analytic input, and gadget-weighted relinearization with weight-independent errors is not
   solved; see `docs/RLWE.md`.
+- `FormalProof4FHE.RLWE.IntervalMaskedQuadratic.binary_kdmAdvantage_le` and
+  `ternary_kdmAdvantage_le` prove the interval-mask completion of unscaled quadratic KDM security.
+  For an independent coefficient mask `Z ∈ {0,…,M-1}^N`, the checked public map
+  `A=C-2H`, `B=Y-H²` with `H=S-Z` sends hinted RLWE exactly to
+  `(A, AS+S²+E-Z²)` and sends its random branch exactly to uniform. A one-sample ordinary
+  short-secret RLWE reduction handles `(A,AS+E-Z²)`, while the cancellation-free two-copy
+  reduction has loss `sqrt(2 ((M+1)/M)^N Adv)` for binary coefficients and the sharper
+  `sqrt(2 ((M+2)/M)^N Adv)` for ternary coefficients. The public interval code and its
+  injectivity, both affine game identities, the squared-bias probability identity, and the
+  concrete cardinality factors are all checked. The conclusion deliberately uses the modified
+  error law `E−Z²`; it does not claim gadget-weighted `gS²` security with narrow
+  weight-independent noise.
 - `FormalProof4FHE.Regev.oneTime_abs_signedAdvantage_le_lwe_add_leftover` proves one-time Regev
   security from decisional LWE with the concrete term `sqrt(q^(n+1) / 2^m) / 2`; the finite
   leftover hash lemma and binary subset-sum two-universality are checked in
