@@ -195,6 +195,36 @@ The conclusion is precisely `RLWE_S(S²) ≈ RLWE_S(0)` for the modified error l
 `E∘=E-Z²`. It does not turn this into a gadget-weighted relinearization theorem: applying the
 same map to `gS²` produces the larger term `-gZ²`.
 
+## Conditional narrow-error binary/ternary extension
+
+`FormalProof4FHE.RLWE.QuadraticKDMBinaryTernary` formalizes
+`../rlwe_quadratic_kdm_binary_ternary_extension.tex`. It recenters the interval mask to
+`Z ∈ {-r,…,r}^N`, proves that the public hint has exact average conditional min-entropy
+
+```text
+N log₂(dM/(M+d-1)),   d ∈ {2,3}, M=2r+1,
+```
+
+and uses the corrected correlated HNF source rows
+
+```text
+b₀ = X-S,   dⱼ = cⱼX + gⱼZ² + Eⱼ.
+```
+
+The public compiler `Aⱼ=cⱼ-2gⱼT`, `Bⱼ=dⱼ-cⱼb₀-gⱼT²` is checked to produce exactly
+`Bⱼ=AⱼS+gⱼS²+Eⱼ`; its random map has an explicit inverse. The module also proves the conditioned
+source-error change of variables is bijective, centered ternary and mask signed-permutation laws,
+the binary affine complement law and corresponding real/random source transcript symmetry, the
+relevant `gⱼ`-dependent source bound, and the complementary direct identity whose error is instead
+`W-gⱼZ²`.
+
+The binary and ternary security conclusions are conditional finite-game theorems. They require a
+`SplitSearchToDecisionCertificate`, a search-success bound for the masked correlated HNF problem,
+and a zero-message RLWE bound for the exact small-secret law. The certificate is where a concrete
+application must discharge the external general-distribution HNF theorem's boundedness,
+residual-entropy, sample-count, CRT-transitivity, automorphism, and lattice conditions. Those
+analytic hypotheses are not inferred from ordinary decisional RLWE inside Lean.
+
 ## Boundary with the foundational papers
 
 The current development does **not** yet formalize the worst-case hardness theorem from

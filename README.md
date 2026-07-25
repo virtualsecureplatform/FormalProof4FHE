@@ -96,6 +96,19 @@ checks run inside the container; no host Lean installation is required.
   bound, and a zero-message RLWE bound; the BJTW general-distribution search theorem and its
   boundedness, entropy, sample-count, automorphism, and lattice inequalities are not asserted as
   consequences of ordinary decisional RLWE.
+- `FormalProof4FHE.RLWE.QuadraticKDMBinaryTernary.binary_kdmAdvantage_le_search_add_loss_add_zero`
+  and `ternary_kdmAdvantage_le_search_add_loss_add_zero` formalize the centered-mask extension in
+  `rlwe_quadratic_kdm_binary_ternary_extension.tex`. The finite hint fibers are shown surjective
+  with a unique mask for each `(hint,secret)`, giving exact residual entropy
+  `N log₂(dM/(M+d−1))`. The masked source compiler sends
+  `b₀=X−S`, `dⱼ=cⱼX+gⱼZ²+Eⱼ` exactly to
+  `(Aⱼ,AⱼS+gⱼS²+Eⱼ)` and its random branch exactly to uniform. Centered ternary and mask
+  signed actions, the binary affine complement `s ↦ −s+1`, real/random affine source symmetry,
+  the conditioned source-error bijection, the `gⱼ`-dependent source norm bound, and the direct
+  weighted identity with residual error `W−gⱼZ²` are checked. The two concrete security theorems
+  remain deliberately conditional on a checked split search-to-decision certificate, correlated
+  HNF-RLWE search hardness, and exact binary/ternary zero-message RLWE; they do not silently
+  instantiate the external general-distribution search theorem.
 - `FormalProof4FHE.Regev.oneTime_abs_signedAdvantage_le_lwe_add_leftover` proves one-time Regev
   security from decisional LWE with the concrete term `sqrt(q^(n+1) / 2^m) / 2`; the finite
   leftover hash lemma and binary subset-sum two-universality are checked in

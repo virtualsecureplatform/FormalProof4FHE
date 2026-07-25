@@ -43,6 +43,7 @@ import FormalProof4FHE.RLWE.IntervalMaskedQuadratic
 import FormalProof4FHE.RLWE.PowerOfTwoCyclotomic
 import FormalProof4FHE.RLWE.PowerOfTwoCyclotomicGame
 import FormalProof4FHE.RLWE.QuadraticKDM
+import FormalProof4FHE.RLWE.QuadraticKDMBinaryTernary
 import FormalProof4FHE.RLWE.RingRegev
 import FormalProof4FHE.RLWE.Security
 import FormalProof4FHE.SharedRandomness.Ordinary
