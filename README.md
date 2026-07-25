@@ -85,6 +85,17 @@ checks run inside the container; no host Lean installation is required.
   concrete cardinality factors are all checked. The conclusion deliberately uses the modified
   error law `E−Z²`; it does not claim gadget-weighted `gS²` security with narrow
   weight-independent noise.
+- `FormalProof4FHE.RLWE.QuadraticKDM.kdmAdvantage_le_search_add_loss_add_zero` formalizes the
+  conditional fixed-gadget theorem from `rlwe_quadratic_kdm_security.tex`. For arbitrary public
+  weights satisfying `sum_r α_jr β_jr = g_j`, the checked compiler sends the corrected correlated
+  HNF source view exactly to `(A_j, A_j S + g_j S² + H_j)` and sends its random branch exactly to
+  joint uniform through an explicit inverse. The one-coordinate split-field correct/wrong
+  candidate laws, joint public-key extension, relinearization phase, latent reconstruction,
+  source-error size bound, and projected discriminant identity are checked as well. The final
+  theorem deliberately requires a `SplitSearchToDecisionCertificate`, its correlated-HNF search
+  bound, and a zero-message RLWE bound; the BJTW general-distribution search theorem and its
+  boundedness, entropy, sample-count, automorphism, and lattice inequalities are not asserted as
+  consequences of ordinary decisional RLWE.
 - `FormalProof4FHE.Regev.oneTime_abs_signedAdvantage_le_lwe_add_leftover` proves one-time Regev
   security from decisional LWE with the concrete term `sqrt(q^(n+1) / 2^m) / 2`; the finite
   leftover hash lemma and binary subset-sum two-universality are checked in
