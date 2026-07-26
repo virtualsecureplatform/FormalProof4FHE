@@ -109,6 +109,19 @@ checks run inside the container; no host Lean installation is required.
   remain deliberately conditional on a checked split search-to-decision certificate, correlated
   HNF-RLWE search hardness, and exact binary/ternary zero-message RLWE; they do not silently
   instantiate the external general-distribution search theorem.
+- `FormalProof4FHE.RLWE.RNSSplitSearchToDecisionCorrelated.rns_quadraticKDMAdvantage_le_search_add_loss_add_zero`
+  formalizes `rns_split_search_to_decision_correlated.tex` over the genuine heterogeneous product
+  `(i : Limb) -> Slot -> K_i`. The wrong-candidate permutation is lifted through an arbitrary
+  coherent error/leakage state sampler, the non-target secret shift retains that state, and a
+  liftable common HNF anchor upgrades one recovered limb to the complete secret. Binary and
+  centered-ternary coefficient anchors are proved limbwise liftable for `q_i>2` through explicit
+  per-limb NTT equivalences. The limb-major `s*N` hybrid endpoints, one-coordinate adjacency,
+  `epsilon/(s*N)` gap, diagonal automorphism action, binary affine-complement action, exact
+  narrow-error quadratic compiler, random affine permutation, and KDM/source game correspondence
+  are checked. The final finite advantage
+  theorem keeps acceptance estimation, amplification, anchor-failure, and oracle-cost accounting
+  in an explicit `SearchToDecisionCertificate`; the library does not claim its unmodeled
+  asymptotic runtime formula as an executable Lean cost theorem.
 - `FormalProof4FHE.RLWE.PowerOfTwoQuadraticKDMStatistical.tvDist_quadratic_ideal_le_literalPowerOfTwo`
   formalizes the unconditional collision theorem from
   `power_of_two_quadratic_kdm_statistical.tex`. For arbitrary correlated finite secret, error, and

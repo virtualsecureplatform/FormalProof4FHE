@@ -225,6 +225,53 @@ application must discharge the external general-distribution HNF theorem's bound
 residual-entropy, sample-count, CRT-transitivity, automorphism, and lattice conditions. Those
 analytic hypotheses are not inferred from ordinary decisional RLWE inside Lean.
 
+## Correlated RNS-limb/NTT search-to-decision
+
+`FormalProof4FHE.RLWE.RNSSplitSearchToDecisionCorrelated` formalizes
+`../rns_split_search_to_decision_correlated.tex` over a heterogeneous dependent product
+
+```text
+R_Q = (i : Limb) -> Slot -> K_i.
+```
+
+The limb fields need not be identified with one common type. Projection of a coherent HNF block
+to one `(limb,slot)` is checked exactly. For a wrong field candidate, the module proves the
+candidate map is uniform after conditioning on an arbitrary state, then lifts this equality
+through an arbitrary state sampler. That state can contain every other limb and slot, the whole
+coherent error polynomial, and arbitrary correlated leakage; no independent-limb error sampler is
+introduced. The correct-candidate and non-target secret-shift laws preserve the original error
+state exactly.
+
+The anchor layer proves that one recovered limb determines the complete RNS auxiliary secret
+whenever the common small anchor has a valid lift. Binary and centered-ternary liftability is
+constructed for every `ZMod q_i` limb with `q_i>2`. This construction explicitly passes from
+coefficient digits through a supplied per-limb NTT equivalence, so it does not confuse small
+coefficient vectors with NTT-slot values.
+
+For `s` limbs and `N` slots, the limb-major hybrid has checked real and random endpoints, adjacent
+hybrids differ at exactly one coordinate, and `exists_rns_ntt_adjacent_gap` proves the precise
+`epsilon/(s*N)` telescoping gap. Slot automorphisms act diagonally on every limb and on leakage;
+the joint-law equivariance premise is represented as one distributional equality, preserving all
+cross-limb correlations. `affineActBlock_realBlock` separately checks the affine-complement action
+needed by binary coefficient secrets: `X` changes to `sigma(X)+tau`, the anchor error changes to
+`sigma(e0)-tau`, and terminal errors keep the diagonal action. The coherent source problem
+enforces independence from the auxiliary secret and public coefficients by sampler order.
+
+Finally, the masked source
+
+```text
+b0 = X-S,  d_j = c_j X + g_j Z^2 + E_j,  T = S-Z
+```
+
+is compiled exactly to `B_j=A_j S+g_j S^2+E_j`, and the conditioned random compiler is an affine
+permutation. The complete KDM-to-source game correspondence and the bound
+`Adv_KDM <= searchBound + lossBound + zeroBound` are checked for the heterogeneous RNS carrier.
+The finite `lossBound` remains supplied by a `SearchToDecisionCertificate`: it records candidate
+acceptance estimation, amplification, anchor failure, and query accounting. Lean's current
+finite-game layer has no oracle-cost semantics, so the TeX file's asymptotic
+`O-tilde(q_max (sN)^3 epsilon^-2 log(1/eta))` running-time claim is not disguised as a proved
+executable-cost theorem.
+
 ## Boundary with the foundational papers
 
 The current development does **not** yet formalize the worst-case hardness theorem from
