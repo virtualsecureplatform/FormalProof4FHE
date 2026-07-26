@@ -109,6 +109,17 @@ checks run inside the container; no host Lean installation is required.
   remain deliberately conditional on a checked split search-to-decision certificate, correlated
   HNF-RLWE search hardness, and exact binary/ternary zero-message RLWE; they do not silently
   instantiate the external general-distribution search theorem.
+- `FormalProof4FHE.RLWE.PowerOfTwoQuadraticKDMStatistical.tvDist_quadratic_ideal_le_literalPowerOfTwo`
+  formalizes the unconditional collision theorem from
+  `power_of_two_quadratic_kdm_statistical.tex`. For arbitrary correlated finite secret, error, and
+  leakage tapes it proves the exact gadget-independent bound
+  `TV ≤ sqrt(Theta - 1) / 2`; the zero-message, quadratic-to-zero, masked-HNF, compiler, and
+  relinearization statements are checked too. `PowerOfTwoCyclotomicChainRing` proves directly that
+  the literal quotient `ZMod (2^kappa)[X]/(X^(2^r)+1)` is the required chain ring: parity has
+  principal kernel `(1-X)`, `(1-X)^(kappa*2^r)=0`, every ideal is a power of `(1-X)`, and the
+  level-`v` ideal has `2^(kappa*2^r-v)` elements. Thus the final literal-ring theorem has no
+  ramification certificate premise. As in the paper, usefulness for narrow FHE noise still
+  depends on numerically showing `Theta - 1` is negligible.
 - `FormalProof4FHE.Regev.oneTime_abs_signedAdvantage_le_lwe_add_leftover` proves one-time Regev
   security from decisional LWE with the concrete term `sqrt(q^(n+1) / 2^m) / 2`; the finite
   leftover hash lemma and binary subset-sum two-universality are checked in
