@@ -168,6 +168,18 @@ checks run inside the container; no host Lean installation is required.
   step, product-Laplace density integral, and infinite-lattice theta estimate are isolated as
   proof-carrying certificates; their use through the ternary and discrete-Gaussian endpoint
   theorems is checked without new axioms.
+- `FormalProof4FHE.RLWE.RankOneHNFLossinessMixtureRenyi.conditionalGaussianMixtureClusterGuessingBound`
+  formalizes `sketch/mahalanobisimprove.md` and removes the artificial absolute-Mahalanobis-energy
+  cost of a single zero-centred reference. Lean proves the arbitrary-reference theorem, the exact
+  optimized Renyi centre, its finite variational optimality, the expected posterior-norm and
+  posterior-collision formulas, and the fact that the actual-marginal objective is at most one.
+  Weighted log-sum-exp then gives the local-cloud exponent
+  `(alpha-1)D + (alpha-1)A/2 + (alpha-1)^2*‖dbar‖^2/2`; uniform-support cancellation, the displayed
+  exponential lossiness criterion, posterior-neighborhood mass, descriptor/leakage averaging,
+  normalized discrete-Gaussian weights, and the quadratic codeword-difference factorization are
+  native. The equal-covariance density-ratio integral and standard-Gaussian linear MGF are the two
+  explicit fields of `EqualCovarianceGaussianMixtureCertificate`, not hidden axioms. The optimized
+  finite theorem itself also applies directly to wrapped, modular, and coherent-RNS channels.
 - `FormalProof4FHE.RLWE.TFHEppLvl5BootRenyiObstruction.lvl5_firstOrderRenyiMargin_not_pos`
   is the concrete arithmetic screen for TFHEpp `lvl5bootparam`. Lean bounds the corrected
   fixed-weight support `2^96 choose(32768,96)` below `2^1038`, checks the exact square moment
