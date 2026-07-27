@@ -174,9 +174,17 @@ checks run inside the container; no host Lean installation is required.
   `600806592/32767`, and proves that the `g=2^622`, `sigma=2^33` top row alone exceeds twice the
   entire support entropy. This rules out the direct uniform-prior, equal-covariance Renyi
   sufficient condition for these rows; it neither proves insecurity nor discharges the abstract
-  continuous-Gaussian/channel-identification premise. The arithmetic applies to the 35 ordinary
-  pre-DD rows; exact transfer to the final DD/FFT representation still needs a reconstruction or
-  Renyi-invariance argument.
+  continuous-Gaussian/channel-identification premise.
+- `FormalProof4FHE.RLWE.TFHEppLvl5BootRepresentation.lvl5DoubleDecompositionEquiv` closes the
+  representation gap for those rows. Lean checks `2^640 = (2^16)^40` and proves that TFHEpp's
+  public centering offset, signed digit conversion, coefficientwise decomposition, and
+  `35 * 40 = 1400` row layout form an equivalence. For every FFT equipped with an exact
+  round-trip decoder, `finiteRenyiMoment_lvl5Representation` and
+  `conditionalGuessingProbability_map_lvl5EncodedRows` prove exact Renyi-moment and guessing
+  invariance, including when the encoded codomain contains unreachable values;
+  `idealDigitFFTEncoding` discharges that contract unconditionally for the exact complex DFT.
+  The SPQLIOS/IEEE-754 source routine remains an implementation-level numerical boundary rather
+  than an axiom hidden in the cryptographic theorem.
 - `FormalProof4FHE.RLWE.PowerOfTwoQuadraticKDMStatistical.tvDist_quadratic_ideal_le_literalPowerOfTwo`
   formalizes the unconditional collision theorem from
   `power_of_two_quadratic_kdm_statistical.tex`. For arbitrary correlated finite secret, error, and
@@ -1547,6 +1555,9 @@ checks run inside the container; no host Lean installation is required.
   `FormalProof4FHE.TFHE.GadgetDecomposition` implements fixed-length unsigned base digits in
   `ZMod q`, proves the digit bound and exact reconstruction under `q ≤ B^ℓ`, and lifts the same
   executable algorithm coefficientwise to the concrete negacyclic ring `Rq`.
+  `FormalProof4FHE.TFHE.FullWidthBalancedDecomposition` additionally proves that an exact-capacity
+  centered decomposition is a bijection, including signed interval digits, most-significant-first
+  ordering, arbitrary row components, and flattened ordinary-row/auxiliary-level indices.
 - `FormalProof4FHE.TFHE.BlindRotation` implements the public affine-TRGSW accumulator update,
   proves that a binary bootstrapping-key entry selects either `1` or the requested negacyclic
   rotation factor, and gives an exact list-level phase invariant with every row-error contribution

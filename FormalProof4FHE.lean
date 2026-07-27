@@ -52,6 +52,7 @@ import FormalProof4FHE.RLWE.RankOneHNFLossinessSupportAware
 import FormalProof4FHE.RLWE.RankOneHNFLossinessRenyi
 import FormalProof4FHE.RLWE.RankOneHNFLossinessRLWENTRU
 import FormalProof4FHE.RLWE.TFHEppLvl5BootRenyiObstruction
+import FormalProof4FHE.RLWE.TFHEppLvl5BootRepresentation
 import FormalProof4FHE.RLWE.RingRegev
 import FormalProof4FHE.RLWE.Security
 import FormalProof4FHE.SharedRandomness.Ordinary
@@ -142,6 +143,7 @@ import FormalProof4FHE.TFHE.RingSquareBatchDiscreteGaussianSmudging
 import FormalProof4FHE.TFHE.RingSquareSelectorNoiseBound
 import FormalProof4FHE.TFHE.GadgetDecomposition
 import FormalProof4FHE.TFHE.GadgetDigitUniformity
+import FormalProof4FHE.TFHE.FullWidthBalancedDecomposition
 import FormalProof4FHE.TFHE.PackedLinearCircularRLWE
 import FormalProof4FHE.TFHE.KeySwitchCandidateRandomization
 import FormalProof4FHE.TFHE.KeySwitchFirstCandidateView
