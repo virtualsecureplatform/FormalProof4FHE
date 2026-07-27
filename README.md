@@ -146,6 +146,17 @@ checks run inside the container; no host Lean installation is required.
   residual identity are native. Differential-entropy maximization, continuous/discrete Gaussian
   existence, smoothing, and subgaussian concentration are retained as typed certificates rather
   than axioms.
+- `FormalProof4FHE.RLWE.RankOneHNFLossinessSupportAware.weightedSpanningTreeGuessingBound`
+  formalizes `sketch/rank_one_hnf_lossiness_support_aware.tex`. For an actual finite secret-support
+  tree it proves `P_guess <= pi(root) + sum_edges ||pi(u)P_u-pi(v)P_v||_1`, proves the sharp
+  weighted-TV edge estimate, and derives the uniform `1/M + 2(1-1/M)delta` corollary. Descriptor
+  averaging, finite interval cells, randomized data processing, full-ternary and exact-weight
+  support cardinalities, and the quadratic local-edge factorization are native. The complete
+  coherent CRT/RNS channel samples one shared error, has an exact center-lift/consistency
+  likelihood and maximal-leakage expansion, and is invariant under CRT recombination. The IID and
+  fixed-weight tensor pushforwards to the stated square covariance are checked by matrix algebra.
+  Continuous-Gaussian TV/log-determinant entropy, concrete negacyclic tensor/moment construction,
+  and Bernstein row-energy tails remain ordinary proof-carrying certificate inputs, not axioms.
 - `FormalProof4FHE.RLWE.PowerOfTwoQuadraticKDMStatistical.tvDist_quadratic_ideal_le_literalPowerOfTwo`
   formalizes the unconditional collision theorem from
   `power_of_two_quadratic_kdm_statistical.tex`. For arbitrary correlated finite secret, error, and

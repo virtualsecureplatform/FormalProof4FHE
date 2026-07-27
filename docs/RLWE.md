@@ -371,6 +371,44 @@ therefore represented by `IntegerEntropyCovarianceCertificate`,
 `SubgaussianMaskedRatioCertificate`, and `ContinuousGaussianDecompositionCertificate`. These are
 ordinary structures containing proof fields, not new axioms.
 
+## Support-aware local trees and coherent CRT likelihoods
+
+`FormalProof4FHE.RLWE.RankOneHNFLossinessSupportAware` formalizes
+`../sketch/rank_one_hnf_lossiness_support_aware.tex`. Its central finite theorem works on a
+Mathlib finite simple tree over the actual posterior support. For every output it telescopes the
+weighted joint mass along a simple root path and then sums over outputs, proving
+
+```text
+P_guess(S | Y) <= pi(root) + sum_{edge {u,v}} ||pi(u) P_u - pi(v) P_v||_1.
+```
+
+The module proves natively that each edge term is at most
+`|pi(u)-pi(v)| + 2 min(pi(u),pi(v)) TV(P_u,P_v)`. A uniform prior and the exact tree edge count
+therefore give `1/M + 2(1-1/M) delta`. A connected local graph is reduced to a spanning tree, and
+the bound is averaged over the actual descriptor sampler without a worst-case descriptor
+supremum. The encodings of full ternary and exact-Hamming-weight ternary support have checked
+cardinalities `3^n` and `2^w * choose(n,w)`.
+
+The local quadratic identity `mu(t)-mu(s)=(t-s)(z+fg(t+s))`, the finite interval-partition
+certificate, and randomized guessing data processing are exact Lean theorems. The latter supplies
+the finite Markov-chain step in the anisotropic Gaussian theorem; Gaussian existence from the PSD
+covariance residual remains an explicit certificate field.
+
+For RNS, `coherentLiftChannel` draws one error and reduces that same value into the distinguished
+and remaining limbs. `probOutput_coherentLiftChannel` proves the exact decoded-error mass times all
+remaining-limb consistency indicators, and
+`channelMaximalLeakageMass_coherentLiftChannel` proves the complete-channel likelihood sum.
+`boundedShiftedResidueEncoder_injective` derives unique decoding from `q_star > 2B`, while CRT
+recombination preserves both guessing probability and pairwise TV exactly. No per-limb
+independence is assumed.
+
+The matrix algebra from the IID and fixed-weight tensor covariance to
+`2 n p^2 I + 2(p-3p^2)P_even` and `2 n p2 I + 2(p-3p2)P_even` is native, as is removal of the
+linear--quadratic cross blocks and the descriptor-averaged Fano arithmetic. Concrete construction
+of the negacyclic tensor/moment certificate, equal-covariance continuous-Gaussian TV,
+log-determinant entropy maximization, and Bernstein/subgaussian row-energy concentration are
+clearly typed proof obligations. They introduce no axioms or `sorry`.
+
 ## Boundary with the foundational papers
 
 The current development does **not** yet formalize the worst-case hardness theorem from
