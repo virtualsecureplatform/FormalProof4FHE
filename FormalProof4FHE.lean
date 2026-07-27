@@ -49,6 +49,7 @@ import FormalProof4FHE.RLWE.QuadraticKDMBinaryTernary
 import FormalProof4FHE.RLWE.RNSSplitSearchToDecisionCorrelated
 import FormalProof4FHE.RLWE.RankOneHNFLossinessRefined
 import FormalProof4FHE.RLWE.RankOneHNFLossinessSupportAware
+import FormalProof4FHE.RLWE.RankOneHNFLossinessRenyi
 import FormalProof4FHE.RLWE.RankOneHNFLossinessRLWENTRU
 import FormalProof4FHE.RLWE.RingRegev
 import FormalProof4FHE.RLWE.Security

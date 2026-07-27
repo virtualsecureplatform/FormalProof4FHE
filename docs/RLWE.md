@@ -409,6 +409,45 @@ of the negacyclic tensor/moment certificate, equal-covariance continuous-Gaussia
 log-determinant entropy maximization, and Bernstein/subgaussian row-energy concentration are
 clearly typed proof obligations. They introduce no axioms or `sorry`.
 
+## Conditional Renyi product lossiness
+
+`FormalProof4FHE.RLWE.RankOneHNFLossinessRenyi` formalizes `../sketch/spanningtree.md`.
+For a finite secret prior, finite row outputs, and any positive reference table it proves
+
+```text
+P_guess(S | Y) <=
+  (sum_s pi(s)^alpha * sum_y W_s(y)^alpha Q(y)^(1-alpha))^(1/alpha).
+```
+
+The proof is the finite maximum-likelihood inequality followed by weighted Jensen. For a complete
+channel whose likelihood is a product across independent evaluation-key rows,
+`finiteRenyiMoment_product` proves exact tensorization. A row output is an arbitrary type and the
+coherent-RNS specialization uses the complete CRT observation as that type, so no independence
+between limbs is introduced.
+
+An equal-covariance row-energy certificate turns the product moment into the exact partition
+function with coefficient `alpha*(alpha-1)/2`. The module then proves the max-point-mass entropy
+factor, centered-to-uncentered MGF identity, and all arithmetic yielding
+
+```text
+P_guess <= exp(-r/(1+r)*hInf + r/2*E[F] + (1+r)*r^2/32*V).
+```
+
+It also proves the normalized margin calculation and the properties of
+`r=min(1, delta/(2*(h+v/16)))`, obtaining `exp(-n*r*delta/2)`. Fixed-weight conditioning costs
+exactly `log(1/p_w)/(1+r)`. Coordinate oscillations are explicit finite maxima whose values can
+be supplied by exact or interval certification; their squared sum is the variance proxy. The
+square-update identity, normalized quadratic
+codebook energy, and Hilbert-space sensitivity estimate are native. Descriptor/leakage bounds are
+averaged under their actual law, and a bad-set split gives `epsilon_bad+exp(-n*beta0)`.
+
+The continuous equal-covariance Gaussian integral, the Hoeffding/Doob martingale MGF step, the
+Gaussian-versus-product-Laplace integral, and the infinite discrete-Gaussian theta summation are
+not silently identified with finite `ProbComp` distributions. They are explicit proof-carrying
+certificate fields. Given those fields, Lean checks the complete ternary/fixed-weight theorem and
+the product-Laplace/theta endpoint, including all tensorization, conditioning, roots, and exponent
+algebra.
+
 ## Boundary with the foundational papers
 
 The current development does **not** yet formalize the worst-case hardness theorem from

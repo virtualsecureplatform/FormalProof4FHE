@@ -157,6 +157,17 @@ checks run inside the container; no host Lean installation is required.
   fixed-weight tensor pushforwards to the stated square covariance are checked by matrix algebra.
   Continuous-Gaussian TV/log-determinant entropy, concrete negacyclic tensor/moment construction,
   and Bernstein row-energy tails remain ordinary proof-carrying certificate inputs, not axioms.
+- `FormalProof4FHE.RLWE.RankOneHNFLossinessRenyi.conditionalRenyiProductGuessingBound`
+  formalizes `sketch/spanningtree.md` and replaces the additive tree estimate by the exact finite
+  conditional Renyi product theorem. It proves the prior-sensitive `L^alpha` guessing bound and
+  exact tensorization across independent evaluation-key rows, with each coherent CRT/RNS row kept
+  as one joint output. Row-energy and min-entropy reduction, centered-MGF arithmetic, the explicit
+  exponential margin and its displayed `r` choice, fixed-weight conditioning loss, descriptor
+  averaging/bad-set splitting, finite coordinate oscillations, and quadratic codebook update and
+  sensitivity identities are native. The equal-covariance Gaussian integral, Hoeffding/Doob MGF
+  step, product-Laplace density integral, and infinite-lattice theta estimate are isolated as
+  proof-carrying certificates; their use through the ternary and discrete-Gaussian endpoint
+  theorems is checked without new axioms.
 - `FormalProof4FHE.RLWE.PowerOfTwoQuadraticKDMStatistical.tvDist_quadratic_ideal_le_literalPowerOfTwo`
   formalizes the unconditional collision theorem from
   `power_of_two_quadratic_kdm_statistical.tex`. For arbitrary correlated finite secret, error, and
