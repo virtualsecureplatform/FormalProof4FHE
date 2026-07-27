@@ -135,6 +135,17 @@ checks run inside the container; no host Lean installation is required.
   RLWE, and Stehlé--Steinfeld ratio uniformity are explicit certificate premises; they are not
   introduced as Lean axioms. In particular, the final product-cancellation theorem still requires
   the actual joint `P_guess` bound for `sum F⋅G+H` conditioned on all public leakage.
+- `FormalProof4FHE.RLWE.RankOneHNFLossinessRefined.contextualSupportAwareGuessingBound`
+  formalizes the refinements in `sketch/rank_one_hnf_lossiness_refined.tex`. It proves the exact
+  complete-leakage cancellation `(a,Y) ↦ (a-K,Y-P)`, invariance of operational guessing under
+  that public bijection, and exact advantage preservation for the leakage-dependent translation
+  `a=K(Λ)+aTilde`. For finite alphabets it proves
+  `P_guess(S|Y)=sum_y max_s Pr[(s,y)]`, derives contextual and additive-channel maximal-leakage
+  bounds, integrates descriptor-dependent bounds, and composes conditional leakage over RNS limbs
+  whose law may depend on the complete preceding history. The Fano algebra and covariance
+  residual identity are native. Differential-entropy maximization, continuous/discrete Gaussian
+  existence, smoothing, and subgaussian concentration are retained as typed certificates rather
+  than axioms.
 - `FormalProof4FHE.RLWE.PowerOfTwoQuadraticKDMStatistical.tvDist_quadratic_ideal_le_literalPowerOfTwo`
   formalizes the unconditional collision theorem from
   `power_of_two_quadratic_kdm_statistical.tex`. For arbitrary correlated finite secret, error, and

@@ -331,6 +331,46 @@ are not part of the current finite probability library. `SmallRatioGaussianCerti
 hypotheses and exact game conclusions as explicit proof inputs. No `axiom` or `sorry` is used to
 hide those imports.
 
+## Refined product channel and finite-support certificates
+
+`FormalProof4FHE.RLWE.RankOneHNFLossinessRefined` formalizes
+`../sketch/rank_one_hnf_lossiness_refined.tex`. For complete leakage
+`L=alpha*S+F`, `M=beta*S+G`, it proves the exact identity
+
+```text
+sum F*G = P-K*S+g*S^2,
+(A,B) = (a-K,Y-P),
+B = A*S+g*S^2+H.
+```
+
+The affine normalization is an explicit equivalence on the complete public side information, so
+operational conditional guessing probability is preserved exactly. The contextual coefficient
+game also proves that choosing `a=K(Lambda)+aTilde` preserves the base family's distinguishing
+advantage and leaves normalized coefficient `A=aTilde`. Multiplication by a hidden inverse
+denominator is checked algebraically and retains the required quadratic term
+`z*S+f*g*S^2+f*H`.
+
+For finite secret and output alphabets, the module proves the exact maximum-likelihood identity
+
+```text
+P_guess(S | Y) = sum_y sup_s Pr[(s,y)].
+```
+
+From this it derives the fixed-context and context-averaged maximal-leakage inequalities, the
+exact translated-noise formula for additive channels, and an exact expectation rule for
+descriptor-conditioned guessing masses. `extendJointObservation_maximalLeakage` permits each new
+RNS limb to depend on the secret and the complete observed prefix; iterating it yields
+`jointRNSMaximalLeakageComposition` without assuming independent coherent-error residues.
+
+The numeric Fano step, its uniform-support specialization, the canonical-coordinate formulas,
+and the covariance residual sum are checked in Lean. Mathlib/VCVio does not currently provide the
+needed discrete/differential entropy bridge, covariance-form lattice Gaussian convolution,
+canonical inverse-Gaussian tails, or Stehle--Steinfeld theorem. Their exact conclusions are
+therefore represented by `IntegerEntropyCovarianceCertificate`,
+`FiniteSupportAdditiveChannelCertificate`, `AveragedGaussianLossinessCertificate`,
+`SubgaussianMaskedRatioCertificate`, and `ContinuousGaussianDecompositionCertificate`. These are
+ordinary structures containing proof fields, not new axioms.
+
 ## Boundary with the foundational papers
 
 The current development does **not** yet formalize the worst-case hardness theorem from

@@ -47,6 +47,7 @@ import FormalProof4FHE.RLWE.PowerOfTwoCyclotomicChainRing
 import FormalProof4FHE.RLWE.QuadraticKDM
 import FormalProof4FHE.RLWE.QuadraticKDMBinaryTernary
 import FormalProof4FHE.RLWE.RNSSplitSearchToDecisionCorrelated
+import FormalProof4FHE.RLWE.RankOneHNFLossinessRefined
 import FormalProof4FHE.RLWE.RankOneHNFLossinessRLWENTRU
 import FormalProof4FHE.RLWE.RingRegev
 import FormalProof4FHE.RLWE.Security
