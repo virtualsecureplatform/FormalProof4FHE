@@ -272,6 +272,65 @@ finite-game layer has no oracle-cost semantics, so the TeX file's asymptotic
 `O-tilde(q_max (sN)^3 epsilon^-2 log(1/eta))` running-time claim is not disguised as a proved
 executable-cost theorem.
 
+## Rank-one HNF lossiness from small polynomial ratios
+
+`FormalProof4FHE.RLWE.RankOneHNFLossinessRLWENTRU` formalizes the finite algebraic and game-based
+content of `../sketch/rank_one_hnf_lossiness_rlwe_ntru.tex`. For the source
+
+```text
+b₀ = X-S,   dⱼ = aⱼX+Eⱼ,
+```
+
+`eliminateHNF` is given an explicit inverse and proves the pointwise identity
+`dⱼ-aⱼb₀=aⱼS+Eⱼ`. At sampler level, translating uniform `X` by the arbitrarily
+correlated source secret proves exact equality with a fresh uniform anchor independent of the
+entropic RLWE view. The source sampler itself may correlate `S`, every `Eⱼ`, and arbitrary
+public leakage.
+
+The module defines conditional guessing probability operationally as the supremum of success
+probabilities over all finite probabilistic estimators. A lossy coefficient family retains its
+hidden descriptor while publishing only its coefficient vector. The main theorem then proves
+exactly
+
+```text
+Pr[uniform-coefficient HNF recovery]
+  ≤ ofReal(coefficient distinguishing advantage)
+    + average conditional P_guess(S | leakage, descriptor, a, aS+E).
+```
+
+`SometimesLossyCertificate` exposes smoothing error, good-event probability, and good-event
+guessing mass. `RerandomizationCertificate` separately exposes the sample-rerandomization
+overhead and solver-class closure needed to turn mild hardness into the target search statement.
+
+For small ratios, `SmallRatioWitness` represents a common invertible denominator and all short
+numerators. The Brakerski--Döttling construction is checked algebraically:
+
+```text
+zⱼ = g uⱼ + f vⱼ,
+f⁻¹ zⱼ = (f⁻¹g)uⱼ + vⱼ.
+```
+
+The public-vector advantage is proved to be at most one common-ratio replacement advantage plus
+one Hermite-RLWE masked-vector advantage. Data processing bounds the former by the statistical
+distance of the ratio itself. This yields named direct joint-NTRU/DSPR, DSPR-plus-Hermite, and
+RLWE-only wide-ratio HNF theorems. The wide theorem deliberately carries a reference ratio
+sampler, because the analytic Stehlé--Steinfeld statement may be uniform on the unit group rather
+than on the whole ring; the Hermite premise must use the same law.
+
+The heterogeneous-RNS theorem applies the same reduction to one complete joint source state. It
+does not split coherent error residues into independent limbs. Finally,
+`productCancellationSourceState` instantiates the exact quadratic-KDM leakage
+`(αS+F,βS+G)` and terminal channel `aⱼS+∑ᵣFⱼᵣGⱼᵣ+Hⱼ`. The resulting security theorem
+requires precisely the actual joint guessing bound for that channel. It does not apply Gaussian
+small-ratio lossiness to this non-Gaussian leakage-conditioned error without a separate proof.
+
+The number-field Gaussian decomposition, smoothing lemma, singular-value tail estimates,
+joint-NTRU/DSPR and Hermite-RLWE hardness statements, and wide Gaussian ratio-uniformity theorem
+are not part of the current finite probability library. `SmallRatioGaussianCertificate`,
+`MaskedRatioHybridCertificate`, and `WideGaussianRatioUniformityCertificate` retain their numeric
+hypotheses and exact game conclusions as explicit proof inputs. No `axiom` or `sorry` is used to
+hide those imports.
+
 ## Boundary with the foundational papers
 
 The current development does **not** yet formalize the worst-case hardness theorem from

@@ -122,6 +122,19 @@ checks run inside the container; no host Lean installation is required.
   theorem keeps acceptance estimation, amplification, anchor-failure, and oracle-cost accounting
   in an explicit `SearchToDecisionCertificate`; the library does not claim its unmodeled
   asymptotic runtime formula as an executable Lean cost theorem.
+- `FormalProof4FHE.RLWE.RankOneHNFLossinessRLWENTRU.realUniformHNFRecovery_le_coefficientAdvantage_add_averageLossiness`
+  formalizes the rank-one lossiness reduction from
+  `sketch/rank_one_hnf_lossiness_rlwe_ntru.tex`. The map
+  `b₀=X-S, dⱼ=aⱼX+Eⱼ ↦ (b₀,aⱼ,dⱼ-aⱼb₀)` is an explicit bijection and sends the
+  original game exactly to an independent uniform anchor plus `aⱼS+Eⱼ`. Conditional
+  guessing probability is operationally defined as the supremum over every finite estimator,
+  yielding the exact bound `Pr[recover] ≤ Adv_coeff + P_guess`. The module proves the common
+  masked-ratio identity, the DSPR/statistical-ratio plus Hermite-RLWE hybrid, direct joint-NTRU,
+  RLWE-only wide-ratio, coherent-RNS, rerandomization, and quadratic product-cancellation
+  compositions. Gaussian smoothing, singular-value tails, joint-ratio/DSPR hardness, Hermite
+  RLWE, and Stehlé--Steinfeld ratio uniformity are explicit certificate premises; they are not
+  introduced as Lean axioms. In particular, the final product-cancellation theorem still requires
+  the actual joint `P_guess` bound for `sum F⋅G+H` conditioned on all public leakage.
 - `FormalProof4FHE.RLWE.PowerOfTwoQuadraticKDMStatistical.tvDist_quadratic_ideal_le_literalPowerOfTwo`
   formalizes the unconditional collision theorem from
   `power_of_two_quadratic_kdm_statistical.tex`. For arbitrary correlated finite secret, error, and
