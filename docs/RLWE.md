@@ -448,6 +448,28 @@ certificate fields. Given those fields, Lean checks the complete ternary/fixed-w
 the product-Laplace/theta endpoint, including all tensorization, conditioning, roots, and exponent
 algebra.
 
+### Concrete TFHEpp level-5 screen
+
+`FormalProof4FHE.RLWE.TFHEppLvl5BootRenyiObstruction` specializes the first necessary mean
+condition to the corrected exact-weight TFHEpp sampler. The generic support theorem gives
+`|T(32768,96)| = 2^96 * choose(32768,96)`. Lean proves this is below `2^1038` without evaluating
+the large binomial coefficient, checks
+
+```text
+E[||S^2||_2^2] = 600806592 / 32767,
+```
+
+and checks that the `g=2^622`, `sigma=2^33` top-row contribution
+`(600806592/32767) * 2^1178` is greater than `2076`. Consequently, any channel mean containing
+that contribution fails `mean < 2 log |T(32768,96)|`; equivalently its first-order Renyi margin
+cannot be positive. The theorem is an obstruction to this direct uniform-prior,
+equal-covariance certificate, not a proof of insecurity. Connecting a concrete TFHEpp row to the
+abstract continuous-Gaussian energy remains an explicit premise, as does any analysis of a
+leakage-conditioned posterior whose symmetry differs from the uniform prior. The calculation is
+for the 35 independent ordinary rows before Double Decomposition; transferring a failed
+upstream sufficient bound to the final DD/FFT representation additionally requires an exact
+reconstruction or Renyi-invariance theorem, since data processing alone is one-directional.
+
 ## Boundary with the foundational papers
 
 The current development does **not** yet formalize the worst-case hardness theorem from

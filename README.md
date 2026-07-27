@@ -168,6 +168,15 @@ checks run inside the container; no host Lean installation is required.
   step, product-Laplace density integral, and infinite-lattice theta estimate are isolated as
   proof-carrying certificates; their use through the ternary and discrete-Gaussian endpoint
   theorems is checked without new axioms.
+- `FormalProof4FHE.RLWE.TFHEppLvl5BootRenyiObstruction.lvl5_firstOrderRenyiMargin_not_pos`
+  is the concrete arithmetic screen for TFHEpp `lvl5bootparam`. Lean bounds the corrected
+  fixed-weight support `2^96 choose(32768,96)` below `2^1038`, checks the exact square moment
+  `600806592/32767`, and proves that the `g=2^622`, `sigma=2^33` top row alone exceeds twice the
+  entire support entropy. This rules out the direct uniform-prior, equal-covariance Renyi
+  sufficient condition for these rows; it neither proves insecurity nor discharges the abstract
+  continuous-Gaussian/channel-identification premise. The arithmetic applies to the 35 ordinary
+  pre-DD rows; exact transfer to the final DD/FFT representation still needs a reconstruction or
+  Renyi-invariance argument.
 - `FormalProof4FHE.RLWE.PowerOfTwoQuadraticKDMStatistical.tvDist_quadratic_ideal_le_literalPowerOfTwo`
   formalizes the unconditional collision theorem from
   `power_of_two_quadratic_kdm_statistical.tex`. For arbitrary correlated finite secret, error, and

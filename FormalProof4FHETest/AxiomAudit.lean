@@ -163,6 +163,9 @@ import FormalProof4FHE
 #print axioms FormalProof4FHE.RLWE.RankOneHNFLossinessRenyi.codebookEnergy_change_le
 #print axioms FormalProof4FHE.RLWE.RankOneHNFLossinessRenyi.descriptorBadSetExponentialGuessingBound
 #print axioms FormalProof4FHE.RLWE.RankOneHNFLossinessRenyi.conditionalRenyiProductLaplaceThetaBound
+#print axioms FormalProof4FHE.RLWE.TFHEppLvl5BootRenyiObstruction.lvl5SecretSupportCard_lt_two_pow
+#print axioms FormalProof4FHE.RLWE.TFHEppLvl5BootRenyiObstruction.lvl5SquareSecondMoment_formula
+#print axioms FormalProof4FHE.RLWE.TFHEppLvl5BootRenyiObstruction.lvl5_firstOrderRenyiMargin_not_pos
 #print axioms FormalProof4FHE.RLWE.quotientRingHom_injective
 #print axioms FormalProof4FHE.RLWE.quotientOf_injective
 #print axioms FormalProof4FHE.RLWE.quotientOf_surjective
