@@ -180,6 +180,16 @@ checks run inside the container; no host Lean installation is required.
   native. The equal-covariance density-ratio integral and standard-Gaussian linear MGF are the two
   explicit fields of `EqualCovarianceGaussianMixtureCertificate`, not hidden axioms. The optimized
   finite theorem itself also applies directly to wrapped, modular, and coherent-RNS channels.
+- `FormalProof4FHE.RLWE.RankOneHNFLossinessGaussianCluster.conditionalGaussianMixtureEffectiveOverlapBadSetBound`
+  formalizes `sketch/gaussiancluster.md`. Lean constructs the soft-overlap Gibbs law, proves its
+  exact entropy--energy decomposition, and proves the barycenter-aware primal--dual gap. A
+  proof-carrying Gibbs fixed point certifies strong duality and optimizer quality. Full and
+  restricted local clouds, the floored effective-codebook bound, exponential bad-set theorem,
+  arbitrary finite non-Gaussian likelihood-ratio inequality, and tail-truncation/data-processing
+  theorem are native. The quadratic product-cancellation difference and complete embedded row
+  energy are factored exactly. Continuous equal-covariance Gaussian integration remains the
+  explicit inherited certificate boundary; existence or numerical discovery of a fixed point is
+  not assumed as an axiom.
 - `FormalProof4FHE.RLWE.TFHEppLvl5BootRenyiObstruction.lvl5_firstOrderRenyiMargin_not_pos`
   is the concrete arithmetic screen for TFHEpp `lvl5bootparam`. Lean bounds the corrected
   fixed-weight support `2^96 choose(32768,96)` below `2^1038`, checks the exact square moment
