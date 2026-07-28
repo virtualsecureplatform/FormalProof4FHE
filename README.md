@@ -197,6 +197,18 @@ checks run inside the container; no host Lean installation is required.
   entire support entropy. This rules out the direct uniform-prior, equal-covariance Renyi
   sufficient condition for these rows; it neither proves insecurity nor discharges the abstract
   continuous-Gaussian/channel-identification premise.
+- `FormalProof4FHE.RLWE.TFHEppLvl5BootGaussianClusterScreen.radiusTwoGoodMask_no_128bit_certificate`
+  checks the follow-up Gibbs-cluster experiment against the source-bound TFHEpp parameters. The
+  support-radius-two cloud is represented by the three replacement orbits
+  `2^96 choose(96,k) choose(32672,k)` for `k=0,1,2`; it has `log2(M)=137.1463`, so unlike radius
+  one it is large enough for 128 bits under hypothetical perfect overlap. One top-row mask
+  coordinate makes every nonidentity Gaussian kernel smaller than `2^-604` in expectation.
+  Lean checks the resulting Markov arithmetic (`Pr[K > 1+2^-128] < 2^-338`) and proves that an
+  effective size below two cannot yield even a one-bit Renyi bound at any positive order. It also
+  checks the exact signed-`int64` support diameter and the finite-channel union arithmetic
+  (`<2^-436`): on the good mask event, every tested neighbor is support-disjoint from the centre
+  in one coefficient. The integer theta-sum estimate and source-to-uniform-coordinate refinement
+  are explicit certificate boundaries; this rejects the tested cluster, not security itself.
 - `FormalProof4FHE.RLWE.TFHEppLvl5BootRepresentation.lvl5DoubleDecompositionEquiv` closes the
   representation gap for those rows. Lean checks `2^640 = (2^16)^40` and proves that TFHEpp's
   public centering offset, signed digit conversion, coefficientwise decomposition, and
