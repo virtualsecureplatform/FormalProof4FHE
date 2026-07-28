@@ -217,6 +217,19 @@ checks run inside the container; no host Lean installation is required.
   full-ring uniformity by deterministic reindexing, and shows precisely how an independent
   cokernel coordinate would complete it. Finding a public, hidden-difference-independent
   completion (or padding construction) remains a reduction-design obligation, not an axiom.
+- `FormalProof4FHE.RLWE.RankOneHNFLossinessTwoSmith.card_quotientPowerOfTwo_twoPrimary_range_eq_layered`
+  formalizes `sketch/twosmith.md` in the literal ring
+  `(ZMod (2^K))[X]/(X^(2^d)+1)`. Lean proves that a primitive lift with binary Hasse depth `v`
+  is a unit times `(1-X)^v`, proves `2` is a unit times `(1-X)^(2^d)`, and consequently computes
+  the image as `2^((K-e)(n-v)+(K-e-1)v)` and the cokernel as `2^(e*n+v)`. The module supplies
+  carrier equivalences with the two-level Smith image and cokernel models; it deliberately does
+  not expose a high-norm Smith basis change. Instead, a concrete triangular Pascal minor proves
+  that the first `v` coefficient positions form a Hasse information set, yielding the exact
+  binary-cube enumerator bound and the IID factor `p_e^(n-v) p_(e+1)^v`. It also proves the
+  invariant finite local-overlap identity, its two-level joint-stratum aggregation, and an exact
+  annihilator-character formula for arbitrary correlated finite error tapes. All of these are
+  native theorems; converting an implementation's analytic Gaussian or bounded-noise model into
+  the scalar local masses remains the parameter-specific input.
 - `FormalProof4FHE.RLWE.TFHEppLvl5BootRenyiObstruction.lvl5_firstOrderRenyiMargin_not_pos`
   is the concrete arithmetic screen for TFHEpp `lvl5bootparam`. Lean bounds the corrected
   fixed-weight support `2^96 choose(32768,96)` below `2^1038`, checks the exact square moment
