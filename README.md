@@ -249,6 +249,19 @@ checks run inside the container; no host Lean installation is required.
   (`<2^-436`): on the good mask event, every tested neighbor is support-disjoint from the centre
   in one coefficient. The integer theta-sum estimate and source-to-uniform-coordinate refinement
   are explicit certificate boundaries; this rejects the tested cluster, not security itself.
+- `FormalProof4FHE.RLWE.TFHEppLvl5BootTwoSmithScreen.lvl5_literalCompleteCodebookOverlap_lt`
+  extends that experiment from radius two to the complete fixed-weight codebook using the exact
+  two-level principal image. Lean proves a general finite-ring mask-overlap count and candidate
+  union bound, then specializes the literal `2^640`, degree-32768 ring. Every bare ternary
+  difference has total order at most `2n-1`, hence at least `20905985` image bits; the complete
+  signed-int64 error-difference box has fewer than `2^(65n)` elements, with no independence
+  premise. Since the whole secret support is below `2^1038`, one uniform row has probability
+  below `2^-18775027` of overlapping any nonidentity shifted support. This correlation-safe
+  support obstruction subsumes anisotropic information-set, correlated-Fourier, and nonlocal
+  cluster refinements for the actual uniform-mask low-order strata. The proof-only DSPR/NTRU
+  lossy descriptor remains uninstantiated; Lean records that its complete-product total order
+  must first reach `18840435 = 574n+31603` merely to escape the coarse 128-bit screen. This is a
+  proof-route obstruction, not a computational attack.
 - `FormalProof4FHE.RLWE.TFHEppLvl5BootRepresentation.lvl5DoubleDecompositionEquiv` closes the
   representation gap for those rows. Lean checks `2^640 = (2^16)^40` and proves that TFHEpp's
   public centering offset, signed digit conversion, coefficientwise decomposition, and

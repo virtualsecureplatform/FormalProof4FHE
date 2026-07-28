@@ -59,6 +59,7 @@ import FormalProof4FHE.RLWE.RankOneHNFLossinessRLWENTRU
 import FormalProof4FHE.RLWE.TFHEppLvl5BootRenyiObstruction
 import FormalProof4FHE.RLWE.TFHEppLvl5BootRepresentation
 import FormalProof4FHE.RLWE.TFHEppLvl5BootGaussianClusterScreen
+import FormalProof4FHE.RLWE.TFHEppLvl5BootTwoSmithScreen
 import FormalProof4FHE.RLWE.RingRegev
 import FormalProof4FHE.RLWE.Security
 import FormalProof4FHE.SharedRandomness.Ordinary
