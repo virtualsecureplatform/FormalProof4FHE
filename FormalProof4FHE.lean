@@ -52,6 +52,7 @@ import FormalProof4FHE.RLWE.RankOneHNFLossinessSupportAware
 import FormalProof4FHE.RLWE.RankOneHNFLossinessRenyi
 import FormalProof4FHE.RLWE.RankOneHNFLossinessMixtureRenyi
 import FormalProof4FHE.RLWE.RankOneHNFLossinessGaussianCluster
+import FormalProof4FHE.RLWE.RankOneHNFLossinessSparseRank
 import FormalProof4FHE.RLWE.RankOneHNFLossinessRLWENTRU
 import FormalProof4FHE.RLWE.TFHEppLvl5BootRenyiObstruction
 import FormalProof4FHE.RLWE.TFHEppLvl5BootRepresentation

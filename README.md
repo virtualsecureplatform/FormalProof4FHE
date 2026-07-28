@@ -190,6 +190,18 @@ checks run inside the container; no host Lean installation is required.
   energy are factored exactly. Continuous equal-covariance Gaussian integration remains the
   explicit inherited certificate boundary; existence or numerical discovery of a fixed point is
   not assumed as an axiom.
+- `FormalProof4FHE.RLWE.RankOneHNFLossinessSparseRank.primitiveDifferenceRank_dyadic_lower_bound`
+  and `exact_encodedPrimitiveRank_count_eq_syndrome_count_sub_succ` formalize the symbolic sparse-rank
+  refinements for binary repeated-root negacyclic rings. Lean proves the Hasse-syndrome
+  characterization of `(X-1)`-adic valuation, the exact repeated-root minimum distance
+  `2^(d-log2 r)`, and the resulting dyadic lower bound on every distinct fixed-weight ternary
+  primitive difference. It also decodes the existing support-and-sign secret representation,
+  proves its exact cardinality, classifies exceptional low-rank pairs by adjacent syndrome counts,
+  and derives exact rank-enumerator, coarse minimum-rank, Markov, and finite union bounds. The
+  odd-determinant lifting theorem proves that any certified nonzero binary minor gives uniformly
+  distributed production coordinates even after a fixed quadratic translation. Selecting such a
+  minor for the concrete implementation channel and supplying its one-coordinate Gaussian/theta
+  or bounded-support estimate remain explicit premises, not axioms.
 - `FormalProof4FHE.RLWE.TFHEppLvl5BootRenyiObstruction.lvl5_firstOrderRenyiMargin_not_pos`
   is the concrete arithmetic screen for TFHEpp `lvl5bootparam`. Lean bounds the corrected
   fixed-weight support `2^96 choose(32768,96)` below `2^1038`, checks the exact square moment
