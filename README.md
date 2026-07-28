@@ -202,6 +202,21 @@ checks run inside the container; no host Lean installation is required.
   distributed production coordinates even after a fixed quadratic translation. Selecting such a
   minor for the concrete implementation channel and supplying its one-coordinate Gaussian/theta
   or bounded-support estimate remain explicit premises, not axioms.
+- `FormalProof4FHE.RLWE.RankOneHNFLossinessSparseRankChannel.card_primitiveDifference_binaryQuotient_range`
+  connects that symbolic rank to literal multiplication in
+  `F₂[X]/(X^(2^d)+1)`: the primitive ternary difference has image cardinality exactly
+  `2^primitiveDifferenceRank`, hence an abstract equivalence with that many independent binary
+  coordinates. A production minor certificate lifts any concrete nonsingular binary minor and
+  proves affine uniformity after the factored quadratic shift. The module also gives a VM-executable
+  finite `(two-adic exponent, Hasse rank)` histogram, proves its Boolean coefficient scanner equal
+  to the mathematical Hasse valuation, expresses every cell as adjacent branch-restricted syndrome
+  counts, and aggregates exponent-dependent `theta_e^r` factors.
+  For bounded noise it proves the local factor itself by finite coordinate-box counting. Finally,
+  it proves that a wrong candidate is exactly uniform on its principal ideal, computes the
+  missing cokernel as `2^valuation`, proves that positive valuation prevents promotion to
+  full-ring uniformity by deterministic reindexing, and shows precisely how an independent
+  cokernel coordinate would complete it. Finding a public, hidden-difference-independent
+  completion (or padding construction) remains a reduction-design obligation, not an axiom.
 - `FormalProof4FHE.RLWE.TFHEppLvl5BootRenyiObstruction.lvl5_firstOrderRenyiMargin_not_pos`
   is the concrete arithmetic screen for TFHEpp `lvl5bootparam`. Lean bounds the corrected
   fixed-weight support `2^96 choose(32768,96)` below `2^1038`, checks the exact square moment
