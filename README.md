@@ -687,6 +687,15 @@ checks run inside the container; no host Lean installation is required.
   RLWE advantage for any finite error sampler. This is a nondegenerate practical-modulus linear
   baseline, not a proof of native TFHE circular security: the TRGSW mask blocks contain degree-two
   scalar-bit/ring-bit products, and the source binary-secret RLWE assumption remains explicit.
+- `FormalProof4FHE.TFHE.RGSWCoefficientCircularSecurity` proves coefficient-dependent rank-one
+  RGSW circular security by revealing a finite-valued secret coefficient and removing that
+  leakage with a checked squared-bias reduction. The optimized loss is its order-`1/2` Rényi
+  concentration; unconditional binary and ternary losses are two and three. The concrete
+  reduction is exactly ordinary batch RLWE on `4 * levels` rows, followed by a zero-message hop on
+  `2 * levels` rows. A joint theorem covers any bounded coefficient tuple through its joint
+  concentration. For the complete coefficient family, public aggregation of the top gadget-one
+  rows is proved to yield an RLWE row encrypting `-eta * S^2`; this formally records the quadratic
+  KDM barrier to iterating the one-coordinate theorem over a full bootstrapping key.
 - `FormalProof4FHE.TFHE.Circular.circularAdvantage_le_replacements` formalizes TFHE's actual
   heterogeneous evaluation-key cycle and splits real-to-zero cloud-key replacement into the
   bootstrapping-key and key-switching-key hops.
