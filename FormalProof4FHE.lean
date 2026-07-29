@@ -137,6 +137,7 @@ import FormalProof4FHE.TFHE.InternalProduct
 import FormalProof4FHE.TFHE.RLWEToTGSWConversion
 import FormalProof4FHE.TFHE.RingSquareRGSWSecurity
 import FormalProof4FHE.TFHE.RGSWCoefficientCircularSecurity
+import FormalProof4FHE.TFHE.DirectSubsetKeyBRK
 import FormalProof4FHE.TFHE.RingSquareActualNormalForm
 import FormalProof4FHE.TFHE.RingSquareSecretRandomization
 import FormalProof4FHE.TFHE.RingSquareUnitGuessCheck

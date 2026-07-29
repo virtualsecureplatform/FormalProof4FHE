@@ -696,6 +696,16 @@ checks run inside the container; no host Lean installation is required.
   concentration. For the complete coefficient family, public aggregation of the top gadget-one
   rows is proved to yield an RLWE row encrypting `-eta * S^2`; this formally records the quadratic
   KDM barrier to iterating the one-coordinate theorem over a full bootstrapping key.
+- `FormalProof4FHE.TFHE.DirectSubsetKeyBRK` proves the direct subset-key theorem for an independent
+  additive split `S = Z + iota(P)`. The reduction samples `P`, adds the known contribution
+  `A * iota(P)` to every suffix-RLWE body, and applies the public RGSW gadget translations. Its
+  abstract auxiliary-view constructor gives
+  `Adv(real,zero) <= 2 * Adv(suffix-RLWE) + sigmaReal + sigmaZero + sigmaUniform`.
+  The exact rank-one native instantiation proves both real-branch distribution identities and the
+  common uniform branch by explicit transcript bijections, flattens all entries into one ordinary
+  suffix-RLWE batch, and checks the symbolic row count `2 * levels * entries`. There is no
+  prefix-support or Rényi loss. The premise is RLWE for the independent suffix distribution;
+  auxiliary objects carrying unknown suffix functions still require a constructor proof.
 - `FormalProof4FHE.TFHE.Circular.circularAdvantage_le_replacements` formalizes TFHE's actual
   heterogeneous evaluation-key cycle and splits real-to-zero cloud-key replacement into the
   bootstrapping-key and key-switching-key hops.

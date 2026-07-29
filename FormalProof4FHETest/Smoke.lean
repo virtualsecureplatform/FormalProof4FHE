@@ -3165,3 +3165,14 @@ example (degree eta : ℕ) :
 #check FormalProof4FHE.TFHE.RGSWCoefficientCircularSecurity.aggregateRows_body_eq_quadratic
 #check FormalProof4FHE.TFHE.RGSWCoefficientCircularSecurity.aggregateBinaryTopRows_positiveSign
 #check FormalProof4FHE.TFHE.RGSWCoefficientCircularSecurity.quadraticAggregationBarrier
+
+-- Direct subset-key BRK theorem and exact native suffix-RLWE instantiation.
+#check FormalProof4FHE.TFHE.DirectSubsetKeyBRK.PublicViewConstructor.targetAdvantage_le_two_source_add_errors
+#check FormalProof4FHE.TFHE.DirectSubsetKeyBRK.PublicViewConstructor.targetAdvantage_le_two_source_of_exact
+#check FormalProof4FHE.TFHE.DirectSubsetKeyBRK.addKnownOffsetTranscript_real
+#check FormalProof4FHE.TFHE.DirectSubsetKeyBRK.addKnownOffsetTranscript_uniform_evalDist
+#check FormalProof4FHE.TFHE.DirectSubsetKeyBRK.Native.constructed_real_evalDist_eq_view
+#check FormalProof4FHE.TFHE.DirectSubsetKeyBRK.Native.constructed_uniform_branches_evalDist_eq
+#check FormalProof4FHE.TFHE.DirectSubsetKeyBRK.Native.targetAdvantage_le_two_rlwe
+#check FormalProof4FHE.TFHE.DirectSubsetKeyBRK.Native.flatSampleCount_eq
+#check FormalProof4FHE.TFHE.DirectSubsetKeyBRK.moduleOffsetBody_real

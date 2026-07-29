@@ -2078,3 +2078,14 @@ import FormalProof4FHE
 #print axioms FormalProof4FHE.TFHE.RGSWCoefficientCircularSecurity.aggregateRows_body_eq_quadratic
 #print axioms FormalProof4FHE.TFHE.RGSWCoefficientCircularSecurity.aggregateBinaryTopRows_positiveSign
 #print axioms FormalProof4FHE.TFHE.RGSWCoefficientCircularSecurity.quadraticAggregationBarrier
+
+-- Direct subset-key BRK security from the independent suffix-RLWE distribution.
+#print axioms FormalProof4FHE.TFHE.DirectSubsetKeyBRK.PublicViewConstructor.targetAdvantage_le_two_source_add_errors
+#print axioms FormalProof4FHE.TFHE.DirectSubsetKeyBRK.PublicViewConstructor.targetAdvantage_le_two_source_of_exact
+#print axioms FormalProof4FHE.TFHE.DirectSubsetKeyBRK.addKnownOffsetTranscript_real
+#print axioms FormalProof4FHE.TFHE.DirectSubsetKeyBRK.addKnownOffsetTranscript_uniform_evalDist
+#print axioms FormalProof4FHE.TFHE.DirectSubsetKeyBRK.Native.constructed_real_evalDist_eq_view
+#print axioms FormalProof4FHE.TFHE.DirectSubsetKeyBRK.Native.constructed_uniform_branches_evalDist_eq
+#print axioms FormalProof4FHE.TFHE.DirectSubsetKeyBRK.Native.targetAdvantage_le_two_rlwe
+#print axioms FormalProof4FHE.TFHE.DirectSubsetKeyBRK.Native.flatSampleCount_eq
+#print axioms FormalProof4FHE.TFHE.DirectSubsetKeyBRK.moduleOffsetBody_real
