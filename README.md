@@ -230,6 +230,17 @@ checks run inside the container; no host Lean installation is required.
   annihilator-character formula for arbitrary correlated finite error tapes. All of these are
   native theorems; converting an implementation's analytic Gaussian or bounded-noise model into
   the scalar local masses remains the parameter-specific input.
+- `FormalProof4FHE.RLWE.RankOneHNFLossinessTwoSmithExact.jointTupleAggregation`
+  formalizes `sketch/twosmith_exact_parameter_note.tex`. The native Hasse/Pascal code has an exact
+  IID Fourier collision identity, and its row-space and kernel weight enumerators satisfy the
+  Lucas recurrences used by the rational evaluator. Lean proves the IID parity-bias square
+  identity, the exact Hasse factor and its two-level product bound, the adjacent-kernel
+  coefficient formula, and both branches of the signed fixed-weight ternary pair histogram.
+  For the literal power-of-two quotient it also proves capped multiplicativity of the chain
+  valuation and applies it to the complete descriptor
+  `(t-s)*(z+f*g*(t+s))`, without assuming the second factor is a unit. Finally, finite sums are
+  regrouped by the complete row tuple, with rowwise factorization available only after explicit
+  conditional independence.
 - `FormalProof4FHE.RLWE.TFHEppLvl5BootRenyiObstruction.lvl5_firstOrderRenyiMargin_not_pos`
   is the concrete arithmetic screen for TFHEpp `lvl5bootparam`. Lean bounds the corrected
   fixed-weight support `2^96 choose(32768,96)` below `2^1038`, checks the exact square moment
