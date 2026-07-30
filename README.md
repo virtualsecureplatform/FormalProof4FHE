@@ -706,6 +706,96 @@ checks run inside the container; no host Lean installation is required.
   suffix-RLWE batch, and checks the symbolic row count `2 * levels * entries`. There is no
   prefix-support or Rényi loss. The premise is RLWE for the independent suffix distribution;
   auxiliary objects carrying unknown suffix functions still require a constructor proof.
+- `FormalProof4FHE.TFHE.JointSubsetKeyBRK` formalizes the constrained batch constructor for that
+  missing unknown-suffix auxiliary case. It proves that an individual KSK mask has zero linear
+  overlap with the hidden suffix in the direct-BRK orientation, then replaces the per-row route by
+  a public factorization `L * A = G`. The identity `L(AZ + E) = GZ + LE` gives the exact KSK
+  message term. A full-joint error-law comparison and a factorization-failure event give one
+  `noiseError + factorizationError` charge per real branch, and the final checked bound is
+  `2 * Adv(source) + 2 * factorizationError + 2 * noiseError + uniformError + auxiliaryError`.
+  Over finite fields, full column rank constructs `L` and the standard rectangular rank bound
+  controls failure. The theorem deliberately retains closeness of the complete derived error
+  `LE` to the prescribed KSK error as a hypothesis; full rank alone gives no shortness or
+  correctness-compatible noise claim.
+- `FormalProof4FHE.TFHE.JointSubsetKeyBRKRefined` proves the main proof-side refinements of that
+  boundary. It permits `L * A = G + R` and checks the complete corrected identity
+  `L(AZ + E) + F = GZ + (RZ + LE + F)`. An exact correction-noise certificate compares the
+  complete solver-state/error law, while an approximate certificate survives arbitrary public
+  postprocessing. The native finite-mixture theorem gives
+  `TV <= sqrt(E[Mahalanobis energy]) / 2`; for IID centered ternary coordinates it proves exactly
+  `E[||RZ||^2] = (2/3) * sum_ij R_ij^2`, and substitutes the resulting single square-root term
+  into the joint advantage bound. Independently, a finite counting theorem proves
+  `Pr[exists l in C, l^T A = g] <= |C| / |R|^n` for unit-coordinate candidates, with automatic
+  filtering when `g` is nonzero in a residue field. Finally, binary full rank lifts through a
+  surjective local homomorphism to `L * A = G`; for `ZMod (2^k)` the factorization-failure event is
+  bounded by the exact binary rank experiment and hence by `2 / 2^(slack + 1)`. The sampler-level
+  continuous, wrapped, or rounded Gaussian covariance-completion identity remains an explicit
+  analytic certificate rather than an unproved axiom.
+- `FormalProof4FHE.TFHE.JointSubsetKeyBRKCenteredMixture` proves the second-order refinement of
+  that analytic boundary. Given the equal-covariance Gaussian pair-kernel identity, centering
+  cancels its complete linear term. On the certified interaction range `|z^T B z'| <= 1`, this
+  yields `TV <= sqrt(E[(z^T B z')^2]) / 2`, instead of the first-order square root of expected
+  Mahalanobis energy. For IID uniform ternary secrets the pair moment is exactly
+  `(2/3)^2 * sum_ij B_ij^2`. For the canonical uniform exact-Hamming-weight support-plus-sign
+  sampler, the file proves exact weight, centeredness, isotropic variance `weight / dimension`,
+  and pair moment `(weight / dimension)^2 * sum_ij B_ij^2`. It also reserves
+  `R Sigma_Z R^T` inside the target covariance and proves that transformed source covariance,
+  correction covariance, and residual covariance add exactly to the target. Only the selected
+  continuous/wrapped/rounded Gaussian pair-density and convolution laws remain certificate
+  fields.
+- `FormalProof4FHE.TFHE.TFHEppSubsetJointScreen` specializes the necessary covariance and
+  factorization conditions to TFHEpp's standard subset-key dimensions. For equal spherical
+  source and target variance, positive-semidefinite correction forces every nonzero integral
+  postprocessing row to be a single signed selector and forces its residual row to vanish. A
+  zero postprocessing row at the top key-switch gadget cannot evade this conclusion: the
+  resulting IID-ternary residual variance already exceeds the complete nominal target variance.
+  Finally, for at most `2^127` source rows, a uniform `ZMod (2^16)` source matrix admits even one
+  prescribed signed-selector suffix row with probability at most `2^-6176`; complete
+  factorization succeeds no more often. On the covariance-compatible zero-residual branch the
+  Mahalanobis interaction is exactly zero, so the interaction-range check passes. This rejects
+  the current equal-covariance centered-mixture instantiation as a high-probability proof route;
+  it is not an insecurity statement. TFHEpp's rounded C++ normal sampler still needs an exact
+  finite pair-kernel model or an explicit approximation-distance charge.
+- `FormalProof4FHE.TFHE.JointSubsetKeyBRKDelayedProjection` formalizes the remaining unequal-word
+  route. A translation-equivariant projection and a scaled approximate factorization prove the
+  exact identity `project(L(AZ + E)) = GZ + project(RZ + LE)`, so source rows can be combined at
+  the large modulus before one final projection. For the `32 -> 16` power-of-two conversion, Lean
+  constructs the scaled embedding and proves this law both for high-word extraction and for the
+  rounded high word with the half-unit offset used by TFHEpp. The continuous proxy scales both
+  transformed source covariance and residual covariance before matching the target. Independently,
+  a two-budget union bound proves that primitive postprocessing and residual candidate families
+  succeed on one uniform source row with probability at most
+  `|C_L| * |C_R| / |R|^n`; the concrete large-modulus suffix theorem exposes the corresponding
+  entropy slack. The image-aware extension applies to arbitrary coefficient rows, discards
+  residuals outside each row's additive image, and divides by the exact image cardinality. For a
+  `ZMod (2^k)` row `2^v u` with a unit coordinate in `u`, this denominator is exactly
+  `2^((k-v)n)`; fixed- and mixed-valuation union bounds and an entropy-slack corollary are proved.
+  Every coefficient row is automatically assigned its least bounded valuation stratum. The exact
+  finite rounded-error bridge expands the complete secret/error/correction law into a finite
+  triple-convolution mass table, characterizes exact independence by pointwise table equality,
+  and carries an explicit total-variation approximation charge through gadget assembly.
+- `FormalProof4FHE.TFHE.JointSubsetKeyBRKDelayedProjectionSolver` closes the finite algebraic
+  obligations isolated by that route. It proves the exact centered-interval congruence count and
+  coordinatewise compatible-box product, then selects one invertible binary minor per disjoint
+  source block. The lifted public postprocessing matrix satisfies the gadget product exactly, has
+  zero residual-secret map, and fails only if some binary block loses column rank; the checked
+  bound is `outputCount * (2 / 2^(slack + 1))`. Every output row uses at most `dimension` source
+  entries, distinct rows have disjoint support, and the centered lift of every modular coefficient
+  is proved to have magnitude at most `targetModulus / 2`. Lean proves the resulting IID covariance
+  is diagonal with each variance at most
+  `sourceVariance * dimension * (targetModulus / 2)^2`, including the corresponding simultaneous
+  positive-semidefinite matrix inequality. For deterministically bounded source errors it also
+  proves `|derivedError| <= dimension * (targetModulus / 2) * sourceErrorBound`; any larger
+  isotropic target variance consequently has a positive-semidefinite correction covariance. The
+  target-ring solution lifts through a
+  ring-compatible delayed projection; for TFHEpp's `32 -> 16` map the required scale/reduction
+  multiplication law is proved. If the prescribed target error is chosen to be the exact derived
+  law, the complete secret/error distributions are equal and the noise defect is zero; the final
+  joint advantage theorem then retains only twice the block-rank budget as its factorization
+  term. A
+  continuous/discrete Gaussian realization, the geometric ellipsoid lattice-point estimate, and
+  a concrete comparison with the C++ error sampler remain analytic or implementation-level
+  obligations; no such equality is assumed by the Lean theorem.
 - `FormalProof4FHE.TFHE.Circular.circularAdvantage_le_replacements` formalizes TFHE's actual
   heterogeneous evaluation-key cycle and splits real-to-zero cloud-key replacement into the
   bootstrapping-key and key-switching-key hops.
