@@ -140,6 +140,7 @@ import FormalProof4FHE.TFHE.RGSWCoefficientCircularSecurity
 import FormalProof4FHE.TFHE.DirectSubsetKeyBRK
 import FormalProof4FHE.TFHE.JointSubsetKeyBRK
 import FormalProof4FHE.TFHE.SubsetKeyNTRUDualMode
+import FormalProof4FHE.TFHE.SubsetKeyNTRUTrapdoor
 import FormalProof4FHE.TFHE.JointSubsetKeyBRKRefined
 import FormalProof4FHE.TFHE.JointSubsetKeyBRKCenteredMixture
 import FormalProof4FHE.TFHE.JointSubsetKeyBRKDelayedProjection

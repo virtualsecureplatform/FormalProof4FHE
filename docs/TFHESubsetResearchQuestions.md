@@ -167,6 +167,15 @@ is packaged as exact recovery of the uniform auxiliary secret \(X\). Its success
 proved exactly equal to the pre-existing rank-one HNF search game, including arbitrary leakage
 correlated with \(S\) and all \(E_j\).
 
+The posterior statement is also exact. After revealing the structured descriptor in the
+information-theoretic branch, arbitrary randomized estimators translate in both directions
+between recovery of \(X\) from the HNF view and recovery of \(S\) from the complete entropic
+channel. Hence their optimal guessing probabilities are equal. Public coefficient computations,
+on the other hand, see only the coefficient marginal: replacing the hidden descriptor while
+preserving that marginal leaves every such output law unchanged. Coordinatewise multiplication
+by the hidden denominator is proved bijective and gives the exact DSPR channel
+\(f_j(a_jS+E_j)=h_jS+f_jE_j\), with an analogous masked-ratio identity.
+
 The decision-to-search interface is genuinely heterogeneous: the complete TFHE decision view
 and the HNF search view may have different challenge and auxiliary-input types. A certificate
 contains a generated HNF solver, a nonnegative reduction loss, and the checked inequality
@@ -215,6 +224,14 @@ The remaining NTRU work is research-level rather than interface plumbing:
    parameters.
 4. State and justify the precise joint NTRU/DSPR coefficient pseudorandomness assumption and
    discharge the zero-message-versus-uniform endpoint.
+
+For an affine KSK compiler, the first item has a sharp necessary condition. Exact noiseless
+correctness for every source secret is equivalent to equality of the affine offsets together with
+the public factorization equation \(L\circ A=G\). Thus the compiler necessarily contains the
+batch-preimage solver already isolated by the ordinary route. The hidden NTRU descriptor cannot
+perform this public work because the coefficient distinguisher receives only the public
+coefficient tuple. Avoiding that equation requires a genuinely nonlinear compiler, a redesigned
+source distribution, or a stronger assumption that explicitly provides a simulation trapdoor.
 
 Until these four items are supplied, the theorem is a sound conditional endpoint but not a
 security judgment for the current TFHEpp parameter set.

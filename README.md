@@ -830,6 +830,18 @@ checks run inside the container; no host Lean installation is required.
   lossiness assumption; it is never exposed to an LWE adversary. Constructing the concrete
   full-view TFHE-to-HNF reduction and discharging its analytic certificates remain explicit
   research obligations, so this module does not yet certify a TFHEpp parameter set.
+- `FormalProof4FHE.TFHE.SubsetKeyNTRUTrapdoor` proves the finite claims behind the hidden-witness
+  argument. The optimal probability of recovering the HNF auxiliary secret after revealing the
+  NTRU descriptor is exactly the optimal probability of recovering the entropic secret from the
+  complete descriptor/leakage/channel observation; explicit estimator translations prove both
+  directions. The solver-induced coefficient distinguisher has exactly the uniform/structured
+  recovery gap, and public computations are invariant under any change of descriptor that
+  preserves the public coefficient marginal. Coordinatewise denominator scaling is proved
+  bijective and transforms `a_j*S+E_j` exactly into `h_j*S+f_j*E_j`, including the masked-ratio
+  channel. The resulting pointwise theorem adds coefficient, lossiness, compiler, and
+  zero-message losses exactly once. Finally, exact affine noiseless KSK compilation is proved
+  equivalent to equal public offsets and `L ∘ A = G`, formally isolating the remaining public
+  batch-preimage construction rather than treating the hidden NTRU witness as simulator input.
 - `FormalProof4FHE.TFHE.Circular.circularAdvantage_le_replacements` formalizes TFHE's actual
   heterogeneous evaluation-key cycle and splits real-to-zero cloud-key replacement into the
   bootstrapping-key and key-switching-key hops.
