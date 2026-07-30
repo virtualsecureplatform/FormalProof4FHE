@@ -819,6 +819,17 @@ checks run inside the container; no host Lean installation is required.
   radius. This resolves existence and Gram control, not efficient public search: the latter is
   the explicit SIS boundary. The remaining research and implementation obligations are stated in
   [`docs/TFHESubsetResearchQuestions.md`](docs/TFHESubsetResearchQuestions.md).
+- `FormalProof4FHE.TFHE.SubsetKeyNTRUDualMode` supplies the conditional NTRU lossy dual-mode
+  composition layer for the same complete subset-key setting. It packages exact recovery of the
+  HNF auxiliary secret as a search problem and proves that this experiment is exactly the
+  existing rank-one HNF search game. A heterogeneous cross-reduction may change both challenge
+  and auxiliary-input types, so a checked TFHE-view compiler transfers complete public decision
+  advantage to HNF recovery with its loss charged once. The real-versus-zero theorem then adds
+  the genuine zero-message-versus-uniform term, and direct corollaries consume either the joint
+  NTRU-ratio or masked DSPR/NTRU HNF theorem. The NTRU descriptor remains hidden inside the
+  lossiness assumption; it is never exposed to an LWE adversary. Constructing the concrete
+  full-view TFHE-to-HNF reduction and discharging its analytic certificates remain explicit
+  research obligations, so this module does not yet certify a TFHEpp parameter set.
 - `FormalProof4FHE.TFHE.Circular.circularAdvantage_le_replacements` formalizes TFHE's actual
   heterogeneous evaluation-key cycle and splits real-to-zero cloud-key replacement into the
   bootstrapping-key and key-switching-key hops.

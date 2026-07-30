@@ -685,6 +685,23 @@ def SometimesLossyCertificate.bound
   certificate.smoothingError + (1 - certificate.goodProbability) +
     certificate.goodProbability * certificate.goodGuessBound
 
+/-- The one-shot loss of a sometimes-lossy certificate is finite. -/
+theorem SometimesLossyCertificate.bound_ne_top
+    {R Row Leakage Descriptor : Type} [CommRing R] [DecidableEq R]
+    {family : CoefficientFamily Descriptor R Row}
+    {stateSampler : ProbComp (SourceState R Row Leakage)}
+    (certificate : SometimesLossyCertificate family stateSampler) :
+    certificate.bound ≠ ⊤ := by
+  have hsmoothing : certificate.smoothingError ≠ ⊤ :=
+    ne_top_of_le_ne_top ENNReal.one_ne_top certificate.smoothingError_le_one
+  have hgood : certificate.goodProbability ≠ ⊤ :=
+    ne_top_of_le_ne_top ENNReal.one_ne_top certificate.goodProbability_le_one
+  have hguess : certificate.goodGuessBound ≠ ⊤ :=
+    ne_top_of_le_ne_top ENNReal.one_ne_top certificate.goodGuessBound_le_one
+  exact ENNReal.add_ne_top.mpr
+    ⟨ENNReal.add_ne_top.mpr ⟨hsmoothing, by simp⟩,
+      ENNReal.mul_ne_top hgood hguess⟩
+
 theorem SometimesLossyCertificate.averageLossiness_le_bound
     {R Row Leakage Descriptor : Type} [CommRing R] [DecidableEq R]
     {family : CoefficientFamily Descriptor R Row}

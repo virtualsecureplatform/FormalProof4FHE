@@ -286,6 +286,30 @@ structure CrossReduction {SearchSecret DecisionSecret Challenge Auxiliary : Type
       (FormalProof4FHE.LWE.AuxiliaryInput.Search.successProbability
         searchProblem (toSolver distinguisher)).toReal + loss distinguisher
 
+/-- A checked search-to-decision reduction that may also change the public challenge and
+auxiliary-input types.
+
+This is needed for dual-mode reductions whose decision view is compiled into a structurally
+different lossy search view.  The `advantage_le` field is still a quantitative theorem about the
+two concrete experiments; this structure only records that theorem together with the generated
+solver and its explicit loss. -/
+structure HeterogeneousCrossReduction
+    {SearchSecret SearchChallenge SearchAuxiliary
+      DecisionSecret DecisionChallenge DecisionAuxiliary : Type}
+    (decisionProblem : FormalProof4FHE.LWE.AuxiliaryInput.Problem
+      DecisionSecret DecisionChallenge DecisionAuxiliary)
+    (searchProblem : FormalProof4FHE.LWE.AuxiliaryInput.Search.Problem
+      SearchSecret SearchChallenge SearchAuxiliary) where
+  toSolver : PublicDistinguisher DecisionChallenge DecisionAuxiliary →
+    FormalProof4FHE.LWE.AuxiliaryInput.Search.Solver
+      SearchSecret SearchChallenge SearchAuxiliary
+  loss : PublicDistinguisher DecisionChallenge DecisionAuxiliary → ℝ
+  loss_nonneg : ∀ distinguisher, 0 ≤ loss distinguisher
+  advantage_le : ∀ distinguisher,
+    publicAdvantage decisionProblem distinguisher ≤
+      (FormalProof4FHE.LWE.AuxiliaryInput.Search.successProbability
+        searchProblem (toSolver distinguisher)).toReal + loss distinguisher
+
 /-- Search hardness transfers to public decision hardness through a checked reduction, with the
 search and reduction losses added once. -/
 theorem publicHardAgainst_of_reduction
@@ -323,6 +347,32 @@ theorem publicHardAgainst_of_crossReduction
     (decisionAllowed : PublicDistinguisher Challenge Auxiliary → Prop)
     (solverAllowed : FormalProof4FHE.LWE.AuxiliaryInput.Search.Solver
       SearchSecret Challenge Auxiliary → Prop)
+    (searchBound lossBound : ℝ)
+    (hSearch : RealSearchHardAgainst searchProblem solverAllowed searchBound)
+    (hClosed : ∀ distinguisher, decisionAllowed distinguisher →
+      solverAllowed (reduction.toSolver distinguisher))
+    (hLoss : ∀ distinguisher, decisionAllowed distinguisher →
+      reduction.loss distinguisher ≤ lossBound) :
+    PublicHardAgainst decisionProblem decisionAllowed (searchBound + lossBound) := by
+  intro distinguisher hallowed
+  exact (reduction.advantage_le distinguisher).trans
+    (add_le_add
+      (hSearch (reduction.toSolver distinguisher) (hClosed distinguisher hallowed))
+      (hLoss distinguisher hallowed))
+
+/-- Search hardness transfers through a checked cross-distribution reduction even when the
+decision and search experiments expose different public data types. -/
+theorem publicHardAgainst_of_heterogeneousCrossReduction
+    {SearchSecret SearchChallenge SearchAuxiliary
+      DecisionSecret DecisionChallenge DecisionAuxiliary : Type}
+    (decisionProblem : FormalProof4FHE.LWE.AuxiliaryInput.Problem
+      DecisionSecret DecisionChallenge DecisionAuxiliary)
+    (searchProblem : FormalProof4FHE.LWE.AuxiliaryInput.Search.Problem
+      SearchSecret SearchChallenge SearchAuxiliary)
+    (reduction : HeterogeneousCrossReduction decisionProblem searchProblem)
+    (decisionAllowed : PublicDistinguisher DecisionChallenge DecisionAuxiliary → Prop)
+    (solverAllowed : FormalProof4FHE.LWE.AuxiliaryInput.Search.Solver
+      SearchSecret SearchChallenge SearchAuxiliary → Prop)
     (searchBound lossBound : ℝ)
     (hSearch : RealSearchHardAgainst searchProblem solverAllowed searchBound)
     (hClosed : ∀ distinguisher, decisionAllowed distinguisher →

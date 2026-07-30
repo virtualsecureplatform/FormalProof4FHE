@@ -3,8 +3,9 @@
 ## Scope
 
 This note records the status of the delayed-projection subset-key route after the
-canonical-ternary second-moment calculation. The route targets ordinary LWE-style assumptions
-and does not assume NTRU.
+canonical-ternary second-moment calculation. The original uniform-matrix branch targets ordinary
+LWE-style assumptions and does not assume NTRU. A separate conditional NTRU lossy dual-mode
+branch is now mechanized through its generic composition layer below.
 
 Let
 
@@ -153,6 +154,71 @@ There are three honest ways forward.
 
 The first two are genuine research problems. Favorable entropy alone is not an algorithm.
 
+## Conditional NTRU lossy dual-mode branch
+
+The reusable technical composition layer for an NTRU route is complete. The rank-one HNF
+experiment
+
+\[
+  b_0=X-S,\qquad d_j=a_jX+E_j
+\]
+
+is packaged as exact recovery of the uniform auxiliary secret \(X\). Its success probability is
+proved exactly equal to the pre-existing rank-one HNF search game, including arbitrary leakage
+correlated with \(S\) and all \(E_j\).
+
+The decision-to-search interface is genuinely heterogeneous: the complete TFHE decision view
+and the HNF search view may have different challenge and auxiliary-input types. A certificate
+contains a generated HNF solver, a nonnegative reduction loss, and the checked inequality
+
+\[
+  \operatorname{Adv}_{\mathrm{decision}}(D)
+  \le
+  \Pr[\widehat X=X]+\operatorname{loss}(D).
+\]
+
+Combining this certificate with HNF hardness gives
+
+\[
+  \operatorname{Adv}_{\mathrm{decision}}(D)
+  \le \varepsilon_{\mathrm{HNF}}+\operatorname{loss}(D).
+\]
+
+The real-versus-zero theorem then passes through the common uniform endpoint and retains the
+second endpoint honestly:
+
+\[
+  \operatorname{Adv}_{\mathrm{real},\mathrm{zero}}(D)
+  \le
+  \varepsilon_{\mathrm{HNF}}+
+  \operatorname{loss}(D)+
+  \varepsilon_{\mathrm{zero},\mathrm{uniform}}.
+\]
+
+Two direct corollaries instantiate \(\varepsilon_{\mathrm{HNF}}\) with the existing joint-ratio
+NTRU theorem or with its masked DSPR/NTRU-plus-Hermite variant. Their lossiness bounds are proved
+finite before conversion from extended nonnegative reals to real-valued advantage.
+
+This avoids the circular argument of revealing an NTRU trapdoor and then invoking ordinary LWE
+conditioned on that trapdoor. The NTRU ratio descriptor stays hidden inside the lossy-mode
+hardness statement. It is not public auxiliary input and is not supplied to an LWE adversary.
+Nothing in this proof changes TFHEpp's algorithms or distributions.
+
+The remaining NTRU work is research-level rather than interface plumbing:
+
+1. Construct the concrete reduction from the complete joint BRK/KSK public decision view to the
+   HNF recovery experiment, preserving all correlations and bounding its loss.
+2. Match the full implementation secret and error/leakage sampler to one HNF source state. A
+   suffix-only abstraction is insufficient unless the omitted prefix-dependent objects are
+   simulated inside the same reduction.
+3. Prove the Gaussian/smoothing lossiness certificate for that source and the selected
+   parameters.
+4. State and justify the precise joint NTRU/DSPR coefficient pseudorandomness assumption and
+   discharge the zero-message-versus-uniform endpoint.
+
+Until these four items are supplied, the theorem is a sound conditional endpoint but not a
+security judgment for the current TFHEpp parameter set.
+
 ## Remaining implementation-analysis question: exact sampler comparison
 
 Even with a solver, the proof needs a concrete bound between the full rounded corrected-error
@@ -183,12 +249,12 @@ silently treated as a polynomial-time simulator.
 
 ## Recommended order
 
-1. Evaluate the induced SIS regime and attempt a concrete wide-instance solver. Stop this route
-   if no polynomial-time algorithm with a joint norm guarantee is credible.
-2. In parallel, assess a standard LWE trapdoor/dual-mode matrix replacement; charge its complete
-   distribution loss and test the sampled Gram matrix against the same covariance budget.
-3. For whichever solver survives, implement the exact finite C++ sampler comparison.
-4. Instantiate the already-proved whole-view game theorem and suffix-LWE endpoint.
+For the NTRU branch, first construct the complete-view TFHE-to-HNF reduction, then identify the
+exact source sampler, prove its analytic lossiness certificate, and finally close the NTRU/DSPR
+and zero-message endpoints. For the ordinary-LWE branch, the previous order remains appropriate:
+evaluate the induced SIS regime, assess a standard gadget-trapdoor matrix replacement, and only
+then invest in the exact finite C++ sampler comparison.
 
-The decisive issue is now computational search, not information-theoretic existence, joint Gram
-control, or an unavoidable quadratic-KDM/NTRU assumption.
+The ordinary branch is blocked by computational public search. The NTRU branch bypasses that
+particular public-SIS solver requirement, but replaces it with the concrete full-view dual-mode
+reduction and named NTRU/lossiness premises above.
