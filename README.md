@@ -796,6 +796,18 @@ checks run inside the container; no host Lean installation is required.
   continuous/discrete Gaussian realization, the geometric ellipsoid lattice-point estimate, and
   a concrete comparison with the C++ error sampler remain analytic or implementation-level
   obligations; no such equality is assumed by the Lean theorem.
+- `FormalProof4FHE.TFHE.TFHEppSubsetTechnical` specializes that solver boundary to the current
+  unequal-word parameters. It proves that every nonzero integral target-ring factorization row
+  already contributes more source-error variance than the complete target budget, so the lifted
+  invertible-minor solver cannot certify this instance. A genuinely short high-modulus row is not
+  excluded: the exact rowwise covariance budget accepts integral Euclidean radius `3104` and
+  rejects `3105`. The module also represents each native subset-KSK body as a linear sample under
+  the complete `630 + 394 = 1024` coordinate secret. Finally, exact natural-number arithmetic
+  checks the first ternary-candidate row counts meeting both target-space capacity and an extra
+  128-bit multiplicity margin, and proves their worst-case row energies fit the radius. These are
+  necessary cardinality/noise checks, not random-matrix existence or efficient-solver theorems.
+  The remaining mathematical obligations are stated in
+  [`docs/TFHESubsetResearchQuestions.md`](docs/TFHESubsetResearchQuestions.md).
 - `FormalProof4FHE.TFHE.Circular.circularAdvantage_le_replacements` formalizes TFHE's actual
   heterogeneous evaluation-key cycle and splits real-to-zero cloud-key replacement into the
   bootstrapping-key and key-switching-key hops.
