@@ -145,6 +145,7 @@ import FormalProof4FHE.TFHE.JointSubsetKeyBRKDelayedProjection
 import FormalProof4FHE.TFHE.JointSubsetKeyBRKDelayedProjectionSolver
 import FormalProof4FHE.TFHE.TFHEppSubsetJointScreen
 import FormalProof4FHE.TFHE.TFHEppSubsetTechnical
+import FormalProof4FHE.TFHE.TFHEShortPreimageSecondMoment
 import FormalProof4FHE.TFHE.RingSquareActualNormalForm
 import FormalProof4FHE.TFHE.RingSquareSecretRandomization
 import FormalProof4FHE.TFHE.RingSquareUnitGuessCheck

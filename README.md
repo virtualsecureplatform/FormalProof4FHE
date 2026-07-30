@@ -805,8 +805,19 @@ checks run inside the container; no host Lean installation is required.
   the complete `630 + 394 = 1024` coordinate secret. Finally, exact natural-number arithmetic
   checks the first ternary-candidate row counts meeting both target-space capacity and an extra
   128-bit multiplicity margin, and proves their worst-case row energies fit the radius. These are
-  necessary cardinality/noise checks, not random-matrix existence or efficient-solver theorems.
-  The remaining mathematical obligations are stated in
+  raw cardinality/noise checks; the stronger target-family theorem below supersedes them for
+  information-theoretic existence.
+- `FormalProof4FHE.TFHE.TFHEShortPreimageSecondMoment` proves the clustered finite first and
+  second moments and the exact zero-hit bound
+  `(M - 1)/N + (C - 1)H/N^2`. It also proves the canonical-ternary pair-classification algebra:
+  different supports expose a unit minor and give a surjective pair map, while equal supports
+  have identical parity and expose a `±2` minor. Disjoint source blocks give an exactly diagonal
+  Gram matrix and the simultaneous PSD bound `L Lᵀ ⪯ bound I`. Finally, two ternary preimages of
+  adjacent geometric targets under the same public matrix give a nonzero bounded homogeneous SIS
+  relation. Exact source-bound arithmetic now puts the all-target 128-bit block sizes at `8044`
+  for the suffix target and `20764` for the full-secret target, both inside the current noise
+  radius. This resolves existence and Gram control, not efficient public search: the latter is
+  the explicit SIS boundary. The remaining research and implementation obligations are stated in
   [`docs/TFHESubsetResearchQuestions.md`](docs/TFHESubsetResearchQuestions.md).
 - `FormalProof4FHE.TFHE.Circular.circularAdvantage_le_replacements` formalizes TFHE's actual
   heterogeneous evaluation-key cycle and splits real-to-zero cloud-key replacement into the
