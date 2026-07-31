@@ -842,6 +842,22 @@ checks run inside the container; no host Lean installation is required.
   zero-message losses exactly once. Finally, exact affine noiseless KSK compilation is proved
   equivalent to equal public offsets and `L ∘ A = G`, formally isolating the remaining public
   batch-preimage construction rather than treating the hidden NTRU witness as simulator input.
+- `FormalProof4FHE.TFHE.SubsetKeyTrapdoorTheorems` consolidates the finite theorem chain in
+  `subset_key_trapdoor_theorems.tex`. It gives a quantitative witness-separation inverter,
+  restates the exact affine factorization and derived-error necessity, proves the tagged
+  `G`-trapdoor phase identities and native suffix-mask erasure equation, and derives the complete
+  tagged joint loss `2 Adv_LWE + 2 epsilon_reg + 2 epsilon_noise + epsilon_aux`. For the
+  built-in-preimage route it proves exact two-universality on fixed-weight supports, the tight
+  one-block leftover-hash bound, its independent-block hybrid, squared norm `weight+1`, the
+  two-variance weighted energy, and the complete diagonal Gram identity. For the source-aligned
+  route it defines factor-carrying ciphertexts and proves exact key switching plus closure under
+  public addition and scaling, then specializes the joint public-view reduction for a constructor
+  with exact real branches and charges its auxiliary defect once. The projected-error theorem
+  exposes the primitive-vector distance and uniform-image law as hypotheses. Their concrete
+  power-of-two orbit/counting instantiation, continuous-Gaussian sampler realization, the
+  concrete source-aligned view constructor, and a short factor-preserving TFHE bootstrap remain
+  explicit boundaries; the module does not claim that the current implementation satisfies
+  them.
 - `FormalProof4FHE.TFHE.Circular.circularAdvantage_le_replacements` formalizes TFHE's actual
   heterogeneous evaluation-key cycle and splits real-to-zero cloud-key replacement into the
   bootstrapping-key and key-switching-key hops.
