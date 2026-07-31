@@ -119,6 +119,34 @@ The direct suffix-secret orientation supplies the standard-assumption endpoint o
 and finite-noise obligations are met. A separate quadratic-KDM or NTRU assumption is not forced by
 this proof orientation.
 
+### Source-aligned factor propagation: technical layer resolved
+
+The alternative random-gadget route now has an operation-level factor calculus. A finite public
+external product carries exactly the digit-weighted sum of its row factors, and CMUX adds this sum
+to the accumulator factor. The recurrence remains exact when every digit vector is recomputed
+from the current public ciphertext. The executable native blind-rotation step is equal as a
+complete ciphertext to the same identity-plus-external-product normal form, and this equality is
+proved for the entire native control trace. Public signed-monomial rotations are exact factor
+scalings.
+
+Coefficient sample extraction is also reduced to one precise compatibility equation: the scalar
+gadget applied to the coefficient-extracted factor must equal coefficient extraction of the ring
+gadget applied to the original factor. Under this equation the complete split-key phase is
+preserved exactly. The exact CMUX energy identity retains its factor cross-correlation term. A
+separate Cauchy--Schwarz theorem bounds external-product factor energy, and iteration gives a
+conservative deterministic trace recurrence even for data-dependent digits.
+
+Two concrete obligations remain before this route can judge the parameter set:
+
+1. align every native BRK/TGSW control row with one common random ring gadget, construct the
+   induced extraction-compatible scalar gadget, and connect it to the KSK layout; and
+2. specialize the exact trace recurrence to the native decomposition rows and decide whether the
+   resulting factor/noise tail fits the correctness margin.
+
+The propagated factors are ghost proof state and need not be stored by the evaluator. Failure of
+the deterministic trace bound would not by itself be a no-go theorem: it would identify the point
+where a correlation-aware second-moment or concentration argument is required.
+
 ## Main remaining research question: efficient public search
 
 The existence proof does not provide a polynomial-time algorithm. For a uniform public matrix,
@@ -266,7 +294,11 @@ silently treated as a polynomial-time simulator.
 
 ## Recommended order
 
-For the NTRU branch, first construct the complete-view TFHE-to-HNF reduction, then identify the
+For the source-aligned branch, first construct the concrete common-gadget control-row alignment
+and extraction-compatible scalar gadget, then specialize the now-proved factor-energy recurrence
+to the native trace. This is the most direct
+technical test because it avoids the public-SIS solver entirely. For the NTRU branch, first
+construct the complete-view TFHE-to-HNF reduction, then identify the
 exact source sampler, prove its analytic lossiness certificate, and finally close the NTRU/DSPR
 and zero-message endpoints. For the ordinary-LWE branch, the previous order remains appropriate:
 evaluate the induced SIS regime, assess a standard gadget-trapdoor matrix replacement, and only

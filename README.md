@@ -858,6 +858,21 @@ checks run inside the container; no host Lean installation is required.
   concrete source-aligned view constructor, and a short factor-preserving TFHE bootstrap remain
   explicit boundaries; the module does not claim that the current implementation satisfies
   them.
+- `FormalProof4FHE.TFHE.SourceAlignedFactorPropagation` closes the operation-level algebra for
+  the source-aligned route. Finite public row combinations carry the identical combination of
+  factor vectors and phases, yielding exact external-product and identity-plus-external-product
+  CMUX recurrences even when gadget digits are recomputed from the current public ciphertext.
+  TFHE's executable blind-rotation step is proved equal as a complete ciphertext—not only in
+  phase—to this CMUX normal form, and the equality is lifted to the complete native control trace.
+  Public signed-monomial rotations scale the factor exactly. Coefficient sample extraction
+  preserves the complete split-key phase under one explicit ring/scalar gadget compatibility
+  equation. Finally, the exact CMUX factor-energy identity retains its cross-correlation term;
+  Cauchy--Schwarz also gives a conservative external-product bound, one-step CMUX recurrence, and
+  uniform deterministic trace bound. Factors
+  remain proof-only ghost state. Constructing common-gadget factor annotations for the concrete
+  native TGSW control rows, deriving the extraction-compatible scalar gadget, and checking whether
+  the resulting trace bound fits the current correctness budget remain explicit obligations; no
+  parameter certification is claimed.
 - `FormalProof4FHE.TFHE.Circular.circularAdvantage_le_replacements` formalizes TFHE's actual
   heterogeneous evaluation-key cycle and splits real-to-zero cloud-key replacement into the
   bootstrapping-key and key-switching-key hops.

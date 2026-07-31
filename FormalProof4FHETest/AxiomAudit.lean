@@ -2263,3 +2263,19 @@ import FormalProof4FHE
 #print axioms FormalProof4FHE.TFHE.SubsetKeyTrapdoorTheorems.SourceAligned.FactorCiphertext.phase_add
 #print axioms FormalProof4FHE.TFHE.SubsetKeyTrapdoorTheorems.SourceAligned.FactorCiphertext.phase_scale
 #print axioms FormalProof4FHE.TFHE.SubsetKeyTrapdoorTheorems.SourceAligned.randomGadgetJointSecurity
+
+-- Exact source-aligned factor propagation through native TFHE operations.
+#print axioms FormalProof4FHE.TFHE.SourceAlignedFactorPropagation.FactorCiphertext.phase_linearCombination
+#print axioms FormalProof4FHE.TFHE.SourceAlignedFactorPropagation.externalProduct_phase
+#print axioms FormalProof4FHE.TFHE.SourceAlignedFactorPropagation.cmux_phase
+#print axioms FormalProof4FHE.TFHE.SourceAlignedFactorPropagation.run_factor
+#print axioms FormalProof4FHE.TFHE.SourceAlignedFactorPropagation.Native.rotate_phase
+#print axioms FormalProof4FHE.TFHE.SourceAlignedFactorPropagation.Native.blindRotationStep_eq_add_externalProduct
+#print axioms FormalProof4FHE.TFHE.SourceAlignedFactorPropagation.Native.blindRotationRun_eq_runCMUX
+#print axioms FormalProof4FHE.TFHE.SourceAlignedFactorPropagation.Native.nativeBlindRotate_eq_runCMUX
+#print axioms FormalProof4FHE.TFHE.SourceAlignedFactorPropagation.Extraction.phase_apply
+#print axioms FormalProof4FHE.TFHE.SourceAlignedFactorPropagation.Energy.factorEnergy_add_eq
+#print axioms FormalProof4FHE.TFHE.SourceAlignedFactorPropagation.Energy.factorEnergy_linearCombination_le
+#print axioms FormalProof4FHE.TFHE.SourceAlignedFactorPropagation.Energy.factorEnergy_cmux_eq
+#print axioms FormalProof4FHE.TFHE.SourceAlignedFactorPropagation.Energy.factorEnergy_cmux_le
+#print axioms FormalProof4FHE.TFHE.SourceAlignedFactorPropagation.Energy.factorEnergy_run_le_traceBound
