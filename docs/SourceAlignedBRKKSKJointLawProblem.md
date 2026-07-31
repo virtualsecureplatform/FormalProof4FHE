@@ -51,6 +51,18 @@ source conservatively as ordinary LWE gives about `2^49.8`. These estimates are 
 insecurity results, especially for the structured suffix source, but under the repository's
 current estimator policy they reject the current split as a 128-bit theorem parameter.
 
+A modified lvl02 candidate now passes the same arithmetic and heuristic screen without enlarging
+the degree-2048 target ring. It enlarges the binary prefix to 1024, leaves a 1024-coefficient
+ternary suffix, and changes the target gadget from four base-512 levels to eighteen base-four
+levels while retaining 36 decomposition bits. The scalarized width is 75497472, but the smaller
+centered digits reduce the worst-case factor energy to 301989888. With fresh sigma `2^42` and
+threshold `2^60`, the isolated correction has exact exponent `1024/9`. Full BDGL16 estimates are
+about `2^139.3` for prefix LWE, `2^146.9` for the conservative suffix-RLWE-as-LWE proxy, and
+`2^213.1` for input TLWE. Thus a workable arithmetic/security candidate exists under the theorem's
+modified format. This is not yet a parameter certificate: the native correlated aligned KSK is
+absent, the finite sampler MGF and complete bootstrap error composition are not discharged, and
+the suffix number is still only a heuristic proxy for the formal structured assumption.
+
 One correction to the notation below is important. The concrete TFHE formalization does not use
 one self-dual coefficient map: reciprocal coefficients scalarize masks and factors, while
 ordinary coefficients scalarize secrets and bodies. The adjoint identity is proved with those two

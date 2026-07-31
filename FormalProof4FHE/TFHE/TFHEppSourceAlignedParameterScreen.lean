@@ -307,6 +307,140 @@ theorem nominalFreshExponent_eq :
 
 end Parameters
 
+/-! ## Balanced level-zero-to-level-two candidate -/
+
+namespace CandidateLvl02
+
+open SourceAlignedFactorPropagation
+open SourceAlignedFactorPropagation.NativeAlignment
+open SourceAlignedBRKKSKJointLaw.NativeCompiler.EvaluatorTail
+
+set_option exponentiation.threshold 1024
+
+/-- Binary prefix dimension of the candidate. -/
+def prefixDimension : ℕ := 1024
+
+/-- Degree of the 64-bit target ring. -/
+def ringDegree : ℕ := 2048
+
+/-- Independently ternary suffix dimension of the candidate. -/
+def suffixDimension : ℕ := ringDegree - prefixDimension
+
+/-- Rank of the target TRLWE. -/
+def ringRank : ℕ := 1
+
+/-- Number of target gadget levels. -/
+def brkLevels : ℕ := 18
+
+/-- Base-two logarithm of the target gadget base. -/
+def brkBasebit : ℕ := 2
+
+/-- Complete non-bundled BRK/TGSW row count. -/
+def brkRowCount : ℕ := controlRowCount ringRank brkLevels prefixDimension
+
+/-- Coefficient-scalarized aligned-KSK width. -/
+def alignedWidth : ℕ := brkRowCount * ringDegree
+
+/-- Absolute bound for centered base-four digits. -/
+def centeredDigitRadius : ℕ := 2 ^ (brkBasebit - 1)
+
+/-- Worst-case squared factor norm. -/
+def factorEnergyBound : ℕ := alignedWidth * centeredDigitRadius ^ 2
+
+/-- Integer-coordinate correction sigma `2^42` over the 64-bit torus. -/
+def freshSigma : ℕ := 2 ^ 42
+
+/-- Conservative distance from the level-two Boolean encoding to a boundary. -/
+def correctnessThreshold : ℕ := 2 ^ 60
+
+/-- Spherical covariance-energy proxy for the fresh correction pairing. -/
+def freshPairingVarianceBound : ℕ := freshSigma ^ 2 * factorEnergyBound
+
+theorem suffixDimension_eq : suffixDimension = 1024 := by
+  norm_num [suffixDimension, ringDegree, prefixDimension]
+
+theorem decompositionCoverage_eq : brkLevels * brkBasebit = 36 := by
+  norm_num [brkLevels, brkBasebit]
+
+theorem brkRowCount_eq : brkRowCount = 36864 := by
+  norm_num [brkRowCount, controlRowCount, ringRank, brkLevels,
+    prefixDimension, TGSW.rowCount]
+
+theorem alignedWidth_eq : alignedWidth = 75497472 := by
+  norm_num [alignedWidth, brkRowCount, controlRowCount, ringRank,
+    brkLevels, prefixDimension, ringDegree, TGSW.rowCount]
+
+theorem centeredDigitRadius_eq : centeredDigitRadius = 2 := by
+  norm_num [centeredDigitRadius, brkBasebit]
+
+theorem factorEnergyBound_eq : factorEnergyBound = 301989888 := by
+  norm_num [factorEnergyBound, alignedWidth, brkRowCount, controlRowCount,
+    ringRank, brkLevels, prefixDimension, ringDegree,
+    centeredDigitRadius, brkBasebit, TGSW.rowCount]
+
+theorem freshSigma_eq : freshSigma = 4398046511104 := by
+  norm_num [freshSigma]
+
+theorem correctnessThreshold_eq : correctnessThreshold = 1152921504606846976 := by
+  norm_num [correctnessThreshold]
+
+theorem freshPairingVarianceBound_eq :
+    freshPairingVarianceBound = 5841333965851681082096808370372608 := by
+  norm_num [freshPairingVarianceBound, freshSigma, factorEnergyBound,
+    alignedWidth, brkRowCount, controlRowCount, ringRank, brkLevels,
+    prefixDimension, ringDegree, centeredDigitRadius, brkBasebit,
+    TGSW.rowCount]
+
+/-- Coordinatewise base-four digit bounds imply the candidate's exact
+factor-energy budget. -/
+theorem factorEnergy_le_bound
+    (factor : Fin alignedWidth → ℝ)
+    (coordinate_bound : ∀ coordinate,
+      |factor coordinate| ≤ centeredDigitRadius) :
+    Energy.factorEnergy factor ≤ factorEnergyBound := by
+  unfold Energy.factorEnergy
+  calc
+    (∑ coordinate, factor coordinate ^ 2) ≤
+        ∑ _coordinate : Fin alignedWidth, (centeredDigitRadius : ℝ) ^ 2 := by
+      apply Finset.sum_le_sum
+      intro coordinate _
+      rw [← sq_abs]
+      exact (sq_le_sq₀ (abs_nonneg _) (by positivity)).2
+        (coordinate_bound coordinate)
+    _ = (factorEnergyBound : ℝ) := by
+      simp [factorEnergyBound, nsmul_eq_mul]
+
+/-- The digit premise supplies the uniform covariance budget needed by the
+transcript-adaptive fresh-noise theorem. -/
+theorem nominalSphericalCovarianceEnergy_le
+    (factor : Fin alignedWidth → ℝ)
+    (coordinate_bound : ∀ coordinate,
+      |factor coordinate| ≤ centeredDigitRadius) :
+    covarianceEnergy
+        (((freshSigma : ℝ) ^ 2) •
+          (1 : Matrix (Fin alignedWidth) (Fin alignedWidth) ℝ)) factor ≤
+      freshPairingVarianceBound := by
+  rw [AdaptiveFreshNoise.covarianceEnergy_spherical]
+  calc
+    (freshSigma : ℝ) ^ 2 * Energy.factorEnergy factor ≤
+        (freshSigma : ℝ) ^ 2 * factorEnergyBound := by
+      exact mul_le_mul_of_nonneg_left
+        (factorEnergy_le_bound factor coordinate_bound) (sq_nonneg _)
+    _ = (freshPairingVarianceBound : ℝ) := by
+      norm_num [freshPairingVarianceBound]
+
+/-- The candidate's isolated fresh correction has exact Chernoff exponent
+`1024 / 9` at the conservative threshold. -/
+theorem nominalFreshExponent_eq :
+    ((correctnessThreshold : ℝ) ^ 2) /
+        (2 * freshPairingVarianceBound) = 1024 / 9 := by
+  norm_num [correctnessThreshold, freshPairingVarianceBound, freshSigma,
+    factorEnergyBound, alignedWidth, brkRowCount, controlRowCount,
+    ringRank, brkLevels, prefixDimension, ringDegree,
+    centeredDigitRadius, brkBasebit, TGSW.rowCount]
+
+end CandidateLvl02
+
 end
 
 end FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen
