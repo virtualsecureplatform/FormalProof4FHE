@@ -129,19 +129,39 @@ complete ciphertext to the same identity-plus-external-product normal form, and 
 proved for the entire native control trace. Public signed-monomial rotations are exact factor
 scalings.
 
-Coefficient sample extraction is also reduced to one precise compatibility equation: the scalar
-gadget applied to the coefficient-extracted factor must equal coefficient extraction of the ring
-gadget applied to the original factor. Under this equation the complete split-key phase is
-preserved exactly. The exact CMUX energy identity retains its factor cross-correlation term. A
-separate Cauchy--Schwarz theorem bounds external-product factor energy, and iteration gives a
-conservative deterministic trace recurrence even for data-dependent digits.
+The formerly conditional coefficient-extraction step is now constructive. Reciprocal coefficient
+extraction is an additive equivalence, and conjugating an arbitrary ring gadget through this
+equivalence produces a concrete scalar matrix. That matrix satisfies the exact compatibility
+equation by construction. The associated source-aligned KSK body has a checked end-to-end phase
+identity after sample extraction.
 
-Two concrete obligations remain before this route can judge the parameter set:
+The native row alignment is also explicit. Collect every BRK/TGSW mask as one column of a common
+ring gadget and annotate that row by its unit column factor. Materializing the implicit mask gives
+the complete original native row, including its body, exactly. Rows belonging to different
+controls occupy disjoint blocks. Hence one external product carries precisely its digit block and
+the accumulated real block energy is exactly the sum of per-control digit energies; the generic
+exponential recurrence is unnecessary for this column representation.
 
-1. align every native BRK/TGSW control row with one common random ring gadget, construct the
-   induced extraction-compatible scalar gadget, and connect it to the KSK layout; and
-2. specialize the exact trace recurrence to the native decomposition rows and decide whether the
-   resulting factor/noise tail fits the correctness margin.
+The random-gadget marginal is checked as well. For fixed secrets and messages, direct TGSW masks
+are uniform regardless of the error sampler. Finite-product BRK generation makes their complete
+mask tensor jointly uniform, the exact direct/native BRK reparameterization preserves this law,
+and flattening the control and row axes is an equivalence. Therefore the common ring gadget
+obtained from an honest native BRK is jointly uniform, not merely a post-hoc matrix of columns.
+
+The next step is no longer finite algebra. The induced scalar gadget has one scalar column for
+every coefficient of every BRK row. A source-aligned KSK for it is therefore wider than the native
+TFHE KSK and is derived from the BRK masks, whereas the native KSK uses an independent mask table
+with the ordinary coordinate-by-level layout. One must now do one of the following:
+
+1. prove a complete joint-distribution replacement from the native `(BRK, KSK)` view to this
+   correlated widened view under a stated standard assumption; or
+2. change the scheme to generate the source-aligned KSK and prove security of that modified
+   cloud-key distribution.
+
+Neither follows from the now-proved complete BRK-mask marginal law. This is a genuine cryptographic construction
+question, so the technical path stops here. Once such a bridge is supplied, centered-lift bounds
+for the rotation-scaled native digits and a final correctness-margin calculation are technical
+parameter work.
 
 The propagated factors are ghost proof state and need not be stored by the evaluator. Failure of
 the deterministic trace bound would not by itself be a no-go theorem: it would identify the point
@@ -294,10 +314,10 @@ silently treated as a polynomial-time simulator.
 
 ## Recommended order
 
-For the source-aligned branch, first construct the concrete common-gadget control-row alignment
-and extraction-compatible scalar gadget, then specialize the now-proved factor-energy recurrence
-to the native trace. This is the most direct
-technical test because it avoids the public-SIS solver entirely. For the NTRU branch, first
+For the source-aligned branch, the common-gadget control-row alignment, induced scalar gadget, KSK
+phase composition, and exact disjoint-block energy are complete. The next target is the joint-law
+bridge described above; further parameter arithmetic cannot turn that missing distributional
+statement into a theorem. For the NTRU branch, first
 construct the complete-view TFHE-to-HNF reduction, then identify the
 exact source sampler, prove its analytic lossiness certificate, and finally close the NTRU/DSPR
 and zero-message endpoints. For the ordinary-LWE branch, the previous order remains appropriate:

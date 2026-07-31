@@ -869,10 +869,27 @@ checks run inside the container; no host Lean installation is required.
   equation. Finally, the exact CMUX factor-energy identity retains its cross-correlation term;
   Cauchy--Schwarz also gives a conservative external-product bound, one-step CMUX recurrence, and
   uniform deterministic trace bound. Factors
-  remain proof-only ghost state. Constructing common-gadget factor annotations for the concrete
-  native TGSW control rows, deriving the extraction-compatible scalar gadget, and checking whether
-  the resulting trace bound fits the current correctness budget remain explicit obligations; no
-  parameter certification is claimed.
+  remain proof-only ghost state. The concrete column and extraction constructions are supplied by
+  the next module; this operation-level module alone makes no parameter claim.
+- `FormalProof4FHE.TFHE.SourceAlignedGadgetConstruction` constructs the canonical common gadget
+  whose columns are all native BRK/TGSW masks and proves that materializing each unit-factor row
+  recovers the complete native row exactly. Coefficient extraction is an additive equivalence;
+  conjugating any ring gadget through it gives an explicit scalar matrix satisfying the former
+  extraction-compatibility premise. The induced source-aligned KSK body then composes with sample
+  extraction in one exact phase theorem. Native control factors occupy disjoint blocks: one
+  external product has exactly its digit energy, and the accumulated block energy is exactly the
+  sum over controls, with no cross-control or exponential loss. What is not proved is a joint-law
+  replacement between this BRK-derived, widened KSK and TFHE's independently sampled native KSK
+  layout (nor an implementation change with a new security proof). That is the construction-level
+  research boundary, so these algebraic results do not yet certify a TFHE parameter set.
+- `FormalProof4FHE.TFHE.SourceAlignedNativeGadgetDistribution` proves the corresponding native
+  marginal law. Direct TGSW masks are uniform independently of the fixed secret, message, and
+  error law; finite-product generation makes the complete BRK mask tensor jointly uniform; and
+  the exact native/direct BRK equality transports this fact to the structured native sampler.
+  Flattening control and TGSW-row axes is an explicit equivalence, so the common ring gadget is
+  itself jointly uniform. This closes the random-gadget marginal, but intentionally does not turn
+  the BRK-derived widened KSK into an independent native KSK or prove their complete joint views
+  indistinguishable.
 - `FormalProof4FHE.TFHE.Circular.circularAdvantage_le_replacements` formalizes TFHE's actual
   heterogeneous evaluation-key cycle and splits real-to-zero cloud-key replacement into the
   bootstrapping-key and key-switching-key hops.

@@ -150,6 +150,8 @@ import FormalProof4FHE.TFHE.TFHEppSubsetTechnical
 import FormalProof4FHE.TFHE.TFHEShortPreimageSecondMoment
 import FormalProof4FHE.TFHE.SubsetKeyTrapdoorTheorems
 import FormalProof4FHE.TFHE.SourceAlignedFactorPropagation
+import FormalProof4FHE.TFHE.SourceAlignedGadgetConstruction
+import FormalProof4FHE.TFHE.SourceAlignedNativeGadgetDistribution
 import FormalProof4FHE.TFHE.RingSquareActualNormalForm
 import FormalProof4FHE.TFHE.RingSquareSecretRandomization
 import FormalProof4FHE.TFHE.RingSquareUnitGuessCheck
