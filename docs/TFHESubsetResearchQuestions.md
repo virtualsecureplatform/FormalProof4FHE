@@ -163,9 +163,9 @@ cryptographic construction question, so the technical path stops here. Once such
 supplied, centered-lift bounds for the rotation-scaled native digits and a final
 correctness-margin calculation are technical parameter work.
 
-A self-contained mathematical statement of this obstruction, the exact native-preserving and
-modified-scheme target theorems, and the plausible research routes is given in
-[The source-aligned BRK/KSK joint-law problem](SourceAlignedBRKKSKJointLawProblem.md).
+A self-contained mathematical statement of this obstruction, the now-conditional modified-scheme
+theorem, the exact deterministic-compiler support barrier, and the remaining native-preserving
+route is given in [The source-aligned BRK/KSK joint-law problem](SourceAlignedBRKKSKJointLawProblem.md).
 
 The propagated factors are ghost proof state and need not be stored by the evaluator. Failure of
 the deterministic trace bound would not by itself be a no-go theorem: it would identify the point

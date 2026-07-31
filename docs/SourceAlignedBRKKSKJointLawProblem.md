@@ -1,5 +1,40 @@
 # The source-aligned BRK/KSK joint-law problem
 
+## Current status
+
+The modified source-aligned cloud-key route described below now has a formal complete-view
+reduction theorem. Under explicit public constructors for one batched suffix-RLWE source and two
+batched prefix-LWE sources, plus the complete-vector error-replacement distance, its loss is
+
+\[
+  2\epsilon_Z+4\epsilon_P+2\epsilon_{\mathrm{sm}}+\epsilon_{\mathrm{aux}}.
+\]
+
+An exact correlated-error target removes the smudging term. This is a conditional reduction: a
+concrete scheme must still instantiate the constructors and prove the finite error-law premise.
+It is not a proof that the independently sampled native TFHE KSK has the widened fresh aligned
+law.
+
+The native-preserving part remains open quantitatively, but its obstruction is now exact. For a
+deterministic compiler `U ↦ UD`, the compiled mask is uniform on the public row image and
+
+\[
+  \Delta(U_ND,U_B)
+  =1-\left(\frac{|\operatorname{im}(u\mapsto uD)|}{q^M}\right)^n.
+\]
+
+When the native width is smaller, this gives the stated
+`1 - q^{-n(M-K)}` lower bound, so exact factorization `HD = G` cannot justify a fresh-law
+replacement. What remains viable is the evaluator-level route: the noiseless discrepancy is a
+kernel vector and the error discrepancy is its inner product with native KSK error. The finite
+MGF-to-subgaussian tail and reachable-factor union bound are formalized; supplying concrete
+reachable-factor covariance and correctness bounds remains implementation-specific work.
+
+One correction to the notation below is important. The concrete TFHE formalization does not use
+one self-dual coefficient map: reciprocal coefficients scalarize masks and factors, while
+ordinary coefficients scalarize secrets and bodies. The adjoint identity is proved with those two
+compatible conventions.
+
 ## Purpose
 
 This note isolates the remaining research problem in the source-aligned approach to TFHE
@@ -444,13 +479,12 @@ Publish the widened source-aligned KSK directly and prove (19). This removes the
 comparison but changes the scheme. Performance is a separate question; even an inefficient
 parameter set cannot be certified until the joint theorem is available.
 
-## 10. Stopping point
+## 10. Updated stopping point
 
-The technical path ends after construction of the induced gadget, exact phase preservation,
-native-row alignment, disjoint factor-energy accounting, and proof of the complete BRK-mask
-marginal. The next required result is either the native bridge theorem (17) or the modified-scheme
-joint theorem (19).
-
-Once one of those theorems is proved with explicit loss and error bounds, the remaining work is
-primarily technical: specialize centered coefficient lifts, bound the reachable digit factors,
-propagate the resulting covariance or tail estimate, and test the final correctness margin.
+The modified-scheme joint theorem (19) is now available as a conditional complete-view reduction,
+including exact correlated-error and complete-vector-smudging variants. The deterministic native
+compiler cannot provide the native bridge theorem (17) by fresh-law replacement because of its
+exact public support distance. The remaining native route is therefore evaluator-level: install
+the concrete finite MGF certificate, bound the residual covariance over reachable factors, and
+test the final correctness margin. Establishing that these concrete bounds fit an implementation
+parameter set is still outstanding.

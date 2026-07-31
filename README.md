@@ -878,10 +878,11 @@ checks run inside the container; no host Lean installation is required.
   extraction-compatibility premise. The induced source-aligned KSK body then composes with sample
   extraction in one exact phase theorem. Native control factors occupy disjoint blocks: one
   external product has exactly its digit energy, and the accumulated block energy is exactly the
-  sum over controls, with no cross-control or exponential loss. What is not proved is a joint-law
-  replacement between this BRK-derived, widened KSK and TFHE's independently sampled native KSK
-  layout (nor an implementation change with a new security proof). That is the construction-level
-  research boundary, so these algebraic results do not yet certify a TFHE parameter set.
+  sum over controls, with no cross-control or exponential loss. This construction module alone
+  does not prove a joint-law replacement between the widened KSK and TFHE's independently sampled
+  native KSK layout. The conditional modified-format theorem and the exact obstruction to the
+  deterministic native bridge are supplied after the native marginal module below; these
+  algebraic results by themselves do not certify a TFHE parameter set.
 - `FormalProof4FHE.TFHE.SourceAlignedNativeGadgetDistribution` proves the corresponding native
   marginal law. Direct TGSW masks are uniform independently of the fixed secret, message, and
   error law; finite-product generation makes the complete BRK mask tensor jointly uniform; and
@@ -890,6 +891,20 @@ checks run inside the container; no host Lean installation is required.
   itself jointly uniform. This closes the random-gadget marginal, but intentionally does not turn
   the BRK-derived widened KSK into an independent native KSK or prove their complete joint views
   indistinguishable.
+- `FormalProof4FHE.TFHE.SourceAlignedBRKKSKJointLaw` proves the complete-view theorem for the
+  modified source-aligned cloud-key format. It first corrects the coefficient adjoint identity:
+  reciprocal extraction is used for ring masks/factors, while ordinary coefficient extraction is
+  used for secrets/bodies. Two public branch constructors then compose one suffix-RLWE and two
+  prefix-LWE reductions without a rowwise KDM hybrid, yielding
+  `2 ε_Z + 4 ε_P + 2 ε_sm + ε_aux`; reproducing the derived complete error correlation removes
+  `ε_sm`. The native-compiler analysis proves `Dᵀc_N` has the exact aligned phase when `HD = G`,
+  but also proves the exact public-mask separation
+  `1 - (|im(u ↦ uD)| / q^M)^n` and its `1 - q^(-n(M-K))` width lower bound. Thus deterministic
+  compilation is not a fresh-law replacement. At evaluator level the residual lies in `ker H`,
+  its error discrepancy is the exact residual/error inner product, and a finite MGF certificate
+  implies the stated two-sided subgaussian and reachable-factor union bounds. Concrete
+  instantiation of the public constructors, finite noise certificate, and native correctness
+  budget remains separate; no current TFHE parameter is certified by this theorem alone.
 - `FormalProof4FHE.TFHE.Circular.circularAdvantage_le_replacements` formalizes TFHE's actual
   heterogeneous evaluation-key cycle and splits real-to-zero cloud-key replacement into the
   bootstrapping-key and key-switching-key hops.
