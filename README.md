@@ -905,6 +905,17 @@ checks run inside the container; no host Lean installation is required.
   implies the stated two-sided subgaussian and reachable-factor union bounds. Concrete
   instantiation of the public constructors, finite noise certificate, and native correctness
   budget remains separate; no current TFHE parameter is certified by this theorem alone.
+- `FormalProof4FHE.TFHE.SuffixRLWEPRG` closes the finite and game-accounting obligations in the
+  suffix/seeded-mask proof note. A tagged known prefix is an exact public transcript permutation
+  and preserves the uniform batch law. Conversely, exposing a deterministic expansion together
+  with its seed has exact recomputation advantage `1 - 1 / |Output|`, so ordinary PRG security
+  cannot justify that hybrid. For the random-oracle route, a finite eager table splits exactly
+  into an injectively embedded uniform block and an independent complement, while prior seed
+  guesses cost at most `Q / |Seed|`. Complete-view compactness costs the two branch TV defects,
+  shared BRK error cancels algebraically, and the conditional endpoint theorem gives
+  `2 ε_Z + 2 ε_P₁ + 2 ε_P₂ + ε_aux`. Ternary suffix-subspace RLWE hardness and,
+  for a concrete standard-model expander, direct public-seed structured-matrix LWE hardness
+  remain explicit computational premises.
 - `FormalProof4FHE.TFHE.Circular.circularAdvantage_le_replacements` formalizes TFHE's actual
   heterogeneous evaluation-key cycle and splits real-to-zero cloud-key replacement into the
   bootstrapping-key and key-switching-key hops.

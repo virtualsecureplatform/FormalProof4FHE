@@ -2315,6 +2315,17 @@ import FormalProof4FHE
 #print axioms FormalProof4FHE.TFHE.SourceAlignedBRKKSKJointLaw.NativeCompiler.EvaluatorTail.Certificate.absTail
 #print axioms FormalProof4FHE.TFHE.SourceAlignedBRKKSKJointLaw.NativeCompiler.EvaluatorTail.Certificate.reachableUnionTail
 
+-- Suffix-RLWE and public-seed mask-expansion boundary.
+#print axioms FormalProof4FHE.TFHE.SuffixRLWEPRG.KnownPrefix.addOffset_real
+#print axioms FormalProof4FHE.TFHE.SuffixRLWEPRG.KnownPrefix.independentPrefix_uniform_evalDist
+#print axioms FormalProof4FHE.TFHE.SuffixRLWEPRG.PublicSeed.recognizer_advantage_eq
+#print axioms FormalProof4FHE.TFHE.SuffixRLWEPRG.ProgrammableRandomOracle.programmedTableView_evalDist_eq_honest
+#print axioms FormalProof4FHE.TFHE.SuffixRLWEPRG.ProgrammableRandomOracle.priorQueryBad_uniform_le
+#print axioms FormalProof4FHE.TFHE.SuffixRLWEPRG.WholeView.compactAdvantage_le_dense_add
+#print axioms FormalProof4FHE.TFHE.SuffixRLWEPRG.CorrelatedError.reusedError_cancels
+#print axioms FormalProof4FHE.TFHE.SuffixRLWEPRG.ConditionalSecurity.endpointAdvantage_le
+#print axioms FormalProof4FHE.TFHE.SuffixRLWEPRG.ConditionalSecurity.endpointAdvantage_le_commonPrefix
+
 -- Correlated source-aligned TFHEpp correctness and parameter screen.
 #print axioms FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen.CorrelatedCorrectness.error_pairing_cancels
 #print axioms FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen.CorrelatedCorrectness.keySwitch_phase_eq_message_sub_fresh

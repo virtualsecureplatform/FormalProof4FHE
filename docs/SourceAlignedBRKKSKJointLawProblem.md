@@ -15,6 +15,24 @@ concrete scheme must still instantiate the constructors and prove the finite err
 It is not a proof that the independently sampled native TFHE KSK has the widened fresh aligned
 law.
 
+The suffix/seeded-mask proof boundary is now formalized separately. Retaining an independently
+sampled known prefix in a complete batched suffix-RLWE game incurs exactly zero statistical or
+rowwise loss: adding its public contribution is a bijection and preserves the uniform branch.
+The resulting ternary suffix-subspace RLWE hardness is still a computational premise. For compact
+masks, publishing a deterministic seed and its expansion cannot be justified by ordinary PRG
+security; recomputation gives exact distinguishing advantage `1 - 1 / |Output|`. A finite
+random-oracle table can instead be programmed exactly on an injectively addressed uniform block,
+with prior seed guesses charged by `Q / |Seed|`. These facts compose with whole-view TV defects
+and the exact correlated-error law to give the separate-prefix bound
+
+\[
+  2\epsilon_Z+2\epsilon_{P,1}+2\epsilon_{P,2}+\epsilon_{\mathrm{aux}}.
+\]
+
+Thus the remaining standard-model compact route requires a direct public-seed
+structured-matrix LWE premise for the exact batch and retained context; it is not a conventional
+PRG corollary.
+
 The native-preserving part remains open quantitatively, but its obstruction is now exact. For a
 deterministic compiler `U ↦ UD`, the compiled mask is uniform on the public row image and
 

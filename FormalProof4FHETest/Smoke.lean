@@ -3418,6 +3418,19 @@ example (degree eta : ℕ) :
 #check FormalProof4FHE.TFHE.SourceAlignedBRKKSKJointLaw.NativeCompiler.EvaluatorTail.Certificate.absTail
 #check FormalProof4FHE.TFHE.SourceAlignedBRKKSKJointLaw.NativeCompiler.EvaluatorTail.Certificate.reachableUnionTail
 
+-- Suffix-RLWE and public-seed mask-expansion boundary.
+#check FormalProof4FHE.TFHE.SuffixRLWEPRG.KnownPrefix.addOffset_bijective
+#check FormalProof4FHE.TFHE.SuffixRLWEPRG.KnownPrefix.addOffset_real
+#check FormalProof4FHE.TFHE.SuffixRLWEPRG.KnownPrefix.independentPrefix_uniform_evalDist
+#check FormalProof4FHE.TFHE.SuffixRLWEPRG.PublicSeed.recognizer_advantage_eq
+#check FormalProof4FHE.TFHE.SuffixRLWEPRG.ProgrammableRandomOracle.splitTableEquiv_fst
+#check FormalProof4FHE.TFHE.SuffixRLWEPRG.ProgrammableRandomOracle.programmedTableView_evalDist_eq_honest
+#check FormalProof4FHE.TFHE.SuffixRLWEPRG.ProgrammableRandomOracle.priorQueryBad_uniform_le
+#check FormalProof4FHE.TFHE.SuffixRLWEPRG.WholeView.compactAdvantage_le_dense_add
+#check FormalProof4FHE.TFHE.SuffixRLWEPRG.CorrelatedError.reusedError_cancels
+#check FormalProof4FHE.TFHE.SuffixRLWEPRG.ConditionalSecurity.endpointAdvantage_le
+#check FormalProof4FHE.TFHE.SuffixRLWEPRG.ConditionalSecurity.endpointAdvantage_le_commonPrefix
+
 -- Correlated source-aligned TFHEpp correctness and parameter screen.
 #check FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen.CorrelatedCorrectness.error_pairing_cancels
 #check FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen.CorrelatedCorrectness.keySwitch_phase_eq_message_sub_fresh
