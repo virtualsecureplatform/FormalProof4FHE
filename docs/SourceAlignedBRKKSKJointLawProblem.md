@@ -539,3 +539,13 @@ exact public support distance. The remaining native route is therefore evaluator
 the concrete finite MGF certificate, bound the residual covariance over reachable factors, and
 test the final correctness margin. Establishing that these concrete bounds fit an implementation
 parameter set is still outstanding.
+
+For the dense modified format, the three formerly abstract public constructors are now explicit.
+The random suffix-source branch is an affine permutation of a complete uniform body/mask pair;
+the second prefix hop and both uniform comparisons are fixed translations. Thus this route has
+no remaining constructor or row-hybrid premise. The balanced level-zero-to-level-two instance
+also fixes the binary prefix law, centered-ternary suffix-subspace law, uniform ring-mask source,
+and complete scalar width. What remains is cryptographic hardness of that structured suffix
+source and of the two dense prefix sources, plus the finite sampler, complete correctness, and
+widened implementation obligations. This advances the modified-format theorem but does not
+remove the native-layout barrier described above.

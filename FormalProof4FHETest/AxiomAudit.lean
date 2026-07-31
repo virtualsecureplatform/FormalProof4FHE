@@ -2326,6 +2326,18 @@ import FormalProof4FHE
 #print axioms FormalProof4FHE.TFHE.SuffixRLWEPRG.ConditionalSecurity.endpointAdvantage_le
 #print axioms FormalProof4FHE.TFHE.SuffixRLWEPRG.ConditionalSecurity.endpointAdvantage_le_commonPrefix
 
+-- Exact dense-mask constructors and balanced lvl02 source specialization.
+#print axioms FormalProof4FHE.TFHE.SourceAlignedDenseJointLaw.randomPrefixFinish_pairEquiv
+#print axioms FormalProof4FHE.TFHE.SourceAlignedDenseJointLaw.randomPrefixPair_uniform_evalDist
+#print axioms FormalProof4FHE.TFHE.SourceAlignedDenseJointLaw.randomPrefixBuild_real_evalDist
+#print axioms FormalProof4FHE.TFHE.SourceAlignedDenseJointLaw.randomPrefixBuild_uniform_evalDist
+#print axioms FormalProof4FHE.TFHE.SourceAlignedDenseJointLaw.secondPrefixBuild_real_evalDist
+#print axioms FormalProof4FHE.TFHE.SourceAlignedDenseJointLaw.secondPrefixBuild_uniform_evalDist
+#print axioms FormalProof4FHE.TFHE.SourceAlignedDenseJointLaw.endpointAdvantage_le_three_sources
+#print axioms FormalProof4FHE.TFHE.TFHEppCandidateLvl02DenseSecurity.Parameters.splitDimension_eq
+#print axioms FormalProof4FHE.TFHE.TFHEppCandidateLvl02DenseSecurity.endpointAdvantage_le_three_sources
+#print axioms FormalProof4FHE.TFHE.TFHEppCandidateLvl02DenseSecurity.endpointAdvantage_le_hardness
+
 -- Correlated source-aligned TFHEpp correctness and parameter screen.
 #print axioms FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen.CorrelatedCorrectness.error_pairing_cancels
 #print axioms FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen.CorrelatedCorrectness.keySwitch_phase_eq_message_sub_fresh

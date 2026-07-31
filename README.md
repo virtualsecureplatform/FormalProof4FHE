@@ -916,6 +916,17 @@ checks run inside the container; no host Lean installation is required.
   `2 ε_Z + 2 ε_P₁ + 2 ε_P₂ + ε_aux`. Ternary suffix-subspace RLWE hardness and,
   for a concrete standard-model expander, direct public-seed structured-matrix LWE hardness
   remain explicit computational premises.
+- `FormalProof4FHE.TFHE.SourceAlignedDenseJointLaw` installs the previously abstract constructors
+  for the dense modified-format route. The complete random-suffix branch is reparameterized by
+  one affine bijection on a uniform body/mask pair, and the second KSK hop is a uniform-body
+  translation. Both real laws and both uniform-branch laws are exact, so the endpoint bound is
+  one structured suffix advantage plus two dense prefix-LWE advantages, with no rowwise loss or
+  constructor defect. `TFHEppCandidateLvl02DenseSecurity` then fixes the balanced candidate's
+  binary prefix sampler, zero-prefix centered-ternary suffix sampler, 64-bit rank-one ring-mask
+  sampler, scalarized aligned width, and leading-prefix gadget rows. Its hardness corollary is
+  `2 ε_Z + 4 ε_P`. The complete finite error samplers, the public BRK message/contribution map,
+  hardness of the resulting ternary suffix-subspace source, full correctness composition, and
+  the widened evaluator remain explicit obligations; the theorem does not certify native TFHEpp.
 - `FormalProof4FHE.TFHE.Circular.circularAdvantage_le_replacements` formalizes TFHE's actual
   heterogeneous evaluation-key cycle and splits real-to-zero cloud-key replacement into the
   bootstrapping-key and key-switching-key hops.

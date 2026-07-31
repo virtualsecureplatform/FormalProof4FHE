@@ -155,6 +155,8 @@ import FormalProof4FHE.TFHE.SourceAlignedNativeGadgetDistribution
 import FormalProof4FHE.TFHE.SourceAlignedBRKKSKJointLaw
 import FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen
 import FormalProof4FHE.TFHE.SuffixRLWEPRG
+import FormalProof4FHE.TFHE.SourceAlignedDenseJointLaw
+import FormalProof4FHE.TFHE.TFHEppCandidateLvl02DenseSecurity
 import FormalProof4FHE.TFHE.RingSquareActualNormalForm
 import FormalProof4FHE.TFHE.RingSquareSecretRandomization
 import FormalProof4FHE.TFHE.RingSquareUnitGuessCheck

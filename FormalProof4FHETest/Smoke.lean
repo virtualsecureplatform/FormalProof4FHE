@@ -3431,6 +3431,20 @@ example (degree eta : ℕ) :
 #check FormalProof4FHE.TFHE.SuffixRLWEPRG.ConditionalSecurity.endpointAdvantage_le
 #check FormalProof4FHE.TFHE.SuffixRLWEPRG.ConditionalSecurity.endpointAdvantage_le_commonPrefix
 
+-- Exact dense-mask constructors and balanced lvl02 source specialization.
+#check FormalProof4FHE.TFHE.SourceAlignedDenseJointLaw.branchMatrix_transpose_mulVec
+#check FormalProof4FHE.TFHE.SourceAlignedDenseJointLaw.randomPrefixFinish_pairEquiv
+#check FormalProof4FHE.TFHE.SourceAlignedDenseJointLaw.randomPrefixPair_uniform_evalDist
+#check FormalProof4FHE.TFHE.SourceAlignedDenseJointLaw.randomPrefixBuild_real_evalDist
+#check FormalProof4FHE.TFHE.SourceAlignedDenseJointLaw.randomPrefixBuild_uniform_evalDist
+#check FormalProof4FHE.TFHE.SourceAlignedDenseJointLaw.secondPrefixBuild_real_evalDist
+#check FormalProof4FHE.TFHE.SourceAlignedDenseJointLaw.secondPrefixBuild_uniform_evalDist
+#check FormalProof4FHE.TFHE.SourceAlignedDenseJointLaw.endpointAdvantage_le_three_sources
+#check FormalProof4FHE.TFHE.TFHEppCandidateLvl02DenseSecurity.Parameters.splitDimension_eq
+#check FormalProof4FHE.TFHE.TFHEppCandidateLvl02DenseSecurity.Parameters.factorWidth_eq_alignedWidth
+#check FormalProof4FHE.TFHE.TFHEppCandidateLvl02DenseSecurity.endpointAdvantage_le_three_sources
+#check FormalProof4FHE.TFHE.TFHEppCandidateLvl02DenseSecurity.endpointAdvantage_le_hardness
+
 -- Correlated source-aligned TFHEpp correctness and parameter screen.
 #check FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen.CorrelatedCorrectness.error_pairing_cancels
 #check FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen.CorrelatedCorrectness.keySwitch_phase_eq_message_sub_fresh
