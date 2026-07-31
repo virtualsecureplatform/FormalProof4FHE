@@ -158,10 +158,14 @@ with the ordinary coordinate-by-level layout. One must now do one of the followi
 2. change the scheme to generate the source-aligned KSK and prove security of that modified
    cloud-key distribution.
 
-Neither follows from the now-proved complete BRK-mask marginal law. This is a genuine cryptographic construction
-question, so the technical path stops here. Once such a bridge is supplied, centered-lift bounds
-for the rotation-scaled native digits and a final correctness-margin calculation are technical
-parameter work.
+Neither follows from the now-proved complete BRK-mask marginal law. This is a genuine
+cryptographic construction question, so the technical path stops here. Once such a bridge is
+supplied, centered-lift bounds for the rotation-scaled native digits and a final
+correctness-margin calculation are technical parameter work.
+
+A self-contained mathematical statement of this obstruction, the exact native-preserving and
+modified-scheme target theorems, and the plausible research routes is given in
+[The source-aligned BRK/KSK joint-law problem](SourceAlignedBRKKSKJointLawProblem.md).
 
 The propagated factors are ghost proof state and need not be stored by the evaluator. Failure of
 the deterministic trace bound would not by itself be a no-go theorem: it would identify the point
