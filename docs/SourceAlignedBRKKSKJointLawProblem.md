@@ -30,6 +30,27 @@ kernel vector and the error discrepancy is its inner product with native KSK err
 MGF-to-subgaussian tail and reachable-factor union bound are formalized; supplying concrete
 reachable-factor covariance and correctness bounds remains implementation-specific work.
 
+The correlated modified-format route now has a sharper correctness boundary. If blind rotation
+has accumulated phase error `⟨x,e_B⟩` and the aligned KSK uses error `e_B+F`, key switching
+subtracts `⟨x,e_B+F⟩`; the complete reused BRK-error term therefore cancels exactly and the
+remaining term is `-⟨x,F⟩`. The factor `x` may depend on the complete earlier bootstrap
+transcript. Because `F` is sampled independently afterwards, conditioning fixes `x` and averaging
+a uniform finite-MGF tail bound incurs no union bound over reachable factors.
+
+For the audited default non-bundled TFHEpp shape, the source-bound specialization computes 3780
+BRK rows, 3870720 aligned scalar columns, and centered-digit factor-energy bound 3963617280. The
+nominal fresh correction at integer sigma 128 has exact Chernoff exponent `524288/945` at the
+conservative integer threshold `2^28`; this isolated component is not the correctness bottleneck.
+The current native subset KSK has only 5516 rows and the widened correlated generator is not
+present, so this is a proposed modified format rather than a theorem about the current binary.
+
+The companion full BDGL16 lattice-estimator run gives minimum heuristic costs of about `2^76.6`
+for the required prefix-LWE instance at fresh sigma 128 and `2^80.4` at the largest integer sigma
+passing the isolated 128-bit fresh-term screen. Treating the known-prefix structured suffix-RLWE
+source conservatively as ordinary LWE gives about `2^49.8`. These estimates are not formal
+insecurity results, especially for the structured suffix source, but under the repository's
+current estimator policy they reject the current split as a 128-bit theorem parameter.
+
 One correction to the notation below is important. The concrete TFHE formalization does not use
 one self-dual coefficient map: reciprocal coefficients scalarize masks and factors, while
 ordinary coefficients scalarize secrets and bodies. The adjoint identity is proved with those two
