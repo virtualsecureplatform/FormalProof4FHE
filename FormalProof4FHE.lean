@@ -38,6 +38,8 @@ import FormalProof4FHE.Probability.SquaredBias
 import FormalProof4FHE.RLWE.Basic
 import FormalProof4FHE.RLWE.CenteredBinomial
 import FormalProof4FHE.RLWE.CenteredBinomialMoment
+import FormalProof4FHE.RLWE.EvenOddDecomposition
+import FormalProof4FHE.RLWE.OddSecretReduction
 import FormalProof4FHE.RLWE.LeakyCircular
 import FormalProof4FHE.RLWE.IntervalMaskedQuadratic
 import FormalProof4FHE.RLWE.PowerOfTwoCyclotomic
@@ -156,7 +158,9 @@ import FormalProof4FHE.TFHE.SourceAlignedBRKKSKJointLaw
 import FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen
 import FormalProof4FHE.TFHE.SuffixRLWEPRG
 import FormalProof4FHE.TFHE.SourceAlignedDenseJointLaw
+import FormalProof4FHE.TFHE.SourceAlignedSuffixRLWEReduction
 import FormalProof4FHE.TFHE.TFHEppCandidateLvl02DenseSecurity
+import FormalProof4FHE.TFHE.TFHEppCandidateLvl02ParitySecurity
 import FormalProof4FHE.TFHE.RingSquareActualNormalForm
 import FormalProof4FHE.TFHE.RingSquareSecretRandomization
 import FormalProof4FHE.TFHE.RingSquareUnitGuessCheck

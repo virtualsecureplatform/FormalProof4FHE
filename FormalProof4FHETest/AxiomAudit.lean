@@ -2338,6 +2338,16 @@ import FormalProof4FHE
 #print axioms FormalProof4FHE.TFHE.TFHEppCandidateLvl02DenseSecurity.endpointAdvantage_le_three_sources
 #print axioms FormalProof4FHE.TFHE.TFHEppCandidateLvl02DenseSecurity.endpointAdvantage_le_hardness
 
+-- Exact parity-secret reduction and balanced lvl02 instantiation.
+#print axioms FormalProof4FHE.RLWE.EvenOddDecomposition.joinRq_commRing_mul_odd_untwist
+#print axioms FormalProof4FHE.RLWE.OddSecretReduction.advantage_eq_smallRLWE
+#print axioms FormalProof4FHE.TFHE.SourceAlignedSuffixRLWEReduction.advantage_eq_ring
+#print axioms FormalProof4FHE.TFHE.TFHEppCandidateLvl02ParitySecurity.embedTernaryParity_even
+#print axioms FormalProof4FHE.TFHE.TFHEppCandidateLvl02ParitySecurity.embedTernaryParity_odd
+#print axioms FormalProof4FHE.TFHE.TFHEppCandidateLvl02ParitySecurity.paritySuffixAdvantage_eq_smallTernaryRLWE
+#print axioms FormalProof4FHE.TFHE.TFHEppCandidateLvl02ParitySecurity.endpointAdvantage_le_smallRLWE_and_prefix
+#print axioms FormalProof4FHE.TFHE.TFHEppCandidateLvl02ParitySecurity.endpointAdvantage_le_hardness
+
 -- Correlated source-aligned TFHEpp correctness and parameter screen.
 #print axioms FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen.CorrelatedCorrectness.error_pairing_cancels
 #print axioms FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen.CorrelatedCorrectness.keySwitch_phase_eq_message_sub_fresh

@@ -3445,6 +3445,16 @@ example (degree eta : ℕ) :
 #check FormalProof4FHE.TFHE.TFHEppCandidateLvl02DenseSecurity.endpointAdvantage_le_three_sources
 #check FormalProof4FHE.TFHE.TFHEppCandidateLvl02DenseSecurity.endpointAdvantage_le_hardness
 
+-- Exact parity-secret reduction for the balanced lvl02 candidate.
+#check FormalProof4FHE.RLWE.EvenOddDecomposition.joinRq_commRing_mul_odd_untwist
+#check FormalProof4FHE.RLWE.OddSecretReduction.advantage_eq_smallRLWE
+#check FormalProof4FHE.TFHE.SourceAlignedSuffixRLWEReduction.advantage_eq_ring
+#check FormalProof4FHE.TFHE.TFHEppCandidateLvl02ParitySecurity.embedTernaryParity_even
+#check FormalProof4FHE.TFHE.TFHEppCandidateLvl02ParitySecurity.embedTernaryParity_odd
+#check FormalProof4FHE.TFHE.TFHEppCandidateLvl02ParitySecurity.paritySuffixAdvantage_eq_smallTernaryRLWE
+#check FormalProof4FHE.TFHE.TFHEppCandidateLvl02ParitySecurity.endpointAdvantage_le_smallRLWE_and_prefix
+#check FormalProof4FHE.TFHE.TFHEppCandidateLvl02ParitySecurity.endpointAdvantage_le_hardness
+
 -- Correlated source-aligned TFHEpp correctness and parameter screen.
 #check FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen.CorrelatedCorrectness.error_pairing_cancels
 #check FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen.CorrelatedCorrectness.keySwitch_phase_eq_message_sub_fresh
