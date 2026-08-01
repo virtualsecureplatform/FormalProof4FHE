@@ -5,6 +5,7 @@ Authors: Kotaro Matsuoka
 -/
 
 import FormalProof4FHE.TFHE.SourceAlignedBRKKSKJointLaw
+import FormalProof4FHE.TFHE.SourceAlignedProofErrorSampler
 import FormalProof4FHE.TFHE.TFHEppSubsetTechnical
 
 /-!
@@ -22,10 +23,11 @@ TFHEpp's default level-zero/level-one bootstrap.  It proves three facts.
 * The current non-bundled parameter shape has `3780` BRK rows and hence `3870720` aligned scalar
   columns.  This is strictly wider than the `5516` rows of the native subset KSK.
 
-The arithmetic is a parameter screen, not a source-code equivalence theorem.  In particular, it
-does not assert that TFHEpp currently emits the widened correlated aligned KSK, identify the C++
-finite modular-Gaussian sampler with the MGF certificate, prove the two prefix-LWE assumptions,
-or account for every ordinary bootstrap rounding term.
+The arithmetic is a parameter screen, not a complete source-code equivalence theorem.  The lvl02
+section now instantiates the evaluator-tail premise with an exact uniform-bit finite sampler and
+its proved MGF certificate.  It still does not by itself prove that every C++ coin draw realizes
+that finite law, discharge the two prefix-LWE assumptions, or account for every ordinary
+bootstrap rounding term.
 -/
 
 set_option autoImplicit false
@@ -428,6 +430,67 @@ theorem nominalSphericalCovarianceEnergy_le
         (factorEnergy_le_bound factor coordinate_bound) (sq_nonneg _)
     _ = (freshPairingVarianceBound : ℝ) := by
       norm_num [freshPairingVarianceBound]
+
+/-- The exact finite sampler's proved covariance proxy is definitionally the candidate's
+historical `freshSigma² I` proxy. -/
+theorem finiteSamplerCovariance_eq :
+    SourceAlignedProofErrorSampler.sphericalCovariance alignedWidth =
+      (((freshSigma : ℝ) ^ 2) •
+        (1 : Matrix (Fin alignedWidth) (Fin alignedWidth) ℝ)) := by
+  unfold SourceAlignedProofErrorSampler.sphericalCovariance freshSigma
+  norm_num
+
+/-- The exact uniform-bit sampler supplies the previously abstract evaluator-tail certificate. -/
+theorem finiteFreshNoiseCertificate {Factor : Type}
+    (residual : Factor → Fin alignedWidth → ℝ) :
+    Certificate
+      (SourceAlignedProofErrorSampler.VectorCoins alignedWidth)
+      (Fin alignedWidth) Factor
+      (SourceAlignedProofErrorSampler.vectorCoinSampler alignedWidth)
+      (SourceAlignedProofErrorSampler.noiseVector alignedWidth)
+      residual
+      (SourceAlignedProofErrorSampler.sphericalCovariance alignedWidth) :=
+  SourceAlignedProofErrorSampler.sphericalCertificate alignedWidth residual
+
+/-- Coordinate bounds give the advertised covariance budget for the exact finite sampler. -/
+theorem finiteSamplerCovarianceEnergy_le
+    (factor : Fin alignedWidth → ℝ)
+    (coordinate_bound : ∀ coordinate,
+      |factor coordinate| ≤ centeredDigitRadius) :
+    covarianceEnergy
+        (SourceAlignedProofErrorSampler.sphericalCovariance alignedWidth)
+        factor ≤ freshPairingVarianceBound := by
+  rw [finiteSamplerCovariance_eq]
+  exact nominalSphericalCovarianceEnergy_le factor coordinate_bound
+
+/-- Concrete adaptive tail theorem for the exact finite sampler.  The factor may depend on the
+complete public state; only the subsequent finite correction tape is independent. -/
+theorem finiteSampler_adaptiveAbsTail
+    {State : Type} [Fintype State]
+    (stateSampler : ProbComp State)
+    (selectedFactor : State → Fin alignedWidth → ℝ)
+    (coordinate_bound : ∀ state ∈ support stateSampler, ∀ coordinate,
+      |selectedFactor state coordinate| ≤ centeredDigitRadius)
+    (energy_pos : ∀ state ∈ support stateSampler,
+      0 < Energy.factorEnergy (selectedFactor state)) :
+    Pr[(fun output ↦ (correctnessThreshold : ℝ) ≤
+        |dotProduct (selectedFactor output.1)
+          (SourceAlignedProofErrorSampler.noiseVector alignedWidth output.2)|) |
+      AdaptiveFreshNoise.independentProduct stateSampler
+        (SourceAlignedProofErrorSampler.vectorCoinSampler alignedWidth)].toReal ≤
+      2 * Real.exp (-((correctnessThreshold : ℝ) ^ 2) /
+        (2 * freshPairingVarianceBound)) := by
+  apply AdaptiveFreshNoise.Certificate.adaptiveIndependentAbsTail
+    (finiteFreshNoiseCertificate
+      (fun factor : Fin alignedWidth → ℝ ↦ factor))
+    stateSampler selectedFactor (correctnessThreshold : ℝ)
+    freshPairingVarianceBound (by positivity)
+  · intro state state_mem
+    rw [SourceAlignedProofErrorSampler.covarianceEnergy_spherical]
+    exact mul_pos (by positivity) (energy_pos state state_mem)
+  · intro state state_mem
+    exact finiteSamplerCovarianceEnergy_le (selectedFactor state)
+      (coordinate_bound state state_mem)
 
 /-- The candidate's isolated fresh correction has exact Chernoff exponent
 `1024 / 9` at the conservative threshold. -/

@@ -2315,6 +2315,14 @@ import FormalProof4FHE
 #print axioms FormalProof4FHE.TFHE.SourceAlignedBRKKSKJointLaw.NativeCompiler.EvaluatorTail.Certificate.absTail
 #print axioms FormalProof4FHE.TFHE.SourceAlignedBRKKSKJointLaw.NativeCompiler.EvaluatorTail.Certificate.reachableUnionTail
 
+-- Exact finite proof-aligned error sampler and evaluator-tail certificate.
+#print axioms FormalProof4FHE.TFHE.SourceAlignedProofErrorSampler.coarseProxy_eq
+#print axioms FormalProof4FHE.TFHE.SourceAlignedProofErrorSampler.ditherProxy_eq
+#print axioms FormalProof4FHE.TFHE.SourceAlignedProofErrorSampler.scalarProxy_le
+#print axioms FormalProof4FHE.TFHE.SourceAlignedProofErrorSampler.expectation_exp_decodeReal_le_two_pow
+#print axioms FormalProof4FHE.TFHE.SourceAlignedProofErrorSampler.expectation_exp_dotProduct_noiseVector_le
+#print axioms FormalProof4FHE.TFHE.SourceAlignedProofErrorSampler.sphericalCertificate
+
 -- Suffix-RLWE and public-seed mask-expansion boundary.
 #print axioms FormalProof4FHE.TFHE.SuffixRLWEPRG.KnownPrefix.addOffset_real
 #print axioms FormalProof4FHE.TFHE.SuffixRLWEPRG.KnownPrefix.independentPrefix_uniform_evalDist
@@ -2367,4 +2375,7 @@ import FormalProof4FHE
 #print axioms FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen.CandidateLvl02.factorEnergyBound_eq
 #print axioms FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen.CandidateLvl02.factorEnergy_le_bound
 #print axioms FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen.CandidateLvl02.nominalSphericalCovarianceEnergy_le
+#print axioms FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen.CandidateLvl02.finiteSamplerCovariance_eq
+#print axioms FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen.CandidateLvl02.finiteFreshNoiseCertificate
+#print axioms FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen.CandidateLvl02.finiteSampler_adaptiveAbsTail
 #print axioms FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen.CandidateLvl02.nominalFreshExponent_eq

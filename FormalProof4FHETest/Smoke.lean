@@ -3418,6 +3418,14 @@ example (degree eta : ℕ) :
 #check FormalProof4FHE.TFHE.SourceAlignedBRKKSKJointLaw.NativeCompiler.EvaluatorTail.Certificate.absTail
 #check FormalProof4FHE.TFHE.SourceAlignedBRKKSKJointLaw.NativeCompiler.EvaluatorTail.Certificate.reachableUnionTail
 
+-- Exact finite proof-aligned error sampler and evaluator-tail certificate.
+#check FormalProof4FHE.TFHE.SourceAlignedProofErrorSampler.coarseProxy_eq
+#check FormalProof4FHE.TFHE.SourceAlignedProofErrorSampler.ditherProxy_eq
+#check FormalProof4FHE.TFHE.SourceAlignedProofErrorSampler.scalarProxy_le
+#check FormalProof4FHE.TFHE.SourceAlignedProofErrorSampler.expectation_exp_decodeReal_le_two_pow
+#check FormalProof4FHE.TFHE.SourceAlignedProofErrorSampler.expectation_exp_dotProduct_noiseVector_le
+#check FormalProof4FHE.TFHE.SourceAlignedProofErrorSampler.sphericalCertificate
+
 -- Suffix-RLWE and public-seed mask-expansion boundary.
 #check FormalProof4FHE.TFHE.SuffixRLWEPRG.KnownPrefix.addOffset_bijective
 #check FormalProof4FHE.TFHE.SuffixRLWEPRG.KnownPrefix.addOffset_real
@@ -3482,4 +3490,7 @@ example (degree eta : ℕ) :
 #check FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen.CandidateLvl02.freshPairingVarianceBound_eq
 #check FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen.CandidateLvl02.factorEnergy_le_bound
 #check FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen.CandidateLvl02.nominalSphericalCovarianceEnergy_le
+#check FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen.CandidateLvl02.finiteSamplerCovariance_eq
+#check FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen.CandidateLvl02.finiteFreshNoiseCertificate
+#check FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen.CandidateLvl02.finiteSampler_adaptiveAbsTail
 #check FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen.CandidateLvl02.nominalFreshExponent_eq
