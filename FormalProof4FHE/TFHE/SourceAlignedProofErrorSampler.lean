@@ -221,6 +221,32 @@ theorem expectation_exp_pairDifference (rate : ℝ) :
     Fintype.sum_prod_type]
   ring
 
+/-- A fair bit-pair difference has the sharp subgaussian proxy `1 / 2`.  Equivalently, its
+exponential moment is at most `exp(rate² / 4)`. -/
+theorem expectation_exp_pairDifference_le_sharp (rate : ℝ) :
+    expectation ($ᵗ (Bool × Bool))
+        (fun coin ↦ Real.exp
+          (rate * FormalProof4FHE.RLWE.CenteredBinomial.pairDifferenceReal coin)) ≤
+      Real.exp (rate ^ 2 / 4) := by
+  rw [expectation_exp_pairDifference]
+  have hhalf :
+      (1 + Real.cosh rate) / 2 = Real.cosh (rate / 2) ^ 2 := by
+    have htwo := Real.cosh_two_mul (rate / 2)
+    have hsq := Real.cosh_sq_sub_sinh_sq (rate / 2)
+    rw [show 2 * (rate / 2) = rate by ring] at htwo
+    nlinarith
+  rw [hhalf]
+  have hcosh := Real.cosh_le_exp_half_sq (rate / 2)
+  have hcosh_nonneg : 0 ≤ Real.cosh (rate / 2) := (Real.cosh_pos _).le
+  have hexp_nonneg : 0 ≤ Real.exp ((rate / 2) ^ 2 / 2) := (Real.exp_pos _).le
+  calc
+    Real.cosh (rate / 2) ^ 2 ≤
+        Real.exp ((rate / 2) ^ 2 / 2) ^ 2 := by nlinarith
+    _ = Real.exp (rate ^ 2 / 4) := by
+      rw [pow_two, ← Real.exp_add]
+      congr 1
+      ring
+
 /-- A bit-pair difference is subgaussian with the convenient proxy one.  Its sharp proxy is
 `1/2`, but the looser value keeps the finite proof elementary and still fits the lvl02 budget. -/
 theorem expectation_exp_pairDifference_le (rate : ℝ) :

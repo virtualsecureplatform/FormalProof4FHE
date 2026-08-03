@@ -927,6 +927,208 @@ checks run inside the container; no host Lean installation is required.
   `2 ε_Z + 4 ε_P`. The complete finite error samplers, the public BRK message/contribution map,
   hardness of the resulting ternary suffix-subspace source, full correctness composition, and
   the widened evaluator remain explicit obligations; the theorem does not certify native TFHEpp.
+- `FormalProof4FHE.TFHE.SourceAlignedParityTernarySecurity` makes the parity-placed suffix
+  reduction independent of the torus modulus and complete gadget-row count. A binary
+  degree-1024 prefix occupies the even coefficients and an independent centered-ternary
+  degree-1024 secret occupies the odd coefficients; the complete suffix source is exactly
+  ordinary ternary RLWE with twice the ring-row count, and the endpoint loss remains
+  `2 ε_RLWE + 4 ε_LWE`. `CenteredBinomialProofErrorSampler` proves the sharp finite CBD MGF
+  proxy `eta / 2` and identifies its modular tape exactly with the executable coefficient
+  sampler. `TFHEppCandidateLvl02CBDParameterScreen` then checks the proposed `q = 2^27`,
+  `eta = 2048`, base-four/13-level arithmetic, including one discarded decomposition bit,
+  no modular wrap, aligned width `54525952`, Chernoff exponent `2048 / 13`, and adaptive
+  correction failure strictly below `2^-226`. The concrete
+  `TFHEppCandidateLvl02CBDParitySecurity` theorem binds that same CBD law to the ordinary
+  ternary-RLWE and binary-LWE source games without a Gaussian comparison, suffix PRG, or NTRU
+  term. `SourceAlignedExecutableJointFormat` then fixes the implementation sampling order—first
+  the complete BRK, then an independent dense mask and CBD correction—and proves that its reused
+  BRK-body formula is exactly the real dense joint view. It also proves the row formula used by
+  the streamed evaluator under the explicit BRK-contribution split and checks that a literal
+  candidate KSK occupies `223556403200` bytes. This closes the widened row/sampler mechanics, not
+  the native TRGSW cryptographic bridge: the theorem's public linear BRK-contribution map still
+  has to be instantiated despite the nonce rows' secret-message products. Complete bootstrap
+  rounding and modulus-boundary composition also remain required.
+- `FormalProof4FHE.TFHE.NativeTRGSWBarrierAndSpectralBoundary` makes that native boundary exact.
+  It proves the body-row public-linear coefficients, the nonce row's complete degree-two form,
+  the suffix-variation and mixed-Boolean-derivative impossibility theorems, displayed-mask
+  independence and the sharp one-half raw-mask recovery bound, private cancellation, and the
+  complete TGSW/BRK xor-normalization law. It then
+  proves Walsh orthogonality, the exact diagonal Fourier and orbit-filter identities, the
+  low/high split with multiplier `sum_{k=1}^d choose(t,k)`, and the finite leakage-removal loss.
+  For an arbitrary finite complete BRK/KSK/auxiliary channel it derives the exact posterior-parity
+  quotient and the distinguisher-independent `theta_S` coefficient bound. The final native
+  circular-security inequality is conditional on a low-degree complete affine-source compiler,
+  the random/zero endpoint, and the explicitly named `NativeDiagonalSpectralDecay` premise. A
+  point-oracle witness proves normalization alone cannot imply secret prediction. Consequently
+  this closes the finite reduction algebra but does not assert spectral decay or certify current
+  native TFHE parameters; see `docs/NativeTRGSWBarrierAndSpectralBoundary.md`.
+- `FormalProof4FHE.TFHE.NativeTRGSWCompleteChannel` instantiates that framework with the actual
+  shared-prefix/suffix native BRK plus retained KSK sampler. The real sampler is proved exactly
+  equal to the diagonal channel law, the comparison sampler independently randomizes the BRK
+  message, and the complete xor normalization retains all BRK/KSK correlation. After conditioning
+  on a known message, each direct TGSW body is proved affine in the ring key by absorbing the
+  public gadget-mask shift into its challenge. Frequency-support leakage has exactly `2^|S|`
+  values, so its square-root loss is derived rather than manually selected. The affine identity
+  is lifted to an exact distributional equality for every BRK entry and then for the whole
+  conditioned BRK-plus-retained-KSK view, preserving the shared prefix/suffix key. A bundled
+  low-frequency certificate feeds these facts into the final native acceptance theorem, while a
+  decoder lower bound rules out incompatible spectral-tail claims. The joint affine-source
+  hardness reduction, high-frequency posterior decay, and random/zero endpoint remain explicit; see
+  `docs/NativeTRGSWCompleteChannel.md` and `docs/NativeTRGSWRemainingHardProofs.md`.
+- `FormalProof4FHE.TFHE.NativeTRGSWSpectralInfeasibility` resolves the statistical feasibility
+  check conditionally in the negative. For native suffix-KSK rows it constructs the exhaustive
+  typical-set decoder and proves failure at most
+  `tau_E + (2^t-1)|Z| product_j (|E_j|/q)`. Adding correct-key BRK failure gives a full
+  secret/message decoder, which forces every posterior Walsh radius above `1-2 epsilon` and the
+  high-degree sum above the exact binomial count times that value. It also packages the one-batch
+  heterogeneous affine assumption, restates the bounded-leakage square-root loss, formalizes the
+  perfectly secure-marginals/fully revealing-joint xor counterexample, and proves the two-hop
+  random-message/zero endpoint.
+  `FormalProof4FHE.TFHE.NativeTRGSWConcreteSuffixSeparation` now instantiates the KSK decoder at
+  the native TFHEpp lvl10 layout: a top unit row separates centered-ternary suffix values by
+  `2^14`, radius `127` gives row density `255/2^16`, and the complete 5516-row false-candidate
+  term is at most `2^-42710`. Executable centered-binomial width at most 127 has zero tail, while
+  the current C++ normal-distribution sampler still needs an exact finite-law tail certificate.
+  `FormalProof4FHE.TFHE.NativeTRGSWConcreteBRKRecovery` independently closes the native lvl01
+  correct-key BRK decoder: the selected final-block top row carries codewords `0` and `2^26`, so
+  every executable CBD BRK with `2 eta < 2^26` decodes its entire 630-bit control vector with
+  exactly zero failure, for an arbitrary level-one ring secret. Thus the viable unresolved route
+  is a joint aggregate computational theorem, not statistical spectral decay or further native
+  decoder arithmetic.
+  See `docs/NativeTRGSWSpectralInfeasibility.md`.
+- `FormalProof4FHE.TFHE.NativeTRGSWAggregateSecurityAndComplexityLeveraging` replaces the rejected
+  absolute posterior tail by one canonical aggregate high-pass game. The Jordan decomposition of
+  `delta_0 - 2^-t K_{<=d}` gives two exact finite probability tables; their Walsh gap is zero
+  through degree `d` and `1/lambda_d` above it, with
+  `1-N_{<=d}/2^t <= lambda_d <= (1+sqrt(N_{<=d}))/2`. The resulting game gap is exactly the
+  signed high-degree diagonal Fourier sum divided by `lambda_d`, so the native bridge needs only
+  one efficient aggregate distinguisher rather than exponentially many coefficient reductions.
+  A point-oracle witness preserves a nonzero aggregate gap, showing that this premise is not a
+  black-box consequence of the low-degree source and endpoint. The full-key match-and-square
+  theorem then bounds the aggregate advantage by
+  `sqrt(2 C_half(K) epsilon_RLWE)`, proves the square-root tilted fake-key law optimal within this
+  argument, and derives `C_half(K)=2^t 3^r` for a uniform binary-prefix/ternary-suffix key. The
+  final theorem includes complete-view construction defects and the zero-message endpoint. Thus
+  the standalone aggregate assumption is reduced conditionally to a doubled full-key zero-row
+  source, but instantiating that complete native constructor and removing the exponential
+  concentration loss remain research problems; see
+  `docs/NativeTRGSWAggregateSecurityAndComplexityLeveraging.md`.
+- `FormalProof4FHE.TFHE.NativeTRGSWAggregateConcreteChannel` now instantiates the aggregate
+  experiment with the actual complete native cloud-key kernel. It samples a uniform prefix, keeps
+  the mask private, and generates the BRK plus correlated suffix KSK at message `prefix xor mask`.
+  Its acceptance is exactly the abstract weighted orbit mean. Exact Jordan point-mass samplers
+  therefore give zero construction defect; proof-carrying ticket-table approximations contribute
+  their two explicit total-variation defects. The final concrete theorem leaves only the
+  low-degree affine certificate, the actual native aggregate advantage, and the endpoint as
+  security premises. Reducing that concrete aggregate advantage to accepted full-key zero-row
+  RLWE, and improving the exponential full-key concentration loss, remain research work; see
+  `docs/NativeTRGSWAggregateConcreteChannel.md` and
+  `docs/NativeTRGSWAggregateZeroRowHardProblem.md`.
+- `FormalProof4FHE.TFHE.NativeTRGSWAggregateProjectedLeakage` proves the projected-leakage
+  extension and the corresponding limitation of natural zero-row builders. Public gadget
+  translation constructs exact known-message native TGSW rows and erases the message exactly on
+  a uniform source. For arbitrary deterministic leakage `L`, match-and-square costs
+  `sqrt(2 C_half(L(K)) epsilon)`, with an explicit approximate-erasure variant. An inverse-weight
+  witness proves that the diagonal concentration factor is exact. Finite Walsh inversion then
+  identifies the common stabilizer of the canonical aggregate laws: it is trivial for `d+2<=t`
+  and is even parity at `d=t-1`. Thus any exact phase-oblivious public-translation builder must
+  recover the complete binary prefix in the usual cutoff regime, forcing
+  `C_half(L(K)) >= 2^t`; at the exceptional cutoff it must still reveal full parity, forcing the
+  exact residual bound `C_half(L(K)) >= 2`. A qualitatively nonlinear, KSK-synthesizing, correlated-source, or
+  trapdoor simulator is not ruled out; see `docs/NativeTRGSWAggregateProjectedLeakage.md`.
+- `FormalProof4FHE.TFHE.NativeTRGSWCompleteViewAuxiliarySource` implements the row-only native
+  complete-view simulator from `sketch/completeview.md`. It forwards the genuine KSK and auxiliary
+  transcript, proves exact diagonal native body/nonce translation for arbitrary real-view
+  correlations, and proves exact positive/negative sign erasure when the uniform row block is
+  sampled independently of that forwarded side state. The match-and-square loss is exactly the
+  Renyi-half concentration of the prefix marginal—`2^t` for a uniform `t`-bit prefix—with no suffix
+  factor. The resulting aggregate and Fourier theorems retain the auxiliary-input CVZR bound as an
+  explicit premise; they do not derive it from ordinary RLWE. See
+  `docs/NativeTRGSWCompleteViewAuxiliarySource.md`.
+- `FormalProof4FHE.TFHE.NativeTRGSWCVZRReduction` conditionally discharges that auxiliary-input
+  premise using the construction in `sketch/CVZR.md`. Known-suffix translation maps a complete
+  prefix-RLWE zero-row block to full-key rows by one exact permutation, both abstractly over the
+  ring and directly in the coefficient-form source representation. Signed coefficient
+  extraction gives exactly uniform prefix masks and exact native affine KSK rows while retaining
+  the complete joint extracted-error vector. Disjoint uniform source blocks make the two public
+  constructor branches identical even though their common side output need not be genuine. The
+  checked reduction proves `Adv_CVZR <= 2 Adv_PreRLWE`, exact equality with half the target
+  advantage, the complete-view approximate bound, and the two-copy specialization. The remaining
+  premises are a real-source public side builder with the genuine joint KSK/auxiliary law and
+  prefix-subspace RLWE when the prefix is not full-dimensional. See
+  `docs/NativeTRGSWCVZRReduction.md`.
+- `FormalProof4FHE.TFHE.NativeTRGSWCVZRConcreteInstantiation` discharges that generic side-builder
+  premise for the literal native shared-prefix/suffix cloud key with coefficientwise CBD noise.
+  An explicit index equivalence partitions every BRK and KSK row; whole-vector coefficient
+  extraction gives the native scalar-CBD KSK law; whole-BRK transport is bijective; and deferred
+  sampling identifies the resulting joint source view with the native zero-BRK/uniform-BRK views
+  retaining the genuine KSK. The exact theorem is
+  `Adv_native-CVZR <= 2 Adv_prefix-subspace-RLWE`, with the source reduction advantage exactly
+  half the native gap and no row-count loss. Only the binary prefix-subspace RLWE hardness premise
+  remains for this zero-row endpoint. See `docs/NativeTRGSWCVZRConcreteInstantiation.md`.
+- `FormalProof4FHE.RLWE.EvenSecretReduction` and
+  `FormalProof4FHE.TFHE.NativeTRGSWCVZRParityPrefix` give the exact parity-layout alternative.
+  A binary prefix in the even coefficients of a doubled ring splits into two ordinary
+  half-degree binary-RLWE blocks with no loss or twist. The checked representation layer includes
+  known odd-suffix transport, jointly uniform extracted KSK masks, the complete paired-CBD to
+  scalar-CBD error law, and exact batched KSK extraction. Composing any exact parity CVZR compiler
+  leaves `2 * Adv_binary-RLWE`, with source advantage exactly half of the CVZR advantage. The
+  existing literal native compiler still uses its contiguous layout; a parity cloud-key carrier
+  must instantiate the final compiler record. Secret-message nonce rows remain a separate
+  cryptographic problem. See `docs/NativeTRGSWCVZRParityPrefix.md`.
+- `FormalProof4FHE.TFHE.NativeTRGSWQuadraticKDMAndTFHET` formalizes the positive restricted
+  quadratic-KDM route for those secret-message nonce rows. A nonce row is proved exactly equal to
+  an RLWE row encrypting `-h m S`; complete nonce/body translation is a whole-BRK permutation on
+  the uniform source; and public aggregation exposes `-h E(P) S`, specializing to `-h S^2` when
+  the encrypted prefix is the full key. For the parity split, Lean proves the full even/odd
+  product law, constructs one homogeneous full-ring row from two half-ring samples, and gives an
+  explicit inverse establishing exact uniform transport. A direct source compiler maps real RLWE
+  to the match-and-square experiment and uniform RLWE to its fair endpoint, so its advantage is
+  exactly the complete-view source term without the extra CVZR branch-selection factor. The final
+  bound is `sigma_real + sigma_zero + sqrt(2 C_half(P) Adv_half-RLWE)`, with exact generic sample
+  accounting and `C_half(P)=2^t` for a uniform binary control prefix. Here `t` is the number of BRK
+  control bits, not a key-switch digit count. The exact joint BRK/KSK/auxiliary sampler law remains
+  visible in the compiler record, and the parity key law is not asserted to be an implementation
+  default. See `docs/NativeTRGSWQuadraticKDMAndTFHET.md`.
+- `FormalProof4FHE.TFHE.NativeTRGSWHashCompressedSecurity` formalizes the two routes for avoiding
+  the full-prefix `2^t` match-and-square factor. For any fixed balanced public `r`-bit hash, the
+  projected leakage concentration is exactly `2^r`, giving the checked conditional bound
+  `sigma_plus + sigma_minus + sqrt(2^(r+1) sourceBound)`. The builder type exposes only the digest
+  and public source view, and the dual-mode theorem adds both mode switches and the sampler defect.
+  Conversely, the aggregate-stabilizer theorem proves that no shorter balanced hash can drive the
+  existing exact phase-oblivious translation builder at the usual cutoff. The module also proves
+  the acyclic block-cycle telescope, its exact source-exponent budget, vector-LWE XOR transport,
+  and the native ring scalar-affine obstruction. Constructing the complete-view hash-lossy mode
+  remains an explicit cryptographic premise. See `docs/NativeTRGSWHashCompressedSecurity.md`.
+- `FormalProof4FHE.TFHE.NativeTRGSWAggregateRobustLeakage` replaces the worst-case low-frequency
+  multiplier by the exact support-sensitive sum
+  `sum_(j=1)^d choose(t,j) delta_j`, including approximate aggregate samplers and the endpoint.
+  Applied to the existing affine-source certificate, its concrete term is
+  `sum_(j=1)^d choose(t,j) sqrt(2^(j+1) delta)`, paying the actual support size rather than the
+  cutoff in every summand.
+  It also makes the projected-leakage barrier quantitative. If a nonzero prefix collision flips
+  a retained Walsh character, the two Jordan translation defects satisfy
+  `2 <= lambda_d (D_plus + D_minus)`. Consequently, if every plaintext construction has `L1`
+  defect at most `eta` and `4 lambda_d eta < 2`, equal deterministic leakage still forces equal
+  prefixes. Randomized leakage has the same pointwise support-separation threshold, while its
+  pairwise overlap is bounded by the four average construction defects. Thus negligible
+  approximate correctness or stochastic leakage does not evade the natural-builder barrier; see
+  `docs/NativeTRGSWAggregateRobustLeakage.md`.
+- `FormalProof4FHE.TFHE.NativeTRGSWHardTheoremComposition` formalizes the theorem
+  implications in the remaining hard-TRGSW note without asserting the missing cryptographic
+  constructions. A public complete-view positive/negative compiler gives the exact one-shot tail
+  bound `2 lambda_d epsilon_source + lambda_d (rho_plus + rho_minus + rho_U)`, and
+  `2 lambda_d <= 1 + sqrt(N_{<=d})` exposes polynomial loss for fixed cutoff. The
+  distribution-aware constrained-batch premises imply their full BRK/KSK bound with each branch
+  defect counted once; two appropriately scaled ternary preimages yield an explicit nonzero
+  kernel vector with coefficient bound `B+1`, making the SIS obstruction concrete. The
+  approximate-recovery lemma also proves
+  `C_half(L) >= |P| (1-beta)^2` from decoder success `1-beta`. The
+  hidden ordinary/lossy-mode premises compose by the exact five-hop hybrid, including the
+  finite-sampler defect. Finally, the one-shot reduction is combined with the support-sensitive
+  affine-source sum and endpoint. The public aggregate compiler, short noise-compatible
+  factorization, and witness-independent hidden lossy mode remain the genuinely hard objects; see
+  `docs/NativeTRGSWHardTheoremComposition.md`.
 - `FormalProof4FHE.TFHE.Circular.circularAdvantage_le_replacements` formalizes TFHE's actual
   heterogeneous evaluation-key cycle and splits real-to-zero cloud-key replacement into the
   bootstrapping-key and key-switching-key hops.

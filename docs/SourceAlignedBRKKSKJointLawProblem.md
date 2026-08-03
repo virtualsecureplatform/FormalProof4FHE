@@ -549,3 +549,17 @@ and complete scalar width. What remains is cryptographic hardness of that struct
 source and of the two dense prefix sources, plus the finite sampler, complete correctness, and
 widened implementation obligations. This advances the modified-format theorem but does not
 remove the native-layout barrier described above.
+
+The q27/CBD candidate now also has the exact streamed widened-row mechanics. Once a BRK row is
+fixed, key generation samples an independent dense mask and correction and computes the
+correlated KSK body from the BRK body and its privately known message phase. Lean proves that the
+corresponding generic sampler is exactly the real dense view, conditional on the contribution
+split, and the executable evaluator checks single-row and weighted cancellation. This discharges
+the sampling-order, row-algebra, and storage-interface tasks. It does not discharge the public-map
+premise: a native nonce TRGSW row contributes a product of its secret plaintext bit with the ring
+secret. Evaluating that product privately during key generation is valid implementation behavior,
+but representing it as the theorem's public linear map of the observed gadget is precisely the
+remaining cryptographic question.
+
+The nonce-row obstruction and a theorem-level statement of the missing bridge are detailed in
+[Native secret-message TRGSW public-contribution barrier](NativeTRGSWPublicContributionBarrier.md).

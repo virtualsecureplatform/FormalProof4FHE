@@ -385,6 +385,32 @@ theorem joinRq_mul_odd (q half : ℕ) [Nontrivial (ZMod q)]
       simp only [map_mul, quotientOf_smallRootRq, evenQuotientHom_root]
       ring
 
+/-- Multiplication by an even-coordinate secret is two untwisted small-ring products. -/
+theorem joinRq_mul_even (q half : ℕ) [Nontrivial (ZMod q)]
+    (hhalf : 0 < half) (maskEven maskOdd secret : RLWE.Rq q half) :
+    joinRq q half maskEven maskOdd * joinRq q half secret 0 =
+      joinRq q half (maskEven * secret) (maskOdd * secret) := by
+  cases half with
+  | zero => omega
+  | succ half =>
+      apply RLWE.quotientOf_injective (q := q) (by omega : 0 < 2 * (half + 1))
+      change RLWE.quotientOf _
+          ((RLWE.negacyclicRing q (2 * (half + 1))).mul
+            (joinRq q (half + 1) maskEven maskOdd)
+            (joinRq q (half + 1) secret 0)) =
+        RLWE.quotientOf _
+          (joinRq q (half + 1)
+            ((RLWE.negacyclicRing q (half + 1)).mul maskEven secret)
+            ((RLWE.negacyclicRing q (half + 1)).mul maskOdd secret))
+      rw [RLWE.quotientOf_mul]
+      rw [quotientOf_joinRq q (half + 1) hhalf,
+        quotientOf_joinRq q (half + 1) hhalf,
+        quotientOf_joinRq q (half + 1) hhalf]
+      simp only [RLWE.quotientOf_zero, map_zero, mul_zero, add_zero]
+      simp_rw [RLWE.quotientOf_mul]
+      simp only [map_mul]
+      ring
+
 /-- The same identity for the proof-facing `CommRing` multiplication used by matrix LWE. -/
 theorem joinRq_commRing_mul_odd (q half : ℕ) [Nontrivial (ZMod q)]
     (hhalf : 0 < half) (maskEven maskOdd secret : RLWE.Rq q half) :
@@ -409,6 +435,31 @@ theorem joinRq_commRing_mul_odd (q half : ℕ) [Nontrivial (ZMod q)]
   simp only [RLWE.quotientOf_zero, map_zero, zero_add]
   simp_rw [RLWE.quotientOf_commRing_mul]
   simp only [map_mul, quotientOf_smallRootRq, evenQuotientHom_root]
+  ring
+
+/-- The even-secret identity for the proof-facing `CommRing` multiplication used by matrix
+LWE. -/
+theorem joinRq_commRing_mul_even (q half : ℕ) [Nontrivial (ZMod q)]
+    (hhalf : 0 < half) (maskEven maskOdd secret : RLWE.Rq q half) :
+    @Mul.mul (RLWE.Rq q (2 * half))
+        (LatticeCrypto.vectorNegacyclicRing_instCommRing
+          (ZMod q) (2 * half)).toMul
+        (joinRq q half maskEven maskOdd) (joinRq q half secret 0) =
+      joinRq q half
+        (@Mul.mul (RLWE.Rq q half)
+          (LatticeCrypto.vectorNegacyclicRing_instCommRing (ZMod q) half).toMul
+          maskEven secret)
+        (@Mul.mul (RLWE.Rq q half)
+          (LatticeCrypto.vectorNegacyclicRing_instCommRing (ZMod q) half).toMul
+          maskOdd secret) := by
+  apply RLWE.quotientOf_injective (q := q) (by omega : 0 < 2 * half)
+  rw [RLWE.quotientOf_commRing_mul]
+  rw [quotientOf_joinRq q half hhalf,
+    quotientOf_joinRq q half hhalf,
+    quotientOf_joinRq q half hhalf]
+  simp only [RLWE.quotientOf_zero, map_zero, mul_zero, add_zero]
+  simp_rw [RLWE.quotientOf_commRing_mul]
+  simp only [map_mul]
   ring
 
 /-! ## The public `Y`-twist is a permutation -/

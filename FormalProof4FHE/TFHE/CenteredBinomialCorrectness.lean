@@ -116,6 +116,28 @@ theorem rowError_mem_support_of_mem_support_encrypt
   exact mem_support_fin_mOfFn_apply (TGSW.rowCount dimension levels)
     (fun _ ↦ errorSampler) errors herrors (finProdFinEquiv index)
 
+/-- Every row error of a TGSW encryption with executable centered-binomial ring noise has
+infinity norm at most the sampler width.  Keeping this theorem polymorphic avoids re-elaborating
+the complete concrete ring sampler when it is instantiated by parameter-screen modules. -/
+theorem cInfNorm_rowError_le_eta_of_mem_support_encrypt
+    {q degree dimension levels eta : ℕ} [NeZero q]
+    (secret : Fin dimension → RLWE.Rq q (degree + 1))
+    (gadget : Fin levels → RLWE.Rq q (degree + 1))
+    (message : RLWE.Rq q (degree + 1))
+    {ciphertext : TGSW.Ciphertext (RLWE.Rq q (degree + 1)) dimension levels}
+    (hciphertext : ciphertext ∈ support
+      (TGSW.encrypt dimension levels
+        (RLWE.CenteredBinomial.sampler q (degree + 1) eta)
+        secret gadget message))
+    (index : Fin (dimension + 1) × Fin levels) :
+    LatticeCrypto.cInfNorm
+        (TGSW.rowError (R := RLWE.Rq q (degree + 1))
+          secret gadget message ciphertext index) ≤ eta := by
+  apply cInfNorm_le_eta_of_mem_support
+  exact rowError_mem_support_of_mem_support_encrypt
+    (RLWE.CenteredBinomial.sampler q (degree + 1) eta)
+    secret gadget message hciphertext index
+
 /-! ## Native bootstrapping-key row bounds -/
 
 /-- Support membership of a native bootstrapping key projects to support membership of every
