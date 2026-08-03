@@ -319,6 +319,7 @@ import FormalProof4FHE.TFHE.NativeTRGSWCVZRConcreteInstantiation
 import FormalProof4FHE.TFHE.NativeTRGSWCVZRParityPrefix
 import FormalProof4FHE.TFHE.NativeTRGSWQuadraticKDMAndTFHET
 import FormalProof4FHE.TFHE.NativeTRGSWHashCompressedSecurity
+import FormalProof4FHE.TFHE.NativeTRGSWHashLossyCompleteView
 import FormalProof4FHE.TFHE.NativeTRGSWAggregateRobustLeakage
 import FormalProof4FHE.TFHE.NativeTRGSWHardTheoremComposition
 import FormalProof4FHE.TFHE.NoiseBounds

@@ -1100,6 +1100,19 @@ checks run inside the container; no host Lean installation is required.
   the acyclic block-cycle telescope, its exact source-exponent budget, vector-LWE XOR transport,
   and the native ring scalar-affine obstruction. Constructing the complete-view hash-lossy mode
   remains an explicit cryptographic premise. See `docs/NativeTRGSWHashCompressedSecurity.md`.
+- `FormalProof4FHE.TFHE.NativeTRGSWHashLossyCompleteView` formalizes the complete theorem package
+  for the hash-lossy proposal. A surjective linear hash has an executable uniform-fiber
+  resampler; its complete-view law factors exactly through the digest, and for an independent
+  uniform prefix its unconditioned marginal is exactly the ordinary marginal. For a public
+  balanced `r`-bit hash family, the averaged conditional concentration is `2^r`. Approximate
+  source erasure gives `sqrt(2^r * (2 sourceAdvantage + erasureDefect^2))`, while exact erasure
+  recovers `sqrt(2^(r+1) sourceAdvantage)`; the final theorem adds both mode switches and one
+  sampler defect. Exact phase-oblivious translation forces `r >= t`, approximate translation has
+  defect at least `1/(4 lambda_d)`, and an information-theoretically digest-factorized view allows
+  prefix decoding with probability at most `2^(-(t-r))`. The last fact yields the statistical
+  mode-switch lower bound by total-variation data processing. The computational joint
+  BRK/KSK/auxiliary dual-mode generator remains an explicit unresolved premise. See
+  `docs/NativeTRGSWHashLossyCompleteView.md`.
 - `FormalProof4FHE.TFHE.NativeTRGSWAggregateRobustLeakage` replaces the worst-case low-frequency
   multiplier by the exact support-sensitive sum
   `sum_(j=1)^d choose(t,j) delta_j`, including approximate aggregate samplers and the endpoint.
