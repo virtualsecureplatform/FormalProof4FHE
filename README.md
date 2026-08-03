@@ -1113,6 +1113,17 @@ checks run inside the container; no host Lean installation is required.
   mode-switch lower bound by total-variation data processing. The computational joint
   BRK/KSK/auxiliary dual-mode generator remains an explicit unresolved premise. See
   `docs/NativeTRGSWHashLossyCompleteView.md`.
+- `FormalProof4FHE.TFHE.NativeTRGSWProofDualMode` completes the finite synthesis requested by
+  `sketch/proofdualmode.md`. A source-independent constructor is proved unable to provide a
+  nontrivial source reduction: its two target branches are within the two diagonal defects plus
+  the reference erasure defect. The full five-edge native/ordinary/lossy hybrid now displays both
+  ordinary-fidelity terms, both computational mode-switch terms, both diagonal defects, one
+  sampler defect, and the exact public-hash term
+  `sqrt(2^r * (2 sourceAdvantage + erasureDefect^2))`; exact erasure gives
+  `sqrt(2^(r+1) sourceAdvantage)`. A generic fiber-collision theorem also proves that adding a
+  nonconstant native nonce KDM message to a digest-factorized hidden-rank residual destroys exact
+  digest factorization. This isolates the nonce-row obligation without claiming the missing
+  computational BRK/KSK/auxiliary dual-mode generator. See `docs/NativeTRGSWProofDualMode.md`.
 - `FormalProof4FHE.TFHE.NativeTRGSWAggregateRobustLeakage` replaces the worst-case low-frequency
   multiplier by the exact support-sensitive sum
   `sum_(j=1)^d choose(t,j) delta_j`, including approximate aggregate samplers and the endpoint.
