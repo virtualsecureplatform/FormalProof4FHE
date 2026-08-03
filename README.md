@@ -1250,6 +1250,17 @@ checks run inside the container; no host Lean installation is required.
   inclusive raw block choice, where the last value denotes zero, is also proved to be a
   coordinate-preserving uniform permutation of the proof representation, where zero is encoded
   by the first value.
+  `BlockCategoricalSelfCircular` adds the proof-only categorical completion requested by
+  `block_categorical_self_circular_tfhe.tex`. Literal table reindexing gives exact category
+  equivariance. An explicit finite count proves the wrong-candidate kernel
+  `lambda I + (1-lambda)J` with `lambda=(L-1)^(-2)`, and the checked predictor loss is
+  `(L-1)^2/(L-2)` for `L>=3`. The block telescope and contextual squared-bias bridge yield
+  `coefficient(L) * sum_b sqrt(2 L epsilon_ctx,b)` plus the CVZR, correlated-zero, and sampler
+  endpoints, with no `L^k` factor. Sample extraction is a signed permutation, and an explicit
+  barycentric equivalence certifies the original simplex action over every finite carrier. The
+  future-leakage theorem is formalized with the pairwise-separation premise actually needed for
+  recovery; the manuscript's single separated pair is insufficient. The contextual native-source
+  hardness remains an explicit research premise. See `docs/BlockCategoricalSelfCircular.md`.
   The same split now holds for the stronger secret-dependent continuations used by the adaptive
   encryption experiment, not merely for public cloud-key distinguishers. The asymptotic theorem
   composes it all the way through reusable encryption and arbitrary public deterministic FHE
