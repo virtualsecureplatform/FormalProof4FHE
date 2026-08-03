@@ -1217,6 +1217,15 @@ checks run inside the container; no host Lean installation is required.
   distinct-coordinate outer-product table; the second removes the remaining coefficient-affine
   diagonal table. This is the precise restricted premise to attack—neither arbitrary degree-two
   KDM security nor an unqualified appeal to ordinary RLWE is inserted.
+  `BlockBinarySelfCircular` specializes this boundary to a true same-key bootstrap without IKS.
+  It packs the compact one-hot block key into one rank-one ring key and proves that every
+  same-block off-diagonal product is zero, so the nonlinear table contains cross-block pairs
+  only. The exact identity is lifted through the full native BRK and an arbitrary same-key
+  auxiliary-input view with no KSK field. Its final bound is cross-block fixed-table security plus
+  diagonal coefficient-affine security plus an explicit zero-BRK endpoint. The implementation's
+  inclusive raw block choice, where the last value denotes zero, is also proved to be a
+  coordinate-preserving uniform permutation of the proof representation, where zero is encoded
+  by the first value.
   The same split now holds for the stronger secret-dependent continuations used by the adaptive
   encryption experiment, not merely for public cloud-key distinguishers. The asymptotic theorem
   composes it all the way through reusable encryption and arbitrary public deterministic FHE
