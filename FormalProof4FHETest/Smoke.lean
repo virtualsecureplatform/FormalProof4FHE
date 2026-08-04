@@ -3364,6 +3364,18 @@ example (degree eta : ℕ) :
 #check FormalProof4FHE.TFHE.SubsetKeyTrapdoorTheorems.SourceAligned.randomGadgetJointSecurity
 #check FormalProof4FHE.TFHE.SubsetKeyTrapdoorTheorems.SourceAligned.FactorPreservingBootstrapCertificate
 
+-- MP all-but-one digest tags and their exact trapdoor normalization.
+#check FormalProof4FHE.TFHE.MPAllButOneHashTrapdoor.FullRankDifferenceEncoding.tagDifference_eq_zero_iff
+#check FormalProof4FHE.TFHE.MPAllButOneHashTrapdoor.FullRankDifferenceEncoding.tagDifference_bijective
+#check FormalProof4FHE.TFHE.MPAllButOneHashTrapdoor.MatrixFullRankDifferenceEncoding.toLinear
+#check FormalProof4FHE.TFHE.MPAllButOneHashTrapdoor.MatrixFullRankDifferenceEncoding.ofLocalMap
+#check FormalProof4FHE.TFHE.MPAllButOneHashTrapdoor.candidateMask_add_trapdoor_comp_source
+#check FormalProof4FHE.TFHE.MPAllButOneHashTrapdoor.programmedCandidate_kernelRelation
+#check FormalProof4FHE.TFHE.MPAllButOneHashTrapdoor.wrongCandidate_normalized_preimage
+#check FormalProof4FHE.TFHE.MPAllButOneHashTrapdoor.wrongCandidate_normalized_phase
+#check FormalProof4FHE.TFHE.MPAllButOneHashTrapdoor.allButOneHashCMUXSecurity_le
+#check FormalProof4FHE.TFHE.MPAllButOneHashTrapdoor.allButOneDirectProjectedSecurity_le
+
 -- Exact source-aligned factor propagation through native TFHE operations.
 #check FormalProof4FHE.TFHE.SourceAlignedFactorPropagation.FactorCiphertext.phase_linearCombination
 #check FormalProof4FHE.TFHE.SourceAlignedFactorPropagation.externalProduct_factor

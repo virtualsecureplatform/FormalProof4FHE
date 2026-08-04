@@ -2274,6 +2274,18 @@ import FormalProof4FHE
 #print axioms FormalProof4FHE.TFHE.SubsetKeyTrapdoorTheorems.SourceAligned.FactorCiphertext.phase_scale
 #print axioms FormalProof4FHE.TFHE.SubsetKeyTrapdoorTheorems.SourceAligned.randomGadgetJointSecurity
 
+-- MP all-but-one digest tags and their exact trapdoor normalization.
+#print axioms FormalProof4FHE.TFHE.MPAllButOneHashTrapdoor.FullRankDifferenceEncoding.tagDifference_eq_zero_iff
+#print axioms FormalProof4FHE.TFHE.MPAllButOneHashTrapdoor.FullRankDifferenceEncoding.tagDifference_bijective
+#print axioms FormalProof4FHE.TFHE.MPAllButOneHashTrapdoor.MatrixFullRankDifferenceEncoding.toLinear
+#print axioms FormalProof4FHE.TFHE.MPAllButOneHashTrapdoor.MatrixFullRankDifferenceEncoding.ofLocalMap
+#print axioms FormalProof4FHE.TFHE.MPAllButOneHashTrapdoor.candidateMask_add_trapdoor_comp_source
+#print axioms FormalProof4FHE.TFHE.MPAllButOneHashTrapdoor.programmedCandidate_kernelRelation
+#print axioms FormalProof4FHE.TFHE.MPAllButOneHashTrapdoor.wrongCandidate_normalized_preimage
+#print axioms FormalProof4FHE.TFHE.MPAllButOneHashTrapdoor.wrongCandidate_normalized_phase
+#print axioms FormalProof4FHE.TFHE.MPAllButOneHashTrapdoor.allButOneHashCMUXSecurity_le
+#print axioms FormalProof4FHE.TFHE.MPAllButOneHashTrapdoor.allButOneDirectProjectedSecurity_le
+
 -- Exact source-aligned factor propagation through native TFHE operations.
 #print axioms FormalProof4FHE.TFHE.SourceAlignedFactorPropagation.FactorCiphertext.phase_linearCombination
 #print axioms FormalProof4FHE.TFHE.SourceAlignedFactorPropagation.externalProduct_phase

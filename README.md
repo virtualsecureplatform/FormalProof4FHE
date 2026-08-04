@@ -858,6 +858,15 @@ checks run inside the container; no host Lean installation is required.
   concrete source-aligned view constructor, and a short factor-preserving TFHE bootstrap remain
   explicit boundaries; the module does not claim that the current implementation satisfies
   them.
+- `FormalProof4FHE.TFHE.MPAllButOneHashTrapdoor` closes the reusable finite algebra behind an
+  MP-style all-but-one digest layer. It proves that the programmed digest is the unique zero tag,
+  that every other full-rank-difference tag is a linear equivalence, and that the tagged public
+  mask has the exact programmed kernel and normalized wrong-candidate preimage/phase identities.
+  A determinant interface builds this structure from unit matrix differences and reflects those
+  units through a local ring map. The final bounds charge a supplied tagged-mode defect exactly
+  once in the candidate and direct-projected hash-CMUX routes. A concrete tag family, trapdoor
+  regularity and preimage law, and the native nonce-row compiler remain explicit obligations; see
+  [`docs/MPAllButOneHashTrapdoor.md`](docs/MPAllButOneHashTrapdoor.md).
 - `FormalProof4FHE.TFHE.SourceAlignedFactorPropagation` closes the operation-level algebra for
   the source-aligned route. Finite public row combinations carry the identical combination of
   factor vectors and phases, yielding exact external-product and identity-plus-external-product
