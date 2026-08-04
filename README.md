@@ -1261,6 +1261,23 @@ checks run inside the container; no host Lean installation is required.
   future-leakage theorem is formalized with the pairwise-separation premise actually needed for
   recovery; the manuscript's single separated pair is insufficient. The contextual native-source
   hardness remains an explicit research premise. See `docs/BlockCategoricalSelfCircular.md`.
+  `BlockCategoricalHashCMUXSelfCircular` formalizes the hash-CMUX extension. Lean checks the
+  literal complete-batch sanitizer phase, exact mask rerandomization jointly with arbitrary
+  retained context, canonical fresh-encryption data processing from the joint context/error law,
+  conditional finite-box and Mahalanobis smudging, and exact wrong-candidate uniformization of the
+  complete mask/body carrier. It also proves equal-cardinality finite-support TV, the exact
+  centered-interval overlap count, literal Cartesian-box overlap factorization, the product-box/L1
+  bounds, decoding-box correctness, and the
+  covariance obstruction to returning to an already saturated native narrow covariance. The
+  hash predictor pays one digest-cardinality factor on top of contextual leakage removal; for an
+  `r`-bit balanced hash its exact coefficient is
+  `2^r * sqrt(2^(r+1))`, whose square is `2^(3r+1)`. The direct projected dual-mode route retains
+  only `sqrt(2^(r+1) epsilon_projected)`. The TeX formula using denominator
+  `2*(rho-B)+1` requires an attained/closed boundary choice `R=rho-B`; it does not follow from the
+  manuscript's strict condition `B+R<rho`, so Lean keeps the actual `R` in that case. Encrypted
+  equality, discrete/rounded/wrapped Gaussian approximation, a source-to-secret-message-BRK
+  compiler, and contextual/projected source hardness remain explicit premises. See
+  `docs/BlockCategoricalHashCMUXSelfCircular.md`.
   The same split now holds for the stronger secret-dependent continuations used by the adaptive
   encryption experiment, not merely for public cloud-key distinguishers. The asymptotic theorem
   composes it all the way through reusable encryption and arbitrary public deterministic FHE
