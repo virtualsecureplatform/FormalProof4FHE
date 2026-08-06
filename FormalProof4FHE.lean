@@ -47,6 +47,7 @@ import FormalProof4FHE.RLWE.EvenOddDecomposition
 import FormalProof4FHE.RLWE.OddSecretReduction
 import FormalProof4FHE.RLWE.EvenSecretReduction
 import FormalProof4FHE.RLWE.GaloisKDM
+import FormalProof4FHE.RLWE.MaskedGalois
 import FormalProof4FHE.RLWE.LeakyCircular
 import FormalProof4FHE.RLWE.IntervalMaskedQuadratic
 import FormalProof4FHE.RLWE.PowerOfTwoCyclotomic

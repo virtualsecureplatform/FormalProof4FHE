@@ -103,3 +103,33 @@ evaluation key. A final bootstrapping theorem must treat their common-secret joi
 standalone bounds cannot be combined by assuming the two public objects are independent.
 
 The Lean development is in `FormalProof4FHE/RLWE/GaloisKDM.lean`.
+
+## Result of the masked-source proof attempt
+
+The proof-mask proposal has now been checked as a complete finite game. Sample an independent
+ring mask `F`, expose `H = S + F`, and form source bodies
+
+```text
+A_j S + E_j - g_j sigma_j(F).
+```
+
+Adding the public correction `g_j sigma_j(H)` produces the desired Galois body exactly. For every
+fixed hint the correction is a permutation of the complete uniform transcript, so this reduction
+has neither a statistical loss nor a row hybrid.
+
+There is, however, a sharp boundary. If `F` is uniform in the ring, then `H` is an independent
+uniform one-time pad. A reverse reduction can sample `H`, subtract the same public correction,
+and reconstruct the source view. Lean proves both game branches equal in distribution. Thus the
+uniform-mask source problem and joint automorphism-KDM are equivalent by exact public reductions
+in both directions. The mask is a useful normal form, but it is not a proof from ordinary RLWE.
+A narrower nonuniform mask additionally correlates the hint with the target secret and therefore
+states a stronger auxiliary-input problem; the forward reduction remains exact, but the reverse
+simulation is no longer available.
+
+Accordingly, the unresolved step is still a genuine cryptographic theorem: derive joint
+automorphism-KDM from a standard ring-lattice premise, or construct and justify a hidden
+lossy/trapdoor mode. Recasting the same distribution as Leaky-RLWE or Subspace-LWE without a
+simulation theorem would only rename that step.
+
+The masked compiler and its two-way uniform-mask equivalence are in
+`FormalProof4FHE/RLWE/MaskedGalois.lean`.
