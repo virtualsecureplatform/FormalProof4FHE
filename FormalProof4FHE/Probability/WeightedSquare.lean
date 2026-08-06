@@ -106,6 +106,63 @@ theorem sq_expectation_le_densitySecondMoment_mul_secondMoment
     (probabilityMass_nonneg reference)
     hcover
 
+/-! ## Independent-product factorization -/
+
+/-- The real point mass of an IID finite product is the product of the coordinate masses. -/
+theorem probabilityMass_sampleIID
+    {A : Type} [Finite A] (count : ℕ) (sampler : ProbComp A)
+    (values : Fin count → A) :
+    probabilityMass (ProbComp.sampleIID count sampler) values =
+      ∏ coordinate, probabilityMass sampler (values coordinate) := by
+  letI : Fintype A := Fintype.ofFinite A
+  unfold probabilityMass ProbComp.sampleIID
+  rw [FormalProof4FHE.FiniteProduct.probOutput_fin_mOfFn,
+    ENNReal.toReal_prod]
+
+/-- The exact second density moment tensorizes under IID products. -/
+theorem densitySecondMoment_sampleIID
+    {A : Type} [Fintype A]
+    (count : ℕ) (actual reference : ProbComp A) :
+    densitySecondMoment
+        (ProbComp.sampleIID count actual)
+        (ProbComp.sampleIID count reference) =
+      densitySecondMoment actual reference ^ count := by
+  classical
+  unfold densitySecondMoment
+  simp_rw [probabilityMass_sampleIID]
+  calc
+    (∑ values : Fin count → A,
+        (∏ coordinate, probabilityMass actual (values coordinate)) ^ 2 /
+          ∏ coordinate, probabilityMass reference (values coordinate)) =
+      ∑ values : Fin count → A,
+        ∏ coordinate,
+          probabilityMass actual (values coordinate) ^ 2 /
+            probabilityMass reference (values coordinate) := by
+      apply Finset.sum_congr rfl
+      intro values _
+      rw [Finset.prod_div_distrib, Finset.prod_pow]
+    _ = ∏ _coordinate : Fin count,
+        ∑ value : A,
+          probabilityMass actual value ^ 2 /
+            probabilityMass reference value := by
+      exact (Fintype.prod_sum
+        (fun _coordinate : Fin count ↦ fun value : A ↦
+          probabilityMass actual value ^ 2 /
+            probabilityMass reference value)).symm
+    _ = (∑ value : A,
+          probabilityMass actual value ^ 2 /
+            probabilityMass reference value) ^ count := by
+      rw [Fin.prod_const]
+
+/-- Elementary exponential relaxation used after product factorization. -/
+theorem one_add_pow_le_exp_nat_mul (count : ℕ) (cost : ℝ) (hcost : 0 ≤ cost) :
+    (1 + cost) ^ count ≤ Real.exp ((count : ℝ) * cost) := by
+  calc
+    (1 + cost) ^ count ≤ Real.exp cost ^ count := by
+      exact pow_le_pow_left₀ (by positivity) (by simpa [add_comm] using Real.add_one_le_exp cost) _
+    _ = Real.exp ((count : ℝ) * cost) := by
+      rw [← Real.exp_nat_mul]
+
 end
 
 end FormalProof4FHE.WeightedSquare
