@@ -1111,6 +1111,16 @@ checks run inside the container; no host Lean installation is required.
   converse claimed. The correlation propositions are the intentionally exposed nonstandard
   cryptographic assumptions, not conclusions from ordinary RLWE. See
   `docs/CircularSecurityMinimalAssumption.md`.
+- `FormalProof4FHE.TFHE.NativeCircularSecurityInstantiation` removes the arbitrary-view gap from
+  that theorem for the native shared-prefix construction. Its self, independent, and zero games
+  are definitionally the concrete native BRK/KSK samplers; the self distribution is proved equal
+  to the existing literal real cloud-key view. A second exact experiment attaches a prescribed
+  encryption-prefix-dependent payload or auxiliary transcript, so the base ciphertext challenge
+  can live in the same public view. The compact theorem is
+  `Adv_native <= epsilon_correlation + epsilon_standard`: the standard term bundles
+  independent-message hiding and the final zero endpoint. Only the concrete diagonal-to-
+  independent correlation bound remains nonstandard. See
+  `docs/NativeCircularSecurityInstantiation.md`.
 - `FormalProof4FHE.TFHE.NativeTRGSWHashCompressedSecurity` formalizes the two routes for avoiding
   the full-prefix `2^t` match-and-square factor. For any fixed balanced public `r`-bit hash, the
   projected leakage concentration is exactly `2^r`, giving the checked conditional bound

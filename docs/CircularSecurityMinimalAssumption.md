@@ -9,6 +9,10 @@ not derive native TFHE circular security from ordinary RLWE. Instead, it identif
 complete-view correlation statement needed by this proof route and proves how that statement
 composes with standard independent-message endpoints.
 
+The repeated hybrid layer is represented once by `ThreeGameExperiment`. Coefficient-product and
+square experiments both map to this structure, so their correlation, independent-to-zero,
+circular, hardness-composition, and public-projection arguments share one implementation.
+
 ## Complete-view scope
 
 The experiment carrier `View` is unrestricted. A concrete instantiation may include the whole
@@ -150,6 +154,17 @@ They prove the manuscript's additive bounds while charging every correlation, ze
 zero endpoint, layout, auxiliary, sampler, and evaluator term once. These are literal game
 compositions, so the terms cannot silently absorb an unproved sampler or representation match.
 
+For a shorter public statement,
+`ThreeGameExperiment.security_le_correlation_add_standard_add_sampler` bundles the
+independent-to-zero and zero-to-ideal transitions into one standard endpoint:
+
+```text
+Adv_actual-to-ideal <= correlationBound + standardBound + samplerDefect.
+```
+
+`standardEndpointHardAgainst_of_independentZero_and_zeroIdeal` recovers that bundled premise from
+the two explicit endpoints, so this simplification changes only the interface and not the loss.
+
 ## Formal boundary
 
 The following are proved in Lean:
@@ -168,3 +183,6 @@ Lean axioms, but proving one from a standard accepted assumption is still a cryp
 research obligation. Consequently this module does not by itself certify any current TFHEpp
 parameter set. Correctness, concrete source security, implementation sampler alignment, and the
 chosen auxiliary interface must be instantiated separately.
+
+`FormalProof4FHE.TFHE.NativeCircularSecurityInstantiation` supplies the concrete shared-prefix
+native instantiation of this interface. See `docs/NativeCircularSecurityInstantiation.md`.

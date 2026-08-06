@@ -260,6 +260,130 @@ theorem distinguishingAdvantage_triangle {View : Type}
   exact ProbComp.boolDistAdvantage_triangle
     (first >>= distinguisher) (middle >>= distinguisher) (last >>= distinguisher)
 
+/-! ## Reusable self/independent/zero experiment -/
+
+/-- The common three-game shape behind coefficient-product and square correlation.
+
+The middle sampler decorrelates the circular message, while the zero sampler is the standard
+message-hiding endpoint.  Keeping this structure independent of the secret representation avoids
+duplicating the hybrid and public-projection proofs for every circular message family. -/
+structure ThreeGameExperiment (View : Type) where
+  selfSampler : ProbComp View
+  independentSampler : ProbComp View
+  zeroSampler : ProbComp View
+
+namespace ThreeGameExperiment
+
+variable {View : Type}
+
+def correlationAdvantage (experiment : ThreeGameExperiment View)
+    (distinguisher : Distinguisher View) : ℝ :=
+  distinguishingAdvantage experiment.selfSampler experiment.independentSampler distinguisher
+
+def independentZeroAdvantage (experiment : ThreeGameExperiment View)
+    (distinguisher : Distinguisher View) : ℝ :=
+  distinguishingAdvantage experiment.independentSampler experiment.zeroSampler distinguisher
+
+def circularAdvantage (experiment : ThreeGameExperiment View)
+    (distinguisher : Distinguisher View) : ℝ :=
+  distinguishingAdvantage experiment.selfSampler experiment.zeroSampler distinguisher
+
+theorem circularAdvantage_le_correlation_add_independentZero
+    (experiment : ThreeGameExperiment View) (distinguisher : Distinguisher View) :
+    experiment.circularAdvantage distinguisher ≤
+      experiment.correlationAdvantage distinguisher +
+        experiment.independentZeroAdvantage distinguisher := by
+  exact distinguishingAdvantage_triangle experiment.selfSampler
+    experiment.independentSampler experiment.zeroSampler distinguisher
+
+def CorrelationHardAgainst (experiment : ThreeGameExperiment View)
+    (allowed : Distinguisher View → Prop) (bound : ℝ) : Prop :=
+  ∀ distinguisher, allowed distinguisher →
+    experiment.correlationAdvantage distinguisher ≤ bound
+
+def IndependentZeroHardAgainst (experiment : ThreeGameExperiment View)
+    (allowed : Distinguisher View → Prop) (bound : ℝ) : Prop :=
+  ∀ distinguisher, allowed distinguisher →
+    experiment.independentZeroAdvantage distinguisher ≤ bound
+
+def CircularHardAgainst (experiment : ThreeGameExperiment View)
+    (allowed : Distinguisher View → Prop) (bound : ℝ) : Prop :=
+  ∀ distinguisher, allowed distinguisher →
+    experiment.circularAdvantage distinguisher ≤ bound
+
+theorem circularHardAgainst_of_correlation_and_independentZero
+    (experiment : ThreeGameExperiment View)
+    (allowed : Distinguisher View → Prop)
+    (correlationBound endpointBound : ℝ)
+    (hcorrelation : experiment.CorrelationHardAgainst allowed correlationBound)
+    (hendpoint : experiment.IndependentZeroHardAgainst allowed endpointBound) :
+    experiment.CircularHardAgainst allowed (correlationBound + endpointBound) := by
+  intro distinguisher hallowed
+  exact (experiment.circularAdvantage_le_correlation_add_independentZero
+    distinguisher).trans (add_le_add
+      (hcorrelation distinguisher hallowed) (hendpoint distinguisher hallowed))
+
+/-- Bundle the independent-message-to-zero and zero-to-ideal hops into one standard endpoint. -/
+def StandardEndpointHardAgainst (experiment : ThreeGameExperiment View)
+    (ideal : ProbComp View) (allowed : Distinguisher View → Prop) (bound : ℝ) : Prop :=
+  ∀ distinguisher, allowed distinguisher →
+    distinguishingAdvantage experiment.independentSampler ideal distinguisher ≤ bound
+
+/-- The split standard endpoints imply the compact independent-message-to-ideal endpoint. -/
+theorem standardEndpointHardAgainst_of_independentZero_and_zeroIdeal
+    (experiment : ThreeGameExperiment View)
+    (ideal : ProbComp View) (allowed : Distinguisher View → Prop)
+    (independentZeroBound zeroIdealBound : ℝ)
+    (hindependentZero : experiment.IndependentZeroHardAgainst allowed independentZeroBound)
+    (hzeroIdeal : ∀ distinguisher, allowed distinguisher →
+      distinguishingAdvantage experiment.zeroSampler ideal distinguisher ≤ zeroIdealBound) :
+    experiment.StandardEndpointHardAgainst ideal allowed
+      (independentZeroBound + zeroIdealBound) := by
+  intro distinguisher hallowed
+  exact (distinguishingAdvantage_triangle experiment.independentSampler
+    experiment.zeroSampler ideal distinguisher).trans
+      (add_le_add (hindependentZero distinguisher hallowed)
+        (hzeroIdeal distinguisher hallowed))
+
+/-- Compact security composition: one circular correlation term, one bundled standard endpoint,
+and one sampler-alignment term. -/
+theorem security_le_correlation_add_standard_add_sampler
+    (experiment : ThreeGameExperiment View)
+    (actual ideal : ProbComp View) (distinguisher : Distinguisher View)
+    (correlationBound standardBound samplerDefect : ℝ)
+    (hsampler : distinguishingAdvantage actual experiment.selfSampler distinguisher ≤
+      samplerDefect)
+    (hcorrelation : experiment.correlationAdvantage distinguisher ≤ correlationBound)
+    (hstandard : distinguishingAdvantage experiment.independentSampler ideal distinguisher ≤
+      standardBound) :
+    distinguishingAdvantage actual ideal distinguisher ≤
+      correlationBound + standardBound + samplerDefect := by
+  change distinguishingAdvantage experiment.selfSampler experiment.independentSampler
+    distinguisher ≤ correlationBound at hcorrelation
+  have hone := distinguishingAdvantage_triangle actual experiment.selfSampler ideal distinguisher
+  have htwo := distinguishingAdvantage_triangle experiment.selfSampler
+    experiment.independentSampler ideal distinguisher
+  linarith
+
+/-- Deterministically project all three games to a smaller public view. -/
+def map {TargetView : Type} (experiment : ThreeGameExperiment View)
+    (project : View → TargetView) : ThreeGameExperiment TargetView where
+  selfSampler := project <$> experiment.selfSampler
+  independentSampler := project <$> experiment.independentSampler
+  zeroSampler := project <$> experiment.zeroSampler
+
+/-- Public projection preserves the correlation advantage exactly after lifting the
+distinguisher. -/
+theorem map_correlationAdvantage_eq {TargetView : Type}
+    (experiment : ThreeGameExperiment View) (project : View → TargetView)
+    (distinguisher : Distinguisher TargetView) :
+    (experiment.map project).correlationAdvantage distinguisher =
+      experiment.correlationAdvantage (fun view ↦ distinguisher (project view)) := by
+  simp only [correlationAdvantage, distinguishingAdvantage, map,
+    map_eq_bind_pure_comp, Function.comp_apply, bind_assoc, monad_norm]
+
+end ThreeGameExperiment
+
 /-! ## Exact two-branch standard endpoint -/
 
 /-- Sample a known public prefix and apply one of two public affine translations to a complete
@@ -518,20 +642,27 @@ def zeroSampler (experiment : CoefficientProductExperiment Secret View) : ProbCo
   let secret ← experiment.secretSampler
   experiment.zeroView secret
 
+/-- Forget the secret-indexed presentation and retain the common three games. -/
+def toThreeGame (experiment : CoefficientProductExperiment Secret View) :
+    ThreeGameExperiment View where
+  selfSampler := experiment.selfSampler
+  independentSampler := experiment.independentSampler
+  zeroSampler := experiment.zeroSampler
+
 /-- Minimal circular coefficient-product correlation advantage. -/
 def correlationAdvantage (experiment : CoefficientProductExperiment Secret View)
     (distinguisher : Distinguisher View) : ℝ :=
-  distinguishingAdvantage experiment.selfSampler experiment.independentSampler distinguisher
+  experiment.toThreeGame.correlationAdvantage distinguisher
 
 /-- Standard independent-message-to-zero endpoint. -/
 def independentZeroAdvantage (experiment : CoefficientProductExperiment Secret View)
     (distinguisher : Distinguisher View) : ℝ :=
-  distinguishingAdvantage experiment.independentSampler experiment.zeroSampler distinguisher
+  experiment.toThreeGame.independentZeroAdvantage distinguisher
 
 /-- Direct native complete-view one-circular advantage. -/
 def oneCircularAdvantage (experiment : CoefficientProductExperiment Secret View)
     (distinguisher : Distinguisher View) : ℝ :=
-  distinguishingAdvantage experiment.selfSampler experiment.zeroSampler distinguisher
+  experiment.toThreeGame.circularAdvantage distinguisher
 
 /-- The direct native one-circular game factors through the independent-control experiment. -/
 theorem oneCircularAdvantage_le_correlation_add_independentZero
@@ -540,8 +671,7 @@ theorem oneCircularAdvantage_le_correlation_add_independentZero
     experiment.oneCircularAdvantage distinguisher ≤
       experiment.correlationAdvantage distinguisher +
         experiment.independentZeroAdvantage distinguisher := by
-  exact distinguishingAdvantage_triangle experiment.selfSampler
-    experiment.independentSampler experiment.zeroSampler distinguisher
+  exact experiment.toThreeGame.circularAdvantage_le_correlation_add_independentZero distinguisher
 
 /-- Named coefficient-product correlation assumption against a selected adversary class. -/
 def CorrelationHardAgainst
@@ -573,10 +703,8 @@ theorem oneCircularHardAgainst_of_correlation_and_independentZero
     (hcorrelation : experiment.CorrelationHardAgainst allowed correlationBound)
     (hendpoint : experiment.IndependentZeroHardAgainst allowed endpointBound) :
     experiment.OneCircularHardAgainst allowed (correlationBound + endpointBound) := by
-  intro distinguisher hallowed
-  exact (experiment.oneCircularAdvantage_le_correlation_add_independentZero
-    distinguisher).trans (add_le_add
-      (hcorrelation distinguisher hallowed) (hendpoint distinguisher hallowed))
+  exact experiment.toThreeGame.circularHardAgainst_of_correlation_and_independentZero
+    allowed correlationBound endpointBound hcorrelation hendpoint
 
 /-- Manuscript bound (7.8): the correlation term is charged once and the complete-batch source
 uses one branch-selection factor, with layout and auxiliary defects explicit. -/
@@ -622,20 +750,26 @@ def zeroSampler (experiment : SquareExperiment Secret View) : ProbComp View := d
   let secret ← experiment.secretSampler
   experiment.zeroView secret
 
+/-- Forget the square-specific indexing and retain the common three games. -/
+def toThreeGame (experiment : SquareExperiment Secret View) : ThreeGameExperiment View where
+  selfSampler := experiment.selfSampler
+  independentSampler := experiment.independentSampler
+  zeroSampler := experiment.zeroSampler
+
 /-- Scaled `S^2` versus scaled `S*S'` correlation advantage. -/
 def correlationAdvantage (experiment : SquareExperiment Secret View)
     (distinguisher : Distinguisher View) : ℝ :=
-  distinguishingAdvantage experiment.selfSampler experiment.independentSampler distinguisher
+  experiment.toThreeGame.correlationAdvantage distinguisher
 
 /-- Independent product versus homogeneous zero rows. -/
 def independentZeroAdvantage (experiment : SquareExperiment Secret View)
     (distinguisher : Distinguisher View) : ℝ :=
-  distinguishingAdvantage experiment.independentSampler experiment.zeroSampler distinguisher
+  experiment.toThreeGame.independentZeroAdvantage distinguisher
 
 /-- Direct scaled square-circular advantage. -/
 def circularAdvantage (experiment : SquareExperiment Secret View)
     (distinguisher : Distinguisher View) : ℝ :=
-  distinguishingAdvantage experiment.selfSampler experiment.zeroSampler distinguisher
+  experiment.toThreeGame.circularAdvantage distinguisher
 
 theorem circularAdvantage_le_correlation_add_independentZero
     (experiment : SquareExperiment Secret View)
@@ -643,8 +777,7 @@ theorem circularAdvantage_le_correlation_add_independentZero
     experiment.circularAdvantage distinguisher ≤
       experiment.correlationAdvantage distinguisher +
         experiment.independentZeroAdvantage distinguisher := by
-  exact distinguishingAdvantage_triangle experiment.selfSampler
-    experiment.independentSampler experiment.zeroSampler distinguisher
+  exact experiment.toThreeGame.circularAdvantage_le_correlation_add_independentZero distinguisher
 
 def CorrelationHardAgainst (experiment : SquareExperiment Secret View)
     (allowed : Distinguisher View → Prop) (bound : ℝ) : Prop :=
@@ -668,10 +801,8 @@ theorem circularHardAgainst_of_correlation_and_independentZero
     (hcorrelation : experiment.CorrelationHardAgainst allowed correlationBound)
     (hendpoint : experiment.IndependentZeroHardAgainst allowed endpointBound) :
     experiment.CircularHardAgainst allowed (correlationBound + endpointBound) := by
-  intro distinguisher hallowed
-  exact (experiment.circularAdvantage_le_correlation_add_independentZero
-    distinguisher).trans (add_le_add
-      (hcorrelation distinguisher hallowed) (hendpoint distinguisher hallowed))
+  exact experiment.toThreeGame.circularHardAgainst_of_correlation_and_independentZero
+    allowed correlationBound endpointBound hcorrelation hendpoint
 
 /-- Manuscript bound (8.9). -/
 theorem circularAdvantage_le_squareCorrelation
@@ -704,10 +835,13 @@ theorem ofCoefficientProjection_correlationAdvantage_eq
     (distinguisher : Distinguisher SquareView) :
     (ofCoefficientProjection experiment project).correlationAdvantage distinguisher =
       experiment.correlationAdvantage (fun view ↦ distinguisher (project view)) := by
-  simp only [correlationAdvantage, CoefficientProductExperiment.correlationAdvantage,
-    distinguishingAdvantage, selfSampler, independentSampler,
-    CoefficientProductExperiment.selfSampler,
-    CoefficientProductExperiment.independentSampler, ofCoefficientProjection,
+  simp only [SquareExperiment.correlationAdvantage,
+    CoefficientProductExperiment.correlationAdvantage,
+    ThreeGameExperiment.correlationAdvantage, distinguishingAdvantage,
+    SquareExperiment.toThreeGame, CoefficientProductExperiment.toThreeGame,
+    SquareExperiment.selfSampler, SquareExperiment.independentSampler,
+    CoefficientProductExperiment.selfSampler, CoefficientProductExperiment.independentSampler,
+    ofCoefficientProjection,
     map_eq_bind_pure_comp, Function.comp_apply, bind_assoc, monad_norm]
 
 /-- Hardness transfers forward through an allowed public aggregation. -/
@@ -743,7 +877,8 @@ theorem directOneCircularSecurity_le
       zeroEndpointBound) :
     distinguishingAdvantage actual ideal distinguisher ≤
       oneCircularBound + zeroEndpointBound + samplerDefect := by
-  unfold CoefficientProductExperiment.oneCircularAdvantage at hcircular
+  change distinguishingAdvantage experiment.selfSampler experiment.zeroSampler distinguisher ≤
+    oneCircularBound at hcircular
   have hfirst := distinguishingAdvantage_triangle actual experiment.selfSampler ideal distinguisher
   have hsecond := distinguishingAdvantage_triangle experiment.selfSampler
     experiment.zeroSampler ideal distinguisher
@@ -767,8 +902,10 @@ theorem minimalCorrelationSecurity_le
     distinguishingAdvantage actual ideal distinguisher ≤
       correlationBound + 2 * zeroRowBound + zeroEndpointBound + layoutDefect +
         auxiliaryDefect + samplerDefect := by
-  unfold CoefficientProductExperiment.correlationAdvantage at hcorrelation
-  unfold CoefficientProductExperiment.independentZeroAdvantage at hindependentZero
+  change distinguishingAdvantage experiment.selfSampler experiment.independentSampler
+    distinguisher ≤ correlationBound at hcorrelation
+  change distinguishingAdvantage experiment.independentSampler experiment.zeroSampler
+    distinguisher ≤ 2 * zeroRowBound + layoutDefect + auxiliaryDefect at hindependentZero
   have hone := distinguishingAdvantage_triangle actual experiment.selfSampler ideal distinguisher
   have htwo := distinguishingAdvantage_triangle experiment.selfSampler
     experiment.independentSampler ideal distinguisher
@@ -794,8 +931,10 @@ theorem squareKeySecurity_le
     distinguishingAdvantage actual ideal distinguisher ≤
       correlationBound + 2 * zeroRowBound + zeroEndpointBound + evaluationDefect +
         auxiliaryDefect + samplerDefect := by
-  unfold SquareExperiment.correlationAdvantage at hcorrelation
-  unfold SquareExperiment.independentZeroAdvantage at hindependentZero
+  change distinguishingAdvantage experiment.selfSampler experiment.independentSampler
+    distinguisher ≤ correlationBound at hcorrelation
+  change distinguishingAdvantage experiment.independentSampler experiment.zeroSampler
+    distinguisher ≤ 2 * zeroRowBound + auxiliaryDefect at hindependentZero
   have hone := distinguishingAdvantage_triangle actual experiment.selfSampler ideal distinguisher
   have htwo := distinguishingAdvantage_triangle experiment.selfSampler
     experiment.independentSampler ideal distinguisher
