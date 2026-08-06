@@ -194,6 +194,51 @@ theorem realNegacyclicProductCoefficient_tail
   rw [← secondMoment_realNegacyclicProductCoefficient q degree eta output hNoWrap]
   exact probEvent_sq_ge_toReal_le _ _ threshold hthreshold
 
+/-- Simultaneous maximum-coefficient tail obtained by a finite union bound.  This deliberately
+keeps the elementary inverse-square estimate; stronger subexponential tails can replace it
+without changing the exact moment theorem above. -/
+theorem realNegacyclicProduct_allCoefficients_tail
+    (q degree eta : ℕ) [NeZero q]
+    (hNoWrap : 2 * eta < q) (threshold : ℝ) (hthreshold : 0 < threshold) :
+    Pr[(fun pair ↦ ∃ output : Fin (degree + 1),
+          threshold ^ 2 ≤ realNegacyclicProductCoefficient output pair ^ 2) |
+        independentCoefficientPairSampler q degree eta].toReal ≤
+      (((degree + 1 : ℕ) : ℝ) ^ 2 * ((eta : ℝ) / 2) ^ 2) /
+        threshold ^ 2 := by
+  let sampler := independentCoefficientPairSampler q degree eta
+  let event : Fin (degree + 1) →
+      ((Fin (degree + 1) → ZMod q) × (Fin (degree + 1) → ZMod q)) → Prop :=
+    fun output pair ↦
+      threshold ^ 2 ≤ realNegacyclicProductCoefficient output pair ^ 2
+  have hunion :
+      Pr[(fun pair ↦ ∃ output : Fin (degree + 1), event output pair) | sampler] ≤
+        ∑ output : Fin (degree + 1), Pr[event output | sampler] := by
+    simpa only [Finset.mem_univ, true_and] using
+      (probEvent_exists_finset_le_sum
+        (Finset.univ : Finset (Fin (degree + 1))) sampler event)
+  have hsumNeTop :
+      (∑ output : Fin (degree + 1), Pr[event output | sampler]) ≠ ⊤ := by
+    exact ENNReal.sum_ne_top.mpr (fun output _ ↦ probEvent_ne_top)
+  have hreal := ENNReal.toReal_mono hsumNeTop hunion
+  have htoRealSum :
+      (∑ output : Fin (degree + 1), Pr[event output | sampler]).toReal =
+        ∑ output : Fin (degree + 1), Pr[event output | sampler].toReal := by
+    rw [ENNReal.toReal_sum]
+    intro output _
+    exact probEvent_ne_top
+  rw [htoRealSum] at hreal
+  calc
+    _ ≤ ∑ _output : Fin (degree + 1),
+        (((degree + 1 : ℕ) : ℝ) * ((eta : ℝ) / 2) ^ 2) /
+          threshold ^ 2 := by
+      refine hreal.trans (Finset.sum_le_sum ?_)
+      intro output _
+      exact realNegacyclicProductCoefficient_tail
+        q degree eta output hNoWrap threshold hthreshold
+    _ = _ := by
+      simp
+      ring
+
 end
 
 end FormalProof4FHE.TFHE.RingProductCenteredBinomialMoment

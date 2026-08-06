@@ -164,8 +164,13 @@ Pr[ |(Z_1 Z_2)_k| >= T ] <= n (eta/2)^2 / T^2.
 Only the scalar condition `2 eta < q` is used to identify modular coefficients with their signed
 CBD values. The statement deliberately evaluates the real negacyclic convolution before reducing
 the product modulo `q`; transferring it back to the centered representative of the ring product
-still requires the corresponding product no-wrap condition. The sharper one-mask `Z^2` formulas
-and a simultaneous maximum-coefficient tail remain open.
+still requires the corresponding product no-wrap condition. A finite union bound now also gives
+
+```text
+Pr[ max_k |(Z_1 Z_2)_k| >= T ] <= n^2 (eta/2)^2 / T^2.
+```
+
+The sharper one-mask `Z^2` formulas remain open.
 
 ## 5. Quantitative obligations that remain
 
@@ -190,10 +195,11 @@ them from a final parameter theorem.
    distributional bridge from the bit-pair implementation sampler to the fair-binomial mass table,
    and, for ternary secrets, construction of the two translated tables as one concrete certificate.
 
-2. Quadratic residual concentration. The two-independent-mask coefficient moment and its
-   inverse-square tail are proved. A final correctness theorem still needs the deterministic
-   ring-product no-wrap bridge and a union bound across output coefficients. The one-mask path
-   additionally needs the fourth CBD moment and the fixed-point analysis of the negacyclic square.
+2. Quadratic residual concentration. The two-independent-mask coefficient moment, its
+   inverse-square tail, and the finite maximum-coefficient union bound are proved. A final
+   correctness theorem still needs the deterministic ring-product no-wrap bridge. The one-mask
+   path additionally needs the fourth CBD moment and the fixed-point analysis of the negacyclic
+   square.
 
 These formulas make the intended tradeoff explicit: larger `eta` reduces hint leakage while
 increasing the residual scale `eta * sqrt(n)`. They do not yet constitute a positive parameter
@@ -210,11 +216,12 @@ The formal development checks:
 - the two-copy hinted-RLWE reduction;
 - the quadratic-versus-zero hybrid;
 - equality of the zero endpoint with an explicit ordinary one-sample RLWE reduction;
-- the literal centered-binomial one-hint instantiation; and
+- the literal centered-binomial one-hint instantiation;
 - the two-independent-hint product-residual identity;
 - the exact adjacent fair-binomial triangular discrimination;
 - binary and ternary IID exponential density-cost bounds; and
-- the exact independent-product coefficient moment and its finite inverse-square tail.
+- the exact independent-product coefficient moment, per-coordinate tail, and maximum-coordinate
+  union bound.
 
 No Gaussian approximation, heuristic independence of `Z` and `Z^2`, or injective decoding claim
 is used.
