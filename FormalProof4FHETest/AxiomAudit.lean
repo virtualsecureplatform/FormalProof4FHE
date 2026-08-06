@@ -2719,3 +2719,16 @@ import FormalProof4FHE
 #print axioms FormalProof4FHE.RLWE.CenteredBinomialScaledQuadraticKDM.cbd_kdmAdvantage_le_source_add_zero
 #print axioms FormalProof4FHE.RLWE.CenteredBinomialScaledQuadraticKDM.cbd_kdmAdvantage_le_of_source_and_zero
 #print axioms FormalProof4FHE.RLWE.CenteredBinomialScaledQuadraticKDM.cbd_kdmAdvantage_le_search_add_loss_add_zero
+
+-- Complete BFV/BGV automorphism/Galois evaluation-key batch.
+#print axioms FormalProof4FHE.RLWE.GaloisKDM.cartesianSpec_automorphism
+#print axioms FormalProof4FHE.RLWE.GaloisKDM.uniformDistr_problem_eq_ordinary
+#print axioms FormalProof4FHE.RLWE.GaloisKDM.automorphismUniformAdvantage_eq_problemAdvantage
+#print axioms FormalProof4FHE.RLWE.GaloisKDM.zeroUniformAdvantage_eq_ordinaryAdvantage
+#print axioms FormalProof4FHE.RLWE.GaloisKDM.kdmAdvantage_le_of_automorphismKDM_and_rlwe
+#print axioms FormalProof4FHE.RLWE.GaloisKDM.identity_problem_advantage_eq_ordinary
+#print axioms FormalProof4FHE.RLWE.GaloisKDM.evaluationKeyBody_sub_mask_mul_secret
+#print axioms FormalProof4FHE.RLWE.GaloisKDM.galoisKeySwitch_phase
+#print axioms FormalProof4FHE.RLWE.GaloisKDM.not_ringMultiplicationOn_of_one_mem_and_moved
+#print axioms FormalProof4FHE.RLWE.GaloisKDM.not_ringMultiplicationOn_of_cross_mismatch
+#print axioms FormalProof4FHE.RLWE.GaloisKDM.ringMultiplicationOn_univ_iff_identity
