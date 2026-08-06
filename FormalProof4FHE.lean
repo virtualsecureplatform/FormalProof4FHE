@@ -42,6 +42,7 @@ import FormalProof4FHE.RLWE.CenteredBinomialMoment
 import FormalProof4FHE.RLWE.CenteredBinomialHintedQuadratic
 import FormalProof4FHE.RLWE.CenteredBinomialHintConcentration
 import FormalProof4FHE.RLWE.CenteredBinomialFairBinomialLaw
+import FormalProof4FHE.RLWE.CenteredBinomialScaledQuadraticKDM
 import FormalProof4FHE.RLWE.EvenOddDecomposition
 import FormalProof4FHE.RLWE.OddSecretReduction
 import FormalProof4FHE.RLWE.EvenSecretReduction
