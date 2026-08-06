@@ -321,6 +321,7 @@ import FormalProof4FHE.TFHE.NativeTRGSWCVZRReduction
 import FormalProof4FHE.TFHE.NativeTRGSWCVZRConcreteInstantiation
 import FormalProof4FHE.TFHE.NativeTRGSWCVZRParityPrefix
 import FormalProof4FHE.TFHE.NativeTRGSWQuadraticKDMAndTFHET
+import FormalProof4FHE.TFHE.CircularSecurityMinimalAssumption
 import FormalProof4FHE.TFHE.NativeTRGSWHashCompressedSecurity
 import FormalProof4FHE.TFHE.NativeTRGSWHashLossyCompleteView
 import FormalProof4FHE.TFHE.NativeTRGSWProofDualMode

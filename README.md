@@ -1099,6 +1099,18 @@ checks run inside the container; no host Lean installation is required.
   control bits, not a key-switch digit count. The exact joint BRK/KSK/auxiliary sampler law remains
   visible in the compiler record, and the parity key law is not asserted to be an implementation
   default. See `docs/NativeTRGSWQuadraticKDMAndTFHET.md`.
+- `FormalProof4FHE.TFHE.CircularSecurityMinimalAssumption` formalizes the minimal-assumption
+  hierarchy for true self-key native TFHE. It proves exact public affine closure for an entire
+  message-RLWE batch, including branch erasure on an exactly uniform batch and the resulting
+  factor-two ordinary source bound. Public aggregation of native body rows gives a scaled
+  encryption of `S`, while negated nonce aggregation gives a scaled encryption of `S^2` with the
+  exact error sign. Complete-view coefficient-product and square experiments separate the
+  self/independent correlation step from the independent/zero endpoint; triangle composition
+  charges each correlation, endpoint, layout, auxiliary, sampler, and evaluator term once.
+  Coefficient-product correlation implies square correlation under public projection, with no
+  converse claimed. The correlation propositions are the intentionally exposed nonstandard
+  cryptographic assumptions, not conclusions from ordinary RLWE. See
+  `docs/CircularSecurityMinimalAssumption.md`.
 - `FormalProof4FHE.TFHE.NativeTRGSWHashCompressedSecurity` formalizes the two routes for avoiding
   the full-prefix `2^t` match-and-square factor. For any fixed balanced public `r`-bit hash, the
   projected leakage concentration is exactly `2^r`, giving the checked conditional bound
