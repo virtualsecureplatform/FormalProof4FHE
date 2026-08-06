@@ -161,10 +161,16 @@ tail
 Pr[ |(Z_1 Z_2)_k| >= T ] <= n (eta/2)^2 / T^2.
 ```
 
-Only the scalar condition `2 eta < q` is used to identify modular coefficients with their signed
-CBD values. The statement deliberately evaluates the real negacyclic convolution before reducing
-the product modulo `q`; transferring it back to the centered representative of the ring product
-still requires the corresponding product no-wrap condition. A finite union bound now also gives
+The real calculation uses `2 eta < q` to identify modular coefficients with their signed CBD
+values. It is now transferred to the product of two actual executable `Rq` samples under the
+explicit additional condition
+
+```text
+2 n eta^2 < q.
+```
+
+This deterministic condition ensures that the complete negacyclic convolution is unchanged by
+modular reduction and centered lifting. A finite union bound also gives
 
 ```text
 Pr[ max_k |(Z_1 Z_2)_k| >= T ] <= n^2 (eta/2)^2 / T^2.
@@ -172,10 +178,10 @@ Pr[ max_k |(Z_1 Z_2)_k| >= T ] <= n^2 (eta/2)^2 / T^2.
 
 The sharper one-mask `Z^2` formulas remain open.
 
-## 5. Quantitative obligations that remain
+## 5. Closed quantitative bridges
 
-The two principal estimates now have formal closed forms, but two integration steps still separate
-them from a final parameter theorem.
+The implementation and concentration bridges needed by the two-independent-mask route are now
+formalized.
 
 1. Hint concentration. For adjacent fair-binomial coefficient tables, Lean proves exactly
 
@@ -189,21 +195,23 @@ them from a final parameter theorem.
    1 + 1 / (2 eta + 1),
    ```
 
-   and its IID degree-`n` product is at most `exp(n/(2 eta+1))`. For a uniform ternary secret,
-   the generic adjacent-translate theorem gives scalar cost at most
-   `1 + 4/(2 eta+1)` and product cost at most `exp(4n/(2 eta+1))`. What remains is the explicit
-   distributional bridge from the bit-pair implementation sampler to the fair-binomial mass table,
-   and, for ternary secrets, construction of the two translated tables as one concrete certificate.
+   and its IID degree-`n` product is at most `exp(n/(2 eta+1))`. The executable `eta`-pair sampler
+   is proved equivalent to `2 eta` fair bits: every Hamming-weight fiber has cardinality
+   `choose(2 eta,k)`, and its modular signed output has the corresponding fair-binomial point mass
+   whenever `2 eta < q`. For a uniform ternary secret, the three concrete translated tables are
+   normalized and their two adjacent discriminations are proved exact, giving scalar cost at most
+   `1 + 4/(2 eta+1)` and product cost at most `exp(4n/(2 eta+1))`.
 
-2. Quadratic residual concentration. The two-independent-mask coefficient moment, its
-   inverse-square tail, and the finite maximum-coefficient union bound are proved. A final
-   correctness theorem still needs the deterministic ring-product no-wrap bridge. The one-mask
-   path additionally needs the fourth CBD moment and the fixed-point analysis of the negacyclic
-   square.
+2. Quadratic residual concentration. The deterministic ring-product bridge, exact moment,
+   inverse-square coefficient tail, and finite maximum-coefficient union bound are proved for two
+   actual independent `Rq` CBD samples under `2 eta < q` and `2 n eta^2 < q`.
 
 These formulas make the intended tradeoff explicit: larger `eta` reduces hint leakage while
-increasing the residual scale `eta * sqrt(n)`. They do not yet constitute a positive parameter
-judgment because the implementation-distribution and ring/no-wrap bridges above are not closed.
+increasing the residual scale `eta * sqrt(n)`. The optional one-mask route still requires the
+fourth CBD moment and the fixed-point analysis of the negacyclic square; it is not needed by the
+closed two-hint route. A final parameter judgment must instantiate the chosen full ring secret
+sampler and evaluate the displayed inequalities, but no implementation-law or residual no-wrap
+bridge remains implicit.
 
 ## 6. Formal scope
 
@@ -219,9 +227,12 @@ The formal development checks:
 - the literal centered-binomial one-hint instantiation;
 - the two-independent-hint product-residual identity;
 - the exact adjacent fair-binomial triangular discrimination;
+- the exact fair-binomial law of the executable bit-pair coefficient sampler;
+- the concrete ternary adjacent-translate certificate;
 - binary and ternary IID exponential density-cost bounds; and
 - the exact independent-product coefficient moment, per-coordinate tail, and maximum-coordinate
-  union bound.
+  union bound, both in the real coefficient model and for the actual modular ring product under
+  explicit no-wrap hypotheses.
 
 No Gaussian approximation, heuristic independence of `Z` and `Z^2`, or injective decoding claim
 is used.

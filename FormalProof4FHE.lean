@@ -41,6 +41,7 @@ import FormalProof4FHE.RLWE.CenteredBinomial
 import FormalProof4FHE.RLWE.CenteredBinomialMoment
 import FormalProof4FHE.RLWE.CenteredBinomialHintedQuadratic
 import FormalProof4FHE.RLWE.CenteredBinomialHintConcentration
+import FormalProof4FHE.RLWE.CenteredBinomialFairBinomialLaw
 import FormalProof4FHE.RLWE.EvenOddDecomposition
 import FormalProof4FHE.RLWE.OddSecretReduction
 import FormalProof4FHE.RLWE.EvenSecretReduction
@@ -287,6 +288,7 @@ import FormalProof4FHE.TFHE.RingSquareHiddenResidualMomentObstruction
 import FormalProof4FHE.TFHE.RingSquareBinaryAnchoredResidual
 import FormalProof4FHE.TFHE.RingSquareCenteredBinomialAnchorMoment
 import FormalProof4FHE.TFHE.RingProductCenteredBinomialMoment
+import FormalProof4FHE.TFHE.ModularRingProductCenteredBinomialMoment
 import FormalProof4FHE.TFHE.RingSquareExternalProductResidualCancellation
 import FormalProof4FHE.TFHE.RingSquareBVQuadraticKDM
 import FormalProof4FHE.TFHE.RingSquareBVCompressionBoundary
