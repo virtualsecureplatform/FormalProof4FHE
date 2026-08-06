@@ -35,9 +35,11 @@ import FormalProof4FHE.Probability.FiniteSurjectiveFiber
 import FormalProof4FHE.Probability.ModularGaussian
 import FormalProof4FHE.Probability.RankBound
 import FormalProof4FHE.Probability.SquaredBias
+import FormalProof4FHE.Probability.WeightedSquare
 import FormalProof4FHE.RLWE.Basic
 import FormalProof4FHE.RLWE.CenteredBinomial
 import FormalProof4FHE.RLWE.CenteredBinomialMoment
+import FormalProof4FHE.RLWE.CenteredBinomialHintedQuadratic
 import FormalProof4FHE.RLWE.EvenOddDecomposition
 import FormalProof4FHE.RLWE.OddSecretReduction
 import FormalProof4FHE.RLWE.EvenSecretReduction
