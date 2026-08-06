@@ -133,3 +133,51 @@ simulation theorem would only rename that step.
 
 The masked compiler and its two-way uniform-mask equivalence are in
 `FormalProof4FHE/RLWE/MaskedGalois.lean`.
+
+## Ring-aware factorization path
+
+A second proof attempt avoids the reversible proof-mask normal form. Give the reduction one
+primary ordinary-RLWE row and several auxiliary ordinary-RLWE rows for every target row:
+
+```text
+(A, A S + e),
+(C_i, C_i S + f_i).
+```
+
+After applying the requested automorphism to the auxiliary rows, public coefficients satisfying
+
+```text
+sum_i r_i sigma(C_i) = g
+```
+
+give the exact compiled body
+
+```text
+A S + g sigma(S) + e + sum_i r_i sigma(f_i).
+```
+
+This is a genuine ordinary-RLWE reduction. The primary uniform body one-time-pads every function
+of the auxiliary uniform transcript, so the ideal branch is exactly uniform. The grouped source
+problem has also been flattened losslessly to the standard rank-one batch problem with one
+primary plus all auxiliary samples for every target row.
+
+The resulting checked bound has three security terms:
+
+```text
+Adv_Galois-real-vs-zero
+  <= factorization-and-induced-noise gap
+     + ordinary source batch-RLWE
+     + ordinary zero-message batch-RLWE.
+```
+
+The new gap is concrete rather than KDM-shaped. It measures failure of the public factorization
+and the difference between the implementation's narrow IID errors and
+`e + sum_i r_i sigma(f_i)`. No factorizer can succeed on every mask for a nonzero gadget weight:
+the all-zero auxiliary mask is an immediate counterexample. Therefore a successful construction
+must be efficient, succeed with high probability, and return coefficients short enough that the
+induced error is statistically compatible with correctness.
+
+This turns the remaining question into an inhomogeneous ring-SIS/short-preimage problem. Solving
+it with unrestricted field inverses is easy algebraically but generally makes the error enormous;
+sampling short preimages without a trapdoor is the hard part. The formal development is in
+`FormalProof4FHE/RLWE/RingAwareGaloisFactorization.lean`.
