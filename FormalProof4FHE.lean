@@ -49,6 +49,7 @@ import FormalProof4FHE.RLWE.EvenSecretReduction
 import FormalProof4FHE.RLWE.GaloisKDM
 import FormalProof4FHE.RLWE.MaskedGalois
 import FormalProof4FHE.RLWE.RingAwareGaloisFactorization
+import FormalProof4FHE.RLWE.SquareZeroQuadraticCircularRq
 import FormalProof4FHE.RLWE.LeakyCircular
 import FormalProof4FHE.RLWE.IntervalMaskedQuadratic
 import FormalProof4FHE.RLWE.PowerOfTwoCyclotomic
