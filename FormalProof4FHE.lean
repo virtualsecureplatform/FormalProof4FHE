@@ -52,6 +52,7 @@ import FormalProof4FHE.RLWE.RingAwareGaloisFactorization
 import FormalProof4FHE.RLWE.SquareZeroQuadraticCircularRq
 import FormalProof4FHE.RLWE.BFVQuadraticCircularSecurity
 import FormalProof4FHE.RLWE.BFVStandardAssumptionCircularSecurity
+import FormalProof4FHE.RLWE.BFVCircularSecurityCorrected
 import FormalProof4FHE.RLWE.LeakyCircular
 import FormalProof4FHE.RLWE.IntervalMaskedQuadratic
 import FormalProof4FHE.RLWE.PowerOfTwoCyclotomic
