@@ -36,9 +36,11 @@ For fixed first and second rows, the map from the fresh pair `(a₃,b₃)` to `(
 translation equivalence. Thus a uniform fresh pair produces an exactly uniform compiled pair,
 even jointly with a retained value of `G`.
 
-Turning this into a computational theorem requires a complete three-row decisional-RLWE game and
-its deterministic postprocessing reduction. The finite identities needed by that reduction are
-now checked.
+The complete unit-conditioned uniform compiler is now an explicit equivalence onto an independent
+uniform `(G,A,C)` triple. Lean also proves the exact data-processing reduction from a complete
+unit-conditioned three-row source view to the compiled quadratic triple. Connecting that source
+view to unconditioned RLWE now requires only the bounded public unit-rejection implementation and
+its runtime/failure certificate.
 
 ## Normalization barrier and nonunit multiplier
 
@@ -85,9 +87,10 @@ is at most
 |R| * epsilon.
 ```
 
-The existing leftover-hash theorem still has to be connected to the manuscript's precise
-conditional-average expression and scalar-box input cardinality to obtain the displayed numerical
-constant automatically.
+Lean now proves that joint public-seed leftover-hash distance is exactly the average conditional
+distance. Scalar-box universality is connected to the repository's leftover-hash theorem, giving
+the exact `sqrt(|R|/W^m)/2` average bound. The fixed-target Markov step and the simultaneous finite
+gadget-target union bound are composed automatically.
 
 ## Approximate-CVP interface
 
@@ -137,15 +140,16 @@ The canonical quotient/remainder equivalence
 Fin(P*Q) ≃ Fin Q × Fin P
 ```
 
-is then lifted coefficientwise. A uniform auxiliary-modulus element has jointly uniform,
-independent quotient and remainder, and its quotient is exactly uniform after the remainder is
-discarded.
+is lifted to the actual executable negacyclic `Rq` carrier. A uniform auxiliary-modulus element
+has jointly uniform, independent quotient and remainder, and its quotient is exactly uniform
+after the remainder is discarded. The same theorem is proved for a complete mask/body pair, and
+the canonical coefficient identity `x=P*(x/P)+(x mod P)` is checked.
 
 ## Joint flooding
 
 The module proves the distributional composition needed for correlated public state: any uniform
 per-coordinate translation bound lifts across an independent vector by a hybrid sum and remains
-valid after conditioning on arbitrary shared context.
+valid while retaining arbitrary shared context and after any deterministic BFV-view assembly.
 
 The concrete claim
 
@@ -153,9 +157,9 @@ The concrete claim
 TV(U[-T,T], U[-T,T]+d) = |d|/(2*T+1)
 ```
 
-under the no-wrap condition has not yet been connected to a concrete modular interval sampler.
-That exact finite overlap theorem is still required before the manuscript's
-`ell*n*D/(2*T+1)` loss is certified.
+is now proved for a concrete centered interval embedded in `ZMod Q`. Lean proves injectivity on the
+joint no-wrap interval, exact support and overlap cardinalities, the clipped distance formula, the
+exact small-shift ratio, and the joint `ell*n*D/(2*T+1)` bound.
 
 ## Important correction to the zero branch
 
@@ -163,34 +167,31 @@ Coefficientwise quotient by `P` does not map a real RLWE row at modulus `P*Q` li
 ordinary RLWE row at modulus `Q`. It produces a row with a correlated quotient/remainder rounding
 residue—the same algebra exposed by `modulusDownResidual`.
 
-The proposed zero-branch simulation may still work by bounding and flooding this residue, but it
-must use the modulus-down identity and joint flooding argument. It should not cite exact
-distributional equality with ordinary small-modulus RLWE.
+The corrected zero-branch theorem now does exactly this: it treats the rounding residue as a
+context-dependent bounded shift and floods it jointly with the assembled public view. It never
+claims equality with ordinary small-modulus RLWE.
 
 ## Remaining end-to-end obligations
 
-1. Build the complete multi-sample RLWE reduction, including bounded rejection sampling that makes
-   `G=a₁a₂` uniform by conditioning on a public unit `a₁`.
-2. Connect scalar-box two-universality to the exact average leftover-hash and simultaneous-target
-   constants.
-3. Implement and verify the coefficient matrix, target coset, kernel lattice, HNF/SNF, LLL, and
+1. Implement bounded public unit rejection and certify its runtime/failure bound; the conditioned
+   three-sample source reduction itself is formalized.
+2. Implement and verify the coefficient matrix, target coset, kernel lattice, HNF/SNF, LLL, and
    Babai certificate construction.
-4. Instantiate coefficient representatives and prove the concrete negacyclic norm bounds for
-   `delta`.
-5. Prove the modular interval-overlap formula and instantiate the joint flooding theorem.
-6. Compose the real and uniform games, including preimage and algorithm failure behavior.
-7. Prove the corrected zero-branch simulation through bounded rounding residue and flooding.
-8. Establish BFV correctness with box noise, gadget decomposition, plaintext scaling, and the
-   complete decryption margin.
-9. State and justify the exact decisional-RLWE assumption at the auxiliary composite-modulus
+3. Run the numerical parameter search and instantiate the proof-carrying BFV correctness budget;
+   exact relinearization phase algebra and generic noise slots are already present.
+4. State and justify the exact decisional-RLWE assumption at the auxiliary composite-modulus
    family, secret law, bounded error law, and sample count.
 
 ## Principal declarations
 
 - `threeSample_identity`;
 - `threeSampleFresh_withCoefficient_uniform_evalDist`;
+- `conditionedUniformTriple_unitSampler_evalDist`;
+- `compiledTriple_tvDist_uniform_le_source`;
 - `normalization_yields_relation` and `unitNormalization_yields_relation`;
 - `scalarBoxHash_pairCollision_probability`;
+- `scalarBoxHash_isTwoUniversal` and `tvDist_hashed_eq_average`;
+- `scalarBoxHash_simultaneousMissing_fraction_le`;
 - `missingTarget_fraction_le`;
 - `ApproximateCVPPreimageCertificate`;
 - `approximateCVP_output_valid` and `approximateCVP_output_norm_le`;
@@ -198,4 +199,8 @@ distributional equality with ordinary small-modulus RLWE.
 - `modulusDown_identity`;
 - `coefficientQuotientRemainder_uniform_evalDist`;
 - `coefficientQuotient_uniform_evalDist`;
-- `conditioned_product_shift_tvDist_le`.
+- `rqPairQuotient_uniform_evalDist`;
+- `ModularFlooding.tvDist_centered_shifted_eq_absRatio`;
+- `ModularFlooding.conditioned_modularCenteredFlooding_joint_le`;
+- `ModularFlooding.correctedZeroBranchFlooding_le`;
+- `largeModulus_circular_tvDist_le`.
