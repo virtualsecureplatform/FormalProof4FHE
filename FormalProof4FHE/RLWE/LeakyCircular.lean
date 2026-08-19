@@ -1660,6 +1660,122 @@ theorem weighted_intermediate_phase_real {R : Type} [CommRing R]
   ring_nf
   rw [hratio']
 
+-- ## Compatibility target for `sketch/leakycircular.md`
+
+/-- The fixed two-hint compiler identity for a single row.
+
+For public hints `r = α*s+f` and `t = β*s+h` and `α*β = -g`,
+the resulting row `(A, C)` satisfies
+`C = -A*s + g*s^2 + (e + f*h)`. -/
+def twoHintCompiler {R : Type} [Ring R] (a e f h α β s : R) : R × R :=
+  let c := -a * s + e
+  let r := α * s + f
+  let t := β * s + h
+  ((a - α * t - β * r), c + r * t)
+
+/-- Forward one-row two-hint affine map. -/
+def twoHintTranslationMap {R : Type} [Ring R] (shiftA shiftC : R) : R × R → R × R :=
+  fun pair ↦ (pair.1 - shiftA, pair.2 + shiftC)
+
+/-- Inverse of the one-row two-hint affine map. -/
+def twoHintTranslationMapInv {R : Type} [Ring R] (shiftA shiftC : R) : R × R → R × R :=
+  fun pair ↦ (pair.1 + shiftA, pair.2 - shiftC)
+
+@[simp]
+theorem twoHintTranslationMapInv_translationMap
+    {R : Type} [CommRing R] (shiftA shiftC : R) (pair : R × R) :
+    twoHintTranslationMapInv shiftA shiftC (twoHintTranslationMap shiftA shiftC pair) = pair := by
+  simp [twoHintTranslationMapInv, twoHintTranslationMap]
+
+@[simp]
+theorem twoHintTranslationMap_translationMapInv
+    {R : Type} [CommRing R] (shiftA shiftC : R) (pair : R × R) :
+    twoHintTranslationMap shiftA shiftC (twoHintTranslationMapInv shiftA shiftC pair) = pair := by
+  simp [twoHintTranslationMapInv, twoHintTranslationMap]
+
+theorem twoHintTranslationMap_bijective {R : Type}
+    [CommRing R] (shiftA shiftC : R) :
+    Function.Bijective (twoHintTranslationMap shiftA shiftC) :=
+  Function.bijective_iff_has_inverse.mpr
+    ⟨twoHintTranslationMapInv shiftA shiftC,
+      twoHintTranslationMapInv_translationMap shiftA shiftC,
+      twoHintTranslationMap_translationMapInv shiftA shiftC⟩
+
+/-- `twoHint_fixedGadget_identity` from `sketch/leakycircular.md`. -/
+theorem twoHint_fixedGadget_identity {R : Type} [CommRing R]
+    (a e f h α β g s : R) (hαβ : α * β = -g) :
+    let c := -a * s + e
+    let r := α * s + f
+    let t := β * s + h
+    let A : R := a - α * t - β * r
+    let C : R := c + r * t
+    C = -A * s + g * s ^ 2 + (e + f * h) := by
+  dsimp
+  have hgg : g = -(α * β) := by
+    refine (eq_neg_iff_add_eq_zero).2 ?_
+    simp [hαβ]
+  rw [hgg]
+  ring
+
+/-- `twoHint_translationEquiv` from `sketch/leakycircular.md`: the fixed-hint affine map is a bijection. -/
+theorem twoHint_translationEquiv {R : Type} [CommRing R]
+    (shiftA shiftC : R) :
+    Function.Bijective (twoHintTranslationMap shiftA shiftC) :=
+  twoHintTranslationMap_bijective shiftA shiftC
+
+/-- `twoHint_outputError_independent` from `sketch/leakycircular.md`:
+the fixed-hint affine map preserves a uniform pair. -/
+theorem twoHint_outputError_independent {R : Type}
+    [CommRing R] [Finite R] [DecidableEq R] [SampleableType R]
+    (shiftA shiftC : R) :
+    evalDist (($ᵗ (R × R)) >>= fun pair ↦ pure (twoHintTranslationMap shiftA shiftC pair)) =
+      evalDist ($ᵗ (R × R)) := by
+  apply evalDist_ext
+  intro output
+  simpa [monad_norm] using
+    (probOutput_bind_bijective_uniform_cross
+      (α := R × R) (β := R × R) (twoHintTranslationMap shiftA shiftC)
+      (twoHintTranslationMap_bijective shiftA shiftC)
+      (fun pair ↦ pure pair) output)
+
+/-- `leakyRLWE_to_fixedGadget` from `sketch/leakycircular.md`, instantiated to the exact full-view form. -/
+theorem leakyRLWE_to_fixedGadget {R : Type}
+    [CommRing R] [Finite R] [DecidableEq R] [SampleableType R]
+    (anchorSampler : ProbComp Rˣ) (auxiliarySecretSampler chi nu : ProbComp R)
+    (distinguisher : Distinguisher R) :
+    kdmAdvantage chi nu distinguisher ≤
+      fullLeakyAdvantage anchorSampler auxiliarySecretSampler chi nu
+        (fullProjectionReduction (squareReduction distinguisher)) +
+      fullLeakyAdvantage anchorSampler auxiliarySecretSampler chi nu
+        (fullProjectionReduction (zeroReduction chi nu distinguisher)) :=
+  kdmAdvantage_le_two_fullLeaky anchorSampler auxiliarySecretSampler chi nu distinguisher
+    (by simp) (by simp) (noiseSampler_probFailure_eq_zero chi nu)
+    (productNoiseSampler_probFailure_eq_zero chi nu)
+
+/-- `zeroProductNoise_to_uniform` from `sketch/leakycircular.md`: zero-message compiler branch is exactly uniform. -/
+theorem zeroProductNoise_to_uniform {R : Type}
+    [CommRing R] [Finite R] [DecidableEq R] [SampleableType R]
+    (anchorSampler : ProbComp Rˣ) (auxiliarySecretSampler chi nu : ProbComp R) :
+    evalDist (randomLeakySampler anchorSampler auxiliarySecretSampler chi nu >>= fun transcript ↦
+        productNoiseSampler chi nu >>= fun fresh ↦
+          pure (zeroTransform fresh transcript)) =
+      evalDist (uniformSampler (R := R)) :=
+  transformedRandomLeaky_evalDist_eq_zeroUniform anchorSampler auxiliarySecretSampler chi nu
+    (by simp) (by simp) (noiseSampler_probFailure_eq_zero chi nu)
+    (productNoiseSampler_probFailure_eq_zero chi nu)
+
+/-- `twoBranchProductNoiseKDM` from `sketch/leakycircular.md`: exact two-branch decomposition. -/
+theorem twoBranchProductNoiseKDM {R : Type}
+    [CommRing R] [Finite R] [DecidableEq R] [SampleableType R]
+    (anchorSampler : ProbComp Rˣ) (auxiliarySecretSampler chi nu : ProbComp R)
+    (distinguisher : Distinguisher R) :
+    kdmAdvantage chi nu distinguisher ≤
+      fullLeakyAdvantage anchorSampler auxiliarySecretSampler chi nu
+        (fullProjectionReduction (squareReduction distinguisher)) +
+      fullLeakyAdvantage anchorSampler auxiliarySecretSampler chi nu
+        (fullProjectionReduction (zeroReduction chi nu distinguisher)) :=
+  kdmAdvantage_le_two_fullLeaky_probComp anchorSampler auxiliarySecretSampler chi nu distinguisher
+
 end
 
 end FormalProof4FHE.RLWE.LeakyCircular
