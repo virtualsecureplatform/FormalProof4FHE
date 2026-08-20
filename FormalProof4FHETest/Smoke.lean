@@ -77,6 +77,13 @@ open OracleComp
 #check FormalProof4FHE.RLWE.LeakyCircular.targetSecret_size_le
 #check FormalProof4FHE.RLWE.LeakyCircular.targetError_size_le
 #check FormalProof4FHE.RLWE.LeakyCircular.weighted_intermediate_phase_real
+#check FormalProof4FHE.RLWE.LeakyCircular.TwoHint.compile_realSourceView
+#check FormalProof4FHE.RLWE.LeakyCircular.TwoHint.compiledLeakyRandom_evalDist
+#check FormalProof4FHE.RLWE.LeakyCircular.TwoHint.compiledMaskError_evalDist_eq_independent
+#check FormalProof4FHE.RLWE.LeakyCircular.TwoHint.productNoiseKDMAdvantage_le
+#check FormalProof4FHE.RLWE.LeakyCircular.TwoHint.ordinaryRLWEAdvantage_eq_source
+#check FormalProof4FHE.RLWE.LeakyCircular.TwoHint.productNoiseKDMHardAgainst_of_leaky_and_ordinary
+#check FormalProof4FHE.RLWE.LeakyCircular.TwoHint.relinearizationError_size_le
 #check FormalProof4FHE.SquaredBias.probOutput_experiment_true
 #check FormalProof4FHE.SquaredBias.sq_expectation_uniform_comp_le_card_ratio_secondMoment
 #check FormalProof4FHE.RLWE.IntervalMaskedQuadratic.quadraticTransform_real

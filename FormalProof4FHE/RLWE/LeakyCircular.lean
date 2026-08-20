@@ -1660,7 +1660,7 @@ theorem weighted_intermediate_phase_real {R : Type} [CommRing R]
   ring_nf
   rw [hratio']
 
--- ## Compatibility target for `sketch/leakycircular.md`
+-- ## Legacy compatibility names
 
 /-- The fixed two-hint compiler identity for a single row.
 
@@ -1738,7 +1738,9 @@ theorem twoHint_outputError_independent {R : Type}
       (twoHintTranslationMap_bijective shiftA shiftC)
       (fun pair ↦ pure pair) output)
 
-/-- `leakyRLWE_to_fixedGadget` from `sketch/leakycircular.md`, instantiated to the exact full-view form. -/
+/-- Legacy alias for the older four-sample error-leakage construction.  Despite its historical
+name, this is not the two-hint secret-leakage compiler from `sketch/leakycircular.md`; that compiler
+and its source-aligned games are formalized in `RLWE.LeakyCircularTwoHint`. -/
 theorem leakyRLWE_to_fixedGadget {R : Type}
     [CommRing R] [Finite R] [DecidableEq R] [SampleableType R]
     (anchorSampler : ProbComp Rˣ) (auxiliarySecretSampler chi nu : ProbComp R)
@@ -1752,7 +1754,7 @@ theorem leakyRLWE_to_fixedGadget {R : Type}
     (by simp) (by simp) (noiseSampler_probFailure_eq_zero chi nu)
     (productNoiseSampler_probFailure_eq_zero chi nu)
 
-/-- `zeroProductNoise_to_uniform` from `sketch/leakycircular.md`: zero-message compiler branch is exactly uniform. -/
+/-- Legacy zero-branch theorem for the older four-sample error-leakage construction. -/
 theorem zeroProductNoise_to_uniform {R : Type}
     [CommRing R] [Finite R] [DecidableEq R] [SampleableType R]
     (anchorSampler : ProbComp Rˣ) (auxiliarySecretSampler chi nu : ProbComp R) :
@@ -1764,7 +1766,7 @@ theorem zeroProductNoise_to_uniform {R : Type}
     (by simp) (by simp) (noiseSampler_probFailure_eq_zero chi nu)
     (productNoiseSampler_probFailure_eq_zero chi nu)
 
-/-- `twoBranchProductNoiseKDM` from `sketch/leakycircular.md`: exact two-branch decomposition. -/
+/-- Legacy two-branch decomposition for the older four-sample error-leakage construction. -/
 theorem twoBranchProductNoiseKDM {R : Type}
     [CommRing R] [Finite R] [DecidableEq R] [SampleableType R]
     (anchorSampler : ProbComp Rˣ) (auxiliarySecretSampler chi nu : ProbComp R)

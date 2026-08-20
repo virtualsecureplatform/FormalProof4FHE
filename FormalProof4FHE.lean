@@ -57,6 +57,7 @@ import FormalProof4FHE.RLWE.BFVFoldFreeCircularSecurity
 import FormalProof4FHE.RLWE.BFVFoldFreeCircularSecurityFramework
 import FormalProof4FHE.RLWE.BFVCircularSecurityStandardAssumptionProgram
 import FormalProof4FHE.RLWE.LeakyCircular
+import FormalProof4FHE.RLWE.LeakyCircularTwoHint
 import FormalProof4FHE.RLWE.IntervalMaskedQuadratic
 import FormalProof4FHE.RLWE.PowerOfTwoCyclotomic
 import FormalProof4FHE.RLWE.PowerOfTwoCyclotomicGame
