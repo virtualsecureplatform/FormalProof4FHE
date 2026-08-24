@@ -19,6 +19,11 @@
   IACR Communications in Cryptology 2(3), 2025, DOI: 10.62056/ah89ksuc2.
   The error-only application uses Definition 3, Condition 2, Theorem 3, and Remark 2; the local
   file is `../refs/leakeylwe.pdf` relative to the repository root.
+- A. Jain, H. Lin, Z. Liu, and S. Saha,
+  *New Techniques for Fast and Shallow FHE Bootstrapping and Beyond*,
+  IACR ePrint 2026/1730. The algebraic core of the Binary-NTT RLWE, quadratic-hint RLWE,
+  small-secret quadratic-hint RLWE, and search-to-decision reductions is checked in
+  `FormalProof4FHE.RLWE.BinaryNTTSecurity`; the local reference is `../refs/2026-1730.pdf`.
 - C. Gentry, A. Sahai, and B. Waters,
   *Homomorphic Encryption from Learning with Errors: Conceptually-Simpler,
   Asymptotically-Faster, Attribute-Based*, CRYPTO 2013.
