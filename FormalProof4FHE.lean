@@ -53,6 +53,7 @@ import FormalProof4FHE.RLWE.SquareZeroQuadraticCircularRq
 import FormalProof4FHE.RLWE.BFVQuadraticCircularSecurity
 import FormalProof4FHE.RLWE.BFVStandardAssumptionCircularSecurity
 import FormalProof4FHE.RLWE.BinaryNTTSecurity
+import FormalProof4FHE.RLWE.BinaryNTTRegularQH
 import FormalProof4FHE.RLWE.BFVCircularSecurityCorrected
 import FormalProof4FHE.RLWE.BFVFoldFreeCircularSecurity
 import FormalProof4FHE.RLWE.BFVFoldFreeCircularSecurityFramework
