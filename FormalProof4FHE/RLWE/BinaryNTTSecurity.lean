@@ -308,6 +308,10 @@ def rlweViewEquiv (R Row : Type) :
   left_inv pair := rfl
   right_inv view := by cases view; rfl
 
+noncomputable instance rlweViewFintype {R Row : Type}
+    [Fintype R] [Fintype Row] [DecidableEq Row] : Fintype (RLWEView R Row) :=
+  Fintype.ofEquiv ((Row → R) × (Row → R)) (rlweViewEquiv R Row)
+
 noncomputable instance rlweViewSampleableType {R Row : Type}
     [SampleableType ((Row → R) × (Row → R))] : SampleableType (RLWEView R Row) :=
   SampleableType.ofEquiv (rlweViewEquiv R Row)
