@@ -71,9 +71,10 @@ Boolean sign per coordinate. Lean proves that:
 - the associated affine mask/body transformation is a bijection and preserves
   the complete uniform random branch.
 
-Thus uniform square-root-sign sampling is discharged. A concrete backend only
-needs to instantiate the deterministic coordinate square-root interface, for
-example using an appropriate finite-field square-root algorithm.
+Thus uniform square-root-sign sampling is discharged. The deterministic
+coordinate interface is now instantiated by the certified exhaustive backend
+in `BinaryNTTRootBackend`. A production finite-field square-root algorithm is
+an optimization rather than a remaining theorem obligation.
 
 ### Regular QH to regular small-secret QH
 
@@ -114,8 +115,6 @@ regular assumption.
 - exact probabilistic hardness-transfer interfaces for repaired Theorems 5,
   10, and 19.
 
-No `N/q` term remains in this assumption family. Uniform sign sampling for the
-reverse reduction is complete. Concrete instantiation still needs a certified
-deterministic square-root routine for the selected NTT prime and efficient
-uniform product-ring-unit sampling, normally implemented by independently
-sampling nonzero NTT coordinates.
+No `N/q` term remains in this assumption family. Uniform sign sampling, a
+certified deterministic finite-field root routine, and exact independent
+product-ring-unit sampling are complete.
