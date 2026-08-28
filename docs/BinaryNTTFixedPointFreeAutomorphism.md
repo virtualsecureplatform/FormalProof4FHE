@@ -47,11 +47,12 @@ Both row maps have explicit inverses. The inverses are lifted pointwise to an
 arbitrary complete gadget-row batch, proving that the entire random transcript
 is uniform—not merely each row marginal.
 
-The even/odd coefficient assembly is represented by
-`AdditiveIndexTwoAssembly`. Lean proves that two half-degree masks assemble
-bijectively to a uniform full-ring mask and that two honest common-secret
-equations assemble to the exact full-ring equation with the product
-coefficient-error law.
+The even/odd coefficient assembly is represented abstractly by
+`AdditiveIndexTwoAssembly`. Its executable negacyclic-ring realization is
+already supplied by `EvenSecretReduction.advantage_eq_smallRLWE`: two
+half-degree samples sharing one secret assemble exactly into one full-degree
+even-secret sample with the product coefficient-error law, and the uniform
+endpoint is preserved bijectively.
 
 Finally, the randomized comparison rule has output probability
 

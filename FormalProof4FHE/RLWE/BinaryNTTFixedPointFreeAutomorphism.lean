@@ -5,6 +5,7 @@ Authors: Kotaro Matsuoka
 -/
 
 import FormalProof4FHE.RLWE.BinaryNTTAutomorphismTransposition
+import FormalProof4FHE.RLWE.EvenSecretReduction
 import FormalProof4FHE.Probability.FiniteProduct
 
 /-!
@@ -164,7 +165,6 @@ theorem assemble_uniform_evalDist {Base Full : Type}
 /-- The coefficient assembly additionally preserves zero and addition. -/
 structure AdditiveIndexTwoAssembly (Base Full : Type) [CommRing Base] [CommRing Full]
     extends IndexTwoAssembly Base Full where
-  map_zero : assemble (0, 0) = 0
   map_add : ∀ left right : Base × Base,
     assemble (left + right) = assemble left + assemble right
 
