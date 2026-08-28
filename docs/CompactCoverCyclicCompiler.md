@@ -46,6 +46,13 @@ These are schedule validation and parameter work rather than a remaining
 circular-security theorem. Independent review of the new multi-frontier
 compiler remains appropriate.
 
+For the scalar-only payload, `CompactCoverBGV65536Instantiation.lean` gives a
+smaller concrete endpoint: phase lifting from `p` to `p²`, one width-one
+full-modulus transition, and exact division by `p`. This path needs neither the
+packed coefficient-to-slot maps nor the width-368 frontier. Its selected
+15-limb certificate and exact phase/division identities are checked, and the
+matching TFHEpp test executes repeated N=65536 bootstraps.
+
 Principal declarations:
 
 - `AdmissibleMap`
