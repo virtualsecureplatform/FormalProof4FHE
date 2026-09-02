@@ -54,6 +54,12 @@ removal, and exact division by `p`. The deterministic certificate also closes
 one multiplication between bootstraps. This path needs neither packed
 coefficient-to-slot maps nor the width-368 frontier.
 
+`CompactCoverBGVScalarSecurity.lean` indexes the two phase-lift rows and the
+sixteen groups of trace rows as one 370-row directory, appends any finite batch
+of symmetric encryption queries, and proves that the left/right advantage is
+bounded by two joint Binary-NTT source advantages. The theorem never splits
+the directory into circular-security marginals.
+
 Principal declarations:
 
 - `AdmissibleMap`

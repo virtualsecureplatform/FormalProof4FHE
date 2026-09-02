@@ -5,19 +5,23 @@ Authors: Kotaro Matsuoka
 -/
 
 import FormalProof4FHE.RLWE.CompactCoverCyclicCompiler
+import FormalProof4FHE.RLWE.CompactCoverBGVExactNoise
+import FormalProof4FHE.RLWE.CompactCoverBGVNoiseSoundness
+import FormalProof4FHE.RLWE.CompactCoverBGVScalarSecurity
 
 /-!
 # Concrete N=65536 compact-cover BGV manifest and certificate
 
-This module fixes the six native stages and the integer/rational certificate
-fields used by the executable compact-cover BGV instantiation.  Analytic noise
-and attack estimates remain explicit certificate inputs; Lean checks their
-composition, schedule widths, contraction, and target inequalities.
+This module fixes the six native stages used by the executable compact-cover
+BGV instantiation. Exact correctness bounds are computed in
+`CompactCoverBGVExactNoise`; rational logarithms below are presentation-only
+metadata. Attack estimates are likewise kept separate from correctness.
 -/
 
 namespace FormalProof4FHE.RLWE.BinaryNTTSecurity.CompactCoverBGV65536
 
 open CompactCoverTechnical CompactCoverCyclicCompiler
+open CompactCoverBGVExactNoise
 
 set_option maxRecDepth 100000
 
@@ -357,8 +361,9 @@ def traceDropAfter : List ℕ := [8, 16]
 
 @[simp] theorem trace_drop_count : traceDropAfter.length = 2 := by decide
 
-/-- Proof-carrying numeric summary emitted by the deterministic recurrence.
-Logarithms are conservative decimal lower/upper bounds represented as rationals. -/
+/-- Presentation summary emitted by the deterministic recurrence. Logarithms
+are conservative decimal lower/upper bounds represented as rationals; the
+actual correctness theorem uses `ExactCycleCertificate`. -/
 structure ScalarCycleCertificate where
   fullModulusBits : ℕ
   lowModulusBits : ℕ
@@ -366,21 +371,20 @@ structure ScalarCycleCertificate where
   outputLimbs : ℕ
   carryBound : ℕ
   digitPolynomialDegree : ℕ
-  securityBits : ℚ
   outputErrorLogBound : ℚ
   outputCapacityLogBound : ℚ
   multiplyErrorLogBound : ℚ
   multiplyCapacityLogBound : ℚ
   contractionBits : ℚ
 
-def ScalarCycleCertificate.Valid (certificate : ScalarCycleCertificate) : Prop :=
+def ScalarCycleCertificate.DisplayConsistent
+    (certificate : ScalarCycleCertificate) : Prop :=
   certificate.fullModulusBits = 1402 ∧
   certificate.lowModulusBits = 61 ∧
   certificate.fullLimbs = 23 ∧
   certificate.outputLimbs = 13 ∧
   certificate.carryBound = 23 ∧
   certificate.digitPolynomialDegree = 4 * certificate.carryBound + 1 ∧
-  128 ≤ certificate.securityBits ∧
   certificate.outputErrorLogBound < certificate.outputCapacityLogBound ∧
   certificate.multiplyErrorLogBound < certificate.multiplyCapacityLogBound ∧
   0 < certificate.contractionBits
@@ -392,16 +396,52 @@ def selectedScalarCycleCertificate : ScalarCycleCertificate where
   outputLimbs := 13
   carryBound := 23
   digitPolynomialDegree := 93
-  securityBits := 13244 / 100
   outputErrorLogBound := 64198 / 100
   outputCapacityLogBound := 77560 / 100
   multiplyErrorLogBound := 417 / 100
   multiplyCapacityLogBound := 4399 / 100
   contractionBits := 2741 / 100
 
-theorem selectedScalarCycleCertificate_valid :
-    selectedScalarCycleCertificate.Valid := by
-  norm_num [ScalarCycleCertificate.Valid, selectedScalarCycleCertificate]
+theorem selectedScalarCycleCertificate_displayConsistent :
+    selectedScalarCycleCertificate.DisplayConsistent := by
+  norm_num [ScalarCycleCertificate.DisplayConsistent,
+    selectedScalarCycleCertificate]
+
+/-- Computational attack-cost metadata is intentionally not a correctness
+certificate and is not used by any cryptographic reduction theorem. -/
+structure ScalarSecurityEstimate where
+  sourceBits : ℚ
+  reductionReserveBits : ℚ
+  retainedBits : ℚ
+
+def selectedScalarSecurityEstimate : ScalarSecurityEstimate where
+  sourceBits := 13344 / 100
+  reductionReserveBits := 1
+  retainedBits := 13244 / 100
+
+theorem selectedScalarSecurityEstimate_arithmetic :
+    selectedScalarSecurityEstimate.retainedBits =
+      selectedScalarSecurityEstimate.sourceBits -
+        selectedScalarSecurityEstimate.reductionReserveBits := by
+  norm_num [selectedScalarSecurityEstimate]
+
+/-- The exact-natural recurrence, rather than the rounded logarithmic display,
+closes both binary gates back into the accepted bootstrap input set. -/
+theorem selectedExactCycle_closesAdditionAndMultiplication :
+    oneLimbAdditionState.bound ≤ acceptedInputError ∧
+      multiplicationState.bound ≤ acceptedInputError :=
+  ⟨selectedExactCycleCertificate.additionCloses,
+    selectedExactCycleCertificate.multiplicationCloses⟩
+
+/-- Concrete polynomial correctness used by the scalar digit-removal stage. -/
+theorem selectedDigitRemoval_correct
+    (message : ZMod plaintextSquare) (carry : ℤ)
+    (lower : -(digitErrorBound : ℤ) ≤ carry)
+    (upper : carry ≤ digitErrorBound) :
+    coefficientEval digitRemovalCoefficients
+        ((plaintextPrime : ZMod plaintextSquare) * message + carry) =
+      (plaintextPrime : ZMod plaintextSquare) * message :=
+  digitRemovalPolynomial_correct message carry lower upper
 
 /-- Two phase-lift rows, sixteen level-specific 23-row trace keys, and four
 public quadratic-hint elements occupy exactly this many 64-bit residues. -/
