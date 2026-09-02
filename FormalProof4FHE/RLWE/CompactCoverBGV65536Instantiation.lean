@@ -19,6 +19,8 @@ namespace FormalProof4FHE.RLWE.BinaryNTTSecurity.CompactCoverBGV65536
 
 open CompactCoverTechnical CompactCoverCyclicCompiler
 
+set_option maxRecDepth 100000
+
 /-- The complete scalar thin-BGV bootstrap stage order. -/
 inductive Stage where
   | forwardBadDimension
@@ -160,10 +162,9 @@ theorem selected_frontier_residues :
     ciphertextResidues 65536 368 selectedCertificate.limbCount =
       723517440 := by decide
 
-/-! ## Scalar-only direct specialization -/
+/-! ## Scalar phase lift and its non-contraction boundary -/
 
-/-- For a scalar payload the p-to-p² phase lift absorbs the old BGV error,
-so one full-modulus transition and exact division replace the packed maps. -/
+/-- Stages of the phase-lift helper.  This helper is not itself a bootstrap. -/
 inductive ScalarStage where
   | phaseLift
   | homomorphicDecryptionTransition
@@ -180,7 +181,7 @@ def ScalarStage.frontierWidth : ScalarStage → ℕ
 @[simp] theorem scalar_stage_width (stage : ScalarStage) :
     stage.frontierWidth = 1 := by cases stage <;> rfl
 
-/-- Exact phase identity behind the executable scalar refresh. -/
+/-- Exact phase identity behind the executable scalar phase lift. -/
 theorem scalar_direct_phase
     {R : Type} [CommRing R]
     (p message oldError switchError : R) :
@@ -188,8 +189,8 @@ theorem scalar_direct_phase
       p * message + p ^ 2 * (oldError + switchError) := by
   ring
 
-/-- Exact public division by the unit `p` returns an ordinary plaintext-p BGV
-phase. -/
+/-- Exact public division by the unit `p` preserves the old error and adds the
+switch error.  In particular, this operation alone is not noise contracting. -/
 theorem scalar_direct_div_phase
     {R : Type} [CommRing R]
     (p : Rˣ) (message oldError switchError : R) :
@@ -204,39 +205,222 @@ theorem scalar_direct_div_phase
           ring
     _ = _ := by rw [hp]; simp
 
-/-- Numeric fields of the deterministic scalar certificate. -/
-structure ScalarCertificate where
+/-- The old error appears with coefficient one after phase lift and division. -/
+theorem scalar_direct_error_difference
+    {R : Type} [CommRing R]
+    (oldError switchError : R) :
+    (oldError + switchError) - oldError = switchError := by
+  abel
+
+/-! ## Genuine low-to-high scalar bootstrap normal form -/
+
+/-- If the low ciphertext modulus is `1 mod p²`, centered scaling creates a
+bounded carry in the low p-adic digit. -/
+theorem lowToHigh_carry_phase
+    {R : Type} [CommRing R]
+    (p message oldError carry quotientFactor switchError : R) :
+    p * (message + p * oldError) +
+        (1 + p ^ 2 * quotientFactor) * carry + p ^ 2 * switchError =
+      p * message + carry +
+        p ^ 2 * (oldError + quotientFactor * carry + switchError) := by
+  ring
+
+/-- Abstract constant projector used by the scalar trace specialization. -/
+structure ConstantProjector (R : Type) [CommRing R] where
+  project : R →+ R
+  constant : R → R
+  project_constant : ∀ value, project (constant value) = constant value
+
+/-- After constant projection, only the constant carry remains. -/
+theorem project_scaledMessage_add_carry
+    {R : Type} [CommRing R]
+    (projector : ConstantProjector R)
+    (p message carry : R) :
+    projector.project (projector.constant (p * message) + carry) =
+      projector.constant (p * message) + projector.project carry := by
+  rw [map_add, projector.project_constant]
+
+/-- Complete plaintext identity after bounded carry removal. -/
+theorem scalarBootstrap_plaintext
+    {R : Type} [CommRing R]
+    (p : Rˣ) (message carry : R) (remove : R → R)
+    (hremove : remove ((p : R) * message + carry) = (p : R) * message) :
+    (↑(p⁻¹) : R) * remove ((p : R) * message + carry) = message := by
+  rw [hremove, ← mul_assoc]
+  simp
+
+/-! ## Concrete split-coordinate trace -/
+
+abbrev ScalarSlot := Bool × Fin 32768
+
+/-- Full Galois trace in the split NTT representation.  The regular action
+permutes all slots, so its orbit sum is the constant function containing the
+sum of all input coordinates. -/
+def fullSplitTrace {R : Type} [CommRing R] :
+    (ScalarSlot → R) →+ (ScalarSlot → R) where
+  toFun value := fun _ => ∑ slot, value slot
+  map_zero' := by funext; simp
+  map_add' left right := by funext; simp [Finset.sum_add_distrib]
+
+theorem fullSplitTrace_eq_constant
+    {R : Type} [CommRing R] (value : ScalarSlot → R) :
+    fullSplitTrace value = fun _ => ∑ slot, value slot := rfl
+
+theorem fullSplitTrace_constant
+    {R : Type} [CommRing R] (value : R) :
+    fullSplitTrace (fun _ : ScalarSlot => value) =
+      fun _ => (65536 : ℕ) • value := by
+  funext
+  simp [fullSplitTrace, Fintype.card_prod]
+
+/-- The sixteen public automorphism exponents used by the executable trace. -/
+def concreteTraceExponents : List ℕ :=
+  [5, 25, 625, 128481, 28609, 61313, 7937, 81409,
+   31745, 63489, 126977, 122881, 114689, 98305, 65537, 131071]
+
+@[simp] theorem concreteTraceExponents_length :
+    concreteTraceExponents.length = 16 := by decide
+
+theorem concreteTraceExponents_odd :
+    ∀ exponent ∈ concreteTraceExponents, Odd exponent := by decide
+
+/-- The doubling schedule used by the first fifteen trace stages. -/
+def cyclicDoublingTrace {M : Type} [AddCommMonoid M]
+    (action : ℕ → M →+ M) : ℕ → M → M
+  | 0, value => value
+  | steps + 1, value =>
+      cyclicDoublingTrace action steps value +
+        action (2 ^ steps) (cyclicDoublingTrace action steps value)
+
+/-- Repeated doubling enumerates every binary combination exactly once. -/
+theorem cyclicDoublingTrace_eq_sum
+    {M : Type} [AddCommMonoid M]
+    (action : ℕ → M →+ M)
+    (hzero : ∀ value, action 0 value = value)
+    (hcomp : ∀ left right value,
+      action left (action right value) = action (left + right) value)
+    (steps : ℕ) (value : M) :
+    cyclicDoublingTrace action steps value =
+      ∑ index ∈ Finset.range (2 ^ steps), action index value := by
+  induction steps with
+  | zero => simp [cyclicDoublingTrace, hzero]
+  | succ steps ih =>
+      rw [cyclicDoublingTrace, ih, map_sum]
+      simp_rw [hcomp]
+      rw [show 2 ^ (steps + 1) = 2 ^ steps + 2 ^ steps by omega]
+      rw [Finset.sum_range_add]
+
+/-- Resource-only fields of the old phase-lift experiment.  No contraction
+claim is included. -/
+structure PhaseLiftResourceCertificate where
   modulusBits : ℕ
   limbCount : ℕ
   gadgetDigits : ℕ
   securityBits : ℚ
-  acceptedInputLogVariance : ℚ
-  outputLogVarianceBound : ℚ
   outputErrorLogBound : ℚ
 
-def ScalarCertificate.Valid (certificate : ScalarCertificate) : Prop :=
-  certificate.modulusBits = 915 ∧
-  certificate.limbCount = 15 ∧
-  certificate.gadgetDigits = 5 ∧
+def PhaseLiftResourceCertificate.Valid
+    (certificate : PhaseLiftResourceCertificate) : Prop :=
+  certificate.modulusBits = 1402 ∧
+  certificate.limbCount = 23 ∧
+  certificate.gadgetDigits = 2 ∧
   128 ≤ certificate.securityBits ∧
-  certificate.outputLogVarianceBound <
-    certificate.acceptedInputLogVariance ∧
   certificate.outputErrorLogBound < certificate.modulusBits - 1
 
-def selectedScalarCertificate : ScalarCertificate where
-  modulusBits := 915
-  limbCount := 15
-  gadgetDigits := 5
-  securityBits := 23114 / 100
-  acceptedInputLogVariance := -900
-  outputLogVarianceBound := -138757 / 100
-  outputErrorLogBound := 22065 / 100
+def selectedPhaseLiftResources : PhaseLiftResourceCertificate where
+  modulusBits := 1402
+  limbCount := 23
+  gadgetDigits := 2
+  securityBits := 13244 / 100
+  outputErrorLogBound := 52
 
-theorem selectedScalarCertificate_valid :
-    selectedScalarCertificate.Valid := by
-  norm_num [ScalarCertificate.Valid, selectedScalarCertificate]
+theorem selectedPhaseLiftResources_valid :
+    selectedPhaseLiftResources.Valid := by
+  norm_num [PhaseLiftResourceCertificate.Valid, selectedPhaseLiftResources]
 
+/-! ## Concrete scalar FHE cycle certificate -/
+
+inductive BootstrapStage where
+  | modulusDown
+  | lowToHighPhaseLift
+  | constantTrace
+  | boundedDigitRemoval
+  | exactDivision
+  | multiplicationClosure
+  deriving DecidableEq, Fintype, Repr
+
+@[simp] theorem bootstrap_stage_card : Fintype.card BootstrapStage = 6 := by decide
+
+def traceKeyCount : ℕ := 16
+def traceGadgetDigits : ℕ := 23
+def traceDropAfter : List ℕ := [8, 16]
+
+@[simp] theorem trace_drop_count : traceDropAfter.length = 2 := by decide
+
+/-- Proof-carrying numeric summary emitted by the deterministic recurrence.
+Logarithms are conservative decimal lower/upper bounds represented as rationals. -/
+structure ScalarCycleCertificate where
+  fullModulusBits : ℕ
+  lowModulusBits : ℕ
+  fullLimbs : ℕ
+  outputLimbs : ℕ
+  carryBound : ℕ
+  digitPolynomialDegree : ℕ
+  securityBits : ℚ
+  outputErrorLogBound : ℚ
+  outputCapacityLogBound : ℚ
+  multiplyErrorLogBound : ℚ
+  multiplyCapacityLogBound : ℚ
+  contractionBits : ℚ
+
+def ScalarCycleCertificate.Valid (certificate : ScalarCycleCertificate) : Prop :=
+  certificate.fullModulusBits = 1402 ∧
+  certificate.lowModulusBits = 61 ∧
+  certificate.fullLimbs = 23 ∧
+  certificate.outputLimbs = 13 ∧
+  certificate.carryBound = 23 ∧
+  certificate.digitPolynomialDegree = 4 * certificate.carryBound + 1 ∧
+  128 ≤ certificate.securityBits ∧
+  certificate.outputErrorLogBound < certificate.outputCapacityLogBound ∧
+  certificate.multiplyErrorLogBound < certificate.multiplyCapacityLogBound ∧
+  0 < certificate.contractionBits
+
+def selectedScalarCycleCertificate : ScalarCycleCertificate where
+  fullModulusBits := 1402
+  lowModulusBits := 61
+  fullLimbs := 23
+  outputLimbs := 13
+  carryBound := 23
+  digitPolynomialDegree := 93
+  securityBits := 13244 / 100
+  outputErrorLogBound := 64198 / 100
+  outputCapacityLogBound := 77560 / 100
+  multiplyErrorLogBound := 417 / 100
+  multiplyCapacityLogBound := 4399 / 100
+  contractionBits := 2741 / 100
+
+theorem selectedScalarCycleCertificate_valid :
+    selectedScalarCycleCertificate.Valid := by
+  norm_num [ScalarCycleCertificate.Valid, selectedScalarCycleCertificate]
+
+/-- Two phase-lift rows, sixteen level-specific 23-row trace keys, and four
+public quadratic-hint elements occupy exactly this many 64-bit residues. -/
 @[simp] theorem scalar_bootstrap_key_residues :
-    5 * ciphertextResidues 65536 1 15 = 9830400 := by decide
+    2 * ciphertextResidues 65536 1 23 +
+      8 * 23 * ciphertextResidues 65536 1 23 +
+      8 * 23 * ciphertextResidues 65536 1 22 +
+      4 * elementResidues 65536 23 = 1097334784 := by decide
+
+/-- The complete evaluation-row family is transported jointly; no marginal
+or per-row circular-security assumption is introduced. -/
+theorem scalarEvaluationRows_uniform
+    {Row R : Type} [Finite Row] [DecidableEq Row]
+    [CommRing R] [Fintype R]
+    [SampleableType R] [SampleableType (Row → R × R)]
+    (pivot : Rˣ) (offset : R)
+    (message : Row → WitnessAffine R) (publicConstant : Row → R) :
+    evalDist (compilerBatch pivot offset message publicConstant <$>
+        ($ᵗ (Row → R × R))) = evalDist ($ᵗ (Row → R × R)) :=
+  compilerBatch_uniform_evalDist pivot offset message publicConstant
 
 end FormalProof4FHE.RLWE.BinaryNTTSecurity.CompactCoverBGV65536
