@@ -30,6 +30,18 @@ structure CompilerContext (R : Type) [CommRing R] where
   pivot : Rˣ
   offset : R
 
+def compilerContextEquiv (R : Type) [CommRing R] :
+    CompilerContext R ≃ Rˣ × R where
+  toFun context := (context.pivot, context.offset)
+  invFun pair := ⟨pair.1, pair.2⟩
+  left_inv context := by cases context; rfl
+  right_inv pair := by cases pair; rfl
+
+noncomputable instance instFintypeCompilerContext
+    (R : Type) [CommRing R] [Fintype R] : Fintype (CompilerContext R) := by
+  letI : Fintype Rˣ := Fintype.ofFinite Rˣ
+  exact Fintype.ofEquiv (Rˣ × R) (compilerContextEquiv R).symm
+
 def CompilerContext.hintU {R : Type} [CommRing R]
     (context : CompilerContext R) : R :=
   context.offset + context.offset - context.pivot
@@ -366,11 +378,15 @@ def commonSecretBinaryNTTProblem (queries : ℕ) (R : Type)
 /-- Proof-carrying Binary-NTT source specification.  The witness condition is
 the formal distinction between Binary-NTT RLWE and an arbitrary common-secret
 row distribution. -/
-structure BinaryNTTSourceSpec (queries : ℕ) (R : Type) [CommRing R] where
+structure BinaryNTTSourceSpec (queries : ℕ) (R : Type)
+    [CommRing R] [Fintype R] [SampleableType R]
+    [SampleableType (ScalarRow queries → R)] where
   contextWitnessSampler : ProbComp (CompilerContext R × R)
   errorSampler : ProbComp (ScalarRow queries → R)
   witness_idempotent : ∀ sample,
     sample ∈ support contextWitnessSampler → sample.2 ^ 2 = sample.2
+  source_neverFails : NeverFail
+    (commonSecretSource queries R contextWitnessSampler errorSampler)
 
 def BinaryNTTSourceSpec.problem (queries : ℕ) (R : Type)
     [CommRing R] [Fintype R] [SampleableType R]

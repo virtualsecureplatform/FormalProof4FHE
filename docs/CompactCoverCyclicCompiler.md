@@ -60,6 +60,12 @@ of symmetric encryption queries, and proves that the left/right advantage is
 bounded by two joint Binary-NTT source advantages. The theorem never splits
 the directory into circular-security marginals.
 
+`CompactCoverBGVAdaptiveSecurity.lean` upgrades that finite table to the usual
+query-bounded symmetric encryption oracle. Message pairs may be selected after
+the evaluation directory and previous answers are known. The eager table and
+online oracle are distributionally identical, and the uniform endpoint wins
+with probability exactly one half.
+
 Principal declarations:
 
 - `AdmissibleMap`

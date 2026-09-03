@@ -8,6 +8,9 @@ import FormalProof4FHE.RLWE.CompactCoverCyclicCompiler
 import FormalProof4FHE.RLWE.CompactCoverBGVExactNoise
 import FormalProof4FHE.RLWE.CompactCoverBGVNoiseSoundness
 import FormalProof4FHE.RLWE.CompactCoverBGVScalarSecurity
+import FormalProof4FHE.RLWE.CompactCoverBGVAdaptiveSecurity
+import FormalProof4FHE.RLWE.CompactCoverBGVMixedSource
+import FormalProof4FHE.RLWE.CompactCoverBGVScalarCorrectness
 
 /-!
 # Concrete N=65536 compact-cover BGV manifest and certificate
