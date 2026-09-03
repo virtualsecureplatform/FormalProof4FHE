@@ -27,8 +27,8 @@ def phaseLiftDigits : ℕ := 2
 def traceDigits : ℕ := 23
 def digitErrorBound : ℕ := 23
 
-/-- The exact ordered RNS chain used by TFHEpp. -/
-def rnsPrimes : List ℕ :=
+/-- The available ordered RNS primes certified for the TFHEpp backend. -/
+def availableRNSPrimes : List ℕ :=
   [2301972608560791553, 2295217002959732737, 2291839200159203329,
    2280016890357350401, 2274950186156556289, 2271009416222605313,
    2265942712021811201, 2252994467953115137, 2244549960951791617,
@@ -94,7 +94,8 @@ def rnsPrimeData : List RNSPrimeData :=
 theorem plaintextPrime_prime : Nat.Prime plaintextPrime := by
   norm_num [plaintextPrime]
 
-theorem rnsPrimeData_values : rnsPrimeData.map RNSPrimeData.value = rnsPrimes := by
+theorem rnsPrimeData_values :
+    rnsPrimeData.map RNSPrimeData.value = availableRNSPrimes := by
   native_decide
 
 theorem rnsPrimeData_checked :
@@ -103,13 +104,22 @@ theorem rnsPrimeData_checked :
         data.value data.generator data.factors) = true := by
   native_decide
 
-theorem rnsPrimes_prime {prime : ℕ} (member : prime ∈ rnsPrimes) :
+theorem availableRNSPrimes_prime {prime : ℕ}
+    (member : prime ∈ availableRNSPrimes) :
     Nat.Prime prime := by
   rw [← rnsPrimeData_values] at member
   obtain ⟨data, dataMember, rfl⟩ := List.mem_map.mp member
   have all := List.all_eq_true.mp rnsPrimeData_checked
   exact FormalProof4FHE.NumberTheory.LucasCertificate.prime_of_check
     (all data dataMember)
+
+/-- The selected 1219-bit bootstrap chain uses the first twenty certified
+primes; the three trailing backend primes are deliberately inactive. -/
+def rnsPrimes : List ℕ := availableRNSPrimes.take 20
+
+theorem rnsPrimes_prime {prime : ℕ} (member : prime ∈ rnsPrimes) :
+    Nat.Prime prime :=
+  availableRNSPrimes_prime (List.mem_of_mem_take member)
 
 def RNSPrimeData.negacyclicRootCheck (data : RNSPrimeData) : Bool :=
   decide ((((data.generator : ZMod data.value) ^
@@ -304,18 +314,18 @@ def quotientFactor : ℕ :=
   (rnsPrimes.getD 0 1 - 1) / plaintextSquare
 
 def phaseLiftState : ErrorState :=
-  { limbs := 23
+  { limbs := 20
     bound := acceptedInputError + quotientFactor * digitErrorBound +
-      keySwitchError 23 phaseLiftDigits 31 }
+      keySwitchError 20 phaseLiftDigits 31 }
 
 def traceStep (state : ErrorState) : ErrorState :=
   { state with bound := 2 * state.bound + keySwitchError state.limbs traceDigits }
 
 def traceState : ErrorState :=
   let firstEight := Nat.iterate traceStep 8 phaseLiftState
-  let afterFirstDrop := modulusDrop firstEight 22
+  let afterFirstDrop := modulusDrop firstEight 19
   let secondEight := Nat.iterate traceStep 8 afterFirstDrop
-  modulusDrop secondEight 21
+  modulusDrop secondEight 18
 
 def projectedState : ErrorState :=
   scale traceState (plaintextSquare - 65538)
@@ -329,10 +339,10 @@ def multiplicationState : ErrorState := multiplyAndDrop twoLimbInputState twoLim
 def bootstrapInputCapacity : ℕ := (rnsPrimes.getD 0 1) / (2 * plaintextPrime)
 
 structure ExactCycleCertificate : Prop where
-  primeCount : rnsPrimes.length = 23
+  primeCount : rnsPrimes.length = 20
   polynomialDegree : digitRemovalCoefficients.length - 1 = 93
   carryStrict : secretWeight + 1 + 12 < 2 * digitErrorBound
-  outputLevel : outputState.limbs = 13
+  outputLevel : outputState.limbs = 10
   outputFits : outputState.bound < outputCapacity
   additionLevel : oneLimbAdditionState.limbs = 1
   additionCloses : oneLimbAdditionState.bound ≤ acceptedInputError
@@ -348,7 +358,7 @@ theorem selectedExactCycleCertificate : ExactCycleCertificate := by
   native_decide
 
 @[simp] theorem projectedState_eq :
-    projectedState = { limbs := 21, bound := 70304015244276 } := by
+    projectedState = { limbs := 18, bound := 268909426566 } := by
   native_decide
 
 @[simp] theorem multiplicationState_eq :

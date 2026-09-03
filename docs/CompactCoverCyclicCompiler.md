@@ -48,7 +48,7 @@ compiler remains appropriate.
 
 For the scalar-only payload, `CompactCoverBGV65536Instantiation.lean` records
 both the non-contraction boundary of bare phase lifting and the corrected
-endpoint. The genuine construction uses a one-limb-to-23-limb phase lift, a
+endpoint. The genuine construction uses a one-limb-to-20-limb phase lift, a
 16-stage normalized constant trace with two level drops, bounded carry
 removal, and exact division by `p`. The deterministic certificate also closes
 one multiplication between bootstraps. This path needs neither packed

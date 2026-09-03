@@ -328,17 +328,17 @@ structure PhaseLiftResourceCertificate where
 
 def PhaseLiftResourceCertificate.Valid
     (certificate : PhaseLiftResourceCertificate) : Prop :=
-  certificate.modulusBits = 1402 ∧
-  certificate.limbCount = 23 ∧
+  certificate.modulusBits = 1219 ∧
+  certificate.limbCount = 20 ∧
   certificate.gadgetDigits = 2 ∧
   128 ≤ certificate.securityBits ∧
   certificate.outputErrorLogBound < certificate.modulusBits - 1
 
 def selectedPhaseLiftResources : PhaseLiftResourceCertificate where
-  modulusBits := 1402
-  limbCount := 23
+  modulusBits := 1219
+  limbCount := 20
   gadgetDigits := 2
-  securityBits := 13244 / 100
+  securityBits := 15492 / 100
   outputErrorLogBound := 52
 
 theorem selectedPhaseLiftResources_valid :
@@ -382,10 +382,10 @@ structure ScalarCycleCertificate where
 
 def ScalarCycleCertificate.DisplayConsistent
     (certificate : ScalarCycleCertificate) : Prop :=
-  certificate.fullModulusBits = 1402 ∧
+  certificate.fullModulusBits = 1219 ∧
   certificate.lowModulusBits = 61 ∧
-  certificate.fullLimbs = 23 ∧
-  certificate.outputLimbs = 13 ∧
+  certificate.fullLimbs = 20 ∧
+  certificate.outputLimbs = 10 ∧
   certificate.carryBound = 23 ∧
   certificate.digitPolynomialDegree = 4 * certificate.carryBound + 1 ∧
   certificate.outputErrorLogBound < certificate.outputCapacityLogBound ∧
@@ -393,14 +393,14 @@ def ScalarCycleCertificate.DisplayConsistent
   0 < certificate.contractionBits
 
 def selectedScalarCycleCertificate : ScalarCycleCertificate where
-  fullModulusBits := 1402
+  fullModulusBits := 1219
   lowModulusBits := 61
-  fullLimbs := 23
-  outputLimbs := 13
+  fullLimbs := 20
+  outputLimbs := 10
   carryBound := 23
   digitPolynomialDegree := 93
-  outputErrorLogBound := 64198 / 100
-  outputCapacityLogBound := 77560 / 100
+  outputErrorLogBound := 15401 / 100
+  outputCapacityLogBound := 59277 / 100
   multiplyErrorLogBound := 417 / 100
   multiplyCapacityLogBound := 4399 / 100
   contractionBits := 2741 / 100
@@ -413,20 +413,46 @@ theorem selectedScalarCycleCertificate_displayConsistent :
 /-- Computational attack-cost metadata is intentionally not a correctness
 certificate and is not used by any cryptographic reduction theorem. -/
 structure ScalarSecurityEstimate where
-  sourceBits : ℚ
-  reductionReserveBits : ℚ
-  retainedBits : ℚ
+  evaluationBits : ℚ
+  contextBits : ℚ
+  combinedBits : ℚ
 
 def selectedScalarSecurityEstimate : ScalarSecurityEstimate where
-  sourceBits := 13344 / 100
-  reductionReserveBits := 1
-  retainedBits := 13244 / 100
+  evaluationBits := 16294 / 100
+  contextBits := 15593 / 100
+  combinedBits := 15492 / 100
 
-theorem selectedScalarSecurityEstimate_arithmetic :
-    selectedScalarSecurityEstimate.retainedBits =
-      selectedScalarSecurityEstimate.sourceBits -
-        selectedScalarSecurityEstimate.reductionReserveBits := by
+theorem selectedScalarSecurityEstimate_meetsTarget :
+    128 ≤ selectedScalarSecurityEstimate.combinedBits ∧
+      selectedScalarSecurityEstimate.combinedBits <
+        selectedScalarSecurityEstimate.contextBits := by
   norm_num [selectedScalarSecurityEstimate]
+
+/-- The smallest selected RNS prime. -/
+def smallestRNSPrime : ℕ := 2102682243329556481
+
+theorem everyRNSPrime_ge_smallest :
+    rnsPrimes.all (fun prime => smallestRNSPrime ≤ prime) = true := by
+  native_decide
+
+/-- A union bound over all `20*65536` split coordinates is below `2^-40`.
+The executable certificate uses the tighter exact product density. -/
+theorem unitPivotFailure_unionBound_arithmetic :
+    20 * degree * 2 ^ 40 < smallestRNSPrime := by
+  native_decide
+
+/-- Exact advantage arithmetic for public rejection to a unit pivot. -/
+theorem unitConditioning_advantage_le
+    (target source success failureBound : ℝ)
+    (htarget : 0 ≤ target)
+    (hsource : source = success * target)
+    (hsuccessLower : 1 - failureBound ≤ success)
+    (hfailure : failureBound < 1) :
+    target ≤ source / (1 - failureBound) := by
+  rw [hsource]
+  have denominator : 0 < 1 - failureBound := by linarith
+  rw [le_div_iff₀ denominator]
+  nlinarith
 
 /-- The exact-natural recurrence, rather than the rounded logarithmic display,
 closes both binary gates back into the accepted bootstrap input set. -/
@@ -449,10 +475,10 @@ theorem selectedDigitRemoval_correct
 /-- Two phase-lift rows, sixteen level-specific 23-row trace keys, and four
 public quadratic-hint elements occupy exactly this many 64-bit residues. -/
 @[simp] theorem scalar_bootstrap_key_residues :
-    2 * ciphertextResidues 65536 1 23 +
-      8 * 23 * ciphertextResidues 65536 1 23 +
-      8 * 23 * ciphertextResidues 65536 1 22 +
-      4 * elementResidues 65536 23 = 1097334784 := by decide
+    2 * ciphertextResidues 65536 1 20 +
+      8 * 23 * ciphertextResidues 65536 1 20 +
+      8 * 23 * ciphertextResidues 65536 1 19 +
+      4 * elementResidues 65536 20 = 951058432 := by decide
 
 /-- The complete evaluation-row family is transported jointly; no marginal
 or per-row circular-security assumption is introduced. -/

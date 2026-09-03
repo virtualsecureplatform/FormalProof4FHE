@@ -40,21 +40,21 @@ structure Backend (R : Type) [CommRing R] where
   binary_idempotent : ∀ bits, binaryNTT bits ^ 2 = binaryNTT bits
 
 /-- The selected modulus at an RNS limb. -/
-def rnsModulus (limb : Fin 23) : ℕ :=
+def rnsModulus (limb : Fin 20) : ℕ :=
   rnsPrimes.get ⟨limb, by
     rw [selectedExactCycleCertificate.primeCount]
     exact limb.isLt⟩
 
-theorem rnsModulus_mem (limb : Fin 23) : rnsModulus limb ∈ rnsPrimes := by
+theorem rnsModulus_mem (limb : Fin 20) : rnsModulus limb ∈ rnsPrimes := by
   unfold rnsModulus
   exact List.get_mem rnsPrimes _
 
-instance instNeZeroRNSModulus (limb : Fin 23) : NeZero (rnsModulus limb) :=
+instance instNeZeroRNSModulus (limb : Fin 20) : NeZero (rnsModulus limb) :=
   ⟨(rnsPrimes_prime (rnsModulus_mem limb)).ne_zero⟩
 
 /-- Exact heterogeneous split RNS/NTT carrier used by the implementation. -/
 abbrev ConcreteSplitRNS :=
-  (limb : Fin 23) → Fin degree → ZMod (rnsModulus limb)
+  (limb : Fin 20) → Fin degree → ZMod (rnsModulus limb)
 
 noncomputable instance instSampleableConcreteSplitRNS :
     SampleableType ConcreteSplitRNS := SampleableType.ofFintype _
@@ -82,10 +82,10 @@ def concreteRNSBackend
 
 theorem rnsPrimeData_length : rnsPrimeData.length = 23 := by native_decide
 
-def rnsDatum (limb : Fin 23) : RNSPrimeData :=
-  rnsPrimeData.get ⟨limb, by rw [rnsPrimeData_length]; exact limb.isLt⟩
+def rnsDatum (limb : Fin 20) : RNSPrimeData :=
+  rnsPrimeData.get ⟨limb, by rw [rnsPrimeData_length]; omega⟩
 
-def rnsGenerator (limb : Fin 23) : ℕ := (rnsDatum limb).generator
+def rnsGenerator (limb : Fin 20) : ℕ := (rnsDatum limb).generator
 
 /-- Canonical mathematical negacyclic NTT: evaluation at the odd powers of a
 primitive `2N`-th root. Concrete backend ordering may differ by a public slot
@@ -242,7 +242,7 @@ noncomputable def sourceSpec (queries : ℕ) (R : Type)
     apply NeverFail.bind_of_forall
       (hx := contextWitnessSampler_neverFails R backend inputs)
 
-/-- Fully concrete 23-limb source problem used by the selected N=65536
+/-- Fully concrete 20-limb source problem used by the selected N=65536
 instantiation. -/
 noncomputable def concreteSourceSpec (queries : ℕ) :
     BinaryNTTSourceSpec queries ConcreteSplitRNS :=

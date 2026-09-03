@@ -104,7 +104,7 @@ theorem concreteScalarCycle_correct
     coefficientEval digitRemovalCoefficients
           ((plaintextPrime : ZMod plaintextSquare) * message + carry) =
         (plaintextPrime : ZMod plaintextSquare) * message ∧
-      outputState.limbs = 13 ∧
+      outputState.limbs = 10 ∧
       outputState.bound < outputCapacity ∧
       oneLimbAdditionState.bound ≤ acceptedInputError ∧
       multiplicationState.bound ≤ acceptedInputError := by
