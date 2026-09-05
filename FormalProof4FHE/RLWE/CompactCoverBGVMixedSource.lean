@@ -56,6 +56,31 @@ instance instNeZeroRNSModulus (limb : Fin 20) : NeZero (rnsModulus limb) :=
 abbrev ConcreteSplitRNS :=
   (limb : Fin 20) → Fin degree → ZMod (rnsModulus limb)
 
+/-- The nineteen-limb prefix used after the first concrete trace drop. -/
+def prefixLimb (limb : Fin 19) : Fin 20 := ⟨limb.val, by omega⟩
+
+abbrev ConcreteSplitRNS19 :=
+  (limb : Fin 19) → Fin degree → ZMod (rnsModulus (prefixLimb limb))
+
+def rnsPrefix19 (value : ConcreteSplitRNS) : ConcreteSplitRNS19 :=
+  fun limb slot => value (prefixLimb limb) slot
+
+/-- Split-coordinate model of a public cyclotomic automorphism. -/
+def permuteSlots20 (permutation : Equiv.Perm (Fin degree))
+    (value : ConcreteSplitRNS) : ConcreteSplitRNS :=
+  fun limb slot => value limb (permutation.symm slot)
+
+def permuteSlots19 (permutation : Equiv.Perm (Fin degree))
+    (value : ConcreteSplitRNS19) : ConcreteSplitRNS19 :=
+  fun limb slot => value limb (permutation.symm slot)
+
+/-- Prefix projection commutes exactly with every public slot permutation. -/
+theorem rnsPrefix19_permuteSlots
+    (permutation : Equiv.Perm (Fin degree)) (value : ConcreteSplitRNS) :
+    rnsPrefix19 (permuteSlots20 permutation value) =
+      permuteSlots19 permutation (rnsPrefix19 value) := by
+  rfl
+
 noncomputable instance instSampleableConcreteSplitRNS :
     SampleableType ConcreteSplitRNS := SampleableType.ofFintype _
 

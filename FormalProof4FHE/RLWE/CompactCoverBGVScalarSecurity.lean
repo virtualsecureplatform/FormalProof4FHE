@@ -101,11 +101,11 @@ def scalarRowEquiv (queries : ℕ) :
 /-- Late trace rows are stored after one RNS drop; all other directory rows
 are represented at the full level. -/
 def EvaluationRow.activeLimbs : EvaluationRow → ℕ
-  | .traceLate _ _ => 22
-  | _ => 23
+  | .traceLate _ _ => 19
+  | _ => 20
 
-theorem EvaluationRow.activeLimbs_eq_twentyTwo_iff (row : EvaluationRow) :
-    row.activeLimbs = 22 ↔ ∃ stage digit, row = .traceLate stage digit := by
+theorem EvaluationRow.activeLimbs_eq_nineteen_iff (row : EvaluationRow) :
+    row.activeLimbs = 19 ↔ ∃ stage digit, row = .traceLate stage digit := by
   cases row <;> simp [EvaluationRow.activeLimbs]
 
 abbrev Transcript (queries : ℕ) (R : Type) := ScalarRow queries → R × R
