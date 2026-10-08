@@ -673,6 +673,231 @@ checks run inside the container; no host Lean installation is required.
   for direct fresh LWE rows. A simultaneous challenge-matrix translation absorbs every affine
   function of the encryption secret, so there is no per-row hybrid loss. By itself this does not
   cover the bilinear cross-key messages in native TGSW mask blocks.
+- `FormalProof4FHE.LWE.GSWSelfKey.freshView_evalDist` identifies a complete freshly sampled
+  LWE-GSW tape with its exact gadget-phase LWE view, retaining secret-dependent auxiliary
+  information and the original joint error law. The explicit full self-key layout has
+  `n * (n + 1) * w` columns. Binary diagonal products become affine, while
+  `binaryProduct_not_affine` rules out fixed affine absorption of off-diagonal products.
+  Exact unmasked quadratic products reveal the binary key, even without the diagonal whenever
+  at least two bits are one. These are sampler, phase, and leakage-barrier theorems, not a
+  reduction of same-key GSW bootstrapping security to ordinary LWE. The remaining target and
+  the entropy-route feasibility checks are recorded in `docs/GSWSelfKeyResearch.txt`.
+- `FormalProof4FHE.LWE.RecursiveQuadratic` proves a lossless ordinary-LWE reduction for
+  fixed quadratic-message batches in a recursive-mask ciphertext law, retaining the whole
+  same-key public-key batch. A public simulator gives one common uniform ideal; two LWE
+  calls bound fixed messages versus zero. Its block-binary specialization composes with
+  the existing uniform-secret LWE reductions and explicit statistical gap. Binary secrets
+  give decryption error at most `(n+1)*B`. These ciphertexts use quadratic decryption
+  features; conversion to GSW controls and repeatable bootstrapping remain unproved.
+- `FormalProof4FHE.Probability.UniformInterval` proves modular interval translation
+  and convolution bounds, bounded support, first moments, and finite-budget bit sampling.
+  `FormalProof4FHE.LWE.NoiseFlooding` proves that publicly adding independent noise
+  preserves the ordinary-LWE uniform branch and gives the exact convolution law.
+  `RecursiveQuadratic.interval_advantage_le_narrowLWE` combines these with the
+  block-binary reduction: every computational term is narrow-error ordinary LWE,
+  with explicit absorption, leftover-hash and sampler losses. Negligibility for a
+  bootstrap-compatible parameter family and the refresh interface remain unproved.
+- `FormalProof4FHE.LWE.RecursiveQuadraticParameters` instantiates that component
+  at scale `t=lambda+1`, with source dimension `t^3`, binary dimension `2*t^5`,
+  modulus `2^(t^2)`, Gaussian width `t^2` and wide interval radius `2^t`.
+  Its finite-budget honest view has only narrow-error ordinary-LWE reduction terms
+  plus a proved negligible statistical loss at any polynomial row count. The
+  compiled narrow sampler is negligibly close to the ideal Gaussian; its fair-bit
+  budget and the wide sampler's budget are polynomial. Fresh recursive phases
+  eventually have a strict quarter-modulus error margin. This still does not
+  establish a GSW conversion, repeatable refresh, or all arithmetic running costs.
+- `FormalProof4FHE.LWE.RecursivePublicKey` embeds Regev subset-sum public encryption
+  in the recursive ciphertext format under the same secret. The security experiment
+  retains the full fixed quadratic-hint batch; only the justified ideal view makes
+  the public-key rows independent of those hints. Its one-time IND-CPA bound combines
+  the ordinary-LWE whole-view reduction with explicit subset-sum masking error.
+  `RecursivePublicKeyParameters` selects a polynomial public-key row count, proves
+  negligible masking and implementation losses, and links the half-modulus decoder
+  to supported honest errors. The standard fresh-encryption correctness experiment
+  has probability one for sufficiently large parameters. General uniform tape
+  instances and key generation are noncomputable Lean descriptions; a complete
+  executable implementation and its arithmetic cost proof remain open. This adds
+  public encryption; its secure integration with evaluation and repeatable refresh
+  remains open.
+- `FormalProof4FHE.LWE.RecursiveFeatureGSW` gives a bijection from recursive
+  ciphertext coefficients to the derived decryption features `(1,s_i,s_i*s_j)`.
+  The existing public GSW gadget multiplication stays in this fixed representation
+  under the original single secret, with an exact asymmetric noise bound and
+  nearest-codeword NAND correctness. This does not sample another key. An explicit
+  observer proves that reusing the previous linear public encryption as a GSW mask
+  leaks the bit in a quadratic coordinate. The companion full-coordinate sampler
+  below supplies secure public masks for this representation.
+  Original-bit refresh controls need cubic messages outside the current quadratic
+  reduction; the module proves this already on binary-secret corners.
+  `RecursiveMultiplication` also constructs a public scalar phase product with
+  a separately generated quartic hint table, proves its exact error and short-digit
+  bounds, and verifies that a required quartic entry is outside the quadratic class.
+  Security of that table is unproved. It is an alternative correctness interface,
+  not an additional hardness assumption or a complete FHE construction.
+- `FormalProof4FHE.LWE.RecursiveFeaturePublicKey` publishes full recursive zero-ciphertext
+  columns, retaining the original linear public key and every fixed quadratic hint.
+  An explicit coordinate equivalence proves uniformity of the justified ideal view;
+  its whole-view ordinary-LWE reduction and joint GSW masking bound cover messages
+  chosen after the public view. The stored public encryption/decryption scheme uses
+  only the original secret. The standard one-time IND-CPA experiment and supported
+  fresh-encryption correctness are proved. `RecursiveFeaturePublicKeyParameters`
+  pays for all `N=n*n+n+1` feature coordinates with `p=N*t^2+2*lambda+1` columns,
+  proves negligible masking and implementation losses at polynomial context sizes,
+  and proves eventual probability-one fresh-encryption correctness. It does not
+  assert LWE hardness for the derived feature vector. Efficient reduction classes,
+  cubic refresh-control security and repeatable same-key refresh remain open.
+- `FormalProof4FHE.LWE.GSWOperations` connects that sampler to the rectangular matrix
+  ciphertext and proves exact fresh-encryption, addition, and multiplication error identities
+  under the same key. Its generic multiplication theorem takes a gadget reconstruction equation;
+  `FormalProof4FHE.LWE.GSWGadget` now supplies the concrete rectangular decomposition, bounded
+  unsigned digits, nearest-codeword decryption, and correct NAND. The right-associated bit-product
+  and CMux bounds retain the asymmetric growth needed for refresh.
+- `FormalProof4FHE.LWE.GSWAccumulator` implements a public cyclic vector accumulator using
+  encrypted bit controls under the same binary secret. It materializes every stage and matrix
+  entry to share earlier computations. The actual small-modulus LWE-to-GSW lookup has a checked
+  output noise bound `p * n * (n+1) * levels * (base-1) * keyErrorBound`, independent of the
+  incoming sample's noise. The same-key fresh-control generator and output decryption are covered
+  by `decrypt_refresh_freshBootKey`.
+- `FormalProof4FHE.LWE.GSWModulusSwitch` proves public scaled floor rounding for `Q=d*p`,
+  its exact phase law under the unchanged binary secret, and the aggregate residual bound
+  `(n+1)*(d-1)`. `FormalProof4FHE.LWE.GSWBootstrap` composes it with the stored lookup and
+  derives the refreshed bit from the original large-modulus noise bound.
+- `FormalProof4FHE.LWE.GSWBootstrapParameters` exhibits a conservative polynomial-modulus
+  correctness family: base `b=64*(n+1)`, sixteen gadget levels, `Q=b^16`, lookup modulus `b^3`,
+  and control error bound `(n+1)^2`. Its public rounding and output margins are proved for
+  every dimension. `noiseBound_refreshedNand` restores the same noise invariant after each
+  NAND/refresh, and `decrypt_refreshedNand` proves output decryption. The family is not optimized;
+  a formal operation-count bound and an ordinary-LWE reduction for the complete self-key control
+  view remain open. These correctness results make no circular-security assumption.
+- `FormalProof4FHE.LWE.GSWCircuit` evaluates topologically ordered NAND circuits using a
+  stored wire table. Gate references can reuse earlier ciphertexts; each gate is computed once.
+  `noiseBound_evaluateWires` proves the invariant on every wire, and `decrypt_evaluate` proves
+  correctness at an arbitrary selected output for the concrete parameter family. The counted
+  evaluator records one refresh operation per gate; it does not yet bound the bit-operation
+  cost of a refresh. Output matrix dimensions depend only on the secret dimension.
+- `FormalProof4FHE.LWE.GSWPublicKey` materializes an ordinary zero-message LWE public-key table
+  and implements public GSW encryption by binary column selection plus gadget addition. Public
+  encryption uses the stored public key and selection coins. For positive secret dimension,
+  its sample count `256*(n+1)^2` fits the circuit noise invariant. The theorem
+  `decrypt_evaluate_freshPublicKey` connects actual public input encryption and actual same-key
+  fresh controls to whole-circuit correctness, assuming bounds only on the originally sampled
+  key errors. The probabilistic generators and their correctness accounting are connected below;
+  the ordinary-LWE security reduction for the joint public/self-key view remains unfinished.
+- `FormalProof4FHE.LWE.GSWSampling` implements probabilistic key generation with one binary
+  secret, independent uniform masks, and independent scalar key errors. It materializes the
+  public key and controls, and public encryption samples binary selection coins from stored
+  public data. The exact good-error probability is the scalar good probability raised to the
+  number of key errors. `correctness_failure_le_dimension_bound` bounds the operational
+  whole-circuit failure probability by `272*(n+1)^2` times the scalar centered-error tail above
+  `(n+1)^2`, independently of input count, circuit size, depth, and fanout. This is an explicit
+  sampler-parametric correctness result; a concrete efficient ordinary-LWE-compatible sampler,
+  its approximation guarantees, formal bit-operation costs, and joint-key-view security remain
+  unproved; the Gaussian tail and conditional negligible correctness are connected below.
+- `FormalProof4FHE.DiscreteGaussianTail` proves the ideal centered Gaussian tail above the
+  squared positive integer standard deviation: `Pr[|e|_Q > s^2] <= 4*exp(-s^2/2)`. Symmetry,
+  normalization, the geometric bound, and modular reduction are proved directly. A checked
+  finite sampler table adds one scalar TV approximation error to this bound. At `s=n+1`,
+  the explicit ideal term is proved negligible. `FormalProof4FHE.LWE.GSWGaussianCorrectness`
+  connects that result to the operational key/encryption/circuit experiment, with failure
+  envelope `272*(n+1)^2 * (4*exp(-(n+1)^2/2) + approximationError)`. A negligible checked
+  approximation error gives negligible whole-circuit failure even as input counts and circuits
+  vary. The compressed sampler below avoids storing a repeated entry for every ticket.
+  The computable Gaussian weights below have negligible unnormalized pointwise error.
+  Their proved whole-distribution TV certificate is connected below. Formal bit-operation
+  bounds and joint same-key-view security from ordinary LWE remain unproved.
+- `FormalProof4FHE.WeightedSampler` implements sampling from stored outcome/integer-weight
+  pairs by one uniform ticket and cumulative subtraction. Its exact law is weight divided by
+  total weight, including duplicate outcomes and zero weights. The decoder inspects at most
+  the number of stored entries; the expanded repeated-ticket table is used only in proofs.
+  Checked TV certificates feed the same Gaussian circuit bound with no additional loss.
+  `correctness_failure_eq_zero_compressed_bounded` proves zero whole-circuit failure for positive
+  secret dimension when every stored error meets the key budget, for arbitrary input coins
+  and circuits. This closes the compressed representation and correctness bridge. The generated
+  Gaussian weights below add concrete data and a proved negligible TV certificate. Random-bit
+  implementation, bit-operation bounds, and ordinary-LWE-only security of the full public/self-key
+  view remain open.
+- `FormalProof4FHE.GaussianIntegerWeights` computes finite Gaussian weights by rational Taylor
+  summation, reciprocal range expansion, and natural flooring. Inside `|z| <= s^2`, the scaled
+  stored weight differs from `exp(-z^2/(2*s^2))` by at most `(s^2+2)/2^precision`. The error is
+  proved negligible at `s=n+1`, `precision=s^2`. The table has `2*s^2+1` entries, exact zero
+  weight `2^precision`, symmetric integer weights, and a denominator below `2^(3*s^2+1)` for
+  that precision. Modular reduction commutes with the actual sampler. The theorem
+  `correctness_failure_eq_zero_generated_weights` proves exactly zero whole-circuit failure
+  for this generated scalar noise at every positive secret dimension. Its accuracy theorem
+  concerns unnormalized weights; the normalized comparison is supplied next. Bit-operation cost
+  and the ordinary-LWE security reduction for the complete same-key public view remain unproved.
+- `FormalProof4FHE.NormalizationTV` proves that comparing an ideal PMF with a scaled actual PMF
+  also controls their normalization discrepancy. `FormalProof4FHE.GaussianSamplerTV` applies it
+  to the actual generated table and proves complete TV at most
+  `(2*s^2+1)*(s^2+2)/2^precision + 4*exp(-s^2/2)`, including the omitted ideal tail.
+  Modular reduction adds no error or modulus-size factor. The generated certificate's bound
+  is proved negligible at `s=n+1`, `precision=s^2`; its table is exactly the computable generator.
+  `generated_scalar_etvDist_negligible` closes the scalar Gaussian approximation premise, and
+  `correctness_failure_generated_negligible` proves operational whole-circuit negligible failure
+  without a certificate-error hypothesis, including the finite dimension-zero case. Formal
+  random-bit/arithmetic and evaluator cost, ciphertext bit serialization, the binary-secret
+  bridge, and full same-key-view security from ordinary LWE remain open.
+- `FormalProof4FHE.FiniteProductTV` bounds a complete independent error vector by the sum of
+  its scalar TV errors and connects that PMF exactly to the implemented IID sampler.
+  `FormalProof4FHE.LWE.GSWNoiseComparison` carries this comparison through the actual one-key
+  generator, preserving the shared secret, all masks, and joint public-key/control material.
+  `family_keys_etvDist_negligible` proves negligible full-material distance to the ideal Gaussian
+  reference, with explicit envelope `272*(n+1)^2 * generatedScalarCertificate.bound`. Shared
+  randomized observations add no further loss. `family_advantage_le_reference` charges twice
+  that envelope for two distinguishing-game branches; its reference advantage remains explicit.
+  Thus a future security proof for the Gaussian reference can transfer to the generated sampler.
+  Security of that complete same-key reference from ordinary LWE is still unproved.
+- `FormalProof4FHE.SeededProductTV` proves a joint leftover-hash bound for independent
+  selector tapes under one retained public seed. `FormalProof4FHE.LWE.GSWMasking` connects
+  it to the actual stored GSW public-encryption sampler and a one-time IND-CPA experiment
+  retaining every same-key control. Messages may be chosen after seeing both public tables.
+  The bound is the explicit joint-view public-key replacement advantage plus
+  `columns * sqrt(Q^(n+1)/2^samples)/2`. For the existing correctness parameters,
+  `familyMaskingBound_negligible` proves that this statistical term is negligible, bounded
+  by `16*(n+1)*2^(-n)`. The key-replacement advantage remains unproved from ordinary LWE;
+  retaining the real controls does not make this an ordinary-LWE reduction.
+- `FormalProof4FHE.Probability.BoundedUniform` implements fixed-budget rejection using
+  only primitive fair bits, with a structural worst-case query bound and TV bias at most
+  `2^(-rounds)`. `WeightedBitSampler` connects it to compressed Gaussian weights, preserves
+  every stored-outcome bound, and proves a scalar coin budget of
+  `(n+1)^2 * (3*(n+1)^2+1)`. `LWE.GSWBitSampling` uses that noise implementation in the
+  existing one-key generator: whole-circuit failure is zero for positive dimensions,
+  and the complete key material remains negligibly close to the ideal Gaussian reference.
+  Uniform mask sampling and arithmetic/evaluator bit costs remain separate obligations;
+  the full public-view ordinary-LWE security reduction remains open.
+- `FormalProof4FHE.LWE.GSWLinkedMask` checks a public linking compiler with independent
+  full-matrix subset masks. It proves standalone statistical hiding, retaining an arbitrary
+  earlier context, and exact cancellation/noise identities for the actual public pad
+  encryptions. The linked control equals `message*G - PK*compiledSelectors`, with noise at
+  most `pads*growth*samples*publicKeyError`. Same-key mask-gadget phases remain quadratic.
+  The encrypted pads are omitted from the standalone hiding theorem; ordinary-LWE security
+  for their complete joint view is unproved. The accumulator smoke checks twelve actual
+  refresh/decryption cases with linked controls. Instantiation with an
+  asymptotic bootstrap parameter family remains a separate obligation.
+- `FormalProof4FHE.LWE.NoisyBinaryGadget` proves recovery of every residue from readable
+  noisy binary gadget multiples at `q=2^levels` when the noise is below `q/4`, with one
+  observation per recovered bit. `LWE.GSWLinkedDisclosure` connects this decoder to the
+  full tensor-hint/public-link layout and the actual public GSW pad sampler, then proves
+  fresh-challenge decryption using the recovered sender vector. The attacker uses stored
+  public hints and its own receiver key. This audits receiver-side disclosure in WHT26;
+  it does not attack an unknown one-key view. The complete ordinary-LWE reduction for
+  the requested one-key FHE remains open. The stored-data smoke and independent NumPy
+  matrix reproduction exercise the actual attack interface.
+- `FormalProof4FHE.LWE.GSWBinaryRandomization` gives an exact public bit-flip transformation
+  for a complete zero/linear/quadratic LWE row layout, including the actual full GSW self-key
+  phase and ordinary zero-hint rows under that key. It retargets to the flipped binary secret
+  and changes only error signs. Symmetric independent errors preserve the full joint sampler
+  exactly, supplying the existing view-randomization interface with zero loss and no flooding.
+  It also preserves the complete uniform transcript. The input already contains the quadratic
+  hints: neither their search hardness nor their simulation from ordinary LWE is established.
+- `FormalProof4FHE.LWE.GSWFeatureClosure` checks a restriction on replacing the quadratic
+  tape by affine KDM through secret-feature expansion. Over any nontrivial commutative ring,
+  a feature span containing the constant and closed under multiplication by each original
+  secret bit is the entire Boolean function space. `affine_feature_count_ge` therefore requires
+  at least `2^n-1` nonconstant features when all GSW body and mask phases are affine in that
+  same vector. `exists_nonaffine_mask_product` exhibits a missing mask product for a smaller
+  vector with affine bodies. This covers arbitrary exact feature choices, including composite
+  coefficient rings; it does not rule out FHE or other computational KDM reductions.
 - `FormalProof4FHE.LWE.MultiKeyAffine.advantage_eq_batch` strengthens that baseline to an arbitrary
   fixed affine clique: every fresh row under any of `users` independent binary keys may encrypt an
   affine function of all user keys. A checked master-key/mask coupling produces exactly independent

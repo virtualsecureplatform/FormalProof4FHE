@@ -8,4 +8,20 @@ ROOT=$(cd -- "$(dirname -- "$0")/.." && pwd)
 "${ROOT}/scripts/in-container" lake env lean -DwarningAsError=true \
   FormalProof4FHETest/AxiomAudit.lean
 "${ROOT}/scripts/in-container" lake env lean -DwarningAsError=true \
+  FormalProof4FHETest/GSWSelfKeyAudit.lean
+"${ROOT}/scripts/in-container" lake env lean -DwarningAsError=true \
   FormalProof4FHETest/Smoke.lean
+"${ROOT}/scripts/in-container" lake env lean -DwarningAsError=true \
+  FormalProof4FHETest/GSWAccumulatorSmoke.lean
+"${ROOT}/scripts/in-container" lake env lean -DwarningAsError=true \
+  FormalProof4FHETest/GSWBootstrapSmoke.lean
+"${ROOT}/scripts/in-container" lake env lean -DwarningAsError=true \
+  FormalProof4FHETest/GSWCircuitSmoke.lean
+"${ROOT}/scripts/in-container" lake env lean -DwarningAsError=true \
+  FormalProof4FHETest/WeightedSamplerSmoke.lean
+"${ROOT}/scripts/in-container" lake env lean -DwarningAsError=true \
+  FormalProof4FHETest/GaussianWeightsSmoke.lean
+"${ROOT}/scripts/in-container" lake env lean -DwarningAsError=true \
+  FormalProof4FHETest/BoundedUniformSmoke.lean
+"${ROOT}/scripts/in-container" lake env lean -DwarningAsError=true \
+  FormalProof4FHETest/GSWDisclosureSmoke.lean
