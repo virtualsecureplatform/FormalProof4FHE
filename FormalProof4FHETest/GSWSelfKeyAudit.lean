@@ -1,3 +1,4 @@
+import FormalProof4FHE.LWE.KDMStarConversion
 import FormalProof4FHE.LWE.RecursiveQuadratic
 import FormalProof4FHE.LWE.RecursiveQuadraticParameters
 /-
@@ -7,8 +8,36 @@ Authors: Kotaro Matsuoka
 -/
 
 import FormalProof4FHE.LWE.GSWOperations
+import FormalProof4FHE.LWE.GSWLinearCharacterCompiler
+import FormalProof4FHETest.GSWLinearCharacterSmoke
+import FormalProof4FHETest.GSWLinearCharacterSecuritySmoke
+import FormalProof4FHETest.GSWLinearCharacterBootstrapSmoke
+import FormalProof4FHETest.GSWTripleLocalSmoke
+import FormalProof4FHE.LWE.KDMStarGSW
+import FormalProof4FHE.LWE.GSWQuadraticPreimage
+import FormalProof4FHE.LWE.GSWQuadraticPreimageBinary
+import FormalProof4FHE.LWE.GSWQuadraticPreimageGSW
+import FormalProof4FHE.LWE.GSWQuadraticPreimageParameters
+import FormalProof4FHE.LWE.GSWQuadraticPreimageRowSupport
+import FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows
+import FormalProof4FHE.LWE.GSWPrivateTrapdoor
+import FormalProof4FHE.LWE.GSWTwoSidedCompiler
+import FormalProof4FHE.LWE.GSWPublicPreimageBarrier
+import FormalProof4FHE.LWE.GSWRotatedTrapdoorSource
+import FormalProof4FHE.LWE.GSWPairLocalCompiler
+import FormalProof4FHE.LWE.GSWCorrelatedMidpoint
+import FormalProof4FHE.LWE.GSWRedundantDigits
+import FormalProof4FHE.LWE.GSWBodyAdaptiveProjection
+import FormalProof4FHE.LWE.GSWCommutingProjection
+import FormalProof4FHE.LWE.GSWUnitSumShift
+import FormalProof4FHE.LWE.GSWTranscriptCompiler
+import FormalProof4FHE.LWE.GSWShiftedSourceDisclosure
+import FormalProof4FHE.LWE.GSWQuadraticAuxConversion
 import FormalProof4FHE.LWE.GSWFeatureClosure
 import FormalProof4FHE.LWE.GSWBinaryRandomization
+import FormalProof4FHE.LWE.GSWMixedRandomization
+import FormalProof4FHE.LWE.GSWStoredSecurityView
+import FormalProof4FHE.LWE.GSWMixedStoredView
 import FormalProof4FHE.LWE.GSWAccumulator
 import FormalProof4FHE.LWE.GSWBootstrapParameters
 import FormalProof4FHE.LWE.GSWPublicKey
@@ -16,6 +45,7 @@ import FormalProof4FHE.LWE.GSWSampling
 import FormalProof4FHE.LWE.GSWGaussianCorrectness
 import FormalProof4FHE.LWE.GSWNoiseComparison
 import FormalProof4FHE.LWE.GSWMasking
+import FormalProof4FHE.LWE.GSWCorrelatedMasking
 import FormalProof4FHE.LWE.GSWLinkedMask
 import FormalProof4FHE.LWE.NoisyBinaryGadget
 import FormalProof4FHE.LWE.GSWLinkedDisclosure
@@ -23,6 +53,20 @@ import FormalProof4FHE.LWE.GSWBitSampling
 import FormalProof4FHE.LWE.RecursivePublicKeyParameters
 import FormalProof4FHE.LWE.RecursiveFeatureGSW
 import FormalProof4FHE.LWE.RecursiveFeaturePublicKeyParameters
+import FormalProof4FHE.LWE.RecursiveFeatureBootstrap
+import FormalProof4FHE.LWE.RecursiveFeatureBootstrapParameters
+import FormalProof4FHE.LWE.RecursiveFeatureCircuit
+import FormalProof4FHE.LWE.RecursiveFeatureSecurityView
+import FormalProof4FHE.LWE.RecursiveFeatureSecurityParameters
+import FormalProof4FHE.LWE.RecursiveFeatureCubicApproximation
+import FormalProof4FHE.LWE.RecursiveFeatureControlHybrid
+import FormalProof4FHE.LWE.RecursiveFeatureControlPolynomial
+import FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid
+import FormalProof4FHE.LWE.GSWWeightedCubic
+import FormalProof4FHE.LWE.RecursiveFeatureConditioning
+import FormalProof4FHE.LWE.RecursiveFeatureAffineSource
+import FormalProof4FHE.LWE.RecursiveFeatureFHECorrectness
+import FormalProof4FHE.LWE.RecursiveFeatureBitSampling
 
 /-!
 Audit the exact fresh GSW sampling model independently of the much larger TFHE library.
@@ -61,6 +105,42 @@ They do not claim an ordinary-LWE reduction for a same-key refresh tape.
 #print axioms FormalProof4FHE.LWE.GSWBinaryRandomization.flip_uniform_evalDist
 #print axioms FormalProof4FHE.LWE.GSWBinaryRandomization.viewRandomization
 #print axioms FormalProof4FHE.LWE.GSWBinaryRandomization.signal_selfKey_eq_phaseMessage
+#print axioms FormalProof4FHE.LWE.GSWMixedRandomization.transformUniform_bijective
+#print axioms FormalProof4FHE.LWE.GSWMixedRandomization.transformTranscript_mixed
+#print axioms FormalProof4FHE.LWE.GSWMixedRandomization.transformTranscript_mixedView_evalDist
+#print axioms FormalProof4FHE.LWE.GSWMixedRandomization.jointSignal_public
+#print axioms FormalProof4FHE.LWE.GSWMixedRandomization.jointSignal_control
+#print axioms FormalProof4FHE.LWE.GSWMixedRandomization.replacePublic_public
+#print axioms FormalProof4FHE.LWE.GSWMixedRandomization.replacePublic_control
+#print axioms FormalProof4FHE.LWE.GSWMixedRandomization.jointMixed_randomization_evalDist
+#print axioms FormalProof4FHE.LWE.GSWStoredSecurityView.maskEquiv
+#print axioms FormalProof4FHE.LWE.GSWStoredSecurityView.seedEquiv
+#print axioms FormalProof4FHE.LWE.GSWStoredSecurityView.normalizeSeedEquiv
+#print axioms FormalProof4FHE.LWE.GSWStoredSecurityView.normalizedSeedEquiv
+#print axioms FormalProof4FHE.LWE.GSWStoredSecurityView.materialFromDraws_eq_storeFresh
+#print axioms FormalProof4FHE.LWE.GSWStoredSecurityView.materialFromDraws_eq_normalizedKey
+#print axioms FormalProof4FHE.LWE.GSWStoredSecurityView.keygen_normalized_evalDist
+#print axioms FormalProof4FHE.LWE.GSWStoredSecurityView.jointPhase_eq_signal
+#print axioms FormalProof4FHE.LWE.GSWStoredSecurityView.keygen_realView_evalDist
+#print axioms FormalProof4FHE.LWE.GSWStoredSecurityView.operationalView_normalized_evalDist
+#print axioms FormalProof4FHE.LWE.GSWStoredSecurityView.uniformView_normalized_evalDist
+#print axioms FormalProof4FHE.LWE.GSWStoredSecurityView.operationalGame_normalized_evalDist
+#print axioms FormalProof4FHE.LWE.GSWStoredSecurityView.keyReplacementAdvantage_normalized
+#print axioms FormalProof4FHE.LWE.GSWMixedStoredView.mixedInputEquiv
+#print axioms FormalProof4FHE.LWE.GSWMixedStoredView.mixedInputs_uniform_evalDist
+#print axioms FormalProof4FHE.LWE.GSWMixedStoredView.controlMasks_uniform_evalDist
+#print axioms FormalProof4FHE.LWE.GSWMixedStoredView.idealInputs_uniform_evalDist
+#print axioms FormalProof4FHE.LWE.GSWMixedStoredView.realControls_eq_finish
+#print axioms FormalProof4FHE.LWE.GSWMixedStoredView.mixedTranscript_eq_finish
+#print axioms FormalProof4FHE.LWE.GSWMixedStoredView.fixedMixed_input_evalDist
+#print axioms FormalProof4FHE.LWE.GSWMixedStoredView.fixedIdeal_input_evalDist
+#print axioms FormalProof4FHE.LWE.GSWMixedStoredView.fixedIdeal_mixed_evalDist
+#print axioms FormalProof4FHE.LWE.GSWMixedStoredView.operationalUniform_mixed_evalDist
+#print axioms FormalProof4FHE.LWE.GSWMixedStoredView.readView_storeTranscript
+#print axioms FormalProof4FHE.LWE.GSWMixedStoredView.storedFlip_storeTranscript
+#print axioms FormalProof4FHE.LWE.GSWMixedStoredView.storedFlip_fixedMixed_evalDist
+#print axioms FormalProof4FHE.LWE.GSWMixedStoredView.storedFlip_fixedIdeal_evalDist
+#print axioms FormalProof4FHE.LWE.GSWMixedStoredView.storedFlip_fixedReal_evalDist
 #print axioms FormalProof4FHE.LWE.GSWGadget.gadget_mul_digitMatrix
 #print axioms FormalProof4FHE.LWE.GSWGadget.digitMatrix_centered_bound
 #print axioms FormalProof4FHE.LWE.GSWGadget.noise_multiply
@@ -310,6 +390,16 @@ They do not claim an ordinary-LWE reduction for a same-key refresh tape.
 #print axioms FormalProof4FHE.LWE.GSWMasking.family_sqrt_ratio_le_half_pow
 #print axioms FormalProof4FHE.LWE.GSWMasking.familyMaskingBound_le_half_pow
 #print axioms FormalProof4FHE.LWE.GSWMasking.familyMaskingBound_negligible
+
+-- Only the full public-table marginal must be uniform; controls may be correlated.
+#print axioms FormalProof4FHE.LWE.GSWCorrelatedMasking.context_joint_tvDist_eq_marginal
+#print axioms FormalProof4FHE.LWE.GSWCorrelatedMasking.hashCore_context_masking
+#print axioms FormalProof4FHE.LWE.GSWCorrelatedMasking.game_probOutput_eq_correlatedHashGame
+#print axioms FormalProof4FHE.LWE.GSWCorrelatedMasking.correlatedIdealGame_probOutput_true
+#print axioms FormalProof4FHE.LWE.GSWCorrelatedMasking.correlatedHashGame_tvDist_idealGame_le
+#print axioms FormalProof4FHE.LWE.GSWCorrelatedMasking.game_abs_advantage_le_of_uniform_table_marginal
+#print axioms FormalProof4FHE.LWE.GSWCorrelatedMasking.game_abs_advantage_le_joint_mode_gap
+#print axioms FormalProof4FHE.LWE.GSWCorrelatedMasking.ordinary_source_simulator_game_abs_advantage_le
 
 
 #print axioms FormalProof4FHE.BoundedUniform.coinBound_pure
@@ -585,3 +675,640 @@ They do not claim an ordinary-LWE reduction for a same-key refresh tape.
 #print axioms FormalProof4FHE.LWE.RecursiveFeaturePublicKeyParameters.oneTime_abs_signedAdvantage_le
 #print axioms FormalProof4FHE.LWE.RecursiveFeaturePublicKeyParameters.correctExp_probability_one
 #print axioms FormalProof4FHE.LWE.RecursiveFeaturePublicKeyParameters.eventually_correctExp_probability_one
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureGSW.difference3_weighted_cubic
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureGSW.weighted_cubic_not_quadratic_on_corners
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureGSW.required_control_not_quadratic_at_level
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrap.feature_eq_bitMessage
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrap.featureSecret_binary
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrap.expandedControls_view
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrap.noiseBound_gadgetBatch
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrap.noiseBound_expandedControl
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrap.source_phase
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrap.matrix_bootstrap
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrap.source_distance_of_noiseBound
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrap.noiseBound_bootstrap
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrap.decode_bootstrap
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrap.noise_freshOriginal
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrap.noiseBound_freshOriginal
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrap.noiseBound_refreshedNand
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrapParameters.featureRows_ge
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrapParameters.lookup_lower
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrapParameters.lookup_upper
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrapParameters.lookup_even
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrapParameters.factor_mul_lookup
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrapParameters.growthPolynomial_eval
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrapParameters.budgetPolynomial_eval
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrapParameters.budget_le_polynomial
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrapParameters.eventually_budget
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrapParameters.postNandBound_pos
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrapParameters.capacity_of_budget
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrapParameters.growth_eq
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrapParameters.gadget_eq_up
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrapParameters.oneCode_distance
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrapParameters.rounding_margin
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrapParameters.outputBound_le_postNandBound
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrapParameters.output_margin
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrap.originalView_storeOriginal
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrap.originalView_freshOriginalStored
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrapParameters.rows_eq_featureRows
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrapParameters.gadget_distance
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrapParameters.publicEncryptionBound_le_outputBound
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrapParameters.noiseBound_refreshedNand
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrapParameters.decode_refreshedNand
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBootstrapParameters.eventually_refreshedNand_correct
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureCircuit.evaluateCounted_eq
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureCircuit.noiseBound_evaluateWires
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureCircuit.decode_evaluate
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureSecurityView.public_column_phase
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureSecurityView.controls_view
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureSecurityView.controls_phase
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureSecurityView.keygen_public_evalDist
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureSecurityView.oneTime_game_evalDist
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureSecurityView.oneTime_abs_signedAdvantage_le
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureSecurityParameters.oneTime_abs_signedAdvantage_le
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureSecurityParameters.family_masking_negligible
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureSecurityParameters.scalarErrorCountPolynomial_eval
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureCubicApproximation.difference3_sub
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureCubicApproximation.magnitude_difference3_le
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureCubicApproximation.exists_bad_corner
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureCubicApproximation.message_restrictQuadratic
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureCubicApproximation.binaryEmbed_append
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureCubicApproximation.control_discrepancy_eq
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureCubicApproximation.exists_bad_slice
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureCubicApproximation.bad_key_count
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureCubicApproximation.bad_key_probability
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureCubicApproximation.bounded_phase_errors_cannot_cancel
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureCubicApproximation.bounded_ciphertext_coupling_bad_count
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureCubicApproximation.magnitude_topWeight
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureCubicApproximation.publicSamples_ge_eight
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureCubicApproximation.eventually_top_weight_gap
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureCubicApproximation.eventually_quadratic_approximation_failure
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureControlHybrid.joinedPolynomial_tail_message
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureControlHybrid.fresh_column_eq_freshCiphertext
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureControlHybrid.bridge_fresh
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureControlHybrid.quadratic_keyView_evalDist
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureControlHybrid.game_bridge_evalDist
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureControlHybrid.blockBits_uniform_evalDist
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureControlHybrid.quadratic_keyView_secret_congr
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureControlHybrid.game_eq_bind
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureControlHybrid.quadratic_game_abs_advantage_le
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureControlHybrid.actual_oneTime_abs_signedAdvantage_le
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureControlPolynomial.message_linearPolynomial
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureControlPolynomial.message_pairPolynomial
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureControlPolynomial.message_piecePolynomial
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureControlPolynomial.controlPolynomial_message_at
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureControlPolynomial.stored_control_non_cubic_eq
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureControlPolynomial.family_oneTime_abs_signedAdvantage_le
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureControlPolynomial.family_implementationLoss_negligible
+
+-- Conditioning one cubic is cheap; covering the actual table leaves at most two unknown bits.
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureConditioning.message_conditionedCubic
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureConditioning.conditioned_control_message
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureConditioning.coversCubics_iff_unknown_card_le_two
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureConditioning.known_card_lower_bound
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureConditioning.compatible_key_count_le_four
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureConditioning.uniform_guess_probability_le_four_div
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureConditioning.low_entropy_source_gap_ge_quarter
+
+-- Complete same-key affine source maps still have constant cubic phase-simulation failure.
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureAffineSource.message_offsetPolynomial
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureAffineSource.affine_source_phase
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureAffineSource.magnitude_sub_comm
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureAffineSource.affine_bad_source_count
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureAffineSource.cubic_affine_failure_sum
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureAffineSource.source_simulator_failure_sum
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureAffineSource.source_simulator_failure_probability
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureFHECorrectness.sampleDraws_error_bound
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureFHECorrectness.publicTable_phase_bound
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureFHECorrectness.keygen_noiseBounds
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureFHECorrectness.encryptInputs_noiseBounds
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureFHECorrectness.decode_evaluate
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureFHECorrectness.correctExp_supported
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureFHECorrectness.correctExp_probability_one
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureFHECorrectness.transport_up_natCast
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureFHECorrectness.family_growth
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureFHECorrectness.family_gadget_eq_up
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureFHECorrectness.familyCorrectExp_eq_scheme
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureFHECorrectness.family_correctExp_probability_one
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureFHECorrectness.eventually_family_correctExp_probability_one
+
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBitSampling.residueSampler_evalDist
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBitSampling.secretSampler_evalDist
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBitSampling.coinBound_sampleIID
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBitSampling.coinBound_residueSampler
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBitSampling.coinBound_secretSampler
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBitSampling.familyResidueSampler_evalDist
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBitSampling.coinBound_familyResidueSampler
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBitSampling.challengeSampler_evalDist
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBitSampling.coinBound_challengeSampler
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBitSampling.drawsSampler_evalDist
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBitSampling.keygen_evalDist
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBitSampling.coinBound_drawsSampler
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBitSampling.coinBound_keygen
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureBitSampling.coinBudgetPolynomial_eval
+
+-- KDM-first bit-specific candidate
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.anchor_sq
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.message_affine
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.phase_fresh
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.vecMul_matrix
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.controlPlan_message
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.control_noise
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.control_noiseBound
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.published_zero_phase
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.published_control_noise
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.encryptInputs_noise
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.real_eq_source
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.fixed_uniform_evalDist
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.uniform_source_evalDist
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.advantage_eq_ordinaryLWE
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.published_advantage_eq_ordinaryLWE
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.readStoredView_storeView
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.keygen_public_eq
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.uniform_maskingView_fixedpoint
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.ideal_game_abs_advantage_le
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.public_game_abs_advantage_le
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.unitEquiv
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.featureEquiv
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.tapeEquiv
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.publishEquiv
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.tableEquiv
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.maskingViewEquiv
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.simulate
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.fresh
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.randomSimulate
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.reduction
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.keygen
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.encryptInputs
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.storeView
+#print axioms FormalProof4FHE.LWE.KDMStarGSW.readStoredView
+
+-- Quadratic-to-star universal phase-conversion boundary
+#print axioms FormalProof4FHE.LWE.KDMStarConversion.phase_affine
+#print axioms FormalProof4FHE.LWE.KDMStarConversion.dropQuadratic
+#print axioms FormalProof4FHE.LWE.KDMStarConversion.phase_dropQuadratic
+#print axioms FormalProof4FHE.LWE.KDMStarConversion.corner
+#print axioms FormalProof4FHE.LWE.KDMStarConversion.difference2
+#print axioms FormalProof4FHE.LWE.KDMStarConversion.difference2_phase
+#print axioms FormalProof4FHE.LWE.KDMStarConversion.difference2_weighted_product
+#print axioms FormalProof4FHE.LWE.KDMStarConversion.canonical
+#print axioms FormalProof4FHE.LWE.KDMStarConversion.decrypt_canonical
+#print axioms FormalProof4FHE.LWE.KDMStarConversion.canonicalPolynomial
+#print axioms FormalProof4FHE.LWE.KDMStarConversion.message_canonicalPolynomial
+#print axioms FormalProof4FHE.LWE.KDMStarConversion.canonical_is_fresh
+#print axioms FormalProof4FHE.LWE.KDMStarConversion.no_exact_phase_encoding
+#print axioms FormalProof4FHE.LWE.KDMStarConversion.no_exact_public_converter
+#print axioms FormalProof4FHE.LWE.KDMStarConversion.magnitude
+#print axioms FormalProof4FHE.LWE.KDMStarConversion.difference2_sub
+#print axioms FormalProof4FHE.LWE.KDMStarConversion.magnitude_difference2_le
+#print axioms FormalProof4FHE.LWE.KDMStarConversion.exists_bad_conversion_corner
+
+-- Correlated quadratic-control source transformation (short builder not constructed)
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimage.correction
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimage.simulate
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimage.unsimulate
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimage.tapeEquiv
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimage.splitEquiv
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimage.phase
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimage.phase_simulate
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimage.phase_real
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimage.sourceEquiv
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimage.realView
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimage.uniform_source_evalDist
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimage.reduction
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimage.advantage_eq_ordinaryLWE
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimage.quadratic_eq_of_certificate
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimage.residual_abs_le_l1
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimage.total_error_abs_le_l1
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageBinary.realView
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageBinary.uniform_source_evalDist
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageBinary.advantage_eq_blockBinary
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageBinary.ordinaryLoss
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageBinary.advantage_le_ordinaryLWE
+
+-- Native stored correlated-control sampler and conditional parameter compatibility
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.fullLayout
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.encryptedIndex
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.linear
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.quadratic
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.target_eq_phaseMessage
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.matrixEquiv
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.tableEquiv
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.controlsEquiv
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.viewEquiv
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.storeView
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.readStoredView
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.readStoredView_storeView
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.privateView
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.residual
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.control_phase
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.control_gadget_phase
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.control_noise
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.control_noiseBound
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.noiseBound_bootstrap
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.publicView
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.keygen
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.keygen_public_eq
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.observe
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.uniform_maskingView_fixedpoint
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.ideal_game_abs_advantage_le
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.public_game_abs_advantage_le
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.liftStoredAdversary
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.storedGame
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.storedGame_eq
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.stored_game_abs_advantage_le
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageParameters.growth
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageParameters.keyBound
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageParameters.outputBound
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageParameters.postNandBound
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageParameters.dimension_ge
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageParameters.rows_le
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageParameters.growth_le
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageParameters.budgetPolynomial
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageParameters.budgetPolynomial_eval
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageParameters.budget_le_polynomial
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageParameters.eventually_budget
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageParameters.postNandBound_pos
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageParameters.capacity_of_budget
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageParameters.growth_eq
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageParameters.rounding_margin
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageParameters.output_margin
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageParameters.noiseBound_refreshedNand
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageParameters.publicSamples
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageParameters.masking_cardinality_margin
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageParameters.publicEncryptionBound_le_outputBound
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageParameters.entropy_cardinality_margin
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageParameters.decode_refreshedNand
+
+-- Binary diagonal elimination and row-supported inversion diagnostics
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.quadratic_eq_zero_of_body
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageGSW.quadratic_eq_zero_of_diagonal
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageRowSupport.diagonalTarget
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageRowSupport.coordinateTarget
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageRowSupport.linear_row_of_supported_certificate
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageRowSupport.linear_preimage_of_supported_offDiagonal
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageRowSupport.linear_preimage_of_shared_prefix_offDiagonal
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageRowSupport.product_eq_diagonal_of_supported_certificate
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageRowSupport.linear_preimage_of_supported_certificate
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageRowSupport.linear_preimage_of_shared_prefix
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageRowSupport.projection_real
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageRowSupport.projection_noise_bound
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageRowSupport.decode_projection
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageRowSupport.recover
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageRowSupport.recover_real
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageRowSupport.verification_phase_of_recovery
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageRowSupport.card_verification_window_le
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageRowSupport.uniform_verification_acceptance_le
+
+-- Two-row and proportional-row builders: public decoding and verification
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows.certificate_symmetric_entry
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows.linear_preimage_of_proportional_rows
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows.linear_row_of_two_supported_certificate
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows.first_linear_preimage
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows.second_linear_preimage
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows.weights_add
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows.one_decoding_margin
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows.Pair
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows.collect
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows.collect_sound
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows.collect_contains
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows.collect_pair_cover
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows.readPair
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows.readPair_index
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows.readPair_real
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows.missing_unique
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows.complete
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows.eq_one_of_two_completions
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows.allPairs_two_completions
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows.acceptsCompletions
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows.acceptsCompletions_real
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows.uniform_acceptsCompletions_le
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows.uniformVerification
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows.uniformVerification_le
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows.projected_error_le_keyBound
+#print axioms FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows.compatible_budget_pair_margin
+
+-- Unit-sum row shifts: common-secret interface and conditional joint-view counterexample
+#print axioms FormalProof4FHE.LWE.GSWUnitSumShift.shifted
+#print axioms FormalProof4FHE.LWE.GSWUnitSumShift.row_identity
+#print axioms FormalProof4FHE.LWE.GSWUnitSumShift.shifted_eq_iff
+#print axioms FormalProof4FHE.LWE.GSWUnitSumShift.all_unitSum_masks_force_shift
+#print axioms FormalProof4FHE.LWE.GSWUnitSumShift.common_shift_iff
+#print axioms FormalProof4FHE.LWE.GSWUnitSumShift.common_shift_requires_equal_hints
+#print axioms FormalProof4FHE.LWE.GSWUnitSumShift.twoMask
+#print axioms FormalProof4FHE.LWE.GSWUnitSumShift.twoMask_sum
+#print axioms FormalProof4FHE.LWE.GSWUnitSumShift.conditional_bodies_eq
+#print axioms FormalProof4FHE.LWE.GSWUnitSumShift.sumEquiv
+#print axioms FormalProof4FHE.LWE.GSWUnitSumShift.conditionalJoint
+#print axioms FormalProof4FHE.LWE.GSWUnitSumShift.conditionalJoint_eq_unitSum_rows
+#print axioms FormalProof4FHE.LWE.GSWUnitSumShift.sum_uniform
+#print axioms FormalProof4FHE.LWE.GSWUnitSumShift.conditionalJoint_fst_uniform
+#print axioms FormalProof4FHE.LWE.GSWUnitSumShift.conditionalJoint_snd_uniform
+#print axioms FormalProof4FHE.LWE.GSWUnitSumShift.conditionalJoint_equal_probability
+#print axioms FormalProof4FHE.LWE.GSWUnitSumShift.uniform_equal_probability
+
+#print axioms FormalProof4FHE.LWE.GSWTranscriptCompiler.tapeEquiv
+#print axioms FormalProof4FHE.LWE.GSWTranscriptCompiler.sourceEquiv
+#print axioms FormalProof4FHE.LWE.GSWTranscriptCompiler.phase_simulate
+#print axioms FormalProof4FHE.LWE.GSWTranscriptCompiler.phase_real
+#print axioms FormalProof4FHE.LWE.GSWTranscriptCompiler.simulate_ofBuilder
+#print axioms FormalProof4FHE.LWE.GSWTranscriptCompiler.uniform_source_evalDist
+#print axioms FormalProof4FHE.LWE.GSWTranscriptCompiler.advantage_eq_blockBinary
+#print axioms FormalProof4FHE.LWE.GSWTranscriptCompiler.advantage_le_ordinaryLWE
+#print axioms FormalProof4FHE.LWE.GSWTranscriptCompiler.public_game_abs_advantage_le
+#print axioms FormalProof4FHE.LWE.GSWTranscriptCompiler.keygen_public_eq
+#print axioms FormalProof4FHE.LWE.GSWTranscriptCompiler.storedGame_eq
+#print axioms FormalProof4FHE.LWE.GSWTranscriptCompiler.stored_game_abs_advantage_le
+#print axioms FormalProof4FHE.LWE.GSWTranscriptCompiler.control_noise
+#print axioms FormalProof4FHE.LWE.GSWTranscriptCompiler.noiseBound_bootstrap
+#print axioms FormalProof4FHE.LWE.GSWShiftedSourceDisclosure.body_difference
+#print axioms FormalProof4FHE.LWE.GSWShiftedSourceDisclosure.coordinate_difference
+#print axioms FormalProof4FHE.LWE.GSWShiftedSourceDisclosure.recover_real
+#print axioms FormalProof4FHE.LWE.GSWQuadraticAuxConversion.phase_convert
+#print axioms FormalProof4FHE.LWE.GSWQuadraticAuxConversion.phase_convert_eq_decrypt_sub_error
+#print axioms FormalProof4FHE.LWE.GSWQuadraticAuxConversion.quadratic_reconstruction
+#print axioms FormalProof4FHE.LWE.GSWQuadraticAuxConversion.phase_convert_of_matrix_reconstruction
+
+#print axioms FormalProof4FHE.LWE.GSWPrivateTrapdoor.preimage_mul_transpose
+#print axioms FormalProof4FHE.LWE.GSWPrivateTrapdoor.certificate
+#print axioms FormalProof4FHE.LWE.GSWPrivateTrapdoor.projected_body
+#print axioms FormalProof4FHE.LWE.GSWPrivateTrapdoor.programmed_source_body
+#print axioms FormalProof4FHE.LWE.GSWPrivateTrapdoor.recover_disclosed_factor
+
+#print axioms FormalProof4FHE.LWE.GSWTwoSidedCompiler.left_join
+#print axioms FormalProof4FHE.LWE.GSWTwoSidedCompiler.right_join
+#print axioms FormalProof4FHE.LWE.GSWTwoSidedCompiler.bilinear_cancellation
+#print axioms FormalProof4FHE.LWE.GSWTwoSidedCompiler.correction_real
+#print axioms FormalProof4FHE.LWE.GSWTwoSidedCompiler.quadratic_of_certificate
+#print axioms FormalProof4FHE.LWE.GSWTwoSidedCompiler.correction_of_certificate
+#print axioms FormalProof4FHE.LWE.GSWTwoSidedCompiler.native_discrepancy
+#print axioms FormalProof4FHE.LWE.GSWTwoSidedCompiler.binary_diagonal
+#print axioms FormalProof4FHE.LWE.GSWTwoSidedCompiler.quadratic_of_diagonal_certificate
+#print axioms FormalProof4FHE.LWE.GSWTwoSidedCompiler.native_diagonal_discrepancy
+#print axioms FormalProof4FHE.LWE.GSWTwoSidedCompiler.residual_abs_le_l1
+#print axioms FormalProof4FHE.LWE.GSWTwoSidedCompiler.control_noise
+#print axioms FormalProof4FHE.LWE.GSWTwoSidedCompiler.diagonal_control_noise
+#print axioms FormalProof4FHE.LWE.GSWTwoSidedCompiler.stored_game_abs_advantage_le
+#print axioms FormalProof4FHE.LWE.GSWTwoSidedCompiler.diagonal_stored_game_abs_advantage_le
+
+#print axioms FormalProof4FHE.LWE.GSWPublicPreimageBarrier.signedSecret_square
+#print axioms FormalProof4FHE.LWE.GSWPublicPreimageBarrier.signed_lift_relation
+#print axioms FormalProof4FHE.LWE.GSWPublicPreimageBarrier.unit_square_diagonal
+#print axioms FormalProof4FHE.LWE.GSWPublicPreimageBarrier.target_phase
+#print axioms FormalProof4FHE.LWE.GSWPublicPreimageBarrier.trace_relation
+#print axioms FormalProof4FHE.LWE.GSWPublicPreimageBarrier.one_sided_trace_relation
+#print axioms FormalProof4FHE.LWE.GSWPublicPreimageBarrier.bilinear_noise_bound
+#print axioms FormalProof4FHE.LWE.GSWPublicPreimageBarrier.liftedError_bound
+#print axioms FormalProof4FHE.LWE.GSWPublicPreimageBarrier.recoverBit_of_certificate
+#print axioms FormalProof4FHE.LWE.GSWPublicPreimageBarrier.recover_lifted_sources
+
+#print axioms FormalProof4FHE.LWE.GSWRotatedTrapdoorSource.source_trapdoor
+#print axioms FormalProof4FHE.LWE.GSWRotatedTrapdoorSource.source_body_projection
+#print axioms FormalProof4FHE.LWE.GSWRotatedTrapdoorSource.derived_error
+#print axioms FormalProof4FHE.LWE.GSWRotatedTrapdoorSource.rotated_certificate
+#print axioms FormalProof4FHE.LWE.GSWRotatedTrapdoorSource.effective_projection
+#print axioms FormalProof4FHE.LWE.GSWRotatedTrapdoorSource.actual_control_correction
+#print axioms FormalProof4FHE.LWE.GSWRotatedTrapdoorSource.exists_half_turn
+#print axioms FormalProof4FHE.LWE.GSWRotatedTrapdoorSource.exists_maximal_centered_error
+#print axioms FormalProof4FHE.LWE.GSWRotatedTrapdoorSource.perturbation_lower_bound
+#print axioms FormalProof4FHE.LWE.GSWRotatedTrapdoorSource.exists_noisy_gadget_obstruction
+
+#print axioms FormalProof4FHE.LWE.GSWPairLocalCompiler.three_corner_residual
+#print axioms FormalProof4FHE.LWE.GSWPairLocalCompiler.four_corner_identity
+#print axioms FormalProof4FHE.LWE.GSWPairLocalCompiler.exists_bad_pair
+#print axioms FormalProof4FHE.LWE.GSWPairLocalCompiler.not_shatters_pair
+#print axioms FormalProof4FHE.LWE.GSWPairLocalCompiler.card_le_of_no_shattered_pair
+#print axioms FormalProof4FHE.LWE.GSWPairLocalCompiler.candidate_key_bound
+
+#print axioms FormalProof4FHE.LWE.GSWCorrelatedMidpoint.midpoint_residual
+#print axioms FormalProof4FHE.LWE.GSWCorrelatedMidpoint.controls_decode_zero
+#print axioms FormalProof4FHE.LWE.GSWCorrelatedMidpoint.controls_noise_at_most_eighth
+#print axioms FormalProof4FHE.LWE.GSWCorrelatedMidpoint.product_body_phase
+#print axioms FormalProof4FHE.LWE.GSWCorrelatedMidpoint.product_decodes_wrong
+#print axioms FormalProof4FHE.LWE.GSWCorrelatedMidpoint.nand_decodes_wrong
+
+-- Fixed redundant digits preserve the quadratic initial-gadget obstruction.
+#print axioms FormalProof4FHE.LWE.GSWRedundantDigits.affineControl_phase
+#print axioms FormalProof4FHE.LWE.GSWRedundantDigits.productError_as_residual
+#print axioms FormalProof4FHE.LWE.GSWRedundantDigits.productError_four_corner
+#print axioms FormalProof4FHE.LWE.GSWRedundantDigits.exists_bad_reconstructed_corner
+#print axioms FormalProof4FHE.LWE.GSWRedundantDigits.initial_gadget_bad_corner
+#print axioms FormalProof4FHE.LWE.GSWRedundantDigits.kernel_add_reconstructs
+
+-- Body-adaptive factors: actual single-control invariant and remaining cross law.
+#print axioms FormalProof4FHE.LWE.GSWBodyAdaptiveProjection.span_action
+#print axioms FormalProof4FHE.LWE.GSWBodyAdaptiveProjection.rightCMux_span
+#print axioms FormalProof4FHE.LWE.GSWBodyAdaptiveProjection.control_error_eigen
+#print axioms FormalProof4FHE.LWE.GSWBodyAdaptiveProjection.iterateRight_positive
+#print axioms FormalProof4FHE.LWE.GSWBodyAdaptiveProjection.repeated_noise
+#print axioms FormalProof4FHE.LWE.GSWBodyAdaptiveProjection.cross_error
+#print axioms FormalProof4FHE.LWE.GSWBodyAdaptiveProjection.gadget_commutator
+#print axioms FormalProof4FHE.LWE.GSWBodyAdaptiveProjection.cross_error_symmetry
+
+-- Global commuting idempotents still do not give a mixed-error bound.
+#print axioms FormalProof4FHE.LWE.GSWCommutingProjection.rankOne_mul
+#print axioms FormalProof4FHE.LWE.GSWCommutingProjection.vecMul_rankOne
+#print axioms FormalProof4FHE.LWE.GSWCommutingProjection.tiny_pairing
+#print axioms FormalProof4FHE.LWE.GSWCommutingProjection.tiny_phase_pairing
+#print axioms FormalProof4FHE.LWE.GSWCommutingProjection.factor_pair_product
+#print axioms FormalProof4FHE.LWE.GSWCommutingProjection.factors_globally_idempotent
+#print axioms FormalProof4FHE.LWE.GSWCommutingProjection.factors_globally_commute
+#print axioms FormalProof4FHE.LWE.GSWCommutingProjection.controls_reconstruct_and_stabilize
+#print axioms FormalProof4FHE.LWE.GSWCommutingProjection.control_phase
+#print axioms FormalProof4FHE.LWE.GSWCommutingProjection.control_noise
+#print axioms FormalProof4FHE.LWE.GSWCommutingProjection.controls_noise_at_most_one
+#print axioms FormalProof4FHE.LWE.GSWCommutingProjection.controls_decode_one
+#print axioms FormalProof4FHE.LWE.GSWCommutingProjection.mixed_product_zero
+#print axioms FormalProof4FHE.LWE.GSWCommutingProjection.mixed_product_decodes_wrong
+#print axioms FormalProof4FHE.LWE.GSWCommutingProjection.nand_decodes_wrong
+
+-- Complete-view low-level cubic deletion and its negligible family cost.
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid.iid_sub_tvDist_le
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid.sum_rawShift_distance
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid.keyView_tvDist_shifted_le
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid.observation_tvDist_le
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid.deletionShift_public
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid.deletionShift_control
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid.errorsAt_sub_rawShift
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid.publicView_shiftDraws_deletion
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid.deleted_controls_view
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid.deleted_controls_retained
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid.deleteColumn_zero
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid.originalMessage_eq_zero_or_gadget
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid.columnCost_nonneg
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid.deletionLoss_zero
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid.originalMessage_shift_le
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid.deletionShift_sum_le
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid.keyView_tvDist_deleted_le
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid.deleted_observation_tvDist_le
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid.deletionLoss_le
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid.controlReplacement_le_deletionLoss_add
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid.family_oneTime_abs_signedAdvantage_le
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid.half_pow_div_two_le
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid.family_scalar_cost_le
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid.family_deletionLoss_le
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid.three_quarters_pow_negligible
+#print axioms FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid.family_deletionLoss_negligible
+
+-- Top-bit capacity for exact weighted noiseless message simulation.
+#print axioms FormalProof4FHE.LWE.GSWWeightedCubic.doubling_apply
+#print axioms FormalProof4FHE.LWE.GSWWeightedCubic.card_twoTorsion_eq_card_quotient
+#print axioms FormalProof4FHE.LWE.GSWWeightedCubic.card_twoTorsion_le_of_surjective
+#print axioms FormalProof4FHE.LWE.GSWWeightedCubic.residue_twoTorsion
+#print axioms FormalProof4FHE.LWE.GSWWeightedCubic.torsionBits_injective
+#print axioms FormalProof4FHE.LWE.GSWWeightedCubic.card_twoTorsion_pi_le
+#print axioms FormalProof4FHE.LWE.GSWWeightedCubic.card_twoTorsion_image_le
+#print axioms FormalProof4FHE.LWE.GSWWeightedCubic.topBit_injective
+#print axioms FormalProof4FHE.LWE.GSWWeightedCubic.topBit_double
+#print axioms FormalProof4FHE.LWE.GSWWeightedCubic.card_patterns_le
+#print axioms FormalProof4FHE.LWE.GSWWeightedCubic.topBit_mem_of_weighted_mem
+#print axioms FormalProof4FHE.LWE.GSWWeightedCubic.pattern_dimension_le
+#print axioms FormalProof4FHE.LWE.GSWWeightedCubic.topBit_xor
+
+-- Public character compiler, actual supported source noise, and saved numeric witness.
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterCompiler.message_pairPolynomial
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterCompiler.message_lowerPolynomial
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterCompiler.dotProduct_split
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterCompiler.character_lower_identity
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterCompiler.message_subPolynomial
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterCompiler.message_sumPolynomial
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterCompiler.decrypt_compile
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterCompiler.phase_real
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterCompiler.character_product_magnitude
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterCompiler.sourceError_bound
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterCompiler.normalize_decrypt
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterCompiler.phase_canonical
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterCompiler.phase_error_bound
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterCompiler.decrypt_addZero
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterCompiler.phase_error_bound_with_zero
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterCompiler.first3_ne_second3
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterCompiler.cubicPhase_three
+#print axioms FormalProof4FHETest.GSWLinearCharacterSmoke.actual_coefficient_certificate
+#print axioms FormalProof4FHETest.GSWLinearCharacterSmoke.actual_coefficient_norm_le
+#print axioms FormalProof4FHETest.GSWLinearCharacterSmoke.actual_top_control_error_bound
+
+-- One complete ordinary source, materialized cubic controls, and standard IND-CPA.
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterSecurity.context_left_inverse
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterSecurity.context_right_inverse
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterSecurity.viewEquiv_apply
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterSecurity.materialize_uniform
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterSecurity.game_materialize
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterSecurity.sourceSimulator_real
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterSecurity.sourceSimulator_uniform
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterSecurity.freshView_eq_draw
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterSecurity.freshDraw_control_error_bound
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterSecurity.keygen_public_evalDist
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterSecurity.oneTime_game_evalDist
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterSecurity.sampled_game_abs_advantage_le
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterSecurity.oneTime_abs_signedAdvantage_le
+#print axioms FormalProof4FHETest.GSWLinearCharacterSecuritySmoke.actual_joint_control_error_bound
+
+-- Public polynomial discrepancy, every gadget target, and the actual bootstrapper.
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterPolynomial.eval_cubicPolynomial
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterPolynomial.cubicPolynomial_zero
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterPolynomial.cubicPolynomial_three
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterPolynomial.binary_monomial
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterPolynomial.coefficientBound_zero
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterPolynomial.coefficientBound_neg
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterPolynomial.coefficientBound_monomial
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterPolynomial.coefficientBound_cubicMonomial
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterPolynomial.eval_binary_bound
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterPolynomial.cubic_discrepancy_bound
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterBootstrap.decrypt_polynomialCipher
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterBootstrap.eval_targetPolynomial
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterBootstrap.targetPolynomial_eq_zero
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterBootstrap.targetPolynomial_bound
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterBootstrap.controlMessage_split
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterBootstrap.completeOriginal_view
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterBootstrap.columnBound_zero
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterBootstrap.columnBound_le
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterBootstrap.freshOriginal_column_bound
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterBootstrap.noiseBound_freshOriginal
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterBootstrap.noiseBound_bootstrap
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterBootstrap.decode_evaluate_from_source
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterBootstrap.binaryKeygen_eq_draw
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterBootstrap.keygen_noiseBounds
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterBootstrap.oneTime_game_eq
+#print axioms FormalProof4FHE.LWE.GSWLinearCharacterBootstrap.oneTime_signedAdvantage_eq
+#print axioms FormalProof4FHETest.GSWLinearCharacterBootstrapSmoke.top_columnBound_le
+#print axioms FormalProof4FHETest.GSWLinearCharacterBootstrapSmoke.low_columns_bound
+#print axioms FormalProof4FHETest.GSWLinearCharacterBootstrapSmoke.noncubic_columns_zero
+#print axioms FormalProof4FHETest.GSWLinearCharacterBootstrapSmoke.actual_completed_top_error_bound
+
+-- Exact target-pair shortcut: public triple-local key lists and modulus torsion.
+#print axioms FormalProof4FHE.LWE.GSWTripleLocalCompiler.not_shatters_triple
+#print axioms FormalProof4FHE.LWE.GSWTripleLocalCompiler.vcDim_le_two
+#print axioms FormalProof4FHE.LWE.GSWTripleLocalCompiler.card_le_of_no_shattered_triple
+#print axioms FormalProof4FHE.LWE.GSWTripleLocalCompiler.candidate_key_bound
+#print axioms FormalProof4FHE.LWE.GSWTripleLocalCompiler.sort_triple
+#print axioms FormalProof4FHE.LWE.GSWTripleLocalCompiler.sorted_candidate_key_bound
+#print axioms FormalProof4FHE.LWE.GSWTripleLocalCompiler.prefix_candidate_key_bound
+#print axioms FormalProof4FHE.LWE.GSWTripleLocalCompiler.target_pair_cubic_phase
+#print axioms FormalProof4FHE.LWE.GSWTripleLocalCompiler.confined_projection
+#print axioms FormalProof4FHE.LWE.GSWTripleLocalCompiler.compileCanonical_eq_of_projections
+#print axioms FormalProof4FHE.LWE.GSWTripleLocalCompiler.decrypt_compile_message
+#print axioms FormalProof4FHE.LWE.GSWTripleLocalCompiler.local_compiler_error_bound
+#print axioms FormalProof4FHE.LWE.GSWTripleLocalCompiler.projectedMask_scaleCoefficients
+#print axioms FormalProof4FHE.LWE.GSWTripleLocalCompiler.coefficient3_scaleCoefficients
+#print axioms FormalProof4FHE.LWE.GSWTripleLocalCompiler.scaled_coefficient_bound
+#print axioms FormalProof4FHE.LWE.GSWTripleLocalCompiler.local_compiler_scaled_error_bound
+#print axioms FormalProof4FHE.LWE.GSWTripleLocalCompiler.scaled_lower_weight_magnitude
+#print axioms FormalProof4FHE.LWE.GSWTripleLocalCompiler.scaled_lower_weight_gap
+#print axioms FormalProof4FHE.LWE.GSWTripleLocalCompiler.scaled_gap_of_control_budget
+#print axioms FormalProof4FHE.LWE.GSWTripleLocalCompiler.scaled_candidate_key_bound
+#print axioms FormalProof4FHETest.GSWTripleLocalSmoke.outside_torsion
+#print axioms FormalProof4FHETest.GSWTripleLocalSmoke.outside_not_zero
+#print axioms FormalProof4FHETest.GSWTripleLocalSmoke.target_coefficient
+#print axioms FormalProof4FHETest.GSWTripleLocalSmoke.actual_ambient_cubic
+#print axioms FormalProof4FHETest.GSWTripleLocalSmoke.unscaled_local_failure
+#print axioms FormalProof4FHETest.GSWTripleLocalSmoke.actual_scaled_error_bound
+#print axioms FormalProof4FHETest.GSWTripleLocalSmoke.scaled_lower_weight_margin
+#print axioms FormalProof4FHETest.GSWTripleLocalSmoke.scaled_top_weight_vanishes

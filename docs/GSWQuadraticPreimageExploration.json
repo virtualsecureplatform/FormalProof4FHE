@@ -1,0 +1,327 @@
+{
+  "scope": "Exhaustive finite exploration, not security, efficient sampling, or bootstrap correctness",
+  "q": 17,
+  "n": 2,
+  "m": 5,
+  "seed": 417,
+  "A": [
+    [
+      2,
+      1,
+      12,
+      9,
+      1
+    ],
+    [
+      11,
+      0,
+      14,
+      0,
+      12
+    ]
+  ],
+  "coefficient_classes_with_short_witness": 4335,
+  "possible_classes": 4913,
+  "records": [
+    {
+      "weight": 1,
+      "indices": [
+        0,
+        0
+      ],
+      "found": true,
+      "B": [
+        [
+          -1,
+          0,
+          1,
+          1,
+          -1
+        ],
+        [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      ],
+      "phase_checks": 972
+    },
+    {
+      "weight": 1,
+      "indices": [
+        0,
+        1
+      ],
+      "found": true,
+      "B": [
+        [
+          -1,
+          -1,
+          1,
+          1,
+          -1
+        ],
+        [
+          0,
+          1,
+          0,
+          1,
+          0
+        ]
+      ],
+      "phase_checks": 972
+    },
+    {
+      "weight": 1,
+      "indices": [
+        1,
+        1
+      ],
+      "found": true,
+      "B": [
+        [
+          -1,
+          -1,
+          1,
+          1,
+          -1
+        ],
+        [
+          -1,
+          1,
+          0,
+          1,
+          1
+        ]
+      ],
+      "phase_checks": 972
+    },
+    {
+      "weight": 2,
+      "indices": [
+        0,
+        0
+      ],
+      "found": true,
+      "B": [
+        [
+          -1,
+          -1,
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0,
+          1,
+          0
+        ]
+      ],
+      "phase_checks": 972
+    },
+    {
+      "weight": 2,
+      "indices": [
+        0,
+        1
+      ],
+      "found": true,
+      "B": [
+        [
+          -1,
+          -1,
+          1,
+          -1,
+          0
+        ],
+        [
+          0,
+          -1,
+          0,
+          0,
+          0
+        ]
+      ],
+      "phase_checks": 972
+    },
+    {
+      "weight": 2,
+      "indices": [
+        1,
+        1
+      ],
+      "found": true,
+      "B": [
+        [
+          -1,
+          -1,
+          1,
+          -1,
+          0
+        ],
+        [
+          1,
+          -1,
+          -1,
+          1,
+          -1
+        ]
+      ],
+      "phase_checks": 972
+    },
+    {
+      "weight": 4,
+      "indices": [
+        0,
+        0
+      ],
+      "found": true,
+      "B": [
+        [
+          -1,
+          1,
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          -1,
+          0,
+          1,
+          0
+        ]
+      ],
+      "phase_checks": 972
+    },
+    {
+      "weight": 4,
+      "indices": [
+        0,
+        1
+      ],
+      "found": true,
+      "B": [
+        [
+          -1,
+          -1,
+          1,
+          -1,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          0,
+          0
+        ]
+      ],
+      "phase_checks": 972
+    },
+    {
+      "weight": 4,
+      "indices": [
+        1,
+        1
+      ],
+      "found": true,
+      "B": [
+        [
+          -1,
+          -1,
+          1,
+          -1,
+          0
+        ],
+        [
+          -1,
+          1,
+          -1,
+          1,
+          1
+        ]
+      ],
+      "phase_checks": 972
+    },
+    {
+      "weight": 8,
+      "indices": [
+        0,
+        0
+      ],
+      "found": true,
+      "B": [
+        [
+          -1,
+          -1,
+          1,
+          0,
+          -1
+        ],
+        [
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      ],
+      "phase_checks": 972
+    },
+    {
+      "weight": 8,
+      "indices": [
+        0,
+        1
+      ],
+      "found": true,
+      "B": [
+        [
+          -1,
+          -1,
+          1,
+          1,
+          -1
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "phase_checks": 972
+    },
+    {
+      "weight": 8,
+      "indices": [
+        1,
+        1
+      ],
+      "found": true,
+      "B": [
+        [
+          -1,
+          -1,
+          1,
+          -1,
+          0
+        ],
+        [
+          0,
+          1,
+          -1,
+          1,
+          -1
+        ]
+      ],
+      "phase_checks": 972
+    }
+  ]
+}

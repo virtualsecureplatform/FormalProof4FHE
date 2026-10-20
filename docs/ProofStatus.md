@@ -1,5 +1,803 @@
 # Proof status
 
+The requested ordinary-LWE-only, same-secret bootstrappable GSW security proof
+is **unfinished**. The goal is **blocked** after three consecutive no-progress
+audits following the triple-local compiler work. The current arguments do not
+prove that a specified efficient public generator meets the reusable refresh
+budget with the required probability on the actual asymptotic source masks.
+The alternative production-sampler proof still retains the unproved
+`deletedReplacementAdvantage`, and formal polynomial-time reduction closure
+is also missing. No verified live computation or newly applicable theorem
+resolves these gaps. Resuming the full proof requires a new mathematical
+argument for that generator bound or another compatible proved construction;
+this is not an impossibility claim or a weakening of the objective.
+
+The latest generator review establishes a public key-list
+weakness for the EXACT target-pair-only shortcut in `GSWTripleLocalCompiler.lean`.
+With useful bounds, the resulting three-bit quadratic constraints leave at
+most `1+n+choose(n,2)` compatible keys. A prefix version supports incremental
+enumeration. The source-compiler bridge handles the actual `4*A*u=0` torsion
+condition by scaling at a lower gadget weight; scaling at the top weight
+would erase the target. This is a pointwise candidate-key theorem and checked
+enumeration algorithm, not a completed formal LWE attack/reduction-class proof.
+It does not exclude the dense compiler or generators with approximate cubic
+equations. No successful efficient asymptotic generator is supplied.
+
+The new standard-library checker covers fifteen synthetic local-constraint
+cases up to n=64, with nine exhaustive small-dimension comparisons and sharp
+529-candidate saturation at n=32. Separate source fixtures check 1,296 full
+ambient phases and 1,296 scaled local phases. All full compiler error bounds
+hold; the unscaled LOCAL projection fails in 432 cases, confirming why the
+factor-of-four correction is necessary. These synthetic constraints are not
+claimed to be ordinary-LWE-generated public views. See
+`scripts/check-gsw-triple-local-keys.py` and
+`docs/GSWTripleLocalKeyExploration.json`.
+
+Both library roots build successfully (9,266 jobs). The focused audit checks
+1,109 declarations using only propext, Classical.choice and Quot.sound, with
+no sorryAx or added cryptographic axiom. All 490 authoritative Lean/config
+inputs match the validated mirror. The full proof has not been completed.
+
+The preceding character compiler is connected to the complete
+original-bit gadget-control layout, actual stored key generation and reusable
+same-key evaluation in `GSWLinearCharacterBootstrap.lean`.
+`GSWLinearCharacterPolynomial.lean` proves a public coefficient bound for its
+actual cubic discrepancy. Every constant, linear, repeated-index and genuine
+cubic target is accounted for, including low gadget levels without division
+by four. The bound is computed from the returned coefficients; no cancellation
+or correct-control premise is assumed.
+
+The actual key-generator support theorem derives both public-table and
+completed-control noise bounds from scalar error support. These controls feed
+the existing refresh theorem and arbitrary finite shared NAND programs under
+the explicit evaluator margins. Exact standard IND-CPA game/advantage equalities
+retain the entire prior context beside the completed stored controls and
+connect their publication to the preceding ordinary-LWE reduction.
+
+The remaining main requirement is an efficient public generator whose computed
+whole-table bound meets those margins with proved probability on the ACTUAL
+asymptotic source-mask distribution. Formal polynomial-time reduction closure
+also remains unproved. The production sampler and key schedule are unchanged;
+its older `deletedReplacementAdvantage` remains unproved.
+
+That integration passed 9,264 build jobs and its 1,081-declaration audit, with
+488 mirrored inputs. The new shortcut filter above does not close the
+remaining dense-generator shortness or polynomial-time closure obligations.
+
+The new standard-library replay checks 1,936 saved exact preimages and all
+31,344 complete gadget-control slots, without another lattice search or mask
+resampling. One finite table meets the conservative bound and actual rounding/
+decoding margins: 977 public-table columns, 2,496 controls, and 13,898 ordinary
+source columns. Its retained source permits verified key recovery at the
+actual radius, so it is insecure. This is a supported coefficient replay,
+not a joint sampler experiment or asymptotic hardness result. See
+`scripts/check-gsw-character-complete-targets.py` and
+`docs/GSWCharacterCompleteTargetReplay.json`. The sparse Lean smoke builder
+separately checks low/noncubic cases and the saved top control in the full
+stored layout; it is not a full-budget generator.
+
+The preceding continuation proves a complete-view reduction
+for the public character compiler in `GSWLinearCharacterSecurity.lean`.
+Every correction uses one common retained LWE batch and is added to a fresh
+recursive zero ciphertext under the same original key as the public table.
+The actual source simulator, joint key generator and standard one-time IND-CPA
+experiment are explicit. The final advantage bound contains only the existing
+uniform-secret ordinary-LWE reduction terms and statistical losses, with no
+remaining cubic-control/circular advantage for this candidate's view.
+
+The complete translation is publicly invertible conditional on the retained
+source, so its uniform-source branch is uniform JOINTLY in the table, source
+and all controls. This is stronger than separate marginal arguments.
+`freshDraw_control_error_bound` proves the real shared-source error bound for
+every binary key, every mask draw and every supported error tape. A new smoke
+theorem instantiates the saved coefficient witness in two materialized controls
+sharing all six source errors: both errors are at most 13,568, including the
+fresh recursive-zero contribution. The finite source remains recoverable.
+
+That reduction-only continuation passed 9,261 build jobs and its 1,051-declaration
+audit, with 485 mirrored inputs. It did not prove negligible advantage for an
+arbitrary unbounded builder. The new integration above retains this limitation.
+
+The new lattice study returns 1,936 preimages, twelve exact nonmembership
+certificates for its restricted map, and 827 selected improvements across all
+2,000 required triple/level slots. One finite 64-level table meets the conservative
+bound with maximum J=14,080 against cap 36,480. That source has a verified public
+key-recovery certificate at its actual noise radius, so the pass does not supply
+a secure parameter family. All 3,936 candidate/selected certificate occurrences
+and 2,000 per-slot source/full-coordinate fixtures replay independently. These
+fixtures retain toy public tables; complete joint production security is still
+unproved. See `scripts/search-gsw-linear-character-compiler.py` and
+`docs/GSWLinearCharacterCompilerExploration.json`.
+
+The preceding compiler-only validation passed 9,259 build jobs and a
+1,037-declaration audit, with 483 mirrored inputs. The new joint construction
+above closes its finite retained-view reduction obligation; it does not supply
+the missing efficient shortness theorem or a completed secure FHE family.
+
+The new n=3,m=2 top-weight witness also satisfies every constraint of its
+previously unresolved bounded-error query (J=12,544 <= 36,480), including the
+equivalent degree-four entry. Their historical solver records remain unknown;
+feasibility of those two entries is now independently certified by this witness.
+
+The preceding bounded lower-order error compiler plan is
+implemented in `scripts/search-gsw-bounded-error-compiler.py`, with results in
+`docs/GSWBoundedErrorCompilerExploration.json`. It permits certified first- and
+second-order source errors and applies exact Boolean Walsh bounds to every
+error layer. The fixed four-case experiment records five distinct solver
+queries returning unknown and three mathematically equivalent degree-four
+entries reusing those unresolved results. No random-mask candidate meeting the
+conservative complete refresh cap was obtained; no full-table expansion or
+production integration is entered. These are inconclusive queries, not infeasibility
+certificates or a general obstruction to the relaxed class.
+
+Standard-library replay independently checks the four new baseline certificates
+and full-coordinate/source fixtures, all 82 previous main certificates and
+112 previous fixtures, with no worsened bound. Checks also cover 1,000 direct
+structured-source phase cases, all-layer Walsh bounds, higher-secret-degree
+residual coordinates, malformed certificates, corrupted ciphertext coordinates,
+worker cleanup and deadline fallbacks. Structured fixtures validate the broader
+class and adapter; they are separate from the random-mask study results.
+All initiated jobs are terminal. All 481 authoritative Lean/configuration
+inputs still match the validated mirror. The asymptotic success-probability,
+efficient-generation and complete joint-security obligations remain unproved;
+no production sampler, hardness premise, secret or key schedule changed.
+
+The preceding Boolean polynomial compiler plan is implemented, with exact
+constraints, supported-error certificates, complete
+ciphertext coordinates and independent replay. The bounded eight-case study
+delivers ten improving certificates across seven target instances, all of
+actual total degree three. No genuinely degree-four/five improvement is
+obtained, so the conditional full-table and production-integration gates
+are not entered. The unresolved solver queries remain inconclusive.
+See `scripts/search-gsw-boolean-polynomial-compiler.py` and
+`docs/GSWBooleanPolynomialCompilerExploration.json`.
+
+The main scheduler records 216 target/degree entries: eleven are ruled out
+by the derived certificate lower bound, eighteen exceed the size cap,
+149 are unstarted at the global deadline, two hit construction deadlines,
+seven hit wall deadlines, 26 return unknown, two return sat and one returns
+unsat for its scoped strict-improvement query. Valid improving models are
+checked independently even when the solver returns unknown; optimality is
+not inferred from those models. Replay checks all 82 main certificates and
+112 complete-coordinate/source views, plus the retained pilot's six baseline
+certificates. The pilot's search time is charged to the same 20-minute cap.
+
+Every sampled toy source has a unique compatible key under exhaustive finite
+enumeration. The tiny grid cannot meet the current refresh budget even with
+zero compiler discrepancy; it is an algebraic/local-error diagnostic, not
+a secure parameter family. The family probability, efficient-generation
+and full ordinary-LWE integration obligations remain unproved. No production
+sampler, Lean source, hardness premise or key schedule changed. All initiated
+generation/replay processes are terminal. The previous blocked applicability
+audit is historical; this new branch does not resolve its core security gap.
+
+The preceding continuation gives an exact all-target basis
+certificate for the approximate compiler. Twenty-four small bases and all
+3,420 target witnesses are checked with rational arithmetic; independent
+replay reconstructs their Gram--Schmidt data through LDL factorization.
+Nine universal bounds meet the finite refresh budget, all on recoverable
+source inputs. A derived polynomial bound on the normalized mean-square
+basis profile would suffice asymptotically, but its probability for a
+specified efficient public generator remains UNPROVED. This sufficient
+criterion adds no new assumption and is not a completed security theorem.
+See `scripts/check-gsw-approximate-basis-bound.py`,
+`docs/GSWApproximateBasisBoundExploration.json`, and the latest research entry.
+
+The approved approximate cubic compiler plan is implemented.
+It trades bounded cubic-message discrepancy against source-error amplification,
+with a public supported-error certificate and complete ciphertext coordinates.
+The regression improves 14 of 16 toy comparisons and checks 192 phases.
+The bounded sixteen-case study delivers 58,052 approximate candidates and
+55,404 selected target/level certificates across 48 radius tables. It checks
+2,988 sampled complete-coordinate/table views; 16 exceed the decoding margin.
+Ten finite whole-table budgets pass, all with ordinary-input recovery
+certificates. Those toy successes do not prove a secure parameter family.
+The study records 119 completed lattice searches, two reduction timeouts,
+four case timeouts and nineteen unstarted searches. Coverage and optimizer
+completion are recorded separately.
+See `scripts/search-gsw-approximate-tensor-compiler.py`,
+`docs/GSWApproximateTensorCompilerExploration.json`, and the latest research entry.
+
+The gate remains unproved: the specified public algorithm must meet the
+complete reusable bound with sufficient probability in the intended parameter
+family, with proved polynomial-time implementation and reduction closure.
+No new hardness premise or acyclic schedule was introduced. Production Lean
+integration was not entered. Earlier blocked audits describe the unresolved
+full-security gap; the new research does not close it.
+
+The preceding concentration audit checked 720 exact Frobenius-norm budget
+substitutions without adding a passing candidate. It can save a polynomial
+dimension factor but does not prove coefficient shortness. See
+`scripts/check-gsw-cubic-tensor-noise.py` and
+`docs/GSWCubicTensorNoiseExploration.json`.
+
+The implementation now includes
+an explicit positive three-block cubic compiler. Inclusion-exclusion cancels
+first- and second-order source errors; the original-key phase is the target
+cubic plus a public tensor contraction of three error vectors. Public modular
+preimage construction handles both odd and even pivots, with exact certificates.
+The 20-case grid yields 90 compiled controls, six certified infeasible targets,
+and two timed-out cases. All 17,496 exhaustive algebra checks and 4,336 sampled
+source-phase checks pass. There are 538 sampled decoding-margin failures.
+Twenty-three control bounds meet the finite radius-one refresh budget; every
+such source instance also has a public ordinary-input key-recovery certificate.
+There is no compatible asymptotic tensor-norm/failure theorem or full security
+proof. This is a concrete algebraic route with finite diagnostics, not a
+production construction or an impossibility result. No Lean source changed.
+See `scripts/search-gsw-cubic-tensor-compiler.py`,
+`docs/GSWCubicTensorCompilerExploration.json`, and the latest research entry.
+
+The preceding bounded nonlinear synthesis search is also implemented.
+Both 12-node and 24-node MaxSMT queries timed out without a usable new model;
+the synthesis result is inconclusive, not an infeasibility proof.
+All six seed formulas fail the 99-percent per-level screen. Validation covers
+196,608 seeded held-out cases (1,179,648 formula/case evaluations), every
+gadget level, 2,976 paired error assignments and 5,472 complete cubic-control
+slot checks. The public table and original secret are preserved.
+A seed-specific mathematical argument gives constant failure at useful
+top/quarter weights for uniform interval errors, with the existing sampler's
+TV adjustment. It does not rule out the broader nonlinear circuit family.
+See scripts/search-gsw-nonlinear-compiler.py,
+docs/GSWNonlinearCompilerExploration.json, and the latest research entry.
+No candidate reaches the asymptotic noise/failure/reusability gate, so no
+production Lean code or security interface changes. The full joint
+ordinary-LWE reduction remains missing; earlier blocked audits are historical.
+The preceding continuation checks two possible efficiency shortcuts. Direct
+signed-branch evaluation retains variance `225^M/2-1/4` for M controls
+even for a fair observer bit. A public filter returning one of T affine
+anchor proposals has wrong-anchor/correct-output probability at most
+`T*|allowed phases|/q`; a successful narrow-noise sampler in this class
+would expose the secret-bit triples. All 107,008 labeled proposals,
+2,176 phase atoms and 336 wrong-anchor uniformity cases pass finite checks.
+These are candidate-specific mathematical deductions and executable
+checks, not a general impossibility result or new Lean security theorem.
+The larger-table continuation now checks 24 retained tables at moduli
+512 through 32768, all beyond the earlier parity obstruction. All 48
+one/two-round cases have exact negative two-phase events, including 24
+with a strict decoding margin. A derived phase-gap/Fourier argument
+extends this obstruction to polynomial-size tables at exponential modulus
+with probability at least `1-p/q`, for finite round counts retaining a
+phase gap. This rejects exact positivity of the fixed translation kernel,
+not approximate or source-dependent simulation.
+A separate noise-aware leftover-hash calculation permits negligible
+statistical distance from a positive, secret-defined law for one local
+kernel. Exhaustive finite checks retain the public table and subset-error
+side information: 8,768 tables and 339,968 selector choices pass. This is
+a mathematical bound with executable checks, not a new Lean theorem or
+an efficient public sampler. Joint control-table composition and an
+efficient compatible sampler remain unproved. See
+`scripts/check-gsw-rerandomization-phase-obstruction.py` and
+`docs/GSWRerandomizationPhaseObstructionExploration.json`.
+The new complete-ciphertext diagnostic tests 1,152 retained public tables
+and 3,584 cases. All 3,072 modulus-four/eight cases retain negative mass.
+A public modulo-two certificate gives a signed event of mass exactly
+`-1/4` in all 3,381 negative cases and applies to those fixed tables for
+any positive number of rerandomization rounds.
+All 203 positive cases are modulus two. An explicit public Gaussian coset
+sampler is implemented and its complete law checked, but 87 instances
+expose the actual key and the other 116 erase the control bit with error
+probability `1/2`. No tested candidate passes the agreed sampler,
+secrecy and correctness gates; production Lean code was not changed.
+See `scripts/check-gsw-public-rerandomization.py`,
+`docs/GSWPublicRerandomizationExploration.json`, and the latest research entry.
+These results reject the tested candidate and the stated parity-obstructed
+tables, not all larger-table nonbinary or approximate positive simulators.
+Exact enlarged-noise budget checks still pass at listed larger family
+parameters; no compatible efficient nonbinary sampler has been constructed.
+The full joint ordinary-LWE reduction remains missing. No new Lean input
+changed, so the existing 9,257-job build and 1,017-declaration focused audit
+continue to cover the same 481 Lean/config/dependency files.
+The latest source-cancellation check derives a uniform L2 contraction for
+the paired-anchor signed kernel: every nonconstant Fourier multiplier is
+zero or a unit phase. Eight finite affine/quadratic scalar/vector cases
+verify all 88,720 modes. This preserves cancellations but does not produce
+an efficient bounded ordinary-LWE test.
+An actual recursive-compiler/GSW observer example shows that clipping the
+signed source score changes the real/uniform source gap from `3/512` to
+`61/12288`. All 65,536 uniform and 32,768 real-key/source tapes are checked.
+The real clipping bias is `101/12288`; the uniform bias is `7/768`.
+This refutes lossless clipping as a general shortcut. It is not an attack
+on the production family or a lower bound on its asymptotic clipping loss.
+See `scripts/check-gsw-signed-source-cancellation.py`,
+`docs/GSWSignedSourceCancellationExploration.json`, and the research log.
+The L2 identity is a mathematical derivation with finite checks, not a new
+Lean theorem. No Lean input changed; the existing 9,257-job build and
+1,017-declaration audit still cover all 481 matching Lean/config inputs.
+The completion audit rechecks correctness, security, the simulator
+interface, reusable noise and efficiency. The full security requirement
+is unfulfilled: `deletedReplacementAdvantage` is still unproved small,
+the nonlinear simulator remains uninstantiated, and the alternative
+compiler still requires its reusable error/discrepancy bound. The same
+core blocker has persisted through three consecutive resumed goal turns.
+The preceding 2026-10-18 continuation investigates the remaining nonunit
+cubic controls. `GSWWeightedCubic` proves the algebraic top-bit capacity:
+a D-coefficient cyclic image contains at most 2^D order-two patterns.
+Multiplying a surviving weighted Boolean message into the top bit is
+valid without dividing its quadratic coefficients. A derived agreement
+argument with Sauer--Shelah still forces exponential weight for exact
+signed noiseless-message simulation, even after low-level deletion. The
+full agreement/asymptotic application is a mathematical derivation with
+finite checks; 13 algebraic core results are formalized in Lean.
+The previous sharper unit-weight agreement bound does not extend
+unchanged: an explicit five-bit modulus-8 quadratic vector agrees with
+all half-modulus-weight cubics on 17 keys, exceeding D=16. This example
+and the weighted obstruction checks are in
+`scripts/check-gsw-weighted-cubic-agreement.py` and
+`docs/GSWWeightedCubicAgreementExploration.json`.
+The obstruction does not bound cancellation in the full noisy public
+ciphertext distribution or rule out a positive nonlinear simulator.
+Those remain the relevant ordinary-LWE security targets.
+The new module and all tests pass the 9,257-job build and focused
+1,017-declaration axiom audit without warnings, errors or sorryAx.
+All focused axioms are subsets of propext, Classical.choice and
+Quot.sound. All 481 Lean/config/dependency files match the validated
+mirror. Those partial results leave the full security theorem unfinished.
+The preceding 2026-10-18 continuation proves the complete public-view
+low-level cubic deletion hybrid in Lean. `RecursiveFeatureLowLevelHybrid`
+materializes the intended zero-message controls, identifies them exactly
+with a body-error translation, and bounds total variation for the full
+public key and stored control table. Arbitrary randomized postprocessing,
+including the actual adaptive IND-CPA observer, is covered.
+For the current family, deleting genuine cubic messages at gadget levels
+below `floor((parameter+1)/2)` has a proved negligible cost. The checked
+closed-form majorant is
+`4*n*(rows(n)*levels)*(3/4)^parameter`, where all factors outside the
+geometric term are polynomial. The sharper derived expression
+`C*(2^t-1)/(2E+1) + 2*C*t*2^(-R)`, with
+`C=n*(n-1)*(n-2)`, remains a mathematical calculation; Lean uses the exact
+finite column sum and the coarser polynomial majorant.
+The new IND-CPA bound retains `deletedReplacementAdvantage`, the explicit
+complete-view comparison between the surviving higher-weight controls
+and the existing quadratic simulator. That term is unproved small. No
+security hypothesis is added, and this is not the full security theorem.
+The actual scheme and its same-secret refresh correctness are unchanged.
+An exact paired affine-message simulation was also derived and tested,
+but its weight is exponential. Exact signed quadratic simulation including
+all unit-weight cubic coordinates has total weight at least
+`2^(n+1)/(1+n+binomial(n,2))-1`. This lower bound does not automatically
+apply after low-level deletion or to noisy-ciphertext-only approximation.
+The finite checks are recorded in
+`scripts/check-gsw-signed-quadratic-simulation.py` and
+`docs/GSWSignedQuadraticSimulationExploration.json`.
+The goal is active after resumption; the original ordinary-LWE-only
+security objective remains unfinished. That continuation passed the 9,256-job package/test
+build and focused 1,004-declaration axiom audit without warnings,
+errors or sorryAx. All focused axioms are subsets of propext,
+Classical.choice and Quot.sound. All 480 Lean/config/dependency files
+match the validated mirror. The new module adds 26 audited theorems.
+The 2026-10-18 user-requested rethink tests a new square-zero secret lift:
+source modulus Q, ciphertext modulus Q^2, secret S=Q*x, and error Q*e+f.
+It has an explicit public source embedding and full uniform-source columns,
+including bodies; 279,600 small-instance output/inverse checks and all 24,480
+self-coordinate control phase checks pass. Its controls target S_i, not
+the secret bits needed for refresh. Generic plaintext-polynomial rescaling
+cannot recover those bits or implement AND on the scaled bit encoding. A
+tested public body rescaler amplifies every odd source error into a decoding flip, with
+544 failures in 952 checks. The exact bit-control conversion and its reusable
+error law are still missing. This is a mathematical/finite diagnostic, not
+a new Lean security theorem. See `scripts/check-gsw-nilpotent-secret.py`,
+`docs/GSWNilpotentSecretExploration.json`, and the latest research-log entry.
+That square-zero experiment changed no Lean input.
+The preceding goal status was **blocked** at the third resumed
+completion audit on 2026-10-17; subsequent user requests resumed the work.
+The same missing compatible construction and complete joint ordinary-LWE
+argument persisted through the positive correlated-control masking result,
+the retained/regenerated-key experiment, and that requirement audit.
+Repeated same-secret correctness is proved for the recursive family; its
+older security bound retains `familyControlReplacementAdvantage`; the new
+truncated-view bound retains `deletedReplacementAdvantage`. The public
+compiler's security theorem has no concrete instance with the required
+reusable error law, and the new nonlinear simulator interface is likewise
+uninstantiated. Strict polynomial-time implementation/reduction closure
+also remains unproved. No live build or trial is pending. This is a
+mathematical impasse, not an impossibility theorem; the full original
+objective is preserved. That earlier audit covered 479 Lean/config/dependency
+files, a 9,255-job build and 978 focused declarations; the updated validation
+counts are given above. The 45 reference PDFs were unchanged in this continuation.
+The completion audit is recorded in `docs/GSWSelfKeyResearch.txt`.
+The preceding construction check tests retaining versus regenerating the full recursive public key after
+the error-absorbing secret change. Across 64 families and 5,504 source keys,
+none of the retained tables satisfies the normal column-noise bound under
+the changed key; 10,954 of 22,016 selected public-encryption columns fail its
+strict decoding interval. Regenerating the table restores all those tested
+encryption columns, but always producing a valid narrow-noise binary-key
+table cannot give the uniform full-table marginal required by the new
+statistical endpoint. An explicit support-event calculation proves this
+distinction mathematically; it is not an efficient attack or a new Lean
+theorem. The experiment and derivation are recorded in
+`scripts/try-gsw-regenerated-key-public-view.py` and
+`docs/GSWRegeneratedPublicViewExploration.json`.
+The remaining priorities are a joint nonlinear table/control simulator
+whose uniform branch destroys key compatibility, or an explicit ordinary-LWE
+reduction for the actual recursive plaintext game without this statistical
+endpoint. Neither has been constructed. No Lean source changed in this
+check, so the preceding build and focused audit remain applicable.
+The preceding continuation adds `GSWCorrelatedMasking`: the full public-key TABLE MARGINAL being uniform
+suffices for the existing statistical masking bound, even with arbitrarily
+correlated finite controls and adaptive message choice. No efficient
+conditional context sampler or control/table independence is needed; the
+encryption selectors are fresh and independent of the public view.
+The module also gives a direct ordinary-LWE game bound for a randomized,
+possibly nonlinear public source simulator whose uniform-source table
+marginal is uniform. The entire simulated public view need not be uniform
+or arise from an invertible source map. This is a proved statistical
+endpoint and finite reduction interface. No concrete simulator is yet
+proved to match the actual correctly bootstrapping family and satisfy its
+correctness/efficiency requirements, so the full security theorem remains
+unfinished. Uniformity of mask rows alone, or computational pseudorandomness
+of a table marginal alone, does not satisfy the joint mode-hiding obligation.
+All eight new results pass the full 9,255-job package/test build and focused
+978-declaration GSW audit without warnings, errors or sorryAx. The focused
+axioms are subsets of propext, Classical.choice and Quot.sound. All 479
+compared Lean/config/dependency files match the validated mirror.
+The preceding third resumed completion audit marked the goal blocked on
+2026-10-17. The known-bit and complete-source affine continuations made
+concrete progress, but the same missing compatible construction and complete
+ordinary-LWE security argument persisted into the final audit. No additional
+concrete nonlinear simulator, private complete-view sampler or certified
+helper is available to instantiate. This is a mathematical impasse, not an
+impossibility theorem. The full original objective remains unfinished.
+That audit checks the authoritative theorem interfaces and additional
+primary sources. Hsieh--Jain--Lin's CRO record introduces a new circular
+assumption; Composing Bridges requires a conditional full-view simulator and
+retains circular security for the same-secret composability application.
+Neither supplies the missing reduction in the checked interfaces. All 478
+Lean/config/dependency files still match the validated mirror, so the existing
+9,254-job build and focused 970-declaration audit remain applicable. No Lean
+source changed during the audit. All 44 reference PDF records agree; the
+index's stale aggregate count was corrected from 39 to 44. No PDF was added.
+The subsequent user-requested rethink tests a mask/error-dependent latent
+key. All 14,656 restricted cubic phases pass with odd source errors, and
+fresh zero-encryption addition has the correct normal phase-error bound.
+The bare controls reveal the output key on 1/4 of keys; publishing the raw
+source leaves four candidates. Private fresh masking restores the restricted
+fresh ciphertext law, but the public-only sampler produces real cubic
+controls in BOTH source modes. Its retained parity projection already has
+the same real/uniform law, so it gives no ordinary-LWE reduction advantage.
+This is a finite diagnostic and mathematical derivation, not a new Lean
+security theorem or full refresh sampler. The revised priority is a
+public-only dual-mode game proof with a genuinely hiding uniform endpoint,
+including the entire public key and control table. A private coupled
+sampler and a specialized certified helper remain other unproved routes.
+PVW08's author-hosted dual-mode/OT draft is saved in refs, bringing the
+collection to 45 papers. Its LWE dual-mode variant has a relaxed bounded-call
+guarantee and does not supply the GSW joint-view mode-hiding theorem. No Lean
+source changed in this rethink; the existing build/audit still applies.
+The preceding continuation tests arbitrary affine processing of the complete
+source transcript. `RecursiveFeatureAffineSource` proves at least `1/16`
+failure in approximating a top-weight genuine cubic control within a small
+phase-error bound. The source key can have any dimension and be any fixed
+function of the uniform binary output key. The source masks are uniform
+and independent of those keys; source errors and affine-map coefficients
+are independent of the output key and masks. Thus fixed key transport does
+not rescue this affine template. This is a phase-simulation filter, not a
+public attack or an impossibility theorem for the requested FHE.
+An exact executable checks 192 same-key affine maps with 576 fixed-error
+cases, 312 additional key-transport cases, and 55,296 complete source draws.
+A zero-error diagnostic attains the `1/16` bound. Public mask rejection
+escapes the uniform-mask premise, but the simple rejected-mask candidate
+fails on `1/4` of keys when the source error is odd. The diagnostic has no
+claimed fresh-ciphertext law. Nonlinear simulation, mask-dependent key
+coupling and genuinely private key-correlated samplers remain unproved.
+The full ordinary-LWE security reduction is still missing.
+The seven new results pass the full 9,254-job package/test build and focused
+970-declaration GSW axiom audit, with no warnings, errors or sorryAx. All
+focused dependencies are subsets of propext, Classical.choice and Quot.sound.
+All 478 compared Lean/config/dependency files match the validated mirror.
+The preceding continuation tests a concrete conditioning reduction for the
+already correct recursive-feature family. `RecursiveFeatureConditioning`
+constructs an exact quadratic message when one cubic factor is known, and
+connects it to the actual stored-control message. Covering all distinct-triple
+messages this way leaves at most two unknown key bits. Lean proves that a
+fixed independent guess matches a uniform key with probability at most
+`4 / 2^n`; applying the existing source-entropy expression to at most two
+remaining bits gives a loss term at least `1/4`. This is a lower bound on
+that proof's upper-bound expression, not on any adversary's advantage.
+Guessing just one bit for a single column does not supply the other correlated
+cubic columns required by the complete-view observer. No such simulator has
+been constructed. These statements filter this degree-reduction template;
+they do not exclude every conditional or computational reduction. The new
+conditioning module supplies seven checked results. Its initial verification
+passed the 9,253-job package/test build and 963-declaration GSW axiom audit
+without warnings, errors or sorryAx, with all 477 then-compared files matching
+the mirror. The current expanded verification is recorded above.
+The full security proof is unfinished.
+The preceding 2026-10-16 rethink prioritizes the actual cubic-control plaintext game
+of the already correct recursive-feature family. It also examines certified
+refresh using LWE compute-and-compare obfuscation: publicly generating an
+accepted input predicts the lock when the function and public data are
+given, so the proposed direct use fails the required target-entropy gate.
+Keeping independent public-sampler coins private also does not escape the
+signed-source certificate attack when an adversary can rerun the same
+sampler on the same covered input law. These are scoped mathematical
+filters, not new Lean theorems or general impossibility results. WZ17 is
+saved in refs, bringing the catalog to 44 papers. No new complete simulator,
+sampler or public helper was supplied in that rethink; the goal was still
+blocked at that time.
+The latest constructive continuation tests operand-dependent
+right-inverse factors: GH=CH=I and P=HC. All 14 public base builders succeed;
+59 genuinely operand-dependent factors are produced, with exact modular
+certificates and no global commutation requirement. The public compression
+objective improves on all 215 optimized columns. Nevertheless, the new
+method gives only 20/36 correct selected refresh outputs and three next
+margins. Even on the 12 first refreshes, all inputs have the intended rounded
+bit while four outputs are wrong. The public metric therefore supplies no
+valid mixed-error bound. The trial and saved records are in
+`scripts/try-gsw-operand-adaptive-dual.py` and
+`GSWOperandAdaptiveDualExploration.json`. No Lean source changes this turn;
+the full security theorem remains unfinished.
+The preceding constructive continuation checks whether
+globally commuting idempotent control factors repair the missing invariant.
+`GSWCommutingProjection` proves a native q=16 counterexample: both controls
+decode as one with noise at most one; their factors commute, are idempotent,
+reconstruct the controls and stabilize them, yet the mixed product and NAND
+decode incorrectly. The factors are noncanonical and not short, so this
+refutes the algebraic identities alone as an error invariant. It is not a
+general impossibility theorem or a securely sampled construction.
+A public spectral algorithm additionally lists at most the factor width
+in joint binary patterns. Correctness for one explicitly constructed
+public-list-dependent decision trie would force the key into that list.
+The exact correctness premise is stronger than correctness only on the
+current refresh computations. This mathematical filter is not yet a Lean
+security theorem. An executable checks 24 families, 504 exhaustive pattern
+products and three native witnesses at moduli 16,256,65536. See the final
+research-log entry and `GSWCommutingProjectionExploration.json`. A compatible
+efficient sampler and repeatable mixed-error law are still missing.
+The new module's 15 results pass the full 9,252-job package/test build. The
+focused GSW audit now checks 956 declarations, with only propext,
+Classical.choice and Quot.sound and no sorryAx, warning or error. All 476
+compared Lean/config/dependency files match the validated mirror. These
+checks establish the scoped counterexample, not the requested full theorem.
+The subsequent 2026-10-15 rethink checks matrix-valued controls and reusable
+garbling. A common-annihilator matrix ansatz removes quadratic phases but
+makes every product of its control perturbations zero. This is a scoped
+algebraic filter, not a general impossibility theorem. The newly downloaded
+GKP13 construction needs private input encoding for circuit privacy;
+Applebaum17's reusable-encoding definition is static and retains private
+encoder randomness. Neither supplies the required public adaptive refresh
+token. A token returning fresh encryption with all its randomness known to
+the evaluator would reveal the refreshed bit by comparison. Joint control
+and decomposition design on reachable states remains the first research
+priority, with no new concrete sampler or complete proof found. These new
+derivations are not Lean theorems. The reference catalog now has 43 papers.
+The preceding constructive continuation tests body-adaptive public control factors.
+`GSWBodyAdaptiveProjection` proves single-control span stability, the actual
+error eigenrelation and repeated-action law, and the remaining cross-error
+and gadget-commutator identities. Eight new results pass the full 9,251-job
+build and 941-declaration axiom audit. All 56 independent public factor
+builders succeed in 20 finite cases, but their 120 refresh calls give only
+84 correct selected outputs and 18 conservative next-NAND/refresh margins.
+A stronger joint builder also enforces pairwise agreement on the gadget:
+eight cases give 39/48 correct selected outputs, versus 35/48 for matched
+independent repairs, but only seven next margins. Cross errors are equal
+under this constraint; they remain unbounded, and full operators need not
+commute. No secure reusable parameter family results. The newly saved
+HJLM26 formalization paper explicitly uses independent keys at each level
+in its leveled GSW theorem, so it does not supply the requested same-key
+reduction. See the final research-log entry and
+`GSWBodyAdaptiveProjectionExploration.json`, `GSWJointProjectionExploration.json`.
+The preceding continuation makes the control/decomposition proposal concrete.
+`GSWRedundantDigits` proves that any fixed public reconstructed factor
+preserves the quadratic four-corner coefficient of constant affine controls,
+including an actual initial-gadget column. Six new Lean results pass the
+full 9,250-job build and 933-declaration axiom audit. A public signed minimax
+digit rule reconstructs every tested ciphertext with digits in `{-1,0,1}`.
+It improves selected correctness to 236/336 in the previous small refresh
+cases, but only 16 calls meet the conservative next-NAND/refresh margin.
+At dimension 64, sampled native products give 126/256 correct outputs with
+zero fresh noise and 132/256 with noise radius one. A mathematical coupling
+argument and exact finite quarter-convolution counts bound product
+correctness at `q=65536,n=64,E=1` by 0.542312. This distributional bound is
+not yet a Lean theorem. These results leave body-adaptive joint digit/control
+design, private full-view simulation and dense body-dependent compilers
+unresolved; no complete secure sampler results. See the final research-log
+entry and `GSWRedundantDigitExploration.json`,
+`GSWSignedDigitScalingExploration.json`, `GSWSignedQuarterLawExploration.json`.
+The preceding rethink checks linear error-invariant proposals. For the current
+binary gadget, the first CMux can pass every control error through unchanged.
+Digit factors over all native ciphertexts include every matrix unit, so a
+universally stable additive error space must be a coordinatewise ideal.
+Proper ideals at a power-of-two modulus make native binary-key controls exact
+modulo two. A public common-eigenspace algorithm then lists at most `n+1`
+compatible binary keys. The executable checks 1,008 control families against
+exhaustive key enumeration, plus gadget, CMux and finite invariant cases.
+These general arguments are mathematical derivations and finite checks,
+not new Lean security theorems. They exclude these particular invariant
+proposals, while leaving joint control/decomposition design on restricted
+reachable states unresolved. See `GSWDigitInvariantExploration.json` and the
+final research-log entry for the revised priorities and their first gates.
+The latest continuation tests public midpoint corrections with correlated
+control errors. `GSWCorrelatedMidpoint` checks their signed-product residual
+and an explicit native-gadget counterexample: both controls decode as zero
+with noise at most `q/8`, but their product and NAND decode incorrectly.
+Fifty-six fixed finite cases give 168 correct selected outputs in 336 refresh
+calls, with failures even at zero source noise. An independent executable
+checks 4,096 native product identities and 17 exact quarter-convolution laws.
+The research log derives a scoped product-error distribution and a bounded
+fresh-noise extension; these distributional bounds are not yet Lean theorems.
+This particular correlated error law does not repair native evaluation.
+Transcript-dependent dense corrections and private full-view simulation
+remain unresolved. See `GSWCorrelatedMidpointExploration.json`,
+`GSWMidpointProductLawExploration.json` and the latest research-log entry.
+The latest rethink adds `GSWPairLocalCompiler`. A public affine correction
+can fit three binary patterns of a quadratic target exactly. Lean checks that
+construction and proves, using Sauer--Shelah, that sufficiently accurate
+corrections supported on each target pair leave at most `n+1` compatible keys,
+even when their coefficients depend on the full public transcript. An
+executable 2SAT enumerator cross-checks 198 small constraint systems. In 32
+fixed source trials, the correction succeeds in 14 nonzero-error cases;
+all their 84 same-key refresh calls decode correctly, but public enumeration
+and an independent verification sample recover the key in all 14 cases.
+The finite LWE distinguisher and its ordinary-to-binary source obligations
+are detailed in the research log; they are not a complete Lean computational
+reduction. This closes the proposed pair-supported public repair under the
+stated margin and source conditions, while leaving dense corrections, private
+full-view simulation and direct native-control reductions unresolved. See
+`GSWPairLocalCompilerExploration.json` and the latest research-log entry.
+The latest source-simulation trial adds `GSWRotatedTrapdoorSource`. Rotating
+the private gadget by an ordinary LWE block supplies the previously unavailable
+gadget-source body. Lean checks the source embedding, its amplified errors,
+the exact private certificate and elimination of the private correction into
+`Q*H⁻ᵀ*y_H`. It also proves that every nonzero inverse error reaches a
+half-modulus error at some binary-gadget level, and that fresh bounded noise
+cannot remove that obstruction. The canonical rotated construction therefore
+fails the native control invariant on the tested nonzero-error sources.
+Sixteen diagnostic cases check 2,208 certificates and 96 refresh calls.
+Zero-error cases restore correctness but do not meet the required LWE source
+hardness premise. No complete secure correct construction results. The newly
+downloaded PS16 paper supplies encrypted commitment-randomness machinery for
+leveled multi-key evaluation; its unbounded bootstrapping still uses circular
+keys. See `GSWRotatedTrapdoorSourceExploration.json` and the latest research log.
+The preceding 2026-10-10 rethink adds `GSWPublicPreimageBarrier`. Lean checks
+a public signed-source transformation, trace extraction for dense one-sided
+and two-sided certificates, modular residual bounds, and complete binary-key
+recovery from useful short two-sided certificates, even with free diagonals.
+The research log derives a finite LWE distinguisher using parity randomization
+and an independent verification sample; that distributional/computational
+reduction is a mathematical argument, not yet a complete Lean theorem.
+Under its matching source-hardness, gadget-weight and noise-margin conditions,
+an efficient public builder with the proposed useful shortness and success
+guarantees would contradict the source assumption. This supersedes the earlier
+priority of finding that builder. It does not exclude arbitrary transcript
+compilers, private witnesses, or all bootstrappable GSW constructions. See
+`GSWPublicPreimageBarrierExploration.json` and the latest research-log entry.
+The 2026-10-10 two-sided trial adds `GSWTwoSidedCompiler`: two same-secret
+source batches give corrections whose linear error terms cancel exactly.
+Lean checks the residual `e1^T D e2`, the complete native control-noise law,
+and the complete stored adaptive game bound, with ordinary-LWE source losses
+explicit. A second checked variant absorbs arbitrary diagonal coefficients
+into public affine corrections for binary secrets. Shortness is required of
+`D`, rather than of a potentially large contracted mask correction.
+Dense public LLL/Babai trials record 18 attempts, eight explicit failures,
+2,376 certificates and 60 same-key refresh calls. All completed baseline toy
+sources permit public linear-preimage key recovery. Increasing the noise on
+one fixed source geometry loses all full output decoding margins. There is
+still no useful asymptotic public-builder norm/failure guarantee or secure
+reusable parameter family. See `GSWTwoSidedCompilerExploration.json` and the
+final research-log entry. The earlier reconsideration also narrows
+the private route to simulation of its published marginal: flooding away all
+shared residuals instead leaves the conventional native GSW control law and
+its unresolved joint-security obligation. See the final research-log entry.
+The latest completion audit remains blocked at the full joint ordinary-LWE
+security argument. Rechecking MP12 and the general leakage theorem did not
+provide the missing private-trapdoor source simulation. The newly downloaded
+LH23 randomized-encoding KDM-IBE paper decrypts an encoding and then applies
+an additional decoder; it supplies no conversion to native GSW controls or
+same-secret refresh theorem. Its claim is not adopted as a security premise.
+The final research-log entry records the exact unmet requirements. Passing
+conditional Lean theorems and finite correctness trials do not complete them.
+The follow-up private gadget-trapdoor trial supplies efficient, polynomially
+bounded quadratic preimages while keeping the trapdoor and witnesses private.
+`GSWPrivateTrapdoor` checks the exact certificate, kernel randomization and
+actual shared residual, together with the programmed-source body identity.
+Four fixed finite cases check 1,232 certificates and 48 same-key refresh calls:
+all selected bits and full output decoding margins pass; 38 calls meet the
+conservative next-NAND-and-rounding margin. These toy correctness results do
+not establish security. The public-compiler reduction does not provide a
+simulator for private trapdoor corrections at an ordinary-LWE challenge matrix;
+near-uniformity of that matrix marginal alone does not prove the complete-view
+claim. Keeping the witnesses private also means that public-witness recovery
+tests do not automatically attack this candidate. See
+`GSWPrivateTrapdoorExploration.json` and the final research-log entry.
+The earlier transcript trials add `GSWTranscriptCompiler`: arbitrary public corrections
+may use the complete retained LWE block, including its bodies. Its complete
+stored adaptive plaintext game has a checked finite ordinary-LWE bound, with
+the binary-source entropy/noise losses explicit. Native control noise and
+same-key refresh follow conditionally from the actual sampled discrepancy;
+a useful efficient compiler with negligible joint failure is still missing.
+Dense LLL/Babai trials check 3,904 off-diagonal control targets and 84 native
+refresh calls. Selected-bit decoding sometimes succeeds, but most outputs
+fail the conservative bound for another NAND and refresh; most low-noise toy
+sources also permit public linear-preimage key recovery. These are diagnostics,
+not a secure parameter family or a negligible-failure theorem.
+`GSWQuadraticAuxConversion` checks conversion using public matrix digits and
+an explicit auxiliary table, with the original decryption secret and an exact
+weighted error sum. Its auxiliary table's joint ordinary-LWE security is
+unproved. Simple zero-sum control errors fail in the actual CMux accumulator.
+`GSWShiftedSourceDisclosure` checks key recovery for the attempted same-secret
+honest-zero source at two publicly gadget-shifted matrices. This is a boundary
+on that specialization, not an attack on shifted preimage sampling or a general
+impossibility result. Direct plaintext-game source embedding remains unresolved.
+The detailed trials and their scope are recorded at the end of
+`GSWSelfKeyResearch.txt` and in `GSWTranscriptRoutesExploration.json`.
+
+The checked bound in
+[`family_oneTime_abs_signedAdvantage_le`](../FormalProof4FHE/LWE/RecursiveFeatureControlPolynomial.lean)
+still contains `familyControlReplacementAdvantage`, with no negligible bound.
+This term measures replacement of the real distinct-triple cubic controls in
+the complete correlated public view. Correctness and exact polynomial fair-bit
+sampling are proved; neither establishes this computational replacement.
+The direct ordinary-GSW route now has exact stored real/mixed endpoint and
+public bit-flip transports, with all real controls retained. It remains blocked
+at a compatible public ordinary-LWE challenge embedding and computational bound.
+The resumed KDM-first redesign has a checked **single-anchor-bit** candidate
+(`KDMStarGSW`): its complete public key and one GSW self-key control reduce
+together to ordinary uniform-secret LWE, and its public-encryption game has
+an explicit masking bound. Its key is `(b,u)`; decryption still requires `u`,
+and controls for the unknown coordinates/bits of `u` remain unproved. This is
+not a completed bootstrapper or full-key circular-security theorem.
+The follow-up `KDMStarConversion` rules out universal ciphertext-only
+phase-preserving conversion from the existing quadratic-KDM format, including
+a quantitative small-discrepancy variant. It leaves converters using
+key-dependent public data or distribution-specific correctness unresolved.
+The resumed KDM-first attempt is blocked at that same full-key joint
+ordinary-LWE reduction after the auxiliary-interface audit. Completing it
+requires a new compatible construction or proof; green Lean checks below
+do not discharge this mathematical obligation.
+The subsequent rethink adds `GSWQuadraticPreimage`, a correlated sampler
+interface with a checked ordinary-LWE source transformation. Trying the three
+remaining routes adds `GSWQuadraticPreimageBinary`: the complete transformed
+small-secret view now reduces to ordinary uniform-secret LWE through the
+existing weak-secret theorem, with explicit entropy and noise-absorption
+losses. The alternating coefficient certificate and actual l1 residual bound
+are also checked. An implemented LLL/Babai builder finds exact preimages in
+eight finite instances, but no useful asymptotic norm/failure guarantee is
+proved. The follow-up `GSWQuadraticPreimageGSW` implements the complete native
+stored key sampler, derives its actual shared control noise, and bounds its
+adaptive plaintext game by ordinary LWE and explicit losses.
+`GSWQuadraticPreimageParameters` proves that ANY fixed polynomial l1 bound
+admits eventual entropy, public-encryption, NAND/refresh and output-decoding
+margins under one unchanged binary secret. This establishes conditional
+parameter compatibility, not a builder satisfying that bound. Useful public
+shortness/certificate-failure guarantees, an executable efficient builder and
+full asymptotic implementation/reduction accounting remain unproved.
+The binary native sampler now replaces diagonal products `s_i^2=s_i`
+by affine shifts: only off-diagonal mask targets need quadratic preimages.
+A row-by-row prefix-lattice implementation passes 5,523 exact checks in
+21 finite cases. `GSWQuadraticPreimageRowSupport` proves that a supported
+row, or a shared-prefix difference, exposes linear preimages even for the
+remaining off-diagonal targets, with checked decoding and uniform verification
+bounds. Target-dependent prefixes avoid that structural test, but all wider
+toy matrices still permit independent linear-preimage key recovery; the square
+examples have large residual bounds. No useful asymptotic builder guarantee
+follows from these diagnostics.
+A subsequent two-row builder trial checks 824 targets at power-of-two
+moduli. `GSWQuadraticPreimageTwoRows` proves a broader boundary: a
+certificate supported on its target pair exposes two linear projections
+whose weights sum to the target. Under the checked margin, each pair reveals
+an endpoint, and collecting every pair reduces the whole key to two public
+candidates. An independent uniform verification body passes their union test
+with probability at most `2*(2E+1)/q`, even after an arbitrary earlier view.
+The existing reusable-refresh budget already implies this attack margin for
+polynomial row norms. Four wider toy cases meet the decoding conditions; the
+square cases have large norms or recorded elimination failures. This rules out
+that short target-pair-supported shortcut, not general dense builders.
+The independent ePrint 2015/466 candidate is now downloaded and audited.
+`GSWUnitSumShift` checks its unit-sum row identity, but different row hints
+produce different shifted secrets. A single fixed shift absorbs every row
+for all unit-sum masks only when those hints agree. A conditional zero-noise
+example has exactly uniform individual bodies and a correlated joint view.
+This exposes the missing joint-view argument; it is not an asymptotic attack
+on the paper. Its displayed construction is depth-L leveled BGV and does not
+provide a verified repeatable GSW replacement. The efficient dense builder
+or another compatible complete ordinary-LWE reduction remains missing.
+The easy toy instances permit direct key recovery. The direct-game
+lossy endpoint and natural star-format switching attempts fail their specific
+tests; this does not exclude other constructions in those architectures.
+See the completion audit and subsequent mixed-endpoint result at the end of
+[`GSWSelfKeyResearch.txt`](GSWSelfKeyResearch.txt). This is a limitation of the
+current proof, not an impossibility claim about the requested construction.
+
 Current scalar BGV security boundary: the generic affine compiler does not
 instantiate the implementation's joint automorphism-key directory. Fixed-mask
 CMAS remains open. See [the unified manuscript audit](UnifiedBinaryNTTBGV.md)
@@ -7,7 +805,23 @@ for checked additions and qualifications to older architecture summaries.
 
 | Result | Lean declaration | Status |
 |---|---|---|
+| Correlated native-format quadratic-control source transformation and derived small-secret source | `GSWQuadraticPreimage.tapeEquiv`, `phase_real`, `quadratic_eq_of_certificate`, `residual_abs_le_l1`, `GSWQuadraticPreimageBinary.advantage_le_ordinaryLWE` | The full-tape public shear has an exact uniform endpoint. Its phase is `linear(s)+offset+s^T B A^T s+e0+s^T B e`; a division-free alternating certificate and the actual integer l1 error bound are checked. The block-binary variant reduces the entire correlated view to ordinary uniform-secret LWE with explicit weak-secret entropy/noise losses, rather than assuming binary LWE. The implemented lattice heuristic passes 1,714 exact target/certificate checks across eight toy matrices. No negligible builder-failure estimate or useful asymptotic norm bound is proved. The easy toy matrices also admit linear-preimage key recovery; increasing the modulus must respect the weak-secret entropy requirement. |
+| Native stored correlated-control sampler, adaptive plaintext game, and polynomial-bound noise compatibility | `GSWQuadraticPreimageGSW.control_noise`, `keygen_public_eq`, `stored_game_abs_advantage_le`, `GSWQuadraticPreimageParameters.eventually_budget`, `noiseBound_refreshedNand`, `decode_refreshedNand` | For binary secrets, diagonal mask products use affine shifts with zero quadratic targets. The modified same-key sampler eagerly materializes the public key and a full native GSW control for EVERY original secret coordinate. The actual stored adaptive challenge game is bounded by ordinary-LWE reduction terms plus explicit weak-secret and leftover-hash losses, for any public builder. Public ciphertexts and controls share the native `(1,-s)` decryption vector. For any fixed polynomial l1 bound, the existing ordinary-source modulus/dimension admits eventual rounding and output margins and a reusable NAND/refresh noise invariant. This is a finite computational bound and conditional correctness/parameter theorem, not a secure efficient FHE instantiation: polynomial builder shortness, negligible certificate/failure estimates, executable efficient sampling, and asymptotic reduction/runtime accounting remain open. No circular/KDM/binary-LWE hardness premise is introduced. It does not prove security of the stock independent-control law. |
+| Row-supported quadratic-builder attack boundary | `GSWQuadraticPreimageRowSupport.linear_preimage_of_shared_prefix_offDiagonal`, `projection_real`, `recover_real`, `uniform_verification_acceptance_le` | Row-supported certificates and target-independent shared prefixes expose ordinary linear preimages, including for off-diagonal targets still needed by the binary sampler. Short projected error permits exact bit recovery; a uniform independent verification body passes with probability at most `(2E+1)/q`. The rowwise diagnostic checks 5,523 targets across three variants and seven matrices. Target-dependent prefixes avoid this structural hypothesis but have no secure shortness/failure guarantee; the wider toy sources remain independently recoverable. The theorems are conditional algebraic/decoding bounds, not a general dense-builder impossibility or a full asymptotic attack reduction. |
+| Two-target-row and proportional-row quadratic-builder boundary | `GSWQuadraticPreimageTwoRows.linear_preimage_of_proportional_rows`, `allPairs_two_completions`, `uniformVerification_le`, `projected_error_le_keyBound`, `compatible_budget_pair_margin` | A certificate supported on its target pair reveals at least one endpoint under a strict four-noise-bound separation margin, for arbitrary alternating coefficients and even moduli. Collecting every pair reduces the secret to two public candidates. Their union verification test accepts a uniform fresh body with probability at most `2*(2E+1)/q`, retaining arbitrary earlier correlations. The same polynomial norm and reusable-refresh budget imply the attack margin. Dense matrices whose rows are scalar multiples of a target row also expose a full-weight linear preimage. The implemented two-row lattice method checks 824 targets on six power-of-two-modulus matrices; four wider cases reveal all but at most one bit, while square cases have large norms or 28 explicit elimination failures. General dense builders, probabilistic failure estimates and full asymptotic attack accounting remain outside this boundary. |
+| Unit-sum mask secret shifts and joint-view audit | `GSWUnitSumShift.row_identity`, `common_shift_iff`, `common_shift_requires_equal_hints`, `conditionalJoint_fst_uniform`, `conditionalJoint_snd_uniform`, `conditionalJoint_equal_probability`, `uniform_equal_probability` | The row absorption identity is valid. A fixed shifted secret absorbs a whole batch on all unit-sum masks only when its hints agree. A two-coordinate conditional example has exactly uniform row marginals, while its joint body equality event has probability one versus `1/q` for independent uniform bodies. This disproves a marginal-to-joint-uniformity inference, not the paper’s full asymptotic security claim. The downloaded seven-page ePrint 2015/466 manuscript supplies depth-L BGV and row-specific secret shifts; no complete same-key repeatable GSW theorem is adopted from it. |
+| KDM-first bit-specific GSW public key and one anchor control | `KDMStarGSW.advantage_eq_ordinaryLWE`, `published_advantage_eq_ordinaryLWE`, `public_game_abs_advantage_le`, `control_noise`, `keygen_public_eq`, `readStoredView_storeView` | New sampler under the one original key `(b,u)` uses features `(1,b,u_j,b*u_j)`. An explicit complete-tape bijection gives a joint ordinary uniform-secret LWE reduction, with no assumed binary-LWE/KDM/circular source. The public IND-CPA game, including adaptive message choice and the complete anchor control, is bounded by one ordinary-LWE advantage plus the explicit leftover-hash masking loss. Controls have exactly their sampled scalar error, public encryption and GSW multiplication share the same format, and public coefficients are eagerly stored. Only `b` is covered as a self-key control; decryption still needs unknown `u`. Joint controls for all of `u`, transitions between bit-specific formats, reusable refresh, concrete asymptotic parameters and formal PPT costs remain open. |
+| Quadratic-KDM to single-anchor GSW conversion boundary | `KDMStarConversion.phase_affine`, `phase_dropQuadratic`, `canonical_is_fresh`, `no_exact_public_converter`, `exists_bad_conversion_corner` | Implemented. For fixed anchor, every target phase is affine in the unknown vector. Dropping the quadratic matrix leaves its entire quadratic phase contribution. One honest zero-error source ciphertext, with the same public coefficients on four binary secret corners, excludes any ciphertext-only converter preserving every phase. If `4*B` is below the centered gadget-weight magnitude, at least one corner has discrepancy above `B`. This is a universal phase-interface boundary, not an average-case attack, a global FHE impossibility result, or a bound on the occurrence probability of the witness coins. Auxiliary key-dependent public views, negligible exceptional inputs and redesigned decoders/samplers remain outside the theorem. |
+| Operational public-key replacement equals the stored mixed sampler; public bit flips transport both stored endpoints | `GSWMixedStoredView.mixedInputEquiv`, `fixedIdeal_mixed_evalDist`, `operationalUniform_mixed_evalDist`, `readView_storeTranscript`, `storedFlip_fixedReal_evalDist`, `storedFlip_fixedIdeal_evalDist` | Explicit input splitting proves the whole mixed endpoint equals the actual public-key-only replacement, with every real control and its error retained. A public reader recovers every coefficient, and `storedFlip` uses only the chosen mask and published data. Both endpoints retarget exactly under the stated scalar-negation symmetry for IID errors. These maps start from real quadratic controls; they neither construct them from ordinary LWE nor bound the operational replacement advantage. No hardness premise or noise replacement is added. |
+| Actual stored ordinary-GSW keygen and encryption observer equal the normalized quadratic experiment | `GSWStoredSecurityView.materialFromDraws_eq_normalizedKey`, `keygen_realView_evalDist`, `operationalView_normalized_evalDist`, `uniformView_normalized_evalDist`, `operationalGame_normalized_evalDist`, `keyReplacementAdvantage_normalized` | An explicit mask-index bijection and private-coin normalization preserve the entire keygen law, including the retained binary secret, all errors and all materialized controls. Both public-view replacement endpoints and the actual encryptInputs challenge game transport exactly. The operational replacement advantage equals its normalized quadratic version; its negligibility is neither assumed nor proved. The ideal endpoint is `GSWMasking.uniformView normalizedView`; its mixed-sampler and public stored-map transports are now checked in `GSWMixedStoredView`. The ordinary-LWE challenge embedding remains required. |
+| Public bit-flip transport of real quadratic GSW controls with uniform public-key bodies | `GSWMixedRandomization.transformTranscript_mixed`, `transformTranscript_mixedView_evalDist`, `jointSignal_control`, `jointMixed_randomization_evalDist` | The public transformation preserves the mixed normalized endpoint exactly, including all masks and retained real self-key columns, under sign-invariance of the complete error tape. Scalar symmetry suffices for IID errors. The layout includes ordinary zero-hint public-key rows followed by every actual weighted GSW self-key phase. This supports the public-key-only replacement route; it neither simulates controls from ordinary LWE nor proves that replacement secure. Operational stored-key transport is now checked in `GSWMixedStoredView`; the computational reduction remains unproved. |
+| Exact fair-bit implementation of the complete recursive-feature key sampler | `RecursiveFeatureBitSampling.drawsSampler_evalDist`, `keygen_evalDist`, `coinBound_keygen`, `coinBudgetPolynomial_eval` | The binary secret, all masks and all scalar errors use only primitive fair-bit queries with a polynomial worst-case query budget. The complete completed keygen law equals the canonical security family exactly, including its retained secret and all public/control correlations. This discharges the key sampler's randomness-query requirement; deterministic bit-operation costs, encryption/evaluation costs, PPT reduction closure and cubic-control security remain unproved. |
+| Probability-one correctness of the actual same-key recursive-feature FHE experiment | `RecursiveFeatureFHECorrectness.keygen_noiseBounds`, `encryptInputs_noiseBounds`, `familyCorrectExp_eq_scheme`, `family_correctExp_probability_one`, `eventually_family_correctExp_probability_one` | For every sufficiently large parameter, the actual complete key sampler and public encryption followed by the public shared NAND evaluator decrypt any selected output correctly with probability one. The same parameter works for every finite program, independent of depth or size. Generated control/input noise bounds are derived from scalar sampler support. This closes the family-level sampled correctness composition; cubic-control security, strict polynomial-time implementation/reduction classes and ordinary Gaussian source transfer remain unfinished. |
+| Ordinary-LWE bound for the quadratic part of the complete stored GSW view | `RecursiveFeatureControlHybrid.quadratic_keyView_evalDist`, `blockBits_uniform_evalDist`, `quadratic_game_abs_advantage_le`, `RecursiveFeatureControlPolynomial.stored_control_non_cubic_eq`, `family_oneTime_abs_signedAdvantage_le`, `family_implementationLoss_negligible` | The concrete comparison table preserves constant-feature, linear-feature and repeated-index messages exactly, with identical masks/errors, and zeroes only distinct-triple cubic messages. Its complete stored-view experiment reduces to explicit ordinary uniform-secret LWE terms. The actual IND-CPA bound additionally retains the unbounded real-to-quadratic control replacement advantage; implementation and masking losses are negligible for the concrete family. This does not close security of the cubic controls or complete the requested FHE proof. |
+| Robust quadratic-simulation boundary for cubic GSW controls | `RecursiveFeatureCubicApproximation.bad_key_probability`, `bounded_ciphertext_coupling_bad_count`, `control_discrepancy_eq`, `eventually_top_weight_gap`, `eventually_quadratic_approximation_failure` | For the top gadget weight, any fixed quadratic approximation differs by more than twice the fresh phase-error bound on at least one eighth of uniform binary keys, eventually in the existing parameter family. This rules out the proposed quadratic-message compiler plus bounded phase-error absorption with the hidden key fixed. It is not a public distinguisher, an IND-CPA lower bound, or an impossibility theorem for other ordinary-LWE reductions. |
+| Complete same-key recursive-feature IND-CPA experiment | `RecursiveFeatureSecurityView.controls_view`, `controls_phase`, `keygen_public_evalDist`, `oneTime_game_evalDist`, `oneTime_abs_signedAdvantage_le`, `RecursiveFeatureSecurityParameters.family_masking_negligible`, `scalarErrorCountPolynomial_eval` | The actual stored public key and all original-bit controls are jointly generated under one sampled binary secret. Standard one-time IND-CPA is bounded by the explicit full-view public-table replacement advantage plus a negligible statistical masking loss. The replacement preserves the actual control marginal, and the scalar error count is polynomial. The computational replacement advantage remains unbounded: no ordinary-LWE reduction or completed FHE security theorem is claimed. |
 | Unified Binary-NTT BGV random masks and discrepancies | `UnifiedBGV.randomMaskMap_real`, `randomMaskMap_uniform`, `alignedTransition_phase`, `aligned_charge`, `transition_charge`, `pathDiscrepancy_telescope`, `physicalDiscrepancy_witness`, `normalizedDiscrepancy_witness`, `skewOperator_unique`, `identityOutput_support` | Proved joint random-mask synthesis, aligned transition phases, group charge/path identities, corrected physical versus normalized HolCMAS coordinates, and uniqueness of free permutation operators. The support lemma explicitly assumes charge reachability; the full circuit lower-bound theorem and fixed-mask CMAS reduction are not claimed. The audit records the directed-graph alignment counterexample, conditional covariance requirement, and cover-entry disclosure obligations. |
+| One-secret recursive-feature GSW refresh and shared circuits | `RecursiveFeatureBootstrap.noiseBound_bootstrap`, `noiseBound_freshOriginal`, `noiseBound_refreshedNand`, `RecursiveFeatureBootstrapParameters.eventually_budget`, `publicEncryptionBound_le_outputBound`, `eventually_refreshedNand_correct`, `RecursiveFeatureCircuit.noiseBound_evaluateWires`, `decode_evaluate` | Correctness is implemented with stored original-bit controls, public product-feature controls, unchanged secret and ciphertext format, polynomial-sized lookup, compatible fresh-encryption parameters, and an invariant on every shared wire. Both refresh margins hold eventually. Security of the complete original-bit control/public-key view still needs an ordinary-LWE reduction for its cubic gadget-feature messages; strict polynomial-time implementations and reduction classes are not yet proved. No circular/KDM hardness premise is adopted as a completed security result. |
 | Hidden-bit LWE advantage equals real/uniform distance | `FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage` | Implemented |
 | Executable negacyclic carrier is exactly `ZMod q[X]/(X^N+1)` and multiplication agrees | `FormalProof4FHE.RLWE.quotientOf_bijective`, `quotientEquiv`, `quotientOf_mul` | Implemented for positive `N` and nontrivial `ZMod q`; surjectivity uses monic polynomial remainder |
 | Finite decisional RLWE game and exact rank-one module-LWE specialization | `FormalProof4FHE.RLWE.problem_eq_batchProblem`, `uniformSecretProblem_eq_moduleProblem_one`, `uniformAdvantage_eq_moduleRankOne` | Implemented; no reduction loss |

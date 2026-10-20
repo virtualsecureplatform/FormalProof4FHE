@@ -1,0 +1,962 @@
+{
+  "scope": "An actual mask/error-dependent latent-key coupling, tested with odd errors.",
+  "limitations": "Not a complete FHE construction or Lean theorem. Bare controls expose the key on one quarter of keys; raw-source publication leaves four candidate keys. Fresh-zero addition uses the latent key; a public-only simulator can compute one by selecting a prefix. It produces real cubic controls in the uniform source mode too, so it does not supply the missing ordinary-LWE security hop.",
+  "summary": {
+    "families": 32,
+    "source_key_draws": 2752,
+    "real_phase_checks": 14656,
+    "fresh_zero_phase_checks": 14656,
+    "uniform_source_phase_checks": 14656,
+    "uniform_source_fresh_zero_phase_checks": 14656,
+    "uniform_source_nonzero_cubic_messages": 1832,
+    "bare_control_key_recovery_probability": "1/4",
+    "raw_source_public_key_list_size": 4,
+    "uniform_mode_also_has_correct_cubic_controls": true
+  },
+  "records": [
+    {
+      "n": 3,
+      "source_samples": 1,
+      "q": 1024,
+      "radius": 1,
+      "seed": 20265027,
+      "accepted_mask_after_draws": 4,
+      "source_errors": [
+        1
+      ],
+      "tail_flip": [
+        1
+      ],
+      "key_bijection_size": 8,
+      "bare_control_key_guesses_correct": 2,
+      "key_count": 8,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 8,
+      "fresh_zero_added_phase_checks": 8,
+      "uniform_source_cubic_phase_checks": 8,
+      "uniform_source_fresh_zero_phase_checks": 8,
+      "uniform_source_nonzero_cubic_messages": 1,
+      "fresh_zero_phase_bound": 4,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 3,
+      "source_samples": 1,
+      "q": 1024,
+      "radius": 1,
+      "seed": 20265028,
+      "accepted_mask_after_draws": 1,
+      "source_errors": [
+        1
+      ],
+      "tail_flip": [
+        1
+      ],
+      "key_bijection_size": 8,
+      "bare_control_key_guesses_correct": 2,
+      "key_count": 8,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 8,
+      "fresh_zero_added_phase_checks": 8,
+      "uniform_source_cubic_phase_checks": 8,
+      "uniform_source_fresh_zero_phase_checks": 8,
+      "uniform_source_nonzero_cubic_messages": 1,
+      "fresh_zero_phase_bound": 4,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 3,
+      "source_samples": 1,
+      "q": 1024,
+      "radius": 3,
+      "seed": 20265047,
+      "accepted_mask_after_draws": 1,
+      "source_errors": [
+        1
+      ],
+      "tail_flip": [
+        1
+      ],
+      "key_bijection_size": 8,
+      "bare_control_key_guesses_correct": 2,
+      "key_count": 8,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 8,
+      "fresh_zero_added_phase_checks": 8,
+      "uniform_source_cubic_phase_checks": 8,
+      "uniform_source_fresh_zero_phase_checks": 8,
+      "uniform_source_nonzero_cubic_messages": 1,
+      "fresh_zero_phase_bound": 12,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 3,
+      "source_samples": 1,
+      "q": 1024,
+      "radius": 3,
+      "seed": 20265048,
+      "accepted_mask_after_draws": 2,
+      "source_errors": [
+        1
+      ],
+      "tail_flip": [
+        1
+      ],
+      "key_bijection_size": 8,
+      "bare_control_key_guesses_correct": 2,
+      "key_count": 8,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 8,
+      "fresh_zero_added_phase_checks": 8,
+      "uniform_source_cubic_phase_checks": 8,
+      "uniform_source_fresh_zero_phase_checks": 8,
+      "uniform_source_nonzero_cubic_messages": 1,
+      "fresh_zero_phase_bound": 12,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 3,
+      "source_samples": 1,
+      "q": 16384,
+      "radius": 1,
+      "seed": 20265427,
+      "accepted_mask_after_draws": 1,
+      "source_errors": [
+        1
+      ],
+      "tail_flip": [
+        1
+      ],
+      "key_bijection_size": 8,
+      "bare_control_key_guesses_correct": 2,
+      "key_count": 8,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 8,
+      "fresh_zero_added_phase_checks": 8,
+      "uniform_source_cubic_phase_checks": 8,
+      "uniform_source_fresh_zero_phase_checks": 8,
+      "uniform_source_nonzero_cubic_messages": 1,
+      "fresh_zero_phase_bound": 4,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 3,
+      "source_samples": 1,
+      "q": 16384,
+      "radius": 1,
+      "seed": 20265428,
+      "accepted_mask_after_draws": 1,
+      "source_errors": [
+        1
+      ],
+      "tail_flip": [
+        1
+      ],
+      "key_bijection_size": 8,
+      "bare_control_key_guesses_correct": 2,
+      "key_count": 8,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 8,
+      "fresh_zero_added_phase_checks": 8,
+      "uniform_source_cubic_phase_checks": 8,
+      "uniform_source_fresh_zero_phase_checks": 8,
+      "uniform_source_nonzero_cubic_messages": 1,
+      "fresh_zero_phase_bound": 4,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 3,
+      "source_samples": 1,
+      "q": 16384,
+      "radius": 3,
+      "seed": 20265447,
+      "accepted_mask_after_draws": 1,
+      "source_errors": [
+        1
+      ],
+      "tail_flip": [
+        1
+      ],
+      "key_bijection_size": 8,
+      "bare_control_key_guesses_correct": 2,
+      "key_count": 8,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 8,
+      "fresh_zero_added_phase_checks": 8,
+      "uniform_source_cubic_phase_checks": 8,
+      "uniform_source_fresh_zero_phase_checks": 8,
+      "uniform_source_nonzero_cubic_messages": 1,
+      "fresh_zero_phase_bound": 12,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 3,
+      "source_samples": 1,
+      "q": 16384,
+      "radius": 3,
+      "seed": 20265448,
+      "accepted_mask_after_draws": 2,
+      "source_errors": [
+        1
+      ],
+      "tail_flip": [
+        1
+      ],
+      "key_bijection_size": 8,
+      "bare_control_key_guesses_correct": 2,
+      "key_count": 8,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 8,
+      "fresh_zero_added_phase_checks": 8,
+      "uniform_source_cubic_phase_checks": 8,
+      "uniform_source_fresh_zero_phase_checks": 8,
+      "uniform_source_nonzero_cubic_messages": 1,
+      "fresh_zero_phase_bound": 12,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 4,
+      "source_samples": 2,
+      "q": 1024,
+      "radius": 1,
+      "seed": 20266027,
+      "accepted_mask_after_draws": 1,
+      "source_errors": [
+        1,
+        0
+      ],
+      "tail_flip": [
+        1,
+        0
+      ],
+      "key_bijection_size": 16,
+      "bare_control_key_guesses_correct": 4,
+      "key_count": 16,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 32,
+      "fresh_zero_added_phase_checks": 32,
+      "uniform_source_cubic_phase_checks": 32,
+      "uniform_source_fresh_zero_phase_checks": 32,
+      "uniform_source_nonzero_cubic_messages": 4,
+      "fresh_zero_phase_bound": 5,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 4,
+      "source_samples": 2,
+      "q": 1024,
+      "radius": 1,
+      "seed": 20266028,
+      "accepted_mask_after_draws": 1,
+      "source_errors": [
+        1,
+        1
+      ],
+      "tail_flip": [
+        0,
+        1
+      ],
+      "key_bijection_size": 16,
+      "bare_control_key_guesses_correct": 4,
+      "key_count": 16,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 32,
+      "fresh_zero_added_phase_checks": 32,
+      "uniform_source_cubic_phase_checks": 32,
+      "uniform_source_fresh_zero_phase_checks": 32,
+      "uniform_source_nonzero_cubic_messages": 4,
+      "fresh_zero_phase_bound": 5,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 4,
+      "source_samples": 2,
+      "q": 1024,
+      "radius": 3,
+      "seed": 20266047,
+      "accepted_mask_after_draws": 1,
+      "source_errors": [
+        1,
+        0
+      ],
+      "tail_flip": [
+        1,
+        1
+      ],
+      "key_bijection_size": 16,
+      "bare_control_key_guesses_correct": 4,
+      "key_count": 16,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 32,
+      "fresh_zero_added_phase_checks": 32,
+      "uniform_source_cubic_phase_checks": 32,
+      "uniform_source_fresh_zero_phase_checks": 32,
+      "uniform_source_nonzero_cubic_messages": 4,
+      "fresh_zero_phase_bound": 15,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 4,
+      "source_samples": 2,
+      "q": 1024,
+      "radius": 3,
+      "seed": 20266048,
+      "accepted_mask_after_draws": 1,
+      "source_errors": [
+        1,
+        1
+      ],
+      "tail_flip": [
+        1,
+        0
+      ],
+      "key_bijection_size": 16,
+      "bare_control_key_guesses_correct": 4,
+      "key_count": 16,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 32,
+      "fresh_zero_added_phase_checks": 32,
+      "uniform_source_cubic_phase_checks": 32,
+      "uniform_source_fresh_zero_phase_checks": 32,
+      "uniform_source_nonzero_cubic_messages": 4,
+      "fresh_zero_phase_bound": 15,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 4,
+      "source_samples": 2,
+      "q": 16384,
+      "radius": 1,
+      "seed": 20266427,
+      "accepted_mask_after_draws": 1,
+      "source_errors": [
+        1,
+        0
+      ],
+      "tail_flip": [
+        0,
+        1
+      ],
+      "key_bijection_size": 16,
+      "bare_control_key_guesses_correct": 4,
+      "key_count": 16,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 32,
+      "fresh_zero_added_phase_checks": 32,
+      "uniform_source_cubic_phase_checks": 32,
+      "uniform_source_fresh_zero_phase_checks": 32,
+      "uniform_source_nonzero_cubic_messages": 4,
+      "fresh_zero_phase_bound": 5,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 4,
+      "source_samples": 2,
+      "q": 16384,
+      "radius": 1,
+      "seed": 20266428,
+      "accepted_mask_after_draws": 2,
+      "source_errors": [
+        1,
+        0
+      ],
+      "tail_flip": [
+        1,
+        0
+      ],
+      "key_bijection_size": 16,
+      "bare_control_key_guesses_correct": 4,
+      "key_count": 16,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 32,
+      "fresh_zero_added_phase_checks": 32,
+      "uniform_source_cubic_phase_checks": 32,
+      "uniform_source_fresh_zero_phase_checks": 32,
+      "uniform_source_nonzero_cubic_messages": 4,
+      "fresh_zero_phase_bound": 5,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 4,
+      "source_samples": 2,
+      "q": 16384,
+      "radius": 3,
+      "seed": 20266447,
+      "accepted_mask_after_draws": 3,
+      "source_errors": [
+        1,
+        2
+      ],
+      "tail_flip": [
+        1,
+        0
+      ],
+      "key_bijection_size": 16,
+      "bare_control_key_guesses_correct": 4,
+      "key_count": 16,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 32,
+      "fresh_zero_added_phase_checks": 32,
+      "uniform_source_cubic_phase_checks": 32,
+      "uniform_source_fresh_zero_phase_checks": 32,
+      "uniform_source_nonzero_cubic_messages": 4,
+      "fresh_zero_phase_bound": 15,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 4,
+      "source_samples": 2,
+      "q": 16384,
+      "radius": 3,
+      "seed": 20266448,
+      "accepted_mask_after_draws": 2,
+      "source_errors": [
+        1,
+        2
+      ],
+      "tail_flip": [
+        1,
+        0
+      ],
+      "key_bijection_size": 16,
+      "bare_control_key_guesses_correct": 4,
+      "key_count": 16,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 32,
+      "fresh_zero_added_phase_checks": 32,
+      "uniform_source_cubic_phase_checks": 32,
+      "uniform_source_fresh_zero_phase_checks": 32,
+      "uniform_source_nonzero_cubic_messages": 4,
+      "fresh_zero_phase_bound": 15,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 6,
+      "source_samples": 4,
+      "q": 1024,
+      "radius": 1,
+      "seed": 20268027,
+      "accepted_mask_after_draws": 3,
+      "source_errors": [
+        1,
+        0,
+        0,
+        1
+      ],
+      "tail_flip": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "key_bijection_size": 64,
+      "bare_control_key_guesses_correct": 16,
+      "key_count": 64,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 256,
+      "fresh_zero_added_phase_checks": 256,
+      "uniform_source_cubic_phase_checks": 256,
+      "uniform_source_fresh_zero_phase_checks": 256,
+      "uniform_source_nonzero_cubic_messages": 32,
+      "fresh_zero_phase_bound": 7,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 6,
+      "source_samples": 4,
+      "q": 1024,
+      "radius": 1,
+      "seed": 20268028,
+      "accepted_mask_after_draws": 1,
+      "source_errors": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "tail_flip": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "key_bijection_size": 64,
+      "bare_control_key_guesses_correct": 16,
+      "key_count": 64,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 256,
+      "fresh_zero_added_phase_checks": 256,
+      "uniform_source_cubic_phase_checks": 256,
+      "uniform_source_fresh_zero_phase_checks": 256,
+      "uniform_source_nonzero_cubic_messages": 32,
+      "fresh_zero_phase_bound": 7,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 6,
+      "source_samples": 4,
+      "q": 1024,
+      "radius": 3,
+      "seed": 20268047,
+      "accepted_mask_after_draws": 3,
+      "source_errors": [
+        1,
+        2,
+        -2,
+        0
+      ],
+      "tail_flip": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "key_bijection_size": 64,
+      "bare_control_key_guesses_correct": 16,
+      "key_count": 64,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 256,
+      "fresh_zero_added_phase_checks": 256,
+      "uniform_source_cubic_phase_checks": 256,
+      "uniform_source_fresh_zero_phase_checks": 256,
+      "uniform_source_nonzero_cubic_messages": 32,
+      "fresh_zero_phase_bound": 21,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 6,
+      "source_samples": 4,
+      "q": 1024,
+      "radius": 3,
+      "seed": 20268048,
+      "accepted_mask_after_draws": 1,
+      "source_errors": [
+        1,
+        1,
+        -2,
+        -1
+      ],
+      "tail_flip": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "key_bijection_size": 64,
+      "bare_control_key_guesses_correct": 16,
+      "key_count": 64,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 256,
+      "fresh_zero_added_phase_checks": 256,
+      "uniform_source_cubic_phase_checks": 256,
+      "uniform_source_fresh_zero_phase_checks": 256,
+      "uniform_source_nonzero_cubic_messages": 32,
+      "fresh_zero_phase_bound": 21,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 6,
+      "source_samples": 4,
+      "q": 16384,
+      "radius": 1,
+      "seed": 20268427,
+      "accepted_mask_after_draws": 8,
+      "source_errors": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "tail_flip": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "key_bijection_size": 64,
+      "bare_control_key_guesses_correct": 16,
+      "key_count": 64,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 256,
+      "fresh_zero_added_phase_checks": 256,
+      "uniform_source_cubic_phase_checks": 256,
+      "uniform_source_fresh_zero_phase_checks": 256,
+      "uniform_source_nonzero_cubic_messages": 32,
+      "fresh_zero_phase_bound": 7,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 6,
+      "source_samples": 4,
+      "q": 16384,
+      "radius": 1,
+      "seed": 20268428,
+      "accepted_mask_after_draws": 1,
+      "source_errors": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "tail_flip": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "key_bijection_size": 64,
+      "bare_control_key_guesses_correct": 16,
+      "key_count": 64,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 256,
+      "fresh_zero_added_phase_checks": 256,
+      "uniform_source_cubic_phase_checks": 256,
+      "uniform_source_fresh_zero_phase_checks": 256,
+      "uniform_source_nonzero_cubic_messages": 32,
+      "fresh_zero_phase_bound": 7,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 6,
+      "source_samples": 4,
+      "q": 16384,
+      "radius": 3,
+      "seed": 20268447,
+      "accepted_mask_after_draws": 1,
+      "source_errors": [
+        1,
+        3,
+        0,
+        3
+      ],
+      "tail_flip": [
+        0,
+        1,
+        1,
+        1
+      ],
+      "key_bijection_size": 64,
+      "bare_control_key_guesses_correct": 16,
+      "key_count": 64,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 256,
+      "fresh_zero_added_phase_checks": 256,
+      "uniform_source_cubic_phase_checks": 256,
+      "uniform_source_fresh_zero_phase_checks": 256,
+      "uniform_source_nonzero_cubic_messages": 32,
+      "fresh_zero_phase_bound": 21,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 6,
+      "source_samples": 4,
+      "q": 16384,
+      "radius": 3,
+      "seed": 20268448,
+      "accepted_mask_after_draws": 10,
+      "source_errors": [
+        1,
+        -2,
+        3,
+        1
+      ],
+      "tail_flip": [
+        1,
+        0,
+        1,
+        0
+      ],
+      "key_bijection_size": 64,
+      "bare_control_key_guesses_correct": 16,
+      "key_count": 64,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 256,
+      "fresh_zero_added_phase_checks": 256,
+      "uniform_source_cubic_phase_checks": 256,
+      "uniform_source_fresh_zero_phase_checks": 256,
+      "uniform_source_nonzero_cubic_messages": 32,
+      "fresh_zero_phase_bound": 21,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 8,
+      "source_samples": 6,
+      "q": 1024,
+      "radius": 1,
+      "seed": 20270027,
+      "accepted_mask_after_draws": 2,
+      "source_errors": [
+        1,
+        -1,
+        -1,
+        -1,
+        1,
+        0
+      ],
+      "tail_flip": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      "key_bijection_size": 256,
+      "bare_control_key_guesses_correct": 64,
+      "key_count": 256,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 1536,
+      "fresh_zero_added_phase_checks": 1536,
+      "uniform_source_cubic_phase_checks": 1536,
+      "uniform_source_fresh_zero_phase_checks": 1536,
+      "uniform_source_nonzero_cubic_messages": 192,
+      "fresh_zero_phase_bound": 9,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 8,
+      "source_samples": 6,
+      "q": 1024,
+      "radius": 1,
+      "seed": 20270028,
+      "accepted_mask_after_draws": 2,
+      "source_errors": [
+        1,
+        0,
+        -1,
+        0,
+        0,
+        1
+      ],
+      "tail_flip": [
+        1,
+        1,
+        1,
+        0,
+        1,
+        0
+      ],
+      "key_bijection_size": 256,
+      "bare_control_key_guesses_correct": 64,
+      "key_count": 256,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 1536,
+      "fresh_zero_added_phase_checks": 1536,
+      "uniform_source_cubic_phase_checks": 1536,
+      "uniform_source_fresh_zero_phase_checks": 1536,
+      "uniform_source_nonzero_cubic_messages": 192,
+      "fresh_zero_phase_bound": 9,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 8,
+      "source_samples": 6,
+      "q": 1024,
+      "radius": 3,
+      "seed": 20270047,
+      "accepted_mask_after_draws": 2,
+      "source_errors": [
+        1,
+        -3,
+        -1,
+        -3,
+        0,
+        -1
+      ],
+      "tail_flip": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      "key_bijection_size": 256,
+      "bare_control_key_guesses_correct": 64,
+      "key_count": 256,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 1536,
+      "fresh_zero_added_phase_checks": 1536,
+      "uniform_source_cubic_phase_checks": 1536,
+      "uniform_source_fresh_zero_phase_checks": 1536,
+      "uniform_source_nonzero_cubic_messages": 192,
+      "fresh_zero_phase_bound": 27,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 8,
+      "source_samples": 6,
+      "q": 1024,
+      "radius": 3,
+      "seed": 20270048,
+      "accepted_mask_after_draws": 1,
+      "source_errors": [
+        1,
+        0,
+        0,
+        -1,
+        3,
+        0
+      ],
+      "tail_flip": [
+        1,
+        1,
+        1,
+        0,
+        0,
+        1
+      ],
+      "key_bijection_size": 256,
+      "bare_control_key_guesses_correct": 64,
+      "key_count": 256,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 1536,
+      "fresh_zero_added_phase_checks": 1536,
+      "uniform_source_cubic_phase_checks": 1536,
+      "uniform_source_fresh_zero_phase_checks": 1536,
+      "uniform_source_nonzero_cubic_messages": 192,
+      "fresh_zero_phase_bound": 27,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 8,
+      "source_samples": 6,
+      "q": 16384,
+      "radius": 1,
+      "seed": 20270427,
+      "accepted_mask_after_draws": 3,
+      "source_errors": [
+        1,
+        -1,
+        0,
+        1,
+        -1,
+        1
+      ],
+      "tail_flip": [
+        0,
+        0,
+        1,
+        1,
+        0,
+        1
+      ],
+      "key_bijection_size": 256,
+      "bare_control_key_guesses_correct": 64,
+      "key_count": 256,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 1536,
+      "fresh_zero_added_phase_checks": 1536,
+      "uniform_source_cubic_phase_checks": 1536,
+      "uniform_source_fresh_zero_phase_checks": 1536,
+      "uniform_source_nonzero_cubic_messages": 192,
+      "fresh_zero_phase_bound": 9,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 8,
+      "source_samples": 6,
+      "q": 16384,
+      "radius": 1,
+      "seed": 20270428,
+      "accepted_mask_after_draws": 1,
+      "source_errors": [
+        1,
+        0,
+        1,
+        1,
+        0,
+        1
+      ],
+      "tail_flip": [
+        0,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "key_bijection_size": 256,
+      "bare_control_key_guesses_correct": 64,
+      "key_count": 256,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 1536,
+      "fresh_zero_added_phase_checks": 1536,
+      "uniform_source_cubic_phase_checks": 1536,
+      "uniform_source_fresh_zero_phase_checks": 1536,
+      "uniform_source_nonzero_cubic_messages": 192,
+      "fresh_zero_phase_bound": 9,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 8,
+      "source_samples": 6,
+      "q": 16384,
+      "radius": 3,
+      "seed": 20270447,
+      "accepted_mask_after_draws": 1,
+      "source_errors": [
+        1,
+        1,
+        3,
+        2,
+        -2,
+        1
+      ],
+      "tail_flip": [
+        0,
+        1,
+        1,
+        1,
+        1,
+        0
+      ],
+      "key_bijection_size": 256,
+      "bare_control_key_guesses_correct": 64,
+      "key_count": 256,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 1536,
+      "fresh_zero_added_phase_checks": 1536,
+      "uniform_source_cubic_phase_checks": 1536,
+      "uniform_source_fresh_zero_phase_checks": 1536,
+      "uniform_source_nonzero_cubic_messages": 192,
+      "fresh_zero_phase_bound": 27,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    },
+    {
+      "n": 8,
+      "source_samples": 6,
+      "q": 16384,
+      "radius": 3,
+      "seed": 20270448,
+      "accepted_mask_after_draws": 14,
+      "source_errors": [
+        1,
+        2,
+        1,
+        -3,
+        0,
+        2
+      ],
+      "tail_flip": [
+        1,
+        1,
+        1,
+        0,
+        1,
+        0
+      ],
+      "key_bijection_size": 256,
+      "bare_control_key_guesses_correct": 64,
+      "key_count": 256,
+      "published_raw_source_candidate_count": 4,
+      "real_cubic_phase_checks": 1536,
+      "fresh_zero_added_phase_checks": 1536,
+      "uniform_source_cubic_phase_checks": 1536,
+      "uniform_source_fresh_zero_phase_checks": 1536,
+      "uniform_source_nonzero_cubic_messages": 192,
+      "fresh_zero_phase_bound": 27,
+      "scope": "Only top-weight cubic controls sharing the first two key bits; no complete bootstrapping key or public-key sampler."
+    }
+  ]
+}

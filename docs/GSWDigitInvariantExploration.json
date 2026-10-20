@@ -1,0 +1,38 @@
+{
+  "scope": "Finite filters for strict annihilators and universal linear error ideals",
+  "limitations": "No claim about restricted reachable states, nonlinear correction, or general impossibility",
+  "gadget_identity_cases": 12,
+  "matrix_unit_reconstructions": 756,
+  "first_cmux_error_checks": 476,
+  "invariants": {
+    "ring": "Z/4Z",
+    "error_dimension": 2,
+    "additive_subgroups_enumerated": 15,
+    "binary_digit_factors_enumerated": 16,
+    "invariant_subgroup_sizes": [
+      1,
+      4,
+      16
+    ]
+  },
+  "even_error_key_recovery_checks": 96,
+  "even_control_error_disclosure": {
+    "public_control_key_list_checks": 1008,
+    "largest_compatible_key_list": 2,
+    "largest_live_eigenspace_count": 3,
+    "secret_dimensions": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "error_support": [
+      -2,
+      0,
+      2
+    ],
+    "cross_check": "Every list equals exhaustive compatible-key enumeration"
+  }
+}

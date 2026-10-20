@@ -1,0 +1,193 @@
+{
+  "scope": "Exact finite product-law and quarter-convolution checks",
+  "native_product_checks": 4096,
+  "cases": [
+    {
+      "q": 64,
+      "quarter_terms": 2,
+      "dimension": 2,
+      "fresh_error_bound": 0,
+      "product_perturbation_bound": 0,
+      "widened_decoding_window": 33,
+      "largest_window_probability": 1.0,
+      "largest_window_probability_exact": "1",
+      "tv_to_uniform": 0.5625
+    },
+    {
+      "q": 64,
+      "quarter_terms": 4,
+      "dimension": 4,
+      "fresh_error_bound": 0,
+      "product_perturbation_bound": 0,
+      "widened_decoding_window": 33,
+      "largest_window_probability": 0.9273681640625,
+      "largest_window_probability_exact": "7597/8192",
+      "tv_to_uniform": 0.430389404296875
+    },
+    {
+      "q": 64,
+      "quarter_terms": 8,
+      "dimension": 8,
+      "fresh_error_bound": 0,
+      "product_perturbation_bound": 0,
+      "widened_decoding_window": 33,
+      "largest_window_probability": 0.7902350425720215,
+      "largest_window_probability_exact": "1657243/2097152",
+      "tv_to_uniform": 0.27631840109825134
+    },
+    {
+      "q": 64,
+      "quarter_terms": 16,
+      "dimension": 16,
+      "fresh_error_bound": 0,
+      "product_perturbation_bound": 0,
+      "widened_decoding_window": 33,
+      "largest_window_probability": 0.6349025899714004,
+      "largest_window_probability_exact": "45749553081788187/72057594037927936",
+      "tv_to_uniform": 0.11932426965068947
+    },
+    {
+      "q": 64,
+      "quarter_terms": 32,
+      "dimension": 32,
+      "fresh_error_bound": 0,
+      "product_perturbation_bound": 0,
+      "widened_decoding_window": 33,
+      "largest_window_probability": 0.5379996484361438,
+      "largest_window_probability_exact": "11173815537871325066816501976593479/20769187434139310514121985316880384",
+      "tv_to_uniform": 0.022374683300021167
+    },
+    {
+      "q": 256,
+      "quarter_terms": 2,
+      "dimension": 2,
+      "fresh_error_bound": 0,
+      "product_perturbation_bound": 0,
+      "widened_decoding_window": 129,
+      "largest_window_probability": 1.0,
+      "largest_window_probability_exact": "1",
+      "tv_to_uniform": 0.5625
+    },
+    {
+      "q": 256,
+      "quarter_terms": 4,
+      "dimension": 4,
+      "fresh_error_bound": 0,
+      "product_perturbation_bound": 0,
+      "widened_decoding_window": 129,
+      "largest_window_probability": 0.9192905426025391,
+      "largest_window_probability_exact": "481973/524288",
+      "tv_to_uniform": 0.42948317527770996
+    },
+    {
+      "q": 256,
+      "quarter_terms": 8,
+      "dimension": 8,
+      "fresh_error_bound": 0,
+      "product_perturbation_bound": 0,
+      "widened_decoding_window": 129,
+      "largest_window_probability": 0.7785382253650823,
+      "largest_window_probability_exact": "856011831457/1099511627776",
+      "tv_to_uniform": 0.27539896096550365
+    },
+    {
+      "q": 256,
+      "quarter_terms": 16,
+      "dimension": 16,
+      "fresh_error_bound": 0,
+      "product_perturbation_bound": 0,
+      "widened_decoding_window": 129,
+      "largest_window_probability": 0.6225743028699166,
+      "largest_window_probability_exact": "12042338389888324763135283/19342813113834066795298816",
+      "tv_to_uniform": 0.11867944486162349
+    },
+    {
+      "q": 256,
+      "quarter_terms": 32,
+      "dimension": 32,
+      "fresh_error_bound": 0,
+      "product_perturbation_bound": 0,
+      "widened_decoding_window": 129,
+      "largest_window_probability": 0.5260296019282504,
+      "largest_window_probability_exact": "12595906551851600610530728860343074617906496978483787/23945242826029513411849172299223580994042798784118784",
+      "tv_to_uniform": 0.022123360234008498
+    },
+    {
+      "q": 1024,
+      "quarter_terms": 2,
+      "dimension": 2,
+      "fresh_error_bound": 0,
+      "product_perturbation_bound": 0,
+      "widened_decoding_window": 513,
+      "largest_window_probability": 1.0,
+      "largest_window_probability_exact": "1",
+      "tv_to_uniform": 0.5625
+    },
+    {
+      "q": 1024,
+      "quarter_terms": 4,
+      "dimension": 4,
+      "fresh_error_bound": 0,
+      "product_perturbation_bound": 0,
+      "widened_decoding_window": 513,
+      "largest_window_probability": 0.9173189699649811,
+      "largest_window_probability_exact": "30780117/33554432",
+      "tv_to_uniform": 0.4294231687672436
+    },
+    {
+      "q": 1024,
+      "quarter_terms": 8,
+      "dimension": 8,
+      "fresh_error_bound": 0,
+      "product_perturbation_bound": 0,
+      "widened_decoding_window": 513,
+      "largest_window_probability": 0.7757280293077591,
+      "largest_window_probability_exact": "13974273854925093/18014398509481984",
+      "tv_to_uniform": 0.2753393167505148
+    },
+    {
+      "q": 1024,
+      "quarter_terms": 16,
+      "dimension": 16,
+      "fresh_error_bound": 0,
+      "product_perturbation_bound": 0,
+      "widened_decoding_window": 513,
+      "largest_window_probability": 0.6196098008024246,
+      "largest_window_probability_exact": "3217198022223819331280435300655477/5192296858534827628530496329220096",
+      "tv_to_uniform": 0.11863608201445314
+    },
+    {
+      "q": 1024,
+      "quarter_terms": 32,
+      "dimension": 32,
+      "fresh_error_bound": 0,
+      "product_perturbation_bound": 0,
+      "widened_decoding_window": 513,
+      "largest_window_probability": 0.5230843054859938,
+      "largest_window_probability_exact": "14440780777805748492563346240920223223948113011509953633894359274776203/27606985387162255149739023449108101809804435888681546220650096895197184",
+      "tv_to_uniform": 0.02210774505618844
+    },
+    {
+      "q": 65536,
+      "quarter_terms": 16,
+      "dimension": 16,
+      "fresh_error_bound": 1,
+      "product_perturbation_bound": 273,
+      "widened_decoding_window": 33315,
+      "largest_window_probability": 0.6269256860988652,
+      "largest_window_probability_exact": "132045961417908042830742320160701088787043873437558271507948750191/210624583337114373395836055367340864637790190801098222508621955072",
+      "tv_to_uniform": 0.11863296051827342
+    },
+    {
+      "q": 65536,
+      "quarter_terms": 32,
+      "dimension": 32,
+      "fresh_error_bound": 1,
+      "product_perturbation_bound": 529,
+      "widened_decoding_window": 33827,
+      "largest_window_probability": 0.5382372649025561,
+      "largest_window_probability_exact": "11938833221134352972062087442003846867546234975831274912698850441170880953846122701317707184506458134358498549686248504132475530065/22181357552966518876627313473144669627491496603006532601363836644916970462445004984319795248833116624779129687691228574631793262592",
+      "tv_to_uniform": 0.022106703882199423
+    }
+  ]
+}

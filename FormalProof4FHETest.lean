@@ -8,3 +8,8 @@ import FormalProof4FHETest.Smoke
 import FormalProof4FHETest.WeightedSamplerSmoke
 import FormalProof4FHETest.GaussianWeightsSmoke
 import FormalProof4FHETest.BoundedUniformSmoke
+import FormalProof4FHETest.KDMStarSmoke
+import FormalProof4FHETest.GSWLinearCharacterSmoke
+import FormalProof4FHETest.GSWLinearCharacterSecuritySmoke
+import FormalProof4FHETest.GSWLinearCharacterBootstrapSmoke
+import FormalProof4FHETest.GSWTripleLocalSmoke

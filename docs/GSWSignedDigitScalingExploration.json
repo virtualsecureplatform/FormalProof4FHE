@@ -1,0 +1,428 @@
+{
+  "scope": "Native selected-column product scaling for unsigned and signed midpoint digits",
+  "limitations": "Finite samples and a normalized first mask; no negligible-failure theorem or full larger-dimension refresh",
+  "product_noise_identity_checks": 6144,
+  "short_digit_reconstruction_checks": 6144,
+  "cases": [
+    {
+      "n": 2,
+      "levels": 24,
+      "fresh_error_bound": 0,
+      "seed": 20261031,
+      "samples": 256,
+      "uniform_binary_key_draw": true,
+      "first_raw_mask": "zero normalization; exact noise law independent of this mask",
+      "second_raw_mask": "uniform",
+      "source_resampled": false,
+      "product_noise_identity_checks": 512,
+      "short_digit_reconstruction_checks": 512,
+      "results": [
+        {
+          "policy": "unsigned",
+          "products": 256,
+          "correct": 196,
+          "zero_products": 194,
+          "correct_zero_products": 160,
+          "one_products": 62,
+          "correct_one_products": 36,
+          "full_product_noise_margin": 196
+        },
+        {
+          "policy": "signed_quarter_minimax",
+          "products": 256,
+          "correct": 256,
+          "zero_products": 194,
+          "correct_zero_products": 194,
+          "one_products": 62,
+          "correct_one_products": 62,
+          "full_product_noise_margin": 256
+        }
+      ]
+    },
+    {
+      "n": 2,
+      "levels": 24,
+      "fresh_error_bound": 1,
+      "seed": 20261032,
+      "samples": 256,
+      "uniform_binary_key_draw": true,
+      "first_raw_mask": "zero normalization; exact noise law independent of this mask",
+      "second_raw_mask": "uniform",
+      "source_resampled": false,
+      "product_noise_identity_checks": 512,
+      "short_digit_reconstruction_checks": 512,
+      "results": [
+        {
+          "policy": "unsigned",
+          "products": 256,
+          "correct": 192,
+          "zero_products": 199,
+          "correct_zero_products": 164,
+          "one_products": 57,
+          "correct_one_products": 28,
+          "full_product_noise_margin": 192
+        },
+        {
+          "policy": "signed_quarter_minimax",
+          "products": 256,
+          "correct": 256,
+          "zero_products": 199,
+          "correct_zero_products": 199,
+          "one_products": 57,
+          "correct_one_products": 57,
+          "full_product_noise_margin": 256
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "levels": 24,
+      "fresh_error_bound": 0,
+      "seed": 20261051,
+      "samples": 256,
+      "uniform_binary_key_draw": true,
+      "first_raw_mask": "zero normalization; exact noise law independent of this mask",
+      "second_raw_mask": "uniform",
+      "source_resampled": false,
+      "product_noise_identity_checks": 512,
+      "short_digit_reconstruction_checks": 512,
+      "results": [
+        {
+          "policy": "unsigned",
+          "products": 256,
+          "correct": 149,
+          "zero_products": 204,
+          "correct_zero_products": 125,
+          "one_products": 52,
+          "correct_one_products": 24,
+          "full_product_noise_margin": 149
+        },
+        {
+          "policy": "signed_quarter_minimax",
+          "products": 256,
+          "correct": 235,
+          "zero_products": 204,
+          "correct_zero_products": 186,
+          "one_products": 52,
+          "correct_one_products": 49,
+          "full_product_noise_margin": 235
+        }
+      ]
+    },
+    {
+      "n": 4,
+      "levels": 24,
+      "fresh_error_bound": 1,
+      "seed": 20261052,
+      "samples": 256,
+      "uniform_binary_key_draw": true,
+      "first_raw_mask": "zero normalization; exact noise law independent of this mask",
+      "second_raw_mask": "uniform",
+      "source_resampled": false,
+      "product_noise_identity_checks": 512,
+      "short_digit_reconstruction_checks": 512,
+      "results": [
+        {
+          "policy": "unsigned",
+          "products": 256,
+          "correct": 139,
+          "zero_products": 181,
+          "correct_zero_products": 104,
+          "one_products": 75,
+          "correct_one_products": 35,
+          "full_product_noise_margin": 139
+        },
+        {
+          "policy": "signed_quarter_minimax",
+          "products": 256,
+          "correct": 233,
+          "zero_products": 181,
+          "correct_zero_products": 166,
+          "one_products": 75,
+          "correct_one_products": 67,
+          "full_product_noise_margin": 233
+        }
+      ]
+    },
+    {
+      "n": 8,
+      "levels": 24,
+      "fresh_error_bound": 0,
+      "seed": 20261091,
+      "samples": 256,
+      "uniform_binary_key_draw": true,
+      "first_raw_mask": "zero normalization; exact noise law independent of this mask",
+      "second_raw_mask": "uniform",
+      "source_resampled": false,
+      "product_noise_identity_checks": 512,
+      "short_digit_reconstruction_checks": 512,
+      "results": [
+        {
+          "policy": "unsigned",
+          "products": 256,
+          "correct": 118,
+          "zero_products": 191,
+          "correct_zero_products": 91,
+          "one_products": 65,
+          "correct_one_products": 27,
+          "full_product_noise_margin": 118
+        },
+        {
+          "policy": "signed_quarter_minimax",
+          "products": 256,
+          "correct": 200,
+          "zero_products": 191,
+          "correct_zero_products": 145,
+          "one_products": 65,
+          "correct_one_products": 55,
+          "full_product_noise_margin": 200
+        }
+      ]
+    },
+    {
+      "n": 8,
+      "levels": 24,
+      "fresh_error_bound": 1,
+      "seed": 20261092,
+      "samples": 256,
+      "uniform_binary_key_draw": true,
+      "first_raw_mask": "zero normalization; exact noise law independent of this mask",
+      "second_raw_mask": "uniform",
+      "source_resampled": false,
+      "product_noise_identity_checks": 512,
+      "short_digit_reconstruction_checks": 512,
+      "results": [
+        {
+          "policy": "unsigned",
+          "products": 256,
+          "correct": 146,
+          "zero_products": 193,
+          "correct_zero_products": 113,
+          "one_products": 63,
+          "correct_one_products": 33,
+          "full_product_noise_margin": 146
+        },
+        {
+          "policy": "signed_quarter_minimax",
+          "products": 256,
+          "correct": 187,
+          "zero_products": 193,
+          "correct_zero_products": 140,
+          "one_products": 63,
+          "correct_one_products": 47,
+          "full_product_noise_margin": 187
+        }
+      ]
+    },
+    {
+      "n": 16,
+      "levels": 24,
+      "fresh_error_bound": 0,
+      "seed": 20261171,
+      "samples": 256,
+      "uniform_binary_key_draw": true,
+      "first_raw_mask": "zero normalization; exact noise law independent of this mask",
+      "second_raw_mask": "uniform",
+      "source_resampled": false,
+      "product_noise_identity_checks": 512,
+      "short_digit_reconstruction_checks": 512,
+      "results": [
+        {
+          "policy": "unsigned",
+          "products": 256,
+          "correct": 134,
+          "zero_products": 188,
+          "correct_zero_products": 97,
+          "one_products": 68,
+          "correct_one_products": 37,
+          "full_product_noise_margin": 134
+        },
+        {
+          "policy": "signed_quarter_minimax",
+          "products": 256,
+          "correct": 162,
+          "zero_products": 188,
+          "correct_zero_products": 119,
+          "one_products": 68,
+          "correct_one_products": 43,
+          "full_product_noise_margin": 162
+        }
+      ]
+    },
+    {
+      "n": 16,
+      "levels": 24,
+      "fresh_error_bound": 1,
+      "seed": 20261172,
+      "samples": 256,
+      "uniform_binary_key_draw": true,
+      "first_raw_mask": "zero normalization; exact noise law independent of this mask",
+      "second_raw_mask": "uniform",
+      "source_resampled": false,
+      "product_noise_identity_checks": 512,
+      "short_digit_reconstruction_checks": 512,
+      "results": [
+        {
+          "policy": "unsigned",
+          "products": 256,
+          "correct": 128,
+          "zero_products": 197,
+          "correct_zero_products": 96,
+          "one_products": 59,
+          "correct_one_products": 32,
+          "full_product_noise_margin": 128
+        },
+        {
+          "policy": "signed_quarter_minimax",
+          "products": 256,
+          "correct": 149,
+          "zero_products": 197,
+          "correct_zero_products": 118,
+          "one_products": 59,
+          "correct_one_products": 31,
+          "full_product_noise_margin": 149
+        }
+      ]
+    },
+    {
+      "n": 32,
+      "levels": 24,
+      "fresh_error_bound": 0,
+      "seed": 20261331,
+      "samples": 256,
+      "uniform_binary_key_draw": true,
+      "first_raw_mask": "zero normalization; exact noise law independent of this mask",
+      "second_raw_mask": "uniform",
+      "source_resampled": false,
+      "product_noise_identity_checks": 512,
+      "short_digit_reconstruction_checks": 512,
+      "results": [
+        {
+          "policy": "unsigned",
+          "products": 256,
+          "correct": 133,
+          "zero_products": 202,
+          "correct_zero_products": 103,
+          "one_products": 54,
+          "correct_one_products": 30,
+          "full_product_noise_margin": 133
+        },
+        {
+          "policy": "signed_quarter_minimax",
+          "products": 256,
+          "correct": 140,
+          "zero_products": 202,
+          "correct_zero_products": 106,
+          "one_products": 54,
+          "correct_one_products": 34,
+          "full_product_noise_margin": 140
+        }
+      ]
+    },
+    {
+      "n": 32,
+      "levels": 24,
+      "fresh_error_bound": 1,
+      "seed": 20261332,
+      "samples": 256,
+      "uniform_binary_key_draw": true,
+      "first_raw_mask": "zero normalization; exact noise law independent of this mask",
+      "second_raw_mask": "uniform",
+      "source_resampled": false,
+      "product_noise_identity_checks": 512,
+      "short_digit_reconstruction_checks": 512,
+      "results": [
+        {
+          "policy": "unsigned",
+          "products": 256,
+          "correct": 145,
+          "zero_products": 186,
+          "correct_zero_products": 103,
+          "one_products": 70,
+          "correct_one_products": 42,
+          "full_product_noise_margin": 145
+        },
+        {
+          "policy": "signed_quarter_minimax",
+          "products": 256,
+          "correct": 136,
+          "zero_products": 186,
+          "correct_zero_products": 105,
+          "one_products": 70,
+          "correct_one_products": 31,
+          "full_product_noise_margin": 136
+        }
+      ]
+    },
+    {
+      "n": 64,
+      "levels": 24,
+      "fresh_error_bound": 0,
+      "seed": 20261651,
+      "samples": 256,
+      "uniform_binary_key_draw": true,
+      "first_raw_mask": "zero normalization; exact noise law independent of this mask",
+      "second_raw_mask": "uniform",
+      "source_resampled": false,
+      "product_noise_identity_checks": 512,
+      "short_digit_reconstruction_checks": 512,
+      "results": [
+        {
+          "policy": "unsigned",
+          "products": 256,
+          "correct": 122,
+          "zero_products": 196,
+          "correct_zero_products": 86,
+          "one_products": 60,
+          "correct_one_products": 36,
+          "full_product_noise_margin": 122
+        },
+        {
+          "policy": "signed_quarter_minimax",
+          "products": 256,
+          "correct": 126,
+          "zero_products": 196,
+          "correct_zero_products": 96,
+          "one_products": 60,
+          "correct_one_products": 30,
+          "full_product_noise_margin": 126
+        }
+      ]
+    },
+    {
+      "n": 64,
+      "levels": 24,
+      "fresh_error_bound": 1,
+      "seed": 20261652,
+      "samples": 256,
+      "uniform_binary_key_draw": true,
+      "first_raw_mask": "zero normalization; exact noise law independent of this mask",
+      "second_raw_mask": "uniform",
+      "source_resampled": false,
+      "product_noise_identity_checks": 512,
+      "short_digit_reconstruction_checks": 512,
+      "results": [
+        {
+          "policy": "unsigned",
+          "products": 256,
+          "correct": 124,
+          "zero_products": 192,
+          "correct_zero_products": 93,
+          "one_products": 64,
+          "correct_one_products": 31,
+          "full_product_noise_margin": 124
+        },
+        {
+          "policy": "signed_quarter_minimax",
+          "products": 256,
+          "correct": 132,
+          "zero_products": 192,
+          "correct_zero_products": 100,
+          "one_products": 64,
+          "correct_one_products": 32,
+          "full_product_noise_margin": 132
+        }
+      ]
+    }
+  ]
+}

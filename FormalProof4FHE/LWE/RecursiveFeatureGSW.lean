@@ -299,6 +299,39 @@ theorem difference3_cubic {R : Type} [CommRing R] :
     difference3 (fun secret : Fin 3 → R ↦ secret 0 * secret 1 * secret 2) = 1 := by
   simp [difference3, corner3]
 
+/-- The cubic obstruction survives every nonzero weight, including nonunits in
+composite-modulus rings. No division by the gadget weight is needed. -/
+theorem difference3_weighted_cubic {R : Type} [CommRing R] (weight : R) :
+    difference3 (fun secret : Fin 3 → R ↦ weight * secret 0 * secret 1 * secret 2) =
+      weight := by
+  simp [difference3, corner3]
+
+theorem weighted_cubic_not_quadratic_on_corners {R : Type} [CommRing R]
+    (weight : R) (hweight : weight ≠ 0) :
+    ¬ ∃ polynomial : RecursiveQuadratic.Polynomial R 3 1,
+      ∀ a b c : Bool, RecursiveQuadratic.message polynomial (corner3 a b c) 0 =
+        weight * (corner3 a b c : Fin 3 → R) 0 * (corner3 a b c) 1 *
+          (corner3 a b c) 2 := by
+  rintro ⟨polynomial, hpoly⟩
+  have hzero := difference3_quadratic polynomial
+  unfold difference3 at hzero
+  simp_rw [hpoly] at hzero
+  change difference3 (fun secret : Fin 3 → R ↦
+    weight * secret 0 * secret 1 * secret 2) = 0 at hzero
+  rw [difference3_weighted_cubic] at hzero
+  exact hweight hzero
+
+/-- Every nonzero gadget level has the same missing cubic-control obligation. -/
+theorem required_control_not_quadratic_at_level {q : ℕ} [NeZero q]
+    (params : Parameters q) (level : Fin params.levels)
+    (hweight : TFHE.Gadget.Base.gadget params level ≠ 0) :
+    ¬ ∃ polynomial : RecursiveQuadratic.Polynomial (ZMod q) 3 1,
+      ∀ a b c : Bool, RecursiveQuadratic.message polynomial (corner3 a b c) 0 =
+        controlMessage params (corner3 a b c) 0 (some (.inr (1, 2))) level := by
+  simpa only [controlMessage_quadratic] using
+    weighted_cubic_not_quadratic_on_corners
+      (TFHE.Gadget.Base.gadget params level) hweight
+
 theorem cubic_not_quadratic_on_corners {R : Type} [CommRing R] [Nontrivial R] :
     ¬ ∃ polynomial : RecursiveQuadratic.Polynomial R 3 1,
       ∀ a b c : Bool, RecursiveQuadratic.message polynomial (corner3 a b c) 0 =

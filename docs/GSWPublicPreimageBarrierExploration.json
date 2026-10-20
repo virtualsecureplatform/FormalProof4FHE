@@ -1,0 +1,387 @@
+{
+  "scope": "finite signed-source algebra and extraction checks, not a security theorem",
+  "uniformization": [
+    {
+      "q": 2,
+      "input_pairs": 4,
+      "preimages_per_output": 2
+    },
+    {
+      "q": 4,
+      "input_pairs": 8,
+      "preimages_per_output": 2
+    },
+    {
+      "q": 8,
+      "input_pairs": 16,
+      "preimages_per_output": 2
+    },
+    {
+      "q": 16,
+      "input_pairs": 32,
+      "preimages_per_output": 2
+    },
+    {
+      "q": 32,
+      "input_pairs": 64,
+      "preimages_per_output": 2
+    },
+    {
+      "q": 64,
+      "input_pairs": 128,
+      "preimages_per_output": 2
+    },
+    {
+      "q": 3,
+      "input_pairs": 6,
+      "preimages_per_output": 2
+    },
+    {
+      "q": 5,
+      "input_pairs": 10,
+      "preimages_per_output": 2
+    },
+    {
+      "q": 17,
+      "input_pairs": 34,
+      "preimages_per_output": 2
+    }
+  ],
+  "cases": [
+    {
+      "n_source": 3,
+      "n_builder": 4,
+      "p1": 8,
+      "p2": 8,
+      "q": 65536,
+      "radius": 1,
+      "seed": 11001,
+      "source_resampled": false,
+      "free_diagonal": true,
+      "source_hamming_weight": 2,
+      "targets": [
+        {
+          "coordinate": 0,
+          "l1": 50,
+          "trace": 16415,
+          "bilinear_residual": 31,
+          "worst_case_bound": 450,
+          "guaranteed_margin": true,
+          "guess_correct": true
+        },
+        {
+          "coordinate": 1,
+          "l1": 59,
+          "trace": 49150,
+          "bilinear_residual": -2,
+          "worst_case_bound": 531,
+          "guaranteed_margin": true,
+          "guess_correct": true
+        },
+        {
+          "coordinate": 2,
+          "l1": 47,
+          "trace": 16374,
+          "bilinear_residual": -10,
+          "worst_case_bound": 423,
+          "guaranteed_margin": true,
+          "guess_correct": true
+        }
+      ]
+    },
+    {
+      "n_source": 3,
+      "n_builder": 4,
+      "p1": 8,
+      "p2": 8,
+      "q": 16777216,
+      "radius": 1,
+      "seed": 11002,
+      "source_resampled": false,
+      "free_diagonal": true,
+      "source_hamming_weight": 2,
+      "targets": [
+        {
+          "coordinate": 0,
+          "l1": 106,
+          "trace": 12582967,
+          "bilinear_residual": 55,
+          "worst_case_bound": 954,
+          "guaranteed_margin": true,
+          "guess_correct": true
+        },
+        {
+          "coordinate": 1,
+          "l1": 94,
+          "trace": 4194291,
+          "bilinear_residual": -13,
+          "worst_case_bound": 846,
+          "guaranteed_margin": true,
+          "guess_correct": true
+        },
+        {
+          "coordinate": 2,
+          "l1": 109,
+          "trace": 4194362,
+          "bilinear_residual": 58,
+          "worst_case_bound": 981,
+          "guaranteed_margin": true,
+          "guess_correct": true
+        }
+      ]
+    },
+    {
+      "n_source": 3,
+      "n_builder": 4,
+      "p1": 8,
+      "p2": 8,
+      "q": 16777216,
+      "radius": 64,
+      "seed": 11003,
+      "source_resampled": false,
+      "free_diagonal": true,
+      "source_hamming_weight": 1,
+      "targets": [
+        {
+          "coordinate": 0,
+          "l1": 78,
+          "trace": 12649806,
+          "bilinear_residual": 66894,
+          "worst_case_bound": 1297998,
+          "guaranteed_margin": true,
+          "guess_correct": true
+        },
+        {
+          "coordinate": 1,
+          "l1": 101,
+          "trace": 12489012,
+          "bilinear_residual": -93900,
+          "worst_case_bound": 1680741,
+          "guaranteed_margin": true,
+          "guess_correct": true
+        },
+        {
+          "coordinate": 2,
+          "l1": 103,
+          "trace": 4170402,
+          "bilinear_residual": -23902,
+          "worst_case_bound": 1714023,
+          "guaranteed_margin": true,
+          "guess_correct": true
+        }
+      ]
+    },
+    {
+      "n_source": 3,
+      "n_builder": 4,
+      "p1": 8,
+      "p2": 8,
+      "q": 16777216,
+      "radius": 32768,
+      "seed": 11004,
+      "source_resampled": false,
+      "free_diagonal": true,
+      "source_hamming_weight": 2,
+      "targets": [
+        {
+          "coordinate": 0,
+          "l1": 125,
+          "trace": 6247395,
+          "bilinear_residual": 2053091,
+          "worst_case_bound": 536887296125,
+          "guaranteed_margin": false,
+          "guess_correct": true
+        },
+        {
+          "coordinate": 1,
+          "l1": 99,
+          "trace": 9893142,
+          "bilinear_residual": 5698838,
+          "worst_case_bound": 425214738531,
+          "guaranteed_margin": false,
+          "guess_correct": false
+        },
+        {
+          "coordinate": 2,
+          "l1": 114,
+          "trace": 573524,
+          "bilinear_residual": 4767828,
+          "worst_case_bound": 489641214066,
+          "guaranteed_margin": false,
+          "guess_correct": false
+        }
+      ]
+    },
+    {
+      "n_source": 4,
+      "n_builder": 5,
+      "p1": 8,
+      "p2": 8,
+      "q": 16777216,
+      "radius": 1,
+      "seed": 11005,
+      "source_resampled": false,
+      "free_diagonal": true,
+      "source_hamming_weight": 2,
+      "targets": [
+        {
+          "coordinate": 0,
+          "l1": 318,
+          "trace": 12582796,
+          "bilinear_residual": -116,
+          "worst_case_bound": 2862,
+          "guaranteed_margin": true,
+          "guess_correct": true
+        },
+        {
+          "coordinate": 1,
+          "l1": 302,
+          "trace": 4194071,
+          "bilinear_residual": -233,
+          "worst_case_bound": 2718,
+          "guaranteed_margin": true,
+          "guess_correct": true
+        },
+        {
+          "coordinate": 2,
+          "l1": 238,
+          "trace": 12582783,
+          "bilinear_residual": -129,
+          "worst_case_bound": 2142,
+          "guaranteed_margin": true,
+          "guess_correct": true
+        },
+        {
+          "coordinate": 3,
+          "l1": 328,
+          "trace": 4194040,
+          "bilinear_residual": -264,
+          "worst_case_bound": 2952,
+          "guaranteed_margin": true,
+          "guess_correct": true
+        }
+      ]
+    },
+    {
+      "n_source": 4,
+      "n_builder": 5,
+      "p1": 8,
+      "p2": 8,
+      "q": 16777216,
+      "radius": 64,
+      "seed": 11006,
+      "source_resampled": false,
+      "free_diagonal": true,
+      "source_hamming_weight": 1,
+      "targets": [
+        {
+          "coordinate": 0,
+          "l1": 259,
+          "trace": 4206542,
+          "bilinear_residual": 12238,
+          "worst_case_bound": 4310019,
+          "guaranteed_margin": false,
+          "guess_correct": true
+        },
+        {
+          "coordinate": 1,
+          "l1": 313,
+          "trace": 12594694,
+          "bilinear_residual": 11782,
+          "worst_case_bound": 5208633,
+          "guaranteed_margin": false,
+          "guess_correct": true
+        },
+        {
+          "coordinate": 2,
+          "l1": 312,
+          "trace": 12696766,
+          "bilinear_residual": 113854,
+          "worst_case_bound": 5191992,
+          "guaranteed_margin": false,
+          "guess_correct": true
+        },
+        {
+          "coordinate": 3,
+          "l1": 298,
+          "trace": 12383474,
+          "bilinear_residual": -199438,
+          "worst_case_bound": 4959018,
+          "guaranteed_margin": false,
+          "guess_correct": true
+        }
+      ]
+    },
+    {
+      "n_source": 2,
+      "n_builder": 3,
+      "p1": 4,
+      "p2": 4,
+      "q": 4096,
+      "radius": 1,
+      "seed": 11007,
+      "source_resampled": false,
+      "free_diagonal": true,
+      "source_hamming_weight": 1,
+      "targets": [
+        {
+          "coordinate": 0,
+          "l1": 10,
+          "trace": 3079,
+          "bilinear_residual": 7,
+          "worst_case_bound": 90,
+          "guaranteed_margin": true,
+          "guess_correct": true
+        },
+        {
+          "coordinate": 1,
+          "l1": 24,
+          "trace": 1009,
+          "bilinear_residual": -15,
+          "worst_case_bound": 216,
+          "guaranteed_margin": true,
+          "guess_correct": true
+        }
+      ]
+    },
+    {
+      "n_source": 2,
+      "n_builder": 3,
+      "p1": 4,
+      "p2": 4,
+      "q": 16777216,
+      "radius": 1,
+      "seed": 11008,
+      "source_resampled": false,
+      "free_diagonal": true,
+      "source_hamming_weight": 1,
+      "targets": [
+        {
+          "coordinate": 0,
+          "l1": 78,
+          "trace": 12582766,
+          "bilinear_residual": -146,
+          "worst_case_bound": 702,
+          "guaranteed_margin": true,
+          "guess_correct": true
+        },
+        {
+          "coordinate": 1,
+          "l1": 76,
+          "trace": 4194325,
+          "bilinear_residual": 21,
+          "worst_case_bound": 684,
+          "guaranteed_margin": true,
+          "guess_correct": true
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "attempts": 8,
+    "solver_failures": 0,
+    "certificates_and_trace_identities": 24,
+    "guaranteed_recovered_bits": 17,
+    "observed_correct_bits": 22
+  }
+}

@@ -1,0 +1,617 @@
+{
+  "scope": "Affine maps of complete LWE inputs, uniform masks independent of the binary output key; source secret may be any fixed function of that key.",
+  "limitations": "A phase-simulation bound, not an IND-CPA attack. Does not cover nonlinear maps, public rejection, mask-dependent hidden-key coupling, or key-dependent map coins. The sharpness witness is not a fresh ciphertext sampler.",
+  "seed": 20261017,
+  "same_key_affine_maps": 192,
+  "same_key_fixed_error_cases": 576,
+  "transported_key_affine_maps": 104,
+  "transported_key_fixed_error_cases": 312,
+  "exact_source_draw_checks": 55296,
+  "proved_lower_bound": "1/16",
+  "groups": [
+    {
+      "n": 3,
+      "samples": 1,
+      "q": 8,
+      "bound": 0,
+      "maps": 8,
+      "error_vectors": 3,
+      "minimum_failure": "3/4",
+      "maximum_failure": "29/32",
+      "minimum_nonzero_linear_keys": 7
+    },
+    {
+      "n": 3,
+      "samples": 1,
+      "q": 16,
+      "bound": 0,
+      "maps": 8,
+      "error_vectors": 3,
+      "minimum_failure": "59/64",
+      "maximum_failure": "123/128",
+      "minimum_nonzero_linear_keys": 8
+    },
+    {
+      "n": 3,
+      "samples": 1,
+      "q": 64,
+      "bound": 3,
+      "maps": 8,
+      "error_vectors": 3,
+      "minimum_failure": "453/512",
+      "maximum_failure": "457/512",
+      "minimum_nonzero_linear_keys": 8
+    },
+    {
+      "n": 3,
+      "samples": 1,
+      "q": 256,
+      "bound": 15,
+      "maps": 8,
+      "error_vectors": 3,
+      "minimum_failure": "899/1024",
+      "maximum_failure": "451/512",
+      "minimum_nonzero_linear_keys": 8
+    },
+    {
+      "n": 3,
+      "samples": 2,
+      "q": 8,
+      "bound": 0,
+      "maps": 8,
+      "error_vectors": 3,
+      "minimum_failure": "7/8",
+      "maximum_failure": "57/64",
+      "minimum_nonzero_linear_keys": 8
+    },
+    {
+      "n": 3,
+      "samples": 2,
+      "q": 16,
+      "bound": 0,
+      "maps": 8,
+      "error_vectors": 3,
+      "minimum_failure": "119/128",
+      "maximum_failure": "121/128",
+      "minimum_nonzero_linear_keys": 8
+    },
+    {
+      "n": 3,
+      "samples": 2,
+      "q": 64,
+      "bound": 3,
+      "maps": 8,
+      "error_vectors": 3,
+      "minimum_failure": "57/64",
+      "maximum_failure": "57/64",
+      "minimum_nonzero_linear_keys": 8
+    },
+    {
+      "n": 3,
+      "samples": 2,
+      "q": 256,
+      "bound": 15,
+      "maps": 8,
+      "error_vectors": 3,
+      "minimum_failure": "225/256",
+      "maximum_failure": "225/256",
+      "minimum_nonzero_linear_keys": 8
+    },
+    {
+      "n": 4,
+      "samples": 1,
+      "q": 8,
+      "bound": 0,
+      "maps": 8,
+      "error_vectors": 3,
+      "minimum_failure": "111/128",
+      "maximum_failure": "113/128",
+      "minimum_nonzero_linear_keys": 16
+    },
+    {
+      "n": 4,
+      "samples": 1,
+      "q": 16,
+      "bound": 0,
+      "maps": 8,
+      "error_vectors": 3,
+      "minimum_failure": "239/256",
+      "maximum_failure": "121/128",
+      "minimum_nonzero_linear_keys": 16
+    },
+    {
+      "n": 4,
+      "samples": 1,
+      "q": 64,
+      "bound": 3,
+      "maps": 8,
+      "error_vectors": 3,
+      "minimum_failure": "911/1024",
+      "maximum_failure": "913/1024",
+      "minimum_nonzero_linear_keys": 16
+    },
+    {
+      "n": 4,
+      "samples": 1,
+      "q": 256,
+      "bound": 15,
+      "maps": 8,
+      "error_vectors": 3,
+      "minimum_failure": "1799/2048",
+      "maximum_failure": "3601/4096",
+      "minimum_nonzero_linear_keys": 16
+    },
+    {
+      "n": 4,
+      "samples": 2,
+      "q": 8,
+      "bound": 0,
+      "maps": 8,
+      "error_vectors": 3,
+      "minimum_failure": "111/128",
+      "maximum_failure": "113/128",
+      "minimum_nonzero_linear_keys": 16
+    },
+    {
+      "n": 4,
+      "samples": 2,
+      "q": 16,
+      "bound": 0,
+      "maps": 8,
+      "error_vectors": 3,
+      "minimum_failure": "239/256",
+      "maximum_failure": "241/256",
+      "minimum_nonzero_linear_keys": 16
+    },
+    {
+      "n": 4,
+      "samples": 2,
+      "q": 64,
+      "bound": 3,
+      "maps": 8,
+      "error_vectors": 3,
+      "minimum_failure": "57/64",
+      "maximum_failure": "57/64",
+      "minimum_nonzero_linear_keys": 16
+    },
+    {
+      "n": 4,
+      "samples": 2,
+      "q": 256,
+      "bound": 15,
+      "maps": 8,
+      "error_vectors": 3,
+      "minimum_failure": "225/256",
+      "maximum_failure": "225/256",
+      "minimum_nonzero_linear_keys": 16
+    },
+    {
+      "n": 5,
+      "samples": 1,
+      "q": 8,
+      "bound": 0,
+      "maps": 8,
+      "error_vectors": 3,
+      "minimum_failure": "223/256",
+      "maximum_failure": "225/256",
+      "minimum_nonzero_linear_keys": 32
+    },
+    {
+      "n": 5,
+      "samples": 1,
+      "q": 16,
+      "bound": 0,
+      "maps": 8,
+      "error_vectors": 3,
+      "minimum_failure": "239/256",
+      "maximum_failure": "241/256",
+      "minimum_nonzero_linear_keys": 32
+    },
+    {
+      "n": 5,
+      "samples": 1,
+      "q": 64,
+      "bound": 3,
+      "maps": 8,
+      "error_vectors": 3,
+      "minimum_failure": "1823/2048",
+      "maximum_failure": "1827/2048",
+      "minimum_nonzero_linear_keys": 32
+    },
+    {
+      "n": 5,
+      "samples": 1,
+      "q": 256,
+      "bound": 15,
+      "maps": 8,
+      "error_vectors": 3,
+      "minimum_failure": "3599/4096",
+      "maximum_failure": "3601/4096",
+      "minimum_nonzero_linear_keys": 32
+    },
+    {
+      "n": 5,
+      "samples": 2,
+      "q": 8,
+      "bound": 0,
+      "maps": 8,
+      "error_vectors": 3,
+      "minimum_failure": "223/256",
+      "maximum_failure": "7/8",
+      "minimum_nonzero_linear_keys": 32
+    },
+    {
+      "n": 5,
+      "samples": 2,
+      "q": 16,
+      "bound": 0,
+      "maps": 8,
+      "error_vectors": 3,
+      "minimum_failure": "15/16",
+      "maximum_failure": "481/512",
+      "minimum_nonzero_linear_keys": 32
+    },
+    {
+      "n": 5,
+      "samples": 2,
+      "q": 64,
+      "bound": 3,
+      "maps": 8,
+      "error_vectors": 3,
+      "minimum_failure": "57/64",
+      "maximum_failure": "57/64",
+      "minimum_nonzero_linear_keys": 32
+    },
+    {
+      "n": 5,
+      "samples": 2,
+      "q": 256,
+      "bound": 15,
+      "maps": 8,
+      "error_vectors": 3,
+      "minimum_failure": "225/256",
+      "maximum_failure": "225/256",
+      "minimum_nonzero_linear_keys": 32
+    }
+  ],
+  "source_key_transports": [
+    {
+      "output_key_bits": 3,
+      "source_dimension": 1,
+      "samples": 1,
+      "q": 16,
+      "maps": 4,
+      "error_vectors": 3,
+      "minimum_failure": "57/64"
+    },
+    {
+      "output_key_bits": 3,
+      "source_dimension": 1,
+      "samples": 1,
+      "q": 64,
+      "maps": 4,
+      "error_vectors": 3,
+      "minimum_failure": "453/512"
+    },
+    {
+      "output_key_bits": 3,
+      "source_dimension": 1,
+      "samples": 2,
+      "q": 16,
+      "maps": 4,
+      "error_vectors": 3,
+      "minimum_failure": "59/64"
+    },
+    {
+      "output_key_bits": 3,
+      "source_dimension": 1,
+      "samples": 2,
+      "q": 64,
+      "maps": 4,
+      "error_vectors": 3,
+      "minimum_failure": "451/512"
+    },
+    {
+      "output_key_bits": 3,
+      "source_dimension": 3,
+      "samples": 1,
+      "q": 16,
+      "maps": 4,
+      "error_vectors": 3,
+      "minimum_failure": "119/128"
+    },
+    {
+      "output_key_bits": 3,
+      "source_dimension": 3,
+      "samples": 1,
+      "q": 64,
+      "maps": 4,
+      "error_vectors": 3,
+      "minimum_failure": "227/256"
+    },
+    {
+      "output_key_bits": 3,
+      "source_dimension": 3,
+      "samples": 2,
+      "q": 16,
+      "maps": 4,
+      "error_vectors": 3,
+      "minimum_failure": "15/16"
+    },
+    {
+      "output_key_bits": 3,
+      "source_dimension": 3,
+      "samples": 2,
+      "q": 64,
+      "maps": 4,
+      "error_vectors": 3,
+      "minimum_failure": "455/512"
+    },
+    {
+      "output_key_bits": 3,
+      "source_dimension": 6,
+      "samples": 1,
+      "q": 16,
+      "maps": 4,
+      "error_vectors": 3,
+      "minimum_failure": "15/16"
+    },
+    {
+      "output_key_bits": 3,
+      "source_dimension": 6,
+      "samples": 1,
+      "q": 64,
+      "maps": 4,
+      "error_vectors": 3,
+      "minimum_failure": "57/64"
+    },
+    {
+      "output_key_bits": 3,
+      "source_dimension": 6,
+      "samples": 2,
+      "q": 16,
+      "maps": 4,
+      "error_vectors": 3,
+      "minimum_failure": "15/16"
+    },
+    {
+      "output_key_bits": 3,
+      "source_dimension": 6,
+      "samples": 2,
+      "q": 64,
+      "maps": 4,
+      "error_vectors": 3,
+      "minimum_failure": "57/64"
+    },
+    {
+      "output_key_bits": 4,
+      "source_dimension": 1,
+      "samples": 1,
+      "q": 16,
+      "maps": 4,
+      "error_vectors": 3,
+      "minimum_failure": "117/128"
+    },
+    {
+      "output_key_bits": 4,
+      "source_dimension": 1,
+      "samples": 1,
+      "q": 64,
+      "maps": 4,
+      "error_vectors": 3,
+      "minimum_failure": "863/1024"
+    },
+    {
+      "output_key_bits": 4,
+      "source_dimension": 1,
+      "samples": 2,
+      "q": 16,
+      "maps": 4,
+      "error_vectors": 3,
+      "minimum_failure": "235/256"
+    },
+    {
+      "output_key_bits": 4,
+      "source_dimension": 1,
+      "samples": 2,
+      "q": 64,
+      "maps": 4,
+      "error_vectors": 3,
+      "minimum_failure": "455/512"
+    },
+    {
+      "output_key_bits": 4,
+      "source_dimension": 3,
+      "samples": 1,
+      "q": 16,
+      "maps": 4,
+      "error_vectors": 3,
+      "minimum_failure": "237/256"
+    },
+    {
+      "output_key_bits": 4,
+      "source_dimension": 3,
+      "samples": 1,
+      "q": 64,
+      "maps": 4,
+      "error_vectors": 3,
+      "minimum_failure": "911/1024"
+    },
+    {
+      "output_key_bits": 4,
+      "source_dimension": 3,
+      "samples": 2,
+      "q": 16,
+      "maps": 4,
+      "error_vectors": 3,
+      "minimum_failure": "15/16"
+    },
+    {
+      "output_key_bits": 4,
+      "source_dimension": 3,
+      "samples": 2,
+      "q": 64,
+      "maps": 4,
+      "error_vectors": 3,
+      "minimum_failure": "911/1024"
+    },
+    {
+      "output_key_bits": 4,
+      "source_dimension": 6,
+      "samples": 1,
+      "q": 16,
+      "maps": 4,
+      "error_vectors": 3,
+      "minimum_failure": "15/16"
+    },
+    {
+      "output_key_bits": 4,
+      "source_dimension": 6,
+      "samples": 1,
+      "q": 64,
+      "maps": 4,
+      "error_vectors": 3,
+      "minimum_failure": "911/1024"
+    },
+    {
+      "output_key_bits": 4,
+      "source_dimension": 6,
+      "samples": 2,
+      "q": 16,
+      "maps": 4,
+      "error_vectors": 3,
+      "minimum_failure": "15/16"
+    },
+    {
+      "output_key_bits": 4,
+      "source_dimension": 6,
+      "samples": 2,
+      "q": 64,
+      "maps": 4,
+      "error_vectors": 3,
+      "minimum_failure": "57/64"
+    }
+  ],
+  "packed_uniform_source_transports": [
+    {
+      "output_key_bits": 4,
+      "source_dimension": 1,
+      "q": 16,
+      "samples": 1,
+      "source_key_uniform": true,
+      "maps": 4,
+      "error_vectors": 3,
+      "minimum_failure": "59/64"
+    },
+    {
+      "output_key_bits": 4,
+      "source_dimension": 1,
+      "q": 16,
+      "samples": 2,
+      "source_key_uniform": true,
+      "maps": 4,
+      "error_vectors": 3,
+      "minimum_failure": "119/128"
+    }
+  ],
+  "sharpness": [
+    {
+      "q": 4,
+      "source_error": -1,
+      "failure": "3/16"
+    },
+    {
+      "q": 4,
+      "source_error": 0,
+      "failure": "1/16"
+    },
+    {
+      "q": 4,
+      "source_error": 1,
+      "failure": "3/16"
+    },
+    {
+      "q": 8,
+      "source_error": -1,
+      "failure": "3/16"
+    },
+    {
+      "q": 8,
+      "source_error": 0,
+      "failure": "1/16"
+    },
+    {
+      "q": 8,
+      "source_error": 1,
+      "failure": "3/16"
+    },
+    {
+      "q": 16,
+      "source_error": -1,
+      "failure": "3/16"
+    },
+    {
+      "q": 16,
+      "source_error": 0,
+      "failure": "1/16"
+    },
+    {
+      "q": 16,
+      "source_error": 1,
+      "failure": "3/16"
+    },
+    {
+      "q": 64,
+      "source_error": -1,
+      "failure": "3/16"
+    },
+    {
+      "q": 64,
+      "source_error": 0,
+      "failure": "1/16"
+    },
+    {
+      "q": 64,
+      "source_error": 1,
+      "failure": "3/16"
+    },
+    {
+      "q": 256,
+      "source_error": -1,
+      "failure": "3/16"
+    },
+    {
+      "q": 256,
+      "source_error": 0,
+      "failure": "1/16"
+    },
+    {
+      "q": 256,
+      "source_error": 1,
+      "failure": "3/16"
+    }
+  ],
+  "public_mask_rejection": [
+    {
+      "q": 16,
+      "source_error": -1,
+      "retained_draws": 16384,
+      "failure": "1/4",
+      "mask_acceptance": "1/2"
+    },
+    {
+      "q": 16,
+      "source_error": 0,
+      "retained_draws": 16384,
+      "failure": "0",
+      "mask_acceptance": "1/2"
+    },
+    {
+      "q": 16,
+      "source_error": 1,
+      "retained_draws": 16384,
+      "failure": "1/4",
+      "mask_acceptance": "1/2"
+    }
+  ]
+}

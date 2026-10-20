@@ -1,0 +1,2199 @@
+{
+  "scope": "Rotated ordinary-source simulation/correctness trial; no secure correct FHE claim",
+  "zero_error_boundary": "Zero rotation noise restores native controls but does not meet the required LWE source-hardness premise",
+  "cases": [
+    {
+      "n": 2,
+      "levels": 16,
+      "q": 65536,
+      "source_radius": 0,
+      "seed": 12001,
+      "key_mode": "all_ones",
+      "fixed_diagnostic_key": true,
+      "source_resampled": false,
+      "rotation_pool": 64,
+      "selected_rotation": 1,
+      "public_source_width": 256,
+      "certificates_checked": 32,
+      "phase_checks": 96,
+      "half_turn_witnesses": [],
+      "refresh_trials": [
+        {
+          "cycle": 0,
+          "branch": 0,
+          "expected": 0,
+          "decoded": 0,
+          "correct": true,
+          "input_noise": 0,
+          "output_noise": 0,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        },
+        {
+          "cycle": 0,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 0,
+          "output_noise": 0,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        },
+        {
+          "cycle": 1,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 0,
+          "output_noise": 0,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        },
+        {
+          "cycle": 1,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 0,
+          "output_noise": 0,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        },
+        {
+          "cycle": 2,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 0,
+          "output_noise": 0,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        },
+        {
+          "cycle": 2,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 0,
+          "output_noise": 0,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        }
+      ],
+      "max_private_preimage_l1": 1057,
+      "structural_l1_bound": 4128,
+      "selected_rotation_error": [
+        0,
+        0
+      ],
+      "inverse_error": [
+        0,
+        0
+      ],
+      "max_derived_source_error": 0,
+      "max_control_noise": 0,
+      "active_half_turns": 0,
+      "control_obstruction_lower_bound": 0
+    },
+    {
+      "n": 2,
+      "levels": 16,
+      "q": 65536,
+      "source_radius": 0,
+      "seed": 12001,
+      "key_mode": "single_one",
+      "fixed_diagnostic_key": true,
+      "source_resampled": false,
+      "rotation_pool": 64,
+      "selected_rotation": 1,
+      "public_source_width": 256,
+      "certificates_checked": 32,
+      "phase_checks": 96,
+      "half_turn_witnesses": [],
+      "refresh_trials": [
+        {
+          "cycle": 0,
+          "branch": 0,
+          "expected": 0,
+          "decoded": 0,
+          "correct": true,
+          "input_noise": 0,
+          "output_noise": 0,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        },
+        {
+          "cycle": 0,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 0,
+          "output_noise": 0,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        },
+        {
+          "cycle": 1,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 0,
+          "output_noise": 0,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        },
+        {
+          "cycle": 1,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 0,
+          "output_noise": 0,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        },
+        {
+          "cycle": 2,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 0,
+          "output_noise": 0,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        },
+        {
+          "cycle": 2,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 0,
+          "output_noise": 0,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        }
+      ],
+      "max_private_preimage_l1": 1057,
+      "structural_l1_bound": 4128,
+      "selected_rotation_error": [
+        0,
+        0
+      ],
+      "inverse_error": [
+        0,
+        0
+      ],
+      "max_derived_source_error": 0,
+      "max_control_noise": 0,
+      "active_half_turns": 0,
+      "control_obstruction_lower_bound": 0
+    },
+    {
+      "n": 2,
+      "levels": 16,
+      "q": 65536,
+      "source_radius": 1,
+      "seed": 12002,
+      "key_mode": "all_ones",
+      "fixed_diagnostic_key": true,
+      "source_resampled": false,
+      "rotation_pool": 64,
+      "selected_rotation": 2,
+      "public_source_width": 256,
+      "certificates_checked": 32,
+      "phase_checks": 96,
+      "half_turn_witnesses": [
+        {
+          "control": 0,
+          "coordinate": 1,
+          "level": 15,
+          "active_secret_bit": true
+        },
+        {
+          "control": 1,
+          "coordinate": 0,
+          "level": 14,
+          "active_secret_bit": true
+        }
+      ],
+      "refresh_trials": [
+        {
+          "cycle": 0,
+          "branch": 0,
+          "expected": 0,
+          "decoded": 0,
+          "correct": true,
+          "input_noise": 15,
+          "output_noise": 32763,
+          "input_rounding_margin": true,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 0,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 22,
+          "output_noise": 32612,
+          "input_rounding_margin": true,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 1,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 0,
+          "correct": false,
+          "input_noise": 32630,
+          "output_noise": 32515,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 1,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 0,
+          "correct": false,
+          "input_noise": 32708,
+          "output_noise": 32605,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 2,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 32544,
+          "output_noise": 32763,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 2,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 0,
+          "correct": false,
+          "input_noise": 32685,
+          "output_noise": 32768,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        }
+      ],
+      "max_private_preimage_l1": 1322,
+      "structural_l1_bound": 4128,
+      "selected_rotation_error": [
+        1,
+        0
+      ],
+      "inverse_error": [
+        1910,
+        24979
+      ],
+      "max_derived_source_error": 32765,
+      "max_control_noise": 32768,
+      "active_half_turns": 2,
+      "control_obstruction_lower_bound": 32767
+    },
+    {
+      "n": 2,
+      "levels": 16,
+      "q": 65536,
+      "source_radius": 1,
+      "seed": 12002,
+      "key_mode": "single_one",
+      "fixed_diagnostic_key": true,
+      "source_resampled": false,
+      "rotation_pool": 64,
+      "selected_rotation": 2,
+      "public_source_width": 256,
+      "certificates_checked": 32,
+      "phase_checks": 96,
+      "half_turn_witnesses": [
+        {
+          "control": 0,
+          "coordinate": 1,
+          "level": 15,
+          "active_secret_bit": true
+        },
+        {
+          "control": 1,
+          "coordinate": 0,
+          "level": 14,
+          "active_secret_bit": false
+        }
+      ],
+      "refresh_trials": [
+        {
+          "cycle": 0,
+          "branch": 0,
+          "expected": 0,
+          "decoded": 0,
+          "correct": true,
+          "input_noise": 15,
+          "output_noise": 32387,
+          "input_rounding_margin": true,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 0,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 0,
+          "correct": false,
+          "input_noise": 22,
+          "output_noise": 32664,
+          "input_rounding_margin": true,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 1,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 0,
+          "correct": false,
+          "input_noise": 32398,
+          "output_noise": 32768,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 1,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 31354,
+          "output_noise": 32622,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 2,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 0,
+          "output_noise": 0,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        },
+        {
+          "cycle": 2,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 32307,
+          "output_noise": 32763,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        }
+      ],
+      "max_private_preimage_l1": 1322,
+      "structural_l1_bound": 4128,
+      "selected_rotation_error": [
+        1,
+        0
+      ],
+      "inverse_error": [
+        1910,
+        24979
+      ],
+      "max_derived_source_error": 32765,
+      "max_control_noise": 32768,
+      "active_half_turns": 1,
+      "control_obstruction_lower_bound": 32767
+    },
+    {
+      "n": 2,
+      "levels": 16,
+      "q": 65536,
+      "source_radius": 64,
+      "seed": 12003,
+      "key_mode": "all_ones",
+      "fixed_diagnostic_key": true,
+      "source_resampled": false,
+      "rotation_pool": 64,
+      "selected_rotation": 0,
+      "public_source_width": 256,
+      "certificates_checked": 32,
+      "phase_checks": 96,
+      "half_turn_witnesses": [
+        {
+          "control": 0,
+          "coordinate": 1,
+          "level": 14,
+          "active_secret_bit": true
+        },
+        {
+          "control": 1,
+          "coordinate": 0,
+          "level": 14,
+          "active_secret_bit": true
+        }
+      ],
+      "refresh_trials": [
+        {
+          "cycle": 0,
+          "branch": 0,
+          "expected": 0,
+          "decoded": 0,
+          "correct": true,
+          "input_noise": 736,
+          "output_noise": 32516,
+          "input_rounding_margin": true,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 0,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 698,
+          "output_noise": 32405,
+          "input_rounding_margin": true,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 1,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 0,
+          "correct": false,
+          "input_noise": 32701,
+          "output_noise": 32768,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 1,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 31490,
+          "output_noise": 31877,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 2,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 0,
+          "output_noise": 0,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        },
+        {
+          "cycle": 2,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 30537,
+          "output_noise": 31874,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        }
+      ],
+      "max_private_preimage_l1": 1204,
+      "structural_l1_bound": 4128,
+      "selected_rotation_error": [
+        -2,
+        28
+      ],
+      "inverse_error": [
+        -8354,
+        -2294
+      ],
+      "max_derived_source_error": 917879,
+      "max_control_noise": 32750,
+      "active_half_turns": 2,
+      "control_obstruction_lower_bound": 32704
+    },
+    {
+      "n": 2,
+      "levels": 16,
+      "q": 65536,
+      "source_radius": 64,
+      "seed": 12003,
+      "key_mode": "single_one",
+      "fixed_diagnostic_key": true,
+      "source_resampled": false,
+      "rotation_pool": 64,
+      "selected_rotation": 0,
+      "public_source_width": 256,
+      "certificates_checked": 32,
+      "phase_checks": 96,
+      "half_turn_witnesses": [
+        {
+          "control": 0,
+          "coordinate": 1,
+          "level": 14,
+          "active_secret_bit": true
+        },
+        {
+          "control": 1,
+          "coordinate": 0,
+          "level": 14,
+          "active_secret_bit": false
+        }
+      ],
+      "refresh_trials": [
+        {
+          "cycle": 0,
+          "branch": 0,
+          "expected": 0,
+          "decoded": 0,
+          "correct": true,
+          "input_noise": 736,
+          "output_noise": 394,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 0,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 0,
+          "correct": false,
+          "input_noise": 698,
+          "output_noise": 32326,
+          "input_rounding_margin": true,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 1,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 7669,
+          "output_noise": 32365,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 1,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 32422,
+          "output_noise": 32411,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 2,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 0,
+          "correct": false,
+          "input_noise": 32529,
+          "output_noise": 32768,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 2,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 0,
+          "correct": false,
+          "input_noise": 31652,
+          "output_noise": 32485,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        }
+      ],
+      "max_private_preimage_l1": 1204,
+      "structural_l1_bound": 4128,
+      "selected_rotation_error": [
+        -2,
+        28
+      ],
+      "inverse_error": [
+        -8354,
+        -2294
+      ],
+      "max_derived_source_error": 917879,
+      "max_control_noise": 32750,
+      "active_half_turns": 1,
+      "control_obstruction_lower_bound": 32704
+    },
+    {
+      "n": 3,
+      "levels": 24,
+      "q": 16777216,
+      "source_radius": 0,
+      "seed": 12004,
+      "key_mode": "all_ones",
+      "fixed_diagnostic_key": true,
+      "source_resampled": false,
+      "rotation_pool": 64,
+      "selected_rotation": 4,
+      "public_source_width": 368,
+      "certificates_checked": 144,
+      "phase_checks": 288,
+      "half_turn_witnesses": [],
+      "refresh_trials": [
+        {
+          "cycle": 0,
+          "branch": 0,
+          "expected": 0,
+          "decoded": 0,
+          "correct": true,
+          "input_noise": 0,
+          "output_noise": 0,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        },
+        {
+          "cycle": 0,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 0,
+          "output_noise": 0,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        },
+        {
+          "cycle": 1,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 0,
+          "output_noise": 0,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        },
+        {
+          "cycle": 1,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 0,
+          "output_noise": 0,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        },
+        {
+          "cycle": 2,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 0,
+          "output_noise": 0,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        },
+        {
+          "cycle": 2,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 0,
+          "output_noise": 0,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        }
+      ],
+      "max_private_preimage_l1": 3341,
+      "structural_l1_bound": 12744,
+      "selected_rotation_error": [
+        0,
+        0,
+        0
+      ],
+      "inverse_error": [
+        0,
+        0,
+        0
+      ],
+      "max_derived_source_error": 0,
+      "max_control_noise": 0,
+      "active_half_turns": 0,
+      "control_obstruction_lower_bound": 0
+    },
+    {
+      "n": 3,
+      "levels": 24,
+      "q": 16777216,
+      "source_radius": 0,
+      "seed": 12004,
+      "key_mode": "single_one",
+      "fixed_diagnostic_key": true,
+      "source_resampled": false,
+      "rotation_pool": 64,
+      "selected_rotation": 4,
+      "public_source_width": 368,
+      "certificates_checked": 144,
+      "phase_checks": 288,
+      "half_turn_witnesses": [],
+      "refresh_trials": [
+        {
+          "cycle": 0,
+          "branch": 0,
+          "expected": 0,
+          "decoded": 0,
+          "correct": true,
+          "input_noise": 0,
+          "output_noise": 0,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        },
+        {
+          "cycle": 0,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 0,
+          "output_noise": 0,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        },
+        {
+          "cycle": 1,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 0,
+          "output_noise": 0,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        },
+        {
+          "cycle": 1,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 0,
+          "output_noise": 0,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        },
+        {
+          "cycle": 2,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 0,
+          "output_noise": 0,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        },
+        {
+          "cycle": 2,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 0,
+          "output_noise": 0,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        }
+      ],
+      "max_private_preimage_l1": 3341,
+      "structural_l1_bound": 12744,
+      "selected_rotation_error": [
+        0,
+        0,
+        0
+      ],
+      "inverse_error": [
+        0,
+        0,
+        0
+      ],
+      "max_derived_source_error": 0,
+      "max_control_noise": 0,
+      "active_half_turns": 0,
+      "control_obstruction_lower_bound": 0
+    },
+    {
+      "n": 3,
+      "levels": 24,
+      "q": 16777216,
+      "source_radius": 1,
+      "seed": 12005,
+      "key_mode": "all_ones",
+      "fixed_diagnostic_key": true,
+      "source_resampled": false,
+      "rotation_pool": 64,
+      "selected_rotation": 0,
+      "public_source_width": 368,
+      "certificates_checked": 144,
+      "phase_checks": 288,
+      "half_turn_witnesses": [
+        {
+          "control": 0,
+          "coordinate": 1,
+          "level": 23,
+          "active_secret_bit": true
+        },
+        {
+          "control": 0,
+          "coordinate": 2,
+          "level": 23,
+          "active_secret_bit": true
+        },
+        {
+          "control": 1,
+          "coordinate": 0,
+          "level": 22,
+          "active_secret_bit": true
+        },
+        {
+          "control": 1,
+          "coordinate": 2,
+          "level": 23,
+          "active_secret_bit": true
+        },
+        {
+          "control": 2,
+          "coordinate": 0,
+          "level": 22,
+          "active_secret_bit": true
+        },
+        {
+          "control": 2,
+          "coordinate": 1,
+          "level": 23,
+          "active_secret_bit": true
+        }
+      ],
+      "refresh_trials": [
+        {
+          "cycle": 0,
+          "branch": 0,
+          "expected": 0,
+          "decoded": 0,
+          "correct": true,
+          "input_noise": 22,
+          "output_noise": 8344593,
+          "input_rounding_margin": true,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 0,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 25,
+          "output_noise": 8262231,
+          "input_rounding_margin": true,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 1,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 8351039,
+          "output_noise": 8327278,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 1,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 8353776,
+          "output_noise": 8359714,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 2,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 0,
+          "correct": false,
+          "input_noise": 8304243,
+          "output_noise": 8291448,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 2,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 8373001,
+          "output_noise": 8373823,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        }
+      ],
+      "max_private_preimage_l1": 3224,
+      "structural_l1_bound": 12744,
+      "selected_rotation_error": [
+        0,
+        0,
+        -1
+      ],
+      "inverse_error": [
+        4111250,
+        -7175371,
+        -1529733
+      ],
+      "max_derived_source_error": 8388613,
+      "max_control_noise": 8388608,
+      "active_half_turns": 6,
+      "control_obstruction_lower_bound": 8388607
+    },
+    {
+      "n": 3,
+      "levels": 24,
+      "q": 16777216,
+      "source_radius": 1,
+      "seed": 12005,
+      "key_mode": "single_one",
+      "fixed_diagnostic_key": true,
+      "source_resampled": false,
+      "rotation_pool": 64,
+      "selected_rotation": 0,
+      "public_source_width": 368,
+      "certificates_checked": 144,
+      "phase_checks": 288,
+      "half_turn_witnesses": [
+        {
+          "control": 0,
+          "coordinate": 1,
+          "level": 23,
+          "active_secret_bit": true
+        },
+        {
+          "control": 0,
+          "coordinate": 2,
+          "level": 23,
+          "active_secret_bit": true
+        },
+        {
+          "control": 1,
+          "coordinate": 0,
+          "level": 22,
+          "active_secret_bit": false
+        },
+        {
+          "control": 1,
+          "coordinate": 2,
+          "level": 23,
+          "active_secret_bit": false
+        },
+        {
+          "control": 2,
+          "coordinate": 0,
+          "level": 22,
+          "active_secret_bit": false
+        },
+        {
+          "control": 2,
+          "coordinate": 1,
+          "level": 23,
+          "active_secret_bit": false
+        }
+      ],
+      "refresh_trials": [
+        {
+          "cycle": 0,
+          "branch": 0,
+          "expected": 0,
+          "decoded": 0,
+          "correct": true,
+          "input_noise": 22,
+          "output_noise": 8316991,
+          "input_rounding_margin": true,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 0,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 25,
+          "output_noise": 8316971,
+          "input_rounding_margin": true,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 1,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 0,
+          "correct": false,
+          "input_noise": 8387666,
+          "output_noise": 8388579,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 1,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 8386399,
+          "output_noise": 8059874,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 2,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 8375885,
+          "output_noise": 8359656,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 2,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 8356219,
+          "output_noise": 8388576,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        }
+      ],
+      "max_private_preimage_l1": 3224,
+      "structural_l1_bound": 12744,
+      "selected_rotation_error": [
+        0,
+        0,
+        -1
+      ],
+      "inverse_error": [
+        4111250,
+        -7175371,
+        -1529733
+      ],
+      "max_derived_source_error": 8388613,
+      "max_control_noise": 8388608,
+      "active_half_turns": 2,
+      "control_obstruction_lower_bound": 8388607
+    },
+    {
+      "n": 3,
+      "levels": 24,
+      "q": 16777216,
+      "source_radius": 64,
+      "seed": 12006,
+      "key_mode": "all_ones",
+      "fixed_diagnostic_key": true,
+      "source_resampled": false,
+      "rotation_pool": 64,
+      "selected_rotation": 1,
+      "public_source_width": 368,
+      "certificates_checked": 144,
+      "phase_checks": 288,
+      "half_turn_witnesses": [
+        {
+          "control": 0,
+          "coordinate": 1,
+          "level": 23,
+          "active_secret_bit": true
+        },
+        {
+          "control": 0,
+          "coordinate": 2,
+          "level": 23,
+          "active_secret_bit": true
+        },
+        {
+          "control": 1,
+          "coordinate": 0,
+          "level": 23,
+          "active_secret_bit": true
+        },
+        {
+          "control": 1,
+          "coordinate": 2,
+          "level": 23,
+          "active_secret_bit": true
+        },
+        {
+          "control": 2,
+          "coordinate": 0,
+          "level": 23,
+          "active_secret_bit": true
+        },
+        {
+          "control": 2,
+          "coordinate": 1,
+          "level": 23,
+          "active_secret_bit": true
+        }
+      ],
+      "refresh_trials": [
+        {
+          "cycle": 0,
+          "branch": 0,
+          "expected": 0,
+          "decoded": 1,
+          "correct": false,
+          "input_noise": 999,
+          "output_noise": 8372574,
+          "input_rounding_margin": true,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 0,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 1053,
+          "output_noise": 8388376,
+          "input_rounding_margin": true,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 1,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 8344091,
+          "output_noise": 8149081,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 1,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 0,
+          "correct": false,
+          "input_noise": 8355344,
+          "output_noise": 8245072,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 2,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 8286805,
+          "output_noise": 8309512,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 2,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 8305931,
+          "output_noise": 8332681,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        }
+      ],
+      "max_private_preimage_l1": 3518,
+      "structural_l1_bound": 12744,
+      "selected_rotation_error": [
+        21,
+        35,
+        29
+      ],
+      "inverse_error": [
+        -4787827,
+        -5700973,
+        -3500139
+      ],
+      "max_derived_source_error": 293600983,
+      "max_control_noise": 8388602,
+      "active_half_turns": 6,
+      "control_obstruction_lower_bound": 8388544
+    },
+    {
+      "n": 3,
+      "levels": 24,
+      "q": 16777216,
+      "source_radius": 64,
+      "seed": 12006,
+      "key_mode": "single_one",
+      "fixed_diagnostic_key": true,
+      "source_resampled": false,
+      "rotation_pool": 64,
+      "selected_rotation": 1,
+      "public_source_width": 368,
+      "certificates_checked": 144,
+      "phase_checks": 288,
+      "half_turn_witnesses": [
+        {
+          "control": 0,
+          "coordinate": 1,
+          "level": 23,
+          "active_secret_bit": true
+        },
+        {
+          "control": 0,
+          "coordinate": 2,
+          "level": 23,
+          "active_secret_bit": true
+        },
+        {
+          "control": 1,
+          "coordinate": 0,
+          "level": 23,
+          "active_secret_bit": false
+        },
+        {
+          "control": 1,
+          "coordinate": 2,
+          "level": 23,
+          "active_secret_bit": false
+        },
+        {
+          "control": 2,
+          "coordinate": 0,
+          "level": 23,
+          "active_secret_bit": false
+        },
+        {
+          "control": 2,
+          "coordinate": 1,
+          "level": 23,
+          "active_secret_bit": false
+        }
+      ],
+      "refresh_trials": [
+        {
+          "cycle": 0,
+          "branch": 0,
+          "expected": 0,
+          "decoded": 1,
+          "correct": false,
+          "input_noise": 999,
+          "output_noise": 8238997,
+          "input_rounding_margin": true,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 0,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 1053,
+          "output_noise": 8388063,
+          "input_rounding_margin": true,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 1,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 8332890,
+          "output_noise": 8276894,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 1,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 0,
+          "correct": false,
+          "input_noise": 8372285,
+          "output_noise": 8322905,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 2,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 8386019,
+          "output_noise": 8351086,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 2,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 8351155,
+          "output_noise": 8375005,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        }
+      ],
+      "max_private_preimage_l1": 3518,
+      "structural_l1_bound": 12744,
+      "selected_rotation_error": [
+        21,
+        35,
+        29
+      ],
+      "inverse_error": [
+        -4787827,
+        -5700973,
+        -3500139
+      ],
+      "max_derived_source_error": 293600983,
+      "max_control_noise": 8388580,
+      "active_half_turns": 2,
+      "control_obstruction_lower_bound": 8388544
+    },
+    {
+      "n": 4,
+      "levels": 24,
+      "q": 16777216,
+      "source_radius": 1,
+      "seed": 12007,
+      "key_mode": "all_ones",
+      "fixed_diagnostic_key": true,
+      "source_resampled": false,
+      "rotation_pool": 64,
+      "selected_rotation": 8,
+      "public_source_width": 456,
+      "certificates_checked": 288,
+      "phase_checks": 480,
+      "half_turn_witnesses": [
+        {
+          "control": 0,
+          "coordinate": 1,
+          "level": 22,
+          "active_secret_bit": true
+        },
+        {
+          "control": 0,
+          "coordinate": 2,
+          "level": 22,
+          "active_secret_bit": true
+        },
+        {
+          "control": 0,
+          "coordinate": 3,
+          "level": 23,
+          "active_secret_bit": true
+        },
+        {
+          "control": 1,
+          "coordinate": 0,
+          "level": 23,
+          "active_secret_bit": true
+        },
+        {
+          "control": 1,
+          "coordinate": 2,
+          "level": 22,
+          "active_secret_bit": true
+        },
+        {
+          "control": 1,
+          "coordinate": 3,
+          "level": 23,
+          "active_secret_bit": true
+        },
+        {
+          "control": 2,
+          "coordinate": 0,
+          "level": 23,
+          "active_secret_bit": true
+        },
+        {
+          "control": 2,
+          "coordinate": 1,
+          "level": 22,
+          "active_secret_bit": true
+        },
+        {
+          "control": 2,
+          "coordinate": 3,
+          "level": 23,
+          "active_secret_bit": true
+        },
+        {
+          "control": 3,
+          "coordinate": 0,
+          "level": 23,
+          "active_secret_bit": true
+        },
+        {
+          "control": 3,
+          "coordinate": 1,
+          "level": 22,
+          "active_secret_bit": true
+        },
+        {
+          "control": 3,
+          "coordinate": 2,
+          "level": 22,
+          "active_secret_bit": true
+        }
+      ],
+      "refresh_trials": [
+        {
+          "cycle": 0,
+          "branch": 0,
+          "expected": 0,
+          "decoded": 0,
+          "correct": true,
+          "input_noise": 38,
+          "output_noise": 8358058,
+          "input_rounding_margin": true,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 0,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 35,
+          "output_noise": 8365957,
+          "input_rounding_margin": true,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 1,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 0,
+          "correct": false,
+          "input_noise": 8373400,
+          "output_noise": 8178876,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 1,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 8320760,
+          "output_noise": 8330630,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 2,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 0,
+          "correct": false,
+          "input_noise": 8344551,
+          "output_noise": 8087166,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 2,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 8380316,
+          "output_noise": 8295129,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        }
+      ],
+      "max_private_preimage_l1": 5049,
+      "structural_l1_bound": 19296,
+      "selected_rotation_error": [
+        1,
+        -1,
+        -1,
+        -1
+      ],
+      "inverse_error": [
+        -3488989,
+        -6631058,
+        1946694,
+        7338067
+      ],
+      "max_derived_source_error": 8388617,
+      "max_control_noise": 8388608,
+      "active_half_turns": 12,
+      "control_obstruction_lower_bound": 8388607
+    },
+    {
+      "n": 4,
+      "levels": 24,
+      "q": 16777216,
+      "source_radius": 1,
+      "seed": 12007,
+      "key_mode": "single_one",
+      "fixed_diagnostic_key": true,
+      "source_resampled": false,
+      "rotation_pool": 64,
+      "selected_rotation": 8,
+      "public_source_width": 456,
+      "certificates_checked": 288,
+      "phase_checks": 480,
+      "half_turn_witnesses": [
+        {
+          "control": 0,
+          "coordinate": 1,
+          "level": 22,
+          "active_secret_bit": true
+        },
+        {
+          "control": 0,
+          "coordinate": 2,
+          "level": 22,
+          "active_secret_bit": true
+        },
+        {
+          "control": 0,
+          "coordinate": 3,
+          "level": 23,
+          "active_secret_bit": true
+        },
+        {
+          "control": 1,
+          "coordinate": 0,
+          "level": 23,
+          "active_secret_bit": false
+        },
+        {
+          "control": 1,
+          "coordinate": 2,
+          "level": 22,
+          "active_secret_bit": false
+        },
+        {
+          "control": 1,
+          "coordinate": 3,
+          "level": 23,
+          "active_secret_bit": false
+        },
+        {
+          "control": 2,
+          "coordinate": 0,
+          "level": 23,
+          "active_secret_bit": false
+        },
+        {
+          "control": 2,
+          "coordinate": 1,
+          "level": 22,
+          "active_secret_bit": false
+        },
+        {
+          "control": 2,
+          "coordinate": 3,
+          "level": 23,
+          "active_secret_bit": false
+        },
+        {
+          "control": 3,
+          "coordinate": 0,
+          "level": 23,
+          "active_secret_bit": false
+        },
+        {
+          "control": 3,
+          "coordinate": 1,
+          "level": 22,
+          "active_secret_bit": false
+        },
+        {
+          "control": 3,
+          "coordinate": 2,
+          "level": 22,
+          "active_secret_bit": false
+        }
+      ],
+      "refresh_trials": [
+        {
+          "cycle": 0,
+          "branch": 0,
+          "expected": 0,
+          "decoded": 1,
+          "correct": false,
+          "input_noise": 38,
+          "output_noise": 8311117,
+          "input_rounding_margin": true,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 0,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 35,
+          "output_noise": 8237613,
+          "input_rounding_margin": true,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 1,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 8277261,
+          "output_noise": 8307012,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 1,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 8295054,
+          "output_noise": 8364799,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 2,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 0,
+          "correct": false,
+          "input_noise": 8375960,
+          "output_noise": 8374266,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 2,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 0,
+          "correct": false,
+          "input_noise": 8335637,
+          "output_noise": 8350003,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        }
+      ],
+      "max_private_preimage_l1": 5049,
+      "structural_l1_bound": 19296,
+      "selected_rotation_error": [
+        1,
+        -1,
+        -1,
+        -1
+      ],
+      "inverse_error": [
+        -3488989,
+        -6631058,
+        1946694,
+        7338067
+      ],
+      "max_derived_source_error": 8388617,
+      "max_control_noise": 8388608,
+      "active_half_turns": 3,
+      "control_obstruction_lower_bound": 8388607
+    },
+    {
+      "n": 4,
+      "levels": 24,
+      "q": 16777216,
+      "source_radius": 64,
+      "seed": 12008,
+      "key_mode": "all_ones",
+      "fixed_diagnostic_key": true,
+      "source_resampled": false,
+      "rotation_pool": 64,
+      "selected_rotation": 7,
+      "public_source_width": 456,
+      "certificates_checked": 288,
+      "phase_checks": 480,
+      "half_turn_witnesses": [
+        {
+          "control": 0,
+          "coordinate": 1,
+          "level": 21,
+          "active_secret_bit": true
+        },
+        {
+          "control": 0,
+          "coordinate": 2,
+          "level": 23,
+          "active_secret_bit": true
+        },
+        {
+          "control": 0,
+          "coordinate": 3,
+          "level": 22,
+          "active_secret_bit": true
+        },
+        {
+          "control": 1,
+          "coordinate": 0,
+          "level": 19,
+          "active_secret_bit": true
+        },
+        {
+          "control": 1,
+          "coordinate": 2,
+          "level": 23,
+          "active_secret_bit": true
+        },
+        {
+          "control": 1,
+          "coordinate": 3,
+          "level": 22,
+          "active_secret_bit": true
+        },
+        {
+          "control": 2,
+          "coordinate": 0,
+          "level": 19,
+          "active_secret_bit": true
+        },
+        {
+          "control": 2,
+          "coordinate": 1,
+          "level": 21,
+          "active_secret_bit": true
+        },
+        {
+          "control": 2,
+          "coordinate": 3,
+          "level": 22,
+          "active_secret_bit": true
+        },
+        {
+          "control": 3,
+          "coordinate": 0,
+          "level": 19,
+          "active_secret_bit": true
+        },
+        {
+          "control": 3,
+          "coordinate": 1,
+          "level": 21,
+          "active_secret_bit": true
+        },
+        {
+          "control": 3,
+          "coordinate": 2,
+          "level": 23,
+          "active_secret_bit": true
+        }
+      ],
+      "refresh_trials": [
+        {
+          "cycle": 0,
+          "branch": 0,
+          "expected": 0,
+          "decoded": 0,
+          "correct": true,
+          "input_noise": 1093,
+          "output_noise": 8387336,
+          "input_rounding_margin": true,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 0,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 1141,
+          "output_noise": 8321629,
+          "input_rounding_margin": true,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 1,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 0,
+          "correct": false,
+          "input_noise": 8368174,
+          "output_noise": 8124091,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 1,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 8311239,
+          "output_noise": 8342648,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 2,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 8375704,
+          "output_noise": 7231,
+          "input_rounding_margin": false,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        },
+        {
+          "cycle": 2,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 8300586,
+          "output_noise": 8296055,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        }
+      ],
+      "max_private_preimage_l1": 5662,
+      "structural_l1_bound": 19296,
+      "selected_rotation_error": [
+        -47,
+        -48,
+        -53,
+        -2
+      ],
+      "inverse_error": [
+        -162992,
+        -4928420,
+        -7152953,
+        -1883246
+      ],
+      "max_derived_source_error": 444595812,
+      "max_control_noise": 8388606,
+      "active_half_turns": 12,
+      "control_obstruction_lower_bound": 8388544
+    },
+    {
+      "n": 4,
+      "levels": 24,
+      "q": 16777216,
+      "source_radius": 64,
+      "seed": 12008,
+      "key_mode": "single_one",
+      "fixed_diagnostic_key": true,
+      "source_resampled": false,
+      "rotation_pool": 64,
+      "selected_rotation": 7,
+      "public_source_width": 456,
+      "certificates_checked": 288,
+      "phase_checks": 480,
+      "half_turn_witnesses": [
+        {
+          "control": 0,
+          "coordinate": 1,
+          "level": 21,
+          "active_secret_bit": true
+        },
+        {
+          "control": 0,
+          "coordinate": 2,
+          "level": 23,
+          "active_secret_bit": true
+        },
+        {
+          "control": 0,
+          "coordinate": 3,
+          "level": 22,
+          "active_secret_bit": true
+        },
+        {
+          "control": 1,
+          "coordinate": 0,
+          "level": 19,
+          "active_secret_bit": false
+        },
+        {
+          "control": 1,
+          "coordinate": 2,
+          "level": 23,
+          "active_secret_bit": false
+        },
+        {
+          "control": 1,
+          "coordinate": 3,
+          "level": 22,
+          "active_secret_bit": false
+        },
+        {
+          "control": 2,
+          "coordinate": 0,
+          "level": 19,
+          "active_secret_bit": false
+        },
+        {
+          "control": 2,
+          "coordinate": 1,
+          "level": 21,
+          "active_secret_bit": false
+        },
+        {
+          "control": 2,
+          "coordinate": 3,
+          "level": 22,
+          "active_secret_bit": false
+        },
+        {
+          "control": 3,
+          "coordinate": 0,
+          "level": 19,
+          "active_secret_bit": false
+        },
+        {
+          "control": 3,
+          "coordinate": 1,
+          "level": 21,
+          "active_secret_bit": false
+        },
+        {
+          "control": 3,
+          "coordinate": 2,
+          "level": 23,
+          "active_secret_bit": false
+        }
+      ],
+      "refresh_trials": [
+        {
+          "cycle": 0,
+          "branch": 0,
+          "expected": 0,
+          "decoded": 0,
+          "correct": true,
+          "input_noise": 1093,
+          "output_noise": 2055,
+          "input_rounding_margin": true,
+          "output_decoding_margin": true,
+          "next_nand_rounding_margin": true
+        },
+        {
+          "cycle": 0,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 0,
+          "correct": false,
+          "input_noise": 1141,
+          "output_noise": 8358352,
+          "input_rounding_margin": true,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 1,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 101655,
+          "output_noise": 8200932,
+          "input_rounding_margin": true,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 1,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 8229886,
+          "output_noise": 8369114,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 2,
+          "branch": 0,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 8336326,
+          "output_noise": 8358019,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        },
+        {
+          "cycle": 2,
+          "branch": 1,
+          "expected": 1,
+          "decoded": 1,
+          "correct": true,
+          "input_noise": 8238511,
+          "output_noise": 8269278,
+          "input_rounding_margin": false,
+          "output_decoding_margin": false,
+          "next_nand_rounding_margin": false
+        }
+      ],
+      "max_private_preimage_l1": 5662,
+      "structural_l1_bound": 19296,
+      "selected_rotation_error": [
+        -47,
+        -48,
+        -53,
+        -2
+      ],
+      "inverse_error": [
+        -162992,
+        -4928420,
+        -7152953,
+        -1883246
+      ],
+      "max_derived_source_error": 444595812,
+      "max_control_noise": 8388591,
+      "active_half_turns": 3,
+      "control_obstruction_lower_bound": 8388544
+    }
+  ],
+  "totals": {
+    "attempts": 16,
+    "certificates": 2208,
+    "phase_checks": 4224,
+    "refresh_calls": 96,
+    "selected_correct": 74,
+    "output_margins": 29,
+    "next_nand_margins": 28
+  }
+}

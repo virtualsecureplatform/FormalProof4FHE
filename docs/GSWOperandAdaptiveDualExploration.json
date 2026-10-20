@@ -1,0 +1,1178 @@
+{
+  "scope": "Public right-inverse projection factors, including actual CMux-operand dependence, without global commutation.",
+  "limitations": "The operand metric is heuristic, not a phase/noise certificate. Builder failures are retained with signed-digit fallback; no cryptographic parameter, runtime or security theorem is claimed.",
+  "cases": [
+    {
+      "n": 2,
+      "levels": 8,
+      "modulus": 256,
+      "seed": 15000,
+      "variant": "exact_diagonal",
+      "source_resampled": false,
+      "secret_for_diagnostic": [
+        1,
+        0
+      ],
+      "actual_control_noise_bounds": [
+        33,
+        32
+      ],
+      "builder_failures": [],
+      "policies": [
+        {
+          "policy": "fixed_dual",
+          "refresh_trials": [
+            {
+              "cycle": 0,
+              "branch": 0,
+              "expected": 0,
+              "rounded_input_bit": 0,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": false,
+              "selected_correct": false,
+              "output_noise": 126,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 0,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 0,
+              "output_margin": true,
+              "next_nand_margin": true
+            },
+            {
+              "cycle": 1,
+              "branch": 0,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 0,
+              "output_margin": true,
+              "next_nand_margin": true
+            },
+            {
+              "cycle": 1,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": false,
+              "selected_correct": false,
+              "output_noise": 126,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 2,
+              "branch": 0,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": false,
+              "selected_correct": false,
+              "output_noise": 126,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 2,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": false,
+              "selected_correct": false,
+              "output_noise": 126,
+              "output_margin": false,
+              "next_nand_margin": false
+            }
+          ],
+          "cmux_gate_calls": 192,
+          "fallback_gate_calls": 0
+        },
+        {
+          "policy": "operand_adaptive_dual",
+          "refresh_trials": [
+            {
+              "cycle": 0,
+              "branch": 0,
+              "expected": 0,
+              "rounded_input_bit": 0,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 124,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 0,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": false,
+              "selected_correct": false,
+              "output_noise": 126,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 1,
+              "branch": 0,
+              "expected": 1,
+              "rounded_input_bit": 0,
+              "input_rounding_matches_expected": false,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": false,
+              "output_noise": 128,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 1,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 115,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 2,
+              "branch": 0,
+              "expected": 1,
+              "rounded_input_bit": 0,
+              "input_rounding_matches_expected": false,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": false,
+              "output_noise": 128,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 2,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 0,
+              "input_rounding_matches_expected": false,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": false,
+              "output_noise": 128,
+              "output_margin": false,
+              "next_nand_margin": false
+            }
+          ],
+          "cmux_gate_calls": 192,
+          "fallback_gate_calls": 0
+        }
+      ],
+      "certified_idempotent_factors": 7,
+      "closest_vector_columns": 15,
+      "improved_metric_columns": 15,
+      "rejected_metric_columns": 0,
+      "metric_cost_before": 249386,
+      "metric_cost_after": 1146,
+      "changed_operand_factors": 5,
+      "maximum_dual_entry": 4,
+      "maximum_centered_factor_entry": 128,
+      "distinct_operand_cache_entries": 9,
+      "base_noncommuting_pairs": 1
+    },
+    {
+      "n": 2,
+      "levels": 8,
+      "modulus": 256,
+      "seed": 15000,
+      "variant": "full_signed_outer_product",
+      "source_resampled": false,
+      "secret_for_diagnostic": [
+        1,
+        0
+      ],
+      "actual_control_noise_bounds": [
+        33,
+        32
+      ],
+      "builder_failures": [],
+      "policies": [
+        {
+          "policy": "fixed_dual",
+          "refresh_trials": [
+            {
+              "cycle": 0,
+              "branch": 0,
+              "expected": 0,
+              "rounded_input_bit": 0,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": false,
+              "selected_correct": false,
+              "output_noise": 126,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 0,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 0,
+              "output_margin": true,
+              "next_nand_margin": true
+            },
+            {
+              "cycle": 1,
+              "branch": 0,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 33,
+              "output_margin": true,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 1,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": false,
+              "selected_correct": false,
+              "output_noise": 126,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 2,
+              "branch": 0,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 33,
+              "output_margin": true,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 2,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 32,
+              "output_margin": true,
+              "next_nand_margin": false
+            }
+          ],
+          "cmux_gate_calls": 192,
+          "fallback_gate_calls": 0
+        },
+        {
+          "policy": "operand_adaptive_dual",
+          "refresh_trials": [
+            {
+              "cycle": 0,
+              "branch": 0,
+              "expected": 0,
+              "rounded_input_bit": 0,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": false,
+              "selected_correct": false,
+              "output_noise": 122,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 0,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": false,
+              "selected_correct": false,
+              "output_noise": 126,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 1,
+              "branch": 0,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 33,
+              "output_margin": true,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 1,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 0,
+              "input_rounding_matches_expected": false,
+              "evaluation_matches_rounded_input": false,
+              "selected_correct": true,
+              "output_noise": 117,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 2,
+              "branch": 0,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 33,
+              "output_margin": true,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 2,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": false,
+              "selected_correct": false,
+              "output_noise": 126,
+              "output_margin": false,
+              "next_nand_margin": false
+            }
+          ],
+          "cmux_gate_calls": 192,
+          "fallback_gate_calls": 0
+        }
+      ],
+      "certified_idempotent_factors": 8,
+      "closest_vector_columns": 18,
+      "improved_metric_columns": 18,
+      "rejected_metric_columns": 0,
+      "metric_cost_before": 292806,
+      "metric_cost_after": 1200,
+      "changed_operand_factors": 6,
+      "maximum_dual_entry": 4,
+      "maximum_centered_factor_entry": 128,
+      "distinct_operand_cache_entries": 10,
+      "base_noncommuting_pairs": 1
+    },
+    {
+      "n": 2,
+      "levels": 16,
+      "modulus": 65536,
+      "seed": 15010,
+      "variant": "exact_diagonal",
+      "source_resampled": false,
+      "secret_for_diagnostic": [
+        1,
+        0
+      ],
+      "actual_control_noise_bounds": [
+        8191,
+        8192
+      ],
+      "builder_failures": [],
+      "policies": [
+        {
+          "policy": "fixed_dual",
+          "refresh_trials": [
+            {
+              "cycle": 0,
+              "branch": 0,
+              "expected": 0,
+              "rounded_input_bit": 0,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 8192,
+              "output_margin": true,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 0,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 8191,
+              "output_margin": true,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 1,
+              "branch": 0,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 32476,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 1,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 0,
+              "output_margin": true,
+              "next_nand_margin": true
+            },
+            {
+              "cycle": 2,
+              "branch": 0,
+              "expected": 1,
+              "rounded_input_bit": 0,
+              "input_rounding_matches_expected": false,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": false,
+              "output_noise": 32768,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 2,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 32476,
+              "output_margin": false,
+              "next_nand_margin": false
+            }
+          ],
+          "cmux_gate_calls": 192,
+          "fallback_gate_calls": 0
+        },
+        {
+          "policy": "operand_adaptive_dual",
+          "refresh_trials": [
+            {
+              "cycle": 0,
+              "branch": 0,
+              "expected": 0,
+              "rounded_input_bit": 0,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 8192,
+              "output_margin": true,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 0,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 8191,
+              "output_margin": true,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 1,
+              "branch": 0,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": false,
+              "selected_correct": false,
+              "output_noise": 31917,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 1,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 0,
+              "output_margin": true,
+              "next_nand_margin": true
+            },
+            {
+              "cycle": 2,
+              "branch": 0,
+              "expected": 1,
+              "rounded_input_bit": 0,
+              "input_rounding_matches_expected": false,
+              "evaluation_matches_rounded_input": false,
+              "selected_correct": true,
+              "output_noise": 31910,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 2,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": false,
+              "selected_correct": false,
+              "output_noise": 31917,
+              "output_margin": false,
+              "next_nand_margin": false
+            }
+          ],
+          "cmux_gate_calls": 192,
+          "fallback_gate_calls": 0
+        }
+      ],
+      "certified_idempotent_factors": 7,
+      "closest_vector_columns": 15,
+      "improved_metric_columns": 15,
+      "rejected_metric_columns": 0,
+      "metric_cost_before": 17088436538,
+      "metric_cost_after": 3262,
+      "changed_operand_factors": 5,
+      "maximum_dual_entry": 7,
+      "maximum_centered_factor_entry": 32768,
+      "distinct_operand_cache_entries": 11,
+      "base_noncommuting_pairs": 1
+    },
+    {
+      "n": 2,
+      "levels": 16,
+      "modulus": 65536,
+      "seed": 15010,
+      "variant": "full_signed_outer_product",
+      "source_resampled": false,
+      "secret_for_diagnostic": [
+        1,
+        0
+      ],
+      "actual_control_noise_bounds": [
+        8193,
+        8193
+      ],
+      "builder_failures": [],
+      "policies": [
+        {
+          "policy": "fixed_dual",
+          "refresh_trials": [
+            {
+              "cycle": 0,
+              "branch": 0,
+              "expected": 0,
+              "rounded_input_bit": 0,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 8193,
+              "output_margin": true,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 0,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 8193,
+              "output_margin": true,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 1,
+              "branch": 0,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": false,
+              "selected_correct": false,
+              "output_noise": 32402,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 1,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 0,
+              "output_margin": true,
+              "next_nand_margin": true
+            },
+            {
+              "cycle": 2,
+              "branch": 0,
+              "expected": 1,
+              "rounded_input_bit": 0,
+              "input_rounding_matches_expected": false,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": false,
+              "output_noise": 32768,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 2,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": false,
+              "selected_correct": false,
+              "output_noise": 32402,
+              "output_margin": false,
+              "next_nand_margin": false
+            }
+          ],
+          "cmux_gate_calls": 192,
+          "fallback_gate_calls": 0
+        },
+        {
+          "policy": "operand_adaptive_dual",
+          "refresh_trials": [
+            {
+              "cycle": 0,
+              "branch": 0,
+              "expected": 0,
+              "rounded_input_bit": 0,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 8193,
+              "output_margin": true,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 0,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 8193,
+              "output_margin": true,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 1,
+              "branch": 0,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 32690,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 1,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 0,
+              "output_margin": true,
+              "next_nand_margin": true
+            },
+            {
+              "cycle": 2,
+              "branch": 0,
+              "expected": 1,
+              "rounded_input_bit": 0,
+              "input_rounding_matches_expected": false,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": false,
+              "output_noise": 32691,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 2,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 32690,
+              "output_margin": false,
+              "next_nand_margin": false
+            }
+          ],
+          "cmux_gate_calls": 192,
+          "fallback_gate_calls": 0
+        }
+      ],
+      "certified_idempotent_factors": 7,
+      "closest_vector_columns": 15,
+      "improved_metric_columns": 15,
+      "rejected_metric_columns": 0,
+      "metric_cost_before": 20195568865,
+      "metric_cost_after": 2703,
+      "changed_operand_factors": 5,
+      "maximum_dual_entry": 5,
+      "maximum_centered_factor_entry": 32768,
+      "distinct_operand_cache_entries": 11,
+      "base_noncommuting_pairs": 1
+    },
+    {
+      "n": 3,
+      "levels": 8,
+      "modulus": 256,
+      "seed": 15020,
+      "variant": "exact_diagonal",
+      "source_resampled": false,
+      "secret_for_diagnostic": [
+        0,
+        1,
+        1
+      ],
+      "actual_control_noise_bounds": [
+        32,
+        32,
+        32
+      ],
+      "builder_failures": [],
+      "policies": [
+        {
+          "policy": "fixed_dual",
+          "refresh_trials": [
+            {
+              "cycle": 0,
+              "branch": 0,
+              "expected": 0,
+              "rounded_input_bit": 0,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 32,
+              "output_margin": true,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 0,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": false,
+              "selected_correct": false,
+              "output_noise": 120,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 1,
+              "branch": 0,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": false,
+              "selected_correct": false,
+              "output_noise": 125,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 1,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": false,
+              "selected_correct": false,
+              "output_noise": 120,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 2,
+              "branch": 0,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 124,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 2,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": false,
+              "selected_correct": false,
+              "output_noise": 120,
+              "output_margin": false,
+              "next_nand_margin": false
+            }
+          ],
+          "cmux_gate_calls": 576,
+          "fallback_gate_calls": 0
+        },
+        {
+          "policy": "operand_adaptive_dual",
+          "refresh_trials": [
+            {
+              "cycle": 0,
+              "branch": 0,
+              "expected": 0,
+              "rounded_input_bit": 0,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 32,
+              "output_margin": true,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 0,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": false,
+              "selected_correct": false,
+              "output_noise": 122,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 1,
+              "branch": 0,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": false,
+              "selected_correct": false,
+              "output_noise": 124,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 1,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 0,
+              "input_rounding_matches_expected": false,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": false,
+              "output_noise": 128,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 2,
+              "branch": 0,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 121,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 2,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 0,
+              "output_margin": true,
+              "next_nand_margin": true
+            }
+          ],
+          "cmux_gate_calls": 576,
+          "fallback_gate_calls": 0
+        }
+      ],
+      "certified_idempotent_factors": 22,
+      "closest_vector_columns": 76,
+      "improved_metric_columns": 76,
+      "rejected_metric_columns": 0,
+      "metric_cost_before": 1720481,
+      "metric_cost_after": 10459,
+      "changed_operand_factors": 19,
+      "maximum_dual_entry": 6,
+      "maximum_centered_factor_entry": 128,
+      "distinct_operand_cache_entries": 24,
+      "base_noncommuting_pairs": 3
+    },
+    {
+      "n": 3,
+      "levels": 8,
+      "modulus": 256,
+      "seed": 15020,
+      "variant": "full_signed_outer_product",
+      "source_resampled": false,
+      "secret_for_diagnostic": [
+        0,
+        1,
+        1
+      ],
+      "actual_control_noise_bounds": [
+        32,
+        32,
+        33
+      ],
+      "builder_failures": [],
+      "policies": [
+        {
+          "policy": "fixed_dual",
+          "refresh_trials": [
+            {
+              "cycle": 0,
+              "branch": 0,
+              "expected": 0,
+              "rounded_input_bit": 0,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 32,
+              "output_margin": true,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 0,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": false,
+              "selected_correct": false,
+              "output_noise": 115,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 1,
+              "branch": 0,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 128,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 1,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 0,
+              "input_rounding_matches_expected": false,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": false,
+              "output_noise": 125,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 2,
+              "branch": 0,
+              "expected": 1,
+              "rounded_input_bit": 0,
+              "input_rounding_matches_expected": false,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": false,
+              "output_noise": 124,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 2,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 0,
+              "input_rounding_matches_expected": false,
+              "evaluation_matches_rounded_input": false,
+              "selected_correct": true,
+              "output_noise": 128,
+              "output_margin": false,
+              "next_nand_margin": false
+            }
+          ],
+          "cmux_gate_calls": 576,
+          "fallback_gate_calls": 0
+        },
+        {
+          "policy": "operand_adaptive_dual",
+          "refresh_trials": [
+            {
+              "cycle": 0,
+              "branch": 0,
+              "expected": 0,
+              "rounded_input_bit": 0,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 32,
+              "output_margin": true,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 0,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": true,
+              "output_noise": 116,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 1,
+              "branch": 0,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": false,
+              "selected_correct": false,
+              "output_noise": 125,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 1,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 0,
+              "input_rounding_matches_expected": false,
+              "evaluation_matches_rounded_input": true,
+              "selected_correct": false,
+              "output_noise": 126,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 2,
+              "branch": 0,
+              "expected": 1,
+              "rounded_input_bit": 0,
+              "input_rounding_matches_expected": false,
+              "evaluation_matches_rounded_input": false,
+              "selected_correct": true,
+              "output_noise": 127,
+              "output_margin": false,
+              "next_nand_margin": false
+            },
+            {
+              "cycle": 2,
+              "branch": 1,
+              "expected": 1,
+              "rounded_input_bit": 1,
+              "input_rounding_matches_expected": true,
+              "evaluation_matches_rounded_input": false,
+              "selected_correct": false,
+              "output_noise": 126,
+              "output_margin": false,
+              "next_nand_margin": false
+            }
+          ],
+          "cmux_gate_calls": 576,
+          "fallback_gate_calls": 0
+        }
+      ],
+      "certified_idempotent_factors": 22,
+      "closest_vector_columns": 76,
+      "improved_metric_columns": 76,
+      "rejected_metric_columns": 0,
+      "metric_cost_before": 1741668,
+      "metric_cost_after": 10522,
+      "changed_operand_factors": 19,
+      "maximum_dual_entry": 8,
+      "maximum_centered_factor_entry": 128,
+      "distinct_operand_cache_entries": 24,
+      "base_noncommuting_pairs": 3
+    }
+  ],
+  "summaries": [
+    {
+      "policy": "fixed_dual",
+      "refresh_calls": 36,
+      "selected_correct": 19,
+      "evaluation_matches_rounded_input": 22,
+      "input_rounding_matches_expected": 31,
+      "first_cycle_calls": 12,
+      "first_cycle_selected_correct": 8,
+      "first_cycle_input_rounding_correct": 12,
+      "output_margins": 14,
+      "next_nand_margins": 5
+    },
+    {
+      "policy": "operand_adaptive_dual",
+      "refresh_calls": 36,
+      "selected_correct": 20,
+      "evaluation_matches_rounded_input": 23,
+      "input_rounding_matches_expected": 27,
+      "first_cycle_calls": 12,
+      "first_cycle_selected_correct": 8,
+      "first_cycle_input_rounding_correct": 12,
+      "output_margins": 11,
+      "next_nand_margins": 3
+    }
+  ],
+  "totals": {
+    "cases": 6,
+    "controls": 14,
+    "builder_failures": 0,
+    "certified_idempotent_factors": 73,
+    "closest_vector_columns": 215,
+    "improved_metric_columns": 215,
+    "rejected_metric_columns": 0,
+    "metric_cost_before": 37288009744,
+    "metric_cost_after": 29292,
+    "changed_operand_factors": 59,
+    "distinct_operand_cache_entries": 89,
+    "base_noncommuting_pairs": 10
+  }
+}
