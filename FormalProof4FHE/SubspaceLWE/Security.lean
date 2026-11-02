@@ -4,9 +4,10 @@ Released under MIT license as described in the file LICENSE.
 Authors: Kotaro Matsuoka
 -/
 
+import FormalProof4FHE.Probability.Discrete
 import FormalProof4FHE.SubspaceLWE.Simulator
 import FormalProof4FHE.LWE.Security
-import VCVio.OracleComp.QueryTracking.LoggingOracle
+import VCVio.OracleComp.QueryTracking.LoggingOracle.Core
 import VCVio.OracleComp.SimSemantics.StateT.StateSeparating
 
 /-!
@@ -22,6 +23,8 @@ open Matrix OracleComp OracleSpec
 open ENNReal
 open scoped ENNReal
 open OracleComp.ProgramLogic.Relational
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.GeneralizedSubspaceLWE.Adaptive
 
 universe u
@@ -97,7 +100,8 @@ theorem evalDist_run'_simulateQ_badFlag_eq
           (fun index _ _ ↦ bad index)) computation).run' (PUnit.unit, false)) =
       evalDist ((simulateQ (QueryImpl.appendInputLog base) computation).run' []) := by
         simp only [StateT.run'_eq]
-        apply evalDist_map_eq_of_relTriple
+        apply EvalDistEq.evalDist_eq
+        apply evalDistEq_map_of_relTriple
         exact relTriple_post_mono
           (relTriple_badFlag_appendInputLog base bad computation)
           (fun _ _ h ↦ h.1)
@@ -118,6 +122,7 @@ theorem tvDist_simulateQ_le_probEvent_badFlag
           ((QueryImpl.Stateful.ofStateless first).withBadUpdate
             (fun index _ _ ↦ bad index)) computation).run
           (PUnit.unit, false)].toReal := by
+  classical
   let firstFlagged :=
     (QueryImpl.Stateful.ofStateless first).withBadUpdate
       (fun index _ _ ↦ bad index)
@@ -181,10 +186,26 @@ theorem tvDist_simulateQ_le_probEvent_badFlag
             simp only [StateT.run'_eq]
             exact tvDist_map_le Prod.fst _ _
     _ ≤ Pr[(fun result : alpha × (PUnit × Bool) ↦ result.2.2 = true) |
-          (simulateQ firstFlagged computation).run (PUnit.unit, false)].toReal :=
-      tvDist_simulateQ_run_le_probEvent_output_bad
-        firstFlagged secondFlagged computation PUnit.unit
-          hagree hmonoFirst hmonoSecond
+          (simulateQ firstFlagged computation).run (PUnit.unit, false)].toReal := by
+      apply ENNReal.toReal_mono (probEvent_ne_top)
+      apply measureETVDist_simulateQ_run_le_prEvent_bad
+        firstFlagged secondFlagged (fun state => state.2 = true) _
+        hmonoFirst hmonoSecond computation (PUnit.unit, false)
+      intro index state hstate predicate
+      have hfalse : state.2 = false := Bool.eq_false_iff.mpr hstate
+      rcases state with ⟨state, flag⟩
+      cases flag
+      · change probEvent _ _ = probEvent _ _
+        rw [probEvent_eq_tsum_ite, probEvent_eq_tsum_ite]
+        apply tsum_congr
+        rintro ⟨response, state', flag'⟩
+        cases flag'
+        · simp only [Bool.false_eq_true, not_false_eq_true, and_true]
+          split_ifs
+          · exact hagree index state response state'
+          · rfl
+        · simp
+      · contradiction
 
 /-- Averaging pointwise TV bounds expressed by continuation bad events gives
 the bad probability of the combined run. -/
@@ -308,7 +329,7 @@ theorem probEvent_list_any_bad_le_countP {Hidden Index : Type}
           Pr[(fun hidden ↦ (head :: tail).any (bad hidden) = true) | hiddenSampler] ≤
               Pr[(fun hidden ↦ bad hidden head = true) | hiddenSampler] +
                 Pr[(fun hidden ↦ tail.any (bad hidden) = true) | hiddenSampler] := by
-                simpa [Bool.or_eq_true] using probEvent_or_le hiddenSampler
+                simpa [Bool.or_eq_true, probEvent] using prEvent_or_le hiddenSampler
                   (fun hidden ↦ bad hidden head = true)
                   (fun hidden ↦ tail.any (bad hidden) = true)
           _ ≤ ε + (tail.countP charged : ℝ≥0∞) * ε :=
@@ -352,7 +373,8 @@ theorem probEvent_hidden_badFlag_le {Hidden Index : Type}
   have hstep : ∀ hidden, evalDist (flaggedRun hidden) = evalDist (loggedBad hidden) := by
     intro hidden
     dsimp [flaggedRun, loggedBad, loggedRun]
-    apply evalDist_map_eq_of_relTriple
+    apply EvalDistEq.evalDist_eq
+    apply evalDistEq_map_of_relTriple
     exact relTriple_post_mono
       (relTriple_badFlag_appendInputLog base (bad hidden) computation)
       (fun _ _ h ↦ h.2)
@@ -376,7 +398,7 @@ theorem probEvent_hidden_badFlag_le {Hidden Index : Type}
           exact probEvent_congr' (fun _ _ ↦ Iff.rfl)
             (by
               simpa [loggedBad, map_eq_bind_pure_comp] using
-                (OracleComp.DeferredSampling.evalDist_bind_comm
+                (FormalProof4FHE.evalDist_bind_bind_swap
                   hiddenSampler loggedRun
                     (fun hidden result ↦ pure (result.2.any (bad hidden)))))
     _ ≤ (budget : ℝ≥0∞) * ε := by
@@ -455,9 +477,7 @@ theorem evalDist_source_compose_simulatorReduction {F : Type}
   rcases index with uniformIndex | query
   · simp [QueryImpl.apply_compose, simulatorReduction, sourceImpl,
       simulatedFullImpl]
-    intro response
-    change Pr[= response | (QueryImpl.id' unifSpec) uniformIndex] = _
-    simp
+    exact OracleComp.evalDist_query_uniform uniformIndex
   · by_cases hadmissible : query.IsAdmissible threshold
     · by_cases hfull : (query.overlap * hidden).rank = dimension
       · change evalDist (simulateQ (sourceImpl (pairSamplerFromValue valueSampler))
@@ -567,16 +587,16 @@ theorem simulatorReduction_isQueryBoundP {F : Type}
     IsQueryBoundP
       (simulateQ (simulatorReduction threshold hidden blinding) adversary)
       (isSourceSample (F := F) (dimension := dimension)) queryCount := by
-  letI : Inhabited F := ⟨0⟩
-  letI : IsUniformSpec (Unit →ₒ LWESample F dimension) :=
-    IsUniformSpec.ofFintypeInhabited _
+  let : Inhabited F := ⟨0⟩
+  let : OracleSpec.UniformAnswerMeasure (Unit →ₒ LWESample F dimension) :=
+    OracleSpec.UniformAnswerMeasure.ofFiniteNonempty _
   apply IsQueryBoundP.simulateQ_of_step hbound
   · intro index hcharged
     rcases index with uniformIndex | query
     · simp [isSLWEQuery] at hcharged
     · by_cases hadmissible : query.IsAdmissible threshold
       · by_cases hfull : (query.overlap * hidden).rank = dimension
-        · simp only [simulatorReduction, hadmissible, hfull, dif_pos]
+        · simp only [simulatorReduction, hadmissible, hfull, dite_eq_left]
           let sourceQuery : OracleComp (SourceInterface F dimension)
               (LWESample F dimension) :=
             liftM ((SourceInterface F dimension).query (Sum.inr ()))
@@ -798,7 +818,7 @@ theorem probEvent_affineHonestRankLoss_le_pietrzak {F : Type}
           let hidden ← hiddenSampler
           badRun hidden secret] := by
             exact probEvent_congr' (fun _ _ ↦ Iff.rfl)
-              (OracleComp.DeferredSampling.evalDist_bind_comm
+              (FormalProof4FHE.evalDist_bind_bind_swap
                 hiddenSampler secretSampler badRun)
     _ ≤ (queryCount : ℝ≥0∞) * pietrzakRankError F slack := by
       apply probEvent_bind_le_of_forall_le
@@ -907,7 +927,6 @@ theorem tvDist_affineHonest_onlineReal_le_pietrzak {F : Type}
               (fun result : Bool × (PUnit × Bool) ↦ result.2.2) <$>
                 flaggedRun].toReal := by
           rw [probEvent_map]
-          rfl
     _ ≤ ((queryCount : ℝ≥0∞) * pietrzakRankError F slack).toReal := by
       apply ENNReal.toReal_mono
       · apply ENNReal.mul_ne_top (by simp)
@@ -948,7 +967,7 @@ theorem evalDist_affineHonestGame_eq_realGame {F : Type}
         secretSampler, honest, bind_assoc] using
         (evalDist_bind_congr' hiddenSampler hshift)
     _ = evalDist (secretSampler >>= honest) :=
-      OracleComp.DeferredSampling.evalDist_bind_const_neverFails
+      FormalProof4FHE.SharedRandomness.evalDist_bind_const_of_probFailure_eq_zero
         hiddenSampler (by simp [hiddenSampler]) (secretSampler >>= honest)
     _ = evalDist (realGame threshold errorSampler adversary) := by
       rfl
@@ -1018,7 +1037,6 @@ theorem tvDist_affineHonest_onlineUniform_le_pietrzak {F : Type}
               (fun result : Bool × (PUnit × Bool) ↦ result.2.2) <$>
                 flaggedRun].toReal := by
           rw [probEvent_map]
-          rfl
     _ ≤ ((queryCount : ℝ≥0∞) * pietrzakRankError F slack).toReal := by
       apply ENNReal.toReal_mono
       · apply ENNReal.mul_ne_top (by simp)
@@ -1068,7 +1086,7 @@ theorem advantage_le_onlineLWE_add_rankLoss {F : Type}
         exact evalDist_affineHonestGame_eq_realGame
           (dimension + slack) sourceSecret errorSampler adversary
       _ = evalDist (realGame (dimension + slack) errorSampler adversary) :=
-        OracleComp.DeferredSampling.evalDist_bind_const_neverFails
+        FormalProof4FHE.SharedRandomness.evalDist_bind_const_of_probFailure_eq_zero
           sourceSecretSampler (by simp [sourceSecretSampler]) _
   have hRealTV : tvDist averagedAffineReal
       (onlineRealGame (dimension := dimension) (dimension + slack)
@@ -1148,8 +1166,8 @@ theorem probOutput_fin_mOfFn {alpha : Type} [Finite alpha] (count : ℕ)
     (samplers : Fin count → ProbComp alpha) (values : Fin count → alpha) :
     Pr[= values | Fin.mOfFn count samplers] =
       ∏ index, Pr[= values index | samplers index] := by
-  letI : Fintype alpha := Fintype.ofFinite alpha
-  letI : DecidableEq alpha := Classical.decEq alpha
+  let : Fintype alpha := Fintype.ofFinite alpha
+  let : DecidableEq alpha := Classical.decEq alpha
   induction count with
   | zero =>
       have hvalues : values = Fin.elim0 := funext fun index => index.elim0
@@ -1180,20 +1198,20 @@ theorem probOutput_fin_mOfFn {alpha : Type} [Finite alpha] (count : ℕ)
           · rintro ⟨rfl, rfl⟩
             exact (Fin.cons_self_tail values).symm
         by_cases hvalue : value = values 0
-        · rw [if_pos hvalue]
+        · rw [ite_eq_left hvalue]
           subst value
           simp only [probOutput_pure, hiff, true_and]
           simp [mul_ite]
-        · rw [if_neg hvalue]
+        · rw [ite_eq_right hvalue]
           refine Finset.sum_eq_zero fun rest _ => ?_
           rw [probOutput_pure,
-            if_neg (fun heq => hvalue ((hiff rest).mp heq).1), mul_zero]
+            ite_eq_right (fun heq => hvalue ((hiff rest).mp heq).1), mul_zero]
       simp only [hinner, mul_ite, mul_zero]
       rw [Finset.sum_ite_eq' Finset.univ (values 0)
         (fun value => Pr[= value | samplers 0] *
           Pr[= Fin.tail values |
             Fin.mOfFn count fun index => samplers index.succ]),
-        if_pos (Finset.mem_univ _), ih, Fin.prod_univ_succ]
+        ite_eq_left (Finset.mem_univ _), ih, Fin.prod_univ_succ]
       rfl
 
 /-- Independent uniform coordinates are the uniform distribution on a finite function space. -/
@@ -1517,7 +1535,7 @@ theorem evalDist_batchSamples_batchDistr {F : Type}
             map_eq_bind_pure_comp, bind_assoc]
     _ = evalDist (($ᵗ (Fin dimension → F)) >>= fun secret =>
           challengeSampler >>= fun matrix => continuation matrix secret) :=
-      OracleComp.DeferredSampling.evalDist_bind_comm
+      FormalProof4FHE.evalDist_bind_bind_swap
         challengeSampler ($ᵗ (Fin dimension → F)) continuation
     _ = evalDist (($ᵗ (Fin dimension → F)) >>= fun secret =>
           batchSamples <$>
@@ -1763,7 +1781,7 @@ theorem evalDist_onlineSimulator_eq_sampleBatch {F : Type}
       exact hcoins
     _ = evalDist (samplesSampler >>= fun samples =>
           coinsSampler >>= fun coins => continuation coins samples) :=
-      OracleComp.DeferredSampling.evalDist_bind_comm
+      FormalProof4FHE.evalDist_bind_bind_swap
         coinsSampler samplesSampler continuation
     _ = _ := by
       simp [coinsSampler, samplesSampler, continuation,
@@ -1810,7 +1828,7 @@ theorem evalDist_onlineRealGame_eq_batch_game0 {F : Type}
     (hbound : IsQueryBoundP adversary (isSLWEQuery (F := F)) count) :
     evalDist (onlineRealGame (dimension := dimension)
       threshold errorSampler adversary) =
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
         (FormalProof4FHE.LWE.batchProblem dimension count
           ($ᵗ (Fin dimension → F)) errorSampler)
         (batchReduction threshold count adversary)) := by
@@ -1842,10 +1860,10 @@ theorem evalDist_onlineRealGame_eq_batch_game0 {F : Type}
     exact evalDist_onlineRealSimulatorGame_eq_sampleBatch
       threshold count secret errorSampler adversary hbound
   have hgame :
-      evalDist (LearningWithErrors.game0 problem
+      evalDist (LearningWithErrors.realExperiment problem
         (batchReduction threshold count adversary)) =
       evalDist (mappedDistr >>= continuation) := by
-    simp [LearningWithErrors.game0, mappedDistr, continuation,
+    simp [LearningWithErrors.realExperiment, mappedDistr, continuation,
       batchReduction, map_eq_bind_pure_comp, bind_assoc]
   calc
     evalDist (onlineRealGame (dimension := dimension)
@@ -1865,7 +1883,7 @@ theorem evalDist_onlineUniformGame_eq_batch_game1 {F : Type}
     (hbound : IsQueryBoundP adversary (isSLWEQuery (F := F)) count) :
     evalDist (onlineUniformSimulatorGame (dimension := dimension)
       threshold adversary) =
-      evalDist (LearningWithErrors.game1
+      evalDist (LearningWithErrors.randomExperiment
         (FormalProof4FHE.LWE.batchProblem dimension count
           ($ᵗ (Fin dimension → F)) errorSampler)
         (batchReduction threshold count adversary)) := by
@@ -1889,10 +1907,10 @@ theorem evalDist_onlineUniformGame_eq_batch_game1 {F : Type}
     exact evalDist_onlineUniformSimulatorGame_eq_sampleBatch
       threshold count adversary hbound
   have hgame :
-      evalDist (LearningWithErrors.game1 problem
+      evalDist (LearningWithErrors.randomExperiment problem
         (batchReduction threshold count adversary)) =
       evalDist (mappedDistr >>= continuation) := by
-    simp [LearningWithErrors.game1, mappedDistr, continuation,
+    simp [LearningWithErrors.randomExperiment, mappedDistr, continuation,
       batchReduction, map_eq_bind_pure_comp, bind_assoc]
   calc
     evalDist (onlineUniformSimulatorGame (dimension := dimension)
@@ -1915,7 +1933,7 @@ theorem advantage_le_batchLWE_add_rankLoss {F : Type}
     (errorSampler : ProbComp F) (adversary : Adversary F ambient)
     (hbound : IsQueryBoundP adversary (isSLWEQuery (F := F)) queryCount) :
     advantage (dimension + slack) errorSampler adversary ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.batchProblem dimension queryCount
           ($ᵗ (Fin dimension → F)) errorSampler)
         (batchReduction (dimension := dimension)
@@ -1928,13 +1946,13 @@ theorem advantage_le_batchLWE_add_rankLoss {F : Type}
   have hreal :
       evalDist (onlineRealGame (dimension := dimension)
         (dimension + slack) errorSampler adversary) =
-      evalDist (LearningWithErrors.game0 problem reduction) :=
+      evalDist (LearningWithErrors.realExperiment problem reduction) :=
     evalDist_onlineRealGame_eq_batch_game0
       (dimension + slack) queryCount errorSampler adversary hbound
   have huniform :
       evalDist (onlineUniformSimulatorGame (dimension := dimension)
         (dimension + slack) adversary) =
-      evalDist (LearningWithErrors.game1 problem reduction) :=
+      evalDist (LearningWithErrors.randomExperiment problem reduction) :=
     evalDist_onlineUniformGame_eq_batch_game1
       (dimension + slack) queryCount errorSampler adversary hbound
   have honlineAdvantage :
@@ -1942,7 +1960,7 @@ theorem advantage_le_batchLWE_add_rankLoss {F : Type}
         (dimension + slack) errorSampler adversary).boolDistAdvantage
         (onlineUniformSimulatorGame (dimension := dimension)
           (dimension + slack) adversary) =
-      LearningWithErrors.advantage problem reduction := by
+      LearningWithErrors.realAdvantage problem reduction := by
     rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
     simp only [ProbComp.boolDistAdvantage,
       probOutput_congr rfl hreal, probOutput_congr rfl huniform]
@@ -1955,7 +1973,7 @@ theorem advantage_le_batchLWE_add_rankLoss {F : Type}
         2 * ((queryCount : ℝ≥0∞) * pietrzakRankError F slack).toReal :=
       advantage_le_onlineLWE_add_rankLoss
         slack queryCount errorSampler adversary hbound
-    _ = LearningWithErrors.advantage problem reduction +
+    _ = LearningWithErrors.realAdvantage problem reduction +
         2 * ((queryCount : ℝ≥0∞) * pietrzakRankError F slack).toReal := by
       rw [honlineAdvantage]
     _ = _ := by rfl
@@ -1967,7 +1985,7 @@ theorem advantage_le_of_batchLWE {F : Type}
     (errorSampler : ProbComp F) (adversary : Adversary F ambient)
     (hbound : IsQueryBoundP adversary (isSLWEQuery (F := F)) queryCount)
     (lweBound : ℝ)
-    (hLWE : LearningWithErrors.advantage
+    (hLWE : LearningWithErrors.realAdvantage
       (FormalProof4FHE.LWE.batchProblem dimension queryCount
         ($ᵗ (Fin dimension → F)) errorSampler)
       (batchReduction (dimension := dimension)

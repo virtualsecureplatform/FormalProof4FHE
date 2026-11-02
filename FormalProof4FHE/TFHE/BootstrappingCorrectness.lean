@@ -30,6 +30,8 @@ desired bit.
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.BootstrappingCorrectness
 
 noncomputable section
@@ -140,7 +142,6 @@ theorem cInfNorm_idealMultiplier_le_pow {q degree rank levels : ℕ} [NeZero q]
                 (BlindRotation.idealMultiplier controls)
                 (if control.bit then control.factor
                   else (1 : RLWE.Rq q (degree + 1))) using 1
-              rfl
         _ ≤ convolutionCost degree *
               (convolutionCost degree ^ controls.length * 1) :=
             Nat.mul_le_mul_left _ (Nat.mul_le_mul (ih htail) hselected)

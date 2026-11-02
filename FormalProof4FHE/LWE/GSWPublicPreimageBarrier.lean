@@ -24,6 +24,8 @@ be omitted at an even modulus.
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWPublicPreimageBarrier
 
 def signedSecret {R : Type} [CommRing R] {n : ℕ} (bits : Fin n → Bool) :

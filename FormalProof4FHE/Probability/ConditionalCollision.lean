@@ -22,6 +22,8 @@ structure is assumed.
 
 open BigOperators OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.ConditionalCollision
 
 noncomputable section
@@ -469,7 +471,7 @@ theorem outputReplacementChiSquare_eq_card_mul_secondMoment_sub_one
     · simp [sideMass, hzero]
     · have hideal : sideMass * M⁻¹ ≠ 0 :=
         mul_ne_zero hzero (inv_ne_zero hM)
-      simp only [sideMass, hideal, if_false, hzero]
+      simp only [sideMass, hideal, ite_false, hzero]
       have hterm (jointMass : ℝ) :
           (jointMass - sideMass * M⁻¹) ^ 2 / (sideMass * M⁻¹) =
             M * (jointMass ^ 2 / sideMass) - 2 * jointMass + sideMass / M := by
@@ -572,7 +574,7 @@ theorem outputReplacementChiSquare_le_of_conditionalCollisionBound
         lt_of_le_of_ne ENNReal.toReal_nonneg (Ne.symm hzero)
       have hpair : M * collisionMass ≤ (1 + ε) * sideMass ^ 2 := by
         simpa only [M, collisionMass, sideMass] using hbound side
-      rw [if_neg hzero]
+      rw [ite_eq_right hzero]
       change M * (collisionMass / sideMass) ≤ (1 + ε) * sideMass
       apply (le_of_mul_le_mul_right ?_ hpositive)
       calc
@@ -821,7 +823,7 @@ theorem sum_sameSidePairWeight_div_fiberCard_le_total
         · exact le_rfl
       by_cases hcard : sideFiberCard side sideValue = 0
       · simp [hcard, hpair]
-      · simp only [hcard, if_false]
+      · simp only [hcard, ite_false]
         apply div_le_self hpair
         exact_mod_cast Nat.one_le_iff_ne_zero.mpr hcard
     _ ≤ ∑ left : Input, ∑ right : Input, weight left right :=
@@ -861,7 +863,7 @@ theorem sum_sameSidePairWeight_div_scaledFiberCard_le_total_div
     · simp [hcard]
     · have hcardReal : (sideFiberCard side sideValue : ℝ) ≠ 0 := by
         exact_mod_cast hcard
-      simp only [hcard, if_false]
+      simp only [hcard, ite_false]
       field_simp [hscale_ne, hcardReal]
   simp_rw [hterm]
   conv_lhs => rw [← Finset.sum_div]
@@ -1029,7 +1031,7 @@ theorem probOutput_uniformSideIndependentOutput_eq_sideFiberCard
   classical
   simp [uniformSideIndependentOutput, sideFiberCard,
     probOutput_bind_eq_sum_fintype, probOutput_uniformSample, eq_comm]
-  ring
+  ac_rfl
 
 /-- Explicit cardinality form of the retained-side collision loss.  The two normalized terms
 inside each square are respectively the real joint-fiber mass and the exact side-fiber mass
@@ -1228,7 +1230,7 @@ theorem zeroFiberCard_mul_card_range_addHom_eq_card
   let rangeTransform : Domain →+ transform.range := transform.rangeRestrict
   have hsurjective : Function.Surjective rangeTransform :=
     AddMonoidHom.rangeRestrict_surjective transform
-  have hfiber (value : Set.range transform) :
+  have hfiber (value : transform.range) :
       (Finset.univ.filter fun input : Domain => rangeTransform input = value).card =
         (Finset.univ.filter fun input : Domain => rangeTransform input = 0).card := by
     exact AddMonoidHom.card_fiber_eq_of_mem_range rangeTransform
@@ -1400,7 +1402,7 @@ theorem conditionalFiberChiSquare_eq_secondMoment
       have hideal :
           N⁻¹ * (sideFiberCard side sideValue : ℝ) * M⁻¹ ≠ 0 := by
         exact mul_ne_zero (mul_ne_zero (inv_ne_zero hN) hsideReal) (inv_ne_zero hM)
-      simp only [hideal, if_false, hzero]
+      simp only [hideal, ite_false, hzero]
       have hterm (jointCard : ℕ) :
           (N⁻¹ * (jointCard : ℝ) -
                 N⁻¹ * (sideFiberCard side sideValue : ℝ) * M⁻¹) ^ 2 /
@@ -1511,7 +1513,7 @@ theorem conditionalFiberChiSquare_le_of_secondMoment
       have hbound : M * S ≤
           (1 + ε) * (sideFiberCard side sideValue : ℝ) ^ 2 := by
         simpa only [M, S] using hsecond sideValue
-      rw [if_neg hzero]
+      rw [ite_eq_right hzero]
       calc
         M / N * (S / (sideFiberCard side sideValue : ℝ)) =
             (M * S) / (N * (sideFiberCard side sideValue : ℝ)) := by

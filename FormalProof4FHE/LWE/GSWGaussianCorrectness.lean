@@ -23,6 +23,8 @@ its arithmetic/random-bit cost and security of the same-key public view remain o
 
 open scoped ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWGaussianCorrectness
 
 open GSWSampling GSWPublicKey GSWBootstrapParameters DiscreteGaussianTail

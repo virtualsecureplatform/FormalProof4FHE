@@ -28,6 +28,8 @@ introduced by a same-secret batch hybrid.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular
 
 open Native
@@ -615,14 +617,14 @@ theorem publicZeroLweAdvantage_toPublic_le_two_jointLwe
         (bundleDistinguisher
           (KeySwitchFirstSecurity.toPublicDistinguisher
             (queryCount := queryCount) encode adversary)) ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (Adaptive.jointLweProblem q lweDimension
           (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels) queryCount
           keySwitchErrorSampler inputErrorSampler)
         (Adaptive.keySwitchMessageReduction ringErrorSampler
           keySwitchErrorSampler inputErrorSampler tgswGadget
           (Adaptive.nativeKeySwitchMessage keySwitchGadget) encode adversary) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (Adaptive.jointLweProblem q lweDimension
           (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels) queryCount
           keySwitchErrorSampler inputErrorSampler)
@@ -744,7 +746,7 @@ theorem abs_signedAdvantage_real_le_publicCircular_add_zero_add_jointLwe
           (bundleDistinguisher
             (KeySwitchFirstSecurity.toPublicDistinguisher
               (queryCount := queryCount) encode adversary)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Adaptive.jointLweProblem q lweDimension
             (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels) queryCount
             keySwitchErrorSampler inputErrorSampler)
@@ -782,14 +784,14 @@ theorem abs_signedAdvantage_real_le_publicCircular_add_two_jointLwe_add_uniformJ
           (bundleDistinguisher
             (KeySwitchFirstSecurity.toPublicDistinguisher
               (queryCount := queryCount) encode adversary)) +
-        2 * LearningWithErrors.advantage
+        2 * LearningWithErrors.realAdvantage
           (Adaptive.jointLweProblem q lweDimension
             (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels) queryCount
             keySwitchErrorSampler inputErrorSampler)
           (Adaptive.keySwitchMessageReduction ringErrorSampler keySwitchErrorSampler
             inputErrorSampler tgswGadget
             (Adaptive.nativeKeySwitchMessage keySwitchGadget) encode adversary) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Adaptive.jointLweProblem q lweDimension
             (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels) queryCount
             keySwitchErrorSampler inputErrorSampler)

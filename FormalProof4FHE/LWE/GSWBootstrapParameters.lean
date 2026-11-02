@@ -21,6 +21,8 @@ complete masked quadratic self-key view has not been reduced to ordinary LWE.
 
 open Matrix
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWBootstrapParameters
 
 open GSWGadget GSWModulusSwitch GSWBootstrap TFHE.BootstrappingCorrectness

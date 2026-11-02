@@ -17,6 +17,8 @@ statistical certificate obtained from whole-key diagonal isolation.
 
 open ENNReal OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.PublicAuxiliaryInputCircular.AugmentedCandidate
 
 open FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery

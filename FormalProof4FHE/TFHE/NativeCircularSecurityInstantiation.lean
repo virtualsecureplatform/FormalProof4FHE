@@ -26,6 +26,8 @@ set_option autoImplicit false
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.NativeCircularSecurityInstantiation
 
 noncomputable section

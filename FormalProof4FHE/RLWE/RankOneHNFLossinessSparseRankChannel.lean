@@ -26,6 +26,8 @@ open BigOperators
 open Polynomial
 open scoped ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.RankOneHNFLossinessSparseRankChannel
 
 open RankOneHNFLossinessSparseRank
@@ -178,9 +180,9 @@ theorem binaryQuotientPolynomial_chainValuation_eq_hasseValuation
         (binaryQuotientPolynomial d polynomial) =
       hasseValuation (2 ^ d) polynomial := by
   classical
-  letI : Fintype (QuotientRq 2 (2 ^ d)) :=
+  let : Fintype (QuotientRq 2 (2 ^ d)) :=
     PowerOfTwoQuadraticKDMStatistical.quotientPowerOfTwoRqFintype 1 d
-  letI : DecidableEq (QuotientRq 2 (2 ^ d)) :=
+  let : DecidableEq (QuotientRq 2 (2 ^ d)) :=
     PowerOfTwoQuadraticKDMStatistical.quotientPowerOfTwoRqDecidableEq 1 d
   let value := binaryQuotientPolynomial d polynomial
   let valuation := hasseValuation (2 ^ d) polynomial
@@ -217,9 +219,9 @@ theorem card_binaryQuotient_rightMulRange_eq_two_pow_hasseRank
     (hdegree : polynomial.natDegree < 2 ^ d) :
     Nat.card (rightMulAddHom (binaryQuotientPolynomial d polynomial)).range =
       2 ^ (2 ^ d - hasseValuation (2 ^ d) polynomial) := by
-  letI : Fintype (QuotientRq 2 (2 ^ d)) :=
+  let : Fintype (QuotientRq 2 (2 ^ d)) :=
     PowerOfTwoQuadraticKDMStatistical.quotientPowerOfTwoRqFintype 1 d
-  letI : DecidableEq (QuotientRq 2 (2 ^ d)) :=
+  let : DecidableEq (QuotientRq 2 (2 ^ d)) :=
     PowerOfTwoQuadraticKDMStatistical.quotientPowerOfTwoRqDecidableEq 1 d
   have hcard := RankOneHNFLossinessSparseRank.card_rightMulRange_eq_two_pow_rank
     (quotientPowerOfTwoAdicChain 1 d) (binaryQuotientPolynomial d polynomial)
@@ -250,9 +252,9 @@ noncomputable def binaryQuotientRightMulRangeEquiv
     (rightMulAddHom (binaryQuotientPolynomial d polynomial)).range ≃
       (Fin (2 ^ d - hasseValuation (2 ^ d) polynomial) → F2) := by
   classical
-  letI : Fintype (QuotientRq 2 (2 ^ d)) :=
+  let : Fintype (QuotientRq 2 (2 ^ d)) :=
     PowerOfTwoQuadraticKDMStatistical.quotientPowerOfTwoRqFintype 1 d
-  letI : DecidableEq (QuotientRq 2 (2 ^ d)) :=
+  let : DecidableEq (QuotientRq 2 (2 ^ d)) :=
     PowerOfTwoQuadraticKDMStatistical.quotientPowerOfTwoRqDecidableEq 1 d
   apply Fintype.equivOfCardEq
   rw [← Nat.card_eq_fintype_card,
@@ -269,9 +271,9 @@ noncomputable def primitiveDifferenceBinaryRangeEquiv
         (binaryWordPolynomial (primitiveDifference left right)))).range ≃
       (Fin (primitiveDifferenceRank d left right) → F2) := by
   classical
-  letI : Fintype (QuotientRq 2 (2 ^ d)) :=
+  let : Fintype (QuotientRq 2 (2 ^ d)) :=
     PowerOfTwoQuadraticKDMStatistical.quotientPowerOfTwoRqFintype 1 d
-  letI : DecidableEq (QuotientRq 2 (2 ^ d)) :=
+  let : DecidableEq (QuotientRq 2 (2 ^ d)) :=
     PowerOfTwoQuadraticKDMStatistical.quotientPowerOfTwoRqDecidableEq 1 d
   apply Fintype.equivOfCardEq
   rw [← Nat.card_eq_fintype_card,
@@ -657,7 +659,7 @@ theorem encodedPrimitiveWordExecutable_eq
   unfold encodedPrimitiveWordExecutable primitiveDifference
   rw [wordSupport_decodeFixedWeightTernary, wordSupport_decodeFixedWeightTernary]
   by_cases hsupport : left.1.1 = right.1.1
-  · simp only [if_pos hsupport, halvedSignDifference]
+  · simp only [ite_eq_left hsupport, halvedSignDifference]
     by_cases hleft : index ∈ left.1.1
     · have hright : index ∈ right.1.1 := hsupport ▸ hleft
       simp only [hleft, dite_true]
@@ -668,7 +670,7 @@ theorem encodedPrimitiveWordExecutable_eq
     · have hright : index ∉ right.1.1 := by
         simpa [← hsupport] using hleft
       simp [hleft, hright, decodeFixedWeightTernary]
-  · simp only [if_neg hsupport, parityDifference]
+  · simp only [ite_eq_right hsupport, parityDifference]
     have hsupportSubtype : left.1 ≠ right.1 := by
       intro heq
       exact hsupport (congrArg Subtype.val heq)
@@ -801,7 +803,7 @@ theorem card_coordinateCompatibilityBox_le_pow
   rw [card_coordinateCompatibilityBox]
   calc
     ∏ index : Index, (allowed index).card ≤ ∏ _index : Index, width := by
-      apply Finset.prod_le_prod
+      apply Finset.prod_le_prod₀
       · intro index _
         exact Nat.zero_le _
       · intro index _
@@ -973,9 +975,9 @@ theorem card_binaryQuotient_principalCokernel_eq_two_pow_hasseValuation
           (rightMulAddHom (binaryQuotientPolynomial d polynomial)).range) =
       2 ^ hasseValuation (2 ^ d) polynomial := by
   classical
-  letI : Fintype (QuotientRq 2 (2 ^ d)) :=
+  let : Fintype (QuotientRq 2 (2 ^ d)) :=
     PowerOfTwoQuadraticKDMStatistical.quotientPowerOfTwoRqFintype 1 d
-  letI : DecidableEq (QuotientRq 2 (2 ^ d)) :=
+  let : DecidableEq (QuotientRq 2 (2 ^ d)) :=
     PowerOfTwoQuadraticKDMStatistical.quotientPowerOfTwoRqDecidableEq 1 d
   have hcard := card_principalCokernel_eq_two_pow_valuation
     (quotientPowerOfTwoAdicChain 1 d)
@@ -993,9 +995,9 @@ theorem binaryQuotient_rightMul_not_surjective_of_hasseValuation_pos
     ¬ Function.Surjective
       (rightMulAddHom (binaryQuotientPolynomial d polynomial)) := by
   classical
-  letI : Fintype (QuotientRq 2 (2 ^ d)) :=
+  let : Fintype (QuotientRq 2 (2 ^ d)) :=
     PowerOfTwoQuadraticKDMStatistical.quotientPowerOfTwoRqFintype 1 d
-  letI : DecidableEq (QuotientRq 2 (2 ^ d)) :=
+  let : DecidableEq (QuotientRq 2 (2 ^ d)) :=
     PowerOfTwoQuadraticKDMStatistical.quotientPowerOfTwoRqDecidableEq 1 d
   apply rightMul_not_surjective_of_valuation_pos
     (quotientPowerOfTwoAdicChain 1 d)

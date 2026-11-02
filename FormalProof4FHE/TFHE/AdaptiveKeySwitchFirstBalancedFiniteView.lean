@@ -27,6 +27,8 @@ search-to-decision loss.
 
 open ENNReal OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.KeySwitchFirstFiniteView
 
 variable {Message : Type}
@@ -436,21 +438,21 @@ theorem abs_signedAdvantage_real_le_two_mul_finiteSearch_add_two_mul_error_add_t
         (bundleDistinguisher
           (KeySwitchFirstSecurity.toPublicDistinguisher
             (queryCount := queryCount) encode adversary))).toReal +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (Native.BootstrapCutSecurity.batchModuleLweProblem
           q degree ringRank tgswLevels lweDimension ringErrorSampler)
         (Native.BootstrapCutSecurity.realBatchReduction
           ringErrorSampler ($ᵗ (ZMod q)) tgswGadget
           (Adaptive.CutCycleSecurity.cutContinuation
             queryCount inputErrorSampler encode adversary)) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (Native.BootstrapCutSecurity.batchModuleLweProblem
           q degree ringRank tgswLevels lweDimension ringErrorSampler)
         (Native.BootstrapCutSecurity.zeroBatchReduction
           ringErrorSampler ($ᵗ (ZMod q))
           (Adaptive.CutCycleSecurity.cutContinuation
             queryCount inputErrorSampler encode adversary)) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (Native.KeySwitchSecurity.binaryLweProblem q lweDimension queryCount inputErrorSampler)
         (KeySwitchFirstSecurity.inputTapeReduction ringErrorSampler inputErrorSampler
           tgswGadget encode adversary) := by
@@ -495,21 +497,21 @@ theorem abs_signedAdvantage_real_le_two_mul_finiteSearch_add_two_mul_residual_ad
         (bundleDistinguisher
           (KeySwitchFirstSecurity.toPublicDistinguisher
             (queryCount := queryCount) encode adversary)) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (Native.BootstrapCutSecurity.batchModuleLweProblem
           q degree ringRank tgswLevels lweDimension ringErrorSampler)
         (Native.BootstrapCutSecurity.realBatchReduction
           ringErrorSampler ($ᵗ (ZMod q)) tgswGadget
           (Adaptive.CutCycleSecurity.cutContinuation
             queryCount inputErrorSampler encode adversary)) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (Native.BootstrapCutSecurity.batchModuleLweProblem
           q degree ringRank tgswLevels lweDimension ringErrorSampler)
         (Native.BootstrapCutSecurity.zeroBatchReduction
           ringErrorSampler ($ᵗ (ZMod q))
           (Adaptive.CutCycleSecurity.cutContinuation
             queryCount inputErrorSampler encode adversary)) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (Native.KeySwitchSecurity.binaryLweProblem q lweDimension queryCount inputErrorSampler)
         (KeySwitchFirstSecurity.inputTapeReduction ringErrorSampler inputErrorSampler
           tgswGadget encode adversary) := by

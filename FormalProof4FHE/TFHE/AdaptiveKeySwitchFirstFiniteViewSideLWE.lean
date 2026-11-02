@@ -24,6 +24,8 @@ zero-message LWE rows.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.KeySwitchFirstFiniteView
 
 open Native
@@ -604,7 +606,7 @@ theorem uniformBootstrapRecoveryGame_evalDist_eq_sideLweSearchExperiment
           errors >>= fun errorValues ↦
           ringSecrets >>= fun ringSecret ↦
           finish scalarSecret ringSecret challengeValues errorValues) := by
-    simp [LearningWithErrors.searchExperiment, problem, sideLweProblem,
+    simp [LearningWithErrors.searchExperiment, NoisyLearning.searchRun, problem, sideLweProblem,
       sideLweSearchReductionFor, sideLweSearchReduction, sideTranscriptAt,
       assembleSideLweView, flatten, scalarSecrets, ringSecrets, challenges, errors,
       finish, monad_norm]

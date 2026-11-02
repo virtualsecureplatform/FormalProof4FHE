@@ -4,6 +4,7 @@ Released under MIT license as described in the file LICENSE.
 Authors: Kotaro Matsuoka
 -/
 
+import FormalProof4FHE.Probability.Discrete
 import FormalProof4FHE.LWE.AuxiliaryInput
 import FormalProof4FHE.Probability.FiniteProduct
 import VCVio.OracleComp.QueryTracking.RandomOracle.DeferredSampling
@@ -27,6 +28,8 @@ independent data.  The reduction retains cancellation among adjacent signed hybr
 -/
 
 open OracleComp
+
+open scoped FormalProof4FHE
 
 namespace FormalProof4FHE.LWE.AuxiliaryInput.Batch
 
@@ -107,7 +110,7 @@ theorem evalDist_realGame_coordinateContinuation
         (coordinateContinuation problem count coordinate continuation)] =
       𝒟[hybridGame problem count coordinate.val continuation] := by
   classical
-  letI : Fintype (View Challenge Auxiliary) := Fintype.ofFinite _
+  let : Fintype (View Challenge Auxiliary) := Fintype.ofFinite _
   simp only [realGame, hybridGame, coordinateContinuation]
   apply evalDist_bind_congr' problem.sampleSecret
   intro secret
@@ -135,9 +138,9 @@ theorem evalDist_realGame_coordinateContinuation
       𝒟[(realView problem secret >>= replacement) >>= postprocess] =
         𝒟[Fin.mOfFn count samplers >>= postprocess] := by
     calc
-      _ = 𝒟[realView problem secret >>= replacement] >>=
+      _ = MeasureTheory.Measure.bind 𝒟[realView problem secret >>= replacement]
             fun views ↦ 𝒟[postprocess views] := evalDist_bind _ _
-      _ = 𝒟[Fin.mOfFn count samplers] >>=
+      _ = MeasureTheory.Measure.bind 𝒟[Fin.mOfFn count samplers]
             fun views ↦ 𝒟[postprocess views] := by rw [hbase]
       _ = _ := (evalDist_bind _ _).symm
   simpa [realView, replacement, postprocess, samplers, bind_assoc] using hpost
@@ -151,7 +154,7 @@ theorem evalDist_uniformGame_coordinateContinuation
         (coordinateContinuation problem count coordinate continuation)] =
       𝒟[hybridGame problem count (coordinate.val + 1) continuation] := by
   classical
-  letI : Fintype (View Challenge Auxiliary) := Fintype.ofFinite _
+  let : Fintype (View Challenge Auxiliary) := Fintype.ofFinite _
   simp only [uniformGame, hybridGame, coordinateContinuation]
   apply evalDist_bind_congr' problem.sampleSecret
   intro secret
@@ -202,9 +205,9 @@ theorem evalDist_uniformGame_coordinateContinuation
       𝒟[(uniformView problem secret >>= replacement) >>= postprocess] =
         𝒟[Fin.mOfFn count nextSamplers >>= postprocess] := by
     calc
-      _ = 𝒟[uniformView problem secret >>= replacement] >>=
+      _ = MeasureTheory.Measure.bind 𝒟[uniformView problem secret >>= replacement]
             fun views ↦ 𝒟[postprocess views] := evalDist_bind _ _
-      _ = 𝒟[Fin.mOfFn count nextSamplers] >>=
+      _ = MeasureTheory.Measure.bind 𝒟[Fin.mOfFn count nextSamplers]
             fun views ↦ 𝒟[postprocess views] := by rw [hbase]
       _ = _ := (evalDist_bind _ _).symm
   simpa [uniformView, replacement, postprocess, nextSamplers, bind_assoc] using hpost
@@ -242,7 +245,7 @@ theorem evalDist_realGame_randomHybridContinuation
           bind_assoc]
     _ = 𝒟[coordinates >>= fun coordinate ↦ samples >>= fun sample ↦
         finish sample coordinate] :=
-      OracleComp.DeferredSampling.evalDist_bind_comm samples coordinates finish
+      FormalProof4FHE.evalDist_bind_bind_swap samples coordinates finish
     _ = _ := by
       apply evalDist_bind_congr' coordinates
       intro coordinate
@@ -276,7 +279,7 @@ theorem evalDist_uniformGame_randomHybridContinuation
           bind_assoc]
     _ = 𝒟[coordinates >>= fun coordinate ↦ samples >>= fun sample ↦
         finish sample coordinate] :=
-      OracleComp.DeferredSampling.evalDist_bind_comm samples coordinates finish
+      FormalProof4FHE.evalDist_bind_bind_swap samples coordinates finish
     _ = _ := by
       apply evalDist_bind_congr' coordinates
       intro coordinate
@@ -335,14 +338,14 @@ theorem advantage_eq_card_mul_randomHybrid
       rw [Finset.sum_fin_eq_sum_range]
       apply Finset.sum_congr rfl
       intro index hindex
-      rw [dif_pos (Finset.mem_range.mp hindex)]
+      rw [dite_eq_left (Finset.mem_range.mp hindex)]
     have hupper :
         (∑ coordinate : Fin count, values (coordinate.val + 1)) =
           ∑ index ∈ Finset.range count, values (index + 1) := by
       rw [Finset.sum_fin_eq_sum_range]
       apply Finset.sum_congr rfl
       intro index hindex
-      rw [dif_pos (Finset.mem_range.mp hindex)]
+      rw [dite_eq_left (Finset.mem_range.mp hindex)]
     rw [hlower, hupper, ← Finset.sum_sub_distrib, Finset.sum_range_sub']
   have hcount : (0 : ℝ) < count := by
     exact_mod_cast (Nat.pos_of_ne_zero (NeZero.ne count))

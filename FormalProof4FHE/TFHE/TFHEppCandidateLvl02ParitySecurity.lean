@@ -26,6 +26,8 @@ set_option maxRecDepth 16384
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TFHEppCandidateLvl02ParitySecurity
 
 noncomputable section
@@ -185,12 +187,12 @@ theorem paritySuffixAdvantage_eq_smallTernaryRLWE
     (smallErrorSampler : ProbComp SmallRq)
     (adversary : LearningWithErrors.Adversary
       (paritySuffixProblem smallErrorSampler)) :
-    LearningWithErrors.advantage (paritySuffixProblem smallErrorSampler) adversary =
-      LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage (paritySuffixProblem smallErrorSampler) adversary =
+      LearningWithErrors.realAdvantage
         (smallTernaryRLWEProblem smallErrorSampler)
         (smallRLWEReduction adversary) := by
   calc
-    _ = LearningWithErrors.advantage
+    _ = LearningWithErrors.realAdvantage
         (SourceAlignedSuffixRLWEReduction.ringProblem (2 ^ 64) 2047 brkRowCount
           ternarySmallSecretSampler
           (RLWE.OddSecretReduction.oddSecretEmbed (2 ^ 64) 1024)
@@ -283,15 +285,15 @@ theorem endpointAdvantage_le_three_sources
     targetAdvantage
         (parityCandidateViews smallErrorSampler correctionSampler
           brkContribution).endpoints distinguisher ≤
-      2 * LearningWithErrors.advantage
+      2 * LearningWithErrors.realAdvantage
         (paritySuffixProblem smallErrorSampler)
         ((paritySuffixConstructor smallErrorSampler correctionSampler
           brkContribution).reduction distinguisher) +
-      2 * LearningWithErrors.advantage
+      2 * LearningWithErrors.realAdvantage
         (parityPrefixProblem correctionSampler)
         ((parityRandomPrefixConstructor smallErrorSampler correctionSampler
           brkContribution).reduction distinguisher) +
-      2 * LearningWithErrors.advantage
+      2 * LearningWithErrors.realAdvantage
         (parityPrefixProblem correctionSampler)
         ((paritySecondPrefixConstructor smallErrorSampler correctionSampler
           brkContribution).reduction distinguisher) := by
@@ -327,15 +329,15 @@ theorem endpointAdvantage_le_smallRLWE_and_prefix
     targetAdvantage
         (parityCandidateViews smallErrorSampler correctionSampler
           brkContribution).endpoints distinguisher ≤
-      2 * LearningWithErrors.advantage
+      2 * LearningWithErrors.realAdvantage
         (smallTernaryRLWEProblem smallErrorSampler)
         (endpointSmallRLWEReduction smallErrorSampler correctionSampler
           brkContribution distinguisher) +
-      2 * LearningWithErrors.advantage
+      2 * LearningWithErrors.realAdvantage
         (parityPrefixProblem correctionSampler)
         ((parityRandomPrefixConstructor smallErrorSampler correctionSampler
           brkContribution).reduction distinguisher) +
-      2 * LearningWithErrors.advantage
+      2 * LearningWithErrors.realAdvantage
         (parityPrefixProblem correctionSampler)
         ((paritySecondPrefixConstructor smallErrorSampler correctionSampler
           brkContribution).reduction distinguisher) := by
@@ -353,13 +355,13 @@ theorem endpointAdvantage_le_hardness
     (distinguisher : Distinguisher View) (epsilonRLWE epsilonPrefix : ℝ)
     (hRLWE : ∀ adversary : LearningWithErrors.Adversary
         (smallTernaryRLWEProblem smallErrorSampler),
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (smallTernaryRLWEProblem smallErrorSampler) adversary ≤ epsilonRLWE)
-    (hPrefixFirst : LearningWithErrors.advantage
+    (hPrefixFirst : LearningWithErrors.realAdvantage
         (parityPrefixProblem correctionSampler)
         ((parityRandomPrefixConstructor smallErrorSampler correctionSampler
           brkContribution).reduction distinguisher) ≤ epsilonPrefix)
-    (hPrefixSecond : LearningWithErrors.advantage
+    (hPrefixSecond : LearningWithErrors.realAdvantage
         (parityPrefixProblem correctionSampler)
         ((paritySecondPrefixConstructor smallErrorSampler correctionSampler
           brkContribution).reduction distinguisher) ≤ epsilonPrefix) :

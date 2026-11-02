@@ -31,6 +31,8 @@ represented by proof-carrying certificates.  No axiom is introduced.
 open OracleComp
 open scoped ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.RankOneHNFLossinessSupportAware
 
 open RankOneHNFLossinessRefined
@@ -457,7 +459,7 @@ theorem uniformConnectedLocalGuessingBound
       1 / (Fintype.card Secret : ℝ) +
         2 * (1 - 1 / (Fintype.card Secret : ℝ)) * delta := by
   obtain ⟨tree, tree_le, isTree⟩ := connected.exists_isTree_le
-  letI : Fintype tree.edgeSet := Fintype.ofFinite tree.edgeSet
+  let : Fintype tree.edgeSet := Fintype.ofFinite tree.edgeSet
   let root : Secret := Classical.choice inferInstance
   apply uniformSpanningTreeGuessingBound_of_edgeTV prior channel tree isTree root uniform delta
   intro edge hedge
@@ -941,12 +943,12 @@ theorem probOutput_coherentLiftChannel
         apply Prod.ext
         · exact hstar.symm
         · exact hrest
-      rw [if_pos hrest, hobs]
+      rw [ite_eq_left hrest, hobs]
       exact probOutput_map_injective errorSampler hinjective error
-    · rw [if_neg hrest, probOutput_map_eq_sum_fintype_ite]
+    · rw [ite_eq_right hrest, probOutput_map_eq_sum_fintype_ite]
       apply Finset.sum_eq_zero
       intro candidate _
-      rw [if_neg]
+      rw [ite_eq_right]
       intro hobs
       have hcand : candidate = error := by
         apply codec.encodeStar_injective secret
@@ -959,7 +961,7 @@ theorem probOutput_coherentLiftChannel
     rw [probOutput_map_eq_sum_fintype_ite]
     apply Finset.sum_eq_zero
     intro error _
-    rw [if_neg]
+    rw [ite_eq_right]
     intro hobs
     have hstar : codec.encodeStar secret error = observation.1 :=
       (congrArg Prod.fst hobs).symm
@@ -1062,7 +1064,7 @@ noncomputable def boundedShiftedResidueCodec
     (mean : Secret → Coordinate → ℤ)
     (hbound : 0 ≤ bound) (hmodulus : 2 * bound < modulus) :
     CoherentLiftCodec Secret (BoundedCoherentError Coordinate bound) (Coordinate → ℤ) := by
-  letI : Nonempty (BoundedCoherentError Coordinate bound) :=
+  let : Nonempty (BoundedCoherentError Coordinate bound) :=
     ⟨⟨0, fun _ ↦ by simpa using hbound⟩⟩
   exact CoherentLiftCodec.ofInjective
     (fun secret error coordinate ↦
@@ -1077,8 +1079,8 @@ theorem tvDist_map_equiv
     (left right : ProbComp Source) :
     tvDist (equiv <$> left) (equiv <$> right) = tvDist left right := by
   apply le_antisymm
-  · exact tvDist_map_le (m := ProbComp) equiv left right
-  · have hreverse := tvDist_map_le (m := ProbComp) equiv.symm
+  · exact tvDist_map_le equiv left right
+  · have hreverse := tvDist_map_le equiv.symm
       (equiv <$> left) (equiv <$> right)
     simpa only [Functor.map_map, Equiv.symm_apply_apply, id_map'] using hreverse
 

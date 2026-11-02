@@ -29,6 +29,8 @@ set_option autoImplicit false
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.NativeTRGSWCVZRParityPrefix
 
 noncomputable section
@@ -706,9 +708,9 @@ theorem parityPrefixAdvantage_eq_smallBinaryRLWE
     (smallErrorSampler : ProbComp (RLWE.Rq q half))
     (adversary : LearningWithErrors.Adversary
       (parityPrefixProblem q half samples smallErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (parityPrefixProblem q half samples smallErrorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (smallBinaryRLWEProblem q half samples smallErrorSampler)
         (ordinaryRLWEReduction adversary) := by
   exact RLWE.EvenSecretReduction.advantage_eq_smallRLWE
@@ -745,7 +747,7 @@ theorem targetAdvantage_le_two_smallBinaryRLWE
       knownSampler targetView)
     (distinguisher : Distinguisher View) :
     DirectSubsetKeyBRK.targetAdvantage targetView distinguisher ≤
-      2 * LearningWithErrors.advantage
+      2 * LearningWithErrors.realAdvantage
         (smallBinaryRLWEProblem q half samples smallErrorSampler)
         (cvzrOrdinaryRLWEReduction compiler distinguisher) := by
   have hsource := compiler.targetAdvantage_le_two_source distinguisher
@@ -764,11 +766,11 @@ theorem cvzrOrdinaryRLWEReduction_advantage_eq_half
       (parityPrefixProblem q half samples smallErrorSampler)
       knownSampler targetView)
     (distinguisher : Distinguisher View) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (smallBinaryRLWEProblem q half samples smallErrorSampler)
         (cvzrOrdinaryRLWEReduction compiler distinguisher) =
       DirectSubsetKeyBRK.targetAdvantage targetView distinguisher / 2 := by
-  change LearningWithErrors.advantage
+  change LearningWithErrors.realAdvantage
       (smallBinaryRLWEProblem q half samples smallErrorSampler)
       (ordinaryRLWEReduction (compiler.reduction distinguisher)) = _
   rw [← parityPrefixAdvantage_eq_smallBinaryRLWE
@@ -790,12 +792,12 @@ theorem targetAdvantage_le_of_smallBinaryRLWE
     (epsilon : ℝ)
     (hRLWE : ∀ adversary : LearningWithErrors.Adversary
         (smallBinaryRLWEProblem q half samples smallErrorSampler),
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (smallBinaryRLWEProblem q half samples smallErrorSampler) adversary ≤ epsilon) :
     DirectSubsetKeyBRK.targetAdvantage targetView distinguisher ≤ 2 * epsilon := by
   calc
     DirectSubsetKeyBRK.targetAdvantage targetView distinguisher ≤
-        2 * LearningWithErrors.advantage
+        2 * LearningWithErrors.realAdvantage
           (smallBinaryRLWEProblem q half samples smallErrorSampler)
           (cvzrOrdinaryRLWEReduction compiler distinguisher) :=
       targetAdvantage_le_two_smallBinaryRLWE hhalf compiler distinguisher

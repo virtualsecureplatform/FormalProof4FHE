@@ -17,6 +17,8 @@ with different correlated phases, or the WWW25 construction/applications.
 
 open Matrix
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWShiftedSourceDisclosure
 
 theorem body_difference {R : Type} [CommRing R] {n m : ℕ}

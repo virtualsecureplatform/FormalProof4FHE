@@ -29,6 +29,8 @@ set_option autoImplicit false
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.EvenOddDecomposition
 
 noncomputable section
@@ -185,44 +187,53 @@ theorem coefficientPolynomial_joinRq (q half : ℕ)
 
 /-! ## Semantic quadratic-tower embedding -/
 
+
+/-- The quotient class of the formal root. -/
+noncomputable def quotientRoot (q degree : ℕ) : RLWE.QuotientRq q degree :=
+  Ideal.Quotient.mk _ Polynomial.X
+
+/-- The coefficient embedding into the polynomial quotient. -/
+noncomputable def quotientConst (q degree : ℕ) : ZMod q →+* RLWE.QuotientRq q degree :=
+  (Ideal.Quotient.mk _).comp Polynomial.C
+
 /-- The root `X` of the degree-`2 * half` negacyclic quotient. -/
 noncomputable def largeRoot (q half : ℕ) : RLWE.QuotientRq q (2 * half) :=
-  AdjoinRoot.root (LatticeCrypto.negacyclicModulus (ZMod q) (2 * half))
+  quotientRoot q (2 * half)
 
-/-- Embed the degree-`half` negacyclic quotient into the degree-`2 * half` quotient by
-sending its formal root `Y` to `X²`. -/
+/-- Embed the small quotient by sending its root to the square of the large root. -/
 noncomputable def evenQuotientHom (q half : ℕ) :
     RLWE.QuotientRq q half →+* RLWE.QuotientRq q (2 * half) :=
-  AdjoinRoot.lift
-    (AdjoinRoot.of (LatticeCrypto.negacyclicModulus (ZMod q) (2 * half)))
-    (largeRoot q half ^ 2)
+  Ideal.Quotient.lift _
+    (Polynomial.eval₂RingHom (quotientConst q (2 * half)) (largeRoot q half ^ 2))
     (by
-      simp only [LatticeCrypto.negacyclicModulus, Polynomial.eval₂_add,
-        Polynomial.eval₂_pow, Polynomial.eval₂_X, Polynomial.eval₂_one]
-      calc
-        (largeRoot q half ^ 2) ^ half + 1 =
-            largeRoot q half ^ (2 * half) + 1 := by rw [pow_mul]
-        _ = (LatticeCrypto.negacyclicModulus (ZMod q) (2 * half)).eval₂
-            (AdjoinRoot.of (LatticeCrypto.negacyclicModulus (ZMod q) (2 * half)))
-            (largeRoot q half) := by
-              simp [LatticeCrypto.negacyclicModulus]
-              rfl
-        _ = 0 := AdjoinRoot.eval₂_root _)
+      have hzero : Polynomial.eval₂ (quotientConst q (2 * half))
+          (largeRoot q half ^ 2) (LatticeCrypto.negacyclicModulus (ZMod q) half) = 0 := by
+        change Polynomial.eval₂ _ _ (Polynomial.X ^ half + 1) = 0
+        simp only [Polynomial.eval₂_add, Polynomial.eval₂_pow,
+          Polynomial.eval₂_X, Polynomial.eval₂_one]
+        have h := LatticeCrypto.mk_X_pow_n (R := ZMod q) (n := 2 * half)
+        change largeRoot q half ^ (2 * half) = -1 at h
+        rw [← pow_mul, h, neg_add_cancel]
+      have hle : Ideal.span {LatticeCrypto.negacyclicModulus (ZMod q) half} ≤
+          RingHom.ker (Polynomial.eval₂RingHom (quotientConst q (2 * half))
+            (largeRoot q half ^ 2)) := by
+        rw [Ideal.span_le, Set.singleton_subset_iff]
+        exact RingHom.mem_ker.mpr hzero
+      intro value hvalue
+      exact RingHom.mem_ker.mp (hle hvalue))
 
 @[simp]
 theorem evenQuotientHom_root (q half : ℕ) :
-    evenQuotientHom q half
-        (AdjoinRoot.root (LatticeCrypto.negacyclicModulus (ZMod q) half)) =
-      largeRoot q half ^ 2 := by
-  unfold evenQuotientHom
-  exact AdjoinRoot.lift_root _
+    evenQuotientHom q half (quotientRoot q half) = largeRoot q half ^ 2 := by
+  change Polynomial.eval₂ _ _ Polynomial.X = _
+  exact Polynomial.eval₂_X _ _
 
 /-- Evaluating a degree-`half` coefficient polynomial at `X²` is its even-coordinate
 embedding in the large quotient. -/
 theorem eval₂_coefficientPolynomial_largeRoot_sq (q half : ℕ)
     (value : Coefficients q half) :
     (coefficientPolynomial value).eval₂
-        (AdjoinRoot.of (LatticeCrypto.negacyclicModulus (ZMod q) (2 * half)))
+        (quotientConst q (2 * half))
         (largeRoot q half ^ 2) =
       LatticeCrypto.NegacyclicQuotient.ofPolynomial (2 * half)
         (∑ index : Fin half,
@@ -232,20 +243,17 @@ theorem eval₂_coefficientPolynomial_largeRoot_sq (q half : ℕ)
       ∑ index : Fin half, Polynomial.monomial index.val (value index) by rfl]
   simp only [Polynomial.eval₂_finsetSum, Polynomial.eval₂_monomial]
   change (∑ index : Fin half,
-      AdjoinRoot.of (LatticeCrypto.negacyclicModulus (ZMod q) (2 * half))
+      quotientConst q (2 * half)
           (value index) *
-            (AdjoinRoot.root
-              (LatticeCrypto.negacyclicModulus (ZMod q) (2 * half)) ^ 2) ^ index.val) = _
+            (quotientRoot q (2 * half) ^ 2) ^ index.val) = _
   rw [show (∑ index : Fin half,
-      AdjoinRoot.of (LatticeCrypto.negacyclicModulus (ZMod q) (2 * half))
+      quotientConst q (2 * half)
           (value index) *
-            (AdjoinRoot.root
-              (LatticeCrypto.negacyclicModulus (ZMod q) (2 * half)) ^ 2) ^ index.val) =
+            (quotientRoot q (2 * half) ^ 2) ^ index.val) =
       ∑ index : Fin half,
-        AdjoinRoot.of (LatticeCrypto.negacyclicModulus (ZMod q) (2 * half))
+        quotientConst q (2 * half)
           (value index) *
-            AdjoinRoot.root
-              (LatticeCrypto.negacyclicModulus (ZMod q) (2 * half)) ^
+            quotientRoot q (2 * half) ^
                 (2 * index.val) by
     apply Finset.sum_congr rfl
     intro index _
@@ -265,12 +273,11 @@ theorem evenQuotientHom_quotientOf (q half : ℕ) (hhalf : 0 < half)
         (joinRq q half value 0) := by
   rw [quotientOf_eq_ofPolynomial_coefficients hhalf,
     quotientOf_eq_ofPolynomial_coefficients (by omega : 0 < 2 * half)]
-  change (AdjoinRoot.lift
-      (AdjoinRoot.of (LatticeCrypto.negacyclicModulus (ZMod q) (2 * half)))
-      (largeRoot q half ^ 2) _)
-        (AdjoinRoot.mk (LatticeCrypto.negacyclicModulus (ZMod q) half)
+  change (Ideal.Quotient.lift _
+      (Polynomial.eval₂RingHom (quotientConst q (2 * half))
+        (largeRoot q half ^ 2)) _) (Ideal.Quotient.mk _
           (coefficientPolynomial (coefficientEquiv q half value))) = _
-  rw [AdjoinRoot.lift_mk]
+  rw [Ideal.Quotient.lift_mk]
   rw [coefficientPolynomial_joinRq]
   simp only [coefficientEquiv_zero, Pi.zero_apply, Polynomial.monomial_zero_right,
     Finset.sum_const_zero, add_zero]
@@ -290,7 +297,8 @@ theorem quotientOf_joinRq_zero (q half : ℕ) (hhalf : 0 < half)
   rw [coefficientPolynomial_joinRq, coefficientPolynomial_joinRq]
   simp only [coefficientEquiv_zero, Pi.zero_apply, Polynomial.monomial_zero_right,
     Finset.sum_const_zero, zero_add, add_zero]
-  unfold largeRoot LatticeCrypto.NegacyclicQuotient.ofPolynomial
+  unfold largeRoot quotientRoot
+    LatticeCrypto.NegacyclicQuotient.ofPolynomial
   rw [map_sum, map_sum, Finset.mul_sum]
   apply Finset.sum_congr rfl
   intro index _
@@ -309,16 +317,16 @@ theorem quotientOf_joinRq_zero (q half : ℕ) (hhalf : 0 < half)
 noncomputable def smallRootRq (q half : ℕ) [Nontrivial (ZMod q)]
     (hhalf : 0 < half) : RLWE.Rq q half :=
   (RLWE.quotientEquiv hhalf).symm
-    (AdjoinRoot.root (LatticeCrypto.negacyclicModulus (ZMod q) half))
+    (quotientRoot q half)
 
 @[simp]
 theorem quotientOf_smallRootRq (q half : ℕ) [Nontrivial (ZMod q)]
     (hhalf : 0 < half) :
     RLWE.quotientOf hhalf (smallRootRq q half hhalf) =
-      AdjoinRoot.root (LatticeCrypto.negacyclicModulus (ZMod q) half) := by
+      quotientRoot q half := by
   change RLWE.quotientEquiv hhalf
       ((RLWE.quotientEquiv hhalf).symm
-        (AdjoinRoot.root (LatticeCrypto.negacyclicModulus (ZMod q) half))) = _
+        (quotientRoot q half)) = _
   exact (RLWE.quotientEquiv hhalf).apply_symm_apply _
 
 /-- Splitting and rejoining is additive in the two coefficient components. -/
@@ -382,7 +390,8 @@ theorem joinRq_mul_odd (q half : ℕ) [Nontrivial (ZMod q)]
         quotientOf_joinRq q (half + 1) hhalf]
       simp only [RLWE.quotientOf_zero, map_zero, zero_add]
       simp_rw [RLWE.quotientOf_mul]
-      simp only [map_mul, quotientOf_smallRootRq, evenQuotientHom_root]
+      simp only [map_mul, quotientOf_smallRootRq]
+      simp only [evenQuotientHom_root]
       ring
 
 /-- Multiplication by an even-coordinate secret is two untwisted small-ring products. -/
@@ -434,7 +443,8 @@ theorem joinRq_commRing_mul_odd (q half : ℕ) [Nontrivial (ZMod q)]
     quotientOf_joinRq q half hhalf]
   simp only [RLWE.quotientOf_zero, map_zero, zero_add]
   simp_rw [RLWE.quotientOf_commRing_mul]
-  simp only [map_mul, quotientOf_smallRootRq, evenQuotientHom_root]
+  simp only [map_mul, quotientOf_smallRootRq]
+  simp only [evenQuotientHom_root]
   ring
 
 /-- The even-secret identity for the proof-facing `CommRing` multiplication used by matrix
@@ -476,16 +486,16 @@ noncomputable def proofMul (q degree : ℕ)
 noncomputable def smallRootInverseRq (q half : ℕ) [Nontrivial (ZMod q)]
     (hhalf : 0 < half) : RLWE.Rq q half :=
   (RLWE.quotientEquiv hhalf).symm
-    (-(AdjoinRoot.root (LatticeCrypto.negacyclicModulus (ZMod q) half) ^ (half - 1)))
+    (-(quotientRoot q half ^ (half - 1)))
 
 @[simp]
 theorem quotientOf_smallRootInverseRq (q half : ℕ) [Nontrivial (ZMod q)]
     (hhalf : 0 < half) :
     RLWE.quotientOf hhalf (smallRootInverseRq q half hhalf) =
-      -(AdjoinRoot.root (LatticeCrypto.negacyclicModulus (ZMod q) half) ^ (half - 1)) := by
+      -(quotientRoot q half ^ (half - 1)) := by
   change RLWE.quotientEquiv hhalf
       ((RLWE.quotientEquiv hhalf).symm
-        (-(AdjoinRoot.root (LatticeCrypto.negacyclicModulus (ZMod q) half) ^
+        (-(quotientRoot q half ^
           (half - 1)))) = _
   exact (RLWE.quotientEquiv hhalf).apply_symm_apply _
 
@@ -509,7 +519,7 @@ theorem rootUntwist_rootTwist (q half : ℕ) [Nontrivial (ZMod q)]
   rw [RLWE.quotientOf_commRing_mul, RLWE.quotientOf_commRing_mul,
     quotientOf_smallRootInverseRq, quotientOf_smallRootRq]
   let root : RLWE.QuotientRq q half :=
-    AdjoinRoot.root (LatticeCrypto.negacyclicModulus (ZMod q) half)
+    quotientRoot q half
   have hindex : half - 1 + 1 = half := by omega
   have hroot : root ^ half = -1 := by
     exact LatticeCrypto.mk_X_pow_n (R := ZMod q) (n := half)
@@ -533,7 +543,7 @@ theorem rootTwist_rootUntwist (q half : ℕ) [Nontrivial (ZMod q)]
   rw [RLWE.quotientOf_commRing_mul, RLWE.quotientOf_commRing_mul,
     quotientOf_smallRootInverseRq, quotientOf_smallRootRq]
   let root : RLWE.QuotientRq q half :=
-    AdjoinRoot.root (LatticeCrypto.negacyclicModulus (ZMod q) half)
+    quotientRoot q half
   have hindex : half - 1 + 1 = half := by omega
   have hroot : root ^ half = -1 := by
     exact LatticeCrypto.mk_X_pow_n (R := ZMod q) (n := half)

@@ -30,6 +30,8 @@ statement is a separate obligation for a native TFHE circular-security candidate
 
 open Matrix
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE
 
 namespace TLWE

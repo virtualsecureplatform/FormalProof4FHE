@@ -25,6 +25,8 @@ This module does not justify cubic refresh controls or reusable bootstrapping.
 open Matrix OracleComp AsymmEncAlg
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.RecursiveFeaturePublicKey
 
 open RecursiveMultiplication
@@ -313,7 +315,7 @@ def fromINDCPA {q n r p k samples : ℕ} [NeZero q]
     (columns : RecursiveQuadratic.Column n r (p + k) ≃ Fin samples)
     (tail : RecursiveQuadratic.Polynomial (ZMod q) n k)
     (secretSampler : ProbComp (Fin n → ZMod q)) (errorSampler : ProbComp (ZMod q))
-    (adversary : IND_CPA_Adv (scheme params level columns tail secretSampler errorSampler)) :
+    (adversary : IND_CPA_OneTime_Adversary (scheme params level columns tail secretSampler errorSampler)) :
     Adversary (n := n) (r := r) (p := p) (k := k) params where
   State := adversary.State
   chooseMessages := adversary.chooseMessages
@@ -325,8 +327,8 @@ theorem oneTime_game_evalDist {q n r p k samples : ℕ} [NeZero q]
     (columns : RecursiveQuadratic.Column n r (p + k) ≃ Fin samples)
     (tail : RecursiveQuadratic.Polynomial (ZMod q) n k)
     (secretSampler : ProbComp (Fin n → ZMod q)) (errorSampler : ProbComp (ZMod q))
-    (adversary : IND_CPA_Adv (scheme params level columns tail secretSampler errorSampler)) :
-    𝒟[IND_CPA_OneTime_Game_ProbComp adversary] =
+    (adversary : IND_CPA_OneTime_Adversary (scheme params level columns tail secretSampler errorSampler)) :
+    𝒟[FormalProof4FHE.oneTimeGame adversary] =
       𝒟[GSWMasking.game params (freshView columns tail secretSampler errorSampler)
         (fromINDCPA params level columns tail secretSampler errorSampler adversary)] := by
   let observer := fun view : StoredView q n r p k ↦ do
@@ -345,9 +347,9 @@ theorem oneTime_game_evalDist {q n r p k samples : ℕ} [NeZero q]
       pure (bit == guess))
   have hforget := FormalProof4FHE.SharedRandomness.evalDist_bind_eq_of_evalDist_eq
     (keygen_public_evalDist columns tail secretSampler errorSampler) observer
-  simpa [IND_CPA_OneTime_Game_ProbComp, scheme, game_eq_bind, fromINDCPA,
+  simpa +unfoldPartialApp [FormalProof4FHE.oneTimeGame, scheme, game_eq_bind, fromINDCPA,
     observer, observe, storeView, monad_norm] using hswap.trans (by
-      simpa [bind_map_left, observer, storeView, fromINDCPA, observe, monad_norm] using hforget)
+      simpa +unfoldPartialApp [bind_map_left, observer, storeView, fromINDCPA, observe, monad_norm] using hforget)
 
 abbrev Coins {q : ℕ} (params : Parameters q) (n p : ℕ) :=
   GSWMasking.Coins p ((Dimension n + 1) * params.levels)
@@ -386,16 +388,33 @@ theorem noise_encryptWithCoins {q n p : ℕ} [NeZero q] (params : Parameters q)
       (GSWGadget.bitMessage bit) =
         vecMul (fun sample ↦ dotProduct (RecursiveFeatureGSW.featureSecret secret) (table sample))
           (GSWPublicKey.selectors (GSWMasking.storeCoins coins)) := by
+  have hgeneral (features : Fin (Dimension n + 1) → ZMod q) :
+      GSWOperations.noise features (GSWGadget.gadget params (Dimension n + 1))
+        (GSWPublicKey.encryptMatrix params (GSWMasking.storeTable table)
+          (GSWMasking.storeCoins coins) bit) (GSWGadget.bitMessage bit) =
+      vecMul (fun sample ↦ dotProduct features (table sample))
+        (GSWPublicKey.selectors (GSWMasking.storeCoins coins)) := by
+    unfold GSWPublicKey.encryptMatrix GSWOperations.noise GSWMasking.storeTable
+    rw [GSWPublicKey.publicKeyView_storePublicKey]
+    rw [vecMul_add, vecMul_smul, ← vecMul_vecMul]
+    change _ = vecMul (vecMul features (fun row sample ↦ table sample row)) _
+    abel
   rw [RecursiveFeatureGSW.noise_eq_gswNoise]
   simp only [ofStored, RecursiveFeatureGSW.matrix_ofMatrix, encryptWithCoins,
     GSWPublicKey.encryptStored]
-  unfold RecursiveFeatureGSW.rows
+  let features : Fin (Dimension n + 1) → ZMod q :=
+    fun index ↦ RecursiveFeatureGSW.featureSecret secret index
+  change GSWOperations.noise
+    features
+    (GSWGadget.gadget params (Dimension n + 1))
+    (GSWAccumulator.ciphertextView params
+      (GSWAccumulator.storeCiphertext params
+        (GSWPublicKey.encryptMatrix params (GSWMasking.storeTable table)
+          (GSWMasking.storeCoins coins) bit))) (GSWGadget.bitMessage bit) =
+      vecMul (fun sample ↦ dotProduct features (table sample))
+        (GSWPublicKey.selectors (GSWMasking.storeCoins coins))
   rw [GSWAccumulator.ciphertextView_storeCiphertext]
-  simp only [GSWPublicKey.encryptMatrix, GSWOperations.noise, vecMul_add, vecMul_smul,
-    ← vecMul_vecMul, GSWMasking.storeTable, GSWPublicKey.publicKeyView_storePublicKey]
-  change _ = vecMul (vecMul (RecursiveFeatureGSW.featureSecret secret)
-    (fun row sample ↦ table sample row)) (GSWPublicKey.selectors (GSWMasking.storeCoins coins))
-  abel
+  exact hgeneral features
 
 theorem noiseBound_encryptWithCoins {q n p : ℕ} [NeZero q] (params : Parameters q)
     (secret : Fin n → ZMod q) (table : Table q n p) (coins : Coins params n p) (bit : Bool) (bound : ℕ)
@@ -439,9 +458,9 @@ theorem correctExp_supported {q n r p k samples : ℕ} [NeZero q]
     (hmargin : 2 * (p * ((n + 1) * bound)) < TFHE.BootstrappingCorrectness.centeredDistance
       0 (TFHE.Gadget.Base.gadget params level))
     (bit result : Bool)
-    (hresult : result ∈ support ((scheme params level columns tail secretSampler errorSampler).CorrectExp bit)) :
+    (hresult : result ∈ support ((scheme params level columns tail secretSampler errorSampler).correctnessExperiment bit)) :
     result = true := by
-  simp only [scheme, CorrectExp, mem_support_bind_iff] at hresult
+  simp only [scheme, correctnessExperiment, mem_support_bind_iff] at hresult
   obtain ⟨pair, hpair, ciphertext, hciphertext, output, houtput, hresult⟩ := hresult
   simp only [keygen, RecursivePublicKey.keygen, mem_support_bind_iff] at hpair
   obtain ⟨original, horiginal, hpair⟩ := hpair
@@ -474,7 +493,7 @@ theorem correctExp_probability_one {q n r p k samples : ℕ} [NeZero q]
     (herror : ∀ error ∈ support errorSampler, (LatticeCrypto.centeredRepr error).natAbs ≤ bound)
     (hmargin : 2 * (p * ((n + 1) * bound)) < TFHE.BootstrappingCorrectness.centeredDistance
       0 (TFHE.Gadget.Base.gadget params level)) (bit : Bool) :
-    Pr[= true | (scheme params level columns tail secretSampler errorSampler).CorrectExp bit] = 1 := by
+    Pr[= true | (scheme params level columns tail secretSampler errorSampler).correctnessExperiment bit] = 1 := by
   apply (probOutput_eq_one_iff_forall _ _).mpr
   exact ⟨by simp, fun result hresult ↦ correctExp_supported params level columns tail
     secretSampler errorSampler bound hsecret herror hmargin bit result hresult⟩

@@ -24,6 +24,8 @@ the discarded errors are genuinely sampled by the larger game.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE
 
 /-- Public matrix and noisy output of an `m`-sample matrix-LWE problem. -/
@@ -276,7 +278,7 @@ theorem retainBatchSuffix_uniformMatrix_evalDist {R : Type}
       _ = 𝒟[Prod.fst <$> ($ᵗ (Matrix (Fin n) (Fin retained) R ×
           Matrix (Fin n) (Fin discarded) R))] := by
         simpa only [evalDist_map] using
-          congrArg (fun distribution ↦ Prod.fst <$> distribution) hswap
+          congrArg (fun distribution ↦ MeasureTheory.Measure.map Prod.fst distribution) hswap
       _ = _ := evalDist_map_fst_uniformSample_prod
   calc
     _ = 𝒟[Prod.snd <$> (split <$>
@@ -285,7 +287,7 @@ theorem retainBatchSuffix_uniformMatrix_evalDist {R : Type}
     _ = 𝒟[Prod.snd <$> ($ᵗ (Matrix (Fin n) (Fin discarded) R ×
         Matrix (Fin n) (Fin retained) R))] := by
       simpa only [evalDist_map] using
-        congrArg (fun distribution ↦ Prod.snd <$> distribution) hsplit
+        congrArg (fun distribution ↦ MeasureTheory.Measure.map Prod.snd distribution) hsplit
     _ = _ := hsnd
 
 /-- Restricting an IID vector to its final coordinates is exact when discarded draws cannot
@@ -320,7 +322,7 @@ theorem retainBatchSuffix_sampleIID_evalDist {R : Type} [Finite R]
           let secondOutput ← second
           return (firstOutput, secondOutput))] := by
       simpa only [evalDist_map] using
-        congrArg (fun distribution ↦ Prod.snd <$> distribution) hsplit
+        congrArg (fun distribution ↦ MeasureTheory.Measure.map Prod.snd distribution) hsplit
     _ = 𝒟[first >>= fun _ ↦ second] := by
       simp [first, second, monad_norm]
     _ = 𝒟[second] :=
@@ -477,13 +479,13 @@ theorem sampleRestriction_game0_evalDist_eq {R Secret : Type}
     (hError : Pr[⊥ | errorSampler] = 0)
     (adversary : LearningWithErrors.Adversary
       (embeddedBatchProblem n retained secretSampler embed errorSampler)) :
-    𝒟[LearningWithErrors.game0
+    𝒟[LearningWithErrors.realExperiment
         (embeddedBatchProblem n retained secretSampler embed errorSampler) adversary] =
-      𝒟[LearningWithErrors.game0
+      𝒟[LearningWithErrors.realExperiment
         (embeddedBatchProblem n (discarded + retained)
           secretSampler embed errorSampler)
         (sampleRestrictionReduction adversary)] := by
-  rw [LearningWithErrors.game0, LearningWithErrors.game0]
+  rw [LearningWithErrors.realExperiment, LearningWithErrors.realExperiment]
   simp only [sampleRestrictionReduction]
   rw [show (LearningWithErrors.distr
         (embeddedBatchProblem n (discarded + retained)
@@ -505,13 +507,13 @@ theorem sampleRestriction_game1_evalDist_eq {R Secret : Type}
     (embed : Secret → Fin n → R) (errorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (embeddedBatchProblem n retained secretSampler embed errorSampler)) :
-    𝒟[LearningWithErrors.game1
+    𝒟[LearningWithErrors.randomExperiment
         (embeddedBatchProblem n retained secretSampler embed errorSampler) adversary] =
-      𝒟[LearningWithErrors.game1
+      𝒟[LearningWithErrors.randomExperiment
         (embeddedBatchProblem n (discarded + retained)
           secretSampler embed errorSampler)
         (sampleRestrictionReduction adversary)] := by
-  rw [LearningWithErrors.game1, LearningWithErrors.game1]
+  rw [LearningWithErrors.randomExperiment, LearningWithErrors.randomExperiment]
   simp only [sampleRestrictionReduction]
   rw [show (LearningWithErrors.uniformDistr
         (embeddedBatchProblem n (discarded + retained)
@@ -534,9 +536,9 @@ theorem sampleRestriction_advantage_eq {R Secret : Type}
     (hError : Pr[⊥ | errorSampler] = 0)
     (adversary : LearningWithErrors.Adversary
       (embeddedBatchProblem n retained secretSampler embed errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (embeddedBatchProblem n retained secretSampler embed errorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (embeddedBatchProblem n (discarded + retained)
           secretSampler embed errorSampler)
         (sampleRestrictionReduction adversary) := by

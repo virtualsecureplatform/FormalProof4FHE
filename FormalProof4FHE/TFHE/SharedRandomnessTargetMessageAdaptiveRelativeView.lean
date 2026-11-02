@@ -26,6 +26,8 @@ affine ring map.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE
 
 noncomputable section
@@ -151,7 +153,7 @@ theorem scalarAffineXorTransport_liftRelativeSource_iff_trivial
     ScalarAffineXorTransport q (degree + 1)
         ((liftRelativeNestedMask mask).1 0) ↔
       ∀ coordinate, mask.1 coordinate = false := by
-  letI : NeZero q := ⟨by omega⟩
+  let : NeZero q := ⟨by omega⟩
   constructor
   · intro htransport coordinate
     have hconstant := scalarAffineXorTransport_imp_constant hq
@@ -233,7 +235,7 @@ theorem relativeThenGlobalAct_eq_act_encode
   rcases mask with ⟨relativeMask, toggle⟩
   cases toggle
   · rfl
-  · simp only [relativeThenGlobalAct, if_true]
+  · simp only [relativeThenGlobalAct, ite_true]
     rw [act_assoc, act_liftRelativeNestedMask_nestedGlobalMask]
 
 /-- For a fixed nested secret, relative-mask-plus-anchor action is a permutation onto all fresh
@@ -355,7 +357,7 @@ theorem completeRelativeDistance_le
   have htape : tvDist transformedTape targetTape = 0 := by
     unfold transformedTape targetTape targetSecret nestedMask tvDist
     rw [transformTargetTape_sampleTargetTape_evalDist]
-    exact SPMF.tvDist_self _
+    exact MeasureTheory.Measure.tvDist_self _
   have hsource :
       sampleRealView q (degree + 1) 1 suffixRank levels queryCount
             narrowBootstrapErrorSampler narrowExtensionErrorSampler inputErrorSampler
@@ -448,7 +450,7 @@ theorem transformCompleteViewByAnchor_tvDist_le
   · simpa [transformCompleteViewByAnchor] using
       (globalComplementViewError_nonneg
         (suffixRank := suffixRank) (levels := levels) bootstrapErrorSampler)
-  · simp only [transformCompleteViewByAnchor, if_true]
+  · simp only [transformCompleteViewByAnchor, ite_true]
     have hmap :
         (sampleRealView q (degree + 1) 1 suffixRank levels queryCount
             bootstrapErrorSampler extensionErrorSampler inputErrorSampler gadget secret >>=

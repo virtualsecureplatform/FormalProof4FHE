@@ -25,6 +25,8 @@ scheme.
 
 open ENNReal OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.CutCycleSecurity
 
 /-! ## Security games and pointwise reductions -/
@@ -89,7 +91,7 @@ noncomputable def ringBatchLWESecurityGame {Message : Type} (params : Parameters
     [∀ securityParameter, NeZero (params.q securityParameter)] :
     SecurityGame (RingBatchLWEAdversaryFamily params) where
   advantage adversary securityParameter := ENNReal.ofReal
-    (LearningWithErrors.advantage
+    (LearningWithErrors.realAdvantage
       (Native.BootstrapCutSecurity.batchModuleLweProblem
         (params.q securityParameter)
         (params.degree securityParameter)
@@ -125,7 +127,7 @@ noncomputable def binarySecretRLWESecurityGame {Message : Type} (params : Parame
     [∀ securityParameter, NeZero (params.q securityParameter)] :
     SecurityGame (BinarySecretRLWEAdversaryFamily params) where
   advantage adversary securityParameter := ENNReal.ofReal
-    (LearningWithErrors.advantage
+    (LearningWithErrors.realAdvantage
       (Native.BootstrapCutSecurity.binarySecretRLWEProblem
         (params.q securityParameter)
         (params.degree securityParameter)
@@ -270,7 +272,7 @@ theorem securityGame_advantage_le_keySwitchFirst_add_two_ringBatchLWE_add_jointL
       ProbComp.boolDistAdvantage
     exact abs_nonneg _
   have hRealNonneg : 0 ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (Native.BootstrapCutSecurity.batchModuleLweProblem
           (params.q securityParameter)
           (params.degree securityParameter)
@@ -289,7 +291,7 @@ theorem securityGame_advantage_le_keySwitchFirst_add_two_ringBatchLWE_add_jointL
             (adversary.run securityParameter))) :=
     FormalProof4FHE.LWE.advantage_nonneg _ _
   have hZeroNonneg : 0 ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (Native.BootstrapCutSecurity.batchModuleLweProblem
           (params.q securityParameter)
           (params.degree securityParameter)
@@ -307,7 +309,7 @@ theorem securityGame_advantage_le_keySwitchFirst_add_two_ringBatchLWE_add_jointL
             (adversary.run securityParameter))) :=
     FormalProof4FHE.LWE.advantage_nonneg _ _
   have hJointNonneg : 0 ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (Adaptive.jointLweProblem
           (params.q securityParameter)
           (params.lweDimension securityParameter)
@@ -345,7 +347,7 @@ theorem securityGame_advantage_le_keySwitchFirst_add_two_ringBatchLWE_add_jointL
             (params.inputErrorSampler securityParameter)
             (params.encode securityParameter)
             (adversary.run securityParameter)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.BootstrapCutSecurity.batchModuleLweProblem
             (params.q securityParameter)
             (params.degree securityParameter)
@@ -362,7 +364,7 @@ theorem securityGame_advantage_le_keySwitchFirst_add_two_ringBatchLWE_add_jointL
               (params.inputErrorSampler securityParameter)
               (params.encode securityParameter)
               (adversary.run securityParameter))) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.BootstrapCutSecurity.batchModuleLweProblem
             (params.q securityParameter)
             (params.degree securityParameter)
@@ -378,7 +380,7 @@ theorem securityGame_advantage_le_keySwitchFirst_add_two_ringBatchLWE_add_jointL
               (params.inputErrorSampler securityParameter)
               (params.encode securityParameter)
               (adversary.run securityParameter))) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Adaptive.jointLweProblem
             (params.q securityParameter)
             (params.lweDimension securityParameter)
@@ -415,7 +417,7 @@ theorem securityGame_advantage_le_keySwitchFirst_add_two_ringBatchLWE_add_jointL
               (params.encode securityParameter)
               (adversary.run securityParameter))) +
         ENNReal.ofReal
-          (LearningWithErrors.advantage
+          (LearningWithErrors.realAdvantage
             (Native.BootstrapCutSecurity.batchModuleLweProblem
               (params.q securityParameter)
               (params.degree securityParameter)
@@ -433,7 +435,7 @@ theorem securityGame_advantage_le_keySwitchFirst_add_two_ringBatchLWE_add_jointL
                 (params.encode securityParameter)
                 (adversary.run securityParameter)))) +
         ENNReal.ofReal
-          (LearningWithErrors.advantage
+          (LearningWithErrors.realAdvantage
             (Native.BootstrapCutSecurity.batchModuleLweProblem
               (params.q securityParameter)
               (params.degree securityParameter)
@@ -450,7 +452,7 @@ theorem securityGame_advantage_le_keySwitchFirst_add_two_ringBatchLWE_add_jointL
                 (params.encode securityParameter)
                 (adversary.run securityParameter)))) +
         ENNReal.ofReal
-          (LearningWithErrors.advantage
+          (LearningWithErrors.realAdvantage
             (Adaptive.jointLweProblem
               (params.q securityParameter)
               (params.lweDimension securityParameter)
@@ -528,7 +530,7 @@ theorem securityGame_advantage_le_keySwitchFirst_add_two_ringBatchLWE_add_batchL
       ProbComp.boolDistAdvantage
     exact abs_nonneg _
   have hRealNonneg : 0 ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (Native.BootstrapCutSecurity.batchModuleLweProblem
           (params.q securityParameter)
           (params.degree securityParameter)
@@ -547,7 +549,7 @@ theorem securityGame_advantage_le_keySwitchFirst_add_two_ringBatchLWE_add_batchL
             (adversary.run securityParameter))) :=
     FormalProof4FHE.LWE.advantage_nonneg _ _
   have hZeroNonneg : 0 ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (Native.BootstrapCutSecurity.batchModuleLweProblem
           (params.q securityParameter)
           (params.degree securityParameter)
@@ -565,7 +567,7 @@ theorem securityGame_advantage_le_keySwitchFirst_add_two_ringBatchLWE_add_batchL
             (adversary.run securityParameter))) :=
     FormalProof4FHE.LWE.advantage_nonneg _ _
   have hScalarNonneg : 0 ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (Native.KeySwitchSecurity.binaryLweProblem
           (params.q securityParameter)
           (params.lweDimension securityParameter)

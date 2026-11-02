@@ -22,6 +22,8 @@ statistical errors.  The zero-message branch is discharged by the existing ordin
 endpoint.  In particular, no correctness proposition occurs in the confidentiality reductions.
 -/
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd
 
 open Encryption.Adaptive.Asymptotic
@@ -446,10 +448,12 @@ theorem secureAgainst_of_directCertificates_coordinatePrediction_and_jointLWE
     apply Encryption.Adaptive.Asymptotic.PublicAuxiliaryInputCircular.AugmentedCandidate.OneShot.statisticalErrorSecurityGame_secureAgainst_of_components
       family.parameters errorWidth errorWidth transformer referenceCoordinate publicIsPPT
     · intro distinguisher hdistinguisher
-      simpa [transformer, oneShotTransformerFamilyOfDirectCertificates] using
+      simpa +unfoldPartialApp [transformer, oneShotTransformerFamilyOfDirectCertificates,
+        Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.DirectStatisticalCertificate.toAveraged] using
         hCorrect distinguisher hdistinguisher
     · intro distinguisher hdistinguisher
-      simpa [transformer, oneShotTransformerFamilyOfDirectCertificates] using
+      simpa +unfoldPartialApp [transformer, oneShotTransformerFamilyOfDirectCertificates,
+        Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.DirectStatisticalCertificate.toAveraged] using
         hFreshness distinguisher hdistinguisher
   exact secureAgainst_of_coordinatePrediction_and_statisticalError_and_jointLWE transformer
     isPPT publicIsPPT predictorIsPPT jointLWEIsPPT hPublicClosed hPredictorClosed

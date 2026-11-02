@@ -17,6 +17,8 @@ phase; refinement from the C++ mask/body/RNS layout remains a separate
 implementation relation.
 -/
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.BinaryNTTSecurity.CompactCoverBGVScalarCorrectness
 
 open CompactCoverBGVExactNoise

@@ -21,6 +21,8 @@ theorem, identify coefficient and canonical embeddings, or change an error distr
 
 open Polynomial
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.PowerOfTwoCyclotomic
 
 /-- Quotient by the `index`-th cyclotomic polynomial over `R`. -/

@@ -41,6 +41,8 @@ estimation loss and query bound remain explicit certificate fields rather than h
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.RNSSplitSearchToDecisionCorrelated
 
 noncomputable section
@@ -174,7 +176,7 @@ theorem wrongCandidateWithSideInfo_evalDist_eq_uniform
         ($ᵗ (QuadraticKDM.CoordinateView K Row))) =
       evalDist ((QuadraticKDM.wrongCandidateMap secret candidate anchorError rowError <$>
           ($ᵗ (QuadraticKDM.CoordinateView K Row))) >>= finish) := by
-        simp [wrongCandidateWithSideInfo, finish, map_eq_bind_pure_comp, bind_assoc]
+        simp only [wrongCandidateWithSideInfo, finish, map_eq_bind_pure_comp, bind_assoc, Function.comp_def, pure_bind]
     _ = evalDist (($ᵗ (QuadraticKDM.CoordinateView K Row)) >>= finish) := by
       rw [evalDist_bind, hCoordinate, ← evalDist_bind]
     _ = evalDist ((fun view ↦ (sideInfo, view)) <$>
@@ -440,7 +442,7 @@ theorem recoverFromLimb_realBlock
 /-- A canonical partial inverse.  It returns `none` exactly outside the image. -/
 noncomputable def partialInverse {Domain Codomain : Type} (encode : Domain → Codomain)
     (value : Codomain) : Option Domain := by
-  letI : Decidable (∃ input, encode input = value) := Classical.propDecidable _
+  let : Decidable (∃ input, encode input = value) := Classical.propDecidable _
   exact if h : ∃ input, encode input = value then some (Classical.choose h) else none
 
 /-- On the image of an injective encoding, `partialInverse` recovers the unique input. -/
@@ -449,7 +451,7 @@ theorem partialInverse_apply_of_injective
     (hInjective : Function.Injective encode) (input : Domain) :
     partialInverse encode (encode input) = some input := by
   have hExists : ∃ candidate, encode candidate = encode input := ⟨input, rfl⟩
-  simp only [partialInverse, dif_pos hExists, Option.some.injEq]
+  simp only [partialInverse, dite_eq_left hExists, Option.some.injEq]
   apply hInjective
   exact Classical.choose_spec hExists
 
@@ -591,7 +593,7 @@ theorem hybridRNS_all
     hybridRNS (limbCount * slotCount) real random = random := by
   funext limb slot
   simp only [hybridRNS]
-  rw [if_pos (coordinatePosition limb slot).isLt]
+  rw [ite_eq_left (coordinatePosition limb slot).isLt]
 
 /-- Immediately before position `k`, that coordinate retains its real value. -/
 theorem hybridRNS_at_position
@@ -638,9 +640,9 @@ theorem hybridRNS_succ_apply_of_ne
     exact hNe (Fin.ext hEqual)
   simp only [hybridRNS]
   by_cases hBefore : (coordinatePosition limb slot).val < position.val
-  · rw [if_pos (hBefore.trans_le (Nat.le_succ _)), if_pos hBefore]
+  · rw [ite_eq_left (hBefore.trans_le (Nat.le_succ _)), ite_eq_left hBefore]
   · have hAfter : position.val < (coordinatePosition limb slot).val := by omega
-    rw [if_neg (by omega), if_neg (by omega)]
+    rw [ite_eq_right (by omega), ite_eq_right (by omega)]
 
 /-- Hybridize only the right-hand sides of a public HNF block.  Leakage and all public
 coefficients are retained exactly. -/

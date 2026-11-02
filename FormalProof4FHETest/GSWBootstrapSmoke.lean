@@ -10,6 +10,8 @@ import FormalProof4FHE.LWE.GSWBootstrapParameters
 scaled reduction and two successive NAND/refresh operations with one unchanged secret,
 dense masks, and nonzero signed errors. Use concrete stored outputs between operations. -/
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHETest.GSWBootstrapSmoke
 
 open FormalProof4FHE.LWE

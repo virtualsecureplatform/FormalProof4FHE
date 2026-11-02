@@ -24,6 +24,8 @@ CircLWE premise used by the adaptive TFHE security theorem.
 
 open ENNReal OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.PublicAuxiliaryInputCircular.AugmentedResidual
 
 open FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery

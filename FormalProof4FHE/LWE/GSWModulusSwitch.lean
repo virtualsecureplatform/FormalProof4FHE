@@ -21,6 +21,8 @@ about ordinary-LWE security of the same-key bootstrapping controls is made here.
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWModulusSwitch
 
 open TFHE.BootstrappingCorrectness

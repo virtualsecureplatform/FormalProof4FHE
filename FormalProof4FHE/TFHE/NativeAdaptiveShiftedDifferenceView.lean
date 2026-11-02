@@ -22,6 +22,8 @@ base noise, rather than part of a residual to which a second fresh error is auto
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted
 
 noncomputable section

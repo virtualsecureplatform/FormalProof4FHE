@@ -19,6 +19,8 @@ here. In particular this is not an ordinary-LWE-only FHE security theorem.
 
 open OracleComp AsymmEncAlg
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.RecursiveFeatureSecurityParameters
 
 open RecursiveQuadraticParameters RecursiveFeaturePublicKeyParameters
@@ -29,14 +31,14 @@ noncomputable def family (parameter : ℕ) :=
     (UniformInterval.sample (modulus parameter) (radius parameter) (retries parameter))
 
 noncomputable def jointReplacementAdvantage (parameter : ℕ)
-    (adversary : IND_CPA_Adv (family parameter)) : ℝ :=
+    (adversary : IND_CPA_OneTime_Adversary (family parameter)) : ℝ :=
   RecursiveFeatureSecurityView.jointReplacementAdvantage (params parameter) (level parameter)
     ($ᵗ (Fin (dimension parameter) → Bool))
     (UniformInterval.sample (modulus parameter) (radius parameter) (retries parameter)) adversary
 
 theorem oneTime_abs_signedAdvantage_le (parameter : ℕ)
-    (adversary : IND_CPA_Adv (family parameter)) :
-    |IND_CPA_OneTime_signedAdvantageReal (family parameter) adversary| ≤
+    (adversary : IND_CPA_OneTime_Adversary (family parameter)) :
+    |FormalProof4FHE.oneTimeSignedAdvantage (family parameter) adversary| ≤
       jointReplacementAdvantage parameter adversary + maskingBound parameter := by
   simpa only [family, jointReplacementAdvantage, maskingBound, maskingPerColumnBound,
     RecursiveFeatureSecurityView.Dimension, RecursiveFeaturePublicKey.Dimension, featureRows, params,

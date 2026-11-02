@@ -24,6 +24,8 @@ limb.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.BinaryNTTSecurity.CompactCoverBGVMixedSource
 
 open FormalProof4FHE.RLWE.BinaryNTTSecurity.CompactCoverBGVExactNoise
@@ -129,8 +131,8 @@ def mathematicalRNSBackend : Backend ConcreteSplitRNS :=
   concreteRNSBackend mathematicalCoefficientNTT
 
 noncomputable def concreteUnitSampler : ProbComp ConcreteSplitRNSˣ := by
-  letI : Fintype ConcreteSplitRNSˣ := Fintype.ofFinite _
-  letI : SampleableType ConcreteSplitRNSˣ := SampleableType.ofFintype _
+  let : Fintype ConcreteSplitRNSˣ := Fintype.ofFinite _
+  let : SampleableType ConcreteSplitRNSˣ := SampleableType.ofFintype _
   exact $ᵗ ConcreteSplitRNSˣ
 
 theorem concreteUnitSampler_neverFails : NeverFail concreteUnitSampler := by
@@ -162,7 +164,7 @@ noncomputable def mixedErrorSampler (queries : ℕ) (R : Type)
 theorem mixedErrorSampler_neverFails (queries : ℕ) (R : Type)
     [CommRing R] [Fintype R] [SampleableType R]
     (backend : Backend R) : NeverFail (mixedErrorSampler queries R backend) := by
-  simp [mixedErrorSampler]
+  infer_instance
 
 /-- Every sampled coefficient obeys the exact implementation support bound. -/
 theorem errorCoefficients_natAbs_le {queries : ℕ} (coins : RowCoins queries)
@@ -265,7 +267,7 @@ noncomputable def sourceSpec (queries : ℕ) (R : Type)
   source_neverFails := by
     unfold commonSecretSource
     apply NeverFail.bind_of_forall
-      (hx := contextWitnessSampler_neverFails R backend inputs)
+      (_hx := contextWitnessSampler_neverFails R backend inputs)
 
 /-- Fully concrete 20-limb source problem used by the selected N=65536
 instantiation. -/
@@ -366,14 +368,14 @@ theorem contextual_advantage_le_full_add_context
   have hconditional :
       evalDist conditionalOutput =
         evalDist ((publicContextSampler source) >>= contextPullback distinguisher) := by
-    simpa [conditionalOutput, conditionalRandom, realSource,
+    simpa +unfoldPartialApp [conditionalOutput, conditionalRandom, realSource,
       contextPullback, bind_assoc] using
       (FormalProof4FHE.SharedRandomness.evalDist_bind_eq_of_evalDist_eq
         (contextualRandom_evalDist_eq_publicContext queries R source) distinguisher)
   have huniform :
       evalDist uniformOutput =
         evalDist ((randomContextSampler R inputs) >>= contextPullback distinguisher) := by
-    simp [uniformOutput, fullUniform, fullyUniformViewSampler,
+    simp +unfoldPartialApp [uniformOutput, fullUniform, fullyUniformViewSampler,
       contextPullback, bind_assoc]
   unfold advantage ProbComp.boolDistAdvantage
   change realOutput.boolDistAdvantage conditionalOutput ≤

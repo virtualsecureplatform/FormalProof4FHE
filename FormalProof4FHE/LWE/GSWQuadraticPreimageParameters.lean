@@ -23,6 +23,8 @@ verified efficient implementation. Those construction obligations remain.
 
 open scoped BigOperators ENNReal Topology
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWQuadraticPreimageParameters
 
 open RecursiveQuadraticParameters

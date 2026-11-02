@@ -27,6 +27,8 @@ does not imply this conditional law.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput.Search.PairedRecovery.CoordinateRecovery
 
 /-- Scheme-level shifted-evaluation/smudging certificate that remains valid after fixing the

@@ -38,6 +38,8 @@ set_option autoImplicit false
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.SourceAlignedBRKKSKJointLaw
 
 noncomputable section
@@ -171,7 +173,7 @@ theorem targetAdvantage_le_two_source_add_realErrors_add_uniformGap
     (constructor : PublicViewConstructor problem prefixSampler targetView)
     (distinguisher : Distinguisher View) :
     targetAdvantage targetView distinguisher ≤
-      2 * LearningWithErrors.advantage problem (constructor.reduction distinguisher) +
+      2 * LearningWithErrors.realAdvantage problem (constructor.reduction distinguisher) +
         constructor.realError true + constructor.realError false +
         targetAdvantage (uniformConstructedTarget constructor) distinguisher := by
   let selectedOrientation := constructor.orientation distinguisher
@@ -208,12 +210,12 @@ theorem targetAdvantage_le_two_source_add_realErrors_add_uniformGap
       |uniformGap| = targetAdvantage (uniformConstructedTarget constructor) distinguisher := by
     unfold uniformGap orientedGap targetAdvantage uniformConstructedTarget
     by_cases horientation : selectedOrientation = true
-    · rw [if_pos horientation]
+    · rw [ite_eq_left horientation]
       rfl
-    · rw [if_neg horientation, abs_sub_comm]
+    · rw [ite_eq_right horientation, abs_sub_comm]
       rfl
   have hAdvantage :
-      LearningWithErrors.advantage problem (constructor.reduction distinguisher) =
+      LearningWithErrors.realAdvantage problem (constructor.reduction distinguisher) =
         |realGap - uniformGap| / 2 := by
     simpa only [realGap, uniformGap, selectedOrientation, realOne, realZero, uniformOne,
       uniformZero] using constructor.reduction_advantage_eq distinguisher
@@ -243,8 +245,8 @@ theorem targetAdvantage_le_two_sources_add_errors
       (uniformConstructedTarget outer))
     (distinguisher : Distinguisher View) :
     targetAdvantage targetView distinguisher ≤
-      2 * LearningWithErrors.advantage suffixProblem (outer.reduction distinguisher) +
-      2 * LearningWithErrors.advantage prefixProblem (inner.reduction distinguisher) +
+      2 * LearningWithErrors.realAdvantage suffixProblem (outer.reduction distinguisher) +
+      2 * LearningWithErrors.realAdvantage prefixProblem (inner.reduction distinguisher) +
       outer.realError true + outer.realError false +
       inner.realError true + inner.realError false + inner.uniformError := by
   have houter :=
@@ -306,11 +308,11 @@ theorem alignedJointSecurity
       views.second)
     (distinguisher : Distinguisher View) :
     targetAdvantage views.endpoints distinguisher ≤
-      2 * LearningWithErrors.advantage suffixProblem
+      2 * LearningWithErrors.realAdvantage suffixProblem
         (suffixConstructor.reduction distinguisher) +
-      2 * LearningWithErrors.advantage prefixProblem₁
+      2 * LearningWithErrors.realAdvantage prefixProblem₁
         (randomPrefixConstructor.reduction distinguisher) +
-      2 * LearningWithErrors.advantage prefixProblem₂
+      2 * LearningWithErrors.realAdvantage prefixProblem₂
         (secondPrefixConstructor.reduction distinguisher) +
       suffixConstructor.realError true + suffixConstructor.realError false +
       randomPrefixConstructor.realError true + randomPrefixConstructor.realError false +
@@ -354,11 +356,11 @@ theorem alignedJointSecurity_le_smudging_aux
         secondPrefixConstructor.realError false +
         secondPrefixConstructor.uniformError ≤ auxiliary) :
     targetAdvantage views.endpoints distinguisher ≤
-      2 * LearningWithErrors.advantage suffixProblem
+      2 * LearningWithErrors.realAdvantage suffixProblem
         (suffixConstructor.reduction distinguisher) +
-      2 * LearningWithErrors.advantage prefixProblem₁
+      2 * LearningWithErrors.realAdvantage prefixProblem₁
         (randomPrefixConstructor.reduction distinguisher) +
-      2 * LearningWithErrors.advantage prefixProblem₂
+      2 * LearningWithErrors.realAdvantage prefixProblem₂
         (secondPrefixConstructor.reduction distinguisher) +
       2 * smudging + auxiliary := by
   have h := alignedJointSecurity views suffixConstructor randomPrefixConstructor
@@ -396,11 +398,11 @@ theorem alignedJointSecurity_le_hardness
     (hSecondErrors : secondPrefixConstructor.realError true +
         secondPrefixConstructor.realError false +
         secondPrefixConstructor.uniformError ≤ auxiliary)
-    (hSuffixHard : LearningWithErrors.advantage suffixProblem
+    (hSuffixHard : LearningWithErrors.realAdvantage suffixProblem
       (suffixConstructor.reduction distinguisher) ≤ epsilonSuffix)
-    (hPrefixHard₁ : LearningWithErrors.advantage prefixProblem₁
+    (hPrefixHard₁ : LearningWithErrors.realAdvantage prefixProblem₁
       (randomPrefixConstructor.reduction distinguisher) ≤ epsilonPrefix)
-    (hPrefixHard₂ : LearningWithErrors.advantage prefixProblem₂
+    (hPrefixHard₂ : LearningWithErrors.realAdvantage prefixProblem₂
       (secondPrefixConstructor.reduction distinguisher) ≤ epsilonPrefix) :
     targetAdvantage views.endpoints distinguisher ≤
       2 * epsilonSuffix + 4 * epsilonPrefix + 2 * smudging + auxiliary := by
@@ -439,11 +441,11 @@ theorem alignedJointSecurity_correlated
         secondPrefixConstructor.realError false +
         secondPrefixConstructor.uniformError ≤ auxiliary) :
     targetAdvantage views.endpoints distinguisher ≤
-      2 * LearningWithErrors.advantage suffixProblem
+      2 * LearningWithErrors.realAdvantage suffixProblem
         (suffixConstructor.reduction distinguisher) +
-      2 * LearningWithErrors.advantage prefixProblem₁
+      2 * LearningWithErrors.realAdvantage prefixProblem₁
         (randomPrefixConstructor.reduction distinguisher) +
-      2 * LearningWithErrors.advantage prefixProblem₂
+      2 * LearningWithErrors.realAdvantage prefixProblem₂
         (secondPrefixConstructor.reduction distinguisher) + auxiliary := by
   have h := alignedJointSecurity_le_smudging_aux views suffixConstructor
     randomPrefixConstructor secondPrefixConstructor distinguisher 0 auxiliary
@@ -477,7 +479,7 @@ variable {Omega : Type} [Fintype Omega] [DecidableEq Omega] [SampleableType Omeg
 
 /-- Uniform sampling from a nonempty finite subset, embedded in the ambient type. -/
 def uniformFinset (support : Finset Omega) [Nonempty support] : ProbComp Omega := by
-  letI : SampleableType support := SampleableType.ofFintype _
+  let : SampleableType support := SampleableType.ofFintype _
   exact (fun value : support ↦ value.1) <$> ($ᵗ support)
 
 /-- Exact point mass of `uniformFinset`. -/
@@ -486,11 +488,11 @@ theorem probOutput_uniformFinset
     Pr[= output | uniformFinset support] =
       if output ∈ support then (support.card : ENNReal)⁻¹ else 0 := by
   classical
-  letI : SampleableType support := SampleableType.ofFintype _
+  let : SampleableType support := SampleableType.ofFintype _
   unfold uniformFinset
   rw [FormalProof4FHE.LeftoverHash.probOutput_map_uniform_eq_fiberCard]
   by_cases houtput : output ∈ support
-  · rw [if_pos houtput]
+  · rw [ite_eq_left houtput]
     have hfilter :
         (Finset.univ.filter fun value : support ↦ (value : Omega) = output) =
           {⟨output, houtput⟩} := by
@@ -498,7 +500,7 @@ theorem probOutput_uniformFinset
       simp [Subtype.ext_iff]
     rw [hfilter]
     simp
-  · rw [if_neg houtput]
+  · rw [ite_eq_right houtput]
     have hfilter :
         (Finset.univ.filter fun value : support ↦ (value : Omega) = output) = ∅ := by
       rw [Finset.filter_eq_empty_iff]
@@ -572,7 +574,7 @@ theorem tvDist_uniformFinset_uniform
         apply Finset.sum_congr rfl
         intro output houtput
         dsimp only [summand]
-        rw [if_pos houtput]
+        rw [ite_eq_left houtput]
         exact hinSupport output houtput
       _ = support.card *
           ((support.card : ℝ)⁻¹ - (Fintype.card Omega : ℝ)⁻¹) := by
@@ -591,7 +593,7 @@ theorem tvDist_uniformFinset_uniform
         intro output houtput
         have hnot := (Finset.mem_filter.mp houtput).2
         dsimp only [summand]
-        rw [if_neg hnot]
+        rw [ite_eq_right hnot]
         exact houtside output hnot
       _ = ((Finset.univ : Finset Omega).filter
             (fun value ↦ value ∉ support)).card *
@@ -650,12 +652,12 @@ theorem evalDist_map_uniform_addHom_eq_uniformFinset
     [AddGroup Codomain] [Fintype Codomain] [DecidableEq Codomain]
     [SampleableType Codomain]
     (transform : Domain →+ Codomain) :
-    letI : Nonempty (rangeSupport transform) := rangeSupport_nonempty transform
+    let : Nonempty (rangeSupport transform) := rangeSupport_nonempty transform
     evalDist (transform <$> ($ᵗ Domain)) =
       evalDist (uniformFinset (rangeSupport transform)) := by
-  letI : SampleableType transform.range := SampleableType.ofFintype _
-  letI : Nonempty (rangeSupport transform) := rangeSupport_nonempty transform
-  letI : SampleableType (rangeSupport transform) := SampleableType.ofFintype _
+  let : SampleableType transform.range := SampleableType.ofFintype _
+  let : Nonempty (rangeSupport transform) := rangeSupport_nonempty transform
+  let : SampleableType (rangeSupport transform) := SampleableType.ofFintype _
   have hrange :=
     JointSubsetKeyBRKRefined.evalDist_map_surjective_addHom_uniform
       transform.rangeRestrict (AddMonoidHom.rangeRestrict_surjective transform)
@@ -692,7 +694,7 @@ theorem tvDist_map_uniform_addHom_eq
     (transform : Domain →+ Codomain) :
     tvDist (transform <$> ($ᵗ Domain)) ($ᵗ Codomain) =
       1 - (Fintype.card transform.range : ℝ) / Fintype.card Codomain := by
-  letI : Nonempty (rangeSupport transform) := rangeSupport_nonempty transform
+  let : Nonempty (rangeSupport transform) := rangeSupport_nonempty transform
   have hdist := evalDist_map_uniform_addHom_eq_uniformFinset transform
   have htv :
       tvDist (transform <$> ($ᵗ Domain)) ($ᵗ Codomain) =
@@ -1147,7 +1149,7 @@ theorem probEvent_ge_le_exp_mul_expectation
     apply Finset.sum_le_sum
     intro noise _
     by_cases hnoise : threshold ≤ observable noise
-    · rw [if_pos hnoise]
+    · rw [ite_eq_left hnoise]
       have hexponent : 0 ≤ rate * (observable noise - threshold) :=
         mul_nonneg hrate (sub_nonneg.mpr hnoise)
       have hone : 1 ≤ Real.exp (rate * (observable noise - threshold)) :=
@@ -1170,7 +1172,7 @@ theorem probEvent_ge_le_exp_mul_expectation
             ring
           rw [hexpEq]
           ring
-    · rw [if_neg hnoise]
+    · rw [ite_eq_right hnoise]
       positivity
   · intro noise _
     by_cases hnoise : threshold ≤ observable noise

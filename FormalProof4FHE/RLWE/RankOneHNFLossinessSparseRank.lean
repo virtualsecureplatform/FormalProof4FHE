@@ -29,6 +29,8 @@ bounds--is finite algebra proved here.
 open BigOperators
 open Polynomial
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.RankOneHNFLossinessSparseRank
 
 noncomputable section
@@ -211,7 +213,7 @@ theorem support_add_X_pow_mul_eq_union
     Polynomial.coeff_X_pow_mul', Finset.mem_union, Finset.mem_image]
   by_cases hindex : index < cut
   · have hshift : ¬cut ≤ index := Nat.not_le.mpr hindex
-    simp only [if_neg hshift, add_zero, ne_eq]
+    simp only [ite_eq_right hshift, add_zero, ne_eq]
     constructor
     · intro hcoeff
       exact Or.inl hcoeff
@@ -222,7 +224,7 @@ theorem support_add_X_pow_mul_eq_union
     have hcoeffHigh : polynomial.coeff index = 0 := by
       apply Polynomial.coeff_eq_zero_of_natDegree_lt
       exact hdegree.trans_le hcut
-    simp only [if_pos hcut, hcoeffHigh, zero_add, ne_eq, not_true_eq_false,
+    simp only [ite_eq_left hcut, hcoeffHigh, zero_add, ne_eq, not_true_eq_false,
       false_or]
     constructor
     · intro hcoeff
@@ -349,8 +351,8 @@ theorem repeatedRootDistance_le_card_support
         have hreducedDivides :
             (X - C (1 : F2)) ^ (half - rank) ∣ reduced := by
           exact ⟨factor, rfl⟩
-        rw [repeatedRootDistance, if_neg (Nat.ne_of_gt hrankPos),
-          if_pos hrankHalf, hpoly,
+        rw [repeatedRootDistance, ite_eq_right (Nat.ne_of_gt hrankPos),
+          ite_eq_left hrankHalf, hpoly,
           card_support_add_X_pow_mul reduced half hreducedDegree]
         exact Nat.mul_le_mul_left 2
           (ih rank reduced hrankPos hrankHalf hreducedNe hreducedDegree hreducedDivides)
@@ -434,8 +436,8 @@ theorem exists_repeatedRootCodeword_minimumWeight
         refine ⟨polynomial, hpolynomialNe, hpolynomialDegree,
           hpolynomialDivides, ?_⟩
         rw [card_support_add_X_pow_mul reduced half hreducedDegree,
-          repeatedRootDistance, if_neg (Nat.ne_of_gt hrankPos),
-          if_pos hrankHalf, hreducedWeight]
+          repeatedRootDistance, ite_eq_right (Nat.ne_of_gt hrankPos),
+          ite_eq_left hrankHalf, hreducedWeight]
       · have hrankGt : half < rank := Nat.lt_of_not_ge hrankHalf
         by_cases hrankFull : rank = 2 * half
         · subst rank
@@ -494,7 +496,7 @@ theorem repeatedRootDistance_eq_two_pow_sub_log2
           calc
             Nat.log 2 rank ≤ Nat.log 2 (2 ^ d) := Nat.log_mono_right hrankHalf
             _ = d := Nat.log_pow Nat.one_lt_two d
-        rw [repeatedRootDistance, if_neg (Nat.ne_of_gt hrankPos), if_pos hrankHalf,
+        rw [repeatedRootDistance, ite_eq_right (Nat.ne_of_gt hrankPos), ite_eq_left hrankHalf,
           ih rank hrankPos hrankHalf]
         rw [show d + 1 - Nat.log2 rank = (d - Nat.log2 rank) + 1 by omega,
           pow_succ]
@@ -577,7 +579,7 @@ theorem binaryWordPolynomial_coeff
     Finset.sum_eq_single index]
   · simp
   · intro other _ hother
-    rw [Polynomial.coeff_monomial, if_neg]
+    rw [Polynomial.coeff_monomial, ite_eq_right]
     intro heq
     exact hother (Fin.ext heq)
   · simp
@@ -643,7 +645,10 @@ inductive TernaryDigit where
   | neg
   | zero
   | pos
-  deriving DecidableEq, Fintype
+  deriving DecidableEq
+
+instance : Fintype TernaryDigit :=
+  ⟨{.neg, .zero, .pos}, by intro digit; cases digit <;> simp⟩
 
 namespace TernaryDigit
 
@@ -773,9 +778,9 @@ theorem primitiveDifference_ne_zero
     {length : ℕ} {left right : TernaryWord length} (hne : left ≠ right) :
     primitiveDifference left right ≠ 0 := by
   by_cases hsupport : wordSupport left = wordSupport right
-  · simp only [primitiveDifference, if_pos hsupport]
+  · simp only [primitiveDifference, ite_eq_left hsupport]
     exact halvedSignDifference_ne_zero_of_support_eq hsupport hne
-  · simp only [primitiveDifference, if_neg hsupport]
+  · simp only [primitiveDifference, ite_eq_right hsupport]
     exact parityDifference_ne_zero_of_support_ne hsupport
 
 /-- Different supports give primitive weight at most `2w`; equal supports give the sharper `w`.
@@ -786,13 +791,13 @@ theorem primitiveDifference_weight_bound
     (wordSupport (primitiveDifference left right)).card ≤
       if wordSupport left = wordSupport right then weight else 2 * weight := by
   by_cases hsupport : wordSupport left = wordSupport right
-  · simp only [primitiveDifference, if_pos hsupport]
+  · simp only [primitiveDifference, ite_eq_left hsupport]
     calc
       (wordSupport (halvedSignDifference left right)).card ≤
           (wordSupport left).card :=
         Finset.card_le_card (wordSupport_halvedSignDifference_subset_left left right)
       _ = weight := hleft
-  · simp only [primitiveDifference, if_neg hsupport]
+  · simp only [primitiveDifference, ite_eq_right hsupport]
     calc
       (wordSupport (parityDifference left right)).card ≤
           (wordSupport left ∪ wordSupport right).card :=
@@ -1435,7 +1440,7 @@ theorem finiteWeightedUnionBound
       apply Finset.sum_le_sum
       intro context _
       by_cases hunion : ∃ index ∈ indices, event index context
-      · simp only [if_pos hunion]
+      · simp only [ite_eq_left hunion]
         obtain ⟨index, hindex, hevent⟩ := hunion
         have hsingle :
             (if event index context then mass context else 0) ≤
@@ -1450,7 +1455,7 @@ theorem finiteWeightedUnionBound
             · simp [hother]
           · exact hindex
         simpa [hevent] using hsingle
-      · simp only [if_neg hunion]
+      · simp only [ite_eq_right hunion]
         exact Finset.sum_nonneg fun index _ ↦ by
           by_cases hindex : event index context
           · simp [hindex, hmass context]

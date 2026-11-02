@@ -29,6 +29,8 @@ native circular-security premise.
 
 open Matrix
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.CircularBoundary
 
 /-- The body-gadget contribution to the direct TGSW phase. -/

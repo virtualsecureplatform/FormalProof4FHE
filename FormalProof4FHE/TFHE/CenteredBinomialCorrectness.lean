@@ -19,6 +19,8 @@ probability one whenever the public decoding margin holds.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.CenteredBinomialCorrectness
 
 noncomputable section

@@ -26,6 +26,8 @@ Consequently the open native certificate is narrowed from the complete
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE
 
 noncomputable section
@@ -241,7 +243,7 @@ theorem completeViewDistance_le
   have htape : tvDist transformedTape targetTape = 0 := by
     unfold transformedTape targetTape tvDist
     rw [transformTargetTape_sampleTargetTape_evalDist]
-    exact SPMF.tvDist_self _
+    exact MeasureTheory.Measure.tvDist_self _
   calc
     tvDist
         (FormalProof4FHE.TFHE.SamplerReplacement.independentPair transformedTape
@@ -771,7 +773,7 @@ theorem transformEvaluationMaterialGlobalComplement_tvDist_le
   have hextension : tvDist transformedExtensionKey targetExtensionKey = 0 := by
     unfold tvDist
     rw [hextensionEvalDist]
-    exact SPMF.tvDist_self _
+    exact MeasureTheory.Measure.tvDist_self _
   have hsource :
       transformEvaluationMaterialGlobalComplement gadget <$>
           sampleEvaluationMaterial q (degree + 1) 1 suffixRank levels
@@ -863,7 +865,7 @@ theorem transformCompleteViewGlobalComplement_tvDist_le
   have htape : tvDist transformedTape targetTape = 0 := by
     unfold transformedTape targetTape targetSecret mask tvDist
     rw [transformTargetTape_sampleTargetTape_evalDist]
-    exact SPMF.tvDist_self _
+    exact MeasureTheory.Measure.tvDist_self _
   have hmaterial :
       tvDist transformedMaterial targetMaterial ≤
         (targetScalarDimension 1 suffixRank (degree + 1) : ℝ) *

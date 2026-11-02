@@ -34,6 +34,8 @@ is rank one while the joint full-BRK object carries the complete outer-product t
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.MonomialKDM.FullTable
 
 /-- The weighted bilinear form represented by a complete table of message-by-secret products. -/

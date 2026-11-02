@@ -37,6 +37,8 @@ RLWE.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightSecurity
 
 open FormalProof4FHE.TFHE
@@ -58,7 +60,7 @@ noncomputable def topRGSWRingProblem
       (RingBinarySecret 1 (degree + 1))
       (RLWE.ModuleOutput (2 ^ (exponent + 1)) (degree + 1)
         (TGSW.rowCount 1 1)) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   let ordinary := CoefficientStructuredLWE.ringProblem
     (2 ^ (exponent + 1)) (degree + 1) 1 (TGSW.rowCount 1 1) errorSampler
   exact
@@ -84,7 +86,7 @@ theorem topRGSWRingProblem_same_samplers_as_ordinary
       top.sampleSecret = ordinary.sampleSecret ∧
       top.sampleError = ordinary.sampleError ∧
       top.sampleUniform = ordinary.sampleUniform := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   simp [topRGSWRingProblem]
 
 /-- Coefficient transport maps the ring-carrier top-row noiseless output to the named
@@ -104,7 +106,7 @@ theorem outputEquiv_topRGSWRingProblem_noiseless
         (CoefficientStructuredLWE.challengeEquiv
           (2 ^ (exponent + 1)) (degree + 1) 1
           (TGSW.rowCount 1 1) challenge) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   rw [topRGSWCoefficientProblem_noiseless]
   unfold topRGSWRingProblem
   dsimp only
@@ -122,6 +124,10 @@ theorem outputEquiv_topRGSWRingProblem_noiseless
       (2 ^ (exponent + 1)) (degree + 1))
   simp [Matrix.vecMul, dotProduct,
     CoefficientStructuredLWE.challengeEquiv]
+  change _ = LatticeCrypto.negacyclicMulPure _ _
+    ((CoefficientStructuredLWE.coefficientEquiv _ _).symm
+      ((CoefficientStructuredLWE.coefficientEquiv _ _) (challenge 0 row)))
+  rw [Equiv.symm_apply_apply]
 
 /-- Mapping a real ring-carrier top-row transcript coefficientwise gives exactly the real
 coefficient-affine transcript. -/
@@ -136,7 +142,7 @@ theorem map_topRGSWRingDistr_eq_coefficientDistr
           (TGSW.rowCount 1 1) transcript)) =
       LearningWithErrors.distr
         (topRGSWCoefficientProblem exponent degree errorSampler) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   simp only [LearningWithErrors.distr, topRGSWRingProblem,
     topRGSWCoefficientProblem, CoefficientStructuredLWE.ringProblem,
     CoefficientStructuredLWE.problem, FormalProof4FHE.LWE.embeddedBatchProblem,
@@ -178,7 +184,7 @@ theorem map_topRGSWRingUniformDistr_eq_coefficientUniformDistr
           (TGSW.rowCount 1 1) transcript)) =
       LearningWithErrors.uniformDistr
         (topRGSWCoefficientProblem exponent degree errorSampler) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   simp [LearningWithErrors.uniformDistr, topRGSWRingProblem,
     topRGSWCoefficientProblem, CoefficientStructuredLWE.ringProblem,
     CoefficientStructuredLWE.problem, FormalProof4FHE.LWE.embeddedBatchProblem,
@@ -194,7 +200,7 @@ theorem topRGSWRingUniformDistr_eq_uniformSample
         (topRGSWRingProblem exponent degree errorSampler) =
       ($ᵗ (TGSW.Ciphertext
         (RLWE.Rq (2 ^ (exponent + 1)) (degree + 1)) 1 1)) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   unfold LearningWithErrors.uniformDistr topRGSWRingProblem
     CoefficientStructuredLWE.ringProblem FormalProof4FHE.LWE.embeddedBatchProblem
   have uniformProduct :
@@ -221,7 +227,7 @@ theorem topRGSWRingDistr_evalDist_eq_nativeSquareBatchSampler
         (sampleRingSecret 1 (degree + 1))
         (embedRingSecret (2 ^ (exponent + 1))) errorSampler
         (topGadget exponent degree)) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   let Challenges : ProbComp
       (Matrix (Fin 1) (Fin (TGSW.rowCount 1 1))
         (RLWE.Rq (2 ^ (exponent + 1)) (degree + 1))) :=
@@ -287,15 +293,15 @@ theorem coefficientAdversary_game0_evalDist_eq_nativeSquareGame
     (errorSampler : ProbComp (RLWE.Rq (2 ^ (exponent + 1)) (degree + 1)))
     (distinguisher : Full.Distinguisher
       (RLWE.Rq (2 ^ (exponent + 1)) (degree + 1)) 1) :
-    evalDist (LearningWithErrors.game0
+    evalDist (LearningWithErrors.realExperiment
         (topRGSWCoefficientProblem exponent degree errorSampler)
         (coefficientAdversary distinguisher)) =
       evalDist (Full.nativeSquareGame 1
         (sampleRingSecret 1 (degree + 1))
         (embedRingSecret (2 ^ (exponent + 1))) errorSampler
         (topGadget exponent degree) distinguisher) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
-  rw [LearningWithErrors.game0]
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  rw [LearningWithErrors.realExperiment]
   unfold coefficientAdversary
   rw [← map_topRGSWRingDistr_eq_coefficientDistr]
   simp only [bind_assoc, pure_bind, Equiv.symm_apply_apply]
@@ -310,12 +316,12 @@ theorem coefficientAdversary_game1_evalDist_eq_uniformGame
     (errorSampler : ProbComp (RLWE.Rq (2 ^ (exponent + 1)) (degree + 1)))
     (distinguisher : Full.Distinguisher
       (RLWE.Rq (2 ^ (exponent + 1)) (degree + 1)) 1) :
-    evalDist (LearningWithErrors.game1
+    evalDist (LearningWithErrors.randomExperiment
         (topRGSWCoefficientProblem exponent degree errorSampler)
         (coefficientAdversary distinguisher)) =
       evalDist (Full.uniformGame distinguisher) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
-  rw [LearningWithErrors.game1]
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  rw [LearningWithErrors.randomExperiment]
   unfold coefficientAdversary
   rw [← map_topRGSWRingUniformDistr_eq_coefficientUniformDistr]
   simp only [bind_assoc, pure_bind, Equiv.symm_apply_apply]
@@ -333,7 +339,7 @@ theorem nativeSquareAdvantage_eq_coefficientAdvantage
         (sampleRingSecret 1 (degree + 1))
         (embedRingSecret (2 ^ (exponent + 1))) errorSampler
         (topGadget exponent degree) distinguisher =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (topRGSWCoefficientProblem exponent degree errorSampler)
         (coefficientAdversary distinguisher) := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
@@ -359,7 +365,7 @@ theorem nativeRGSWSquareGame_evalDist_eq_nativeSquareGame
         (sampleRingSecret 1 (degree + 1))
         (embedRingSecret (2 ^ (exponent + 1))) errorSampler
         (topGadget exponent degree) distinguisher) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   have hSampler :=
     PreimageCompiler.ActualNormalForm.actualSquareBatchSampler_evalDist_eq_nativeSquareBatchSampler
       1 (sampleRingSecret 1 (degree + 1))
@@ -403,7 +409,7 @@ theorem nativeRGSWSquareAdvantage_eq_coefficientAdvantage
     Native.RingSquareRGSW.squareAdvantage
         (2 ^ (exponent + 1)) (degree + 1) 1 errorSampler
         (topGadget exponent degree) distinguisher =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (topRGSWCoefficientProblem exponent degree errorSampler)
         (coefficientAdversary distinguisher) := by
   rw [← nativeSquareAdvantage_eq_coefficientAdvantage]
@@ -424,7 +430,7 @@ theorem circularLweAdvantage_eq_coefficientAdvantage
     Native.RingSquareRGSW.circularLweAdvantage
         (2 ^ (exponent + 1)) (degree + 1) 1 errorSampler
         (topGadget exponent degree) distinguisher =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (topRGSWCoefficientProblem exponent degree errorSampler)
         (coefficientAdversary
           (Native.RingSquareRGSW.restoreDistinguisher
@@ -459,7 +465,7 @@ theorem ordinaryRingDistr_evalDist_eq_zeroBatchSampler
       evalDist (sampleRingSecret 1 (degree + 1) >>= fun ringSecret ↦
         TLWE.batchEncrypt 1 (TGSW.rowCount 1 1) errorSampler
           (embedRingSecret (2 ^ (exponent + 1)) ringSecret) 0) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   let Challenges : ProbComp
       (Matrix (Fin 1) (Fin (TGSW.rowCount 1 1))
         (RLWE.Rq (2 ^ (exponent + 1)) (degree + 1))) :=
@@ -512,7 +518,7 @@ theorem ordinaryRingUniformDistr_eq_uniformSample
           (TGSW.rowCount 1 1) errorSampler) =
       ($ᵗ (TGSW.Ciphertext
         (RLWE.Rq (2 ^ (exponent + 1)) (degree + 1)) 1 1)) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   unfold LearningWithErrors.uniformDistr CoefficientStructuredLWE.ringProblem
     FormalProof4FHE.LWE.embeddedBatchProblem
   have uniformProduct :
@@ -537,13 +543,13 @@ theorem zeroGame_evalDist_eq_ordinaryRLWEGame0
     evalDist (Native.RingSquareRGSW.zeroGame
         (2 ^ (exponent + 1)) (degree + 1) 1 errorSampler
         (topGadget exponent degree) distinguisher) =
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
         (CoefficientStructuredLWE.ringProblem
           (2 ^ (exponent + 1)) (degree + 1) 1
           (TGSW.rowCount 1 1) errorSampler)
         (zeroRLWEAdversary distinguisher)) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
-  rw [LearningWithErrors.game0]
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  rw [LearningWithErrors.realExperiment]
   unfold zeroRLWEAdversary
   rw [evalDist_bind, ordinaryRingDistr_evalDist_eq_zeroBatchSampler,
     ← evalDist_bind]
@@ -558,13 +564,13 @@ theorem uniformGame_evalDist_eq_ordinaryRLWEGame1
       (2 ^ (exponent + 1)) (degree + 1) 1) :
     evalDist (Native.RingSquareRGSW.uniformGame
         (2 ^ (exponent + 1)) (degree + 1) 1 distinguisher) =
-      evalDist (LearningWithErrors.game1
+      evalDist (LearningWithErrors.randomExperiment
         (CoefficientStructuredLWE.ringProblem
           (2 ^ (exponent + 1)) (degree + 1) 1
           (TGSW.rowCount 1 1) errorSampler)
         (zeroRLWEAdversary distinguisher)) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
-  rw [LearningWithErrors.game1]
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  rw [LearningWithErrors.randomExperiment]
   unfold zeroRLWEAdversary
   rw [ordinaryRingUniformDistr_eq_uniformSample]
   rfl
@@ -579,7 +585,7 @@ theorem zeroLweAdvantage_eq_ordinaryRLWEAdvantage
     Native.RingSquareRGSW.zeroLweAdvantage
         (2 ^ (exponent + 1)) (degree + 1) 1 errorSampler
         (topGadget exponent degree) distinguisher =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (CoefficientStructuredLWE.ringProblem
           (2 ^ (exponent + 1)) (degree + 1) 1
           (TGSW.rowCount 1 1) errorSampler)
@@ -606,17 +612,17 @@ theorem kdmAdvantage_le_coefficientAffine_add_ordinaryRLWE
     Native.RingSquareRGSW.kdmAdvantage
         (2 ^ (exponent + 1)) (degree + 1) 1 errorSampler
         (topGadget exponent degree) distinguisher ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
           (topRGSWCoefficientProblem exponent degree errorSampler)
           (coefficientAdversary
             (Native.RingSquareRGSW.restoreDistinguisher
               (topGadget exponent degree) distinguisher)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (CoefficientStructuredLWE.ringProblem
             (2 ^ (exponent + 1)) (degree + 1) 1
             (TGSW.rowCount 1 1) errorSampler)
           (zeroRLWEAdversary distinguisher) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   simpa only [circularLweAdvantage_eq_coefficientAdvantage,
     zeroLweAdvantage_eq_ordinaryRLWEAdvantage] using
     Native.RingSquareRGSW.kdmAdvantage_le_circularLwe_add_zeroLwe

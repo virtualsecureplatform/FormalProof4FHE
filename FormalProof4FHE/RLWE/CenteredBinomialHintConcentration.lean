@@ -33,6 +33,8 @@ game reduction.
 open scoped BigOperators
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.CenteredBinomialHintConcentration
 
 noncomputable section

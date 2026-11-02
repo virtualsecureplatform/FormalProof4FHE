@@ -34,6 +34,8 @@ it an invented descriptor distribution.
 
 open BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.TFHEppLvl5BootTwoSmithScreen
 
 open FormalProof4FHE.RLWE.PowerOfTwoQuadraticKDMStatistical
@@ -73,7 +75,7 @@ theorem principalFiberWeight_le_ratio
   classical
   by_cases hmember : InPrincipalIdeal difference target
   · simp [principalFiberWeight, hmember]
-  · rw [principalFiberWeight, if_neg hmember]
+  · rw [principalFiberWeight, ite_eq_right hmember]
     exact div_nonneg (by positivity) (by positivity)
 
 theorem overlapMasks_count_le
@@ -259,13 +261,15 @@ theorem lvl5_literalSecretDifference_image_lower
     2 ^ 20905985 ≤ Nat.card
       (rightMulAddHom
         ((2 : QuotientRq (2 ^ 640) (2 ^ 15)) ^ e * primitive)).range := by
-  letI : Fact (0 < 640) := ⟨by norm_num⟩
-  rw [card_quotientPowerOfTwo_twoPrimary_range
-    640 15 e (by omega) primitive hne hdegree hreduction]
-  apply Nat.pow_le_pow_right (by norm_num)
-  have hvaluation := hasseValuation_lt_of_ne_zero (2 ^ 15) hne hdegree
-  norm_num at hvaluation ⊢
-  omega
+  let : Fact (0 < 640) := ⟨by norm_num⟩
+  have hexponent : 20905985 ≤
+      (640 - e) * 2 ^ 15 - hasseValuation (2 ^ 15) polynomial := by
+    have hvaluation := hasseValuation_lt_of_ne_zero (2 ^ 15) hne hdegree
+    norm_num at hvaluation ⊢
+    omega
+  exact (pow_le_pow_right₀ (by decide : 1 ≤ (2 : ℕ)) hexponent).trans_eq
+    (card_quotientPowerOfTwo_twoPrimary_range
+      640 15 e (by omega) primitive hne hdegree hreduction).symm
 
 noncomputable def lvl5CoefficientDifferenceInterval : Finset ℤ :=
   Finset.Icc (-((2 : ℤ) ^ 64 - 1)) ((2 : ℤ) ^ 64 - 1)
@@ -274,7 +278,6 @@ theorem card_lvl5CoefficientDifferenceInterval :
     lvl5CoefficientDifferenceInterval.card = 2 ^ 65 - 1 := by
   rw [lvl5CoefficientDifferenceInterval, Int.card_Icc]
   norm_num
-  decide
 
 abbrev Lvl5ErrorDifferenceBox :=
   Fin 32768 → (lvl5CoefficientDifferenceInterval : Finset ℤ)

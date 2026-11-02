@@ -22,6 +22,8 @@ for any uninstantiated parameter family.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.NoiseFlooding
 
 variable {R : Type} [CommRing R] [Finite R] [DecidableEq R] [SampleableType R]
@@ -69,6 +71,7 @@ theorem translate_bijective {dimension samples : ℕ} (added : Fin samples → R
   · intro transcript
     simp
 
+omit [Finite R] in
 theorem uniform_evalDist (dimension samples : ℕ)
     (secretSampler : ProbComp (Fin dimension → R)) (narrow extra : ProbComp R)
     (hExtra : Pr[⊥ | extra] = 0) :
@@ -105,9 +108,9 @@ theorem advantage_convolution_eq (dimension samples : ℕ)
     (secretSampler : ProbComp (Fin dimension → R)) (narrow extra : ProbComp R)
     (hExtra : Pr[⊥ | extra] = 0)
     (adversary : BatchTranscript R dimension samples → ProbComp Bool) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
       (batchProblem dimension samples secretSampler (convolution narrow extra)) adversary =
-    LearningWithErrors.advantage (batchProblem dimension samples secretSampler narrow)
+    LearningWithErrors.realAdvantage (batchProblem dimension samples secretSampler narrow)
       (reduction extra adversary) := by
   have hreal := FormalProof4FHE.SharedRandomness.evalDist_bind_eq_of_evalDist_eq
     (real_evalDist dimension samples secretSampler narrow extra) adversary
@@ -115,7 +118,7 @@ theorem advantage_convolution_eq (dimension samples : ℕ)
     (uniform_evalDist dimension samples secretSampler narrow extra hExtra) adversary
   simp only [bind_assoc] at hreal huniform
   rw [advantage_eq_boolDistAdvantage, advantage_eq_boolDistAdvantage]
-  unfold ProbComp.boolDistAdvantage LearningWithErrors.game0 LearningWithErrors.game1 reduction
+  unfold ProbComp.boolDistAdvantage LearningWithErrors.realExperiment LearningWithErrors.randomExperiment reduction
   rw [probOutput_congr rfl hreal, probOutput_congr rfl huniform]
 
 theorem real_tvDist_le (dimension samples : ℕ)
@@ -140,30 +143,30 @@ theorem advantage_le_narrow (dimension samples : ℕ)
     (secretSampler : ProbComp (Fin dimension → R)) (narrow extra wide : ProbComp R)
     (hExtra : Pr[⊥ | extra] = 0)
     (adversary : BatchTranscript R dimension samples → ProbComp Bool) :
-    LearningWithErrors.advantage (batchProblem dimension samples secretSampler wide) adversary ≤
-      LearningWithErrors.advantage (batchProblem dimension samples secretSampler narrow)
+    LearningWithErrors.realAdvantage (batchProblem dimension samples secretSampler wide) adversary ≤
+      LearningWithErrors.realAdvantage (batchProblem dimension samples secretSampler narrow)
         (reduction extra adversary) +
           (samples : ℝ) * tvDist (convolution narrow extra) wide := by
   let convProblem := batchProblem dimension samples secretSampler (convolution narrow extra)
   let wideProblem := batchProblem dimension samples secretSampler wide
-  have hreal : (LearningWithErrors.game0 wideProblem adversary).boolDistAdvantage
-      (LearningWithErrors.game0 convProblem adversary) ≤
+  have hreal : (LearningWithErrors.realExperiment wideProblem adversary).boolDistAdvantage
+      (LearningWithErrors.realExperiment convProblem adversary) ≤
         (samples : ℝ) * tvDist (convolution narrow extra) wide := by
     calc
-      _ ≤ tvDist (LearningWithErrors.game0 wideProblem adversary)
-          (LearningWithErrors.game0 convProblem adversary) :=
+      _ ≤ tvDist (LearningWithErrors.realExperiment wideProblem adversary)
+          (LearningWithErrors.realExperiment convProblem adversary) :=
         abs_probOutput_toReal_sub_le_tvDist _ _
       _ ≤ tvDist (LearningWithErrors.distr wideProblem)
           (LearningWithErrors.distr convProblem) := tvDist_bind_right_le adversary _ _
       _ ≤ (samples : ℝ) * tvDist wide (convolution narrow extra) :=
         real_tvDist_le dimension samples secretSampler wide (convolution narrow extra)
       _ = _ := by rw [tvDist_comm]
-  have huniform : LearningWithErrors.game1 wideProblem adversary =
-      LearningWithErrors.game1 convProblem adversary := rfl
+  have huniform : LearningWithErrors.randomExperiment wideProblem adversary =
+      LearningWithErrors.randomExperiment convProblem adversary := rfl
   rw [← advantage_convolution_eq dimension samples secretSampler narrow extra hExtra adversary,
     advantage_eq_boolDistAdvantage, advantage_eq_boolDistAdvantage]
-  change (LearningWithErrors.game0 wideProblem adversary).boolDistAdvantage
-      (LearningWithErrors.game1 wideProblem adversary) ≤ _
+  change (LearningWithErrors.realExperiment wideProblem adversary).boolDistAdvantage
+      (LearningWithErrors.randomExperiment wideProblem adversary) ≤ _
   rw [huniform]
   exact (ProbComp.boolDistAdvantage_triangle _ _ _).trans
     ((add_le_add hreal le_rfl).trans_eq (add_comm _ _))
@@ -172,9 +175,9 @@ theorem advantage_le_narrow (dimension samples : ℕ)
 theorem interval_advantage_le (dimension samples q radius rounds : ℕ) [NeZero q]
     (narrow : ProbComp (ZMod q)) (hNarrow : Pr[⊥ | narrow] = 0)
     (adversary : BatchTranscript (ZMod q) dimension samples → ProbComp Bool) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
       (zmodBatchProblem dimension samples q (UniformInterval.draw q radius)) adversary ≤
-    LearningWithErrors.advantage (zmodBatchProblem dimension samples q narrow)
+    LearningWithErrors.realAdvantage (zmodBatchProblem dimension samples q narrow)
       (reduction (UniformInterval.sample q radius rounds) adversary) +
         (samples : ℝ) *
           (FormalProof4FHE.BlockBinary.scalarFirstMoment narrow

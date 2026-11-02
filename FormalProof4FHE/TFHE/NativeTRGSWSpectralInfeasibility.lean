@@ -21,6 +21,8 @@ and the two-hop random-message/zero-message endpoint.
 open Matrix OracleComp
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.NativeTRGSWSpectralInfeasibility
 
 noncomputable section
@@ -139,9 +141,10 @@ theorem probEvent_affineResiduals_forall_mem_eq
   change Pr[((fun values : Fin rows → R ↦
       ∀ row, values row ∈ typical row) ∘ affineResiduals weight offset) |
       columnSampler R dimension rows] = _
+  dsimp only [Function.comp_def]
   rw [← probEvent_map (mx := columnSampler R dimension rows)
     (f := affineResiduals weight offset)
-    (q := fun values ↦ ∀ row, values row ∈ typical row)]
+    (p := fun values ↦ ∀ row, values row ∈ typical row)]
   have hproduct :
       evalDist ($ᵗ (Fin rows → R)) =
         evalDist (Fin.mOfFn rows (fun _ ↦ $ᵗ R)) := by
@@ -433,7 +436,7 @@ theorem exhaustiveKSKDecoder_eq_some_of_uniquelyIdentifies
     refine ⟨(actual, suffix), hidentified, ?_⟩
     intro candidate hcandidate
     exact honly candidate hcandidate
-  rw [exhaustiveKSKDecoder, dif_pos hexists]
+  rw [exhaustiveKSKDecoder, dite_eq_left hexists]
   congr 1
   exact honly (Classical.choose hexists) (Classical.choose_spec hexists).1
 
@@ -727,13 +730,13 @@ theorem completeChannelPairDecoderSuccess_le_paritySuccess
   apply Finset.sum_le_sum
   intro view _
   by_cases hdecoded : decoder view = (secret, message)
-  · rw [if_pos hdecoded]
+  · rw [ite_eq_left hdecoded]
     have hsign :
         decoderSign (pairDecoderParityPredictor frequency decoder) view =
           walsh frequency secret * walsh frequency message := by
       rw [decoderSign_pairDecoderParityPredictor, hdecoded]
-    rw [if_pos hsign]
-  · rw [if_neg hdecoded]
+    rw [ite_eq_left hsign]
+  · rw [ite_eq_right hdecoded]
     split <;> simp [hchannel view secret message]
 
 /-- A full pair decoder with failure at most `ε` forces every posterior diagonal radius to be at

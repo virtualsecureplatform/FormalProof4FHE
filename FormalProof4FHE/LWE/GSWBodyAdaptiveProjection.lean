@@ -18,6 +18,8 @@ builder failures and complete multiple-control refresh trials.
 
 open Matrix
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWBodyAdaptiveProjection
 
 variable {R : Type} [CommRing R] {rows width : ℕ}

@@ -36,6 +36,8 @@ the theorem does not claim the gadget-weighted extension, whose error contains `
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.IntervalMaskedQuadratic
 
 noncomputable section
@@ -352,10 +354,10 @@ theorem zeroReduction_real_evalDist
     [Fintype Mask] [SampleableType Mask]
     (encoding : Encoding R Secret Mask Hint) (errorSampler : ProbComp R)
     (adversary : Distinguisher R) :
-    evalDist (LearningWithErrors.game0 (oneSampleProblem encoding errorSampler)
+    evalDist (LearningWithErrors.realExperiment (oneSampleProblem encoding errorSampler)
         (zeroReduction encoding adversary)) =
       evalDist (zeroRealView encoding errorSampler >>= adversary) := by
-  simp only [LearningWithErrors.game0, LearningWithErrors.distr, oneSampleProblem,
+  simp only [LearningWithErrors.realExperiment, LearningWithErrors.distr, oneSampleProblem,
     zeroReduction, zeroRealView, bind_assoc, pure_bind]
   calc
     evalDist (($ᵗ R) >>= fun publicMask ↦
@@ -426,10 +428,10 @@ theorem zeroReduction_random_evalDist
     [Fintype Mask] [SampleableType Mask]
     (encoding : Encoding R Secret Mask Hint) (errorSampler : ProbComp R)
     (adversary : Distinguisher R) :
-    evalDist (LearningWithErrors.game1 (oneSampleProblem encoding errorSampler)
+    evalDist (LearningWithErrors.randomExperiment (oneSampleProblem encoding errorSampler)
         (zeroReduction encoding adversary)) =
       evalDist (uniformBlock (R := R) >>= adversary) := by
-  simp only [LearningWithErrors.game1, LearningWithErrors.uniformDistr,
+  simp only [LearningWithErrors.randomExperiment, LearningWithErrors.uniformDistr,
     oneSampleProblem, zeroReduction, uniformBlock, bind_assoc, pure_bind]
   calc
     evalDist (($ᵗ R) >>= fun publicMask ↦
@@ -493,7 +495,7 @@ theorem zero_uniform_advantage_eq_lwe
     (adversary : Distinguisher R) :
     (zeroRealView encoding errorSampler >>= adversary).boolDistAdvantage
         (uniformBlock (R := R) >>= adversary) =
-      LearningWithErrors.advantage (oneSampleProblem encoding errorSampler)
+      LearningWithErrors.realAdvantage (oneSampleProblem encoding errorSampler)
         (zeroReduction encoding adversary) := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
   unfold ProbComp.boolDistAdvantage
@@ -775,7 +777,7 @@ theorem kdmAdvantage_le_hint_add_oneSampleRLWE
     (adversary : Distinguisher R) :
     kdmAdvantage encoding errorSampler adversary ≤
       hintAdvantage encoding errorSampler (quadraticReduction encoding adversary) +
-        LearningWithErrors.advantage (oneSampleProblem encoding errorSampler)
+        LearningWithErrors.realAdvantage (oneSampleProblem encoding errorSampler)
           (zeroReduction encoding adversary) := by
   have hTriangle := ProbComp.boolDistAdvantage_triangle
     (quadraticRealView encoding errorSampler >>= adversary)
@@ -807,7 +809,7 @@ theorem kdmAdvantage_le_sqrt_twoCopy_add_oneSampleRLWE
         (Fintype.card (Secret × Mask) : ℝ)) *
           twoCopyRLWEAdvantage encoding errorSampler
             (quadraticReduction encoding adversary)) +
-        LearningWithErrors.advantage (oneSampleProblem encoding errorSampler)
+        LearningWithErrors.realAdvantage (oneSampleProblem encoding errorSampler)
           (zeroReduction encoding adversary) := by
   exact (kdmAdvantage_le_hint_add_oneSampleRLWE
       encoding errorSampler adversary).trans
@@ -1039,7 +1041,7 @@ theorem binary_kdmAdvantage_le
       Real.sqrt (2 * (((M : ℝ) + 1) / (M : ℝ)) ^ degree *
         twoCopyRLWEAdvantage (binaryEncoding q degree M) errorSampler
           (quadraticReduction (binaryEncoding q degree M) adversary)) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (oneSampleProblem (binaryEncoding q degree M) errorSampler)
         (zeroReduction (binaryEncoding q degree M) adversary) := by
   have h := kdmAdvantage_le_sqrt_twoCopy_add_oneSampleRLWE
@@ -1058,7 +1060,7 @@ theorem binary_kdmAdvantage_le_of_rlweBounds
       twoCopyRLWEAdvantage (binaryEncoding q degree M) errorSampler
         (quadraticReduction (binaryEncoding q degree M) adversary) ≤ twoCopyBound)
     (hOneSample :
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (oneSampleProblem (binaryEncoding q degree M) errorSampler)
         (zeroReduction (binaryEncoding q degree M) adversary) ≤ oneSampleBound) :
     kdmAdvantage (binaryEncoding q degree M) errorSampler adversary ≤
@@ -1079,7 +1081,7 @@ theorem ternary_kdmAdvantage_le
       Real.sqrt (2 * (((M : ℝ) + 2) / (M : ℝ)) ^ degree *
         twoCopyRLWEAdvantage (ternaryEncoding q degree M) errorSampler
           (quadraticReduction (ternaryEncoding q degree M) adversary)) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (oneSampleProblem (ternaryEncoding q degree M) errorSampler)
         (zeroReduction (ternaryEncoding q degree M) adversary) := by
   have h := kdmAdvantage_le_sqrt_twoCopy_add_oneSampleRLWE
@@ -1098,7 +1100,7 @@ theorem ternary_kdmAdvantage_le_of_rlweBounds
       twoCopyRLWEAdvantage (ternaryEncoding q degree M) errorSampler
         (quadraticReduction (ternaryEncoding q degree M) adversary) ≤ twoCopyBound)
     (hOneSample :
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (oneSampleProblem (ternaryEncoding q degree M) errorSampler)
         (zeroReduction (ternaryEncoding q degree M) adversary) ≤ oneSampleBound) :
     kdmAdvantage (ternaryEncoding q degree M) errorSampler adversary ≤

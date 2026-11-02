@@ -36,6 +36,8 @@ small with an efficient short factorizer is the cryptographic part still missing
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.RingAwareGaloisFactorization
 
 noncomputable section
@@ -352,11 +354,11 @@ theorem factorizedAdvantage_eq_sourceAdvantage
     (sourceErrorSampler : ProbComp (SourceOutput R rows Aux))
     (distinguisher : GaloisKDM.Distinguisher R rows) :
     factorizedAdvantage spec factorizer secretSampler sourceErrorSampler distinguisher =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (sourceProblem secretSampler sourceErrorSampler)
         (sourceReduction spec factorizer distinguisher) := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
-  unfold factorizedAdvantage LearningWithErrors.game0 LearningWithErrors.game1
+  unfold factorizedAdvantage LearningWithErrors.realExperiment LearningWithErrors.randomExperiment
     sourceRealSampler
   have hUniform := FormalProof4FHE.SharedRandomness.evalDist_bind_eq_of_evalDist_eq
     (compiledSourceUniform_evalDist_eq_uniform
@@ -398,7 +400,7 @@ theorem automorphismUniformAdvantage_le_gap_add_source
         distinguisher ≤
       factorizationNoiseGap spec factorizer secretSampler targetErrorSampler
           sourceErrorSampler distinguisher +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (sourceProblem secretSampler sourceErrorSampler)
           (sourceReduction spec factorizer distinguisher) := by
   have hTriangle := ProbComp.boolDistAdvantage_triangle
@@ -422,10 +424,10 @@ theorem kdmAdvantage_le_gap_add_source_add_zero
     GaloisKDM.kdmAdvantage rows spec secretSampler targetErrorSampler distinguisher ≤
       factorizationNoiseGap spec factorizer secretSampler targetErrorSampler
           sourceErrorSampler distinguisher +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (sourceProblem secretSampler sourceErrorSampler)
           (sourceReduction spec factorizer distinguisher) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (GaloisKDM.ordinaryProblem rows secretSampler targetErrorSampler) distinguisher := by
   apply (GaloisKDM.kdmAdvantage_le_automorphismUniform_add_zeroUniform
     rows spec secretSampler targetErrorSampler distinguisher).trans
@@ -433,7 +435,7 @@ theorem kdmAdvantage_le_gap_add_source_add_zero
   simpa only [add_assoc] using add_le_add
     (automorphismUniformAdvantage_le_gap_add_source
       spec factorizer secretSampler targetErrorSampler sourceErrorSampler distinguisher)
-    (le_refl (LearningWithErrors.advantage
+    (le_refl (LearningWithErrors.realAdvantage
       (GaloisKDM.ordinaryProblem rows secretSampler targetErrorSampler) distinguisher))
 
 /-! ## Why a short, almost-everywhere factorizer is essential -/
@@ -533,9 +535,11 @@ theorem parallelTranscriptEquiv_real
     · funext row
       simp [parallelTranscriptEquiv, parallelOutputEquiv, parallelChallengeEquiv,
         sourceNoiseless, Matrix.vecMul, dotProduct, mul_comm]
+      rfl
     · funext row index
       simp [parallelTranscriptEquiv, parallelOutputEquiv, parallelChallengeEquiv,
         sourceNoiseless, Matrix.vecMul, dotProduct, mul_comm]
+      rfl
 
 /-- The parallel challenge sampler reshapes to the exact independent primary/auxiliary sampler
 used by `sourceProblem`. -/
@@ -578,7 +582,7 @@ theorem parallelChallengeSampler_evalDist
       evalDist (parallelChallengeEquiv R rows auxiliaries <$> ($ᵗ Parallel)) := by
         simpa only [evalDist_map] using congrArg
           (fun distribution ↦
-            parallelChallengeEquiv R rows auxiliaries <$> distribution) hParallel
+            MeasureTheory.Measure.map (parallelChallengeEquiv R rows auxiliaries) distribution) hParallel
     _ = evalDist ($ᵗ Source) := hMapped
     _ = _ := hSource.symm
 
@@ -619,7 +623,7 @@ theorem parallelUniformOutputSampler_evalDist
         (Fin.mOfFn rows fun _ ↦ $ᵗ (Fin (auxiliaries + 1) → R))) =
       evalDist (parallelOutputEquiv R rows auxiliaries <$> ($ᵗ Parallel)) := by
         simpa only [evalDist_map] using congrArg
-          (fun distribution ↦ parallelOutputEquiv R rows auxiliaries <$> distribution)
+          (fun distribution ↦ MeasureTheory.Measure.map (parallelOutputEquiv R rows auxiliaries) distribution)
           hParallel
     _ = evalDist ($ᵗ Source) := hMapped
     _ = _ := hSource.symm
@@ -669,7 +673,8 @@ theorem parallelReal_evalDist_eq_source
   let SourceChallengeSampler := Source.sampleChallenge
   have hChallenge : evalDist MappedChallengeSampler = evalDist SourceChallengeSampler := by
     simpa [MappedChallengeSampler, ParallelChallengeSampler, SourceChallengeSampler,
-      Source, sourceProblem] using
+      Source, sourceProblem, FormalProof4FHE.evalDist_bind, FormalProof4FHE.evalDist_map,
+      SampleableType.evalDist_uniformSample] using
       (parallelChallengeSampler_evalDist (R := R) rows auxiliaries)
   have left_eq :
       (LearningWithErrors.distr
@@ -730,11 +735,13 @@ theorem parallelUniform_evalDist_eq_source
   let SourceOutputSampler := Source.sampleUniform
   have hChallenge : evalDist MappedChallengeSampler = evalDist SourceChallengeSampler := by
     simpa [MappedChallengeSampler, ParallelChallengeSampler, SourceChallengeSampler,
-      Source, sourceProblem] using
+      Source, sourceProblem, FormalProof4FHE.evalDist_bind, FormalProof4FHE.evalDist_map,
+      SampleableType.evalDist_uniformSample] using
       (parallelChallengeSampler_evalDist (R := R) rows auxiliaries)
   have hOutput : evalDist MappedOutputSampler = evalDist SourceOutputSampler := by
     simpa [MappedOutputSampler, ParallelOutputSampler, SourceOutputSampler,
-      Source, sourceProblem] using
+      Source, sourceProblem, FormalProof4FHE.evalDist_bind, FormalProof4FHE.evalDist_map,
+      SampleableType.evalDist_uniformSample] using
       (parallelUniformOutputSampler_evalDist (R := R) rows auxiliaries)
   have left_eq :
       (LearningWithErrors.uniformDistr
@@ -771,15 +778,15 @@ theorem sourceAdvantage_eq_parallel
     (adversary : LearningWithErrors.Adversary
       (sourceProblem secretSampler
         (iidSourceErrorSampler rows auxiliaries errorSampler))) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (sourceProblem secretSampler
           (iidSourceErrorSampler rows auxiliaries errorSampler)) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (parallelSourceProblem rows auxiliaries secretSampler errorSampler)
         (parallelReduction adversary) := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage,
     FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
-  unfold LearningWithErrors.game0 LearningWithErrors.game1 parallelReduction
+  unfold LearningWithErrors.realExperiment LearningWithErrors.randomExperiment parallelReduction
     ProbComp.boolDistAdvantage
   have hReal := FormalProof4FHE.SharedRandomness.evalDist_bind_eq_of_evalDist_eq
     (parallelReal_evalDist_eq_source rows auxiliaries secretSampler errorSampler) adversary
@@ -797,10 +804,10 @@ theorem sourceAdvantage_eq_standardBatch
     (adversary : LearningWithErrors.Adversary
       (sourceProblem secretSampler
         (iidSourceErrorSampler rows auxiliaries errorSampler))) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (sourceProblem secretSampler
           (iidSourceErrorSampler rows auxiliaries errorSampler)) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.embeddedBatchProblem
           1 (rows * (auxiliaries + 1)) secretSampler (fun secret ↦ secret) errorSampler)
         (FormalProof4FHE.LWE.ParallelBatch.reduction
@@ -822,14 +829,14 @@ theorem kdmAdvantage_le_gap_add_standardBatch_add_zero
     GaloisKDM.kdmAdvantage rows spec secretSampler targetErrorSampler distinguisher ≤
       factorizationNoiseGap spec factorizer secretSampler targetErrorSampler
           (iidSourceErrorSampler rows auxiliaries sourceErrorSampler) distinguisher +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.embeddedBatchProblem
             1 (rows * (auxiliaries + 1)) secretSampler
               (fun secret ↦ secret) sourceErrorSampler)
           (FormalProof4FHE.LWE.ParallelBatch.reduction
             (parallelReduction
               (sourceReduction spec factorizer distinguisher))) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (GaloisKDM.ordinaryProblem rows secretSampler targetErrorSampler) distinguisher := by
   apply (kdmAdvantage_le_gap_add_source_add_zero
     spec factorizer secretSampler targetErrorSampler

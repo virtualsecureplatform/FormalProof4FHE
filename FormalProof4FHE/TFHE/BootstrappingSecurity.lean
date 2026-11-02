@@ -33,6 +33,8 @@ question described in `docs/TFHECircular.md`.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE
 
 namespace TGSW
@@ -183,7 +185,7 @@ theorem gadgetPhase_castSucc {R : Type} [CommRing R]
   rw [← hself]
   apply Finset.sum_eq_single coordinate
   · intro other _ hother
-    rw [if_neg]
+    rw [ite_eq_right]
     intro hval
     exact hother (Fin.ext hval.symm)
   · intro hnot
@@ -445,7 +447,7 @@ theorem abs_signedAdvantage_real_le_bootstrap_add_batchLwe_of_input_convolution
         tgswGadget keySwitchGadget encode adversary)| ≤
       Encryption.bootstrapReplacementAdvantage ringErrorSampler keySwitchErrorSampler
           inputErrorSampler tgswGadget keySwitchGadget encode adversary +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.KeySwitchSecurity.binaryLweProblem q lweDimension
             (keySwitchSamples ringRank degree keySwitchLevels + 1) keySwitchErrorSampler)
           (FormalProof4FHE.LWE.TwoBlock.convolutionReduction
@@ -468,7 +470,7 @@ theorem abs_signedAdvantage_real_le_bootstrap_add_batchLwe_of_input_convolution
         tgswGadget keySwitchGadget encode adversary)| ≤
     Encryption.bootstrapReplacementAdvantage ringErrorSampler keySwitchErrorSampler
         inputErrorSampler tgswGadget keySwitchGadget encode adversary +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.TwoBlock.heterogeneousProblem lweDimension
           (keySwitchSamples ringRank degree keySwitchLevels) 1
           (Native.sampleLweSecret lweDimension) embedBinarySecret
@@ -521,7 +523,7 @@ theorem oneTimeHardAgainst_of_directBilinear_and_jointLwe
           tgswGadget keySwitchGadget encode adversary)| ≤
         Encryption.bootstrapReplacementAdvantage ringErrorSampler keySwitchErrorSampler
             inputErrorSampler tgswGadget keySwitchGadget encode adversary +
-          LearningWithErrors.advantage
+          LearningWithErrors.realAdvantage
             (jointLweProblem q lweDimension
               (keySwitchSamples ringRank degree keySwitchLevels)
               keySwitchErrorSampler inputErrorSampler)
@@ -582,7 +584,7 @@ theorem oneTimeHardAgainst_of_directBilinear_and_batchLwe_input_convolution
           tgswGadget keySwitchGadget encode adversary)| ≤
         Encryption.bootstrapReplacementAdvantage ringErrorSampler keySwitchErrorSampler
             inputErrorSampler tgswGadget keySwitchGadget encode adversary +
-          LearningWithErrors.advantage
+          LearningWithErrors.realAdvantage
             (Native.KeySwitchSecurity.binaryLweProblem q lweDimension
               (keySwitchSamples ringRank degree keySwitchLevels + 1) keySwitchErrorSampler)
             (FormalProof4FHE.LWE.TwoBlock.convolutionReduction
@@ -640,7 +642,7 @@ theorem oneTimeHardAgainst_of_directBilinear_and_batchLwe_same_noise
           tgswGadget keySwitchGadget encode adversary)| ≤
         Encryption.bootstrapReplacementAdvantage ringErrorSampler errorSampler errorSampler
             tgswGadget keySwitchGadget encode adversary +
-          LearningWithErrors.advantage
+          LearningWithErrors.realAdvantage
             (Native.KeySwitchSecurity.binaryLweProblem q lweDimension
               (keySwitchSamples ringRank degree keySwitchLevels + 1) errorSampler)
             (FormalProof4FHE.LWE.TwoBlock.reduction

@@ -4,6 +4,7 @@ Released under MIT license as described in the file LICENSE.
 Authors: Kotaro Matsuoka
 -/
 
+import FormalProof4FHE.Probability.Discrete
 import FormalProof4FHE.LWE.BlockBinary
 import FormalProof4FHE.Probability.FiniteProduct
 import VCVio.OracleComp.QueryTracking.RandomOracle.DeferredSampling
@@ -36,6 +37,8 @@ one.
 -/
 
 open Matrix OracleComp
+
+open scoped FormalProof4FHE
 
 namespace FormalProof4FHE.BlockBinary
 
@@ -1582,7 +1585,7 @@ theorem evalDist_bind_signedChoice {Sample : Type}
     _ = 𝒟[choices >>= fun choosePositive ↦
         samples >>= fun sample ↦
           if choosePositive then positive sample else (! ·) <$> negative sample] :=
-      OracleComp.DeferredSampling.evalDist_bind_comm samples choices _
+      FormalProof4FHE.evalDist_bind_bind_swap samples choices _
     _ = _ := by
       apply evalDist_bind_congr' choices
       intro choosePositive
@@ -1647,7 +1650,7 @@ theorem evalDist_matrixMask_game0_real {R : Type}
     (narrowErrorSampler wideErrorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)) :
-    𝒟[LearningWithErrors.game0
+    𝒟[LearningWithErrors.realExperiment
         (matrixMaskProblem (R := R) (blockCount * blockLength)
           extractedDimension sampleCount narrowErrorSampler)
         (realMaskReduction blockLength blockCount extractedDimension sampleCount
@@ -1678,7 +1681,7 @@ theorem evalDist_matrixMask_game0_real {R : Type}
       ProbComp Bool :=
     let challenge := extractor * sourceMatrix + matrixError
     adversary (challenge, vecMul (expand R key) challenge + wideError)
-  simp only [LearningWithErrors.game0, LearningWithErrors.distr,
+  simp only [LearningWithErrors.realExperiment, LearningWithErrors.distr,
     matrixMaskProblem, realMaskReduction, structuredRealTranscript, bind_assoc]
   change 𝒟[sourceMatrices >>= fun sourceMatrix ↦
       extractors >>= fun extractor ↦
@@ -1699,7 +1702,7 @@ theorem evalDist_matrixMask_game0_real {R : Type}
         keys >>= fun key ↦
         wideErrors >>= fun wideError ↦
         finish sourceMatrix extractor matrixError key wideError] :=
-      OracleComp.DeferredSampling.evalDist_bind_comm sourceMatrices extractors _
+      FormalProof4FHE.evalDist_bind_bind_swap sourceMatrices extractors _
     _ = 𝒟[extractors >>= fun extractor ↦
         sourceMatrices >>= fun sourceMatrix ↦
         keys >>= fun key ↦
@@ -1710,11 +1713,11 @@ theorem evalDist_matrixMask_game0_real {R : Type}
       intro extractor
       apply evalDist_bind_congr' sourceMatrices
       intro sourceMatrix
-      exact OracleComp.DeferredSampling.evalDist_bind_comm matrixErrors keys _
+      exact FormalProof4FHE.evalDist_bind_bind_swap matrixErrors keys _
     _ = _ := by
       apply evalDist_bind_congr' extractors
       intro extractor
-      exact OracleComp.DeferredSampling.evalDist_bind_comm sourceMatrices keys _
+      exact FormalProof4FHE.evalDist_bind_bind_swap sourceMatrices keys _
 
 /-- On its uniform branch, the real-side matrix-mask reduction is exactly the real block-binary
 LWE game. -/
@@ -1724,12 +1727,12 @@ theorem evalDist_matrixMask_game1_real {R : Type}
     (narrowErrorSampler wideErrorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)) :
-    𝒟[LearningWithErrors.game1
+    𝒟[LearningWithErrors.randomExperiment
         (matrixMaskProblem (R := R) (blockCount * blockLength)
           extractedDimension sampleCount narrowErrorSampler)
         (realMaskReduction blockLength blockCount extractedDimension sampleCount
           narrowErrorSampler wideErrorSampler adversary)] =
-      𝒟[LearningWithErrors.game0
+      𝒟[LearningWithErrors.realExperiment
         (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
         adversary] := by
   let sourceMatrices :
@@ -1741,11 +1744,11 @@ theorem evalDist_matrixMask_game1_real {R : Type}
     let key ← $ᵗ (Key blockLength blockCount)
     let wideError ← ProbComp.sampleIID sampleCount wideErrorSampler
     adversary (challenge, vecMul (expand R key) challenge + wideError)
-  simp only [LearningWithErrors.game0, LearningWithErrors.game1,
+  simp only [LearningWithErrors.realExperiment, LearningWithErrors.randomExperiment,
     LearningWithErrors.distr, LearningWithErrors.uniformDistr,
     matrixMaskProblem, realMaskReduction, problem, bind_assoc]
   change 𝒟[sourceMatrices >>= fun _ ↦ targetReal] = 𝒟[targetReal]
-  exact OracleComp.DeferredSampling.evalDist_bind_const_neverFails
+  exact FormalProof4FHE.evalDist_bind_const_neverFails
     sourceMatrices (by simp [sourceMatrices]) targetReal
 
 /-- On its real branch, the uniform-side matrix-mask reduction produces a structured challenge
@@ -1756,7 +1759,7 @@ theorem evalDist_matrixMask_game0_uniform {R : Type}
     (narrowErrorSampler wideErrorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)) :
-    𝒟[LearningWithErrors.game0
+    𝒟[LearningWithErrors.realExperiment
         (matrixMaskProblem (R := R) (blockCount * blockLength)
           extractedDimension sampleCount narrowErrorSampler)
         (uniformMaskReduction blockLength blockCount extractedDimension sampleCount
@@ -1783,7 +1786,7 @@ theorem evalDist_matrixMask_game0_uniform {R : Type}
         Matrix (Fin (blockCount * blockLength)) (Fin sampleCount) R)
       (uniform : Fin sampleCount → R) : ProbComp Bool :=
     adversary (extractor * sourceMatrix + matrixError, uniform)
-  simp only [LearningWithErrors.game0, LearningWithErrors.distr,
+  simp only [LearningWithErrors.realExperiment, LearningWithErrors.distr,
     matrixMaskProblem, uniformMaskReduction, structuredUniformTranscript, bind_assoc]
   change 𝒟[sourceMatrices >>= fun sourceMatrix ↦
       extractors >>= fun extractor ↦
@@ -1795,7 +1798,7 @@ theorem evalDist_matrixMask_game0_uniform {R : Type}
       matrixErrors >>= fun matrixError ↦
       uniforms >>= fun uniform ↦
       finish sourceMatrix extractor matrixError uniform]
-  exact OracleComp.DeferredSampling.evalDist_bind_comm sourceMatrices extractors _
+  exact FormalProof4FHE.evalDist_bind_bind_swap sourceMatrices extractors _
 
 /-- On its uniform branch, the uniform-side matrix-mask reduction is exactly the uniform
 block-binary LWE game. -/
@@ -1805,12 +1808,12 @@ theorem evalDist_matrixMask_game1_uniform {R : Type}
     (narrowErrorSampler wideErrorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)) :
-    𝒟[LearningWithErrors.game1
+    𝒟[LearningWithErrors.randomExperiment
         (matrixMaskProblem (R := R) (blockCount * blockLength)
           extractedDimension sampleCount narrowErrorSampler)
         (uniformMaskReduction blockLength blockCount extractedDimension sampleCount
           narrowErrorSampler wideErrorSampler adversary)] =
-      𝒟[LearningWithErrors.game1
+      𝒟[LearningWithErrors.randomExperiment
         (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
         adversary] := by
   let sourceMatrices :
@@ -1821,10 +1824,10 @@ theorem evalDist_matrixMask_game1_uniform {R : Type}
       $ᵗ Matrix (Fin (blockCount * blockLength)) (Fin sampleCount) R
     let uniform ← $ᵗ (Fin sampleCount → R)
     adversary (challenge, uniform)
-  simp only [LearningWithErrors.game1, LearningWithErrors.uniformDistr,
+  simp only [LearningWithErrors.randomExperiment, LearningWithErrors.uniformDistr,
     matrixMaskProblem, uniformMaskReduction, problem, bind_assoc]
   change 𝒟[sourceMatrices >>= fun _ ↦ targetUniform] = 𝒟[targetUniform]
-  exact OracleComp.DeferredSampling.evalDist_bind_const_neverFails
+  exact FormalProof4FHE.evalDist_bind_const_neverFails
     sourceMatrices (by simp [sourceMatrices]) targetUniform
 
 /-- The real matrix-mask branch of the combined distinguisher is the signed choice of the two
@@ -1835,23 +1838,23 @@ theorem evalDist_matrixMask_game0_combined {R : Type}
     (narrowErrorSampler wideErrorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)) :
-    𝒟[LearningWithErrors.game0
+    𝒟[LearningWithErrors.realExperiment
         (matrixMaskProblem (R := R) (blockCount * blockLength)
           extractedDimension sampleCount narrowErrorSampler)
         (combinedMaskReduction blockLength blockCount extractedDimension sampleCount
           narrowErrorSampler wideErrorSampler adversary)] =
       𝒟[signedChoice
-        (LearningWithErrors.game0
+        (LearningWithErrors.realExperiment
           (matrixMaskProblem (R := R) (blockCount * blockLength)
             extractedDimension sampleCount narrowErrorSampler)
           (uniformMaskReduction blockLength blockCount extractedDimension sampleCount
             narrowErrorSampler wideErrorSampler adversary))
-        (LearningWithErrors.game0
+        (LearningWithErrors.realExperiment
           (matrixMaskProblem (R := R) (blockCount * blockLength)
             extractedDimension sampleCount narrowErrorSampler)
           (realMaskReduction blockLength blockCount extractedDimension sampleCount
             narrowErrorSampler wideErrorSampler adversary))] := by
-  simpa [LearningWithErrors.game0, combinedMaskReduction] using
+  simpa [LearningWithErrors.realExperiment, combinedMaskReduction] using
     (evalDist_bind_signedChoice
       (LearningWithErrors.distr
         (matrixMaskProblem (R := R) (blockCount * blockLength)
@@ -1869,23 +1872,23 @@ theorem evalDist_matrixMask_game1_combined {R : Type}
     (narrowErrorSampler wideErrorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)) :
-    𝒟[LearningWithErrors.game1
+    𝒟[LearningWithErrors.randomExperiment
         (matrixMaskProblem (R := R) (blockCount * blockLength)
           extractedDimension sampleCount narrowErrorSampler)
         (combinedMaskReduction blockLength blockCount extractedDimension sampleCount
           narrowErrorSampler wideErrorSampler adversary)] =
       𝒟[signedChoice
-        (LearningWithErrors.game1
+        (LearningWithErrors.randomExperiment
           (matrixMaskProblem (R := R) (blockCount * blockLength)
             extractedDimension sampleCount narrowErrorSampler)
           (uniformMaskReduction blockLength blockCount extractedDimension sampleCount
             narrowErrorSampler wideErrorSampler adversary))
-        (LearningWithErrors.game1
+        (LearningWithErrors.randomExperiment
           (matrixMaskProblem (R := R) (blockCount * blockLength)
             extractedDimension sampleCount narrowErrorSampler)
           (realMaskReduction blockLength blockCount extractedDimension sampleCount
             narrowErrorSampler wideErrorSampler adversary))] := by
-  simpa [LearningWithErrors.game1, combinedMaskReduction] using
+  simpa [LearningWithErrors.randomExperiment, combinedMaskReduction] using
     (evalDist_bind_signedChoice
       (LearningWithErrors.uniformDistr
         (matrixMaskProblem (R := R) (blockCount * blockLength)
@@ -1902,7 +1905,7 @@ theorem evalDist_extractedLWE_game0 {R : Type}
     (narrowErrorSampler wideErrorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)) :
-    𝒟[LearningWithErrors.game0
+    𝒟[LearningWithErrors.realExperiment
         (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
           ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
         (extractedLWReduction blockLength blockCount extractedDimension sampleCount
@@ -1934,7 +1937,7 @@ theorem evalDist_extractedLWE_game0 {R : Type}
       ProbComp Bool :=
     adversary (extractor * sourceMatrix + matrixError,
       vecMul extractedSecret sourceMatrix + wideError)
-  simp only [LearningWithErrors.game0, LearningWithErrors.distr,
+  simp only [LearningWithErrors.realExperiment, LearningWithErrors.distr,
     FormalProof4FHE.LWE.batchProblem, extractedLWReduction,
     extractedTranscript, extractorContinuation,
     bind_assoc]
@@ -1961,7 +1964,7 @@ theorem evalDist_extractedLWE_game0 {R : Type}
       intro sourceMatrix
       apply evalDist_bind_congr' extractedSecrets
       intro extractedSecret
-      exact OracleComp.DeferredSampling.evalDist_bind_comm wideErrors extractors _
+      exact FormalProof4FHE.evalDist_bind_bind_swap wideErrors extractors _
     _ = 𝒟[sourceMatrices >>= fun sourceMatrix ↦
         extractors >>= fun extractor ↦
         extractedSecrets >>= fun extractedSecret ↦
@@ -1970,14 +1973,14 @@ theorem evalDist_extractedLWE_game0 {R : Type}
         finish sourceMatrix extractedSecret wideError extractor matrixError] := by
       apply evalDist_bind_congr' sourceMatrices
       intro sourceMatrix
-      exact OracleComp.DeferredSampling.evalDist_bind_comm extractedSecrets extractors _
+      exact FormalProof4FHE.evalDist_bind_bind_swap extractedSecrets extractors _
     _ = 𝒟[extractors >>= fun extractor ↦
         sourceMatrices >>= fun sourceMatrix ↦
         extractedSecrets >>= fun extractedSecret ↦
         wideErrors >>= fun wideError ↦
         matrixErrors >>= fun matrixError ↦
         finish sourceMatrix extractedSecret wideError extractor matrixError] :=
-      OracleComp.DeferredSampling.evalDist_bind_comm sourceMatrices extractors _
+      FormalProof4FHE.evalDist_bind_bind_swap sourceMatrices extractors _
     _ = 𝒟[extractors >>= fun extractor ↦
         extractedSecrets >>= fun extractedSecret ↦
         sourceMatrices >>= fun sourceMatrix ↦
@@ -1986,7 +1989,7 @@ theorem evalDist_extractedLWE_game0 {R : Type}
         finish sourceMatrix extractedSecret wideError extractor matrixError] := by
       apply evalDist_bind_congr' extractors
       intro extractor
-      exact OracleComp.DeferredSampling.evalDist_bind_comm sourceMatrices extractedSecrets _
+      exact FormalProof4FHE.evalDist_bind_bind_swap sourceMatrices extractedSecrets _
     _ = _ := by
       apply evalDist_bind_congr' extractors
       intro extractor
@@ -1994,7 +1997,7 @@ theorem evalDist_extractedLWE_game0 {R : Type}
       intro extractedSecret
       apply evalDist_bind_congr' sourceMatrices
       intro sourceMatrix
-      exact OracleComp.DeferredSampling.evalDist_bind_comm wideErrors matrixErrors _
+      exact FormalProof4FHE.evalDist_bind_bind_swap wideErrors matrixErrors _
 
 /-- The uniform ordinary-LWE branch maps to the structured challenge with an independent uniform
 right-hand side. -/
@@ -2004,7 +2007,7 @@ theorem evalDist_extractedLWE_game1 {R : Type}
     (narrowErrorSampler wideErrorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)) :
-    𝒟[LearningWithErrors.game1
+    𝒟[LearningWithErrors.randomExperiment
         (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
           ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
         (extractedLWReduction blockLength blockCount extractedDimension sampleCount
@@ -2032,7 +2035,7 @@ theorem evalDist_extractedLWE_game1 {R : Type}
         Matrix (Fin (blockCount * blockLength)) (Fin sampleCount) R) :
       ProbComp Bool :=
     adversary (extractor * sourceMatrix + matrixError, uniform)
-  simp only [LearningWithErrors.game1, LearningWithErrors.uniformDistr,
+  simp only [LearningWithErrors.randomExperiment, LearningWithErrors.uniformDistr,
     FormalProof4FHE.LWE.batchProblem, extractedLWReduction,
     structuredUniformTranscript, bind_assoc]
   change 𝒟[sourceMatrices >>= fun sourceMatrix ↦
@@ -2053,19 +2056,19 @@ theorem evalDist_extractedLWE_game1 {R : Type}
         finish sourceMatrix uniform extractor matrixError] := by
       apply evalDist_bind_congr' sourceMatrices
       intro sourceMatrix
-      exact OracleComp.DeferredSampling.evalDist_bind_comm uniforms extractors _
+      exact FormalProof4FHE.evalDist_bind_bind_swap uniforms extractors _
     _ = 𝒟[extractors >>= fun extractor ↦
         sourceMatrices >>= fun sourceMatrix ↦
         uniforms >>= fun uniform ↦
         matrixErrors >>= fun matrixError ↦
         finish sourceMatrix uniform extractor matrixError] :=
-      OracleComp.DeferredSampling.evalDist_bind_comm sourceMatrices extractors _
+      FormalProof4FHE.evalDist_bind_bind_swap sourceMatrices extractors _
     _ = _ := by
       apply evalDist_bind_congr' extractors
       intro extractor
       apply evalDist_bind_congr' sourceMatrices
       intro sourceMatrix
-      exact OracleComp.DeferredSampling.evalDist_bind_comm uniforms matrixErrors _
+      exact FormalProof4FHE.evalDist_bind_bind_swap uniforms matrixErrors _
 
 /-- The real-side matrix-mask advantage is exactly the first hybrid gap. -/
 theorem realMask_advantage_eq {R : Type}
@@ -2074,7 +2077,7 @@ theorem realMask_advantage_eq {R : Type}
     (narrowErrorSampler wideErrorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (matrixMaskProblem (R := R) (blockCount * blockLength)
           extractedDimension sampleCount narrowErrorSampler)
         (realMaskReduction blockLength blockCount extractedDimension sampleCount
@@ -2082,7 +2085,7 @@ theorem realMask_advantage_eq {R : Type}
       |(Pr[= true |
           structuredRealTranscript blockLength blockCount extractedDimension sampleCount
             narrowErrorSampler wideErrorSampler >>= adversary]).toReal -
-        (Pr[= true | LearningWithErrors.game0
+        (Pr[= true | LearningWithErrors.realExperiment
           (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
           adversary]).toReal| := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
@@ -2101,7 +2104,7 @@ theorem uniformMask_advantage_eq {R : Type}
     (narrowErrorSampler wideErrorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (matrixMaskProblem (R := R) (blockCount * blockLength)
           extractedDimension sampleCount narrowErrorSampler)
         (uniformMaskReduction blockLength blockCount extractedDimension sampleCount
@@ -2109,7 +2112,7 @@ theorem uniformMask_advantage_eq {R : Type}
       |(Pr[= true |
           structuredUniformTranscript blockLength blockCount extractedDimension sampleCount
             narrowErrorSampler >>= adversary]).toReal -
-        (Pr[= true | LearningWithErrors.game1
+        (Pr[= true | LearningWithErrors.randomExperiment
           (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
           adversary]).toReal| := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
@@ -2130,12 +2133,12 @@ theorem combinedMask_advantage_eq {R : Type}
     (narrowErrorSampler wideErrorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (matrixMaskProblem (R := R) (blockCount * blockLength)
           extractedDimension sampleCount narrowErrorSampler)
         (combinedMaskReduction blockLength blockCount extractedDimension sampleCount
           narrowErrorSampler wideErrorSampler adversary) =
-      |((Pr[= true | LearningWithErrors.game0
+      |((Pr[= true | LearningWithErrors.realExperiment
           (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
           adversary]).toReal -
         (Pr[= true |
@@ -2144,7 +2147,7 @@ theorem combinedMask_advantage_eq {R : Type}
         ((Pr[= true |
           structuredUniformTranscript blockLength blockCount extractedDimension sampleCount
             narrowErrorSampler >>= adversary]).toReal -
-        (Pr[= true | LearningWithErrors.game1
+        (Pr[= true | LearningWithErrors.randomExperiment
           (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
           adversary]).toReal)| / 2 := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
@@ -2175,13 +2178,13 @@ theorem combinedMask_advantage_eq {R : Type}
           (Pr[= true |
             structuredRealTranscript blockLength blockCount extractedDimension sampleCount
               narrowErrorSampler wideErrorSampler >>= adversary]).toReal) / 2 -
-        ((Pr[= true | LearningWithErrors.game1
+        ((Pr[= true | LearningWithErrors.randomExperiment
           (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
           adversary]).toReal + 1 -
-          (Pr[= true | LearningWithErrors.game0
+          (Pr[= true | LearningWithErrors.realExperiment
             (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
             adversary]).toReal) / 2) =
-        (((Pr[= true | LearningWithErrors.game0
+        (((Pr[= true | LearningWithErrors.realExperiment
             (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
             adversary]).toReal -
           (Pr[= true |
@@ -2190,7 +2193,7 @@ theorem combinedMask_advantage_eq {R : Type}
           ((Pr[= true |
             structuredUniformTranscript blockLength blockCount extractedDimension sampleCount
               narrowErrorSampler >>= adversary]).toReal -
-          (Pr[= true | LearningWithErrors.game1
+          (Pr[= true | LearningWithErrors.randomExperiment
             (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
             adversary]).toReal)) / 2 by ring,
     abs_div]
@@ -2203,7 +2206,7 @@ theorem extractedLWE_advantage_eq {R : Type}
     (narrowErrorSampler wideErrorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
           ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
         (extractedLWReduction blockLength blockCount extractedDimension sampleCount
@@ -2365,10 +2368,10 @@ theorem advantage_le_matrixMask_add_lwe_add_gaps {R : Type}
     (narrowErrorSampler wideErrorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
         adversary ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
           (matrixMaskProblem (R := R) (blockCount * blockLength)
             extractedDimension sampleCount narrowErrorSampler)
           (realMaskReduction blockLength blockCount extractedDimension sampleCount
@@ -2379,19 +2382,19 @@ theorem advantage_le_matrixMask_add_lwe_add_gaps {R : Type}
             ((Fintype.card R : ℝ) ^ extractedDimension /
               (blockLength + 1 : ℝ) ^ blockCount) /
           2 +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
             ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
           (extractedLWReduction blockLength blockCount extractedDimension sampleCount
             narrowErrorSampler wideErrorSampler adversary) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (matrixMaskProblem (R := R) (blockCount * blockLength)
             extractedDimension sampleCount narrowErrorSampler)
           (uniformMaskReduction blockLength blockCount extractedDimension sampleCount
             narrowErrorSampler wideErrorSampler adversary) := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
   unfold ProbComp.boolDistAdvantage
-  let p0 : ℝ := (Pr[= true | LearningWithErrors.game0
+  let p0 : ℝ := (Pr[= true | LearningWithErrors.realExperiment
     (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
     adversary]).toReal
   let p1 : ℝ := (Pr[= true |
@@ -2406,12 +2409,12 @@ theorem advantage_le_matrixMask_add_lwe_add_gaps {R : Type}
   let p4 : ℝ := (Pr[= true |
     structuredUniformTranscript blockLength blockCount extractedDimension sampleCount
       narrowErrorSampler >>= adversary]).toReal
-  let p5 : ℝ := (Pr[= true | LearningWithErrors.game1
+  let p5 : ℝ := (Pr[= true | LearningWithErrors.randomExperiment
     (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
     adversary]).toReal
   change |p0 - p5| ≤ _
   have h01 : |p0 - p1| =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (matrixMaskProblem (R := R) (blockCount * blockLength)
           extractedDimension sampleCount narrowErrorSampler)
         (realMaskReduction blockLength blockCount extractedDimension sampleCount
@@ -2432,7 +2435,7 @@ theorem advantage_le_matrixMask_add_lwe_add_gaps {R : Type}
     abs_prob_noiseIdeal_sub_extracted_le blockLength blockCount
       extractedDimension sampleCount narrowErrorSampler wideErrorSampler adversary
   have h34 : |p3 - p4| =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
           ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
         (extractedLWReduction blockLength blockCount extractedDimension sampleCount
@@ -2440,7 +2443,7 @@ theorem advantage_le_matrixMask_add_lwe_add_gaps {R : Type}
     (extractedLWE_advantage_eq blockLength blockCount extractedDimension sampleCount
       narrowErrorSampler wideErrorSampler adversary).symm
   have h45 : |p4 - p5| =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (matrixMaskProblem (R := R) (blockCount * blockLength)
           extractedDimension sampleCount narrowErrorSampler)
         (uniformMaskReduction blockLength blockCount extractedDimension sampleCount
@@ -2485,29 +2488,29 @@ theorem advantage_le_matrixMask_add_lwe_add_jointGap {R : Type}
     (narrowErrorSampler wideErrorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
         adversary ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
           (matrixMaskProblem (R := R) (blockCount * blockLength)
             extractedDimension sampleCount narrowErrorSampler)
           (realMaskReduction blockLength blockCount extractedDimension sampleCount
             narrowErrorSampler wideErrorSampler adversary) +
         jointStatisticalGap blockLength blockCount extractedDimension sampleCount
           narrowErrorSampler wideErrorSampler +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
             ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
           (extractedLWReduction blockLength blockCount extractedDimension sampleCount
             narrowErrorSampler wideErrorSampler adversary) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (matrixMaskProblem (R := R) (blockCount * blockLength)
             extractedDimension sampleCount narrowErrorSampler)
           (uniformMaskReduction blockLength blockCount extractedDimension sampleCount
             narrowErrorSampler wideErrorSampler adversary) := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
   unfold ProbComp.boolDistAdvantage
-  let p0 : ℝ := (Pr[= true | LearningWithErrors.game0
+  let p0 : ℝ := (Pr[= true | LearningWithErrors.realExperiment
     (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
     adversary]).toReal
   let p1 : ℝ := (Pr[= true |
@@ -2519,12 +2522,12 @@ theorem advantage_le_matrixMask_add_lwe_add_jointGap {R : Type}
   let p4 : ℝ := (Pr[= true |
     structuredUniformTranscript blockLength blockCount extractedDimension sampleCount
       narrowErrorSampler >>= adversary]).toReal
-  let p5 : ℝ := (Pr[= true | LearningWithErrors.game1
+  let p5 : ℝ := (Pr[= true | LearningWithErrors.randomExperiment
     (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
     adversary]).toReal
   change |p0 - p5| ≤ _
   have h01 : |p0 - p1| =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (matrixMaskProblem (R := R) (blockCount * blockLength)
           extractedDimension sampleCount narrowErrorSampler)
         (realMaskReduction blockLength blockCount extractedDimension sampleCount
@@ -2538,7 +2541,7 @@ theorem advantage_le_matrixMask_add_lwe_add_jointGap {R : Type}
     abs_prob_structuredReal_sub_extracted_le_joint blockLength blockCount
       extractedDimension sampleCount narrowErrorSampler wideErrorSampler adversary
   have h34 : |p3 - p4| =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
           ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
         (extractedLWReduction blockLength blockCount extractedDimension sampleCount
@@ -2546,7 +2549,7 @@ theorem advantage_le_matrixMask_add_lwe_add_jointGap {R : Type}
     (extractedLWE_advantage_eq blockLength blockCount extractedDimension sampleCount
       narrowErrorSampler wideErrorSampler adversary).symm
   have h45 : |p4 - p5| =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (matrixMaskProblem (R := R) (blockCount * blockLength)
           extractedDimension sampleCount narrowErrorSampler)
         (uniformMaskReduction blockLength blockCount extractedDimension sampleCount
@@ -2582,24 +2585,24 @@ theorem advantage_le_two_combinedMask_add_lwe_add_jointGap {R : Type}
     (narrowErrorSampler wideErrorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
         adversary ≤
-      2 * LearningWithErrors.advantage
+      2 * LearningWithErrors.realAdvantage
           (matrixMaskProblem (R := R) (blockCount * blockLength)
             extractedDimension sampleCount narrowErrorSampler)
           (combinedMaskReduction blockLength blockCount extractedDimension sampleCount
             narrowErrorSampler wideErrorSampler adversary) +
         jointStatisticalGap blockLength blockCount extractedDimension sampleCount
           narrowErrorSampler wideErrorSampler +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
             ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
           (extractedLWReduction blockLength blockCount extractedDimension sampleCount
             narrowErrorSampler wideErrorSampler adversary) := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
   unfold ProbComp.boolDistAdvantage
-  let p0 : ℝ := (Pr[= true | LearningWithErrors.game0
+  let p0 : ℝ := (Pr[= true | LearningWithErrors.realExperiment
     (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
     adversary]).toReal
   let p1 : ℝ := (Pr[= true |
@@ -2611,12 +2614,12 @@ theorem advantage_le_two_combinedMask_add_lwe_add_jointGap {R : Type}
   let p4 : ℝ := (Pr[= true |
     structuredUniformTranscript blockLength blockCount extractedDimension sampleCount
       narrowErrorSampler >>= adversary]).toReal
-  let p5 : ℝ := (Pr[= true | LearningWithErrors.game1
+  let p5 : ℝ := (Pr[= true | LearningWithErrors.randomExperiment
     (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
     adversary]).toReal
   change |p0 - p5| ≤ _
   have hcombined :
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
           (matrixMaskProblem (R := R) (blockCount * blockLength)
             extractedDimension sampleCount narrowErrorSampler)
           (combinedMaskReduction blockLength blockCount extractedDimension sampleCount
@@ -2627,7 +2630,7 @@ theorem advantage_le_two_combinedMask_add_lwe_add_jointGap {R : Type}
         narrowErrorSampler wideErrorSampler adversary)
   have hmask :
       |(p0 - p1) + (p4 - p5)| =
-        2 * LearningWithErrors.advantage
+        2 * LearningWithErrors.realAdvantage
           (matrixMaskProblem (R := R) (blockCount * blockLength)
             extractedDimension sampleCount narrowErrorSampler)
           (combinedMaskReduction blockLength blockCount extractedDimension sampleCount
@@ -2640,7 +2643,7 @@ theorem advantage_le_two_combinedMask_add_lwe_add_jointGap {R : Type}
     abs_prob_structuredReal_sub_extracted_le_joint blockLength blockCount
       extractedDimension sampleCount narrowErrorSampler wideErrorSampler adversary
   have h34 : |p3 - p4| =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
           ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
         (extractedLWReduction blockLength blockCount extractedDimension sampleCount
@@ -2774,7 +2777,7 @@ theorem evalDist_rowHybridReduction_game0 {R : Type}
     (adversary : LearningWithErrors.Adversary
       (matrixMaskProblem (R := R) rowCount extractedDimension sampleCount
         narrowErrorSampler)) :
-    𝒟[LearningWithErrors.game0
+    𝒟[LearningWithErrors.realExperiment
         (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
           ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
         (rowHybridReduction rowCount extractedDimension sampleCount
@@ -2796,7 +2799,7 @@ theorem evalDist_rowHybridReduction_game0 {R : Type}
       ProbComp (Matrix (Fin rowCount) (Fin sampleCount) R) :=
     sampleRowMatrix rowCount sampleCount fun index =>
       if index = coordinate then pure value else samplers sourceMatrix index
-  simp only [LearningWithErrors.game0, LearningWithErrors.distr,
+  simp only [LearningWithErrors.realExperiment, LearningWithErrors.distr,
     FormalProof4FHE.LWE.batchProblem, rowHybridReduction,
     rowHybridGame, rowHybridRows, realMaskRow, bind_assoc, pure_bind]
   apply evalDist_bind_congr' sourceMatrices
@@ -2820,10 +2823,10 @@ theorem evalDist_rowHybridReduction_game0 {R : Type}
         𝒟[sampleRowMatrix rowCount sampleCount (samplers sourceMatrix) >>=
           postprocess] := by
     calc
-      _ = 𝒟[realMaskRow sourceMatrix narrowErrorSampler >>= replacement sourceMatrix] >>=
+      _ = MeasureTheory.Measure.bind 𝒟[realMaskRow sourceMatrix narrowErrorSampler >>= replacement sourceMatrix]
             fun rows ↦ 𝒟[postprocess rows] :=
         evalDist_bind _ _
-      _ = 𝒟[sampleRowMatrix rowCount sampleCount (samplers sourceMatrix)] >>=
+      _ = MeasureTheory.Measure.bind 𝒟[sampleRowMatrix rowCount sampleCount (samplers sourceMatrix)]
             fun rows ↦ 𝒟[postprocess rows] := by rw [hbase]
       _ = _ := (evalDist_bind _ _).symm
   simpa [realMaskRow, replacement, postprocess, samplers, bind_assoc] using hpost
@@ -2836,7 +2839,7 @@ theorem evalDist_rowHybridReduction_game1 {R : Type}
     (adversary : LearningWithErrors.Adversary
       (matrixMaskProblem (R := R) rowCount extractedDimension sampleCount
         narrowErrorSampler)) :
-    𝒟[LearningWithErrors.game1
+    𝒟[LearningWithErrors.randomExperiment
         (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
           ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
         (rowHybridReduction rowCount extractedDimension sampleCount
@@ -2861,7 +2864,7 @@ theorem evalDist_rowHybridReduction_game1 {R : Type}
       else if index.val < coordinate.val then
         $ᵗ (Fin sampleCount → R)
       else realMaskRow sourceMatrix narrowErrorSampler
-  simp only [LearningWithErrors.game1, LearningWithErrors.uniformDistr,
+  simp only [LearningWithErrors.randomExperiment, LearningWithErrors.uniformDistr,
     FormalProof4FHE.LWE.batchProblem, rowHybridReduction,
     rowHybridGame, bind_assoc]
   change 𝒟[sourceMatrices >>= fun sourceMatrix ↦
@@ -2910,10 +2913,10 @@ theorem evalDist_rowHybridReduction_game1 {R : Type}
         𝒟[sampleRowMatrix rowCount sampleCount (nextSamplers sourceMatrix) >>=
           postprocess] := by
     calc
-      _ = 𝒟[(($ᵗ (Fin sampleCount → R)) >>= replacement sourceMatrix)] >>=
+      _ = MeasureTheory.Measure.bind 𝒟[(($ᵗ (Fin sampleCount → R)) >>= replacement sourceMatrix)]
             fun rows ↦ 𝒟[postprocess rows] :=
         evalDist_bind _ _
-      _ = 𝒟[sampleRowMatrix rowCount sampleCount (nextSamplers sourceMatrix)] >>=
+      _ = MeasureTheory.Measure.bind 𝒟[sampleRowMatrix rowCount sampleCount (nextSamplers sourceMatrix)]
             fun rows ↦ 𝒟[postprocess rows] := by rw [hbase]
       _ = _ := (evalDist_bind _ _).symm
   simpa [replacement, postprocess, bind_assoc] using hpost
@@ -2927,7 +2930,7 @@ theorem evalDist_randomRowHybridReduction_game0 {R : Type}
     (adversary : LearningWithErrors.Adversary
       (matrixMaskProblem (R := R) rowCount extractedDimension sampleCount
         narrowErrorSampler)) :
-    𝒟[LearningWithErrors.game0
+    𝒟[LearningWithErrors.realExperiment
         (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
           ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
         (randomRowHybridReduction rowCount extractedDimension sampleCount
@@ -2940,7 +2943,7 @@ theorem evalDist_randomRowHybridReduction_game0 {R : Type}
     (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
       ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
   let coordinates : ProbComp (Fin rowCount) := $ᵗ (Fin rowCount)
-  simp only [LearningWithErrors.game0, randomRowHybridReduction]
+  simp only [LearningWithErrors.realExperiment, randomRowHybridReduction]
   change 𝒟[samples >>= fun sample ↦
       coordinates >>= fun coordinate ↦
         rowHybridReduction rowCount extractedDimension sampleCount narrowErrorSampler
@@ -2950,7 +2953,7 @@ theorem evalDist_randomRowHybridReduction_game0 {R : Type}
         samples >>= fun sample ↦
           rowHybridReduction rowCount extractedDimension sampleCount narrowErrorSampler
             coordinate adversary sample] :=
-      OracleComp.DeferredSampling.evalDist_bind_comm samples coordinates _
+      FormalProof4FHE.evalDist_bind_bind_swap samples coordinates _
     _ = _ := by
       apply evalDist_bind_congr' coordinates
       intro coordinate
@@ -2966,7 +2969,7 @@ theorem evalDist_randomRowHybridReduction_game1 {R : Type}
     (adversary : LearningWithErrors.Adversary
       (matrixMaskProblem (R := R) rowCount extractedDimension sampleCount
         narrowErrorSampler)) :
-    𝒟[LearningWithErrors.game1
+    𝒟[LearningWithErrors.randomExperiment
         (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
           ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
         (randomRowHybridReduction rowCount extractedDimension sampleCount
@@ -2979,7 +2982,7 @@ theorem evalDist_randomRowHybridReduction_game1 {R : Type}
     (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
       ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
   let coordinates : ProbComp (Fin rowCount) := $ᵗ (Fin rowCount)
-  simp only [LearningWithErrors.game1, randomRowHybridReduction]
+  simp only [LearningWithErrors.randomExperiment, randomRowHybridReduction]
   change 𝒟[samples >>= fun sample ↦
       coordinates >>= fun coordinate ↦
         rowHybridReduction rowCount extractedDimension sampleCount narrowErrorSampler
@@ -2989,7 +2992,7 @@ theorem evalDist_randomRowHybridReduction_game1 {R : Type}
         samples >>= fun sample ↦
           rowHybridReduction rowCount extractedDimension sampleCount narrowErrorSampler
             coordinate adversary sample] :=
-      OracleComp.DeferredSampling.evalDist_bind_comm samples coordinates _
+      FormalProof4FHE.evalDist_bind_bind_swap samples coordinates _
     _ = _ := by
       apply evalDist_bind_congr' coordinates
       intro coordinate
@@ -3004,7 +3007,7 @@ theorem rowHybridReduction_advantage_eq {R : Type}
     (adversary : LearningWithErrors.Adversary
       (matrixMaskProblem (R := R) rowCount extractedDimension sampleCount
         narrowErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
           ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
         (rowHybridReduction rowCount extractedDimension sampleCount
@@ -3046,13 +3049,13 @@ theorem evalDist_rowHybridGame_all_uniform {R : Type}
         narrowErrorSampler)) :
     𝒟[rowHybridGame rowCount extractedDimension sampleCount rowCount
         narrowErrorSampler adversary] =
-      𝒟[LearningWithErrors.game1
+      𝒟[LearningWithErrors.randomExperiment
         (matrixMaskProblem (R := R) rowCount extractedDimension sampleCount
           narrowErrorSampler) adversary] := by
   let sourceMatrices :
       ProbComp (Matrix (Fin extractedDimension) (Fin sampleCount) R) :=
     $ᵗ Matrix (Fin extractedDimension) (Fin sampleCount) R
-  simp only [rowHybridGame, LearningWithErrors.game1,
+  simp only [rowHybridGame, LearningWithErrors.randomExperiment,
     LearningWithErrors.uniformDistr, matrixMaskProblem, bind_assoc, pure_bind]
   apply evalDist_bind_congr' sourceMatrices
   intro sourceMatrix
@@ -3200,7 +3203,7 @@ theorem evalDist_matrixMask_game0_rowHybrid {R : Type}
     (adversary : LearningWithErrors.Adversary
       (matrixMaskProblem (R := R) rowCount extractedDimension sampleCount
         narrowErrorSampler)) :
-    𝒟[LearningWithErrors.game0
+    𝒟[LearningWithErrors.realExperiment
         (matrixMaskProblem (R := R) rowCount extractedDimension sampleCount
           narrowErrorSampler) adversary] =
       𝒟[rowHybridGame rowCount extractedDimension sampleCount 0
@@ -3219,7 +3222,7 @@ theorem evalDist_matrixMask_game0_rowHybrid {R : Type}
       (sourceMatrix : Matrix (Fin extractedDimension) (Fin sampleCount) R)
       (rows : Matrix (Fin rowCount) (Fin sampleCount) R) : ProbComp Bool :=
     adversary (sourceMatrix, rows)
-  simp only [LearningWithErrors.game0, LearningWithErrors.distr,
+  simp only [LearningWithErrors.realExperiment, LearningWithErrors.distr,
     matrixMaskProblem, rowHybridGame, bind_assoc, pure_bind]
   apply evalDist_bind_congr' sourceMatrices
   intro sourceMatrix
@@ -3230,11 +3233,11 @@ theorem evalDist_matrixMask_game0_rowHybrid {R : Type}
     have hrows := evalDist_matrixMask_real_rows
       rowCount extractedDimension sampleCount narrowErrorSampler sourceMatrix
     calc
-      _ = 𝒟[generatedRows sourceMatrix] >>=
+      _ = MeasureTheory.Measure.bind 𝒟[generatedRows sourceMatrix]
             fun rows ↦ 𝒟[finish sourceMatrix rows] :=
         evalDist_bind _ _
-      _ = 𝒟[rowHybridRows rowCount extractedDimension sampleCount 0
-              narrowErrorSampler sourceMatrix] >>=
+      _ = MeasureTheory.Measure.bind 𝒟[rowHybridRows rowCount extractedDimension sampleCount 0
+              narrowErrorSampler sourceMatrix]
             fun rows ↦ 𝒟[finish sourceMatrix rows] := by
         rw [show 𝒟[generatedRows sourceMatrix] =
             𝒟[rowHybridRows rowCount extractedDimension sampleCount 0
@@ -3259,7 +3262,7 @@ theorem matrixMask_advantage_eq_rowHybrid_endpoints {R : Type}
     (adversary : LearningWithErrors.Adversary
       (matrixMaskProblem (R := R) rowCount extractedDimension sampleCount
         narrowErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (matrixMaskProblem (R := R) rowCount extractedDimension sampleCount
           narrowErrorSampler) adversary =
       |(Pr[= true |
@@ -3288,11 +3291,11 @@ theorem matrixMask_advantage_eq_card_mul_randomRowLWE {R : Type}
     (adversary : LearningWithErrors.Adversary
       (matrixMaskProblem (R := R) rowCount extractedDimension sampleCount
         narrowErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (matrixMaskProblem (R := R) rowCount extractedDimension sampleCount
           narrowErrorSampler) adversary =
       (rowCount : ℝ) *
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
             ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
           (randomRowHybridReduction rowCount extractedDimension sampleCount
@@ -3328,14 +3331,14 @@ theorem matrixMask_advantage_eq_card_mul_randomRowLWE {R : Type}
       rw [Finset.sum_fin_eq_sum_range]
       apply Finset.sum_congr rfl
       intro index hindex
-      rw [dif_pos (Finset.mem_range.mp hindex)]
+      rw [dite_eq_left (Finset.mem_range.mp hindex)]
     have hupper :
         (∑ coordinate : Fin rowCount, values (coordinate.val + 1)) =
           ∑ index ∈ Finset.range rowCount, values (index + 1) := by
       rw [Finset.sum_fin_eq_sum_range]
       apply Finset.sum_congr rfl
       intro index hindex
-      rw [dif_pos (Finset.mem_range.mp hindex)]
+      rw [dite_eq_left (Finset.mem_range.mp hindex)]
     rw [hlower, hupper, ← Finset.sum_sub_distrib, Finset.sum_range_sub']
   have hrowCount : (0 : ℝ) < rowCount := by
     exact_mod_cast (Nat.pos_of_ne_zero (NeZero.ne rowCount))
@@ -3350,11 +3353,11 @@ theorem matrixMask_advantage_le_sum_rowHybridLWE {R : Type}
     (adversary : LearningWithErrors.Adversary
       (matrixMaskProblem (R := R) rowCount extractedDimension sampleCount
         narrowErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (matrixMaskProblem (R := R) rowCount extractedDimension sampleCount
           narrowErrorSampler) adversary ≤
       ∑ coordinate : Fin rowCount,
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
             ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
           (rowHybridReduction rowCount extractedDimension sampleCount
@@ -3375,7 +3378,7 @@ theorem matrixMask_advantage_le_sum_rowHybridLWE {R : Type}
       apply Finset.sum_congr rfl
       intro index hindex
       have hlt : index < rowCount := Finset.mem_range.mp hindex
-      rw [dif_pos hlt]
+      rw [dite_eq_left hlt]
       let coordinate : Fin rowCount := ⟨index, hlt⟩
       symm
       simpa [values, coordinate] using
@@ -3391,11 +3394,11 @@ theorem advantage_le_combined_ordinaryLWE_add_jointGap {R : Type}
     (narrowErrorSampler wideErrorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
         adversary ≤
       2 * (∑ coordinate : Fin (blockCount * blockLength),
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
             ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
           (rowHybridReduction (blockCount * blockLength) extractedDimension sampleCount
@@ -3404,20 +3407,20 @@ theorem advantage_le_combined_ordinaryLWE_add_jointGap {R : Type}
               narrowErrorSampler wideErrorSampler adversary))) +
         jointStatisticalGap blockLength blockCount extractedDimension sampleCount
           narrowErrorSampler wideErrorSampler +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
             ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
           (extractedLWReduction blockLength blockCount extractedDimension sampleCount
             narrowErrorSampler wideErrorSampler adversary) := by
   calc
-    _ ≤ 2 * LearningWithErrors.advantage
+    _ ≤ 2 * LearningWithErrors.realAdvantage
           (matrixMaskProblem (R := R) (blockCount * blockLength)
             extractedDimension sampleCount narrowErrorSampler)
           (combinedMaskReduction blockLength blockCount extractedDimension sampleCount
             narrowErrorSampler wideErrorSampler adversary) +
         jointStatisticalGap blockLength blockCount extractedDimension sampleCount
           narrowErrorSampler wideErrorSampler +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
             ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
           (extractedLWReduction blockLength blockCount extractedDimension sampleCount
@@ -3443,11 +3446,11 @@ theorem advantage_le_randomized_ordinaryLWE_add_jointGap {R : Type}
     (narrowErrorSampler wideErrorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
         adversary ≤
       2 * ((blockCount * blockLength : ℕ) : ℝ) *
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
             ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
           (randomRowHybridReduction (blockCount * blockLength) extractedDimension sampleCount
@@ -3456,20 +3459,20 @@ theorem advantage_le_randomized_ordinaryLWE_add_jointGap {R : Type}
               narrowErrorSampler wideErrorSampler adversary)) +
         jointStatisticalGap blockLength blockCount extractedDimension sampleCount
           narrowErrorSampler wideErrorSampler +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
             ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
           (extractedLWReduction blockLength blockCount extractedDimension sampleCount
             narrowErrorSampler wideErrorSampler adversary) := by
   calc
-    _ ≤ 2 * LearningWithErrors.advantage
+    _ ≤ 2 * LearningWithErrors.realAdvantage
           (matrixMaskProblem (R := R) (blockCount * blockLength)
             extractedDimension sampleCount narrowErrorSampler)
           (combinedMaskReduction blockLength blockCount extractedDimension sampleCount
             narrowErrorSampler wideErrorSampler adversary) +
         jointStatisticalGap blockLength blockCount extractedDimension sampleCount
           narrowErrorSampler wideErrorSampler +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
             ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
           (extractedLWReduction blockLength blockCount extractedDimension sampleCount
@@ -3491,12 +3494,12 @@ theorem advantage_le_randomized_ordinaryLWE_add_jointGap_capped {R : Type}
     (narrowErrorSampler wideErrorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
         adversary ≤
       min 1
         (2 * ((blockCount * blockLength : ℕ) : ℝ) *
-            LearningWithErrors.advantage
+            LearningWithErrors.realAdvantage
               (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
                 ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
               (randomRowHybridReduction (blockCount * blockLength) extractedDimension sampleCount
@@ -3505,7 +3508,7 @@ theorem advantage_le_randomized_ordinaryLWE_add_jointGap_capped {R : Type}
                   narrowErrorSampler wideErrorSampler adversary)) +
           jointStatisticalGap blockLength blockCount extractedDimension sampleCount
             narrowErrorSampler wideErrorSampler +
-          LearningWithErrors.advantage
+          LearningWithErrors.realAdvantage
             (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
               ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
             (extractedLWReduction blockLength blockCount extractedDimension sampleCount
@@ -3523,12 +3526,12 @@ theorem advantage_le_randomized_ordinaryLWE_add_gaps_tight {R : Type}
     (narrowErrorSampler wideErrorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
         adversary ≤
       min 1
         (2 * ((blockCount * blockLength : ℕ) : ℝ) *
-            LearningWithErrors.advantage
+            LearningWithErrors.realAdvantage
               (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
                 ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
               (randomRowHybridReduction (blockCount * blockLength) extractedDimension sampleCount
@@ -3541,7 +3544,7 @@ theorem advantage_le_randomized_ordinaryLWE_add_gaps_tight {R : Type}
               (((Fintype.card R : ℝ) ^ extractedDimension - 1) /
                 (blockLength + 1 : ℝ) ^ blockCount) /
             2 +
-          LearningWithErrors.advantage
+          LearningWithErrors.realAdvantage
             (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
               ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
             (extractedLWReduction blockLength blockCount extractedDimension sampleCount
@@ -3550,7 +3553,7 @@ theorem advantage_le_randomized_ordinaryLWE_add_gaps_tight {R : Type}
   · exact FormalProof4FHE.LWE.advantage_le_one _ _
   · calc
       _ ≤ 2 * ((blockCount * blockLength : ℕ) : ℝ) *
-            LearningWithErrors.advantage
+            LearningWithErrors.realAdvantage
               (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
                 ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
               (randomRowHybridReduction (blockCount * blockLength) extractedDimension sampleCount
@@ -3559,7 +3562,7 @@ theorem advantage_le_randomized_ordinaryLWE_add_gaps_tight {R : Type}
                   narrowErrorSampler wideErrorSampler adversary)) +
           jointStatisticalGap blockLength blockCount extractedDimension sampleCount
             narrowErrorSampler wideErrorSampler +
-          LearningWithErrors.advantage
+          LearningWithErrors.realAdvantage
             (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
               ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
             (extractedLWReduction blockLength blockCount extractedDimension sampleCount
@@ -3581,12 +3584,12 @@ theorem advantage_le_randomized_ordinaryLWE_nonlinear {R : Type}
     (narrowErrorSampler wideErrorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
         adversary ≤
       min 1
         (2 * ((blockCount * blockLength : ℕ) : ℝ) *
-            LearningWithErrors.advantage
+            LearningWithErrors.realAdvantage
               (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
                 ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
               (randomRowHybridReduction (blockCount * blockLength) extractedDimension sampleCount
@@ -3599,17 +3602,17 @@ theorem advantage_le_randomized_ordinaryLWE_nonlinear {R : Type}
               (((Fintype.card R : ℝ) ^ extractedDimension - 1) /
                 (blockLength + 1 : ℝ) ^ blockCount) /
             2 +
-          LearningWithErrors.advantage
+          LearningWithErrors.realAdvantage
             (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
               ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
             (extractedLWReduction blockLength blockCount extractedDimension sampleCount
               narrowErrorSampler wideErrorSampler adversary)) := by
   calc
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem (R := R) blockLength blockCount sampleCount wideErrorSampler) adversary ≤
       min 1
         (2 * ((blockCount * blockLength : ℕ) : ℝ) *
-            LearningWithErrors.advantage
+            LearningWithErrors.realAdvantage
               (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
                 ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
               (randomRowHybridReduction (blockCount * blockLength) extractedDimension sampleCount
@@ -3622,7 +3625,7 @@ theorem advantage_le_randomized_ordinaryLWE_nonlinear {R : Type}
               (((Fintype.card R : ℝ) ^ extractedDimension - 1) /
                 (blockLength + 1 : ℝ) ^ blockCount) /
             2 +
-          LearningWithErrors.advantage
+          LearningWithErrors.realAdvantage
             (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
               ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
             (extractedLWReduction blockLength blockCount extractedDimension sampleCount
@@ -3643,12 +3646,12 @@ theorem advantage_le_randomized_ordinaryLWE_analytic {R : Type}
     (narrowErrorSampler wideErrorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
         adversary ≤
       min 1
         (2 * ((blockCount * blockLength : ℕ) : ℝ) *
-            LearningWithErrors.advantage
+            LearningWithErrors.realAdvantage
               (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
                 ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
               (randomRowHybridReduction (blockCount * blockLength) extractedDimension sampleCount
@@ -3663,17 +3666,17 @@ theorem advantage_le_randomized_ordinaryLWE_analytic {R : Type}
               (((Fintype.card R : ℝ) ^ extractedDimension - 1) /
                 (blockLength + 1 : ℝ) ^ blockCount) /
             2 +
-          LearningWithErrors.advantage
+          LearningWithErrors.realAdvantage
             (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
               ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
             (extractedLWReduction blockLength blockCount extractedDimension sampleCount
               narrowErrorSampler wideErrorSampler adversary)) := by
   calc
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem (R := R) blockLength blockCount sampleCount wideErrorSampler) adversary ≤
       min 1
         (2 * ((blockCount * blockLength : ℕ) : ℝ) *
-            LearningWithErrors.advantage
+            LearningWithErrors.realAdvantage
               (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
                 ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
               (randomRowHybridReduction (blockCount * blockLength) extractedDimension sampleCount
@@ -3686,7 +3689,7 @@ theorem advantage_le_randomized_ordinaryLWE_analytic {R : Type}
               (((Fintype.card R : ℝ) ^ extractedDimension - 1) /
                 (blockLength + 1 : ℝ) ^ blockCount) /
             2 +
-          LearningWithErrors.advantage
+          LearningWithErrors.realAdvantage
             (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
               ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
             (extractedLWReduction blockLength blockCount extractedDimension sampleCount
@@ -3708,11 +3711,11 @@ theorem advantage_le_ordinaryLWE_add_gaps {R : Type}
     (narrowErrorSampler wideErrorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
         adversary ≤
       (∑ coordinate : Fin (blockCount * blockLength),
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
             ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
           (rowHybridReduction (blockCount * blockLength) extractedDimension sampleCount
@@ -3725,13 +3728,13 @@ theorem advantage_le_ordinaryLWE_add_gaps {R : Type}
             ((Fintype.card R : ℝ) ^ extractedDimension /
               (blockLength + 1 : ℝ) ^ blockCount) /
           2 +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
             ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
           (extractedLWReduction blockLength blockCount extractedDimension sampleCount
             narrowErrorSampler wideErrorSampler adversary) +
         (∑ coordinate : Fin (blockCount * blockLength),
-          LearningWithErrors.advantage
+          LearningWithErrors.realAdvantage
             (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
               ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
             (rowHybridReduction (blockCount * blockLength) extractedDimension sampleCount
@@ -3739,7 +3742,7 @@ theorem advantage_le_ordinaryLWE_add_gaps {R : Type}
               (uniformMaskReduction blockLength blockCount extractedDimension sampleCount
                 narrowErrorSampler wideErrorSampler adversary))) := by
   calc
-    _ ≤ LearningWithErrors.advantage
+    _ ≤ LearningWithErrors.realAdvantage
           (matrixMaskProblem (R := R) (blockCount * blockLength)
             extractedDimension sampleCount narrowErrorSampler)
           (realMaskReduction blockLength blockCount extractedDimension sampleCount
@@ -3750,12 +3753,12 @@ theorem advantage_le_ordinaryLWE_add_gaps {R : Type}
             ((Fintype.card R : ℝ) ^ extractedDimension /
               (blockLength + 1 : ℝ) ^ blockCount) /
           2 +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
             ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
           (extractedLWReduction blockLength blockCount extractedDimension sampleCount
             narrowErrorSampler wideErrorSampler adversary) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (matrixMaskProblem (R := R) (blockCount * blockLength)
             extractedDimension sampleCount narrowErrorSampler)
           (uniformMaskReduction blockLength blockCount extractedDimension sampleCount
@@ -3788,21 +3791,21 @@ theorem advantage_le_of_ordinaryLWEBounds {R : Type}
     (hNarrow : ∀ reduction : LearningWithErrors.Adversary
       (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
         ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler),
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
           ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
         reduction ≤ narrowBound)
     (hWide : ∀ reduction : LearningWithErrors.Adversary
       (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
         ($ᵗ (Fin extractedDimension → R)) wideErrorSampler),
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
           ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
         reduction ≤ wideBound)
     (hNoise :
       noiseAbsorptionGap blockLength blockCount extractedDimension sampleCount
         narrowErrorSampler wideErrorSampler ≤ noiseBound) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
         adversary ≤
       2 * ((blockCount * blockLength : ℕ) : ℝ) * narrowBound +
@@ -3814,7 +3817,7 @@ theorem advantage_le_of_ordinaryLWEBounds {R : Type}
         wideBound := by
   have hreal :
       (∑ coordinate : Fin (blockCount * blockLength),
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
             ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
           (rowHybridReduction (blockCount * blockLength) extractedDimension sampleCount
@@ -3830,7 +3833,7 @@ theorem advantage_le_of_ordinaryLWEBounds {R : Type}
       _ = _ := by simp
   have huniform :
       (∑ coordinate : Fin (blockCount * blockLength),
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
             ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
           (rowHybridReduction (blockCount * blockLength) extractedDimension sampleCount
@@ -3845,7 +3848,7 @@ theorem advantage_le_of_ordinaryLWEBounds {R : Type}
         exact hNarrow _
       _ = _ := by simp
   have hwide :
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
             ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
           (extractedLWReduction blockLength blockCount extractedDimension sampleCount
@@ -3853,7 +3856,7 @@ theorem advantage_le_of_ordinaryLWEBounds {R : Type}
     hWide _
   calc
     _ ≤ (∑ coordinate : Fin (blockCount * blockLength),
-          LearningWithErrors.advantage
+          LearningWithErrors.realAdvantage
             (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
               ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
             (rowHybridReduction (blockCount * blockLength) extractedDimension sampleCount
@@ -3866,13 +3869,13 @@ theorem advantage_le_of_ordinaryLWEBounds {R : Type}
             ((Fintype.card R : ℝ) ^ extractedDimension /
               (blockLength + 1 : ℝ) ^ blockCount) /
           2 +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
             ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
           (extractedLWReduction blockLength blockCount extractedDimension sampleCount
             narrowErrorSampler wideErrorSampler adversary) +
         (∑ coordinate : Fin (blockCount * blockLength),
-          LearningWithErrors.advantage
+          LearningWithErrors.realAdvantage
             (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
               ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
             (rowHybridReduction (blockCount * blockLength) extractedDimension sampleCount
@@ -3904,28 +3907,28 @@ theorem advantage_le_of_ordinaryLWEBounds_joint {R : Type}
     (hNarrow : ∀ reduction : LearningWithErrors.Adversary
       (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
         ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler),
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
           ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
         reduction ≤ narrowBound)
     (hWide : ∀ reduction : LearningWithErrors.Adversary
       (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
         ($ᵗ (Fin extractedDimension → R)) wideErrorSampler),
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
           ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
         reduction ≤ wideBound)
     (hJoint :
       jointStatisticalGap blockLength blockCount extractedDimension sampleCount
         narrowErrorSampler wideErrorSampler ≤ jointBound) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
         adversary ≤
       2 * ((blockCount * blockLength : ℕ) : ℝ) * narrowBound +
         jointBound + wideBound := by
   have hcombined :
       (∑ coordinate : Fin (blockCount * blockLength),
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
             ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
           (rowHybridReduction (blockCount * blockLength) extractedDimension sampleCount
@@ -3940,7 +3943,7 @@ theorem advantage_le_of_ordinaryLWEBounds_joint {R : Type}
         exact hNarrow _
       _ = _ := by simp
   have hwide :
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
             ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
           (extractedLWReduction blockLength blockCount extractedDimension sampleCount
@@ -3948,7 +3951,7 @@ theorem advantage_le_of_ordinaryLWEBounds_joint {R : Type}
     hWide _
   calc
     _ ≤ 2 * (∑ coordinate : Fin (blockCount * blockLength),
-          LearningWithErrors.advantage
+          LearningWithErrors.realAdvantage
             (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
               ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
             (rowHybridReduction (blockCount * blockLength) extractedDimension sampleCount
@@ -3957,7 +3960,7 @@ theorem advantage_le_of_ordinaryLWEBounds_joint {R : Type}
                 narrowErrorSampler wideErrorSampler adversary))) +
         jointStatisticalGap blockLength blockCount extractedDimension sampleCount
           narrowErrorSampler wideErrorSampler +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
             ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
           (extractedLWReduction blockLength blockCount extractedDimension sampleCount
@@ -3979,21 +3982,21 @@ theorem advantage_le_of_ordinaryLWEBounds_joint_capped {R : Type}
     (hNarrow : ∀ reduction : LearningWithErrors.Adversary
       (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
         ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler),
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
           ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
         reduction ≤ narrowBound)
     (hWide : ∀ reduction : LearningWithErrors.Adversary
       (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
         ($ᵗ (Fin extractedDimension → R)) wideErrorSampler),
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
           ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
         reduction ≤ wideBound)
     (hJoint :
       jointStatisticalGap blockLength blockCount extractedDimension sampleCount
         narrowErrorSampler wideErrorSampler ≤ jointBound) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
         adversary ≤
       min 1 (2 * ((blockCount * blockLength : ℕ) : ℝ) * narrowBound +
@@ -4020,21 +4023,21 @@ theorem advantage_le_of_ordinaryLWEBounds_tight {R : Type}
     (hNarrow : ∀ reduction : LearningWithErrors.Adversary
       (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
         ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler),
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
           ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
         reduction ≤ narrowBound)
     (hWide : ∀ reduction : LearningWithErrors.Adversary
       (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
         ($ᵗ (Fin extractedDimension → R)) wideErrorSampler),
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
           ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
         reduction ≤ wideBound)
     (hNoise :
       noiseAbsorptionGap blockLength blockCount extractedDimension sampleCount
         narrowErrorSampler wideErrorSampler ≤ noiseBound) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
         adversary ≤
       min 1
@@ -4078,18 +4081,18 @@ theorem advantage_le_of_ordinaryLWEBounds_nonlinear {R : Type}
     (hNarrow : ∀ reduction : LearningWithErrors.Adversary
       (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
         ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler),
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
           ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
         reduction ≤ narrowBound)
     (hWide : ∀ reduction : LearningWithErrors.Adversary
       (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
         ($ᵗ (Fin extractedDimension → R)) wideErrorSampler),
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
           ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
         reduction ≤ wideBound) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
         adversary ≤
       min 1
@@ -4121,18 +4124,18 @@ theorem advantage_le_of_ordinaryLWEBounds_analytic {R : Type}
     (hNarrow : ∀ reduction : LearningWithErrors.Adversary
       (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
         ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler),
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
           ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
         reduction ≤ narrowBound)
     (hWide : ∀ reduction : LearningWithErrors.Adversary
       (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
         ($ᵗ (Fin extractedDimension → R)) wideErrorSampler),
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
           ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
         reduction ≤ wideBound) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
         adversary ≤
       min 1
@@ -4175,18 +4178,18 @@ theorem advantage_le_of_ordinaryLWEBounds_shiftMoment {R : Type}
     (hNarrow : ∀ reduction : LearningWithErrors.Adversary
       (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
         ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler),
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
           ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
         reduction ≤ narrowBound)
     (hWide : ∀ reduction : LearningWithErrors.Adversary
       (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
         ($ᵗ (Fin extractedDimension → R)) wideErrorSampler),
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.batchProblem extractedDimension sampleCount
           ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
         reduction ≤ wideBound) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem (R := R) blockLength blockCount sampleCount wideErrorSampler)
         adversary ≤
       min 1

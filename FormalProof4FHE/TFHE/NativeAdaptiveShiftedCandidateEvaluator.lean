@@ -31,6 +31,8 @@ remains available.
 open OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted
 
 open Native
@@ -1069,13 +1071,13 @@ theorem tvDist_branchExperimentAtMask_uniformExperimentAtMask_le_rowwiseFailureI
   unfold rowwiseFailureIndicator
   by_cases hFresh :
       RowwiseBranchFreshAtMask params coordinate candidate challenge auxiliary mask
-  · simp only [hFresh, if_pos]
+  · simp only [hFresh, ite_eq_left]
     unfold tvDist
     rw [branchExperimentAtMask_evalDist_eq_uniform params coordinate candidate
       challenge auxiliary mask
       (branchFreshAtMask_of_rowwiseBranchFreshAtMask params coordinate candidate
         challenge auxiliary mask hFresh)]
-    exact le_of_eq (SPMF.tvDist_self _)
+    exact le_of_eq (MeasureTheory.Measure.tvDist_self _)
   · simp only [hFresh]
     exact tvDist_le_one _ _
 
@@ -1938,7 +1940,7 @@ theorem averagedWrongBranchRowwiseFailure_le_controlFailure [NeZero q]
         (queryCount := queryCount) params ringErrorSampler keySwitchErrorSampler
         inputErrorSampler keySwitchGadget coordinate := by
   unfold averagedWrongBranchRowwiseFailure averagedWrongBranchControlFailure
-  apply ENNReal.toReal_mono (by simp)
+  apply ENNReal.toReal_mono (by simp [probEvent_ne_top])
   apply probEvent_mono
   intro sample _ hfailure
   exact wrongBranchRowwiseFailure_imp_controlFailure params coordinate sample hfailure
@@ -2006,8 +2008,8 @@ theorem averagedWrongBranchRowwiseFailure_le_sum_rowFailure [NeZero q]
         ∑ outputCoordinate, ∑ row,
           Pr[WrongBranchRowFailure params coordinate outputCoordinate row | sampler] :=
     houter.trans (Finset.sum_le_sum fun outputCoordinate _ => hinner outputCoordinate)
-  have hreal := ENNReal.toReal_mono (by simp) hENN
-  rw [ENNReal.toReal_sum (fun _ _ => by simp)] at hreal
+  have hreal := ENNReal.toReal_mono (by simp [probEvent_ne_top]) hENN
+  rw [ENNReal.toReal_sum (fun _ _ => by simp [probEvent_ne_top])] at hreal
   simp_rw [ENNReal.toReal_sum (fun _ _ => probEvent_ne_top)] at hreal
   simpa only [averagedWrongBranchRowwiseFailure, averagedWrongBranchRowFailure,
     sampler] using hreal
@@ -2321,7 +2323,7 @@ theorem tvDist_averagedWrongTransform_uniformPublicView_le_card_mul_averagedCano
           let finish := fun bootstrappingKey : Native.BootstrappingKey q degree
               ringRank params.levels lweDimension =>
             (bootstrappingKey, transported.1.2, transported.2)
-          have hdata := tvDist_map_le (m := ProbComp) finish
+          have hdata := tvDist_map_le finish
             (Native.ShiftedCandidateEvaluator.branchTransform params coordinate
                 (transportCandidate coordinate (!sample.1.1) sample.2)
                 transported.1.1 <$>
@@ -2480,7 +2482,7 @@ theorem tvDist_branchExperimentAtMask_uniformExperimentAtMask_le_branchDistance 
   let finish := fun bootstrappingKey : Native.BootstrappingKey q degree ringRank
       params.levels lweDimension =>
     (bootstrappingKey, transported.1.2, transported.2)
-  have hdata := tvDist_map_le (m := ProbComp) finish
+  have hdata := tvDist_map_le finish
     (Native.ShiftedCandidateEvaluator.branchTransform params coordinate
         (transportCandidate coordinate candidate mask) transported.1.1 <$>
       ($ᵗ Native.BootstrappingKey q degree ringRank params.levels lweDimension))
@@ -2603,7 +2605,7 @@ theorem tvDist_averagedWrongTransform_averagedUniformized_le [NeZero q]
   let source := coordinateSource (ringRank := ringRank) (queryCount := queryCount)
     ringErrorSampler keySwitchErrorSampler inputErrorSampler
     (Gadget.Base.ringGadget params) keySwitchGadget coordinate
-  have hmix := tvDist_bind_left_le_const (m := ProbComp) source
+  have hmix := tvDist_bind_left_le_const source
     (fun hiddenAndContext =>
       maskedBranchExperiment params coordinate (!hiddenAndContext.1)
         hiddenAndContext.2.1 hiddenAndContext.2.2)

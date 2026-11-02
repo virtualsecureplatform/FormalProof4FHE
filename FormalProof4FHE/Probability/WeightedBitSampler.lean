@@ -20,6 +20,8 @@ separate obligations.
 open OracleComp
 open scoped ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE
 
 namespace WeightedSampler.Table
@@ -55,7 +57,7 @@ theorem evalDist_sampler_eq_uniform (table : Table Output) :
       𝒟[$ᵗ (Fin (table.ticketCount - 1 + 1))] := by
     apply evalDist_ext
     intro ticket
-    simp only [ProbComp.probOutput_uniformFin, probOutput_uniformSample, Fintype.card_fin, Nat.cast_add, Nat.cast_one]
+    simp only [probOutput_uniformFin, probOutput_uniformSample, Fintype.card_fin, Nat.cast_add, Nat.cast_one]
   have hcast : 𝒟[cast <$> ($[0..table.ticketCount - 1] : ProbComp _)] =
       𝒟[$ᵗ (Fin table.ticketCount)] := by
     rw [evalDist_map, hraw, ← evalDist_map]
@@ -107,24 +109,12 @@ namespace WeightedBitSampler
 
 /-- The non-failing `ProbComp` observation preserves total PMF distance.
 Mapping `none` to a fixed value is a left inverse on the `some` image. -/
-theorem etvDist_liftM_eq_ofReal_tvDist {Output : Type} (fallback : Output)
+theorem etvDist_liftM_eq_ofReal_tvDist {Output : Type} (_fallback : Output)
     (left right : ProbComp Output) :
     (liftM left : PMF Output).etvDist (liftM right) = ENNReal.ofReal (tvDist left right) := by
-  let p : PMF Output := liftM left
-  let q : PMF Output := liftM right
-  have hsome : (Option.some <$> p).etvDist (Option.some <$> q) = p.etvDist q := by
-    apply le_antisymm (PMF.etvDist_map_le _ _ _)
-    have h := PMF.etvDist_map_le (fun value : Option Output => value.getD fallback)
-      (Option.some <$> p) (Option.some <$> q)
-    simp only [Functor.map_map, Option.getD_some] at h
-    change (id <$> p).etvDist (id <$> q) ≤ (Option.some <$> p).etvDist (Option.some <$> q) at h
-    simpa only [id_map] using h
-  have hleft : (liftM left : SPMF Output) = liftM p := rfl
-  have hright : (liftM right : SPMF Output) = liftM q := rfl
-  rw [tvDist, evalDist_def, evalDist_def, hleft, hright]
-  simp only [SPMF.tvDist, PMF.tvDist, SPMF.toPMF_liftM]
-  rw [ENNReal.ofReal_toReal (PMF.etvDist_ne_top _ _)]
-  exact hsome.symm
+  rw [tvDist_eq_outputPMF, PMF.tvDist,
+    ENNReal.ofReal_toReal (PMF.etvDist_ne_top _ _)]
+  rfl
 
 theorem etvDist_bitSampler_le {Output : Type} (table : WeightedSampler.Table Output)
     (rounds : ℕ) :

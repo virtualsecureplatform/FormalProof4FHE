@@ -43,6 +43,8 @@ set_option autoImplicit false
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.BlockCategoricalSelfCircular
 
 noncomputable section
@@ -224,14 +226,14 @@ theorem permutationEvaluation_uniform_evalDist
         ($ᵗ Equiv.Perm C)) =
       evalDist ($ᵗ C) := by
   classical
-  letI : Nonempty (FixedPerm C fixed) :=
+  let : Nonempty (FixedPerm C fixed) :=
     ⟨⟨Equiv.refl C, rfl⟩⟩
-  letI : Fintype (FixedPerm C fixed) := by
+  let : Fintype (FixedPerm C fixed) := by
     unfold FixedPerm
     infer_instance
-  letI : SampleableType (FixedPerm C fixed) :=
+  let : SampleableType (FixedPerm C fixed) :=
     SampleableType.ofFintype (FixedPerm C fixed)
-  letI : SampleableType (C × FixedPerm C fixed) :=
+  let : SampleableType (C × FixedPerm C fixed) :=
     SampleableType.ofFintype (C × FixedPerm C fixed)
   have hdecomposition :
     evalDist (permEvaluationEquiv fixed <$> ($ᵗ Equiv.Perm C)) =
@@ -292,7 +294,7 @@ theorem candidateStabilizerImage_uniform_evalDist
               permutation ⟨actual, hwrong⟩) <$>
           ($ᵗ Equiv.Perm {category : C // category ≠ candidate})) =
       evalDist ($ᵗ {category : C // category ≠ candidate}) := by
-  letI : Nonempty {category : C // category ≠ candidate} :=
+  let : Nonempty {category : C // category ≠ candidate} :=
     ⟨⟨actual, hwrong⟩⟩
   exact permutationEvaluation_uniform_evalDist
     (C := {category : C // category ≠ candidate})
@@ -363,13 +365,13 @@ theorem countedWrongCandidateKernel_eq
   by_cases heq : actual = output
   · subst output
     rw [countedWrongCandidateKernel, card_compatibleWrongCandidates_self]
-    simp only [Fintype.card_fin, wrongCandidateKernel, if_pos]
+    simp only [Fintype.card_fin, wrongCandidateKernel, ite_eq_left]
     rw [Nat.cast_sub hone]
     norm_num
     field_simp [hminusOne]
   · rw [countedWrongCandidateKernel,
       card_compatibleWrongCandidates_of_ne heq]
-    simp only [Fintype.card_fin, wrongCandidateKernel, if_neg heq]
+    simp only [Fintype.card_fin, wrongCandidateKernel, ite_eq_right heq]
     rw [Nat.cast_sub htwo, Nat.cast_sub hone]
     norm_num
 
@@ -386,11 +388,11 @@ theorem wrongCandidateKernel_eq_identity_uniform
   have hsquare : ((L : ℝ) - 1) ^ 2 ≠ 0 := pow_ne_zero 2 hLminusOne
   by_cases heq : actual = output
   · unfold wrongCandidateKernel candidateLambda
-    rw [if_pos heq, if_pos heq]
+    rw [ite_eq_left heq, ite_eq_left heq]
     field_simp [hLzero, hLminusOne, hsquare]
     ring
   · unfold wrongCandidateKernel candidateLambda
-    rw [if_neg heq, if_neg heq]
+    rw [ite_eq_right heq, ite_eq_right heq]
     field_simp [hLzero, hLminusOne, hsquare]
     ring
 

@@ -28,6 +28,8 @@ conventional scalar search LWE.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.KeySwitchFirstFiniteView
 
 open Native

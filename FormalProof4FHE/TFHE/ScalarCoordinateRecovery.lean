@@ -26,6 +26,8 @@ boundary consumed by KSK completion.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput.Search.PairedRecovery.CoordinateRecovery
 
 /-- A randomized test for one coordinate of the hidden native scalar key. -/
@@ -554,7 +556,7 @@ theorem candidateCheckGap_eq_decisionAdvantage_of_viewLaw
   unfold decisionAdvantage ProbComp.boolDistAdvantage
   by_cases horientation : orientation coordinate = true
   · have hle := law.orientation_le coordinate
-    rw [if_pos horientation] at hle ⊢
+    rw [ite_eq_left horientation] at hle ⊢
     have hnonneg : (0 : ℝ) ≤
         (Pr[= true | realDecisionGame ringErrorSampler keySwitchErrorSampler
           tgswGadget keySwitchGadget distinguisher]).toReal -
@@ -562,7 +564,7 @@ theorem candidateCheckGap_eq_decisionAdvantage_of_viewLaw
           tgswGadget keySwitchGadget distinguisher]).toReal := sub_nonneg.mpr hle
     rw [abs_of_nonneg hnonneg]
   · have hle := law.orientation_le coordinate
-    rw [if_neg horientation] at hle ⊢
+    rw [ite_eq_right horientation] at hle ⊢
     have hnonpos :
         (Pr[= true | realDecisionGame ringErrorSampler keySwitchErrorSampler
           tgswGadget keySwitchGadget distinguisher]).toReal -
@@ -1045,7 +1047,7 @@ theorem one_sub_sum_coordinateError_le_scalarSuccess
   have hsuccess :
       1 - ∑ coordinate, error coordinate ≤
         Pr[(fun output => output.2 = output.1) | experiment] :=
-    probEvent_one_sub_le_of_compl_le probFailure_eq_zero hfailure
+    probEvent_one_sub_le_of_compl_le (probFailure_eq_zero _) hfailure
   rw [scalarGame_assemble_eq_map_jointGame, probOutput_map]
   simpa only [decide_eq_true_eq, experiment] using hsuccess
 

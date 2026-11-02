@@ -21,6 +21,8 @@ It remains valid over the native coefficient ring and does not replace it by a r
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm
 
 noncomputable section
@@ -176,7 +178,7 @@ theorem reconstructedRowOperatorEntry_eq_retainedOffset_add_minorSum
   have hinv : sourceValue selected * selectedInv = 1 := by
     dsimp only [sourceValue, selectedInv]
     rw [← selectedSignedSourceUnit_spec candidate sourceError selected hunit]
-    simp
+    exact Units.mul_inv _
   have hcolumn (column : DifferenceDigitColumn ringRank levels) :
       testValue column =
         sourceValue column * selectedInv * testValue selected +

@@ -3,7 +3,7 @@ From: ubuntu@sha256:4fbb8e6a8395de5a7550b33509421a2bafbc0aab6c06ba2cef9ebffbc709
 
 %labels
     org.opencontainers.image.title FormalProof4FHE Lean environment
-    org.opencontainers.image.version lean-4.32.0
+    org.opencontainers.image.version lean-4.35.0
     org.opencontainers.image.source https://github.com/virtualsecureplatform/FormalProof4FHE
 
 %environment
@@ -40,8 +40,8 @@ From: ubuntu@sha256:4fbb8e6a8395de5a7550b33509421a2bafbc0aab6c06ba2cef9ebffbc709
         | sha256sum -c -
     sh /tmp/elan-init.sh -y --default-toolchain none
     rm /tmp/elan-init.sh
-    elan toolchain install leanprover/lean4:v4.32.0
-    elan default leanprover/lean4:v4.32.0
+    elan toolchain install leanprover/lean4:v4.35.0
+    elan default leanprover/lean4:v4.35.0
     chmod -R a+rX /opt/elan
 
 %test

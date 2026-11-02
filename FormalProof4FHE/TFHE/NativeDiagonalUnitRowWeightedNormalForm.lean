@@ -23,6 +23,8 @@ selected digit column lies in the small digit alphabet.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm
 
 noncomputable section
@@ -1400,7 +1402,7 @@ theorem fixedErrorDiagonalDistinctPairCokernelExcess_eq_fiberPairSum
       apply Finset.sum_congr rfl
       intro leftDifference _
       by_cases hleft : retained leftDifference
-      · simp only [hleft, true_and, if_true]
+      · simp only [hleft, true_and, ite_true]
         apply Finset.sum_congr rfl
         intro rightDifference _
         by_cases hright : retained rightDifference <;>

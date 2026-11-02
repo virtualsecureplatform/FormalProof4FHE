@@ -23,6 +23,8 @@ the number-field, ideal-lattice, Gaussian, and quantum-reduction development des
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE
 
 variable {q degree sampleCount : ℕ} [NeZero q]
@@ -33,11 +35,11 @@ theorem advantage_eq_boolDistAdvantage
     (errorSampler : ProbComp (Rq q degree))
     (adversary : LearningWithErrors.Adversary
       (problem q degree sampleCount secretSampler errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem q degree sampleCount secretSampler errorSampler) adversary =
-      (LearningWithErrors.game0
+      (LearningWithErrors.realExperiment
           (problem q degree sampleCount secretSampler errorSampler) adversary).boolDistAdvantage
-        (LearningWithErrors.game1
+        (LearningWithErrors.randomExperiment
           (problem q degree sampleCount secretSampler errorSampler) adversary) :=
   LWE.advantage_eq_boolDistAdvantage _ _
 
@@ -47,7 +49,7 @@ theorem advantage_nonneg
     (errorSampler : ProbComp (Rq q degree))
     (adversary : LearningWithErrors.Adversary
       (problem q degree sampleCount secretSampler errorSampler)) :
-    0 ≤ LearningWithErrors.advantage
+    0 ≤ LearningWithErrors.realAdvantage
       (problem q degree sampleCount secretSampler errorSampler) adversary :=
   LWE.advantage_nonneg _ _
 
@@ -57,7 +59,7 @@ theorem advantage_le_one
     (errorSampler : ProbComp (Rq q degree))
     (adversary : LearningWithErrors.Adversary
       (problem q degree sampleCount secretSampler errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
       (problem q degree sampleCount secretSampler errorSampler) adversary ≤ 1 :=
   LWE.advantage_le_one _ _
 
@@ -66,7 +68,7 @@ theorem uniformAdvantage_nonneg
     (errorSampler : ProbComp (Rq q degree))
     (adversary : LearningWithErrors.Adversary
       (uniformSecretProblem q degree sampleCount errorSampler)) :
-    0 ≤ LearningWithErrors.advantage
+    0 ≤ LearningWithErrors.realAdvantage
       (uniformSecretProblem q degree sampleCount errorSampler) adversary :=
   LWE.advantage_nonneg _ _
 
@@ -75,7 +77,7 @@ theorem uniformAdvantage_le_one
     (errorSampler : ProbComp (Rq q degree))
     (adversary : LearningWithErrors.Adversary
       (uniformSecretProblem q degree sampleCount errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
       (uniformSecretProblem q degree sampleCount errorSampler) adversary ≤ 1 :=
   LWE.advantage_le_one _ _
 
@@ -102,9 +104,9 @@ theorem uniformAdvantage_eq_moduleRankOne
     (errorSampler : ProbComp (Rq q degree))
     (adversary : LearningWithErrors.Adversary
       (uniformSecretProblem q degree sampleCount errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (uniformSecretProblem q degree sampleCount errorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (moduleProblem q degree 1 sampleCount errorSampler) adversary := by
   rw [uniformSecretProblem_eq_moduleProblem_one]
 

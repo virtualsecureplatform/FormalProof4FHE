@@ -26,6 +26,8 @@ schedule and ordinary post-cut LWE bounds.
 
 open ENNReal OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView
 
 open FormalProof4FHE.TFHE.Encryption.Adaptive.KeySwitchFirstFiniteView
@@ -422,7 +424,7 @@ noncomputable def nativeCircularBatchReductionFamily {Message : Type}
   fun securityParameter ↦ by
     have hDimensionPos : 0 < params.lweDimension securityParameter := by
       exact lt_of_le_of_lt (Nat.zero_le _) (schedule.reference securityParameter).isLt
-    letI : NeZero (params.lweDimension securityParameter) :=
+    let : NeZero (params.lweDimension securityParameter) :=
       ⟨Nat.ne_of_gt hDimensionPos⟩
     exact
       FormalProof4FHE.TFHE.Encryption.Adaptive.KeySwitchFirstFiniteView.nativeCircularBatchReduction
@@ -451,7 +453,7 @@ theorem bootstrapBatchCircularSecurityGame_advantage_eq_viewCount_mul_nativeCirc
           securityParameter := by
   have hDimensionPos : 0 < params.lweDimension securityParameter := by
     exact lt_of_le_of_lt (Nat.zero_le _) (schedule.reference securityParameter).isLt
-  letI : NeZero (params.lweDimension securityParameter) :=
+  let : NeZero (params.lweDimension securityParameter) :=
     ⟨Nat.ne_of_gt hDimensionPos⟩
   change ENNReal.ofReal
       (bootstrapBatchCircularAdvantage

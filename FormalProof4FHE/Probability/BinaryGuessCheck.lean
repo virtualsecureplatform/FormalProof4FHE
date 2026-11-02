@@ -4,6 +4,7 @@ Released under MIT license as described in the file LICENSE.
 Authors: Kotaro Matsuoka
 -/
 
+import FormalProof4FHE.Probability.Discrete
 import FormalProof4FHE.Probability.FiniteProduct
 import VCVio.CryptoFoundations.SecExp
 import VCVio.OracleComp.QueryTracking.RandomOracle.DeferredSampling
@@ -22,6 +23,8 @@ cryptographic assumption is used here.
 -/
 
 open OracleComp
+
+open scoped FormalProof4FHE
 
 namespace FormalProof4FHE.BinaryGuessCheck
 
@@ -44,7 +47,7 @@ theorem evalDist_bind_signedChoice {Source : Type}
     _ = evalDist (choices >>= fun choosePositive =>
         source >>= fun value =>
           if choosePositive then positive value else (! ·) <$> negative value) :=
-      OracleComp.DeferredSampling.evalDist_bind_comm source choices _
+      FormalProof4FHE.evalDist_bind_bind_swap source choices _
     _ = _ := by
       apply evalDist_bind_congr' choices
       intro choosePositive

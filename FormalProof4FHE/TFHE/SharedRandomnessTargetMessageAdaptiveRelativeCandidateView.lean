@@ -25,6 +25,8 @@ fixed secret.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE
 
 noncomputable section
@@ -99,7 +101,7 @@ theorem evaluateCandidateView_correct_evalDist
           evaluator.evaluateRelativeThenGlobal mask) := by
       unfold evaluateCandidateView
       simpa only [realView, masks, correctCandidate, bind_assoc] using
-        (OracleComp.DeferredSampling.evalDist_bind_comm
+        (FormalProof4FHE.evalDist_bind_bind_swap
           (realView >>= randomizeTargetTapeCandidate coordinate correctCandidate)
           masks (fun candidateView mask ↦
             evaluator.evaluateRelativeThenGlobal mask candidateView))
@@ -160,7 +162,7 @@ theorem evaluateCandidateView_wrong_evalDist
           evaluator.evaluateRelativeThenGlobal mask) := by
       unfold evaluateCandidateView
       simpa only [realView, masks, bind_assoc] using
-        (OracleComp.DeferredSampling.evalDist_bind_comm
+        (FormalProof4FHE.evalDist_bind_bind_swap
           (realView >>= randomizeTargetTapeCandidate coordinate candidate)
           masks (fun candidateView mask ↦
             evaluator.evaluateRelativeThenGlobal mask candidateView))
@@ -254,7 +256,7 @@ theorem evaluateCandidateView_correct_tvDist_le
         (suffixRank := suffixRank) (levels := levels) wideBootstrapErrorSampler := by
   let compiler := evaluator.toRelativeThenGlobalViewRandomization
     (queryCount := queryCount) inputErrorSampler hextensionSymmetric
-  have hmap := tvDist_map_le (m := ProbComp) Prod.snd
+  have hmap := tvDist_map_le Prod.snd
     (compiler.randomizedView secret) compiler.freshWideView
   have hcompiler := compiler.randomizedView_tvDist_freshWideView_le secret
   unfold tvDist at hmap hcompiler ⊢
@@ -295,7 +297,7 @@ theorem evaluateCandidateView_wrong_tvDist_le
         (suffixRank := suffixRank) (levels := levels) wideBootstrapErrorSampler := by
   let compiler := evaluator.toUniformTapeViewRandomization
     (queryCount := queryCount) hextensionSymmetric
-  have hmap := tvDist_map_le (m := ProbComp) Prod.snd
+  have hmap := tvDist_map_le Prod.snd
     (compiler.randomizedView secret) compiler.freshWideView
   have hcompiler := compiler.randomizedView_tvDist_freshWideView_le secret
   unfold tvDist at hmap hcompiler ⊢

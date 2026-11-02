@@ -30,6 +30,8 @@ assumption remains.
 
 open ENNReal OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput
 
 /-- The generic auxiliary-input zero game is exactly the native bootstrap-zero continuation
@@ -106,14 +108,14 @@ theorem adaptiveZeroLweAdvantage_le_two_jointLwe
     (hbound : Encryption.Adaptive.IsQueryBound adversary queryCount) :
     zeroLweAdvantage ringErrorSampler keySwitchErrorSampler tgswGadget keySwitchGadget
         (Encryption.Adaptive.continuation queryCount inputErrorSampler encode adversary) ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (Encryption.Adaptive.jointLweProblem q lweDimension
           (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels) queryCount
           keySwitchErrorSampler inputErrorSampler)
         (Encryption.Adaptive.keySwitchMessageReduction ringErrorSampler
           keySwitchErrorSampler inputErrorSampler tgswGadget
           (Encryption.Adaptive.nativeKeySwitchMessage keySwitchGadget) encode adversary) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (Encryption.Adaptive.jointLweProblem q lweDimension
           (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels) queryCount
           keySwitchErrorSampler inputErrorSampler)
@@ -159,7 +161,7 @@ theorem adaptiveZeroLweAdvantage_le_two_batchLwe_of_same_noise
     (hbound : Encryption.Adaptive.IsQueryBound adversary queryCount) :
     zeroLweAdvantage ringErrorSampler errorSampler tgswGadget keySwitchGadget
         (Encryption.Adaptive.continuation queryCount errorSampler encode adversary) ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (Native.KeySwitchSecurity.binaryLweProblem q lweDimension
           (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels + queryCount)
           errorSampler)
@@ -167,7 +169,7 @@ theorem adaptiveZeroLweAdvantage_le_two_batchLwe_of_same_noise
           (Encryption.Adaptive.keySwitchMessageReduction ringErrorSampler
             errorSampler errorSampler tgswGadget
             (Encryption.Adaptive.nativeKeySwitchMessage keySwitchGadget) encode adversary)) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (Native.KeySwitchSecurity.binaryLweProblem q lweDimension
           (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels + queryCount)
           errorSampler)
@@ -198,11 +200,11 @@ theorem adaptiveZeroLweAdvantage_le_two_batchLwe_of_same_noise
     embedBinarySecret errorSampler uniformReduction
   change zeroLweAdvantage ringErrorSampler errorSampler tgswGadget keySwitchGadget
       (Encryption.Adaptive.continuation queryCount errorSampler encode adversary) ≤
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
       (FormalProof4FHE.LWE.TwoBlock.problem lweDimension samples queryCount
         (Native.sampleLweSecret lweDimension) embedBinarySecret errorSampler)
       actualReduction +
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
       (FormalProof4FHE.LWE.TwoBlock.problem lweDimension samples queryCount
         (Native.sampleLweSecret lweDimension) embedBinarySecret errorSampler)
       uniformReduction at h

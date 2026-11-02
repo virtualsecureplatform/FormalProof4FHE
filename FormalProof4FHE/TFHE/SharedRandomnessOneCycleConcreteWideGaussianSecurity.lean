@@ -32,6 +32,8 @@ narrow-noise TFHE and does not resolve that research-level circular-security pro
 
 open ENNReal OracleComp OracleSpec
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.SharedRandomnessOneCycle.ConcreteWideGaussian
 
 noncomputable section
@@ -248,12 +250,11 @@ theorem executableRingError_evalDist_eq_uniform (securityParameter : ℕ) :
             parameters.suffixDimension securityParameter))) := by
   simp only [discreteGaussianRingErrorFamily, discreteGaussianData,
     executableCertificate, parameters]
-  convert
+  exact
     DiscreteGaussianSampler.ringSampler_uniformResidueCertificate_evalDist_eq_uniform
       (gaussianModulus securityParameter)
       (prefixDimension securityParameter + suffixDimension securityParameter)
-      (wideAlpha securityParameter) (wideAlpha_pos securityParameter) using 1
-  rfl
+      (wideAlpha securityParameter) (wideAlpha_pos securityParameter)
 
 /-- Consequently, the one-draw implementation-to-uniform replacement gap is exactly zero. -/
 theorem ringErrorGap_eq_zero (securityParameter : ℕ) :

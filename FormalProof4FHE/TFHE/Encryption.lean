@@ -27,6 +27,8 @@ identifies that term exactly with direct bilinear cross-key module-LWE KDM.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption
 
 /-- Fresh scalar finite-modulus TLWE encryption used for TFHE inputs and outputs. -/

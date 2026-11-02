@@ -36,6 +36,8 @@ for a search-to-decision argument.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.SecretRandomization
 
 open FormalProof4FHE.TFHE
@@ -146,7 +148,7 @@ theorem squareKeyShift_batchAssemble
   · rfl
   · funext row
     by_cases hUpper : (TGSW.rowIndex row).1 = 0
-    · simp only [squareKeyShift, hUpper, if_pos, TLWE.batchAssemble,
+    · simp only [squareKeyShift, hUpper, ite_eq_left, TLWE.batchAssemble,
         Pi.add_apply]
       simp [Matrix.vecMul, dotProduct, squareKeyShiftChallenge,
         PreimageCompiler.Full.squareMessages, hUpper]
@@ -539,8 +541,8 @@ theorem fixedSecretGame_randomizedDistinguisher_evalDist_eq_uniformSecretGame
       evalDist
         (randomizedFixedSecretRGSWMinusSecretSampler
           levels errorSampler secret gadget >>= distinguisher) := by
-      simp [randomizedRGSWMinusSecretDistinguisher,
-        randomizedFixedSecretRGSWMinusSecretSampler, bind_assoc]
+      unfold randomizedRGSWMinusSecretDistinguisher randomizedFixedSecretRGSWMinusSecretSampler
+      simp only [bind_assoc, pure_bind]
     _ = evalDist
         (uniformSecretRGSWMinusSecretSampler levels errorSampler gadget >>=
           distinguisher) := by

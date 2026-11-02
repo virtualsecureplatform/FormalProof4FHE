@@ -25,6 +25,8 @@ native scalar-key GSW public-key law must not be silently substituted for this o
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.RecursiveFeatureGSW
 
 open RecursiveMultiplication

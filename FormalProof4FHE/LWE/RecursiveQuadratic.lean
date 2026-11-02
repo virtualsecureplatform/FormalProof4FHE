@@ -30,6 +30,8 @@ not supply the scalar GSW controls required by the existing accumulator.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.RecursiveQuadratic
 
 noncomputable section
@@ -254,7 +256,7 @@ theorem reindex_bijective {R : Type} {n p k samples : ℕ}
   refine Function.bijective_iff_has_inverse.mpr
     ⟨(fun raw ↦ (fun row column ↦ raw.1 row (columns.symm column),
       fun column ↦ raw.2 (columns.symm column))), ?_, ?_⟩ <;>
-    intro raw <;> apply Prod.ext <;> simp [reindex]
+    intro raw <;> apply Prod.ext <;> simp [reindex]; rfl
 
 variable {R Secret : Type} [CommRing R] [DecidableEq R] [SampleableType R]
   {n p k samples : ℕ}
@@ -361,9 +363,10 @@ theorem uniform_evalDist (columns : Column n p k ≃ Fin samples)
       simp [simulate]
     _ = 𝒟[project <$> (publicShift polynomial <$> ($ᵗ Raw R n p k))] := by
       simpa only [evalDist_map] using
-        congrArg (fun distribution ↦ project <$> (publicShift polynomial <$> distribution)) hreindex
+        congrArg (fun distribution ↦ MeasureTheory.Measure.map project
+          (MeasureTheory.Measure.map (publicShift polynomial) distribution)) hreindex
     _ = 𝒟[project <$> ($ᵗ Raw R n p k)] := by
-      simpa only [evalDist_map] using congrArg (fun distribution ↦ project <$> distribution) hshift
+      simpa only [evalDist_map] using congrArg (fun distribution ↦ MeasureTheory.Measure.map (project) distribution) hshift
     _ = _ := rfl
 
 theorem real_game_evalDist (columns : Column n p k ≃ Fin samples)
@@ -371,10 +374,10 @@ theorem real_game_evalDist (columns : Column n p k ≃ Fin samples)
     (embed : Secret → Fin n → R) (errorSampler : ProbComp R)
     (adversary : View R n p k → ProbComp Bool) :
     𝒟[freshView columns polynomial secretSampler embed errorSampler >>= adversary] =
-      𝒟[LearningWithErrors.game0
+      𝒟[LearningWithErrors.realExperiment
         (AffineCircular.ordinaryProblem n samples secretSampler embed errorSampler)
         (reduction columns polynomial adversary)] := by
-  unfold LearningWithErrors.game0
+  unfold LearningWithErrors.realExperiment
   rw [show (LearningWithErrors.distr
         (AffineCircular.ordinaryProblem n samples secretSampler embed errorSampler) >>=
       reduction columns polynomial adversary) =
@@ -390,10 +393,10 @@ theorem uniform_game_evalDist (columns : Column n p k ≃ Fin samples)
     (embed : Secret → Fin n → R) (errorSampler : ProbComp R)
     (adversary : View R n p k → ProbComp Bool) :
     𝒟[(idealView (R := R) (n := n) (p := p) (k := k)) >>= adversary] =
-      𝒟[LearningWithErrors.game1
+      𝒟[LearningWithErrors.randomExperiment
         (AffineCircular.ordinaryProblem n samples secretSampler embed errorSampler)
         (reduction columns polynomial adversary)] := by
-  unfold LearningWithErrors.game1
+  unfold LearningWithErrors.randomExperiment
   rw [show (LearningWithErrors.uniformDistr
         (AffineCircular.ordinaryProblem n samples secretSampler embed errorSampler) >>=
       reduction columns polynomial adversary) =
@@ -411,7 +414,7 @@ theorem advantage_eq_lwe (columns : Column n p k ≃ Fin samples)
     (adversary : View R n p k → ProbComp Bool) :
     (freshView columns polynomial secretSampler embed errorSampler >>= adversary).boolDistAdvantage
       ((idealView (R := R) (n := n) (p := p) (k := k)) >>= adversary) =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (AffineCircular.ordinaryProblem n samples secretSampler embed errorSampler)
         (reduction columns polynomial adversary) := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
@@ -429,10 +432,10 @@ theorem messages_advantage_le_lwe (columns : Column n p k ≃ Fin samples)
     (adversary : View R n p k → ProbComp Bool) :
     (freshView columns first secretSampler embed errorSampler >>= adversary).boolDistAdvantage
       (freshView columns second secretSampler embed errorSampler >>= adversary) ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (AffineCircular.ordinaryProblem n samples secretSampler embed errorSampler)
         (reduction columns first adversary) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (AffineCircular.ordinaryProblem n samples secretSampler embed errorSampler)
         (reduction columns second adversary) := by
   have h := ProbComp.boolDistAdvantage_triangle
@@ -460,7 +463,7 @@ theorem advantage_le_ordinary_for_blockSecrets [Fintype R]
       (FormalProof4FHE.BlockBinary.expand R) wideErrorSampler >>= adversary).boolDistAdvantage
       ((idealView (R := R) (n := blockCount * blockLength) (p := p) (k := k)) >>= adversary) ≤
     2 * (∑ coordinate : Fin (blockCount * blockLength),
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.batchProblem extractedDimension samples
           ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
         (FormalProof4FHE.BlockBinary.rowHybridReduction (blockCount * blockLength)
@@ -470,7 +473,7 @@ theorem advantage_le_ordinary_for_blockSecrets [Fintype R]
             (reduction columns polynomial adversary)))) +
       FormalProof4FHE.BlockBinary.jointStatisticalGap blockLength blockCount
         extractedDimension samples narrowErrorSampler wideErrorSampler +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.batchProblem extractedDimension samples
           ($ᵗ (Fin extractedDimension → R)) wideErrorSampler)
         (FormalProof4FHE.BlockBinary.extractedLWReduction blockLength blockCount
@@ -504,14 +507,14 @@ theorem interval_advantage_le_narrowLWE {p k samples : ℕ}
       ((idealView (R := ZMod q) (n := blockCount * blockLength) (p := p) (k := k)) >>=
         adversary) ≤
     2 * (∑ coordinate : Fin (blockCount * blockLength),
-      LearningWithErrors.advantage (zmodBatchProblem extractedDimension samples q narrow)
+      LearningWithErrors.realAdvantage (zmodBatchProblem extractedDimension samples q narrow)
         (FormalProof4FHE.BlockBinary.rowHybridReduction (blockCount * blockLength)
           extractedDimension samples narrow coordinate maskReduction)) +
     min 1 (((samples : ℝ) * (blockCount * blockLength : ℝ) / (blockLength + 1 : ℝ)) *
       (moment / (2 * radius + 1 : ℝ))) +
     Real.sqrt (((Fintype.card (ZMod q) : ℝ) ^ extractedDimension - 1) /
       (blockLength + 1 : ℝ) ^ blockCount) / 2 +
-    LearningWithErrors.advantage (zmodBatchProblem extractedDimension samples q narrow)
+    LearningWithErrors.realAdvantage (zmodBatchProblem extractedDimension samples q narrow)
       (NoiseFlooding.reduction (UniformInterval.sample q radius rounds) extractedReduction) +
     (samples : ℝ) * (moment / (2 * radius + 1 : ℝ) + (1 / 2 : ℝ) ^ rounds) := by
   dsimp only

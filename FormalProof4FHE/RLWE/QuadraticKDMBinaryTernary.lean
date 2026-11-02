@@ -42,6 +42,8 @@ The module also checks:
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.QuadraticKDMBinaryTernary
 
 noncomputable section

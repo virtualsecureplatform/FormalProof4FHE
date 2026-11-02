@@ -20,6 +20,8 @@ that reveals the secret to an adversary. No circular/KDM hardness is assumed.
 open OracleComp
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWNoiseComparison
 
 open GSWGadget GSWSampling GSWPublicKey

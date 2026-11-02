@@ -30,6 +30,8 @@ explicit coupling obstruction isolate the remaining gap without changing the nar
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightSampleExtraction
 
 open FormalProof4FHE.TFHE
@@ -261,7 +263,7 @@ noncomputable def topMarginalProblem
         (ZMod (2 ^ (exponent + 1))))
       (RingBinarySecret 1 (degree + 1))
       (Fin (TGSW.rowCount 1 1) → ZMod (2 ^ (exponent + 1))) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   exact LWE.AffineCircular.problem
     (degree + 1) (TGSW.rowCount 1 1)
     (sampleRingSecret 1 (degree + 1))
@@ -291,7 +293,7 @@ theorem topMarginal_sampleChallenge_evalDist
           (topRGSWCoefficientProblem exponent degree errorSampler).sampleChallenge) =
       evalDist
         (topMarginalProblem exponent degree output errorSampler).sampleChallenge := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   let ordinary := CoefficientStructuredLWE.problem
     (2 ^ (exponent + 1)) (degree + 1) 1 (TGSW.rowCount 1 1) errorSampler
   have huniform := CoefficientStructuredLWE.problem_sampleChallenge_evalDist_eq_uniform
@@ -334,7 +336,7 @@ theorem topMarginal_sampleError_evalDist
           (topRGSWCoefficientProblem exponent degree errorSampler).sampleError) =
       evalDist
         (topMarginalProblem exponent degree output errorSampler).sampleError := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   let transform := fun error : RLWE.Rq (2 ^ (exponent + 1)) (degree + 1) ↦
     CoefficientStructuredLWE.coefficientEquiv
       (2 ^ (exponent + 1)) (degree + 1) error output
@@ -399,7 +401,7 @@ theorem topMarginal_sampleUniform_evalDist
           (topRGSWCoefficientProblem exponent degree errorSampler).sampleUniform) =
       evalDist
         (topMarginalProblem exponent degree output errorSampler).sampleUniform := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   let ordinary := CoefficientStructuredLWE.problem
     (2 ^ (exponent + 1)) (degree + 1) 1 (TGSW.rowCount 1 1) errorSampler
   have huniform := CoefficientStructuredLWE.problem_sampleUniform_evalDist_eq_uniform
@@ -435,7 +437,7 @@ theorem topMarginalProblem_noiseless_eq_nativeCoefficient
       fun sample ↦
         (topRGSWCoefficientProblem exponent degree errorSampler).noiseless
           ringSecret challenge sample output := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   funext sample
   unfold topMarginalProblem LWE.AffineCircular.problem
     LWE.AffineCircular.affineMessage
@@ -467,7 +469,7 @@ theorem project_topRGSWCoefficientDistr_evalDist_eq_topMarginalDistr
               (2 ^ (exponent + 1)) degree (TGSW.rowCount 1 1) output transcript)) =
       evalDist (LearningWithErrors.distr
         (topMarginalProblem exponent degree output errorSampler)) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   let Top := topRGSWCoefficientProblem exponent degree errorSampler
   let Marginal := topMarginalProblem exponent degree output errorSampler
   let ChallengeMap := extractedChallengeEquiv
@@ -557,7 +559,7 @@ theorem project_topRGSWCoefficientUniformDistr_evalDist_eq_topMarginalUniformDis
               (2 ^ (exponent + 1)) degree (TGSW.rowCount 1 1) output transcript)) =
       evalDist (LearningWithErrors.uniformDistr
         (topMarginalProblem exponent degree output errorSampler)) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   let Top := topRGSWCoefficientProblem exponent degree errorSampler
   let Marginal := topMarginalProblem exponent degree output errorSampler
   let ChallengeMap := extractedChallengeEquiv
@@ -618,12 +620,12 @@ theorem liftMarginalAdversary_game0_evalDist_eq
     (errorSampler : ProbComp (RLWE.Rq (2 ^ (exponent + 1)) (degree + 1)))
     (adversary : LearningWithErrors.Adversary
       (topMarginalProblem exponent degree output errorSampler)) :
-    evalDist (LearningWithErrors.game0
+    evalDist (LearningWithErrors.realExperiment
         (topRGSWCoefficientProblem exponent degree errorSampler)
         (liftMarginalAdversary adversary)) =
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
         (topMarginalProblem exponent degree output errorSampler) adversary) := by
-  rw [LearningWithErrors.game0, LearningWithErrors.game0]
+  rw [LearningWithErrors.realExperiment, LearningWithErrors.realExperiment]
   unfold liftMarginalAdversary
   rw [show
       (LearningWithErrors.distr
@@ -647,12 +649,12 @@ theorem liftMarginalAdversary_game1_evalDist_eq
     (errorSampler : ProbComp (RLWE.Rq (2 ^ (exponent + 1)) (degree + 1)))
     (adversary : LearningWithErrors.Adversary
       (topMarginalProblem exponent degree output errorSampler)) :
-    evalDist (LearningWithErrors.game1
+    evalDist (LearningWithErrors.randomExperiment
         (topRGSWCoefficientProblem exponent degree errorSampler)
         (liftMarginalAdversary adversary)) =
-      evalDist (LearningWithErrors.game1
+      evalDist (LearningWithErrors.randomExperiment
         (topMarginalProblem exponent degree output errorSampler) adversary) := by
-  rw [LearningWithErrors.game1, LearningWithErrors.game1]
+  rw [LearningWithErrors.randomExperiment, LearningWithErrors.randomExperiment]
   unfold liftMarginalAdversary
   rw [show
       (LearningWithErrors.uniformDistr
@@ -677,10 +679,10 @@ theorem liftMarginalAdversary_advantage_eq
     (errorSampler : ProbComp (RLWE.Rq (2 ^ (exponent + 1)) (degree + 1)))
     (adversary : LearningWithErrors.Adversary
       (topMarginalProblem exponent degree output errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (topRGSWCoefficientProblem exponent degree errorSampler)
         (liftMarginalAdversary adversary) =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (topMarginalProblem exponent degree output errorSampler) adversary := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage,
     FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
@@ -700,9 +702,9 @@ theorem topMarginalAdvantage_eq_lwe
     (errorSampler : ProbComp (RLWE.Rq (2 ^ (exponent + 1)) (degree + 1)))
     (adversary : LearningWithErrors.Adversary
       (topMarginalProblem exponent degree output errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (topMarginalProblem exponent degree output errorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (LWE.AffineCircular.ordinaryProblem
           (degree + 1) (TGSW.rowCount 1 1)
           (sampleRingSecret 1 (degree + 1))
@@ -710,7 +712,7 @@ theorem topMarginalAdvantage_eq_lwe
             (2 ^ (exponent + 1)) (ringSecret 0))
           (topMarginalErrorSampler exponent degree output errorSampler))
         (LWE.AffineCircular.reduction adversary) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   exact LWE.AffineCircular.advantage_eq_lwe
     (degree + 1) (TGSW.rowCount 1 1)
     (sampleRingSecret 1 (degree + 1))
@@ -726,10 +728,10 @@ theorem liftedTopMarginalAdvantage_eq_lwe
     (errorSampler : ProbComp (RLWE.Rq (2 ^ (exponent + 1)) (degree + 1)))
     (adversary : LearningWithErrors.Adversary
       (topMarginalProblem exponent degree output errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (topRGSWCoefficientProblem exponent degree errorSampler)
         (liftMarginalAdversary adversary) =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (LWE.AffineCircular.ordinaryProblem
           (degree + 1) (TGSW.rowCount 1 1)
           (sampleRingSecret 1 (degree + 1))
@@ -751,7 +753,7 @@ theorem topMarginalErrorSampler_centeredBinomial_evalDist
       evalDist
         (RLWE.CenteredBinomial.coefficientSampler
           (2 ^ (exponent + 1)) eta) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   simpa [topMarginalErrorSampler,
     CoefficientStructuredLWE.coefficientEquiv,
     LatticeCrypto.Poly.toPi, Vector.get] using

@@ -21,6 +21,8 @@ selectors and a negligible translation bound for correctness-compatible paramete
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.CompilerNormalForm
 
 noncomputable section
@@ -726,7 +728,7 @@ theorem rgswMinusSecretAdvantage_le_selectorResidual_add_batchLWE
     Full.rgswMinusSecretAdvantage levels secretSampler embed errorSampler gadget
         distinguisher ≤
       bound +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.embeddedBatchProblem 1
             (levels * sourceCount + TGSW.rowCount 1 levels)
             secretSampler embed errorSampler)

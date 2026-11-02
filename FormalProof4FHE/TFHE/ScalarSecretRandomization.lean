@@ -32,6 +32,8 @@ secret function and noise smudging.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ScalarSecretRandomization
 
 def maskedSecret {dimension : ℕ} (secret mask : BinarySecret dimension) :
@@ -242,7 +244,7 @@ theorem toggleTGSW_addGadget {R : Type} [CommRing R] {dimension levels : ℕ}
   cases mask with
   | false => simp [toggleTGSW, LWE.MultiKeyAffine.maskedBit]
   | true =>
-      simpa only [toggleTGSW, if_true, LWE.MultiKeyAffine.maskedBit,
+      simpa only [toggleTGSW, ite_true, LWE.MultiKeyAffine.maskedBit,
           embedBit_true_sub] using
         TGSW.addGadget_sub_neg gadget (embedBit (R := R) true)
           (embedBit bit) homogeneous
@@ -255,7 +257,7 @@ theorem toggleTGSW_involutive {R : Type} [CommRing R] {dimension levels : ℕ}
   cases mask with
   | false => simp [toggleTGSW]
   | true =>
-      simp only [toggleTGSW, if_true]
+      simp only [toggleTGSW, ite_true]
       simpa using
         TGSW.addGadget_sub_neg gadget (embedBit (R := R) true)
           (embedBit true) (negateCiphertext ciphertext)

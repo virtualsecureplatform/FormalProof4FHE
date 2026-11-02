@@ -20,6 +20,8 @@ calculation.  It also constructs the concrete three adjacent translates required
 ternary secret.
 -/
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.CenteredBinomialFairBinomialLaw
 noncomputable section
 
@@ -302,7 +304,7 @@ theorem sum_ternaryRightMass (eta : ℕ) : ∑ index, ternaryRightMass eta index
       intro index _
       unfold ternaryRightMass
       simp only [Fin.val_succ]
-      rw [if_neg (by omega : ¬(index.val + 1 + 1 < 2))]
+      rw [ite_eq_right (by omega : ¬(index.val + 1 + 1 < 2))]
       congr 2
     _ = 1 := by
       rw [Fin.sum_univ_eq_sum_range

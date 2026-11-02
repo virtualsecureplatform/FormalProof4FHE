@@ -18,6 +18,8 @@ The security of that remaining complete-view cubic replacement is unproved.
 
 open Matrix
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.RecursiveFeatureControlPolynomial
 
 open RecursiveMultiplication RecursiveFeatureGSW RecursiveFeatureBootstrap
@@ -147,13 +149,13 @@ theorem stored_control_non_cubic_eq {q n p : ℕ} [NeZero q] (params : Parameter
 open OracleComp AsymmEncAlg RecursiveQuadraticParameters RecursiveFeaturePublicKeyParameters
 
 noncomputable def familyObserver (parameter : ℕ)
-    (adversary : IND_CPA_Adv (RecursiveFeatureSecurityParameters.family parameter)) :=
+    (adversary : IND_CPA_OneTime_Adversary (RecursiveFeatureSecurityParameters.family parameter)) :=
   fromINDCPA (params parameter) (level parameter) ($ᵗ (Fin (dimension parameter) → Bool))
     (UniformInterval.sample (modulus parameter) (radius parameter) (retries parameter)) adversary
 
 /-- This is the remaining real-to-quadratic hop, with the real IND-CPA observer. -/
 noncomputable def familyControlReplacementAdvantage (parameter : ℕ)
-    (adversary : IND_CPA_Adv (RecursiveFeatureSecurityParameters.family parameter)) : ℝ :=
+    (adversary : IND_CPA_OneTime_Adversary (RecursiveFeatureSecurityParameters.family parameter)) : ℝ :=
   controlReplacementAdvantage (params parameter) (controlPolynomial (params parameter))
     ($ᵗ (Fin (dimension parameter) → Bool))
     (UniformInterval.sample (modulus parameter) (radius parameter) (retries parameter))
@@ -162,8 +164,8 @@ noncomputable def familyControlReplacementAdvantage (parameter : ℕ)
 /-- The quadratic comparison has an ordinary-LWE reduction; security of the cubic hop
 is not assumed or proved by this bound. -/
 theorem family_oneTime_abs_signedAdvantage_le (parameter : ℕ)
-    (adversary : IND_CPA_Adv (RecursiveFeatureSecurityParameters.family parameter)) :
-    |IND_CPA_OneTime_signedAdvantageReal (RecursiveFeatureSecurityParameters.family parameter) adversary| ≤
+    (adversary : IND_CPA_OneTime_Adversary (RecursiveFeatureSecurityParameters.family parameter)) :
+    |FormalProof4FHE.oneTimeSignedAdvantage (RecursiveFeatureSecurityParameters.family parameter) adversary| ≤
       familyControlReplacementAdvantage parameter adversary +
         quadraticOrdinaryLoss parameter (params parameter) (controlPolynomial (params parameter))
           (familyObserver parameter adversary) +

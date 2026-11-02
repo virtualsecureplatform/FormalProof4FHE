@@ -29,6 +29,8 @@ the ramification facts needed to rewrite the generic principal-ideal expression 
 
 open BigOperators OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.PowerOfTwoQuadraticKDMStatistical
 
 noncomputable section
@@ -105,7 +107,7 @@ theorem rightMulFiberCount
   classical
   unfold principalFiberWeight
   by_cases htarget : InPrincipalIdeal difference target
-  · rw [if_pos htarget]
+  · rw [ite_eq_left htarget]
     have hzero : (0 : R) ∈ Set.range (rightMulAddHom difference) :=
       ⟨0, map_zero (rightMulAddHom difference)⟩
     have hfiber := AddMonoidHom.card_fiber_eq_of_mem_range
@@ -124,11 +126,22 @@ theorem rightMulFiberCount
       FormalProof4FHE.ConditionalCollision.zeroFiberCount_addHom_eq_card_div
         (rightMulAddHom difference).rangeRestrict
         (AddMonoidHom.rangeRestrict_surjective (rightMulAddHom difference))
-    simpa [Subtype.ext_iff] using hkernel
-  · rw [if_neg htarget]
+    have hset : (Finset.univ.filter fun value : R ↦
+        (rightMulAddHom difference).rangeRestrict value = 0) =
+        (Finset.univ.filter fun value : R ↦ value * difference = 0) := by
+      ext value
+      simp only [Finset.mem_filter, Finset.mem_univ, true_and]
+      exact Subtype.ext_iff
+    simp only [Finset.sum_boole] at hkernel
+    rw [hset] at hkernel
+    convert hkernel using 1 <;> congr 1
+    apply congrArg (fun n : ℕ => (n : ℝ))
+    exact congrArg (@Fintype.card ↥(rightMulAddHom difference).range)
+      (Subsingleton.elim _ _)
+  · rw [ite_eq_right htarget]
     apply Finset.sum_eq_zero
     intro value _
-    rw [if_neg]
+    rw [ite_eq_right]
     intro heq
     exact htarget ⟨value, heq⟩
 
@@ -506,11 +519,11 @@ theorem affineConditionalCollisionPairCount
   intro right _
   by_cases hside :
       leakage left = leakageValue ∧ leakage right = leakageValue
-  · rw [if_pos hside]
+  · rw [ite_eq_left hside]
     simpa [hside.1, hside.2] using
       (affineTranscriptCollisionCount secret error leakage message
         hcompatible left right (hside.1.trans hside.2.symm))
-  · simp only [hside, if_false]
+  · simp only [hside, ite_false]
 
 /-- The normalized collision second moment of affine rows is exactly the explicit
 principal-ideal moment. -/
@@ -589,7 +602,7 @@ theorem card_mul_affineConditionalSecondMoment_eq
   · have hfiberReal : (fiberCard : ℝ) ≠ 0 := by exact_mod_cast hfiber
     have hproduct : Fintype.card Mask * fiberCard ≠ 0 :=
       mul_ne_zero hMaskNat hfiber
-    simp only [fiberCard, hfiber, hproduct, if_false]
+    simp only [fiberCard, hfiber, hproduct, ite_false]
     field_simp [hMask, hSeed, hfiberReal]
     ring
 
@@ -783,7 +796,7 @@ theorem principalFiberWeight_eq_adic
   by_cases htarget : InPrincipalIdeal difference target
   · have hadic := hmembership.mp htarget
     unfold principalFiberWeight
-    rw [if_pos htarget, if_pos hadic]
+    rw [ite_eq_left htarget, ite_eq_left hadic]
     simp only [← Nat.card_eq_fintype_card]
     rw [hcardPrincipal, chain.card_ring,
       chain.card_power (chain.valuation difference)
@@ -796,7 +809,7 @@ theorem principalFiberWeight_eq_adic
     omega
   · have hadic := not_congr hmembership |>.mp htarget
     unfold principalFiberWeight
-    rw [if_neg htarget, if_neg hadic]
+    rw [ite_eq_right htarget, ite_eq_right hadic]
 
 /-- One conditional source-pair contribution in the power-of-two theorem. -/
 noncomputable def adicPairCollisionWeight
@@ -867,7 +880,7 @@ theorem affineIdealCollisionMoment_eq_powerOfTwoTheta
   by_cases hfiber : FormalProof4FHE.ConditionalCollision.sideFiberCard
       leakage leakageValue = 0
   · simp [hfiber]
-  · simp only [hfiber, if_false]
+  · simp only [hfiber, ite_false]
     congr 1
     apply Finset.sum_congr rfl
     intro left _
@@ -911,7 +924,7 @@ theorem adicPairCollisionWeight_eq_pow_mul_indicator
       simp [hrow]
     unfold adicPairCollisionWeight
     simp only [level, good] at hall hzero ⊢
-    rw [hzero, if_neg hall, mul_zero]
+    rw [hzero, ite_eq_right hall, mul_zero]
 
 /-- Direct power-of-two quadratic KDM-to-uniform bound. -/
 theorem tvDist_quadratic_ideal_le_powerOfTwoTheta

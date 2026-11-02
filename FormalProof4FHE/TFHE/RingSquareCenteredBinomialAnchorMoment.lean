@@ -25,6 +25,8 @@ negligible in the ordinary correctness-compatible no-wrap regime.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler
 
 noncomputable section
@@ -87,8 +89,8 @@ theorem sourceIndexTableEquiv_sampleIID_evalDist
         (sourceIndexTableEquiv A output <$>
           ProbComp.sampleIID (degree + 1) sampler) =
       evalDist (ProbComp.sampleIID (degree + 1) sampler) := by
-  letI : Fintype A := Fintype.ofFinite A
-  letI : DecidableEq A := Classical.decEq A
+  let : Fintype A := Fintype.ofFinite A
+  let : DecidableEq A := Classical.decEq A
   apply evalDist_ext
   intro values
   rw [probOutput_map_equiv]
@@ -263,7 +265,7 @@ theorem ringCoefficientLift_embedBinaryPolynomial_mul_error
     have hSecretGet :
         (embedBinaryPolynomial q (degree + 1) secret).get input =
           if secret input then 1 else 0 := by
-      simp [embedBinaryPolynomial, LatticeCrypto.Poly.ofPi, Vector.get, embedBit]
+      simp only [embedBinaryPolynomial, LatticeCrypto.Poly.get_ofPi, embedBit]
     rw [hSecretGet]
     unfold binaryWeightInt
     split

@@ -28,6 +28,8 @@ input error is the constant-coefficient image of the common ring-error sampler.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveReduction
 
 noncomputable section
@@ -65,6 +67,7 @@ def extractedMaskEquiv (q degree rank : ℕ) :
     apply LatticeCrypto.Poly.ext_get_eq
     intro coefficient
     simp [LatticeCrypto.Poly.ofPi, LatticeCrypto.Poly.toPi, Vector.get]
+    rfl
   right_inv mask := by
     funext coordinate
     obtain ⟨⟨component, coefficient⟩, rfl⟩ := finProdFinEquiv.surjective coordinate
@@ -500,6 +503,7 @@ theorem extractedTargetTape_evalDist_eq_batchEncrypt
       simp_rw [extractTape_augmentTape_real]
       simp [ringChallenges, ringErrors, finish, RingChallenges,
         targetChallengeEquiv, appendChallengeEquiv, monad_norm]
+      rfl
     _ = evalDist ((targetChallengeEquiv q degree sourceRank suffixRank samples <$>
           ringChallenges) >>= fun challenge ↦
         (extractErrors <$> ringErrors) >>= fun errors ↦ finish challenge errors) := by
@@ -589,6 +593,7 @@ theorem augmentExtract_uniform_evalDist
       congr 1
       simp [ringChallenges, sourceOutputs, finish, targetChallengeEquiv,
         appendChallengeEquiv, addOutputEquiv, monad_norm]
+      rfl
     _ = evalDist (ringChallenges >>= fun challenges ↦
         ((fun sourceOutput ↦ extractErrors (addOutputEquiv
           (vecMul (embedRingSecret q suffixSecret) challenges.2) sourceOutput)) <$>
@@ -993,12 +998,12 @@ theorem suffixReduction_game1_evalDist_eq_uniform
     (encode : Message → ZMod q)
     (adversary : AdaptiveAdversary Message q (degree + 1) sourceRank suffixRank
       tgswLevels) :
-    evalDist (LearningWithErrors.game1
+    evalDist (LearningWithErrors.randomExperiment
         (problem q degree sourceRank suffixRank tgswLevels queryCount errorSampler)
         (suffixReduction gadget decompose encode adversary)) =
       evalDist (uniformGame q degree sourceRank suffixRank tgswLevels queryCount
         decompose encode adversary) := by
-  rw [LearningWithErrors.game1,
+  rw [LearningWithErrors.randomExperiment,
     problem_uniformDistr_eq_uniformSample q degree sourceRank suffixRank tgswLevels
       queryCount]
   let transcripts : ProbComp
@@ -1021,7 +1026,8 @@ theorem suffixReduction_game1_evalDist_eq_uniform
           suffixChallenges >>= fun suffixChallenge ↦
           finish (convertView q degree sourceRank suffixRank tgswLevels queryCount gadget
             (suffixOnlyMessages suffixSecret) suffixSecret suffixChallenge transcript)) := by
-      simpa [transcripts, suffixes, suffixChallenges, finish, suffixReduction] using
+      unfold suffixReduction
+      simpa [transcripts, suffixes, suffixChallenges, finish] using
         (evalDist_bind_bind_swap transcripts suffixes
           (fun transcript suffixSecret ↦
             suffixChallenges >>= fun suffixChallenge ↦
@@ -1052,12 +1058,12 @@ theorem zeroReduction_game1_evalDist_eq_uniform
     (encode : Message → ZMod q)
     (adversary : AdaptiveAdversary Message q (degree + 1) sourceRank suffixRank
       tgswLevels) :
-    evalDist (LearningWithErrors.game1
+    evalDist (LearningWithErrors.randomExperiment
         (problem q degree sourceRank suffixRank tgswLevels queryCount errorSampler)
         (zeroReduction gadget decompose encode adversary)) =
       evalDist (uniformGame q degree sourceRank suffixRank tgswLevels queryCount
         decompose encode adversary) := by
-  rw [LearningWithErrors.game1,
+  rw [LearningWithErrors.randomExperiment,
     problem_uniformDistr_eq_uniformSample q degree sourceRank suffixRank tgswLevels
       queryCount]
   let transcripts : ProbComp
@@ -1080,7 +1086,8 @@ theorem zeroReduction_game1_evalDist_eq_uniform
           suffixChallenges >>= fun suffixChallenge ↦
           finish (convertView q degree sourceRank suffixRank tgswLevels queryCount gadget
             (fun _ ↦ false) suffixSecret suffixChallenge transcript)) := by
-      simpa [transcripts, suffixes, suffixChallenges, finish, zeroReduction] using
+      unfold zeroReduction
+      simpa [transcripts, suffixes, suffixChallenges, finish] using
         (evalDist_bind_bind_swap transcripts suffixes
           (fun transcript suffixSecret ↦
             suffixChallenges >>= fun suffixChallenge ↦
@@ -1716,7 +1723,7 @@ theorem suffixOnlyGame_evalDist_eq_game0
       tgswLevels) :
     evalDist (suffixOnlyGame q degree sourceRank suffixRank tgswLevels queryCount
         errorSampler gadget decompose encode adversary) =
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
         (problem q degree sourceRank suffixRank tgswLevels queryCount errorSampler)
         (suffixReduction gadget decompose encode adversary)) := by
   let sourceSecrets := Native.sampleRingSecret sourceRank (degree + 1)
@@ -1752,7 +1759,7 @@ theorem suffixOnlyGame_evalDist_eq_game0
           sourceSecret suffixSecret)
         finish).symm
   have lweExpanded :
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
           (problem q degree sourceRank suffixRank tgswLevels queryCount errorSampler)
           (suffixReduction gadget decompose encode adversary)) =
         evalDist (sourceSecrets >>= fun sourceSecret ↦
@@ -1762,13 +1769,15 @@ theorem suffixOnlyGame_evalDist_eq_game0
           finish (convertView q degree sourceRank suffixRank tgswLevels queryCount
             gadget (suffixOnlyMessages suffixSecret) suffixSecret suffixChallenge
             transcript)) := by
-    rw [LearningWithErrors.game0]
-    simpa [sourceSecrets, suffixes, suffixChallenges, fixedTranscripts, finish,
-      suffixReduction, bind_assoc, monad_norm] using
-      (FormalProof4FHE.SharedRandomness.evalDist_bind_eq_of_evalDist_eq
+    rw [LearningWithErrors.realExperiment]
+    unfold suffixReduction
+    have h := (FormalProof4FHE.SharedRandomness.evalDist_bind_eq_of_evalDist_eq
         (distr_evalDist_eq_sampleSecret_bind_fixedJoint q degree sourceRank suffixRank
           tgswLevels queryCount errorSampler)
         (suffixReduction (errorSampler := errorSampler) gadget decompose encode adversary))
+    unfold suffixReduction at h
+    simpa [sourceSecrets, suffixes, suffixChallenges, fixedTranscripts, finish,
+      bind_assoc, monad_norm] using h
   rw [nativeExpanded, lweExpanded]
   refine evalDist_bind_congr' sourceSecrets fun sourceSecret ↦ ?_
   exact evalDist_bind_bind_swap suffixes (fixedTranscripts sourceSecret)
@@ -1791,7 +1800,7 @@ theorem zeroGame_evalDist_eq_game0
       tgswLevels) :
     evalDist (zeroGame q degree sourceRank suffixRank tgswLevels queryCount
         errorSampler gadget decompose encode adversary) =
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
         (problem q degree sourceRank suffixRank tgswLevels queryCount errorSampler)
         (zeroReduction gadget decompose encode adversary)) := by
   let sourceSecrets := Native.sampleRingSecret sourceRank (degree + 1)
@@ -1863,7 +1872,7 @@ theorem zeroGame_evalDist_eq_game0
               queryCount errorSampler gadget (fun _ ↦ false) sourceSecret suffixSecret)
             finish).symm
   have lweExpanded :
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
           (problem q degree sourceRank suffixRank tgswLevels queryCount errorSampler)
           (zeroReduction gadget decompose encode adversary)) =
         evalDist (sourceSecrets >>= fun sourceSecret ↦
@@ -1872,13 +1881,15 @@ theorem zeroGame_evalDist_eq_game0
           suffixChallenges >>= fun suffixChallenge ↦
           finish (convertView q degree sourceRank suffixRank tgswLevels queryCount
             gadget (fun _ ↦ false) suffixSecret suffixChallenge transcript)) := by
-    rw [LearningWithErrors.game0]
-    simpa [sourceSecrets, suffixes, suffixChallenges, fixedTranscripts, finish,
-      zeroReduction, bind_assoc, monad_norm] using
-      (FormalProof4FHE.SharedRandomness.evalDist_bind_eq_of_evalDist_eq
+    rw [LearningWithErrors.realExperiment]
+    unfold zeroReduction
+    have h := (FormalProof4FHE.SharedRandomness.evalDist_bind_eq_of_evalDist_eq
         (distr_evalDist_eq_sampleSecret_bind_fixedJoint q degree sourceRank suffixRank
           tgswLevels queryCount errorSampler)
         (zeroReduction (errorSampler := errorSampler) gadget decompose encode adversary))
+    unfold zeroReduction at h
+    simpa [sourceSecrets, suffixes, suffixChallenges, fixedTranscripts, finish,
+      bind_assoc, monad_norm] using h
   rw [nativeExpanded, lweExpanded]
   refine evalDist_bind_congr' sourceSecrets fun sourceSecret ↦ ?_
   exact evalDist_bind_bind_swap suffixes (fixedTranscripts sourceSecret)
@@ -1906,10 +1917,10 @@ theorem independentSuffixAdaptiveAdvantage_le_two_moduleLwe
     independentSuffixAdaptiveAdvantage q (degree + 1) sourceRank suffixRank tgswLevels
         queryCount errorSampler errorSampler (extractedErrorSampler errorSampler) gadget
         decompose encode adversary ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
           (problem q degree sourceRank suffixRank tgswLevels queryCount errorSampler)
           (suffixReduction gadget decompose encode adversary) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (problem q degree sourceRank suffixRank tgswLevels queryCount errorSampler)
           (zeroReduction gadget decompose encode adversary) := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage,
@@ -1926,16 +1937,16 @@ theorem independentSuffixAdaptiveAdvantage_le_two_moduleLwe
     evalDist_ext_iff.mp
       (zeroGame_evalDist_eq_game0 q degree sourceRank suffixRank tgswLevels queryCount
         errorSampler gadget decompose encode adversary) true]
-  let suffixProbability : ℝ := (Pr[= true | LearningWithErrors.game0
+  let suffixProbability : ℝ := (Pr[= true | LearningWithErrors.realExperiment
     (problem q degree sourceRank suffixRank tgswLevels queryCount errorSampler)
     (suffixReduction gadget decompose encode adversary)]).toReal
-  let uniformSuffixProbability : ℝ := (Pr[= true | LearningWithErrors.game1
+  let uniformSuffixProbability : ℝ := (Pr[= true | LearningWithErrors.randomExperiment
     (problem q degree sourceRank suffixRank tgswLevels queryCount errorSampler)
     (suffixReduction gadget decompose encode adversary)]).toReal
-  let uniformZeroProbability : ℝ := (Pr[= true | LearningWithErrors.game1
+  let uniformZeroProbability : ℝ := (Pr[= true | LearningWithErrors.randomExperiment
     (problem q degree sourceRank suffixRank tgswLevels queryCount errorSampler)
     (zeroReduction gadget decompose encode adversary)]).toReal
-  let zeroProbability : ℝ := (Pr[= true | LearningWithErrors.game0
+  let zeroProbability : ℝ := (Pr[= true | LearningWithErrors.realExperiment
     (problem q degree sourceRank suffixRank tgswLevels queryCount errorSampler)
     (zeroReduction gadget decompose encode adversary)]).toReal
   have hUniform : uniformSuffixProbability = uniformZeroProbability := by
@@ -1974,10 +1985,10 @@ theorem abs_signedAdvantage_realAdaptive_le_nativePrefixCircRLWE_add_two_moduleL
             decompose
             (adaptiveContinuation queryCount (extractedErrorSampler errorSampler)
               encode adversary)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (problem q degree sourceRank suffixRank tgswLevels queryCount errorSampler)
           (suffixReduction gadget decompose encode adversary) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (problem q degree sourceRank suffixRank tgswLevels queryCount errorSampler)
           (zeroReduction gadget decompose encode adversary) +
         |Encryption.signedAdvantage
@@ -1990,10 +2001,10 @@ theorem abs_signedAdvantage_realAdaptive_le_nativePrefixCircRLWE_add_two_moduleL
   let suffixTerm := independentSuffixAdaptiveAdvantage q (degree + 1) sourceRank
     suffixRank tgswLevels queryCount errorSampler errorSampler
     (extractedErrorSampler errorSampler) gadget decompose encode adversary
-  let suffixLwe := LearningWithErrors.advantage
+  let suffixLwe := LearningWithErrors.realAdvantage
     (problem q degree sourceRank suffixRank tgswLevels queryCount errorSampler)
     (suffixReduction gadget decompose encode adversary)
-  let zeroLwe := LearningWithErrors.advantage
+  let zeroLwe := LearningWithErrors.realAdvantage
     (problem q degree sourceRank suffixRank tgswLevels queryCount errorSampler)
     (zeroReduction gadget decompose encode adversary)
   let endpoint := |Encryption.signedAdvantage

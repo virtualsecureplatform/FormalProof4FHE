@@ -18,6 +18,8 @@ different hidden contexts is eliminated.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.SquaredBias
 
 noncomputable section
@@ -329,7 +331,7 @@ theorem sq_expectation_uniform_comp_le_card_ratio_secondMoment
       ((Fintype.card B : ℝ) / (Fintype.card A : ℝ)) *
         BoundedMoment.expectation ($ᵗ B) (fun value ↦ observable value ^ 2) := by
   classical
-  letI : DecidableEq B := Classical.decEq B
+  let : DecidableEq B := Classical.decEq B
   rw [expectation_uniform_eq_sum_div, expectation_uniform_eq_sum_div]
   let sumA : ℝ := ∑ value : A, observable (transform value)
   let squareA : ℝ := ∑ value : A, observable (transform value) ^ 2

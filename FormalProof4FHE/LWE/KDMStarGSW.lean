@@ -28,6 +28,8 @@ The sampler below is a NEW law, not a projection of the full recursive-mask law.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.KDMStarGSW
 
 abbrev Feature (n : ℕ) := Option (Unit ⊕ (Fin n ⊕ Fin n))
@@ -92,7 +94,7 @@ theorem message_affine {R : Type} [CommRing R] {n k : ℕ}
           | inl row => simp [message, feature, linear, offset, hrow, vecMul, dotProduct, mul_ite, mul_comm]
           | inr row =>
               simp only [message, hrow, feature, linear, offset, vecMul, dotProduct,
-                mul_ite, mul_zero, Finset.sum_ite_eq', Finset.mem_univ, if_true, add_zero]
+                mul_ite, mul_zero, Finset.sum_ite_eq', Finset.mem_univ, ite_true, add_zero]
               rw [← mul_assoc (plan.weight column * anchor bit),
                 mul_assoc (plan.weight column), anchor_sq]
               ring
@@ -384,7 +386,15 @@ theorem fixed_uniform_evalDist (plan : Plan (ZMod q) n k) (bit : Bool) :
   have he := evalDist_map_bijective_uniform_cross
     (α := BatchTranscript (ZMod q) n k × Extra (ZMod q) n k)
     (β := View (ZMod q) n k) (tapeEquiv plan bit) (tapeEquiv plan bit).bijective
-  simpa [monad_norm, tapeEquiv] using hm.trans he
+  calc
+    _ = 𝒟[(tapeEquiv plan bit) <$> (do
+          let raw ← $ᵗ BatchTranscript (ZMod q) n k
+          let extra ← $ᵗ Extra (ZMod q) n k
+          pure (raw, extra))] := by
+      congr 1
+      simp only [map_eq_bind_pure_comp, bind_assoc, pure_bind, Function.comp_def]
+      rfl
+    _ = _ := hm.trans he
 
 theorem uniform_source_evalDist (plan : Plan (ZMod q) n k)
     (errorSampler : ProbComp (ZMod q)) :
@@ -409,13 +419,12 @@ theorem uniform_source_evalDist (plan : Plan (ZMod q) n k)
         let raw ← $ᵗ BatchTranscript (ZMod q) n k
         let extra ← $ᵗ Extra (ZMod q) n k
         pure (simulate plan bit raw extra)] := by
-      simpa [randomSimulate] using hswap
+      simpa +unfoldPartialApp [randomSimulate] using hswap
     _ = 𝒟[($ᵗ Bool) >>= fun _ ↦ ($ᵗ View (ZMod q) n k)] := hfixed
     _ = _ := by
       apply evalDist_ext
       intro view
       rw [probOutput_bind_const]
-      simp
 
 def reduction (plan : Plan (ZMod q) n k)
     (adversary : View (ZMod q) n k → ProbComp Bool) :
@@ -429,19 +438,19 @@ theorem advantage_eq_ordinaryLWE (plan : Plan (ZMod q) n k)
     (adversary : View (ZMod q) n k → ProbComp Bool) :
     (realView plan errorSampler >>= adversary).boolDistAdvantage
       (($ᵗ View (ZMod q) n k) >>= adversary) =
-      LearningWithErrors.advantage (zmodBatchProblem n k q errorSampler)
+      LearningWithErrors.realAdvantage (zmodBatchProblem n k q errorSampler)
         (reduction plan adversary) := by
   have hreal : (realView plan errorSampler >>= adversary) =
-      LearningWithErrors.game0 (zmodBatchProblem n k q errorSampler)
+      LearningWithErrors.realExperiment (zmodBatchProblem n k q errorSampler)
         (reduction plan adversary) := by
     rw [real_eq_source]
-    simp [LearningWithErrors.game0, reduction, monad_norm]
+    simp [LearningWithErrors.realExperiment, reduction, monad_norm]
   have hideal : 𝒟[(($ᵗ View (ZMod q) n k) >>= adversary)] =
-      𝒟[LearningWithErrors.game1 (zmodBatchProblem n k q errorSampler)
+      𝒟[LearningWithErrors.randomExperiment (zmodBatchProblem n k q errorSampler)
         (reduction plan adversary)] := by
     have hm := FormalProof4FHE.SharedRandomness.evalDist_bind_eq_of_evalDist_eq
       (uniform_source_evalDist plan errorSampler) adversary
-    simpa [LearningWithErrors.game1, reduction, monad_norm] using hm.symm
+    simpa [LearningWithErrors.randomExperiment, reduction, monad_norm] using hm.symm
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage, hreal]
   unfold ProbComp.boolDistAdvantage
   rw [evalDist_ext_iff.mp hideal true]
@@ -455,7 +464,7 @@ theorem published_advantage_eq_ordinaryLWE (params : Parameters q) (publicSample
       adversary).boolDistAdvantage
       ((publish params <$> ($ᵗ View (ZMod q) n (publicSamples + rows n * params.levels))) >>=
         adversary) =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (zmodBatchProblem n (publicSamples + rows n * params.levels) q errorSampler)
         (reduction (joinedPlan params publicSamples) (fun view ↦ adversary (publish params view))) := by
   simpa [monad_norm] using advantage_eq_ordinaryLWE
@@ -580,7 +589,7 @@ including adaptive message choice after seeing the published view. -/
 theorem public_game_abs_advantage_le {p : ℕ} (params : Parameters q)
     (errorSampler : ProbComp (ZMod q)) (adversary : Adversary (n := n) params p) :
     |Pr[= true | GSWMasking.game params (publicView params p errorSampler) adversary].toReal - 1 / 2| ≤
-      LearningWithErrors.advantage (zmodBatchProblem n (p + rows n * params.levels) q errorSampler)
+      LearningWithErrors.realAdvantage (zmodBatchProblem n (p + rows n * params.levels) q errorSampler)
         (reduction (joinedPlan params p)
           (fun view ↦ observe params adversary (maskingViewEquiv params p view))) +
       (rows n * params.levels) * (Real.sqrt ((q : ℝ) ^ rows n / (2 : ℝ) ^ p) / 2) := by
@@ -597,7 +606,7 @@ theorem public_game_abs_advantage_le {p : ℕ} (params : Parameters q)
     simp [GSWMasking.game, publicView, downstream, observe, monad_norm]
   have hideal : 𝒟[($ᵗ View (ZMod q) n (p + rows n * params.levels)) >>= downstream] =
       𝒟[GSWMasking.game params ($ᵗ MaskingView (n := n) params p) adversary] := by
-    simpa [GSWMasking.game, downstream, observe, monad_norm] using hi
+    simpa +unfoldPartialApp [GSWMasking.game, downstream, observe, monad_norm] using hi
   unfold ProbComp.boolDistAdvantage at hview
   rw [hreal, probOutput_congr (rfl : true = true) hideal] at hview
   exact (abs_sub_le _ _ (1 / 2 : ℝ)).trans

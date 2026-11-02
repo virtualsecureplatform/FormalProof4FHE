@@ -16,6 +16,8 @@ then extends it to the vector of trees used for whole-key recovery.  These are d
 reshapings: no probability or cryptographic assumption is involved.
 -/
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.MajorityAmplification
 
 /-- A depth-indexed ternary majority tree is equivalent to a flat family with exactly
@@ -133,12 +135,11 @@ theorem evalDist_majorityBatchEquiv_sample {Input : Type} [Finite Input]
   | zero =>
       apply evalDist_ext
       intro values
-      rw [probOutput_map_equiv, majorityBatchEquiv_symm_zero,
-        FormalProof4FHE.FiniteProduct.probOutput_fin_mOfFn]
-      rw [probOutput_sampleMajorityBatch_zero]
+      rw [probOutput_map_equiv, probOutput_sampleMajorityBatch_zero,
+        majorityBatchEquiv_symm_zero, FormalProof4FHE.FiniteProduct.probOutput_fin_mOfFn]
       let zeroIndex : Fin (majorityBatchViewCount 0) :=
         ⟨0, by rw [majorityBatchViewCount_eq_pow]; norm_num⟩
-      letI : Unique (Fin (majorityBatchViewCount 0)) := {
+      let : Unique (Fin (majorityBatchViewCount 0)) := {
         default := zeroIndex
         uniq index := by
           apply Fin.ext
@@ -248,10 +249,10 @@ theorem evalDist_sampleVectorMajorityBatch_bind_eq_flat
         evalDist (Fin.mOfFn (count * majorityBatchViewCount rounds)
           (fun _ ↦ sampler) >>= finish) := by
     calc
-      _ = evalDist (flatten <$> sampledTrees) >>=
+      _ = MeasureTheory.Measure.bind (evalDist (flatten <$> sampledTrees))
             fun inputs ↦ evalDist (finish inputs) := evalDist_bind _ _
-      _ = evalDist (Fin.mOfFn (count * majorityBatchViewCount rounds)
-              (fun _ ↦ sampler)) >>=
+      _ = MeasureTheory.Measure.bind (evalDist (Fin.mOfFn (count * majorityBatchViewCount rounds)
+              (fun _ ↦ sampler)))
             fun inputs ↦ evalDist (finish inputs) := by rw [hflatten]
       _ = _ := (evalDist_bind _ _).symm
   simpa [sampledTrees, flatten, finish, map_eq_bind_pure_comp, bind_assoc] using hpost

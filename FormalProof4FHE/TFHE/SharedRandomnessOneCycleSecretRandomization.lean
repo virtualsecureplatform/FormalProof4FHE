@@ -42,6 +42,8 @@ noise alone does not establish it.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization
 
 noncomputable section
@@ -878,7 +880,7 @@ theorem scalarAffineXorTransport_iff_constant
     ScalarAffineXorTransport q (degree + 1) mask ↔
       (∀ coordinate, mask coordinate = false) ∨
         (∀ coordinate, mask coordinate = true) := by
-  letI : NeZero q := ⟨by omega⟩
+  let : NeZero q := ⟨by omega⟩
   constructor
   · intro htransport
     have hconstant := scalarAffineXorTransport_imp_constant hq mask htransport
@@ -1594,8 +1596,8 @@ theorem tvDist_map_equiv_probComp {A B : Type} (equiv : A ≃ B)
     (left right : ProbComp A) :
     tvDist (equiv <$> left) (equiv <$> right) = tvDist left right := by
   apply le_antisymm
-  · exact tvDist_map_le (m := ProbComp) equiv left right
-  · have h := tvDist_map_le (m := ProbComp) equiv.symm
+  · exact tvDist_map_le equiv left right
+  · have h := tvDist_map_le equiv.symm
       (equiv <$> left) (equiv <$> right)
     simpa only [Functor.map_map, Equiv.symm_apply_apply, id_map'] using h
 
@@ -1725,7 +1727,7 @@ theorem rankOneComplementErrorPair_pairedErrorSampler_tvDist_le
     unfold transformed middle
     refine tvDist_bind_left_le_const' errors _ _ bound ?_
     intro body
-    have hdata := tvDist_map_le (m := ProbComp)
+    have hdata := tvDist_map_le
       (fun mask : Fin levels → R ↦ (mask, -body))
       (rankOneComplementMaskShift offset body <$> errors) errors
     simpa only [Functor.map_map, Function.comp_apply] using
@@ -2527,7 +2529,7 @@ theorem globalComplementEvaluationKeyPair_generate_tvDist_le
     rw [show evalDist transformedKSK = evalDist targetKSK by
       exact globalComplementKeySwitchKey_generate_evalDist
         keySwitchErrorSampler hkeySwitchNoise keySwitchGadget sourceSecret lweSecret]
-    exact SPMF.tvDist_self _
+    exact MeasureTheory.Measure.tvDist_self _
   have hpair := FormalProof4FHE.TFHE.SamplerReplacement.tvDist_independentPair_le
     transformedBRK targetBRK transformedKSK targetKSK Prod.mk
   have hbound :
@@ -2672,7 +2674,7 @@ theorem scalarAffineXorTransport_randomization_evalDist_ne_uniform
         FormalProof4FHE.TFHE.Native.ScalarSecretRandomization.maskedSecret
           secret (mask randomValue)) <$> randomness) ≠
       evalDist ($ᵗ BinarySecret (degree + 2)) := by
-  letI : NeZero q := ⟨by omega⟩
+  let : NeZero q := ⟨by omega⟩
   apply constantMask_randomization_evalDist_ne_uniform randomness secret mask
   intro randomValue coordinate
   exact scalarAffineXorTransport_imp_constant hq (mask randomValue)

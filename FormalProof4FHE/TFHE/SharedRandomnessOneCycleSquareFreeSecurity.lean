@@ -31,6 +31,8 @@ is stronger than native TFHE needs, while nonce placement does not erase the off
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SquareFreeSecurity
 
 open FullBRKQuadraticSpan

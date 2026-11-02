@@ -40,6 +40,8 @@ set_option autoImplicit false
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.NativeTRGSWHashLossyCompleteView
 
 noncomputable section
@@ -716,7 +718,7 @@ theorem labelledDecoderSuccessGap_le_tvDist
         (labelledDecoderCheck decoder <$> lossy) :=
       abs_probOutput_toReal_sub_le_tvDist _ _
     _ ≤ tvDist ordinary lossy :=
-      tvDist_map_le (m := ProbComp) (labelledDecoderCheck decoder) ordinary lossy
+      tvDist_map_le (labelledDecoderCheck decoder) ordinary lossy
 
 /-- Statistical mode-switch lower bound.  This is the exact finite form of
 `epsilon >= 1 - kappa - |Digest| / |Prefix|`; the preceding theorem supplies the lossy success

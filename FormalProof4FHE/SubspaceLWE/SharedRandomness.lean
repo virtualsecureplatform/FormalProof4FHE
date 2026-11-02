@@ -16,6 +16,8 @@ with `m + m` samples.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.GeneralizedSubspaceLWE
 
 /-- The nested shared-randomness generalized-subspace instance reduces exactly to ordinary LWE
@@ -30,11 +32,11 @@ theorem shared_zmod_advantage_eq_batch {q : ℕ} [NeZero q]
       (problem m (sharedSpec n k
         ($ᵗ (Fin n → ZMod q)) ($ᵗ (Fin k → ZMod q))
         smallErrorSampler largeErrorSampler))) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem m (sharedSpec n k
           ($ᵗ (Fin n → ZMod q)) ($ᵗ (Fin k → ZMod q))
           smallErrorSampler largeErrorSampler)) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.zmodBatchProblem n (m + m) q largeErrorSampler)
         (FormalProof4FHE.SharedRandomness.ordinaryReduction
           (secretSampler := ($ᵗ (Fin n → ZMod q)))
@@ -61,14 +63,14 @@ theorem shared_zmod_advantage_le {q : ℕ} [NeZero q]
         ($ᵗ (Fin n → ZMod q)) ($ᵗ (Fin k → ZMod q))
         smallErrorSampler largeErrorSampler)) )
     (bound : ℝ)
-    (hOrdinary : LearningWithErrors.advantage
+    (hOrdinary : LearningWithErrors.realAdvantage
       (FormalProof4FHE.LWE.zmodBatchProblem n (m + m) q largeErrorSampler)
       (FormalProof4FHE.SharedRandomness.ordinaryReduction
         (secretSampler := ($ᵗ (Fin n → ZMod q)))
         (errorSampler := largeErrorSampler)
         (FormalProof4FHE.SharedRandomness.reduction
           ($ᵗ (Fin k → ZMod q)) extraErrorSampler adversary)) ≤ bound) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
       (problem m (sharedSpec n k
         ($ᵗ (Fin n → ZMod q)) ($ᵗ (Fin k → ZMod q))
         smallErrorSampler largeErrorSampler)) adversary ≤ bound := by

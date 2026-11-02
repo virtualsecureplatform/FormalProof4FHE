@@ -23,6 +23,8 @@ is negligible whenever the scalar dimension dominates the security parameter.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.CenteredBinomial
 
 open Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView

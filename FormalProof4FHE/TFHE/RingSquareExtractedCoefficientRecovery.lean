@@ -29,6 +29,8 @@ RLWE.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.ExtractedGuessCheck.CoefficientRecovery
 
 open FormalProof4FHE.TFHE
@@ -252,11 +254,11 @@ theorem orientedGap_eq_decisionAdvantage
       testRingErrorSampler gadget distinguisher = true
   · have hle := orientation_le q degree levels samples auxiliaryErrorSampler
       testRingErrorSampler gadget distinguisher
-    rw [if_pos horientation] at hle ⊢
+    rw [ite_eq_left horientation] at hle ⊢
     rw [abs_of_nonneg (sub_nonneg.mpr hle)]
   · have hle := orientation_le q degree levels samples auxiliaryErrorSampler
       testRingErrorSampler gadget distinguisher
-    rw [if_neg horientation] at hle ⊢
+    rw [ite_eq_right horientation] at hle ⊢
     rw [abs_of_nonpos (sub_nonpos.mpr hle)]
     ring
 
@@ -554,7 +556,7 @@ theorem one_sub_sum_decisionError_le_ringSecretRecovery
           ENNReal.ofReal ((1 - decisionAdvantage q degree levels samples
             auxiliaryErrorSampler testRingErrorSampler gadget distinguisher) / 2) ≤
         Pr[(fun output ↦ output.2 = output.1) | experiment] :=
-    probEvent_one_sub_le_of_compl_le probFailure_eq_zero hfailure
+    probEvent_one_sub_le_of_compl_le (probFailure_eq_zero _) hfailure
   rw [ringSecretRecoveryGame_eq_flatSecretRecoveryGame]
   unfold flatSecretRecoveryGame
   rw [probOutput_map]

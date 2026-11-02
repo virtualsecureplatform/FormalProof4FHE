@@ -21,6 +21,8 @@ the body by an adaptively chosen message preserves uniformity query by query.
 
 open OracleComp OracleSpec
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.BinaryNTTSecurity.CompactCoverBGVAdaptiveSecurity
 
 set_option maxRecDepth 100000
@@ -75,8 +77,8 @@ theorem sourceReduction_isQueryBoundP {Message R Cloud : Type}
       (simulateQ (sourceReduction bit encode) (adversary cloud))
       (GeneralizedSubspaceLWE.Adaptive.isSourceSample (F := R) (dimension := 1))
       queryCount := by
-  letI : IsUniformSpec (Unit →ₒ SourceSample R) :=
-    IsUniformSpec.ofFintypeInhabited _
+  let : OracleSpec.UniformAnswerMeasure (Unit →ₒ SourceSample R) :=
+    OracleSpec.UniformAnswerMeasure.ofFiniteNonempty _
   apply IsQueryBoundP.simulateQ_of_step hbound
   · intro query hcharged
     rcases query with uniformIndex | messages
@@ -102,8 +104,7 @@ theorem sourceReduction_isQueryBoundP {Message R Cloud : Type}
           IsQueryBoundP (continuation sample)
             (GeneralizedSubspaceLWE.Adaptive.isSourceSample (F := R) (dimension := 1)) 0 := by
         simp [continuation]
-      simpa [sourceQuery, continuation] using
-        isQueryBoundP_bind (n := 1) (m := 0) hsource hcontinuation
+      simp [sourceQuery, continuation]
   · intro query hfree
     rcases query with uniformIndex | messages
     · exact GeneralizedSubspaceLWE.Adaptive.isQueryBoundP_liftProbComp_left
@@ -444,7 +445,7 @@ theorem uniformTranscript_adaptive_probOutput_true
     let continuation := fun (queries : Fin queryCount → R × R) (bit : Bool) => do
       let guess ← runFromTable bit encode adversary (context, evaluation) queries
       return bit == guess
-    have hcommute := OracleComp.DeferredSampling.evalDist_bind_comm
+    have hcommute := FormalProof4FHE.evalDist_bind_bind_swap
       ($ᵗ (Fin queryCount → R × R)) ($ᵗ Bool) continuation
     rw [evalDist_ext_iff.mp hcommute true]
     simpa [finish, continuation, bind_assoc] using

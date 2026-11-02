@@ -23,6 +23,8 @@ no new query-count or scalar-noise term.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE
 
 noncomputable section
@@ -81,7 +83,7 @@ theorem completeRelativeUniformDistance_le
     rw [show evalDist transformedTape = evalDist uniformTape by
       exact transformTargetTape_uniform_evalDist q (degree + 1) 1 suffixRank
         queryCount nestedMask]
-    exact SPMF.tvDist_self _
+    exact MeasureTheory.Measure.tvDist_self _
   have hsource :
       sampleUniformTapeMaterialView q degree suffixRank levels queryCount
             narrowBootstrapErrorSampler narrowExtensionErrorSampler gadget secret >>=
@@ -151,7 +153,7 @@ theorem transformCompleteViewGlobalComplement_uniform_tvDist_le
     rw [show evalDist transformedTape = evalDist uniformTape by
       exact transformTargetTape_uniform_evalDist q (degree + 1) 1 suffixRank
         queryCount mask]
-    exact SPMF.tvDist_self _
+    exact MeasureTheory.Measure.tvDist_self _
   have hmaterial : tvDist transformedMaterial targetMaterial ≤
       globalComplementViewError
         (suffixRank := suffixRank) (levels := levels) bootstrapErrorSampler := by

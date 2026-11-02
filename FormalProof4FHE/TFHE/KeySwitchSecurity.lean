@@ -29,6 +29,8 @@ distinguisher.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.KeySwitchSecurity
 
 /-- Binary-secret batch LWE underlying native scalar TLWE rows. -/
@@ -237,7 +239,7 @@ theorem bootstrapZeroGame_evalDist_eq_lwe_game0
         (nativeCycleSpec q degree ringRank tgswLevels lweDimension keySwitchLevels
           ringErrorSampler keySwitchErrorSampler tgswGadget keySwitchGadget)
         Circular.evaluationKeyOnlyPayload adversary) =
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
         (binaryLweProblem q lweDimension
           ((ringRank * degree) * keySwitchLevels) keySwitchErrorSampler)
         (realMessageReduction ringErrorSampler keySwitchErrorSampler
@@ -274,7 +276,7 @@ theorem bootstrapZeroGame_evalDist_eq_lwe_game0
       zeroBootstrapContext, generateKeySwitchKey, TLWE.batchEncrypt, finish,
       bind_assoc, monad_norm]
     rfl
-  have lwe_eq : LearningWithErrors.game0
+  have lwe_eq : LearningWithErrors.realExperiment
         (binaryLweProblem q lweDimension
           ((ringRank * degree) * keySwitchLevels) keySwitchErrorSampler)
         (realMessageReduction ringErrorSampler keySwitchErrorSampler
@@ -284,7 +286,7 @@ theorem bootstrapZeroGame_evalDist_eq_lwe_game0
         errors >>= fun error ↦
         contexts >>= fun context ↦
         finish lweSecret context challenge error) := by
-    simp [LearningWithErrors.game0, LearningWithErrors.distr, binaryLweProblem,
+    simp [LearningWithErrors.realExperiment, LearningWithErrors.distr, binaryLweProblem,
       FormalProof4FHE.LWE.embeddedBatchProblem, realMessageReduction,
       scalarSecrets, contexts, challenges, errors,
       finish, bind_assoc, monad_norm]
@@ -305,7 +307,7 @@ theorem zeroGame_evalDist_eq_lwe_game0
         (nativeCycleSpec q degree ringRank tgswLevels lweDimension keySwitchLevels
           ringErrorSampler keySwitchErrorSampler tgswGadget keySwitchGadget)
         Circular.evaluationKeyOnlyPayload adversary) =
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
         (binaryLweProblem q lweDimension
           ((ringRank * degree) * keySwitchLevels) keySwitchErrorSampler)
         (zeroMessageReduction ringErrorSampler keySwitchErrorSampler
@@ -339,7 +341,7 @@ theorem zeroGame_evalDist_eq_lwe_game0
       nativeCycleSpec, scalarSecrets, contexts, zeroBootstrapContext,
       generateZeroKeySwitchKey, TLWE.batchEncrypt, finish, bind_assoc, monad_norm]
     rfl
-  have lwe_eq : LearningWithErrors.game0
+  have lwe_eq : LearningWithErrors.realExperiment
         (binaryLweProblem q lweDimension
           ((ringRank * degree) * keySwitchLevels) keySwitchErrorSampler)
         (zeroMessageReduction ringErrorSampler keySwitchErrorSampler
@@ -349,7 +351,7 @@ theorem zeroGame_evalDist_eq_lwe_game0
         errors >>= fun error ↦
         contexts >>= fun context ↦
         finish lweSecret context challenge error) := by
-    simp [LearningWithErrors.game0, LearningWithErrors.distr, binaryLweProblem,
+    simp [LearningWithErrors.realExperiment, LearningWithErrors.distr, binaryLweProblem,
       FormalProof4FHE.LWE.embeddedBatchProblem, zeroMessageReduction,
       scalarSecrets, contexts, challenges, errors, finish, bind_assoc, monad_norm]
   rw [native_eq, lwe_eq]
@@ -364,19 +366,19 @@ theorem reductions_game1_evalDist_eq
     (adversary : Circular.Adversary Unit
       (BootstrappingKey q degree ringRank tgswLevels lweDimension)
       (KeySwitchKey q lweDimension (ringRank * degree) keySwitchLevels)) :
-    evalDist (LearningWithErrors.game1
+    evalDist (LearningWithErrors.randomExperiment
         (binaryLweProblem q lweDimension
           ((ringRank * degree) * keySwitchLevels) keySwitchErrorSampler)
         (realMessageReduction ringErrorSampler keySwitchErrorSampler
           tgswGadget keySwitchGadget adversary)) =
-      evalDist (LearningWithErrors.game1
+      evalDist (LearningWithErrors.randomExperiment
         (binaryLweProblem q lweDimension
           ((ringRank * degree) * keySwitchLevels) keySwitchErrorSampler)
         (zeroMessageReduction ringErrorSampler keySwitchErrorSampler
           tgswGadget adversary)) := by
   let contexts := zeroBootstrapContext q degree ringRank tgswLevels lweDimension
     ringErrorSampler tgswGadget
-  have real_eq : LearningWithErrors.game1
+  have real_eq : LearningWithErrors.randomExperiment
         (binaryLweProblem q lweDimension
           ((ringRank * degree) * keySwitchLevels) keySwitchErrorSampler)
         (realMessageReduction ringErrorSampler keySwitchErrorSampler
@@ -388,10 +390,10 @@ theorem reductions_game1_evalDist_eq
         adversary ⟨(), context.2,
           (challenge, output + keySwitchMessages (ringRank * degree) keySwitchLevels
             keySwitchGadget (keyExtract context.1))⟩) := by
-    simp [LearningWithErrors.game1, LearningWithErrors.uniformDistr, binaryLweProblem,
+    simp [LearningWithErrors.randomExperiment, LearningWithErrors.uniformDistr, binaryLweProblem,
       FormalProof4FHE.LWE.embeddedBatchProblem, realMessageReduction,
       addKeySwitchMessages, contexts, bind_assoc, monad_norm]
-  have zero_eq : LearningWithErrors.game1
+  have zero_eq : LearningWithErrors.randomExperiment
         (binaryLweProblem q lweDimension
           ((ringRank * degree) * keySwitchLevels) keySwitchErrorSampler)
         (zeroMessageReduction ringErrorSampler keySwitchErrorSampler
@@ -401,7 +403,7 @@ theorem reductions_game1_evalDist_eq
         ($ᵗ (Fin ((ringRank * degree) * keySwitchLevels) → ZMod q)) >>= fun output ↦
         contexts >>= fun context ↦
         adversary ⟨(), context.2, (challenge, output)⟩) := by
-    simp [LearningWithErrors.game1, LearningWithErrors.uniformDistr, binaryLweProblem,
+    simp [LearningWithErrors.randomExperiment, LearningWithErrors.uniformDistr, binaryLweProblem,
       FormalProof4FHE.LWE.embeddedBatchProblem, zeroMessageReduction,
       contexts, bind_assoc, monad_norm]
   rw [real_eq, zero_eq]
@@ -426,12 +428,12 @@ theorem keySwitchReplacementAdvantage_le_two_lwe
         (nativeCycleSpec q degree ringRank tgswLevels lweDimension keySwitchLevels
           ringErrorSampler keySwitchErrorSampler tgswGadget keySwitchGadget)
         Circular.evaluationKeyOnlyPayload adversary ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (binaryLweProblem q lweDimension
           ((ringRank * degree) * keySwitchLevels) keySwitchErrorSampler)
         (realMessageReduction ringErrorSampler keySwitchErrorSampler
           tgswGadget keySwitchGadget adversary) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (binaryLweProblem q lweDimension
           ((ringRank * degree) * keySwitchLevels) keySwitchErrorSampler)
         (zeroMessageReduction ringErrorSampler keySwitchErrorSampler
@@ -445,22 +447,22 @@ theorem keySwitchReplacementAdvantage_le_two_lwe
     evalDist_ext_iff.mp
       (zeroGame_evalDist_eq_lwe_game0 ringErrorSampler keySwitchErrorSampler
         tgswGadget keySwitchGadget adversary) true]
-  let realProbability : ℝ := (Pr[= true | LearningWithErrors.game0
+  let realProbability : ℝ := (Pr[= true | LearningWithErrors.realExperiment
     (binaryLweProblem q lweDimension ((ringRank * degree) * keySwitchLevels)
       keySwitchErrorSampler)
     (realMessageReduction ringErrorSampler keySwitchErrorSampler
       tgswGadget keySwitchGadget adversary)]).toReal
-  let uniformRealProbability : ℝ := (Pr[= true | LearningWithErrors.game1
+  let uniformRealProbability : ℝ := (Pr[= true | LearningWithErrors.randomExperiment
     (binaryLweProblem q lweDimension ((ringRank * degree) * keySwitchLevels)
       keySwitchErrorSampler)
     (realMessageReduction ringErrorSampler keySwitchErrorSampler
       tgswGadget keySwitchGadget adversary)]).toReal
-  let uniformZeroProbability : ℝ := (Pr[= true | LearningWithErrors.game1
+  let uniformZeroProbability : ℝ := (Pr[= true | LearningWithErrors.randomExperiment
     (binaryLweProblem q lweDimension ((ringRank * degree) * keySwitchLevels)
       keySwitchErrorSampler)
     (zeroMessageReduction ringErrorSampler keySwitchErrorSampler
       tgswGadget adversary)]).toReal
-  let zeroProbability : ℝ := (Pr[= true | LearningWithErrors.game0
+  let zeroProbability : ℝ := (Pr[= true | LearningWithErrors.realExperiment
     (binaryLweProblem q lweDimension ((ringRank * degree) * keySwitchLevels)
       keySwitchErrorSampler)
     (zeroMessageReduction ringErrorSampler keySwitchErrorSampler
@@ -494,12 +496,12 @@ theorem circularAdvantage_le_bootstrap_add_two_lwe
         (nativeCycleSpec q degree ringRank tgswLevels lweDimension keySwitchLevels
           ringErrorSampler keySwitchErrorSampler tgswGadget keySwitchGadget)
         Circular.evaluationKeyOnlyPayload adversary +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (binaryLweProblem q lweDimension
           ((ringRank * degree) * keySwitchLevels) keySwitchErrorSampler)
         (realMessageReduction ringErrorSampler keySwitchErrorSampler
           tgswGadget keySwitchGadget adversary) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (binaryLweProblem q lweDimension
           ((ringRank * degree) * keySwitchLevels) keySwitchErrorSampler)
         (zeroMessageReduction ringErrorSampler keySwitchErrorSampler

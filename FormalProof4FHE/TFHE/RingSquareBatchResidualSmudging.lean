@@ -18,6 +18,8 @@ named genuine-RGSW distribution gap and the final ordinary batch-RLWE reduction.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BatchResidualSmudging
 
 noncomputable section
@@ -128,7 +130,7 @@ theorem tvDist_fixedSecretShiftedSquareBatchSampler_le_sum
     _ ≤ tvDist
         (shiftedBatchErrorSampler levels errorSampler shift)
         (ProbComp.sampleIID (TGSW.rowCount 1 levels) errorSampler) :=
-      tvDist_map_le (m := ProbComp) assemble _ _
+      tvDist_map_le assemble _ _
     _ ≤ ∑ row : Fin (TGSW.rowCount 1 levels),
           FormalProof4FHE.FiniteProduct.addShiftDistance errorSampler
             (upperShiftVector shift row) := by
@@ -198,7 +200,7 @@ theorem nativeDistributionGap_le_of_contextual_normalForms
     contextSecret contextShift errorSampler gadget bound hShift
   unfold Full.nativeDistributionGap tvDist at hContext ⊢
   rw [hNative, hCompiled]
-  simpa only [SPMF.tvDist_comm] using hContext
+  simpa only [MeasureTheory.Measure.tvDist_comm] using hContext
 
 /-- The same bound applies to the genuine stripped `RGSW_S(-S)` distribution gap. -/
 theorem actualDistributionGap_le_of_contextual_normalForms
@@ -270,7 +272,7 @@ theorem rgswMinusSecretAdvantage_le_contextualSmudging_add_batchLWE
     Full.rgswMinusSecretAdvantage levels secretSampler embed errorSampler gadget
         distinguisher ≤
       bound +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.embeddedBatchProblem 1
             (levels * sourceCount + TGSW.rowCount 1 levels)
             secretSampler embed errorSampler)

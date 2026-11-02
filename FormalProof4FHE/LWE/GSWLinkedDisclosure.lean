@@ -24,6 +24,8 @@ secret key, and it does not formalize the paper's complete security game.
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWLinkedDisclosure
 
 open GSWGadget TFHE.BootstrappingCorrectness
@@ -245,7 +247,7 @@ theorem recoverSender_eq {q rows : ℕ} [NeZero q] (params : Parameters q)
   funext coordinate
   apply NoisyBinaryGadget.recover_eq hq _ _ bound _ hmargin
   intro level hlevel
-  simp only [observations, dif_pos hlevel]
+  simp only [observations, dite_eq_left hlevel]
   rw [phase_linked]
   simp only [hunit, one_mul, TFHE.Gadget.Base.gadget, hbase, Nat.cast_pow]
   simpa only [centeredDistance, sub_sub_cancel_left,

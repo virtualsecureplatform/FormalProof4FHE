@@ -22,6 +22,8 @@ polynomial-time implementation/reduction classes remain unproved.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.RecursiveFeatureFHECorrectness
 
 open RecursiveMultiplication RecursiveFeatureGSW RecursiveFeatureBootstrap

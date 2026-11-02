@@ -29,6 +29,8 @@ inside each transformed-error fiber; no residue-rank relaxation is used in this 
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm
 
 noncomputable section
@@ -515,7 +517,7 @@ theorem tvDist_jointDiagonalPair_jointMaskReplaced_le_goodBadRetainedCokernel
       (fixedErrorDiagonalSide params candidate sourceError)
   let goodError := retainedCokernelGoodErrorLossBound (degree := degree) (ringRank := ringRank)
     params selfKernelAverageBound distinctCokernelAverageBound
-  letI : Fintype ErrorVector := Fintype.ofFinite ErrorVector
+  let : Fintype ErrorVector := Fintype.ofFinite ErrorVector
   have hmass : (∑ sourceError : ErrorVector,
       Pr[= sourceError | Errors].toReal) = 1 := by
     rw [← ENNReal.toReal_sum (fun _ _ ↦ probOutput_ne_top),
@@ -628,7 +630,7 @@ theorem tvDist_operatorDiagonal_maskReplaced_le_goodBadRetainedCokernel
       (ringRank := ringRank) params sourceErrorSampler candidate Good
       selfKernelAverageBound distinctCokernelAverageBound hSelfNonneg hDistinctNonneg
       hSelf hDistinct
-  have hMap := (tvDist_map_le (m := ProbComp)
+  have hMap := (tvDist_map_le
     (assembleDiagonalPair params candidate ringSecret)
     (jointDiagonalPairExperiment (ringRank := ringRank)
       params sourceErrorSampler candidate)

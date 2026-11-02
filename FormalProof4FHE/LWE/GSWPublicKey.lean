@@ -26,6 +26,8 @@ separate obligations; ordinary-LWE security is not asserted here.
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWPublicKey
 
 open GSWGadget GSWAccumulator

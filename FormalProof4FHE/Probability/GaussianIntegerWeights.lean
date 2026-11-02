@@ -21,6 +21,8 @@ are distinct from a complete normalized TV and machine-bit complexity proof.
 
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.GaussianIntegerWeights
 
 /-- Finite rational Taylor sum, including the constant term. -/

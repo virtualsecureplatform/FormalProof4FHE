@@ -36,6 +36,8 @@ error exactly and then reuses the checked relative/anchor complete-view compiler
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE
 
 noncomputable section

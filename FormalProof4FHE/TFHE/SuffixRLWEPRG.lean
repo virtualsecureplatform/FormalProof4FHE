@@ -4,6 +4,7 @@ Released under MIT license as described in the file LICENSE.
 Authors: Kotaro Matsuoka
 -/
 
+import FormalProof4FHE.Probability.Discrete
 import FormalProof4FHE.TFHE.SourceAlignedBRKKSKJointLaw
 import FormalProof4FHE.TFHE.TFHEppSourceAlignedParameterScreen
 import VCVio.OracleComp.QueryTracking.RandomOracle.EagerTable
@@ -24,6 +25,8 @@ set_option autoImplicit false
 
 open Matrix OracleComp
 open scoped ENNReal
+
+open scoped FormalProof4FHE
 
 namespace FormalProof4FHE.TFHE.SuffixRLWEPRG
 
@@ -167,7 +170,7 @@ theorem probOutput_ideal_recognizer_true
         ($ᵗ (Seed × Output)) by
       simp [map_eq_bind_pure_comp]]
   rw [← probEvent_eq_eq_probOutput, probEvent_map]
-  simp only [Function.comp_def, decide_eq_true_eq]
+  simp only [decide_eq_true_eq]
   rw [probEvent_uniformSample]
   have hfilter :
       (Finset.univ.filter fun pair : Seed × Output ↦
@@ -217,7 +220,7 @@ theorem recognizer_advantage_eq
     rw [← probOutput_ideal_recognizer_true expand]
     exact ENNReal.toReal_mono ENNReal.one_ne_top probOutput_le_one
   unfold DirectSubsetKeyBRK.targetAdvantage ProbComp.boolDistAdvantage comparisonViews
-  simp only [Bool.false_eq_true, if_true, if_false]
+  simp only [Bool.false_eq_true, ite_true, ite_false]
   rw [probOutput_real_recognizer_true, probOutput_ideal_recognizer_true]
   simp only [ENNReal.toReal_one]
   rw [abs_of_nonneg (sub_nonneg.mpr hinverse_le_one)]
@@ -325,8 +328,10 @@ theorem priorQueryBad_uniform_le
     Pr[(fun bad : Bool ↦ bad = true) |
         hiddenReadMany ($ᵗ Seed) queryCount strategy] ≤
       (queryCount : ENNReal) * (Fintype.card Seed : ENNReal)⁻¹ := by
-  apply probEvent_hiddenReadMany_le
+  change Pr{let bad ← hiddenReadMany ($ᵗ Seed) queryCount strategy}[bad = true] ≤ _
+  apply prEvent_hiddenReadMany_le
   intro seed
+  change probOutput ($ᵗ Seed) seed ≤ _
   rw [probOutput_uniformSample]
 
 end ProgrammableRandomOracle
@@ -425,11 +430,11 @@ theorem endpointAdvantage_le
     (hSecondErrors : secondPrefixConstructor.realError true +
         secondPrefixConstructor.realError false +
         secondPrefixConstructor.uniformError ≤ auxiliary)
-    (hSuffixHard : LearningWithErrors.advantage suffixProblem
+    (hSuffixHard : LearningWithErrors.realAdvantage suffixProblem
       (suffixConstructor.reduction distinguisher) ≤ epsilonSuffix)
-    (hPrefixHard₁ : LearningWithErrors.advantage prefixProblem₁
+    (hPrefixHard₁ : LearningWithErrors.realAdvantage prefixProblem₁
       (randomPrefixConstructor.reduction distinguisher) ≤ epsilonPrefix₁)
-    (hPrefixHard₂ : LearningWithErrors.advantage prefixProblem₂
+    (hPrefixHard₂ : LearningWithErrors.realAdvantage prefixProblem₂
       (secondPrefixConstructor.reduction distinguisher) ≤ epsilonPrefix₂) :
     targetAdvantage views.endpoints distinguisher ≤
       2 * epsilonSuffix + 2 * epsilonPrefix₁ + 2 * epsilonPrefix₂ + auxiliary := by
@@ -468,11 +473,11 @@ theorem endpointAdvantage_le_commonPrefix
     (hSecondErrors : secondPrefixConstructor.realError true +
         secondPrefixConstructor.realError false +
         secondPrefixConstructor.uniformError ≤ auxiliary)
-    (hSuffixHard : LearningWithErrors.advantage suffixProblem
+    (hSuffixHard : LearningWithErrors.realAdvantage suffixProblem
       (suffixConstructor.reduction distinguisher) ≤ epsilonSuffix)
-    (hPrefixHard₁ : LearningWithErrors.advantage prefixProblem₁
+    (hPrefixHard₁ : LearningWithErrors.realAdvantage prefixProblem₁
       (randomPrefixConstructor.reduction distinguisher) ≤ epsilonPrefix)
-    (hPrefixHard₂ : LearningWithErrors.advantage prefixProblem₂
+    (hPrefixHard₂ : LearningWithErrors.realAdvantage prefixProblem₂
       (secondPrefixConstructor.reduction distinguisher) ≤ epsilonPrefix) :
     targetAdvantage views.endpoints distinguisher ≤
       2 * epsilonSuffix + 4 * epsilonPrefix + auxiliary := by

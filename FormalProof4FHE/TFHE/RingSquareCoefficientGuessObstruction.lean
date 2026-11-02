@@ -30,6 +30,8 @@ not rule out approximate/noise-changing reductions or reductions using a larger 
 representation.
 -/
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.CoefficientAffineCircularRLWE.GuessCheckObstruction
 
 noncomputable section

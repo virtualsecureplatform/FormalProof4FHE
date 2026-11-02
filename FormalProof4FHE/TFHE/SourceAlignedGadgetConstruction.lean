@@ -35,6 +35,8 @@ set_option autoImplicit false
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.SourceAlignedFactorPropagation.Extraction
 
 noncomputable section
@@ -92,6 +94,7 @@ def extractVectorAddEquiv (q degree rank : ℕ) :
     intro coefficient
     simp [extractVector, LatticeCrypto.Poly.ofPi, LatticeCrypto.Poly.toPi,
       Vector.get, reciprocalCoefficients_involutive]
+    rfl
   right_inv vector := by
     funext coordinate
     obtain ⟨⟨component, coefficient⟩, rfl⟩ := finProdFinEquiv.surjective coordinate

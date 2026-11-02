@@ -46,6 +46,8 @@ set_option autoImplicit false
 open Matrix OracleComp
 open scoped BigOperators symmDiff
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.BlockCategoricalHashCMUXSelfCircular
 
 noncomputable section
@@ -339,7 +341,7 @@ theorem tvDist_shiftedCorrectionView_le
     tvDist (shiftedCorrectionView context derived correction state)
         (unshiftedCorrectionView context correction state) ≤
       addShiftDistance correction (derived state) := by
-  have hdata := tvDist_map_le (m := ProbComp)
+  have hdata := tvDist_map_le
     (fun error ↦ (context state, error))
     ((fun fresh ↦ derived state + fresh) <$> correction) correction
   simpa only [shiftedCorrectionView, unshiftedCorrectionView,
@@ -934,7 +936,7 @@ theorem correctedError_failure_le_residual_bad
     calc
       _ = Pr[(fun value ↦ ¬ InCenteredBox residualRadius value) |
           Prod.fst <$> pairSampler] :=
-        (probEvent_fst_map pairSampler
+        (probEvent_map pairSampler Prod.fst
           (fun value ↦ ¬ InCenteredBox residualRadius value)).symm
       _ = _ := by
         apply probEvent_congr' (fun _value _hvalue ↦ Iff.rfl)

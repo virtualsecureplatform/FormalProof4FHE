@@ -29,6 +29,8 @@ error; this also lifts coefficientwise and feeds the native conditional-smudging
 open OracleComp
 open scoped ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.DiscreteGaussianSampler
 
 /-- A checked finite implementation of the exact torus-scaled modular discrete Gaussian. -/
@@ -60,6 +62,7 @@ theorem uniformResidueTable_ticketValue (q : ℕ) [NeZero q]
     (ticket : Fin (uniformResidueTable q).ticketCount) :
     (uniformResidueTable q).ticketValue ticket =
       ZMod.finEquiv q (Fin.cast (uniformResidueTable_ticketCount q) ticket) := by
+  unfold FinitePMFCompiler.TicketTable.ticketValue uniformResidueTable
   change (List.ofFn (fun index : Fin q ↦ ZMod.finEquiv q index))[ticket.val]'_ = _
   rw [List.getElem_ofFn]
   rfl
@@ -85,22 +88,14 @@ theorem uniformResidueTable_sampler_evalDist (q : ℕ) [NeZero q] :
 
 /-- The PMF denoted by the explicit residue table is the exact uniform PMF. -/
 theorem uniformResidueTable_outputPMF (q : ℕ) [NeZero q] :
-    (uniformResidueTable q).outputPMF = PMF.uniformOfFintype (ZMod q) := by
+    (uniformResidueTable q).outputPMF = PMF.uniformFinite (ZMod q) := by
   have hdist := uniformResidueTable_sampler_evalDist q
-  have htable :
-      (liftM (uniformResidueTable q).sampler : SPMF (ZMod q)) =
-        liftM (uniformResidueTable q).outputPMF := by
-    unfold FinitePMFCompiler.TicketTable.outputPMF
-    rfl
-  have hlift :
-      (liftM (uniformResidueTable q).outputPMF : SPMF (ZMod q)) =
-        liftM (PMF.uniformOfFintype (ZMod q)) := by
-    rw [← htable]
-    simpa only [evalDist_def, evalDist_uniformSample] using hdist
   ext residue
-  have hprob := congrArg
-    (fun distribution : SPMF (ZMod q) ↦ distribution residue) hlift
-  simpa only [SPMF.liftM_apply] using hprob
+  calc
+    _ = probOutput (uniformResidueTable q).sampler residue :=
+      (probOutput_eq_outputPMF _ _).symm
+    _ = probOutput ($ᵗ ZMod q) residue := probOutput_congr rfl hdist
+    _ = _ := by simp
 
 /-- The explicit uniform table, certified against a torus-scaled modular Gaussian.  The
 certificate error is the universal Gaussian-to-uniform translation bound; the sampler itself is
@@ -115,16 +110,16 @@ noncomputable def uniformResidueCertificate
     rw [← FinitePMFCompiler.TicketTable.etvDist_outputPMF_eq_certificateError,
       uniformResidueTable_outputPMF]
     have htv :
-        PMF.tvDist (PMF.uniformOfFintype (ZMod q))
+        PMF.tvDist (PMF.uniformFinite (ZMod q))
             (ModularGaussian.torusDistribution q alpha halpha) ≤
           ModularGaussian.torusUniformBound q alpha halpha := by
       rw [PMF.tvDist_comm]
       exact ModularGaussian.tvDist_torusDistribution_uniform_le q alpha halpha
     calc
-      (PMF.uniformOfFintype (ZMod q)).etvDist
+      (PMF.uniformFinite (ZMod q)).etvDist
           (ModularGaussian.torusDistribution q alpha halpha) =
           ENNReal.ofReal
-            (PMF.tvDist (PMF.uniformOfFintype (ZMod q))
+            (PMF.tvDist (PMF.uniformFinite (ZMod q))
               (ModularGaussian.torusDistribution q alpha halpha)) := by
         rw [PMF.tvDist]
         exact (ENNReal.ofReal_toReal (PMF.etvDist_ne_top _ _)).symm
@@ -423,11 +418,12 @@ theorem add_ofPi_eq_ofPi_add
   dsimp only
   apply LatticeCrypto.Poly.ext_get_eq
   intro coefficient
-  simpa [RLWE.negacyclicRing, LatticeCrypto.Poly.toPi,
-      LatticeCrypto.Poly.ofPi, LatticeCrypto.vectorNegacyclicRing_backend,
-      LatticeCrypto.vectorBackend, Vector.get] using
+  simpa only [RLWE.negacyclicRing, LatticeCrypto.NegacyclicRing.coeff,
+    LatticeCrypto.vectorNegacyclicRing_backend, LatticeCrypto.vectorBackend_coeff,
+    LatticeCrypto.Poly.get_ofPi, LatticeCrypto.Poly.toPi] using
     (LatticeCrypto.NegacyclicRing.coeff_add (RLWE.negacyclicRing q degree)
       shift (LatticeCrypto.Poly.ofPi values) coefficient)
+
 
 /-- Translating a coefficientwise ring sampler costs at most the sum of the executable scalar
 translation costs of the residual polynomial's coefficients. -/
@@ -461,7 +457,7 @@ theorem addShiftDistance_ringSampler_le_sum_scalar
       rw [FormalProof4FHE.FiniteProduct.addShiftDistance, hshifted]
       rfl
     _ ≤ tvDist ((fun values ↦ coefficients + values) <$> vectors) vectors :=
-      tvDist_map_le (m := ProbComp) LatticeCrypto.Poly.ofPi _ _
+      tvDist_map_le LatticeCrypto.Poly.ofPi _ _
     _ ≤ ∑ coefficient, FormalProof4FHE.FiniteProduct.addShiftDistance
           scalar (coefficients coefficient) := by
       exact FormalProof4FHE.FiniteProduct.tvDist_add_fin_mOfFn_le_sum
@@ -500,7 +496,7 @@ theorem tvDist_ringSampler_le
         tvDist
           (ProbComp.sampleIID degree (scalarSampler left))
           (ProbComp.sampleIID degree (scalarSampler right)) :=
-      tvDist_map_le (m := ProbComp) LatticeCrypto.Poly.ofPi _ _
+      tvDist_map_le LatticeCrypto.Poly.ofPi _ _
     _ ≤ (degree : ℝ) *
         tvDist (scalarSampler left) (scalarSampler right) :=
       SamplerReplacement.tvDist_sampleIID_le degree _ _

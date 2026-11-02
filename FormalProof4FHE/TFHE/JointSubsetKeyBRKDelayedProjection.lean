@@ -67,6 +67,8 @@ implementation obligations.
 open Matrix OracleComp
 open scoped ENNReal BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.JointSubsetKeyBRKDelayedProjection
 
 /-! ## Translation-equivariant projection -/
@@ -266,7 +268,7 @@ theorem projectedCorrectedReal_tvDist_prescribed_le_jointError
           secretSampler sourceErrorSampler correctionSampler)
         (independentTargetErrorSampler secretSampler targetErrorSampler) := by
   rw [tvDist, projectedCorrectedRealSampler_evalDist_eq_map_jointError]
-  exact tvDist_map_le (m := ProbComp) (assembleGadgetError gadget) _ _
+  exact tvDist_map_le (assembleGadgetError gadget) _ _
 
 theorem projectedCorrectedReal_evalDist_eq_prescribed_of_jointError
     (projection : TranslationProjection Lifted Target)
@@ -718,9 +720,9 @@ theorem probEvent_rowCombination_eq_image
   classical
   let transform := rowCombination (Coordinate := Coordinate) coefficient
   by_cases htarget : InRowCombinationRange coefficient target
-  · rw [if_pos htarget]
+  · rw [ite_eq_left htarget]
     let rangeTarget : transform.range := ⟨target, htarget⟩
-    letI : SampleableType transform.range := SampleableType.ofFintype _
+    let : SampleableType transform.range := SampleableType.ofFintype _
     have mapped_uniform :=
       evalDist_map_surjective_addHom_uniform transform.rangeRestrict
         (AddMonoidHom.rangeRestrict_surjective transform)
@@ -733,7 +735,7 @@ theorem probEvent_rowCombination_eq_image
         rw [probEvent_map]
         apply probEvent_congr' _ rfl
         intro output _
-        simp only [Function.comp_apply, transform, rangeTarget, Subtype.ext_iff]
+        simp only [transform, rangeTarget, Subtype.ext_iff]
         rfl
       _ = Pr[(fun output : transform.range ↦ output = rangeTarget) |
             ($ᵗ transform.range)] :=
@@ -747,7 +749,7 @@ theorem probEvent_rowCombination_eq_image
           simp
         rw [filter_eq]
         simp [div_eq_mul_inv]
-  · rw [if_neg htarget]
+  · rw [ite_eq_right htarget]
     rw [probEvent_uniformSample]
     have filter_eq :
         (Finset.univ.filter fun matrix : Matrix Row Coordinate R ↦
@@ -837,7 +839,7 @@ theorem scalarCombination_surjective
   change (∑ row, coefficient row * preimage row) = target
   simp only [preimage]
   rw [Finset.sum_eq_single pivot]
-  · simp only [if_pos]
+  · simp only [ite_eq_left]
     have unit_spec : (↑unit : R) = coefficient pivot := hpivot.unit_spec
     have cancel : coefficient pivot * (↑unit⁻¹ : R) = 1 := by
       rw [← unit_spec, ← Units.val_mul]
@@ -967,7 +969,7 @@ theorem card_rowCombination_scaledPrimitive_pow_two_range
             ((2 ^ valuation : ℕ) : ZMod (2 ^ modulusExponent)) coefficient)).range ≃
           (multiplyAddHom
             ((2 ^ valuation : ℕ) : ZMod (2 ^ modulusExponent))).range :=
-      Equiv.setCongr (congrArg (fun subgroup : AddSubgroup (ZMod (2 ^ modulusExponent)) ↦
+      Set.equivOfEq (congrArg (fun subgroup : AddSubgroup (ZMod (2 ^ modulusExponent)) ↦
         (subgroup : Set (ZMod (2 ^ modulusExponent)))) range_eq)
     rw [Fintype.card_congr rangeEquiv]
     exact card_rightMul_pow_two_range modulusExponent valuation valuation_le

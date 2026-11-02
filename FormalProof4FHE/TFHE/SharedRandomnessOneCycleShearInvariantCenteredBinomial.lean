@@ -27,6 +27,8 @@ relative-key evaluator.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization
 
 noncomputable section

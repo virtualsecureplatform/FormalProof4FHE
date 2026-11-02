@@ -24,6 +24,8 @@ it does not prove an efficient builder with sufficiently small bounds.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWLinearCharacterBootstrap
 
 open RecursiveMultiplication RecursiveFeatureGSW RecursiveFeatureBootstrap
@@ -384,9 +386,9 @@ def liftINDCPA {samples : ℕ} (params : Parameters q) (level : Fin params.level
     (first second : P → Fin n) (builder : Builder params n m P)
     (columns : RecursiveQuadratic.Column n m (p + controlCount params n) ≃ Fin samples)
     (secretSampler : ProbComp (Fin n → ZMod q)) (errorSampler : ProbComp (ZMod q))
-    (adversary : AsymmEncAlg.IND_CPA_Adv
+    (adversary : AsymmEncAlg.IND_CPA_OneTime_Adversary
       (scheme params level first second builder columns secretSampler errorSampler)) :
-    AsymmEncAlg.IND_CPA_Adv
+    AsymmEncAlg.IND_CPA_OneTime_Adversary
       (GSWLinearCharacterSecurity.scheme params level first second builder columns secretSampler errorSampler) where
   State := adversary.State
   chooseMessages view := adversary.chooseMessages (completeStoredView params view)
@@ -397,12 +399,12 @@ theorem oneTime_game_eq {samples : ℕ} (params : Parameters q) (level : Fin par
     (first second : P → Fin n) (builder : Builder params n m P)
     (columns : RecursiveQuadratic.Column n m (p + controlCount params n) ≃ Fin samples)
     (secretSampler : ProbComp (Fin n → ZMod q)) (errorSampler : ProbComp (ZMod q))
-    (adversary : AsymmEncAlg.IND_CPA_Adv
+    (adversary : AsymmEncAlg.IND_CPA_OneTime_Adversary
       (scheme params level first second builder columns secretSampler errorSampler)) :
-    AsymmEncAlg.IND_CPA_OneTime_Game_ProbComp adversary =
-      AsymmEncAlg.IND_CPA_OneTime_Game_ProbComp
+    FormalProof4FHE.oneTimeGame adversary =
+      FormalProof4FHE.oneTimeGame
         (liftINDCPA params level first second builder columns secretSampler errorSampler adversary) := by
-  simp [AsymmEncAlg.IND_CPA_OneTime_Game_ProbComp, scheme, keygen,
+  simp [FormalProof4FHE.oneTimeGame, scheme, keygen,
     GSWLinearCharacterSecurity.scheme, completeStoredView, liftINDCPA, monad_norm]
 
 /-- Composing this equality with GSWLinearCharacterSecurity's ordinary-LWE
@@ -411,14 +413,14 @@ theorem oneTime_signedAdvantage_eq {samples : ℕ} (params : Parameters q) (leve
     (first second : P → Fin n) (builder : Builder params n m P)
     (columns : RecursiveQuadratic.Column n m (p + controlCount params n) ≃ Fin samples)
     (secretSampler : ProbComp (Fin n → ZMod q)) (errorSampler : ProbComp (ZMod q))
-    (adversary : AsymmEncAlg.IND_CPA_Adv
+    (adversary : AsymmEncAlg.IND_CPA_OneTime_Adversary
       (scheme params level first second builder columns secretSampler errorSampler)) :
-    AsymmEncAlg.IND_CPA_OneTime_signedAdvantageReal
+    FormalProof4FHE.oneTimeSignedAdvantage
         (scheme params level first second builder columns secretSampler errorSampler) adversary =
-      AsymmEncAlg.IND_CPA_OneTime_signedAdvantageReal
+      FormalProof4FHE.oneTimeSignedAdvantage
         (GSWLinearCharacterSecurity.scheme params level first second builder columns secretSampler errorSampler)
         (liftINDCPA params level first second builder columns secretSampler errorSampler adversary) := by
-  unfold AsymmEncAlg.IND_CPA_OneTime_signedAdvantageReal
+  unfold FormalProof4FHE.oneTimeSignedAdvantage
   rw [oneTime_game_eq]
 
 end FormalProof4FHE.LWE.GSWLinearCharacterBootstrap

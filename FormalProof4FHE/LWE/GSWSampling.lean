@@ -24,6 +24,8 @@ guarantees, and the ordinary-LWE proof for the complete joint key view remain ob
 open Matrix OracleComp
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWSampling
 
 open GSWGadget GSWAccumulator GSWPublicKey

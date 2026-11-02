@@ -17,6 +17,8 @@ The parameter margins are discharged by the companion eventual-budget theorem.
 This correctness result does not discharge cubic original-bit control security.
 -/
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.RecursiveFeatureCircuit
 
 open RecursiveMultiplication RecursiveFeatureGSW RecursiveFeatureBootstrap

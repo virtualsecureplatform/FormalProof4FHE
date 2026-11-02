@@ -28,6 +28,8 @@ cannot reproduce.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightLeakage
 
 open FormalProof4FHE.TFHE
@@ -101,7 +103,7 @@ theorem addLeakage_bijective {q degree sampleCount : ℕ}
 noncomputable def ordinaryProblem
     (exponent degree : ℕ)
     (errorSampler : ProbComp (RLWE.Rq (2 ^ (exponent + 1)) (degree + 1))) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   exact CoefficientStructuredLWE.problem
     (2 ^ (exponent + 1)) (degree + 1) 1 (TGSW.rowCount 1 1) errorSampler
 
@@ -117,7 +119,7 @@ theorem top_noiseless_eq_ordinary_add_leakage
         ringSecret challenge =
       (ordinaryProblem exponent degree errorSampler).noiseless ringSecret challenge +
         topLeakage exponent degree ringSecret := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   rw [show (ordinaryProblem exponent degree errorSampler).noiseless ringSecret challenge =
       CoefficientStructuredLWE.negacyclicVecMul ringSecret challenge by
     exact CoefficientStructuredLWE.problem_noiseless_eq_negacyclicVecMul
@@ -178,9 +180,9 @@ theorem leakageRealGame_evalDist_eq_topGame0
     evalDist (LWE.AuxiliaryInput.realGame
         (leakageProblem exponent degree errorSampler)
         (leakageContinuation adversary)) =
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
         (topRGSWCoefficientProblem exponent degree errorSampler) adversary) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   let Top := topRGSWCoefficientProblem exponent degree errorSampler
   let Ordinary := ordinaryProblem exponent degree errorSampler
   let Secrets := sampleRingSecret 1 (degree + 1)
@@ -209,10 +211,10 @@ theorem leakageRealGame_evalDist_eq_topGame0
   have hSecret : Top.sampleSecret = Secrets := by rfl
   have hError : Top.sampleError = Errors := by rfl
   have hTop :
-      LearningWithErrors.game0 Top adversary =
+      LearningWithErrors.realExperiment Top adversary =
         (Challenges >>= fun challenge ↦
           Secrets >>= fun ringSecret ↦ Errors >>= finish challenge ringSecret) := by
-    unfold LearningWithErrors.game0 LearningWithErrors.distr
+    unfold LearningWithErrors.realExperiment LearningWithErrors.distr
     rw [hChallenge, hSecret, hError]
     simp only [bind_assoc, pure_bind]
     apply bind_congr
@@ -234,7 +236,7 @@ theorem topUniformDistr_evalDist_eq_uniformSample
     evalDist (LearningWithErrors.uniformDistr
         (topRGSWCoefficientProblem exponent degree errorSampler)) =
       evalDist ($ᵗ (Transcript exponent degree)) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   rw [← TopWeightSecurity.map_topRGSWRingUniformDistr_eq_coefficientUniformDistr]
   rw [TopWeightSecurity.topRGSWRingUniformDistr_eq_uniformSample]
   simpa [map_eq_bind_pure_comp] using
@@ -260,9 +262,9 @@ theorem leakageUniformGame_evalDist_eq_topGame1
     evalDist (LWE.AuxiliaryInput.uniformGame
         (leakageProblem exponent degree errorSampler)
         (leakageContinuation adversary)) =
-      evalDist (LearningWithErrors.game1
+      evalDist (LearningWithErrors.randomExperiment
         (topRGSWCoefficientProblem exponent degree errorSampler) adversary) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   let Secrets := sampleRingSecret 1 (degree + 1)
   let Uniform : ProbComp (Transcript exponent degree) :=
     $ᵗ (Transcript exponent degree)
@@ -304,7 +306,7 @@ theorem leakageUniformGame_evalDist_eq_topGame1
         FormalProof4FHE.SharedRandomness.evalDist_bind_const_of_probFailure_eq_zero
           Secrets hsecrets Ideal
   rw [hAuxiliary]
-  rw [LearningWithErrors.game1]
+  rw [LearningWithErrors.randomExperiment]
   exact (FormalProof4FHE.SharedRandomness.evalDist_bind_eq_of_evalDist_eq
     (topUniformDistr_evalDist_eq_uniformSample exponent degree errorSampler)
     adversary).symm
@@ -316,7 +318,7 @@ theorem topCoefficientAdvantage_eq_leakageRLWE
     (errorSampler : ProbComp (RLWE.Rq (2 ^ (exponent + 1)) (degree + 1)))
     (adversary : LearningWithErrors.Adversary
       (topRGSWCoefficientProblem exponent degree errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (topRGSWCoefficientProblem exponent degree errorSampler) adversary =
       LWE.AuxiliaryInput.circularLweAdvantage
         (leakageProblem exponent degree errorSampler)
@@ -365,7 +367,7 @@ theorem kdmAdvantage_le_leakageRLWE_add_ordinaryRLWE
             (TopWeightSecurity.coefficientAdversary (errorSampler := errorSampler)
               (Native.RingSquareRGSW.restoreDistinguisher
                 (topGadget exponent degree) distinguisher))) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (CoefficientStructuredLWE.ringProblem
             (2 ^ (exponent + 1)) (degree + 1) 1
             (TGSW.rowCount 1 1) errorSampler)

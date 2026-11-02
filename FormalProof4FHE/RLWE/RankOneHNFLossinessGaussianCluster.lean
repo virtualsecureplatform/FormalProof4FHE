@@ -32,6 +32,8 @@ approximate primal--dual pair; neither is introduced as an axiom.
 open OracleComp
 open scoped ENNReal BigOperators InnerProductSpace
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.RankOneHNFLossinessGaussianCluster
 
 open RankOneHNFLossinessRLWENTRU

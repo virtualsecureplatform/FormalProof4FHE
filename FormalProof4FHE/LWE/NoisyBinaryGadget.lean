@@ -20,6 +20,8 @@ participant knowing its own decryption key. It is not an attack on a
 same-key view whose decryption key is unknown to the adversary.
 -/
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.NoisyBinaryGadget
 
 open TFHE.BootstrappingCorrectness

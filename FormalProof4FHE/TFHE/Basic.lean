@@ -31,6 +31,8 @@ scalar message independently in every row.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE
 
 /-- A binary secret with the given number of scalar coordinates. -/

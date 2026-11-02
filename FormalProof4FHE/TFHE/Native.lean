@@ -27,6 +27,8 @@ identification with TFHE's ideal continuous-torus Gaussian.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native
 
 /-- One TRGSW ciphertext for each bit of the scalar TLWE key. -/

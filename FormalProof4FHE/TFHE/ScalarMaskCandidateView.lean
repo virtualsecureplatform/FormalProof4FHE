@@ -25,6 +25,8 @@ step that turns a wrong candidate into the uniform endpoint.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput.Search.PairedRecovery.CoordinateRecovery.ScalarMaskCandidateView
 
 /-- Apply the checked scalar-key XOR transport to a complete native BRK+KSK context. -/
@@ -296,7 +298,7 @@ noncomputable def toAveraged
     unfold tvDist
     rw [coordinateSource_randomizeContext_centeredBinomial_evalDist
       keySwitchErrorSampler tgswGadget keySwitchGadget coordinate]
-    exact le_of_eq (SPMF.tvDist_self _)
+    exact le_of_eq (MeasureTheory.Measure.tvDist_self _)
   wrongDistance := by
     intro coordinate
     unfold tvDist

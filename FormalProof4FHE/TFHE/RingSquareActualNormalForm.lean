@@ -19,6 +19,8 @@ named compiler gaps are exactly equal.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ActualNormalForm
 
 open FormalProof4FHE.TFHE

@@ -28,6 +28,8 @@ conditional residual-smudging theorems.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.PostEvaluationSmudging
 
 noncomputable section
@@ -282,7 +284,7 @@ theorem tvDist_averagedCorrectTransform_coupledResidual_le_zeroNoiseNormalForm
   let ZeroResidual := coupledAveragedZeroNoiseResidualRealView
     (degree := degree) (ringRank := ringRank) (queryCount := queryCount) (eta := eta)
     params keySwitchErrorSampler inputErrorSampler keySwitchGadget coordinate
-  have hData := tvDist_bind_right_le (m := ProbComp)
+  have hData := tvDist_bind_right_le
     (smudgePublicContext wideNoise) Correct ZeroResidual
   unfold tvDist at hData ⊢
   rw [coupledAveragedZeroNoiseResidualRealView_smudge_evalDist
@@ -387,7 +389,7 @@ theorem tvDist_smudgePublicContext_uniformPublicView_le
           (lweDimension := lweDimension) (queryCount := queryCount)
           ringErrorSampler keySwitchErrorSampler inputErrorSampler
           tgswGadget keySwitchGadget) := by
-  have hdata := tvDist_bind_right_le (m := ProbComp)
+  have hdata := tvDist_bind_right_le
     (smudgePublicContext wideNoise) source
     (uniformPublicView (ringRank := ringRank)
       (lweDimension := lweDimension) (queryCount := queryCount)

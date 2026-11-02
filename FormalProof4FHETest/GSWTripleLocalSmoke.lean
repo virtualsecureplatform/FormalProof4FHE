@@ -11,6 +11,8 @@ restores the actual source-error bound at a nonvanishing lower gadget weight. -/
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHETest.GSWTripleLocalSmoke
 
 open FormalProof4FHE.LWE GSWLinearCharacterCompiler GSWTripleLocalCompiler

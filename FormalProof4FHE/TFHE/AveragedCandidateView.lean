@@ -27,6 +27,8 @@ as a uniform conditional advantage when repetitions share the same public contex
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput.Search.PairedRecovery.CoordinateRecovery
 
 /-- Candidate-view transformation whose correctness laws hold over the complete native source
@@ -251,7 +253,7 @@ noncomputable def toAveraged
       tgswGadget keySwitchGadget coordinate
     let target := realPublicView (ringRank := ringRank) (lweDimension := lweDimension)
       targetRingErrorSampler targetKeySwitchErrorSampler tgswGadget keySwitchGadget
-    have hmix := tvDist_bind_left_le_const (m := ProbComp) source
+    have hmix := tvDist_bind_left_le_const source
       (fun hiddenAndContext ↦ transformer.transform coordinate hiddenAndContext.1
         hiddenAndContext.2.1 hiddenAndContext.2.2)
       (fun _ ↦ target) (transformer.correctError coordinate)
@@ -270,7 +272,7 @@ noncomputable def toAveraged
       tgswGadget keySwitchGadget coordinate
     let target := uniformPublicView (ringRank := ringRank) (lweDimension := lweDimension)
       targetRingErrorSampler targetKeySwitchErrorSampler tgswGadget keySwitchGadget
-    have hmix := tvDist_bind_left_le_const (m := ProbComp) source
+    have hmix := tvDist_bind_left_le_const source
       (fun hiddenAndContext ↦ transformer.transform coordinate (!hiddenAndContext.1)
         hiddenAndContext.2.1 hiddenAndContext.2.2)
       (fun _ ↦ target) (transformer.wrongError coordinate)
@@ -310,12 +312,12 @@ noncomputable def toAveraged
     intro coordinate
     unfold tvDist
     rw [transformer.correctLaw coordinate]
-    exact le_of_eq (SPMF.tvDist_self _)
+    exact le_of_eq (MeasureTheory.Measure.tvDist_self _)
   wrongDistance := by
     intro coordinate
     unfold tvDist
     rw [transformer.wrongLaw coordinate]
-    exact le_of_eq (SPMF.tvDist_self _)
+    exact le_of_eq (MeasureTheory.Measure.tvDist_self _)
 
 end CandidateViewTransformer
 

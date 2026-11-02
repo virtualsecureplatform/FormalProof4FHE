@@ -24,6 +24,8 @@ of one target row; that row is itself a linear preimage of the full weight.
 open Matrix OracleComp
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWQuadraticPreimageTwoRows
 
 open GSWQuadraticPreimageRowSupport
@@ -84,7 +86,7 @@ theorem linear_row_of_two_supported_certificate {R : Type} [CommRing R] {n m : �
   by_cases hr : row = other
   · subst row
     simp
-  · rw [if_neg hr]
+  · rw [ite_eq_right hr]
     by_cases hi : row = index
     · subst row
       have hh := congrArg (fun matrix ↦ matrix index index) hc
@@ -317,7 +319,7 @@ theorem uniformVerification_le {q n : ℕ} [NeZero q]
     (earlierView : ProbComp ((Fin n → Option Bool) × (Fin n → ZMod q))) (E : ℕ) :
     Pr[= true | uniformVerification earlierView E] ≤ 2 * ((2 * E + 1 : ℝ≥0∞) / q) := by
   classical
-  rw [← probEvent_true_eq_probOutput]
+  change probEvent _ (· = true) ≤ _
   unfold uniformVerification
   apply probEvent_bind_le_of_forall_le
   intro observed _

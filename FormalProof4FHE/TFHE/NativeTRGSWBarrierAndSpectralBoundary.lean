@@ -32,6 +32,8 @@ are integral domains.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.NativeTRGSWBarrierAndSpectralBoundary
 
 noncomputable section
@@ -614,7 +616,7 @@ theorem walsh_orthogonality {Index : Type} [Fintype Index] [DecidableEq Index]
     _ = if first = second then cubeSize Index else 0 := by
       by_cases hequal : first = second
       · subst second
-        rw [if_pos rfl]
+        rw [ite_eq_left rfl]
         unfold cubeSize
         calc
           (∏ coordinate,
@@ -626,7 +628,7 @@ theorem walsh_orthogonality {Index : Type} [Fintype Index] [DecidableEq Index]
             intro coordinate _
             cases first coordinate <;> norm_num [bitSign]
           _ = 2 ^ Fintype.card Index := by simp
-      · rw [if_neg hequal]
+      · rw [ite_eq_right hequal]
         have hdifferent : ∃ coordinate, first coordinate ≠ second coordinate := by
           by_contra hall
           push Not at hall
@@ -1099,7 +1101,7 @@ theorem posteriorSpectralEnergy_eq_sum_div
   intro view _
   by_cases hzero : viewMass view = 0
   · simp [hzero]
-  · simp only [hzero, if_false]
+  · simp only [hzero, ite_false]
     field_simp
 
 /-- Distinguisher-independent finite channel spectral bound.  The `view` type is the complete
@@ -1322,7 +1324,7 @@ theorem completeChannelViewMass_mul_posterior_eq_numerator
   by_cases hzero : completeChannelViewMass channel view = 0
   · simp [hzero, completeChannelParityNumerator_eq_zero_of_viewMass_eq_zero
       channel hchannel frequency view hzero]
-  · simp only [hzero, if_false]
+  · simp only [hzero, ite_false]
     field_simp
 
 /-- Exact finite posterior formula from the note, with zero-mass views totalized to zero. -/

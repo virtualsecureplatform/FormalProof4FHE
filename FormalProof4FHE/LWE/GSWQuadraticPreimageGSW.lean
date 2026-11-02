@@ -29,6 +29,8 @@ shortness guarantee is supplied or assumed as a security hypothesis.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWQuadraticPreimageGSW
 
 open GSWGadget GSWQuadraticPreimage
@@ -79,21 +81,17 @@ theorem target_eq_phaseMessage {q n : ℕ} [NeZero q] (params : Parameters q)
       dotProduct secret ((quadratic params n column).mulVec secret) =
     GSWSelfKey.phaseMessage (fullLayout params n) secret
       (GSWSelfKey.selfKeyMessages params.levels secret) column := by
+  unfold linear quadratic GSWSelfKey.phaseMessage GSWSelfKey.selfKeyMessages encryptedIndex
   cases hc : (fullLayout params n).coordinate column with
   | none =>
-    simp [linear, quadratic, vecMul, dotProduct, mulVec, hc, mul_ite,
-      GSWSelfKey.phaseMessage, GSWSelfKey.selfKeyMessages, encryptedIndex]
+    simp [vecMul, dotProduct, mulVec, hc, mul_ite]
   | some row =>
-    by_cases hd : row = encryptedIndex params column
+    by_cases hd : row = (GSWSelfKey.selfKeyPosition n params.levels column).1
     · subst row
-      simp [linear, quadratic, vecMul, dotProduct, mulVec, hc, mul_ite,
-        GSWSelfKey.phaseMessage, GSWSelfKey.selfKeyMessages, encryptedIndex]
-      have hh := hidempotent (encryptedIndex params column)
-      dsimp [encryptedIndex] at hh
+      simp [vecMul, dotProduct, mulVec, hc, mul_ite]
+      have hh := hidempotent (GSWSelfKey.selfKeyPosition n params.levels column).1
       linear_combination -(fullLayout params n).weight column * hh
-    · dsimp [encryptedIndex] at hd
-      simp [linear, quadratic, vecMul, dotProduct, mulVec, hc, hd, mul_ite,
-        GSWSelfKey.phaseMessage, GSWSelfKey.selfKeyMessages, encryptedIndex]
+    · simp [vecMul, dotProduct, mulVec, hc, hd, mul_ite]
       ring
 
 /-- Body-first serialization is an equivalence, without inspecting any secret. -/
@@ -176,8 +174,11 @@ theorem control_phase {q n : ℕ} (params : Parameters q)
     (index : Fin n) (column : Fin ((n + 1) * params.levels)) :
     vecMul (GSWOperations.extendedSecret secret) (controlsEquiv params n transcript index) column =
       phase secret transcript (finProdFinEquiv (index, column)) := by
-  simp [phase, controlsEquiv, matrixEquiv, GSWOperations.ciphertextMatrix,
-    vecMul, dotProduct, GSWOperations.extendedSecret, Fin.sum_univ_succ, sub_eq_add_neg]
+  change vecMul (GSWOperations.extendedSecret secret)
+    (GSWOperations.ciphertextMatrix transcript) (finProdFinEquiv (index, column)) = _
+  simp [phase, GSWOperations.ciphertextMatrix, vecMul, dotProduct,
+    GSWOperations.extendedSecret, Fin.sum_univ_succ, sub_eq_add_neg]
+
 
 theorem control_gadget_phase {q n : ℕ} [NeZero q] (params : Parameters q)
     (secret : Fin n → ZMod q) (index : Fin n) (column : Fin ((n + 1) * params.levels)) :
@@ -409,7 +410,7 @@ theorem public_game_abs_advantage_le (params : Parameters q)
     simp [GSWMasking.game, publicView, downstream, observe, monad_norm]
   have hideal : 𝒟[($ᵗ View (ZMod q) (n * b) p (columns params (n * b))) >>= downstream] =
       𝒟[GSWMasking.game params ($ᵗ MaskingView params (n * b) p) adversary] := by
-    simpa [GSWMasking.game, downstream, observe, monad_norm] using hi
+    simpa +unfoldPartialApp [GSWMasking.game, downstream, observe, monad_norm] using hi
   unfold ProbComp.boolDistAdvantage at hview
   rw [hreal, probOutput_congr (rfl : true = true) hideal] at hview
   exact (abs_sub_le _ _ (1 / 2 : ℝ)).trans

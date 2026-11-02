@@ -35,6 +35,8 @@ the standalone research problem exposed by the final game equivalences.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare
 
 /-! ## A public rank-one mask translation -/
@@ -668,7 +670,7 @@ def realGame {R Secret : Type}
     (sourceCount : ℕ) (secretSampler : ProbComp Secret)
     (embed : Secret → Fin 1 → R) (errorSampler : ProbComp R)
     (selector : Selector R sourceCount) (distinguisher : Distinguisher R) : ProbComp Bool :=
-  LearningWithErrors.game0
+  LearningWithErrors.realExperiment
     (LWE.TwoBlock.problem 1 sourceCount 1 secretSampler embed errorSampler)
     (reduction selector distinguisher)
 
@@ -696,11 +698,11 @@ theorem reduction_game1_evalDist_eq_uniformGame
     (embed : Secret → Fin 1 → R) (errorSampler : ProbComp R)
     (selector : Selector R sourceCount) (distinguisher : Distinguisher R) :
     evalDist
-        (LearningWithErrors.game1
+        (LearningWithErrors.randomExperiment
           (LWE.TwoBlock.problem 1 sourceCount 1 secretSampler embed errorSampler)
           (reduction selector distinguisher)) =
       evalDist (uniformGame distinguisher) := by
-  rw [LearningWithErrors.game1,
+  rw [LearningWithErrors.randomExperiment,
     LWE.TwoBlock.uniformDistr_eq_uniformSample]
   simp only [reduction, uniformGame]
   rw [show
@@ -721,7 +723,7 @@ theorem advantage_eq_twoBlockLWE
     (embed : Secret → Fin 1 → R) (errorSampler : ProbComp R)
     (selector : Selector R sourceCount) (distinguisher : Distinguisher R) :
     advantage sourceCount secretSampler embed errorSampler selector distinguisher =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (LWE.TwoBlock.problem 1 sourceCount 1 secretSampler embed errorSampler)
         (reduction selector distinguisher) := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
@@ -739,7 +741,7 @@ theorem advantage_eq_batchLWE
     (embed : Secret → Fin 1 → R) (errorSampler : ProbComp R)
     (selector : Selector R sourceCount) (distinguisher : Distinguisher R) :
     advantage sourceCount secretSampler embed errorSampler selector distinguisher =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.embeddedBatchProblem 1 (sourceCount + 1)
           secretSampler embed errorSampler)
         (LWE.TwoBlock.reduction (reduction selector distinguisher)) := by
@@ -927,7 +929,6 @@ theorem probEvent_unitWeight_eq_uniformUnit
         Pr[(fun weightUnit : Rˣ ↦ short (weightUnit : R)) |
           unitWeight gadgetUnit <$> ($ᵗ Rˣ)] := by
       rw [probEvent_map]
-      rfl
     _ = Pr[(fun weightUnit : Rˣ ↦ short (weightUnit : R)) | ($ᵗ Rˣ)] := by
       exact probEvent_congr' (fun _ _ ↦ Iff.rfl)
         (unitWeight_uniform_evalDist gadgetUnit)
@@ -1098,7 +1099,7 @@ theorem realGame_eq_compiledRowSampler_bind
     realGame sourceCount secretSampler embed errorSampler selector distinguisher =
       compiledRowSampler sourceCount secretSampler embed errorSampler selector >>=
         distinguisher := by
-  simp [realGame, compiledRowSampler, LearningWithErrors.game0, reduction,
+  simp [realGame, compiledRowSampler, LearningWithErrors.realExperiment, reduction,
     bind_assoc, monad_norm]
 
 /-- Native square security is bounded by the exact induced-distribution gap plus the compiler's
@@ -1142,7 +1143,7 @@ theorem nativeSquareAdvantage_le_nativeDistributionGap_add_batchLWE
     (distinguisher : Distinguisher R) :
     nativeSquareAdvantage secretSampler embed errorSampler gadget distinguisher ≤
       nativeDistributionGap sourceCount secretSampler embed errorSampler gadget selector +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.embeddedBatchProblem 1 (sourceCount + 1)
             secretSampler embed errorSampler)
           (LWE.TwoBlock.reduction (reduction selector distinguisher)) := by
@@ -1471,7 +1472,7 @@ def realGame {R Secret : Type}
     (embed : Secret → Fin 1 → R) (errorSampler : ProbComp R)
     (selectors : Selectors R levels sourceCount)
     (distinguisher : Distinguisher R levels) : ProbComp Bool :=
-  LearningWithErrors.game0
+  LearningWithErrors.realExperiment
     (LWE.TwoBlock.problem 1 (levels * sourceCount) (TGSW.rowCount 1 levels)
       secretSampler embed errorSampler)
     (reduction selectors distinguisher)
@@ -1502,12 +1503,12 @@ theorem reduction_game1_evalDist_eq_uniformGame
     (selectors : Selectors R levels sourceCount)
     (distinguisher : Distinguisher R levels) :
     evalDist
-        (LearningWithErrors.game1
+        (LearningWithErrors.randomExperiment
           (LWE.TwoBlock.problem 1 (levels * sourceCount) (TGSW.rowCount 1 levels)
             secretSampler embed errorSampler)
           (reduction selectors distinguisher)) =
       evalDist (uniformGame distinguisher) := by
-  rw [LearningWithErrors.game1, LWE.TwoBlock.uniformDistr_eq_uniformSample]
+  rw [LearningWithErrors.randomExperiment, LWE.TwoBlock.uniformDistr_eq_uniformSample]
   simp only [reduction, uniformGame]
   rw [show
       (($ᵗ (InputTranscript R levels sourceCount)) >>= fun transcript ↦
@@ -1526,7 +1527,7 @@ theorem advantage_eq_twoBlockLWE
     (selectors : Selectors R levels sourceCount)
     (distinguisher : Distinguisher R levels) :
     advantage levels sourceCount secretSampler embed errorSampler selectors distinguisher =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (LWE.TwoBlock.problem 1 (levels * sourceCount) (TGSW.rowCount 1 levels)
           secretSampler embed errorSampler)
         (reduction selectors distinguisher) := by
@@ -1545,7 +1546,7 @@ theorem advantage_eq_batchLWE
     (selectors : Selectors R levels sourceCount)
     (distinguisher : Distinguisher R levels) :
     advantage levels sourceCount secretSampler embed errorSampler selectors distinguisher =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.embeddedBatchProblem 1
           (levels * sourceCount + TGSW.rowCount 1 levels)
           secretSampler embed errorSampler)
@@ -1595,7 +1596,7 @@ theorem realGame_eq_compiledBatchSampler_bind
     realGame levels sourceCount secretSampler embed errorSampler selectors distinguisher =
       compiledBatchSampler levels sourceCount secretSampler embed errorSampler selectors >>=
         distinguisher := by
-  simp [realGame, compiledBatchSampler, LearningWithErrors.game0, reduction,
+  simp [realGame, compiledBatchSampler, LearningWithErrors.realExperiment, reduction,
     bind_assoc, monad_norm]
 
 /-- Full native stripped-square security reduces to ordinary batch LWE plus the one explicit
@@ -1609,7 +1610,7 @@ theorem nativeSquareAdvantage_le_nativeDistributionGap_add_batchLWE
     (distinguisher : Distinguisher R levels) :
     nativeSquareAdvantage levels secretSampler embed errorSampler gadget distinguisher ≤
       nativeDistributionGap levels sourceCount secretSampler embed errorSampler gadget selectors +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.embeddedBatchProblem 1
             (levels * sourceCount + TGSW.rowCount 1 levels)
             secretSampler embed errorSampler)
@@ -1634,7 +1635,7 @@ theorem nativeSquareAdvantage_le_nativeDistributionGap_add_batchLWE
       (compiledBatchSampler levels sourceCount secretSampler embed errorSampler selectors)
   have hCompiler :
       advantage levels sourceCount secretSampler embed errorSampler selectors distinguisher =
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.embeddedBatchProblem 1
             (levels * sourceCount + TGSW.rowCount 1 levels)
             secretSampler embed errorSampler)
@@ -1790,7 +1791,7 @@ theorem actualSquareAdvantage_le_actualDistributionGap_add_batchLWE
     (distinguisher : Distinguisher R levels) :
     actualSquareAdvantage levels secretSampler embed errorSampler gadget distinguisher ≤
       actualDistributionGap levels sourceCount secretSampler embed errorSampler gadget selectors +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.embeddedBatchProblem 1
             (levels * sourceCount + TGSW.rowCount 1 levels)
             secretSampler embed errorSampler)
@@ -1923,7 +1924,7 @@ theorem rgswMinusSecretAdvantage_le_actualDistributionGap_add_batchLWE
     (distinguisher : Distinguisher R levels) :
     rgswMinusSecretAdvantage levels secretSampler embed errorSampler gadget distinguisher ≤
       actualDistributionGap levels sourceCount secretSampler embed errorSampler gadget selectors +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.embeddedBatchProblem 1
             (levels * sourceCount + TGSW.rowCount 1 levels)
             secretSampler embed errorSampler)
@@ -1948,7 +1949,7 @@ theorem rgswMinusSecretAdvantage_le_of_gap_of_batchLWE
       actualDistributionGap levels sourceCount secretSampler embed errorSampler gadget
         selectors ≤ ε)
     (hBatchLWE :
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.embeddedBatchProblem 1
             (levels * sourceCount + TGSW.rowCount 1 levels)
             secretSampler embed errorSampler)

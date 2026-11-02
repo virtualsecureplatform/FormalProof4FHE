@@ -32,6 +32,8 @@ not part of these games.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.SharedRandomness.KeySwitching
 
 /-- An affine-message batch-LWE problem.  `messageSampler` is independent of the encryption key,
@@ -231,14 +233,14 @@ theorem affineIKSK_game0_evalDist_eq {R EncryptionKey MessageSecret : Type}
     (adversary : LearningWithErrors.Adversary
       (affineIKSKProblem dimension samples encryptionKeySampler embedEncryptionKey
         messageSampler message errorSampler)) :
-    𝒟[LearningWithErrors.game0
+    𝒟[LearningWithErrors.realExperiment
         (affineIKSKProblem dimension samples encryptionKeySampler embedEncryptionKey
           messageSampler message errorSampler) adversary] =
-      𝒟[LearningWithErrors.game0
+      𝒟[LearningWithErrors.realExperiment
         (FormalProof4FHE.LWE.embeddedBatchProblem dimension samples
           encryptionKeySampler embedEncryptionKey errorSampler)
         (affineIKSKReduction messageSampler message adversary)] := by
-  rw [LearningWithErrors.game0, LearningWithErrors.game0]
+  rw [LearningWithErrors.realExperiment, LearningWithErrors.realExperiment]
   simp only [affineIKSKReduction]
   rw [show (LearningWithErrors.distr
         (FormalProof4FHE.LWE.embeddedBatchProblem dimension samples
@@ -270,14 +272,14 @@ theorem affineIKSK_game1_evalDist_eq {R EncryptionKey MessageSecret : Type}
     (adversary : LearningWithErrors.Adversary
       (affineIKSKProblem dimension samples encryptionKeySampler embedEncryptionKey
         messageSampler message errorSampler)) :
-    𝒟[LearningWithErrors.game1
+    𝒟[LearningWithErrors.randomExperiment
         (affineIKSKProblem dimension samples encryptionKeySampler embedEncryptionKey
           messageSampler message errorSampler) adversary] =
-      𝒟[LearningWithErrors.game1
+      𝒟[LearningWithErrors.randomExperiment
         (FormalProof4FHE.LWE.embeddedBatchProblem dimension samples
           encryptionKeySampler embedEncryptionKey errorSampler)
         (affineIKSKReduction messageSampler message adversary)] := by
-  rw [LearningWithErrors.game1, LearningWithErrors.game1]
+  rw [LearningWithErrors.randomExperiment, LearningWithErrors.randomExperiment]
   simp only [affineIKSKReduction]
   rw [show (LearningWithErrors.uniformDistr
         (FormalProof4FHE.LWE.embeddedBatchProblem dimension samples
@@ -310,10 +312,10 @@ theorem affineIKSK_advantage_eq_lwe {R EncryptionKey MessageSecret : Type}
     (adversary : LearningWithErrors.Adversary
       (affineIKSKProblem dimension samples encryptionKeySampler embedEncryptionKey
         messageSampler message errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (affineIKSKProblem dimension samples encryptionKeySampler embedEncryptionKey
           messageSampler message errorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.embeddedBatchProblem dimension samples
           encryptionKeySampler embedEncryptionKey errorSampler)
         (affineIKSKReduction messageSampler message adversary) := by
@@ -573,15 +575,15 @@ theorem sharedIKSK_game0_evalDist_eq_fullIndependent
     (adversary : LearningWithErrors.Adversary
       (sharedIKSKProblem dimension retained encryptionKeySampler embedEncryptionKey
         suffixSampler suffixMessage errorSampler)) :
-    𝒟[LearningWithErrors.game0
+    𝒟[LearningWithErrors.realExperiment
         (sharedIKSKProblem dimension retained encryptionKeySampler embedEncryptionKey
           suffixSampler suffixMessage errorSampler) adversary] =
-      𝒟[LearningWithErrors.game0
+      𝒟[LearningWithErrors.realExperiment
         (fullIndependentIKSKProblem dimension discarded retained
           encryptionKeySampler embedEncryptionKey prefixSampler suffixSampler
           prefixMessage suffixMessage errorSampler)
         (fullIndependentProjectionReduction adversary)] := by
-  rw [LearningWithErrors.game0, LearningWithErrors.game0]
+  rw [LearningWithErrors.realExperiment, LearningWithErrors.realExperiment]
   simp only [fullIndependentProjectionReduction]
   rw [show (LearningWithErrors.distr
         (fullIndependentIKSKProblem dimension discarded retained
@@ -614,15 +616,15 @@ theorem sharedIKSK_game1_evalDist_eq_fullIndependent
     (adversary : LearningWithErrors.Adversary
       (sharedIKSKProblem dimension retained encryptionKeySampler embedEncryptionKey
         suffixSampler suffixMessage errorSampler)) :
-    𝒟[LearningWithErrors.game1
+    𝒟[LearningWithErrors.randomExperiment
         (sharedIKSKProblem dimension retained encryptionKeySampler embedEncryptionKey
           suffixSampler suffixMessage errorSampler) adversary] =
-      𝒟[LearningWithErrors.game1
+      𝒟[LearningWithErrors.randomExperiment
         (fullIndependentIKSKProblem dimension discarded retained
           encryptionKeySampler embedEncryptionKey prefixSampler suffixSampler
           prefixMessage suffixMessage errorSampler)
         (fullIndependentProjectionReduction adversary)] := by
-  rw [LearningWithErrors.game1, LearningWithErrors.game1]
+  rw [LearningWithErrors.randomExperiment, LearningWithErrors.randomExperiment]
   simp only [fullIndependentProjectionReduction]
   rw [show (LearningWithErrors.uniformDistr
         (fullIndependentIKSKProblem dimension discarded retained
@@ -659,10 +661,10 @@ theorem sharedIKSK_advantage_eq_fullIndependent
     (adversary : LearningWithErrors.Adversary
       (sharedIKSKProblem dimension retained encryptionKeySampler embedEncryptionKey
         suffixSampler suffixMessage errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (sharedIKSKProblem dimension retained encryptionKeySampler embedEncryptionKey
           suffixSampler suffixMessage errorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (fullIndependentIKSKProblem dimension discarded retained
           encryptionKeySampler embedEncryptionKey prefixSampler suffixSampler
           prefixMessage suffixMessage errorSampler)
@@ -915,10 +917,10 @@ theorem blockBinarySharedIKSK_advantage_eq {R SuffixSecret : Type}
     (adversary : LearningWithErrors.Adversary
       (blockBinarySharedIKSKProblem blockLength blockCount samples
         suffixSampler suffixMessage errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (blockBinarySharedIKSKProblem blockLength blockCount samples
           suffixSampler suffixMessage errorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.BlockBinary.problem
           blockLength blockCount samples errorSampler)
         (blockBinarySharedIKSKReduction suffixSampler suffixMessage adversary) := by
@@ -950,18 +952,18 @@ theorem blockBinarySharedIKSK_advantage_le_of_ordinaryLWEBounds_nonlinear
     (hNarrow : ∀ reduction : LearningWithErrors.Adversary
       (FormalProof4FHE.LWE.batchProblem extractedDimension samples
         ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler),
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.batchProblem extractedDimension samples
           ($ᵗ (Fin extractedDimension → R)) narrowErrorSampler)
         reduction ≤ narrowBound)
     (hWide : ∀ reduction : LearningWithErrors.Adversary
       (FormalProof4FHE.LWE.batchProblem extractedDimension samples
         ($ᵗ (Fin extractedDimension → R)) errorSampler),
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.batchProblem extractedDimension samples
           ($ᵗ (Fin extractedDimension → R)) errorSampler)
         reduction ≤ wideBound) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (blockBinarySharedIKSKProblem blockLength blockCount samples
           suffixSampler suffixMessage errorSampler) adversary ≤
       min 1

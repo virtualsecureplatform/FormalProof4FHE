@@ -37,6 +37,8 @@ ordinary LWE/RLWE and not an application of a KDM theorem for a transformed encr
 
 open Matrix
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.MonomialKDM
 
 /-- The degree-two coordinates obtained by multiplying one message coordinate into every target
@@ -227,7 +229,7 @@ theorem not_binaryScaledProductAffine {R : Type} [CommRing R]
   have hsecond : secondCoefficient = 0 := by
     simpa [embedBit, hconstant] using (haffine false true).symm
   have hnonzero := haffine true true
-  simp only [embedBit, if_true, one_mul, hfirst, hsecond, hconstant, zero_mul,
+  simp only [embedBit, ite_true, one_mul, hfirst, hsecond, hconstant, zero_mul,
     add_zero] at hnonzero
   exact hgadget (neg_eq_zero.mp hnonzero)
 

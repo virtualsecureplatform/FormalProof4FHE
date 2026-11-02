@@ -4,11 +4,12 @@ Released under MIT license as described in the file LICENSE.
 Authors: Kotaro Matsuoka
 -/
 
+import FormalProof4FHE.Probability.Discrete
 import FormalProof4FHE.LWE.Security
 import FormalProof4FHE.Probability.LeftoverHash
 import FormalProof4FHE.RLWE.CenteredBinomial
 import FormalProof4FHE.RLWE.Security
-import VCVio.CryptoFoundations.AsymmEncAlg.INDCPA.OneTime
+import FormalProof4FHE.Probability.Encryption
 
 /-!
 # Regev Encryption and the Decisional-LWE Game Hop
@@ -20,6 +21,8 @@ binary subset sums, yielding the concrete one-time bound
 -/
 
 open AsymmEncAlg Matrix OracleComp
+
+open scoped FormalProof4FHE
 
 namespace FormalProof4FHE.RingRegev
 
@@ -199,7 +202,7 @@ noncomputable def signedAdvantage (game : ProbComp Bool) : ℝ :=
 hidden bit. This order aligns the real and uniform branches definitionally with the LWE games. -/
 def keyFirstGame
     (publicKeySampler : ProbComp (PublicKey R n m))
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode)) : ProbComp Bool := do
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode)) : ProbComp Bool := do
   let publicKey ← publicKeySampler
   let bit ← $ᵗ Bool
   let (message₀, message₁, state) ← adversary.chooseMessages publicKey
@@ -212,7 +215,7 @@ def keyFirstGame
 /-- The same explicit-key game in the conventional order, with the hidden bit sampled first. -/
 def bitFirstGame
     (publicKeySampler : ProbComp (PublicKey R n m))
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode)) : ProbComp Bool := do
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode)) : ProbComp Bool := do
   let bit ← $ᵗ Bool
   let publicKey ← publicKeySampler
   let (message₀, message₁, state) ← adversary.chooseMessages publicKey
@@ -226,7 +229,7 @@ omit [Fintype R] [DecidableEq R] in
 /-- Sampling the public key and the hidden bit commutes because the two samplers are independent. -/
 theorem bitFirstGame_probOutput_eq_keyFirstGame
     (publicKeySampler : ProbComp (PublicKey R n m))
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode))
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode))
     (result : Bool) :
     Pr[= result | bitFirstGame errorSampler encode decode publicKeySampler adversary] =
       Pr[= result | keyFirstGame errorSampler encode decode publicKeySampler adversary] := by
@@ -242,20 +245,20 @@ theorem bitFirstGame_probOutput_eq_keyFirstGame
 
 /-- The honest Regev game, whose public key is a batch of real LWE samples. -/
 def realGame
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode)) : ProbComp Bool :=
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode)) : ProbComp Bool :=
   keyFirstGame errorSampler encode decode
     (LearningWithErrors.distr (lweProblem R n m errorSampler)) adversary
 
 /-- The first hybrid, replacing `sᵀ A + e` in the public key by a uniform vector. -/
 def uniformKeyGame
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode)) : ProbComp Bool :=
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode)) : ProbComp Bool :=
   keyFirstGame errorSampler encode decode
     (LearningWithErrors.uniformDistr (lweProblem R n m errorSampler)) adversary
 
 /-- The terminal information-theoretic game: the public key and challenge ciphertext are uniform,
 and the fair hidden bit is sampled only after the adversary's guess. -/
 def idealGame
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode)) : ProbComp Bool := do
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode)) : ProbComp Bool := do
   let publicKey ← LearningWithErrors.uniformDistr (lweProblem R n m errorSampler)
   let (_, _, state) ← adversary.chooseMessages publicKey
   let ciphertext ← $ᵗ Ciphertext R n
@@ -266,7 +269,7 @@ def idealGame
 /-- Post-processing applied to the raw leftover-hash source.  The source supplies a public key and
 an unshifted subset sum; this computation chooses the IND-CPA messages and adds their encoding. -/
 def maskingPostprocess
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode))
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode))
     (sample : PublicKey R n m × Ciphertext R n) : ProbComp Bool := do
   let bit ← $ᵗ Bool
   let (message₀, message₁, state) ← adversary.chooseMessages sample.1
@@ -277,13 +280,13 @@ def maskingPostprocess
 
 /-- Uniform-key encryption in leftover-hash sampling order. -/
 def lhlRealGame
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode)) : ProbComp Bool := do
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode)) : ProbComp Bool := do
   let sample ← FormalProof4FHE.LeftoverHash.hashed (subsetHash R n m)
   maskingPostprocess errorSampler encode decode adversary sample
 
 /-- The corresponding ideal source, post-processed identically. -/
 def lhlIdealGame
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode)) : ProbComp Bool := do
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode)) : ProbComp Bool := do
   let sample ← FormalProof4FHE.LeftoverHash.ideal
     (Seed := PublicKey R n m) (Output := Ciphertext R n)
   maskingPostprocess errorSampler encode decode adversary sample
@@ -328,7 +331,7 @@ omit [Fintype R] [DecidableEq R] in
 /-- For every fixed uniform public key, the ideal leftover-hash source makes the hidden bit
 information-theoretically independent of the adversary's view. -/
 theorem lhlIdeal_publicKey_probOutput_true
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode))
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode))
     (publicKey : PublicKey R n m) :
     Pr[= true | do
       let ciphertextCore ← $ᵗ Ciphertext R n
@@ -391,7 +394,7 @@ theorem lhlIdeal_publicKey_probOutput_true
 
 /-- The terminal leftover-hash game succeeds with probability exactly one half. -/
 theorem lhlIdealGame_probOutput_true
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode)) :
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode)) :
     Pr[= true | lhlIdealGame errorSampler encode decode adversary] = 1 / 2 := by
   have hgame :
       𝒟[lhlIdealGame errorSampler encode decode adversary] =
@@ -404,13 +407,13 @@ theorem lhlIdealGame_probOutput_true
     rw [evalDist_bind, evalDist_uniformPublicKeyCiphertext_eq_components R n m,
       ← evalDist_bind]
     simp [monad_norm]
-  rw [OracleComp.probOutput_congr rfl hgame, probOutput_bind_eq_tsum]
+  rw [probOutput_congr rfl hgame, probOutput_bind_eq_tsum]
   simp_rw [lhlIdeal_publicKey_probOutput_true errorSampler encode decode adversary]
   rw [ENNReal.tsum_mul_right, tsum_probOutput_eq_one' (by simp), one_mul]
 
 /-- Reordering the independent challenge randomness does not change the uniform-key game. -/
 theorem uniformKeyGame_probOutput_eq_lhlRealGame
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode))
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode))
     (result : Bool) :
     Pr[= result | uniformKeyGame errorSampler encode decode adversary] =
       Pr[= result | lhlRealGame errorSampler encode decode adversary] := by
@@ -445,14 +448,14 @@ theorem uniformKeyGame_probOutput_eq_lhlRealGame
 /-- The downstream leftover-hash term: the distinguishing gap between encrypting under a uniform
 public key and replacing the entire ciphertext by an independent uniform value. -/
 noncomputable def maskingAdvantage
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode)) : ℝ :=
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode)) : ℝ :=
   (uniformKeyGame errorSampler encode decode adversary).boolDistAdvantage
     (idealGame errorSampler encode decode adversary)
 
 /-- The concrete LWE distinguisher obtained from a Regev IND-CPA adversary. Given a candidate
 public key, it runs the challenge phase and returns whether that adversary won. -/
 def lweReduction
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode)) :
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode)) :
     LearningWithErrors.Adversary (lweProblem R n m errorSampler) := fun publicKey ↦ do
   let bit ← $ᵗ Bool
   let (message₀, message₁, state) ← adversary.chooseMessages publicKey
@@ -466,24 +469,24 @@ omit [Fintype R] in
 /-- VCVio's standard one-time IND-CPA game for `scheme` is the bit-first game with a real LWE
 public-key sampler. The secret-key component produced by key generation is unused. -/
 theorem oneTimeGame_probOutput_eq_bitFirstReal
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode))
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode))
     (result : Bool) :
-    Pr[= result | IND_CPA_OneTime_Game_ProbComp
+    Pr[= result | FormalProof4FHE.oneTimeGame
       (encAlg := scheme R n m errorSampler encode decode) adversary] =
     Pr[= result | bitFirstGame errorSampler encode decode
       (LearningWithErrors.distr (lweProblem R n m errorSampler)) adversary] := by
-  simp [IND_CPA_OneTime_Game_ProbComp, bitFirstGame, scheme,
+  simp [FormalProof4FHE.oneTimeGame, bitFirstGame, scheme,
     LearningWithErrors.distr, lweProblem, FormalProof4FHE.LWE.batchProblem, monad_norm]
 
 omit [Fintype R] in
 /-- The standard VCVio one-time IND-CPA signed advantage equals the key-first real-game
 formulation used by the reduction. -/
 theorem oneTime_signedAdvantage_eq_real
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode)) :
-    IND_CPA_OneTime_signedAdvantageReal
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode)) :
+    FormalProof4FHE.oneTimeSignedAdvantage
         (scheme R n m errorSampler encode decode) adversary =
       signedAdvantage (realGame errorSampler encode decode adversary) := by
-  unfold IND_CPA_OneTime_signedAdvantageReal signedAdvantage
+  unfold FormalProof4FHE.oneTimeSignedAdvantage signedAdvantage
   rw [oneTimeGame_probOutput_eq_bitFirstReal errorSampler encode decode adversary true,
     bitFirstGame_probOutput_eq_keyFirstGame errorSampler encode decode
       (LearningWithErrors.distr (lweProblem R n m errorSampler)) adversary true]
@@ -492,10 +495,10 @@ theorem oneTime_signedAdvantage_eq_real
 omit [Fintype R] in
 /-- The real/uniform Regev public-key gap is exactly the advantage of `lweReduction`. -/
 theorem real_uniform_gap_eq_lweAdvantage
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode)) :
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode)) :
     (realGame errorSampler encode decode adversary).boolDistAdvantage
         (uniformKeyGame errorSampler encode decode adversary) =
-      LearningWithErrors.advantage (lweProblem R n m errorSampler)
+      LearningWithErrors.realAdvantage (lweProblem R n m errorSampler)
         (lweReduction errorSampler encode decode adversary) := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
   rfl
@@ -504,10 +507,10 @@ omit [Fintype R] in
 /-- Replacing an honest Regev public key by uniform changes the absolute signed advantage by at
 most the decisional-LWE advantage. -/
 theorem abs_signedAdvantage_real_le
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode)) :
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode)) :
     |signedAdvantage (realGame errorSampler encode decode adversary)| ≤
       |signedAdvantage (uniformKeyGame errorSampler encode decode adversary)| +
-        LearningWithErrors.advantage (lweProblem R n m errorSampler)
+        LearningWithErrors.realAdvantage (lweProblem R n m errorSampler)
           (lweReduction errorSampler encode decode adversary) := by
   rw [← real_uniform_gap_eq_lweAdvantage errorSampler encode decode adversary]
   unfold signedAdvantage ProbComp.boolDistAdvantage
@@ -520,7 +523,7 @@ theorem abs_signedAdvantage_real_le
 omit [Fintype R] in
 /-- The terminal ideal game succeeds with probability exactly one half. -/
 theorem idealGame_probOutput_true
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode)) :
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode)) :
     Pr[= true | idealGame errorSampler encode decode adversary] = 1 / 2 := by
   let preGame : ProbComp Bool := do
     let publicKey ← LearningWithErrors.uniformDistr (lweProblem R n m errorSampler)
@@ -541,7 +544,7 @@ theorem idealGame_probOutput_true
 /-- The adversary-specific masking gap is exactly the Boolean gap obtained by post-processing the
 two raw leftover-hash sources. -/
 theorem maskingAdvantage_eq_lhlGames
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode)) :
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode)) :
     maskingAdvantage errorSampler encode decode adversary =
       (lhlRealGame errorSampler encode decode adversary).boolDistAdvantage
         (lhlIdealGame errorSampler encode decode adversary) := by
@@ -554,7 +557,7 @@ omit [Fintype R] [DecidableEq R] in
 /-- Identical post-processing cannot increase the distance between the raw hash source and
 uniform. -/
 theorem lhlGames_tvDist_le_raw
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode)) :
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode)) :
     tvDist
         (lhlRealGame errorSampler encode decode adversary)
         (lhlIdealGame errorSampler encode decode adversary) ≤
@@ -571,7 +574,7 @@ theorem lhlGames_tvDist_le_raw
 
 /-- The concrete statistical masking bound for Regev encryption. -/
 theorem maskingAdvantage_le_leftover
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode)) :
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode)) :
     maskingAdvantage errorSampler encode decode adversary ≤
       Real.sqrt
           (Fintype.card (Ciphertext R n) /
@@ -593,7 +596,7 @@ theorem maskingAdvantage_le_leftover
 /-- Arithmetic form of the masking bound: the ciphertext range has size `|R|^(n+1)` and the
 binary randomness space has size `2^m`. -/
 theorem maskingAdvantage_le_explicit
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode)) :
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode)) :
     maskingAdvantage errorSampler encode decode adversary ≤
       Real.sqrt (((Fintype.card R : ℝ) ^ (n + 1)) / ((2 : ℝ) ^ m)) / 2 := by
   simpa [Ciphertext, Fintype.card_prod, Fintype.card_fun, Nat.cast_mul,
@@ -603,7 +606,7 @@ theorem maskingAdvantage_le_explicit
 omit [Fintype R] in
 /-- In the uniform-key hybrid, absolute signed advantage is exactly the statistical masking term. -/
 theorem abs_signedAdvantage_uniformKey_eq_maskingAdvantage
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode)) :
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode)) :
     |signedAdvantage (uniformKeyGame errorSampler encode decode adversary)| =
       maskingAdvantage errorSampler encode decode adversary := by
   unfold signedAdvantage maskingAdvantage ProbComp.boolDistAdvantage
@@ -614,14 +617,14 @@ omit [Fintype R] in
 /-- Regev's key-first one-time IND-CPA advantage is bounded by decisional LWE plus the explicit
 leftover-hash masking term. -/
 theorem abs_signedAdvantage_real_le_lwe_add_masking
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode)) :
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode)) :
     |signedAdvantage (realGame errorSampler encode decode adversary)| ≤
-      LearningWithErrors.advantage (lweProblem R n m errorSampler)
+      LearningWithErrors.realAdvantage (lweProblem R n m errorSampler)
           (lweReduction errorSampler encode decode adversary) +
         maskingAdvantage errorSampler encode decode adversary := by
   calc
     _ ≤ |signedAdvantage (uniformKeyGame errorSampler encode decode adversary)| +
-          LearningWithErrors.advantage (lweProblem R n m errorSampler)
+          LearningWithErrors.realAdvantage (lweProblem R n m errorSampler)
             (lweReduction errorSampler encode decode adversary) :=
       abs_signedAdvantage_real_le errorSampler encode decode adversary
     _ = _ := by
@@ -632,10 +635,10 @@ omit [Fintype R] in
 /-- Standard one-time IND-CPA security for Regev: the absolute signed advantage in VCVio's
 conventional game is bounded by decisional LWE plus the statistical masking term. -/
 theorem oneTime_abs_signedAdvantage_le_lwe_add_masking
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode)) :
-    |IND_CPA_OneTime_signedAdvantageReal
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode)) :
+    |FormalProof4FHE.oneTimeSignedAdvantage
         (scheme R n m errorSampler encode decode) adversary| ≤
-      LearningWithErrors.advantage (lweProblem R n m errorSampler)
+      LearningWithErrors.realAdvantage (lweProblem R n m errorSampler)
           (lweReduction errorSampler encode decode adversary) +
         maskingAdvantage errorSampler encode decode adversary := by
   rw [oneTime_signedAdvantage_eq_real errorSampler encode decode adversary]
@@ -644,19 +647,19 @@ theorem oneTime_abs_signedAdvantage_le_lwe_add_masking
 /-- Fully concrete one-time Regev security theorem: decisional LWE plus the finite leftover-hash
 bound `sqrt(|R|^(n+1) / 2^m) / 2`. -/
 theorem oneTime_abs_signedAdvantage_le_lwe_add_leftover
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode)) :
-    |IND_CPA_OneTime_signedAdvantageReal
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode)) :
+    |FormalProof4FHE.oneTimeSignedAdvantage
         (scheme R n m errorSampler encode decode) adversary| ≤
-      LearningWithErrors.advantage (lweProblem R n m errorSampler)
+      LearningWithErrors.realAdvantage (lweProblem R n m errorSampler)
           (lweReduction errorSampler encode decode adversary) +
         Real.sqrt (((Fintype.card R : ℝ) ^ (n + 1)) / ((2 : ℝ) ^ m)) / 2 := by
   calc
-    _ ≤ LearningWithErrors.advantage (lweProblem R n m errorSampler)
+    _ ≤ LearningWithErrors.realAdvantage (lweProblem R n m errorSampler)
           (lweReduction errorSampler encode decode adversary) +
         maskingAdvantage errorSampler encode decode adversary :=
       oneTime_abs_signedAdvantage_le_lwe_add_masking errorSampler encode decode adversary
     _ ≤ _ := add_le_add
-      (le_refl (LearningWithErrors.advantage (lweProblem R n m errorSampler)
+      (le_refl (LearningWithErrors.realAdvantage (lweProblem R n m errorSampler)
         (lweReduction errorSampler encode decode adversary)))
       (maskingAdvantage_le_explicit errorSampler encode decode adversary)
 
@@ -664,10 +667,10 @@ omit [Fintype R] in
 /-- Bias-advantage form of the Regev reduction. VCVio's Boolean bias is twice the absolute signed
 advantage, so both the computational and statistical terms acquire the conventional factor two. -/
 theorem oneTime_boolBiasAdvantage_le_two_mul_lwe_add_masking
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode)) :
-    (IND_CPA_OneTime_Game_ProbComp
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode)) :
+    (FormalProof4FHE.oneTimeGame
         (encAlg := scheme R n m errorSampler encode decode) adversary).boolBiasAdvantage ≤
-      2 * (LearningWithErrors.advantage (lweProblem R n m errorSampler)
+      2 * (LearningWithErrors.realAdvantage (lweProblem R n m errorSampler)
           (lweReduction errorSampler encode decode adversary) +
         maskingAdvantage errorSampler encode decode adversary) := by
   rw [ProbComp.boolBiasAdvantage_eq_two_mul_abs_sub_half]
@@ -677,10 +680,10 @@ theorem oneTime_boolBiasAdvantage_le_two_mul_lwe_add_masking
 
 /-- Bias-advantage form with the concrete leftover-hash term. -/
 theorem oneTime_boolBiasAdvantage_le_two_mul_lwe_add_leftover
-    (adversary : IND_CPA_Adv (scheme R n m errorSampler encode decode)) :
-    (IND_CPA_OneTime_Game_ProbComp
+    (adversary : IND_CPA_OneTime_Adversary (scheme R n m errorSampler encode decode)) :
+    (FormalProof4FHE.oneTimeGame
         (encAlg := scheme R n m errorSampler encode decode) adversary).boolBiasAdvantage ≤
-      2 * (LearningWithErrors.advantage (lweProblem R n m errorSampler)
+      2 * (LearningWithErrors.realAdvantage (lweProblem R n m errorSampler)
           (lweReduction errorSampler encode decode adversary) +
         Real.sqrt (((Fintype.card R : ℝ) ^ (n + 1)) / ((2 : ℝ) ^ m)) / 2) := by
   rw [ProbComp.boolBiasAdvantage_eq_two_mul_abs_sub_half]
@@ -731,7 +734,7 @@ theorem lweProblem_eq_uniformSecretProblem
 def rlweReduction {q degree sampleCount : ℕ} [NeZero q]
     (errorSampler : ProbComp (Rq q degree))
     (encode : Bool → Rq q degree) (decode : Rq q degree → Option Bool)
-    (adversary : IND_CPA_Adv
+    (adversary : IND_CPA_OneTime_Adversary
       (scheme q degree sampleCount errorSampler encode decode)) :
     LearningWithErrors.Adversary
       (uniformSecretProblem q degree sampleCount errorSampler) :=
@@ -807,11 +810,11 @@ theorem advantage_semiringOutputAdd_eq
     (errorSampler : ProbComp (Rq q degree))
     (adversary : LearningWithErrors.Adversary
       (uniformSecretProblem q degree sampleCount errorSampler)) :
-    @LearningWithErrors.advantage
+    @LearningWithErrors.realAdvantage
         (Sample q degree sampleCount) (Secret q degree) (Output q degree sampleCount)
         (semiringOutputAdd q degree sampleCount)
         (uniformSecretProblem q degree sampleCount errorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (uniformSecretProblem q degree sampleCount errorSampler) adversary := by
   rw [semiringOutputAdd_eq]
 
@@ -821,11 +824,11 @@ theorem oneTime_abs_signedAdvantage_le_rlwe_add_leftover_cardinal
     {q degree sampleCount : ℕ} [NeZero q]
     (errorSampler : ProbComp (Rq q degree))
     (encode : Bool → Rq q degree) (decode : Rq q degree → Option Bool)
-    (adversary : IND_CPA_Adv
+    (adversary : IND_CPA_OneTime_Adversary
       (scheme q degree sampleCount errorSampler encode decode)) :
-    |IND_CPA_OneTime_signedAdvantageReal
+    |FormalProof4FHE.oneTimeSignedAdvantage
         (scheme q degree sampleCount errorSampler encode decode) adversary| ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
           (uniformSecretProblem q degree sampleCount errorSampler)
           (rlweReduction errorSampler encode decode adversary) +
         Real.sqrt
@@ -835,7 +838,7 @@ theorem oneTime_abs_signedAdvantage_le_rlwe_add_leftover_cardinal
     FormalProof4FHE.RingRegev.oneTime_abs_signedAdvantage_le_lwe_add_leftover
       errorSampler encode decode adversary
   change _ ≤
-    @LearningWithErrors.advantage
+    @LearningWithErrors.realAdvantage
         (Sample q degree sampleCount) (Secret q degree) (Output q degree sampleCount)
         (semiringOutputAdd q degree sampleCount)
         (uniformSecretProblem q degree sampleCount errorSampler)
@@ -850,11 +853,11 @@ theorem oneTime_abs_signedAdvantage_le_rlwe_add_leftover
     {q degree sampleCount : ℕ} [NeZero q]
     (errorSampler : ProbComp (Rq q degree))
     (encode : Bool → Rq q degree) (decode : Rq q degree → Option Bool)
-    (adversary : IND_CPA_Adv
+    (adversary : IND_CPA_OneTime_Adversary
       (scheme q degree sampleCount errorSampler encode decode)) :
-    |IND_CPA_OneTime_signedAdvantageReal
+    |FormalProof4FHE.oneTimeSignedAdvantage
         (scheme q degree sampleCount errorSampler encode decode) adversary| ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
           (uniformSecretProblem q degree sampleCount errorSampler)
           (rlweReduction errorSampler encode decode adversary) +
         Real.sqrt
@@ -869,20 +872,20 @@ theorem oneTime_abs_signedAdvantage_le_of_uniformHardAgainst
     {q degree sampleCount : ℕ} [NeZero q]
     (errorSampler : ProbComp (Rq q degree))
     (encode : Bool → Rq q degree) (decode : Rq q degree → Option Bool)
-    (adversary : IND_CPA_Adv
+    (adversary : IND_CPA_OneTime_Adversary
       (scheme q degree sampleCount errorSampler encode decode))
     (allowed : LearningWithErrors.Adversary
       (uniformSecretProblem q degree sampleCount errorSampler) → Prop)
     (rlweBound : ℝ)
     (hhard : UniformHardAgainst errorSampler allowed rlweBound)
     (hreduction : allowed (rlweReduction errorSampler encode decode adversary)) :
-    |IND_CPA_OneTime_signedAdvantageReal
+    |FormalProof4FHE.oneTimeSignedAdvantage
         (scheme q degree sampleCount errorSampler encode decode) adversary| ≤
       rlweBound +
         Real.sqrt
           (((q : ℝ) ^ (degree * 2)) / ((2 : ℝ) ^ sampleCount)) / 2 := by
   calc
-    _ ≤ LearningWithErrors.advantage
+    _ ≤ LearningWithErrors.realAdvantage
           (uniformSecretProblem q degree sampleCount errorSampler)
           (rlweReduction errorSampler encode decode adversary) +
         Real.sqrt
@@ -902,11 +905,11 @@ abbrev centeredBinomialScheme (q degree sampleCount eta : ℕ) [NeZero q]
 theorem centeredBinomial_oneTime_abs_signedAdvantage_le_rlwe_add_leftover
     {q degree sampleCount eta : ℕ} [NeZero q]
     (encode : Bool → Rq q degree) (decode : Rq q degree → Option Bool)
-    (adversary : IND_CPA_Adv
+    (adversary : IND_CPA_OneTime_Adversary
       (centeredBinomialScheme q degree sampleCount eta encode decode)) :
-    |IND_CPA_OneTime_signedAdvantageReal
+    |FormalProof4FHE.oneTimeSignedAdvantage
         (centeredBinomialScheme q degree sampleCount eta encode decode) adversary| ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
           (uniformSecretProblem q degree sampleCount
             (CenteredBinomial.sampler q degree eta))
           (rlweReduction (CenteredBinomial.sampler q degree eta)

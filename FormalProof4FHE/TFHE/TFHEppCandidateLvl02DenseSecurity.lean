@@ -26,6 +26,8 @@ set_option autoImplicit false
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TFHEppCandidateLvl02DenseSecurity
 
 noncomputable section
@@ -175,13 +177,13 @@ theorem endpointAdvantage_le_three_sources
     targetAdvantage
         (candidateViews brkErrorSampler correctionSampler brkContribution).endpoints
         distinguisher ≤
-      2 * LearningWithErrors.advantage (candidateSuffixProblem brkErrorSampler)
+      2 * LearningWithErrors.realAdvantage (candidateSuffixProblem brkErrorSampler)
         ((candidateSuffixConstructor brkErrorSampler correctionSampler
           brkContribution).reduction distinguisher) +
-      2 * LearningWithErrors.advantage (candidatePrefixProblem correctionSampler)
+      2 * LearningWithErrors.realAdvantage (candidatePrefixProblem correctionSampler)
         ((candidateRandomPrefixConstructor brkErrorSampler correctionSampler
           brkContribution).reduction distinguisher) +
-      2 * LearningWithErrors.advantage (candidatePrefixProblem correctionSampler)
+      2 * LearningWithErrors.realAdvantage (candidatePrefixProblem correctionSampler)
         ((candidateSecondPrefixConstructor brkErrorSampler correctionSampler
           brkContribution).reduction distinguisher) := by
   simpa only [candidateViews, candidateSuffixProblem, candidatePrefixProblem,
@@ -198,13 +200,13 @@ theorem endpointAdvantage_le_hardness
     (brkErrorSampler correctionSampler : ProbComp (Factor → Scalar))
     (brkContribution : ScalarGadget → Matrix Prefix Factor Scalar)
     (distinguisher : Distinguisher View) (epsilonSuffix epsilonPrefix : ℝ)
-    (hSuffix : LearningWithErrors.advantage (candidateSuffixProblem brkErrorSampler)
+    (hSuffix : LearningWithErrors.realAdvantage (candidateSuffixProblem brkErrorSampler)
       ((candidateSuffixConstructor brkErrorSampler correctionSampler
         brkContribution).reduction distinguisher) ≤ epsilonSuffix)
-    (hPrefixFirst : LearningWithErrors.advantage (candidatePrefixProblem correctionSampler)
+    (hPrefixFirst : LearningWithErrors.realAdvantage (candidatePrefixProblem correctionSampler)
       ((candidateRandomPrefixConstructor brkErrorSampler correctionSampler
         brkContribution).reduction distinguisher) ≤ epsilonPrefix)
-    (hPrefixSecond : LearningWithErrors.advantage (candidatePrefixProblem correctionSampler)
+    (hPrefixSecond : LearningWithErrors.realAdvantage (candidatePrefixProblem correctionSampler)
       ((candidateSecondPrefixConstructor brkErrorSampler correctionSampler
         brkContribution).reduction distinguisher) ≤ epsilonPrefix) :
     targetAdvantage

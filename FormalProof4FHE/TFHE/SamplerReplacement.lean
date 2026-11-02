@@ -28,6 +28,8 @@ must separately establish the relevant one-draw total-variation bounds.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.SamplerReplacement
 
 /-- Sequentially sample two independent components and combine them deterministically. -/
@@ -56,11 +58,11 @@ theorem tvDist_independentPair_le {A B C : Type}
       · unfold middle
         exact tvDist_bind_right_le (fun a ↦ combine a <$> leftB) leftA rightA
       · unfold middle
-        exact tvDist_bind_left_le_const' (m := ProbComp) rightA
+        exact tvDist_bind_left_le_const' rightA
           (fun a ↦ combine a <$> leftB)
           (fun a ↦ combine a <$> rightB)
           (tvDist leftB rightB)
-          (fun a ↦ tvDist_map_le (m := ProbComp) (combine a) leftB rightB)
+          (fun a ↦ tvDist_map_le (combine a) leftB rightB)
 
 /-- Replace a sampled input and then replace its continuation with a uniform per-input bound. -/
 theorem tvDist_bind_le_add {A B : Type}
@@ -75,7 +77,7 @@ theorem tvDist_bind_le_add {A B : Type}
       tvDist_triangle _ _ _
     _ ≤ tvDist left right + bound :=
       add_le_add (tvDist_bind_right_le leftCont left right)
-        (tvDist_bind_left_le_const' (m := ProbComp) right leftCont rightCont bound hCont)
+        (tvDist_bind_left_le_const' right leftCont rightCont bound hCont)
 
 /-- Replacing the sampler in `count` independent draws costs at most `count` times the one-draw
 total-variation distance. -/
@@ -99,7 +101,7 @@ theorem tvDist_batchEncrypt_le {R : Type}
       (samples : ℝ) * tvDist left right := by
   unfold TLWE.batchEncrypt
   simpa only [map_eq_bind_pure_comp, Function.comp_def] using
-    (tvDist_bind_left_le_const' (m := ProbComp)
+    (tvDist_bind_left_le_const'
       ($ᵗ Matrix (Fin dimension) (Fin samples) R)
       (fun challenge ↦
         (fun error ↦ TLWE.batchAssemble secret challenge message error) <$>
@@ -109,7 +111,7 @@ theorem tvDist_batchEncrypt_le {R : Type}
           ProbComp.sampleIID samples right)
       ((samples : ℝ) * tvDist left right)
       (fun challenge ↦
-        (tvDist_map_le (m := ProbComp)
+        (tvDist_map_le
           (fun error ↦ TLWE.batchAssemble secret challenge message error)
           (ProbComp.sampleIID samples left)
           (ProbComp.sampleIID samples right)).trans
@@ -127,7 +129,7 @@ theorem tvDist_tgswEncrypt_le {R : Type}
       (TGSW.rowCount dimension levels : ℝ) * tvDist left right := by
   unfold TGSW.encrypt
   simpa only [map_eq_bind_pure_comp, Function.comp_def] using
-    ((tvDist_map_le (m := ProbComp) (TGSW.addGadget gadget message)
+    ((tvDist_map_le (TGSW.addGadget gadget message)
       (TLWE.batchEncrypt dimension (TGSW.rowCount dimension levels) left secret 0)
       (TLWE.batchEncrypt dimension (TGSW.rowCount dimension levels) right secret 0)).trans
         (tvDist_batchEncrypt_le dimension (TGSW.rowCount dimension levels)
@@ -482,7 +484,7 @@ theorem adaptiveReplacementCost_self
     adaptiveReplacementCost q degree ringRank tgswLevels lweDimension keySwitchLevels
       queryCount ringSampler ringSampler keySwitchSampler keySwitchSampler
       inputSampler inputSampler = 0 := by
-  simp [adaptiveReplacementCost, tvDist_self]
+  simp [adaptiveReplacementCost]
 
 /-- End-to-end total-variation bound for replacing the BRK, KSK, and adaptive-input error
 samplers in the factored native game. -/
@@ -506,12 +508,12 @@ theorem tvDist_adaptiveGameViaCloudKey_le
       adaptiveReplacementCost q degree ringRank tgswLevels lweDimension keySwitchLevels
         queryCount ringLeft ringRight keySwitchLeft keySwitchRight inputLeft inputRight := by
   unfold adaptiveGameViaCloudKey
-  refine tvDist_bind_left_le_const' (m := ProbComp)
+  refine tvDist_bind_left_le_const'
     (Native.sampleLweSecret lweDimension) _ _
     (adaptiveReplacementCost q degree ringRank tgswLevels lweDimension keySwitchLevels
       queryCount ringLeft ringRight keySwitchLeft keySwitchRight inputLeft inputRight) ?_
   intro lweSecret
-  refine tvDist_bind_left_le_const' (m := ProbComp)
+  refine tvDist_bind_left_le_const'
     (Native.sampleRingSecret ringRank degree) _ _
     (adaptiveReplacementCost q degree ringRank tgswLevels lweDimension keySwitchLevels
       queryCount ringLeft ringRight keySwitchLeft keySwitchRight inputLeft inputRight) ?_
@@ -728,7 +730,7 @@ theorem abs_signedAdvantage_implementation_le_bootstrap_add_jointLwe_add_replace
         inputImplementation tgswGadget keySwitchGadget encode adversary)| ≤
       Encryption.Adaptive.bootstrapReplacementAdvantage queryCount ringReference
           keySwitchReference inputReference tgswGadget keySwitchGadget encode adversary +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Encryption.Adaptive.jointLweProblem q lweDimension
             (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels) queryCount
             keySwitchReference inputReference)
@@ -755,7 +757,7 @@ theorem abs_signedAdvantage_implementation_le_bootstrap_add_jointLwe_add_replace
     _ ≤
       (Encryption.Adaptive.bootstrapReplacementAdvantage queryCount ringReference
           keySwitchReference inputReference tgswGadget keySwitchGadget encode adversary +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Encryption.Adaptive.jointLweProblem q lweDimension
             (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels) queryCount
             keySwitchReference inputReference)
@@ -790,7 +792,7 @@ theorem abs_signedAdvantage_implementation_le_directBilinear_add_jointLwe_add_re
       Native.BootstrapSecurity.directBilinearAdvantage ringReference keySwitchReference
           tgswGadget keySwitchGadget
           (Encryption.Adaptive.continuation queryCount inputReference encode adversary) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Encryption.Adaptive.jointLweProblem q lweDimension
             (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels) queryCount
             keySwitchReference inputReference)
@@ -829,7 +831,7 @@ theorem abs_signedAdvantage_implementation_le_directBilinear_add_batchLwe_add_re
       Native.BootstrapSecurity.directBilinearAdvantage ringReference referenceError
           tgswGadget keySwitchGadget
           (Encryption.Adaptive.continuation queryCount referenceError encode adversary) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.KeySwitchSecurity.binaryLweProblem q lweDimension
             (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels + queryCount)
             referenceError)
@@ -857,7 +859,7 @@ theorem abs_signedAdvantage_implementation_le_directBilinear_add_batchLwe_add_re
     _ ≤
       (Encryption.Adaptive.bootstrapReplacementAdvantage queryCount ringReference
           referenceError referenceError tgswGadget keySwitchGadget encode adversary +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.KeySwitchSecurity.binaryLweProblem q lweDimension
             (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels + queryCount)
             referenceError)
@@ -876,7 +878,7 @@ theorem abs_signedAdvantage_implementation_le_directBilinear_add_batchLwe_add_re
       Native.BootstrapSecurity.directBilinearAdvantage ringReference referenceError
           tgswGadget keySwitchGadget
           (Encryption.Adaptive.continuation queryCount referenceError encode adversary) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.KeySwitchSecurity.binaryLweProblem q lweDimension
             (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels + queryCount)
             referenceError)

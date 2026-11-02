@@ -27,6 +27,8 @@ reduction obligations.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput.Search.PairedRecovery.CoordinateRecovery.KeySwitchFirstFreshView
 
 open KeySwitchFirstCandidateView
@@ -649,8 +651,8 @@ theorem one_sub_freshAmplifiedError_le_scalarSuccess
     reference rounds threshold hthreshold_pos hthreshold_one distinguisher
   have hsuccess := probEvent_one_sub_le_of_compl_le
     (mx := experiment) (p := fun output : Bool ↦ output = true)
-    probFailure_eq_zero (by simpa [experiment] using hfailure)
-  simpa [experiment] using hsuccess
+    (probFailure_eq_zero _) (by simpa [experiment] using hfailure)
+  simpa [experiment, probEvent, probOutput] using hsuccess
 
 /-! ## Centered-binomial paired-key completion -/
 

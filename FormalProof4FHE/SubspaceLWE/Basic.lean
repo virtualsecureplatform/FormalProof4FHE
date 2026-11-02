@@ -20,6 +20,8 @@ view selects the shared prefix and the second view selects the entire appended s
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.GeneralizedSubspaceLWE
 
 /-- Public matrices for two heterogeneous secret views. -/
@@ -124,10 +126,10 @@ theorem shared_advantage_eq_generalized {R : Type}
     (adversary : LearningWithErrors.Adversary
       (FormalProof4FHE.SharedRandomness.problem n k m
         prefixSampler suffixSampler smallErrorSampler largeErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (FormalProof4FHE.SharedRandomness.problem n k m
           prefixSampler suffixSampler smallErrorSampler largeErrorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (problem m (sharedSpec n k prefixSampler suffixSampler
           smallErrorSampler largeErrorSampler)) adversary := by
   rw [← shared_problem_eq_generalized n k m prefixSampler suffixSampler

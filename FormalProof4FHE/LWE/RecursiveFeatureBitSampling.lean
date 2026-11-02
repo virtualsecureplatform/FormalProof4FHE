@@ -21,6 +21,8 @@ not prove the unresolved cubic-control security reduction or full PPT closure.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.RecursiveFeatureBitSampling
 
 open RecursiveMultiplication RecursiveFeatureGSW RecursiveFeatureBootstrap

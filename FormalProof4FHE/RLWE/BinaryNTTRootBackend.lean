@@ -17,6 +17,8 @@ while reusing the same one-line square certificate.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.BinaryNTTSecurity.Regular.RootBackend
 
 noncomputable section
@@ -42,7 +44,7 @@ theorem exhaustiveSquareRoot_sq_of_isSquare
   have hcandidate : candidate ∈ squareCandidates value := by
     simp [squareCandidates, hvalue]
   have hnonempty : (squareCandidates value).Nonempty := ⟨candidate, hcandidate⟩
-  rw [exhaustiveSquareRoot, dif_pos hnonempty]
+  rw [exhaustiveSquareRoot, dite_eq_left hnonempty]
   exact (Finset.mem_filter.mp (Finset.min'_mem _ hnonempty)).2
 
 /-- Certified deterministic coordinate-root implementation for every finite linearly ordered
@@ -58,7 +60,7 @@ def exhaustiveCoordinateSquareRoot
 the exhaustive root search itself. -/
 def zmodCoordinateSquareRoot (q : ℕ) [NeZero q] :
     Regular.CoordinateSquareRoot (ZMod q) := by
-  letI : LinearOrder (ZMod q) := LinearOrder.lift' ZMod.val (ZMod.val_injective q)
+  let : LinearOrder (ZMod q) := LinearOrder.lift' ZMod.val (ZMod.val_injective q)
   exact exhaustiveCoordinateSquareRoot (ZMod q)
 
 /-! ## Independent nonzero-coordinate sampling -/

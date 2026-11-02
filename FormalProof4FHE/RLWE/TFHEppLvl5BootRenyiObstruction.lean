@@ -21,6 +21,8 @@ abstract Gaussian certificate: the theorem takes the channel's mean-energy
 lower bound as a hypothesis.
 -/
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.TFHEppLvl5BootRenyiObstruction
 
 open RankOneHNFLossinessSupportAware

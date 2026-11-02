@@ -25,6 +25,8 @@ not assert a machine-level bit-operation cost for the GSW gate operation itself.
 Security of the complete same-key control view remains an ordinary-LWE proof obligation.
 -/
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWCircuit
 
 open GSWGadget GSWBootstrap GSWAccumulator

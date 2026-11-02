@@ -31,6 +31,8 @@ coefficient modulus and for the production ring with modulus `2^k`, `k > 0`, and
 open Matrix OracleComp
 open scoped ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm
 
 noncomputable section
@@ -377,7 +379,7 @@ theorem pairedRowMatrix_surjective_of_differencePairBinaryFullRank [NeZero q]
       (pairedRowMatrix candidate
         (differenceEntryDigits params leftDifference)
         (differenceEntryDigits params rightDifference)).mulVec := by
-  letI : IsLocalHom (rqParityEval heven (Nat.succ_pos degree)) :=
+  let : IsLocalHom (rqParityEval heven (Nat.succ_pos degree)) :=
     localParity
   apply mulVec_surjective_of_map_transpose_mulVec_injective
     (rqParityEval heven (Nat.succ_pos degree))
@@ -575,10 +577,10 @@ theorem totalDifferencePairChallengeCollisionExcess_le_rankFailureCount_mul
           (differencePairBinaryTransposeMatrix params
             (leftDifference, rightDifference)).rank <
               TGSW.rowCount ringRank params.levels
-      · simp only [rank_failure, if_true]
+      · simp only [rank_failure, ite_true]
         exact differencePairChallengeCollisionExcess_le_challengeCard_sq
           params candidate leftDifference rightDifference
-      · simp only [rank_failure, if_false]
+      · simp only [rank_failure, ite_false]
         have rank_le := Matrix.rank_le_width
           (differencePairBinaryTransposeMatrix params
             (leftDifference, rightDifference))
@@ -936,7 +938,6 @@ theorem differencePairBinaryRankFailureProbability_eq_count_div [NeZero q]
           (transform differences).rank < TGSW.rowCount ringRank params.levels) |
         ($ᵗ (Difference × Difference))] := by
       rw [probEvent_map]
-      rfl
     _ = (differencePairBinaryRankFailureCount
           (degree := degree) (ringRank := ringRank) params : ℝ≥0∞) /
         (Fintype.card Difference : ℝ≥0∞) ^ 2 := by
@@ -965,7 +966,7 @@ theorem differencePairBinaryRankFailure_le [NeZero q]
         differencePairBinaryTransposeSampler
           (degree := degree) (ringRank := ringRank) params] ≤
       2 / (2 : ℝ≥0∞) ^ (TGSW.rowCount ringRank params.levels + 1) := by
-  letI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  let : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   let dimension := TGSW.rowCount ringRank params.levels
   let RectangularMatrix := Matrix
     (Fin (dimension + dimension)) (Fin dimension) (ZMod 2)

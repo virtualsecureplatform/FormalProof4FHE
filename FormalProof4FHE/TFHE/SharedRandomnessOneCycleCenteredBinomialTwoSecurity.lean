@@ -28,6 +28,8 @@ TFHE parameters.
 
 open Matrix OracleComp OracleSpec
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.CenteredBinomialTwo
 
 noncomputable section
@@ -39,7 +41,7 @@ theorem ringError_tvDist_uniform_eq_zero (degree eta : ℕ) :
       ($ᵗ (RLWE.Rq 2 degree)) = 0 := by
   unfold tvDist
   rw [RLWE.CenteredBinomial.sampler_two_evalDist_eq_uniform degree eta]
-  exact SPMF.tvDist_self _
+  exact MeasureTheory.Measure.tvDist_self _
 
 /-- **Concrete adaptive confidentiality bound.**  With positive-width centered-binomial BRK
 errors modulo two, the complete reusable-key TFHE advantage is bounded by one ordinary
@@ -61,7 +63,7 @@ theorem abs_signedAdvantage_real_le_batchLwe_of_same_noise
         (RLWE.CenteredBinomial.sampler 2
           (prefixDimension + suffixDimension) (eta + 1))
         errorSampler errorSampler tgswGadget keySwitchGadget encode adversary)| ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (Native.KeySwitchSecurity.binaryLweProblem 2 prefixDimension
           (keySwitchSamples suffixDimension keySwitchLevels + queryCount) errorSampler)
         (FormalProof4FHE.LWE.TwoBlock.reduction
@@ -99,7 +101,7 @@ theorem abs_signedAdvantage_publicEvaluation_le_batchLwe_of_same_noise
           (prefixDimension + suffixDimension) (eta + 1))
         errorSampler errorSampler tgswGadget keySwitchGadget encode
         (Adaptive.compilePublicEvaluation evaluate adversary))| ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (Native.KeySwitchSecurity.binaryLweProblem 2 prefixDimension
           (keySwitchSamples suffixDimension keySwitchLevels + queryCount) errorSampler)
         (FormalProof4FHE.LWE.TwoBlock.reduction

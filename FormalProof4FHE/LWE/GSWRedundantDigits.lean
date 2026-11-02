@@ -21,6 +21,8 @@ or a different reachable-state invariant. No security assumption is used.
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWRedundantDigits
 
 def affineControl {R : Type} [CommRing R] {width : ℕ}

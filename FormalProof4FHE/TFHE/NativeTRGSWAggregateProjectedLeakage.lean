@@ -30,6 +30,8 @@ Those are precisely the cryptographic alternatives not covered by the translatio
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.NativeTRGSWAggregateProjectedLeakage
 
 noncomputable section
@@ -519,7 +521,7 @@ theorem walsh_eq_one_of_commonAggregateTranslationInvariant
       (highPassWeight Index degree) shift frequency
       (highPassTranslationInvariant_of_commonAggregate
         degree hdegree shift hinvariant)
-  rw [walshTransform_highPassWeight, if_neg hfrequency] at htranslation
+  rw [walshTransform_highPassWeight, ite_eq_right hfrequency] at htranslation
   simpa using htranslation.symm
 
 /-- Finite Walsh inversion for an arbitrary real table on the binary cube. -/
@@ -592,9 +594,9 @@ theorem highPassTranslationInvariant_of_walsh_eq_one
       walsh frequency shift * walsh frequency word by
     simpa [xorEquiv] using walsh_maskedBit frequency shift word]
   by_cases hfrequency : frequency ∈ boundedFrequencies Index degree
-  · rw [walshTransform_highPassWeight, if_pos hfrequency]
+  · rw [walshTransform_highPassWeight, ite_eq_left hfrequency]
     ring
-  · rw [walshTransform_highPassWeight, if_neg hfrequency,
+  · rw [walshTransform_highPassWeight, ite_eq_right hfrequency,
       hcharacters frequency hfrequency]
     ring
 
@@ -758,7 +760,7 @@ theorem walsh_fullFrequency_eq_bitSign_mul_punctured
   classical
   rw [walsh_puncturedFrequency_eq_prod_erase]
   unfold walsh fullFrequency
-  simp only [if_true]
+  simp only [ite_true]
   exact (Finset.mul_prod_erase Finset.univ
     (fun candidate ↦ bitSign (word candidate)) (Finset.mem_univ coordinate)).symm
 
@@ -1011,7 +1013,7 @@ noncomputable def recoverSeparatedAttribute
     {Key Attribute Leakage : Type}
     (default : Attribute) (attributeFn : Key → Attribute) (leakage : Key → Leakage)
     (value : Leakage) : Attribute := by
-  letI : Decidable (∃ key, leakage key = value) := Classical.propDecidable _
+  let : Decidable (∃ key, leakage key = value) := Classical.propDecidable _
   exact if hvalue : ∃ key, leakage key = value then
       attributeFn (Classical.choose hvalue)
     else default
@@ -1024,13 +1026,10 @@ theorem recoverSeparatedAttribute_leakage
       attributeFn first = attributeFn second)
     (key : Key) :
     recoverSeparatedAttribute default attributeFn leakage (leakage key) = attributeFn key := by
-  unfold recoverSeparatedAttribute
-  split
-  · rename_i himage
-    exact hseparated (Classical.choose himage) key
-      (Classical.choose_spec himage)
-  · rename_i houtside
-    exact False.elim (houtside ⟨key, rfl⟩)
+  classical
+  have himage : ∃ first, leakage first = leakage key := ⟨key, rfl⟩
+  rw [recoverSeparatedAttribute, dite_eq_left himage]
+  exact hseparated (Classical.choose himage) key (Classical.choose_spec himage)
 
 theorem halfRenyiConcentration_eq_of_evalDist_eq
     {A : Type} [Fintype A] (first second : ProbComp A)

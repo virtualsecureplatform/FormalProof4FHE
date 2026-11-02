@@ -16,6 +16,8 @@ theorem without a concrete native BGV public-key hybrid and correctness circuit.
 
 open OracleComp BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.BinaryNTTSecurity.RegularCoverSameKeyBGV
 
 noncomputable section

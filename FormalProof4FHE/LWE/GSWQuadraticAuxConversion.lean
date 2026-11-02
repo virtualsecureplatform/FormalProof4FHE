@@ -22,6 +22,8 @@ obligation; merely supplying it would restate quadratic circular security.
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWQuadraticAuxConversion
 
 def convert {R I : Type} [CommRing R] [Fintype I] {n : ℕ}

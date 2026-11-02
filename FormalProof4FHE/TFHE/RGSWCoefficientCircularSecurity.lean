@@ -42,6 +42,8 @@ the paper's efficient-samplability premise.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.RGSWCoefficientCircularSecurity
 
 noncomputable section
@@ -1811,7 +1813,7 @@ theorem rgswSquaredBiasTwoBlock_game0_evalDist
     (encode : Leakage → R) (errorSampler : ProbComp R)
     (gadget : Fin levels → R) (distinguisher : RGSWDistinguisher R levels) :
     evalDist
-        (LearningWithErrors.game0
+        (LearningWithErrors.realExperiment
           (LWE.TwoBlock.problem 1 (TGSW.rowCount 1 levels) (TGSW.rowCount 1 levels)
             secretSampler embed errorSampler)
           (rgswSquaredBiasTwoBlockAdversary levels secretSampler auxiliarySampler embed encode
@@ -1819,7 +1821,7 @@ theorem rgswSquaredBiasTwoBlock_game0_evalDist
       evalDist
         (rgswSquaredBiasSourceRealGame levels secretSampler auxiliarySampler embed encode
           errorSampler gadget distinguisher) := by
-  rw [LearningWithErrors.game0]
+  rw [LearningWithErrors.realExperiment]
   rw [show
       (LearningWithErrors.distr
           (LWE.TwoBlock.problem 1 (TGSW.rowCount 1 levels) (TGSW.rowCount 1 levels)
@@ -1992,7 +1994,7 @@ theorem rgswSquaredBiasTwoBlock_game0_eq_removalReal_evalDist
     (encode : Leakage → R) (errorSampler : ProbComp R)
     (gadget : Fin levels → R) (distinguisher : RGSWDistinguisher R levels) :
     evalDist
-        (LearningWithErrors.game0
+        (LearningWithErrors.realExperiment
           (LWE.TwoBlock.problem 1 (TGSW.rowCount 1 levels) (TGSW.rowCount 1 levels)
             secretSampler embed errorSampler)
           (rgswSquaredBiasTwoBlockAdversary levels secretSampler auxiliarySampler embed encode
@@ -2065,7 +2067,7 @@ theorem rgswSquaredBiasTwoBlock_game1_evalDist
     (encode : Leakage → R) (errorSampler : ProbComp R)
     (gadget : Fin levels → R) (distinguisher : RGSWDistinguisher R levels) :
     evalDist
-        (LearningWithErrors.game1
+        (LearningWithErrors.randomExperiment
           (LWE.TwoBlock.problem 1 (TGSW.rowCount 1 levels) (TGSW.rowCount 1 levels)
             secretSampler embed errorSampler)
           (rgswSquaredBiasTwoBlockAdversary levels secretSampler auxiliarySampler embed encode
@@ -2073,7 +2075,7 @@ theorem rgswSquaredBiasTwoBlock_game1_evalDist
       evalDist
         (rgswSquaredBiasSourceUniformGame levels auxiliarySampler encode gadget
           distinguisher) := by
-  rw [LearningWithErrors.game1]
+  rw [LearningWithErrors.randomExperiment]
   rw [show
       (LearningWithErrors.uniformDistr
           (LWE.TwoBlock.problem 1 (TGSW.rowCount 1 levels) (TGSW.rowCount 1 levels)
@@ -2305,7 +2307,7 @@ theorem rgswSquaredBiasTwoBlock_game1_eq_removalIdeal_evalDist
     (gadget : Fin levels → R) (distinguisher : RGSWDistinguisher R levels)
     (hSecretTotal : Pr[⊥ | secretSampler] = 0) :
     evalDist
-        (LearningWithErrors.game1
+        (LearningWithErrors.randomExperiment
           (LWE.TwoBlock.problem 1 (TGSW.rowCount 1 levels) (TGSW.rowCount 1 levels)
             secretSampler embed errorSampler)
           (rgswSquaredBiasTwoBlockAdversary levels secretSampler auxiliarySampler embed encode
@@ -2331,7 +2333,7 @@ theorem rgswLeakageRemovalAdvantage_eq_twoBlockRLWE
     (hSecretTotal : Pr[⊥ | secretSampler] = 0) :
     rgswLeakageRemovalAdvantage levels secretSampler auxiliarySampler embed encode
         errorSampler gadget distinguisher =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (LWE.TwoBlock.problem 1 (TGSW.rowCount 1 levels) (TGSW.rowCount 1 levels)
           secretSampler embed errorSampler)
         (rgswSquaredBiasTwoBlockAdversary levels secretSampler auxiliarySampler embed encode
@@ -2357,7 +2359,7 @@ theorem rgswLeakageRemovalAdvantage_eq_batchRLWE
     (hSecretTotal : Pr[⊥ | secretSampler] = 0) :
     rgswLeakageRemovalAdvantage levels secretSampler auxiliarySampler embed encode
         errorSampler gadget distinguisher =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (LWE.embeddedBatchProblem 1
           (TGSW.rowCount 1 levels + TGSW.rowCount 1 levels)
           secretSampler embed errorSampler)
@@ -2365,7 +2367,7 @@ theorem rgswLeakageRemovalAdvantage_eq_batchRLWE
           (rgswSquaredBiasTwoBlockAdversary levels secretSampler auxiliarySampler embed encode
             errorSampler gadget distinguisher)) := by
   calc
-    _ = LearningWithErrors.advantage
+    _ = LearningWithErrors.realAdvantage
         (LWE.TwoBlock.problem 1 (TGSW.rowCount 1 levels) (TGSW.rowCount 1 levels)
           secretSampler embed errorSampler)
         (rgswSquaredBiasTwoBlockAdversary levels secretSampler auxiliarySampler embed encode
@@ -2436,7 +2438,7 @@ theorem rgswZeroAdvantage_eq_batchRLWE
     (gadget : Fin levels → R) (distinguisher : RGSWDistinguisher R levels)
     (hSecretTotal : Pr[⊥ | secretSampler] = 0) :
     rgswZeroAdvantage levels secretSampler embed errorSampler gadget distinguisher =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (LWE.embeddedBatchProblem 1 (TGSW.rowCount 1 levels)
           secretSampler embed errorSampler)
         (rgswZeroBatchAdversary levels secretSampler embed errorSampler distinguisher) := by
@@ -2444,13 +2446,13 @@ theorem rgswZeroAdvantage_eq_batchRLWE
   unfold rgswZeroAdvantage ProbComp.boolDistAdvantage
   have hReal :
       evalDist
-          (LearningWithErrors.game0
+          (LearningWithErrors.realExperiment
             (LWE.embeddedBatchProblem 1 (TGSW.rowCount 1 levels)
               secretSampler embed errorSampler)
             (rgswZeroBatchAdversary levels secretSampler embed errorSampler distinguisher)) =
         evalDist
           (rgswZeroGame levels secretSampler embed errorSampler gadget distinguisher) := by
-    rw [LearningWithErrors.game0]
+    rw [LearningWithErrors.realExperiment]
     unfold rgswZeroBatchAdversary
     calc
       _ = evalDist
@@ -2464,12 +2466,12 @@ theorem rgswZeroAdvantage_eq_batchRLWE
         simp [rgswZeroGame, TGSW.encryptZero, TGSW.encrypt, bind_assoc, monad_norm]
   have hUniform :
       evalDist
-          (LearningWithErrors.game1
+          (LearningWithErrors.randomExperiment
             (LWE.embeddedBatchProblem 1 (TGSW.rowCount 1 levels)
               secretSampler embed errorSampler)
             (rgswZeroBatchAdversary levels secretSampler embed errorSampler distinguisher)) =
         evalDist (rgswUniformGame levels secretSampler distinguisher) := by
-    rw [LearningWithErrors.game1,
+    rw [LearningWithErrors.randomExperiment,
       LWE.TwoBlock.batchUniformDistr_eq_uniformSample]
     unfold rgswZeroBatchAdversary rgswUniformGame
     apply Eq.symm
@@ -2495,14 +2497,14 @@ theorem rgswKDMAdvantage_le_sqrt_gamma_add_batchRLWE
     rgswKDMAdvantage levels secretSampler embed leakage encode errorSampler gadget
         distinguisher ≤
       Real.sqrt (2 * leakageGamma secretSampler auxiliarySampler leakage *
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (LWE.embeddedBatchProblem 1
             (TGSW.rowCount 1 levels + TGSW.rowCount 1 levels)
             secretSampler embed errorSampler)
           (LWE.TwoBlock.reduction
             (rgswSquaredBiasTwoBlockAdversary levels secretSampler auxiliarySampler embed encode
               errorSampler gadget distinguisher))) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (LWE.embeddedBatchProblem 1 (TGSW.rowCount 1 levels)
           secretSampler embed errorSampler)
         (rgswZeroBatchAdversary levels secretSampler embed errorSampler distinguisher) := by
@@ -2533,14 +2535,14 @@ theorem rgswKDMAdvantage_le_sqrt_concentration_add_batchRLWE
     rgswKDMAdvantage levels secretSampler embed leakage encode errorSampler gadget
         distinguisher ≤
       Real.sqrt (2 * halfRenyiConcentration (leakageLaw secretSampler leakage) *
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (LWE.embeddedBatchProblem 1
             (TGSW.rowCount 1 levels + TGSW.rowCount 1 levels)
             secretSampler embed errorSampler)
           (LWE.TwoBlock.reduction
             (rgswSquaredBiasTwoBlockAdversary levels secretSampler auxiliarySampler embed encode
               errorSampler gadget distinguisher))) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (LWE.embeddedBatchProblem 1 (TGSW.rowCount 1 levels)
           secretSampler embed errorSampler)
         (rgswZeroBatchAdversary levels secretSampler embed errorSampler distinguisher) := by
@@ -2564,14 +2566,14 @@ theorem rgswKDMAdvantage_le_sqrt_card_add_batchRLWE
     rgswKDMAdvantage levels secretSampler embed leakage encode errorSampler gadget
         distinguisher ≤
       Real.sqrt (2 * Fintype.card Leakage *
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (LWE.embeddedBatchProblem 1
             (TGSW.rowCount 1 levels + TGSW.rowCount 1 levels)
             secretSampler embed errorSampler)
           (LWE.TwoBlock.reduction
             (rgswSquaredBiasTwoBlockAdversary levels secretSampler ($ᵗ Leakage) embed encode
               errorSampler gadget distinguisher))) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (LWE.embeddedBatchProblem 1 (TGSW.rowCount 1 levels)
           secretSampler embed errorSampler)
         (rgswZeroBatchAdversary levels secretSampler embed errorSampler distinguisher) := by

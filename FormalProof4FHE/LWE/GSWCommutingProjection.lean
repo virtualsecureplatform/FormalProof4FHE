@@ -20,6 +20,8 @@ rules out these algebraic identities alone as a mixed-error invariant.
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWCommutingProjection
 
 def rankOne {R : Type} [Mul R] {width : ℕ} (a b : Fin width → R) :
@@ -95,7 +97,7 @@ theorem factor_pair_product (i j : Fin 2) :
   · subst j
     simp only [ite_true, mul_one]
     rfl
-  · simp only [if_neg hij, mul_zero, zero_mul]
+  · simp only [ite_eq_right hij, mul_zero, zero_mul]
     rfl
 
 theorem factors_globally_idempotent (i : Fin 2) :

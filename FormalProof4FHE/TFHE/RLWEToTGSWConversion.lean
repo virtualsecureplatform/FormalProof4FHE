@@ -37,6 +37,8 @@ error.
 
 open Matrix
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RLWEToTGSW
 
 /-! ## Deterministic conversion -/

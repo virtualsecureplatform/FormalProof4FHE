@@ -39,6 +39,8 @@ open computational boundary.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd
 
 open Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView
@@ -390,7 +392,7 @@ theorem embedBinaryPolynomial_singleBit_zero {q degree : ℕ} [NeZero q]
                 intro hzero
                 apply hcoefficient
                 exact Fin.ext hzero
-              rw [TGSW.MonomialKDM.singleBit, if_neg hcoefficient]
+              rw [TGSW.MonomialKDM.singleBit, ite_eq_right hcoefficient]
               simp only [hvalue, decide_false, Bool.false_and]
       exact hconstant.trans (BlindRotation.embedConstantBit_eq_embedBit bit)
 
@@ -487,7 +489,7 @@ convolution, independently uniform Boolean secret coefficients, and centered-bin
 noncomputable def postCutCoefficientStructuredLWESecurityGame :
     SecurityGame PostCutCoefficientStructuredLWEAdversaryFamily where
   advantage adversary securityParameter := ENNReal.ofReal
-    (LearningWithErrors.advantage
+    (LearningWithErrors.realAdvantage
       (Native.CoefficientStructuredLWE.problem
         (family.parameters.q securityParameter)
         (family.parameters.degree securityParameter) 1
@@ -587,7 +589,7 @@ post-cut reductions.  Rank one makes the two carriers definitionally coincide. -
 noncomputable def postCutBinarySecretRLWESecurityGame :
     SecurityGame PostCutBinarySecretRLWEAdversaryFamily where
   advantage adversary securityParameter := ENNReal.ofReal
-    (LearningWithErrors.advantage
+    (LearningWithErrors.realAdvantage
       (Native.BootstrapCutSecurity.binarySecretRLWEProblem
         (family.parameters.q securityParameter)
         (family.parameters.degree securityParameter)
@@ -657,7 +659,7 @@ abbrev PostCutCyclotomicRLWEAdversaryFamily :=
 noncomputable def postCutCyclotomicRLWESecurityGame :
     SecurityGame PostCutCyclotomicRLWEAdversaryFamily where
   advantage adversary securityParameter := ENNReal.ofReal
-    (LearningWithErrors.advantage
+    (LearningWithErrors.realAdvantage
       (postCutCyclotomicRLWEProblem securityParameter)
       (adversary securityParameter))
 
@@ -713,9 +715,9 @@ theorem advantage_reindexPostCutExecutableAdversary
     (hdegree : sourceDegree = targetDegree)
     (adversary : LearningWithErrors.Adversary
       (postCutExecutableRLWEProblem securityParameter sourceDegree)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (postCutExecutableRLWEProblem securityParameter sourceDegree) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (postCutExecutableRLWEProblem securityParameter targetDegree)
         (reindexPostCutExecutableAdversary securityParameter hdegree adversary) := by
   subst targetDegree
@@ -773,13 +775,13 @@ theorem postCutBinarySecretRLWE_advantage_eq_cyclotomic
       postCutCyclotomicRLWESecurityGame.advantage
         (postCutBinaryToCyclotomicReduction adversary) securityParameter := by
   calc
-    _ = ENNReal.ofReal (LearningWithErrors.advantage
+    _ = ENNReal.ofReal (LearningWithErrors.realAdvantage
         (postCutExecutableRLWEProblem securityParameter
           (ringDegree securityParameter))
         (postCutRingBatchAsExecutable securityParameter
           (adversary securityParameter))) := by
       rfl
-    _ = ENNReal.ofReal (LearningWithErrors.advantage
+    _ = ENNReal.ofReal (LearningWithErrors.realAdvantage
         (postCutExecutableRLWEProblem securityParameter
           (2 ^ ringExponent securityParameter))
         (postCutBinaryAdversaryAtPower securityParameter
@@ -927,7 +929,7 @@ noncomputable def concreteBatchLWESecurityGame :
     SecurityGame
       (Encryption.Adaptive.Asymptotic.BatchLWEAdversaryFamily family.parameters) where
   advantage adversary securityParameter := ENNReal.ofReal
-    (LearningWithErrors.advantage
+    (LearningWithErrors.realAdvantage
       (concreteBatchLWEProblem securityParameter
         (adversary.queryCount securityParameter))
       (concreteBatchLWEAdversary adversary securityParameter))

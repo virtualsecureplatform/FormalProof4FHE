@@ -18,6 +18,8 @@ private sampling coins; it is not a public ordinary-LWE challenge simulator.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWStoredSecurityView
 
 open GSWGadget GSWAccumulator GSWPublicKey GSWSampling

@@ -27,6 +27,8 @@ monomials.
 
 open ENNReal OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.MonomialKDM
 
 /-- Security game for the exact degree-two monomial presentation of the native intact-cycle

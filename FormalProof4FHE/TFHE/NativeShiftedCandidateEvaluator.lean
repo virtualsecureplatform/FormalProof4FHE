@@ -37,6 +37,8 @@ distributional steps.
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator
 
 open FormalProof4FHE.TFHE
@@ -917,7 +919,7 @@ noncomputable def rowBranchDistance [NeZero q]
     (params : Gadget.Base.Parameters q) (candidate : Bool)
     (control : RingGSWCiphertext q degree ringRank params.levels)
     (ifFalse : TLWE.Ciphertext (RLWE.Rq q degree) ringRank) : ℝ :=
-  letI : SampleableType (TLWE.Ciphertext (RLWE.Rq q degree) ringRank) :=
+  let : SampleableType (TLWE.Ciphertext (RLWE.Rq q degree) ringRank) :=
     SampleableType.ofEquiv
       (tlweCiphertextEquiv (RLWE.Rq q degree) ringRank)
   tvDist
@@ -930,7 +932,7 @@ quantity contains no false/data row. -/
 noncomputable def controlBranchDistance [NeZero q]
     (params : Gadget.Base.Parameters q) (candidate : Bool)
     (control : RingGSWCiphertext q degree ringRank params.levels) : ℝ :=
-  letI : SampleableType (TLWE.Ciphertext (RLWE.Rq q degree) ringRank) :=
+  let : SampleableType (TLWE.Ciphertext (RLWE.Rq q degree) ringRank) :=
     SampleableType.ofEquiv
       (tlweCiphertextEquiv (RLWE.Rq q degree) ringRank)
   tvDist
@@ -957,7 +959,7 @@ theorem rowBranchDistance_eq_controlBranchDistance [NeZero q]
     rowBranchDistance params candidate control ifFalse =
       controlBranchDistance params candidate control := by
   let Row := TLWE.Ciphertext (RLWE.Rq q degree) ringRank
-  letI : SampleableType Row := SampleableType.ofEquiv
+  let : SampleableType Row := SampleableType.ofEquiv
     (tlweCiphertextEquiv (RLWE.Rq q degree) ringRank)
   let Uniform : ProbComp Row := $ᵗ Row
   let translation := rowTranslationEquiv ifFalse
@@ -988,8 +990,8 @@ theorem rowBranchDistance_eq_controlBranchDistance [NeZero q]
       tvDist (translation <$> left) (translation <$> right) =
         tvDist left right := by
     apply le_antisymm
-    · exact tvDist_map_le (m := ProbComp) translation left right
-    · have h := tvDist_map_le (m := ProbComp) translation.symm
+    · exact tvDist_map_le translation left right
+    · have h := tvDist_map_le translation.symm
         (translation <$> left) (translation <$> right)
       have hleft : translation.symm <$> (translation <$> left) = left := by
         rw [Functor.map_map]
@@ -1037,7 +1039,7 @@ theorem entryBranchDistance_le_sum_rowBranchDistance [NeZero q]
     entryBranchDistance params candidate control ifFalse ≤
       ∑ row, rowBranchDistance params candidate control (TLWE.entry ifFalse row) := by
   let Row := TLWE.Ciphertext (RLWE.Rq q degree) ringRank
-  letI : SampleableType Row := SampleableType.ofEquiv
+  let : SampleableType Row := SampleableType.ofEquiv
     (tlweCiphertextEquiv (RLWE.Rq q degree) ringRank)
   let count := TGSW.rowCount ringRank params.levels
   let assemble : (Fin count → Row) →

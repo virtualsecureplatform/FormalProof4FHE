@@ -30,6 +30,8 @@ not claimed here.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.KeySwitchFirstCloudSecurity
 
 open FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput.Search.PairedRecovery.CoordinateRecovery
@@ -300,7 +302,7 @@ theorem zeroBootstrapUniformKeySwitchGame_evalDist_eq_lwe_game1
     (tgswGadget : Fin tgswLevels → RLWE.Rq q degree)
     (adversary : Adversary q degree ringRank tgswLevels lweDimension keySwitchLevels) :
     evalDist (zeroBootstrapUniformKeySwitchGame ringErrorSampler tgswGadget adversary) =
-      evalDist (LearningWithErrors.game1
+      evalDist (LearningWithErrors.randomExperiment
         (KeySwitchSecurity.binaryLweProblem q lweDimension
           ((ringRank * degree) * keySwitchLevels) keySwitchErrorSampler)
         (KeySwitchSecurity.zeroMessageReduction ringErrorSampler keySwitchErrorSampler
@@ -350,12 +352,12 @@ theorem zeroBootstrapUniformKeySwitchGame_evalDist_eq_lwe_game1
     _ = evalDist (SplitUniform >>= fun keySwitchKey ↦
         Context >>= fun context ↦ finish context keySwitchKey) :=
       evalDist_bind_bind_swap Context SplitUniform _
-    _ = evalDist (LearningWithErrors.game1
+    _ = evalDist (LearningWithErrors.randomExperiment
         (KeySwitchSecurity.binaryLweProblem q lweDimension
           ((ringRank * degree) * keySwitchLevels) keySwitchErrorSampler)
         (KeySwitchSecurity.zeroMessageReduction ringErrorSampler keySwitchErrorSampler
           tgswGadget adversary)) := by
-      simp [LearningWithErrors.game1, LearningWithErrors.uniformDistr,
+      simp [LearningWithErrors.randomExperiment, LearningWithErrors.uniformDistr,
         KeySwitchSecurity.binaryLweProblem, FormalProof4FHE.LWE.embeddedBatchProblem,
         KeySwitchSecurity.zeroMessageReduction, Context,
         KeySwitchSecurity.zeroBootstrapContext, SplitUniform, Challenge, Output,
@@ -458,7 +460,7 @@ theorem uniformToZeroKeySwitchAdvantage_eq_lwe
     (adversary : Adversary q degree ringRank tgswLevels lweDimension keySwitchLevels) :
     uniformToZeroKeySwitchAdvantage ringErrorSampler keySwitchErrorSampler
         tgswGadget keySwitchGadget adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (KeySwitchSecurity.binaryLweProblem q lweDimension
           ((ringRank * degree) * keySwitchLevels) keySwitchErrorSampler)
         (KeySwitchSecurity.zeroMessageReduction ringErrorSampler keySwitchErrorSampler
@@ -528,17 +530,17 @@ theorem circularAdvantage_le_decision_add_two_moduleLwe_add_lwe
         Circular.evaluationKeyOnlyPayload adversary ≤
       keySwitchDecisionAdvantage ringErrorSampler keySwitchErrorSampler
           tgswGadget keySwitchGadget (toPublicDistinguisher adversary) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (BootstrapCutSecurity.batchModuleLweProblem
             q degree ringRank tgswLevels lweDimension ringErrorSampler)
           (BootstrapCutSecurity.realBatchReduction
             ringErrorSampler ($ᵗ (ZMod q)) tgswGadget (toCutContinuation adversary)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (BootstrapCutSecurity.batchModuleLweProblem
             q degree ringRank tgswLevels lweDimension ringErrorSampler)
           (BootstrapCutSecurity.zeroBatchReduction
             ringErrorSampler ($ᵗ (ZMod q)) (toCutContinuation adversary)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (KeySwitchSecurity.binaryLweProblem q lweDimension
             ((ringRank * degree) * keySwitchLevels) keySwitchErrorSampler)
           (KeySwitchSecurity.zeroMessageReduction ringErrorSampler keySwitchErrorSampler

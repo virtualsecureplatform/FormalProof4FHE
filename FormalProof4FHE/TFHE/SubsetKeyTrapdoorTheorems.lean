@@ -37,6 +37,8 @@ hidden-witness compiler is postulated.
 open Matrix OracleComp
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.SubsetKeyTrapdoorTheorems
 
 noncomputable section
@@ -54,7 +56,7 @@ theorem publicBranchConstructorReduction
     (constructor : PublicViewConstructor problem prefixSampler targetView)
     (distinguisher : Distinguisher View) :
     targetAdvantage targetView distinguisher ≤
-      2 * LearningWithErrors.advantage problem (constructor.reduction distinguisher) +
+      2 * LearningWithErrors.realAdvantage problem (constructor.reduction distinguisher) +
         constructor.realError true + constructor.realError false + constructor.uniformError :=
   constructor.targetAdvantage_le_two_source_add_errors distinguisher
 
@@ -343,7 +345,7 @@ theorem taggedJointSecurity
       constructor.realError branch ≤ regularityError + noiseError)
     (huniform : constructor.uniformError ≤ auxiliaryError) :
     targetAdvantage targetView distinguisher ≤
-      2 * LearningWithErrors.advantage problem (constructor.reduction distinguisher) +
+      2 * LearningWithErrors.realAdvantage problem (constructor.reduction distinguisher) +
         2 * regularityError + 2 * noiseError + auxiliaryError := by
   have h := constructor.targetAdvantage_le_two_source_add_errors distinguisher
   have htrue := hreal true
@@ -546,9 +548,9 @@ theorem sampler_tvDist_ideal_le
       Real.sqrt
           (((Fintype.card G : ℝ) - 1) /
             (Nat.choose dimension weight : ℝ)) / 2 := by
-  letI : Nonempty (FixedWeightSupport dimension weight) :=
+  let : Nonempty (FixedWeightSupport dimension weight) :=
     fixedWeightSupport_nonempty dimension weight weight_le
-  letI : SampleableType (FixedWeightSupport dimension weight) :=
+  let : SampleableType (FixedWeightSupport dimension weight) :=
     fixedWeightSupportSampleable dimension weight weight_le
   have hleft :
       evalDist (sampler dimension weight weight_le target) =
@@ -907,7 +909,7 @@ theorem randomGadgetJointSecurity
     (hreal : ∀ branch, constructor.realError branch = 0)
     (huniform : constructor.uniformError ≤ auxiliaryError) :
     targetAdvantage targetView distinguisher ≤
-      2 * LearningWithErrors.advantage problem (constructor.reduction distinguisher) +
+      2 * LearningWithErrors.realAdvantage problem (constructor.reduction distinguisher) +
         auxiliaryError := by
   have h := constructor.targetAdvantage_le_two_source_add_errors distinguisher
   rw [hreal true, hreal false] at h

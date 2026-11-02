@@ -63,7 +63,7 @@ theorem card_satisfying_sub_one_eq_card_nonzeroSatisfying
         {witness : Witness // witness ≠ distinguished ∧ predicate witness}) =
         Nat.card
           {witness : Witness // witness ≠ distinguished ∧ predicate witness} + 1 := by
-    letI : Fintype
+    let : Fintype
         {witness : Witness // witness ≠ distinguished ∧ predicate witness} :=
       Fintype.ofFinite _
     simp [Nat.card_eq_fintype_card]
@@ -84,7 +84,7 @@ theorem cast_card_satisfying_sub_one_eq_card_nonzeroSatisfying
         {witness : Witness // witness ≠ distinguished ∧ predicate witness}) =
         Nat.card
           {witness : Witness // witness ≠ distinguished ∧ predicate witness} + 1 := by
-    letI : Fintype
+    let : Fintype
         {witness : Witness // witness ≠ distinguished ∧ predicate witness} :=
       Fintype.ofFinite _
     simp [Nat.card_eq_fintype_card]
@@ -101,7 +101,7 @@ theorem cast_card_subtype_eq_sum_indicator
     (predicate : Witness → Prop) :
     (Nat.card {witness : Witness // predicate witness} : ℝ) =
       ∑ witness : Witness, if predicate witness then 1 else 0 := by
-  letI : Fintype {witness : Witness // predicate witness} := Fintype.ofFinite _
+  let : Fintype {witness : Witness // predicate witness} := Fintype.ofFinite _
   rw [Nat.card_eq_fintype_card, Fintype.card_subtype, Finset.card_filter]
   push_cast
   simp
@@ -117,7 +117,7 @@ theorem sum_distinct_acceptance_indicator_eq_factorialCard
   classical
   let accepted : Finset Input := Finset.univ.filter accepts
   have haccepted : accepted.card = Nat.card {input : Input // accepts input} := by
-    letI : Fintype {input : Input // accepts input} := Fintype.ofFinite _
+    let : Fintype {input : Input // accepts input} := Fintype.ofFinite _
     rw [Nat.card_eq_fintype_card, Fintype.card_subtype]
   have hoffDiag :
       accepted.offDiag =
@@ -188,7 +188,7 @@ theorem sum_distinct_card_common_sub_one_eq_nonzeroWitnessMoment
       apply Finset.sum_congr rfl
       intro right _
       by_cases hdistinct : left ≠ right
-      · rw [if_pos hdistinct, if_pos hdistinct]
+      · rw [ite_eq_left hdistinct, ite_eq_left hdistinct]
         calc
           (Nat.card
               {witness : Witness // accepts witness left ∧ accepts witness right} : ℝ) - 1 =
@@ -222,7 +222,7 @@ theorem sum_distinct_card_common_sub_one_eq_nonzeroWitnessMoment
       apply Finset.sum_congr rfl
       intro right _
       by_cases hdistinct : left ≠ right
-      · rw [if_pos hdistinct]
+      · rw [ite_eq_left hdistinct]
         apply Finset.sum_congr rfl
         intro witness _
         by_cases hwitness : witness ≠ distinguished <;>

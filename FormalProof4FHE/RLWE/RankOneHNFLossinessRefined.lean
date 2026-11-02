@@ -26,6 +26,8 @@ new axiom is introduced.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.RankOneHNFLossinessRefined
 
 open RankOneHNFLossinessRLWENTRU
@@ -1264,7 +1266,7 @@ theorem averagedGaussianLossinessBound
         @averagedGaussianDescriptorBound Descriptor certificate.good
           certificate.goodDecidable certificate.ringRank certificate.t2
           certificate.conditionalEntropy certificate.smoothingError descriptor := by
-  letI : DecidablePred certificate.good := certificate.goodDecidable
+  let : DecidablePred certificate.good := certificate.goodDecidable
   exact distributionAveragedGuessingBound descriptorSampler prior channel _
     certificate.pointwiseGuessing
 

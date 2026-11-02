@@ -25,6 +25,8 @@ unconditional global relaxation does not lower-bound the exact retained-fiber lo
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm
 
 noncomputable section
@@ -218,7 +220,7 @@ theorem fixedErrorDiagonalSelfPairCollisionExcess_eq_challengeCard_mul_kernelSum
   intro difference _
   by_cases hside : fixedErrorDifferenceSide params candidate sourceError difference =
       transformedError
-  · simp only [hside, if_true]
+  · simp only [hside, ite_true]
     exact differencePairChallengeCollisionExcess_self_eq_challengeCard_mul_kernelFactor
       params candidate difference
   · simp [hside]
@@ -274,7 +276,7 @@ theorem fixedErrorDiagonalNormalizedPairCollisionExcess_eq_self_add_distinct [Ne
   by_cases hfiber :
       fixedErrorDifferenceFiberCard params candidate sourceError transformedError = 0
   · simp [hfiber]
-  · simp only [hfiber, if_false]
+  · simp only [hfiber, ite_false]
     rw [fixedErrorDiagonalPairCollisionExcess_eq_self_add_distinct, add_div]
 
 theorem fixedErrorDiagonalSelfPairCollisionExcess_nonneg [NeZero q]
@@ -453,7 +455,7 @@ theorem averagedSourceErrorDiagonalChiSquareLoss_le_self_add_distinct [NeZero q]
         averagedSourceErrorDiagonalDistinctChiSquareLoss (ringRank := ringRank)
           params sourceErrorSampler candidate := by
   classical
-  letI : Fintype (DiagonalErrorVector q degree ringRank params.levels) :=
+  let : Fintype (DiagonalErrorVector q degree ringRank params.levels) :=
     Fintype.ofFinite _
   unfold averagedSourceErrorDiagonalChiSquareLoss
     averagedSourceErrorDiagonalSelfChiSquareLoss
@@ -506,7 +508,7 @@ theorem fixedErrorDiagonalNormalizedSelfPairCollisionExcess_eq_kernelFiberAverag
   by_cases hfiber :
       fixedErrorDifferenceFiberCard params candidate sourceError transformedError = 0
   · simp [hfiber]
-  · simp only [hfiber, if_false]
+  · simp only [hfiber, ite_false]
     rw [fixedErrorDiagonalSelfPairCollisionExcess_eq_challengeCard_mul_kernelSum]
     have hD : (0 : ℝ) < Fintype.card
         (RingGSWCiphertext q (degree + 1) ringRank params.levels) := by
@@ -638,7 +640,7 @@ theorem fixedErrorDiagonalNormalizedSelfPairCollisionExcess_le_nonemptyFiberCoun
       intro transformedError _
       by_cases hfiber : K transformedError = 0
       · simp [hfiber]
-      · simp only [hfiber, if_false]
+      · simp only [hfiber, ite_false]
         have hK : (0 : ℝ) < K transformedError := by
           exact_mod_cast Nat.pos_of_ne_zero hfiber
         apply (div_le_iff₀ (mul_pos hD hK)).2
@@ -803,7 +805,7 @@ theorem averagedSourceErrorDiagonalSelfChiSquareLoss_le_fiberAverage
   let ErrorVector := DiagonalErrorVector q degree ringRank params.levels
   let Errors : ProbComp ErrorVector :=
     ProbComp.sampleIID (TGSW.rowCount ringRank params.levels) sourceErrorSampler
-  letI : Fintype ErrorVector := Fintype.ofFinite ErrorVector
+  let : Fintype ErrorVector := Fintype.ofFinite ErrorVector
   have hmass : (∑ sourceError : ErrorVector,
       Pr[= sourceError | Errors].toReal) = 1 := by
     rw [← ENNReal.toReal_sum (fun _ _ => probOutput_ne_top),
@@ -997,7 +999,7 @@ theorem fixedErrorDiagonalNormalizedDistinctPairCollisionExcess_le_nonemptyFiber
       intro transformedError _
       by_cases hfiber : K transformedError = 0
       · simp [hfiber]
-      · simp only [hfiber, if_false]
+      · simp only [hfiber, ite_false]
         have hK : (0 : ℝ) < K transformedError := by
           exact_mod_cast Nat.pos_of_ne_zero hfiber
         apply (div_le_iff₀ (mul_pos (mul_pos hD hC) hK)).2
@@ -1123,7 +1125,7 @@ theorem averagedSourceErrorDiagonalDistinctChiSquareLoss_le_fiberAverage
   let ErrorVector := DiagonalErrorVector q degree ringRank params.levels
   let Errors : ProbComp ErrorVector :=
     ProbComp.sampleIID (TGSW.rowCount ringRank params.levels) sourceErrorSampler
-  letI : Fintype ErrorVector := Fintype.ofFinite ErrorVector
+  let : Fintype ErrorVector := Fintype.ofFinite ErrorVector
   have hmass : (∑ sourceError : ErrorVector,
       Pr[= sourceError | Errors].toReal) = 1 := by
     rw [← ENNReal.toReal_sum (fun _ _ => probOutput_ne_top),

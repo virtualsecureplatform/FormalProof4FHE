@@ -15,6 +15,8 @@ coefficientwise addition and scaling, degree-N signed convolution, sums of
 gadget rows, BGV multiplication, and modulus-drop rounding.
 -/
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.BinaryNTTSecurity.CompactCoverBGVNoiseSoundness
 
 open BigOperators CompactCoverBGVExactNoise

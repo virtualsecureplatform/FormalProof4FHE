@@ -24,6 +24,8 @@ finite second-moment (Chebyshev/Markov) tail bound is also supplied.
 open OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.RingProductCenteredBinomialMoment
 
 noncomputable section
@@ -58,9 +60,9 @@ theorem probEvent_sq_ge_toReal_mul_le_secondMoment
     apply Finset.sum_le_sum
     intro value _
     by_cases hvalue : threshold ^ 2 ≤ lift value ^ 2
-    · rw [if_pos hvalue]
+    · rw [ite_eq_left hvalue]
       exact mul_le_mul_of_nonneg_left hvalue ENNReal.toReal_nonneg
-    · rw [if_neg hvalue, zero_mul]
+    · rw [ite_eq_right hvalue, zero_mul]
       exact mul_nonneg ENNReal.toReal_nonneg (sq_nonneg _)
   · intro value _
     by_cases hvalue : threshold ^ 2 ≤ lift value ^ 2

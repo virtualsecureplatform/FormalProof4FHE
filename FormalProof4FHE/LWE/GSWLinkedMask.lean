@@ -25,6 +25,8 @@ with a particular bootstrap parameter family requires a separate check.
 open Matrix OracleComp
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWLinkedMask
 
 open GSWGadget GSWPublicKey
@@ -91,6 +93,7 @@ theorem standaloneView_tvDist_le {Q dimension pads : ℕ} [NeZero Q] (params : P
         (Fintype.card (Ciphertext params (dimension + 1)) / Fintype.card (Fin pads → Bool)) / 2 :=
       LeftoverHash.leftover_hash_lemma hash LeftoverHash.binarySubsetSum_isTwoUniversal
     _ = _ := by
+      simp only [Fintype.card_eq_nat_card]
       simp [Ciphertext, Matrix, ← pow_mul, Nat.mul_comm]
 
 /-- The offset may depend on an arbitrary earlier key/context. Its entire joint

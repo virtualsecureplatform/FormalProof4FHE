@@ -16,6 +16,8 @@ are retained. This transport is not an ordinary-LWE hardness reduction.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWMixedStoredView
 
 open GSWGadget GSWAccumulator GSWPublicKey GSWSampling GSWStoredSecurityView
@@ -65,7 +67,18 @@ def mixedInputEquiv {q : ℕ} (params : Parameters q) (n p : ℕ) :
     apply Prod.ext
     · apply Prod.ext
       · funext column row
-        cases row using Fin.cases <;> simp [maskEquiv, publicColumn]
+        cases row using Fin.cases with
+        | zero =>
+          change Fin.addCases (fun column ↦ input.1.1 column 0)
+            (fun column ↦ input.2 (finProdFinEquiv.symm column).1
+              (finProdFinEquiv.symm column).2) (Fin.castAdd _ column) = input.1.1 column 0
+          rw [Fin.addCases_left]
+        | succ row =>
+          change Fin.addCases
+            (fun column ↦ input.1.1 column row.succ)
+            (fun column ↦ input.1.2 column.divNat row column.modNat)
+            (Fin.castAdd _ column) = input.1.1 column row.succ
+          rw [Fin.addCases_left]
       · change (maskEquiv params n p ((maskEquiv params n p).symm _)).2 = _
         rw [Equiv.apply_symm_apply]
     · funext index column

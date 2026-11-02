@@ -17,6 +17,8 @@ that the digits are short, that decoding succeeds, or that a refresh is repeatab
 
 open Matrix
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWOperations
 
 /-- The body-first decryption vector for the sign convention in `GSWSelfKey`. -/

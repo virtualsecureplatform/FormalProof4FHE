@@ -22,6 +22,8 @@ private coefficients, or an arbitrary different evaluation invariant.
 
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWPairLocalCompiler
 
 def residual {R : Type} [CommRing R] (c x y w : R) (a b : Bool) : R :=

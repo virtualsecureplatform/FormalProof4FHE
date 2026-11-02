@@ -23,6 +23,8 @@ only nontrivial character factorial moments remain.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm
 
 noncomputable section
@@ -313,7 +315,7 @@ theorem fixedErrorDiagonalDistinctPairCokernelExcess_eq_nontrivialCharacterMomen
   · apply Finset.sum_congr rfl
     intro characters _
     by_cases hcharacters : characters ≠ 0
-    · rw [if_pos hcharacters, if_pos hcharacters]
+    · rw [ite_eq_left hcharacters, ite_eq_left hcharacters]
       apply Finset.sum_congr rfl
       intro leftDifference _
       apply Finset.sum_congr rfl
@@ -371,7 +373,7 @@ theorem fixedErrorDiagonalDistinctPairCokernelExcess_eq_characterFactorialMoment
   apply Finset.sum_congr rfl
   intro characters _
   by_cases hcharacters : characters ≠ 0
-  · rw [if_pos hcharacters, if_pos hcharacters]
+  · rw [ite_eq_left hcharacters, ite_eq_left hcharacters]
     unfold fixedErrorDifferenceCharacterTupleAcceptanceCard
     have hfactorial :=
       FormalProof4FHE.FiniteDistinctPairWitnessMoment.sum_distinct_acceptance_indicator_eq_factorialCard
@@ -440,7 +442,7 @@ theorem fixedErrorDiagonalNormalizedDistinctPairCollisionExcess_eq_characterFact
   by_cases hfiber :
       fixedErrorDifferenceFiberCard params candidate sourceError transformedError = 0
   · simp [hfiber]
-  · simp only [hfiber, if_false]
+  · simp only [hfiber, ite_false]
     rw [fixedErrorDiagonalDistinctPairCollisionExcess_eq_challengeCard_mul_cokernelExcess,
       fixedErrorDiagonalDistinctPairCokernelExcess_eq_characterFactorialMoment']
     have hDifference : (0 : ℝ) < Fintype.card

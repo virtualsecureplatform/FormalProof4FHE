@@ -4,6 +4,7 @@ Released under MIT license as described in the file LICENSE.
 Authors: Kotaro Matsuoka
 -/
 
+import FormalProof4FHE.Probability.Discrete
 import FormalProof4FHE.TFHE.CenteredBinomialGrowingNoiseEndToEnd
 import FormalProof4FHE.TFHE.NativeDiagonalPairBinaryRank
 import VCVio.CryptoFoundations.Asymptotics.Security
@@ -25,6 +26,8 @@ the exact retained-fiber collision sum.
 
 open Matrix OracleComp Filter Topology
 open scoped ENNReal
+
+open scoped FormalProof4FHE
 
 namespace FormalProof4FHE.TFHE.CenteredBinomial.GrowingNoiseEndToEnd
 
@@ -66,7 +69,7 @@ theorem decomposition_exactCapacity (securityParameter : ℕ) :
 /-- Every security parameter induces the same uniform `24 × 12` binary matrix law. -/
 theorem pairedBinaryRankFailure_eq_fixed (securityParameter : ℕ) :
     pairedBinaryRankFailure securityParameter = fixedPairedBinaryRankFailure := by
-  letI : NeZero (ringDegree securityParameter) :=
+  let : NeZero (ringDegree securityParameter) :=
     ⟨Nat.ne_of_gt (ringDegree_pos securityParameter)⟩
   unfold pairedBinaryRankFailure fixedPairedBinaryRankFailure
   apply probEvent_congr' (fun _ _ ↦ Iff.rfl)

@@ -26,6 +26,8 @@ argument.  They do not assume that the remaining shifted-function evaluator exis
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.AuxiliaryInput.Search
 
 noncomputable section
@@ -436,7 +438,7 @@ theorem uniformRecoveryGame_evalDist_eq_keySwitchSearchExperiment
           errors >>= fun error ↦
           bootstrappingKeys >>= fun bootstrappingKey ↦
           finish keys bootstrappingKey challenge error) := by
-    simp [LearningWithErrors.searchExperiment,
+    simp [LearningWithErrors.searchExperiment, NoisyLearning.searchRun,
       Native.SharedRandomnessOneCycle.sharedKeySwitchProblem,
       FormalProof4FHE.SharedRandomness.KeySwitching.sharedIKSKProblem,
       FormalProof4FHE.SharedRandomness.KeySwitching.affineIKSKProblem,
@@ -581,7 +583,7 @@ theorem keySwitchSearch_success_le_ordinaryPrefixSearch
           errors >>= fun error ↦
           bootstrappingKeys >>= fun bootstrappingKey ↦
           pairFinish challenge prefixKey suffixKey error bootstrappingKey) := by
-    simp [LearningWithErrors.searchExperiment,
+    simp [LearningWithErrors.searchExperiment, NoisyLearning.searchRun,
       Native.SharedRandomnessOneCycle.sharedKeySwitchProblem,
       FormalProof4FHE.SharedRandomness.KeySwitching.sharedIKSKProblem,
       FormalProof4FHE.SharedRandomness.KeySwitching.affineIKSKProblem,
@@ -599,7 +601,7 @@ theorem keySwitchSearch_success_le_ordinaryPrefixSearch
           suffixes >>= fun suffixKey ↦
           bootstrappingKeys >>= fun bootstrappingKey ↦
           prefixFinish challenge prefixKey suffixKey error bootstrappingKey) := by
-    simp [LearningWithErrors.searchExperiment,
+    simp [LearningWithErrors.searchExperiment, NoisyLearning.searchRun,
       Native.KeySwitchSecurity.binaryLweProblem,
       FormalProof4FHE.LWE.embeddedBatchProblem,
       ordinaryPrefixSearchReduction,

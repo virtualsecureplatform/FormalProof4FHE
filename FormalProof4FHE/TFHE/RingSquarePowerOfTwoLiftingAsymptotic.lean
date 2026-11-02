@@ -23,6 +23,8 @@ is intentionally not asserted here.
 
 open OracleComp ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.PowerOfTwoLifting.Asymptotic
 
 noncomputable section

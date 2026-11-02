@@ -4,7 +4,8 @@ Released under MIT license as described in the file LICENSE.
 Authors: Kotaro Matsuoka
 -/
 
-import VCVio.EvalDist.TVDist
+import FormalProof4FHE.Probability.Discrete
+import VCVio.EvalDist.MeasureTVDist.Bind
 import VCVio.OracleComp.ProbComp
 import VCVio.OracleComp.Constructions.SampleableType
 
@@ -31,6 +32,8 @@ irrational ideal probability is silently treated as executable.
 
 open BigOperators OracleComp
 open scoped ENNReal
+
+open scoped FormalProof4FHE
 
 namespace FormalProof4FHE.FinitePMFCompiler
 
@@ -90,8 +93,7 @@ theorem outputPMF_apply [DecidableEq Output]
   calc
     table.outputPMF value = Pr[= value | table.sampler] := by
       unfold outputPMF
-      rw [probOutput_def, evalDist_def]
-      exact (SPMF.liftM_apply (liftM table.sampler : PMF Output) value).symm
+      exact (probOutput_eq_outputPMF table.sampler value).symm
     _ = _ := table.probOutput_sampler value
 
 /-- Finite extended-TV expression that a certificate checks against an ideal target PMF. -/
@@ -187,23 +189,13 @@ noncomputable def ofPointwise
 end Certificate
 
 /-- Monadic TV between the executable samplers is bounded by TV between their total PMF
-denotations.  The former observes the latter through VCVio's `Option.some` embedding. -/
+denotations.  Both use the same successful-output law. -/
 theorem tvDist_sampler_le_outputPMF
     [Fintype Output] [DecidableEq Output]
     (left right : TicketTable Output) :
     tvDist left.sampler right.sampler ≤
-      PMF.tvDist left.outputPMF right.outputPMF := by
-  rw [tvDist, evalDist_def, evalDist_def]
-  have hleft : (liftM left.sampler : SPMF Output) = liftM left.outputPMF := by
-    unfold outputPMF
-    rfl
-  have hright : (liftM right.sampler : SPMF Output) = liftM right.outputPMF := by
-    unfold outputPMF
-    rfl
-  rw [hleft, hright]
-  simpa only [SPMF.tvDist, SPMF.toPMF_liftM, map_eq_bind_pure_comp,
-      Function.comp_def] using
-    (PMF.tvDist_map_le Option.some left.outputPMF right.outputPMF)
+      PMF.tvDist left.outputPMF right.outputPMF :=
+  le_of_eq (tvDist_eq_outputPMF left.sampler right.sampler)
 
 /-- Mapping one executable ticket sampler and comparing it with the original sampler is bounded
 by the corresponding total-variation distance between their mathematical PMF denotations.  This
@@ -213,19 +205,8 @@ theorem tvDist_map_sampler_le_outputPMF
     (table : TicketTable Output) (transform : Output → Output) :
     tvDist (transform <$> table.sampler) table.sampler ≤
       PMF.tvDist (transform <$> table.outputPMF) table.outputPMF := by
-  rw [tvDist, evalDist_map, evalDist_def]
-  have htable : (liftM table.sampler : SPMF Output) = liftM table.outputPMF := by
-    unfold outputPMF
-    rfl
-  rw [htable]
-  simp only [SPMF.tvDist, SPMF.toPMF_map, SPMF.toPMF_liftM,
-    PMF.monad_map_eq_map, bind_pure_comp]
-  rw [show PMF.map (Option.map transform) (PMF.map Option.some table.outputPMF) =
-      PMF.map Option.some (PMF.map transform table.outputPMF) by
-    rw [PMF.map_comp, PMF.map_comp]
-    congr 1]
-  exact PMF.tvDist_map_le Option.some
-    (PMF.map transform table.outputPMF) table.outputPMF
+  rw [tvDist_eq_outputPMF, ProbComp.outputPMF_map]
+  exact le_rfl
 
 /-- Two executable ticket tables certified against the same ideal target are close by the sum of
 their certified errors.  This is the form consumed by finite sampler-replacement theorems. -/

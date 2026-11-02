@@ -32,6 +32,8 @@ as documented in `FormalProof4FHE.LWE.Leaky`; this file introduces no axiom for 
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.LeakyCircular.TwoHint
 
 noncomputable section
@@ -209,7 +211,9 @@ theorem randomCompilerMap_randomCompilerMapInv [CommRing R]
     (output : EvaluationKey R rows) :
     randomCompilerMap alpha beta noise (randomCompilerMapInv alpha beta noise output) = output := by
   apply Prod.ext <;> funext i
-  all_goals simp [randomCompilerMapInv, randomCompilerMap, compile, randomSourceView] <;> ring
+  · simp [randomCompilerMapInv, randomCompilerMap, compile, randomSourceView]
+    ring
+  · simp [randomCompilerMapInv, randomCompilerMap, compile, randomSourceView]
 
 theorem randomCompilerMap_bijective [CommRing R]
     (alpha beta : RowVector R rows) (noise : HiddenNoise R rows) :

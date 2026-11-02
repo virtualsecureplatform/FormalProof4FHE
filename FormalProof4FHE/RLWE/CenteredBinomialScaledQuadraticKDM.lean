@@ -33,6 +33,8 @@ ordinary RLWE; bounding that source advantage is the remaining cryptographic obl
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.CenteredBinomialScaledQuadraticKDM
 
 noncomputable section
@@ -140,13 +142,13 @@ theorem cbdLatentSampler_probFailure
       (cbdLatentSampler q degree rows factors eta
         secretSampler finalErrorSampler) := by
     unfold cbdLatentSampler
-    refine NeverFail.bind_of_forall (hx := hSecretNeverFails) (hy := ?_)
+    refine NeverFail.bind_of_forall (_hx := hSecretNeverFails) (_hy := ?_)
     intro secret
-    refine NeverFail.bind_of_forall (hx := hErrorsNeverFail) (hy := ?_)
+    refine NeverFail.bind_of_forall (_hx := hErrorsNeverFail) (_hy := ?_)
     intro firstError
-    refine NeverFail.bind_of_forall (hx := hErrorsNeverFail) (hy := ?_)
+    refine NeverFail.bind_of_forall (_hx := hErrorsNeverFail) (_hy := ?_)
     intro secondError
-    refine NeverFail.bind_of_forall (hx := hFinalNeverFails) (hy := ?_)
+    refine NeverFail.bind_of_forall (_hx := hFinalNeverFails) (_hy := ?_)
     intro finalError
     infer_instance
   exact hLatent.probFailure_eq_zero

@@ -18,6 +18,8 @@ asserted. In particular the tensor coefficient matrix is not assumed uniform.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWTwoSidedCompiler
 
 abbrev Builder (R : Type) (n p r k : ℕ) :=
@@ -27,7 +29,7 @@ abbrev Builder (R : Type) (n p r k : ℕ) :=
 def join {R : Type} {n p r : ℕ}
     (first : BatchTranscript R n p) (second : BatchTranscript R n r) :
     BatchTranscript R n (p + r) :=
-  (fun row ↦ Fin.addCases (first.1 row) (second.1 row), Fin.addCases first.2 second.2)
+  (Matrix.of (fun row ↦ Fin.addCases (first.1 row) (second.1 row)), Fin.addCases first.2 second.2)
 
 def left {R : Type} {n p r : ℕ} (base : BatchTranscript R n (p + r)) :
     BatchTranscript R n p :=
@@ -136,7 +138,7 @@ def diagonalCompiler {R : Type} [CommRing R] {n p r k : ℕ}
     (builder : Builder R n p r k) (linear : Matrix (Fin n) (Fin k) R)
     (offset : Fin k → R) : GSWTranscriptCompiler.Compiler R n (p + r) k :=
   fun base ↦ compiler builder
-    (fun row column ↦ linear row column +
+    (Matrix.of fun row column ↦ linear row column +
       ((left base).1 * builder (left base).1 (right base).1 column *
         (right base).1.transpose) row row) offset base
 
@@ -186,7 +188,7 @@ theorem native_diagonal_discrepancy {q n p r : ℕ} [NeZero q] (params : GSWGadg
   simp only [left_join, right_join]
   rw [correction_real]
   have hl : vecMul secret
-      (fun row col ↦ GSWQuadraticPreimageGSW.linear params n row col +
+      (Matrix.of fun row col ↦ GSWQuadraticPreimageGSW.linear params n row col +
         (a * builder a b col * b.transpose) row row) column =
       vecMul secret (GSWQuadraticPreimageGSW.linear params n) column +
         dotProduct secret (fun row ↦ (a * builder a b column * b.transpose) row row) := by

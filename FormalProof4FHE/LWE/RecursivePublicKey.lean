@@ -21,6 +21,8 @@ encryption, not a closed homomorphic multiplication or a reusable refresh.
 open Matrix OracleComp AsymmEncAlg
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.RecursivePublicKey
 
 abbrev PublicKey (q n p : ℕ) := Regev.PublicKey q n p
@@ -230,7 +232,7 @@ def game {q n p k : ℕ} [NeZero q] (encode : Bool → ZMod q)
 /-- Only the ideal context is sampled independently inside this masking adapter. -/
 def regevAdversary {q n p k : ℕ} [NeZero q] (encode : Bool → ZMod q)
     (contextSampler : ProbComp (Context q n k)) (adversary : Adversary q n p k) :
-    IND_CPA_Adv (Regev.scheme q n p (pure 0) encode (fun _ ↦ none)) where
+    IND_CPA_OneTime_Adversary (Regev.scheme q n p (pure 0) encode (fun _ ↦ none)) where
   State := adversary.State
   chooseMessages := fun publicKey ↦ do
     let context ← contextSampler
@@ -330,7 +332,7 @@ def fromINDCPA {q n p k samples : ℕ} [NeZero q] (oneCode : ZMod q)
     (columns : RecursiveQuadratic.Column n p k ≃ Fin samples)
     (polynomial : RecursiveQuadratic.Polynomial (ZMod q) n k)
     (secretSampler : ProbComp (Fin n → ZMod q)) (errorSampler : ProbComp (ZMod q))
-    (adversary : IND_CPA_Adv (scheme oneCode columns polynomial secretSampler errorSampler)) :
+    (adversary : IND_CPA_OneTime_Adversary (scheme oneCode columns polynomial secretSampler errorSampler)) :
     Adversary q n p k where
   State := adversary.State
   chooseMessages := adversary.chooseMessages
@@ -340,8 +342,8 @@ theorem oneTime_game_evalDist {q n p k samples : ℕ} [NeZero q] (oneCode : ZMod
     (columns : RecursiveQuadratic.Column n p k ≃ Fin samples)
     (polynomial : RecursiveQuadratic.Polynomial (ZMod q) n k)
     (secretSampler : ProbComp (Fin n → ZMod q)) (errorSampler : ProbComp (ZMod q))
-    (adversary : IND_CPA_Adv (scheme oneCode columns polynomial secretSampler errorSampler)) :
-    𝒟[IND_CPA_OneTime_Game_ProbComp adversary] =
+    (adversary : IND_CPA_OneTime_Adversary (scheme oneCode columns polynomial secretSampler errorSampler)) :
+    𝒟[FormalProof4FHE.oneTimeGame adversary] =
       𝒟[game (bitEncode oneCode)
         (RecursiveQuadratic.freshView columns polynomial secretSampler id errorSampler)
         (fromINDCPA oneCode columns polynomial secretSampler errorSampler adversary)] := by
@@ -357,7 +359,7 @@ theorem oneTime_game_evalDist {q n p k samples : ℕ} [NeZero q] (oneCode : ZMod
       pure (bit == guess))
   have hforget := FormalProof4FHE.SharedRandomness.evalDist_bind_eq_of_evalDist_eq
     (keygen_public_evalDist columns polynomial secretSampler errorSampler) observe
-  simpa [IND_CPA_OneTime_Game_ProbComp, scheme, game, observe, gameGivenView,
+  simpa [FormalProof4FHE.oneTimeGame, scheme, game, observe, gameGivenView,
     fromINDCPA, monad_norm] using hswap.trans (by
       simpa [bind_map_left, observe, gameGivenView, fromINDCPA, monad_norm] using hforget)
 

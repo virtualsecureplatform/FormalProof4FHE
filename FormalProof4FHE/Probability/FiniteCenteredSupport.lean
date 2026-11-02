@@ -4,6 +4,7 @@ Released under MIT license as described in the file LICENSE.
 Authors: Kotaro Matsuoka
 -/
 
+import FormalProof4FHE.Probability.Discrete
 import FormalProof4FHE.RLWE.Basic
 import LatticeCrypto.Ring.Norms
 import Mathlib.Data.Int.Interval
@@ -16,6 +17,8 @@ A polynomial whose centered modular coefficients all have absolute value at most
 coefficientwise into the integer box `[-bound, bound]^degree`.  This gives the representation-free
 cardinality bound `(2 * bound + 1)^degree` used for native TFHE transformed-error supports.
 -/
+
+open scoped FormalProof4FHE
 
 namespace FormalProof4FHE.FiniteCenteredSupport
 

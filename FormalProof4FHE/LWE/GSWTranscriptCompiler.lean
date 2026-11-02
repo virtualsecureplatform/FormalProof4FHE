@@ -18,6 +18,8 @@ for a useful compiler is assumed or established by these source identities.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWTranscriptCompiler
 
 open GSWQuadraticPreimage FormalProof4FHE.BlockBinary
@@ -128,36 +130,36 @@ theorem advantage_eq_blockBinary (compiler : Compiler (ZMod q) (n * b) m k)
     (adversary : View (ZMod q) (n * b) m k → ProbComp Bool) :
     (realView compiler errorSampler >>= adversary).boolDistAdvantage
       (($ᵗ View (ZMod q) (n * b) m k) >>= adversary) =
-      LearningWithErrors.advantage (problem b n (m + k) errorSampler)
+      LearningWithErrors.realAdvantage (problem b n (m + k) errorSampler)
         (reduction compiler adversary) := by
   have hreal : realView compiler errorSampler >>= adversary =
-      LearningWithErrors.game0 (problem b n (m + k) errorSampler)
+      LearningWithErrors.realExperiment (problem b n (m + k) errorSampler)
         (reduction compiler adversary) := by
-    simp [realView, reduction, LearningWithErrors.game0, monad_norm]
+    simp [realView, reduction, LearningWithErrors.realExperiment, monad_norm]
   have hideal := FormalProof4FHE.SharedRandomness.evalDist_bind_eq_of_evalDist_eq
     (uniform_source_evalDist compiler errorSampler) adversary
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage, hreal]
   unfold ProbComp.boolDistAdvantage
-  have hideal' : 𝒟[LearningWithErrors.game1 (problem b n (m + k) errorSampler)
+  have hideal' : 𝒟[LearningWithErrors.randomExperiment (problem b n (m + k) errorSampler)
       (reduction compiler adversary)] =
       𝒟[($ᵗ View (ZMod q) (n * b) m k) >>= adversary] := by
-    simpa [LearningWithErrors.game1, reduction, monad_norm] using hideal
+    simpa [LearningWithErrors.randomExperiment, reduction, monad_norm] using hideal
   rw [evalDist_ext_iff.mp hideal' true]
 
 def ordinaryLoss (compiler : Compiler (ZMod q) (n * b) m k)
     (d : ℕ) (narrow wide : ProbComp (ZMod q))
     (adversary : View (ZMod q) (n * b) m k → ProbComp Bool) : ℝ :=
   let red := reduction compiler adversary
-  (∑ coordinate : Fin (n * b), LearningWithErrors.advantage
+  (∑ coordinate : Fin (n * b), LearningWithErrors.realAdvantage
     (batchProblem d (m + k) ($ᵗ (Fin d → ZMod q)) narrow)
     (rowHybridReduction (n * b) d (m + k) narrow coordinate
       (realMaskReduction b n d (m + k) narrow wide red))) +
     noiseAbsorptionGap b n d (m + k) narrow wide +
     Real.sqrt ((q : ℝ) ^ d / (b + 1 : ℝ) ^ n) / 2 +
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
       (batchProblem d (m + k) ($ᵗ (Fin d → ZMod q)) wide)
       (extractedLWReduction b n d (m + k) narrow wide red) +
-    (∑ coordinate : Fin (n * b), LearningWithErrors.advantage
+    (∑ coordinate : Fin (n * b), LearningWithErrors.realAdvantage
       (batchProblem d (m + k) ($ᵗ (Fin d → ZMod q)) narrow)
       (rowHybridReduction (n * b) d (m + k) narrow coordinate
         (uniformMaskReduction b n d (m + k) narrow wide red)))
@@ -204,7 +206,7 @@ theorem public_game_abs_advantage_le (params : Parameters q)
     simp [GSWMasking.game, publicView, downstream, observe, monad_norm]
   have hideal : 𝒟[($ᵗ View (ZMod q) (n * b) p (columns params (n * b))) >>= downstream] =
       𝒟[GSWMasking.game params ($ᵗ MaskingView params (n * b) p) adversary] := by
-    simpa [GSWMasking.game, downstream, observe, monad_norm] using hi
+    simpa +unfoldPartialApp [GSWMasking.game, downstream, observe, monad_norm] using hi
   unfold ProbComp.boolDistAdvantage at hview
   rw [hreal, probOutput_congr (rfl : true = true) hideal] at hview
   exact (abs_sub_le _ _ (1 / 2 : ℝ)).trans

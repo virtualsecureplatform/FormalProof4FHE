@@ -31,6 +31,8 @@ remaining quadratic one-key premise.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.AuxiliaryInput
 
 noncomputable section

@@ -24,6 +24,8 @@ the restricted target-pair shortcut only, not the existing dense compiler.
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWTripleLocalCompiler
 
 open RecursiveFeatureCubicApproximation GSWLinearCharacterCompiler

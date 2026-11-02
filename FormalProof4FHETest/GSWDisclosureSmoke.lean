@@ -11,6 +11,8 @@ Small dimensions and fixed coins are correctness diagnostics, with no security c
 The attacker gets P,Z, a fresh stored challenge, and its own receiver key;
 no sender secret, subset bits or encryption coins are attack inputs. -/
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHETest.GSWDisclosureSmoke
 
 open FormalProof4FHE.LWE

@@ -28,6 +28,8 @@ not justify replacing off-diagonal masks that share the selected control ciphert
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.FullMaskCollision
 
 noncomputable section
@@ -243,7 +245,7 @@ theorem tvDist_reconstruct_correctMaskJoint_independent_le_collisionLoss
       correctMaskCollisionLoss (ringRank := ringRank) (queryCount := queryCount)
         params ringErrorSampler keySwitchErrorSampler inputErrorSampler
         keySwitchGadget coordinate := by
-  refine (tvDist_map_le (m := ProbComp) (Function.uncurry (reconstructPublicContext params))
+  refine (tvDist_map_le (Function.uncurry (reconstructPublicContext params))
     (correctMaskJointExperiment (ringRank := ringRank) (queryCount := queryCount)
       params ringErrorSampler keySwitchErrorSampler inputErrorSampler
       keySwitchGadget coordinate)
@@ -370,7 +372,7 @@ theorem reconstruct_freshMask_evalDist_eq_coupledResidualView_zero
         q degree ringRank params.levels lweDimension
         (Gadget.Base.ringGadget params) targetSecret source.1.2 residual)
   have hMapped := evalDist_map_eq_of_evalDist_eq hKey finish
-  simpa [reconstructPublicContext, correctMaskSide, coupledResidualViewAtSourceCoin,
+  simpa +unfoldPartialApp [reconstructPublicContext, correctMaskSide, coupledResidualViewAtSourceCoin,
     targetSecret, residual, auxiliary, Generate, Assemble, Masks, finish,
     map_eq_bind_pure_comp, monad_norm] using hMapped.symm
 
@@ -647,10 +649,10 @@ theorem correctMaskConditionalCollisionBound_of_uniformTapeFiberBound
     CorrectMaskConditionalCollisionBound (ringRank := ringRank)
       (queryCount := queryCount) params ringErrorSampler keySwitchErrorSampler
       inputErrorSampler keySwitchGadget coordinate ε := by
-  letI : DecidableEq
+  let : DecidableEq
       (CorrectMaskSide q degree ringRank params.levels lweDimension
         keySwitchLevels queryCount) := Classical.decEq _
-  letI : DecidableEq
+  let : DecidableEq
       (Native.ConditionalSmudging.BootstrappingMask
         q degree ringRank params.levels lweDimension) := Classical.decEq _
   exact
@@ -680,10 +682,10 @@ theorem tvDist_averagedCorrectTransform_coupledZeroNoiseResidual_le_sqrt_of_coll
           (eta := eta) params keySwitchErrorSampler inputErrorSampler
           keySwitchGadget coordinate) ≤
       Real.sqrt ε / 2 := by
-  letI : DecidableEq
+  let : DecidableEq
       (CorrectMaskSide q (degree + 1) ringRank params.levels lweDimension
         keySwitchLevels queryCount) := Classical.decEq _
-  letI : DecidableEq
+  let : DecidableEq
       (Native.ConditionalSmudging.BootstrappingMask
         q (degree + 1) ringRank params.levels lweDimension) := Classical.decEq _
   let Joint := correctMaskJointExperiment (degree := degree + 1)
@@ -694,7 +696,7 @@ theorem tvDist_averagedCorrectTransform_coupledZeroNoiseResidual_le_sqrt_of_coll
     (ringRank := ringRank) (queryCount := queryCount) params
     (RLWE.CenteredBinomial.sampler q (degree + 1) eta)
     keySwitchErrorSampler inputErrorSampler keySwitchGadget coordinate
-  have hmap := tvDist_map_le (m := ProbComp)
+  have hmap := tvDist_map_le
     (Function.uncurry (reconstructPublicContext params)) Joint UniformIdeal
   have hcollisionBound : tvDist Joint UniformIdeal ≤ Real.sqrt ε / 2 := by
     exact FormalProof4FHE.ConditionalCollision.tvDist_sideIndependentUniform_le_sqrt_of_conditionalCollisionBound
@@ -934,10 +936,10 @@ theorem tvDist_correctStaticMaskWideView_independent_le_sqrt_of_collisionBound
           (queryCount := queryCount) params ringErrorSampler wideNoise
           keySwitchErrorSampler inputErrorSampler keySwitchGadget coordinate) ≤
       Real.sqrt ε / 2 := by
-  letI : DecidableEq
+  let : DecidableEq
       (CorrectStaticMaskSide q degree ringRank lweDimension
         keySwitchLevels queryCount) := Classical.decEq _
-  letI : DecidableEq
+  let : DecidableEq
       (Native.ConditionalSmudging.BootstrappingMask
         q degree ringRank params.levels lweDimension) := Classical.decEq _
   let Joint := correctStaticMaskJointExperiment (ringRank := ringRank)
@@ -950,7 +952,7 @@ theorem tvDist_correctStaticMaskWideView_independent_le_sqrt_of_collisionBound
     (fixedMaskWidePublicContext (ringRank := ringRank)
       (lweDimension := lweDimension) (keySwitchLevels := keySwitchLevels)
       (queryCount := queryCount) params wideNoise)
-  have hdata := tvDist_bind_right_le (m := ProbComp) Finish Joint Independent
+  have hdata := tvDist_bind_right_le Finish Joint Independent
   have hjoint : tvDist Joint Independent ≤ Real.sqrt ε / 2 :=
     FormalProof4FHE.ConditionalCollision.tvDist_sideIndependentUniform_le_sqrt_of_conditionalCollisionBound
       Joint ε (by simp [Joint]) hcollision
@@ -1055,7 +1057,7 @@ theorem correctResidualErasureCost_centeredBinomial_discreteGaussian_le_linear
       keySwitchErrorSampler inputErrorSampler keySwitchGadget coordinate
   let Cost := coupledCenteredBinomialDiscreteGaussianLinearSmudgingError
     params certificate (degree + 1) ringRank lweDimension eta
-  letI : Fintype Value := Fintype.ofFinite Value
+  let : Fintype Value := Fintype.ofFinite Value
   have hmass : (∑ value : Value, Pr[= value | Joint].toReal) = 1 := by
     rw [← ENNReal.toReal_sum (fun _ _ ↦ probOutput_ne_top),
       sum_probOutput_eq_one (by simp [Joint]), ENNReal.toReal_one]
@@ -1202,7 +1204,7 @@ theorem tvDist_smudge_reconstruct_fixedMaskWide_le_erasureCost
     exact Native.ConditionalSmudging.tvDist_fixedMaskResidualSmudgedKey_fixedMaskWideKey_le
       wideNoise (Gadget.Base.ringGadget params) side.1 side.2.1
       side.2.2.1 mask
-  have hdata := (tvDist_map_le (m := ProbComp) Attach ResidualKey WideKey).trans hkeys
+  have hdata := (tvDist_map_le Attach ResidualKey WideKey).trans hkeys
   have hresidual :=
     Native.ConditionalSmudging.smudgeBootstrappingKey_assembleResidual_evalDist
       wideNoise (Gadget.Base.ringGadget params) side.1 side.2.1
@@ -1431,7 +1433,7 @@ theorem freshMask_fixedMaskWidePublicContext_evalDist_eq_coupledMonomialViewAtSo
         q degree ringRank params.levels lweDimension wideNoise
         (Gadget.Base.ringGadget params) targetSecret source.1.2)
   have hattached := evalDist_map_eq_of_evalDist_eq hkey Attach
-  simpa [fixedMaskWidePublicContext, correctStaticMaskSideAtSourceCoin,
+  simpa +unfoldPartialApp [fixedMaskWidePublicContext, correctStaticMaskSideAtSourceCoin,
     coupledMonomialViewAtSourceCoin, targetSecret, auxiliary, FreshKey,
     MonomialKey, Attach, map_eq_bind_pure_comp] using hattached
 

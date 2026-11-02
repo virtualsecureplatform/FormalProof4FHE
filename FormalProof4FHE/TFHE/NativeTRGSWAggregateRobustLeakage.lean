@@ -24,6 +24,8 @@ robust approximate-leakage recovery theorem.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.NativeTRGSWAggregateRobustLeakage
 
 noncomputable section
@@ -425,7 +427,7 @@ theorem two_le_translationL1Defect_highPassWeight
     (translateTable shift (highPassWeight Index degree))
     (highPassWeight Index degree) frequency
   rw [walshTransform_translateTable,
-    walshTransform_highPassWeight, if_neg hfrequency, hflip] at hbound
+    walshTransform_highPassWeight, ite_eq_right hfrequency, hflip] at hbound
   norm_num [translationL1Defect] at hbound ⊢
   exact hbound
 

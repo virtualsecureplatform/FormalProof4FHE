@@ -27,6 +27,8 @@ bijection.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.KeySwitchCandidateRandomization
 
 /-- Add a vector to one distinguished row of a batch challenge. -/

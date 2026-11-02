@@ -30,6 +30,8 @@ quotient-character formula for correlated errors.
 
 open BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.RankOneHNFLossinessTwoSmith
 
 open Polynomial
@@ -139,10 +141,10 @@ theorem binaryQuotientPolynomial_ne_zero
     (d : ℕ) {polynomial : F2[X]} (hne : polynomial ≠ 0)
     (hdegree : polynomial.natDegree < 2 ^ d) :
     binaryQuotientPolynomial d polynomial ≠ 0 := by
-  letI : Fact (0 < (1 : ℕ)) := ⟨by omega⟩
-  letI : Fintype (QuotientRq 2 (2 ^ d)) :=
+  let : Fact (0 < (1 : ℕ)) := ⟨by omega⟩
+  let : Fintype (QuotientRq 2 (2 ^ d)) :=
     PowerOfTwoQuadraticKDMStatistical.quotientPowerOfTwoRqFintype 1 d
-  letI : DecidableEq (QuotientRq 2 (2 ^ d)) :=
+  let : DecidableEq (QuotientRq 2 (2 ^ d)) :=
     PowerOfTwoQuadraticKDMStatistical.quotientPowerOfTwoRqDecidableEq 1 d
   intro hzero
   have hvaluation :=
@@ -167,7 +169,7 @@ theorem quotientPowerOfTwo_factor_at_valuation_isUnit
   let residue : QuotientRq (2 ^ K) (2 ^ d) →+* ZMod 2 :=
     quotientParityEval
       (pow_dvd_pow 2 (Nat.succ_le_iff.mpr hK.out))
-  letI : IsLocalHom residue :=
+  let : IsLocalHom residue :=
     isLocalHom_toZModTwo_of_nilpotent_kernel residue (by
       intro element helement
       exact quotientParityEval_kernel_isNilpotent_powerOfTwo
@@ -192,14 +194,14 @@ theorem card_binaryQuotient_uniformizerPower_range
         (rightMulAddHom (quotientUniformizer 2 (2 ^ d) ^ level)).range =
       2 ^ (2 ^ d - level) := by
   classical
-  letI : Fact (1 < (2 : ℕ)) := ⟨by omega⟩
-  letI : Fintype (QuotientRq 2 (2 ^ d)) := by
+  let : Fact (1 < (2 : ℕ)) := ⟨by omega⟩
+  let : Fintype (QuotientRq 2 (2 ^ d)) := by
     exact Fintype.ofEquiv
       (Rq 2 (2 ^ d))
       (quotientEquiv (q := 2) (pow_pos (by omega : 0 < 2) d))
-  letI : DecidableEq (QuotientRq 2 (2 ^ d)) := Classical.decEq _
+  let : DecidableEq (QuotientRq 2 (2 ^ d)) := Classical.decEq _
   let residue : QuotientRq 2 (2 ^ d) →+* ZMod 2 := quotientParityEval dvd_rfl
-  letI : IsLocalHom residue :=
+  let : IsLocalHom residue :=
     isLocalHom_toZModTwo_of_nilpotent_kernel residue (by
       intro value hvalue
       exact quotientParityEval_kernel_isNilpotent_binary_powerOfTwo d value
@@ -774,7 +776,7 @@ theorem hassePascalMatrix_blockTriangular (v : ℕ) :
 @[simp]
 theorem det_hassePascalMatrix (v : ℕ) :
     (hassePascalMatrix v).det = 1 := by
-  rw [Matrix.det_of_lowerTriangular (hassePascalMatrix v)
+  rw [Matrix.det_of_isLowerTriangular (hassePascalMatrix v)
     (hassePascalMatrix_blockTriangular v)]
   simp [hassePascalMatrix]
 

@@ -23,6 +23,8 @@ no worst-case lattice hardness or complete arithmetic cost claim is made.
 open OracleComp
 open scoped BigOperators ENNReal Topology
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.RecursiveQuadraticParameters
 
 def scale (parameter : ℕ) : ℕ := parameter + 1
@@ -382,10 +384,10 @@ theorem advantage_le_narrowLWE {p k samples : ℕ} (parameter : ℕ)
       ((RecursiveQuadratic.idealView (R := ZMod (modulus parameter))
         (n := binaryDimension parameter * 1) (p := p) (k := k)) >>= adversary) ≤
       2 * (∑ coordinate : Fin (binaryDimension parameter * 1),
-        LearningWithErrors.advantage sourceProblem
+        LearningWithErrors.realAdvantage sourceProblem
           (FormalProof4FHE.BlockBinary.rowHybridReduction (binaryDimension parameter * 1)
             (sourceDimension parameter) samples (narrow parameter) coordinate maskReduction)) +
-      LearningWithErrors.advantage sourceProblem
+      LearningWithErrors.realAdvantage sourceProblem
         (NoiseFlooding.reduction
           (UniformInterval.sample (modulus parameter) (radius parameter) (retries parameter))
           extractedReduction) + statisticalLoss samples parameter := by
@@ -437,8 +439,8 @@ theorem freshView_error_tvDist_le {Secret : Type} {q n p k samples : ℕ} [NeZer
       (samples : ℝ) * tvDist left right := by
     simpa [ProbComp.sampleIID] using
       FiniteProduct.tvDist_fin_mOfFn_le_sum samples (fun _ ↦ left) (fun _ ↦ right)
-  letI : SampleableType (RecursiveQuadratic.Column n p k → ZMod q) := instSampleableTypePiFintype
-  letI : SampleableType (Matrix (Fin n) (RecursiveQuadratic.Column n p k) (ZMod q)) :=
+  let : SampleableType (RecursiveQuadratic.Column n p k → ZMod q) := instSampleableTypePiFintype
+  let : SampleableType (Matrix (Fin n) (RecursiveQuadratic.Column n p k) (ZMod q)) :=
     instSampleableTypeFinFunc
   let challenges : ProbComp (Matrix (Fin n) (RecursiveQuadratic.Column n p k) (ZMod q)) := $ᵗ _
   let finish : Secret → Matrix (Fin n) (RecursiveQuadratic.Column n p k) (ZMod q) →
@@ -451,11 +453,11 @@ theorem freshView_error_tvDist_le {Secret : Type} {q n p k samples : ℕ} [NeZer
         (ProbComp.sampleIID samples right >>= finish secret challenge) ≤
           (samples : ℝ) * tvDist left right :=
     (tvDist_bind_right_le (finish secret challenge) _ _).trans hiid
-  have hchallenges (secret : Secret) := tvDist_bind_left_le_const' (m := ProbComp) challenges
+  have hchallenges (secret : Secret) := tvDist_bind_left_le_const' challenges
     (fun challenge ↦ ProbComp.sampleIID samples left >>= finish secret challenge)
     (fun challenge ↦ ProbComp.sampleIID samples right >>= finish secret challenge)
     ((samples : ℝ) * tvDist left right) (herrors secret)
-  have hsecrets := tvDist_bind_left_le_const' (m := ProbComp) secretSampler
+  have hsecrets := tvDist_bind_left_le_const' secretSampler
     (fun secret ↦ challenges >>= fun challenge ↦ ProbComp.sampleIID samples left >>= finish secret challenge)
     (fun secret ↦ challenges >>= fun challenge ↦ ProbComp.sampleIID samples right >>= finish secret challenge)
     ((samples : ℝ) * tvDist left right) hchallenges
@@ -516,10 +518,10 @@ noncomputable def ordinaryReductionLoss {p k samples : ℕ} (parameter : ℕ)
   let sourceProblem := zmodBatchProblem (sourceDimension parameter) samples (modulus parameter)
     (narrow parameter)
   2 * (∑ coordinate : Fin (binaryDimension parameter * 1),
-    LearningWithErrors.advantage sourceProblem
+    LearningWithErrors.realAdvantage sourceProblem
       (FormalProof4FHE.BlockBinary.rowHybridReduction (binaryDimension parameter * 1)
         (sourceDimension parameter) samples (narrow parameter) coordinate maskReduction)) +
-    LearningWithErrors.advantage sourceProblem
+    LearningWithErrors.realAdvantage sourceProblem
       (NoiseFlooding.reduction
         (UniformInterval.sample (modulus parameter) (radius parameter) (retries parameter))
         extractedReduction)

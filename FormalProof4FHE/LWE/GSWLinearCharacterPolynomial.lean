@@ -5,6 +5,7 @@ Authors: Kotaro Matsuoka
 -/
 import FormalProof4FHE.LWE.GSWLinearCharacterCompiler
 import Mathlib.Algebra.MvPolynomial.Eval
+import Mathlib.Algebra.MvPolynomial.CommRing
 
 /-!
 # Public polynomial certificates for character-compiler discrepancies
@@ -18,6 +19,8 @@ whose target is not divisible by four.
 
 open Matrix
 open scoped BigOperators
+
+open scoped FormalProof4FHE
 
 namespace FormalProof4FHE.LWE.GSWLinearCharacterPolynomial
 
@@ -108,7 +111,7 @@ theorem coefficientBound_cubicMonomial {q n : ℕ} [NeZero q]
     coefficientBound (MvPolynomial.C value * MvPolynomial.X i * MvPolynomial.X j * MvPolynomial.X k) =
       (LatticeCrypto.centeredRepr value).natAbs := by
   rw [MvPolynomial.C_mul_X_eq_monomial]
-  simp only [MvPolynomial.X, MvPolynomial.monomial_mul, mul_one]
+  simp only [MvPolynomial.X, MvPolynomial.monomial_mul_monomial, mul_one]
   exact coefficientBound_monomial _ _
 
 /-- A public coefficient bound for all binary secrets, including all correlations. -/

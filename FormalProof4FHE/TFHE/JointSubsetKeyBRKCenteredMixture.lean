@@ -33,6 +33,8 @@ moment, matrix, or security-loss calculation is left in that boundary.
 open Matrix OracleComp
 open scoped ENNReal BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.JointSubsetKeyBRKCenteredMixture
 
 open FormalProof4FHE.BoundedMoment
@@ -220,7 +222,7 @@ theorem targetAdvantage_le_centeredMixture
     (noise_le : certificate.noiseError ≤ Real.sqrt pairSecondMoment / 2)
     (distinguisher : Distinguisher View) :
     targetAdvantage targetView distinguisher ≤
-      2 * LearningWithErrors.advantage problem (constructor.reduction distinguisher) +
+      2 * LearningWithErrors.realAdvantage problem (constructor.reduction distinguisher) +
         2 * certificate.factorizationError + Real.sqrt pairSecondMoment +
         certificate.uniformError + certificate.auxiliaryError := by
   have hbase := certificate.targetAdvantage_le_two_source_add_joint_errors distinguisher
@@ -334,7 +336,7 @@ theorem fixedWeightSupport_nonempty
 noncomputable def fixedWeightSupportSampleable
     (dimension weight : ℕ) (weight_le : weight ≤ dimension) :
     SampleableType (FixedWeightSupport dimension weight) :=
-  letI : Nonempty (FixedWeightSupport dimension weight) :=
+  let : Nonempty (FixedWeightSupport dimension weight) :=
     fixedWeightSupport_nonempty dimension weight weight_le
   SampleableType.ofFintype _
 
@@ -350,9 +352,9 @@ theorem expectation_fixedWeightSupportSampler_eq_sum_div
     (observable : FixedWeightSupport dimension weight → ℝ) :
     expectation (fixedWeightSupportSampler dimension weight weight_le) observable =
       (∑ support, observable support) / (Nat.choose dimension weight : ℝ) := by
-  letI : Nonempty (FixedWeightSupport dimension weight) :=
+  let : Nonempty (FixedWeightSupport dimension weight) :=
     fixedWeightSupport_nonempty dimension weight weight_le
-  letI : SampleableType (FixedWeightSupport dimension weight) :=
+  let : SampleableType (FixedWeightSupport dimension weight) :=
     fixedWeightSupportSampleable dimension weight weight_le
   change expectation ($ᵗ (FixedWeightSupport dimension weight)) observable = _
   rw [FormalProof4FHE.SquaredBias.expectation_uniform_eq_sum_div]
@@ -516,7 +518,7 @@ theorem fixedWeightTernaryValue_ne_zero_iff
     (index : Fin dimension) :
     fixedWeightTernaryValue secret index ≠ 0 ↔ index ∈ secret.1.1 := by
   by_cases index_mem : index ∈ secret.1.1
-  · simp only [fixedWeightTernaryValue, dif_pos index_mem]
+  · simp only [fixedWeightTernaryValue, dite_eq_left index_mem]
     constructor
     · exact fun _ ↦ index_mem
     · intro _

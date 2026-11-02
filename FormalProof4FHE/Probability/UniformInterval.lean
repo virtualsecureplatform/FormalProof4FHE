@@ -23,6 +23,8 @@ support remains bounded even on rejection-budget exhaustion.
 open OracleComp
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.UniformInterval
 
 def value (q radius : ℕ) [NeZero q] (ticket : Fin (2 * radius + 1)) : ZMod q :=
@@ -56,9 +58,9 @@ theorem unit_shift_le (q radius : ℕ) [NeZero q] :
       tvDist (left ticket) (right ticket) ≤
         if ticket = Fin.last (2 * radius) then 1 else 0 := by
     by_cases h : ticket = Fin.last (2 * radius)
-    · rw [if_pos h]
+    · rw [ite_eq_left h]
       exact tvDist_le_one _ _
-    · rw [if_neg h]
+    · rw [ite_eq_right h]
       simp only [left, right, value_rotate_of_ne_last q radius ticket h, tvDist_self]
       exact le_rfl
   calc
@@ -284,7 +286,7 @@ theorem sampled_convolution_tvDist_le (q radius rounds : ℕ) [NeZero q]
       FormalProof4FHE.BlockBinary.scalarFirstMoment narrow
         (fun error ↦ ((LatticeCrypto.centeredRepr error).natAbs : ℝ)) /
           (2 * radius + 1 : ℝ) + (1 / 2 : ℝ) ^ rounds := by
-  have happrox := tvDist_bind_left_le_const' (m := ProbComp) narrow
+  have happrox := tvDist_bind_left_le_const' narrow
     (fun small ↦ (fun wide : ZMod q ↦ small + wide) <$> sample q radius rounds)
     (fun small ↦ (fun wide : ZMod q ↦ small + wide) <$> draw q radius)
     ((1 / 2 : ℝ) ^ rounds)

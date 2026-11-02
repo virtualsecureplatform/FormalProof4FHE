@@ -4,6 +4,7 @@ Released under MIT license as described in the file LICENSE.
 Authors: Kotaro Matsuoka
 -/
 
+import FormalProof4FHE.Probability.Discrete
 import FormalProof4FHE.Probability.BoundedMoment
 import FormalProof4FHE.RLWE.CenteredBinomialCharacteristicTwo
 import LatticeCrypto.Ring.Norms
@@ -19,6 +20,8 @@ sampler whenever the centered representative cannot wrap.
 
 open OracleComp
 open scoped BigOperators
+
+open scoped FormalProof4FHE
 
 namespace FormalProof4FHE.RLWE.CenteredBinomial
 

@@ -37,6 +37,8 @@ set_option autoImplicit false
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.NativeTRGSWProofDualMode
 
 noncomputable section

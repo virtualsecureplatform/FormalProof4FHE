@@ -32,6 +32,8 @@ and the finite-field rank-failure bound.
 open scoped BigOperators
 open scoped ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.PowerOfTwoLifting
 
 noncomputable section
@@ -1158,7 +1160,6 @@ theorem parityKernelCompressedUpper_uniform_evalDist
       apply evalDist_ext
       intro output
       rw [probOutput_bind_const]
-      simp
 
 /-- Direct pointwise form of parity-kernel compression, after recombining the split low/high
 representation back to the original upper masks. -/
@@ -1271,7 +1272,8 @@ theorem parityMatrix_rankFailure_le (degree slack : ℕ) :
         matrix.rank < degree) |
         ($ᵗ Matrix (Fin (degree + slack)) (Fin degree) (ZMod 2))] := by
           apply probEvent_congr' (fun masks _ ↦ ?_) rfl
-          rw [rank_parityMatrix]
+          exact iff_of_eq (congrArg (fun rank : ℕ ↦ rank < degree)
+            (rank_parityMatrix masks))
     _ ≤ 2 / (Fintype.card (ZMod 2) : ℝ≥0∞) ^ (slack + 1) :=
       FormalProof4FHE.FiniteFieldRank.rankFailure_le
         (F := ZMod 2) degree slack
@@ -1592,7 +1594,7 @@ theorem recursiveCompressedMasks_uniform_evalDist (depth degree slack : ℕ) :
     _ = evalDist
         ($ᵗ (Block → CoefficientVector (depth + 1) degree)) :=
       by
-        simpa [canonicalUpper] using
+        simpa [canonicalUpper, SampleableType.evalDist_uniformSample] using
           (parityKernelCompressedUpper_uniform_evalDist
             (Block := Block) (depth + 1) degree)
 
@@ -1804,7 +1806,7 @@ theorem powerOfTwoSelector_spec_of_good (depth degree slack : ℕ)
     (hgood : LiftingGood degree slack depth masks) :
     binarySubsetSum masks
       (powerOfTwoSelector depth degree slack masks target) = target := by
-  simp only [powerOfTwoSelector, dif_pos hgood]
+  simp only [powerOfTwoSelector, dite_eq_left hgood]
   exact recursiveSelector_spec depth degree slack masks target hgood
 
 /-- For every target, the total selector fails only on the explicit recursive rank-failure event. -/

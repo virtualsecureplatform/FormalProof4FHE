@@ -17,6 +17,8 @@ variation cost for every BRK, KSK, and adaptive-input error draw.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.SamplerReplacement.CutCycleSecurity
 
 /-- **Finite implementation-level KSK-first TFHE bound.** The honest implementation advantage
@@ -40,20 +42,20 @@ theorem
       Encryption.Adaptive.CutCycleSecurity.keySwitchFirstReplacementAdvantage queryCount
           ringReference keySwitchReference inputReference tgswGadget keySwitchGadget
           encode adversary +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.BootstrapCutSecurity.batchModuleLweProblem q degree ringRank tgswLevels
             lweDimension ringReference)
           (Native.BootstrapCutSecurity.realBatchReduction ringReference keySwitchReference
             tgswGadget
             (Encryption.Adaptive.CutCycleSecurity.cutContinuation queryCount inputReference
               encode adversary)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.BootstrapCutSecurity.batchModuleLweProblem q degree ringRank tgswLevels
             lweDimension ringReference)
           (Native.BootstrapCutSecurity.zeroBatchReduction ringReference keySwitchReference
             (Encryption.Adaptive.CutCycleSecurity.cutContinuation queryCount inputReference
               encode adversary)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Encryption.Adaptive.jointLweProblem q lweDimension
             (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels) queryCount
             keySwitchReference inputReference)
@@ -80,20 +82,20 @@ theorem
       (Encryption.Adaptive.CutCycleSecurity.keySwitchFirstReplacementAdvantage queryCount
           ringReference keySwitchReference inputReference tgswGadget keySwitchGadget
           encode adversary +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.BootstrapCutSecurity.batchModuleLweProblem q degree ringRank tgswLevels
             lweDimension ringReference)
           (Native.BootstrapCutSecurity.realBatchReduction ringReference keySwitchReference
             tgswGadget
             (Encryption.Adaptive.CutCycleSecurity.cutContinuation queryCount inputReference
               encode adversary)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.BootstrapCutSecurity.batchModuleLweProblem q degree ringRank tgswLevels
             lweDimension ringReference)
           (Native.BootstrapCutSecurity.zeroBatchReduction ringReference keySwitchReference
             (Encryption.Adaptive.CutCycleSecurity.cutContinuation queryCount inputReference
               encode adversary)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Encryption.Adaptive.jointLweProblem q lweDimension
             (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels) queryCount
             keySwitchReference inputReference)
@@ -128,20 +130,20 @@ theorem
       Encryption.Adaptive.CutCycleSecurity.keySwitchFirstReplacementAdvantage queryCount
           ringReference errorReference errorReference tgswGadget keySwitchGadget
           encode adversary +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.BootstrapCutSecurity.batchModuleLweProblem q degree ringRank tgswLevels
             lweDimension ringReference)
           (Native.BootstrapCutSecurity.realBatchReduction ringReference errorReference
             tgswGadget
             (Encryption.Adaptive.CutCycleSecurity.cutContinuation queryCount errorReference
               encode adversary)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.BootstrapCutSecurity.batchModuleLweProblem q degree ringRank tgswLevels
             lweDimension ringReference)
           (Native.BootstrapCutSecurity.zeroBatchReduction ringReference errorReference
             (Encryption.Adaptive.CutCycleSecurity.cutContinuation queryCount errorReference
               encode adversary)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.KeySwitchSecurity.binaryLweProblem q lweDimension
             (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels + queryCount)
             errorReference)
@@ -169,20 +171,20 @@ theorem
       (Encryption.Adaptive.CutCycleSecurity.keySwitchFirstReplacementAdvantage queryCount
           ringReference errorReference errorReference tgswGadget keySwitchGadget
           encode adversary +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.BootstrapCutSecurity.batchModuleLweProblem q degree ringRank tgswLevels
             lweDimension ringReference)
           (Native.BootstrapCutSecurity.realBatchReduction ringReference errorReference
             tgswGadget
             (Encryption.Adaptive.CutCycleSecurity.cutContinuation queryCount errorReference
               encode adversary)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.BootstrapCutSecurity.batchModuleLweProblem q degree ringRank tgswLevels
             lweDimension ringReference)
           (Native.BootstrapCutSecurity.zeroBatchReduction ringReference errorReference
             (Encryption.Adaptive.CutCycleSecurity.cutContinuation queryCount errorReference
               encode adversary)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.KeySwitchSecurity.binaryLweProblem q lweDimension
             (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels + queryCount)
             errorReference)

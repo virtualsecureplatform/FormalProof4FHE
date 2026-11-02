@@ -28,6 +28,8 @@ computational hardness assumption.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput.Search.PairedRecovery.CoordinateRecovery.KeySwitchFirstCandidateView
 
 open KeySwitchCandidateRandomization
@@ -403,11 +405,11 @@ theorem candidateCheckGap_eq_keySwitchDecisionAdvantage
       tgswGadget keySwitchGadget distinguisher = true
   · have hle := orientation_le ringErrorSampler keySwitchErrorSampler
       tgswGadget keySwitchGadget distinguisher
-    rw [if_pos horientation] at hle ⊢
+    rw [ite_eq_left horientation] at hle ⊢
     rw [abs_of_nonneg (sub_nonneg.mpr hle)]
   · have hle := orientation_le ringErrorSampler keySwitchErrorSampler
       tgswGadget keySwitchGadget distinguisher
-    rw [if_neg horientation] at hle ⊢
+    rw [ite_eq_right horientation] at hle ⊢
     rw [abs_of_nonpos (sub_nonpos.mpr hle)]
     ring
 

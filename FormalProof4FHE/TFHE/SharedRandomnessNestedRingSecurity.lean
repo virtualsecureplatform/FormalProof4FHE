@@ -45,6 +45,8 @@ RLWE/LWE.
 
 open Matrix OracleComp OracleSpec
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessNestedRing
 
 noncomputable section
@@ -459,7 +461,7 @@ theorem generateSourceBootstrappingKey_uniformError_evalDist_eq_zero
           ($ᵗ (RLWE.Rq q degree)) gadget sourceSecret) := by
   let rqCommRing : CommRing (RLWE.Rq q degree) :=
     LatticeCrypto.vectorNegacyclicRing_instCommRing (ZMod q) degree
-  letI := rqCommRing
+  let := rqCommRing
   unfold generateSourceBootstrappingKey
     FormalProof4FHE.TFHE.SharedRandomnessKeyExtension.Native.generateSourceCircularBootstrappingKey
     generateZeroSourceBootstrappingKey Native.generateBootstrappingKey
@@ -539,12 +541,12 @@ theorem tvDist_realSourceContinuationGame_error_le
       (SamplerReplacement.bootstrappingErrorCount sourceRank tgswLevels
           (scalarDimension sourceRank degree) : ℝ) * tvDist left right := by
   unfold realSourceContinuationGame
-  exact tvDist_bind_left_le_const' (m := ProbComp)
+  exact tvDist_bind_left_le_const'
     (Native.sampleRingSecret sourceRank degree) _ _
     ((SamplerReplacement.bootstrappingErrorCount sourceRank tgswLevels
       (scalarDimension sourceRank degree) : ℝ) * tvDist left right)
     (fun sourceSecret ↦
-      tvDist_bind_left_le_const' (m := ProbComp)
+      tvDist_bind_left_le_const'
         (Native.sampleRingSecret suffixRank degree) _ _
         ((SamplerReplacement.bootstrappingErrorCount sourceRank tgswLevels
           (scalarDimension sourceRank degree) : ℝ) * tvDist left right)
@@ -579,12 +581,12 @@ theorem tvDist_bootstrapZeroSourceContinuationGame_error_le
       (SamplerReplacement.bootstrappingErrorCount sourceRank tgswLevels
           (scalarDimension sourceRank degree) : ℝ) * tvDist left right := by
   unfold bootstrapZeroSourceContinuationGame
-  exact tvDist_bind_left_le_const' (m := ProbComp)
+  exact tvDist_bind_left_le_const'
     (Native.sampleRingSecret sourceRank degree) _ _
     ((SamplerReplacement.bootstrappingErrorCount sourceRank tgswLevels
       (scalarDimension sourceRank degree) : ℝ) * tvDist left right)
     (fun sourceSecret ↦
-      tvDist_bind_left_le_const' (m := ProbComp)
+      tvDist_bind_left_le_const'
         (Native.sampleRingSecret suffixRank degree) _ _
         ((SamplerReplacement.bootstrappingErrorCount sourceRank tgswLevels
           (scalarDimension sourceRank degree) : ℝ) * tvDist left right)
@@ -1189,10 +1191,10 @@ theorem compilePublicEvaluation_isQueryBound
     (hbound : Encryption.Adaptive.IsQueryBound adversary queryCount) :
     Encryption.Adaptive.IsQueryBound
       (Encryption.Adaptive.compilePublicEvaluation evaluate adversary) queryCount := by
-  letI : IsUniformSpec
+  let : OracleSpec.UniformAnswerMeasure
       ((Message × Message) →ₒ
         TLWE.Ciphertext (ZMod q) (scalarDimension sourceRank degree)) :=
-    IsUniformSpec.ofFintypeInhabited _
+    OracleSpec.UniformAnswerMeasure.ofFiniteNonempty _
   exact Encryption.Adaptive.compilePublicEvaluation_isQueryBound
     evaluate adversary queryCount hbound
 

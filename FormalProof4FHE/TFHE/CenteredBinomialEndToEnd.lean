@@ -33,6 +33,8 @@ explicit and is not claimed to follow from ordinary LWE.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.CenteredBinomial.EndToEnd
 
 open Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView

@@ -24,6 +24,8 @@ marginals to joint uniformity, not the paper's asymptotic security claim.
 open Matrix OracleComp
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWUnitSumShift
 
 def shifted {R : Type} [Add R] {n : ℕ} (secret : Fin n → R) (hint : R) : Fin n → R :=
@@ -130,9 +132,7 @@ theorem conditionalJoint_snd_uniform (q : ℕ) [NeZero q] :
 
 theorem conditionalJoint_equal_probability (q : ℕ) [NeZero q] :
     Pr[fun bodies ↦ bodies.1 = bodies.2 | conditionalJoint q] = 1 := by
-  have hq : (q : ℝ≥0∞) ≠ 0 := by exact_mod_cast NeZero.ne q
-  have ht : (q : ℝ≥0∞) ≠ ⊤ := ENNReal.natCast_ne_top _
-  simp [conditionalJoint, probEvent_map, ENNReal.div_self (mul_ne_zero hq hq) (ENNReal.mul_ne_top ht ht)]
+  simp [conditionalJoint, probEvent_map]
 
 theorem uniform_equal_probability (q : ℕ) [NeZero q] :
     Pr[fun bodies : ZMod q × ZMod q ↦ bodies.1 = bodies.2 | $ᵗ (ZMod q × ZMod q)] =

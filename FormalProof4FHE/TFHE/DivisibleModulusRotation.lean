@@ -22,6 +22,8 @@ the nonzero-noise obstruction of the special `q = 2N` witness.
 
 open Matrix
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.RotationLookup
 
 noncomputable section

@@ -26,6 +26,8 @@ set_option maxRecDepth 16384
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TFHEppCandidateLvl02CBDParitySecurity
 
 noncomputable section
@@ -137,11 +139,11 @@ theorem endpointAdvantage_le_CBD_RLWE_and_CBD_LWE
     (brkContribution : ScalarGadget → Matrix Prefix Factor Scalar)
     (distinguisher : Distinguisher View) :
     targetAdvantage (candidateViews brkContribution).endpoints distinguisher ≤
-      2 * LearningWithErrors.advantage smallTernaryCBDRLWEProblem
+      2 * LearningWithErrors.realAdvantage smallTernaryCBDRLWEProblem
         (smallRLWEReduction brkContribution distinguisher) +
-      2 * LearningWithErrors.advantage binaryCBDPrefixProblem
+      2 * LearningWithErrors.realAdvantage binaryCBDPrefixProblem
         ((randomPrefixConstructor brkContribution).reduction distinguisher) +
-      2 * LearningWithErrors.advantage binaryCBDPrefixProblem
+      2 * LearningWithErrors.realAdvantage binaryCBDPrefixProblem
         ((secondPrefixConstructor brkContribution).reduction distinguisher) := by
   exact SourceAlignedParityTernarySecurity.endpointAdvantage_le_smallRLWE_and_prefix
     q rows smallErrorSampler correctionSampler
@@ -154,12 +156,12 @@ theorem endpointAdvantage_le_hardness
     (distinguisher : Distinguisher View) (epsilonRLWE epsilonLWE : ℝ)
     (hRLWE : ∀ adversary : LearningWithErrors.Adversary
         smallTernaryCBDRLWEProblem,
-      LearningWithErrors.advantage smallTernaryCBDRLWEProblem adversary ≤
+      LearningWithErrors.realAdvantage smallTernaryCBDRLWEProblem adversary ≤
         epsilonRLWE)
-    (hPrefixFirst : LearningWithErrors.advantage binaryCBDPrefixProblem
+    (hPrefixFirst : LearningWithErrors.realAdvantage binaryCBDPrefixProblem
         ((randomPrefixConstructor brkContribution).reduction distinguisher) ≤
       epsilonLWE)
-    (hPrefixSecond : LearningWithErrors.advantage binaryCBDPrefixProblem
+    (hPrefixSecond : LearningWithErrors.realAdvantage binaryCBDPrefixProblem
         ((secondPrefixConstructor brkContribution).reduction distinguisher) ≤
       epsilonLWE) :
     targetAdvantage (candidateViews brkContribution).endpoints distinguisher ≤

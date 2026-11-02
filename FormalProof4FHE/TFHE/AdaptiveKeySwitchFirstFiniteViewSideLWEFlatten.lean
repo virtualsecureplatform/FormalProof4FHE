@@ -20,6 +20,8 @@ check remains coupled to the original hidden key.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.KeySwitchFirstFiniteView
 
 open Native

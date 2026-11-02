@@ -17,6 +17,8 @@ the sharp proxy `eta / 2`; an IID vector therefore has spherical proxy `(eta / 2
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.CenteredBinomialProofErrorSampler
 
 noncomputable section

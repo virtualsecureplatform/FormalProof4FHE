@@ -4,6 +4,7 @@ Released under MIT license as described in the file LICENSE.
 Authors: Kotaro Matsuoka
 -/
 
+import FormalProof4FHE.Probability.Discrete
 import FormalProof4FHE.Probability.ModularGaussian
 import Mathlib.Analysis.SpecificLimits.Basic
 import FormalProof4FHE.TFHE.NoiseBounds
@@ -20,6 +21,8 @@ sampler still needs its own approximation certificate and a polynomial cost proo
 -/
 
 open scoped BigOperators ENNReal
+
+open scoped FormalProof4FHE
 
 namespace FormalProof4FHE.DiscreteGaussianTail
 
@@ -142,15 +145,14 @@ theorem tailMass_eq_two_mul_positive (sigma : ℝ) (hsigma : 0 < sigma) (bound :
     dsimp only [positive, term]
     rw [show (index : ℤ) + 1 = ((index + 1 : ℕ) : ℤ) by norm_cast]
     simp only [Int.natAbs_natCast]
-    rfl
   have hprefix : ∑ index ∈ Finset.range bound, positive index = 0 := by
     apply Finset.sum_eq_zero
     intro index hindex
     have hindex' := Finset.mem_range.mp hindex
-    rw [hpositiveValue, if_neg (by omega)]
+    rw [hpositiveValue, ite_eq_right (by omega)]
   have hshift (index : ℕ) : positive (index + bound) =
       discreteGaussianPMF sigma 0 ((bound + index + 1 : ℕ) : ℤ) := by
-    rw [hpositiveValue, if_pos (by omega)]
+    rw [hpositiveValue, ite_eq_left (by omega)]
     congr 2
     omega
   have htail : (∑' index : ℕ, positive index) =
@@ -176,10 +178,10 @@ theorem tailMass_square_le (width : ℕ) (hwidth : 0 < width) :
 
 /-- Event probability of the ideal integer Gaussian is the real tail mass. -/
 theorem probEvent_integer_tail_eq (sigma : ℝ) (hsigma : 0 < sigma) (bound : ℕ) :
-    Pr[(fun value : ℤ ↦ bound < value.natAbs) | discreteGaussianDist sigma 0 hsigma] =
+    Pr[(fun value : ℤ ↦ bound < value.natAbs) | ModularGaussian.integerDistribution sigma 0 hsigma] =
       ENNReal.ofReal (tailMass sigma bound) := by
   classical
-  rw [probEvent_eq_tsum_ite]
+  rw [PMF.probEvent_eq_tsum_ite]
   simp only [PMF.probOutput_eq_apply]
   change (∑' value : ℤ, if bound < value.natAbs then
     ENNReal.ofReal (discreteGaussianPMF sigma 0 value) else 0) = _
@@ -199,17 +201,17 @@ theorem probEvent_modular_tail_le (q width : ℕ) [NeZero q] (hwidth : 0 < width
     Pr[(fun value : ZMod q ↦ width ^ 2 < (LatticeCrypto.centeredRepr value).natAbs) |
       ModularGaussian.distribution q width (Nat.cast_pos.mpr hwidth)] ≤
       ENNReal.ofReal (4 * Real.exp (-(width : ℝ) ^ 2 / 2)) := by
-  rw [ModularGaussian.distribution, probEvent_map]
+  rw [ModularGaussian.distribution, PMF.probEvent_map]
   apply le_trans (b := Pr[(fun value : ℤ ↦ width ^ 2 < value.natAbs) |
-    discreteGaussianDist width 0 (Nat.cast_pos.mpr hwidth)])
-  · rw [probEvent_eq_tsum_ite, probEvent_eq_tsum_ite]
+    ModularGaussian.integerDistribution width 0 (Nat.cast_pos.mpr hwidth)])
+  · rw [PMF.probEvent_eq_tsum_ite, PMF.probEvent_eq_tsum_ite]
     apply ENNReal.tsum_le_tsum
     intro value
     change (if width ^ 2 < (LatticeCrypto.centeredRepr (value : ZMod q)).natAbs then _ else 0) ≤ _
     by_cases hbad : width ^ 2 < (LatticeCrypto.centeredRepr (value : ZMod q)).natAbs
-    · rw [if_pos hbad, if_pos (lt_of_lt_of_le hbad
+    · rw [ite_eq_left hbad, ite_eq_left (lt_of_lt_of_le hbad
         (TFHE.NoiseBounds.centeredRepr_intCast_natAbs_le value))]
-    · rw [if_neg hbad]
+    · rw [ite_eq_right hbad]
       exact zero_le
   · rw [probEvent_integer_tail_eq]
     exact ENNReal.ofReal_le_ofReal (tailMass_square_le width hwidth)
@@ -222,7 +224,7 @@ theorem probEvent_le_add_etvDist {Output : Type} (left right : PMF Output)
   let mark : Output → Option PUnit := fun value ↦ if event value then some () else none
   have hmark (distribution : PMF Output) :
       (mark <$> distribution) (some ()) = Pr[event | distribution] := by
-    rw [PMF.monad_map_eq_map, PMF.map_apply, probEvent_eq_tsum_ite]
+    rw [PMF.monad_map_eq_map, PMF.map_apply, PMF.probEvent_eq_tsum_ite]
     simp only [PMF.probOutput_eq_apply]
     apply tsum_congr
     intro value
@@ -239,7 +241,7 @@ theorem probEvent_ticket_eq_outputPMF {Output : Type} [DecidableEq Output]
     (table : FinitePMFCompiler.TicketTable Output) (event : Output → Prop) :
     Pr[event | table.sampler] = Pr[event | table.outputPMF] := by
   classical
-  simp only [probEvent_eq_tsum_ite, PMF.probOutput_eq_apply,
+  simp only [probEvent_eq_tsum_ite, PMF.probEvent_eq_tsum_ite, PMF.probOutput_eq_apply,
     FinitePMFCompiler.TicketTable.outputPMF_apply,
     FinitePMFCompiler.TicketTable.probOutput_sampler]
 

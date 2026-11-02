@@ -11,6 +11,8 @@ below concern exact aligned transitions, not arbitrary FHE circuits.
 
 open OracleComp BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.BinaryNTTSecurity.UnifiedBGV
 
 noncomputable section

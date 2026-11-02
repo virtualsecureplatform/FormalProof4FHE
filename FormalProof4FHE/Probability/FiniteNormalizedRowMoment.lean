@@ -34,7 +34,7 @@ theorem normalizedRatio_nonneg (fiberCard acceptingCard : ℕ) :
     0 ≤ normalizedRatio fiberCard acceptingCard := by
   by_cases hzero : fiberCard = 0
   · simp [normalizedRatio, hzero]
-  · rw [normalizedRatio, if_neg hzero]
+  · rw [normalizedRatio, ite_eq_right hzero]
     exact div_nonneg (show (0 : ℝ) ≤ (acceptingCard : ℝ) by positivity)
       (show (0 : ℝ) ≤ (fiberCard : ℝ) by positivity)
 
@@ -44,7 +44,7 @@ theorem normalizedRatio_mono_right
     normalizedRatio fiberCard leftCard ≤ normalizedRatio fiberCard rightCard := by
   by_cases hzero : fiberCard = 0
   · simp [normalizedRatio, hzero]
-  · simp only [normalizedRatio, hzero, if_false]
+  · simp only [normalizedRatio, hzero, ite_false]
     exact div_le_div_of_nonneg_right (by exact_mod_cast hle) (Nat.cast_nonneg fiberCard)
 
 /-- A subtype count normalized by its ambient nonempty fiber is at most one. -/
@@ -53,7 +53,7 @@ theorem normalizedRatio_le_one_of_le_fiber
     normalizedRatio fiberCard acceptingCard ≤ 1 := by
   by_cases hzero : fiberCard = 0
   · simp [normalizedRatio, hzero]
-  · simp only [normalizedRatio, hzero, if_false]
+  · simp only [normalizedRatio, hzero, ite_false]
     have hFiberPos : (0 : ℝ) < (fiberCard : ℝ) := by
       exact_mod_cast Nat.pos_of_ne_zero hzero
     exact (div_le_one hFiberPos).2 (by exact_mod_cast hle)
@@ -100,12 +100,12 @@ theorem sum_min_one_normalizedRatio_le_smallFiberCount_add
       by_cases hzero : fiberCard target = 0
       · simp [normalizedRatio, hzero, hRatioNonneg]
       · by_cases hsmall : fiberCard target < threshold
-        · simp only [hzero, ne_eq, not_false_eq_true, hsmall, and_self, if_true]
+        · simp only [hzero, ne_eq, not_false_eq_true, hsmall, and_self, ite_true]
           exact (min_le_left _ _).trans (le_add_of_nonneg_left hRatioNonneg)
         · have hlarge : threshold ≤ fiberCard target := Nat.le_of_not_gt hsmall
-          simp only [hzero, ne_eq, not_false_eq_true, hsmall, and_false, if_false, add_zero]
+          simp only [hzero, ne_eq, not_false_eq_true, hsmall, and_false, ite_false, add_zero]
           apply (min_le_right _ _).trans
-          rw [normalizedRatio, if_neg hzero]
+          rw [normalizedRatio, ite_eq_right hzero]
           exact div_le_div_of_nonneg_left (by positivity) hThresholdReal
             (by exact_mod_cast hlarge)
     _ = (nonemptySmallFiberCount fiberCard threshold : ℝ) +
@@ -198,7 +198,7 @@ theorem normalizedProduct_eq_prod_normalizedRatio
   · obtain ⟨row, hrow⟩ := hzero
     have hproduct : (∏ row, fiberCard row) = 0 :=
       Finset.prod_eq_zero (Finset.mem_univ row) hrow
-    rw [normalizedProduct, if_pos hproduct]
+    rw [normalizedProduct, ite_eq_left hproduct]
     symm
     apply Finset.prod_eq_zero (Finset.mem_univ row)
     simp [normalizedRatio, hrow]
@@ -207,7 +207,7 @@ theorem normalizedProduct_eq_prod_normalizedRatio
       exact hzero ⟨row, hrow⟩
     have hproduct : (∏ row, fiberCard row) ≠ 0 :=
       Finset.prod_ne_zero_iff.mpr fun row _ ↦ hnonzero row
-    rw [normalizedProduct, if_neg hproduct]
+    rw [normalizedProduct, ite_eq_right hproduct]
     push_cast
     rw [← Finset.prod_div_distrib]
     apply Finset.prod_congr rfl
@@ -226,8 +226,8 @@ theorem normalizedRatio_sum_prod_eq_sum_normalizedProduct
   classical
   by_cases hproduct : (∏ row, fiberCard row) = 0
   · simp [normalizedRatio, normalizedProduct, hproduct]
-  · rw [normalizedRatio, if_neg hproduct]
-    simp_rw [normalizedProduct, if_neg hproduct]
+  · rw [normalizedRatio, ite_eq_right hproduct]
+    simp_rw [normalizedProduct, ite_eq_right hproduct]
     push_cast
     rw [Finset.sum_div]
 

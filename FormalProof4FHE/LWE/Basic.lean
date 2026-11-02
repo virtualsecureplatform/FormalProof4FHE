@@ -4,6 +4,7 @@ Released under MIT license as described in the file LICENSE.
 Authors: Kotaro Matsuoka
 -/
 
+import FormalProof4FHE.Probability.Discrete
 import LatticeCrypto.HardnessAssumptions.LearningWithErrors
 
 /-!
@@ -14,6 +15,8 @@ The matrix has one column per public LWE sample, so every column shares the same
 -/
 
 open Matrix OracleComp
+
+open scoped FormalProof4FHE
 
 namespace FormalProof4FHE.LWE
 

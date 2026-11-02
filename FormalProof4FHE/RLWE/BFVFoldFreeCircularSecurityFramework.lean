@@ -32,6 +32,8 @@ exact second-preimage interface remain outside this finite theorem layer.
 open OracleComp
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.BFVFoldFreeCircularSecurityFramework
 
 noncomputable section
@@ -152,7 +154,7 @@ theorem derivedMaskFamily_uniform_evalDist
     _ = evalDist (Prod.fst <$> ($ᵗ ((Family → R) ×
           (Family → ({coordinate : Coordinate // coordinate ≠ pivot} → R)))) ) := by
         simpa only [evalDist_map] using congrArg
-          (fun distribution ↦ Prod.fst <$> distribution) hSplit
+          (fun distribution ↦ MeasureTheory.Measure.map (Prod.fst) distribution) hSplit
     _ = evalDist ($ᵗ (Family → R)) :=
       evalDist_map_fst_uniformSample_prod
 
@@ -451,7 +453,7 @@ theorem moduleKnapsackDifferenceAddHom_surjective_of_isUnit
   change (∑ row, (left row - right row) * matrix row column) = output column
   rw [Finset.sum_eq_single selected]
   · dsimp [matrix]
-    rw [if_pos rfl]
+    rw [ite_eq_left rfl]
     have hUnitSpec : (unit : R) = left selected - right selected :=
       hUnit.unit_spec
     rw [← hUnitSpec, ← mul_assoc]

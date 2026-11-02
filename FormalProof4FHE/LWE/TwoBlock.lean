@@ -24,6 +24,8 @@ LWE.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.TwoBlock
 
 /-- Two public matrices with possibly different column counts. -/
@@ -339,14 +341,14 @@ theorem game0_evalDist_eq {R Secret : Type}
     (errorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem dimension firstSamples secondSamples secretSampler embed errorSampler)) :
-    𝒟[LearningWithErrors.game0
+    𝒟[LearningWithErrors.realExperiment
         (problem dimension firstSamples secondSamples secretSampler embed errorSampler)
         adversary] =
-      𝒟[LearningWithErrors.game0
+      𝒟[LearningWithErrors.realExperiment
         (embeddedBatchProblem dimension (firstSamples + secondSamples)
           secretSampler embed errorSampler)
         (reduction adversary)] := by
-  rw [LearningWithErrors.game0, LearningWithErrors.game0]
+  rw [LearningWithErrors.realExperiment, LearningWithErrors.realExperiment]
   simp only [reduction]
   rw [show (LearningWithErrors.distr
         (embeddedBatchProblem dimension (firstSamples + secondSamples)
@@ -368,14 +370,14 @@ theorem game1_evalDist_eq {R Secret : Type}
     (errorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem dimension firstSamples secondSamples secretSampler embed errorSampler)) :
-    𝒟[LearningWithErrors.game1
+    𝒟[LearningWithErrors.randomExperiment
         (problem dimension firstSamples secondSamples secretSampler embed errorSampler)
         adversary] =
-      𝒟[LearningWithErrors.game1
+      𝒟[LearningWithErrors.randomExperiment
         (embeddedBatchProblem dimension (firstSamples + secondSamples)
           secretSampler embed errorSampler)
         (reduction adversary)] := by
-  rw [LearningWithErrors.game1, LearningWithErrors.game1]
+  rw [LearningWithErrors.randomExperiment, LearningWithErrors.randomExperiment]
   simp only [reduction]
   rw [show (LearningWithErrors.uniformDistr
         (embeddedBatchProblem dimension (firstSamples + secondSamples)
@@ -399,10 +401,10 @@ theorem advantage_eq_batch {R Secret : Type}
     (errorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem dimension firstSamples secondSamples secretSampler embed errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem dimension firstSamples secondSamples secretSampler embed errorSampler)
         adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (embeddedBatchProblem dimension (firstSamples + secondSamples)
           secretSampler embed errorSampler)
         (reduction adversary) := by

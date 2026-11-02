@@ -26,6 +26,8 @@ security, a usable refresh algorithm, or a reduction of quadratic KDM to ordinar
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWSelfKey
 
 /-- Public positions and coefficients of the gadget columns. -/

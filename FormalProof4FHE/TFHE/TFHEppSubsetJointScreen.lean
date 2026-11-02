@@ -36,6 +36,8 @@ pair-kernel certificate.  The covariance obstruction below occurs before that an
 open Matrix OracleComp
 open scoped ENNReal BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TFHEppSubsetJointScreen
 
 open JointSubsetKeyBRKCenteredMixture
@@ -69,7 +71,7 @@ theorem covarianceBudget
   simp only [covarianceMatchedCorrection, residualCovariance,
     Matrix.sub_apply, Matrix.mul_apply, Matrix.transpose_apply, Matrix.smul_apply,
     Matrix.one_apply, smul_eq_mul, mul_ite, mul_one, mul_zero,
-    Finset.sum_ite_eq', Finset.mem_univ, if_true] at hdiag
+    Finset.sum_ite_eq', Finset.mem_univ, ite_true] at hdiag
   rw [Finset.mul_sum, Finset.mul_sum]
   have hnormalized :
       ∑ coordinate, secretVariance * residual row coordinate ^ 2 ≤

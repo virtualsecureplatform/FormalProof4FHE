@@ -28,6 +28,8 @@ correctness margin.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.SharedRandomnessOneCycle
 
 noncomputable section
@@ -308,7 +310,7 @@ theorem independentUniformBootstrapGame_evalDist_eq_jointLwe_game0
       tgswLevels keySwitchLevels) :
     evalDist (independentUniformBootstrapGame keySwitchErrorSampler inputErrorSampler
       keySwitchGadget encode adversary) =
-    evalDist (LearningWithErrors.game0
+    evalDist (LearningWithErrors.realExperiment
       (jointLweProblem q prefixDimension suffixDimension keySwitchLevels
         keySwitchErrorSampler inputErrorSampler)
       (jointLweReduction keySwitchErrorSampler inputErrorSampler keySwitchGadget
@@ -377,7 +379,7 @@ theorem independentUniformBootstrapGame_evalDist_eq_jointLwe_game0
       FirstChallenge, FirstError, firstChallenges, firstErrors, nativeInputs,
       preGame, final, keySwitchMessage, bind_assoc, monad_norm]
   have lwe_eq :
-      LearningWithErrors.game0
+      LearningWithErrors.realExperiment
           (jointLweProblem q prefixDimension suffixDimension keySwitchLevels
             keySwitchErrorSampler inputErrorSampler)
           (jointLweReduction keySwitchErrorSampler inputErrorSampler keySwitchGadget
@@ -397,7 +399,7 @@ theorem independentUniformBootstrapGame_evalDist_eq_jointLwe_game0
           ProbComp (FormalProof4FHE.LWE.TwoBlock.Challenge
             (ZMod q) prefixDimension samples 1)) =
         Prod.mk <$> firstChallenges <*> secondChallenges := rfl
-    rw [LearningWithErrors.game0]
+    rw [LearningWithErrors.realExperiment]
     simp only [jointLweProblem, Encryption.Security.jointLweProblem]
     unfold LearningWithErrors.distr
     simp only [FormalProof4FHE.LWE.TwoBlock.heterogeneousProblem]
@@ -466,19 +468,19 @@ theorem jointLweReduction_game1_evalDist_eq_zero
     (encode : Message → ZMod q)
     (adversary : Adversary Message q prefixDimension suffixDimension
       tgswLevels keySwitchLevels) :
-    evalDist (LearningWithErrors.game1
+    evalDist (LearningWithErrors.randomExperiment
       (jointLweProblem q prefixDimension suffixDimension keySwitchLevels
         keySwitchErrorSampler inputErrorSampler)
       (jointLweReduction keySwitchErrorSampler inputErrorSampler keySwitchGadget
         encode adversary)) =
-    evalDist (LearningWithErrors.game1
+    evalDist (LearningWithErrors.randomExperiment
       (jointLweProblem q prefixDimension suffixDimension keySwitchLevels
         keySwitchErrorSampler inputErrorSampler)
       (zeroJointLweReduction keySwitchErrorSampler inputErrorSampler
         encode adversary)) := by
   let samples := keySwitchSamples suffixDimension keySwitchLevels
   let contexts := uniformBootstrapContext q prefixDimension suffixDimension tgswLevels
-  rw [LearningWithErrors.game1, LearningWithErrors.game1]
+  rw [LearningWithErrors.randomExperiment, LearningWithErrors.randomExperiment]
   simp only [jointLweProblem, Encryption.Security.jointLweProblem]
   rw [FormalProof4FHE.LWE.TwoBlock.heterogeneousUniformDistr_eq_uniformSample]
   have hShift := Encryption.Security.uniformTranscript_context_shiftFirst_evalDist
@@ -580,7 +582,7 @@ theorem zeroJointLweReduction_game1_probOutput_true
     (encode : Message → ZMod q)
     (adversary : Adversary Message q prefixDimension suffixDimension
       tgswLevels keySwitchLevels) :
-    Pr[= true | LearningWithErrors.game1
+    Pr[= true | LearningWithErrors.randomExperiment
       (jointLweProblem q prefixDimension suffixDimension keySwitchLevels
         keySwitchErrorSampler inputErrorSampler)
       (zeroJointLweReduction keySwitchErrorSampler inputErrorSampler
@@ -604,7 +606,7 @@ theorem zeroJointLweReduction_game1_probOutput_true
       (if bit then messages.1 else messages.2.1) second
     let guess ← adversary.distinguish messages.2.2 ciphertext
     return (bit == guess)
-  rw [LearningWithErrors.game1]
+  rw [LearningWithErrors.randomExperiment]
   simp only [jointLweProblem, Encryption.Security.jointLweProblem]
   rw [FormalProof4FHE.LWE.TwoBlock.heterogeneousUniformDistr_eq_uniformSample]
   calc
@@ -707,7 +709,7 @@ theorem jointLweReduction_game1_probOutput_true
     (encode : Message → ZMod q)
     (adversary : Adversary Message q prefixDimension suffixDimension
       tgswLevels keySwitchLevels) :
-    Pr[= true | LearningWithErrors.game1
+    Pr[= true | LearningWithErrors.randomExperiment
       (jointLweProblem q prefixDimension suffixDimension keySwitchLevels
         keySwitchErrorSampler inputErrorSampler)
       (jointLweReduction keySwitchErrorSampler inputErrorSampler keySwitchGadget
@@ -729,7 +731,7 @@ theorem abs_signedAdvantage_independentUniformBootstrap_eq_jointLwe
     |Encryption.signedAdvantage
       (independentUniformBootstrapGame keySwitchErrorSampler inputErrorSampler
         keySwitchGadget encode adversary)| =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (jointLweProblem q prefixDimension suffixDimension keySwitchLevels
           keySwitchErrorSampler inputErrorSampler)
         (jointLweReduction keySwitchErrorSampler inputErrorSampler keySwitchGadget
@@ -756,7 +758,7 @@ theorem abs_signedAdvantage_real_uniformRingError_eq_jointLwe
       (realGame ($ᵗ (RLWE.Rq q (prefixDimension + suffixDimension)))
         keySwitchErrorSampler inputErrorSampler tgswGadget keySwitchGadget
         encode adversary)| =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (jointLweProblem q prefixDimension suffixDimension keySwitchLevels
           keySwitchErrorSampler inputErrorSampler)
         (jointLweReduction keySwitchErrorSampler inputErrorSampler keySwitchGadget
@@ -795,7 +797,7 @@ theorem abs_signedAdvantage_real_le_ringErrorDistance_add_jointLwe
           1 tgswLevels prefixDimension : ℝ) *
           tvDist ringErrorSampler
             ($ᵗ (RLWE.Rq q (prefixDimension + suffixDimension))) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (jointLweProblem q prefixDimension suffixDimension keySwitchLevels
             keySwitchErrorSampler inputErrorSampler)
           (jointLweReduction keySwitchErrorSampler inputErrorSampler keySwitchGadget
@@ -823,7 +825,7 @@ theorem abs_signedAdvantage_real_le_ringErrorDistance_add_jointLwe
     abs_probOutput_toReal_sub_le_tvDist actualGame uniformGame
   have hUniform :
       |Encryption.signedAdvantage uniformGame| =
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (jointLweProblem q prefixDimension suffixDimension keySwitchLevels
             keySwitchErrorSampler inputErrorSampler)
           (jointLweReduction keySwitchErrorSampler inputErrorSampler keySwitchGadget
@@ -851,7 +853,7 @@ theorem abs_signedAdvantage_real_le_ringErrorDistance_add_jointLwe
           1 tgswLevels prefixDimension : ℝ) *
           tvDist ringErrorSampler
             ($ᵗ (RLWE.Rq q (prefixDimension + suffixDimension))) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (jointLweProblem q prefixDimension suffixDimension keySwitchLevels
             keySwitchErrorSampler inputErrorSampler)
           (jointLweReduction keySwitchErrorSampler inputErrorSampler keySwitchGadget
@@ -875,7 +877,7 @@ theorem abs_signedAdvantage_real_le_ringErrorDistance_add_batchLwe_of_same_noise
           1 tgswLevels prefixDimension : ℝ) *
           tvDist ringErrorSampler
             ($ᵗ (RLWE.Rq q (prefixDimension + suffixDimension))) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.KeySwitchSecurity.binaryLweProblem q prefixDimension
             (keySwitchSamples suffixDimension keySwitchLevels + 1) errorSampler)
           (FormalProof4FHE.LWE.TwoBlock.reduction
@@ -889,7 +891,7 @@ theorem abs_signedAdvantage_real_le_ringErrorDistance_add_batchLwe_of_same_noise
           1 tgswLevels prefixDimension : ℝ) *
           tvDist ringErrorSampler
             ($ᵗ (RLWE.Rq q (prefixDimension + suffixDimension))) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (jointLweProblem q prefixDimension suffixDimension keySwitchLevels
             errorSampler errorSampler)
           (jointLweReduction errorSampler errorSampler keySwitchGadget encode adversary) :=
@@ -900,14 +902,14 @@ theorem abs_signedAdvantage_real_le_ringErrorDistance_add_batchLwe_of_same_noise
           1 tgswLevels prefixDimension : ℝ) *
           tvDist ringErrorSampler
             ($ᵗ (RLWE.Rq q (prefixDimension + suffixDimension))) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.KeySwitchSecurity.binaryLweProblem q prefixDimension
             (keySwitchSamples suffixDimension keySwitchLevels + 1) errorSampler)
           (FormalProof4FHE.LWE.TwoBlock.reduction
             (jointLweReduction errorSampler errorSampler keySwitchGadget
               encode adversary)) := by
       congr 1
-      change LearningWithErrors.advantage
+      change LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.TwoBlock.problem prefixDimension
             (keySwitchSamples suffixDimension keySwitchLevels) 1
             (Native.sampleLweSecret prefixDimension) embedBinarySecret errorSampler)

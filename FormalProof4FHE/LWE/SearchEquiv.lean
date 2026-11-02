@@ -18,6 +18,8 @@ deduced from decisional-game equality.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.SearchEquiv
 
 variable {SourceChallenge TargetChallenge Secret SourceOutput TargetOutput : Type}
@@ -70,7 +72,7 @@ theorem searchExperiment_evalDist_eq
           source.sampleSecret >>= fun secret ↦
           mappedErrors >>= fun error ↦
           finish challenge secret error) := by
-    simp [LearningWithErrors.searchExperiment, reduction, mappedChallenges,
+    simp [LearningWithErrors.searchExperiment, NoisyLearning.searchRun, NoisyLearning.searchRun, reduction, mappedChallenges,
       mappedErrors, finish, hAssemble, bind_assoc, monad_norm]
   have target_eq :
       LearningWithErrors.searchExperiment target adversary =
@@ -78,7 +80,7 @@ theorem searchExperiment_evalDist_eq
           target.sampleSecret >>= fun secret ↦
           target.sampleError >>= fun error ↦
           finish challenge secret error) := by
-    simp [LearningWithErrors.searchExperiment, finish, monad_norm]
+    simp [LearningWithErrors.searchExperiment, NoisyLearning.searchRun, NoisyLearning.searchRun, finish, monad_norm]
   rw [source_eq, target_eq]
   calc
     _ = evalDist (target.sampleChallenge >>= fun challenge ↦

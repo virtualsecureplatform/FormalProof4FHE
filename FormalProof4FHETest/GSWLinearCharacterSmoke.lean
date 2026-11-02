@@ -12,6 +12,8 @@ its compiler algebra and supported noise only, never cryptographic security. -/
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHETest.GSWLinearCharacterSmoke
 
 open FormalProof4FHE.LWE

@@ -28,6 +28,8 @@ set_option autoImplicit false
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.EvenSecretReduction
 
 noncomputable section
@@ -232,7 +234,7 @@ theorem challengeEquiv_evalDist (q half samples : ℕ) [NeZero q] :
         ($ᵗ (LWE.ParallelBatch.Challenge
           (RLWE.Rq q half) 1 2 samples))) := by
       simpa [parallelProblem, evalDist_map] using congrArg
-        (fun distribution ↦ challengeEquiv q half samples <$> distribution)
+        (fun distribution ↦ MeasureTheory.Measure.map (challengeEquiv q half samples) distribution)
         hsource
     _ = _ := evalDist_map_bijective_uniform_cross
       (α := LWE.ParallelBatch.Challenge (RLWE.Rq q half) 1 2 samples)
@@ -341,7 +343,7 @@ theorem uniform_evalDist (q half samples : ℕ)
         ($ᵗ (LWE.ParallelBatch.Transcript
           (RLWE.Rq q half) 1 2 samples))) := by
       simpa [parallelProblem, evalDist_map] using congrArg
-        (fun distribution ↦ transcriptEquiv q half samples <$> distribution)
+        (fun distribution ↦ MeasureTheory.Measure.map (transcriptEquiv q half samples) distribution)
         hsource
     _ = _ := evalDist_map_bijective_uniform_cross
       (α := LWE.ParallelBatch.Transcript (RLWE.Rq q half) 1 2 samples)
@@ -368,12 +370,12 @@ theorem game0_evalDist_eq (q half samples : ℕ)
     (errorSampler : ProbComp (RLWE.Rq q half))
     (adversary : LearningWithErrors.Adversary
       (evenProblem q half samples secretSampler errorSampler)) :
-    evalDist (LearningWithErrors.game0
+    evalDist (LearningWithErrors.realExperiment
         (evenProblem q half samples secretSampler errorSampler) adversary) =
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
         (parallelProblem q half samples secretSampler errorSampler)
         (parallelAdversary adversary)) := by
-  rw [LearningWithErrors.game0, LearningWithErrors.game0]
+  rw [LearningWithErrors.realExperiment, LearningWithErrors.realExperiment]
   change evalDist (LearningWithErrors.distr
       (evenProblem q half samples secretSampler errorSampler) >>= adversary) =
     evalDist (LearningWithErrors.distr
@@ -396,12 +398,12 @@ theorem game1_evalDist_eq (q half samples : ℕ)
     (errorSampler : ProbComp (RLWE.Rq q half))
     (adversary : LearningWithErrors.Adversary
       (evenProblem q half samples secretSampler errorSampler)) :
-    evalDist (LearningWithErrors.game1
+    evalDist (LearningWithErrors.randomExperiment
         (evenProblem q half samples secretSampler errorSampler) adversary) =
-      evalDist (LearningWithErrors.game1
+      evalDist (LearningWithErrors.randomExperiment
         (parallelProblem q half samples secretSampler errorSampler)
         (parallelAdversary adversary)) := by
-  rw [LearningWithErrors.game1, LearningWithErrors.game1]
+  rw [LearningWithErrors.randomExperiment, LearningWithErrors.randomExperiment]
   change evalDist (LearningWithErrors.uniformDistr
       (evenProblem q half samples secretSampler errorSampler) >>= adversary) =
     evalDist (LearningWithErrors.uniformDistr
@@ -424,9 +426,9 @@ theorem advantage_eq_parallel (q half samples : ℕ)
     (errorSampler : ProbComp (RLWE.Rq q half))
     (adversary : LearningWithErrors.Adversary
       (evenProblem q half samples secretSampler errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (evenProblem q half samples secretSampler errorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (parallelProblem q half samples secretSampler errorSampler)
         (parallelAdversary adversary) := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage,
@@ -468,16 +470,16 @@ theorem advantage_eq_smallRLWE (q half samples : ℕ)
     (errorSampler : ProbComp (RLWE.Rq q half))
     (adversary : LearningWithErrors.Adversary
       (evenProblem q half samples secretSampler errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (evenProblem q half samples secretSampler errorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (RLWE.problem q half (2 * samples) secretSampler errorSampler)
         (reduction adversary) := by
   cases half with
   | zero => omega
   | succ half =>
       rw [advantage_eq_parallel q (half + 1) samples hhalf]
-      change LearningWithErrors.advantage
+      change LearningWithErrors.realAdvantage
           (LWE.ParallelBatch.problem 1 2 samples secretSampler
             (smallSecretEmbed q (half + 1)) errorSampler)
           (parallelAdversary adversary) = _
@@ -494,12 +496,12 @@ theorem advantage_le_of_smallRLWE (q half samples : ℕ)
     (bound : ℝ)
     (hsmall : ∀ smallAdversary : LearningWithErrors.Adversary
         (RLWE.problem q half (2 * samples) secretSampler errorSampler),
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (RLWE.problem q half (2 * samples) secretSampler errorSampler)
         smallAdversary ≤ bound)
     (adversary : LearningWithErrors.Adversary
       (evenProblem q half samples secretSampler errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (evenProblem q half samples secretSampler errorSampler) adversary ≤ bound := by
   rw [advantage_eq_smallRLWE q half samples hhalf]
   exact hsmall _

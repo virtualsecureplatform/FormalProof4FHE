@@ -21,6 +21,8 @@ preserving normalized-moment bound.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm
 
 noncomputable section
@@ -113,7 +115,7 @@ theorem cInfNorm_target_le_of_reconstructedRowChoice
       hunit row target) :
     LatticeCrypto.cInfNorm target ≤
       reconstructedRowTransformedErrorNormBound params degree ringRank sourceErrorBound := by
-  letI : CommRing (RLWE.Rq q (degree + 1)) := NoiseBounds.positiveRqCommRing
+  let : CommRing (RLWE.Rq q (degree + 1)) := NoiseBounds.positiveRqCommRing
   have hequation := reconstructedRowRingDigit_retainedEquation candidate sourceError
     (constantTransformedError target) selected hunit row choice
   change sourceError row +
@@ -356,7 +358,7 @@ theorem reconstructedRowNormalizedMomentProduct_le_centeredSupportPow
           values) ≤
         ∏ _row : Fin (TGSW.rowCount ringRank params.levels),
           (reconstructedRowCenteredSupportCard params degree ringRank sourceErrorBound : ℝ) := by
-      apply Finset.prod_le_prod
+      apply Finset.prod_le_prod₀
       · intro row _
         exact reconstructedRowNormalizedMomentSumAt_nonneg params candidate sourceError selected
           hunit row values

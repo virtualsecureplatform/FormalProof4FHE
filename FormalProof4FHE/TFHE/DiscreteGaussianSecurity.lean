@@ -28,6 +28,8 @@ and statistical step is discharged by the checked reductions.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.DiscreteGaussianSecurity
 
 /-- Complete certificate-derived replacement loss for the BRK, KSK, and adaptive input tape. -/
@@ -80,7 +82,7 @@ theorem abs_signedAdvantage_le_monomialKDM_add_batchLWE_add_certificates
           tgswGadget keySwitchGadget
           (Encryption.Adaptive.continuation queryCount
             (DiscreteGaussianSampler.scalarSampler referenceError) encode adversary) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.KeySwitchSecurity.binaryLweProblem q lweDimension
             (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels + queryCount)
             (DiscreteGaussianSampler.scalarSampler referenceError))
@@ -133,7 +135,7 @@ theorem abs_signedAdvantage_le_monomialKDM_add_batchLWE_add_certificates
       Native.BootstrapSecurity.directBilinearAdvantage
           ringReferenceSampler referenceSampler tgswGadget keySwitchGadget
           (Encryption.Adaptive.continuation queryCount referenceSampler encode adversary) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.KeySwitchSecurity.binaryLweProblem q lweDimension
             (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels + queryCount)
             referenceSampler)
@@ -150,7 +152,7 @@ theorem abs_signedAdvantage_le_monomialKDM_add_batchLWE_add_certificates
     _ = Native.BootstrapSecurity.MonomialKDM.advantage
           ringReferenceSampler referenceSampler tgswGadget keySwitchGadget
           (Encryption.Adaptive.continuation queryCount referenceSampler encode adversary) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.KeySwitchSecurity.binaryLweProblem q lweDimension
             (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels + queryCount)
             referenceSampler)
@@ -167,7 +169,7 @@ theorem abs_signedAdvantage_le_monomialKDM_add_batchLWE_add_certificates
     _ ≤ Native.BootstrapSecurity.MonomialKDM.advantage
           ringReferenceSampler referenceSampler tgswGadget keySwitchGadget
           (Encryption.Adaptive.continuation queryCount referenceSampler encode adversary) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.KeySwitchSecurity.binaryLweProblem q lweDimension
             (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels + queryCount)
             referenceSampler)

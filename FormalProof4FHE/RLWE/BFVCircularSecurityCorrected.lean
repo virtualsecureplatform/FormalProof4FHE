@@ -25,6 +25,8 @@ narrow-error BFV parameters.
 open OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.BFVCircularSecurityCorrected
 
 noncomputable section
@@ -281,7 +283,7 @@ theorem collisionSeedCard_real_le_diagonal_add_uniform
     have hNonnegative :
         0 ≤ (Fintype.card Seed : ℝ) / Fintype.card Output := by positivity
     exact le_add_of_nonneg_right (a := (Fintype.card Seed : ℝ)) hNonnegative
-  · rw [if_neg hEqual, zero_add]
+  · rw [ite_eq_right hEqual, zero_add]
     apply (le_div_iff₀ hOutput).2
     have hNatural := hUniversal left right hEqual
     exact_mod_cast hNatural
@@ -713,8 +715,8 @@ theorem tvDist_map_equiv_probComp
     (left right : ProbComp Input) :
     tvDist (equiv <$> left) (equiv <$> right) = tvDist left right := by
   apply le_antisymm
-  · exact tvDist_map_le (m := ProbComp) equiv left right
-  · have hReverse := tvDist_map_le (m := ProbComp) equiv.symm
+  · exact tvDist_map_le equiv left right
+  · have hReverse := tvDist_map_le equiv.symm
       (equiv <$> left) (equiv <$> right)
     simpa only [Functor.map_map, Equiv.symm_apply_apply, id_map'] using hReverse
 

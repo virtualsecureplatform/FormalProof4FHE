@@ -25,6 +25,8 @@ family.  The result is an obstruction theorem, not a security assumption.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm
 
 noncomputable section
@@ -374,7 +376,6 @@ theorem rqParityEval_apply {q ringDegree : ℕ} (heven : 2 ∣ q)
   rw [Ideal.Quotient.lift_mk]
   simp [polynomialParityEval, LatticeCrypto.PolyBackend.toPolynomial,
     LatticeCrypto.Poly.toPi]
-  rfl
 
 /-- Parity evaluation of one executable ring digit is the parity sum of its complete finite
 coefficient-digit vector. -/
@@ -475,7 +476,7 @@ theorem one_half_le_binarySquareRankFailure_toReal
       (Pr[(fun matrix : Matrix (Fin dimension) (Fin dimension) (ZMod 2) =>
           matrix.rank < dimension) |
         ($ᵗ Matrix (Fin dimension) (Fin dimension) (ZMod 2))]).toReal := by
-  letI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  let : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   obtain ⟨tail, rfl⟩ := Nat.exists_eq_succ_of_ne_zero
     (Nat.ne_of_gt hdimension)
   simp only [Nat.succ_eq_add_one]
@@ -503,7 +504,7 @@ theorem one_half_le_binarySquareRankFailure_toReal
   have hproduct_le_one :
       (∏ index : Fin tail,
         (1 - (2 : ℝ) ^ index.castSucc.val / (2 : ℝ) ^ (tail + 1))) ≤ 1 :=
-    Finset.prod_le_one
+    Finset.prod_le_one₀
       (fun index _ => hfactor_nonneg index)
       (fun index _ => hfactor_le_one index)
   have hlast :

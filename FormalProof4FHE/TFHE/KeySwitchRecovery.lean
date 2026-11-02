@@ -22,6 +22,8 @@ search target does not require an independent randomization of all ring-key coef
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.KeySwitchRecovery
 
 /-- Decrypt and decode one source-key coordinate from a selected native KSK gadget level. -/

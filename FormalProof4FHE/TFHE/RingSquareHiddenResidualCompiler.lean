@@ -30,6 +30,8 @@ small-noise problem.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.HiddenResidual
 
 noncomputable section
@@ -66,7 +68,7 @@ theorem tvDist_independentSumSampler_left_le
         (right >>= fun value ↦ pure (addCommon value)) =
       tvDist (addCommon <$> left) (addCommon <$> right) := by
         simp [addCommon, monad_norm]
-    _ ≤ tvDist left right := tvDist_map_le (m := ProbComp) addCommon left right
+    _ ≤ tvDist left right := tvDist_map_le addCommon left right
 
 /-- Replacing the error sampler by a distributionally equal sampler preserves the complete
 hidden-shift mixture. -/
@@ -450,7 +452,7 @@ theorem hiddenResidualDistance_nonneg
     (context : MaskContext R Secret levels sourceCount) :
     0 ≤ hiddenResidualDistance embed sourceErrorSampler targetErrorSampler
       selectors context :=
-  SPMF.tvDist_nonneg _ _
+  MeasureTheory.Measure.tvDist_nonneg _ _
 
 theorem hiddenResidualDistance_le_one
     {R Secret : Type} [CommRing R]
@@ -460,7 +462,7 @@ theorem hiddenResidualDistance_le_one
     (context : MaskContext R Secret levels sourceCount) :
     hiddenResidualDistance embed sourceErrorSampler targetErrorSampler
       selectors context ≤ 1 :=
-  SPMF.tvDist_le_one _ _
+  tvDist_le_one _ _
 
 /-- The square-batch normal form in which the residual-generating source errors remain internal to
 the error sampler. -/
@@ -522,7 +524,7 @@ theorem tvDist_hiddenShiftedSquareBatchSampler_le_hiddenResidualDistance
         (hiddenShiftedBatchErrorSampler embed sourceErrorSampler targetErrorSampler
           selectors context)
         (ProbComp.sampleIID (TGSW.rowCount 1 levels) targetErrorSampler) :=
-      tvDist_map_le (m := ProbComp) assemble _ _
+      tvDist_map_le assemble _ _
     _ = hiddenResidualDistance embed sourceErrorSampler targetErrorSampler
         selectors context := rfl
 
@@ -786,7 +788,7 @@ theorem tvDist_maskContextualCompiler_native_le_failure_add_hiddenResidual
       Hybrid (fun context ↦ ¬ Success context)
     intro context hNotBad
     have hSuccess : Success context := not_not.mp hNotBad
-    simp only [Hybrid, hSuccess, if_true]
+    simp only [Hybrid, hSuccess, ite_true]
     exact compileFromMaskContext_evalDist_eq_hiddenShifted
       embed sourceErrorSampler targetErrorSampler gadget selectors context hSuccess
   have hSmudging :
@@ -794,12 +796,12 @@ theorem tvDist_maskContextualCompiler_native_le_failure_add_hiddenResidual
     apply tvDist_bind_left_le_const ContextSampler Hybrid Native bound
     intro context hcontext
     by_cases hSuccess : Success context
-    · simp only [Hybrid, hSuccess, if_true]
+    · simp only [Hybrid, hSuccess, ite_true]
       exact
         (tvDist_hiddenShiftedSquareBatchSampler_le_hiddenResidualDistance
           embed sourceErrorSampler targetErrorSampler gadget selectors context).trans
           (hResidual context hcontext hSuccess)
-    · simp only [Hybrid, hSuccess, if_false]
+    · simp only [Hybrid, hSuccess, ite_false]
       simpa only [tvDist_self] using hBoundNonneg
   calc
     _ ≤ tvDist
@@ -847,7 +849,7 @@ theorem actualDistributionGap_le_failure_add_hiddenResidual
   rw [ActualNormalForm.actualSquareBatchSampler_evalDist_eq_nativeSquareBatchSampler,
     nativeSquareBatchSampler_evalDist_eq_maskContextual,
     compiledBatchSampler_evalDist_eq_maskContextual]
-  simpa only [SPMF.tvDist_comm] using hContext
+  simpa only [MeasureTheory.Measure.tvDist_comm] using hContext
 
 /-- Finite genuine `RGSW_S(-S)` security with the statistical term stated as the exact hidden
 random-residual distance and the computational term reduced to ordinary batch-RLWE. -/
@@ -874,7 +876,7 @@ theorem rgswMinusSecretAdvantage_le_failure_add_hiddenResidual_add_batchLWE_of_c
       (Pr[fun context ↦
             ¬ ChallengeSelectorsSucceed gadget selectors context.sourceChallenge |
           maskContextSampler (R := R) levels sourceCount secretSampler].toReal + bound) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.embeddedBatchProblem 1
             (levels * sourceCount + TGSW.rowCount 1 levels)
             secretSampler embed sourceErrorSampler)
@@ -920,7 +922,7 @@ theorem rgswMinusSecretAdvantage_le_convolution_failure_add_hiddenResidual_add_b
       (Pr[fun context ↦
             ¬ ChallengeSelectorsSucceed gadget selectors context.sourceChallenge |
           maskContextSampler (R := R) levels sourceCount secretSampler].toReal + bound) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.embeddedBatchProblem 1
             (levels * sourceCount + TGSW.rowCount 1 levels)
             secretSampler embed sourceErrorSampler)

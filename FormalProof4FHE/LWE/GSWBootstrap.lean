@@ -20,6 +20,8 @@ input, and output. These results do not prove security of that self-key tape.
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWBootstrap
 
 open GSWGadget GSWModulusSwitch TFHE.BootstrappingCorrectness

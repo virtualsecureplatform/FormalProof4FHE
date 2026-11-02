@@ -4,8 +4,9 @@ Released under MIT license as described in the file LICENSE.
 Authors: Kotaro Matsuoka
 -/
 
+import FormalProof4FHE.Probability.Discrete
 import Mathlib.Analysis.Real.Sqrt
-import VCVio.EvalDist.TVDist
+import VCVio.EvalDist.MeasureTVDist.Bind
 import VCVio.OracleComp.Constructions.SampleableType
 
 /-!
@@ -17,6 +18,8 @@ two-universal hash families over finite types.
 -/
 
 open BigOperators OracleComp
+
+open scoped FormalProof4FHE
 
 namespace FormalProof4FHE.LeftoverHash
 
@@ -52,20 +55,13 @@ theorem tvDist_eq_half_sum_abs {α : Type} [Fintype α]
     (p q : ProbComp α) :
     tvDist p q =
       (1 / 2 : ℝ) * ∑ x, |Pr[= x | p].toReal - Pr[= x | q].toReal| := by
-  classical
-  rw [tvDist, SPMF.tvDist, PMF.tvDist, PMF.etvDist]
-  rw [tsum_option _ ENNReal.summable]
-  have hp : (𝒟[p]).toPMF none = 0 := probFailure_eq_zero (mx := p)
-  have hq : (𝒟[q]).toPMF none = 0 := probFailure_eq_zero (mx := q)
-  rw [hp, hq, ENNReal.absDiff_self, zero_add, tsum_fintype, ENNReal.toReal_div]
-  rw [ENNReal.toReal_sum (fun x _ ↦ by
-    exact ne_top_of_le_ne_top
-      (ENNReal.add_ne_top.mpr ⟨PMF.apply_ne_top _ _, PMF.apply_ne_top _ _⟩)
-      (ENNReal.absDiff_le_add _ _))]
-  simp only [ENNReal.toReal_ofNat]
-  simp_rw [ENNReal.absDiff_toReal (PMF.apply_ne_top _ _) (PMF.apply_ne_top _ _)]
-  simp only [← SPMF.apply_eq_toPMF_some, ← probOutput_def]
-  ring
+  rw [tvDist_eq_outputPMF, PMF.tvDist, PMF.etvDist, tsum_fintype, ENNReal.toReal_div]
+  rw [ENNReal.toReal_sum (fun x _ ↦ ne_top_of_le_ne_top
+    (ENNReal.add_ne_top.mpr ⟨PMF.apply_ne_top _ _, PMF.apply_ne_top _ _⟩)
+    (ENNReal.absDiff_le_add _ _))]
+  simp only [← probOutput_eq_outputPMF]
+  simp only [ENNReal.absDiff_toReal probOutput_ne_top probOutput_ne_top]
+  norm_num [div_eq_mul_inv, mul_comm]
 
 /-- Collision probability controls distance from uniform.  This is the analytic core of the
 leftover hash lemma. -/
@@ -129,7 +125,7 @@ carry field structures. -/
 noncomputable def fiberSecondMoment {Input Output : Type}
     [Fintype Input] [Fintype Output]
     (transform : Input → Output) : ℝ := by
-  letI : DecidableEq Output := Classical.decEq Output
+  let : DecidableEq Output := Classical.decEq Output
   exact ∑ output,
     ((Finset.univ.filter fun input : Input => transform input = output).card : ℝ) ^ 2
 
@@ -159,7 +155,7 @@ theorem collisionProbability_map_uniform_eq_fiberSecondMoment
     (transform : Input → Output) :
     collisionProbability (transform <$> ($ᵗ Input)) =
       (Fintype.card Input : ℝ)⁻¹ ^ 2 * fiberSecondMoment transform := by
-  letI : DecidableEq Output := Classical.decEq Output
+  let : DecidableEq Output := Classical.decEq Output
   unfold collisionProbability fiberSecondMoment
   simp_rw [probOutput_map_uniform_eq_fiberCard transform,
     ENNReal.toReal_mul, ENNReal.toReal_inv, ENNReal.toReal_natCast, mul_pow]
@@ -270,10 +266,10 @@ private theorem sum_ite_eq_else {Input : Type} [Fintype Input] [DecidableEq Inpu
             ∑ _y ∈ Finset.univ.erase x, offDiagonal := by
         apply Finset.sum_congr rfl
         intro y hy
-        rw [if_neg]
+        rw [ite_eq_right]
         intro hxy
         exact (Finset.ne_of_mem_erase hy) hxy.symm
-      rw [hsum, if_pos rfl]
+      rw [hsum, ite_eq_left rfl]
       simp only [Finset.sum_const, nsmul_eq_mul, Finset.card_erase_of_mem,
         Finset.mem_univ, Finset.card_univ]
       ring
@@ -319,7 +315,7 @@ theorem sum_fiber_card_sq_le {Seed Input Output : Type}
           by_cases hxy : x = y
           · subst y
             simp [S]
-          · rw [if_neg hxy]
+          · rw [ite_eq_right hxy]
             apply (le_div_iff₀ hO).2
             have hnat := huniversal x y hxy
             change
@@ -389,7 +385,7 @@ theorem sum_fiber_card_sq_le_tight {Seed Input Output : Type}
           by_cases hxy : x = y
           · subst y
             simp [S]
-          · rw [if_neg hxy]
+          · rw [ite_eq_right hxy]
             apply (le_div_iff₀ hO).2
             have hnat := huniversal x y hxy
             change

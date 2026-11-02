@@ -30,6 +30,8 @@ shift and the nonlinear relative-key obligation remains.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE
 
 noncomputable section
@@ -112,7 +114,7 @@ theorem rankOneComplementNoiseDistance_centeredBinomial_two_eq_zero
       (RLWE.CenteredBinomial.sampler 2 degree (eta + 1)) offset = 0 := by
   unfold rankOneComplementNoiseDistance tvDist
   rw [rankOneComplementNoiseInvariant_centeredBinomial_two degree levels eta offset]
-  exact SPMF.tvDist_self _
+  exact MeasureTheory.Measure.tvDist_self _
 
 /-- Negation is the identity on every binary-coefficient native polynomial. -/
 theorem neg_eq_self_rq_two {degree : ℕ} (value : RLWE.Rq 2 degree) :
@@ -427,7 +429,7 @@ def characteristicTwoRelativeKeyShiftMaterialEvaluator
             extensionErrorSampler gadget secret relativeMask) by
       simp [map_eq_bind_pure_comp]]
     rw [transformRelativeKeyShiftMaterialTwo_sample_evalDist]
-    exact le_of_eq (SPMF.tvDist_self _)
+    exact le_of_eq (MeasureTheory.Measure.tvDist_self _)
 
 @[simp]
 theorem characteristicTwoRelativeKeyShiftMaterialEvaluator_error

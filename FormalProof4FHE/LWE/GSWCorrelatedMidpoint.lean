@@ -20,6 +20,8 @@ failure probability or exclude another correlated error law/decoder.
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWCorrelatedMidpoint
 
 theorem midpoint_residual {R : Type} [CommRing R] (v : R) (a b : Bool) :

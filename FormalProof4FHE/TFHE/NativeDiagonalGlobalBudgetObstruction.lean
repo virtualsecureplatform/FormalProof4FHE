@@ -28,6 +28,8 @@ that discards the retained-side restriction and replaces it by the unconditional
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm
 
 noncomputable section
@@ -260,7 +262,7 @@ theorem diagonalRowRankFailureProbability_le_globalDifferencePairCollisionBudget
             apply Finset.sum_le_sum
             intro difference _
             by_cases hbad : bad difference
-            · simp only [hbad, if_true]
+            · simp only [hbad, ite_true]
               exact
                 (challengeCard_le_differencePairChallengeCollisionExcess_self_of_rankFailure
                   params candidate difference hbad).trans
@@ -269,7 +271,7 @@ theorem diagonalRowRankFailureProbability_le_globalDifferencePairCollisionBudget
                       differencePairChallengeCollisionExcess_nonneg
                         params candidate difference rightDifference)
                     (Finset.mem_univ difference))
-            · simp only [hbad, if_false]
+            · simp only [hbad, ite_false]
               exact Finset.sum_nonneg fun rightDifference _ =>
                 differencePairChallengeCollisionExcess_nonneg
                   params candidate difference rightDifference

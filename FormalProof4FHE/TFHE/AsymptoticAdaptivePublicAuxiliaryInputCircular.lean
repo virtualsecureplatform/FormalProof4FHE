@@ -27,6 +27,8 @@ No same-secret batch continuation appears in the statement.
 
 open ENNReal OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.PublicAuxiliaryInputCircular
 
 open FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular
@@ -166,7 +168,7 @@ theorem securityGame_advantage_le_publicCircular_add_zero_add_jointLWE
               (params.tgswGadget securityParameter)
               (params.keySwitchGadget securityParameter)
               ((publicDistinguisherReduction params adversary).run securityParameter) +
-            LearningWithErrors.advantage
+            LearningWithErrors.realAdvantage
               (Adaptive.jointLweProblem
                 (params.q securityParameter)
                 (params.lweDimension securityParameter)
@@ -195,7 +197,7 @@ theorem securityGame_advantage_le_publicCircular_add_zero_add_jointLWE
               (params.keySwitchGadget securityParameter)
               ((publicDistinguisherReduction params adversary).run securityParameter)) +
         ENNReal.ofReal
-          (LearningWithErrors.advantage
+          (LearningWithErrors.realAdvantage
             (Adaptive.jointLweProblem
               (params.q securityParameter)
               (params.lweDimension securityParameter)
@@ -225,7 +227,7 @@ theorem securityGame_advantage_le_publicCircular_add_zero_add_jointLWE
             (params.keySwitchGadget securityParameter)
             ((publicDistinguisherReduction params adversary).run securityParameter)) +
         ENNReal.ofReal
-          (LearningWithErrors.advantage
+          (LearningWithErrors.realAdvantage
             (Adaptive.jointLweProblem
               (params.q securityParameter)
               (params.lweDimension securityParameter)

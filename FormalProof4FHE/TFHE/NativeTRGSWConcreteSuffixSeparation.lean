@@ -26,6 +26,8 @@ compiler statement; it is not part of this finite gadget calculation.
 open Matrix OracleComp
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.NativeTRGSWConcreteSuffixSeparation
 
 noncomputable section

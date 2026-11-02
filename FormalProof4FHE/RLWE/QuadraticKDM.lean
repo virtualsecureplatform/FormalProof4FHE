@@ -40,6 +40,8 @@ claim a reduction from ordinary decisional RLWE alone.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.QuadraticKDM
 
 noncomputable section

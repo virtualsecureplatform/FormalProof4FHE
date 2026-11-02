@@ -18,6 +18,8 @@ handled by the regular-cover compiler.
 
 open BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.BinaryNTTSecurity.RegularCoverBGVInstantiation
 
 noncomputable section

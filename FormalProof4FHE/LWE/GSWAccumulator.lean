@@ -29,6 +29,8 @@ asserted here.
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWAccumulator
 
 open GSWGadget
@@ -62,6 +64,7 @@ theorem ciphertextView_storeCiphertext {Q : ℕ} {rows : ℕ} (params : Paramete
     ciphertextView params (storeCiphertext params ciphertext) = ciphertext := by
   ext row column
   simp [ciphertextView, storeCiphertext, Vector.get]
+  congr 2
 
 /-- Concrete backing data for one full cyclic stage. -/
 abbrev StoredAccumulator {Q : ℕ} (params : Parameters Q) (rows modulus : ℕ) :=
@@ -83,6 +86,8 @@ theorem accumulatorView_storeAccumulator {Q p : ℕ} [NeZero p] {rows : ℕ}
     accumulatorView params (storeAccumulator params accumulator) = accumulator := by
   funext index
   simp [accumulatorView, storeAccumulator, Vector.get]
+  congr 1
+  exact ZMod.natCast_zmod_val index
 
 /-- Public cyclic update. No secret bit is an argument to this operation. -/
 def step {Q p : ℕ} [NeZero Q] [NeZero p] {rows : ℕ} (params : Parameters Q)

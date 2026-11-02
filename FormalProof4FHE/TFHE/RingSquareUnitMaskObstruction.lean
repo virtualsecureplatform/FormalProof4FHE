@@ -31,6 +31,8 @@ inhomogeneous Ring-SIS search as the remaining issue above it.
 open OracleComp
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler
 noncomputable section
 
@@ -82,7 +84,7 @@ theorem maskCombinationAddHom_surjective_of_isUnit
           (↑(selectedUnit⁻¹) : R) * target
         else 0)) = target
   rw [Finset.sum_eq_single selected]
-  · rw [if_pos rfl]
+  · rw [ite_eq_left rfl]
     dsimp [selectedUnit]
     calc
       weight selected * ((↑hunit.unit⁻¹ : R) * target) =
@@ -91,7 +93,7 @@ theorem maskCombinationAddHom_surjective_of_isUnit
           hunit.unit_spec.symm
       _ = target := by rw [← mul_assoc, Units.mul_inv, one_mul]
   · intro index _ hne
-    rw [if_neg hne, mul_zero]
+    rw [ite_eq_right hne, mul_zero]
   · simp
 
 /-- A finite ratio `a/(a*b)` cancels to `1/b` when `a` is positive. -/
@@ -316,8 +318,8 @@ map to the binary field. -/
 theorem ring_isLocalRing
     (modulusExponent degreeExponent : ℕ) (modulusExponent_positive : 0 < modulusExponent) :
     IsLocalRing (Ring modulusExponent degreeExponent) := by
-  letI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
-  letI : IsLocalHom
+  let : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  let : IsLocalHom
       (parityHom modulusExponent degreeExponent modulusExponent_positive) :=
     Native.PowerOfTwoLocalRing.rqParityEval_isLocalHom_powerOfTwo
       modulusExponent modulusExponent_positive degreeExponent
@@ -330,7 +332,7 @@ theorem isUnit_iff_parityHom_eq_one
     (value : Ring modulusExponent degreeExponent) :
     IsUnit value ↔
       parityHom modulusExponent degreeExponent modulusExponent_positive value = 1 := by
-  letI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  let : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   let localParity : IsLocalHom
       (parityHom modulusExponent degreeExponent modulusExponent_positive) :=
     Native.PowerOfTwoLocalRing.rqParityEval_isLocalHom_powerOfTwo
@@ -346,7 +348,7 @@ theorem isUnit_iff_parityHom_eq_one
     have fermat := ZMod.pow_card_sub_one_eq_one mappedNeZero
     simpa using fermat
   · intro hparity
-    letI : IsLocalHom
+    let : IsLocalHom
         (parityHom modulusExponent degreeExponent modulusExponent_positive) := localParity
     apply IsUnit.of_map
       (parityHom modulusExponent degreeExponent modulusExponent_positive) value
@@ -511,7 +513,7 @@ theorem probEvent_exists_boundedWeights_combination_eq_bundledOne_le
       (((2 * bound + 1) ^ ((2 ^ degreeExponent) * count) : ℕ) : ENNReal) /
         ((((2 ^ modulusExponent) ^ (2 ^ degreeExponent)) : ℕ) : ENNReal) := by
   classical
-  letI : IsLocalRing (Ring modulusExponent degreeExponent) :=
+  let : IsLocalRing (Ring modulusExponent degreeExponent) :=
     ring_isLocalRing modulusExponent degreeExponent modulusExponent_positive
   calc
     _ ≤ (Fintype.card

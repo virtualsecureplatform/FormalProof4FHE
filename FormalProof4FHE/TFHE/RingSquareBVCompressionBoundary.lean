@@ -33,6 +33,8 @@ Thus the obvious compression does not preserve the narrow square ciphertext.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.BVCompressionBoundary
 
 noncomputable local instance sampleableCiphertext
@@ -378,13 +380,13 @@ theorem reduction_game0_evalDist_eq_compressedSampler_bind {R Secret : Type}
     (errorSampler : ProbComp R) (gadget : Fin levels → R)
     (compression : UpperCompression R levels)
     (distinguisher : PreimageCompiler.Full.Distinguisher R levels) :
-    evalDist (LearningWithErrors.game0
+    evalDist (LearningWithErrors.realExperiment
         (ordinaryProblem levels secretSampler embed errorSampler)
         (reduction gadget compression distinguisher)) =
       evalDist (compressedSampler levels secretSampler embed errorSampler gadget compression >>=
         distinguisher) := by
   apply congrArg evalDist
-  simp [LearningWithErrors.game0, reduction, compressedSampler, sourceSampler,
+  simp [LearningWithErrors.realExperiment, reduction, compressedSampler, sourceSampler,
     bind_assoc, monad_norm]
 
 /-- A uniform-preserving compression makes the reduction's uniform branch exactly the native
@@ -396,11 +398,11 @@ theorem reduction_game1_evalDist_eq_uniformGame {R Secret : Type}
     (compression : UpperCompression R levels)
     (distinguisher : PreimageCompiler.Full.Distinguisher R levels)
     (hCompression : UniformPreserving compression) :
-    evalDist (LearningWithErrors.game1
+    evalDist (LearningWithErrors.randomExperiment
         (ordinaryProblem levels secretSampler embed errorSampler)
         (reduction gadget compression distinguisher)) =
       evalDist (PreimageCompiler.Full.uniformGame distinguisher) := by
-  rw [LearningWithErrors.game1,
+  rw [LearningWithErrors.randomExperiment,
     ordinary_uniformDistr_eq_uniformSample levels secretSampler embed errorSampler]
   simp only [reduction, PreimageCompiler.Full.uniformGame]
   let transcripts : ProbComp
@@ -439,7 +441,7 @@ theorem actualSquareGame_evalDist_eq_reduction_game0_of_exactCompression
       gadget compression) :
     evalDist (PreimageCompiler.Full.actualSquareGame levels secretSampler embed errorSampler
         gadget distinguisher) =
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
         (ordinaryProblem levels secretSampler embed errorSampler)
         (reduction gadget compression distinguisher)) := by
   rw [reduction_game0_evalDist_eq_compressedSampler_bind]
@@ -461,7 +463,7 @@ theorem actualSquareAdvantage_eq_batchRLWE_of_exactCompression
       gadget compression) :
     PreimageCompiler.Full.actualSquareAdvantage levels secretSampler embed errorSampler
         gadget distinguisher =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (ordinaryProblem levels secretSampler embed errorSampler)
         (reduction gadget compression distinguisher) := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
@@ -508,7 +510,7 @@ theorem compressedAdvantage_eq_batchRLWE {R Secret : Type}
     (compressedGame levels secretSampler embed errorSampler gadget compression
         distinguisher).boolDistAdvantage
         (PreimageCompiler.Full.uniformGame distinguisher) =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (ordinaryProblem levels secretSampler embed errorSampler)
         (reduction gadget compression distinguisher) := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
@@ -533,7 +535,7 @@ theorem actualSquareAdvantage_le_compressionGap_add_batchRLWE
     PreimageCompiler.Full.actualSquareAdvantage levels secretSampler embed errorSampler
         gadget distinguisher ≤
       compressionGap levels secretSampler embed errorSampler gadget compression +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (ordinaryProblem levels secretSampler embed errorSampler)
           (reduction gadget compression distinguisher) := by
   have hTriangle := ProbComp.boolDistAdvantage_triangle

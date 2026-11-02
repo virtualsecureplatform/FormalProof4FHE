@@ -22,6 +22,8 @@ It does not assume that advantage is small, or reduce it to ordinary LWE.
 open Matrix OracleComp
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWMasking
 
 open GSWGadget GSWAccumulator GSWPublicKey
@@ -36,12 +38,13 @@ def tableOfPublicKey {Q dimension samples : ℕ} (key : PublicKey Q dimension sa
     Table Q dimension samples := fun column row ↦ publicKeyView key row column
 
 def storeTable {Q dimension samples : ℕ} (table : Table Q dimension samples) :
-    PublicKey Q dimension samples := storePublicKey fun row column ↦ table column row
+    PublicKey Q dimension samples := storePublicKey (Matrix.of fun row column ↦ table column row)
 
 @[simp] theorem tableOfPublicKey_storeTable {Q dimension samples : ℕ}
     (table : Table Q dimension samples) : tableOfPublicKey (storeTable table) = table := by
   ext column row
-  simp [tableOfPublicKey, storeTable]
+  exact congrFun (congrFun (publicKeyView_storePublicKey
+    (dimension := dimension) (fun row column ↦ table column row)) row) column
 
 @[simp] theorem storeTable_tableOfPublicKey {Q dimension samples : ℕ}
     (key : PublicKey Q dimension samples) : storeTable (tableOfPublicKey key) = key := by
@@ -50,6 +53,7 @@ def storeTable {Q dimension samples : ℕ} (table : Table Q dimension samples) :
   apply Vector.ext
   intro column hcolumn
   simp [storeTable, tableOfPublicKey, storePublicKey, publicKeyView, Vector.get]
+  rfl
 
 def subsetHash {Q dimension samples : ℕ} [NeZero Q]
     (table : Table Q dimension samples) (bits : Fin samples → Bool) : Column Q dimension :=
@@ -76,13 +80,14 @@ theorem encryptMatrix_eq_hashCore {Q dimension samples : ℕ} [NeZero Q] (params
       Matrix.of (fun row column ↦ hashCore table coins column row) +
         (bitMessage bit : ZMod Q) • gadget params (dimension + 1) := by
   ext row column
-  simp only [encryptMatrix, storeTable, publicKeyView_storePublicKey, Matrix.add_apply]
+  simp only [encryptMatrix, storeTable, Matrix.add_apply]
   congr 1
   simp only [Matrix.mul_apply, selectors, storeCoins, Vector.get_ofFn, hashCore, subsetHash,
     LeftoverHash.binarySubsetSum, Finset.sum_apply]
   apply Finset.sum_congr rfl
   intro sample _
   cases coins column sample <;> simp [GSWGadget.bitMessage]
+
 
 def ciphertextFromCore {Q dimension : ℕ} [NeZero Q] (params : Parameters Q)
     (core : Core Q dimension ((dimension + 1) * params.levels)) (bit : Bool) :
@@ -130,6 +135,8 @@ theorem evalDist_encrypt_eq_encryptInputs_one {Q dimension samples : ℕ} [NeZer
   rw [← huniform]
   simp [GSWSampling.encryptInputs, GSWSampling.sampleInputCoins,
     encryptInputsStored, storeCoins, coinsEquiv, singleInputCoinsEquiv, monad_norm]
+  rw [← FormalProof4FHE.evalDist_map]
+  simp only [map_eq_bind_pure_comp, Function.comp_def, bind_assoc, pure_bind]
 
 /-- One leftover-hash error per column, under the one public seed. -/
 theorem hashCore_joint_masking {Q dimension samples columns : ℕ} [NeZero Q] :
@@ -238,7 +245,7 @@ theorem ideal_fixed_view_probOutput_true (adversary : Adversary (dimension := di
             ($ᵗ Core Q dimension ((dimension + 1) * params.levels)) true fun core ↦ ?_
           simp only [shifted, unshifted]
           rw [ciphertextFromCore_eq_shift params core message]
-        _ = _ := OracleComp.probOutput_congr rfl h
+        _ = _ := probOutput_congr rfl h
     _ = Pr[= true | adversary.chooseMessages (storeTable table, context) >>= fun messages ↦
         ($ᵗ Bool) >>= fun bit ↦
         ($ᵗ Core Q dimension ((dimension + 1) * params.levels)) >>= fun core ↦
@@ -418,7 +425,7 @@ theorem evalDist_operationalGame_eq_game (errorSampler : ProbComp (ZMod Q))
           (Vector.replicate 1 (if bit then messages.1 else messages.2.1))) >>= cont] := by
     simp only [evalDist_bind]
     rw [h]
-  simpa [cont, monad_norm] using (OracleComp.probOutput_congr rfl hprocessed).symm
+  simpa [cont, monad_norm] using (probOutput_congr rfl hprocessed).symm
 
 /-- Specialization to the actual one-secret key generator. No hardness premise is discharged here. -/
 theorem operational_game_abs_advantage_le (errorSampler : ProbComp (ZMod Q))

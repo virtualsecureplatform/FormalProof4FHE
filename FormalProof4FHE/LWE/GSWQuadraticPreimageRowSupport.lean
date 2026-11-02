@@ -28,6 +28,8 @@ assert an attack on every GSW construction or prove a statistical failure rate.
 open Matrix OracleComp
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWQuadraticPreimageRowSupport
 
 def diagonalTarget {R : Type} [Zero R] {n : ℕ} (weight : R) (index : Fin n) :
@@ -57,7 +59,7 @@ theorem linear_row_of_supported_certificate {R : Type} [CommRing R] {n m : ℕ}
   · subst row
     simp only [ite_true]
     linear_combination hi
-  · rw [if_neg hr]
+  · rw [ite_eq_right hr]
     have hj := congrArg (fun matrix ↦ matrix row index) hcertificate
     have hz : (b * a.transpose) row index = 0 := by
       simp [Matrix.mul_apply, hsupport row hr]

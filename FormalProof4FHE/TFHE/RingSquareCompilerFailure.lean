@@ -18,6 +18,8 @@ smudging, and ordinary batch-RLWE advantage.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.CompilerNormalForm
 
 noncomputable section
@@ -78,7 +80,7 @@ theorem tvDist_contextualCompiler_native_le_failure_add_bound
       (fun context ↦ ¬ SelectorsSucceed gadget selectors context)
     intro context hNotBad
     have hSuccess : SelectorsSucceed gadget selectors context := not_not.mp hNotBad
-    simp only [Hybrid, hSuccess, if_true]
+    simp only [Hybrid, hSuccess, ite_true]
     exact compileFromContext_evalDist_eq_shifted embed errorSampler gadget selectors context
       hSuccess
   have hSmudging :
@@ -86,13 +88,13 @@ theorem tvDist_contextualCompiler_native_le_failure_add_bound
     apply tvDist_bind_left_le_const ContextSampler Hybrid Native bound
     intro context hcontext
     by_cases hSuccess : SelectorsSucceed gadget selectors context
-    · simp only [Hybrid, hSuccess, if_true]
+    · simp only [Hybrid, hSuccess, ite_true]
       exact
         (BatchResidualSmudging.tvDist_fixedSecretShiftedSquareBatchSampler_le_sum
           levels (embed context.secretValue) errorSampler gadget
           (contextShift (embed context.secretValue) selectors context.sourceBatch)).trans
           (hShift context hcontext hSuccess)
-    · simp only [Hybrid, hSuccess, if_false]
+    · simp only [Hybrid, hSuccess, ite_false]
       simpa only [tvDist_self] using hBoundNonneg
   calc
     tvDist
@@ -144,7 +146,7 @@ theorem actualDistributionGap_le_failure_add_selectorResidual
   unfold Full.nativeDistributionGap tvDist at hContext ⊢
   rw [nativeSquareBatchSampler_evalDist_eq_contextual,
     compiledBatchSampler_evalDist_eq_contextual]
-  simpa only [SPMF.tvDist_comm] using hContext
+  simpa only [MeasureTheory.Measure.tvDist_comm] using hContext
 
 /-- Failure-aware standalone security: rare selector failure, successful residual smudging, and
 ordinary batch-RLWE are the only three terms. -/
@@ -169,7 +171,7 @@ theorem rgswMinusSecretAdvantage_le_failure_add_residual_add_batchLWE
         distinguisher ≤
       (Pr[fun context ↦ ¬ SelectorsSucceed gadget selectors context |
           contextSampler levels sourceCount secretSampler embed errorSampler].toReal + bound) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.embeddedBatchProblem 1
             (levels * sourceCount + TGSW.rowCount 1 levels)
             secretSampler embed errorSampler)

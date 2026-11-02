@@ -30,6 +30,8 @@ of these results asserts an efficient preimage algorithm.
 
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TFHEShortPreimageSecondMoment
 
 noncomputable section
@@ -726,7 +728,7 @@ theorem pairCombination_surjective_of_different_ternary_support
       (pairCombination (reduceCoefficient (2 ^ (exponent + 1)) left)
         (reduceCoefficient (2 ^ (exponent + 1)) right)) := by
   classical
-  letI : Fact (1 < 2 ^ (exponent + 1)) :=
+  let : Fact (1 < 2 ^ (exponent + 1)) :=
     ⟨one_lt_pow' (by omega : 1 < 2) (by omega)⟩
   rw [SameSupport] at hdifferent
   push Not at hdifferent

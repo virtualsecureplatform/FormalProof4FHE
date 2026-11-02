@@ -22,6 +22,8 @@ It does not prove joint mode hiding for any real self-key generator.
 open Matrix OracleComp
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWCorrelatedMasking
 
 open GSWMasking GSWGadget
@@ -201,19 +203,19 @@ theorem ordinary_source_simulator_game_abs_advantage_le [Fintype Context]
     |Pr[= true | game params (LearningWithErrors.distr
           (zmodBatchProblem sourceDimension sourceSamples Q errorSampler) >>= simulator) adversary].toReal -
         1 / 2| ≤
-      LearningWithErrors.advantage (zmodBatchProblem sourceDimension sourceSamples Q errorSampler)
+      LearningWithErrors.realAdvantage (zmodBatchProblem sourceDimension sourceSamples Q errorSampler)
         (fun raw ↦ simulator raw >>= observe params adversary) +
       ((dimension + 1) * params.levels) *
         (Real.sqrt ((Q : ℝ) ^ (dimension + 1) / (2 : ℝ) ^ samples) / 2) := by
   let problem := zmodBatchProblem sourceDimension sourceSamples Q errorSampler
   let reduction := fun raw ↦ simulator raw >>= observe params adversary
-  have hreal : LearningWithErrors.game0 problem reduction =
+  have hreal : LearningWithErrors.realExperiment problem reduction =
       game params (LearningWithErrors.distr problem >>= simulator) adversary := by
-    simp only [LearningWithErrors.game0, reduction, game, bind_assoc]
+    simp only [LearningWithErrors.realExperiment, reduction, game, bind_assoc]
     rfl
-  have huniform : LearningWithErrors.game1 problem reduction =
+  have huniform : LearningWithErrors.randomExperiment problem reduction =
       game params (LearningWithErrors.uniformDistr problem >>= simulator) adversary := by
-    simp only [LearningWithErrors.game1, reduction, game, bind_assoc]
+    simp only [LearningWithErrors.randomExperiment, reduction, game, bind_assoc]
     rfl
   have hsource := advantage_eq_boolDistAdvantage problem reduction
   rw [hreal, huniform] at hsource

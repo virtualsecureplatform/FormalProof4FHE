@@ -4,6 +4,7 @@ Released under MIT license as described in the file LICENSE.
 Authors: Kotaro Matsuoka
 -/
 
+import FormalProof4FHE.Probability.Discrete
 import FormalProof4FHE.Probability.FiniteProduct
 import VCVio.OracleComp.QueryTracking.QueryBound
 import Mathlib.Data.Nat.Log
@@ -20,6 +21,8 @@ number of queries; an abstract large-range uniform oracle is not used.
 
 open OracleComp ProbComp
 open scoped BigOperators ENNReal
+
+open scoped FormalProof4FHE
 
 namespace FormalProof4FHE.BoundedUniform
 

@@ -11,6 +11,8 @@ deliberately tiny and insecure. Test public encryption followed by a DAG that re
 reuses an encrypted intermediate, and separately exercise 256 gates sharing the preceding
 wire. The latter checks the actual finite-data path without expanding a Boolean tree. -/
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHETest.GSWCircuitSmoke
 
 open FormalProof4FHE.LWE

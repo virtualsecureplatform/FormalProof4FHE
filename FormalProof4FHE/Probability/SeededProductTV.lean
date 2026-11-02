@@ -19,6 +19,8 @@ leftover-hash error per output. No computational assumption is involved.
 open OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.SeededProductTV
 
 /-- Sample a seed once and retain it beside a conditional output. -/
@@ -34,8 +36,8 @@ theorem tvDist_joint_eq_average {Seed Output : Type} [Fintype Seed] [Fintype Out
     tvDist (joint seedSampler left) (joint seedSampler right) =
       ∑ seed, Pr[= seed | seedSampler].toReal * tvDist (left seed) (right seed) := by
   classical
-  letI : DecidableEq Seed := Classical.decEq Seed
-  letI : DecidableEq Output := Classical.decEq Output
+  let : DecidableEq Seed := Classical.decEq Seed
+  let : DecidableEq Output := Classical.decEq Output
   have hprob (sampler : Seed → ProbComp Output) (seed : Seed) (output : Output) :
       Pr[= (seed, output) | joint seedSampler sampler] =
         Pr[= seed | seedSampler] * Pr[= output | sampler seed] := by
@@ -90,14 +92,13 @@ theorem evalDist_hashedColumns_eq_uniform_tape {Seed Input Output : Type}
         let inputs ← $ᵗ (Fin count → Input)
         pure (seed, fun column ↦ hash seed (inputs column))] := by
   unfold hashedColumns joint
-  simp only [evalDist_bind]
-  congr 1
-  funext seed
+  refine evalDist_bind_congr' ($ᵗ Seed) fun seed ↦ ?_
+  dsimp only
   rw [← FiniteProduct.map_fin_mOfFn_const count ($ᵗ Input) (hash seed)]
-  simp only [evalDist_map]
-  rw [show 𝒟[Fin.mOfFn count fun _ ↦ ($ᵗ Input)] = 𝒟[$ᵗ (Fin count → Input)] from
-    FiniteProduct.evalDist_sampleIID_uniform count]
-  simp [monad_norm]
+  have h := evalDist_map_eq_of_evalDist_eq
+    (FiniteProduct.evalDist_sampleIID_uniform (alpha := Input) count)
+    (fun inputs : Fin count → Input ↦ (seed, fun column ↦ hash seed (inputs column)))
+  simpa only [ProbComp.sampleIID, bind_pure_comp, Functor.map_map, Function.comp_def] using h
 
 /-- All ideal output coordinates can be drawn as one uniform output tape. -/
 theorem evalDist_idealColumns_eq_uniform_tape {Seed Output : Type}

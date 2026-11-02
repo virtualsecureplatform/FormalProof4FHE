@@ -33,6 +33,8 @@ for that missing layer.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.Leaky
 
 noncomputable section
@@ -252,7 +254,7 @@ theorem simulatedUniformView_tvDist_target_le
     tvDist (simulatedUniformView params simulator sample choice)
         (targetUniformView params choice) ≤ bound := by
   unfold simulatedUniformView targetUniformView
-  exact (tvDist_bind_right_le (m := ProbComp)
+  exact (tvDist_bind_right_le
     (α := HiddenView Secret Output Leakage) (β := Output × Leakage)
     (fun hidden : HiddenView Secret Output Leakage ↦ do
       let uniform ← params.source.sampleUniform
@@ -384,10 +386,10 @@ theorem reduction_realGame_evalDist
     (simulator : Simulator Sample Secret Output Leakage Choice)
     (adversary : Adversary Sample Output Leakage Choice State)
     (hNoiseless : NoiselessAdditive params.source) :
-    evalDist (LearningWithErrors.game0 params.source
+    evalDist (LearningWithErrors.realExperiment params.source
         (reduction params simulator adversary)) =
       evalDist (simulatedRealGame params simulator adversary) := by
-  simp only [LearningWithErrors.game0, LearningWithErrors.distr, reduction,
+  simp only [LearningWithErrors.realExperiment, LearningWithErrors.distr, reduction,
     simulatedRealGame, simulatedRealView, simulatedHiddenSampler, realView,
     map_eq_bind_pure_comp, Function.comp_def, bind_assoc, pure_bind]
   refine evalDist_bind_congr' params.source.sampleChallenge fun sample ↦ ?_
@@ -440,7 +442,7 @@ theorem reduction_realGame_evalDist
         else pure false) := by
       refine evalDist_bind_congr' (adversary.choose sample) fun chosen ↦ ?_
       by_cases hChoice : params.admissible chosen.1 = true
-      · simp only [hChoice, if_true]
+      · simp only [hChoice, ite_true]
         refine evalDist_bind_congr' params.source.sampleSecret fun sourceSecret ↦ ?_
         refine evalDist_bind_congr' params.source.sampleError fun sourceError ↦ ?_
         refine evalDist_bind_congr' (simulator.run sample chosen.1) fun correction ↦ ?_
@@ -494,10 +496,10 @@ theorem reduction_randomGame_evalDist
     (simulator : Simulator Sample Secret Output Leakage Choice)
     (adversary : Adversary Sample Output Leakage Choice State)
     (hUniform : UniformAddInvariant params.source) :
-    evalDist (LearningWithErrors.game1 params.source
+    evalDist (LearningWithErrors.randomExperiment params.source
         (reduction params simulator adversary)) =
       evalDist (simulatedRandomGame params simulator adversary) := by
-  simp only [LearningWithErrors.game1, LearningWithErrors.uniformDistr, reduction,
+  simp only [LearningWithErrors.randomExperiment, LearningWithErrors.uniformDistr, reduction,
     simulatedRandomGame, correctionUniformView, bind_assoc, pure_bind]
   refine evalDist_bind_congr' params.source.sampleChallenge fun sample ↦ ?_
   calc
@@ -531,7 +533,7 @@ theorem reduction_randomGame_evalDist
         else pure false) := by
       refine evalDist_bind_congr' (adversary.choose sample) fun chosen ↦ ?_
       by_cases hChoice : params.admissible chosen.1 = true
-      · simp only [hChoice, if_true]
+      · simp only [hChoice, ite_true]
         exact evalDist_bind_bind_swap params.source.sampleUniform
           (simulator.run sample chosen.1) _
       · simp only [hChoice]
@@ -546,7 +548,7 @@ theorem reduction_randomGame_evalDist
         else pure false) := by
       refine evalDist_bind_congr' (adversary.choose sample) fun chosen ↦ ?_
       by_cases hChoice : params.admissible chosen.1 = true
-      · simp only [hChoice, if_true]
+      · simp only [hChoice, ite_true]
         refine evalDist_bind_congr' (simulator.run sample chosen.1) fun correction ↦ ?_
         exact fixed_uniform_correction_evalDist params adversary hUniform sample
           correction chosen.2
@@ -570,7 +572,7 @@ theorem simulatedRealGame_tvDist_realGame_le
   refine tvDist_bind_left_le_const' (adversary.choose sample) _ _ bound ?_
   intro chosen
   by_cases hChoice : params.admissible chosen.1 = true
-  · simp only [hChoice, if_true]
+  · simp only [hChoice, ite_true]
     simpa only [targetRealView, map_eq_bind_pure_comp, Function.comp_def,
       realView, bind_assoc, pure_bind] using (tvDist_bind_right_le
       (fun view : Output × Leakage ↦
@@ -596,7 +598,7 @@ theorem simulatedRandomGame_tvDist_randomGame_le
   refine tvDist_bind_left_le_const' (adversary.choose sample) _ _ bound ?_
   intro chosen
   by_cases hChoice : params.admissible chosen.1 = true
-  · simp only [hChoice, if_true]
+  · simp only [hChoice, ite_true]
     simpa only [targetUniformView, bind_assoc, pure_bind] using (tvDist_bind_right_le
       (fun view : Output × Leakage ↦
         adversary.distinguish (view.1, view.2, chosen.2))
@@ -614,7 +616,7 @@ theorem reduction_realGame_tvDist_le
     (adversary : Adversary Sample Output Leakage Choice State)
     (bound : ℝ) (hSound : SimulationSound params simulator bound)
     (hNoiseless : NoiselessAdditive params.source) :
-    tvDist (LearningWithErrors.game0 params.source
+    tvDist (LearningWithErrors.realExperiment params.source
         (reduction params simulator adversary))
       (realGame params adversary) ≤ bound := by
   unfold tvDist
@@ -629,7 +631,7 @@ theorem reduction_randomGame_tvDist_le
     (adversary : Adversary Sample Output Leakage Choice State)
     (bound : ℝ) (hSound : SimulationSound params simulator bound)
     (hUniform : UniformAddInvariant params.source) :
-    tvDist (LearningWithErrors.game1 params.source
+    tvDist (LearningWithErrors.randomExperiment params.source
         (reduction params simulator adversary))
       (randomGame params adversary) ≤ bound := by
   unfold tvDist
@@ -650,11 +652,11 @@ theorem advantage_le_lwe_add_two_mul
     (hNoiseless : NoiselessAdditive params.source)
     (hUniform : UniformAddInvariant params.source) :
     advantage params adversary ≤
-      LearningWithErrors.advantage params.source
+      LearningWithErrors.realAdvantage params.source
         (reduction params simulator adversary) + 2 * bound := by
-  let sourceReal := LearningWithErrors.game0 params.source
+  let sourceReal := LearningWithErrors.realExperiment params.source
     (reduction params simulator adversary)
-  let sourceRandom := LearningWithErrors.game1 params.source
+  let sourceRandom := LearningWithErrors.randomExperiment params.source
     (reduction params simulator adversary)
   let targetReal := realGame params adversary
   let targetRandom := randomGame params adversary
@@ -669,7 +671,7 @@ theorem advantage_le_lwe_add_two_mul
     (abs_probOutput_toReal_sub_le_tvDist sourceRandom targetRandom).trans hRandomTV
   have hFirst := ProbComp.boolDistAdvantage_triangle targetReal sourceReal targetRandom
   have hSecond := ProbComp.boolDistAdvantage_triangle sourceReal sourceRandom targetRandom
-  rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage] 
+  rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
   unfold advantage
   change targetReal.boolDistAdvantage targetRandom ≤
     sourceReal.boolDistAdvantage sourceRandom + 2 * bound
@@ -687,7 +689,7 @@ theorem leaky_sub_two_mul_le_lwe_advantage
     (hNoiseless : NoiselessAdditive params.source)
     (hUniform : UniformAddInvariant params.source) :
     advantage params adversary - 2 * bound ≤
-      LearningWithErrors.advantage params.source
+      LearningWithErrors.realAdvantage params.source
         (reduction params simulator adversary) := by
   linarith [advantage_le_lwe_add_two_mul params simulator adversary bound hSound
     hNoiseless hUniform]
@@ -717,7 +719,7 @@ theorem advantage_le_lwe_add_paperLoss
     (hNoiseless : NoiselessAdditive params.source)
     (hUniform : UniformAddInvariant params.source) :
     advantage params adversary ≤
-      LearningWithErrors.advantage params.source
+      LearningWithErrors.realAdvantage params.source
         (reduction params simulator adversary) + paperLoss epsilon := by
   simpa only [two_mul_paperBranchLoss] using
     advantage_le_lwe_add_two_mul params simulator adversary
@@ -735,7 +737,7 @@ theorem leaky_sub_paperLoss_le_lwe_advantage
     (hNoiseless : NoiselessAdditive params.source)
     (hUniform : UniformAddInvariant params.source) :
     advantage params adversary - paperLoss epsilon ≤
-      LearningWithErrors.advantage params.source
+      LearningWithErrors.realAdvantage params.source
         (reduction params simulator adversary) := by
   linarith [advantage_le_lwe_add_paperLoss params simulator adversary epsilon hSound
     hNoiseless hUniform]
@@ -870,7 +872,7 @@ theorem errorOnly_advantage_le_lwe_add_two_mul
     (hNoiseless : NoiselessAdditive params.source)
     (hUniform : UniformAddInvariant params.source) :
     advantage params adversary ≤
-      LearningWithErrors.advantage params.source
+      LearningWithErrors.realAdvantage params.source
         (reduction params (Simulator.ofErrorOnly simulator) adversary) + 2 * bound :=
   advantage_le_lwe_add_two_mul params (Simulator.ofErrorOnly simulator) adversary bound
     (simulationSound_of_errorOnly params simulator errorLeakage bound
@@ -893,7 +895,7 @@ theorem errorOnly_advantage_le_lwe_add_paperLoss
     (hNoiseless : NoiselessAdditive params.source)
     (hUniform : UniformAddInvariant params.source) :
     advantage params adversary ≤
-      LearningWithErrors.advantage params.source
+      LearningWithErrors.realAdvantage params.source
         (reduction params (Simulator.ofErrorOnly simulator) adversary) + paperLoss epsilon := by
   simpa only [two_mul_paperBranchLoss] using
     errorOnly_advantage_le_lwe_add_two_mul params simulator errorLeakage adversary

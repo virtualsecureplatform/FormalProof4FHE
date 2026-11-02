@@ -28,6 +28,8 @@ reduction.
 open OracleComp
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinaryPreimageExistence
 
 noncomputable section
@@ -365,8 +367,7 @@ theorem probEvent_uniform_masks_eq_anchored
     Pr[event | ($ᵗ MultiSourceCounting.Vectors R (extraCount + 1))] =
         Pr[event |
           anchoredMasks <$> ($ᵗ (R × (Fin extraCount → R)))] := by
-      unfold probEvent
-      rw [hmap]
+      exact (probEvent_congr' (fun _ _ ↦ Iff.rfl) hmap).symm
     _ = _ := by
       simpa only [Function.comp_def] using
         (probEvent_map
@@ -614,7 +615,7 @@ theorem exhaustiveCompleteBitSelector_isComplete
       (exhaustiveCompleteBitSelector (extraCount := extraCount) target) := by
   intro masks hexists
   unfold binarySelectorWeights exhaustiveCompleteBitSelector
-  rw [dif_pos hexists]
+  rw [dite_eq_left hexists]
   exact Classical.choose_spec hexists
 
 /-- A complete binary selector inherits the second-moment success probability.  This is the

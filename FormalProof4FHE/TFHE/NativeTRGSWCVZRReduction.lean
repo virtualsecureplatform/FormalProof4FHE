@@ -32,6 +32,8 @@ builder on the real source remains an explicit distributional premise.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.NativeTRGSWCVZRReduction
 
 noncomputable section
@@ -767,7 +769,7 @@ theorem translated_uniform_eq_fresh_uniform
   calc
     evalDist (($ᵗ (R × R)) >>= translatedUniformRowBuild suffix) =
         evalDist (addKnownSuffixRow suffix <$> ($ᵗ (R × R))) := by
-      simp [translatedUniformRowBuild, map_eq_bind_pure_comp]
+      simp +unfoldPartialApp [translatedUniformRowBuild, map_eq_bind_pure_comp]
     _ = evalDist ($ᵗ (R × R)) := addKnownSuffixRow_uniform_evalDist suffix
     _ = evalDist (($ᵗ (R × R)) >>= freshUniformRowBuild suffix) := by
       have h :=
@@ -816,7 +818,7 @@ theorem translated_uniformBlock_eq_fresh_uniform
         translatedUniformBlockBuild suffix) =
       evalDist (addKnownSuffixBlock suffix <$>
         ($ᵗ (HomogeneousRowBlock R rowCount))) := by
-      simp [translatedUniformBlockBuild, map_eq_bind_pure_comp]
+      simp +unfoldPartialApp [translatedUniformBlockBuild, map_eq_bind_pure_comp]
     _ = evalDist ($ᵗ (HomogeneousRowBlock R rowCount)) :=
       addKnownSuffixBlock_uniform_evalDist rowCount suffix
     _ = evalDist (($ᵗ (HomogeneousRowBlock R rowCount)) >>=
@@ -896,7 +898,7 @@ theorem targetAdvantage_le_two_source
     (compiler : ExactCVZRCompiler problem knownSampler targetView)
     (distinguisher : Distinguisher View) :
     targetAdvantage targetView distinguisher ≤
-      2 * LearningWithErrors.advantage problem (compiler.reduction distinguisher) := by
+      2 * LearningWithErrors.realAdvantage problem (compiler.reduction distinguisher) := by
   exact compiler.publicViewConstructor.targetAdvantage_le_two_source_of_exact
     (fun _branch ↦ rfl) rfl distinguisher
 
@@ -905,7 +907,7 @@ not merely the upper bound used by Theorem 2. -/
 theorem reduction_advantage_eq_half_targetAdvantage
     (compiler : ExactCVZRCompiler problem knownSampler targetView)
     (distinguisher : Distinguisher View) :
-    LearningWithErrors.advantage problem (compiler.reduction distinguisher) =
+    LearningWithErrors.realAdvantage problem (compiler.reduction distinguisher) =
       targetAdvantage targetView distinguisher / 2 := by
   let constructor := compiler.publicViewConstructor
   let selectedOrientation := constructor.orientation distinguisher
@@ -936,7 +938,7 @@ theorem reduction_advantage_eq_half_targetAdvantage
           orientedGap selectedOrientation targetOne targetZero := by
         unfold orientedGap selectedOrientation realOne realZero targetOne targetZero
         cases horientation : constructor.orientation distinguisher <;>
-          simp only [Bool.false_eq_true, if_false, if_true] <;>
+          simp only [Bool.false_eq_true, ite_false, ite_true] <;>
           rw [probOutput_congr rfl (hreal true),
             probOutput_congr rfl (hreal false)]
       _ = targetAdvantage targetView distinguisher :=
@@ -944,20 +946,20 @@ theorem reduction_advantage_eq_half_targetAdvantage
   have huniformGap : orientedGap selectedOrientation uniformOne uniformZero = 0 := by
     unfold orientedGap selectedOrientation
     cases horientation : constructor.orientation distinguisher <;>
-      simp only [Bool.false_eq_true, if_false, if_true] <;>
+      simp only [Bool.false_eq_true, ite_false, ite_true] <;>
       rw [probOutput_congr rfl huniform] <;> ring
   have hadvantage := constructor.reduction_advantage_eq distinguisher
   have htargetNonneg : 0 ≤ targetAdvantage targetView distinguisher := by
     exact abs_nonneg _
   have hadvantage' :
-      LearningWithErrors.advantage problem
+      LearningWithErrors.realAdvantage problem
           (compiler.publicViewConstructor.reduction distinguisher) =
         |orientedGap selectedOrientation realOne realZero -
           orientedGap selectedOrientation uniformOne uniformZero| / 2 := by
     simpa only [constructor, selectedOrientation, realOne, realZero,
       uniformOne, uniformZero, publicViewConstructor,
       PublicViewConstructor.ofExact] using hadvantage
-  change LearningWithErrors.advantage problem
+  change LearningWithErrors.realAdvantage problem
     (compiler.publicViewConstructor.reduction distinguisher) = _
   rw [hadvantage', hrealGap, huniformGap, sub_zero, abs_of_nonneg htargetNonneg]
 
@@ -972,7 +974,7 @@ theorem approximateCVZR_targetAdvantage_le
     (compiler : PublicViewConstructor problem knownSampler targetView)
     (distinguisher : Distinguisher View) :
     targetAdvantage targetView distinguisher ≤
-      2 * LearningWithErrors.advantage problem (compiler.reduction distinguisher) +
+      2 * LearningWithErrors.realAdvantage problem (compiler.reduction distinguisher) +
         compiler.realError true + compiler.realError false + compiler.uniformError :=
   compiler.targetAdvantage_le_two_source_add_errors distinguisher
 
@@ -988,7 +990,7 @@ theorem cvzrAdvantage_le_prefixRLWE
       knownSampler targetView)
     (distinguisher : Distinguisher View) :
     targetAdvantage targetView distinguisher ≤
-      2 * LearningWithErrors.advantage
+      2 * LearningWithErrors.realAdvantage
         (prefixRLWEProblem q prefixDimension suffixDegree sampleCount jointErrorSampler)
         (compiler.reduction distinguisher) :=
   compiler.targetAdvantage_le_two_source distinguisher
@@ -1009,7 +1011,7 @@ theorem twoCopyCVZRAdvantage_le_prefixRLWE
     (distinguisher : Distinguisher
       (NativeTRGSWCompleteViewAuxiliarySource.TwoCopySourceView LocalView)) :
     targetAdvantage targetView distinguisher ≤
-      2 * LearningWithErrors.advantage
+      2 * LearningWithErrors.realAdvantage
         (prefixRLWEProblem q prefixDimension suffixDegree sampleCount jointErrorSampler)
         (compiler.reduction distinguisher) :=
   compiler.targetAdvantage_le_two_source distinguisher
@@ -1053,7 +1055,7 @@ theorem completeViewZeroRowTargetAdvantage_eq
     NativeTRGSWCompleteViewAuxiliarySource.completeViewZeroRowReductionAdvantage
     NativeTRGSWAggregateProjectedLeakage.projectedMatchSquareAdvantage
     leakageRemovalAdvantage
-  simp only [if_true, Bool.false_eq_true, if_false, bind_pure]
+  simp only [ite_true, Bool.false_eq_true, ite_false, bind_pure]
 
 /-- The exact CVZR compiler supplies the formerly auxiliary-input complete-view source bound
 directly from the explicit plain prefix-RLWE problem. -/
@@ -1073,7 +1075,7 @@ theorem completeViewZeroRowReductionAdvantage_le_prefixRLWE
       (completeViewZeroRowTargetView keySampler fakePrefixSampler plus minus)) :
     NativeTRGSWCompleteViewAuxiliarySource.completeViewZeroRowReductionAdvantage
         keySampler fakePrefixSampler plus minus ≤
-      2 * LearningWithErrors.advantage
+      2 * LearningWithErrors.realAdvantage
         (prefixRLWEProblem q prefixDimension suffixDegree sampleCount jointErrorSampler)
         (compiler.reduction identityDistinguisher) := by
   rw [← completeViewZeroRowTargetAdvantage_eq]
@@ -1110,13 +1112,13 @@ theorem nativeCompleteViewAggregateGap_le_prefixRLWE
     nativeAggregateGap ≤ sigmaPlus + sigmaMinus +
       Real.sqrt (2 *
         RGSWCoefficientCircularSecurity.halfRenyiConcentration prefixSampler *
-          (2 * LearningWithErrors.advantage
+          (2 * LearningWithErrors.realAdvantage
             (prefixRLWEProblem q prefixDimension suffixDegree sampleCount jointErrorSampler)
             (compiler.reduction identityDistinguisher))) := by
   apply NativeTRGSWCompleteViewAuxiliarySource.nativeCompleteViewAggregateGap_le_prefixMarginal
     keySampler prefixSampler fakePrefixSampler plus minus
     nativeAggregateGap sigmaPlus sigmaMinus
-    (2 * LearningWithErrors.advantage
+    (2 * LearningWithErrors.realAdvantage
       (prefixRLWEProblem q prefixDimension suffixDegree sampleCount jointErrorSampler)
       (compiler.reduction identityDistinguisher))
     hmarginal hdiagonal

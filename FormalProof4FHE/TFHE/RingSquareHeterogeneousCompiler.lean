@@ -23,6 +23,8 @@ same-width Gaussian simultaneously generating and hiding the compiler residual.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.Heterogeneous
 
 noncomputable section
@@ -55,7 +57,7 @@ theorem addShiftDistance_convolutionSampler_le_right
   simp only [map_eq_bind_pure_comp, bind_assoc, Function.comp_apply, pure_bind]
   apply tvDist_bind_left_le_const'
   intro sourceError
-  have hdata := tvDist_map_le (m := ProbComp) (fun value : R ↦ sourceError + value)
+  have hdata := tvDist_map_le (fun value : R ↦ sourceError + value)
     ((fun value ↦ shift + value) <$> extraErrorSampler) extraErrorSampler
   simpa only [map_eq_bind_pure_comp, bind_assoc, pure_bind,
     Function.comp_def, add_assoc, add_left_comm, add_comm] using hdata
@@ -303,7 +305,7 @@ theorem tvDist_contextualCompiler_native_le_failure_add_bound
     intro context hNotBad
     have hSuccess : CompilerNormalForm.SelectorsSucceed gadget selectors context :=
       not_not.mp hNotBad
-    simp only [Hybrid, hSuccess, if_true]
+    simp only [Hybrid, hSuccess, ite_true]
     exact CompilerNormalForm.compileFromContext_evalDist_eq_shifted embed
       targetErrorSampler gadget selectors context hSuccess
   have hSmudging :
@@ -311,14 +313,14 @@ theorem tvDist_contextualCompiler_native_le_failure_add_bound
     apply tvDist_bind_left_le_const ContextSampler Hybrid Native bound
     intro context hcontext
     by_cases hSuccess : CompilerNormalForm.SelectorsSucceed gadget selectors context
-    · simp only [Hybrid, hSuccess, if_true]
+    · simp only [Hybrid, hSuccess, ite_true]
       exact
         (BatchResidualSmudging.tvDist_fixedSecretShiftedSquareBatchSampler_le_sum
           levels (embed context.secretValue) targetErrorSampler gadget
           (CompilerNormalForm.contextShift (embed context.secretValue) selectors
             context.sourceBatch)).trans
           (hShift context hcontext hSuccess)
-    · simp only [Hybrid, hSuccess, if_false]
+    · simp only [Hybrid, hSuccess, ite_false]
       simpa only [tvDist_self] using hBoundNonneg
   calc
     _ ≤ tvDist
@@ -381,7 +383,7 @@ theorem actualDistributionGap_le_failure_add_selectorResidual
   rw [ActualNormalForm.actualSquareBatchSampler_evalDist_eq_nativeSquareBatchSampler,
     nativeSquareBatchSampler_evalDist_eq_contextual,
     compiledBatchSampler_evalDist_eq_contextual]
-  simpa only [SPMF.tvDist_comm] using hContext
+  simpa only [MeasureTheory.Measure.tvDist_comm] using hContext
 
 /-- Deterministic compiler reduction against heterogeneous unequal two-block LWE. -/
 def reduction {R Secret : Type}
@@ -405,7 +407,7 @@ def realGame {R Secret : Type}
     (sourceErrorSampler targetErrorSampler : ProbComp R)
     (selectors : Full.Selectors R levels sourceCount)
     (distinguisher : Full.Distinguisher R levels) : ProbComp Bool :=
-  LearningWithErrors.game0
+  LearningWithErrors.realExperiment
     (LWE.TwoBlock.heterogeneousProblem 1 (levels * sourceCount)
       (TGSW.rowCount 1 levels) secretSampler embed
       sourceErrorSampler targetErrorSampler)
@@ -435,7 +437,7 @@ theorem realGame_eq_compiledBatchSampler_bind
         targetErrorSampler selectors distinguisher =
       compiledBatchSampler levels sourceCount secretSampler embed
         sourceErrorSampler targetErrorSampler selectors >>= distinguisher := by
-  simp [realGame, compiledBatchSampler, LearningWithErrors.game0, reduction,
+  simp [realGame, compiledBatchSampler, LearningWithErrors.realExperiment, reduction,
     bind_assoc, monad_norm]
 
 /-- The heterogeneous compiler's uniform branch remains the canonical uniform RGSW carrier. -/
@@ -448,13 +450,13 @@ theorem reduction_game1_evalDist_eq_uniformGame
     (selectors : Full.Selectors R levels sourceCount)
     (distinguisher : Full.Distinguisher R levels) :
     evalDist
-        (LearningWithErrors.game1
+        (LearningWithErrors.randomExperiment
           (LWE.TwoBlock.heterogeneousProblem 1 (levels * sourceCount)
             (TGSW.rowCount 1 levels) secretSampler embed
             sourceErrorSampler targetErrorSampler)
           (reduction selectors distinguisher)) =
       evalDist (Full.uniformGame distinguisher) := by
-  rw [LearningWithErrors.game1,
+  rw [LearningWithErrors.randomExperiment,
     LWE.TwoBlock.heterogeneousUniformDistr_eq_uniformSample]
   simp only [reduction, Full.uniformGame]
   rw [show
@@ -476,7 +478,7 @@ theorem advantage_eq_twoBlockLWE
     (distinguisher : Full.Distinguisher R levels) :
     advantage levels sourceCount secretSampler embed sourceErrorSampler
         targetErrorSampler selectors distinguisher =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (LWE.TwoBlock.heterogeneousProblem 1 (levels * sourceCount)
           (TGSW.rowCount 1 levels) secretSampler embed
           sourceErrorSampler targetErrorSampler)
@@ -502,7 +504,7 @@ theorem advantage_eq_batchLWE_of_convolution
     (hExtra : Pr[⊥ | extraErrorSampler] = 0) :
     advantage levels sourceCount secretSampler embed sourceErrorSampler
         targetErrorSampler selectors distinguisher =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.embeddedBatchProblem 1
           (levels * sourceCount + TGSW.rowCount 1 levels)
           secretSampler embed sourceErrorSampler)
@@ -533,7 +535,7 @@ theorem actualSquareAdvantage_le_actualDistributionGap_add_twoBlockLWE
         distinguisher ≤
       actualDistributionGap levels sourceCount secretSampler embed
           sourceErrorSampler targetErrorSampler gadget selectors +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (LWE.TwoBlock.heterogeneousProblem 1 (levels * sourceCount)
             (TGSW.rowCount 1 levels) secretSampler embed
             sourceErrorSampler targetErrorSampler)
@@ -590,7 +592,7 @@ theorem rgswMinusSecretAdvantage_le_actualDistributionGap_add_twoBlockLWE
         distinguisher ≤
       actualDistributionGap levels sourceCount secretSampler embed
           sourceErrorSampler targetErrorSampler gadget selectors +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (LWE.TwoBlock.heterogeneousProblem 1 (levels * sourceCount)
             (TGSW.rowCount 1 levels) secretSampler embed
             sourceErrorSampler targetErrorSampler)
@@ -618,7 +620,7 @@ theorem rgswMinusSecretAdvantage_le_actualDistributionGap_add_batchLWE_of_convol
         distinguisher ≤
       actualDistributionGap levels sourceCount secretSampler embed
           sourceErrorSampler targetErrorSampler gadget selectors +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.embeddedBatchProblem 1
             (levels * sourceCount + TGSW.rowCount 1 levels)
             secretSampler embed sourceErrorSampler)
@@ -637,7 +639,7 @@ theorem rgswMinusSecretAdvantage_le_actualDistributionGap_add_batchLWE_of_convol
   calc
     _ ≤ actualDistributionGap levels sourceCount secretSampler embed
           sourceErrorSampler targetErrorSampler gadget selectors +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (LWE.TwoBlock.heterogeneousProblem 1 (levels * sourceCount)
             (TGSW.rowCount 1 levels) secretSampler embed
             sourceErrorSampler targetErrorSampler)
@@ -678,7 +680,7 @@ theorem rgswMinusSecretAdvantage_le_failure_add_residual_add_batchLWE_of_convolu
             ¬ CompilerNormalForm.SelectorsSucceed gadget selectors context |
           CompilerNormalForm.contextSampler levels sourceCount secretSampler embed
             sourceErrorSampler].toReal + bound) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.embeddedBatchProblem 1
             (levels * sourceCount + TGSW.rowCount 1 levels)
             secretSampler embed sourceErrorSampler)
@@ -726,7 +728,7 @@ theorem rgswMinusSecretAdvantage_le_convolution_failure_add_residual_add_batchLW
             ¬ CompilerNormalForm.SelectorsSucceed gadget selectors context |
           CompilerNormalForm.contextSampler levels sourceCount secretSampler embed
             sourceErrorSampler].toReal + bound) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.embeddedBatchProblem 1
             (levels * sourceCount + TGSW.rowCount 1 levels)
             secretSampler embed sourceErrorSampler)

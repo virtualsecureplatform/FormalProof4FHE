@@ -31,6 +31,8 @@ field.  The digitized difference is conditioned on before the linear row operato
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm
 
 noncomputable section
@@ -1286,11 +1288,11 @@ theorem tvDist_operatorDiagonal_maskReplaced_le_rankFailure [NeZero q]
       have hnotFailure : ¬ DiagonalRowRankFailure params candidate difference :=
         fun hfailure => hfailure hrow
       unfold tvDist
-      rw [heq, SPMF.tvDist_self]
-      simp only [hnotFailure, if_false, ENNReal.toReal_zero]
+      rw [heq, MeasureTheory.Measure.tvDist_self]
+      simp only [hnotFailure, ite_false, ENNReal.toReal_zero]
       exact le_rfl
     · have hfailure : DiagonalRowRankFailure params candidate difference := hrow
-      simpa only [hfailure, if_true, ENNReal.toReal_one] using
+      simpa only [hfailure, ite_true, ENNReal.toReal_one] using
         (tvDist_le_one (Original difference) (Replaced difference))
   have hMixture :=
     FormalProof4FHE.FiniteProduct.tvDist_bind_left_le_probEvent_cont

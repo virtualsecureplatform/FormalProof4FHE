@@ -30,6 +30,8 @@ key for its final equality check, but an ordinary decisional-LWE adversary canno
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.KeySwitchFirstFiniteView
 
 open Native

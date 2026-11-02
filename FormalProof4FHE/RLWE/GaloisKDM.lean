@@ -33,6 +33,8 @@ message is affine, but a ring row shares one structured mask across all coeffici
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.GaloisKDM
 
 noncomputable section
@@ -178,7 +180,7 @@ theorem automorphismUniformAdvantage_eq_problemAdvantage
     (secretSampler : ProbComp (Secret R)) (errorSampler : ProbComp R)
     (distinguisher : Distinguisher R rows) :
     automorphismUniformAdvantage rows spec secretSampler errorSampler distinguisher =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (problem rows spec secretSampler errorSampler) distinguisher := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
   rfl
@@ -190,7 +192,7 @@ theorem zeroUniformAdvantage_eq_ordinaryAdvantage
     (secretSampler : ProbComp (Secret R)) (errorSampler : ProbComp R)
     (distinguisher : Distinguisher R rows) :
     zeroUniformAdvantage rows spec secretSampler errorSampler distinguisher =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (ordinaryProblem rows secretSampler errorSampler) distinguisher := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
   rfl
@@ -226,9 +228,9 @@ theorem kdmAdvantage_le_of_automorphismKDM_and_rlwe
     (secretSampler : ProbComp (Secret R)) (errorSampler : ProbComp R)
     (distinguisher : Distinguisher R rows)
     (automorphismBound rlweBound : ℝ)
-    (hAutomorphism : LearningWithErrors.advantage
+    (hAutomorphism : LearningWithErrors.realAdvantage
       (problem rows spec secretSampler errorSampler) distinguisher ≤ automorphismBound)
-    (hRLWE : LearningWithErrors.advantage
+    (hRLWE : LearningWithErrors.realAdvantage
       (ordinaryProblem rows secretSampler errorSampler) distinguisher ≤ rlweBound) :
     kdmAdvantage rows spec secretSampler errorSampler distinguisher ≤
       automorphismBound + rlweBound := by
@@ -299,9 +301,9 @@ theorem identity_problem_advantage_eq_ordinary
     (rows : ℕ) (weight : Fin rows → R)
     (secretSampler : ProbComp (Secret R)) (errorSampler : ProbComp R)
     (distinguisher : Distinguisher R rows) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem rows (identitySpec weight) secretSampler errorSampler) distinguisher =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (ordinaryProblem rows secretSampler errorSampler)
         (identityReduction (weight := weight) distinguisher) := by
   rw [problem_identitySpec_eq_affineCircular]

@@ -21,6 +21,8 @@ the requested security proof, not a completed ordinary-LWE-only FHE theorem.
 
 open Matrix OracleComp AsymmEncAlg
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.RecursiveFeatureControlHybrid
 
 open RecursiveMultiplication RecursiveFeatureGSW RecursiveFeatureBootstrap
@@ -88,13 +90,20 @@ theorem bridge_fresh {q n p : ℕ} [NeZero q] (params : Parameters q)
       (RecursiveQuadratic.fresh (RecursiveFeaturePublicKey.joinedPolynomial polynomial)
         (GSWSelfKey.binaryEmbed draws.1) draws.2.1 draws.2.2)) =
       viewWithPolynomial params polynomial draws := by
+  let challenge : Matrix (Fin n)
+      (RecursiveQuadratic.Column n 0 (p + controlCount params n)) (ZMod q) :=
+    Matrix.of fun row column ↦ draws.2.1 row column
+  let errors : RecursiveQuadratic.Column n 0 (p + controlCount params n) → ZMod q :=
+    fun column ↦ draws.2.2 column
   apply Prod.ext
   · funext index
-    change flatten ((RecursiveQuadratic.fresh _ _ _ _).2 (finSumFinEquiv (.inl index))) = _
+    change flatten ((RecursiveQuadratic.fresh _ (GSWSelfKey.binaryEmbed draws.1)
+      challenge errors).2 (finSumFinEquiv (.inl index))) = _
     rw [fresh_column_eq_freshCiphertext, RecursiveFeaturePublicKey.joinedPolynomial_zero_message]
     rfl
   · change storeOriginal params (fun index column ↦
-        (RecursiveQuadratic.fresh _ _ _ _).2 (finSumFinEquiv (.inr (finProdFinEquiv (index, column))))) = _
+        (RecursiveQuadratic.fresh _ (GSWSelfKey.binaryEmbed draws.1) challenge errors).2
+          (finSumFinEquiv (.inr (finProdFinEquiv (index, column))))) = _
     simp_rw [fresh_column_eq_freshCiphertext, joinedPolynomial_tail_message]
     rfl
 
@@ -111,9 +120,18 @@ theorem quadratic_keyView_evalDist {q n p : ℕ} [NeZero q] (params : Parameters
           (GSWSelfKey.binaryEmbed bits) challenge errors)) =
         viewWithPolynomial params polynomial (bits, challenge, errors) :=
     bridge_fresh (n := n) (p := p) params polynomial (bits, challenge, errors)
-  simp [keyViewWithPolynomial, RecursiveFeaturePublicKey.freshView, RecursiveQuadratic.freshView,
-    sampleDraws, hfresh, monad_norm]
-  rfl
+  simp +unfoldPartialApp [keyViewWithPolynomial, RecursiveFeaturePublicKey.freshView,
+    RecursiveQuadratic.freshView, sampleDraws, monad_norm,
+    FormalProof4FHE.evalDist_bind,
+    SampleableType.evalDist_uniformSample]
+  congr 1
+  funext bits
+  congr 1
+  funext challenge
+  congr 1
+  funext errors
+  exact congrArg MeasureTheory.Measure.dirac
+    (hfresh bits challenge (fun column ↦ errors ((errorColumnsEquiv params n p) column))).symm
 
 def sourceAdversary {q n p : ℕ} [NeZero q] (params : Parameters q)
     (adversary : GSWMasking.Adversary (dimension := Dimension n) (samples := p) params (StoredOriginal params n)) :
@@ -235,11 +253,11 @@ noncomputable def controlReplacementAdvantage {q n p : ℕ} [NeZero q] (params :
 the cubic-control replacement term remains to be proved small. -/
 theorem actual_oneTime_abs_signedAdvantage_le {p : ℕ} (parameter : ℕ) (params : Parameters (modulus parameter))
     (level : Fin params.levels) (polynomial : ControlPolynomial params (binaryDimension parameter * 1))
-    (adversary : IND_CPA_Adv (scheme (p := p) params level ($ᵗ (Fin (binaryDimension parameter * 1) → Bool))
+    (adversary : IND_CPA_OneTime_Adversary (scheme (p := p) params level ($ᵗ (Fin (binaryDimension parameter * 1) → Bool))
       (UniformInterval.sample (modulus parameter) (radius parameter) (retries parameter)))) :
     let observer := fromINDCPA params level ($ᵗ (Fin (binaryDimension parameter * 1) → Bool))
       (UniformInterval.sample (modulus parameter) (radius parameter) (retries parameter)) adversary
-    |IND_CPA_OneTime_signedAdvantageReal
+    |FormalProof4FHE.oneTimeSignedAdvantage
       (scheme params level ($ᵗ (Fin (binaryDimension parameter * 1) → Bool))
         (UniformInterval.sample (modulus parameter) (radius parameter) (retries parameter))) adversary| ≤
       controlReplacementAdvantage params polynomial ($ᵗ (Fin (binaryDimension parameter * 1) → Bool))
@@ -254,7 +272,7 @@ theorem actual_oneTime_abs_signedAdvantage_le {p : ℕ} (parameter : ℕ) (param
   have hbound := quadratic_game_abs_advantage_le parameter params polynomial
     (fromINDCPA params level ($ᵗ (Fin (binaryDimension parameter * 1) → Bool))
       (UniformInterval.sample (modulus parameter) (radius parameter) (retries parameter)) adversary)
-  unfold IND_CPA_OneTime_signedAdvantageReal
+  unfold FormalProof4FHE.oneTimeSignedAdvantage
   rw [probOutput_congr (rfl : true = true) hgame]
   have htriangle := abs_sub_le
     (Pr[= true | GSWMasking.game params

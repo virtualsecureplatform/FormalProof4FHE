@@ -18,6 +18,8 @@ trapdoor merely because the matrix marginal is nearly uniform.
 
 open Matrix
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWPrivateTrapdoor
 
 def preimage {R : Type} [CommRing R] {n m w h : ℕ}

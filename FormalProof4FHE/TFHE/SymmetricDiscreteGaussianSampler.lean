@@ -24,6 +24,8 @@ for exact message-one normalization and for the already certified Gaussian shift
 open OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.DiscreteGaussianSampler
 
 /-- Every residue and its additive inverse occur equally often in the compiled ticket table. -/

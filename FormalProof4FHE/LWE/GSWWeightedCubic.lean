@@ -17,6 +17,8 @@ does not bound cancellation in the full noisy ciphertext law or prove the
 requested ordinary-LWE-only bootstrappable security theorem.
 -/
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWWeightedCubic
 
 noncomputable section
@@ -64,7 +66,7 @@ theorem card_twoTorsion_le_of_surjective {H G : Type*}
 /-- The zero or half-modulus alternatives for an order-two residue. -/
 theorem residue_twoTorsion {half : ℕ} (hhalf : 0 < half) (value : ZMod (2 * half))
     (hvalue : value + value = 0) : value = 0 ∨ value = (half : ZMod (2 * half)) := by
-  letI : NeZero (2 * half) := ⟨by omega⟩
+  let : NeZero (2 * half) := ⟨by omega⟩
   have hcast : ((2 * value.val : ℕ) : ZMod (2 * half)) = 0 := by
     rw [Nat.cast_mul, Nat.cast_ofNat, ZMod.natCast_zmod_val]
     simpa only [two_mul] using hvalue
@@ -115,7 +117,7 @@ theorem card_twoTorsion_image_le {half d : ℕ} (hhalf : 0 < half)
     {G : Type*} [AddCommGroup G] [Finite G]
     (f : (Fin d → ZMod (2 * half)) →+ G) (honto : Function.Surjective f) :
     Nat.card (doubling G).ker ≤ 2 ^ d := by
-  letI : NeZero (2 * half) := ⟨by omega⟩
+  let : NeZero (2 * half) := ⟨by omega⟩
   exact (card_twoTorsion_le_of_surjective f honto).trans (card_twoTorsion_pi_le hhalf)
 
 /-- Place a Boolean function in the unique nonzero order-two coordinate. -/
@@ -154,7 +156,7 @@ theorem card_patterns_le {S Pattern : Type*} [Finite S] [Finite Pattern]
     (patterns : Pattern → S → Bool) (hinjective : Function.Injective patterns)
     (hrepresent : ∀ pattern, topBit half (patterns pattern) ∈ evaluate.range) :
     Nat.card Pattern ≤ 2 ^ d := by
-  letI : NeZero (2 * half) := ⟨by omega⟩
+  let : NeZero (2 * half) := ⟨by omega⟩
   let intoTorsion : Pattern → (doubling evaluate.range).ker := fun pattern ↦
     ⟨⟨topBit half (patterns pattern), hrepresent pattern⟩,
       by apply Subtype.ext; exact topBit_double half (patterns pattern)⟩

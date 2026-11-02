@@ -18,6 +18,8 @@ per-row, circular, or quadratic-KDM assumption in this composition.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.BinaryNTTSecurity.CompactCoverBGVScalarSecurity
 
 open CompactCoverCyclicCompiler
@@ -39,7 +41,7 @@ def compilerContextEquiv (R : Type) [CommRing R] :
 
 noncomputable instance instFintypeCompilerContext
     (R : Type) [CommRing R] [Fintype R] : Fintype (CompilerContext R) := by
-  letI : Fintype Rˣ := Fintype.ofFinite Rˣ
+  let : Fintype Rˣ := Fintype.ofFinite Rˣ
   exact Fintype.ofEquiv (Rˣ × R) (compilerContextEquiv R).symm
 
 def CompilerContext.hintU {R : Type} [CommRing R]

@@ -28,6 +28,8 @@ gives a common hidden-key-fiber error and therefore sound fresh-view majority am
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.KeySwitchFirstFiniteView
 
 open Native
@@ -726,11 +728,11 @@ theorem candidateGap_eq_decisionAdvantage
       inputErrorSampler tgswGadget keySwitchGadget distinguisher = true
   · have hle := orientation_le ringErrorSampler keySwitchErrorSampler
       inputErrorSampler tgswGadget keySwitchGadget distinguisher
-    rw [if_pos horientation] at hle ⊢
+    rw [ite_eq_left horientation] at hle ⊢
     exact (abs_of_nonneg (sub_nonneg.mpr hle)).symm
   · have hle := orientation_le ringErrorSampler keySwitchErrorSampler
       inputErrorSampler tgswGadget keySwitchGadget distinguisher
-    rw [if_neg horientation] at hle ⊢
+    rw [ite_eq_right horientation] at hle ⊢
     rw [abs_of_nonpos (sub_nonpos.mpr hle)]
     ring
 
@@ -997,9 +999,9 @@ theorem one_sub_amplifiedErrorBound_le_freshScalarSuccess
     hthreshold_pos hthreshold_one distinguisher
   have hsuccess := probEvent_one_sub_le_of_compl_le
     (mx := experiment) (p := fun output : Bool ↦ output = true)
-    probFailure_eq_zero (by
+    (probFailure_eq_zero _) (by
       simpa [experiment] using hfailure)
-  simpa [experiment] using hsuccess
+  simpa [experiment, probEvent, probOutput] using hsuccess
 
 /-! ## Explicit finite augmented batches -/
 
@@ -1435,21 +1437,21 @@ theorem abs_signedAdvantage_real_le_finiteSearch_add_loss_add_two_moduleLwe_add_
         (bundleDistinguisher
           (KeySwitchFirstSecurity.toPublicDistinguisher
             (queryCount := queryCount) encode adversary)) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (BootstrapCutSecurity.batchModuleLweProblem
           q degree ringRank tgswLevels lweDimension ringErrorSampler)
         (BootstrapCutSecurity.realBatchReduction
           ringErrorSampler ($ᵗ (ZMod q)) tgswGadget
           (Adaptive.CutCycleSecurity.cutContinuation
             queryCount inputErrorSampler encode adversary)) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (BootstrapCutSecurity.batchModuleLweProblem
           q degree ringRank tgswLevels lweDimension ringErrorSampler)
         (BootstrapCutSecurity.zeroBatchReduction
           ringErrorSampler ($ᵗ (ZMod q))
           (Adaptive.CutCycleSecurity.cutContinuation
             queryCount inputErrorSampler encode adversary)) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (KeySwitchSecurity.binaryLweProblem q lweDimension queryCount inputErrorSampler)
         (KeySwitchFirstSecurity.inputTapeReduction ringErrorSampler inputErrorSampler
           tgswGadget encode adversary) := by

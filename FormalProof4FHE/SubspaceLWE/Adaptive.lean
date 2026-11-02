@@ -4,6 +4,7 @@ Released under MIT license as described in the file LICENSE.
 Authors: Kotaro Matsuoka
 -/
 
+import FormalProof4FHE.Probability.Discrete
 import FormalProof4FHE.Probability.RankBound
 import Mathlib.LinearAlgebra.Matrix.Rank
 import VCVio.CryptoFoundations.SecExp
@@ -32,6 +33,8 @@ rank-loss accounting against the actual oracle transcript.
 
 open Matrix OracleComp OracleSpec
 open scoped ENNReal
+
+open scoped FormalProof4FHE
 
 namespace FormalProof4FHE.GeneralizedSubspaceLWE.Adaptive
 

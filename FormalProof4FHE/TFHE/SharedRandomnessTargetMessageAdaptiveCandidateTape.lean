@@ -26,6 +26,8 @@ have been established; no circular or RLWE assumption is used here.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE
 
 noncomputable section
@@ -76,7 +78,7 @@ theorem evalDist_randomizeFirst_independentPair
   unfold FormalProof4FHE.TFHE.SamplerReplacement.independentPair
   simp only [map_eq_bind_pure_comp, Function.comp_apply, bind_assoc, pure_bind]
   refine evalDist_bind_congr' first fun value ↦ ?_
-  exact OracleComp.DeferredSampling.evalDist_bind_comm second randomness
+  exact FormalProof4FHE.evalDist_bind_bind_swap second randomness
     (fun secondValue randomValue ↦
       pure (transform randomValue value, secondValue))
 

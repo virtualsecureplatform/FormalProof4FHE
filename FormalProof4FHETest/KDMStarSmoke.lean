@@ -10,6 +10,8 @@ import FormalProof4FHE.LWE.KDMStarGSW
 and signed nonzero errors. Tiny parameters have no security claim. This tests
 public encryption and same-format NAND, not full decryption-key bootstrapping. -/
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHETest.KDMStarSmoke
 
 open Matrix FormalProof4FHE.LWE

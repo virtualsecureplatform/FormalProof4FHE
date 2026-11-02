@@ -24,6 +24,8 @@ set_option linter.unusedSectionVars false
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.SourceAlignedParityTernarySecurity
 
 noncomputable section
@@ -164,13 +166,13 @@ theorem paritySuffixAdvantage_eq_smallTernaryRLWE
     (smallErrorSampler : ProbComp (SmallRq q))
     (adversary : LearningWithErrors.Adversary
       (paritySuffixProblem q samples smallErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (paritySuffixProblem q samples smallErrorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (smallTernaryRLWEProblem q samples smallErrorSampler)
         (smallRLWEReduction q samples adversary) := by
   calc
-    _ = LearningWithErrors.advantage
+    _ = LearningWithErrors.realAdvantage
         (SourceAlignedSuffixRLWEReduction.ringProblem q 2047 samples
           (ternarySmallSecretSampler q)
           (RLWE.OddSecretReduction.oddSecretEmbed q halfDegree)
@@ -276,15 +278,15 @@ theorem endpointAdvantage_le_three_sources
     targetAdvantage
         (parityCandidateViews q samples smallErrorSampler correctionSampler
           brkContribution).endpoints distinguisher ≤
-      2 * LearningWithErrors.advantage
+      2 * LearningWithErrors.realAdvantage
         (paritySuffixProblem q samples smallErrorSampler)
         ((paritySuffixConstructor q samples smallErrorSampler correctionSampler
           brkContribution).reduction distinguisher) +
-      2 * LearningWithErrors.advantage
+      2 * LearningWithErrors.realAdvantage
         (parityPrefixProblem q samples correctionSampler)
         ((parityRandomPrefixConstructor q samples smallErrorSampler correctionSampler
           brkContribution).reduction distinguisher) +
-      2 * LearningWithErrors.advantage
+      2 * LearningWithErrors.realAdvantage
         (parityPrefixProblem q samples correctionSampler)
         ((paritySecondPrefixConstructor q samples smallErrorSampler correctionSampler
           brkContribution).reduction distinguisher) := by
@@ -320,15 +322,15 @@ theorem endpointAdvantage_le_smallRLWE_and_prefix
     targetAdvantage
         (parityCandidateViews q samples smallErrorSampler correctionSampler
           brkContribution).endpoints distinguisher ≤
-      2 * LearningWithErrors.advantage
+      2 * LearningWithErrors.realAdvantage
         (smallTernaryRLWEProblem q samples smallErrorSampler)
         (endpointSmallRLWEReduction q samples smallErrorSampler correctionSampler
           brkContribution distinguisher) +
-      2 * LearningWithErrors.advantage
+      2 * LearningWithErrors.realAdvantage
         (parityPrefixProblem q samples correctionSampler)
         ((parityRandomPrefixConstructor q samples smallErrorSampler correctionSampler
           brkContribution).reduction distinguisher) +
-      2 * LearningWithErrors.advantage
+      2 * LearningWithErrors.realAdvantage
         (parityPrefixProblem q samples correctionSampler)
         ((paritySecondPrefixConstructor q samples smallErrorSampler correctionSampler
           brkContribution).reduction distinguisher) := by
@@ -348,13 +350,13 @@ theorem endpointAdvantage_le_hardness
     (epsilonRLWE epsilonPrefix : ℝ)
     (hRLWE : ∀ adversary : LearningWithErrors.Adversary
         (smallTernaryRLWEProblem q samples smallErrorSampler),
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (smallTernaryRLWEProblem q samples smallErrorSampler) adversary ≤ epsilonRLWE)
-    (hPrefixFirst : LearningWithErrors.advantage
+    (hPrefixFirst : LearningWithErrors.realAdvantage
         (parityPrefixProblem q samples correctionSampler)
         ((parityRandomPrefixConstructor q samples smallErrorSampler correctionSampler
           brkContribution).reduction distinguisher) ≤ epsilonPrefix)
-    (hPrefixSecond : LearningWithErrors.advantage
+    (hPrefixSecond : LearningWithErrors.realAdvantage
         (parityPrefixProblem q samples correctionSampler)
         ((paritySecondPrefixConstructor q samples smallErrorSampler correctionSampler
           brkContribution).reduction distinguisher) ≤ epsilonPrefix) :

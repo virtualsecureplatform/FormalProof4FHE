@@ -40,6 +40,8 @@ set_option autoImplicit false
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.NativeTRGSWQuadraticKDMAndTFHET
 
 noncomputable section
@@ -754,7 +756,7 @@ def reduction (compiler : ExactDirectSourceCompiler problem targetView)
 theorem reduction_advantage_eq_targetAdvantage
     (compiler : ExactDirectSourceCompiler problem targetView)
     (distinguisher : Distinguisher View) :
-    LearningWithErrors.advantage problem (compiler.reduction distinguisher) =
+    LearningWithErrors.realAdvantage problem (compiler.reduction distinguisher) =
       DirectSubsetKeyBRK.targetAdvantage targetView distinguisher := by
   have hreal :
       evalDist (LearningWithErrors.distr problem >>= fun transcript ↦
@@ -775,7 +777,7 @@ theorem reduction_advantage_eq_targetAdvantage
       simp [bind_assoc]]
     rw [evalDist_bind, compiler.uniformLaw, ← evalDist_bind]
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
-  unfold LearningWithErrors.game0 LearningWithErrors.game1 reduction
+  unfold LearningWithErrors.realExperiment LearningWithErrors.randomExperiment reduction
     DirectSubsetKeyBRK.targetAdvantage ProbComp.boolDistAdvantage
   rw [probOutput_congr rfl hreal, probOutput_congr rfl huniform]
 
@@ -831,7 +833,7 @@ theorem halfRingMatchSquareReduction_advantage_eq
       (BinarySecret half × Suffix) → ProbComp Bool}
     (compiler : ExactHalfRingMatchSquareCompiler (samples := samples) errorSampler
       keySampler fakePrefixSampler plus minus) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (halfRingBinaryRLWEProblem q half samples errorSampler)
         (halfRingMatchSquareReduction compiler) =
       completeViewZeroRowReductionAdvantage
@@ -901,7 +903,7 @@ theorem nativeRestrictedQuadraticKDMGap_le_halfRingRLWE
           halfRenyiNormalizer keySampler Prod.fst) :
     nativeKDMGap ≤ sigmaReal + sigmaZero +
       Real.sqrt (2 * halfRenyiConcentration prefixSampler *
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (halfRingBinaryRLWEProblem q half
             (halfRingSamplesForMatchSquare ringRank gadgetLevels half
               kskSamples auxiliarySamples) errorSampler)
@@ -909,7 +911,7 @@ theorem nativeRestrictedQuadraticKDMGap_le_halfRingRLWE
   apply nativeCompleteViewAggregateGap_le_prefixMarginal
     keySampler prefixSampler fakePrefixSampler plus minus
     nativeKDMGap sigmaReal sigmaZero
-    (LearningWithErrors.advantage
+    (LearningWithErrors.realAdvantage
       (halfRingBinaryRLWEProblem q half
         (halfRingSamplesForMatchSquare ringRank gadgetLevels half
           kskSamples auxiliarySamples) errorSampler)

@@ -22,6 +22,8 @@ RLWE proves security of the remaining one-key native TRGSW distribution.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle
 
 noncomputable section
@@ -588,10 +590,10 @@ theorem sharedKeySwitchAdvantage_eq_lwe
     (adversary : LearningWithErrors.Adversary
       (sharedKeySwitchProblem q prefixDimension suffixDimension keySwitchLevels
         errorSampler gadget)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (sharedKeySwitchProblem q prefixDimension suffixDimension keySwitchLevels
           errorSampler gadget) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.embeddedBatchProblem prefixDimension
           (suffixDimension * keySwitchLevels)
           (Native.sampleLweSecret prefixDimension) embedBinarySecret errorSampler)
@@ -828,7 +830,7 @@ theorem generateBootstrappingKey_uniformError_evalDist
     evalDist (generateBootstrappingKey q prefixDimension suffixDimension tgswLevels
       ($ᵗ (RLWE.Rq q (prefixDimension + suffixDimension))) gadget ringSecret) =
       evalDist ($ᵗ (SharedBootstrappingKey q prefixDimension suffixDimension tgswLevels)) := by
-  letI : CommRing (RLWE.Rq q (prefixDimension + suffixDimension)) :=
+  let : CommRing (RLWE.Rq q (prefixDimension + suffixDimension)) :=
     LatticeCrypto.vectorNegacyclicRing_instCommRing
       (ZMod q) (prefixDimension + suffixDimension)
   unfold generateBootstrappingKey Native.generateBootstrappingKey
@@ -861,7 +863,7 @@ theorem generateZeroBootstrappingKey_uniformError_evalDist
   let rqCommRing : CommRing (RLWE.Rq q (prefixDimension + suffixDimension)) :=
     LatticeCrypto.vectorNegacyclicRing_instCommRing
       (ZMod q) (prefixDimension + suffixDimension)
-  letI := rqCommRing
+  let := rqCommRing
   unfold generateZeroBootstrappingKey Native.generateZeroBootstrappingKey TGSW.encryptZero
   calc
     _ = evalDist (Fin.mOfFn prefixDimension fun _ ↦
@@ -1128,7 +1130,7 @@ theorem tvDist_realCloudKeyView_ringError_le
       (SamplerReplacement.bootstrappingErrorCount 1 tgswLevels prefixDimension : ℝ) *
         tvDist left right := by
   unfold realCloudKeyView
-  exact tvDist_bind_left_le_const' (m := ProbComp)
+  exact tvDist_bind_left_le_const'
     (Native.sampleRingSecret 1 (prefixDimension + suffixDimension)) _ _
     ((SamplerReplacement.bootstrappingErrorCount 1 tgswLevels prefixDimension : ℝ) *
       tvDist left right)
@@ -1183,7 +1185,7 @@ theorem tvDist_bootstrapZeroCloudKeyView_ringError_le
       (SamplerReplacement.bootstrappingErrorCount 1 tgswLevels prefixDimension : ℝ) *
         tvDist left right := by
   unfold bootstrapZeroCloudKeyView
-  exact tvDist_bind_left_le_const' (m := ProbComp)
+  exact tvDist_bind_left_le_const'
     (Native.sampleRingSecret 1 (prefixDimension + suffixDimension)) _ _
     ((SamplerReplacement.bootstrappingErrorCount 1 tgswLevels prefixDimension : ℝ) *
       tvDist left right)
@@ -1255,7 +1257,7 @@ theorem tvDist_realSecretContinuationGame_ringError_le
       (SamplerReplacement.bootstrappingErrorCount 1 tgswLevels prefixDimension : ℝ) *
         tvDist left right := by
   unfold realSecretContinuationGame
-  exact tvDist_bind_left_le_const' (m := ProbComp)
+  exact tvDist_bind_left_le_const'
     (Native.sampleRingSecret 1 (prefixDimension + suffixDimension)) _ _
     ((SamplerReplacement.bootstrappingErrorCount 1 tgswLevels prefixDimension : ℝ) *
       tvDist left right)
@@ -1292,7 +1294,7 @@ theorem tvDist_bootstrapZeroSecretContinuationGame_ringError_le
       (SamplerReplacement.bootstrappingErrorCount 1 tgswLevels prefixDimension : ℝ) *
         tvDist left right := by
   unfold bootstrapZeroSecretContinuationGame
-  exact tvDist_bind_left_le_const' (m := ProbComp)
+  exact tvDist_bind_left_le_const'
     (Native.sampleRingSecret 1 (prefixDimension + suffixDimension)) _ _
     ((SamplerReplacement.bootstrappingErrorCount 1 tgswLevels prefixDimension : ℝ) *
       tvDist left right)

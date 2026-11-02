@@ -27,6 +27,8 @@ therefore be evaluated for concrete finite parameters before any analytic relaxa
 open OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.WeightedSquare
 
 noncomputable section
@@ -114,7 +116,7 @@ theorem probabilityMass_sampleIID
     (values : Fin count → A) :
     probabilityMass (ProbComp.sampleIID count sampler) values =
       ∏ coordinate, probabilityMass sampler (values coordinate) := by
-  letI : Fintype A := Fintype.ofFinite A
+  let : Fintype A := Fintype.ofFinite A
   unfold probabilityMass ProbComp.sampleIID
   rw [FormalProof4FHE.FiniteProduct.probOutput_fin_mOfFn,
     ENNReal.toReal_prod]

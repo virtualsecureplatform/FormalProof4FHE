@@ -33,6 +33,8 @@ claim that this final term follows from ordinary LWE is built into the interface
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.AuxiliaryInput
 
 /-- A fixed-side-information circular/KDM distinguishing problem.

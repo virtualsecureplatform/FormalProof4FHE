@@ -26,6 +26,8 @@ central security requirement; the bound is not a completed FHE security theorem.
 
 open Matrix OracleComp AsymmEncAlg
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.RecursiveFeatureSecurityView
 
 open RecursiveMultiplication RecursiveFeatureGSW RecursiveFeatureBootstrap
@@ -160,7 +162,7 @@ noncomputable def scheme {q n p : ℕ} [NeZero q] (params : Parameters q) (level
 
 def fromINDCPA {q n p : ℕ} [NeZero q] (params : Parameters q) (level : Fin params.levels)
     (secretSampler : ProbComp (Fin n → Bool)) (errorSampler : ProbComp (ZMod q))
-    (adversary : IND_CPA_Adv (scheme (p := p) params level secretSampler errorSampler)) :
+    (adversary : IND_CPA_OneTime_Adversary (scheme (p := p) params level secretSampler errorSampler)) :
     GSWMasking.Adversary (dimension := Dimension n) (samples := p) params (StoredOriginal params n) where
   State := adversary.State
   chooseMessages := adversary.chooseMessages
@@ -168,8 +170,8 @@ def fromINDCPA {q n p : ℕ} [NeZero q] (params : Parameters q) (level : Fin par
 
 theorem oneTime_game_evalDist {q n p : ℕ} [NeZero q] (params : Parameters q) (level : Fin params.levels)
     (secretSampler : ProbComp (Fin n → Bool)) (errorSampler : ProbComp (ZMod q))
-    (adversary : IND_CPA_Adv (scheme (p := p) params level secretSampler errorSampler)) :
-    𝒟[IND_CPA_OneTime_Game_ProbComp adversary] =
+    (adversary : IND_CPA_OneTime_Adversary (scheme (p := p) params level secretSampler errorSampler)) :
+    𝒟[FormalProof4FHE.oneTimeGame adversary] =
       𝒟[GSWMasking.game params (keyView params secretSampler errorSampler)
         (fromINDCPA params level secretSampler errorSampler adversary)] := by
   let observer := fun view : StoredView params n p ↦ do
@@ -188,27 +190,27 @@ theorem oneTime_game_evalDist {q n p : ℕ} [NeZero q] (params : Parameters q) (
       pure (bit == guess))
   have hforget := FormalProof4FHE.SharedRandomness.evalDist_bind_eq_of_evalDist_eq
     (keygen_public_evalDist (p := p) params secretSampler errorSampler) observer
-  simpa [IND_CPA_OneTime_Game_ProbComp, scheme, GSWMasking.game,
+  simpa [FormalProof4FHE.oneTimeGame, scheme, GSWMasking.game,
     fromINDCPA, observer, storeView, monad_norm] using hswap.trans (by
       simpa [bind_map_left, observer, storeView, fromINDCPA, monad_norm] using hforget)
 
 /-- Exactly the unresolved complete joint-view hop; no hardness property is assumed. -/
 noncomputable def jointReplacementAdvantage {q n p : ℕ} [NeZero q] (params : Parameters q)
     (level : Fin params.levels) (secretSampler : ProbComp (Fin n → Bool)) (errorSampler : ProbComp (ZMod q))
-    (adversary : IND_CPA_Adv (scheme (p := p) params level secretSampler errorSampler)) : ℝ :=
+    (adversary : IND_CPA_OneTime_Adversary (scheme (p := p) params level secretSampler errorSampler)) : ℝ :=
   GSWMasking.keyReplacementAdvantage params (keyView params secretSampler errorSampler)
     (fromINDCPA params level secretSampler errorSampler adversary)
 
 theorem oneTime_abs_signedAdvantage_le {q n p : ℕ} [NeZero q] (params : Parameters q)
     (level : Fin params.levels) (secretSampler : ProbComp (Fin n → Bool)) (errorSampler : ProbComp (ZMod q))
-    (adversary : IND_CPA_Adv (scheme (p := p) params level secretSampler errorSampler)) :
-    |IND_CPA_OneTime_signedAdvantageReal (scheme params level secretSampler errorSampler) adversary| ≤
+    (adversary : IND_CPA_OneTime_Adversary (scheme (p := p) params level secretSampler errorSampler)) :
+    |FormalProof4FHE.oneTimeSignedAdvantage (scheme params level secretSampler errorSampler) adversary| ≤
       jointReplacementAdvantage params level secretSampler errorSampler adversary +
         ((Dimension n + 1) * params.levels) * (Real.sqrt ((q : ℝ) ^ (Dimension n + 1) / (2 : ℝ) ^ p) / 2) := by
   have hgame := oneTime_game_evalDist params level secretSampler errorSampler adversary
   have hbound := GSWMasking.game_abs_advantage_le_keyReplacement_add_masking params
     (keyView params secretSampler errorSampler) (fromINDCPA params level secretSampler errorSampler adversary)
-  unfold IND_CPA_OneTime_signedAdvantageReal
+  unfold FormalProof4FHE.oneTimeSignedAdvantage
   rw [probOutput_congr (rfl : true = true) hgame]
   exact hbound
 

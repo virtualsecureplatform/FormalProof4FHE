@@ -30,6 +30,8 @@ self-encrypted BRK marginal under the nonlinear relative-key action.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization
 
 noncomputable section
@@ -601,7 +603,7 @@ theorem evaluateCenteredBinomialShearRelativeView_tvDist_le
   have hKeySwitch : tvDist transformedKeySwitchKey targetKeySwitchKey = 0 := by
     unfold tvDist
     rw [hKeySwitchEvalDist]
-    exact SPMF.tvDist_self _
+    exact MeasureTheory.Measure.tvDist_self _
   have hPair := FormalProof4FHE.TFHE.SamplerReplacement.tvDist_independentPair_le
     evaluatedBootstrappingKey targetBootstrappingKey
     transformedKeySwitchKey targetKeySwitchKey combine

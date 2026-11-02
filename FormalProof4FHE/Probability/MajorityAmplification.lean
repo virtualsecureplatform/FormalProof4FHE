@@ -24,6 +24,8 @@ pointwise hypothesis below is deliberately stronger than an average distinguishi
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.MajorityAmplification
 
 /-- Run one Boolean computation three times independently and return its strict majority. -/
@@ -254,11 +256,11 @@ theorem evalDist_sampleMajorityBatch_run {Input : Type} [Finite Input]
             (strictMajority <$> Fin.mOfFn 3
               (fun _ => childSampler >>= childTrial)) := by
               simpa only [evalDist_map] using
-                congrArg (fun distribution => strictMajority <$> distribution) hfront
+                congrArg (fun distribution => MeasureTheory.Measure.map (strictMajority) distribution) hfront
         _ = evalDist
             (strictMajority <$> Fin.mOfFn 3 (fun _ => amplifiedTrial)) := by
               simpa only [evalDist_map] using
-                congrArg (fun distribution => strictMajority <$> distribution) hchildren
+                congrArg (fun distribution => MeasureTheory.Measure.map (strictMajority) distribution) hchildren
         _ = evalDist
             (amplify (rounds + 1) (fun _ : Unit => sampler >>= trial) ()) := by
               rw [strictMajority_fin_mOfFn_three]

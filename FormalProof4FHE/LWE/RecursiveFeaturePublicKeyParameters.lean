@@ -20,6 +20,8 @@ experiment. Cubic refresh controls and reusable bootstrapping are not covered.
 open OracleComp AsymmEncAlg
 open scoped ENNReal Topology
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.RecursiveFeaturePublicKeyParameters
 
 open RecursiveQuadraticParameters
@@ -179,7 +181,7 @@ noncomputable def family (parameter linear hints : ℕ)
 
 noncomputable def familyAdversary (parameter linear hints : ℕ)
     (tail : RecursiveQuadratic.Polynomial (ZMod (modulus parameter)) (dimension parameter) hints)
-    (adversary : IND_CPA_Adv (family parameter linear hints tail)) :
+    (adversary : IND_CPA_OneTime_Adversary (family parameter linear hints tail)) :
     RecursiveFeaturePublicKey.Adversary (n := dimension parameter) (r := linear) (p := publicSamples parameter)
       (k := hints) (params parameter) :=
   RecursiveFeaturePublicKey.fromINDCPA (params parameter) (level parameter)
@@ -190,8 +192,8 @@ noncomputable def familyAdversary (parameter linear hints : ℕ)
 /-- All computational terms are observers of uniform-secret ordinary LWE at the source. -/
 theorem oneTime_abs_signedAdvantage_le (parameter linear hints : ℕ)
     (tail : RecursiveQuadratic.Polynomial (ZMod (modulus parameter)) (dimension parameter) hints)
-    (adversary : IND_CPA_Adv (family parameter linear hints tail)) :
-    |IND_CPA_OneTime_signedAdvantageReal (family parameter linear hints tail) adversary| ≤
+    (adversary : IND_CPA_OneTime_Adversary (family parameter linear hints tail)) :
+    |FormalProof4FHE.oneTimeSignedAdvantage (family parameter linear hints tail) adversary| ≤
       ordinaryReductionLoss parameter
         (RecursiveQuadratic.columnsEquiv (dimension parameter) linear (publicSamples parameter + hints))
         (RecursiveFeaturePublicKey.joinedPolynomial tail)
@@ -205,7 +207,7 @@ theorem oneTime_abs_signedAdvantage_le (parameter linear hints : ℕ)
   have hbound := RecursiveFeaturePublicKey.sampled_game_abs_advantage_le parameter (params parameter)
     (RecursiveQuadratic.columnsEquiv (dimension parameter) linear (publicSamples parameter + hints)) tail
     (familyAdversary parameter linear hints tail adversary)
-  unfold IND_CPA_OneTime_signedAdvantageReal family
+  unfold FormalProof4FHE.oneTimeSignedAdvantage family
   rw [probOutput_congr (rfl : true = true) hgame]
   simpa only [familyAdversary, RecursivePublicKeyParameters.secretSampler, maskingBound, maskingPerColumnBound,
     featureRows, sampleRows, params, Nat.cast_mul, Nat.cast_add, Nat.cast_one] using hbound
@@ -214,7 +216,7 @@ theorem oneTime_abs_signedAdvantage_le (parameter linear hints : ℕ)
 theorem correctExp_probability_one (parameter linear hints : ℕ)
     (hmargin : 4 * selectorBound parameter * radius parameter < modulus parameter)
     (tail : RecursiveQuadratic.Polynomial (ZMod (modulus parameter)) (dimension parameter) hints) (bit : Bool) :
-    Pr[= true | (family parameter linear hints tail).CorrectExp bit] = 1 := by
+    Pr[= true | (family parameter linear hints tail).correctnessExperiment bit] = 1 := by
   apply RecursiveFeaturePublicKey.correctExp_probability_one (params parameter) (level parameter)
     (RecursiveQuadratic.columnsEquiv (dimension parameter) linear (publicSamples parameter + hints)) tail
     (RecursivePublicKeyParameters.secretSampler parameter)
@@ -236,7 +238,7 @@ theorem correctExp_probability_one (parameter linear hints : ℕ)
 theorem eventually_correctExp_probability_one :
     ∀ᶠ parameter in Filter.atTop, ∀ linear hints : ℕ,
       ∀ tail : RecursiveQuadratic.Polynomial (ZMod (modulus parameter)) (dimension parameter) hints, ∀ bit : Bool,
-        Pr[= true | (family parameter linear hints tail).CorrectExp bit] = 1 := by
+        Pr[= true | (family parameter linear hints tail).correctnessExperiment bit] = 1 := by
   filter_upwards [eventually_public_quarter_margin] with parameter hmargin
   intro linear hints tail bit
   exact correctExp_probability_one parameter linear hints hmargin tail bit

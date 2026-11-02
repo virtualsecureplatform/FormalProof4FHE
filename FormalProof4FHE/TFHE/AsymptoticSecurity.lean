@@ -4,6 +4,7 @@ Released under MIT license as described in the file LICENSE.
 Authors: Kotaro Matsuoka
 -/
 
+import FormalProof4FHE.Probability.Discrete
 import FormalProof4FHE.TFHE.AdaptiveEncryptionSecurity
 import VCVio.CryptoFoundations.Asymptotics.Security
 
@@ -18,6 +19,8 @@ The native direct-bilinear circular/KDM premise remains explicit and is paid onc
 -/
 
 open ENNReal OracleComp OracleSpec
+
+open scoped FormalProof4FHE
 
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic
 
@@ -114,11 +117,11 @@ def compileEvaluationAdversary {Message Output : Type} (params : Parameters Mess
   queryPolynomial := adversary.queryPolynomial
   queryCount_le := adversary.queryCount_le
   isQueryBound securityParameter := by
-    letI : IsUniformSpec
+    let : OracleSpec.UniformAnswerMeasure
         ((Message × Message) →ₒ
           TLWE.Ciphertext (ZMod (params.q securityParameter))
             (params.lweDimension securityParameter)) :=
-      IsUniformSpec.ofFintypeInhabited _
+      OracleSpec.UniformAnswerMeasure.ofFiniteNonempty _
     exact Adaptive.compilePublicEvaluation_isQueryBound
       (evaluate securityParameter) (adversary.run securityParameter)
       (adversary.queryCount securityParameter)
@@ -238,7 +241,7 @@ noncomputable def jointLWESecurityGame {Message : Type} (params : Parameters Mes
     [∀ securityParameter, NeZero (params.q securityParameter)] :
     SecurityGame (JointLWEAdversaryFamily params) where
   advantage adversary securityParameter := ENNReal.ofReal
-    (LearningWithErrors.advantage
+    (LearningWithErrors.realAdvantage
       (Adaptive.jointLweProblem
         (params.q securityParameter)
         (params.lweDimension securityParameter)
@@ -299,7 +302,7 @@ noncomputable def batchLWESecurityGame {Message : Type} (params : Parameters Mes
     [∀ securityParameter, NeZero (params.q securityParameter)] :
     SecurityGame (BatchLWEAdversaryFamily params) where
   advantage adversary securityParameter := ENNReal.ofReal
-    (LearningWithErrors.advantage
+    (LearningWithErrors.realAdvantage
       (Native.KeySwitchSecurity.binaryLweProblem
         (params.q securityParameter)
         (params.lweDimension securityParameter)
@@ -405,7 +408,7 @@ theorem securityGame_advantage_le_directBilinear_add_jointLWE
     unfold Native.BootstrapSecurity.directBilinearAdvantage ProbComp.boolDistAdvantage
     exact abs_nonneg _
   have hLWENonneg : 0 ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (Adaptive.jointLweProblem
           (params.q securityParameter)
           (params.lweDimension securityParameter)
@@ -468,7 +471,7 @@ theorem securityGame_advantage_le_directBilinear_add_batchLWE
     unfold Native.BootstrapSecurity.directBilinearAdvantage ProbComp.boolDistAdvantage
     exact abs_nonneg _
   have hLWENonneg : 0 ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (Native.KeySwitchSecurity.binaryLweProblem
           (params.q securityParameter)
           (params.lweDimension securityParameter)

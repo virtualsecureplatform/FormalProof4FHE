@@ -25,6 +25,8 @@ does not claim that the standard narrow TFHE parameters do so.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization
 
 noncomputable section

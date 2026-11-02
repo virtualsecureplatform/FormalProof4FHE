@@ -28,6 +28,8 @@ standard assumption remains the research problem rather than an implicit axiom o
 
 open Matrix OracleComp OracleSpec
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.CircularSecurity
 
 noncomputable section
@@ -171,7 +173,7 @@ theorem abs_signedAdvantage_masterUniformBootstrap_eq_jointLwe
     |Encryption.signedAdvantage
       (masterUniformBootstrapGame queryCount keySwitchErrorSampler inputErrorSampler
         keySwitchGadget encode adversary)| =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (jointLweProblem q prefixDimension suffixDimension keySwitchLevels queryCount
           keySwitchErrorSampler inputErrorSampler)
         (jointLweReduction keySwitchErrorSampler inputErrorSampler keySwitchGadget
@@ -211,7 +213,7 @@ theorem abs_signedAdvantage_real_le_circularLwe_add_jointLwe
         tgswGadget keySwitchGadget encode adversary)| ≤
       circularLweAdvantage queryCount ringErrorSampler keySwitchErrorSampler
           inputErrorSampler tgswGadget keySwitchGadget encode adversary +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (jointLweProblem q prefixDimension suffixDimension keySwitchLevels queryCount
             keySwitchErrorSampler inputErrorSampler)
           (jointLweReduction keySwitchErrorSampler inputErrorSampler keySwitchGadget
@@ -229,7 +231,7 @@ theorem abs_signedAdvantage_real_le_circularLwe_add_jointLwe
       keySwitchGadget encode adversary).symm
   have hUniform :
       |Encryption.signedAdvantage uniformGame| =
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (jointLweProblem q prefixDimension suffixDimension keySwitchLevels queryCount
             keySwitchErrorSampler inputErrorSampler)
           (jointLweReduction keySwitchErrorSampler inputErrorSampler keySwitchGadget
@@ -251,7 +253,7 @@ theorem abs_signedAdvantage_real_le_circularLwe_add_jointLwe
       rfl
     _ = circularLweAdvantage queryCount ringErrorSampler keySwitchErrorSampler
           inputErrorSampler tgswGadget keySwitchGadget encode adversary +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (jointLweProblem q prefixDimension suffixDimension keySwitchLevels queryCount
             keySwitchErrorSampler inputErrorSampler)
           (jointLweReduction keySwitchErrorSampler inputErrorSampler keySwitchGadget
@@ -275,7 +277,7 @@ theorem abs_signedAdvantage_real_le_circularLwe_add_batchLwe_of_same_noise
         tgswGadget keySwitchGadget encode adversary)| ≤
       circularLweAdvantage queryCount ringErrorSampler errorSampler errorSampler
           tgswGadget keySwitchGadget encode adversary +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.KeySwitchSecurity.binaryLweProblem q prefixDimension
             (keySwitchSamples suffixDimension keySwitchLevels + queryCount) errorSampler)
           (FormalProof4FHE.LWE.TwoBlock.reduction
@@ -287,7 +289,7 @@ theorem abs_signedAdvantage_real_le_circularLwe_add_batchLwe_of_same_noise
           tgswGadget keySwitchGadget encode adversary)| ≤
       circularLweAdvantage queryCount ringErrorSampler errorSampler errorSampler
           tgswGadget keySwitchGadget encode adversary +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (jointLweProblem q prefixDimension suffixDimension keySwitchLevels queryCount
             errorSampler errorSampler)
           (jointLweReduction errorSampler errorSampler keySwitchGadget encode adversary) :=
@@ -296,14 +298,14 @@ theorem abs_signedAdvantage_real_le_circularLwe_add_batchLwe_of_same_noise
         encode adversary hbound
     _ = circularLweAdvantage queryCount ringErrorSampler errorSampler errorSampler
           tgswGadget keySwitchGadget encode adversary +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.KeySwitchSecurity.binaryLweProblem q prefixDimension
             (keySwitchSamples suffixDimension keySwitchLevels + queryCount) errorSampler)
           (FormalProof4FHE.LWE.TwoBlock.reduction
             (jointLweReduction errorSampler errorSampler keySwitchGadget
               encode adversary)) := by
       congr 1
-      change LearningWithErrors.advantage
+      change LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.TwoBlock.problem prefixDimension
             (keySwitchSamples suffixDimension keySwitchLevels) queryCount
             (Native.sampleLweSecret prefixDimension) embedBinarySecret errorSampler)
@@ -336,7 +338,7 @@ theorem abs_signedAdvantage_real_le_oneCircularKdm_add_zeroBootstrapLwe_add_batc
           tgswGadget keySwitchGadget encode adversary +
         zeroBootstrapLweAdvantage queryCount ringErrorSampler errorSampler errorSampler
           tgswGadget keySwitchGadget encode adversary) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.KeySwitchSecurity.binaryLweProblem q prefixDimension
             (keySwitchSamples suffixDimension keySwitchLevels + queryCount) errorSampler)
           (FormalProof4FHE.LWE.TwoBlock.reduction
@@ -348,7 +350,7 @@ theorem abs_signedAdvantage_real_le_oneCircularKdm_add_zeroBootstrapLwe_add_batc
           tgswGadget keySwitchGadget encode adversary)| ≤
       circularLweAdvantage queryCount ringErrorSampler errorSampler errorSampler
           tgswGadget keySwitchGadget encode adversary +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.KeySwitchSecurity.binaryLweProblem q prefixDimension
             (keySwitchSamples suffixDimension keySwitchLevels + queryCount) errorSampler)
           (FormalProof4FHE.LWE.TwoBlock.reduction
@@ -385,15 +387,15 @@ theorem abs_signedAdvantage_publicEvaluation_le_circularLwe_add_batchLwe
       circularLweAdvantage queryCount ringErrorSampler errorSampler errorSampler
           tgswGadget keySwitchGadget encode
           (Adaptive.compilePublicEvaluation evaluate adversary) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.KeySwitchSecurity.binaryLweProblem q prefixDimension
             (keySwitchSamples suffixDimension keySwitchLevels + queryCount) errorSampler)
           (FormalProof4FHE.LWE.TwoBlock.reduction
             (jointLweReduction errorSampler errorSampler keySwitchGadget encode
               (Adaptive.compilePublicEvaluation evaluate adversary))) := by
-  letI : IsUniformSpec
+  let : OracleSpec.UniformAnswerMeasure
       ((Message × Message) →ₒ TLWE.Ciphertext (ZMod q) prefixDimension) :=
-    IsUniformSpec.ofFintypeInhabited _
+    OracleSpec.UniformAnswerMeasure.ofFiniteNonempty _
   apply abs_signedAdvantage_real_le_circularLwe_add_batchLwe_of_same_noise
   exact Adaptive.compilePublicEvaluation_isQueryBound evaluate adversary queryCount hbound
 
@@ -422,15 +424,15 @@ theorem abs_signedAdvantage_publicEvaluation_le_oneCircularKdm_add_zeroBootstrap
         zeroBootstrapLweAdvantage queryCount ringErrorSampler errorSampler errorSampler
           tgswGadget keySwitchGadget encode
           (Adaptive.compilePublicEvaluation evaluate adversary)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.KeySwitchSecurity.binaryLweProblem q prefixDimension
             (keySwitchSamples suffixDimension keySwitchLevels + queryCount) errorSampler)
           (FormalProof4FHE.LWE.TwoBlock.reduction
             (jointLweReduction errorSampler errorSampler keySwitchGadget encode
               (Adaptive.compilePublicEvaluation evaluate adversary))) := by
-  letI : IsUniformSpec
+  let : OracleSpec.UniformAnswerMeasure
       ((Message × Message) →ₒ TLWE.Ciphertext (ZMod q) prefixDimension) :=
-    IsUniformSpec.ofFintypeInhabited _
+    OracleSpec.UniformAnswerMeasure.ofFiniteNonempty _
   apply abs_signedAdvantage_real_le_oneCircularKdm_add_zeroBootstrapLwe_add_batchLwe
   exact Adaptive.compilePublicEvaluation_isQueryBound evaluate adversary queryCount hbound
 

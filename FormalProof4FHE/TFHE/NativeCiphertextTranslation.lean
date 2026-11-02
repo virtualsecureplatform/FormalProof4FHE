@@ -23,6 +23,8 @@ independent of the retained fresh source entry; no claim of that independence is
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.Translation
 
 noncomputable section
@@ -74,7 +76,7 @@ theorem probFailure_directEncrypt_eq_zero
     simpa only [ProbComp.sampleIID] using
       (FormalProof4FHE.FiniteProduct.probFailure_fin_mOfFn_eq_zero
         (TGSW.rowCount dimension levels) (fun _ => errorSampler) (fun _ => hError))
-  letI : NeverFail
+  let : NeverFail
       (ProbComp.sampleIID (TGSW.rowCount dimension levels) errorSampler) :=
     NeverFail.of_probFailure_eq_zero _ hErrors
   have hDirect : NeverFail

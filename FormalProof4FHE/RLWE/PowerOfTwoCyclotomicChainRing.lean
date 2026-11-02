@@ -25,6 +25,8 @@ No algebraic-number-theory ramification theorem is assumed.
 
 open BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.PowerOfTwoQuadraticKDMStatistical
 
 noncomputable section
@@ -385,7 +387,7 @@ theorem everyIdeal_eq_adicPower
         value ∈ ideal ∧ value ≠ 0 ∧
           truncatedValuation uniformizer length value = level := by
       obtain ⟨value, hvalueIdeal, hvalue⟩ :=
-        SetLike.exists_of_lt (bot_lt_iff_ne_bot.mpr hideal : ⊥ < ideal)
+        IsConcreteLE.exists_of_lt (bot_lt_iff_ne_bot.mpr hideal : ⊥ < ideal)
       exact ⟨truncatedValuation uniformizer length value,
         value, hvalueIdeal, hvalue, rfl⟩
     let level := Nat.find hexists
@@ -444,7 +446,7 @@ open FormalProof4FHE.TFHE.Native.PowerOfTwoLocalRing
 noncomputable instance quotientPowerOfTwoRqFintype
     (modulusExponent degreeExponent : ℕ) [hmodulus : Fact (0 < modulusExponent)] :
     Fintype (QuotientRq (2 ^ modulusExponent) (2 ^ degreeExponent)) := by
-  letI : Fact (1 < 2 ^ modulusExponent) :=
+  let : Fact (1 < 2 ^ modulusExponent) :=
     ⟨one_lt_pow' (by omega : 1 < 2) (Nat.ne_of_gt hmodulus.out)⟩
   exact Fintype.ofEquiv
     (Rq (2 ^ modulusExponent) (2 ^ degreeExponent))
@@ -488,7 +490,7 @@ theorem zmod_powerOfTwo_exists_two_mul_eq_of_castHom_eq_zero
     (parity_zero :
       ZMod.castHom (pow_dvd_pow 2 (by omega : 1 ≤ modulusExponent)) (ZMod 2) value = 0) :
     ∃ half : ZMod (2 ^ modulusExponent), 2 * half = value := by
-  letI : NeZero (2 ^ modulusExponent) :=
+  let : NeZero (2 ^ modulusExponent) :=
     ⟨pow_ne_zero modulusExponent (by omega)⟩
   have value_even : 2 ∣ value.val := by
     rw [ZMod.castHom_apply, ZMod.cast_eq_val] at parity_zero
@@ -578,14 +580,12 @@ theorem quotientParityEval_ker_eq_uniformizer_powerOfTwo
       Ideal.Quotient.mk _ polynomial
     rw [polynomial_eq, map_add, map_mul, map_mul]
     have hfirst : Ideal.Quotient.mk
-        (Ideal.span {LatticeCrypto.negacyclicModulus
-          (ZMod (2 ^ modulusExponent)) degree}) (X - C 1) = -uniformizer := by
+        (Ideal.span {(LatticeCrypto.negacyclicModulus (ZMod (2 ^ modulusExponent)) degree)}) (X - C 1) = -uniformizer := by
       dsimp only [uniformizer, quotientUniformizer]
       simp only [map_sub, map_one]
       ring
     have htwo : Ideal.Quotient.mk
-        (Ideal.span {LatticeCrypto.negacyclicModulus
-          (ZMod (2 ^ modulusExponent)) degree}) (C 2) = uniformizer * geom := by
+        (Ideal.span {(LatticeCrypto.negacyclicModulus (ZMod (2 ^ modulusExponent)) degree)}) (C 2) = uniformizer * geom := by
       dsimp only [uniformizer, geom]
       simpa only [map_ofNat] using
         (quotientUniformizer_mul_geomSum
@@ -674,11 +674,9 @@ theorem quotientCoefficientReduce_exists_two_mul_eq_powerOfTwo
   refine ⟨Ideal.Quotient.mk _ halfPolynomial, ?_⟩
   have quotient_eq :
       Ideal.Quotient.mk
-          (Ideal.span {LatticeCrypto.negacyclicModulus
-            (ZMod (2 ^ modulusExponent)) degree}) polynomial =
+          (Ideal.span {(LatticeCrypto.negacyclicModulus (ZMod (2 ^ modulusExponent)) degree)}) polynomial =
         Ideal.Quotient.mk
-          (Ideal.span {LatticeCrypto.negacyclicModulus
-            (ZMod (2 ^ modulusExponent)) degree}) remainder := by
+          (Ideal.span {(LatticeCrypto.negacyclicModulus (ZMod (2 ^ modulusExponent)) degree)}) remainder := by
     dsimp only [remainder]
     simp [map_sub, map_mul]
   rw [quotient_eq, halfPolynomial_spec]
@@ -718,7 +716,7 @@ theorem card_quotientPowerOfTwoRq
     (modulusExponent degreeExponent : ℕ) [hmodulus : Fact (0 < modulusExponent)] :
     Nat.card (QuotientRq (2 ^ modulusExponent) (2 ^ degreeExponent)) =
       2 ^ (modulusExponent * 2 ^ degreeExponent) := by
-  letI : Fact (1 < 2 ^ modulusExponent) :=
+  let : Fact (1 < 2 ^ modulusExponent) :=
     ⟨one_lt_pow' (by omega : 1 < 2) (Nat.ne_of_gt hmodulus.out)⟩
   calc
     Nat.card (QuotientRq (2 ^ modulusExponent) (2 ^ degreeExponent)) =
@@ -740,7 +738,7 @@ noncomputable def quotientPowerOfTwoAdicChain
   let residue : QuotientRq (2 ^ modulusExponent) (2 ^ degreeExponent) →+* ZMod 2 :=
     quotientParityEval
       (pow_dvd_pow 2 (Nat.succ_le_iff.mpr hmodulus.out))
-  letI : IsLocalHom residue :=
+  let : IsLocalHom residue :=
     isLocalHom_toZModTwo_of_nilpotent_kernel residue (by
       intro value hvalue
       exact quotientParityEval_kernel_isNilpotent_powerOfTwo

@@ -36,6 +36,8 @@ bilinear messages.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Circular
 
 /-- The dependency graph and samplers for TFHE's heterogeneous two-key evaluation-key cycle.

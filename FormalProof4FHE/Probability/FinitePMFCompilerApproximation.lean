@@ -23,6 +23,8 @@ construction, not an efficient table-generation algorithm.
 open BigOperators
 open scoped ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.FinitePMFCompiler
 
 namespace TicketTable
@@ -141,7 +143,7 @@ theorem sum_roundedCount [Fintype Output] [DecidableEq Output]
   have hfloor := floorTotal_le target denominator
   simp only [roundedCount, Finset.sum_add_distrib]
   rw [Finset.sum_ite_eq']
-  simp only [Finset.mem_univ, if_true]
+  simp only [Finset.mem_univ, ite_true]
   change floorTotal target denominator + leftoverCount target denominator = denominator
   simp only [leftoverCount]
   omega
@@ -235,7 +237,7 @@ theorem abs_roundedCount_div_sub_toReal_le [Fintype Output] [DecidableEq Output]
           ((Fintype.card Output + 1 : ℕ) : ℝ) / denominator := by
       apply div_le_div_of_nonneg_right _ hdenominatorReal.le
       exact_mod_cast Nat.le_add_right (Fintype.card Output) 1
-    simp only [roundedCount, if_pos]
+    simp only [roundedCount, ite_eq_left]
     have heq :
         ((floorCount target denominator defaultValue +
               leftoverCount target denominator : ℕ) : ℝ) /
@@ -265,7 +267,7 @@ theorem abs_roundedCount_div_sub_toReal_le [Fintype Output] [DecidableEq Output]
           add_le_add hfloorUpper hleftoverLe
         _ = (Fintype.card Output : ℝ) / denominator := zero_add _
         _ ≤ ((Fintype.card Output + 1 : ℕ) : ℝ) / denominator := hcardLeBound
-  · simp only [roundedCount, if_neg hvalue, add_zero]
+  · simp only [roundedCount, ite_eq_right hvalue, add_zero]
     exact hfloor.le.trans honeLeBound
 
 /-- Uniform extended-real pointwise bound used by the generic certificate checker. -/

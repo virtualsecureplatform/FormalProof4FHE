@@ -24,6 +24,8 @@ formulations are asymptotically equivalent.
 
 open ENNReal OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.MonomialKDM.AuxiliaryInput
 
 /-- Native auxiliary-input CircLWE for arbitrary continuation families. -/

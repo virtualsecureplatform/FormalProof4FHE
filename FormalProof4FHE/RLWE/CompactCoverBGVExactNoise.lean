@@ -374,7 +374,10 @@ theorem selectedExactCycleCertificate : ExactCycleCertificate := by
 inductive BinaryGate where
   | add
   | multiply
-  deriving DecidableEq, Fintype
+  deriving DecidableEq
+
+instance : Fintype BinaryGate :=
+  ⟨{.add, .multiply}, by intro gate; cases gate <;> simp⟩
 
 def BinaryGate.preBootstrapState : BinaryGate → ErrorState
   | .add => oneLimbAdditionState

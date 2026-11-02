@@ -31,6 +31,8 @@ accounting, and the exact M-SIS matrix interface remain explicit certificate obl
 open OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.BFVFoldFreeCircularSecurity
 
 noncomputable section
@@ -163,7 +165,8 @@ theorem candidateCoinMapWithSideInfo_uniform_evalDist
         ($ᵗ (K × K))) =
       evalDist ((candidateCoinMap secret candidate error <$> ($ᵗ (K × K))) >>=
         finish) := by
-          simp [candidateCoinMapWithSideInfo, finish, map_eq_bind_pure_comp, bind_assoc]
+          unfold candidateCoinMapWithSideInfo
+          simp [finish, map_eq_bind_pure_comp, bind_assoc]
     _ = evalDist (($ᵗ (K × K)) >>= finish) := by
       rw [evalDist_bind, hOutput, ← evalDist_bind]
     _ = evalDist ((fun output : K × K ↦ (sideInfo, output)) <$>
@@ -280,7 +283,7 @@ theorem derivedMaskCoordinate_uniform_evalDist
     _ = evalDist ((fun row : Coordinate → R ↦ -row pivot) <$>
         ($ᵗ (Coordinate → R))) := by
           simpa only [evalDist_map] using congrArg
-            (fun distribution ↦ (fun row : Coordinate → R ↦ -row pivot) <$> distribution)
+            (fun distribution ↦ MeasureTheory.Measure.map ((fun row : Coordinate → R ↦ -row pivot)) distribution)
             hTransform
     _ = evalDist ((fun value : R ↦ -value) <$>
         ((fun row : Coordinate → R ↦ row pivot) <$>
@@ -288,7 +291,7 @@ theorem derivedMaskCoordinate_uniform_evalDist
           simp [Functor.map_map]
     _ = evalDist ((fun value : R ↦ -value) <$> ($ᵗ R)) := by
           simpa only [evalDist_map] using congrArg
-            (fun distribution ↦ (fun value : R ↦ -value) <$> distribution)
+            (fun distribution ↦ MeasureTheory.Measure.map ((fun value : R ↦ -value)) distribution)
             hCoordinate
     _ = evalDist ($ᵗ R) := hNegation
 

@@ -21,6 +21,8 @@ the missing rows and secret suffix.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.SharedRandomness
 
 /-- Two blocks of ordinary LWE challenge matrices, sharing one secret. -/
@@ -180,12 +182,9 @@ theorem problem_uniformDistr_eq_uniformSample {R : Type}
 
 /-- A never-failing, value-irrelevant probabilistic prefix can be dropped. -/
 theorem evalDist_bind_const_of_probFailure_eq_zero {α β : Type}
-    (sampler : ProbComp α) (hSampler : Pr[⊥ | sampler] = 0)
+    (sampler : ProbComp α) (_hSampler : Pr[⊥ | sampler] = 0)
     (continuation : ProbComp β) :
-    𝒟[sampler >>= fun _ ↦ continuation] = 𝒟[continuation] := by
-  refine evalDist_ext fun output ↦ ?_
-  rw [probOutput_bind_const, hSampler]
-  simp
+    𝒟[sampler >>= fun _ ↦ continuation] = 𝒟[continuation] := OracleComp.evalDist_bind_const sampler continuation
 
 /-- The transcript transformation maps the source uniform branch exactly to the
 shared-randomness uniform branch. -/
@@ -417,9 +416,9 @@ theorem widenedErrorSampler_evalDist_eq {R : Type} [AddCommMonoid R]
       change 𝒟[combined >>= continuation] =
         𝒟[ProbComp.sampleIID m smallErrorSampler >>= continuation]
       calc
-        _ = 𝒟[combined] >>= fun smallError ↦ 𝒟[continuation smallError] :=
+        _ = MeasureTheory.Measure.bind 𝒟[combined]  fun smallError ↦ 𝒟[continuation smallError] :=
           evalDist_bind combined continuation
-        _ = 𝒟[ProbComp.sampleIID m smallErrorSampler] >>=
+        _ = MeasureTheory.Measure.bind 𝒟[ProbComp.sampleIID m smallErrorSampler]
               fun smallError ↦ 𝒟[continuation smallError] := by
           rw [show 𝒟[combined] = 𝒟[ProbComp.sampleIID m smallErrorSampler] by
             simpa only [combined] using hConvolution]
@@ -459,22 +458,8 @@ theorem sampleIID_evalDist_congr {R : Type} (m : ℕ)
 
 /-- IID repetition of a never-failing scalar sampler is never failing. -/
 theorem probFailure_sampleIID_eq_zero {R : Type} (m : ℕ) (sampler : ProbComp R)
-    (hSampler : Pr[⊥ | sampler] = 0) :
-    Pr[⊥ | ProbComp.sampleIID m sampler] = 0 := by
-  induction m with
-  | zero => simp [ProbComp.sampleIID, Fin.mOfFn]
-  | succ m ih =>
-      simp only [ProbComp.sampleIID, Fin.mOfFn]
-      have headNeverFails : NeverFail sampler :=
-        NeverFail.of_probFailure_eq_zero sampler hSampler
-      have tailNeverFails : NeverFail (Fin.mOfFn m fun _ ↦ sampler) :=
-        NeverFail.of_probFailure_eq_zero _ (by simpa only [ProbComp.sampleIID] using ih)
-      have allNeverFail : NeverFail (do
-          let head ← sampler
-          let tail ← Fin.mOfFn m fun _ ↦ sampler
-          pure (Fin.cons (α := fun _ ↦ R) head tail)) := by
-        apply NeverFail.bind_of_forall (hx := headNeverFails)
-      exact allNeverFail.probFailure_eq_zero
+    (_hSampler : Pr[⊥ | sampler] = 0) :
+    Pr[⊥ | ProbComp.sampleIID m sampler] = 0 := by simp
 
 /-- Sampling two IID vectors in blocks and adding them has the same distribution as sampling
 their coordinatewise convolution independently. -/
@@ -813,10 +798,10 @@ theorem game0_reduction_evalDist_eq
     (hReal :
       𝒟[LearningWithErrors.distr source >>= liftTranscript k m suffixSampler extraErrorSampler] =
         𝒟[LearningWithErrors.distr target]) :
-    𝒟[LearningWithErrors.game0 target adversary] =
-      𝒟[LearningWithErrors.game0 source
+    𝒟[LearningWithErrors.realExperiment target adversary] =
+      𝒟[LearningWithErrors.realExperiment source
         (reduction suffixSampler extraErrorSampler adversary)] := by
-  rw [LearningWithErrors.game0, LearningWithErrors.game0]
+  rw [LearningWithErrors.realExperiment, LearningWithErrors.realExperiment]
   simp only [reduction]
   rw [← bind_assoc]
   rw [evalDist_bind, evalDist_bind, hReal]
@@ -828,10 +813,10 @@ theorem game1_reduction_evalDist_eq
       𝒟[LearningWithErrors.uniformDistr source >>=
           liftTranscript k m suffixSampler extraErrorSampler] =
         𝒟[LearningWithErrors.uniformDistr target]) :
-    𝒟[LearningWithErrors.game1 target adversary] =
-      𝒟[LearningWithErrors.game1 source
+    𝒟[LearningWithErrors.randomExperiment target adversary] =
+      𝒟[LearningWithErrors.randomExperiment source
         (reduction suffixSampler extraErrorSampler adversary)] := by
-  rw [LearningWithErrors.game1, LearningWithErrors.game1]
+  rw [LearningWithErrors.randomExperiment, LearningWithErrors.randomExperiment]
   simp only [reduction]
   rw [← bind_assoc]
   rw [evalDist_bind, evalDist_bind, hUniform]
@@ -847,8 +832,8 @@ theorem advantage_eq
       𝒟[LearningWithErrors.uniformDistr source >>=
           liftTranscript k m suffixSampler extraErrorSampler] =
         𝒟[LearningWithErrors.uniformDistr target]) :
-    LearningWithErrors.advantage target adversary =
-      LearningWithErrors.advantage source
+    LearningWithErrors.realAdvantage target adversary =
+      LearningWithErrors.realAdvantage source
         (reduction suffixSampler extraErrorSampler adversary) := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage,
     FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
@@ -882,10 +867,10 @@ theorem advantage_eq_twoBatch {R : Type}
     (adversary : LearningWithErrors.Adversary
       (problem n k m prefixSampler suffixSampler
         smallErrorSampler largeErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem n k m prefixSampler suffixSampler
           smallErrorSampler largeErrorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (twoBatchProblem n m prefixSampler largeErrorSampler)
         (reduction suffixSampler extraErrorSampler adversary) := by
   let source := twoBatchProblem n m prefixSampler largeErrorSampler
@@ -921,9 +906,9 @@ theorem zmod_advantage_eq_twoBatch {q : ℕ} [NeZero q]
     (hExtraError : Pr[⊥ | extraErrorSampler] = 0)
     (adversary : LearningWithErrors.Adversary
       (zmodProblem n k m q smallErrorSampler largeErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (zmodProblem n k m q smallErrorSampler largeErrorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (zmodTwoBatchProblem n m q largeErrorSampler)
         (reduction ($ᵗ (Fin k → ZMod q)) extraErrorSampler adversary) := by
   simpa only [zmodProblem, zmodTwoBatchProblem] using

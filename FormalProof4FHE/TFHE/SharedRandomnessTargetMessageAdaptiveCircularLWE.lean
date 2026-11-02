@@ -34,6 +34,8 @@ input to a PKC-2024-style search-to-decision program.  No reduction from ordinar
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE
 
 noncomputable section

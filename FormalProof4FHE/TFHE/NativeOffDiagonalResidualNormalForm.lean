@@ -27,6 +27,8 @@ entry and control coincide, so this independence argument does not apply.
 open OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm
 
 noncomputable section
@@ -269,7 +271,7 @@ theorem batchPhase_controlPerturbation_structured_correct [NeZero q]
   cases candidate with
   | false => rfl
   | true =>
-      simp only [if_true]
+      simp only [ite_true]
       rw [Native.ShiftedResidualBounds.batchPhase_negateCiphertext]
       rfl
 
@@ -484,8 +486,7 @@ theorem structuredControlWitnessSampler_snd_evalDist [NeZero q]
   simp only [map_eq_bind_pure_comp, bind_assoc, Function.comp_apply, pure_bind]
   apply evalDist_ext
   intro value
-  simp only [bind_pure, probOutput_bind_const, probFailure_uniformSample,
-    tsub_zero, one_mul]
+  simp only [bind_pure, probOutput_bind_const]
 
 /-- For a structured correct control, the conditional residual sampler is exactly the
 error-only sampler.  In particular, its distribution does not depend on the control's public
@@ -773,7 +774,7 @@ theorem residualizedCoordinateSampler_evalDist_eq_entryFromResidualError [NeZero
       (TGSW.gadgetPhase (embedRingSecret q ringSecret) (Gadget.Base.ringGadget params)
         (embedConstantBit q (degree + 1) (hidden outputCoordinate)))
       (TLWE.batchPhase (embedRingSecret q ringSecret) perturbation + sourceError))
-  rw [residualizedCoordinateSampler, if_neg hCoordinate]
+  rw [residualizedCoordinateSampler, ite_eq_right hCoordinate]
   calc
     _ = evalDist (Perturbation >>= fun perturbation =>
           Challenge >>= fun challenge =>
@@ -839,11 +840,11 @@ theorem tvDist_residualizedCoordinateSampler_directEntry_le_residualError [NeZer
         tvDist ActualErrors TargetErrors := by
     simpa only [entryFromErrorVectorSampler, Challenge, ActualErrors, TargetErrors,
       assemble, map_eq_bind_pure_comp, Function.comp_def] using
-      (tvDist_bind_left_le_const' (m := ProbComp) Challenge
+      (tvDist_bind_left_le_const' Challenge
         (fun challenge => assemble challenge <$> ActualErrors)
         (fun challenge => assemble challenge <$> TargetErrors)
         (tvDist ActualErrors TargetErrors)
-        (fun challenge => tvDist_map_le (m := ProbComp)
+        (fun challenge => tvDist_map_le
           (assemble challenge) ActualErrors TargetErrors))
   change tvDist
       (residualizedCoordinateSampler params sourceErrorSampler hidden ringSecret coordinate
@@ -1491,9 +1492,9 @@ theorem averagedOffDiagonalReplacementDistance_le_residualL2Loss [NeZero q]
         by_cases hCoordinate : outputCoordinate = coordinate
         · subst outputCoordinate
           simp [Residualized, Replaced, residualizedCoordinateSampler,
-            targetOffDiagonalReplacedCoordinateSampler, tvDist_self]
+            targetOffDiagonalReplacedCoordinateSampler]
         · simpa only [Residualized, Replaced,
-            targetOffDiagonalReplacedCoordinateSampler, if_neg hCoordinate, loss] using
+            targetOffDiagonalReplacedCoordinateSampler, ite_eq_right hCoordinate, loss] using
             (tvDist_residualizedCoordinateSampler_directEntry_le_residualL2
               params sourceErrorSampler targetErrorSampler hidden ringSecret coordinate
               outputCoordinate control hCoordinate)
@@ -1502,10 +1503,10 @@ theorem averagedOffDiagonalReplacementDistance_le_residualL2Loss [NeZero q]
           (fun outputCoordinate : Fin lweDimension =>
             if outputCoordinate = coordinate then 0 else loss control)
           (Finset.mem_univ coordinate)]
-        simp only [if_pos, zero_add]
+        simp only [ite_eq_left, zero_add]
         apply Finset.sum_congr rfl
         intro outputCoordinate hOutput
-        rw [if_neg (Finset.ne_of_mem_erase hOutput)]
+        rw [ite_eq_right (Finset.ne_of_mem_erase hOutput)]
   · exact Summable.of_finite
   · exact Summable.of_finite
 
@@ -2001,14 +2002,14 @@ theorem factorizedKeyExperiment_evalDist_eq_residualized [NeZero q]
   apply FormalProof4FHE.FiniteProduct.evalDist_fin_mOfFn_congr
   intro outputCoordinate
   by_cases hCoordinate : outputCoordinate = coordinate
-  · simp only [residualizedCoordinateSampler, if_pos hCoordinate]
+  · simp only [residualizedCoordinateSampler, ite_eq_left hCoordinate]
   · have hTranslation := TGSW.Translation.add_independent_directEncrypt_evalDist
       ringRank params.levels errorSampler (embedRingSecret q ringSecret)
       (Gadget.Base.ringGadget params)
       (embedConstantBit q (degree + 1) (hidden outputCoordinate))
       (fixedControlPerturbationSampler params (hidden coordinate) control)
     simpa only [factorizedCoordinateSampler, residualizedCoordinateSampler,
-      fixedControlPerturbationSampler, directEntrySampler, if_neg hCoordinate,
+      fixedControlPerturbationSampler, directEntrySampler, ite_eq_right hCoordinate,
       bind_assoc, pure_bind] using hTranslation
 
 /-- The complete correct shifted-CMux BRK experiment has the residualized conditional normal
@@ -2072,7 +2073,7 @@ theorem offDiagonalReplacedKeyExperiment_evalDist_eq_diagonalCompletion [NeZero 
   have hPull := FormalProof4FHE.FiniteProduct.evalDist_pull_coordinate
     lweDimension (Replaced control) coordinate
   have hAtCoordinate : Replaced control coordinate = Diagonal control := by
-    simp only [Replaced, Diagonal, offDiagonalReplacedCoordinateSampler, if_pos]
+    simp only [Replaced, Diagonal, offDiagonalReplacedCoordinateSampler, ite_eq_left]
   rw [hAtCoordinate] at hPull
   calc
     _ = evalDist (Diagonal control >>= fun diagonal =>
@@ -2144,9 +2145,9 @@ theorem tvDist_residualizedKeyExperiment_offDiagonalReplaced_le [NeZero q]
         by_cases hCoordinate : outputCoordinate = coordinate
         · subst outputCoordinate
           simp [Residualized, Replaced, residualizedCoordinateSampler,
-            offDiagonalReplacedCoordinateSampler, tvDist_self]
+            offDiagonalReplacedCoordinateSampler]
         · simpa only [Residualized, Replaced,
-            offDiagonalReplacedCoordinateSampler, if_neg hCoordinate] using
+            offDiagonalReplacedCoordinateSampler, ite_eq_right hCoordinate] using
             hOffDiagonal control hcontrol outputCoordinate hCoordinate
       _ = bound := by
         rw [← Finset.add_sum_erase Finset.univ
@@ -2154,11 +2155,11 @@ theorem tvDist_residualizedKeyExperiment_offDiagonalReplaced_le [NeZero q]
             if outputCoordinate = coordinate then 0
             else offDiagonalError outputCoordinate)
           (Finset.mem_univ coordinate)]
-        simp only [if_pos, zero_add]
+        simp only [ite_eq_left, zero_add]
         apply Finset.sum_congr rfl
         intro outputCoordinate hOutput
-        rw [if_neg (Finset.ne_of_mem_erase hOutput)]
-  have hMixture := tvDist_bind_left_le_const (m := ProbComp) Control
+        rw [ite_eq_right (Finset.ne_of_mem_erase hOutput)]
+  have hMixture := tvDist_bind_left_le_const Control
     (fun control => Fin.mOfFn lweDimension (Residualized control))
     (fun control => Fin.mOfFn lweDimension (Replaced control))
     bound hConditional
@@ -2181,7 +2182,7 @@ theorem tvDist_offDiagonalReplacedKeyExperiment_referenceKeyExperiment_le [NeZer
         (directEntrySampler params errorSampler hidden ringSecret coordinate) := by
   let Control := directEntrySampler params errorSampler hidden ringSecret coordinate
   let Completion := completeKeyFromDiagonal params errorSampler hidden ringSecret coordinate
-  have hDataProcessing := tvDist_bind_right_le (m := ProbComp)
+  have hDataProcessing := tvDist_bind_right_le
     Completion
     (diagonalExperiment params errorSampler hidden ringSecret coordinate)
     Control
@@ -2283,7 +2284,7 @@ theorem targetOffDiagonalReplacedKeyExperiment_evalDist_eq_diagonalCompletion [N
   have hPull := FormalProof4FHE.FiniteProduct.evalDist_pull_coordinate
     lweDimension (Replaced control) coordinate
   have hAtCoordinate : Replaced control coordinate = Diagonal control := by
-    simp only [Replaced, Diagonal, targetOffDiagonalReplacedCoordinateSampler, if_pos]
+    simp only [Replaced, Diagonal, targetOffDiagonalReplacedCoordinateSampler, ite_eq_left]
   rw [hAtCoordinate] at hPull
   calc
     _ = evalDist (Diagonal control >>= fun diagonal =>
@@ -2377,9 +2378,9 @@ theorem tvDist_residualizedKeyExperiment_targetOffDiagonalReplaced_le [NeZero q]
         by_cases hCoordinate : outputCoordinate = coordinate
         · subst outputCoordinate
           simp [Residualized, Replaced, residualizedCoordinateSampler,
-            targetOffDiagonalReplacedCoordinateSampler, tvDist_self]
+            targetOffDiagonalReplacedCoordinateSampler]
         · simpa only [Residualized, Replaced,
-            targetOffDiagonalReplacedCoordinateSampler, if_neg hCoordinate] using
+            targetOffDiagonalReplacedCoordinateSampler, ite_eq_right hCoordinate] using
             hOffDiagonal control hcontrol outputCoordinate hCoordinate
       _ = bound := by
         rw [← Finset.add_sum_erase Finset.univ
@@ -2387,11 +2388,11 @@ theorem tvDist_residualizedKeyExperiment_targetOffDiagonalReplaced_le [NeZero q]
             if outputCoordinate = coordinate then 0
             else offDiagonalError outputCoordinate)
           (Finset.mem_univ coordinate)]
-        simp only [if_pos, zero_add]
+        simp only [ite_eq_left, zero_add]
         apply Finset.sum_congr rfl
         intro outputCoordinate hOutput
-        rw [if_neg (Finset.ne_of_mem_erase hOutput)]
-  have hMixture := tvDist_bind_left_le_const (m := ProbComp) Control
+        rw [ite_eq_right (Finset.ne_of_mem_erase hOutput)]
+  have hMixture := tvDist_bind_left_le_const Control
     (fun control => Fin.mOfFn lweDimension (Residualized control))
     (fun control => Fin.mOfFn lweDimension (Replaced control))
     bound hConditional
@@ -2418,7 +2419,7 @@ theorem tvDist_targetOffDiagonalReplaced_generateDirectBootstrappingKey_le [NeZe
   let TargetEntry := directEntrySampler params targetErrorSampler hidden ringSecret coordinate
   let Completion :=
     completeTargetKeyFromDiagonal params targetErrorSampler hidden ringSecret coordinate
-  have hDataProcessing := tvDist_bind_right_le (m := ProbComp)
+  have hDataProcessing := tvDist_bind_right_le
     Completion
     (diagonalExperiment params sourceErrorSampler hidden ringSecret coordinate)
     TargetEntry
@@ -2717,17 +2718,17 @@ theorem tvDist_correctKeyExperiment_generateDirectBootstrappingKey_le_sum [NeZer
         by_cases hCoordinate : outputCoordinate = coordinate
         · subst outputCoordinate
           simpa only [Residualized, Reference, residualizedCoordinateSampler,
-            referenceCoordinateSampler, if_pos] using
+            referenceCoordinateSampler, ite_eq_left] using
             hDiagonal control hcontrol
         · simpa only [Residualized, Reference, referenceCoordinateSampler,
-            if_neg hCoordinate] using
+            ite_eq_right hCoordinate] using
             hOffDiagonal control hcontrol outputCoordinate hCoordinate
   have hMixture :
       tvDist
           (Control >>= fun control => Fin.mOfFn lweDimension (Residualized control))
           (Control >>= fun control => Fin.mOfFn lweDimension (Reference control)) ≤
         bound :=
-    tvDist_bind_left_le_const (m := ProbComp) Control
+    tvDist_bind_left_le_const Control
       (fun control => Fin.mOfFn lweDimension (Residualized control))
       (fun control => Fin.mOfFn lweDimension (Reference control))
       bound hConditional
@@ -2785,11 +2786,11 @@ theorem tvDist_correctKeyExperiment_generateDirectBootstrappingKey_le [NeZero q]
         if outputCoordinate = coordinate then diagonalError
         else offDiagonalError outputCoordinate)
       (Finset.mem_univ coordinate)]
-    simp only [if_pos]
+    simp only [ite_eq_left]
     apply congrArg (diagonalError + ·)
     apply Finset.sum_congr rfl
     intro outputCoordinate hOutput
-    rw [if_neg (Finset.ne_of_mem_erase hOutput)]
+    rw [ite_eq_right (Finset.ne_of_mem_erase hOutput)]
   rwa [hSum] at h
 
 /-- Exact construction-level residual normal form for every off-diagonal correct output entry. -/

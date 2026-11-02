@@ -44,6 +44,8 @@ control-failure estimate, and the native circular coordinate-prediction premise.
 
 open ENNReal OracleComp Filter Topology
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.DiscreteGaussianTarget.GrowingNoise
 
 open Encryption.Adaptive.Asymptotic
@@ -2399,7 +2401,7 @@ theorem one_half_le_canonicalPostSmudgedSelectedDiagonalGlobalBudget
       Native.ShiftedCandidateEvaluator.DiagonalNormalForm.globalDifferencePairCollisionBudget
         (degree := rotationDegree securityParameter) (ringRank := 1)
         (gaussianDecomposition securityParameter) candidate := by
-  letI : NeZero (ringDegree securityParameter) :=
+  let : NeZero (ringDegree securityParameter) :=
     ⟨Nat.ne_of_gt (ringDegree_pos securityParameter)⟩
   apply
     Native.ShiftedCandidateEvaluator.DiagonalNormalForm.one_half_le_globalDifferencePairCollisionBudget
@@ -2755,7 +2757,7 @@ noncomputable def CanonicalPostSmudgedNormalFormLaws.transformerAt
       (scalarErrorSampler securityParameter)
       (scalarErrorSampler securityParameter)
       (keySwitchGadget securityParameter) coordinate]
-    exact (PMF.tvDist_triangle _ (evalDist middle) _).trans
+    exact (tvDist_triangle _ middle _).trans
       (add_le_add hnormal hsmudge)
   wrongDistance := by
     intro coordinate

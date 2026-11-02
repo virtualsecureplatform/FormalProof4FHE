@@ -28,6 +28,8 @@ claim is made for the special honest coins used in the witness.
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.KDMStarConversion
 
 theorem phase_affine {R : Type} [CommRing R] {n k : ℕ}

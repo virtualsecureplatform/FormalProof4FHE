@@ -1,8 +1,11 @@
+import FormalProof4FHE.Probability.Discrete
 import FormalProof4FHE.LWE.GSWBitSampling
 import VCVio.OracleComp.SimSemantics.SimulateQ
 
 open OracleComp FormalProof4FHE
 open scoped ENNReal
+
+open scoped FormalProof4FHE
 
 namespace FormalProof4FHETest.BoundedUniformSmoke
 

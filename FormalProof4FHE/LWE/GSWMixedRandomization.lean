@@ -21,6 +21,8 @@ from an ordinary-LWE challenge or establish hardness of the joint experiment.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWMixedRandomization
 
 open GSWBinaryRandomization

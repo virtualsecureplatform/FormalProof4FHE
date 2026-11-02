@@ -29,6 +29,8 @@ degree-two messages are not covered here.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.PackedLinearCircularRLWE
 
 noncomputable section
@@ -269,7 +271,7 @@ theorem assemble_sampleSplitSecret_evalDist (extraLevels degree : ℕ) :
   calc
     _ = evalDist (pack <$> ($ᵗ (SplitSecret extraLevels degree))) := by
       simpa only [pack, evalDist_map] using congrArg
-        (fun distribution ↦ pack <$> distribution)
+        (fun distribution ↦ MeasureTheory.Measure.map (pack) distribution)
         (sampleSplitSecret_evalDist_eq_uniform extraLevels degree)
     _ = _ := evalDist_map_bijective_uniform_cross
       (α := SplitSecret extraLevels degree)
@@ -768,12 +770,12 @@ theorem game0_evalDist_eq
     (errorSampler : ProbComp (RLWE.Rq (2 ^ (extraLevels + 1)) degree))
     (adversary : LearningWithErrors.Adversary
       (problem extraLevels degree samples coefficients offset errorSampler)) :
-    evalDist (LearningWithErrors.game0
+    evalDist (LearningWithErrors.realExperiment
         (problem extraLevels degree samples coefficients offset errorSampler) adversary) =
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
         (ordinaryProblem extraLevels degree samples errorSampler)
         (reduction adversary)) := by
-  rw [LearningWithErrors.game0, LearningWithErrors.game0]
+  rw [LearningWithErrors.realExperiment, LearningWithErrors.realExperiment]
   simp only [reduction]
   rw [show (LearningWithErrors.distr
           (ordinaryProblem extraLevels degree samples errorSampler) >>= fun transcript ↦
@@ -795,12 +797,12 @@ theorem game1_evalDist_eq
     (errorSampler : ProbComp (RLWE.Rq (2 ^ (extraLevels + 1)) degree))
     (adversary : LearningWithErrors.Adversary
       (problem extraLevels degree samples coefficients offset errorSampler)) :
-    evalDist (LearningWithErrors.game1
+    evalDist (LearningWithErrors.randomExperiment
         (problem extraLevels degree samples coefficients offset errorSampler) adversary) =
-      evalDist (LearningWithErrors.game1
+      evalDist (LearningWithErrors.randomExperiment
         (ordinaryProblem extraLevels degree samples errorSampler)
         (reduction adversary)) := by
-  rw [LearningWithErrors.game1, LearningWithErrors.game1]
+  rw [LearningWithErrors.randomExperiment, LearningWithErrors.randomExperiment]
   simp only [reduction]
   rw [show (LearningWithErrors.uniformDistr
           (ordinaryProblem extraLevels degree samples errorSampler) >>= fun transcript ↦
@@ -824,9 +826,9 @@ theorem advantage_eq_binarySecretRLWE
     (errorSampler : ProbComp (RLWE.Rq (2 ^ (extraLevels + 1)) degree))
     (adversary : LearningWithErrors.Adversary
       (problem extraLevels degree samples coefficients offset errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem extraLevels degree samples coefficients offset errorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (ordinaryProblem extraLevels degree samples errorSampler)
         (reduction adversary) := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage,
@@ -948,11 +950,11 @@ theorem gadgetAdvantage_eq_binarySecretRLWE
       (problem extraLevels degree (gadgetSampleCount extraLevels zeroSamples)
         (gadgetCoefficients extraLevels degree zeroSamples)
         (gadgetOffset extraLevels degree zeroSamples) errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem extraLevels degree (gadgetSampleCount extraLevels zeroSamples)
           (gadgetCoefficients extraLevels degree zeroSamples)
           (gadgetOffset extraLevels degree zeroSamples) errorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (ordinaryProblem extraLevels degree
           (gadgetSampleCount extraLevels zeroSamples) errorSampler)
         (reduction adversary) :=

@@ -31,6 +31,8 @@ of public BRK+KSK+tape views.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.KeySwitchFirstSecurity
 
 open Native
@@ -272,7 +274,7 @@ theorem zeroBootstrapUniformKeySwitchGame_evalDist_eq_lwe_game0
       lweDimension keySwitchLevels) :
     evalDist (zeroBootstrapUniformKeySwitchGame queryCount ringErrorSampler
         inputErrorSampler tgswGadget encode adversary) =
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
         (KeySwitchSecurity.binaryLweProblem q lweDimension queryCount inputErrorSampler)
         (inputTapeReduction ringErrorSampler inputErrorSampler
           tgswGadget encode adversary)) := by
@@ -306,7 +308,7 @@ theorem zeroBootstrapUniformKeySwitchGame_evalDist_eq_lwe_game0
       zeroBootstrapUniformKeySwitchContext, scalarSecrets, contexts, challenges, errors,
       finish, TLWE.batchEncrypt, toPublicDistinguisher, bind_assoc, monad_norm]
   have lwe_eq :
-      LearningWithErrors.game0
+      LearningWithErrors.realExperiment
           (KeySwitchSecurity.binaryLweProblem q lweDimension queryCount inputErrorSampler)
           (inputTapeReduction ringErrorSampler inputErrorSampler
             tgswGadget encode adversary) =
@@ -315,7 +317,7 @@ theorem zeroBootstrapUniformKeySwitchGame_evalDist_eq_lwe_game0
           errors >>= fun error ↦
           contexts >>= fun cloudKey ↦
           finish lweSecret cloudKey challenge error) := by
-    simp [LearningWithErrors.game0, LearningWithErrors.distr,
+    simp [LearningWithErrors.realExperiment, LearningWithErrors.distr,
       KeySwitchSecurity.binaryLweProblem, FormalProof4FHE.LWE.embeddedBatchProblem,
       inputTapeReduction, scalarSecrets, contexts, challenges, errors, finish,
       TLWE.batchAssemble, bind_assoc, monad_norm]
@@ -359,7 +361,7 @@ theorem inputTapeReduction_game1_probOutput_true
     (adversary : Adaptive.NativeAdversary Message q degree ringRank tgswLevels
       lweDimension keySwitchLevels)
     (hbound : Adaptive.IsQueryBound adversary queryCount) :
-    Pr[= true | LearningWithErrors.game1
+    Pr[= true | LearningWithErrors.randomExperiment
       (KeySwitchSecurity.binaryLweProblem q lweDimension queryCount inputErrorSampler)
       (inputTapeReduction ringErrorSampler inputErrorSampler
         tgswGadget encode adversary)] = 1 / 2 := by
@@ -379,7 +381,7 @@ theorem inputTapeReduction_game1_probOutput_true
       (first := Matrix (Fin lweDimension) (Fin queryCount) (ZMod q))
       (second := Fin queryCount → ZMod q)).symm
   have hgame :
-      evalDist (LearningWithErrors.game1
+      evalDist (LearningWithErrors.randomExperiment
         (KeySwitchSecurity.binaryLweProblem q lweDimension queryCount inputErrorSampler)
         (inputTapeReduction ringErrorSampler inputErrorSampler
           tgswGadget encode adversary)) =
@@ -392,7 +394,7 @@ theorem inputTapeReduction_game1_probOutput_true
           contexts >>= fun cloudKey ↦
           toPublicDistinguisher (queryCount := queryCount) encode adversary
             cloudKey.1 cloudKey.2 tape) := by
-        simp [LearningWithErrors.game1, LearningWithErrors.uniformDistr,
+        simp [LearningWithErrors.randomExperiment, LearningWithErrors.uniformDistr,
           KeySwitchSecurity.binaryLweProblem, FormalProof4FHE.LWE.embeddedBatchProblem,
           inputTapeReduction, contexts, splitTapes, bind_assoc, monad_norm]
       _ = _ := by
@@ -429,7 +431,7 @@ theorem abs_signedAdvantage_zeroBootstrapUniformKeySwitchGame_eq_lwe
     |Encryption.signedAdvantage
       (zeroBootstrapUniformKeySwitchGame queryCount ringErrorSampler
         inputErrorSampler tgswGadget encode adversary)| =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (KeySwitchSecurity.binaryLweProblem q lweDimension queryCount inputErrorSampler)
         (inputTapeReduction ringErrorSampler inputErrorSampler
           tgswGadget encode adversary) := by
@@ -551,21 +553,21 @@ theorem abs_signedAdvantage_real_le_decision_add_two_moduleLwe_add_inputLwe
       keySwitchDecisionAdvantage (queryCount := queryCount) ringErrorSampler
           keySwitchErrorSampler inputErrorSampler tgswGadget keySwitchGadget
           (toPublicDistinguisher (queryCount := queryCount) encode adversary) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (BootstrapCutSecurity.batchModuleLweProblem
             q degree ringRank tgswLevels lweDimension ringErrorSampler)
           (BootstrapCutSecurity.realBatchReduction
             ringErrorSampler ($ᵗ (ZMod q)) tgswGadget
             (Adaptive.CutCycleSecurity.cutContinuation
               queryCount inputErrorSampler encode adversary)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (BootstrapCutSecurity.batchModuleLweProblem
             q degree ringRank tgswLevels lweDimension ringErrorSampler)
           (BootstrapCutSecurity.zeroBatchReduction
             ringErrorSampler ($ᵗ (ZMod q))
             (Adaptive.CutCycleSecurity.cutContinuation
               queryCount inputErrorSampler encode adversary)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (KeySwitchSecurity.binaryLweProblem q lweDimension queryCount inputErrorSampler)
           (inputTapeReduction ringErrorSampler inputErrorSampler
             tgswGadget encode adversary) := by

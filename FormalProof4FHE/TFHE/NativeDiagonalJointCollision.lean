@@ -27,6 +27,8 @@ the obstructed determinant certificate.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm
 
 noncomputable section
@@ -260,7 +262,7 @@ theorem averagedSourceErrorDiagonalChiSquareLoss_le_of_pairCollisionBound [NeZer
   let ErrorVector := DiagonalErrorVector q degree ringRank params.levels
   let Errors : ProbComp ErrorVector :=
     ProbComp.sampleIID (TGSW.rowCount ringRank params.levels) sourceErrorSampler
-  letI : Fintype ErrorVector := Fintype.ofFinite ErrorVector
+  let : Fintype ErrorVector := Fintype.ofFinite ErrorVector
   have hmass : (∑ sourceError : ErrorVector,
       Pr[= sourceError | Errors].toReal) = 1 := by
     rw [← ENNReal.toReal_sum (fun _ _ => probOutput_ne_top),
@@ -724,7 +726,7 @@ theorem tvDist_operatorDiagonal_maskReplaced_le_jointCollision [NeZero q]
         params sourceErrorSampler candidate := by
   have hPair := tvDist_jointDiagonalPair_jointMaskReplaced_le
     (ringRank := ringRank) params sourceErrorSampler candidate
-  have hMap := (tvDist_map_le (m := ProbComp)
+  have hMap := (tvDist_map_le
     (assembleDiagonalPair params candidate ringSecret)
     (jointDiagonalPairExperiment (ringRank := ringRank)
       params sourceErrorSampler candidate)
@@ -760,7 +762,7 @@ theorem tvDist_operatorDiagonal_maskReplaced_le_jointChiSquare [NeZero q]
         params sourceErrorSampler candidate := by
   have hPair := tvDist_jointDiagonalPair_jointMaskReplaced_le_chiSquare
     (ringRank := ringRank) params sourceErrorSampler candidate
-  have hMap := (tvDist_map_le (m := ProbComp)
+  have hMap := (tvDist_map_le
     (assembleDiagonalPair params candidate ringSecret)
     (jointDiagonalPairExperiment (ringRank := ringRank)
       params sourceErrorSampler candidate)

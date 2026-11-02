@@ -19,6 +19,8 @@ nonempty fiber cardinality by one.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm
 
 noncomputable section
@@ -357,7 +359,7 @@ theorem fixedErrorDiagonalNormalizedSelfPairCollisionExcess_eq_normalizedRowMome
       by_cases hfiber :
           fixedErrorDifferenceFiberCard params candidate sourceError transformedError = 0
       · simp [hfiber]
-      · simp only [hfiber, if_false]
+      · simp only [hfiber, ite_false]
         rw [fixedErrorDifferenceKernelSum_eq_simultaneousRowMoment_sub_card params hcapacity
           hbase candidate sourceError transformedError selected hunit]
         rw [← fixedErrorDifferenceFiberCard_eq_prod_completableRows params hcapacity hbase

@@ -23,6 +23,8 @@ the coefficient error law into a canonical-embedding Gaussian law.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.PowerOfTwoCyclotomic
 
 /-- The exact order-`2^(k+1)` cyclotomic residue-ring carrier. -/
@@ -368,12 +370,12 @@ theorem game0_evalDist_eq (q exponent sampleCount : ℕ)
     (sourceError : ProbComp (Rq q (2 ^ exponent)))
     (adversary : LearningWithErrors.Adversary
       (problem q exponent sampleCount sourceSecret sourceError)) :
-    evalDist (LearningWithErrors.game0
+    evalDist (LearningWithErrors.realExperiment
         (RLWE.problem q (2 ^ exponent) sampleCount sourceSecret sourceError)
         (reduction adversary)) =
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
         (problem q exponent sampleCount sourceSecret sourceError) adversary) := by
-  rw [LearningWithErrors.game0, LearningWithErrors.game0]
+  rw [LearningWithErrors.realExperiment, LearningWithErrors.realExperiment]
   simp only [reduction]
   rw [show (LearningWithErrors.distr
         (RLWE.problem q (2 ^ exponent) sampleCount sourceSecret sourceError) >>=
@@ -393,12 +395,12 @@ theorem game1_evalDist_eq (q exponent sampleCount : ℕ)
     (sourceError : ProbComp (Rq q (2 ^ exponent)))
     (adversary : LearningWithErrors.Adversary
       (problem q exponent sampleCount sourceSecret sourceError)) :
-    evalDist (LearningWithErrors.game1
+    evalDist (LearningWithErrors.randomExperiment
         (RLWE.problem q (2 ^ exponent) sampleCount sourceSecret sourceError)
         (reduction adversary)) =
-      evalDist (LearningWithErrors.game1
+      evalDist (LearningWithErrors.randomExperiment
         (problem q exponent sampleCount sourceSecret sourceError) adversary) := by
-  rw [LearningWithErrors.game1, LearningWithErrors.game1]
+  rw [LearningWithErrors.randomExperiment, LearningWithErrors.randomExperiment]
   simp only [reduction]
   rw [show (LearningWithErrors.uniformDistr
         (RLWE.problem q (2 ^ exponent) sampleCount sourceSecret sourceError) >>=
@@ -418,10 +420,10 @@ theorem reduction_advantage_eq (q exponent sampleCount : ℕ)
     (sourceError : ProbComp (Rq q (2 ^ exponent)))
     (adversary : LearningWithErrors.Adversary
       (problem q exponent sampleCount sourceSecret sourceError)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (RLWE.problem q (2 ^ exponent) sampleCount sourceSecret sourceError)
         (reduction adversary) =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (problem q exponent sampleCount sourceSecret sourceError) adversary := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage,
     FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
@@ -439,10 +441,10 @@ theorem ofExecutableAdversary_advantage_eq (q exponent sampleCount : ℕ)
     (sourceError : ProbComp (Rq q (2 ^ exponent)))
     (adversary : LearningWithErrors.Adversary
       (RLWE.problem q (2 ^ exponent) sampleCount sourceSecret sourceError)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem q exponent sampleCount sourceSecret sourceError)
         (ofExecutableAdversary adversary) =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (RLWE.problem q (2 ^ exponent) sampleCount sourceSecret sourceError)
         adversary := by
   rw [← reduction_advantage_eq q exponent sampleCount sourceSecret sourceError]

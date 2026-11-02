@@ -24,6 +24,8 @@ set_option autoImplicit false
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.SourceAlignedExecutableJointFormat
 
 noncomputable section
@@ -105,7 +107,7 @@ theorem reuseBRKAssemble_real_eq_assemble [CommRing R]
       assemble maps true true gadget suffixSecret brkError prefixSecret
         independentMask correction := by
   unfold reuseBRKAssemble assemble
-  simp only [branchVector, if_true, effectivePrefixMask]
+  simp only [branchVector, ite_true, effectivePrefixMask]
   rw [sourceBodyFromBRK_real]
   unfold realBRKBody
   congr 1

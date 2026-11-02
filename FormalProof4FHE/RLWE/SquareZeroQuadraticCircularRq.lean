@@ -29,6 +29,8 @@ The convolution proofs reduce every summand to the scalar `ZMod` square-zero law
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.SquareZeroQuadraticCircular
 
 noncomputable section
@@ -229,10 +231,10 @@ theorem rq_kdmAdvantage_le_two_base
     (hLowSecret : Pr[⊥ | lowSecretSampler] = 0) :
     kdmAdvantage (rqDigitExtension p degree) weight lowSecretSampler highSecretSampler
         highErrorSampler distinguisher ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (baseProblem (Row := Row) highSecretSampler highErrorSampler)
         (reductionAdversary (rqDigitExtension p degree) weight lowSecretSampler distinguisher) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (baseProblem (Row := Row) highSecretSampler highErrorSampler)
         (reductionAdversary (rqDigitExtension p degree) (fun _row : Row ↦ 0)
           lowSecretSampler distinguisher) := by

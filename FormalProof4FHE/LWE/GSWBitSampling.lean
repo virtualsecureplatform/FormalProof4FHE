@@ -21,6 +21,8 @@ There is no ordinary-LWE security reduction for the full bootstrap tape here.
 open OracleComp
 open scoped ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWBitSampling
 
 open GSWBootstrapParameters GSWPublicKey GSWSampling

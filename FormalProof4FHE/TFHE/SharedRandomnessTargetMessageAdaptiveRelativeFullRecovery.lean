@@ -24,6 +24,8 @@ conditional-fiber law and is intentionally not inferred here.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE
 
 noncomputable section
@@ -441,7 +443,7 @@ theorem one_sub_sum_coordinateError_le_targetNestedSearchSuccess
         exact hcoordinate coordinate)
   have hsuccess : 1 - ∑ coordinate, error coordinate ≤
       Pr[(fun output ↦ output.2 = output.1) | experiment] :=
-    probEvent_one_sub_le_of_compl_le probFailure_eq_zero hfailure
+    probEvent_one_sub_le_of_compl_le (probFailure_eq_zero _) hfailure
   unfold FormalProof4FHE.LWE.AuxiliaryInput.Search.successProbability
   rw [searchGame_targetNestedSolver_eq_targetScalarRecoveryGame]
   unfold targetScalarRecoveryGame

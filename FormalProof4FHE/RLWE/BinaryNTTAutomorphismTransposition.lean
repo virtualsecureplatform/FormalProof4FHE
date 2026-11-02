@@ -30,6 +30,8 @@ reduction.  It therefore does not turn a computational assumption into a statist
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.BinaryNTTSecurity.AutomorphismTransposition
 
 noncomputable section

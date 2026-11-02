@@ -28,6 +28,8 @@ bound their row residuals.  All total-variation accounting then follows automati
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ResidualCandidateView
 
 
@@ -391,7 +393,7 @@ noncomputable def toPointwise
   wrongError_nonneg := transformer.wrongError_nonneg
   correctDistance := by
     intro coordinate hiddenAndContext hsupport
-    change SPMF.tvDist
+    change MeasureTheory.Measure.tvDist
         (evalDist (transformer.transform coordinate hiddenAndContext.1
           hiddenAndContext.2.1 hiddenAndContext.2.2))
         (evalDist
@@ -412,7 +414,7 @@ noncomputable def toPointwise
         (transformer.correctCost_le coordinate hiddenAndContext hsupport))
   wrongDistance := by
     intro coordinate hiddenAndContext hsupport
-    change SPMF.tvDist
+    change MeasureTheory.Measure.tvDist
         (evalDist (transformer.transform coordinate (!hiddenAndContext.1)
           hiddenAndContext.2.1 hiddenAndContext.2.2))
         (evalDist

@@ -27,6 +27,8 @@ games.  Neither part assumes or claims security of the remaining circular endpoi
 
 open Matrix
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.CoefficientAffineCircularRLWE
 
 noncomputable section
@@ -330,7 +332,7 @@ theorem embedBinaryPolynomial_single_first_eq_one
     LatticeCrypto.Poly.toPi (1 : RLWE.Rq q (extra + 2)) coefficient
   simp only [embedBinaryPolynomial, LatticeCrypto.Poly.toPi_ofPi]
   rw [BlindRotation.rq_one_coefficient]
-  simp [TGSW.MonomialKDM.singleBit, firstCoordinate, embedBit]
+  by_cases h : coefficient = 0 <;> simp [TGSW.MonomialKDM.singleBit, firstCoordinate, embedBit, h]
 
 /-- The zero-coordinate projector maps the Boolean basis at coefficient zero to the ring unit. -/
 theorem selectedCoefficientPolynomial_single_first_eq_one
@@ -348,7 +350,7 @@ theorem selectedCoefficientPolynomial_single_first_eq_one
   simp only [selectedCoefficientPolynomial, LatticeCrypto.Poly.toPi_ofPi,
     coefficientTransfer_apply, binaryCoefficients]
   rw [BlindRotation.rq_one_coefficient]
-  simp [TGSW.MonomialKDM.singleBit, firstCoordinate, embedBit]
+  by_cases h : coefficient = 0 <;> simp [TGSW.MonomialKDM.singleBit, firstCoordinate, embedBit, h]
 
 /-- The same projector kills the Boolean basis at coefficient one. -/
 theorem selectedCoefficientPolynomial_single_second_eq_zero

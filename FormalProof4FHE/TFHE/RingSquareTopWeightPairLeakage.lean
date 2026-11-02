@@ -23,6 +23,8 @@ remains hard under this leakage.
 
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightPairLeakage
 
 open FormalProof4FHE.TFHE
@@ -295,7 +297,7 @@ theorem topWeight_mul_antipodalBasis_sq
       topWeight exponent (evenDegree half) *
         binaryBasis (2 ^ (exponent + 1)) (evenDegree half + 1)
           (firstOfPair half coordinate) ^ 2 := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   rw [binaryBasis_second_sq_eq_neg_first_sq, mul_neg]
   calc
     -(topWeight exponent (evenDegree half) *
@@ -319,7 +321,7 @@ theorem pairedBasisValue_add_self_eq_zero
     (exponent half : ℕ) (coordinate : Fin (half + 1)) :
     pairedBasisValue exponent half coordinate +
         pairedBasisValue exponent half coordinate = 0 := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   rw [← two_mul]
   unfold pairedBasisValue
   rw [← mul_assoc, topWeight_annihilated, zero_mul]
@@ -339,7 +341,7 @@ theorem pairedBasisValue_eq_nsmul_rotation
       (2 ^ exponent) •
         BlindRotation.rotationMonomial (2 ^ (exponent + 1)) (evenDegree half)
           (firstSquareExponent half coordinate) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   unfold pairedBasisValue topWeight
   rw [binaryBasis_eq_rotationMonomial, pow_two,
     RotationLookup.rotationMonomial_mul,
@@ -356,7 +358,7 @@ theorem pairedBasisValue_coefficient
         (pairedBasisValue exponent half source) (pairOutput half output) =
       if output = source then
         ((2 ^ exponent : ℕ) : ZMod (2 ^ (exponent + 1))) else 0 := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   rw [pairedBasisValue_eq_nsmul_rotation]
   change Gadget.Base.coefficientAddHom (evenDegree half + 1) (pairOutput half output)
       ((2 ^ exponent) • BlindRotation.rotationMonomial
@@ -394,7 +396,7 @@ theorem pairedTopSquare_coefficient
         (pairedTopSquare exponent half bits) (pairOutput half output) =
       if bits output then
         ((2 ^ exponent : ℕ) : ZMod (2 ^ (exponent + 1))) else 0 := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   unfold pairedTopSquare
   rw [CoefficientStructuredLWE.coefficientEquiv_sum]
   rw [Finset.sum_apply]
@@ -457,7 +459,7 @@ theorem topSquareLinearized_eq_pairedTopSquare
     (secret : Fin (evenDegree half + 1) → Bool) :
     topSquareLinearized exponent (evenDegree half) secret =
       pairedTopSquare exponent half (pairXor half secret) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   classical
   unfold topSquareLinearized pairedTopSquare
   change (∑ coordinate : Fin ((half + 1) + (half + 1)),
@@ -698,7 +700,7 @@ theorem topCoefficientAdvantage_eq_pairLeakageRLWE
       (RLWE.Rq (2 ^ (exponent + 1)) (evenDegree half + 1)))
     (adversary : LearningWithErrors.Adversary
       (topRGSWCoefficientProblem exponent (evenDegree half) errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (topRGSWCoefficientProblem exponent (evenDegree half) errorSampler) adversary =
       LWE.AuxiliaryInput.circularLweAdvantage
         (pairLeakageProblem exponent half errorSampler)
@@ -745,7 +747,7 @@ theorem kdmAdvantage_le_pairLeakageRLWE_add_ordinaryRLWE
             (TopWeightSecurity.coefficientAdversary (errorSampler := errorSampler)
               (Native.RingSquareRGSW.restoreDistinguisher
                 (topGadget exponent (evenDegree half)) distinguisher))) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (CoefficientStructuredLWE.ringProblem
             (2 ^ (exponent + 1)) (evenDegree half + 1) 1
             (TGSW.rowCount 1 1) errorSampler)

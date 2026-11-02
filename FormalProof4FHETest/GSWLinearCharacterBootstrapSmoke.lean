@@ -14,6 +14,8 @@ test, not a claimed full-budget or secure asymptotic generator. -/
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHETest.GSWLinearCharacterBootstrapSmoke
 
 open FormalProof4FHE FormalProof4FHE.LWE RecursiveMultiplication RecursiveFeatureGSW RecursiveFeatureBootstrap

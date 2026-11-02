@@ -4,6 +4,7 @@ Released under MIT license as described in the file LICENSE.
 Authors: Kotaro Matsuoka
 -/
 
+import FormalProof4FHE.Probability.Discrete
 import FormalProof4FHE.TFHE.GadgetDecomposition
 import VCVio.OracleComp.Constructions.SampleableType
 
@@ -21,6 +22,8 @@ identity-plus-digit determinant event.
 -/
 
 open OracleComp
+
+open scoped FormalProof4FHE
 
 namespace FormalProof4FHE.TFHE.Gadget.Base
 

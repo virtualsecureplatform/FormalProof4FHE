@@ -19,6 +19,8 @@ three one-draw gaps are negligible and all native draw counts grow polynomially.
 
 open ENNReal OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.CutCycleSamplerReplacement
 
 /-! ## Pointwise implementation bounds -/

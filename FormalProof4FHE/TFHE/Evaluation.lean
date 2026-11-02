@@ -26,6 +26,8 @@ into these identities without changing the cryptographic games.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE
 
 namespace TLWE

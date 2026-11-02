@@ -23,6 +23,8 @@ solver and its quantitative advantage bound remains separate.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput.Search.PairedRecovery
 
 /-- A public solver for only the scalar component of the native auxiliary-input search secret. -/

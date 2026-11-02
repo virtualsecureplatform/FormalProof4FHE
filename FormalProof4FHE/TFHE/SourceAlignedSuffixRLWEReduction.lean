@@ -26,6 +26,8 @@ set_option autoImplicit false
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.SourceAlignedSuffixRLWEReduction
 
 noncomputable section
@@ -236,7 +238,7 @@ theorem uniform_evalDist {Secret : Type}
         fun transcript ↦ pure (transcriptMap q degree samples transcript)) =
     evalDist (LearningWithErrors.uniformDistr
         (scalarProblem q degree samples secretSampler embed ringErrorSampler)) := by
-  letI : SampleableType
+  let : SampleableType
       (Fin (samples * (degree + 1)) → ZMod q) :=
     instSampleableTypePiFintype
   let challengeSampler : ProbComp (RingChallenge q degree samples) :=
@@ -301,13 +303,13 @@ theorem game0_evalDist_eq {Secret : Type}
     (ringErrorSampler : ProbComp (RLWE.Rq q (degree + 1)))
     (adversary : LearningWithErrors.Adversary
       (scalarProblem q degree samples secretSampler embed ringErrorSampler)) :
-    evalDist (LearningWithErrors.game0
+    evalDist (LearningWithErrors.realExperiment
         (scalarProblem q degree samples secretSampler embed ringErrorSampler)
         adversary) =
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
         (ringProblem q degree samples secretSampler embed ringErrorSampler)
         (ringAdversary adversary)) := by
-  rw [LearningWithErrors.game0, LearningWithErrors.game0]
+  rw [LearningWithErrors.realExperiment, LearningWithErrors.realExperiment]
   change evalDist (LearningWithErrors.distr
       (scalarProblem q degree samples secretSampler embed ringErrorSampler) >>=
         adversary) =
@@ -332,13 +334,13 @@ theorem game1_evalDist_eq {Secret : Type}
     (ringErrorSampler : ProbComp (RLWE.Rq q (degree + 1)))
     (adversary : LearningWithErrors.Adversary
       (scalarProblem q degree samples secretSampler embed ringErrorSampler)) :
-    evalDist (LearningWithErrors.game1
+    evalDist (LearningWithErrors.randomExperiment
         (scalarProblem q degree samples secretSampler embed ringErrorSampler)
         adversary) =
-      evalDist (LearningWithErrors.game1
+      evalDist (LearningWithErrors.randomExperiment
         (ringProblem q degree samples secretSampler embed ringErrorSampler)
         (ringAdversary adversary)) := by
-  rw [LearningWithErrors.game1, LearningWithErrors.game1]
+  rw [LearningWithErrors.randomExperiment, LearningWithErrors.randomExperiment]
   change evalDist (LearningWithErrors.uniformDistr
       (scalarProblem q degree samples secretSampler embed ringErrorSampler) >>=
         adversary) =
@@ -364,10 +366,10 @@ theorem advantage_eq_ring {Secret : Type}
     (ringErrorSampler : ProbComp (RLWE.Rq q (degree + 1)))
     (adversary : LearningWithErrors.Adversary
       (scalarProblem q degree samples secretSampler embed ringErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (scalarProblem q degree samples secretSampler embed ringErrorSampler)
         adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (ringProblem q degree samples secretSampler embed ringErrorSampler)
         (ringAdversary adversary) := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage,
@@ -388,12 +390,12 @@ theorem advantage_le_of_ring {Secret : Type}
     (bound : ℝ)
     (hring : ∀ ringDistinguisher : LearningWithErrors.Adversary
         (ringProblem q degree samples secretSampler embed ringErrorSampler),
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (ringProblem q degree samples secretSampler embed ringErrorSampler)
         ringDistinguisher ≤ bound)
     (adversary : LearningWithErrors.Adversary
       (scalarProblem q degree samples secretSampler embed ringErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (scalarProblem q degree samples secretSampler embed ringErrorSampler)
         adversary ≤ bound := by
   rw [advantage_eq_ring q degree samples secretSampler embed ringErrorSampler]

@@ -23,6 +23,8 @@ for the public experiment and does not exclude other computational reductions.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.RecursiveFeatureCubicApproximation
 
 open RecursiveFeatureGSW

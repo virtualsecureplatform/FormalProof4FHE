@@ -31,6 +31,8 @@ The file also records the exact centered quadratic identity, whose residual is `
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.CenteredBinomialHintedQuadratic
 
 noncomputable section
@@ -617,12 +619,12 @@ theorem zeroReduction_real_evalDist
     (encoding : Encoding R Secret Mask Hint)
     (secretSampler : ProbComp Secret) (maskSampler : ProbComp Mask)
     (errorSampler : ProbComp R) (adversary : Distinguisher R) :
-    evalDist (LearningWithErrors.game0
+    evalDist (LearningWithErrors.realExperiment
         (oneSampleProblem encoding secretSampler errorSampler)
         (zeroReduction encoding secretSampler maskSampler adversary)) =
       evalDist
         (zeroRealGame encoding secretSampler maskSampler errorSampler adversary) := by
-  simp only [LearningWithErrors.game0, LearningWithErrors.distr, oneSampleProblem,
+  simp only [LearningWithErrors.realExperiment, LearningWithErrors.distr, oneSampleProblem,
     zeroReduction, zeroRealGame, bind_assoc, pure_bind]
   calc
     evalDist (($ᵗ R) >>= fun publicMask ↦
@@ -692,11 +694,11 @@ theorem zeroReduction_random_evalDist
     (encoding : Encoding R Secret Mask Hint)
     (secretSampler : ProbComp Secret) (maskSampler : ProbComp Mask)
     (errorSampler : ProbComp R) (adversary : Distinguisher R) :
-    evalDist (LearningWithErrors.game1
+    evalDist (LearningWithErrors.randomExperiment
         (oneSampleProblem encoding secretSampler errorSampler)
         (zeroReduction encoding secretSampler maskSampler adversary)) =
       evalDist (uniformBlock (R := R) >>= adversary) := by
-  simp only [LearningWithErrors.game1, LearningWithErrors.uniformDistr,
+  simp only [LearningWithErrors.randomExperiment, LearningWithErrors.uniformDistr,
     oneSampleProblem, zeroReduction, uniformBlock, bind_assoc, pure_bind]
   calc
     evalDist (($ᵗ R) >>= fun publicMask ↦
@@ -759,7 +761,7 @@ theorem zeroEndpointAdvantage_eq_lwe
     (secretSampler : ProbComp Secret) (maskSampler : ProbComp Mask)
     (errorSampler : ProbComp R) (adversary : Distinguisher R) :
     zeroEndpointAdvantage encoding secretSampler maskSampler errorSampler adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (oneSampleProblem encoding secretSampler errorSampler)
         (zeroReduction encoding secretSampler maskSampler adversary) := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
@@ -944,7 +946,7 @@ theorem cbd_kdmAdvantage_le_standardRLWE
           twoCopyRLWEAdvantage (differenceEncoding secretValue) secretSampler
             (CenteredBinomial.sampler q degree eta) errorSampler
             (quadraticReduction (differenceEncoding secretValue) adversary)) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (oneSampleProblem (differenceEncoding secretValue) secretSampler errorSampler)
         (zeroReduction (differenceEncoding secretValue) secretSampler
           (CenteredBinomial.sampler q degree eta) adversary) := by

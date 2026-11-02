@@ -14,6 +14,8 @@ joint correctness check, not a finite cryptographic hardness claim. -/
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHETest.GSWLinearCharacterSecuritySmoke
 
 open FormalProof4FHE.LWE GSWLinearCharacterCompiler GSWLinearCharacterSecurity

@@ -21,6 +21,8 @@ original TFHE paper.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.CenteredBinomial
 
 /-! ## Executable scalar errors -/
@@ -110,7 +112,7 @@ theorem scalar_probOutput_neg (q eta : ℕ) [NeZero q] (error : ZMod q) :
       · subst error
         rw [probOutput_pure_self, probOutput_pure_self]
       · have hn : -error ≠ -scalarErrorFromCoins q eta coins := fun heq ↦ h (neg_injective heq)
-        rw [probOutput_pure, probOutput_pure, if_neg hn, if_neg h]
+        rw [probOutput_pure, probOutput_pure, ite_eq_right hn, ite_eq_right h]
     _ = _ := rfl
 
 /-! ## Native family with concrete samplers and gadgets -/

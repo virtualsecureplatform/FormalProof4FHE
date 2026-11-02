@@ -22,6 +22,8 @@ This is an exact distributional normalization, not a smoothing estimate.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.OffDiagonalNormalForm
 
 noncomputable section
@@ -184,7 +186,7 @@ theorem cInfNorm_perturbationErrorOperator_ringDigits_le
           (ringDigitsFromCoefficientTensor params digits) controlError row) ≤
       ((ringRank + 1) * params.levels) *
         (((degree + 1) * (degree + 1)) * ((params.base - 1) * eta)) := by
-  letI : CommRing (RLWE.Rq q (degree + 1)) :=
+  let : CommRing (RLWE.Rq q (degree + 1)) :=
     NoiseBounds.positiveRqCommRing
   unfold perturbationErrorOperator
   calc
@@ -375,7 +377,7 @@ theorem one_sub_targetSupportBallMass_le_tvDist_generatedDigitResidual
       params eta candidate controlCoins row
   have hprob := abs_probOutput_toReal_sub_le_tvDist
     (test <$> real) (test <$> target)
-  have hmap := tvDist_map_le (m := ProbComp) test real target
+  have hmap := tvDist_map_le test real target
   calc
     1 - Pr[= true | test <$> target].toReal =
         |Pr[= true | test <$> real].toReal -

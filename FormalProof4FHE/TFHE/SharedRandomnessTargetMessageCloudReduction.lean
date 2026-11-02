@@ -31,6 +31,8 @@ the separate joint sample-extraction simulator formalized in the next layer.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.CloudReduction
 
 noncomputable section
@@ -473,11 +475,11 @@ theorem suffixReduction_game1_evalDist_eq_uniform
     (errorSampler : ProbComp (RLWE.Rq q degree))
     (gadget : Fin tgswLevels → RLWE.Rq q degree)
     (continuation : PublicContinuation q degree sourceRank suffixRank tgswLevels) :
-    evalDist (LearningWithErrors.game1
+    evalDist (LearningWithErrors.randomExperiment
         (problem q degree sourceRank suffixRank tgswLevels errorSampler)
         (suffixReduction gadget continuation)) =
       evalDist (uniformGame q degree sourceRank suffixRank tgswLevels continuation) := by
-  rw [LearningWithErrors.game1,
+  rw [LearningWithErrors.randomExperiment,
     problem_uniformDistr_eq_uniformSample q degree sourceRank suffixRank tgswLevels]
   let transcripts : ProbComp (Transcript q degree sourceRank suffixRank tgswLevels) :=
     $ᵗ (Transcript q degree sourceRank suffixRank tgswLevels)
@@ -499,7 +501,8 @@ theorem suffixReduction_game1_evalDist_eq_uniform
             (suffixOnlyMessages suffixSecret)
             (FormalProof4FHE.TFHE.SharedRandomnessKeyExtension.Native.ringKeySwitchMessages
               q degree suffixRank tgswLevels gadget suffixSecret) transcript)) := by
-      simpa [transcripts, suffixes, finish, suffixReduction] using
+      unfold suffixReduction
+      simpa [transcripts, suffixes, finish] using
         (evalDist_bind_bind_swap transcripts suffixes
           (fun transcript suffixSecret ↦
             finish (cloudViewEquiv q degree sourceRank suffixRank tgswLevels gadget
@@ -526,11 +529,11 @@ theorem zeroReduction_game1_evalDist_eq_uniform
     (errorSampler : ProbComp (RLWE.Rq q degree))
     (gadget : Fin tgswLevels → RLWE.Rq q degree)
     (continuation : PublicContinuation q degree sourceRank suffixRank tgswLevels) :
-    evalDist (LearningWithErrors.game1
+    evalDist (LearningWithErrors.randomExperiment
         (problem q degree sourceRank suffixRank tgswLevels errorSampler)
         (zeroReduction gadget continuation)) =
       evalDist (uniformGame q degree sourceRank suffixRank tgswLevels continuation) := by
-  rw [LearningWithErrors.game1,
+  rw [LearningWithErrors.randomExperiment,
     problem_uniformDistr_eq_uniformSample q degree sourceRank suffixRank tgswLevels]
   let transcripts : ProbComp (Transcript q degree sourceRank suffixRank tgswLevels) :=
     $ᵗ (Transcript q degree sourceRank suffixRank tgswLevels)
@@ -552,7 +555,8 @@ theorem zeroReduction_game1_evalDist_eq_uniform
             (fun _ ↦ false)
             (FormalProof4FHE.TFHE.SharedRandomnessKeyExtension.Native.ringKeySwitchMessages
               q degree suffixRank tgswLevels gadget suffixSecret) transcript)) := by
-      simpa [transcripts, suffixes, finish, zeroReduction] using
+      unfold zeroReduction
+      simpa [transcripts, suffixes, finish] using
         (evalDist_bind_bind_swap transcripts suffixes
           (fun transcript suffixSecret ↦
             finish (cloudViewEquiv q degree sourceRank suffixRank tgswLevels gadget
@@ -584,7 +588,7 @@ theorem suffixOnlyGame_evalDist_eq_game0
     (continuation : PublicContinuation q degree sourceRank suffixRank tgswLevels) :
     evalDist (suffixOnlyGame q degree sourceRank suffixRank tgswLevels
         errorSampler gadget continuation) =
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
         (problem q degree sourceRank suffixRank tgswLevels errorSampler)
         (suffixReduction gadget continuation)) := by
   let FirstChallenge := BootstrapChallenge q degree sourceRank suffixRank tgswLevels
@@ -699,7 +703,7 @@ theorem suffixOnlyGame_evalDist_eq_game0
         finish sourceSecret suffixSecret firstChallenge firstError
           secondChallenge secondError)
   have lweExpanded :
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
           (problem q degree sourceRank suffixRank tgswLevels errorSampler)
           (suffixReduction gadget continuation)) =
         evalDist (firstChallenges >>= fun firstChallenge ↦
@@ -714,7 +718,7 @@ theorem suffixOnlyGame_evalDist_eq_game0
         ($ᵗ (Challenge q degree sourceRank suffixRank tgswLevels) :
           ProbComp (Challenge q degree sourceRank suffixRank tgswLevels)) =
         Prod.mk <$> firstChallenges <*> secondChallenges := rfl
-    rw [LearningWithErrors.game0]
+    rw [LearningWithErrors.realExperiment]
     unfold LearningWithErrors.distr
     simp only [problem]
     rw [uniformChallengeProduct]
@@ -737,7 +741,7 @@ theorem zeroGame_evalDist_eq_game0
     (continuation : PublicContinuation q degree sourceRank suffixRank tgswLevels) :
     evalDist (zeroGame q degree sourceRank suffixRank tgswLevels
         errorSampler gadget continuation) =
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
         (problem q degree sourceRank suffixRank tgswLevels errorSampler)
         (zeroReduction gadget continuation)) := by
   let FirstChallenge := BootstrapChallenge q degree sourceRank suffixRank tgswLevels
@@ -849,7 +853,7 @@ theorem zeroGame_evalDist_eq_game0
         finish sourceSecret suffixSecret firstChallenge firstError
           secondChallenge secondError)
   have lweExpanded :
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
           (problem q degree sourceRank suffixRank tgswLevels errorSampler)
           (zeroReduction gadget continuation)) =
         evalDist (firstChallenges >>= fun firstChallenge ↦
@@ -864,7 +868,7 @@ theorem zeroGame_evalDist_eq_game0
         ($ᵗ (Challenge q degree sourceRank suffixRank tgswLevels) :
           ProbComp (Challenge q degree sourceRank suffixRank tgswLevels)) =
         Prod.mk <$> firstChallenges <*> secondChallenges := rfl
-    rw [LearningWithErrors.game0]
+    rw [LearningWithErrors.realExperiment]
     unfold LearningWithErrors.distr
     simp only [problem]
     rw [uniformChallengeProduct]
@@ -904,10 +908,10 @@ theorem publicIndependentSuffixAdvantage_le_two_moduleLwe
     (continuation : PublicContinuation q degree sourceRank suffixRank tgswLevels) :
     publicIndependentSuffixAdvantage q degree sourceRank suffixRank tgswLevels
         errorSampler gadget continuation ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (problem q degree sourceRank suffixRank tgswLevels errorSampler)
         (suffixReduction gadget continuation) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (problem q degree sourceRank suffixRank tgswLevels errorSampler)
         (zeroReduction gadget continuation) := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage,
@@ -919,16 +923,16 @@ theorem publicIndependentSuffixAdvantage_le_two_moduleLwe
     evalDist_ext_iff.mp
       (zeroGame_evalDist_eq_game0 q degree sourceRank suffixRank tgswLevels
         errorSampler gadget continuation) true]
-  let suffixProbability : ℝ := (Pr[= true | LearningWithErrors.game0
+  let suffixProbability : ℝ := (Pr[= true | LearningWithErrors.realExperiment
     (problem q degree sourceRank suffixRank tgswLevels errorSampler)
     (suffixReduction gadget continuation)]).toReal
-  let uniformSuffixProbability : ℝ := (Pr[= true | LearningWithErrors.game1
+  let uniformSuffixProbability : ℝ := (Pr[= true | LearningWithErrors.randomExperiment
     (problem q degree sourceRank suffixRank tgswLevels errorSampler)
     (suffixReduction gadget continuation)]).toReal
-  let uniformZeroProbability : ℝ := (Pr[= true | LearningWithErrors.game1
+  let uniformZeroProbability : ℝ := (Pr[= true | LearningWithErrors.randomExperiment
     (problem q degree sourceRank suffixRank tgswLevels errorSampler)
     (zeroReduction gadget continuation)]).toReal
-  let zeroProbability : ℝ := (Pr[= true | LearningWithErrors.game0
+  let zeroProbability : ℝ := (Pr[= true | LearningWithErrors.realExperiment
     (problem q degree sourceRank suffixRank tgswLevels errorSampler)
     (zeroReduction gadget continuation)]).toReal
   have hUniform : uniformSuffixProbability = uniformZeroProbability := by
@@ -974,10 +978,10 @@ theorem independentSuffixAdvantage_public_le_two_moduleLwe
     (continuation : PublicContinuation q degree sourceRank suffixRank tgswLevels) :
     independentSuffixAdvantage q degree sourceRank suffixRank tgswLevels
         errorSampler errorSampler gadget (publicSourceContinuation continuation) ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (problem q degree sourceRank suffixRank tgswLevels errorSampler)
         (suffixReduction gadget continuation) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (problem q degree sourceRank suffixRank tgswLevels errorSampler)
         (zeroReduction gadget continuation) := by
   rw [independentSuffixAdvantage_public_eq]

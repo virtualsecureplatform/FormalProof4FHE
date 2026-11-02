@@ -17,6 +17,8 @@ against an infinite-support target without adding a support-cardinality loss.
 
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.NormalizationTV
 
 variable {Output : Type}

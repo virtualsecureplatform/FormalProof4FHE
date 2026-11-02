@@ -48,6 +48,8 @@ KSK error; that is deliberately retained as the explicit full-joint noise premis
 open Matrix OracleComp
 open scoped ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.JointSubsetKeyBRK
 
 /-! ## The per-row hidden-suffix overlap obstruction -/
@@ -267,7 +269,7 @@ theorem targetAdvantage_le_two_source_add_joint_errors
     (certificate : DefectCertificate constructor)
     (distinguisher : Distinguisher View) :
     targetAdvantage targetView distinguisher ≤
-      2 * LearningWithErrors.advantage problem (constructor.reduction distinguisher) +
+      2 * LearningWithErrors.realAdvantage problem (constructor.reduction distinguisher) +
         2 * certificate.factorizationError + 2 * certificate.noiseError +
         certificate.uniformError + certificate.auxiliaryError := by
   have hbase := constructor.targetAdvantage_le_two_source_add_errors distinguisher

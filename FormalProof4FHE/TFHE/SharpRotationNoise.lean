@@ -21,6 +21,8 @@ that estimate to the digit-weighted external-product error, and proves the spars
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.SharpRotationNoise
 
 noncomputable section
@@ -120,16 +122,16 @@ theorem negacyclicConvCoeff_eq_sum_source
   apply Finset.sum_congr rfl
   intro input _
   rw [Finset.sum_eq_single (sourceIndex input output)]
-  · rw [if_pos (add_sourceIndex_mod input output)]
+  · rw [ite_eq_left (add_sourceIndex_mod input output)]
     by_cases hle : input.val ≤ output.val
-    · rw [if_pos ((add_sourceIndex_lt_iff input output).2 hle), if_pos hle]
-    · rw [if_neg (not_congr (add_sourceIndex_lt_iff input output) |>.mpr hle), if_neg hle]
+    · rw [ite_eq_left ((add_sourceIndex_lt_iff input output).2 hle), ite_eq_left hle]
+    · rw [ite_eq_right (not_congr (add_sourceIndex_lt_iff input output) |>.mpr hle), ite_eq_right hle]
   · intro other _ hne
     have hmod :
         (input.val + other.val) % (degree + 1) ≠ output.val := by
       intro heq
       exact hne (eq_sourceIndex_of_add_mod_eq input other output heq)
-    rw [if_neg hmod]
+    rw [ite_eq_right hmod]
   · simp
 
 /-- The executable negacyclic convolution has only `N`, rather than `N²`, contributing products
@@ -337,7 +339,7 @@ theorem cInfNorm_rotationMonomial_mul_le {q degree : ℕ} [NeZero q]
   · rw [rotationMonomial_coefficient_rotationIndex]
     by_cases hwrap : (rotationIndex exponent).val ≤ output.val <;>
       by_cases hfirst : exponent.val < degree + 1 <;>
-      simp only [hwrap, hfirst, if_true, if_false, one_mul, neg_one_mul, neg_neg,
+      simp only [hwrap, hfirst, ite_true, ite_false, one_mul, neg_one_mul, neg_neg,
         LatticeCrypto.centeredRepr_natAbs_neg] <;>
       exact LatticeCrypto.coeff_le_cInfNorm value
         (sourceIndex (rotationIndex exponent) output)

@@ -24,6 +24,8 @@ Unmodeled secret-dependent auxiliary information cannot simply be left unchanged
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWBinaryRandomization
 
 /-- Each public row has no hint, a linear hint, or one quadratic coordinate product. -/

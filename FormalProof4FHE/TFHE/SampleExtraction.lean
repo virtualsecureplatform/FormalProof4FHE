@@ -24,6 +24,8 @@ multiplication; no polynomial identity is assumed informally.
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.SampleExtraction
 
 /-- Coefficients of `polynomial(1/X)` in a degree-`n+1` negacyclic ring. -/
@@ -86,7 +88,7 @@ theorem negacyclicConvCoeff_zero {R : Type} [CommRing R] {degree : ℕ}
         exact Nat.mod_self (degree + 1)
       have hnotlt : ¬coefficient.succ.val + complement.val < degree + 1 := by
         omega
-      rw [if_pos hmodSelf, if_neg hnotlt]
+      rw [ite_eq_left hmodSelf, ite_eq_right hnotlt]
     · intro other _ hother
       have hmod : (coefficient.succ.val + other.val) % (degree + 1) ≠ 0 := by
         intro hzeroMod
@@ -105,7 +107,7 @@ theorem negacyclicConvCoeff_zero {R : Type} [CommRing R] {degree : ℕ}
         apply Fin.ext
         simp only [complement, Fin.val_succ, Fin.val_rev]
         omega
-      rw [if_neg hmod]
+      rw [ite_eq_right hmod]
     · intro hnot
       exact (hnot (Finset.mem_univ complement)).elim
   unfold LatticeCrypto.negacyclicConvCoeff
@@ -137,7 +139,7 @@ theorem constantCoefficient_mul {q degree : ℕ} [NeZero q]
       ((LatticeCrypto.vectorNegacyclicRing (ZMod q) (degree + 1)).mul left right)
         (0 : Fin (degree + 1)) = _
   simp only [LatticeCrypto.vectorNegacyclicRing_mul,
-    LatticeCrypto.negacyclicMulPure_coeff]
+    LatticeCrypto.vectorKernel_mul_get]
   exact negacyclicConvCoeff_zero
     (LatticeCrypto.Poly.toPi left) (LatticeCrypto.Poly.toPi right)
 

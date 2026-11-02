@@ -18,6 +18,8 @@ preserved exactly, so the distinguishing advantages are equal with no hybrid los
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.ParallelBatch
 
 /-- Eta-expanded pointwise addition contracts to function-space addition. -/
@@ -112,8 +114,8 @@ theorem outputEquiv_sampleIID_evalDist {R : Type} [Finite R]
     evalDist (outputEquiv R blocks samples <$>
       ProbComp.sampleIID (blocks * samples) sampler) =
     evalDist (Fin.mOfFn blocks fun _ ↦ ProbComp.sampleIID samples sampler) := by
-  letI : Fintype R := Fintype.ofFinite R
-  letI : DecidableEq R := Classical.decEq R
+  let : Fintype R := Fintype.ofFinite R
+  let : DecidableEq R := Classical.decEq R
   apply evalDist_ext
   intro values
   rw [probOutput_map_equiv]
@@ -345,12 +347,12 @@ theorem game0_evalDist_eq {R Secret : Type}
     (errorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem dimension blocks samples secretSampler embed errorSampler)) :
-    evalDist (LearningWithErrors.game0
+    evalDist (LearningWithErrors.realExperiment
         (problem dimension blocks samples secretSampler embed errorSampler) adversary) =
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
         (embeddedBatchProblem dimension (blocks * samples)
           secretSampler embed errorSampler) (reduction adversary)) := by
-  rw [LearningWithErrors.game0, LearningWithErrors.game0]
+  rw [LearningWithErrors.realExperiment, LearningWithErrors.realExperiment]
   simp only [reduction]
   rw [show (LearningWithErrors.distr
         (embeddedBatchProblem dimension (blocks * samples)
@@ -373,12 +375,12 @@ theorem game1_evalDist_eq {R Secret : Type}
     (errorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem dimension blocks samples secretSampler embed errorSampler)) :
-    evalDist (LearningWithErrors.game1
+    evalDist (LearningWithErrors.randomExperiment
         (problem dimension blocks samples secretSampler embed errorSampler) adversary) =
-      evalDist (LearningWithErrors.game1
+      evalDist (LearningWithErrors.randomExperiment
         (embeddedBatchProblem dimension (blocks * samples)
           secretSampler embed errorSampler) (reduction adversary)) := by
-  rw [LearningWithErrors.game1, LearningWithErrors.game1]
+  rw [LearningWithErrors.randomExperiment, LearningWithErrors.randomExperiment]
   simp only [reduction]
   rw [show (LearningWithErrors.uniformDistr
         (embeddedBatchProblem dimension (blocks * samples)
@@ -401,9 +403,9 @@ theorem advantage_eq_batch {R Secret : Type}
     (errorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem dimension blocks samples secretSampler embed errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem dimension blocks samples secretSampler embed errorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (embeddedBatchProblem dimension (blocks * samples)
           secretSampler embed errorSampler) (reduction adversary) := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage,

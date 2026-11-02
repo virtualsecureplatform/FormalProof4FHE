@@ -21,6 +21,8 @@ unproved. No such premise is added as a cryptographic assumption here.
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWLinearCharacterCompiler
 
 def character {R : Type} [CommRing R] (value : R) : R := 2 * value - 1
@@ -38,9 +40,9 @@ theorem message_pairPolynomial {R : Type} [CommRing R] {n : ℕ}
       character (secret i) * character (secret j) * value := by
   simp only [RecursiveQuadratic.message, pairPolynomial, vecMul, dotProduct, ite_and,
     add_mul, mul_ite, ite_mul, Finset.sum_add_distrib]
-  simp only [Finset.sum_ite_eq', Finset.mem_univ, if_true, mul_zero, zero_mul,
+  simp only [Finset.sum_ite_eq', Finset.mem_univ, ite_true, mul_zero, zero_mul,
     character]
-  simp only [ite_mul, zero_mul, Finset.sum_ite_eq', Finset.mem_univ, if_true]
+  simp only [ite_mul, zero_mul, Finset.sum_ite_eq', Finset.mem_univ, ite_true]
   ring
 
 def lowerPolynomial {R : Type} [CommRing R] {n : ℕ} (i j : Fin n) (a : Fin n → R) :
@@ -58,8 +60,8 @@ theorem message_lowerPolynomial {R : Type} [CommRing R] {n : ℕ}
         2 * secret j * dotProduct a secret + 4 * (a i + a j) * secret i * secret j := by
   simp only [RecursiveQuadratic.message, lowerPolynomial, vecMul, dotProduct, ite_and,
     mul_add, add_mul, mul_ite, Finset.sum_add_distrib]
-  simp only [Finset.sum_ite_eq', Finset.mem_univ, if_true, mul_zero]
-  simp only [ite_mul, zero_mul, Finset.sum_ite_eq', Finset.mem_univ, if_true]
+  simp only [Finset.sum_ite_eq', Finset.mem_univ, ite_true, mul_zero]
+  simp only [ite_mul, zero_mul, Finset.sum_ite_eq', Finset.mem_univ, ite_true]
   simp only [Finset.mul_sum, mul_neg, neg_mul, Finset.sum_neg_distrib]
   ring_nf
 
@@ -223,7 +225,7 @@ theorem sourceError_bound {q n m : ℕ} [NeZero q] {P : Type} [Fintype P]
     (LatticeCrypto.centeredRepr (sourceError first second u (GSWSelfKey.binaryEmbed bits) error)).natAbs ≤
       (∑ pair, ∑ column, (LatticeCrypto.centeredRepr (u pair column)).natAbs) * E := by
   classical
-  letI : DecidableEq P := Classical.typeDecidableEq P
+  let : DecidableEq P := Classical.typeDecidableEq P
   unfold sourceError
   calc
     _ ≤ ∑ pair, (LatticeCrypto.centeredRepr (character (GSWSelfKey.binaryEmbed bits (first pair)) *
@@ -258,15 +260,19 @@ theorem normalize_decrypt {R : Type} [CommRing R] {n : ℕ}
   have hmatrix : (normalize ciphertext).1 =
       ciphertext.1 + upper - upper.transpose - Matrix.diagonal diagonalValues := by
     ext row column
+    change (if row < column then ciphertext.1 row column + ciphertext.1 column row else 0) =
+      (ciphertext.1 row column + (if row < column then ciphertext.1 column row else 0)) -
+        (if column < row then ciphertext.1 row column else 0) -
+        (if row = column then ciphertext.1 row row else 0)
     rcases lt_trichotomy row column with h | h | h
     · have hn := ne_of_lt h
       have hreverse := not_lt_of_ge (le_of_lt h)
-      simp [normalize, upper, h, hn, hreverse]
+      simp [h, hn, hreverse]
     · subst column
-      simp [normalize, upper, diagonalValues]
+      simp
     · have hn := ne_of_gt h
       have hreverse := not_lt_of_ge (le_of_lt h)
-      simp [normalize, upper, h, hn, hreverse]
+      simp [h, hn, hreverse]
   have hdiag : dotProduct secret ((Matrix.diagonal diagonalValues).mulVec secret) =
       dotProduct diagonalValues secret := by
     simp only [dotProduct, mulVec_diagonal]

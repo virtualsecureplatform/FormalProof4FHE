@@ -26,6 +26,8 @@ lossy mode remain hypotheses. No such cryptographic construction is introduced a
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.NativeTRGSWHardTheoremComposition
 
 noncomputable section

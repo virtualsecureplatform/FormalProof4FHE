@@ -18,6 +18,8 @@ The remaining statistical premise is the exact distance after mixing over the ra
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.PowerOfTwoLifting
 
 noncomputable section
@@ -146,7 +148,7 @@ theorem productionWideningResidualDistance_le_l2Loss
         depth degreeExponent slack levels eta certificate embed gadget context ≤
       productionWideningResidualL2Loss
         depth degreeExponent slack levels eta certificate embed gadget context := by
-  letI : CommRing (ProductionRing depth degreeExponent) :=
+  let : CommRing (ProductionRing depth degreeExponent) :=
     productionCommRing depth degreeExponent
   simpa [productionWideningResidualDistance, productionWideningResidualL2Loss] using
     (HiddenResidual.hiddenResidualDistance_le_l2Loss
@@ -173,7 +175,7 @@ theorem productionHiddenResidualDistance_le_widening
         depth degreeExponent slack levels eta certificate embed gadget context ≤
       productionWideningResidualDistance
         depth degreeExponent slack levels eta certificate embed gadget context := by
-  letI : CommRing (ProductionRing depth degreeExponent) :=
+  let : CommRing (ProductionRing depth degreeExponent) :=
     productionCommRing depth degreeExponent
   simpa [productionHiddenResidualDistance, productionWideningResidualDistance] using
     (HiddenResidual.hiddenResidualDistance_convolutionSampler_le_right
@@ -201,7 +203,7 @@ noncomputable def productionBatchRLWEAdvantage
     (gadget : Fin levels → ProductionRing depth degreeExponent)
     (distinguisher : Full.Distinguisher
       (ProductionRing depth degreeExponent) levels) : ℝ :=
-  letI : CommRing (ProductionRing depth degreeExponent) :=
+  let : CommRing (ProductionRing depth degreeExponent) :=
     productionCommRing depth degreeExponent
   let extraCount := productionExtraCount depth degreeExponent slack
   let sourceErrorSampler := RLWE.CenteredBinomial.sampler
@@ -218,7 +220,7 @@ noncomputable def productionBatchRLWEAdvantage
     binarySelectors
       (productionBitSelectors depth degreeExponent slack levels gadget)
   let samples := levels * (extraCount + 1) + TGSW.rowCount 1 levels
-  @LearningWithErrors.advantage
+  @LearningWithErrors.realAdvantage
     (Matrix (Fin 1) (Fin samples) (ProductionRing depth degreeExponent))
     Secret
     (Fin samples → ProductionRing depth degreeExponent)
@@ -280,7 +282,7 @@ theorem productionMaskContextSelectors_failure_toReal_le
         depth degreeExponent slack levels secretSampler]).toReal ≤
       (levels : ℝ) * (depth + 1 : ℝ) *
         (2 / (2 : ℝ) ^ (slack + 1)) := by
-  letI : CommRing (ProductionRing depth degreeExponent) :=
+  let : CommRing (ProductionRing depth degreeExponent) :=
     productionCommRing depth degreeExponent
   let Extra := productionExtraCount depth degreeExponent slack
   let Ring := ProductionRing depth degreeExponent
@@ -349,7 +351,7 @@ theorem rgswMinusSecretAdvantage_centeredBinomial_hiddenResidual_le
         productionBatchRLWEAdvantage depth degreeExponent slack levels eta
           certificate secretSampler embed gadget distinguisher := by
   dsimp only
-  letI : CommRing (ProductionRing depth degreeExponent) :=
+  let : CommRing (ProductionRing depth degreeExponent) :=
     productionCommRing depth degreeExponent
   let sourceErrorSampler := RLWE.CenteredBinomial.sampler
     (2 ^ (depth + 1)) (2 ^ degreeExponent) eta

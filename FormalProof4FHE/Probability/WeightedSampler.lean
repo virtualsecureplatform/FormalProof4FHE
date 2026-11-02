@@ -20,6 +20,8 @@ Weight generation and a machine-bit cost model remain separate obligations.
 open OracleComp
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.WeightedSampler
 
 variable {Output : Type}
@@ -78,7 +80,7 @@ theorem selectList_eq_get_expandedTickets (entries : List (Output × ℕ)) (fall
         simp only [totalWeight] at hticket
         omega
       simp only [selectList, expandedTickets, List.getElem_append,
-        List.length_replicate, hhead, if_false]
+        List.length_replicate, hhead, ite_false]
       exact ih (ticket - weight) hrest
 
 /-- Instrument the same selection branches with the number of entries inspected. -/
@@ -107,7 +109,7 @@ theorem selectCounted_steps_le (entries : List (Output × ℕ)) (fallback : Outp
     rcases entry with ⟨value, weight⟩
     by_cases hhead : ticket < weight
     · simp [selectCounted, hhead]
-    · simpa only [selectCounted, hhead, if_false, List.length_cons] using
+    · simpa only [selectCounted, hhead, ite_false, List.length_cons] using
         Nat.add_le_add_right (ih (ticket - weight)) 1
 
 /-- A property of all stored outcomes holds for every valid ticket; the fallback is irrelevant. -/
@@ -120,11 +122,11 @@ theorem selectList_property (entries : List (Output × ℕ)) (fallback : Output)
   | cons entry rest ih =>
     rcases entry with ⟨value, weight⟩
     by_cases hhead : ticket < weight
-    · simpa only [selectList, hhead, if_true] using hentries (value, weight) (by simp)
+    · simpa only [selectList, hhead, ite_true] using hentries (value, weight) (by simp)
     · have hrest : ticket - weight < totalWeight rest := by
         simp only [totalWeight] at hticket
         omega
-      simp only [selectList, hhead, if_false]
+      simp only [selectList, hhead, ite_false]
       exact ih (ticket - weight) hrest (fun entry hentry ↦ hentries entry (by simp [hentry]))
 
 /-- Bounded stored weights give a bound on the total denominator. -/
@@ -238,8 +240,7 @@ theorem outputPMF_apply [DecidableEq Output] (table : Table Output) (output : Ou
   calc
     _ = Pr[= output | table.sampler] := by
       unfold outputPMF
-      rw [probOutput_def, evalDist_def]
-      exact (SPMF.liftM_apply (liftM table.sampler : PMF Output) output).symm
+      exact (probOutput_eq_outputPMF table.sampler output).symm
     _ = _ := table.probOutput_sampler output
 
 /-- Direct certificate expression from compressed integer counts; it allocates no tickets. -/

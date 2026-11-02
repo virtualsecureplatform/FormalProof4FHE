@@ -4,6 +4,7 @@ Released under MIT license as described in the file LICENSE.
 Authors: Kotaro Matsuoka
 -/
 
+import FormalProof4FHE.Probability.Discrete
 import FormalProof4FHE.TFHE.BlindRotation
 import FormalProof4FHE.TFHE.SampleExtraction
 import LatticeCrypto.Ring.Norms
@@ -24,6 +25,8 @@ rotations.  No unproved analytic inequality is hidden behind either bound.
 
 open Matrix
 open scoped BigOperators
+
+open scoped FormalProof4FHE
 
 namespace FormalProof4FHE.TFHE.NoiseBounds
 
@@ -174,11 +177,7 @@ theorem cInfNorm_finset_sum_le {q degree : ℕ} [NeZero q]
               positiveRqCommRing.toAddCommMonoid ∅ values =
             (0 : LatticeCrypto.Poly (ZMod q) (degree + 1)) := by
         rw [Finset.sum_empty]
-        calc
-          @Zero.zero (RLWE.Rq q (degree + 1)) positiveRqCommRing.toZero =
-              (RLWE.negacyclicRing q (degree + 1)).zero := rqPositive_zero_eq_bundled
-          _ = (0 : LatticeCrypto.Poly (ZMod q) (degree + 1)) :=
-            LatticeCrypto.vectorRing_zero
+
       rw [hsum, Finset.sum_empty]
       apply LatticeCrypto.cInfNorm_le_of_coeff_le
       intro coefficient
@@ -202,7 +201,7 @@ theorem mul_coefficient {q degree : ℕ} [NeZero q]
         ((LatticeCrypto.vectorBackend (ZMod q) (degree + 1)).coeff left)
         ((LatticeCrypto.vectorBackend (ZMod q) (degree + 1)).coeff right) coefficient
   simp only [LatticeCrypto.vectorNegacyclicRing_mul,
-    LatticeCrypto.negacyclicMulPure_coeff]
+    LatticeCrypto.vectorKernel_mul_get]
 
 /-- Conservative checked convolution bound for centered infinity norm. -/
 theorem cInfNorm_mul_le {q degree : ℕ} [NeZero q]

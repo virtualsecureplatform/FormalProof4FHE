@@ -21,6 +21,8 @@ to binary, ternary, or shared-prefix/ternary-suffix keys.
 open Matrix OracleComp
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.NativeTRGSWConcreteBRKRecovery
 
 noncomputable section

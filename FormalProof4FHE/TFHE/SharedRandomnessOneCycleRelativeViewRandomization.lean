@@ -25,6 +25,8 @@ not assume that such a nonlinear evaluator already exists.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization
 
 noncomputable section
@@ -86,7 +88,7 @@ noncomputable def ofExactComplement
     intro secret toggle
     unfold tvDist
     rw [complementLaw secret toggle]
-    exact le_of_eq (SPMF.tvDist_self _)
+    exact le_of_eq (MeasureTheory.Measure.tvDist_self _)
 
 /-- Execute the nonlinear normalized-relative step before the exact affine anchor step. -/
 def evaluateAndSmudge

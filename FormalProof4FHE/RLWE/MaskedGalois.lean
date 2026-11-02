@@ -29,6 +29,8 @@ rank-one RLWE.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.MaskedGalois
 
 noncomputable section
@@ -359,7 +361,7 @@ theorem kdmAdvantage_le_source_add_rlwe
     (sourceBound rlweBound : ℝ)
     (hSource : sourceAdvantage (rows := rows) spec secretSampler proofMaskSampler errorSampler
       (sourceReduction spec distinguisher) ≤ sourceBound)
-    (hRLWE : LearningWithErrors.advantage
+    (hRLWE : LearningWithErrors.realAdvantage
       (GaloisKDM.ordinaryProblem rows secretSampler errorSampler) distinguisher ≤
         rlweBound) :
     GaloisKDM.kdmAdvantage rows spec secretSampler errorSampler distinguisher ≤

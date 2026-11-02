@@ -30,6 +30,8 @@ definition and not by itself a proof of one-circular security.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization
 
 noncomputable section
@@ -71,7 +73,7 @@ theorem involutiveSymmetrization_negationInvariant
       refine evalDist_bind_congr' ($ᵗ Bool) fun applyAction ↦ ?_
       cases applyAction
       · rfl
-      · simpa only [if_true] using congrArg evalDist
+      · simpa only [ite_true] using congrArg evalDist
           (congrArg (fun output ↦ (pure output : ProbComp A))
             (hcommute value).symm)
     _ = evalDist (((fun value : A ↦ -value) <$> source) >>= fun value ↦

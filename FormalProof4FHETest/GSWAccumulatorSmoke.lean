@@ -10,6 +10,8 @@ import FormalProof4FHE.LWE.GSWLinkedMask
 /-! Executable correctness diagnostics only. These tiny dimensions have no security claim.
 The control ciphertexts use dense public masks and nonzero errors of both signs. -/
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHETest.GSWAccumulatorSmoke
 
 open FormalProof4FHE.LWE

@@ -33,6 +33,8 @@ set_option autoImplicit false
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.NativeTRGSWCVZRConcreteInstantiation
 
 noncomputable section
@@ -680,8 +682,11 @@ theorem coefficientFullSecretBlock_toNative
     simp only [coefficientBlockToNative, TLWE.batchAssemble, Pi.add_apply,
       Matrix.vecMul, dotProduct, coefficientErrorToNative]
     rw [Fin.sum_univ_one]
-    simp [coefficientChallengeToNative, coefficientEquiv_add, coefficientEquiv_mul,
-      coefficientEquiv_embedNestedRingSecret]
+    simp [coefficientChallengeToNative, coefficientEquiv_add]
+    change _ = (coefficientEquiv q (prefixDimension + (suffixDegree + 1)))
+      (embedRingSecret q (nestedRingSecret prefixKey suffixKey) 0 *
+        ((coefficientEquiv q (prefixDimension + (suffixDegree + 1))).symm (challenge row)))
+    rw [coefficientEquiv_mul, coefficientEquiv_embedNestedRingSecret, Equiv.apply_symm_apply]
 
 /-- Coefficient-form public masks for the complete native BRK. -/
 abbrev CoefficientBRKChallenge
@@ -1095,10 +1100,6 @@ theorem extractedNativeZeroBRKSampler_evalDist_eq_generateZeroBootstrappingKey
         Native.BootstrapCutSecurity.transcriptToBootstrappingKey,
         Native.BootstrapCutSecurity.semiringRqPiAdd_eq_add,
         nativeChallengeProduct, nativeErrors, finish, fullSecret, degree, monad_norm]
-      apply bind_congr
-      intro challenge
-      apply bind_congr
-      intro error
       congr 1
     _ = evalDist (generateZeroBootstrappingKey q prefixDimension (suffixDegree + 1)
         tgswLevels (RLWE.CenteredBinomial.sampler q degree eta)
@@ -1440,7 +1441,7 @@ theorem nativeCVZRBuild_uniform_evalDist_eq
         evalDist (suffixSampler >>= fun suffixKey ↦
           source >>= nativeCVZRBuild keySwitchGadget branch suffixKey) := by
     unfold DirectSubsetKeyBRK.constructedView
-    exact OracleComp.DeferredSampling.evalDist_bind_comm source suffixSampler _
+    exact FormalProof4FHE.evalDist_bind_bind_swap source suffixSampler _
   rw [hswap true, hswap false]
   refine evalDist_bind_congr' suffixSampler fun suffixKey ↦ ?_
   let BRKCarrier := CoefficientBRKChallenge q prefixDimension suffixDegree tgswLevels
@@ -1556,7 +1557,7 @@ theorem nativeCVZRBuild_uniform_evalDist_eq
   simp only [source, LearningWithErrors.uniformDistr,
     nativeCVZRPrefixRLWEProblem, nativeCVZRSourceChallengeSampler,
     nativeCVZRSourceUniformSampler, nativeCVZRBuild,
-    Bool.false_eq_true, if_false, if_true, bind_assoc, pure_bind]
+    Bool.false_eq_true, ite_false, ite_true, bind_assoc, pure_bind]
   exact hleft.trans hright.symm
 
 /-- Exact public CVZR compiler for the concrete disjoint prefix-RLWE source.  At this layer the
@@ -1590,7 +1591,7 @@ theorem sourceAlignedNativeCVZRAdvantage_le_two_prefixRLWE
         (sourceAlignedNativeCVZRView q prefixDimension suffixDegree tgswLevels
           keySwitchLevels brkEta keySwitchEta keySwitchGadget)
         distinguisher ≤
-      2 * LearningWithErrors.advantage
+      2 * LearningWithErrors.realAdvantage
         (nativeCVZRPrefixRLWEProblem q prefixDimension suffixDegree tgswLevels
           keySwitchLevels brkEta keySwitchEta)
         ((sourceAlignedNativeCVZRCompiler q prefixDimension suffixDegree tgswLevels
@@ -1641,7 +1642,7 @@ theorem fixedKeySourceNativeCVZRView_evalDist_eq_extracted
   cases branch <;>
     simp only [fixedKeySourceNativeCVZRView, nativeCVZRSourceChallengeSampler,
       nativeCVZRJointErrorSampler, nativeCVZRBuild, nativeCVZRNoiseless,
-      Bool.false_eq_true, if_false, if_true, bind_assoc, pure_bind,
+      Bool.false_eq_true, ite_false, ite_true, bind_assoc, pure_bind,
       Prod.fst_add, Prod.snd_add, Pi.add_apply]
   · unfold extractedNativeUniformBRKCloudKeySampler extractedNativeKSKSampler
     simp only [bind_assoc, pure_bind]
@@ -1904,7 +1905,7 @@ theorem nativeCVZRAdvantage_le_two_prefixRLWE
         (nativeCVZRView q prefixDimension suffixDegree tgswLevels keySwitchLevels
           brkEta keySwitchEta tgswGadget keySwitchGadget)
         distinguisher ≤
-      2 * LearningWithErrors.advantage
+      2 * LearningWithErrors.realAdvantage
         (nativeCVZRPrefixRLWEProblem q prefixDimension suffixDegree tgswLevels
           keySwitchLevels brkEta keySwitchEta)
         ((nativeCVZRCompiler q prefixDimension suffixDegree tgswLevels keySwitchLevels
@@ -1924,7 +1925,7 @@ theorem nativeCVZR_reduction_advantage_eq_half
     (distinguisher : DirectSubsetKeyBRK.Distinguisher
       (CloudKey q prefixDimension (suffixDegree + 1)
         tgswLevels keySwitchLevels)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (nativeCVZRPrefixRLWEProblem q prefixDimension suffixDegree tgswLevels
           keySwitchLevels brkEta keySwitchEta)
         ((nativeCVZRCompiler q prefixDimension suffixDegree tgswLevels keySwitchLevels

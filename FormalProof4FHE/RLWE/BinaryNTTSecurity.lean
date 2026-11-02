@@ -34,6 +34,8 @@ statistical-distance term; it is not used as an unconditional theorem here.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.BinaryNTTSecurity
 
 noncomputable section

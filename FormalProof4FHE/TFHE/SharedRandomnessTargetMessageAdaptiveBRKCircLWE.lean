@@ -33,6 +33,8 @@ This file does not claim that ordinary RLWE proves that remaining circular term.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE
 
 noncomputable section
@@ -772,14 +774,14 @@ theorem jointZeroReduction_game1_evalDist_eq_uniformViewGame
     (continuation : PublicContinuation q degree sourceRank suffixRank tgswLevels
       queryCount) :
     evalDist
-        (LearningWithErrors.game1
+        (LearningWithErrors.randomExperiment
           (AdaptiveReduction.problem q degree sourceRank suffixRank tgswLevels
             queryCount errorSampler)
           (jointZeroReduction gadget continuation)) =
       evalDist
         (uniformViewGame q degree sourceRank suffixRank tgswLevels queryCount
           continuation) := by
-  rw [LearningWithErrors.game1,
+  rw [LearningWithErrors.randomExperiment,
     AdaptiveReduction.problem_uniformDistr_eq_uniformSample q degree sourceRank
       suffixRank tgswLevels queryCount]
   let transcripts : ProbComp
@@ -805,7 +807,8 @@ theorem jointZeroReduction_game1_evalDist_eq_uniformViewGame
             (AdaptiveReduction.convertView q degree sourceRank suffixRank tgswLevels
               queryCount gadget (fun _ ↦ false) suffixSecret suffixChallenge
               transcript)) := by
-      simpa [transcripts, suffixes, suffixChallenges, jointZeroReduction] using
+      unfold jointZeroReduction
+      simpa [transcripts, suffixes, suffixChallenges] using
         (evalDist_bind_bind_swap transcripts suffixes
           (fun transcript suffixSecret ↦
             suffixChallenges >>= fun suffixChallenge ↦
@@ -838,7 +841,7 @@ theorem zeroViewGame_evalDist_eq_jointZeroReduction_game0
         (zeroViewGame q degree sourceRank suffixRank tgswLevels queryCount errorSampler
           gadget continuation) =
       evalDist
-        (LearningWithErrors.game0
+        (LearningWithErrors.realExperiment
           (AdaptiveReduction.problem q degree sourceRank suffixRank tgswLevels
             queryCount errorSampler)
           (jointZeroReduction gadget continuation)) := by
@@ -917,7 +920,7 @@ theorem zeroViewGame_evalDist_eq_jointZeroReduction_game0
             continuation).symm
   have lweExpanded :
       evalDist
-          (LearningWithErrors.game0
+          (LearningWithErrors.realExperiment
             (AdaptiveReduction.problem q degree sourceRank suffixRank tgswLevels
               queryCount errorSampler)
             (jointZeroReduction gadget continuation)) =
@@ -929,13 +932,15 @@ theorem zeroViewGame_evalDist_eq_jointZeroReduction_game0
             (AdaptiveReduction.convertView q degree sourceRank suffixRank tgswLevels
               queryCount gadget (fun _ ↦ false) suffixSecret suffixChallenge
               transcript)) := by
-    rw [LearningWithErrors.game0]
-    simpa [sourceSecrets, suffixes, suffixChallenges, fixedTranscripts,
-      jointZeroReduction, bind_assoc, monad_norm] using
-      (FormalProof4FHE.SharedRandomness.evalDist_bind_eq_of_evalDist_eq
+    rw [LearningWithErrors.realExperiment]
+    unfold jointZeroReduction
+    have h := (FormalProof4FHE.SharedRandomness.evalDist_bind_eq_of_evalDist_eq
         (AdaptiveReduction.distr_evalDist_eq_sampleSecret_bind_fixedJoint q degree
           sourceRank suffixRank tgswLevels queryCount errorSampler)
         (jointZeroReduction (errorSampler := errorSampler) gadget continuation))
+    unfold jointZeroReduction at h
+    simpa [sourceSecrets, suffixes, suffixChallenges, fixedTranscripts,
+      bind_assoc, monad_norm] using h
   rw [nativeExpanded, lweExpanded]
   refine evalDist_bind_congr' sourceSecrets fun sourceSecret ↦ ?_
   exact evalDist_bind_bind_swap suffixes (fixedTranscripts sourceSecret)
@@ -961,12 +966,12 @@ theorem zeroLweAdvantage_le_two_moduleLwe
       tgswLevels) :
     zeroLweAdvantage q degree sourceRank suffixRank tgswLevels queryCount errorSampler
         gadget decompose encode adversary ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
           (AdaptiveReduction.problem q degree sourceRank suffixRank tgswLevels
             queryCount errorSampler)
           (jointZeroReduction gadget
             (AdaptiveReduction.adaptiveViewContinuation decompose encode adversary)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (AdaptiveReduction.problem q degree sourceRank suffixRank tgswLevels
             queryCount errorSampler)
           (jointZeroReduction gadget
@@ -996,23 +1001,23 @@ theorem zeroLweAdvantage_le_two_moduleLwe
       queryCount :=
     AdaptiveReduction.adaptiveViewContinuation decompose encode adversary
   let zeroProbability : ℝ :=
-    (Pr[= true | LearningWithErrors.game0
+    (Pr[= true | LearningWithErrors.realExperiment
       (AdaptiveReduction.problem q degree sourceRank suffixRank tgswLevels queryCount
         errorSampler)
       (jointZeroReduction gadget continuation)]).toReal
   let uniformZeroProbability : ℝ :=
-    (Pr[= true | LearningWithErrors.game1
+    (Pr[= true | LearningWithErrors.randomExperiment
       (AdaptiveReduction.problem q degree sourceRank suffixRank tgswLevels queryCount
         errorSampler)
       (jointZeroReduction gadget continuation)]).toReal
   let resampledProbability : ℝ :=
-    (Pr[= true | LearningWithErrors.game0
+    (Pr[= true | LearningWithErrors.realExperiment
       (AdaptiveReduction.problem q degree sourceRank suffixRank tgswLevels queryCount
         errorSampler)
       (jointZeroReduction gadget
         (resampleBootstrapContinuation continuation))]).toReal
   let uniformResampledProbability : ℝ :=
-    (Pr[= true | LearningWithErrors.game1
+    (Pr[= true | LearningWithErrors.randomExperiment
       (AdaptiveReduction.problem q degree sourceRank suffixRank tgswLevels queryCount
         errorSampler)
       (jointZeroReduction gadget
@@ -1116,7 +1121,7 @@ theorem abs_signedAdvantage_realAdaptive_le_circularLwe_add_moduleLwe
         gadget decompose encode adversary)| ≤
       circularLweAdvantage q degree sourceRank suffixRank tgswLevels queryCount
           errorSampler gadget decompose encode adversary +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (AdaptiveReduction.problem q degree sourceRank suffixRank tgswLevels
             queryCount errorSampler)
           (jointZeroReduction gadget
@@ -1156,7 +1161,7 @@ theorem abs_signedAdvantage_realAdaptive_le_circularLwe_add_moduleLwe
         errorSampler errorSampler (AdaptiveReduction.extractedErrorSampler errorSampler)
         gadget decompose encode adversary]).toReal
     (Pr[= true |
-      LearningWithErrors.game0
+      LearningWithErrors.realExperiment
         (AdaptiveReduction.problem q degree sourceRank suffixRank tgswLevels queryCount
           errorSampler)
         (jointZeroReduction gadget
@@ -1184,7 +1189,7 @@ theorem abs_signedAdvantage_realAdaptive_le_monomialCircularLwe_add_moduleLwe
         gadget decompose encode adversary)| ≤
       monomialCircularLweAdvantage q degree sourceRank suffixRank tgswLevels queryCount
           errorSampler gadget decompose encode adversary +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (AdaptiveReduction.problem q degree sourceRank suffixRank tgswLevels
             queryCount errorSampler)
           (jointZeroReduction gadget
@@ -1221,7 +1226,7 @@ theorem abs_signedAdvantage_realAdaptive_le_monomialSearch_add_reductionLoss_add
         (reduction.toSolver
           (adaptiveDistinguisher decompose encode adversary))).toReal +
         reduction.loss (adaptiveDistinguisher decompose encode adversary) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (AdaptiveReduction.problem q degree sourceRank suffixRank tgswLevels
             queryCount errorSampler)
           (jointZeroReduction gadget
@@ -1266,7 +1271,7 @@ theorem abs_signedAdvantage_realAdaptive_le_narrowMonomialSearch_add_reductionLo
         (reduction.toSolver
           (adaptiveDistinguisher decompose encode adversary))).toReal +
         reduction.loss (adaptiveDistinguisher decompose encode adversary) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (AdaptiveReduction.problem q degree sourceRank suffixRank tgswLevels
             queryCount decisionErrorSampler)
           (jointZeroReduction gadget

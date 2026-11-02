@@ -22,6 +22,8 @@ has zero cost, the executable digit bound is `base - 1`, and every remaining fac
 
 open Matrix
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ShiftedResidualBounds
 
 noncomputable section
@@ -64,7 +66,7 @@ theorem rowError_toggleTGSW {R : Type} [CommRing R]
       simp [ScalarSecretRandomization.toggleTGSW,
         LWE.MultiKeyAffine.maskedBit]
   | true =>
-      simp only [ScalarSecretRandomization.toggleTGSW, if_true]
+      simp only [ScalarSecretRandomization.toggleTGSW, ite_true]
       unfold TGSW.rowError
       rw [TLWE.phase_entry, TGSW.batchPhase_addGadget,
         batchPhase_negateCiphertext]

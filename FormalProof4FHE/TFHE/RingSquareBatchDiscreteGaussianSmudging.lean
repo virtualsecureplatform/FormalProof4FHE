@@ -21,6 +21,8 @@ parameter family; that is the remaining quantitative research obligation.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BatchResidualSmudging.Native
 
 noncomputable section
@@ -234,7 +236,7 @@ theorem rgswMinusSecretAdvantage_discreteGaussian_le_of_selectorSuccess
       (levels : ℝ) *
           (((degree + 1 : ℕ) : ℝ) *
             DiscreteGaussianSampler.scalarLinearShiftBound certificate shiftBound) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.embeddedBatchProblem 1
             (levels * sourceCount + TGSW.rowCount 1 levels)
             secretSampler embed
@@ -332,7 +334,7 @@ theorem rgswMinusSecretAdvantage_discreteGaussian_le_failure_add_shift_add_batch
           (levels : ℝ) *
             (((degree + 1 : ℕ) : ℝ) *
               DiscreteGaussianSampler.scalarLinearShiftBound certificate shiftBound)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.embeddedBatchProblem 1
             (levels * sourceCount + TGSW.rowCount 1 levels)
             secretSampler embed
@@ -392,7 +394,7 @@ theorem rgswMinusSecretAdvantage_widenedDiscreteGaussian_le_failure_add_shift_ad
           (levels : ℝ) *
             (((degree + 1 : ℕ) : ℝ) *
               DiscreteGaussianSampler.scalarLinearShiftBound certificate shiftBound)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.embeddedBatchProblem 1
             (levels * sourceCount + TGSW.rowCount 1 levels)
             secretSampler embed sourceErrorSampler)

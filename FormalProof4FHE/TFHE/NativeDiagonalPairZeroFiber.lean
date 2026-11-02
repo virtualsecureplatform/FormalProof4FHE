@@ -31,6 +31,8 @@ a production proof explicit.
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm
 
 noncomputable section
@@ -485,7 +487,7 @@ theorem rq_card_pow_differencePairBinaryRank_le_rowImageCard [NeZero q]
           (leftDifference, rightDifference)).rank ≤
       differencePairRowImageCard params candidate
         leftDifference rightDifference := by
-  letI : IsLocalHom (rqParityEval heven (Nat.succ_pos degree)) := localParity
+  let : IsLocalHom (rqParityEval heven (Nat.succ_pos degree)) := localParity
   let nativeMatrix := pairedRowMatrix candidate
     (differenceEntryDigits params leftDifference)
     (differenceEntryDigits params rightDifference)

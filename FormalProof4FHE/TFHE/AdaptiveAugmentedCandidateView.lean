@@ -25,6 +25,8 @@ errors; the coordinate union bound, amplification, and paired completion are che
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery
 
 open Native
@@ -281,7 +283,7 @@ theorem coordinateSource_context_evalDist_eq_realPublicView
           inputErrorSampler tgswGadget keySwitchGadget) := by
   simp [coordinateSource, scalarSource, realPublicView, problem,
     LWE.AuxiliaryInput.Search.exactRecoveryProblem,
-    KeySwitchFirstFiniteView.augmentedCircularProblem, liftM, monad_norm]
+    KeySwitchFirstFiniteView.augmentedCircularProblem, monad_norm]
 
 /-- Real public decision game in factored-view form. -/
 noncomputable def realDecisionGame
@@ -824,7 +826,7 @@ theorem one_sub_sum_coordinateGameError_le_scalarSuccess
       1 - ∑ coordinate, error coordinate ≤
         Pr[(fun output : BinarySecret lweDimension × BinarySecret lweDimension ↦
           output.2 = output.1) | experiment] :=
-    probEvent_one_sub_le_of_compl_le probFailure_eq_zero hfailure
+    probEvent_one_sub_le_of_compl_le (probFailure_eq_zero _) hfailure
   rw [scalarGame_assemble_eq_map_jointGame, probOutput_map]
   simpa only [decide_eq_true_eq, experiment] using hsuccess
 

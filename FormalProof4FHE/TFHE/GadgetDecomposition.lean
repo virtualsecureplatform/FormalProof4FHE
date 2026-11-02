@@ -27,6 +27,8 @@ key-switch, and TGSW external-product identities in `TFHE.Evaluation`.
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Gadget.Base
 
 /-- Exact unsigned base-decomposition parameters for modulus `q`. -/

@@ -27,6 +27,8 @@ Coordinates are flattened through `finProdFinEquiv`, so the resulting LWE secret
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.BlockBinary
 
 /-- Compact block-binary keys: `0` is the all-zero choice in a block and `j.succ` selects

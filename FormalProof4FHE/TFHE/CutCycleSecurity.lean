@@ -25,6 +25,8 @@ theorem is the intact two-way cycle, where neither secret is available to the re
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.BootstrapCutSecurity
 
 /-- Public matrices for one ordinary module-LWE batch per scalar-key coordinate. -/
@@ -346,24 +348,24 @@ theorem batchModuleLweProblem_one_advantage_eq_binarySecretRLWE
     (adversary : LearningWithErrors.Adversary
       (binarySecretRLWEProblem q degree
         (lweDimension * TGSW.rowCount 1 tgswLevels) errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (batchModuleLweProblem q degree 1 tgswLevels lweDimension errorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (binarySecretRLWEProblem q degree
           (lweDimension * TGSW.rowCount 1 tgswLevels) errorSampler) adversary := by
   have hReal :
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
         (batchModuleLweProblem q degree 1 tgswLevels lweDimension errorSampler) adversary) =
-        evalDist (LearningWithErrors.game0
+        evalDist (LearningWithErrors.realExperiment
           (binarySecretRLWEProblem q degree
             (lweDimension * TGSW.rowCount 1 tgswLevels) errorSampler) adversary) := by
     exact FormalProof4FHE.SharedRandomness.evalDist_bind_eq_of_evalDist_eq
       (batchModuleLweProblem_one_distr_evalDist_eq_binarySecretRLWE
         q degree tgswLevels lweDimension errorSampler) adversary
   have hUniform :
-      evalDist (LearningWithErrors.game1
+      evalDist (LearningWithErrors.randomExperiment
         (batchModuleLweProblem q degree 1 tgswLevels lweDimension errorSampler) adversary) =
-        evalDist (LearningWithErrors.game1
+        evalDist (LearningWithErrors.randomExperiment
           (binarySecretRLWEProblem q degree
             (lweDimension * TGSW.rowCount 1 tgswLevels) errorSampler) adversary) := by
     exact FormalProof4FHE.SharedRandomness.evalDist_bind_eq_of_evalDist_eq
@@ -464,8 +466,7 @@ theorem generateBootstrappingKey_evalDist_eq_parallel
         return (challenge, error))
   have hzip := FormalProof4FHE.FiniteProduct.evalDist_fin_mOfFn_zip
     lweDimension challengeSampler errorVectorSampler
-  have hmapped := congrArg (fun distribution ↦ assemble <$> distribution) hzip
-  simp only [evalDist_map] at hmapped
+  have hmapped := evalDist_map_eq_of_evalDist_eq hzip assemble
   have hmap := FormalProof4FHE.FiniteProduct.map_fin_mOfFn
     lweDimension pairSampler assembleCoordinate
   calc
@@ -535,8 +536,7 @@ theorem generateZeroBootstrappingKey_evalDist_eq_parallel
         return (challenge, error))
   have hzip := FormalProof4FHE.FiniteProduct.evalDist_fin_mOfFn_zip
     lweDimension challengeSampler errorVectorSampler
-  have hmapped := congrArg (fun distribution ↦ assemble <$> distribution) hzip
-  simp only [evalDist_map] at hmapped
+  have hmapped := evalDist_map_eq_of_evalDist_eq hzip assemble
   have hmap := FormalProof4FHE.FiniteProduct.map_fin_mOfFn
     lweDimension pairSampler assembleCoordinate
   calc
@@ -880,24 +880,24 @@ theorem realMessageReduction_advantage_eq_batch
     (keySwitchErrorSampler : ProbComp (ZMod q))
     (tgswGadget : Fin tgswLevels → RLWE.Rq q degree)
     (continuation : Continuation q degree ringRank tgswLevels lweDimension keySwitchLevels) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (parallelModuleLweProblem q degree ringRank tgswLevels lweDimension ringErrorSampler)
         (realMessageReduction ringErrorSampler keySwitchErrorSampler tgswGadget continuation) =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (batchModuleLweProblem q degree ringRank tgswLevels lweDimension ringErrorSampler)
         (realBatchReduction ringErrorSampler keySwitchErrorSampler tgswGadget continuation) := by
   have h := FormalProof4FHE.LWE.ParallelBatch.advantage_eq_batch ringRank lweDimension
     (TGSW.rowCount ringRank tgswLevels) (sampleRingSecret ringRank degree)
     (embedRingSecret q) ringErrorSampler
     (realMessageReduction ringErrorSampler keySwitchErrorSampler tgswGadget continuation)
-  change @LearningWithErrors.advantage
+  change @LearningWithErrors.realAdvantage
       (ParallelChallenge (RLWE.Rq q degree) ringRank tgswLevels lweDimension)
       (RingBinarySecret ringRank degree)
       (ParallelOutput (RLWE.Rq q degree) ringRank tgswLevels lweDimension)
       (semiringParallelOutputAdd q degree ringRank tgswLevels lweDimension)
       (parallelModuleLweProblem q degree ringRank tgswLevels lweDimension ringErrorSampler)
       (realMessageReduction ringErrorSampler keySwitchErrorSampler tgswGadget continuation) =
-    @LearningWithErrors.advantage
+    @LearningWithErrors.realAdvantage
       (Matrix (Fin ringRank)
         (Fin (lweDimension * TGSW.rowCount ringRank tgswLevels)) (RLWE.Rq q degree))
       (RingBinarySecret ringRank degree)
@@ -917,24 +917,24 @@ theorem zeroMessageReduction_advantage_eq_batch
     (ringErrorSampler : ProbComp (RLWE.Rq q degree))
     (keySwitchErrorSampler : ProbComp (ZMod q))
     (continuation : Continuation q degree ringRank tgswLevels lweDimension keySwitchLevels) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (parallelModuleLweProblem q degree ringRank tgswLevels lweDimension ringErrorSampler)
         (zeroMessageReduction ringErrorSampler keySwitchErrorSampler continuation) =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (batchModuleLweProblem q degree ringRank tgswLevels lweDimension ringErrorSampler)
         (zeroBatchReduction ringErrorSampler keySwitchErrorSampler continuation) := by
   have h := FormalProof4FHE.LWE.ParallelBatch.advantage_eq_batch ringRank lweDimension
     (TGSW.rowCount ringRank tgswLevels) (sampleRingSecret ringRank degree)
     (embedRingSecret q) ringErrorSampler
     (zeroMessageReduction ringErrorSampler keySwitchErrorSampler continuation)
-  change @LearningWithErrors.advantage
+  change @LearningWithErrors.realAdvantage
       (ParallelChallenge (RLWE.Rq q degree) ringRank tgswLevels lweDimension)
       (RingBinarySecret ringRank degree)
       (ParallelOutput (RLWE.Rq q degree) ringRank tgswLevels lweDimension)
       (semiringParallelOutputAdd q degree ringRank tgswLevels lweDimension)
       (parallelModuleLweProblem q degree ringRank tgswLevels lweDimension ringErrorSampler)
       (zeroMessageReduction ringErrorSampler keySwitchErrorSampler continuation) =
-    @LearningWithErrors.advantage
+    @LearningWithErrors.realAdvantage
       (Matrix (Fin ringRank)
         (Fin (lweDimension * TGSW.rowCount ringRank tgswLevels)) (RLWE.Rq q degree))
       (RingBinarySecret ringRank degree)
@@ -957,7 +957,7 @@ theorem parallelRealCutGame_evalDist_eq_lwe_game0
     (continuation : Continuation q degree ringRank tgswLevels lweDimension keySwitchLevels) :
     evalDist (parallelRealCutGame q degree ringRank tgswLevels lweDimension keySwitchLevels
       ringErrorSampler keySwitchErrorSampler tgswGadget continuation) =
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
         (parallelModuleLweProblem q degree ringRank tgswLevels lweDimension ringErrorSampler)
         (realMessageReduction ringErrorSampler keySwitchErrorSampler
           tgswGadget continuation)) := by
@@ -1002,7 +1002,7 @@ theorem parallelRealCutGame_evalDist_eq_lwe_game0
       sampleParallelHomogeneous, contexts, ringSecrets, challenges, errors, finish,
       pointwiseAdd_eq_add, bind_assoc, monad_norm]
   have lwe_eq :
-      LearningWithErrors.game0
+      LearningWithErrors.realExperiment
           (parallelModuleLweProblem q degree ringRank tgswLevels lweDimension ringErrorSampler)
           (realMessageReduction ringErrorSampler keySwitchErrorSampler
             tgswGadget continuation) =
@@ -1011,7 +1011,7 @@ theorem parallelRealCutGame_evalDist_eq_lwe_game0
           errors >>= fun error ↦
           contexts >>= fun context ↦
           finish context ringSecret challenge error) := by
-    simp [LearningWithErrors.game0, LearningWithErrors.distr,
+    simp [LearningWithErrors.realExperiment, LearningWithErrors.distr,
       parallelModuleLweProblem, realMessageReduction, contexts, ringSecrets,
       challenges, errors, finish, bind_assoc, monad_norm]
   rw [parallel_eq, lwe_eq]
@@ -1038,7 +1038,7 @@ theorem parallelZeroCutGame_evalDist_eq_lwe_game0
     (continuation : Continuation q degree ringRank tgswLevels lweDimension keySwitchLevels) :
     evalDist (parallelZeroCutGame q degree ringRank tgswLevels lweDimension keySwitchLevels
       ringErrorSampler keySwitchErrorSampler continuation) =
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
         (parallelModuleLweProblem q degree ringRank tgswLevels lweDimension ringErrorSampler)
         (zeroMessageReduction ringErrorSampler keySwitchErrorSampler continuation)) := by
   let contexts := zeroKeySwitchContext q degree ringRank lweDimension keySwitchLevels
@@ -1079,7 +1079,7 @@ theorem parallelZeroCutGame_evalDist_eq_lwe_game0
       sampleParallelHomogeneous, contexts, ringSecrets, challenges, errors, finish,
       pointwiseAdd_eq_add, bind_assoc, monad_norm]
   have lwe_eq :
-      LearningWithErrors.game0
+      LearningWithErrors.realExperiment
           (parallelModuleLweProblem q degree ringRank tgswLevels lweDimension ringErrorSampler)
           (zeroMessageReduction ringErrorSampler keySwitchErrorSampler continuation) =
         (challenges >>= fun challenge ↦
@@ -1087,7 +1087,7 @@ theorem parallelZeroCutGame_evalDist_eq_lwe_game0
           errors >>= fun error ↦
           contexts >>= fun context ↦
           finish context ringSecret challenge error) := by
-    simp [LearningWithErrors.game0, LearningWithErrors.distr,
+    simp [LearningWithErrors.realExperiment, LearningWithErrors.distr,
       parallelModuleLweProblem, zeroMessageReduction, contexts, ringSecrets,
       challenges, errors, finish, bind_assoc, monad_norm]
   rw [parallel_eq, lwe_eq]
@@ -1251,11 +1251,11 @@ theorem reductions_game1_evalDist_eq
     (keySwitchErrorSampler : ProbComp (ZMod q))
     (tgswGadget : Fin tgswLevels → RLWE.Rq q degree)
     (continuation : Continuation q degree ringRank tgswLevels lweDimension keySwitchLevels) :
-    evalDist (LearningWithErrors.game1
+    evalDist (LearningWithErrors.randomExperiment
         (parallelModuleLweProblem q degree ringRank tgswLevels lweDimension ringErrorSampler)
         (realMessageReduction ringErrorSampler keySwitchErrorSampler
           tgswGadget continuation)) =
-      evalDist (LearningWithErrors.game1
+      evalDist (LearningWithErrors.randomExperiment
         (parallelModuleLweProblem q degree ringRank tgswLevels lweDimension ringErrorSampler)
         (zeroMessageReduction ringErrorSampler keySwitchErrorSampler continuation)) := by
   let contexts := zeroKeySwitchContext q degree ringRank lweDimension keySwitchLevels
@@ -1272,7 +1272,7 @@ theorem reductions_game1_evalDist_eq
         ringRank tgswLevels lweDimension) ↦
     continuation context.1 (transcriptToBootstrappingKey transcript) context.2
   have real_eq :
-      LearningWithErrors.game1
+      LearningWithErrors.randomExperiment
           (parallelModuleLweProblem q degree ringRank tgswLevels lweDimension ringErrorSampler)
           (realMessageReduction ringErrorSampler keySwitchErrorSampler
             tgswGadget continuation) =
@@ -1281,17 +1281,17 @@ theorem reductions_game1_evalDist_eq
               ringErrorSampler) >>= fun transcript ↦
           contexts >>= fun context ↦
           finish context (shiftTranscript tgswGadget (message context) transcript)) := by
-    simp [LearningWithErrors.game1, realMessageReduction, contexts, message, finish,
+    simp [LearningWithErrors.randomExperiment, realMessageReduction, contexts, message, finish,
       monad_norm]
   have zero_eq :
-      LearningWithErrors.game1
+      LearningWithErrors.randomExperiment
           (parallelModuleLweProblem q degree ringRank tgswLevels lweDimension ringErrorSampler)
           (zeroMessageReduction ringErrorSampler keySwitchErrorSampler continuation) =
         (LearningWithErrors.uniformDistr
             (parallelModuleLweProblem q degree ringRank tgswLevels lweDimension
               ringErrorSampler) >>= fun transcript ↦
           contexts >>= fun context ↦ finish context transcript) := by
-    simp [LearningWithErrors.game1, zeroMessageReduction, contexts, finish,
+    simp [LearningWithErrors.randomExperiment, zeroMessageReduction, contexts, finish,
       monad_norm]
   rw [real_eq, zero_eq]
   calc
@@ -1336,11 +1336,11 @@ theorem cutBootstrapReplacementAdvantage_le_two_parallelModuleLwe
     (continuation : Continuation q degree ringRank tgswLevels lweDimension keySwitchLevels) :
     cutBootstrapReplacementAdvantage q degree ringRank tgswLevels lweDimension
         keySwitchLevels ringErrorSampler keySwitchErrorSampler tgswGadget continuation ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (parallelModuleLweProblem q degree ringRank tgswLevels lweDimension ringErrorSampler)
         (realMessageReduction ringErrorSampler keySwitchErrorSampler
           tgswGadget continuation) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (parallelModuleLweProblem q degree ringRank tgswLevels lweDimension ringErrorSampler)
         (zeroMessageReduction ringErrorSampler keySwitchErrorSampler continuation) := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage,
@@ -1358,18 +1358,18 @@ theorem cutBootstrapReplacementAdvantage_le_two_parallelModuleLwe
     evalDist_ext_iff.mp
       (parallelZeroCutGame_evalDist_eq_lwe_game0 ringErrorSampler
         keySwitchErrorSampler continuation) true]
-  let realProbability : ℝ := (Pr[= true | LearningWithErrors.game0
+  let realProbability : ℝ := (Pr[= true | LearningWithErrors.realExperiment
     (parallelModuleLweProblem q degree ringRank tgswLevels lweDimension ringErrorSampler)
     (realMessageReduction ringErrorSampler keySwitchErrorSampler
       tgswGadget continuation)]).toReal
-  let uniformRealProbability : ℝ := (Pr[= true | LearningWithErrors.game1
+  let uniformRealProbability : ℝ := (Pr[= true | LearningWithErrors.randomExperiment
     (parallelModuleLweProblem q degree ringRank tgswLevels lweDimension ringErrorSampler)
     (realMessageReduction ringErrorSampler keySwitchErrorSampler
       tgswGadget continuation)]).toReal
-  let uniformZeroProbability : ℝ := (Pr[= true | LearningWithErrors.game1
+  let uniformZeroProbability : ℝ := (Pr[= true | LearningWithErrors.randomExperiment
     (parallelModuleLweProblem q degree ringRank tgswLevels lweDimension ringErrorSampler)
     (zeroMessageReduction ringErrorSampler keySwitchErrorSampler continuation)]).toReal
-  let zeroProbability : ℝ := (Pr[= true | LearningWithErrors.game0
+  let zeroProbability : ℝ := (Pr[= true | LearningWithErrors.realExperiment
     (parallelModuleLweProblem q degree ringRank tgswLevels lweDimension ringErrorSampler)
     (zeroMessageReduction ringErrorSampler keySwitchErrorSampler continuation)]).toReal
   have hUniform : uniformRealProbability = uniformZeroProbability := by
@@ -1393,10 +1393,10 @@ theorem cutBootstrapReplacementAdvantage_le_two_batchModuleLwe
     (continuation : Continuation q degree ringRank tgswLevels lweDimension keySwitchLevels) :
     cutBootstrapReplacementAdvantage q degree ringRank tgswLevels lweDimension
         keySwitchLevels ringErrorSampler keySwitchErrorSampler tgswGadget continuation ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (batchModuleLweProblem q degree ringRank tgswLevels lweDimension ringErrorSampler)
         (realBatchReduction ringErrorSampler keySwitchErrorSampler tgswGadget continuation) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (batchModuleLweProblem q degree ringRank tgswLevels lweDimension ringErrorSampler)
         (zeroBatchReduction ringErrorSampler keySwitchErrorSampler continuation) := by
   have h := cutBootstrapReplacementAdvantage_le_two_parallelModuleLwe
@@ -1798,13 +1798,13 @@ theorem oneTimeCutBootstrapReplacementAdvantage_le_two_parallelModuleLwe
       lweDimension keySwitchLevels) :
     oneTimeCutBootstrapReplacementAdvantage ringErrorSampler keySwitchErrorSampler
         inputErrorSampler tgswGadget encode adversary ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (Native.BootstrapCutSecurity.parallelModuleLweProblem q degree ringRank tgswLevels
           lweDimension ringErrorSampler)
         (Native.BootstrapCutSecurity.realMessageReduction ringErrorSampler
           keySwitchErrorSampler tgswGadget
           (oneTimeContinuation inputErrorSampler encode adversary)) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (Native.BootstrapCutSecurity.parallelModuleLweProblem q degree ringRank tgswLevels
           lweDimension ringErrorSampler)
         (Native.BootstrapCutSecurity.zeroMessageReduction ringErrorSampler
@@ -1823,13 +1823,13 @@ theorem oneTimeCutBootstrapReplacementAdvantage_le_two_batchModuleLwe
       lweDimension keySwitchLevels) :
     oneTimeCutBootstrapReplacementAdvantage ringErrorSampler keySwitchErrorSampler
         inputErrorSampler tgswGadget encode adversary ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (Native.BootstrapCutSecurity.batchModuleLweProblem q degree ringRank tgswLevels
           lweDimension ringErrorSampler)
         (Native.BootstrapCutSecurity.realBatchReduction ringErrorSampler
           keySwitchErrorSampler tgswGadget
           (oneTimeContinuation inputErrorSampler encode adversary)) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (Native.BootstrapCutSecurity.batchModuleLweProblem q degree ringRank tgswLevels
           lweDimension ringErrorSampler)
         (Native.BootstrapCutSecurity.zeroBatchReduction ringErrorSampler
@@ -1853,25 +1853,25 @@ theorem keySwitchFirstReplacementAdvantage_le_directBilinear_add_postCutLwe
       Native.BootstrapSecurity.directBilinearAdvantage ringErrorSampler keySwitchErrorSampler
           tgswGadget keySwitchGadget
           (Encryption.oneTimeContinuation inputErrorSampler encode adversary) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.BootstrapCutSecurity.parallelModuleLweProblem q degree ringRank tgswLevels
             lweDimension ringErrorSampler)
           (Native.BootstrapCutSecurity.realMessageReduction ringErrorSampler
             keySwitchErrorSampler tgswGadget
             (oneTimeContinuation inputErrorSampler encode adversary)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.BootstrapCutSecurity.parallelModuleLweProblem q degree ringRank tgswLevels
             lweDimension ringErrorSampler)
           (Native.BootstrapCutSecurity.zeroMessageReduction ringErrorSampler
             keySwitchErrorSampler (oneTimeContinuation inputErrorSampler encode adversary)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Encryption.Security.jointLweProblem q lweDimension
             (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels)
             keySwitchErrorSampler inputErrorSampler)
           (Encryption.Security.keySwitchMessageReduction ringErrorSampler keySwitchErrorSampler
             inputErrorSampler tgswGadget
             (Encryption.Security.nativeKeySwitchMessage keySwitchGadget) encode adversary) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Encryption.Security.jointLweProblem q lweDimension
             (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels)
             keySwitchErrorSampler inputErrorSampler)
@@ -1905,25 +1905,25 @@ theorem directBilinearAdvantage_le_keySwitchFirst_add_postCutLwe
         (Encryption.oneTimeContinuation inputErrorSampler encode adversary) ≤
       oneTimeKeySwitchFirstReplacementAdvantage ringErrorSampler keySwitchErrorSampler
           inputErrorSampler tgswGadget keySwitchGadget encode adversary +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.BootstrapCutSecurity.parallelModuleLweProblem q degree ringRank tgswLevels
             lweDimension ringErrorSampler)
           (Native.BootstrapCutSecurity.realMessageReduction ringErrorSampler
             keySwitchErrorSampler tgswGadget
             (oneTimeContinuation inputErrorSampler encode adversary)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.BootstrapCutSecurity.parallelModuleLweProblem q degree ringRank tgswLevels
             lweDimension ringErrorSampler)
           (Native.BootstrapCutSecurity.zeroMessageReduction ringErrorSampler
             keySwitchErrorSampler (oneTimeContinuation inputErrorSampler encode adversary)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Encryption.Security.jointLweProblem q lweDimension
             (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels)
             keySwitchErrorSampler inputErrorSampler)
           (Encryption.Security.keySwitchMessageReduction ringErrorSampler keySwitchErrorSampler
             inputErrorSampler tgswGadget
             (Encryption.Security.nativeKeySwitchMessage keySwitchGadget) encode adversary) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Encryption.Security.jointLweProblem q lweDimension
             (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels)
             keySwitchErrorSampler inputErrorSampler)
@@ -1959,18 +1959,18 @@ theorem abs_signedAdvantage_real_le_keySwitchFirst_add_two_parallelModuleLwe_add
         tgswGadget keySwitchGadget encode adversary)| ≤
       oneTimeKeySwitchFirstReplacementAdvantage ringErrorSampler keySwitchErrorSampler
           inputErrorSampler tgswGadget keySwitchGadget encode adversary +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.BootstrapCutSecurity.parallelModuleLweProblem q degree ringRank tgswLevels
             lweDimension ringErrorSampler)
           (Native.BootstrapCutSecurity.realMessageReduction ringErrorSampler
             keySwitchErrorSampler tgswGadget
             (oneTimeContinuation inputErrorSampler encode adversary)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.BootstrapCutSecurity.parallelModuleLweProblem q degree ringRank tgswLevels
             lweDimension ringErrorSampler)
           (Native.BootstrapCutSecurity.zeroMessageReduction ringErrorSampler
             keySwitchErrorSampler (oneTimeContinuation inputErrorSampler encode adversary)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Encryption.Security.jointLweProblem q lweDimension
             (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels)
             keySwitchErrorSampler inputErrorSampler)
@@ -2006,18 +2006,18 @@ theorem abs_signedAdvantage_real_le_keySwitchFirst_add_two_batchModuleLwe_add_jo
         tgswGadget keySwitchGadget encode adversary)| ≤
       oneTimeKeySwitchFirstReplacementAdvantage ringErrorSampler keySwitchErrorSampler
           inputErrorSampler tgswGadget keySwitchGadget encode adversary +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.BootstrapCutSecurity.batchModuleLweProblem q degree ringRank tgswLevels
             lweDimension ringErrorSampler)
           (Native.BootstrapCutSecurity.realBatchReduction ringErrorSampler
             keySwitchErrorSampler tgswGadget
             (oneTimeContinuation inputErrorSampler encode adversary)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.BootstrapCutSecurity.batchModuleLweProblem q degree ringRank tgswLevels
             lweDimension ringErrorSampler)
           (Native.BootstrapCutSecurity.zeroBatchReduction ringErrorSampler
             keySwitchErrorSampler (oneTimeContinuation inputErrorSampler encode adversary)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Encryption.Security.jointLweProblem q lweDimension
             (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels)
             keySwitchErrorSampler inputErrorSampler)
@@ -2046,17 +2046,17 @@ theorem abs_signedAdvantage_real_le_keySwitchFirst_add_two_batchModuleLwe_add_ba
         tgswGadget keySwitchGadget encode adversary)| ≤
       oneTimeKeySwitchFirstReplacementAdvantage ringErrorSampler errorSampler errorSampler
           tgswGadget keySwitchGadget encode adversary +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.BootstrapCutSecurity.batchModuleLweProblem q degree ringRank tgswLevels
             lweDimension ringErrorSampler)
           (Native.BootstrapCutSecurity.realBatchReduction ringErrorSampler
             errorSampler tgswGadget (oneTimeContinuation errorSampler encode adversary)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.BootstrapCutSecurity.batchModuleLweProblem q degree ringRank tgswLevels
             lweDimension ringErrorSampler)
           (Native.BootstrapCutSecurity.zeroBatchReduction ringErrorSampler
             errorSampler (oneTimeContinuation errorSampler encode adversary)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.KeySwitchSecurity.binaryLweProblem q lweDimension
             (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels + 1)
             errorSampler)
@@ -2178,18 +2178,18 @@ theorem oneTimeHardAgainst_of_nativeIntactCycleKDM_and_batchLwe
           tgswGadget keySwitchGadget encode adversary)| ≤
         oneTimeKeySwitchFirstReplacementAdvantage ringErrorSampler keySwitchErrorSampler
             inputErrorSampler tgswGadget keySwitchGadget encode adversary +
-          LearningWithErrors.advantage
+          LearningWithErrors.realAdvantage
             (Native.BootstrapCutSecurity.batchModuleLweProblem q degree ringRank tgswLevels
               lweDimension ringErrorSampler)
             (Native.BootstrapCutSecurity.realBatchReduction ringErrorSampler
               keySwitchErrorSampler tgswGadget
               (oneTimeContinuation inputErrorSampler encode adversary)) +
-          LearningWithErrors.advantage
+          LearningWithErrors.realAdvantage
             (Native.BootstrapCutSecurity.batchModuleLweProblem q degree ringRank tgswLevels
               lweDimension ringErrorSampler)
             (Native.BootstrapCutSecurity.zeroBatchReduction ringErrorSampler
               keySwitchErrorSampler (oneTimeContinuation inputErrorSampler encode adversary)) +
-          LearningWithErrors.advantage
+          LearningWithErrors.realAdvantage
             (Encryption.Security.jointLweProblem q lweDimension
               (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels)
               keySwitchErrorSampler inputErrorSampler)
@@ -2261,17 +2261,17 @@ theorem oneTimeHardAgainst_of_nativeIntactCycleKDM_and_standardBatchLwe_same_noi
           tgswGadget keySwitchGadget encode adversary)| ≤
         oneTimeKeySwitchFirstReplacementAdvantage ringErrorSampler errorSampler errorSampler
             tgswGadget keySwitchGadget encode adversary +
-          LearningWithErrors.advantage
+          LearningWithErrors.realAdvantage
             (Native.BootstrapCutSecurity.batchModuleLweProblem q degree ringRank tgswLevels
               lweDimension ringErrorSampler)
             (Native.BootstrapCutSecurity.realBatchReduction ringErrorSampler errorSampler
               tgswGadget (oneTimeContinuation errorSampler encode adversary)) +
-          LearningWithErrors.advantage
+          LearningWithErrors.realAdvantage
             (Native.BootstrapCutSecurity.batchModuleLweProblem q degree ringRank tgswLevels
               lweDimension ringErrorSampler)
             (Native.BootstrapCutSecurity.zeroBatchReduction ringErrorSampler errorSampler
               (oneTimeContinuation errorSampler encode adversary)) +
-          LearningWithErrors.advantage
+          LearningWithErrors.realAdvantage
             (Native.KeySwitchSecurity.binaryLweProblem q lweDimension
               (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels + 1)
               errorSampler)

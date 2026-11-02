@@ -43,6 +43,8 @@ completion.
 open Matrix OracleComp
 open scoped ENNReal BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.JointSubsetKeyBRKDelayedProjection
 
 namespace CenteredIntervalCount
@@ -227,7 +229,7 @@ theorem card_compatibleResidualBox_le_prod
         (scaledCoefficient scale coefficient) target (residualBox allowed)).card ≤
       ∏ coordinate, coordinateBound coordinate := by
   rw [card_compatibleResidualBox_eq_prod scale coefficient primitive target allowed]
-  apply Finset.prod_le_prod
+  apply Finset.prod_le_prod₀
   · intro coordinate _
     positivity
   · intro coordinate _
@@ -338,7 +340,7 @@ theorem probEvent_fixedCoefficient_compatibleResiduals_eq
   classical
   let transform := JointSubsetKeyBRKRefined.rowCombination
     (Coordinate := Coordinate) coefficient
-  letI : SampleableType transform.range := SampleableType.ofFintype _
+  let : SampleableType transform.range := SampleableType.ofFintype _
   let good : transform.range → Prop := fun output ↦
     ∃ residual ∈ residualCandidates, output.1 = target + residual
   have mapped_uniform :=
@@ -447,7 +449,7 @@ theorem blockInversePostprocess_mul
         Fintype.sum_prod_type]
       simp only [ite_mul, zero_mul, Finset.sum_mul]
       rw [Finset.sum_eq_single output]
-      · simp only [if_pos]
+      · simp only [ite_eq_left]
         rw [Finset.sum_comm]
         apply Finset.sum_congr rfl
         intro pivotCoordinate _
@@ -577,7 +579,7 @@ theorem exists_invertible_row_minor
     apply Subtype.ext
     rw [← hpivot first, ← hpivot second, hpivotEq]
   refine ⟨pivot, pivot_injective, ?_⟩
-  apply Matrix.linearIndependent_rows_iff_isUnit.mp
+  apply Matrix.linearIndependent_row_iff_isUnit.mp
   have selectedLinearIndependent :
       LinearIndependent F (fun coordinate : Coordinate ↦
         (indexEquiv coordinate : Coordinate → F)) :=
@@ -607,12 +609,12 @@ theorem exists_invertible_row_minor_of_binary_rank
     ∃ pivot : Coordinate → Row, Function.Injective pivot ∧
       IsUnit (source.submatrix pivot (Equiv.refl Coordinate)) := by
   classical
-  letI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  let : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   let heven : 2 ∣ 2 ^ modulusExponent :=
     pow_dvd_pow 2 (by omega : 1 ≤ modulusExponent)
   let parity : ZMod (2 ^ modulusExponent) →+* ZMod 2 :=
     ZMod.castHom heven (ZMod 2)
-  letI : IsLocalHom parity :=
+  let : IsLocalHom parity :=
     FormalProof4FHE.TFHE.Native.PowerOfTwoLocalRing.isLocalHom_toZModTwo_of_nilpotent_kernel
       parity (by
         intro value parity_zero
@@ -707,11 +709,12 @@ theorem blockProjection_surjective (output : Output) :
       (blockProjection (R := R) (Row := Row) (Coordinate := Coordinate) output) := by
   classical
   intro target
-  let source : Matrix (Output × Row) Coordinate R := fun indexedRow coordinate ↦
+  let source : Matrix (Output × Row) Coordinate R := Matrix.of fun indexedRow coordinate ↦
     if indexedRow.1 = output then target indexedRow.2 coordinate else 0
   refine ⟨source, ?_⟩
   ext row coordinate
-  simp [blockProjection, source]
+  change (if output = output then target row coordinate else 0) = _
+  rw [ite_eq_left rfl]
 
 noncomputable local instance largeMatrixSampleable :
     SampleableType (Matrix (Output × Row) Coordinate R) :=
@@ -742,7 +745,7 @@ theorem binaryAnyBlockRankFailure_le
       (outputCount : ENNReal) *
         (2 / (2 : ENNReal) ^ (slack + 1)) := by
   classical
-  letI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  let : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   calc
     Pr[(fun matrix : Matrix
           (Fin outputCount × Fin (dimension + slack)) (Fin dimension) (ZMod 2) ↦
@@ -779,7 +782,6 @@ theorem binaryAnyBlockRankFailure_le
                 ($ᵗ Matrix (Fin outputCount × Fin (dimension + slack))
                   (Fin dimension) (ZMod 2))] := by
           rw [probEvent_map]
-          rfl
         _ = Pr[(fun matrix : Matrix (Fin (dimension + slack))
               (Fin dimension) (ZMod 2) ↦ matrix.rank < dimension) |
             ($ᵗ Matrix (Fin (dimension + slack)) (Fin dimension) (ZMod 2))] :=
@@ -789,7 +791,7 @@ theorem binaryAnyBlockRankFailure_le
           (2 / (2 : ENNReal) ^ (slack + 1)) := by
       apply Finset.sum_le_sum
       intro output _
-      simpa using
+      simpa [probEvent, SampleableType.evalDist_uniformSample] using
         (FormalProof4FHE.FiniteFieldRank.rankFailure_le
           (F := ZMod 2) dimension slack)
     _ = (outputCount : ENNReal) *
@@ -812,7 +814,7 @@ theorem powerOfTwoAnyBlockRankFailure_le
       (outputCount : ENNReal) *
         (2 / (2 : ENNReal) ^ (slack + 1)) := by
   classical
-  letI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  let : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   let heven : 2 ∣ 2 ^ modulusExponent :=
     pow_dvd_pow 2 (by omega : 1 ≤ modulusExponent)
   let parity : ZMod (2 ^ modulusExponent) →+* ZMod 2 :=
@@ -1870,7 +1872,7 @@ theorem targetAdvantage_le_of_blockSolver_bounds
     (noise_le : certificate.noiseError ≤ noiseBudget)
     (distinguisher : Distinguisher View) :
     targetAdvantage targetView distinguisher ≤
-      2 * LearningWithErrors.advantage problem (constructor.reduction distinguisher) +
+      2 * LearningWithErrors.realAdvantage problem (constructor.reduction distinguisher) +
         2 * factorizationBudget + 2 * noiseBudget +
         certificate.uniformError + certificate.auxiliaryError := by
   have base := certificate.targetAdvantage_le_two_source_add_joint_errors distinguisher
@@ -1886,7 +1888,7 @@ theorem targetAdvantage_le_of_blockSolver_exactDerivedLaw
     (noise_zero : certificate.noiseError = 0)
     (distinguisher : Distinguisher View) :
     targetAdvantage targetView distinguisher ≤
-      2 * LearningWithErrors.advantage problem (constructor.reduction distinguisher) +
+      2 * LearningWithErrors.realAdvantage problem (constructor.reduction distinguisher) +
         2 * blockRankBudget outputCount slack +
         certificate.uniformError + certificate.auxiliaryError := by
   have bounded := targetAdvantage_le_of_blockSolver_bounds certificate

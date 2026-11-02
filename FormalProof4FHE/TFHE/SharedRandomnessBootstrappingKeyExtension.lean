@@ -41,6 +41,8 @@ evaluation-key construction, not a free reinterpretation of the native scalar KS
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.SharedRandomnessKeyExtension
 
 namespace TLWE
@@ -361,7 +363,7 @@ theorem tvDist_convertView_le {R : Type} [CommRing R]
       (SourceView R sourceDimension suffixDimension levels messageCount)) :
     tvDist (convertView decompose <$> left) (convertView decompose <$> right) ≤
       tvDist left right :=
-  tvDist_map_le (m := ProbComp) (convertView decompose) left right
+  tvDist_map_le (convertView decompose) left right
 
 /-- The same lossless security transfer holds after any common randomized continuation.  In
 particular, an evaluator or adversary using the derived target BRK cannot obtain more

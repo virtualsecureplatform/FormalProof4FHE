@@ -28,6 +28,8 @@ cryptographic negligibility required by the reduction.
 
 open ENNReal OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ShiftedDiscreteGaussian.Asymptotic
 
 open FormalProof4FHE.TFHE

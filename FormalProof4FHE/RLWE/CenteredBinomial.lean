@@ -25,6 +25,8 @@ No ideal-Gaussian claim is made. This is a finite sampler suitable for an execut
 open scoped BigOperators
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.CenteredBinomial
 
 /-- The `eta` pairs of random bits used for one centered-binomial coefficient. -/
@@ -116,7 +118,7 @@ theorem errorFromCoins_get (q degree eta : ℕ) (coins : CoinTable degree eta)
     (i : Fin degree) :
     (errorFromCoins q degree eta coins).get i =
       (signedWeight (coins i) : ZMod q) := by
-  simp [errorFromCoins, LatticeCrypto.Poly.ofPi, Vector.get]
+  exact LatticeCrypto.Poly.get_ofPi _ _
 
 /-- Coefficient-wise negation supplied by the bundled negacyclic ring. -/
 def negError (q degree : ℕ) (error : Rq q degree) : Rq q degree :=
@@ -126,7 +128,7 @@ def negError (q degree : ℕ) (error : Rq q degree) : Rq q degree :=
 theorem negError_involutive (q degree : ℕ) :
     Function.Involutive (negError q degree) := by
   intro error
-  apply LatticeCrypto.NegacyclicRing.poly_ext
+  apply LatticeCrypto.PolyBackend.ext_coeff (backend := (negacyclicRing q degree).backend)
   intro i
   simp [negError]
 
@@ -139,17 +141,17 @@ theorem negError_injective (q degree : ℕ) :
 theorem errorFromCoins_swapTable (q degree eta : ℕ) (coins : CoinTable degree eta) :
     errorFromCoins q degree eta (swapTable coins) =
       negError q degree (errorFromCoins q degree eta coins) := by
-  apply LatticeCrypto.NegacyclicRing.poly_ext
+  apply LatticeCrypto.PolyBackend.ext_coeff (backend := (negacyclicRing q degree).backend)
   intro i
   calc
     (negacyclicRing q degree).backend.coeff
         (errorFromCoins q degree eta (swapTable coins)) i =
         (signedWeight (swapTable coins i) : ZMod q) := by
-          simp [errorFromCoins, swapTable, LatticeCrypto.Poly.ofPi, Vector.get]
+          exact errorFromCoins_get q degree eta (swapTable coins) i
     _ = -(signedWeight (coins i) : ZMod q) := by simp [swapTable]
     _ = -(negacyclicRing q degree).backend.coeff
         (errorFromCoins q degree eta coins) i := by
-          simp [errorFromCoins, LatticeCrypto.Poly.ofPi, Vector.get]
+          exact congrArg (fun z : ZMod q ↦ -z) (errorFromCoins_get q degree eta coins i).symm
     _ = (negacyclicRing q degree).backend.coeff
         (negError q degree (errorFromCoins q degree eta coins)) i := by
           simp [negError]
@@ -259,7 +261,7 @@ theorem probOutput_negError (q degree eta : ℕ) [NeZero q] (error : Rq q degree
       · have hn : negError q degree error ≠
             negError q degree (errorFromCoins q degree eta coins) := fun heq ↦
           h (negError_injective q degree heq)
-        rw [probOutput_pure, probOutput_pure, if_neg hn, if_neg h]
+        rw [probOutput_pure, probOutput_pure, ite_eq_right hn, ite_eq_right h]
     _ = _ := rfl
 
 /-- The centered-binomial ring sampler is invariant under ring negation notation. -/

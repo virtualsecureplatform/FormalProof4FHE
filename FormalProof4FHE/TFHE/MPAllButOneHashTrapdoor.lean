@@ -43,6 +43,8 @@ set_option autoImplicit false
 
 open Matrix
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.MPAllButOneHashTrapdoor
 
 noncomputable section

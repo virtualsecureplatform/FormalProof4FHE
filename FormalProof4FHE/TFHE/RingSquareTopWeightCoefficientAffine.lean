@@ -33,6 +33,8 @@ top row; lower two-adic gadget weights and the full native RGSW matrix remain se
 obligations.
 -/
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.TopWeightCoefficientAffine
 
 theorem weighted_sq_add {R : Type} [CommRing R]
@@ -128,7 +130,7 @@ theorem embedBinaryPolynomial_eq_sum_basis
 theorem modulus_nsmul_one_eq_zero (exponent degree : ℕ) :
     (2 ^ (exponent + 1)) •
       (1 : FormalProof4FHE.RLWE.Rq (2 ^ (exponent + 1)) (degree + 1)) = 0 := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   apply LatticeCrypto.Poly.ext_get_eq
   intro coefficient
   change FormalProof4FHE.TFHE.Gadget.Base.coefficientAddHom (degree + 1) coefficient
@@ -152,7 +154,7 @@ noncomputable def topWeight (exponent degree : ℕ) :
 theorem topWeight_annihilated (exponent degree : ℕ) :
     (2 : FormalProof4FHE.RLWE.Rq (2 ^ (exponent + 1)) (degree + 1)) *
         topWeight exponent degree = 0 := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   calc
     (2 : FormalProof4FHE.RLWE.Rq (2 ^ (exponent + 1)) (degree + 1)) *
         topWeight exponent degree =
@@ -184,7 +186,7 @@ theorem topWeight_mul_square_eq_linearized (exponent degree : ℕ)
         (FormalProof4FHE.TFHE.embedBinaryPolynomial
           (2 ^ (exponent + 1)) (degree + 1) secret) ^ 2 =
       topSquareLinearized exponent degree secret := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   rw [embedBinaryPolynomial_eq_sum_basis]
   exact weighted_bool_sum_sq (topWeight exponent degree) secret
     (binaryBasis (2 ^ (exponent + 1)) (degree + 1))
@@ -266,7 +268,7 @@ theorem topWeight_mul_secondBasis_sq_ne_secondBasis_mul_topWeight
       binaryBasis (2 ^ (exponent + 1)) (extra + 2)
           (FormalProof4FHE.TFHE.Native.CoefficientAffineCircularRLWE.secondCoordinate extra) *
         topWeight exponent (extra + 1) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   intro heq
   rw [binaryBasis_second_eq_rotationMonomial, pow_two,
     FormalProof4FHE.TFHE.RotationLookup.rotationMonomial_mul,
@@ -321,7 +323,7 @@ theorem topSquareLinearized_not_ringMultiplicationOnBinary
     ¬ FormalProof4FHE.TFHE.Native.CoefficientAffineCircularRLWE.RingMultiplicationOnBinary
       (2 ^ (exponent + 1)) (extra + 2)
       (topSquareLinearized exponent (extra + 1)) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   rintro ⟨multiplier, hrepresentation⟩
   have hfirst := hrepresentation
     (FormalProof4FHE.TFHE.TGSW.MonomialKDM.singleBit
@@ -430,7 +432,7 @@ theorem coefficientEquiv_topSquareLinearized (exponent degree : ℕ)
       topSquareOperator exponent degree
         (FormalProof4FHE.TFHE.Native.CoefficientStructuredLWE.binaryCoefficients
           (2 ^ (exponent + 1)) secret) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   unfold topSquareLinearized
   rw [FormalProof4FHE.TFHE.Native.CoefficientStructuredLWE.coefficientEquiv_sum]
   funext output
@@ -475,7 +477,7 @@ theorem coefficientEquiv_mul_add_topSquare (exponent degree : ℕ)
         topSquareOperator exponent degree
           (FormalProof4FHE.TFHE.Native.CoefficientStructuredLWE.binaryCoefficients
             (2 ^ (exponent + 1)) secret) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   rw [FormalProof4FHE.TFHE.Native.CoefficientStructuredLWE.coefficientEquiv_add,
     FormalProof4FHE.TFHE.Native.CoefficientStructuredLWE.coefficientEquiv_mul,
     FormalProof4FHE.TFHE.Native.CoefficientStructuredLWE.coefficientEquiv_embedBinaryPolynomial,
@@ -501,7 +503,7 @@ theorem coefficientAffineNoiseless_topSquareOperators
           (FormalProof4FHE.TFHE.Native.CoefficientStructuredLWE.coefficientEquiv
             (2 ^ (exponent + 1)) (degree + 1)).symm (challenge 0 0) +
           topSquareLinearized exponent degree secret) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   rw [coefficientEquiv_mul_add_topSquare]
   simp [FormalProof4FHE.TFHE.Native.CoefficientAffineCircularRLWE.coefficientAffineNoiseless,
     topSquareOperators]
@@ -616,7 +618,7 @@ noncomputable def topRGSWCoefficientProblem
       (FormalProof4FHE.TFHE.Native.CoefficientStructuredLWE.Output
         (2 ^ (exponent + 1)) (degree + 1)
         (FormalProof4FHE.TFHE.TGSW.rowCount 1 1)) := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   let ordinary :=
     FormalProof4FHE.TFHE.Native.CoefficientStructuredLWE.problem
       (2 ^ (exponent + 1)) (degree + 1) 1
@@ -643,7 +645,7 @@ theorem topRGSWCoefficientProblem_same_samplers_as_ordinary
       top.sampleSecret = ordinary.sampleSecret ∧
       top.sampleError = ordinary.sampleError ∧
       top.sampleUniform = ordinary.sampleUniform := by
-  letI : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
+  let : NeZero (2 ^ (exponent + 1)) := ⟨pow_ne_zero _ (by omega)⟩
   simp [topRGSWCoefficientProblem]
 
 theorem topRGSWCoefficientProblem_noiseless

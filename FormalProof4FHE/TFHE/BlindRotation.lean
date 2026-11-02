@@ -26,6 +26,8 @@ one-step theorem has no abstract decomposition premise.
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE
 
 namespace TLWE
@@ -172,8 +174,7 @@ theorem rq_one_coefficient {q degree : ℕ} [NeZero q] (coefficient : Fin (degre
     LatticeCrypto.Poly.toPi (1 : RLWE.Rq q (degree + 1)) coefficient =
       if coefficient.val = 0 then 1 else 0 := by
   rw [rq_one_eq_bundled]
-  simp [RLWE.negacyclicRing, LatticeCrypto.vectorNegacyclicRing,
-    LatticeCrypto.Poly.toPi, Vector.get, Array.getElem_ofFn]
+  exact LatticeCrypto.vectorRing_one_get coefficient
 
 /-- A native constant-polynomial bit is the ring's ordinary zero-or-one bit embedding at positive
 degree. -/

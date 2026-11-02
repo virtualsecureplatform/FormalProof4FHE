@@ -39,6 +39,8 @@ coherent-RNS consequences of those certificates.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.RankOneHNFLossinessRLWENTRU
 
 noncomputable section
@@ -939,7 +941,8 @@ theorem maskedRatioPublicSampler_bind_evalDist
     (distinguisher : (Row → R) → ProbComp Bool) :
     evalDist (maskedRatioPublicSampler ratioSampler maskSampler >>= distinguisher) =
       evalDist (ratioSampler >>= maskedRatioReduction maskSampler distinguisher) := by
-  simp [maskedRatioPublicSampler, maskedRatioReduction, bind_assoc]
+  unfold maskedRatioPublicSampler maskedRatioReduction
+  simp [bind_assoc]
 
 /-- The public projection of a descriptor-carrying masked family induces exactly the common-ratio
 game.  The hidden descriptor and the masks remain available to the lossiness proof. -/

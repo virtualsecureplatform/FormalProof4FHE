@@ -21,6 +21,8 @@ cover modules contain the two proved redesign frontiers.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.BinaryNTTSecurity.BGVConsolidated
 
 noncomputable section

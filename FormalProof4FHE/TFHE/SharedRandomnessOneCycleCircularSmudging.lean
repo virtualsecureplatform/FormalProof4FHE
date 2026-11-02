@@ -27,6 +27,8 @@ Gaussian specialization below is a security-only endpoint and makes no correctne
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.CircularSmudging
 
 noncomputable section
@@ -125,7 +127,7 @@ theorem tvDist_generateBootstrappingKey_zero_le_shiftCost
           ringErrorSampler tgswGadget ringSecret) ≤
       bootstrappingMessageShiftCost q prefixDimension suffixDimension tgswLevels
         ringErrorSampler tgswGadget ringSecret := by
-  letI : CommRing (RLWE.Rq q (prefixDimension + suffixDimension)) :=
+  let : CommRing (RLWE.Rq q (prefixDimension + suffixDimension)) :=
     LatticeCrypto.vectorNegacyclicRing_instCommRing
       (ZMod q) (prefixDimension + suffixDimension)
   unfold generateBootstrappingKey generateZeroBootstrappingKey
@@ -224,7 +226,7 @@ theorem secretContinuationAdvantage_le_uniformRowBound
     keySwitchGadget continuation
   have htv : tvDist real zero ≤ bound := by
     unfold real zero realSecretContinuationGame bootstrapZeroSecretContinuationGame
-    refine tvDist_bind_left_le_const' (m := ProbComp)
+    refine tvDist_bind_left_le_const'
       (Native.sampleRingSecret 1 (prefixDimension + suffixDimension)) _ _ bound ?_
     intro ringSecret
     let finish := fun bootstrappingKey ↦ do

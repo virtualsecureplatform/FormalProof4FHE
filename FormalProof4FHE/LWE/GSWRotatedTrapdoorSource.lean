@@ -21,11 +21,13 @@ correct bootstrapping construction or a new hardness assumption.
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWRotatedTrapdoorSource
 
 def trapdoor {R : Type} [CommRing R] {p w : ℕ} (r : Matrix (Fin p) (Fin w) R) :
     Matrix (Fin (p + w)) (Fin w) R :=
-  fun row column ↦ Fin.addCases (fun i ↦ r i column)
+  Matrix.of fun row column ↦ Fin.addCases (fun i ↦ r i column)
     (fun i ↦ if i = column then 1 else 0) row
 
 /-- The simulator uses only two ordinary source transcripts and private coins. -/
@@ -41,7 +43,7 @@ theorem source_trapdoor {R : Type} [CommRing R] {n p w : ℕ}
     (g : Matrix (Fin n) (Fin w) R) (r : Matrix (Fin p) (Fin w) R) :
     (source base rotation g r).1 * trapdoor r = rotation.1 * g := by
   ext row column
-  simp [source, GSWTwoSidedCompiler.join, trapdoor, Matrix.mul_apply,
+  simp +unfoldPartialApp [source, GSWTwoSidedCompiler.join, trapdoor, Matrix.of_apply, Matrix.mul_apply,
     Fin.sum_univ_add, mul_ite]
 
 theorem source_body_projection {R : Type} [CommRing R] {n p w : ℕ}
@@ -102,7 +104,7 @@ theorem exists_half_turn {levels : ℕ} (error : ZMod (2 ^ levels)) (hne : error
     ∃ level : Fin levels,
       ((2 ^ level.val : ℕ) : ZMod (2 ^ levels)) * error =
         ((2 ^ (levels - 1) : ℕ) : ZMod (2 ^ levels)) := by
-  haveI : NeZero (2 ^ levels) := ⟨ne_of_gt (pow_pos (by decide) _)⟩
+  have : NeZero (2 ^ levels) := ⟨ne_of_gt (pow_pos (by decide) _)⟩
   obtain ⟨k, m, ⟨j, hm⟩, hval⟩ := Nat.exists_eq_two_pow_mul_odd ((ZMod.val_ne_zero error).2 hne)
   have hmpos : 0 < m := by omega
   have hpow : 2 ^ k ≤ error.val := by
@@ -152,7 +154,7 @@ theorem exists_noisy_gadget_obstruction {levels : ℕ} (error : ZMod (2 ^ levels
     ∃ level : Fin levels, 2 ^ levels / 2 - E ≤
       (LatticeCrypto.centeredRepr
         (((2 ^ level.val : ℕ) : ZMod (2 ^ levels)) * error + fresh level)).natAbs := by
-  haveI : NeZero (2 ^ levels) := ⟨ne_of_gt (pow_pos (by decide) _)⟩
+  have : NeZero (2 ^ levels) := ⟨ne_of_gt (pow_pos (by decide) _)⟩
   obtain ⟨level, hlevel⟩ := exists_maximal_centered_error error hne
   refine ⟨level, ?_⟩
   have hbound := perturbation_lower_bound

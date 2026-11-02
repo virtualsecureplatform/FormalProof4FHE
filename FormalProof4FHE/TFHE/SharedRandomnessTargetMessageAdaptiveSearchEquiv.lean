@@ -29,6 +29,8 @@ fixed-secret distribution equality.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.SearchEquiv
 
 noncomputable section
@@ -251,7 +253,7 @@ theorem monomialSearchSuccessProbability_eq_tapeFirst
           (AdaptiveReduction.extractedErrorSampler errorSampler) gadget)
         (toTapeFirstSolver solver) := by
   unfold FormalProof4FHE.LWE.AuxiliaryInput.Search.successProbability
-  exact congrArg (fun distribution ↦ distribution true)
+  exact probOutput_congr rfl
     (monomialSearchGame_evalDist_eq_tapeFirstSearchGame q degree sourceRank suffixRank
       tgswLevels queryCount errorSampler gadget solver)
 
@@ -415,7 +417,7 @@ theorem abs_signedAdvantage_realAdaptive_le_tapeFirstSearch_add_reductionLoss_ad
         (reduction.toSolver
           (adaptiveDistinguisher decompose encode adversary))).toReal +
         reduction.loss (adaptiveDistinguisher decompose encode adversary) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (AdaptiveReduction.problem q degree sourceRank suffixRank tgswLevels
             queryCount decisionErrorSampler)
           (jointZeroReduction gadget

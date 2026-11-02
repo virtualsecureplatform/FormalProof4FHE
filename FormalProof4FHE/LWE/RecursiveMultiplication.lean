@@ -23,6 +23,8 @@ interface; raw phase multiplication alone is not a Boolean NAND or a refresh.
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.RecursiveMultiplication
 
 abbrev Feature (n : ℕ) := Option (Fin n ⊕ (Fin n × Fin n))

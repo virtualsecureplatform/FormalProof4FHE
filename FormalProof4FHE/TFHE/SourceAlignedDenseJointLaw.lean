@@ -24,6 +24,8 @@ set_option autoImplicit false
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.SourceAlignedDenseJointLaw
 
 noncomputable section
@@ -562,7 +564,7 @@ theorem randomPrefixBuild_real_evalDist_eq_normalized
         evalDist (coins >>= fun coin ↦
           source >>= fun transcript ↦ randomPrefixBuild maps branch coin transcript) := by
     unfold constructedView
-    exact OracleComp.DeferredSampling.evalDist_bind_comm source coins _
+    exact FormalProof4FHE.evalDist_bind_bind_swap source coins _
   rw [hswap]
   simp only [coins, source, randomPrefixCoinsSampler, LearningWithErrors.distr,
     prefixProblem, randomPrefixBuild, randomPrefixNormalized,
@@ -585,20 +587,20 @@ theorem randomPrefixBuild_real_evalDist_eq_normalized
           prefixSecretSampler >>= fun prefixSecret ↦
             correctionSampler >>= fun correction ↦
               finish brkBody prefixMask prefixSecret correction) :=
-        OracleComp.DeferredSampling.evalDist_bind_comm _ _ _
+        FormalProof4FHE.evalDist_bind_bind_swap _ _ _
     _ = evalDist (($ᵗ (Matrix Prefix Factor R)) >>= fun prefixMask ↦
         prefixSecretSampler >>= fun prefixSecret ↦
           ($ᵗ (Factor → R)) >>= fun brkBody ↦
             correctionSampler >>= fun correction ↦
               finish brkBody prefixMask prefixSecret correction) := by
       refine evalDist_bind_congr' ($ᵗ (Matrix Prefix Factor R)) fun prefixMask ↦ ?_
-      exact OracleComp.DeferredSampling.evalDist_bind_comm _ _ _
+      exact FormalProof4FHE.evalDist_bind_bind_swap _ _ _
     _ = evalDist (prefixSecretSampler >>= fun prefixSecret ↦
         ($ᵗ (Matrix Prefix Factor R)) >>= fun prefixMask ↦
           ($ᵗ (Factor → R)) >>= fun brkBody ↦
             correctionSampler >>= fun correction ↦
               finish brkBody prefixMask prefixSecret correction) :=
-        OracleComp.DeferredSampling.evalDist_bind_comm _ _ _
+        FormalProof4FHE.evalDist_bind_bind_swap _ _ _
     _ = _ := by
       simp [finish, randomPrefixFinish, branchMatrix]
 
@@ -630,7 +632,7 @@ theorem suffixBuild_uniform_evalDist_eq_normalized
   refine evalDist_bind_congr' gadgetSampler fun gadget ↦ ?_
   simpa [suffixUniformFinish, branchVector, Matrix.transpose_add,
       Matrix.add_mulVec, add_assoc, add_comm, add_left_comm] using
-    (OracleComp.DeferredSampling.evalDist_bind_comm
+    (FormalProof4FHE.evalDist_bind_bind_swap
       ($ᵗ (Factor → R)) prefixSecretSampler
       (fun suffixBody prefixSecret ↦
         ($ᵗ (Matrix Prefix Factor R)) >>= fun displayedMask ↦
@@ -706,7 +708,7 @@ theorem randomPrefixBuild_uniform_evalDist
         evalDist (coins >>= fun coin ↦
           source >>= fun transcript ↦ randomPrefixBuild maps branch coin transcript) := by
     unfold constructedView
-    exact OracleComp.DeferredSampling.evalDist_bind_comm source coins _
+    exact FormalProof4FHE.evalDist_bind_bind_swap source coins _
   rw [hswap true, hswap false]
   simp only [coins, source, randomPrefixCoinsSampler, LearningWithErrors.uniformDistr,
     prefixProblem, randomPrefixBuild, bind_assoc, monad_norm]
@@ -822,11 +824,11 @@ theorem secondPrefixBuild_real_evalDist
         evalDist (coins >>= fun coin ↦
           source >>= fun transcript ↦ secondPrefixBuild maps branch coin transcript) := by
     unfold constructedView
-    exact OracleComp.DeferredSampling.evalDist_bind_comm source coins _
+    exact FormalProof4FHE.evalDist_bind_bind_swap source coins _
   rw [hswap]
   simp only [coins, source, secondPrefixCoinsSampler, LearningWithErrors.distr,
     prefixProblem, secondPrefixBuild, view, assemble, branchVector,
-    Bool.false_eq_true, if_false, bind_assoc, monad_norm]
+    Bool.false_eq_true, ite_false, bind_assoc, monad_norm]
   refine evalDist_bind_congr' gadgetSampler fun gadget ↦ ?_
   refine evalDist_bind_congr' suffixSecretSampler fun suffixSecret ↦ ?_
   refine evalDist_bind_congr' brkErrorSampler fun brkError ↦ ?_
@@ -854,7 +856,7 @@ theorem secondPrefixBuild_real_evalDist
       evalDist (prefixSecretSampler >>= fun prefixSecret ↦
         ($ᵗ (Matrix Prefix Factor R)) >>= fun prefixMask ↦
           leftFinish prefixMask prefixSecret) :=
-        OracleComp.DeferredSampling.evalDist_bind_comm _ _ _
+        FormalProof4FHE.evalDist_bind_bind_swap _ _ _
     _ = evalDist (prefixSecretSampler >>= fun prefixSecret ↦
         (subMatrixEquiv (maps.ksk gadget) <$> ($ᵗ (Matrix Prefix Factor R))) >>=
           rightFinish prefixSecret) := by
@@ -903,7 +905,7 @@ theorem secondPrefixBuild_uniform_evalDist
         evalDist (coins >>= fun coin ↦
           source >>= fun transcript ↦ secondPrefixBuild maps branch coin transcript) := by
     unfold constructedView
-    exact OracleComp.DeferredSampling.evalDist_bind_comm source coins _
+    exact FormalProof4FHE.evalDist_bind_bind_swap source coins _
   rw [hswap true, hswap false]
   simp only [coins, source, secondPrefixCoinsSampler, LearningWithErrors.uniformDistr,
     prefixProblem, secondPrefixBuild, bind_assoc, monad_norm]
@@ -985,15 +987,15 @@ theorem endpointAdvantage_le_three_sources
     targetAdvantage
         (alignedViews gadgetSampler suffixSecretSampler brkErrorSampler prefixSecretSampler
           correctionSampler maps).endpoints distinguisher ≤
-      2 * LearningWithErrors.advantage
+      2 * LearningWithErrors.realAdvantage
         (suffixProblem gadgetSampler suffixSecretSampler brkErrorSampler)
         ((suffixConstructor gadgetSampler suffixSecretSampler brkErrorSampler
           prefixSecretSampler correctionSampler maps).reduction distinguisher) +
-      2 * LearningWithErrors.advantage
+      2 * LearningWithErrors.realAdvantage
         (prefixProblem prefixSecretSampler correctionSampler)
         ((randomPrefixConstructor gadgetSampler suffixSecretSampler brkErrorSampler
           prefixSecretSampler correctionSampler maps).reduction distinguisher) +
-      2 * LearningWithErrors.advantage
+      2 * LearningWithErrors.realAdvantage
         (prefixProblem prefixSecretSampler correctionSampler)
         ((secondPrefixConstructor gadgetSampler suffixSecretSampler brkErrorSampler
           prefixSecretSampler correctionSampler maps).reduction distinguisher) := by

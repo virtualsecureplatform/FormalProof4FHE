@@ -22,6 +22,8 @@ identity-plus-digit matrix.  Thus future determinant estimates can work directly
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm
 
 noncomputable section

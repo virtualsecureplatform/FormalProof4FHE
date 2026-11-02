@@ -19,6 +19,8 @@ computational gap and charge a replacement error in each challenge branch.
 open OracleComp
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.FiniteProductTV
 
 variable {α β : Type}

@@ -26,6 +26,8 @@ signed-ternary pair strata, truncated valuation composition, and joint row-tuple
 open BigOperators
 open scoped symmDiff
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.RankOneHNFLossinessTwoSmithExact
 
 open FormalProof4FHE.RLWE
@@ -258,11 +260,11 @@ theorem sum_f2Sign_hassePairing
           f2Sign (bit * binaryWordHasseSyndromeExecutable word row.val))
     _ = if IsInHasseKernel n v word then (2 : ℝ) ^ v else 0 := by
       by_cases hkernel : IsInHasseKernel n v word
-      · rw [if_pos hkernel]
+      · rw [ite_eq_left hkernel]
         have hzero : ∀ row : Fin v,
             binaryWordHasseSyndromeExecutable word row.val = 0 := hkernel
         simp [hzero]
-      · rw [if_neg hkernel]
+      · rw [ite_eq_right hkernel]
         simp only [IsInHasseKernel] at hkernel
         push Not at hkernel
         obtain ⟨row, hrow⟩ := hkernel
@@ -1203,7 +1205,7 @@ theorem hasseKernelWeightEnumeratorValue_low
       apply Finset.sum_congr rfl
       intro shift _
       by_cases hkernel : IsInHasseKernel (2 ^ d) v shift
-      · rw [if_pos hkernel]
+      · rw [ite_eq_left hkernel]
         apply Finset.sum_congr rfl
         intro free _
         simp only [append, shear, f2WordShearEquiv_apply,
@@ -1213,8 +1215,8 @@ theorem hasseKernelWeightEnumeratorValue_low
             free coordinate + (free coordinate + shift coordinate)) = shift := by
           funext coordinate
           rw [f2_add_add_self]
-        rw [hreduce, if_pos hkernel]
-      · rw [if_neg hkernel]
+        rw [hreduce, ite_eq_left hkernel]
+      · rw [ite_eq_right hkernel]
         apply Finset.sum_eq_zero
         intro free _
         simp only [append, shear, f2WordShearEquiv_apply,
@@ -1224,12 +1226,12 @@ theorem hasseKernelWeightEnumeratorValue_low
             free coordinate + (free coordinate + shift coordinate)) = shift := by
           funext coordinate
           rw [f2_add_add_self]
-        rw [hreduce, if_neg hkernel]
+        rw [hreduce, ite_eq_right hkernel]
     _ = _ := by
       apply Finset.sum_congr rfl
       intro shift _
       by_cases hkernel : IsInHasseKernel (2 ^ d) v shift
-      · rw [if_pos hkernel, if_pos hkernel]
+      · rw [ite_eq_left hkernel, ite_eq_left hkernel]
         exact sum_pow_card_wordSupport_plotkin (2 ^ d) point shift
       · simp [hkernel]
 
@@ -1246,7 +1248,7 @@ theorem hasseKernelWeightEnumeratorValue_low_closed
   apply Finset.sum_congr rfl
   intro word _
   by_cases hkernel : IsInHasseKernel (2 ^ d) v word
-  · rw [if_pos hkernel, if_pos hkernel,
+  · rw [ite_eq_left hkernel, ite_eq_left hkernel,
       pow_sub_mul_pow_eq_pow_mul_div_pow]
     · exact ne_of_gt (by positivity)
     · simpa using Finset.card_le_univ (wordSupport word)
@@ -1279,11 +1281,11 @@ theorem hasseKernelWeightEnumeratorValue_high
       apply Finset.sum_congr rfl
       intro right _
       by_cases hkernel : IsInHasseKernel (2 ^ d) w right
-      · rw [if_pos hkernel]
+      · rw [ite_eq_left hkernel]
         rw [Finset.sum_eq_single right]
         · rw [show append (right, right) = Fin.append right right by
               exact finAppendEquiv_apply_pair right right]
-          rw [isInHasseKernel_append_high_iff, if_pos ⟨rfl, hkernel⟩,
+          rw [isInHasseKernel_append_high_iff, ite_eq_left ⟨rfl, hkernel⟩,
             card_wordSupport_append]
           congr 1
           omega
@@ -1293,7 +1295,7 @@ theorem hasseKernelWeightEnumeratorValue_high
           rw [isInHasseKernel_append_high_iff]
           simp [hleft, hkernel]
         · simp
-      · rw [if_neg hkernel]
+      · rw [ite_eq_right hkernel]
         apply Finset.sum_eq_zero
         intro left _
         rw [show append (left, right) = Fin.append left right by
@@ -1307,7 +1309,7 @@ theorem hasseKernelWeightEnumeratorValue_high
       apply Finset.sum_congr rfl
       intro right _
       by_cases hkernel : IsInHasseKernel (2 ^ d) w right
-      · rw [if_pos hkernel, if_pos hkernel, pow_mul]
+      · rw [ite_eq_left hkernel, ite_eq_left hkernel, pow_mul]
       · simp [hkernel]
 
 theorem isInHasseKernel_iff_le_executableValuation

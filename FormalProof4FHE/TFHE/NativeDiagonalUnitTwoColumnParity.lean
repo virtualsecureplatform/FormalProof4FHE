@@ -21,6 +21,8 @@ evaluation then gives an exact finite count of the bad vectors.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm
 
 noncomputable section
@@ -66,7 +68,8 @@ theorem rqParityEval_retainedKernelColumnMinor
     rqParityEval heven (Nat.succ_pos degree)
         (retainedKernelColumnMinor candidate sourceError value selected pivot) =
       retainedParityColumnMinor heven sourceError value selected pivot := by
-  simp [retainedKernelColumnMinor, retainedParityColumnMinor, map_sub, map_mul]
+  rw [retainedKernelColumnMinor, map_sub, map_mul, map_mul]
+  simp only [rqParityEval_signedValue, retainedParityColumnMinor]
 
 /-- When parity evaluation reflects units, a retained minor is a unit exactly when its binary
 determinant is nonzero. -/
@@ -85,7 +88,7 @@ theorem isUnit_retainedKernelColumnMinor_iff_parity_ne_zero
     exact isUnit_iff_ne_zero.mp
       (hunit.map (rqParityEval heven (Nat.succ_pos degree)))
   · intro hnonzero
-    letI : IsLocalHom (rqParityEval heven (Nat.succ_pos degree)) := localParity
+    let : IsLocalHom (rqParityEval heven (Nat.succ_pos degree)) := localParity
     exact IsUnit.of_map (rqParityEval heven (Nat.succ_pos degree)) _
       (isUnit_iff_ne_zero.mpr hnonzero)
 

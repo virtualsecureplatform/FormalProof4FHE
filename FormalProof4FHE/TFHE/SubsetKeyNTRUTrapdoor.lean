@@ -28,6 +28,8 @@ explicit inputs to the conditional theorem.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.SubsetKeyNTRUTrapdoor
 
 noncomputable section

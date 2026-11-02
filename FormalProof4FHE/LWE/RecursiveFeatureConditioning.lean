@@ -19,6 +19,8 @@ to every computational reduction for the actual plaintext observer.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.RecursiveFeatureConditioning
 
 open RecursiveFeatureControlPolynomial RecursiveFeatureBootstrap RecursiveFeatureGSW
@@ -47,12 +49,12 @@ theorem message_conditionedCubic {q n : ℕ} [NeZero q] (weight : ZMod q)
       GSWSelfKey.binaryEmbed (R := ZMod q) fixed a = GSWSelfKey.binaryEmbed bits a := by
     simp [GSWSelfKey.binaryEmbed, hfixed a ha]
   by_cases hi : i ∈ known
-  · simp only [conditionedCubic, if_pos hi, message_pairPolynomial, hemb i hi]
+  · simp only [conditionedCubic, ite_eq_left hi, message_pairPolynomial, hemb i hi]
   · by_cases hj : j ∈ known
-    · simp only [conditionedCubic, if_neg hi, if_pos hj, message_pairPolynomial, hemb j hj]
+    · simp only [conditionedCubic, ite_eq_right hi, ite_eq_left hj, message_pairPolynomial, hemb j hj]
       ring
     · have hk : k ∈ known := hknown.resolve_left hi |>.resolve_left hj
-      simp only [conditionedCubic, if_neg hi, if_neg hj, message_pairPolynomial, hemb k hk]
+      simp only [conditionedCubic, ite_eq_right hi, ite_eq_right hj, message_pairPolynomial, hemb k hk]
       ring
 
 /-- This is the actual quadratic-feature control message, not an unrelated cubic. -/

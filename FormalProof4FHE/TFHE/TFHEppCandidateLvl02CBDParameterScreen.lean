@@ -24,6 +24,8 @@ finite-law comparison premise occurs in the resulting adaptive correction tail.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TFHEppCandidateLvl02CBDParameterScreen
 
 noncomputable section

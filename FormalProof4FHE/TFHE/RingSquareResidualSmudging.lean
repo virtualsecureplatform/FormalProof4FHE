@@ -26,6 +26,8 @@ condition under which a narrow target error can absorb the compiler-induced corr
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.ResidualSmudging
 
 noncomputable section
@@ -63,8 +65,7 @@ theorem tvDist_randomShiftedErrorSampler_le
     apply evalDist_ext
     intro output
     unfold constant
-    rw [probOutput_bind_const, probFailure_eq_zero]
-    simp
+    rw [probOutput_bind_const]
   have hmixture :
       tvDist
           (shiftSampler >>= fun shift ↦ shiftedErrorSampler errorSampler shift)
@@ -184,7 +185,7 @@ theorem tvDist_fixedSecretShiftedSquareRowSampler_le_addShiftDistance
         (assemble <$> errorSampler) := by
           simp [shiftedErrorSampler, assemble, monad_norm]
     _ ≤ tvDist (shiftedErrorSampler errorSampler shift) errorSampler :=
-      tvDist_map_le (m := ProbComp) assemble _ _
+      tvDist_map_le assemble _ _
     _ = FormalProof4FHE.FiniteProduct.addShiftDistance errorSampler shift :=
       tvDist_shiftedErrorSampler_eq_addShiftDistance errorSampler shift
 

@@ -25,6 +25,8 @@ gadget-feature messages) to ordinary LWE remains necessary for FHE security.
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.RecursiveFeatureBootstrap
 
 open RecursiveMultiplication RecursiveFeatureGSW GSWModulusSwitch
@@ -78,6 +80,7 @@ theorem expandedControls_view {q n : ℕ} [NeZero q] (params : Parameters q)
     GSWAccumulator.ciphertextView params ((expandControlsStored params original).get index) =
       matrix params (expandedControl params original ((featureEquiv n).symm index)) := by
   simp [expandControlsStored, Vector.get]
+  congr 2
 
 theorem noiseBound_gadgetBatch {q n : ℕ} [NeZero q] (params : Parameters q)
     (secret : Fin n → ZMod q) (bound : ℕ) :
@@ -229,6 +232,7 @@ theorem originalView_storeOriginal {q n : ℕ} (params : Parameters q)
     (original : Fin n → Batch params n) : originalView params (storeOriginal params original) = original := by
   funext index
   simp [originalView, storeOriginal, Vector.get, ofMatrix_matrix]
+  congr 1
 
 /-- The public runtime interface receives stored control data and no secret. -/
 def bootstrapFromStored {factor p n : ℕ} [NeZero factor] [NeZero p]

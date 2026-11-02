@@ -25,6 +25,8 @@ one-shot loss is negligible for production TFHE dimensions.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput.Search.PairedRecovery.CoordinateRecovery.KeySwitchFirstSearchToDecision
 
 open KeySwitchFirstCandidateView

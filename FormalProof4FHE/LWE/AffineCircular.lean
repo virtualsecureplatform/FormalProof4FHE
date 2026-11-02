@@ -25,6 +25,8 @@ not by itself prove native TFHE bootstrapping-key security.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.AffineCircular
 
 /-- Public linear coefficients of a fixed affine-message batch. -/
@@ -311,13 +313,13 @@ theorem game0_evalDist_eq {R Secret : Type}
     (errorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem dimension samples secretSampler embed coefficients offset errorSampler)) :
-    evalDist (LearningWithErrors.game0
+    evalDist (LearningWithErrors.realExperiment
         (problem dimension samples secretSampler embed coefficients offset errorSampler)
         adversary) =
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
         (ordinaryProblem dimension samples secretSampler embed errorSampler)
         (reduction adversary)) := by
-  rw [LearningWithErrors.game0, LearningWithErrors.game0]
+  rw [LearningWithErrors.realExperiment, LearningWithErrors.realExperiment]
   simp only [reduction]
   rw [show (LearningWithErrors.distr
         (ordinaryProblem dimension samples secretSampler embed errorSampler) >>=
@@ -340,13 +342,13 @@ theorem game1_evalDist_eq {R Secret : Type}
     (errorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem dimension samples secretSampler embed coefficients offset errorSampler)) :
-    evalDist (LearningWithErrors.game1
+    evalDist (LearningWithErrors.randomExperiment
         (problem dimension samples secretSampler embed coefficients offset errorSampler)
         adversary) =
-      evalDist (LearningWithErrors.game1
+      evalDist (LearningWithErrors.randomExperiment
         (ordinaryProblem dimension samples secretSampler embed errorSampler)
         (reduction adversary)) := by
-  rw [LearningWithErrors.game1, LearningWithErrors.game1]
+  rw [LearningWithErrors.randomExperiment, LearningWithErrors.randomExperiment]
   simp only [reduction]
   rw [show (LearningWithErrors.uniformDistr
         (ordinaryProblem dimension samples secretSampler embed errorSampler) >>=
@@ -371,10 +373,10 @@ theorem advantage_eq_lwe {R Secret : Type}
     (errorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem dimension samples secretSampler embed coefficients offset errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem dimension samples secretSampler embed coefficients offset errorSampler)
         adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (ordinaryProblem dimension samples secretSampler embed errorSampler)
         (reduction adversary) := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage,

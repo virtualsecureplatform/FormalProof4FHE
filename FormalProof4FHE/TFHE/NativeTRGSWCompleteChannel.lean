@@ -26,6 +26,8 @@ statistical spectral-tail premise.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.NativeTRGSWCompleteChannel
 
 noncomputable section

@@ -30,6 +30,8 @@ development.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.BVQuadraticKDM
 
 /-- A degree-two BV ciphertext, represented by its coefficients under `(1,S,S²)`. -/
@@ -379,10 +381,10 @@ theorem realGame_evalDist_eq_reduction_game0 {R Secret : Type}
     (errorSampler : ProbComp R) (gadget : R)
     (distinguisher : Distinguisher R) :
     evalDist (realGame secretSampler embed errorSampler gadget distinguisher) =
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
         (ordinaryProblem secretSampler embed errorSampler)
         (reduction gadget distinguisher)) := by
-  rw [LearningWithErrors.game0]
+  rw [LearningWithErrors.realExperiment]
   simp only [realGame, reduction]
   rw [show
       (LearningWithErrors.distr
@@ -402,11 +404,11 @@ theorem reduction_game1_evalDist_eq_uniformGame {R Secret : Type}
     (secretSampler : ProbComp Secret) (embed : Secret → Fin 1 → R)
     (errorSampler : ProbComp R) (gadget : R)
     (distinguisher : Distinguisher R) :
-    evalDist (LearningWithErrors.game1
+    evalDist (LearningWithErrors.randomExperiment
         (ordinaryProblem secretSampler embed errorSampler)
         (reduction gadget distinguisher)) =
       evalDist (uniformGame distinguisher) := by
-  rw [LearningWithErrors.game1,
+  rw [LearningWithErrors.randomExperiment,
     ordinary_uniformDistr_eq_uniformSample secretSampler embed errorSampler]
   simp only [reduction, uniformGame]
   rw [show
@@ -424,7 +426,7 @@ theorem advantage_eq_twoSampleRLWE {R Secret : Type}
     (errorSampler : ProbComp R) (gadget : R)
     (distinguisher : Distinguisher R) :
     advantage secretSampler embed errorSampler gadget distinguisher =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (ordinaryProblem secretSampler embed errorSampler)
         (reduction gadget distinguisher) := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
@@ -464,7 +466,7 @@ theorem directAdvantage_eq_twoSampleRLWE {R Secret : Type}
     (distinguisher : Distinguisher R) :
     (directRealGame secretSampler embed errorSampler gadget distinguisher).boolDistAdvantage
         (uniformGame distinguisher) =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (ordinaryProblem secretSampler embed errorSampler)
         (reduction gadget distinguisher) := by
   rw [← advantage_eq_twoSampleRLWE secretSampler embed errorSampler gadget distinguisher]
@@ -932,10 +934,10 @@ theorem realGame_evalDist_eq_reduction_game0 {R Secret : Type}
     (errorSampler : ProbComp R) (gadget : Fin levels → R)
     (distinguisher : Distinguisher R levels) :
     evalDist (realGame levels secretSampler embed errorSampler gadget distinguisher) =
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
         (ordinaryProblem levels secretSampler embed errorSampler)
         (reduction gadget distinguisher)) := by
-  rw [LearningWithErrors.game0]
+  rw [LearningWithErrors.realExperiment]
   simp only [realGame, reduction]
   rw [show
       (LearningWithErrors.distr
@@ -955,11 +957,11 @@ theorem reduction_game1_evalDist_eq_uniformGame {R Secret : Type}
     (levels : ℕ) (secretSampler : ProbComp Secret) (embed : Secret → Fin 1 → R)
     (errorSampler : ProbComp R) (gadget : Fin levels → R)
     (distinguisher : Distinguisher R levels) :
-    evalDist (LearningWithErrors.game1
+    evalDist (LearningWithErrors.randomExperiment
         (ordinaryProblem levels secretSampler embed errorSampler)
         (reduction gadget distinguisher)) =
       evalDist (uniformGame distinguisher) := by
-  rw [LearningWithErrors.game1,
+  rw [LearningWithErrors.randomExperiment,
     ordinary_uniformDistr_eq_uniformSample levels secretSampler embed errorSampler]
   simp only [reduction, uniformGame]
   rw [show
@@ -979,7 +981,7 @@ theorem advantage_eq_batchRLWE {R Secret : Type}
     (errorSampler : ProbComp R) (gadget : Fin levels → R)
     (distinguisher : Distinguisher R levels) :
     advantage levels secretSampler embed errorSampler gadget distinguisher =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (ordinaryProblem levels secretSampler embed errorSampler)
         (reduction gadget distinguisher) := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
@@ -1020,7 +1022,7 @@ theorem directAdvantage_eq_batchRLWE {R Secret : Type}
     (distinguisher : Distinguisher R levels) :
     (directRealGame levels secretSampler embed errorSampler gadget
         distinguisher).boolDistAdvantage (uniformGame distinguisher) =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (ordinaryProblem levels secretSampler embed errorSampler)
         (reduction gadget distinguisher) := by
   rw [← advantage_eq_batchRLWE levels secretSampler embed errorSampler gadget distinguisher]

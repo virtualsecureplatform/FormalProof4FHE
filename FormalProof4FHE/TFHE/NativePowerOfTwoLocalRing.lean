@@ -22,6 +22,8 @@ has nilpotent kernel for `k > 0`; composing the two arguments proves that parity
 production ring `ZMod (2^k)[X]/(X^(2^d) + 1)` reflects units.
 -/
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.PowerOfTwoLocalRing
 
 noncomputable section
@@ -34,7 +36,7 @@ theorem isLocalHom_toZModTwo_of_nilpotent_kernel
     {R : Type} [CommRing R] (hom : R →+* ZMod 2)
     (kernel_nilpotent : ∀ value : R, hom value = 0 → IsNilpotent value) :
     IsLocalHom hom := by
-  letI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  let : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   constructor
   intro value mapped_unit
   have mapped_ne_zero : hom value ≠ 0 :=
@@ -53,7 +55,7 @@ theorem isLocalHom_toZModTwo_of_nilpotent_kernel
 theorem binary_negacyclicModulus_eq_X_sub_one_pow (exponent : ℕ) :
     LatticeCrypto.negacyclicModulus (ZMod 2) (2 ^ exponent) =
       (X - C 1) ^ (2 ^ exponent) := by
-  letI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  let : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   rw [sub_pow_char_pow (p := 2)]
   simp only [map_one, one_pow, LatticeCrypto.negacyclicModulus]
   have neg_one_eq_one : -(1 : Polynomial (ZMod 2)) = 1 := by
@@ -111,7 +113,7 @@ theorem zmod_powerOfTwo_isNilpotent_of_castHom_eq_zero
     (parity_zero :
       ZMod.castHom (pow_dvd_pow 2 (by omega : 1 ≤ modulusExponent)) (ZMod 2) value = 0) :
     IsNilpotent value := by
-  letI : NeZero (2 ^ modulusExponent) :=
+  let : NeZero (2 ^ modulusExponent) :=
     ⟨pow_ne_zero modulusExponent (by omega)⟩
   have value_even : 2 ∣ value.val := by
     rw [ZMod.castHom_apply, ZMod.cast_eq_val] at parity_zero
@@ -184,11 +186,11 @@ theorem quotientCoefficientReduce_kernel_isNilpotent_powerOfTwo
     simpa [coefficientReduce] using coefficient_zero
   have quotient_eq :
       Ideal.Quotient.mk
-          (Ideal.span {LatticeCrypto.negacyclicModulus
-            (ZMod (2 ^ modulusExponent)) ringDegree}) polynomial =
+          (Ideal.span {(LatticeCrypto.negacyclicModulus
+            (ZMod (2 ^ modulusExponent)) ringDegree)}) polynomial =
         Ideal.Quotient.mk
-          (Ideal.span {LatticeCrypto.negacyclicModulus
-            (ZMod (2 ^ modulusExponent)) ringDegree}) remainder := by
+          (Ideal.span {(LatticeCrypto.negacyclicModulus
+            (ZMod (2 ^ modulusExponent)) ringDegree)}) remainder := by
     dsimp only [remainder]
     simp [map_sub, map_mul]
   rw [quotient_eq]
@@ -201,7 +203,7 @@ theorem quotientParityEval_kernel_isNilpotent_binary_powerOfTwo
     (value : FormalProof4FHE.RLWE.QuotientRq 2 (2 ^ exponent))
     (parity_zero : quotientParityEval (q := 2) dvd_rfl value = 0) :
     IsNilpotent value := by
-  letI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  let : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   obtain ⟨polynomial, rfl⟩ := Ideal.Quotient.mk_surjective value
   have eval_zero : Polynomial.eval 1 polynomial = 0 := by
     change polynomialParityEval (q := 2) dvd_rfl polynomial = 0 at parity_zero

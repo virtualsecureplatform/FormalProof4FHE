@@ -35,6 +35,8 @@ These requirements are represented by proof-carrying certificates, never by Lean
 open Matrix OracleComp
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.BFVStandardAssumptionCircularSecurity
 
 noncomputable section
@@ -357,6 +359,7 @@ theorem encode_matrixKnapsackValue
   simp [matrixKnapsackValue, extensionKnapsackValue, encodeWeights, hTail,
     map_add, map_sum]
 
+omit [Fintype Row] in
 /-- Independent uniform matrix columns encode to independent uniform extension-field weights. -/
 theorem weightEncoding_uniform_evalDist
     [Fintype F] [SampleableType F] [Fintype E] [SampleableType E]

@@ -36,6 +36,8 @@ budget.  Those are the next construction and parameter obligations.
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.SourceAlignedFactorPropagation
 
 open SubsetKeyTrapdoorTheorems.SourceAligned

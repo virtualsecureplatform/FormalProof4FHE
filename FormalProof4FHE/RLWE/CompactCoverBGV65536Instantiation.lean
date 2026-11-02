@@ -21,6 +21,8 @@ BGV instantiation. Exact correctness bounds are computed in
 metadata. Attack estimates are likewise kept separate from correctness.
 -/
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.BinaryNTTSecurity.CompactCoverBGV65536
 
 open CompactCoverTechnical CompactCoverCyclicCompiler
@@ -36,7 +38,10 @@ inductive Stage where
   | inverseBadDimension
   | boundedDigitExtraction
   | cyclicReturn
-  deriving DecidableEq, Fintype, Repr
+  deriving DecidableEq, Repr
+
+instance : Fintype Stage :=
+  ⟨{.forwardBadDimension, .homomorphicInnerProduct, .degreeTwoTrace, .inverseBadDimension, .boundedDigitExtraction, .cyclicReturn}, by intro stage; cases stage <;> simp⟩
 
 def Stage.sourceWidth : Stage → ℕ
   | .forwardBadDimension => 1
@@ -176,7 +181,10 @@ inductive ScalarStage where
   | phaseLift
   | homomorphicDecryptionTransition
   | exactPublicDivision
-  deriving DecidableEq, Fintype, Repr
+  deriving DecidableEq, Repr
+
+instance : Fintype ScalarStage :=
+  ⟨{.phaseLift, .homomorphicDecryptionTransition, .exactPublicDivision}, by intro stage; cases stage <;> simp⟩
 
 @[simp] theorem scalar_stage_card : Fintype.card ScalarStage = 3 := by decide
 
@@ -354,7 +362,10 @@ inductive BootstrapStage where
   | boundedDigitRemoval
   | exactDivision
   | multiplicationClosure
-  deriving DecidableEq, Fintype, Repr
+  deriving DecidableEq, Repr
+
+instance : Fintype BootstrapStage :=
+  ⟨{.modulusDown, .lowToHighPhaseLift, .constantTrace, .boundedDigitRemoval, .exactDivision, .multiplicationClosure}, by intro stage; cases stage <;> simp⟩
 
 @[simp] theorem bootstrap_stage_card : Fintype.card BootstrapStage = 6 := by decide
 

@@ -4,6 +4,7 @@ Released under MIT license as described in the file LICENSE.
 Authors: Kotaro Matsuoka
 -/
 
+import FormalProof4FHE.Probability.Discrete
 import FormalProof4FHE.LWE.Basic
 import LatticeCrypto.Ring.SchoolbookCert
 import Mathlib.RingTheory.Polynomial.Ideal
@@ -25,7 +26,18 @@ Thus `problem` is definitionally the existing `LWE.batchProblem` with dimension 
 and all generic LWE game and reduction theorems apply without a new probabilistic bridge.
 -/
 
+namespace LatticeCrypto.NegacyclicRing
+
+/-- Coefficient equality determines an executable negacyclic polynomial. -/
+theorem poly_ext {Coeff : Type} [CommRing Coeff] {ring : LatticeCrypto.NegacyclicRing Coeff}
+    {p q : ring.Poly} (h : ∀ i, ring.backend.coeff p i = ring.backend.coeff q i) : p = q :=
+  LatticeCrypto.PolyBackend.ext_coeff h
+
+end LatticeCrypto.NegacyclicRing
+
 open Matrix OracleComp
+
+open scoped FormalProof4FHE
 
 namespace FormalProof4FHE.RLWE
 
@@ -165,16 +177,14 @@ theorem quotientOf_surjective {q degree : ℕ} [Nontrivial (ZMod q)]
       (LatticeCrypto.vectorBackend (ZMod q) degree).toPolynomial representative =
         remainder := by
     have hcoeff (coefficient : Fin degree) :
-        (LatticeCrypto.vectorBackend (ZMod q) degree).coeff representative coefficient =
+        LatticeCrypto.Poly.toPi representative coefficient =
           remainder.coeff coefficient := by
-      change LatticeCrypto.Poly.toPi representative coefficient =
-        remainder.coeff coefficient
-      dsimp only [representative]
-      rw [LatticeCrypto.Poly.toPi_ofPi]
+      exact congrFun (LatticeCrypto.Poly.toPi_ofPi
+        (fun index : Fin degree ↦ remainder.coeff index)) coefficient
     rw [LatticeCrypto.PolyBackend.toPolynomial]
     change (∑ coefficient : Fin degree,
       Polynomial.monomial coefficient.val
-        ((LatticeCrypto.vectorBackend (ZMod q) degree).coeff representative coefficient)) =
+        (LatticeCrypto.Poly.toPi representative coefficient)) =
       remainder
     simp_rw [hcoeff]
     apply Polynomial.ext
@@ -186,7 +196,7 @@ theorem quotientOf_surjective {q degree : ℕ} [Nontrivial (ZMod q)]
       · simp [index]
       · intro other _ hother
         simp only [Polynomial.coeff_monomial]
-        rw [if_neg]
+        rw [ite_eq_right]
         intro heq
         apply hother
         apply Fin.ext

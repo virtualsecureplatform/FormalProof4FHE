@@ -23,6 +23,8 @@ retained exactly as before.
 
 open ENNReal OracleComp Filter Topology
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView
 
 open FormalProof4FHE.MajorityAmplification

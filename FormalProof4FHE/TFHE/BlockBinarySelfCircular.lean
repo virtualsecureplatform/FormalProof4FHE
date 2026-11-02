@@ -32,6 +32,8 @@ that it transports the uniform implementation law to the proof law.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.BlockBinarySelfCircular
 
 open Native.FullBRKQuadraticSpan
@@ -237,7 +239,7 @@ theorem squareFreeCrossAtDegree_packed_eq_crossBlockCross
   have hcomponent : component = 0 := Subsingleton.elim _ _
   subst component
   by_cases hsame : coordinateBlock maskCoordinate = coordinateBlock messageCoordinate
-  · rw [if_pos hsame]
+  · rw [ite_eq_left hsame]
     by_cases hcoordinate : maskCoordinate = messageCoordinate
     · subst maskCoordinate
       exact squareFreeCrossAtDegree_diagonal_coefficient q
@@ -246,7 +248,7 @@ theorem squareFreeCrossAtDegree_packed_eq_crossBlockCross
       · exact embedBits_mul_eq_zero_of_coordinateBlock_eq key maskCoordinate
           messageCoordinate hsame hcoordinate
       · simp [hcoordinate]
-  · rw [if_neg hsame, squareFreeCrossAtDegree_coefficient_of_not_diagonal]
+  · rw [ite_eq_right hsame, squareFreeCrossAtDegree_coefficient_of_not_diagonal]
     · simp [packedRingSecret]
     · intro hdiagonal
       exact hsame (congrArg coordinateBlock hdiagonal.2)

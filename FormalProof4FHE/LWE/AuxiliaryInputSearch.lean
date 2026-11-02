@@ -23,6 +23,8 @@ scheme-specific direction still requires its own reduction.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.AuxiliaryInput.Search
 
 /-- A search problem with a secret-dependent challenge, correlated auxiliary input, and an

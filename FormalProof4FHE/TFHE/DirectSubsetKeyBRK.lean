@@ -30,6 +30,8 @@ whole-prefix guessing loss is used.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.DirectSubsetKeyBRK
 
 /-! ## Abstract public-view constructor -/
@@ -161,7 +163,7 @@ theorem probOutput_true_orientedChoice (selectedOrientation : Bool)
     (Pr[= true | orientedChoice selectedOrientation positive negative]).toReal =
       (1 + orientedGap selectedOrientation positive negative) / 2 := by
   cases selectedOrientation <;>
-    simp only [orientedChoice, Bool.false_eq_true, if_false, if_true, orientedGap,
+    simp only [orientedChoice, Bool.false_eq_true, ite_false, ite_true, orientedGap,
       FormalProof4FHE.BinaryGuessCheck.probOutput_true_signedChoice] <;>
     ring
 
@@ -175,10 +177,10 @@ theorem orientedGap_target_eq_advantage
   unfold orientedGap targetAdvantage ProbComp.boolDistAdvantage
   by_cases horientation : constructor.orientation distinguisher = true
   · have hle := constructor.orientation_le distinguisher
-    rw [if_pos horientation] at hle ⊢
+    rw [ite_eq_left horientation] at hle ⊢
     exact (abs_of_nonneg (sub_nonneg.mpr hle)).symm
   · have hle := constructor.orientation_le distinguisher
-    rw [if_neg horientation] at hle ⊢
+    rw [ite_eq_right horientation] at hle ⊢
     rw [abs_of_nonpos (sub_nonpos.mpr hle)]
     ring
 
@@ -206,7 +208,7 @@ theorem source_bind_reduction_evalDist
         (constructedDecision prefixSampler source constructor.build false distinguisher)) := by
   unfold reduction orientedChoice
   by_cases horientation : constructor.orientation distinguisher = true
-  · simp only [horientation, if_true]
+  · simp only [horientation, ite_true]
     have h := FormalProof4FHE.BinaryGuessCheck.evalDist_bind_signedChoice source
       (fun challenge ↦
         prefixSampler >>= fun prefixValue ↦
@@ -217,7 +219,7 @@ theorem source_bind_reduction_evalDist
     simpa only [constructedDecision, constructedView, bind_assoc] using h
   · have horientationFalse : constructor.orientation distinguisher = false := by
       exact Bool.eq_false_iff.mpr horientation
-    simp only [horientationFalse, Bool.false_eq_true, if_false]
+    simp only [horientationFalse, Bool.false_eq_true, ite_false]
     have h := FormalProof4FHE.BinaryGuessCheck.evalDist_bind_signedChoice source
       (fun challenge ↦
         prefixSampler >>= fun prefixValue ↦
@@ -231,20 +233,20 @@ theorem source_bind_reduction_evalDist
 theorem game0_probability
     (constructor : PublicViewConstructor problem prefixSampler targetView)
     (distinguisher : Distinguisher View) :
-    (Pr[= true | LearningWithErrors.game0 problem (constructor.reduction distinguisher)]).toReal =
+    (Pr[= true | LearningWithErrors.realExperiment problem (constructor.reduction distinguisher)]).toReal =
       (1 + orientedGap (constructor.orientation distinguisher)
         (constructedDecision prefixSampler (LearningWithErrors.distr problem)
           constructor.build true distinguisher)
         (constructedDecision prefixSampler (LearningWithErrors.distr problem)
           constructor.build false distinguisher)) / 2 := by
   have hdist :
-      evalDist (LearningWithErrors.game0 problem (constructor.reduction distinguisher)) =
+      evalDist (LearningWithErrors.realExperiment problem (constructor.reduction distinguisher)) =
         evalDist (orientedChoice (constructor.orientation distinguisher)
           (constructedDecision prefixSampler (LearningWithErrors.distr problem)
             constructor.build true distinguisher)
           (constructedDecision prefixSampler (LearningWithErrors.distr problem)
             constructor.build false distinguisher)) := by
-    unfold LearningWithErrors.game0
+    unfold LearningWithErrors.realExperiment
     exact constructor.source_bind_reduction_evalDist distinguisher
       (LearningWithErrors.distr problem)
   rw [probOutput_congr rfl hdist]
@@ -254,20 +256,20 @@ theorem game0_probability
 theorem game1_probability
     (constructor : PublicViewConstructor problem prefixSampler targetView)
     (distinguisher : Distinguisher View) :
-    (Pr[= true | LearningWithErrors.game1 problem (constructor.reduction distinguisher)]).toReal =
+    (Pr[= true | LearningWithErrors.randomExperiment problem (constructor.reduction distinguisher)]).toReal =
       (1 + orientedGap (constructor.orientation distinguisher)
         (constructedDecision prefixSampler (LearningWithErrors.uniformDistr problem)
           constructor.build true distinguisher)
         (constructedDecision prefixSampler (LearningWithErrors.uniformDistr problem)
           constructor.build false distinguisher)) / 2 := by
   have hdist :
-      evalDist (LearningWithErrors.game1 problem (constructor.reduction distinguisher)) =
+      evalDist (LearningWithErrors.randomExperiment problem (constructor.reduction distinguisher)) =
         evalDist (orientedChoice (constructor.orientation distinguisher)
           (constructedDecision prefixSampler (LearningWithErrors.uniformDistr problem)
             constructor.build true distinguisher)
           (constructedDecision prefixSampler (LearningWithErrors.uniformDistr problem)
             constructor.build false distinguisher)) := by
-    unfold LearningWithErrors.game1
+    unfold LearningWithErrors.randomExperiment
     exact constructor.source_bind_reduction_evalDist distinguisher
       (LearningWithErrors.uniformDistr problem)
   rw [probOutput_congr rfl hdist]
@@ -278,7 +280,7 @@ gaps in its real and uniform branches. -/
 theorem reduction_advantage_eq
     (constructor : PublicViewConstructor problem prefixSampler targetView)
     (distinguisher : Distinguisher View) :
-    LearningWithErrors.advantage problem (constructor.reduction distinguisher) =
+    LearningWithErrors.realAdvantage problem (constructor.reduction distinguisher) =
       |orientedGap (constructor.orientation distinguisher)
           (constructedDecision prefixSampler (LearningWithErrors.distr problem)
             constructor.build true distinguisher)
@@ -344,7 +346,7 @@ theorem targetAdvantage_le_two_source_add_errors
     (constructor : PublicViewConstructor problem prefixSampler targetView)
     (distinguisher : Distinguisher View) :
     targetAdvantage targetView distinguisher ≤
-      2 * LearningWithErrors.advantage problem (constructor.reduction distinguisher) +
+      2 * LearningWithErrors.realAdvantage problem (constructor.reduction distinguisher) +
         constructor.realError true + constructor.realError false + constructor.uniformError := by
   let selectedOrientation := constructor.orientation distinguisher
   let realOne := constructedDecision prefixSampler (LearningWithErrors.distr problem)
@@ -381,12 +383,12 @@ theorem targetAdvantage_le_two_source_add_errors
       (constructor.decisionUniformDistance distinguisher)
     unfold uniformGap orientedGap
     by_cases horientation : selectedOrientation = true
-    · rw [if_pos horientation]
+    · rw [ite_eq_left horientation]
       exact hDecision
-    · rw [if_neg horientation, abs_sub_comm]
+    · rw [ite_eq_right horientation, abs_sub_comm]
       exact hDecision
   have hAdvantage :
-      LearningWithErrors.advantage problem (constructor.reduction distinguisher) =
+      LearningWithErrors.realAdvantage problem (constructor.reduction distinguisher) =
         |realGap - uniformGap| / 2 := by
     simpa only [realGap, uniformGap, selectedOrientation, realOne, realZero, uniformOne,
       uniformZero] using constructor.reduction_advantage_eq distinguisher
@@ -403,7 +405,7 @@ theorem targetAdvantage_le_two_source_of_exact
     (hUniformError : constructor.uniformError = 0)
     (distinguisher : Distinguisher View) :
     targetAdvantage targetView distinguisher ≤
-      2 * LearningWithErrors.advantage problem (constructor.reduction distinguisher) := by
+      2 * LearningWithErrors.realAdvantage problem (constructor.reduction distinguisher) := by
   have h := constructor.targetAdvantage_le_two_source_add_errors distinguisher
   rw [hRealError true, hRealError false, hUniformError] at h
   simpa using h
@@ -742,7 +744,7 @@ theorem constructed_uniform_branches_evalDist_eq {R Prefix : Type}
         evalDist (prefixSampler >>= fun prefixValue ↦
           source >>= fun transcript ↦ finish branch prefixValue transcript) := by
     unfold constructedView build finish
-    exact OracleComp.DeferredSampling.evalDist_bind_comm source prefixSampler _
+    exact FormalProof4FHE.evalDist_bind_bind_swap source prefixSampler _
   rw [hSwap true, hSwap false]
   refine evalDist_bind_congr' prefixSampler fun prefixValue ↦ ?_
   have hTrue := fixedPrefix_uniform_evalDist levels entries suffixSampler errorSampler
@@ -778,7 +780,7 @@ theorem targetAdvantage_le_two_parallelSuffix
     targetAdvantage
         (view levels entries prefixSampler suffixSampler errorSampler offset messages gadget)
         distinguisher ≤
-      2 * LearningWithErrors.advantage
+      2 * LearningWithErrors.realAdvantage
         (suffixProblem levels entries suffixSampler errorSampler)
         ((exactConstructor levels entries prefixSampler suffixSampler errorSampler
           offset messages gadget).reduction distinguisher) := by
@@ -811,7 +813,7 @@ theorem targetAdvantage_le_two_flatSuffix
     targetAdvantage
         (view levels entries prefixSampler suffixSampler errorSampler offset messages gadget)
         distinguisher ≤
-      2 * LearningWithErrors.advantage
+      2 * LearningWithErrors.realAdvantage
         (LWE.embeddedBatchProblem 1 (entries * TGSW.rowCount 1 levels)
           suffixSampler id errorSampler)
         (flattenedReduction levels entries prefixSampler suffixSampler errorSampler
@@ -843,14 +845,14 @@ theorem targetAdvantage_le_two_rlwe
     targetAdvantage
         (view levels entries prefixSampler suffixSampler errorSampler offset messages gadget)
         distinguisher ≤
-      2 * LearningWithErrors.advantage
+      2 * LearningWithErrors.realAdvantage
         (RLWE.problem q degree (entries * TGSW.rowCount 1 levels)
           suffixSampler errorSampler)
         (flattenedReduction levels entries prefixSampler suffixSampler errorSampler
           offset messages gadget distinguisher) := by
   have h := targetAdvantage_le_two_flatSuffix levels entries prefixSampler suffixSampler
     errorSampler offset messages gadget distinguisher
-  change _ ≤ 2 * @LearningWithErrors.advantage
+  change _ ≤ 2 * @LearningWithErrors.realAdvantage
       (RLWE.Sample q degree (entries * TGSW.rowCount 1 levels))
       (RLWE.Secret q degree)
       (RLWE.Output q degree (entries * TGSW.rowCount 1 levels))

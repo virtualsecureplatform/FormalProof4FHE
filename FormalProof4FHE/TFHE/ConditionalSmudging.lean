@@ -29,6 +29,8 @@ approximations to a modular discrete Gaussian.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TLWE
 
 /-- Add public noise to the body of one TLWE row, leaving its mask unchanged. -/
@@ -167,7 +169,6 @@ theorem smudge_uniformBatch_evalDist {R : Type}
       apply evalDist_ext
       intro ciphertext
       rw [probOutput_bind_const]
-      simp
 
 /-- Add freshly sampled body noise to a fixed native TLWE batch. -/
 def smudgeBatchBodies {R : Type} [Add R] {dimension samples : ℕ}
@@ -223,7 +224,7 @@ theorem tvDist_fixedMaskResidualView_wideView_le {R : Type} [Semiring R]
       tvDist ((fun noise ↦ residual + noise) <$> wideNoise) wideNoise := by
   simpa only [fixedMaskResidualView, fixedMaskWideView, Functor.map_map,
       Function.comp_apply] using
-    (tvDist_map_le (m := ProbComp)
+    (tvDist_map_le
       (fun error ↦ batchAssemble secret challenge message error)
       ((fun noise ↦ residual + noise) <$> wideNoise) wideNoise)
 

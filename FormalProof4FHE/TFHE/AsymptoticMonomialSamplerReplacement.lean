@@ -22,6 +22,8 @@ the native circular-security assumption; no reduction from ordinary LWE is claim
 
 open ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.MonomialSamplerReplacement
 
 /-- Pointwise implementation bound with the exact native degree-two monomial-KDM and

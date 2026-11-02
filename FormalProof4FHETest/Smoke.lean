@@ -6,7 +6,7 @@ Authors: Kotaro Matsuoka
 
 import FormalProof4FHE
 
-open scoped ENNReal
+open scoped FormalProof4FHE ENNReal
 open OracleComp
 
 #check FormalProof4FHE.RLWE.RankOneHNFLossinessSparseRankChannel.card_primitiveDifference_binaryQuotient_range
@@ -581,13 +581,13 @@ example {Alpha : Type} (count : ℕ) (samplers : Fin count → ProbComp Alpha)
 example {Sample Secret Output : Type} [Add Output]
     (problem : LearningWithErrors.Problem Sample Secret Output)
     (adversary : LearningWithErrors.Adversary problem) :
-    0 ≤ LearningWithErrors.advantage problem adversary := by
+    0 ≤ LearningWithErrors.realAdvantage problem adversary := by
   exact FormalProof4FHE.LWE.advantage_nonneg problem adversary
 
 example {Sample Secret Output : Type} [Add Output]
     (problem : LearningWithErrors.Problem Sample Secret Output)
     (adversary : LearningWithErrors.Adversary problem) :
-    LearningWithErrors.advantage problem adversary ≤ 1 := by
+    LearningWithErrors.realAdvantage problem adversary ≤ 1 := by
   exact FormalProof4FHE.LWE.advantage_le_one problem adversary
 
 example {Secret Challenge Auxiliary : Type}
@@ -631,7 +631,7 @@ example {q degree sampleCount : ℕ} [NeZero q]
     (errorSampler : ProbComp (FormalProof4FHE.RLWE.Rq q degree))
     (adversary : LearningWithErrors.Adversary
       (FormalProof4FHE.RLWE.uniformSecretProblem q degree sampleCount errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
       (FormalProof4FHE.RLWE.uniformSecretProblem q degree sampleCount errorSampler) adversary ≤ 1 := by
   exact FormalProof4FHE.RLWE.uniformAdvantage_le_one errorSampler adversary
 
@@ -691,10 +691,10 @@ example {R Secret : Type} [Ring R] [DecidableEq R] [SampleableType R]
     (adversary : LearningWithErrors.Adversary
       (FormalProof4FHE.LWE.AffineCircular.problem dimension samples secretSampler embed
         coefficients offset errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.AffineCircular.problem dimension samples secretSampler embed
           coefficients offset errorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.AffineCircular.ordinaryProblem dimension samples secretSampler embed
           errorSampler)
         (FormalProof4FHE.LWE.AffineCircular.reduction adversary) := by
@@ -751,12 +751,12 @@ example {q degree ringRank tgswLevels lweDimension keySwitchLevels : ℕ} [NeZer
     FormalProof4FHE.TFHE.Native.BootstrapCutSecurity.cutBootstrapReplacementAdvantage
         q degree ringRank tgswLevels lweDimension keySwitchLevels
         ringErrorSampler keySwitchErrorSampler tgswGadget continuation ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.TFHE.Native.BootstrapCutSecurity.parallelModuleLweProblem
           q degree ringRank tgswLevels lweDimension ringErrorSampler)
         (FormalProof4FHE.TFHE.Native.BootstrapCutSecurity.realMessageReduction
           ringErrorSampler keySwitchErrorSampler tgswGadget continuation) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.TFHE.Native.BootstrapCutSecurity.parallelModuleLweProblem
           q degree ringRank tgswLevels lweDimension ringErrorSampler)
         (FormalProof4FHE.TFHE.Native.BootstrapCutSecurity.zeroMessageReduction
@@ -773,10 +773,10 @@ example {R Secret : Type}
     (adversary : LearningWithErrors.Adversary
       (FormalProof4FHE.LWE.TwoBlock.problem dimension firstSamples secondSamples
         secretSampler embed errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.TwoBlock.problem dimension firstSamples secondSamples
           secretSampler embed errorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.embeddedBatchProblem dimension
           (firstSamples + secondSamples) secretSampler embed errorSampler)
         (FormalProof4FHE.LWE.TwoBlock.reduction adversary) := by
@@ -791,10 +791,10 @@ example {R Secret : Type}
     (adversary : LearningWithErrors.Adversary
       (FormalProof4FHE.LWE.ParallelBatch.problem dimension blocks samples
         secretSampler embed errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.ParallelBatch.problem dimension blocks samples
           secretSampler embed errorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.embeddedBatchProblem dimension (blocks * samples)
           secretSampler embed errorSampler)
         (FormalProof4FHE.LWE.ParallelBatch.reduction adversary) := by
@@ -813,11 +813,11 @@ example {R Secret : Type}
       (FormalProof4FHE.LWE.TwoBlock.heterogeneousProblem
         dimension firstSamples secondSamples secretSampler embed
         firstErrorSampler secondErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.TwoBlock.heterogeneousProblem
           dimension firstSamples secondSamples secretSampler embed
           firstErrorSampler secondErrorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.embeddedBatchProblem dimension
           (firstSamples + secondSamples) secretSampler embed firstErrorSampler)
         (FormalProof4FHE.LWE.TwoBlock.convolutionReduction
@@ -841,7 +841,7 @@ example {Message : Type}
         inputErrorSampler tgswGadget keySwitchGadget encode adversary)| ≤
       FormalProof4FHE.TFHE.Encryption.bootstrapReplacementAdvantage ringErrorSampler
           keySwitchErrorSampler inputErrorSampler tgswGadget keySwitchGadget encode adversary +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.TFHE.Encryption.Security.jointLweProblem q lweDimension
             (FormalProof4FHE.TFHE.Encryption.Security.keySwitchSamples
               ringRank degree keySwitchLevels)
@@ -869,7 +869,7 @@ example {Message : Type}
         ringErrorSampler errorSampler errorSampler tgswGadget keySwitchGadget encode adversary)| ≤
       FormalProof4FHE.TFHE.Encryption.MultiQuery.bootstrapReplacementAdvantage
           ringErrorSampler errorSampler errorSampler tgswGadget keySwitchGadget encode adversary +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.TFHE.Native.KeySwitchSecurity.binaryLweProblem q lweDimension
             (FormalProof4FHE.TFHE.Encryption.Security.keySwitchSamples
               ringRank degree keySwitchLevels + queryCount) errorSampler)
@@ -898,7 +898,7 @@ example {Message : Type}
         ringErrorSampler errorSampler errorSampler tgswGadget keySwitchGadget encode adversary)| ≤
       FormalProof4FHE.TFHE.Encryption.Adaptive.bootstrapReplacementAdvantage queryCount
           ringErrorSampler errorSampler errorSampler tgswGadget keySwitchGadget encode adversary +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.TFHE.Native.KeySwitchSecurity.binaryLweProblem q lweDimension
             (FormalProof4FHE.TFHE.Encryption.Security.keySwitchSamples
               ringRank degree keySwitchLevels + queryCount) errorSampler)
@@ -1518,10 +1518,10 @@ example {R : Type} [CommRing R] [Fintype R] [DecidableEq R] [SampleableType R]
     (adversary : LearningWithErrors.Adversary
       (FormalProof4FHE.LWE.MultiKeyAffine.problem
         dimension users samples coefficients offsets errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.MultiKeyAffine.problem
           dimension users samples coefficients offsets errorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.embeddedBatchProblem dimension (users * samples)
           ($ᵗ (FormalProof4FHE.LWE.MultiKeyAffine.BinaryVector dimension))
           (fun key coordinate ↦
@@ -1913,7 +1913,7 @@ example {F : Type} [Field F] [Fintype F] [DecidableEq F] [SampleableType F]
       queryCount) :
     FormalProof4FHE.GeneralizedSubspaceLWE.Adaptive.advantage
         (dimension + slack) errorSampler adversary ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.batchProblem dimension queryCount
           ($ᵗ (Fin dimension → F)) errorSampler)
         (FormalProof4FHE.GeneralizedSubspaceLWE.Adaptive.batchReduction

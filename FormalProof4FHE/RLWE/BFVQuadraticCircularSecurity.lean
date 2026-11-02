@@ -33,6 +33,8 @@ bounded entropic source does not by itself prove the decisional pseudorandomness
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.BFVQuadraticCircularSecurity
 
 noncomputable section
@@ -548,11 +550,11 @@ theorem zeroUniformAdvantage_eq_baseProblem
     (secretSampler : ProbComp R) (errorSampler : ProbComp (Batch R levels))
     (adversary : Distinguisher R levels) :
     zeroUniformAdvantage levels secretSampler errorSampler adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (SquareZeroQuadraticCircular.baseProblem
           (Row := Fin (levels + 1)) secretSampler errorSampler) adversary := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
-  unfold zeroUniformAdvantage LearningWithErrors.game0 LearningWithErrors.game1
+  unfold zeroUniformAdvantage LearningWithErrors.realExperiment LearningWithErrors.randomExperiment
   have hReal := FormalProof4FHE.SharedRandomness.evalDist_bind_eq_of_evalDist_eq
     (zeroSampler_baseProblem_evalDist levels secretSampler errorSampler) adversary
   have hBaseUniform := SquareZeroQuadraticCircular.base_uniformDistr_evalDist

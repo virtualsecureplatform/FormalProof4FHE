@@ -4,6 +4,7 @@ Released under MIT license as described in the file LICENSE.
 Authors: Kotaro Matsuoka
 -/
 
+import FormalProof4FHE.Probability.Discrete
 import FormalProof4FHE.TFHE.SharedRandomnessTargetMessageAdaptiveSearchEquiv
 import VCVio.CryptoFoundations.Asymptotics.Security
 
@@ -29,6 +30,8 @@ that object remains an explicit reduction compiler below.
 -/
 
 open ENNReal OracleComp
+
+open scoped FormalProof4FHE
 
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveBRKCircLWE.SearchEquiv.Asymptotic
 
@@ -188,7 +191,7 @@ noncomputable def moduleLWESecurityGame {Message : Type} (params : Parameters Me
     [∀ securityParameter, NeZero (params.q securityParameter)] :
     SecurityGame (ModuleLWEAdversaryFamily params) where
   advantage adversary securityParameter := ENNReal.ofReal
-    (LearningWithErrors.advantage
+    (LearningWithErrors.realAdvantage
       (AdaptiveReduction.problem
         (params.q securityParameter)
         (params.degree securityParameter)
@@ -292,7 +295,7 @@ theorem securityGame_advantage_le_tapeFirstSearch_add_loss_add_moduleLWE
         (params.encode securityParameter)
         (adversary.run securityParameter))
   let moduleAdvantage :=
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
       (AdaptiveReduction.problem
         (params.q securityParameter)
         (params.degree securityParameter)

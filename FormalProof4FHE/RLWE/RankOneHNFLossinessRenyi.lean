@@ -27,6 +27,8 @@ proof-carrying certificates because those measure-theoretic distributions are ou
 open OracleComp
 open scoped ENNReal BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.RankOneHNFLossinessRenyi
 
 open RankOneHNFLossinessRLWENTRU
@@ -416,7 +418,7 @@ theorem productRenyiMoment_le_exp_totalEnergy
         finiteRenyiMoment alpha (rowLikelihood row secret)
           (rowReference row).mass) ≤
         ∏ row, Real.exp (coefficient * certificate.energy row secret) := by
-      apply Finset.prod_le_prod
+      apply Finset.prod_le_prod₀
       · intro row _
         exact Finset.sum_nonneg fun output _ ↦
           mul_nonneg
@@ -1129,7 +1131,7 @@ theorem abs_energy_sub_le_coordinateOscillation
     |energy left - energy right| =
         (if ∀ coordinate, coordinate ≠ changed →
             left coordinate = right coordinate
-          then |energy left - energy right| else 0) := (if_pos agree).symm
+          then |energy left - energy right| else 0) := (ite_eq_left agree).symm
     _ ≤ Finset.univ.sup' Finset.univ_nonempty (fun candidate ↦
         if ∀ coordinate, coordinate ≠ changed →
             left coordinate = candidate coordinate
@@ -1480,7 +1482,7 @@ theorem ProductLaplaceRowCertificate.productMoment_le
         (rowReference row).mass) ≤
       ∏ row, certificate.constant row *
         Real.exp ((alpha - 1) * certificate.growth row secret) := by
-      apply Finset.prod_le_prod
+      apply Finset.prod_le_prod₀
       · intro row _
         exact Finset.sum_nonneg fun output _ ↦ mul_nonneg
           (Real.rpow_nonneg (certificate.likelihood_nonneg row secret output) alpha)

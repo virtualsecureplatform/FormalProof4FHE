@@ -30,6 +30,8 @@ the conditional-distance fields from exact residual normal forms and native smud
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput.SearchToDecision.Widened
 
 /-- Cross-distribution certificate from centered-binomial native search to an arbitrary widened

@@ -25,6 +25,8 @@ still unproved; this is not a completed FHE security theorem.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWLinearCharacterSecurity
 
 open GSWLinearCharacterCompiler
@@ -161,7 +163,7 @@ theorem sourceSimulator_real {samples : ℕ}
     (RecursiveQuadratic.real_evalDist columns
       (RecursiveFeaturePublicKey.joinedPolynomial (zeroPolynomial q n k)) secretSampler id errorSampler)
     (fun original ↦ materialize first second builder (RecursiveFeaturePublicKey.publish original))
-  simpa [sourceSimulator, freshView, RecursiveFeaturePublicKey.freshView,
+  simpa +unfoldPartialApp [sourceSimulator, freshView, RecursiveFeaturePublicKey.freshView,
     RecursiveQuadratic.freshView, monad_norm] using h
 
 /-- One full-view ideal, including the common retained source and all cubic
@@ -296,7 +298,7 @@ def fromINDCPA {samples : ℕ} (params : GSWGadget.Parameters q)
     (level : Fin params.levels) (first second : P → Fin n) (builder : Builder q n m k P)
     (columns : RecursiveQuadratic.Column n m (p + k) ≃ Fin samples)
     (secretSampler : ProbComp (Fin n → ZMod q)) (errorSampler : ProbComp (ZMod q))
-    (adversary : AsymmEncAlg.IND_CPA_Adv
+    (adversary : AsymmEncAlg.IND_CPA_OneTime_Adversary
       (scheme params level first second builder columns secretSampler errorSampler)) :
     RecursiveFeaturePublicKey.Adversary (n := n) (r := m) (p := p) (k := k) params where
   State := adversary.State
@@ -309,9 +311,9 @@ theorem oneTime_game_evalDist {samples : ℕ} (params : GSWGadget.Parameters q)
     (level : Fin params.levels) (first second : P → Fin n) (builder : Builder q n m k P)
     (columns : RecursiveQuadratic.Column n m (p + k) ≃ Fin samples)
     (secretSampler : ProbComp (Fin n → ZMod q)) (errorSampler : ProbComp (ZMod q))
-    (adversary : AsymmEncAlg.IND_CPA_Adv
+    (adversary : AsymmEncAlg.IND_CPA_OneTime_Adversary
       (scheme params level first second builder columns secretSampler errorSampler)) :
-    𝒟[AsymmEncAlg.IND_CPA_OneTime_Game_ProbComp adversary] =
+    𝒟[FormalProof4FHE.oneTimeGame adversary] =
       𝒟[GSWMasking.game params (freshView first second builder columns secretSampler errorSampler)
         (fromINDCPA params level first second builder columns secretSampler errorSampler adversary)] := by
   let observer := fun view : RecursiveFeaturePublicKey.StoredView q n m p k ↦ do
@@ -331,7 +333,7 @@ theorem oneTime_game_evalDist {samples : ℕ} (params : GSWGadget.Parameters q)
       pure (bit == guess))
   have hforget := FormalProof4FHE.SharedRandomness.evalDist_bind_eq_of_evalDist_eq
     (keygen_public_evalDist first second builder columns secretSampler errorSampler) observer
-  simpa [AsymmEncAlg.IND_CPA_OneTime_Game_ProbComp, scheme, GSWMasking.game,
+  simpa [FormalProof4FHE.oneTimeGame, scheme, GSWMasking.game,
     RecursiveFeaturePublicKey.observe, fromINDCPA, observer,
     RecursiveFeaturePublicKey.storeView, monad_norm] using hswap.trans (by
       simpa [bind_map_left, observer, RecursiveFeaturePublicKey.storeView,
@@ -385,7 +387,7 @@ theorem oneTime_abs_signedAdvantage_le {m p k samples : ℕ} (parameter : ℕ)
       (RecursiveQuadraticParameters.binaryDimension parameter * 1) m k P)
     (columns : RecursiveQuadratic.Column (RecursiveQuadraticParameters.binaryDimension parameter * 1)
       m (p + k) ≃ Fin samples)
-    (adversary : AsymmEncAlg.IND_CPA_Adv (scheme params level first second builder columns
+    (adversary : AsymmEncAlg.IND_CPA_OneTime_Adversary (scheme params level first second builder columns
       (FormalProof4FHE.BlockBinary.expand (ZMod (RecursiveQuadraticParameters.modulus parameter)) <$>
         ($ᵗ FormalProof4FHE.BlockBinary.Key 1 (RecursiveQuadraticParameters.binaryDimension parameter)))
       (UniformInterval.sample (RecursiveQuadraticParameters.modulus parameter)
@@ -396,7 +398,7 @@ theorem oneTime_abs_signedAdvantage_le {m p k samples : ℕ} (parameter : ℕ)
       (RecursiveQuadraticParameters.radius parameter) (RecursiveQuadraticParameters.retries parameter)
     let reduced := liftAdversary params first second builder
       (fromINDCPA params level first second builder columns secretSampler errorSampler adversary)
-    |AsymmEncAlg.IND_CPA_OneTime_signedAdvantageReal
+    |FormalProof4FHE.oneTimeSignedAdvantage
       (scheme params level first second builder columns secretSampler errorSampler) adversary| ≤
       RecursiveQuadraticParameters.ordinaryReductionLoss parameter columns
         (RecursiveFeaturePublicKey.joinedPolynomial
@@ -409,7 +411,7 @@ theorem oneTime_abs_signedAdvantage_le {m p k samples : ℕ} (parameter : ℕ)
           (RecursiveFeaturePublicKey.Dimension (RecursiveQuadraticParameters.binaryDimension parameter * 1) + 1) /
             (2 : ℝ) ^ p) / 2) := by
   dsimp only
-  unfold AsymmEncAlg.IND_CPA_OneTime_signedAdvantageReal
+  unfold FormalProof4FHE.oneTimeSignedAdvantage
   rw [probOutput_congr (rfl : true = true) (oneTime_game_evalDist params level first second builder
     columns _ _ adversary)]
   exact sampled_game_abs_advantage_le parameter params first second builder columns

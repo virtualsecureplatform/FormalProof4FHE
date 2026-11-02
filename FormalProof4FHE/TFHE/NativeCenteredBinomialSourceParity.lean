@@ -23,6 +23,8 @@ does not assert the remaining good-error cokernel estimate.
 open OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.CenteredBinomialSourceParity
 
 open FormalProof4FHE.RLWE.CenteredBinomial
@@ -192,7 +194,7 @@ theorem paritySampler_probOutput_add_one
         rw [probOutput_pure_self, probOutput_pure_self]
       · have hshift : residue + 1 ≠ decode coins + 1 := fun heq ↦
           hresidue (add_right_cancel heq)
-        rw [probOutput_pure, probOutput_pure, if_neg hshift, if_neg hresidue]
+        rw [probOutput_pure, probOutput_pure, ite_eq_right hshift, ite_eq_right hresidue]
     _ = ∑' coins : Coins,
         Pr[= coins | $ᵗ Coins] * Pr[= residue | pure (decode coins)] := rfl
 
@@ -266,7 +268,7 @@ theorem hasNonzeroParity_exists_isUnit {q degree count : ℕ} [NeZero q]
     ∃ row, IsUnit (sourceError row) := by
   obtain ⟨row, hnonzero⟩ := hgood
   refine ⟨row, ?_⟩
-  letI : IsLocalHom (rqParityEval heven (Nat.succ_pos degree)) := localParity
+  let : IsLocalHom (rqParityEval heven (Nat.succ_pos degree)) := localParity
   exact IsUnit.of_map (rqParityEval heven (Nat.succ_pos degree)) _
     (isUnit_iff_ne_zero.mpr hnonzero)
 

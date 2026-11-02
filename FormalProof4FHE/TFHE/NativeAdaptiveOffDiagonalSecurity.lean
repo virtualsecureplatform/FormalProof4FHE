@@ -20,6 +20,8 @@ so the fixed-secret total-variation bound lifts by data processing and averaging
 open OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted
 
 noncomputable section
@@ -661,11 +663,11 @@ theorem tvDist_coupledDirectCorrectView_coupledDirectTargetView_le
     ∑ outputCoordinate ∈ Finset.univ.erase coordinate,
       offDiagonalError outputCoordinate
   unfold coupledDirectCorrectView coupledDirectTargetView
-  refine tvDist_bind_left_le_const (m := ProbComp) Secrets _ _ bound ?_
+  refine tvDist_bind_left_le_const Secrets _ _ bound ?_
   intro secrets _hsecrets
-  refine tvDist_bind_left_le_const (m := ProbComp) (Aux secrets) _ _ bound ?_
+  refine tvDist_bind_left_le_const (Aux secrets) _ _ bound ?_
   intro auxiliary _hauxiliary
-  refine tvDist_bind_left_le_const (m := ProbComp) Masks _ _ bound ?_
+  refine tvDist_bind_left_le_const Masks _ _ bound ?_
   intro mask _hmask
   let targetSecret := Native.ScalarSecretRandomization.maskedSecret secrets.1 mask
   let CorrectKey :=
@@ -686,7 +688,7 @@ theorem tvDist_coupledDirectCorrectView_coupledDirectTargetView_le
         diagonalError offDiagonalError
         (hDiagonal targetSecret secrets.2)
         (hOffDiagonal targetSecret secrets.2))
-  have hMap := tvDist_map_le (m := ProbComp) finish CorrectKey TargetKey
+  have hMap := tvDist_map_le finish CorrectKey TargetKey
   simpa only [Secrets, Aux, Masks, targetSecret, CorrectKey, TargetKey, finish,
     map_eq_bind_pure_comp, Function.comp_def] using hMap.trans hFixed
 
@@ -794,11 +796,11 @@ theorem tvDist_coupledDirectCorrectView_coupledDirectTargetView_le_averagedOffDi
       targetRingErrorSampler coordinate
   let bound := diagonalError + offDiagonalError
   unfold coupledDirectCorrectView coupledDirectTargetView
-  refine tvDist_bind_left_le_const (m := ProbComp) Secrets _ _ bound ?_
+  refine tvDist_bind_left_le_const Secrets _ _ bound ?_
   intro secrets _hsecrets
-  refine tvDist_bind_left_le_const (m := ProbComp) (Aux secrets) _ _ bound ?_
+  refine tvDist_bind_left_le_const (Aux secrets) _ _ bound ?_
   intro auxiliary _hauxiliary
-  refine tvDist_bind_left_le_const (m := ProbComp) Masks _ _ bound ?_
+  refine tvDist_bind_left_le_const Masks _ _ bound ?_
   intro mask _hmask
   let targetSecret := Native.ScalarSecretRandomization.maskedSecret secrets.1 mask
   let CorrectKey :=
@@ -817,7 +819,7 @@ theorem tvDist_coupledDirectCorrectView_coupledDirectTargetView_le_averagedOffDi
         params (RLWE.CenteredBinomial.sampler q (degree + 1) eta)
         targetRingErrorSampler targetSecret secrets.2 coordinate diagonalError
         (hDiagonal targetSecret secrets.2))
-  have hMap := tvDist_map_le (m := ProbComp) finish CorrectKey TargetKey
+  have hMap := tvDist_map_le finish CorrectKey TargetKey
   simpa only [Secrets, Aux, Masks, targetSecret, CorrectKey, TargetKey, finish,
     map_eq_bind_pure_comp, Function.comp_def] using hMap.trans hFixed
 
@@ -912,11 +914,11 @@ theorem tvDist_coupledDirectCorrectView_coupledDirectTargetView_le_residualL2
       targetRingErrorSampler coordinate
   let bound := diagonalError + offDiagonalError
   unfold coupledDirectCorrectView coupledDirectTargetView
-  refine tvDist_bind_left_le_const (m := ProbComp) Secrets _ _ bound ?_
+  refine tvDist_bind_left_le_const Secrets _ _ bound ?_
   intro secrets _hsecrets
-  refine tvDist_bind_left_le_const (m := ProbComp) (Aux secrets) _ _ bound ?_
+  refine tvDist_bind_left_le_const (Aux secrets) _ _ bound ?_
   intro auxiliary _hauxiliary
-  refine tvDist_bind_left_le_const (m := ProbComp) Masks _ _ bound ?_
+  refine tvDist_bind_left_le_const Masks _ _ bound ?_
   intro mask _hmask
   let targetSecret := Native.ScalarSecretRandomization.maskedSecret secrets.1 mask
   let CorrectKey :=
@@ -935,7 +937,7 @@ theorem tvDist_coupledDirectCorrectView_coupledDirectTargetView_le_residualL2
         params (RLWE.CenteredBinomial.sampler q (degree + 1) eta)
         targetRingErrorSampler targetSecret secrets.2 coordinate diagonalError
         (hDiagonal targetSecret secrets.2))
-  have hMap := tvDist_map_le (m := ProbComp) finish CorrectKey TargetKey
+  have hMap := tvDist_map_le finish CorrectKey TargetKey
   simpa only [Secrets, Aux, Masks, targetSecret, CorrectKey, TargetKey, finish,
     map_eq_bind_pure_comp, Function.comp_def] using hMap.trans hFixed
 
@@ -1408,7 +1410,7 @@ theorem tvDist_maskedBranchExperiment_maskedUniform_eq_zero_of_wrongBranchFresh
   unfold tvDist
   rw [maskedBranchExperiment_evalDist_eq_maskedUniform_of_wrongBranchFresh
     params coordinate hidden challenge auxiliary hFresh]
-  exact SPMF.tvDist_self _
+  exact MeasureTheory.Measure.tvDist_self _
 
 /-- Named construction-specific boundary for native shifted TFHE.  It records exactly the
 averaged diagonal self-correlation, conditionally independent off-diagonal source-to-target
@@ -1540,7 +1542,7 @@ noncomputable def ofWrongBranchFresh
     rw [averagedWrongTransform_evalDist_eq_uniformPublicView
       params (RLWE.CenteredBinomial.sampler q (degree + 1) eta)
       keySwitchErrorSampler inputErrorSampler keySwitchGadget coordinate hFresh]
-    exact le_of_eq (SPMF.tvDist_self _)
+    exact le_of_eq (MeasureTheory.Measure.tvDist_self _)
 
 /-- Build the whole-key certificate from explicit mask-averaged single-row branch defects.
 Compared with `ofWrongBranchFresh`, this constructor permits non-bijective row maps and charges

@@ -18,6 +18,8 @@ No ideal probability or real exponential is evaluated by the generator.
 
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.GaussianSamplerTV
 
 open GaussianIntegerWeights LatticeCrypto
@@ -100,7 +102,7 @@ theorem scaled_table_output (width precision : ℕ) (hwidth : 0 < width) (value 
           discreteGaussianSum width 0 else 0 := by
   rw [normalizationScale, table_outputPMF_toReal]
   by_cases hvalue : value.natAbs ≤ width ^ 2
-  · rw [if_pos hvalue, if_pos hvalue]
+  · rw [ite_eq_left hvalue, ite_eq_left hvalue]
     have hw : (0 : ℝ) < (table width precision).ticketCount := by
       exact_mod_cast totalWeight_pos width precision
     have hz := discreteGaussianSum_pos (width : ℝ) 0 (Nat.cast_pos.mpr hwidth)
@@ -129,14 +131,14 @@ noncomputable def approximationBound (width precision : ℕ) : ℝ :=
 
 /-- Pointwise comparison before renormalizing the generated table. -/
 theorem scaled_error_pointwise_le (width precision : ℕ) (hwidth : 0 < width) (value : ℤ) :
-    |(discreteGaussianDist width 0 (Nat.cast_pos.mpr hwidth) value).toReal -
+    |(ModularGaussian.integerDistribution width 0 (Nat.cast_pos.mpr hwidth) value).toReal -
       normalizationScale width precision * ((table width precision).outputPMF value).toReal| ≤
       (if value ∈ cutoffSet width then weightError width precision else 0) +
         (if width ^ 2 < value.natAbs then discreteGaussianPMF width 0 value else 0) := by
-  rw [discreteGaussianDist_apply, scaled_table_output width precision hwidth]
+  rw [ModularGaussian.integerDistribution_apply, scaled_table_output width precision hwidth]
   by_cases hvalue : value.natAbs ≤ width ^ 2
-  · rw [if_pos hvalue, if_pos ((cutoffSet_mem_iff width value).2 hvalue),
-      if_neg (not_lt_of_ge hvalue), add_zero]
+  · rw [ite_eq_left hvalue, ite_eq_left ((cutoffSet_mem_iff width value).2 hvalue),
+      ite_eq_right (not_lt_of_ge hvalue), add_zero]
     have hz := discreteGaussianSum_pos (width : ℝ) 0 (Nat.cast_pos.mpr hwidth)
     have herr := integerWeight_error_le width precision hwidth value hvalue
     have hraw : discreteGaussianWeight width 0 value =
@@ -153,14 +155,14 @@ theorem scaled_error_pointwise_le (width precision : ℕ) (hwidth : 0 < width) (
       (div_le_self (by positivity)
         (DiscreteGaussianTail.normalizer_ge_one _ (Nat.cast_pos.mpr hwidth)))
   · have hbad : width ^ 2 < value.natAbs := Nat.lt_of_not_ge hvalue
-    rw [if_neg hvalue, if_neg (fun h ↦ hvalue ((cutoffSet_mem_iff width value).1 h)),
-      if_pos hbad, zero_add, sub_zero]
+    rw [ite_eq_right hvalue, ite_eq_right (fun h ↦ hvalue ((cutoffSet_mem_iff width value).1 h)),
+      ite_eq_left hbad, zero_add, sub_zero]
     rw [abs_of_nonneg (discreteGaussianPMF_nonneg width 0 (Nat.cast_pos.mpr hwidth) value)]
 
 /-- Complete error sum, with no dependence on the coefficient modulus or an assumed certificate. -/
 theorem scaled_error_sum_le (width precision : ℕ) (hwidth : 0 < width) :
     (∑' value : ℤ,
-      |(discreteGaussianDist width 0 (Nat.cast_pos.mpr hwidth) value).toReal -
+      |(ModularGaussian.integerDistribution width 0 (Nat.cast_pos.mpr hwidth) value).toReal -
         normalizationScale width precision * ((table width precision).outputPMF value).toReal|) ≤
       approximationBound width precision := by
   let inside : ℤ → ℝ := fun value ↦ if value ∈ cutoffSet width then weightError width precision else 0
@@ -175,7 +177,7 @@ theorem scaled_error_sum_le (width precision : ℕ) (hwidth : 0 < width) :
     rw [tsum_eq_sum (s := cutoffSet width) (fun value hvalue ↦ by simp [inside, hvalue])]
     simp [inside, cutoffSet_card]
   have herror := ((NormalizationTV.pmf_real_summable
-      (discreteGaussianDist width 0 (Nat.cast_pos.mpr hwidth))).sub
+      (ModularGaussian.integerDistribution width 0 (Nat.cast_pos.mpr hwidth))).sub
       ((NormalizationTV.pmf_real_summable (table width precision).outputPMF).mul_left
         (normalizationScale width precision))).abs
   have h := herror.tsum_le_tsum (scaled_error_pointwise_le width precision hwidth)
@@ -189,7 +191,7 @@ theorem scaled_error_sum_le (width precision : ℕ) (hwidth : 0 < width) :
 
 /-- The concrete integer sampler is close to the ideal Gaussian, including normalization and tail. -/
 theorem integer_etvDist_le (width precision : ℕ) (hwidth : 0 < width) :
-    (table width precision).outputPMF.etvDist (discreteGaussianDist width 0 (Nat.cast_pos.mpr hwidth)) ≤
+    (table width precision).outputPMF.etvDist (ModularGaussian.integerDistribution width 0 (Nat.cast_pos.mpr hwidth)) ≤
       ENNReal.ofReal (approximationBound width precision) := by
   rw [PMF.etvDist_comm]
   exact NormalizationTV.etvDist_le_of_scaled_error _ _ (normalizationScale width precision) _

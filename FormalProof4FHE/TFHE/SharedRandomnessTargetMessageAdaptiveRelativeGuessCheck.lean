@@ -27,6 +27,8 @@ it does not construct the nonlinear native ring-key shift.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.AdaptiveCircularLWE
 
 noncomputable section
@@ -186,7 +188,7 @@ theorem correctCandidateView_tvDist_le
         gadget secret >>=
       evaluator.evaluateCandidateView coordinate
         (targetMessages secret.1 secret.2 coordinate)
-  have hmix := tvDist_bind_left_le_const' (m := ProbComp) secrets sourceView
+  have hmix := tvDist_bind_left_le_const' secrets sourceView
     (fun _ ↦ target) evaluator.candidateErrorBudget
     (fun secret ↦ by
       simpa only [sourceView, target, candidateErrorBudget] using
@@ -235,7 +237,7 @@ theorem wrongCandidateView_tvDist_le
         gadget secret >>=
       evaluator.evaluateCandidateView coordinate
         (!(targetMessages secret.1 secret.2 coordinate))
-  have hmix := tvDist_bind_left_le_const' (m := ProbComp) secrets sourceView
+  have hmix := tvDist_bind_left_le_const' secrets sourceView
     (fun _ ↦ target) evaluator.candidateErrorBudget
     (fun secret ↦ by
       simpa only [sourceView, target, candidateErrorBudget] using

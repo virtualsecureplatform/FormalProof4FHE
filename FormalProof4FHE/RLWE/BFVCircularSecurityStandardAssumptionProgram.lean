@@ -31,6 +31,8 @@ this module does not assert the manuscript's final conjecture.
 open OracleComp
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.BFVCircularSecurityStandardAssumptionProgram
 
 noncomputable section
@@ -228,7 +230,7 @@ theorem conditionedUniformTriple_uniform_evalDist
         rfl
     _ = evalDist (Prod.fst <$> ($ᵗ ((R × R × R) × (R × R)))) := by
       simpa only [evalDist_map] using congrArg
-        (fun distribution ↦ Prod.fst <$> distribution) hCompiler
+        (fun distribution ↦ MeasureTheory.Measure.map (Prod.fst) distribution) hCompiler
     _ = evalDist ($ᵗ (R × R × R)) :=
       evalDist_map_fst_uniformSample_prod
 
@@ -251,7 +253,6 @@ theorem conditionedUniformTriple_unitSampler_evalDist
       apply evalDist_ext
       intro output
       rw [probOutput_bind_const]
-      simp
 
 /-- Complete three-row source view after publicly conditioning the first mask to be a unit. -/
 abbrev UnitConditionedThreeRowView (R : Type) [Monoid R] := Rˣ × FiveCoins R
@@ -550,7 +551,7 @@ theorem scalarBoxDifferenceAddHom_surjective_of_isUnit
     ((right index).val : R) * coefficients index)) = output
   rw [Finset.sum_eq_single selected]
   · dsimp [coefficients]
-    rw [if_pos rfl]
+    rw [ite_eq_left rfl]
     have hUnitSpec : (unit : R) =
         ((left selected).val : R) - (right selected).val := hUnit.unit_spec
     calc
@@ -892,7 +893,7 @@ theorem finiteWeightedUnionBound
       apply Finset.sum_le_sum
       intro context _
       by_cases hUnion : ∃ index ∈ indices, event index context
-      · simp only [if_pos hUnion]
+      · simp only [ite_eq_left hUnion]
         obtain ⟨index, hIndex, hEvent⟩ := hUnion
         have hSingle :
             (if event index context then mass context else 0) ≤
@@ -907,7 +908,7 @@ theorem finiteWeightedUnionBound
             · simp [hOther]
           · exact hIndex
         simpa [hEvent] using hSingle
-      · simp only [if_neg hUnion]
+      · simp only [ite_eq_right hUnion]
         exact Finset.sum_nonneg fun index _ ↦ by
           by_cases hIndex : event index context
           · simp [hIndex, hMass context]
@@ -1306,7 +1307,7 @@ theorem coefficientQuotient_uniform_evalDist
     _ = evalDist (Prod.fst <$> ($ᵗ ((Fin rank → Fin quotientCardinality) ×
           (Fin rank → Fin divisor)))) := by
       simpa only [evalDist_map] using congrArg
-        (fun distribution ↦ Prod.fst <$> distribution) hSplit
+        (fun distribution ↦ MeasureTheory.Measure.map (Prod.fst) distribution) hSplit
     _ = evalDist ($ᵗ (Fin rank → Fin quotientCardinality)) :=
       evalDist_map_fst_uniformSample_prod
 
@@ -1372,7 +1373,7 @@ theorem rqQuotient_uniform_evalDist
         (FormalProof4FHE.RLWE.Rq quotientCardinality degree ×
           FormalProof4FHE.RLWE.Rq divisor degree))) := by
       simpa only [evalDist_map] using congrArg
-        (fun distribution ↦ Prod.fst <$> distribution) hSplit
+        (fun distribution ↦ MeasureTheory.Measure.map (Prod.fst) distribution) hSplit
     _ = evalDist ($ᵗ FormalProof4FHE.RLWE.Rq quotientCardinality degree) :=
       evalDist_map_fst_uniformSample_prod
 
@@ -1450,7 +1451,7 @@ theorem rqPairQuotient_uniform_evalDist
            (FormalProof4FHE.RLWE.Rq divisor degree ×
             FormalProof4FHE.RLWE.Rq divisor degree)))) := by
       simpa only [evalDist_map] using congrArg
-        (fun distribution ↦ Prod.fst <$> distribution) hSplit
+        (fun distribution ↦ MeasureTheory.Measure.map (Prod.fst) distribution) hSplit
     _ = evalDist ($ᵗ (FormalProof4FHE.RLWE.Rq quotientCardinality degree ×
         FormalProof4FHE.RLWE.Rq quotientCardinality degree)) :=
       evalDist_map_fst_uniformSample_prod
@@ -1635,7 +1636,7 @@ def centeredSampler
     simp only [Finset.mem_image]
     refine ⟨0, ?_, by simp⟩
     simp [Box.centeredIntegerInterval]
-  letI : Nonempty support := hNonempty.to_subtype
+  let : Nonempty support := hNonempty.to_subtype
   exact UniformSubset.uniformFinset support
 
 /-- Uniform sampler on the modular shifted support. -/
@@ -1649,7 +1650,7 @@ def shiftedSampler
     simp only [Finset.mem_image]
     refine ⟨shift, ?_, rfl⟩
     simp [Box.shiftedCenteredIntegerInterval]
-  letI : Nonempty support := hNonempty.to_subtype
+  let : Nonempty support := hNonempty.to_subtype
   exact UniformSubset.uniformFinset support
 
 /-- Exact modular one-coordinate flooding distance.  The loss is clipped automatically when the
@@ -1678,8 +1679,8 @@ theorem tvDist_centered_shifted_eq_coordinateLoss
     simp only [Finset.mem_image]
     refine ⟨shift, ?_, rfl⟩
     simp [Box.shiftedCenteredIntegerInterval]
-  letI : Nonempty left := hLeftNonempty.to_subtype
-  letI : Nonempty right := hRightNonempty.to_subtype
+  let : Nonempty left := hLeftNonempty.to_subtype
+  let : Nonempty right := hRightNonempty.to_subtype
   change tvDist (UniformSubset.uniformFinset left)
       (UniformSubset.uniformFinset right) = _
   rw [Box.tvDist_uniformFinset_sameCard left right]

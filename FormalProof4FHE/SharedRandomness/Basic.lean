@@ -20,6 +20,8 @@ the first secret.  The two matrices and the two error vectors are sampled indepe
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.SharedRandomness
 
 /-- Public matrices in a shared-randomness LWE transcript. -/
@@ -72,7 +74,7 @@ theorem appendRows_splitRows {R J : Type} {n k : ℕ}
     (matrix : Matrix (Fin (n + k)) J R) :
     appendRows (splitRows matrix).1 (splitRows matrix).2 = matrix := by
   ext i j
-  refine Fin.addCases ?_ ?_ i <;> intro row <;> simp [splitRows]
+  refine Fin.addCases ?_ ?_ i <;> intro row <;> simp [splitRows, appendRows]
 
 /-- Appending matrix rows is a bijection between a pair of blocks and the combined matrix. -/
 theorem appendRows_bijective {R J : Type} {n k : ℕ} :

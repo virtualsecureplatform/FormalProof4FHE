@@ -17,6 +17,8 @@ exponents modulo `2N`.
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE
 
 namespace RotationLookup
@@ -84,18 +86,15 @@ theorem quotientOf_rotationMonomial {q degree : ℕ}
       (LatticeCrypto.vectorBackend (ZMod q) (degree + 1))
         (BlindRotation.rotationMonomial q degree exponent) = _
   simp only [LatticeCrypto.NegacyclicQuotient.ofBackend]
-  change LatticeCrypto.NegacyclicQuotient.ofPolynomial (degree + 1)
-      ((LatticeCrypto.vectorBackend (ZMod q) (degree + 1)).toPolynomial
-        (BlindRotation.rotationMonomial q degree exponent)) = _
   rw [toPolynomial_rotationMonomial]
   by_cases hexponent : exponent.val < degree + 1
-  · rw [if_pos hexponent]
+  · rw [ite_eq_left hexponent]
     have hmonomial : Polynomial.monomial exponent.val (1 : ZMod q) =
         Polynomial.X ^ exponent.val := by
       rw [← Polynomial.C_mul_X_pow_eq_monomial]
       simp
     rw [hmonomial]
-  · rw [if_neg hexponent]
+  · rw [ite_eq_right hexponent]
     have hlower : degree + 1 ≤ exponent.val := Nat.le_of_not_gt hexponent
     let reduced := exponent.val - (degree + 1)
     have hsplit : reduced + (degree + 1) = exponent.val :=
@@ -217,11 +216,11 @@ theorem idealMultiplier_map_toControl {q degree rank levels : ℕ} [NeZero q]
         List.sum_cons, RotationSpec.toControl]
       rw [ih]
       cases hbit : spec.bit
-      · simp only [Bool.false_eq_true, if_false, mul_one, zero_add]
+      · simp only [Bool.false_eq_true, ite_false, mul_one, zero_add]
         change BlindRotation.rotationMonomial q degree (selectedExponent specs) =
             BlindRotation.rotationMonomial q degree (selectedExponent specs)
         rfl
-      · simp only [if_true]
+      · simp only [ite_true]
         change BlindRotation.rotationMonomial q degree (selectedExponent specs) *
             BlindRotation.rotationMonomial q degree spec.exponent =
           BlindRotation.rotationMonomial q degree
@@ -363,7 +362,7 @@ theorem coefficientLookup_eq_reciprocal {q degree : ℕ} [NeZero q]
   unfold coefficientLookup
   rw [SampleExtraction.constantCoefficient_mul]
   by_cases hexponent : exponent.val < degree + 1
-  · rw [if_pos hexponent]
+  · rw [ite_eq_left hexponent]
     let selected := halfIndex exponent
     have hselected : selected.val = exponent.val :=
       halfIndex_val_of_lt exponent hexponent
@@ -380,7 +379,7 @@ theorem coefficientLookup_eq_reciprocal {q degree : ℕ} [NeZero q]
         exact heq
       simp [hexponent, hval]
     · simp
-  · rw [if_neg hexponent]
+  · rw [ite_eq_right hexponent]
     let selected := halfIndex exponent
     have hselected : selected.val = exponent.val - (degree + 1) :=
       halfIndex_val_of_not_lt exponent hexponent
@@ -460,7 +459,7 @@ theorem coefficientLookup_bitTableTestVector {q degree : ℕ} [NeZero q]
   rw [bitTableTestVector, coefficientLookup_testVectorFromHalfTable]
   by_cases hexponent : exponent.val < degree + 1
   · simp [antiPeriodicBit, hexponent]
-  · rw [if_neg hexponent]
+  · rw [ite_eq_right hexponent]
     cases hbit : firstHalfBit (halfIndex exponent) <;>
       simp [antiPeriodicBit, BootstrappingCorrectness.encodeBit, hexponent, hbit, hopposite]
 

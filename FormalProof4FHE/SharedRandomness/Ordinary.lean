@@ -16,6 +16,8 @@ columns, and composes that equivalence with the shared-randomness reduction.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.SharedRandomness
 
 /-- Split a vector indexed by `Fin (m + m)` into its first and second `m` coordinates. -/
@@ -139,8 +141,8 @@ theorem probOutput_sampleIID {R : Type} [Finite R] (length : ℕ)
     (sampler : ProbComp R) (output : Fin length → R) :
     Pr[= output | ProbComp.sampleIID length sampler] =
       ∏ i, Pr[= output i | sampler] := by
-  letI : Fintype R := Fintype.ofFinite R
-  letI : DecidableEq R := Classical.decEq R
+  let : Fintype R := Fintype.ofFinite R
+  let : DecidableEq R := Classical.decEq R
   unfold ProbComp.sampleIID
   induction length with
   | zero =>
@@ -170,18 +172,18 @@ theorem probOutput_sampleIID {R : Type} [Finite R] (length : ℕ)
           · rintro ⟨rfl, rfl⟩
             exact (Fin.cons_self_tail output).symm
         by_cases hHead : head = output 0
-        · rw [if_pos hHead]
+        · rw [ite_eq_left hHead]
           subst hHead
           simp only [probOutput_pure, output_eq_cons, true_and]
           simp [mul_ite]
-        · rw [if_neg hHead]
+        · rw [ite_eq_right hHead]
           refine Finset.sum_eq_zero fun tail _ ↦ ?_
-          rw [probOutput_pure, if_neg (fun h ↦ hHead ((output_eq_cons tail).mp h).1), mul_zero]
+          rw [probOutput_pure, ite_eq_right (fun h ↦ hHead ((output_eq_cons tail).mp h).1), mul_zero]
       simp only [inner, mul_ite, mul_zero]
       rw [Finset.sum_ite_eq' Finset.univ (output 0)
         (fun head ↦ Pr[= head | sampler] *
           Pr[= Fin.tail output | Fin.mOfFn length fun _ ↦ sampler]),
-        if_pos (Finset.mem_univ _), ih, Fin.prod_univ_succ]
+        ite_eq_left (Finset.mem_univ _), ih, Fin.prod_univ_succ]
       rfl
 
 /-- Splitting a uniformly sampled combined matrix gives two independent uniform blocks. -/
@@ -362,13 +364,13 @@ theorem twoBatch_game0_evalDist_eq_batch {R : Type}
     (errorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (twoBatchProblem n m secretSampler errorSampler)) :
-    𝒟[LearningWithErrors.game0
+    𝒟[LearningWithErrors.realExperiment
         (twoBatchProblem n m secretSampler errorSampler) adversary] =
-      𝒟[LearningWithErrors.game0
+      𝒟[LearningWithErrors.realExperiment
         (FormalProof4FHE.LWE.batchProblem n (m + m) secretSampler errorSampler)
         (ordinaryReduction (secretSampler := secretSampler)
           (errorSampler := errorSampler) adversary)] := by
-  rw [LearningWithErrors.game0, LearningWithErrors.game0]
+  rw [LearningWithErrors.realExperiment, LearningWithErrors.realExperiment]
   simp only [ordinaryReduction]
   rw [show (LearningWithErrors.distr
         (FormalProof4FHE.LWE.batchProblem n (m + m) secretSampler errorSampler) >>=
@@ -387,13 +389,13 @@ theorem twoBatch_game1_evalDist_eq_batch {R : Type}
     (errorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (twoBatchProblem n m secretSampler errorSampler)) :
-    𝒟[LearningWithErrors.game1
+    𝒟[LearningWithErrors.randomExperiment
         (twoBatchProblem n m secretSampler errorSampler) adversary] =
-      𝒟[LearningWithErrors.game1
+      𝒟[LearningWithErrors.randomExperiment
         (FormalProof4FHE.LWE.batchProblem n (m + m) secretSampler errorSampler)
         (ordinaryReduction (secretSampler := secretSampler)
           (errorSampler := errorSampler) adversary)] := by
-  rw [LearningWithErrors.game1, LearningWithErrors.game1]
+  rw [LearningWithErrors.randomExperiment, LearningWithErrors.randomExperiment]
   simp only [ordinaryReduction]
   rw [show (LearningWithErrors.uniformDistr
         (FormalProof4FHE.LWE.batchProblem n (m + m) secretSampler errorSampler) >>=
@@ -413,9 +415,9 @@ theorem twoBatch_advantage_eq_batch {R : Type}
     (errorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (twoBatchProblem n m secretSampler errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (twoBatchProblem n m secretSampler errorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.batchProblem n (m + m) secretSampler errorSampler)
         (ordinaryReduction (secretSampler := secretSampler)
           (errorSampler := errorSampler) adversary) := by
@@ -441,17 +443,17 @@ theorem advantage_eq_batch {R : Type}
     (adversary : LearningWithErrors.Adversary
       (problem n k m prefixSampler suffixSampler
         smallErrorSampler largeErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem n k m prefixSampler suffixSampler
           smallErrorSampler largeErrorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.batchProblem n (m + m)
           prefixSampler largeErrorSampler)
         (ordinaryReduction (secretSampler := prefixSampler)
           (errorSampler := largeErrorSampler)
           (reduction suffixSampler extraErrorSampler adversary)) := by
   calc
-    _ = LearningWithErrors.advantage
+    _ = LearningWithErrors.realAdvantage
         (twoBatchProblem n m prefixSampler largeErrorSampler)
         (reduction suffixSampler extraErrorSampler adversary) :=
       advantage_eq_twoBatch n k m prefixSampler suffixSampler
@@ -469,9 +471,9 @@ theorem zmod_advantage_eq_batch {q : ℕ} [NeZero q]
     (hExtraError : Pr[⊥ | extraErrorSampler] = 0)
     (adversary : LearningWithErrors.Adversary
       (zmodProblem n k m q smallErrorSampler largeErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (zmodProblem n k m q smallErrorSampler largeErrorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.zmodBatchProblem n (m + m) q largeErrorSampler)
         (ordinaryReduction
           (secretSampler := ($ᵗ (Fin n → ZMod q)))

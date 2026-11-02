@@ -32,6 +32,8 @@ noise supports.  Identifying source-level modular Gaussian generation and the un
 these arithmetic premises remains an implementation-refinement obligation.
 -/
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.TFHEppLvl5BootGaussianClusterScreen
 
 noncomputable section

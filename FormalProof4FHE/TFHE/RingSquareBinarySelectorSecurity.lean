@@ -23,6 +23,8 @@ algorithm is the remaining inhomogeneous subset-sum/Ring-SIS research step.
 open Matrix OracleComp
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinarySelectorSecurity
 
 noncomputable section
@@ -118,8 +120,8 @@ theorem probEvent_sourceChallengeMasks_uniform_eq
           (mx := ($ᵗ Matrix (Fin 1) (Fin (levels * sourceCount)) R))
           (f := sourceChallengeMasks level) event).symm
     _ = _ := by
-      unfold probEvent
-      rw [sourceChallengeMasks_uniform_evalDist levels sourceCount level]
+      exact probEvent_congr' (fun _ _ ↦ Iff.rfl)
+        (sourceChallengeMasks_uniform_evalDist levels sourceCount level)
 
 /-- Install one bit-selection algorithm at every gadget level. -/
 def binarySelectors {R : Type} [CommRing R] {levels extraCount : ℕ}
@@ -243,7 +245,7 @@ theorem production_challengeSelectors_failure_toReal_le_levels_mul_card_div_add
         exact ⟨level, Finset.mem_univ _, hlevel⟩
       _ ≤ _ := probEvent_exists_finset_le_sum
         (Finset.univ : Finset (Fin levels)) sampler failure
-  have hReal := ENNReal.toReal_mono (by simp) hUnion
+  have hReal := ENNReal.toReal_mono (by simp [probEvent_ne_top]) hUnion
   rw [ENNReal.toReal_sum (fun _ _ ↦ probEvent_ne_top)] at hReal
   calc
     (Pr[(fun challenge : Challenge ↦
@@ -474,7 +476,7 @@ theorem production_rgswMinusSecretAdvantage_centeredBinomial_widenedDiscreteGaus
             DiscreteGaussianSampler.scalarLinearShiftBound certificate
               (SelectorNoise.Native.inducedShiftBoundForDegree
                 (2 ^ degreeExponent) (extraCount + 1) secretBound 1 eta)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.embeddedBatchProblem 1
             (levels * (extraCount + 1) + TGSW.rowCount 1 levels)
             secretSampler embed sourceErrorSampler)
@@ -492,7 +494,7 @@ theorem production_rgswMinusSecretAdvantage_centeredBinomial_widenedDiscreteGaus
       (SingleSourceInverse.PowerOfTwo.Ring modulusExponent degreeExponent) :=
     LatticeCrypto.vectorNegacyclicRing_instCommRing
       (ZMod (2 ^ modulusExponent)) (2 ^ degreeExponent)
-  letI := productionCommRing
+  let := productionCommRing
   have hWeight : ∀ context,
       context ∈ support
         (CompilerNormalForm.contextSampler levels (extraCount + 1) secretSampler embed
@@ -567,7 +569,7 @@ theorem production_rgswMinusSecretAdvantage_centeredBinomial_widenedDiscreteGaus
             DiscreteGaussianSampler.scalarLinearShiftBound certificate
               (SelectorNoise.Native.inducedShiftBoundForDegree
                 (2 ^ degreeExponent) (extraCount + 1) secretBound 1 eta)))) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.embeddedBatchProblem 1
             (levels * (extraCount + 1) + TGSW.rowCount 1 levels)
             secretSampler embed sourceErrorSampler)
@@ -585,7 +587,7 @@ theorem production_rgswMinusSecretAdvantage_centeredBinomial_widenedDiscreteGaus
       (SingleSourceInverse.PowerOfTwo.Ring modulusExponent degreeExponent) :=
     LatticeCrypto.vectorNegacyclicRing_instCommRing
       (ZMod (2 ^ modulusExponent)) (2 ^ degreeExponent)
-  letI := productionCommRing
+  let := productionCommRing
   have hWeight : ∀ context,
       context ∈ support
         (CompilerNormalForm.contextSampler levels (extraCount + 1) secretSampler embed
@@ -632,7 +634,7 @@ theorem production_rgswMinusSecretAdvantage_centeredBinomial_widenedDiscreteGaus
             DiscreteGaussianSampler.scalarLinearShiftBound certificate
               (SelectorNoise.Native.inducedShiftBoundForDegree
                 (2 ^ degreeExponent) (extraCount + 1) secretBound 1 eta))) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.embeddedBatchProblem 1
             (levels * (extraCount + 1) + TGSW.rowCount 1 levels)
             secretSampler embed

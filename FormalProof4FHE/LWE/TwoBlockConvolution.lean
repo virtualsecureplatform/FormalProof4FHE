@@ -22,6 +22,8 @@ sampler prevents loss of probability mass in `ProbComp`'s subprobability semanti
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.TwoBlock
 
 /-- Add an independent widening vector to the output of the second LWE block. -/
@@ -271,14 +273,14 @@ theorem convolution_game0_evalDist_eq {R Secret : Type}
     (adversary : LearningWithErrors.Adversary
       (heterogeneousProblem dimension firstSamples secondSamples secretSampler embed
         firstErrorSampler secondErrorSampler)) :
-    𝒟[LearningWithErrors.game0
+    𝒟[LearningWithErrors.realExperiment
         (heterogeneousProblem dimension firstSamples secondSamples secretSampler embed
           firstErrorSampler secondErrorSampler) adversary] =
-      𝒟[LearningWithErrors.game0
+      𝒟[LearningWithErrors.realExperiment
         (embeddedBatchProblem dimension (firstSamples + secondSamples)
           secretSampler embed firstErrorSampler)
         (convolutionReduction (extraErrorSampler := extraErrorSampler) adversary)] := by
-  rw [LearningWithErrors.game0, LearningWithErrors.game0]
+  rw [LearningWithErrors.realExperiment, LearningWithErrors.realExperiment]
   simp only [convolutionReduction]
   rw [show (LearningWithErrors.distr
         (embeddedBatchProblem dimension (firstSamples + secondSamples)
@@ -306,14 +308,14 @@ theorem convolution_game1_evalDist_eq {R Secret : Type}
     (adversary : LearningWithErrors.Adversary
       (heterogeneousProblem dimension firstSamples secondSamples secretSampler embed
         firstErrorSampler secondErrorSampler)) :
-    𝒟[LearningWithErrors.game1
+    𝒟[LearningWithErrors.randomExperiment
         (heterogeneousProblem dimension firstSamples secondSamples secretSampler embed
           firstErrorSampler secondErrorSampler) adversary] =
-      𝒟[LearningWithErrors.game1
+      𝒟[LearningWithErrors.randomExperiment
         (embeddedBatchProblem dimension (firstSamples + secondSamples)
           secretSampler embed firstErrorSampler)
         (convolutionReduction (extraErrorSampler := extraErrorSampler) adversary)] := by
-  rw [LearningWithErrors.game1, LearningWithErrors.game1]
+  rw [LearningWithErrors.randomExperiment, LearningWithErrors.randomExperiment]
   simp only [convolutionReduction]
   rw [show (LearningWithErrors.uniformDistr
         (embeddedBatchProblem dimension (firstSamples + secondSamples)
@@ -345,10 +347,10 @@ theorem heterogeneous_advantage_eq_batch_of_convolution {R Secret : Type}
     (adversary : LearningWithErrors.Adversary
       (heterogeneousProblem dimension firstSamples secondSamples secretSampler embed
         firstErrorSampler secondErrorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (heterogeneousProblem dimension firstSamples secondSamples secretSampler embed
           firstErrorSampler secondErrorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (embeddedBatchProblem dimension (firstSamples + secondSamples)
           secretSampler embed firstErrorSampler)
         (convolutionReduction (extraErrorSampler := extraErrorSampler) adversary) := by

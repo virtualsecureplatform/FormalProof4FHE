@@ -8,6 +8,8 @@ import FormalProof4FHE.Probability.GaussianIntegerWeights
 
 open FormalProof4FHE.GaussianIntegerWeights FormalProof4FHE.WeightedSampler
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHETest.GaussianWeightsSmoke
 
 /- The computed table covers all errors through the squared-width cutoff. Its

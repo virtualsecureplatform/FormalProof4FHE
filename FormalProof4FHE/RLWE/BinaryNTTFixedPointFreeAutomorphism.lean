@@ -25,6 +25,8 @@ depend on a particular quotient-ring implementation.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.BinaryNTTSecurity.FixedPointFreeAutomorphism
 
 noncomputable section

@@ -33,6 +33,8 @@ coefficients.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.UnitGuessCheck
 
 open FormalProof4FHE.TFHE
@@ -407,8 +409,7 @@ theorem candidateTestSampler_unit_evalDist
     _ = evalDist ($ᵗ TLWE.BatchCiphertext R 1 samples) := by
       apply evalDist_ext
       intro ciphertext
-      rw [probOutput_bind_const, herrors]
-      simp
+      rw [probOutput_bind_const]
 
 /-! ## Candidate testing inside the complete circular view -/
 

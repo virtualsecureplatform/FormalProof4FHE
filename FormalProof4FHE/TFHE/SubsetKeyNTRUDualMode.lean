@@ -39,6 +39,8 @@ NTRU/DSPR assumption remain explicit premises.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.SubsetKeyNTRUDualMode
 
 noncomputable section

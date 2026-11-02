@@ -17,6 +17,8 @@ equality, retaining the sampled secret through the final recovery check.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.TwoBlock
 
 /-- Split one combined challenge matrix into the two challenge blocks. -/

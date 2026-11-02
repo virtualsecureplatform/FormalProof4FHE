@@ -27,6 +27,8 @@ assumption is made here.
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.RecursiveFeatureAffineSource
 
 open RecursiveFeatureCubicApproximation

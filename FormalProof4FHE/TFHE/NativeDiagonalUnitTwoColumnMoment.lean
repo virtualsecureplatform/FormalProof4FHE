@@ -18,6 +18,8 @@ cardinality is the exact binary-line count proved in the preceding module.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm
 
 noncomputable section
@@ -45,9 +47,9 @@ private theorem sum_le_card_mul_add_filter_card_mul
       apply Finset.sum_le_sum
       intro index _
       by_cases hpredicate : predicate index
-      · simp only [hpredicate, if_true]
+      · simp only [hpredicate, ite_true]
         exact le_trans (hbad index hpredicate) (Nat.le_add_left badBound goodBound)
-      · simp only [hpredicate, if_false, add_zero]
+      · simp only [hpredicate, ite_false, add_zero]
         exact hgood index hpredicate
     _ = Fintype.card Index * goodBound +
         (Finset.univ.filter predicate).card * badBound := by
@@ -90,7 +92,7 @@ theorem reconstructedSimultaneousRowChoiceProduct_le_twoColumnPow_of_not_depende
         ∏ _row : Fin (TGSW.rowCount ringRank params.levels),
           params.base ^
             ((TGSW.rowCount ringRank params.levels - 2) * (degree + 1)) := by
-      apply Finset.prod_le_prod
+      apply Finset.prod_le_prod₀
       · intro row _
         exact Nat.zero_le _
       · intro row _
@@ -124,7 +126,7 @@ theorem reconstructedSimultaneousRowChoiceProduct_le_oneColumnPow
         ∏ _row : Fin (TGSW.rowCount ringRank params.levels),
           params.base ^
             ((TGSW.rowCount ringRank params.levels - 1) * (degree + 1)) := by
-      apply Finset.prod_le_prod
+      apply Finset.prod_le_prod₀
       · intro row _
         exact Nat.zero_le _
       · intro row _

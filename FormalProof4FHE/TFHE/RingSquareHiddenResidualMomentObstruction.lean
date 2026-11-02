@@ -30,6 +30,8 @@ exploit modular wrap, or replace this statistical hop by a computational one.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.HiddenResidual
 
 noncomputable section

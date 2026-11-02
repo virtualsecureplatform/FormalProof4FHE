@@ -16,6 +16,8 @@ Binary-NTT RLWE rows sharing one embedded witness.
 
 open OracleComp BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.BinaryNTTSecurity.CompactCoverCyclicCompiler
 
 noncomputable section

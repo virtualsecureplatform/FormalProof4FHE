@@ -38,6 +38,8 @@ proved natively.
 open Matrix OracleComp
 open scoped ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.JointSubsetKeyBRKRefined
 
 /-! ## Approximate factorization and correction noise -/
@@ -358,7 +360,7 @@ theorem targetAdvantage_le_mahalanobis
     (noise_le : certificate.noiseError ≤ Real.sqrt traceEnergy / 2)
     (distinguisher : Distinguisher View) :
     targetAdvantage targetView distinguisher ≤
-      2 * LearningWithErrors.advantage problem (constructor.reduction distinguisher) +
+      2 * LearningWithErrors.realAdvantage problem (constructor.reduction distinguisher) +
         2 * certificate.factorizationError + Real.sqrt traceEnergy +
         certificate.uniformError + certificate.auxiliaryError := by
   have hbase := certificate.targetAdvantage_le_two_source_add_joint_errors distinguisher
@@ -553,13 +555,13 @@ theorem rowCombination_surjective
   obtain ⟨pivot, hpivot⟩ := primitive
   intro target
   let unit : Rˣ := hpivot.unit
-  let preimage : Matrix Row Coordinate R := fun row coordinate ↦
+  let preimage : Matrix Row Coordinate R := Matrix.of fun row coordinate ↦
     if row = pivot then (↑unit⁻¹ : R) * target coordinate else 0
   refine ⟨preimage, ?_⟩
   funext coordinate
   simp only [rowCombination_apply, preimage]
   rw [Finset.sum_eq_single pivot]
-  · simp only [if_pos]
+  · simp only [Matrix.of_apply, ite_eq_left]
     have unit_spec : (↑unit : R) = coefficient pivot := hpivot.unit_spec
     have cancel : coefficient pivot * (↑unit⁻¹ : R) = 1 := by
       rw [← unit_spec, ← Units.val_mul]
@@ -641,7 +643,6 @@ theorem probEvent_rowCombination_eq
         Pr[(fun output : Coordinate → R ↦ output = target) |
           rowCombination coefficient <$> ($ᵗ Matrix Row Coordinate R)] := by
       rw [probEvent_map]
-      rfl
     _ = Pr[(fun output : Coordinate → R ↦ output = target) |
           ($ᵗ (Coordinate → R))] :=
       probEvent_congr' (fun _ _ ↦ Iff.rfl) mapped_uniform
@@ -805,14 +806,14 @@ theorem exists_matrix_factorization_of_map_mulVec_injective
     simpa only [Matrix.transpose_map, Matrix.transpose_transpose] using mapped_injective
   let preimage (output : Output) : Row → R :=
     Function.surjInv transpose_surjective (gadget output)
-  let postprocess : Matrix Output Row R := fun output row ↦ preimage output row
+  let postprocess : Matrix Output Row R := Matrix.of fun output row ↦ preimage output row
   refine ⟨postprocess, ?_⟩
   ext output coordinate
   have hpreimage := Function.surjInv_eq
     transpose_surjective (gadget output)
   have hcoordinate := congrFun hpreimage coordinate
   simpa only [Matrix.mul_apply, Matrix.mulVec, dotProduct,
-    Matrix.transpose_apply, postprocess, preimage, mul_comm] using hcoordinate
+    Matrix.transpose_apply, postprocess, Matrix.of_apply, preimage, mul_comm] using hcoordinate
 
 /-- Full column rank after reduction to the residue field is a convenient sufficient condition. -/
 theorem exists_matrix_factorization_of_map_rank_eq_width
@@ -864,7 +865,7 @@ theorem matrixMapAddHom_surjective
     Function.Surjective (matrixMapAddHom (Row := Row) (Coordinate := Coordinate) hom) := by
   classical
   intro target
-  let preimage : Matrix Row Coordinate R := fun row coordinate ↦
+  let preimage : Matrix Row Coordinate R := Matrix.of fun row coordinate ↦
     Function.surjInv hom_surjective (target row coordinate)
   refine ⟨preimage, ?_⟩
   ext row coordinate
@@ -884,12 +885,12 @@ theorem zmodPowerOfTwo_exists_matrix_factorization_of_binary_rank
         Fintype.card Coordinate) :
     ∃ postprocess : Matrix Output Row (ZMod (2 ^ modulusExponent)),
       postprocess * source = gadget := by
-  letI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  let : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   let heven : 2 ∣ 2 ^ modulusExponent :=
     pow_dvd_pow 2 (by omega : 1 ≤ modulusExponent)
   let parity : ZMod (2 ^ modulusExponent) →+* ZMod 2 :=
     ZMod.castHom heven (ZMod 2)
-  letI : IsLocalHom parity :=
+  let : IsLocalHom parity :=
     FormalProof4FHE.TFHE.Native.PowerOfTwoLocalRing.isLocalHom_toZModTwo_of_nilpotent_kernel
       parity (by
         intro value parity_zero
@@ -930,7 +931,7 @@ theorem zmodPowerOfTwo_factorizationFailure_le_binaryRankFailure
             binary.rank < columns) |
         ($ᵗ Matrix (Fin rows) (Fin columns) (ZMod 2))] := by
   classical
-  letI : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  let : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
   let heven : 2 ∣ 2 ^ modulusExponent :=
     pow_dvd_pow 2 (by omega : 1 ≤ modulusExponent)
   let parity : ZMod (2 ^ modulusExponent) →+* ZMod 2 :=

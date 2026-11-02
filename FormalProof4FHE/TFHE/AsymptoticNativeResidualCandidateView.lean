@@ -30,6 +30,8 @@ hybrids.
 
 open ENNReal OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ResidualCandidateView.Asymptotic
 
 open Encryption.Adaptive.Asymptotic

@@ -32,6 +32,8 @@ auxiliary object.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.ExtractedGuessCheck
 
 open FormalProof4FHE.TFHE
@@ -332,9 +334,10 @@ theorem extractRingTestView_fixedSecretRingReal_evalDist
     (TGSW.encrypt 1 levels auxiliaryErrorSampler (embedRingSecret q secret) gadget
       (-(embedRingSecret q secret 0))) fun auxiliary ↦ ?_
   have h := extractTape_batchEncrypt_evalDist q degree samples testRingErrorSampler secret
-  simpa only [evalDist_map, evalDist_bind, evalDist_pure, map_eq_bind_pure_comp,
-    Function.comp_apply, Function.comp_def, bind_assoc, pure_bind] using congrArg
-      (fun distribution ↦ (fun testRows ↦ (auxiliary, testRows)) <$> distribution) h
+  have mapped := FormalProof4FHE.evalDist_map_eq_of_evalDist_eq h
+    (fun testRows ↦ (auxiliary, testRows))
+  simpa only [map_eq_bind_pure_comp, Function.comp_apply, Function.comp_def,
+    bind_assoc, pure_bind] using mapped
 
 /-- Deterministic sample extraction maps the paired uniform ring transcript exactly to the
 uniform scalar-test endpoint while retaining the same circular auxiliary. -/
@@ -354,9 +357,10 @@ theorem extractRingTestView_fixedSecretRingUniform_evalDist
     (TGSW.encrypt 1 levels auxiliaryErrorSampler (embedRingSecret q secret) gadget
       (-(embedRingSecret q secret 0))) fun auxiliary ↦ ?_
   have h := extractTape_uniform_evalDist q degree samples
-  simpa only [evalDist_map, evalDist_bind, evalDist_pure, map_eq_bind_pure_comp,
-    Function.comp_apply, Function.comp_def, bind_assoc, pure_bind] using congrArg
-      (fun distribution ↦ (fun testRows ↦ (auxiliary, testRows)) <$> distribution) h
+  have mapped := FormalProof4FHE.evalDist_map_eq_of_evalDist_eq h
+    (fun testRows ↦ (auxiliary, testRows))
+  simpa only [map_eq_bind_pure_comp, Function.comp_apply, Function.comp_def,
+    bind_assoc, pure_bind] using mapped
 
 /-- **Correct coefficient candidate.**  Submitting the hidden bit at any extracted coordinate
 leaves the complete genuine-RGSW/real-scalar-LWE view unchanged exactly. -/

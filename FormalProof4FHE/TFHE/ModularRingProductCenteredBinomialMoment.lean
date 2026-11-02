@@ -18,6 +18,8 @@ conditions: scalar CBD coefficients must satisfy `2 eta < q`, and the complete c
 satisfy `2 * (N * eta^2) < q`.
 -/
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.ModularRingProductCenteredBinomialMoment
 noncomputable section
 

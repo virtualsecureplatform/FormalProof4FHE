@@ -42,6 +42,8 @@ noise claim is made.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.LeakyCircular
 
 noncomputable section
@@ -69,8 +71,9 @@ theorem vecMul_leakageMatrix {R : Type} [CommRing R] (error : ErrorVector R) :
 theorem leakageMatrix_transpose_mul_self :
     (leakageMatrix ℤ)ᵀ * leakageMatrix ℤ = ![![2, 1], ![1, 2]] := by
   ext row column
-  fin_cases row <;> fin_cases column <;>
-    simp [Matrix.mul_apply, leakageMatrix, Fin.sum_univ_succ]
+  rw [Matrix.mul_apply]
+  change (∑ k : Fin 4, leakageMatrix ℤ k row * leakageMatrix ℤ k column) = _
+  fin_cases row <;> fin_cases column <;> norm_num [leakageMatrix, Fin.sum_univ_succ]
 
 /-- The Gram matrix acts as `(2x+y, x+2y)`. -/
 theorem gram_mulVec (vector : Fin 2 → ℝ) :

@@ -26,6 +26,8 @@ cardinality and exposes the row-local distributions needed by a quantitative Fou
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm
 
 noncomputable section
@@ -132,9 +134,9 @@ theorem sum_rankOneCharacterTuple_norm_one_add_apply_sq_eq_ite
           2 * (Fintype.card (NativeDiagonalRow q degree 1 levels) : ℝ) := by
       rw [sum_rankOneCharacterTuple_apply_eq_ite]
       by_cases hzero : value = 0
-      · rw [if_pos hzero, if_pos (by simp [hzero]), Complex.natCast_re]
+      · rw [ite_eq_left hzero, ite_eq_left (by simp [hzero]), Complex.natCast_re]
         ring
-      · rw [if_neg hzero, if_neg (by simpa using hzero)]
+      · rw [ite_eq_right hzero, ite_eq_right (by simpa using hzero)]
         simp
 
 /-- Deleting the trivial character removes its squared contribution `4` from the rank-one
@@ -1016,7 +1018,7 @@ theorem sum_nontrivial_rankOneCharacterTuple_norm_one_add_apply_sq_eq_sourceFact
       rankOneSourceModeSquareFactor value := by
   rw [sum_nontrivial_rankOneCharacterTuple_norm_one_add_apply_sq_eq_ite]
   by_cases hzero : value = 0 <;>
-    simp only [rankOneSourceModeSquareFactor, hzero, if_pos]
+    simp only [rankOneSourceModeSquareFactor, hzero, ite_eq_left]
 
 /-- Named phase-aware centered identity with only the non-source remainder left opaque. -/
 theorem card_mul_reconstructedCharacterTupleRowSumZeroCard_sub_validRowProduct_eq_sourceMode_add_remainder
@@ -1459,7 +1461,7 @@ theorem fixedErrorDifferenceCharacterFactorialMoment_eq_rowSumZeroMoment
   apply Finset.sum_congr rfl
   intro characters _
   by_cases hcharacters : characters ≠ 0
-  · rw [if_pos hcharacters, if_pos hcharacters]
+  · rw [ite_eq_left hcharacters, ite_eq_left hcharacters]
     rw [fixedErrorDifferenceCharacterTupleAcceptanceCard_eq_rowSumZeroCard params hcapacity
       hbase candidate sourceError transformedError selected hunit characters]
   · simp [hcharacters]
@@ -1543,7 +1545,7 @@ theorem fixedErrorDifferenceCharacterFactorialMoment_le_rankOnePhaseAwareSquareM
       apply Finset.sum_le_sum
       intro characters _
       by_cases hcharacters : characters ≠ 0
-      · rw [if_pos hcharacters, if_pos hcharacters]
+      · rw [ite_eq_left hcharacters, ite_eq_left hcharacters]
         have hcardNonneg :
             0 ≤ (reconstructedCharacterTupleRowSumZeroCard params candidate sourceError
               transformedError selected hunit characters : ℝ) := by positivity
@@ -1662,7 +1664,7 @@ theorem fixedErrorDifferenceCharacterFactorialMoment_le_rowFourierSquareMoment
   apply Finset.sum_le_sum
   intro characters _
   by_cases hcharacters : characters ≠ 0
-  · rw [if_pos hcharacters, if_pos hcharacters]
+  · rw [ite_eq_left hcharacters, ite_eq_left hcharacters]
     have hcardNonneg :
         0 ≤ (reconstructedCharacterTupleRowSumZeroCard params candidate sourceError
           transformedError selected hunit characters : ℝ) := by positivity

@@ -23,6 +23,8 @@ samplers.
 
 open ENNReal OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic
 
 /-- A second triple of executable finite error samplers with the same moduli and dimensions as a
@@ -213,15 +215,15 @@ theorem replacementSecurityGame_advantage_eq_draws_mul_gaps
   have hRingTV : 0 ≤ tvDist
       (implementation.ringErrorSampler securityParameter)
       (params.ringErrorSampler securityParameter) :=
-    tvDist_nonneg (m := ProbComp) _ _
+    tvDist_nonneg _ _
   have hSwitchTV : 0 ≤ tvDist
       (implementation.keySwitchErrorSampler securityParameter)
       (params.keySwitchErrorSampler securityParameter) :=
-    tvDist_nonneg (m := ProbComp) _ _
+    tvDist_nonneg _ _
   have hInputTV : 0 ≤ tvDist
       (implementation.inputErrorSampler securityParameter)
       (params.inputErrorSampler securityParameter) :=
-    tvDist_nonneg (m := ProbComp) _ _
+    tvDist_nonneg _ _
   have hBoot : 0 ≤
       (TFHE.SamplerReplacement.bootstrappingErrorCount
         (params.ringRank securityParameter)

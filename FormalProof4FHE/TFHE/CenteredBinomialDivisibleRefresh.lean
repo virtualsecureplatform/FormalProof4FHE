@@ -18,6 +18,8 @@ rotation exponents, while output codewords may use the much larger coefficient d
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.CenteredBinomialDivisibleRefresh
 
 noncomputable section
@@ -37,7 +39,7 @@ theorem castHom_inputCode {q degree : ℕ}
         BootstrappingCorrectness.encodeBit]
   | true =>
       simp only [inputCode, CenteredBinomialRefresh.inputCode,
-        BootstrappingCorrectness.encodeBit, if_true]
+        BootstrappingCorrectness.encodeBit, ite_true]
       simpa using
         map_natCast (ZMod.castHom hdiv (ZMod (2 * (degree + 1)))) (degree + 1)
 

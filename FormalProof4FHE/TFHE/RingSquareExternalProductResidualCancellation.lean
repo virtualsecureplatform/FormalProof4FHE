@@ -29,11 +29,27 @@ self-auxiliary dependence or prove a suitable native rerandomization theorem.
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler
 
 namespace ExternalProductCancellation
 
 attribute [local instance] NoiseBounds.positiveRqCommRing NoiseBounds.positiveRqRing
+
+private theorem pure_one_mul {q degree : ℕ} (value : RLWE.Rq q (degree + 1)) :
+    LatticeCrypto.negacyclicMulPure (LatticeCrypto.vectorKernel (ZMod q) (degree + 1))
+      (1 : RLWE.Rq q (degree + 1)) value = value := by
+  change (1 : RLWE.Rq q (degree + 1)) * value = value
+  exact one_mul value
+
+private theorem pure_zero_mul {q degree : ℕ} (value : RLWE.Rq q (degree + 1)) :
+    LatticeCrypto.negacyclicMulPure (LatticeCrypto.vectorKernel (ZMod q) (degree + 1))
+      (0 : RLWE.Rq q (degree + 1)) value = 0 := by
+  change (0 : RLWE.Rq q (degree + 1)) * value = 0
+  exact zero_mul value
+
+attribute [local simp] pure_one_mul pure_zero_mul
 
 /-! ## Public cancellation map -/
 
@@ -246,9 +262,9 @@ theorem externalProductError_targetLevelDigits_eq_upper_add_lower
   rw [hLastDigits]
   simp only [targetLevelDigits_castSucc, ite_mul, one_mul, zero_mul]
   rw [Finset.sum_eq_single targetLevel]
-  · rw [if_pos rfl]
+  · rw [ite_eq_left rfl]
   · intro level _ hne
-    rw [if_neg hne]
+    rw [ite_eq_right hne]
   · simp
 
 /-- Adding one fixed public TLWE row is a permutation of the complete row carrier. -/
@@ -589,10 +605,26 @@ theorem externalProduct_targetLevelDigits_eq_upper_add_lower
       lowerExternalProduct, TLWE.add, Fintype.sum_prod_type,
       Fin.sum_univ_castSucc]
     rw [hLastDigits]
+    congr 1
+    rw [Finset.sum_eq_single targetLevel]
+    · simp only [ite_true]
+      exact pure_one_mul _
+    · intro level _ hne
+      rw [ite_eq_right hne]
+      exact pure_zero_mul _
+    · simp
   · simp [TGSW.externalProduct, TLWE.linearCombination, upperControlRow,
       lowerExternalProduct, TLWE.add, Fintype.sum_prod_type,
       Fin.sum_univ_castSucc]
     rw [hLastDigits]
+    congr 1
+    rw [Finset.sum_eq_single targetLevel]
+    · simp only [ite_true]
+      exact pure_one_mul _
+    · intro level _ hne
+      rw [ite_eq_right hne]
+      exact pure_zero_mul _
+    · simp
 
 /-- Subtract the retained circular upper row from the self-assisted output. -/
 noncomputable def rerandomizationDifference

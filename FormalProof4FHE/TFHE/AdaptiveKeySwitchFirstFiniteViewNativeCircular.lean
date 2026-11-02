@@ -30,6 +30,8 @@ auxiliary-input CircLWE assumption.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.KeySwitchFirstFiniteView
 
 open Native
@@ -287,7 +289,8 @@ theorem augmentedRealBatch_bind_evalDist_eq_sampleBatch
   calc
     _ = evalDist ((assembleVector <$> Fin.mOfFn count (fun _ ↦ augmentedSampler)) >>=
           flatPostprocess) := by
-        rw [evalDist_bind, evalDist_bind, evalDist_map]
+        congr 1
+        dsimp only [count, viewCount, assembleVector, flatPostprocess]
         simp only [map_eq_bind_pure_comp, bind_assoc, pure_bind,
           Function.comp_apply]
         apply bind_congr
@@ -367,7 +370,8 @@ theorem augmentedUniformBatch_bind_evalDist_eq_sampleBatch
   calc
     _ = evalDist ((assembleVector <$> Fin.mOfFn count (fun _ ↦ augmentedSampler)) >>=
           flatPostprocess) := by
-        rw [evalDist_bind, evalDist_bind, evalDist_map]
+        congr 1
+        dsimp only [count, viewCount, assembleVector, flatPostprocess]
         simp only [map_eq_bind_pure_comp, bind_assoc, pure_bind,
           Function.comp_apply]
         apply bind_congr
@@ -486,7 +490,7 @@ noncomputable def nativeCircularBatchReduction [NeZero lweDimension]
       (BinarySecret lweDimension) (RingBinarySecret ringRank degree)
       (Native.BootstrappingKey q degree ringRank tgswLevels lweDimension)
       (Native.KeySwitchKey q lweDimension (ringRank * degree) keySwitchLevels) := by
-  letI : NeZero (viewCount lweDimension rounds) := ⟨viewCount_ne_zero rounds⟩
+  let : NeZero (viewCount lweDimension rounds) := ⟨viewCount_ne_zero rounds⟩
   exact addInputTapeContinuation inputErrorSampler
     (LWE.AuxiliaryInput.Batch.randomHybridContinuation
       (augmentedCircularProblem ringErrorSampler keySwitchErrorSampler inputErrorSampler
@@ -512,7 +516,7 @@ theorem bootstrapBatchCircularAdvantage_eq_viewCount_mul_nativeCircularLwe
           ringErrorSampler keySwitchErrorSampler tgswGadget keySwitchGadget
           (nativeCircularBatchReduction ringErrorSampler keySwitchErrorSampler
             inputErrorSampler tgswGadget keySwitchGadget rounds solver) := by
-  letI : NeZero (viewCount lweDimension rounds) := ⟨viewCount_ne_zero rounds⟩
+  let : NeZero (viewCount lweDimension rounds) := ⟨viewCount_ne_zero rounds⟩
   rw [bootstrapBatchCircularAdvantage_eq_augmentedBatch]
   rw [LWE.AuxiliaryInput.Batch.advantage_eq_card_mul_randomHybrid]
   rw [augmentedCircularLweAdvantage_eq_native]

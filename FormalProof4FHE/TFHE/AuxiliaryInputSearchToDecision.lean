@@ -32,6 +32,8 @@ stronger native gap, together with its global decision-to-search accounting.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput.SearchToDecision
 
 /-- The public native evaluation-key view consumed by a decision distinguisher. -/

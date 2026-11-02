@@ -26,6 +26,8 @@ pointwise bijectivity is assumed.
 open OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted
 
 noncomputable section
@@ -249,7 +251,7 @@ theorem averagedCanonicalMessageOneControlCappedFiberLoss_le_good_add_badProbabi
   let sampler : ProbComp Control :=
     canonicalMessageOneControlSampler (degree := degree) (ringRank := ringRank)
       params eta
-  letI : Fintype Control := Fintype.ofFinite Control
+  let : Fintype Control := Fintype.ofFinite Control
   have hmass : (∑ control : Control, Pr[= control | sampler].toReal) = 1 := by
     rw [← ENNReal.toReal_sum (fun _ _ ↦ probOutput_ne_top),
       sum_probOutput_eq_one (by simp), ENNReal.toReal_one]
@@ -257,7 +259,7 @@ theorem averagedCanonicalMessageOneControlCappedFiberLoss_le_good_add_badProbabi
       (∑ control : Control,
           if ¬ Good control then Pr[= control | sampler].toReal else 0) =
         Pr[(fun control ↦ ¬ Good control) | sampler].toReal := by
-    rw [probEvent_eq_sum_fintype_ite, ENNReal.toReal_sum]
+    rw [probEvent_eq_tsum_ite, tsum_fintype, ENNReal.toReal_sum]
     · apply Finset.sum_congr rfl
       intro control _
       by_cases hcontrol : ¬ Good control <;> simp [hcontrol]
@@ -348,7 +350,7 @@ theorem averagedCanonicalMessageOneControlDistance_le_of_fiberSecondMoment
   let sampler : ProbComp Control :=
     canonicalMessageOneControlSampler (degree := degree) (ringRank := ringRank)
       params eta
-  letI : Fintype Control := Fintype.ofFinite Control
+  let : Fintype Control := Fintype.ofFinite Control
   have hmass : (∑ control : Control, Pr[= control | sampler].toReal) = 1 := by
     rw [← ENNReal.toReal_sum (fun _ _ ↦ probOutput_ne_top),
       sum_probOutput_eq_one (by simp), ENNReal.toReal_one]

@@ -21,6 +21,8 @@ would reduce to a one-bit secret source, not to growing-dimensional Binary-NTT R
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.BinaryNTTSecurity.AutomorphismFixedSubringBoundary
 
 noncomputable section

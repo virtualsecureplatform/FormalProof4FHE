@@ -32,6 +32,8 @@ hardness from ordinary LWE or RLWE.
 
 open ENNReal OracleComp OracleSpec
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic.CircularSecurity
 
 noncomputable section

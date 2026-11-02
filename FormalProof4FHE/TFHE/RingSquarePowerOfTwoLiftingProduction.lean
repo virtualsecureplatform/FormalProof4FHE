@@ -24,6 +24,8 @@ contained in the recursive binary-rank failure event proved in the coefficient m
 open Matrix OracleComp
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.PowerOfTwoLifting
 
 noncomputable section
@@ -218,7 +220,7 @@ theorem maskCombination_anchored_eq_target_of_tail_coefficients
           (productionCommRing depth degreeExponent)
           (productionExtraCount depth degreeExponent slack) bits)
         masks = target := by
-  letI : CommRing (ProductionRing depth degreeExponent) :=
+  let : CommRing (ProductionRing depth degreeExponent) :=
     productionCommRing depth degreeExponent
   let tail : Fin (productionExtraCount depth degreeExponent slack) →
       ProductionRing depth degreeExponent := fun index ↦ masks index.succ
@@ -277,7 +279,7 @@ theorem productionBitSelector_succeeds_of_good
           (productionExtraCount depth degreeExponent slack)
           (productionBitSelector depth degreeExponent slack target) masks)
         masks = target := by
-  letI : CommRing (ProductionRing depth degreeExponent) :=
+  let : CommRing (ProductionRing depth degreeExponent) :=
     productionCommRing depth degreeExponent
   apply maskCombination_anchored_eq_target_of_tail_coefficients
   exact powerOfTwoSelector_spec_of_good depth (productionDegree degreeExponent) slack
@@ -488,7 +490,7 @@ theorem rgswMinusSecretAdvantage_centeredBinomial_widenedDiscreteGaussian_le
             DiscreteGaussianSampler.scalarLinearShiftBound certificate
               (SelectorNoise.Native.inducedShiftBoundForDegree
                 (2 ^ degreeExponent) (extraCount + 1) secretBound 1 eta)) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.embeddedBatchProblem 1
             (levels * (extraCount + 1) + TGSW.rowCount 1 levels)
             secretSampler embed sourceErrorSampler)

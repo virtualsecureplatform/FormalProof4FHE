@@ -33,6 +33,8 @@ negligibility is asserted.
 
 open ENNReal OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.Asymptotic.KeySwitchFirstFiniteView
 
 open FormalProof4FHE.TFHE.Encryption.Adaptive.KeySwitchFirstFiniteView
@@ -388,7 +390,7 @@ noncomputable def inputBatchLWESecurityGame {Message : Type} (params : Parameter
     [∀ securityParameter, NeZero (params.q securityParameter)] :
     SecurityGame (InputBatchLWEAdversaryFamily params) where
   advantage adversary securityParameter := ENNReal.ofReal
-    (LearningWithErrors.advantage
+    (LearningWithErrors.realAdvantage
       (Native.KeySwitchSecurity.binaryLweProblem
         (params.q securityParameter)
         (params.lweDimension securityParameter)
@@ -496,7 +498,7 @@ theorem securityGame_advantage_le_finiteSearch_add_loss_add_two_ringBatchLWE_add
             (queryCount := adversary.queryCount securityParameter)
             (params.encode securityParameter)
             (adversary.run securityParameter))))
-      (LearningWithErrors.advantage
+      (LearningWithErrors.realAdvantage
         (Native.BootstrapCutSecurity.batchModuleLweProblem
           (params.q securityParameter)
           (params.degree securityParameter)
@@ -505,7 +507,7 @@ theorem securityGame_advantage_le_finiteSearch_add_loss_add_two_ringBatchLWE_add
           (params.lweDimension securityParameter)
           (params.ringErrorSampler securityParameter))
         ((realRingBatchReduction params adversary) securityParameter))
-      (LearningWithErrors.advantage
+      (LearningWithErrors.realAdvantage
         (Native.BootstrapCutSecurity.batchModuleLweProblem
           (params.q securityParameter)
           (params.degree securityParameter)
@@ -514,7 +516,7 @@ theorem securityGame_advantage_le_finiteSearch_add_loss_add_two_ringBatchLWE_add
           (params.lweDimension securityParameter)
           (params.ringErrorSampler securityParameter))
         ((zeroRingBatchReduction params adversary) securityParameter))
-      (LearningWithErrors.advantage
+      (LearningWithErrors.realAdvantage
         (Native.KeySwitchSecurity.binaryLweProblem
           (params.q securityParameter)
           (params.lweDimension securityParameter)
@@ -612,7 +614,7 @@ theorem securityGame_advantage_le_two_mul_finiteSearch_add_two_mul_balancedError
     (ofReal_add_five_le
       (2 * searchSuccess.toReal)
       (2 * majorityError.toReal)
-      (LearningWithErrors.advantage
+      (LearningWithErrors.realAdvantage
         (Native.BootstrapCutSecurity.batchModuleLweProblem
           (params.q securityParameter)
           (params.degree securityParameter)
@@ -621,7 +623,7 @@ theorem securityGame_advantage_le_two_mul_finiteSearch_add_two_mul_balancedError
           (params.lweDimension securityParameter)
           (params.ringErrorSampler securityParameter))
         ((realRingBatchReduction params adversary) securityParameter))
-      (LearningWithErrors.advantage
+      (LearningWithErrors.realAdvantage
         (Native.BootstrapCutSecurity.batchModuleLweProblem
           (params.q securityParameter)
           (params.degree securityParameter)
@@ -630,7 +632,7 @@ theorem securityGame_advantage_le_two_mul_finiteSearch_add_two_mul_balancedError
           (params.lweDimension securityParameter)
           (params.ringErrorSampler securityParameter))
         ((zeroRingBatchReduction params adversary) securityParameter))
-      (LearningWithErrors.advantage
+      (LearningWithErrors.realAdvantage
         (Native.KeySwitchSecurity.binaryLweProblem
           (params.q securityParameter)
           (params.lweDimension securityParameter)
@@ -720,7 +722,7 @@ theorem securityGame_advantage_le_two_mul_finiteSearch_add_two_mul_residual_add_
     (ofReal_add_five_le
       (2 * searchSuccess.toReal)
       (2 * residualError)
-      (LearningWithErrors.advantage
+      (LearningWithErrors.realAdvantage
         (Native.BootstrapCutSecurity.batchModuleLweProblem
           (params.q securityParameter)
           (params.degree securityParameter)
@@ -729,7 +731,7 @@ theorem securityGame_advantage_le_two_mul_finiteSearch_add_two_mul_residual_add_
           (params.lweDimension securityParameter)
           (params.ringErrorSampler securityParameter))
         ((realRingBatchReduction params adversary) securityParameter))
-      (LearningWithErrors.advantage
+      (LearningWithErrors.realAdvantage
         (Native.BootstrapCutSecurity.batchModuleLweProblem
           (params.q securityParameter)
           (params.degree securityParameter)
@@ -738,7 +740,7 @@ theorem securityGame_advantage_le_two_mul_finiteSearch_add_two_mul_residual_add_
           (params.lweDimension securityParameter)
           (params.ringErrorSampler securityParameter))
         ((zeroRingBatchReduction params adversary) securityParameter))
-      (LearningWithErrors.advantage
+      (LearningWithErrors.realAdvantage
         (Native.KeySwitchSecurity.binaryLweProblem
           (params.q securityParameter)
           (params.lweDimension securityParameter)

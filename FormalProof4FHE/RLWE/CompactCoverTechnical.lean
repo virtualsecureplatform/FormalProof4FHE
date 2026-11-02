@@ -13,6 +13,8 @@ This module closes the information-theoretic and partial-cover algebra needed be
 remaining compact-cover security theorem.
 -/
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.BinaryNTTSecurity.CompactCoverTechnical
 
 noncomputable section

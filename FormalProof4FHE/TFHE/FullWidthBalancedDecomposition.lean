@@ -20,6 +20,8 @@ The output digit is represented as an integer in the half-open centered interval
 `[-half, base - half)`.  This matches the signed low-limb value passed to TFHEpp's digit FFT.
 -/
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Gadget.Base
 
 noncomputable section

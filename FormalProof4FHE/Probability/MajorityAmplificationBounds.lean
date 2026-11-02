@@ -21,6 +21,8 @@ proof stays inside elementary ordered-field arithmetic.
 
 open ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.MajorityAmplification
 
 /-- Real-valued presentation of the exact majority-of-three error recurrence. -/

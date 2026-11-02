@@ -28,6 +28,8 @@ binary-secret RLWE, not uniform-secret RLWE.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.CoefficientStructuredLWE
 
 noncomputable section
@@ -214,9 +216,7 @@ theorem coefficientEquiv_embedBinaryPolynomial
     (q degree : ℕ) (polynomial : Fin degree → Bool) :
     coefficientEquiv q degree (embedBinaryPolynomial q degree polynomial) =
       binaryCoefficients q polynomial := by
-  funext coefficient
-  simp [coefficientEquiv, embedBinaryPolynomial, binaryCoefficients,
-    LatticeCrypto.Poly.toPi, LatticeCrypto.Poly.ofPi, Vector.get]
+  exact LatticeCrypto.Poly.toPi_ofPi _
 
 /-! ## Exact Boolean-secret entropy data -/
 
@@ -338,7 +338,10 @@ theorem problem_noiseless_eq_negacyclicVecMul
       coefficientEquiv_semiring_mul q degree _ _
     _ = negacyclicProduct (binaryCoefficients q (secret row))
           (challenge row sample) := by
-      simp [challengeEquiv, embedRingSecret]
+      change negacyclicProduct
+        (coefficientEquiv q degree (embedBinaryPolynomial q degree (secret row)))
+        ((coefficientEquiv q degree) ((coefficientEquiv q degree).symm (challenge row sample))) = _
+      rw [coefficientEquiv_embedBinaryPolynomial, Equiv.apply_symm_apply]
 
 /-- The coefficient problem samples the hidden key uniformly from all rank-by-degree Boolean
 coefficient arrays. -/
@@ -468,12 +471,12 @@ theorem game0_evalDist_eq
     (errorSampler : ProbComp (RLWE.Rq q degree))
     (adversary : LearningWithErrors.Adversary
       (problem q degree rank sampleCount errorSampler)) :
-    evalDist (LearningWithErrors.game0
+    evalDist (LearningWithErrors.realExperiment
         (problem q degree rank sampleCount errorSampler) adversary) =
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
         (ringProblem q degree rank sampleCount errorSampler)
         (reduction adversary)) := by
-  rw [LearningWithErrors.game0, LearningWithErrors.game0]
+  rw [LearningWithErrors.realExperiment, LearningWithErrors.realExperiment]
   simp only [reduction]
   rw [← map_distr_eq q degree rank sampleCount errorSampler]
   simp [bind_assoc, monad_norm]
@@ -484,12 +487,12 @@ theorem game1_evalDist_eq
     (errorSampler : ProbComp (RLWE.Rq q degree))
     (adversary : LearningWithErrors.Adversary
       (problem q degree rank sampleCount errorSampler)) :
-    evalDist (LearningWithErrors.game1
+    evalDist (LearningWithErrors.randomExperiment
         (problem q degree rank sampleCount errorSampler) adversary) =
-      evalDist (LearningWithErrors.game1
+      evalDist (LearningWithErrors.randomExperiment
         (ringProblem q degree rank sampleCount errorSampler)
         (reduction adversary)) := by
-  rw [LearningWithErrors.game1, LearningWithErrors.game1]
+  rw [LearningWithErrors.randomExperiment, LearningWithErrors.randomExperiment]
   simp only [reduction]
   rw [← map_uniformDistr_eq q degree rank sampleCount errorSampler]
   simp [bind_assoc, monad_norm]
@@ -500,9 +503,9 @@ theorem advantage_eq_ring
     (errorSampler : ProbComp (RLWE.Rq q degree))
     (adversary : LearningWithErrors.Adversary
       (problem q degree rank sampleCount errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem q degree rank sampleCount errorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (ringProblem q degree rank sampleCount errorSampler)
         (reduction adversary) := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage,
@@ -519,10 +522,10 @@ theorem advantage_ofRingAdversary_eq
     (errorSampler : ProbComp (RLWE.Rq q degree))
     (adversary : LearningWithErrors.Adversary
       (ringProblem q degree rank sampleCount errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem q degree rank sampleCount errorSampler)
         (ofRingAdversary adversary) =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (ringProblem q degree rank sampleCount errorSampler) adversary := by
   rw [advantage_eq_ring]
   simp
@@ -535,10 +538,10 @@ theorem advantage_eq_binarySecretRLWE
     (adversary : LearningWithErrors.Adversary
       (problem q degree 1
         (lweDimension * TGSW.rowCount 1 tgswLevels) errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem q degree 1
           (lweDimension * TGSW.rowCount 1 tgswLevels) errorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (Native.BootstrapCutSecurity.binarySecretRLWEProblem q degree
           (lweDimension * TGSW.rowCount 1 tgswLevels) errorSampler)
         (reduction adversary) := by

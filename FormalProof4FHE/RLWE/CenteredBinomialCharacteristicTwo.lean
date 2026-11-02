@@ -21,6 +21,8 @@ already filled the complete coefficient ring.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.CenteredBinomial
 
 noncomputable section
@@ -130,7 +132,7 @@ theorem coefficientSampler_two_probOutput_add_one
         rw [probOutput_pure_self, probOutput_pure_self]
       · have hshift : residue + 1 ≠ decode coins + 1 := fun heq ↦
           hresidue (add_right_cancel heq)
-        rw [probOutput_pure, probOutput_pure, if_neg hshift, if_neg hresidue]
+        rw [probOutput_pure, probOutput_pure, ite_eq_right hshift, ite_eq_right hresidue]
     _ = ∑' coins : Coins,
         Pr[= coins | $ᵗ Coins] * Pr[= residue | pure (decode coins)] := rfl
 
@@ -232,7 +234,7 @@ theorem sampler_evalDist_eq_coefficientSampler
       have hpointwise :=
         FormalProof4FHE.FiniteProduct.map_fin_mOfFn_const
           degree ($ᵗ Coins) decode
-      exact congrArg evalDist (congrArg (fun distribution ↦ assemble <$> distribution)
+      exact congrArg evalDist (congrArg (fun computation ↦ assemble <$> computation)
         hpointwise)
     _ = _ := by
       rfl

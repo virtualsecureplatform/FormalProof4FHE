@@ -34,6 +34,8 @@ axiom is introduced.
 open OracleComp
 open scoped ENNReal BigOperators InnerProductSpace
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.RankOneHNFLossinessMixtureRenyi
 
 open RankOneHNFLossinessRLWENTRU

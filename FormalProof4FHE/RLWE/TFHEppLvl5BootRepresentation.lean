@@ -30,6 +30,8 @@ cryptographic or distributional premise is hidden in it.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.TFHEppLvl5BootRepresentation
 
 open RankOneHNFLossinessRefined

@@ -9,6 +9,8 @@ import FormalProof4FHE.Probability.WeightedSampler
 open FormalProof4FHE.WeightedSampler
 open scoped ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHETest.WeightedSamplerSmoke
 
 private def small : Table Bool where

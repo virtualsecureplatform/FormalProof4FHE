@@ -30,6 +30,8 @@ is returned.  A fully adaptive left-or-right encryption oracle remains a separat
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.MultiQuery
 
 /-- A query-counted native TFHE adversary. -/
@@ -404,7 +406,7 @@ theorem keySwitchMessageGame_evalDist_eq_game0
       lweDimension keySwitchLevels queryCount) :
     evalDist (keySwitchMessageGame ringErrorSampler keySwitchErrorSampler inputErrorSampler
         tgswGadget message encode adversary) =
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
         (jointLweProblem q lweDimension
           (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels) queryCount
           keySwitchErrorSampler inputErrorSampler)
@@ -470,7 +472,7 @@ theorem keySwitchMessageGame_evalDist_eq_game0
       inputMaterials, Pre, preGame, final,
       bind_assoc, monad_norm]
   have lwe_eq :
-      LearningWithErrors.game0
+      LearningWithErrors.realExperiment
           (jointLweProblem q lweDimension samples queryCount
             keySwitchErrorSampler inputErrorSampler)
           (keySwitchMessageReduction ringErrorSampler keySwitchErrorSampler inputErrorSampler
@@ -488,7 +490,7 @@ theorem keySwitchMessageGame_evalDist_eq_game0
           ProbComp (FormalProof4FHE.LWE.TwoBlock.Challenge
             (ZMod q) lweDimension samples queryCount)) =
         Prod.mk <$> firstChallenges <*> secondChallenges := rfl
-    rw [LearningWithErrors.game0]
+    rw [LearningWithErrors.realExperiment]
     simp only [jointLweProblem]
     unfold LearningWithErrors.distr
     simp only [FormalProof4FHE.LWE.TwoBlock.heterogeneousProblem]
@@ -646,13 +648,13 @@ theorem keySwitchMessageReduction_game1_evalDist_eq_zeroCloud
     (encode : Message → ZMod q)
     (adversary : NativeAdversary Message q degree ringRank tgswLevels
       lweDimension keySwitchLevels queryCount) :
-    evalDist (LearningWithErrors.game1
+    evalDist (LearningWithErrors.randomExperiment
         (jointLweProblem q lweDimension
           (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels) queryCount
           keySwitchErrorSampler inputErrorSampler)
         (keySwitchMessageReduction ringErrorSampler keySwitchErrorSampler inputErrorSampler
           tgswGadget message encode adversary)) =
-      evalDist (LearningWithErrors.game1
+      evalDist (LearningWithErrors.randomExperiment
         (jointLweProblem q lweDimension
           (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels) queryCount
           keySwitchErrorSampler inputErrorSampler)
@@ -661,7 +663,7 @@ theorem keySwitchMessageReduction_game1_evalDist_eq_zeroCloud
   let samples := Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels
   let contexts := Native.KeySwitchSecurity.zeroBootstrapContext
     q degree ringRank tgswLevels lweDimension ringErrorSampler tgswGadget
-  rw [LearningWithErrors.game1, LearningWithErrors.game1]
+  rw [LearningWithErrors.randomExperiment, LearningWithErrors.randomExperiment]
   simp only [jointLweProblem]
   rw [FormalProof4FHE.LWE.TwoBlock.heterogeneousUniformDistr_eq_uniformSample]
   have hShift := Encryption.Security.uniformTranscript_context_shiftFirst_evalDist
@@ -678,7 +680,7 @@ theorem jointLwe_game1_probOutput_true
     (encode : Message → ZMod q)
     (adversary : NativeAdversary Message q degree ringRank tgswLevels
       lweDimension keySwitchLevels queryCount) :
-    Pr[= true | LearningWithErrors.game1
+    Pr[= true | LearningWithErrors.randomExperiment
       (jointLweProblem q lweDimension
         (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels) queryCount
         keySwitchErrorSampler inputErrorSampler)
@@ -704,7 +706,7 @@ theorem jointLwe_game1_probOutput_true
     let ciphertext := challengeCiphertext encode selected second
     let guess ← adversary.distinguish messages.2.2 ciphertext
     return (bit == guess)
-  rw [LearningWithErrors.game1]
+  rw [LearningWithErrors.randomExperiment]
   simp only [jointLweProblem]
   rw [FormalProof4FHE.LWE.TwoBlock.heterogeneousUniformDistr_eq_uniformSample]
   calc
@@ -813,7 +815,7 @@ theorem bootstrapZeroGame_evalDist_eq_jointLwe_game0
       lweDimension keySwitchLevels queryCount) :
     evalDist (bootstrapZeroGame ringErrorSampler keySwitchErrorSampler inputErrorSampler
         tgswGadget keySwitchGadget encode adversary) =
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
         (jointLweProblem q lweDimension
           (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels) queryCount
           keySwitchErrorSampler inputErrorSampler)
@@ -833,7 +835,7 @@ theorem nativeKeySwitchReduction_game1_probOutput_true
     (encode : Message → ZMod q)
     (adversary : NativeAdversary Message q degree ringRank tgswLevels
       lweDimension keySwitchLevels queryCount) :
-    Pr[= true | LearningWithErrors.game1
+    Pr[= true | LearningWithErrors.randomExperiment
       (jointLweProblem q lweDimension
         (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels) queryCount
         keySwitchErrorSampler inputErrorSampler)
@@ -859,7 +861,7 @@ theorem abs_signedAdvantage_bootstrapZero_eq_jointLwe
     |Encryption.signedAdvantage
       (bootstrapZeroGame ringErrorSampler keySwitchErrorSampler inputErrorSampler
         tgswGadget keySwitchGadget encode adversary)| =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (jointLweProblem q lweDimension
           (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels) queryCount
           keySwitchErrorSampler inputErrorSampler)
@@ -891,7 +893,7 @@ theorem abs_signedAdvantage_real_le_bootstrap_add_jointLwe
         tgswGadget keySwitchGadget encode adversary)| ≤
       bootstrapReplacementAdvantage ringErrorSampler keySwitchErrorSampler inputErrorSampler
           tgswGadget keySwitchGadget encode adversary +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (jointLweProblem q lweDimension
             (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels) queryCount
             keySwitchErrorSampler inputErrorSampler)
@@ -917,7 +919,7 @@ theorem abs_signedAdvantage_real_le_bootstrap_add_batchLwe_of_same_noise
         tgswGadget keySwitchGadget encode adversary)| ≤
       bootstrapReplacementAdvantage ringErrorSampler errorSampler errorSampler
           tgswGadget keySwitchGadget encode adversary +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (Native.KeySwitchSecurity.binaryLweProblem q lweDimension
             (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels + queryCount)
             errorSampler)
@@ -936,7 +938,7 @@ theorem abs_signedAdvantage_real_le_bootstrap_add_batchLwe_of_same_noise
         tgswGadget keySwitchGadget encode adversary)| ≤
     bootstrapReplacementAdvantage ringErrorSampler errorSampler errorSampler
         tgswGadget keySwitchGadget encode adversary +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.TwoBlock.problem lweDimension
           (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels) queryCount
           (Native.sampleLweSecret lweDimension) embedBinarySecret errorSampler)
@@ -1022,7 +1024,7 @@ theorem hardAgainst_of_directBilinear_and_jointLwe
           tgswGadget keySwitchGadget encode adversary)| ≤
         bootstrapReplacementAdvantage ringErrorSampler keySwitchErrorSampler
             inputErrorSampler tgswGadget keySwitchGadget encode adversary +
-          LearningWithErrors.advantage
+          LearningWithErrors.realAdvantage
             (jointLweProblem q lweDimension
               (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels) queryCount
               keySwitchErrorSampler inputErrorSampler)
@@ -1080,7 +1082,7 @@ theorem hardAgainst_of_directBilinear_and_batchLwe_same_noise
           tgswGadget keySwitchGadget encode adversary)| ≤
         bootstrapReplacementAdvantage ringErrorSampler errorSampler errorSampler
             tgswGadget keySwitchGadget encode adversary +
-          LearningWithErrors.advantage
+          LearningWithErrors.realAdvantage
             (Native.KeySwitchSecurity.binaryLweProblem q lweDimension
               (Encryption.Security.keySwitchSamples ringRank degree keySwitchLevels + queryCount)
               errorSampler)

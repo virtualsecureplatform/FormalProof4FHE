@@ -17,6 +17,8 @@ Boolean input.  At modulus `q = 2N`, the two input phases are placed at the anti
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.CenteredBinomialRefresh
 
 noncomputable section
@@ -121,7 +123,7 @@ theorem antiPeriodicThreshold_inputCode_add_intCast
               (wrapped : ZMod (2 * (degree + 1))) := by
           dsimp [wrapped]
           simp only [inputCode, BootstrappingCorrectness.encodeBit, Bool.false_eq_true,
-            if_false, zero_add]
+            ite_false, zero_add]
           rw [ZMod.intCast_eq_intCast_iff']
           simp
         have hexponent :

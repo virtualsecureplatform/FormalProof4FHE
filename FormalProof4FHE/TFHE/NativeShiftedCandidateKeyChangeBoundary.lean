@@ -33,6 +33,8 @@ the `RelativeKeyShiftMaterialEvaluator` required by the full nested-key proof.
 
 open Matrix
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ShiftedCandidateKeyChangeBoundary
 
 open FormalProof4FHE.TFHE

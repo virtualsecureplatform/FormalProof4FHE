@@ -31,6 +31,8 @@ the assumption, not a reduction from ordinary LWE or RLWE.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput
 
 /-- The two native hidden keys packaged as the secret of the auxiliary-input problem. -/

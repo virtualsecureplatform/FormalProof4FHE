@@ -4,6 +4,7 @@ Released under MIT license as described in the file LICENSE.
 Authors: Kotaro Matsuoka
 -/
 
+import FormalProof4FHE.Probability.Discrete
 import FormalProof4FHE.TFHE.SharedRandomnessOneCycleAdaptiveEncryption
 import VCVio.CryptoFoundations.Asymptotics.Security
 
@@ -21,6 +22,8 @@ security theorem assumes only ordinary batch LWE and no circular/KDM game.
 -/
 
 open ENNReal OracleComp OracleSpec
+
+open scoped FormalProof4FHE
 
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.SharedRandomnessOneCycle.Asymptotic
 
@@ -93,7 +96,7 @@ noncomputable def batchLWESecurityGame {Message : Type} (params : Parameters Mes
     [∀ securityParameter, NeZero (params.q securityParameter)] :
     SecurityGame (BatchLWEAdversaryFamily params) where
   advantage adversary securityParameter := ENNReal.ofReal
-    (LearningWithErrors.advantage
+    (LearningWithErrors.realAdvantage
       (Native.KeySwitchSecurity.binaryLweProblem
         (params.q securityParameter)
         (params.prefixDimension securityParameter)
@@ -259,7 +262,7 @@ theorem implementationSecurityGame_advantage_le_batchLWE_add_replacement
         (params.q securityParameter)
         (params.prefixDimension securityParameter +
           params.suffixDimension securityParameter))) :=
-    tvDist_nonneg (m := ProbComp) _ _
+    tvDist_nonneg _ _
   have hReplacement : 0 ≤
       (TFHE.SamplerReplacement.bootstrappingErrorCount
           1
@@ -272,7 +275,7 @@ theorem implementationSecurityGame_advantage_le_batchLWE_add_replacement
             (params.prefixDimension securityParameter +
               params.suffixDimension securityParameter))) :=
     mul_nonneg (Nat.cast_nonneg _) hTV
-  have hLWE : 0 ≤ LearningWithErrors.advantage
+  have hLWE : 0 ≤ LearningWithErrors.realAdvantage
       (Native.KeySwitchSecurity.binaryLweProblem
         (params.q securityParameter)
         (params.prefixDimension securityParameter)
@@ -304,7 +307,7 @@ theorem implementationSecurityGame_advantage_le_batchLWE_add_replacement
               (params.q securityParameter)
               (params.prefixDimension securityParameter +
                 params.suffixDimension securityParameter))) +
-          LearningWithErrors.advantage
+          LearningWithErrors.realAdvantage
             (Native.KeySwitchSecurity.binaryLweProblem
               (params.q securityParameter)
               (params.prefixDimension securityParameter)
@@ -460,12 +463,12 @@ def compileEvaluationAdversary {Message Output : Type} (params : Parameters Mess
   queryPolynomial := adversary.queryPolynomial
   queryCount_le := adversary.queryCount_le
   isQueryBound securityParameter := by
-    letI : IsUniformSpec
+    let : OracleSpec.UniformAnswerMeasure
         ((Message × Message) →ₒ
           TLWE.Ciphertext
             (ZMod (params.q securityParameter))
             (params.prefixDimension securityParameter)) :=
-      IsUniformSpec.ofFintypeInhabited _
+      OracleSpec.UniformAnswerMeasure.ofFiniteNonempty _
     exact Adaptive.compilePublicEvaluation_isQueryBound
       (evaluate securityParameter) (adversary.run securityParameter)
       (adversary.queryCount securityParameter)

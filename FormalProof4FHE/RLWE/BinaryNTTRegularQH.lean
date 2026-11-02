@@ -28,6 +28,8 @@ coordinatewise square-root signs uniformly.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.BinaryNTTSecurity.Regular
 
 noncomputable section
@@ -183,7 +185,7 @@ theorem signedRoot_coordinate_ne_zero {Slot K : Type} [Field K]
     (hroot : ∀ slot, canonical slot ^ 2 = (2 * secret slot - u slot) ^ 2)
     (slot : Slot) : signedRoot canonical signs slot ≠ 0 := by
   by_cases hsign : signs slot
-  · simp only [signedRoot, hsign, if_true, neg_ne_zero]
+  · simp only [signedRoot, hsign, ite_true, neg_ne_zero]
     exact canonicalRoot_coordinate_ne_zero u secret canonical hregular hroot slot
   · simp only [signedRoot, hsign]
     exact canonicalRoot_coordinate_ne_zero u secret canonical hregular hroot slot
@@ -295,25 +297,25 @@ theorem normalizedSignedSecret_eq_binaryFromSigns
     u secret canonical hregular hroot slot
   by_cases horientation : rootOrientation u secret canonical slot <;>
     by_cases hsign : signs slot
-  · simp only [normalizedSignedSecret, signedRoot, hsign, if_true,
+  · simp only [normalizedSignedSecret, signedRoot, hsign, ite_true,
       binaryFromSigns, horientation, Bool.true_xor, Bool.not_true]
-    rw [if_pos horientation] at hcanonical
+    rw [ite_eq_left horientation] at hcanonical
     apply normalizeCoordinate_eq_one _ _ _ htwo
     · simpa using congrArg Neg.neg hcanonical
     · exact neg_ne_zero.mpr hcanonicalNe
   · simp only [normalizedSignedSecret, signedRoot, hsign,
-      binaryFromSigns, horientation, Bool.true_xor, Bool.not_false, if_true]
-    rw [if_pos horientation] at hcanonical
+      binaryFromSigns, horientation, Bool.true_xor, Bool.not_false, ite_true]
+    rw [ite_eq_left horientation] at hcanonical
     apply normalizeCoordinate_eq_zero _ _ _ htwo hcanonical hcanonicalNe
-  · simp only [normalizedSignedSecret, signedRoot, hsign, if_true,
-      binaryFromSigns, horientation, Bool.false_xor, if_true]
-    rw [if_neg horientation] at hcanonical
+  · simp only [normalizedSignedSecret, signedRoot, hsign, ite_true,
+      binaryFromSigns, horientation, Bool.false_xor, ite_true]
+    rw [ite_eq_right horientation] at hcanonical
     apply normalizeCoordinate_eq_zero _ _ _ htwo
     · simpa using congrArg Neg.neg hcanonical
     · exact neg_ne_zero.mpr hcanonicalNe
   · simp only [normalizedSignedSecret, signedRoot, hsign,
       binaryFromSigns, horientation, Bool.false_xor]
-    rw [if_neg horientation] at hcanonical
+    rw [ite_eq_right horientation] at hcanonical
     apply normalizeCoordinate_eq_one _ _ _ htwo hcanonical hcanonicalNe
 
 /-- The executable signed-root sampler produces exactly the uniform Binary-NTT secret law. -/

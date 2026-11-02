@@ -24,6 +24,8 @@ amplification, scalar union bound, and centered-binomial paired-key completion.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual
 
 open Native

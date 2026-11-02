@@ -24,6 +24,8 @@ universal modular fallback in `NativeShiftedResidualBounds`.
 
 open Matrix
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ShiftedResidualBounds
 
 noncomputable section

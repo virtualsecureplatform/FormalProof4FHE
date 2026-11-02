@@ -80,7 +80,7 @@ theorem natCard_annihilator_eq_natCard_quotient [Finite Codomain]
         Nat.card (AddChar (Codomain ⧸ subgroup) ℂ) :=
       Nat.card_congr (quotientAddCharEquivAnnihilator subgroup).symm
     _ = Nat.card (Codomain ⧸ subgroup) := by
-      letI : Fintype (Codomain ⧸ subgroup) := Fintype.ofFinite _
+      let : Fintype (Codomain ⧸ subgroup) := Fintype.ofFinite _
       simpa only [Nat.card_eq_fintype_card] using
         (AddChar.card_eq (α := Codomain ⧸ subgroup))
 

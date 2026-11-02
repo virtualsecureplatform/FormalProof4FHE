@@ -28,6 +28,8 @@ nonlinear evaluator needed to randomize the remaining relative master-key bits.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization
 
 noncomputable section
@@ -54,7 +56,7 @@ theorem involutiveSymmetrization_invariant
   intro output
   rw [probOutput_bind_uniformBool, probOutput_bind_uniformBool]
   simp only [probOutput_pure]
-  simp only [if_true, Bool.false_eq_true, if_false]
+  simp only [ite_true, Bool.false_eq_true, ite_false]
   rw [hinvolutive value]
   ac_rfl
 

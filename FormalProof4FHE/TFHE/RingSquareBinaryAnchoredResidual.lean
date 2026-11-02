@@ -25,6 +25,8 @@ bounded-moment lower bound for the complete hidden-residual statistical hop.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler
 
 noncomputable section
@@ -151,8 +153,8 @@ theorem HiddenResidual.levelSourceErrorSampler_evalDist
           (levels := levels) (sourceCount := sourceCount)
           sourceErrorSampler level) =
       evalDist (ProbComp.sampleIID sourceCount sourceErrorSampler) := by
-  letI : Fintype R := Fintype.ofFinite R
-  letI : DecidableEq R := Classical.decEq R
+  let : Fintype R := Fintype.ofFinite R
+  let : DecidableEq R := Classical.decEq R
   let split := FormalProof4FHE.LWE.ParallelBatch.outputEquiv
     R levels sourceCount
   let flat := HiddenResidual.sourceErrorTableSampler

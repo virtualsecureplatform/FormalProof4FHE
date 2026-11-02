@@ -29,6 +29,8 @@ TFHE's TRGSW bootstrapping key.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.MultiKeyAffine
 
 /-- One binary vector. -/
@@ -443,7 +445,7 @@ theorem transformChallenge_sampler_evalDist {R : Type}
   calc
     _ = evalDist (transformChallenge masks coefficients <$> uniform) := by
       simpa only [evalDist_map] using congrArg
-        (fun distribution ↦ transformChallenge masks coefficients <$> distribution) hSampler
+        (fun distribution ↦ MeasureTheory.Measure.map (transformChallenge masks coefficients) distribution) hSampler
     _ = evalDist uniform :=
       evalDist_map_bijective_uniform_cross
         (α := FormalProof4FHE.LWE.ParallelBatch.Challenge
@@ -678,7 +680,7 @@ theorem transformTranscript_uniform_evalDist {R : Type}
   calc
     _ = evalDist (transformTranscript masks coefficients offsets <$> uniform) := by
       simpa only [evalDist_map] using congrArg
-        (fun distribution ↦ transformTranscript masks coefficients offsets <$> distribution)
+        (fun distribution ↦ MeasureTheory.Measure.map (transformTranscript masks coefficients offsets) distribution)
         hUniform
     _ = evalDist uniform :=
       evalDist_map_bijective_uniform_cross
@@ -749,11 +751,11 @@ theorem game0_evalDist_eq {R : Type}
     (errorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem dimension users samples coefficients offsets errorSampler)) :
-    evalDist (LearningWithErrors.game0
+    evalDist (LearningWithErrors.realExperiment
         (problem dimension users samples coefficients offsets errorSampler) adversary) =
-      evalDist (LearningWithErrors.game0
+      evalDist (LearningWithErrors.realExperiment
         (masterProblem dimension users samples errorSampler) (reduction adversary)) := by
-  rw [LearningWithErrors.game0, LearningWithErrors.game0]
+  rw [LearningWithErrors.realExperiment, LearningWithErrors.realExperiment]
   simp only [reduction]
   rw [show (LearningWithErrors.distr
           (masterProblem dimension users samples errorSampler) >>= fun transcript ↦
@@ -776,11 +778,11 @@ theorem game1_evalDist_eq {R : Type}
     (errorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem dimension users samples coefficients offsets errorSampler)) :
-    evalDist (LearningWithErrors.game1
+    evalDist (LearningWithErrors.randomExperiment
         (problem dimension users samples coefficients offsets errorSampler) adversary) =
-      evalDist (LearningWithErrors.game1
+      evalDist (LearningWithErrors.randomExperiment
         (masterProblem dimension users samples errorSampler) (reduction adversary)) := by
-  rw [LearningWithErrors.game1, LearningWithErrors.game1]
+  rw [LearningWithErrors.randomExperiment, LearningWithErrors.randomExperiment]
   simp only [reduction]
   rw [show (LearningWithErrors.uniformDistr
           (masterProblem dimension users samples errorSampler) >>= fun transcript ↦
@@ -804,9 +806,9 @@ theorem advantage_eq_master {R : Type}
     (errorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem dimension users samples coefficients offsets errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem dimension users samples coefficients offsets errorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (masterProblem dimension users samples errorSampler) (reduction adversary) := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage,
     FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
@@ -843,9 +845,9 @@ theorem advantage_eq_batch {R : Type}
     (errorSampler : ProbComp R)
     (adversary : LearningWithErrors.Adversary
       (problem dimension users samples coefficients offsets errorSampler)) :
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
         (problem dimension users samples coefficients offsets errorSampler) adversary =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (FormalProof4FHE.LWE.embeddedBatchProblem dimension (users * samples)
           ($ᵗ (BinaryVector dimension))
           (fun key coordinate ↦ embedBit (R := R) (key coordinate)) errorSampler)

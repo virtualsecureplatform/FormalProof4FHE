@@ -23,6 +23,8 @@ wide-error law required by the weak-secret reduction must also fit correctness.
 open OracleComp Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWQuadraticPreimageBinary
 
 open GSWQuadraticPreimage FormalProof4FHE.BlockBinary
@@ -63,20 +65,20 @@ theorem advantage_eq_blockBinary (builder : Builder (ZMod q) (n * b) m k)
     (adversary : View (ZMod q) (n * b) m k → ProbComp Bool) :
     (realView builder linear offset errorSampler >>= adversary).boolDistAdvantage
       (($ᵗ View (ZMod q) (n * b) m k) >>= adversary) =
-      LearningWithErrors.advantage (problem b n (m + k) errorSampler)
+      LearningWithErrors.realAdvantage (problem b n (m + k) errorSampler)
         (reduction builder linear offset adversary) := by
   have hreal : realView builder linear offset errorSampler >>= adversary =
-      LearningWithErrors.game0 (problem b n (m + k) errorSampler)
+      LearningWithErrors.realExperiment (problem b n (m + k) errorSampler)
         (reduction builder linear offset adversary) := by
-    simp [realView, reduction, LearningWithErrors.game0, monad_norm]
+    simp [realView, reduction, LearningWithErrors.realExperiment, monad_norm]
   have hideal := FormalProof4FHE.SharedRandomness.evalDist_bind_eq_of_evalDist_eq
     (uniform_source_evalDist builder linear offset errorSampler) adversary
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage, hreal]
   unfold ProbComp.boolDistAdvantage
-  have hideal' : 𝒟[LearningWithErrors.game1 (problem b n (m + k) errorSampler)
+  have hideal' : 𝒟[LearningWithErrors.randomExperiment (problem b n (m + k) errorSampler)
       (reduction builder linear offset adversary)] =
       𝒟[($ᵗ View (ZMod q) (n * b) m k) >>= adversary] := by
-    simpa [LearningWithErrors.game1, reduction, monad_norm] using hideal
+    simpa [LearningWithErrors.randomExperiment, reduction, monad_norm] using hideal
   rw [evalDist_ext_iff.mp hideal' true]
 
 /-- All three computational terms below are ORDINARY uniform-secret LWE.
@@ -87,17 +89,17 @@ def ordinaryLoss (builder : Builder (ZMod q) (n * b) m k)
     (adversary : View (ZMod q) (n * b) m k → ProbComp Bool) : ℝ :=
   let red := reduction builder linear offset adversary
   (∑ coordinate : Fin (n * b),
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
       (batchProblem d (m + k) ($ᵗ (Fin d → ZMod q)) narrow)
       (rowHybridReduction (n * b) d (m + k) narrow coordinate
         (realMaskReduction b n d (m + k) narrow wide red))) +
     noiseAbsorptionGap b n d (m + k) narrow wide +
     Real.sqrt ((q : ℝ) ^ d / (b + 1 : ℝ) ^ n) / 2 +
-    LearningWithErrors.advantage
+    LearningWithErrors.realAdvantage
       (batchProblem d (m + k) ($ᵗ (Fin d → ZMod q)) wide)
       (extractedLWReduction b n d (m + k) narrow wide red) +
     (∑ coordinate : Fin (n * b),
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (batchProblem d (m + k) ($ᵗ (Fin d → ZMod q)) narrow)
         (rowHybridReduction (n * b) d (m + k) narrow coordinate
           (uniformMaskReduction b n d (m + k) narrow wide red)))

@@ -4,9 +4,10 @@ Released under MIT license as described in the file LICENSE.
 Authors: Kotaro Matsuoka
 -/
 
+import FormalProof4FHE.Probability.Discrete
 import LatticeCrypto.DiscreteGaussian
 import Mathlib.Data.ZMod.ValMinAbs
-import VCVio.EvalDist.TVDist
+import VCVio.EvalDist.MeasureTVDist.Bind
 
 /-!
 # Modular Discrete Gaussians
@@ -31,12 +32,27 @@ module specifies the exact ideal distribution against which such a sampler can b
 
 open BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.ModularGaussian
+
+/-- The normalized mass function of the integer discrete Gaussian. -/
+noncomputable def integerDistribution (sigma mu : ℝ) (hsigma : 0 < sigma) : PMF ℤ :=
+  ⟨fun z ↦ ENNReal.ofReal (LatticeCrypto.discreteGaussianPMF sigma mu z), by
+    rw [ENNReal.summable.hasSum_iff, ← ENNReal.ofReal_one,
+      ← LatticeCrypto.discreteGaussianPMF_sum_eq_one sigma mu hsigma]
+    exact (ENNReal.ofReal_tsum_of_nonneg
+      (LatticeCrypto.discreteGaussianPMF_nonneg sigma mu hsigma)
+      (LatticeCrypto.discreteGaussianPMF_summable sigma mu hsigma)).symm⟩
+
+@[simp] theorem integerDistribution_apply (sigma mu : ℝ) (hsigma : 0 < sigma) (z : ℤ) :
+    (integerDistribution sigma mu hsigma z).toReal = LatticeCrypto.discreteGaussianPMF sigma mu z :=
+  ENNReal.toReal_ofReal (LatticeCrypto.discreteGaussianPMF_nonneg sigma mu hsigma z)
 
 /-- Push the centered integer discrete Gaussian forward to `ZMod q`. -/
 noncomputable def distribution (q : ℕ) [NeZero q] (sigma : ℝ) (hsigma : 0 < sigma) :
     PMF (ZMod q) :=
-  (fun z : ℤ ↦ (z : ZMod q)) <$> LatticeCrypto.discreteGaussianDist sigma 0 hsigma
+  (fun z : ℤ ↦ (z : ZMod q)) <$> FormalProof4FHE.ModularGaussian.integerDistribution sigma 0 hsigma
 
 theorem distribution_apply (q : ℕ) [NeZero q] (sigma : ℝ) (hsigma : 0 < sigma)
     (residue : ZMod q) :
@@ -47,10 +63,10 @@ theorem distribution_apply (q : ℕ) [NeZero q] (sigma : ℝ) (hsigma : 0 < sigm
   apply tsum_congr
   intro z
   by_cases h : residue = (z : ZMod q)
-  · rw [if_pos h, if_pos h]
+  · rw [ite_eq_left h, ite_eq_left h]
     change ENNReal.ofReal (LatticeCrypto.discreteGaussianPMF sigma 0 z) = _
     rfl
-  · rw [if_neg h, if_neg h]
+  · rw [ite_eq_right h, ite_eq_right h]
 
 /-- Integer-domain standard deviation corresponding to torus standard deviation `alpha`. -/
 def integerStddev (q : ℕ) (alpha : ℝ) : ℝ := alpha * q
@@ -154,13 +170,13 @@ twice its mass at zero. -/
 theorem tsum_abs_translate_discreteGaussian_unit_eq_two_mul_mass_zero
     (sigma : ℝ) (hsigma : 0 < sigma) :
     (∑' value : ℤ,
-      |(translate 1 (LatticeCrypto.discreteGaussianDist sigma 0 hsigma) value).toReal -
-        (LatticeCrypto.discreteGaussianDist sigma 0 hsigma value).toReal|) =
+      |(translate 1 (FormalProof4FHE.ModularGaussian.integerDistribution sigma 0 hsigma) value).toReal -
+        (FormalProof4FHE.ModularGaussian.integerDistribution sigma 0 hsigma value).toReal|) =
       2 * LatticeCrypto.discreteGaussianPMF sigma 0 0 := by
-  let p := LatticeCrypto.discreteGaussianDist sigma 0 hsigma
+  let p := FormalProof4FHE.ModularGaussian.integerDistribution sigma 0 hsigma
   let mass := LatticeCrypto.discreteGaussianPMF sigma 0
   have hp_apply (value : ℤ) : (p value).toReal = mass value := by
-    exact LatticeCrypto.discreteGaussianDist_apply sigma 0 hsigma value
+    exact FormalProof4FHE.ModularGaussian.integerDistribution_apply sigma 0 hsigma value
   have htranslate (value : ℤ) :
       (translate 1 p value).toReal = mass (value - 1) := by
     rw [translate_int_one_apply, hp_apply]
@@ -262,7 +278,7 @@ noncomputable def shiftDistance {G : Type} [Add G] (p : PMF G) (shift : G) : ℝ
 /-- Exact unit-shift distance for the centered integer discrete Gaussian. -/
 theorem shiftDistance_discreteGaussian_unit_eq_mass_zero
     (sigma : ℝ) (hsigma : 0 < sigma) :
-    shiftDistance (LatticeCrypto.discreteGaussianDist sigma 0 hsigma) 1 =
+    shiftDistance (FormalProof4FHE.ModularGaussian.integerDistribution sigma 0 hsigma) 1 =
       LatticeCrypto.discreteGaussianPMF sigma 0 0 := by
   rw [shiftDistance, tvDist_eq_half_tsum_abs_toReal,
     tsum_abs_translate_discreteGaussian_unit_eq_two_mul_mass_zero sigma hsigma]
@@ -331,7 +347,7 @@ theorem discreteGaussianPMF_zero_le_exp_half_div_nat_succ
 theorem shiftDistance_discreteGaussian_unit_le_exp_half_div_nat_succ
     (sigma : ℝ) (hsigma : 0 < sigma) (window : ℕ)
     (hwindow : (window : ℝ) ≤ sigma) :
-    shiftDistance (LatticeCrypto.discreteGaussianDist sigma 0 hsigma) 1 ≤
+    shiftDistance (FormalProof4FHE.ModularGaussian.integerDistribution sigma 0 hsigma) 1 ≤
       Real.exp (1 / 2 : ℝ) / (window + 1 : ℕ) := by
   rw [shiftDistance_discreteGaussian_unit_eq_mass_zero sigma hsigma]
   exact discreteGaussianPMF_zero_le_exp_half_div_nat_succ sigma hsigma window hwindow
@@ -443,24 +459,24 @@ theorem translate_distribution_intCast (q : ℕ) [NeZero q]
     (sigma : ℝ) (hsigma : 0 < sigma) (shift : ℤ) :
     translate (shift : ZMod q) (distribution q sigma hsigma) =
       (fun z : ℤ ↦ (z : ZMod q)) <$>
-        translate shift (LatticeCrypto.discreteGaussianDist sigma 0 hsigma) := by
+        translate shift (FormalProof4FHE.ModularGaussian.integerDistribution sigma 0 hsigma) := by
   simp [translate, distribution, Functor.map_map, add_comm]
 
 /-- Reducing modulo `q` cannot increase the translation distance. -/
 theorem shiftDistance_distribution_intCast_le (q : ℕ) [NeZero q]
     (sigma : ℝ) (hsigma : 0 < sigma) (shift : ℤ) :
     shiftDistance (distribution q sigma hsigma) (shift : ZMod q) ≤
-      shiftDistance (LatticeCrypto.discreteGaussianDist sigma 0 hsigma) shift := by
+      shiftDistance (FormalProof4FHE.ModularGaussian.integerDistribution sigma 0 hsigma) shift := by
   rw [shiftDistance, translate_distribution_intCast]
   exact PMF.tvDist_map_le (fun z : ℤ ↦ (z : ZMod q))
-    (translate shift (LatticeCrypto.discreteGaussianDist sigma 0 hsigma))
-    (LatticeCrypto.discreteGaussianDist sigma 0 hsigma)
+    (translate shift (FormalProof4FHE.ModularGaussian.integerDistribution sigma 0 hsigma))
+    (FormalProof4FHE.ModularGaussian.integerDistribution sigma 0 hsigma)
 
 /-- Every modular shift is bounded using its centered, minimum-absolute-value integer lift. -/
 theorem shiftDistance_distribution_le_valMinAbs (q : ℕ) [NeZero q]
     (sigma : ℝ) (hsigma : 0 < sigma) (shift : ZMod q) :
     shiftDistance (distribution q sigma hsigma) shift ≤
-      shiftDistance (LatticeCrypto.discreteGaussianDist sigma 0 hsigma)
+      shiftDistance (FormalProof4FHE.ModularGaussian.integerDistribution sigma 0 hsigma)
         shift.valMinAbs := by
   simpa only [ZMod.coe_valMinAbs] using
     shiftDistance_distribution_intCast_le q sigma hsigma shift.valMinAbs
@@ -471,18 +487,18 @@ theorem shiftDistance_distribution_le_natAbs_mul_unit (q : ℕ) [NeZero q]
     (sigma : ℝ) (hsigma : 0 < sigma) (shift : ZMod q) :
     shiftDistance (distribution q sigma hsigma) shift ≤
       (shift.valMinAbs.natAbs : ℝ) *
-        shiftDistance (LatticeCrypto.discreteGaussianDist sigma 0 hsigma) 1 := by
+        shiftDistance (FormalProof4FHE.ModularGaussian.integerDistribution sigma 0 hsigma) 1 := by
   calc
     shiftDistance (distribution q sigma hsigma) shift ≤
-        shiftDistance (LatticeCrypto.discreteGaussianDist sigma 0 hsigma)
+        shiftDistance (FormalProof4FHE.ModularGaussian.integerDistribution sigma 0 hsigma)
           shift.valMinAbs :=
       shiftDistance_distribution_le_valMinAbs q sigma hsigma shift
-    _ = shiftDistance (LatticeCrypto.discreteGaussianDist sigma 0 hsigma)
+    _ = shiftDistance (FormalProof4FHE.ModularGaussian.integerDistribution sigma 0 hsigma)
         (shift.valMinAbs • (1 : ℤ)) := by simp
     _ ≤ (shift.valMinAbs.natAbs : ℝ) *
-        shiftDistance (LatticeCrypto.discreteGaussianDist sigma 0 hsigma) 1 :=
+        shiftDistance (FormalProof4FHE.ModularGaussian.integerDistribution sigma 0 hsigma) 1 :=
       shiftDistance_zsmul_le
-        (LatticeCrypto.discreteGaussianDist sigma 0 hsigma) 1 shift.valMinAbs
+        (FormalProof4FHE.ModularGaussian.integerDistribution sigma 0 hsigma) 1 shift.valMinAbs
 
 /-- Torus-parameter form of `shiftDistance_distribution_le_natAbs_mul_unit`. -/
 theorem shiftDistance_torusDistribution_le_natAbs_mul_unit
@@ -491,7 +507,7 @@ theorem shiftDistance_torusDistribution_le_natAbs_mul_unit
     shiftDistance (torusDistribution q alpha halpha) shift ≤
       (shift.valMinAbs.natAbs : ℝ) *
         shiftDistance
-          (LatticeCrypto.discreteGaussianDist (integerStddev q alpha) 0
+          (FormalProof4FHE.ModularGaussian.integerDistribution (integerStddev q alpha) 0
             (integerStddev_pos q halpha)) 1 := by
   exact shiftDistance_distribution_le_natAbs_mul_unit q
     (integerStddev q alpha) (integerStddev_pos q halpha) shift
@@ -563,9 +579,9 @@ theorem tvDist_uniformOfFintype_le_of_shiftDistance_le
     {G : Type} [AddCommGroup G] [Fintype G]
     (p : PMF G) (bound : ℝ)
     (hshift : ∀ shift : G, shiftDistance p shift ≤ bound) :
-    PMF.tvDist p (PMF.uniformOfFintype G) ≤ bound := by
+    PMF.tvDist p (PMF.uniformFinite G) ≤ bound := by
   classical
-  let uniform : PMF G := PMF.uniformOfFintype G
+  let uniform : PMF G := PMF.uniformFinite G
   let shiftedMixture : PMF G :=
     uniform.bind fun shift ↦ translate shift p
   let constantMixture : PMF G :=
@@ -608,7 +624,7 @@ theorem tvDist_uniformOfFintype_le_of_shiftDistance_le
         congr 1
         funext value
         change PMF.map (fun shift : G ↦ shift + value) uniform = uniform
-        exact PMF.uniformOfFintype_map_of_bijective
+        exact PMF.uniformFinite_map_of_bijective
           (fun shift : G ↦ shift + value) (AddGroup.addRight_bijective value)
       _ = uniform := PMF.bind_const p uniform
   rw [hshifted, hconstant, PMF.tvDist_comm] at hmixture
@@ -621,7 +637,7 @@ noncomputable def torusUniformBound
     (q : ℕ) [NeZero q] (alpha : ℝ) (halpha : 0 < alpha) : ℝ :=
   (q / 2 : ℕ) *
     shiftDistance
-      (LatticeCrypto.discreteGaussianDist (integerStddev q alpha) 0
+      (FormalProof4FHE.ModularGaussian.integerDistribution (integerStddev q alpha) 0
         (integerStddev_pos q halpha)) 1
 
 theorem torusUniformBound_nonneg
@@ -635,7 +651,7 @@ Unlike a one-sided hybrid, this follows by averaging every additive translate. -
 theorem tvDist_torusDistribution_uniform_le
     (q : ℕ) [NeZero q] (alpha : ℝ) (halpha : 0 < alpha) :
     PMF.tvDist (torusDistribution q alpha halpha)
-        (PMF.uniformOfFintype (ZMod q)) ≤
+        (PMF.uniformFinite (ZMod q)) ≤
       torusUniformBound q alpha halpha := by
   apply tvDist_uniformOfFintype_le_of_shiftDistance_le
   intro shift
@@ -643,13 +659,13 @@ theorem tvDist_torusDistribution_uniform_le
     shiftDistance (torusDistribution q alpha halpha) shift ≤
         (shift.valMinAbs.natAbs : ℝ) *
           shiftDistance
-            (LatticeCrypto.discreteGaussianDist (integerStddev q alpha) 0
+            (FormalProof4FHE.ModularGaussian.integerDistribution (integerStddev q alpha) 0
               (integerStddev_pos q halpha)) 1 :=
       shiftDistance_torusDistribution_le_natAbs_mul_unit
         q alpha halpha shift
     _ ≤ (q / 2 : ℕ) *
           shiftDistance
-            (LatticeCrypto.discreteGaussianDist (integerStddev q alpha) 0
+            (FormalProof4FHE.ModularGaussian.integerDistribution (integerStddev q alpha) 0
               (integerStddev_pos q halpha)) 1 := by
       apply mul_le_mul_of_nonneg_right
       · exact_mod_cast ZMod.natAbs_valMinAbs_le shift

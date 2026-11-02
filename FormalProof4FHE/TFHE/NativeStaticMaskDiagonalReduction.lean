@@ -26,6 +26,8 @@ off-diagonal residual term.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted.FullMaskCollision.StaticDiagonal
 
 noncomputable section
@@ -98,7 +100,7 @@ theorem residualizedCoordinateSampler_mask_evalDist_eq_directEntry
     FormalProof4FHE.SharedRandomness.evalDist_bind_const_of_probFailure_eq_zero
       Difference (by simp [Difference])
         (Challenge >>= fun challenge ↦ Errors >>= fun _error ↦ pure challenge)
-  simpa only [OffDiagonalNormalForm.residualizedCoordinateSampler, if_neg hne,
+  simpa only [OffDiagonalNormalForm.residualizedCoordinateSampler, ite_eq_right hne,
     OffDiagonalNormalForm.fixedControlPerturbationSampler,
     OffDiagonalNormalForm.directEntrySampler, TGSW.directEncryptWithResidual,
     TGSW.directEncrypt, TLWE.batchEncryptWithResidual, TLWE.batchEncrypt,
@@ -159,7 +161,7 @@ theorem residualizedKeyExperiment_mask_evalDist_eq_offDiagonalReplaced
         params errorSampler hidden ringSecret coordinate outputCoordinate control hCoordinate
       simpa only [Residualized, Replaced,
         OffDiagonalNormalForm.offDiagonalReplacedCoordinateSampler,
-        if_neg hCoordinate] using h
+        ite_eq_right hCoordinate] using h
   unfold Native.ConditionalSmudging.bootstrappingMask
   simpa only [map_eq_bind_pure_comp, Function.comp_def, Residualized, Replaced] using hmapped
 
@@ -230,7 +232,7 @@ theorem completeKeyFromDiagonal_mask_evalDist_eq_completeMask
   intro outputCoordinate
   by_cases hCoordinate : outputCoordinate = coordinate
   · simp [hCoordinate]
-  · simpa only [hCoordinate, if_false] using
+  · simpa only [hCoordinate, ite_false] using
       (directEntrySampler_mask_evalDist_eq_uniform params errorSampler hidden
         ringSecret outputCoordinate)
 
@@ -382,7 +384,7 @@ theorem tvDist_diagonalExperiment_mask_uniform_le_jointChiSquare
     (ringRank := ringRank) params sourceErrorSampler (hidden coordinate) ringSecret
   have hFull := DiagonalNormalForm.tvDist_operatorDiagonal_maskReplaced_le_jointChiSquare
     (ringRank := ringRank) params sourceErrorSampler (hidden coordinate) ringSecret
-  have hProjected := (tvDist_map_le (m := ProbComp) Prod.fst
+  have hProjected := (tvDist_map_le Prod.fst
     (DiagonalNormalForm.operatorDiagonalExperiment params sourceErrorSampler
       (hidden coordinate) ringSecret)
     (DiagonalNormalForm.maskReplacedDiagonalExperiment (ringRank := ringRank)
@@ -438,7 +440,7 @@ theorem tvDist_diagonalExperiment_mask_uniform_le_goodBadRetainedCokernel
       (ringRank := ringRank) params sourceErrorSampler (hidden coordinate) ringSecret Good
       selfKernelAverageBound distinctCokernelAverageBound hSelfNonneg hDistinctNonneg
       hSelf hDistinct
-  have hProjected := (tvDist_map_le (m := ProbComp) Prod.fst
+  have hProjected := (tvDist_map_le Prod.fst
     (DiagonalNormalForm.operatorDiagonalExperiment params sourceErrorSampler
       (hidden coordinate) ringSecret)
     (DiagonalNormalForm.maskReplacedDiagonalExperiment (ringRank := ringRank)
@@ -474,7 +476,7 @@ theorem tvDist_correctKeyExperiment_mask_fresh_le_jointChiSquare
     (degree := degree) (ringRank := ringRank) params coordinate
   have hDiagonal := tvDist_diagonalExperiment_mask_uniform_le_jointChiSquare
     params sourceErrorSampler hidden ringSecret coordinate
-  have hProcessed := (tvDist_bind_right_le (m := ProbComp)
+  have hProcessed := (tvDist_bind_right_le
     (completeMaskFromDiagonal params coordinate)
     (Prod.fst <$> OffDiagonalNormalForm.diagonalExperiment params
       sourceErrorSampler hidden ringSecret coordinate)
@@ -535,7 +537,7 @@ theorem tvDist_correctKeyExperiment_mask_fresh_le_goodBadRetainedCokernel
       params sourceErrorSampler hidden ringSecret coordinate Good
       selfKernelAverageBound distinctCokernelAverageBound hSelfNonneg hDistinctNonneg
       hSelf hDistinct
-  have hProcessed := (tvDist_bind_right_le (m := ProbComp)
+  have hProcessed := (tvDist_bind_right_le
     (completeMaskFromDiagonal params coordinate)
     (Prod.fst <$> OffDiagonalNormalForm.diagonalExperiment params
       sourceErrorSampler hidden ringSecret coordinate)
@@ -1347,7 +1349,7 @@ theorem tvDist_coupledDirectCorrectStaticMask_fresh_le_worstCaseStatic
   have hFixed := tvDist_correctKeyExperiment_mask_fresh_le_worstCaseStatic
     params (RLWE.CenteredBinomial.sampler q (degree + 1) eta)
       TargetSecret secrets.2 coordinate
-  have hMapped := (tvDist_map_le (m := ProbComp) Attach
+  have hMapped := (tvDist_map_le Attach
     ActualMasks FreshMasks).trans hFixed
   simpa only [TargetSecret, Side, ActualMasks, FreshMasks, Attach,
     map_eq_bind_pure_comp, Function.comp_def, bind_assoc, pure_bind] using hMapped
@@ -1419,7 +1421,7 @@ theorem tvDist_correctStaticMaskWideView_independent_le_worstCaseStatic
     (fixedMaskWidePublicContext (degree := degree + 1) (ringRank := ringRank)
       (lweDimension := lweDimension) (keySwitchLevels := keySwitchLevels)
       (queryCount := queryCount) params wideNoise)
-  have hData := tvDist_bind_right_le (m := ProbComp) Finish Joint Independent
+  have hData := tvDist_bind_right_le Finish Joint Independent
   have hJoint := tvDist_correctStaticMaskJoint_independent_le_worstCaseStatic
     (degree := degree) (ringRank := ringRank) (queryCount := queryCount)
     (eta := eta) params keySwitchErrorSampler inputErrorSampler
@@ -1604,7 +1606,7 @@ theorem tvDist_coupledDirectCorrectStaticMask_fresh_le_retainedCokernelGoodBad
     RetainedCokernelGoodBadCertificate.tvDist_correctKeyExperiment_mask_fresh_le
       params (RLWE.CenteredBinomial.sampler q (degree + 1) eta) certificate
       TargetSecret secrets.2 coordinate
-  have hMapped := (tvDist_map_le (m := ProbComp) Attach
+  have hMapped := (tvDist_map_le Attach
     ActualMasks FreshMasks).trans hFixed
   simpa only [TargetSecret, Side, ActualMasks, FreshMasks, Attach,
     map_eq_bind_pure_comp, Function.comp_def, bind_assoc, pure_bind] using hMapped
@@ -1681,7 +1683,7 @@ theorem tvDist_correctStaticMaskWideView_independent_le_retainedCokernelGoodBad
     (fixedMaskWidePublicContext (degree := degree + 1) (ringRank := ringRank)
       (lweDimension := lweDimension) (keySwitchLevels := keySwitchLevels)
       (queryCount := queryCount) params wideNoise)
-  have hData := tvDist_bind_right_le (m := ProbComp) Finish Joint Independent
+  have hData := tvDist_bind_right_le Finish Joint Independent
   have hJoint :=
     tvDist_correctStaticMaskJoint_independent_le_retainedCokernelGoodBad
       (degree := degree) (ringRank := ringRank) (queryCount := queryCount)

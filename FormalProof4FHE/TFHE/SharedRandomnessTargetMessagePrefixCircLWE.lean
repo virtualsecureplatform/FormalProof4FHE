@@ -36,6 +36,8 @@ RLWE proves the resulting native CircLWE problem.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages.PrefixCircLWE
 
 noncomputable section
@@ -276,10 +278,10 @@ theorem publicReferenceLweAdvantage_le_two_moduleLwe
       q degree sourceRank suffixRank tgswLevels) :
     referenceLweAdvantage errorSampler errorSampler gadget
         (CloudReduction.publicSourceContinuation continuation) ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
           (CloudReduction.problem q degree sourceRank suffixRank tgswLevels errorSampler)
           (CloudReduction.suffixReduction gadget continuation) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (CloudReduction.problem q degree sourceRank suffixRank tgswLevels errorSampler)
           (CloudReduction.zeroReduction gadget
             (CloudReduction.resampleBootstrapContinuation continuation)) := by
@@ -301,20 +303,20 @@ theorem publicReferenceLweAdvantage_le_two_moduleLwe
         tgswLevels errorSampler gadget
           (CloudReduction.resampleBootstrapContinuation continuation)) true]
   let suffixProbability : ℝ :=
-    (Pr[= true | LearningWithErrors.game0
+    (Pr[= true | LearningWithErrors.realExperiment
       (CloudReduction.problem q degree sourceRank suffixRank tgswLevels errorSampler)
       (CloudReduction.suffixReduction gadget continuation)]).toReal
   let uniformSuffixProbability : ℝ :=
-    (Pr[= true | LearningWithErrors.game1
+    (Pr[= true | LearningWithErrors.randomExperiment
       (CloudReduction.problem q degree sourceRank suffixRank tgswLevels errorSampler)
       (CloudReduction.suffixReduction gadget continuation)]).toReal
   let resampledProbability : ℝ :=
-    (Pr[= true | LearningWithErrors.game0
+    (Pr[= true | LearningWithErrors.realExperiment
       (CloudReduction.problem q degree sourceRank suffixRank tgswLevels errorSampler)
       (CloudReduction.zeroReduction gadget
         (CloudReduction.resampleBootstrapContinuation continuation))]).toReal
   let uniformResampledProbability : ℝ :=
-    (Pr[= true | LearningWithErrors.game1
+    (Pr[= true | LearningWithErrors.randomExperiment
       (CloudReduction.problem q degree sourceRank suffixRank tgswLevels errorSampler)
       (CloudReduction.zeroReduction gadget
         (CloudReduction.resampleBootstrapContinuation continuation))]).toReal
@@ -382,10 +384,10 @@ theorem publicSourcePrefixCircularAdvantage_le_circularLwe_add_two_moduleLwe
         (CloudReduction.publicSourceContinuation continuation) ≤
       circularLweAdvantage errorSampler errorSampler gadget
           (CloudReduction.publicSourceContinuation continuation) +
-        (LearningWithErrors.advantage
+        (LearningWithErrors.realAdvantage
             (CloudReduction.problem q degree sourceRank suffixRank tgswLevels errorSampler)
             (CloudReduction.suffixReduction gadget continuation) +
-          LearningWithErrors.advantage
+          LearningWithErrors.realAdvantage
             (CloudReduction.problem q degree sourceRank suffixRank tgswLevels errorSampler)
             (CloudReduction.zeroReduction gadget
               (CloudReduction.resampleBootstrapContinuation continuation))) := by

@@ -23,6 +23,8 @@ for a uniform `(d + δ) × d` matrix over a finite field `F`.
 open Matrix OracleComp
 open scoped ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.FiniteFieldRank
 
 /-! ## Reducing a fixed high-rank left factor to a rectangular matrix
@@ -213,7 +215,6 @@ theorem rankMulFailure_le_rectangular {F : Type} [Field F] [Fintype F]
         (left * transform matrix).rank < dimension) |
         ($ᵗ Matrix (Fin ambient) (Fin dimension) F)] := by
       rw [probEvent_map]
-      rfl
     _ ≤ Pr[(fun matrix : Matrix (Fin ambient) (Fin dimension) F ↦
         (restrict matrix).rank < dimension) |
         ($ᵗ Matrix (Fin ambient) (Fin dimension) F)] := by
@@ -224,7 +225,6 @@ theorem rankMulFailure_le_rectangular {F : Type} [Field F] [Fintype F]
         matrix.rank < dimension) |
         restrict <$> ($ᵗ Matrix (Fin ambient) (Fin dimension) F)] := by
       rw [probEvent_map]
-      rfl
     _ = Pr[(fun matrix : Matrix (Fin (dimension + slack)) (Fin dimension) F ↦
         matrix.rank < dimension) |
         ($ᵗ Matrix (Fin (dimension + slack)) (Fin dimension) F)] :=
@@ -247,7 +247,7 @@ theorem one_sub_prod_one_sub_le_sum {ι : Type} [Fintype ι] [LinearOrder ι]
   have hprod0 : 0 ≤ ∏ j ∈ Finset.univ with j < i, (1 - f j) :=
     Finset.prod_nonneg hfactor0
   have hprod1 : ∏ j ∈ Finset.univ with j < i, (1 - f j) ≤ 1 :=
-    Finset.prod_le_one hfactor0 hfactor1
+    Finset.prod_le_one₀ hfactor0 hfactor1
   nlinarith [hf0 i]
 
 /-- A matrix has full column rank exactly when its column family is linearly independent. -/
@@ -336,7 +336,7 @@ theorem rankFailure_toReal_eq {F : Type} [Field F] [Fintype F]
   have hprod : (∏ i : Fin cols, (q ^ rows - q ^ i.val)) ≤ q ^ (rows * cols) := by
     calc
       (∏ i : Fin cols, (q ^ rows - q ^ i.val)) ≤ ∏ _i : Fin cols, q ^ rows := by
-        apply Finset.prod_le_prod
+        apply Finset.prod_le_prod₀
         · intro i _
           exact Nat.zero_le _
         · intro i _
@@ -401,7 +401,7 @@ theorem rankFailure_toReal_ge_inv_card_pow_rows {F : Type} [Field F] [Fintype F]
     calc
       (∏ i, factor i) = ∏ i ∈ Finset.univ, factor i := by simp
       _ ≤ ∏ i ∈ {first}, factor i := by
-        apply Finset.prod_le_prod_of_subset_of_le_one
+        apply Finset.prod_le_prod_of_subset_of_le_one₀
         · exact Finset.singleton_subset_iff.mpr (Finset.mem_univ first)
         · intro i _
           exact hfactor0 i

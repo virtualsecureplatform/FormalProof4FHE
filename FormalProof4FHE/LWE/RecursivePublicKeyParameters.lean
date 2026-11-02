@@ -19,6 +19,8 @@ closed homomorphic evaluation and reusable refresh remain to be constructed.
 open OracleComp AsymmEncAlg
 open scoped ENNReal Topology
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.RecursivePublicKeyParameters
 
 open RecursiveQuadraticParameters
@@ -187,7 +189,7 @@ noncomputable def family (parameter hints : ℕ)
 noncomputable def familyAdversary (parameter hints : ℕ)
     (polynomial : RecursiveQuadratic.Polynomial (ZMod (modulus parameter))
       (binaryDimension parameter * 1) hints)
-    (adversary : IND_CPA_Adv (family parameter hints polynomial)) :
+    (adversary : IND_CPA_OneTime_Adversary (family parameter hints polynomial)) :
     RecursivePublicKey.Adversary (modulus parameter) (binaryDimension parameter * 1)
       (publicSamples parameter) hints :=
   RecursivePublicKey.fromINDCPA (oneCode parameter)
@@ -199,8 +201,8 @@ noncomputable def familyAdversary (parameter hints : ℕ)
 theorem oneTime_abs_signedAdvantage_le (parameter hints : ℕ)
     (polynomial : RecursiveQuadratic.Polynomial (ZMod (modulus parameter))
       (binaryDimension parameter * 1) hints)
-    (adversary : IND_CPA_Adv (family parameter hints polynomial)) :
-    |IND_CPA_OneTime_signedAdvantageReal (family parameter hints polynomial) adversary| ≤
+    (adversary : IND_CPA_OneTime_Adversary (family parameter hints polynomial)) :
+    |FormalProof4FHE.oneTimeSignedAdvantage (family parameter hints polynomial) adversary| ≤
       ordinaryReductionLoss parameter
         (RecursiveQuadratic.columnsEquiv (binaryDimension parameter * 1) (publicSamples parameter) hints)
         polynomial (RecursivePublicKey.gameGivenView (RecursivePublicKey.bitEncode (oneCode parameter))
@@ -214,7 +216,7 @@ theorem oneTime_abs_signedAdvantage_le (parameter hints : ℕ)
     (RecursiveQuadratic.columnsEquiv (binaryDimension parameter * 1) (publicSamples parameter) hints)
     polynomial (RecursivePublicKey.bitEncode (oneCode parameter))
     (familyAdversary parameter hints polynomial adversary)
-  unfold IND_CPA_OneTime_signedAdvantageReal family
+  unfold FormalProof4FHE.oneTimeSignedAdvantage family
   rw [probOutput_congr (rfl : true = true) hgame]
   simpa only [familyAdversary, secretSampler, RecursivePublicKey.freshView_mapped_secret,
     maskingBound, sampleRows] using hbound
@@ -224,9 +226,9 @@ theorem correctExp_supported (parameter hints : ℕ)
     (hmargin : 4 * publicSamples parameter * radius parameter < modulus parameter)
     (polynomial : RecursiveQuadratic.Polynomial (ZMod (modulus parameter))
       (binaryDimension parameter * 1) hints) (bit result : Bool)
-    (hresult : result ∈ support ((family parameter hints polynomial).CorrectExp bit)) :
+    (hresult : result ∈ support ((family parameter hints polynomial).correctnessExperiment bit)) :
     result = true := by
-  simp only [family, RecursivePublicKey.scheme, CorrectExp, mem_support_bind_iff] at hresult
+  simp only [family, RecursivePublicKey.scheme, correctnessExperiment, mem_support_bind_iff] at hresult
   obtain ⟨pair, hpair, ciphertext, hciphertext, output, houtput, hresult⟩ := hresult
   simp only [RecursivePublicKey.keygen, mem_support_bind_iff] at hpair
   obtain ⟨secret, _, challenge, _, errors, herrors, hpair⟩ := hpair
@@ -265,7 +267,7 @@ theorem correctExp_probability_one (parameter hints : ℕ)
     (hmargin : 4 * publicSamples parameter * radius parameter < modulus parameter)
     (polynomial : RecursiveQuadratic.Polynomial (ZMod (modulus parameter))
       (binaryDimension parameter * 1) hints) (bit : Bool) :
-    Pr[= true | (family parameter hints polynomial).CorrectExp bit] = 1 := by
+    Pr[= true | (family parameter hints polynomial).correctnessExperiment bit] = 1 := by
   apply (probOutput_eq_one_iff_forall _ _).mpr
   exact ⟨by simp, fun result hresult ↦ correctExp_supported parameter hints hmargin polynomial bit result hresult⟩
 
@@ -273,7 +275,7 @@ theorem eventually_correctExp_probability_one :
     ∀ᶠ parameter in Filter.atTop, ∀ hints : ℕ,
       ∀ polynomial : RecursiveQuadratic.Polynomial (ZMod (modulus parameter))
         (binaryDimension parameter * 1) hints, ∀ bit : Bool,
-        Pr[= true | (family parameter hints polynomial).CorrectExp bit] = 1 := by
+        Pr[= true | (family parameter hints polynomial).correctnessExperiment bit] = 1 := by
   filter_upwards [eventually_public_quarter_margin] with parameter hmargin
   intro hints polynomial bit
   exact correctExp_probability_one parameter hints hmargin polynomial bit

@@ -25,6 +25,8 @@ The deterministic digit bounds are weaker than AP14's randomized subgaussian bou
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWGadget
 
 abbrev Parameters := TFHE.Gadget.Base.Parameters
@@ -346,11 +348,11 @@ theorem noise_cmux {q : ℕ} [NeZero q] {rows : ℕ} (params : Parameters q)
   cases controlBit with
   | false =>
     have hmessage : secondMessage = secondMessage + 0 * (firstMessage - secondMessage) := by simp
-    rw [if_neg Bool.false_ne_true, cmux, hmessage, GSWOperations.noise_add, noise_multiply]
+    rw [ite_eq_right Bool.false_ne_true, cmux, hmessage, GSWOperations.noise_add, noise_multiply]
     simp [bitMessage, add_comm]
   | true =>
     have hmessage : firstMessage = secondMessage + 1 * (firstMessage - secondMessage) := by ring
-    rw [if_pos rfl, cmux, hmessage, GSWOperations.noise_add, noise_multiply, noise_sub]
+    rw [ite_eq_left rfl, cmux, hmessage, GSWOperations.noise_add, noise_multiply, noise_sub]
     simp [bitMessage]
     abel
 

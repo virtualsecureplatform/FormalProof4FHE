@@ -25,6 +25,8 @@ sharp construction-specific `centeredBinomialResidualBound`, not `q / 2`.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Encryption.Adaptive.PublicAuxiliaryInputCircular.Search.PairedRecovery.CoordinateRecovery.AugmentedResidual.NativeShifted
 
 noncomputable section
@@ -385,7 +387,7 @@ theorem tvDist_coupledResidualViewAtSourceCoin_coupledMonomialViewAtSourceCoin_l
       (Gadget.Base.ringGadget params)
       (Native.ScalarSecretRandomization.maskedSecret source.1.1 coin.1)
       source.1.2
-  have hmap := tvDist_map_le (m := ProbComp) finish residualSampler targetSampler
+  have hmap := tvDist_map_le finish residualSampler targetSampler
   have hsmudge : tvDist residualSampler targetSampler ≤
       Native.ConditionalSmudging.bootstrappingSmudgingCost
         targetRingErrorSampler

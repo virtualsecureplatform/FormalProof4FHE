@@ -24,6 +24,8 @@ steps needed by the PKC 2024 style reduction.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput.Search
 
 abbrev Secret (lweDimension ringRank degree : ℕ) :=

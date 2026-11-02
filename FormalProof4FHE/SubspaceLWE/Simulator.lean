@@ -4,6 +4,7 @@ Released under MIT license as described in the file LICENSE.
 Authors: Kotaro Matsuoka
 -/
 
+import FormalProof4FHE.Probability.Discrete
 import FormalProof4FHE.SubspaceLWE.Adaptive
 import FormalProof4FHE.LWE.Basic
 import Mathlib.LinearAlgebra.Projection
@@ -21,6 +22,8 @@ lemmas for compiling a bounded online sample oracle into a batch LWE challenge.
 
 open Matrix OracleComp OracleSpec
 open scoped ENNReal
+
+open scoped FormalProof4FHE
 
 namespace FormalProof4FHE.GeneralizedSubspaceLWE.Adaptive
 
@@ -63,8 +66,8 @@ noncomputable def samplePreimage {K E V : Type}
     [AddCommGroup V] [Module K V] [Fintype V] [DecidableEq V]
     (f : E →ₗ[K] V) (hf : Function.Surjective f) (target : V) : ProbComp E := by
   classical
-  letI : Fintype (LinearMap.ker f) := Fintype.ofFinite _
-  letI : SampleableType (LinearMap.ker f) :=
+  let : Fintype (LinearMap.ker f) := Fintype.ofFinite _
+  let : SampleableType (LinearMap.ker f) :=
     SampleableType.ofFintype (LinearMap.ker f)
   exact do
     let kernelElement ← $ᵗ LinearMap.ker f
@@ -77,8 +80,8 @@ theorem samplePreimage_mem {K E V : Type}
     (x : E) (hx : x ∈ support (samplePreimage f hf target)) :
     f x = target := by
   classical
-  letI : Fintype (LinearMap.ker f) := Fintype.ofFinite _
-  letI : SampleableType (LinearMap.ker f) :=
+  let : Fintype (LinearMap.ker f) := Fintype.ofFinite _
+  let : SampleableType (LinearMap.ker f) :=
     SampleableType.ofFintype (LinearMap.ker f)
   simp only [samplePreimage, support_bind, support_uniformSample, Set.mem_iUnion,
     support_pure, Set.mem_singleton_iff] at hx
@@ -95,8 +98,8 @@ theorem evalDist_samplePreimage_uniformTarget {K E V : Type}
       let target ← $ᵗ V
       samplePreimage f hf target] = 𝒟[$ᵗ E] := by
   classical
-  letI : Fintype (LinearMap.ker f) := Fintype.ofFinite _
-  letI : SampleableType (LinearMap.ker f) :=
+  let : Fintype (LinearMap.ker f) := Fintype.ofFinite _
+  let : SampleableType (LinearMap.ker f) :=
     SampleableType.ofFintype (LinearMap.ker f)
   let pairGame : ProbComp (V × LinearMap.ker f) := do
     let target ← $ᵗ V
@@ -397,35 +400,20 @@ private theorem tape_pop_addValue_self_nil {ι : Type} {spec : OracleSpec ι}
   have hlist : (seed.addValue index value) index = [value] := by
     simp [QuerySeed.addValue, QuerySeed.addValues, hseed]
   rw [QuerySeed.pop_eq_some_of_cons _ _ value [] hlist]
-  suffices Function.update (seed.addValue index value) index
-      ([] : List (spec.Range index)) = seed by
-    rw [this]
-    rfl
-  funext other
-  by_cases hother : other = index
-  · subst hother
-    simp [hseed]
-  · rw [Function.update_of_ne hother]
-    exact QuerySeed.addValues_of_ne seed [value] hother
+  exact congrArg (fun rest ↦ some (value, rest)) <| by
+    simpa only [QuerySeed.addValue, QuerySeed.update_addValues_same, hseed] using
+      QuerySeed.update_eq_self seed index
 
 private theorem tape_pop_addValue_self_cons {ι : Type} {spec : OracleSpec ι}
     [DecidableEq ι] {seed : QuerySeed spec} {index : ι} {head : spec.Range index}
     {tail : List (spec.Range index)} (hseed : seed index = head :: tail)
     (value : spec.Range index) :
     (seed.addValue index value).pop index =
-      some (head, QuerySeed.addValue (Function.update seed index tail) index value) := by
+      some (head, QuerySeed.addValue (QuerySeed.update seed index tail) index value) := by
   have hlist : (seed.addValue index value) index = head :: (tail ++ [value]) := by
     simp [QuerySeed.addValue, QuerySeed.addValues, hseed]
   rw [QuerySeed.pop_eq_some_of_cons _ _ head (tail ++ [value]) hlist]
-  suffices Function.update (seed.addValue index value) index (tail ++ [value]) =
-      QuerySeed.addValue (Function.update seed index tail) index value by
-    rw [this]
-    rfl
-  funext other
-  by_cases hother : other = index
-  · subst hother
-    simp [QuerySeed.addValue, QuerySeed.addValues]
-  · simp [Function.update_of_ne hother, QuerySeed.addValue, QuerySeed.addValues]
+  simp [QuerySeed.addValue, QuerySeed.addValues]
 
 private theorem tape_pop_addValue_of_ne_nil {ι : Type} {spec : OracleSpec ι}
     [DecidableEq ι] {seed : QuerySeed spec} {added index : ι} (hne : index ≠ added)
@@ -440,21 +428,12 @@ private theorem tape_pop_addValue_of_ne_cons {ι : Type} {spec : OracleSpec ι}
     (hne : index ≠ added) (hseed : seed index = head :: tail)
     (value : spec.Range added) :
     (seed.addValue added value).pop index =
-      some (head, QuerySeed.addValue (Function.update seed index tail) added value) := by
+      some (head, QuerySeed.addValue (QuerySeed.update seed index tail) added value) := by
   have hlist : (seed.addValue added value) index = head :: tail :=
     (QuerySeed.addValues_of_ne seed [_] hne).trans hseed
   rw [QuerySeed.pop_eq_some_of_cons _ _ head tail hlist]
-  suffices Function.update (seed.addValue added value) index tail =
-      QuerySeed.addValue (Function.update seed index tail) added value by
-    rw [this]
-    rfl
-  change Function.update (Function.update seed added (seed added ++ [value])) index tail =
-    Function.update (Function.update seed index tail) added
-      ((Function.update seed index tail) added ++ [value])
-  conv_rhs =>
-    rw [show (Function.update seed index tail) added = seed added from
-      Function.update_of_ne (Ne.symm hne) tail seed]
-  exact Function.update_comm (Ne.symm hne) (seed added ++ [value]) tail seed
+  exact congrArg (fun next ↦ some (head, next)) <|
+    QuerySeed.update_addValues_comm seed (Ne.symm hne) [value] tail
 
 theorem evalDist_sample_bind_withPregen_addValue {ι : Type} {spec : OracleSpec ι}
     [DecidableEq ι] (implementation : QueryImpl spec ProbComp)
@@ -474,7 +453,6 @@ theorem evalDist_sample_bind_withPregen_addValue {ι : Type} {spec : OracleSpec 
       intro candidate
       simp_rw [hrun']
       rw [probOutput_bind_const]
-      simp
   | query_bind index continuation ih =>
       intro seed
       simp only [simulateQ_bind, simulateQ_query, OracleQuery.cont_query,
@@ -491,8 +469,7 @@ theorem evalDist_sample_bind_withPregen_addValue {ι : Type} {spec : OracleSpec 
         | cons head tail =>
             simp_rw [tape_pop_addValue_self_cons hseed,
               QuerySeed.pop_eq_some_of_cons seed added head tail hseed]
-            exact congrFun (congrArg DFunLike.coe
-              (ih head (Function.update seed added tail))) output
+            exact evalDist_ext_iff.mp (ih head (QuerySeed.update seed added tail)) output
       · cases hseed : seed index with
         | nil =>
             simp_rw [tape_pop_addValue_of_ne_nil hindex hseed,
@@ -525,7 +502,7 @@ theorem evalDist_sample_bind_withPregen_addValue {ι : Type} {spec : OracleSpec 
                       (simulateQ implementation.withPregen
                         (continuation response)).run' seed] := by
                 congr 1
-                have hih := congrFun (congrArg DFunLike.coe (ih response seed)) output
+                have hih := evalDist_ext_iff.mp (ih response seed) output
                 change Pr[= output | do
                     let value ← implementation added
                     (simulateQ implementation.withPregen
@@ -538,8 +515,7 @@ theorem evalDist_sample_bind_withPregen_addValue {ι : Type} {spec : OracleSpec 
         | cons head tail =>
             simp_rw [tape_pop_addValue_of_ne_cons hindex hseed,
               QuerySeed.pop_eq_some_of_cons seed index head tail hseed]
-            exact congrFun (congrArg DFunLike.coe
-              (ih head (Function.update seed index tail))) output
+            exact evalDist_ext_iff.mp (ih head (QuerySeed.update seed index tail)) output
 
 theorem evalDist_replicate_bind_withPregen_addValues {ι : Type} {spec : OracleSpec ι}
     [DecidableEq ι] (implementation : QueryImpl spec ProbComp)
@@ -617,7 +593,7 @@ theorem run_withPregen_eq_of_queryBound {ι : Type} {spec : OracleSpec ι}
         have hpop := QuerySeed.pop_eq_some_of_cons seed index head tail hseed
         rw [hpop]
         apply ih head (budget := budget - 1)
-          (seed := Function.update seed index tail)
+          (seed := QuerySeed.update seed index tail)
         · simpa [hcharged] using hbound.2 head
         · intro other hother
           by_cases heq : other = index
@@ -625,9 +601,9 @@ theorem run_withPregen_eq_of_queryBound {ι : Type} {spec : OracleSpec ι}
             rw [hseed] at hlength
             simp only [List.length_cons] at hlength
             subst other
-            simp only [Function.update_self]
+            simp only [QuerySeed.update_self]
             omega
-          · rw [Function.update_of_ne heq]
+          · rw [QuerySeed.update_of_ne _ _ _ _ heq]
             exact le_trans (Nat.sub_le budget 1) (hcoverage other hother)
       · cases hseed : seed index with
         | nil =>
@@ -643,14 +619,14 @@ theorem run_withPregen_eq_of_queryBound {ι : Type} {spec : OracleSpec ι}
             have hpop := QuerySeed.pop_eq_some_of_cons seed index head tail hseed
             rw [hpop]
             apply ih head (budget := budget)
-              (seed := Function.update seed index tail)
+              (seed := QuerySeed.update seed index tail)
             · simpa [hcharged] using hbound.2 head
             · intro other hother
               have hne : other ≠ index := by
                 intro heq
                 subst heq
                 exact hcharged hother
-              rw [Function.update_of_ne hne]
+              rw [QuerySeed.update_of_ne _ _ _ _ hne]
               exact hcoverage other hother
 
 abbrev LWESample (F : Type) (dimension : ℕ) := (Fin dimension → F) × F
@@ -693,7 +669,7 @@ theorem evalDist_pairedGoodSimulator_eq_goodSimulator {F : Type}
   unfold pairedGoodSimulator pairSamplerFromValue goodSimulator
   simp only [bind_assoc, pure_bind]
   refine evalDist_bind_congr' ($ᵗ (Fin dimension → F)) (fun challenge => ?_)
-  exact OracleComp.DeferredSampling.evalDist_bind_comm
+  exact FormalProof4FHE.evalDist_bind_bind_swap
     (valueSampler challenge)
     (samplePreimage (query.overlap * hidden).vecMulLinear
       (vecMul_surjective_of_rank_eq_width ambient dimension

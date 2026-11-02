@@ -47,6 +47,8 @@ source one-cycle term exposed below remains the computational research obligatio
 
 open Matrix OracleComp OracleSpec
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessTargetMessages
 
 noncomputable section
@@ -607,7 +609,7 @@ theorem generateSourceBootstrappingKey_uniformError_evalDist_eq_zero
           ($ᵗ (RLWE.Rq q degree)) gadget sourceSecret) := by
   let rqCommRing : CommRing (RLWE.Rq q degree) :=
     LatticeCrypto.vectorNegacyclicRing_instCommRing (ZMod q) degree
-  letI := rqCommRing
+  let := rqCommRing
   unfold generateSourceBootstrappingKey generateZeroSourceBootstrappingKey
     Native.generateBootstrappingKey Native.generateZeroBootstrappingKey
   apply FormalProof4FHE.FiniteProduct.evalDist_fin_mOfFn_congr
@@ -1313,10 +1315,10 @@ theorem compilePublicEvaluation_isQueryBound
     (hbound : Encryption.Adaptive.IsQueryBound adversary queryCount) :
     Encryption.Adaptive.IsQueryBound
       (Encryption.Adaptive.compilePublicEvaluation evaluate adversary) queryCount := by
-  letI : IsUniformSpec
+  let : OracleSpec.UniformAnswerMeasure
       ((Message × Message) →ₒ
         TLWE.Ciphertext (ZMod q) (targetScalarDimension sourceRank suffixRank degree)) :=
-    IsUniformSpec.ofFintypeInhabited _
+    OracleSpec.UniformAnswerMeasure.ofFiniteNonempty _
   exact Encryption.Adaptive.compilePublicEvaluation_isQueryBound
     evaluate adversary queryCount hbound
 

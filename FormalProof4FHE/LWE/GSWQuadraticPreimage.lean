@@ -33,6 +33,8 @@ alternating certificate are proved below.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWQuadraticPreimage
 
 abbrev View (R : Type) (n m k : ℕ) :=
@@ -230,20 +232,20 @@ theorem advantage_eq_ordinaryLWE (builder : Builder (ZMod q) n m k)
     (errorSampler : ProbComp (ZMod q)) (adversary : View (ZMod q) n m k → ProbComp Bool) :
     (realView builder linear offset errorSampler >>= adversary).boolDistAdvantage
       (($ᵗ View (ZMod q) n m k) >>= adversary) =
-      LearningWithErrors.advantage (zmodBatchProblem n (m + k) q errorSampler)
+      LearningWithErrors.realAdvantage (zmodBatchProblem n (m + k) q errorSampler)
         (reduction builder linear offset adversary) := by
   have hreal : realView builder linear offset errorSampler >>= adversary =
-      LearningWithErrors.game0 (zmodBatchProblem n (m + k) q errorSampler)
+      LearningWithErrors.realExperiment (zmodBatchProblem n (m + k) q errorSampler)
         (reduction builder linear offset adversary) := by
-    simp [realView, reduction, LearningWithErrors.game0, monad_norm]
+    simp [realView, reduction, LearningWithErrors.realExperiment, monad_norm]
   have hideal := FormalProof4FHE.SharedRandomness.evalDist_bind_eq_of_evalDist_eq
     (uniform_source_evalDist builder linear offset errorSampler) adversary
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage, hreal]
   unfold ProbComp.boolDistAdvantage
-  have hideal' : 𝒟[LearningWithErrors.game1 (zmodBatchProblem n (m + k) q errorSampler)
+  have hideal' : 𝒟[LearningWithErrors.randomExperiment (zmodBatchProblem n (m + k) q errorSampler)
       (reduction builder linear offset adversary)] =
       𝒟[($ᵗ View (ZMod q) n m k) >>= adversary] := by
-    simpa [LearningWithErrors.game1, reduction, monad_norm] using hideal
+    simpa [LearningWithErrors.randomExperiment, reduction, monad_norm] using hideal
   rw [evalDist_ext_iff.mp hideal' true]
 
 end

@@ -28,6 +28,8 @@ RLWE to that correlated complete-view source is asserted here.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.NativeTRGSWCompleteViewAuxiliarySource
 
 noncomputable section

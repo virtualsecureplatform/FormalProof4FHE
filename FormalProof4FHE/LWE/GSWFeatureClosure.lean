@@ -22,6 +22,8 @@ reductions on the unchanged masked quadratic view.
 
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.GSWFeatureClosure
 
 abbrev Secret (dimension : ℕ) := Fin dimension → Bool
@@ -73,7 +75,7 @@ theorem partialIndicator_univ (point secret : Secret dimension) :
   by_cases h : secret = point
   · subst secret
     simp [partialIndicator]
-  · rw [if_neg h]
+  · rw [ite_eq_right h]
     obtain ⟨index, hindex⟩ := Function.ne_iff.mp h
     exact Finset.prod_eq_zero (Finset.mem_univ index) (by simp [hindex])
 

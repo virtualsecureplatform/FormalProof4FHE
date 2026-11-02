@@ -28,6 +28,8 @@ heterogeneous widened-discrete-Gaussian security reduction.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.SelectorNoise.Native
 
 noncomputable section
@@ -432,7 +434,7 @@ theorem rgswMinusSecretAdvantage_widenedDiscreteGaussian_le_failure_add_explicit
               DiscreteGaussianSampler.scalarLinearShiftBound certificate
                 (inducedShiftBound degree sourceCount secretBound selectorBound
                   sourceErrorBound))) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.embeddedBatchProblem 1
             (levels * sourceCount + TGSW.rowCount 1 levels)
             secretSampler embed sourceErrorSampler)
@@ -490,7 +492,7 @@ theorem rgswMinusSecretAdvantage_centeredBinomialSource_widenedDiscreteGaussian_
             (((degree + 1 : ℕ) : ℝ) *
               DiscreteGaussianSampler.scalarLinearShiftBound certificate
                 (inducedShiftBound degree sourceCount secretBound selectorBound eta))) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.embeddedBatchProblem 1
             (levels * sourceCount + TGSW.rowCount 1 levels)
             secretSampler embed sourceErrorSampler)
@@ -566,7 +568,7 @@ theorem rgswMinusSecretAdvantage_centeredBinomialSource_widenedDiscreteGaussian_
               DiscreteGaussianSampler.scalarLinearShiftBound certificate
                 (inducedShiftBoundForDegree ringDegree sourceCount secretBound selectorBound
                   eta))) +
-        LearningWithErrors.advantage
+        LearningWithErrors.realAdvantage
           (FormalProof4FHE.LWE.embeddedBatchProblem 1
             (levels * sourceCount + TGSW.rowCount 1 levels)
             secretSampler embed sourceErrorSampler)

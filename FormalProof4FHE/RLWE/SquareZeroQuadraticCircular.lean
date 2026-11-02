@@ -38,6 +38,8 @@ centered-binomial or discrete-Gaussian BFV parameter set.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.SquareZeroQuadraticCircular
 
 noncomputable section
@@ -685,12 +687,12 @@ theorem squareUniformAdvantage_eq_base
     (hLowSecret : Pr[⊥ | lowSecretSampler] = 0) :
     squareUniformAdvantage extension weight lowSecretSampler highSecretSampler
         highErrorSampler distinguisher =
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (baseProblem (Row := Row) highSecretSampler highErrorSampler)
         (reductionAdversary extension weight lowSecretSampler distinguisher) := by
   rw [FormalProof4FHE.LWE.advantage_eq_boolDistAdvantage]
-  unfold squareUniformAdvantage reductionAdversary LearningWithErrors.game0
-    LearningWithErrors.game1
+  unfold squareUniformAdvantage reductionAdversary LearningWithErrors.realExperiment
+    LearningWithErrors.randomExperiment
   have hReal := FormalProof4FHE.SharedRandomness.evalDist_bind_eq_of_evalDist_eq
     (reduction_real_evalDist extension weight lowSecretSampler highSecretSampler
       highErrorSampler) distinguisher
@@ -727,10 +729,10 @@ theorem kdmAdvantage_le_two_base
     (hLowSecret : Pr[⊥ | lowSecretSampler] = 0) :
     kdmAdvantage extension weight lowSecretSampler highSecretSampler
         highErrorSampler distinguisher ≤
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (baseProblem (Row := Row) highSecretSampler highErrorSampler)
         (reductionAdversary extension weight lowSecretSampler distinguisher) +
-      LearningWithErrors.advantage
+      LearningWithErrors.realAdvantage
         (baseProblem (Row := Row) highSecretSampler highErrorSampler)
         (reductionAdversary extension (fun _row : Row ↦ 0)
           lowSecretSampler distinguisher) := by

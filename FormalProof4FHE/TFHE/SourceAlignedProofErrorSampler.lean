@@ -28,6 +28,8 @@ subgaussian proxy strictly below `2^84 = (2^42)^2`.
 open OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.SourceAlignedProofErrorSampler
 
 noncomputable section

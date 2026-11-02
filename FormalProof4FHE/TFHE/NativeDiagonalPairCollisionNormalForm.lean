@@ -26,6 +26,8 @@ rank estimate can therefore exploit genuine entropy slack without a retained-fib
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm
 
 noncomputable section
@@ -738,7 +740,7 @@ theorem fixedErrorDiagonalChiSquare_eq_normalizedPairCollisionExcess [NeZero q]
       have hcardChallenge :
           Fintype.card (DiagonalChallenge q degree ringRank params.levels) ≠ 0 :=
         Fintype.card_ne_zero
-      simp only [hK, hcardChallenge, Nat.mul_eq_zero, false_or, if_false]
+      simp only [hK, hcardChallenge, Nat.mul_eq_zero, false_or, ite_false]
       field_simp [hC, hKReal]
   simp only [Nat.cast_mul]
   change
@@ -778,7 +780,7 @@ theorem fixedErrorDiagonalChiSquare_eq_normalizedPairCollisionExcess [NeZero q]
     by_cases hK : K transformedError = 0
     · simp [hK]
     · have hKReal : (K transformedError : ℝ) ≠ 0 := by exact_mod_cast hK
-      simp only [hK, if_false]
+      simp only [hK, ite_false]
       field_simp [hD, hC, hKReal]
   simp_rw [hterm]
   rw [← Finset.mul_sum]
@@ -841,7 +843,7 @@ theorem averagedSourceErrorDiagonalChiSquareLoss_le_of_normalizedPairCollisionEx
   let ErrorVector := DiagonalErrorVector q degree ringRank params.levels
   let Errors : ProbComp ErrorVector :=
     ProbComp.sampleIID (TGSW.rowCount ringRank params.levels) sourceErrorSampler
-  letI : Fintype ErrorVector := Fintype.ofFinite ErrorVector
+  let : Fintype ErrorVector := Fintype.ofFinite ErrorVector
   have hmass : (∑ sourceError : ErrorVector,
       Pr[= sourceError | Errors].toReal) = 1 := by
     rw [← ENNReal.toReal_sum (fun _ _ => probOutput_ne_top),

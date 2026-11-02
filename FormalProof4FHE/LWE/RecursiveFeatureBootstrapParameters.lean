@@ -23,6 +23,8 @@ polynomial-time implementations/reductions are still required for the FHE goal.
 
 open scoped ENNReal Topology
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.RecursiveFeatureBootstrapParameters
 
 open RecursiveQuadraticParameters

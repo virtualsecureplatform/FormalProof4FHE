@@ -18,6 +18,8 @@ The higher-weight joint ordinary-LWE comparison remains unproved.
 open Matrix OracleComp AsymmEncAlg
 open scoped BigOperators ENNReal
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.RecursiveFeatureLowLevelHybrid
 
 open RecursiveMultiplication RecursiveFeatureGSW RecursiveFeatureBootstrap
@@ -187,6 +189,7 @@ theorem publicView_shiftDraws_deletion (cutoff : ℕ) (draws : Draws configurati
     simp only [publicView, publicTable, deletedView, shiftDraws]
     rw [errorsAt_sub_rawShift]
     simp only [bodyErrorAt, rawShift, deletionShift_public, sub_zero]
+    rfl
   · change storeOriginal configuration _ = storeOriginal configuration _
     congr 1
     funext index column
@@ -379,8 +382,8 @@ open RecursiveQuadraticParameters RecursiveFeaturePublicKeyParameters
 
 /-- This bound narrows the unproved hop to the surviving higher-weight controls. -/
 theorem family_oneTime_abs_signedAdvantage_le (parameter cutoff : ℕ)
-    (adversary : IND_CPA_Adv (RecursiveFeatureSecurityParameters.family parameter)) :
-    |IND_CPA_OneTime_signedAdvantageReal (RecursiveFeatureSecurityParameters.family parameter) adversary| ≤
+    (adversary : IND_CPA_OneTime_Adversary (RecursiveFeatureSecurityParameters.family parameter)) :
+    |FormalProof4FHE.oneTimeSignedAdvantage (RecursiveFeatureSecurityParameters.family parameter) adversary| ≤
       deletionLoss (params parameter) (dimension parameter) (radius parameter) (retries parameter) cutoff +
         deletedReplacementAdvantage (params parameter) (radius parameter) (retries parameter) cutoff
           (controlPolynomial (params parameter)) ($ᵗ (Fin (dimension parameter) → Bool))

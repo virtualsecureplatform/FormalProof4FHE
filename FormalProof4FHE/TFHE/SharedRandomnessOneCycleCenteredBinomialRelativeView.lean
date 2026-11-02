@@ -24,6 +24,8 @@ research obligations; neither is assumed silently here.
 
 open Matrix OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.SharedRandomnessOneCycle.SecretRandomization
 
 noncomputable section
@@ -117,7 +119,7 @@ theorem sampleCenteredBinomialShearEvaluationKeyView_complement_evalDist
   cases toggle
   · simp [transformCenteredBinomialShearEvaluationKeyView]
   · unfold sampleCenteredBinomialShearEvaluationKeyView
-    simp only [transformCenteredBinomialShearEvaluationKeyView, if_true]
+    simp only [transformCenteredBinomialShearEvaluationKeyView, ite_true]
     let ringSecret : RingBinarySecret 1 (prefixDimension + suffixTail + 1) :=
       fun _ ↦ masterSecret
     let targetRingSecret :

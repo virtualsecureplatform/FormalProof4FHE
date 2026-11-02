@@ -24,6 +24,8 @@ retained to check the doubled-error normalization proposed in the manuscript.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.RLWE.BinaryNTTSecurity.BGVHierarchicalStagedDescent
 
 noncomputable section
@@ -169,7 +171,7 @@ theorem descendedMask_uniform_evalDist
         exact (tower.split_fst (mask * multiplier)).symm
     _ = evalDist (Prod.fst <$> ($ᵗ (Base × Fiber))) := by
       simpa only [evalDist_map] using
-        congrArg (fun distribution => Prod.fst <$> distribution) hsplit
+        congrArg (fun distribution => MeasureTheory.Measure.map (Prod.fst) distribution) hsplit
     _ = evalDist ($ᵗ Base) := evalDist_map_fst_uniformSample_prod
 
 /-! ## Public lift -/

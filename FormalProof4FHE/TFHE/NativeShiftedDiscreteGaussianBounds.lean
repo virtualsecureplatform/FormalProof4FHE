@@ -26,6 +26,8 @@ complete construction-specific smudging cost.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.DiscreteGaussianSampler
 
 noncomputable section
@@ -64,7 +66,7 @@ def scalarLinearShiftBound
     (certificate : ScalarCertificate q alpha halpha) (bound : ℕ) : ℝ :=
   2 * certificate.bound.toReal + (bound : ℝ) *
     ModularGaussian.shiftDistance
-      (LatticeCrypto.discreteGaussianDist
+      (FormalProof4FHE.ModularGaussian.integerDistribution
         (ModularGaussian.integerStddev q alpha) 0
         (ModularGaussian.integerStddev_pos q halpha)) 1
 
@@ -112,7 +114,7 @@ theorem addShiftDistance_scalarSampler_le_scalarLinearShiftBound
         (scalarSampler certificate) shift ≤
       scalarLinearShiftBound certificate bound := by
   let unitCost := ModularGaussian.shiftDistance
-    (LatticeCrypto.discreteGaussianDist
+    (FormalProof4FHE.ModularGaussian.integerDistribution
       (ModularGaussian.integerStddev q alpha) 0
       (ModularGaussian.integerStddev_pos q halpha)) 1
   have hunit : 0 ≤ unitCost := PMF.tvDist_nonneg _ _

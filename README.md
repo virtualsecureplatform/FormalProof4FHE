@@ -35,7 +35,14 @@ scripts/check
 ```
 
 The generated `build/formalproof4fhe.sif` is intentionally not tracked. Lean, Lake, and all proof
-checks run inside the container; no host Lean installation is required.
+checks run inside the container; no host Lean installation is required. The pinned VCVio revision
+uses Lean 4.35.0 and Mathlib 4.35.0.
+
+The project's finite probabilistic games use VCVio's native measure semantics.
+`Probability/Discrete.lean` supplies discrete observations and proved adapters for scalar event
+probabilities and total variation. The executable-sampler-to-PMF bridge and the PMF distance
+lemmas in `Probability/PMFTotalVariation.lean` support the ideal Gaussian and weighted-sampler
+bounds.
 
 ## Main checked results
 

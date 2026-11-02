@@ -30,6 +30,8 @@ statement is supplied.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ConditionalSmudging
 
 noncomputable section
@@ -251,7 +253,6 @@ theorem smudge_uniformBootstrappingKey_evalDist
       apply evalDist_ext
       intro bootstrappingKey
       rw [probOutput_bind_const]
-      simp
 
 /-- Exact additive translation cost of all residual rows in a native bootstrapping key. -/
 noncomputable def bootstrappingSmudgingCost
@@ -386,7 +387,7 @@ theorem tvDist_fixedMaskResidualSmudgedKey_fixedMaskWideKey_le
         simpa only [RowNoise, ProbComp.sampleIID] using
           (FormalProof4FHE.FiniteProduct.tvDist_add_fin_mOfFn_le_sum
             Rows wideNoise (residual coordinate))
-  have hdata := tvDist_map_le (m := ProbComp) assemble
+  have hdata := tvDist_map_le assemble
     (addResidual <$> Noise) Noise
   unfold fixedMaskResidualSmudgedKey fixedMaskWideKey
     sampleBootstrappingBodyNoise bootstrappingSmudgingCost
@@ -544,7 +545,7 @@ theorem generateResidualBootstrappingKey_zero_evalDist_eq_assembleFreshMask
     by_cases hzero : values = fun _ ↦ ringAdditiveZero q degree
     · subst values
       simp
-    · rw [if_neg hzero]
+    · rw [ite_eq_right hzero]
       have hexists : ∃ row,
           values row ≠ ringAdditiveZero q degree := by
         by_contra hall
@@ -553,7 +554,7 @@ theorem generateResidualBootstrappingKey_zero_evalDist_eq_assembleFreshMask
         exact not_ne_iff.mp (fun hne ↦ hall ⟨row, hne⟩)
       obtain ⟨row, hrow⟩ := hexists
       exact Finset.prod_eq_zero (Finset.mem_univ row) (by
-        simp only [hrow, if_false])
+        simp only [hrow, ite_false])
   have hEntry : ∀ coordinate,
       evalDist (Entry coordinate) =
         evalDist (Assemble coordinate <$> Challenges coordinate) := by
@@ -651,7 +652,7 @@ theorem generateResidualBootstrappingKey_zero_then_smudge_evalDist
     by_cases hzero : values = fun _ ↦ ringAdditiveZero q degree
     · subst values
       simp
-    · rw [if_neg hzero]
+    · rw [ite_eq_right hzero]
       have hexists : ∃ coordinate,
           values coordinate ≠ ringAdditiveZero q degree := by
         by_contra hall
@@ -660,7 +661,7 @@ theorem generateResidualBootstrappingKey_zero_then_smudge_evalDist
         exact not_ne_iff.mp (fun hne ↦ hall ⟨coordinate, hne⟩)
       obtain ⟨coordinate, hcoordinate⟩ := hexists
       exact Finset.prod_eq_zero (Finset.mem_univ coordinate) (by
-        simp only [hcoordinate, if_false])
+        simp only [hcoordinate, ite_false])
   have hEntry : ∀ coordinate,
       evalDist (ZeroEntry coordinate >>= Process coordinate) =
         evalDist (TargetEntry coordinate) := by

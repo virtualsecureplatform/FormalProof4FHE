@@ -27,6 +27,8 @@ security.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.LWE.AuxiliaryInput.SearchToDecision
 
 /-! ## Public decision distinguishers -/
@@ -153,7 +155,7 @@ private theorem randomizedView_tvDist_transportedWideView_le
     tvDist (compiler.randomizedView secret) (compiler.transportedWideView secret) ≤
       compiler.error := by
   unfold randomizedView transportedWideView
-  refine tvDist_bind_left_le_const' (m := ProbComp) compiler.sampleMask _ _
+  refine tvDist_bind_left_le_const' compiler.sampleMask _ _
     compiler.error fun mask ↦ ?_
   let finish := fun view : View ↦
     (pure (compiler.act secret mask, view) : ProbComp (Secret × View))
@@ -197,7 +199,7 @@ theorem randomizedView_tvDist_freshWideView_le
   have hzero : tvDist (compiler.transportedWideView secret) compiler.freshWideView = 0 := by
     unfold tvDist
     rw [heq]
-    exact SPMF.tvDist_self _
+    exact MeasureTheory.Measure.tvDist_self _
   calc
     tvDist (compiler.randomizedView secret) compiler.freshWideView ≤
         tvDist (compiler.randomizedView secret) (compiler.transportedWideView secret) +

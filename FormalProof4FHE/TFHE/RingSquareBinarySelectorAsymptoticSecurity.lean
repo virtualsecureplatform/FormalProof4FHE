@@ -25,6 +25,8 @@ efficient complete (or comparably failure-bounded) selector.
 
 open ENNReal OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TGSW.RingSquare.PreimageCompiler.BinarySelectorSecurity.Asymptotic
 
 noncomputable section
@@ -153,7 +155,7 @@ noncomputable def rgswSecurityGame
 noncomputable def batchRLWESecurityGame (params : Parameters) :
     SecurityGame (BatchRLWEAdversaryFamily params) where
   advantage adversary securityParameter := ENNReal.ofReal
-    (LearningWithErrors.advantage
+    (LearningWithErrors.realAdvantage
       (FormalProof4FHE.LWE.embeddedBatchProblem 1
         (params.levels securityParameter * (params.extraCount securityParameter + 1) +
           TGSW.rowCount 1 (params.levels securityParameter))

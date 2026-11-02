@@ -35,6 +35,8 @@ problem to the suffix alone.
 open Matrix
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.TFHEppSubsetTechnical
 
 open JointSubsetKeyBRKCenteredMixture

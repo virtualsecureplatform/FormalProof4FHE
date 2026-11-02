@@ -26,6 +26,8 @@ from zero-row RLWE remains an explicit premise, rather than being hidden in the 
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.NativeTRGSWAggregateSecurityAndComplexityLeveraging
 
 noncomputable section
@@ -166,7 +168,7 @@ theorem sum_highPassWeight_eq_zero
     ∑ mask : BitVector Index, highPassWeight Index degree mask = 0 := by
   have htransform := walshTransform_highPassWeight
     (Index := Index) degree (zeroFrequency : BitVector Index)
-  rw [if_pos (zeroFrequency_mem_boundedFrequencies Index degree)] at htransform
+  rw [ite_eq_left (zeroFrequency_mem_boundedFrequencies Index degree)] at htransform
   simpa [walshTransform, walsh_zeroFrequency] using htransform
 
 /-! ## Jordan decomposition and normalized aggregate masks -/

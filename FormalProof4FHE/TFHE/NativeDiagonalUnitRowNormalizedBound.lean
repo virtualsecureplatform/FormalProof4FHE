@@ -18,6 +18,8 @@ bound therefore preserves the conditioned transformed-error denominators.
 open Matrix OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.ShiftedCandidateEvaluator.DiagonalNormalForm
 
 noncomputable section
@@ -350,7 +352,7 @@ theorem reconstructedRowCappedAcceptanceProduct_le_threshold
       reconstructedRowThresholdAcceptanceProduct params candidate sourceError selected hunit
         externalBound threshold := by
   unfold reconstructedRowCappedAcceptanceProduct reconstructedRowThresholdAcceptanceProduct
-  apply Finset.prod_le_prod
+  apply Finset.prod_le_prod₀
   · intro row _
     exact reconstructedRowCappedAcceptanceSumAt_nonneg params candidate sourceError selected hunit
       row externalBound
@@ -375,7 +377,7 @@ theorem reconstructedRowNormalizedMomentProduct_le_twoColumnCapped_of_not_depend
       reconstructedRowCappedAcceptanceProduct params candidate sourceError selected hunit
         (params.base ^ ((TGSW.rowCount ringRank params.levels - 2) * (degree + 1))) := by
   unfold reconstructedRowCappedAcceptanceProduct
-  apply Finset.prod_le_prod
+  apply Finset.prod_le_prod₀
   · intro row _
     exact reconstructedRowNormalizedMomentSumAt_nonneg params candidate sourceError selected hunit
       row values
@@ -397,7 +399,7 @@ theorem reconstructedRowNormalizedMomentProduct_le_oneColumnCapped
       reconstructedRowCappedAcceptanceProduct params candidate sourceError selected hunit
         (params.base ^ ((TGSW.rowCount ringRank params.levels - 1) * (degree + 1))) := by
   unfold reconstructedRowCappedAcceptanceProduct
-  apply Finset.prod_le_prod
+  apply Finset.prod_le_prod₀
   · intro row _
     exact reconstructedRowNormalizedMomentSumAt_nonneg params candidate sourceError selected hunit
       row values
@@ -423,9 +425,9 @@ private theorem sum_le_card_mul_add_filter_card_mul_real
       apply Finset.sum_le_sum
       intro index _
       by_cases hpredicate : predicate index
-      · simp only [hpredicate, if_true]
+      · simp only [hpredicate, ite_true]
         exact (hbad index hpredicate).trans (le_add_of_nonneg_left hgoodNonneg)
-      · simp only [hpredicate, if_false, add_zero]
+      · simp only [hpredicate, ite_false, add_zero]
         exact hgood index hpredicate
     _ = (Fintype.card Index : ℝ) * goodBound +
         ((Finset.univ.filter predicate).card : ℝ) * badBound := by

@@ -27,6 +27,8 @@ ordinary LWE/RLWE.
 
 open OracleComp
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.TFHE.Native.BootstrapSecurity.MonomialKDM.AuxiliaryInput.Search.PairedRecovery.CoordinateRecovery.KeySwitchFirstFiniteView
 
 open KeySwitchFirstCandidateView
@@ -320,7 +322,7 @@ theorem evalDist_game_amplifiedSolver_eq_freshGame
         finish candidate context) := by
     apply evalDist_bind_congr'
     intro scalar
-    exact OracleComp.DeferredSampling.evalDist_bind_comm
+    exact FormalProof4FHE.evalDist_bind_bind_swap
       viewSampler (scalarSolver scalar) (fun context candidate => finish candidate context)
   have hscalar :
       evalDist (scalarSampler >>= scalarSolver) =

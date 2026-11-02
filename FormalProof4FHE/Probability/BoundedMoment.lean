@@ -25,6 +25,8 @@ observable.  It is immaterial for asymptotic non-negligibility arguments.
 open OracleComp
 open scoped BigOperators
 
+open scoped FormalProof4FHE
+
 namespace FormalProof4FHE.BoundedMoment
 
 noncomputable section
@@ -81,12 +83,12 @@ theorem expectation_pure {A : Type} [Fintype A]
     (value : A) (observable : A → ℝ) :
     expectation (pure value : ProbComp A) observable = observable value := by
   classical
-  letI : DecidableEq A := Classical.decEq A
+  let : DecidableEq A := Classical.decEq A
   unfold expectation
   rw [Finset.sum_eq_single value]
   · simp only [probOutput_pure_self, ENNReal.toReal_one, one_mul]
   · intro other _ hOther
-    rw [probOutput_pure, if_neg hOther, ENNReal.toReal_zero, zero_mul]
+    rw [probOutput_pure, ite_eq_right hOther, ENNReal.toReal_zero, zero_mul]
   · intro hValue
     exact (hValue (Finset.mem_univ value)).elim
 
@@ -637,7 +639,7 @@ theorem abs_clippedSquare_le_sq {A : Type}
     |clippedSquare bound lift value| ≤ bound ^ 2 := by
   classical
   by_cases h : |lift value| ≤ bound
-  · rw [clippedSquare, if_pos h, abs_sq]
+  · rw [clippedSquare, ite_eq_left h, abs_sq]
     rw [← sq_abs]
     exact (sq_le_sq₀ (abs_nonneg _) hBoundNonneg).2 h
   · simp [clippedSquare, h, pow_two_nonneg bound]
