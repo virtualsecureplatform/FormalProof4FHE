@@ -2996,3 +2996,72 @@ bringing the total to 1,272; their transitive axiom sets are contained in
 admitted proofs or compiled proof shortcuts were introduced. The Rust
 worktree remains unchanged. This proof, its regressions and its documented
 scope form one commit chunk. The full formal-security objective remains active.
+
+
+## Earlier charged prefix composed before the completed continuation
+
+`ChargeAccountShift` proves an exact query-program identity for every
+recorded interpreter: starting from an existing account equals the same
+zero-account execution with that existing account added to its final cost.
+Primitive answers, return values and final original state are identical.
+The identity permits infinite existing accounts and does not subtract costs.
+
+`CompletedPrefixMixture` first samples the actual earlier prefix and retains
+its full observation, then runs its observation-dependent completed tail.
+It constructs the countably additive joint measure and proves that its
+nonnegative mean is the actual prefix average of the conditional completed
+means. Monotone convergence is pointwise in the original prefix observation;
+there is no finite-mean, uniform-cost or prefix/continuation independence
+premise. Normalization is proved when each prefix's tail completes almost
+surely, without conditioning the original prefix distribution.
+
+`ChargedPrefixCompletion` applies this construction to the actual recorded
+shared handler. The source observation includes its return value, actual
+intermediate state and earlier account. Each conditional tail starts from
+that exact original state; its zero-account construction records only new
+increments. The operational projection adds the earlier account once, and
+`finite_operational` proves equality with the actual full query program that
+executes the prefix before private sampling and later shared work. Every
+operational event is the limit of those actual completed finite full runs.
+
+The complete mean splits into the actual earlier recursive charge plus its
+prefix-average conditional later charge. Conditional charges are proved
+monotone from the completed observation/account order. Nonnegative monotone
+convergence and exact charge composition then identify the complete mean
+with the supremum of the same full finite-program charges. Earlier work is
+not omitted when a finite sampling approximation suspends, nor duplicated
+across repetitions. Both source and later expectations may be infinite.
+This is an availability-account identity under zero private-query loss;
+it does not set physical byte work to zero.
+
+The suspension regression issues an actual earlier hash and records a source
+root, charging five units in the test metric. It then suspends without issuing
+the later hash, retaining the earlier account, four-entry hash log, source
+root and unused uniform response. The native fixture issues earlier hash work
+and records the original source root before real repeated byte sampling,
+helper/root construction and the native algebra/PCS continuation. It
+instantiates the normalized full account law and expected whole-prefix charge
+identity using the actual checkpoint/collision loss.
+
+This closes earlier-charge accounting for the prefix-plus-completed-
+continuation program. Applying the identity directly to the previously
+proved `StagedByteLookupUnboundedSecurity` bound still requires the exact
+factorization adapters for its trusted typed helper emission, original source
+snapshot and root-recording interface. Computational byte-tail work,
+production SHA/XOF/transcript/FS and Rust refinement, primitive hash-work
+accounting, honest opening/scheduler completeness, deferred/global PBS,
+application/knowledge/full-PBS composition and the final concrete unbudgeted
+128-bit expected-work theorem remain open. The full objective remains active.
+
+Validation passed: focused HasteBoots build (3,972 jobs), strict
+warning-as-error HasteBoots smoke, full `scripts/check` (10,069 build jobs
+and all strict regression suites, terminal exit zero), and
+`git diff --check`. Logs: `/tmp/hasteboots-prefix-charge-smoke-build.log`,
+`/tmp/hasteboots-prefix-charge-strict-smoke.log` and
+`/tmp/hasteboots-prefix-charge-check.log`. All 17 new theorem audits passed,
+bringing the total to 1,289; their transitive axiom sets are contained in
+`propext`, `Classical.choice` and `Quot.sound`. No custom axioms,
+admitted proofs or compiled proof shortcuts were introduced. The Rust
+worktree remains unchanged. The proof, its source-work regressions and its
+documented remaining interface obligations form one commit chunk. The full
+formal-security objective remains active.

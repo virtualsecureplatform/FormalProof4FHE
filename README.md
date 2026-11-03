@@ -360,9 +360,11 @@ the existing account through the exact private query program.
 complete execution/account laws at a fixed incoming shared state, and prove
 that their mean availability account equals the supremum of the actual
 sampling-plus-continuation charges. The proof uses the derived zero private
-hazard and zero new account on suspension. Earlier charged source work and
-unconditional partial-tail byte work still require their composition and
-transfer proofs.
+hazard and zero new account on suspension. `ChargedPrefixCompletion` now composes the real earlier prefix with this
+completed continuation, retaining its result/state/account and proving that
+the complete mean equals the actual whole-prefix charge supremum. Exact
+factorization into the earlier staged lookup-bound interface and transfer of
+unconditional partial-tail computational byte work remain separate obligations.
 
 ## Main checked results
 

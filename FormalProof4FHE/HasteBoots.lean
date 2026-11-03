@@ -238,3 +238,6 @@ public import FormalProof4FHE.HasteBoots.CompletedExpectation
 public import FormalProof4FHE.HasteBoots.PrivateChargedSampling
 public import FormalProof4FHE.HasteBoots.SharedChargedCompletion
 public import FormalProof4FHE.HasteBoots.ByteLookupChargedLimit
+public import FormalProof4FHE.HasteBoots.ChargeAccountShift
+public import FormalProof4FHE.HasteBoots.CompletedPrefixMixture
+public import FormalProof4FHE.HasteBoots.ChargedPrefixCompletion

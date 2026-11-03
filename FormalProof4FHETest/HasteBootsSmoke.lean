@@ -10127,4 +10127,157 @@ end StagedRepeatedLookupSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms ByteLookupChargedLimit.lookup_bound
 
+
+section EarlierChargeSmoke
+
+open OracleSpec OracleComp
+
+private noncomputable def prefixQueryCost
+    (query : (SharedSequence.Shared Unit ColumnInput (Fin 2)).Domain)
+    (_state : CheckpointExecution.State (Input := ColumnInput) (Digest := Fin 2) workerShape) : ENNReal :=
+  match query with
+  | .inr (.inl _) => 5
+  | _ => 0
+
+private noncomputable def earlierChargedWork : OracleComp (SharedSequence.Shared Unit ColumnInput (Fin 2)) Unit := do
+  let _ ← schemeHash (.inl [2])
+  let _ ← RecordRoots.program [((), 0)]
+  pure ()
+
+private def skippedWork (_ : Unit) (_ : Bool) : OracleComp (SharedSequence.Shared Unit ColumnInput (Fin 2)) Bool := do
+  let _ ← schemeHash (.inl [3])
+  pure false
+
+/-- Suspension skips later work but preserves the actual earlier hash, source
+root, positive account and unused response tape. The loss here charges each
+hash five units to expose any accidental omission of the earlier phase. -/
+example : (fun outcome => ((outcome.1.2.1.hash.log.length, outcome.1.2.1.checkpoints.checkpoints.length,
+      outcome.1.2.2), outcome.2))
+    ((simulateQ retryTape ((simulateQ (ChargedExecution.handler
+      (CheckpointExecution.handler (QueryImpl.ofLift unifSpec ProbComp) columnEncoding 0 workerShape)
+      prefixQueryCost)
+      (ChargedPrefixCompletion.program (pure false) (fun bit => bit = true) earlierChargedWork skippedWork)).run
+        (columnStart, 0))).run [1, 99]) = ((4, 1, 5), [99]) := by
+  have suspended (first : Unit) : SharedCompletedContinuation.program (pure false) (fun bit => bit = true)
+      (skippedWork first) = pure (false, none) := by
+    simp [SharedCompletedContinuation.program, PrivateSampling.embed, simulateQ_pure]
+  simp only [ChargedPrefixCompletion.program, suspended]
+  change ((4, 1, (0 + 5 + 0 : ENNReal)), [99]) = ((4, 1, 5), [99])
+  norm_num
+
+end EarlierChargeSmoke
+
+namespace StagedRepeatedLookupSmoke
+
+open OracleSpec OracleComp MeasureTheory
+noncomputable local instance : SampleableType (ZMod 17) := SampleableType.ofFintype _
+
+/-- A real earlier hash is charged before the original source root is recorded
+and before any challenge bytes are sampled. -/
+private noncomputable def chargedNativeBefore : OracleComp (SharedSequence.Shared Unit ColumnInput (Fin 2))
+    (StagedRepeatedLookup.SourceEmission 1 (Fin 2) Unit) := do
+  let _ ← schemeHash (.inl [2])
+  let first ← sourceCommit
+  let _ ← RecordRoots.program (StagedHeterogeneousBatchOpening.sourceRequests tag (List.finRange 1) first)
+  pure first
+
+private noncomputable def fullChargedNativeLaw := ChargedPrefixCompletion.operational columnEncoding 0 workerShape
+  (CheckpointCollision.loss unifSpec workerShape) (ByteLookupChargedLimit.private_zero workerShape)
+  chargedNativeBefore (fun _ => chargedNativeTail) columnStart
+  (ByteLookupUnbounded.steps reciprocalBasis (fun _ : Fin 1 => fun _ : Fin 1 => (0 : ZMod 17)) 3)
+  ByteLookupUnbounded.complete
+  (ByteLookupUnbounded.grows reciprocalBasis (fun _ : Fin 1 => fun _ : Fin 1 => (0 : ZMod 17)) 3)
+
+/-- Earlier charged work and root recording stay before the actual repeated
+byte/helper/native-algebra/PCS continuation in a normalized account law. -/
+example : IsProbabilityMeasure fullChargedNativeLaw := by
+  unfold fullChargedNativeLaw
+  apply ChargedPrefixCompletion.operational_probability
+  exact ByteLookupUnbounded.completion_sup (by decide) reciprocalBasis
+    (fun _ : Fin 1 => fun _ : Fin 1 => (0 : ZMod 17)) (by decide) 3
+
+/-- The complete mean equals the charges of the same full source-before-byte
+query program, rather than just the conditional later phase. -/
+example : (∫⁻ outcome, outcome.2.2 ∂fullChargedNativeLaw) =
+    ⨆ n, ExpectedHazard.charge
+      (CheckpointExecution.handler (QueryImpl.ofLift unifSpec ProbComp) columnEncoding 0 workerShape)
+      (CheckpointCollision.loss unifSpec workerShape)
+      (ChargedPrefixCompletion.program
+        (ByteLookupUnbounded.steps reciprocalBasis (fun _ : Fin 1 => fun _ : Fin 1 => (0 : ZMod 17)) 3 n)
+        ByteLookupUnbounded.complete chargedNativeBefore (fun _ => chargedNativeTail)) columnStart := by
+  unfold fullChargedNativeLaw
+  apply ChargedPrefixCompletion.expected
+  exact ByteLookupUnbounded.completion_sup (by decide) reciprocalBasis
+    (fun _ : Fin 1 => fun _ : Fin 1 => (0 : ZMod 17)) (by decide) 3
+
+end StagedRepeatedLookupSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.ChargeAccountShift.run' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ChargeAccountShift.run
+
+/-- info: 'FormalProof4FHE.HasteBoots.CompletedPrefixMixture.ordered' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CompletedPrefixMixture.ordered
+
+/-- info: 'FormalProof4FHE.HasteBoots.CompletedPrefixMixture.prefix_integral' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CompletedPrefixMixture.prefix_integral
+
+/-- info: 'FormalProof4FHE.HasteBoots.CompletedPrefixMixture.inner_monotone' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CompletedPrefixMixture.inner_monotone
+
+/-- info: 'FormalProof4FHE.HasteBoots.CompletedPrefixMixture.finite_integral' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CompletedPrefixMixture.finite_integral
+
+/-- info: 'FormalProof4FHE.HasteBoots.CompletedPrefixMixture.integral' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CompletedPrefixMixture.integral
+
+/-- info: 'FormalProof4FHE.HasteBoots.CompletedPrefixMixture.probability' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CompletedPrefixMixture.probability
+
+/-- info: 'FormalProof4FHE.HasteBoots.ChargedPrefixCompletion.tail_ordered' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ChargedPrefixCompletion.tail_ordered
+
+/-- info: 'FormalProof4FHE.HasteBoots.ChargedPrefixCompletion.finite_operational' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ChargedPrefixCompletion.finite_operational
+
+/-- info: 'FormalProof4FHE.HasteBoots.ChargedPrefixCompletion.operational_apply' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ChargedPrefixCompletion.operational_apply
+
+/-- info: 'FormalProof4FHE.HasteBoots.ChargedPrefixCompletion.probability' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ChargedPrefixCompletion.probability
+
+/-- info: 'FormalProof4FHE.HasteBoots.ChargedPrefixCompletion.operational_probability' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ChargedPrefixCompletion.operational_probability
+
+/-- info: 'FormalProof4FHE.HasteBoots.ChargedPrefixCompletion.tail_charge' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ChargedPrefixCompletion.tail_charge
+
+/-- info: 'FormalProof4FHE.HasteBoots.ChargedPrefixCompletion.tail_charge_monotone' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ChargedPrefixCompletion.tail_charge_monotone
+
+/-- info: 'FormalProof4FHE.HasteBoots.ChargedPrefixCompletion.whole_charge' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ChargedPrefixCompletion.whole_charge
+
+/-- info: 'FormalProof4FHE.HasteBoots.ChargedPrefixCompletion.expected_split' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ChargedPrefixCompletion.expected_split
+
+/-- info: 'FormalProof4FHE.HasteBoots.ChargedPrefixCompletion.expected' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ChargedPrefixCompletion.expected
+
 end HasteBootsSmoke
