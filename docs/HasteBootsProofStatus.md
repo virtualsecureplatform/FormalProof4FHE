@@ -3131,3 +3131,55 @@ axioms, admitted proofs or compiled proof shortcuts were introduced. The
 Rust worktree remains unchanged. The exact adapter, expected-account native
 bound, regressions and documented remaining obligations form one commit
 chunk. The full formal-security objective remains active.
+
+
+## Canonical byte work in the completed raw-trace measure
+
+`CompletedCostTransfer` partitions each unconditional prefix cost into its
+completed and incomplete contributions. Monotonicity of the completed
+observation measures gives convergence of the first contribution to the
+actual completed mean. A proved zero limit for the second contribution
+then transfers the unconditional limit exactly. This theorem does not
+require finite means or replace the work-tail proof with completion
+probability tending to one.
+
+`RejectionTraceWork` derives the operational trace-length bound at each
+analysis depth and proves that a suspended trace has length exactly that
+depth. The incomplete expected work is therefore exactly `n * rho^n`,
+where `rho` is the sampler's rejection probability. Its geometric decay
+for a nonempty accepted domain proves the actual completed raw-trace
+mean is the full-domain cardinality divided by the accepted cardinality.
+The completed trace measure is normalized under the same condition.
+An empty accepted domain instead has zero completed mass while the
+unconditional retry mean is infinite; a regression checks this distinction.
+These are derived bounds for finite approximations, not native retry caps.
+
+`CanonicalTraceWork` constructs the completed measure of the actual
+masked-below-modulus byte sampler, retaining every rejected raw chunk.
+Its incomplete expected byte work is the configured byte width times
+`n * rho^n`, which tends to zero for `1 < p`. Its completed expected bytes
+thus equal the previously proved unconditional byte-work limit, exactly
+`byteCount(p) * 2^bits(p) / p`. Regressions check a small modulus, positive
+incomplete work at finite depth, and the native Goldilocks and BabyBear
+formulas. Their raw chunk widths are eight and four bytes respectively;
+these widths are separate from protocol packing parameters.
+
+This closes the base canonical sampler's computational byte-work transfer.
+Nested sequential coefficient/extension and reciprocal/pair/vector byte-work
+transfers remain open, as do physical SHA/XOF/hash-work accounting, production
+transcript/FS and Rust refinement, honest opening/scheduler completeness,
+deferred/global PBS, application/knowledge/full-PBS composition and the final
+concrete unbudgeted 128-bit expected-work theorem. The full formal-security
+objective remains active.
+
+Validation passed: focused HasteBoots build (3,978 jobs), strict
+warning-as-error HasteBoots smoke, full `scripts/check` (10,077 build jobs
+and all strict regression suites, terminal exit zero), and
+`git diff --check`. Logs: `/tmp/hasteboots-completed-byte-work-smoke-build.log`,
+`/tmp/hasteboots-completed-byte-work-strict-smoke.log` and
+`/tmp/hasteboots-completed-byte-work-check.log`. All 19 new theorem audits
+passed, bringing the total to 1,313; their transitive axiom sets are contained
+in `propext`, `Classical.choice` and `Quot.sound`. No custom axioms, admitted
+proofs or compiled proof shortcuts were introduced. The Rust worktree remains
+unchanged. The general transfer, canonical sampler application, regressions
+and documented remaining obligations form one commit chunk.

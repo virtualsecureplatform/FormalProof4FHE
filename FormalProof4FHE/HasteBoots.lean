@@ -244,3 +244,6 @@ public import FormalProof4FHE.HasteBoots.ChargedPrefixCompletion
 public import FormalProof4FHE.HasteBoots.StagedByteFactor
 public import FormalProof4FHE.HasteBoots.StagedByteChargedLimit
 public import FormalProof4FHE.HasteBoots.StagedByteExpectedSecurity
+public import FormalProof4FHE.HasteBoots.CompletedCostTransfer
+public import FormalProof4FHE.HasteBoots.RejectionTraceWork
+public import FormalProof4FHE.HasteBoots.CanonicalTraceWork

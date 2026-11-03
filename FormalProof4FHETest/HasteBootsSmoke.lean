@@ -10375,4 +10375,143 @@ end StagedRepeatedLookupSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms StagedByteExpectedSecurity.false_acceptance_bound
 
+
+section CompletedByteWorkSmoke
+
+open OracleSpec OracleComp MeasureTheory
+
+/-- A genuine unbounded completed trace law, not a successful-value marginal. -/
+example : IsProbabilityMeasure (RejectionTraceWork.measure ({1} : Finset (Fin 2))) :=
+  RejectionTraceWork.probability _ (by simp)
+
+example : (∫⁻ result, (result.2.length : ENNReal)
+    ∂RejectionTraceWork.measure ({1} : Finset (Fin 2))) = 2 := by
+  rw [RejectionTraceWork.expected _ (by simp)]
+  norm_num
+
+open scoped Classical in
+/-- Incomplete work is still positive at finite depth; it cannot be erased
+merely because successful mass eventually tends to one. -/
+example : (∫⁻ value, value ∂𝒟[(fun result : RejectionSampling.Result (Fin 2) =>
+    if RejectionTraceOrder.complete result then 0 else (result.2.length : ENNReal)) <$>
+      RejectionSampling.runPrefix ({1} : Finset (Fin 2)) 2]) = 1 / 2 := by
+  rw [RejectionTraceWork.partial_mean]
+  have reject : RejectionSampling.reject ({1} : Finset (Fin 2)) = 1 / 2 := by
+    unfold RejectionSampling.reject
+    simp only [Finset.mem_singleton]
+    rw [SampleableType.prEvent_uniformSample]
+    norm_num [Finset.filter_ne']
+  rw [reject]
+  norm_num [pow_two, ENNReal.mul_inv_cancel_left]
+
+/-- Without an accepted candidate the completed measure is zero while the
+unconditional retry mean is infinite. The nonempty-domain guard matters. -/
+example : (∫⁻ result, (result.2.length : ENNReal)
+    ∂RejectionTraceWork.measure (∅ : Finset (Fin 2))) ≠
+      RejectionSampling.totalExpectedAttempts (∅ : Finset (Fin 2)) := by
+  rw [RejectionTraceWork.empty_measure, RejectionSampling.totalExpectedAttempts_fraction]
+  norm_num [ENNReal.div_zero]
+
+/-- Every retained rejected byte is included in the completed native-mask mean. -/
+example : (∫⁻ result, (CanonicalByteSampler.consumedBytes 17 result : ENNReal)
+    ∂CanonicalTraceWork.measure 17) = 32 / 17 := by
+  rw [CanonicalTraceWork.expected 17 (by decide)]
+  rw [show CanonicalByteSampler.byteCount 17 = 1 from by decide,
+    show CanonicalByteSampler.bits 17 = 5 from by decide]
+  norm_num
+
+/-- Goldilocks uses eight raw bytes per base-field chunk, independently of
+the protocol's packed-algebra width. -/
+example : (∫⁻ result, (CanonicalByteSampler.consumedBytes NativeFields.goldilocksModulus result : ENNReal)
+    ∂CanonicalTraceWork.measure NativeFields.goldilocksModulus) =
+      8 * (((2 ^ 64 : ℕ) : ENNReal) / NativeFields.goldilocksModulus) := by
+  rw [CanonicalTraceWork.expected NativeFields.goldilocksModulus (by decide)]
+  rfl
+
+/-- BabyBear uses four raw bytes per base-field chunk; all rejected chunks
+remain charged in this exact completed-trace mean. -/
+example : (∫⁻ result, (CanonicalByteSampler.consumedBytes NativeFields.babyBearModulus result : ENNReal)
+    ∂CanonicalTraceWork.measure NativeFields.babyBearModulus) =
+      4 * (((2 ^ 31 : ℕ) : ENNReal) / NativeFields.babyBearModulus) := by
+  rw [CanonicalTraceWork.expected NativeFields.babyBearModulus (by decide)]
+  rfl
+
+end CompletedByteWorkSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.CompletedCostTransfer.indicator' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CompletedCostTransfer.indicator
+
+/-- info: 'FormalProof4FHE.HasteBoots.CompletedCostTransfer.split' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CompletedCostTransfer.split
+
+/-- info: 'FormalProof4FHE.HasteBoots.CompletedCostTransfer.gated_tends' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CompletedCostTransfer.gated_tends
+
+/-- info: 'FormalProof4FHE.HasteBoots.CompletedCostTransfer.of_partial_tends_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CompletedCostTransfer.of_partial_tends_zero
+
+/-- info: 'FormalProof4FHE.HasteBoots.RejectionTraceWork.length_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms RejectionTraceWork.length_le
+
+/-- info: 'FormalProof4FHE.HasteBoots.RejectionTraceWork.suspended_length' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms RejectionTraceWork.suspended_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.RejectionTraceWork.partial_mean' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms RejectionTraceWork.partial_mean
+
+/-- info: 'FormalProof4FHE.HasteBoots.RejectionTraceWork.geometric_tail' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms RejectionTraceWork.geometric_tail
+
+/-- info: 'FormalProof4FHE.HasteBoots.RejectionTraceWork.partial_tends_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms RejectionTraceWork.partial_tends_zero
+
+/-- info: 'FormalProof4FHE.HasteBoots.RejectionTraceWork.empty_measure' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms RejectionTraceWork.empty_measure
+
+/-- info: 'FormalProof4FHE.HasteBoots.RejectionTraceWork.expected' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms RejectionTraceWork.expected
+
+/-- info: 'FormalProof4FHE.HasteBoots.RejectionTraceWork.probability' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms RejectionTraceWork.probability
+
+/-- info: 'FormalProof4FHE.HasteBoots.CanonicalTraceWork.measure_apply' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CanonicalTraceWork.measure_apply
+
+/-- info: 'FormalProof4FHE.HasteBoots.CanonicalTraceWork.probability' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CanonicalTraceWork.probability
+
+/-- info: 'FormalProof4FHE.HasteBoots.CanonicalTraceWork.consumed_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CanonicalTraceWork.consumed_le
+
+/-- info: 'FormalProof4FHE.HasteBoots.CanonicalTraceWork.partial_mean' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CanonicalTraceWork.partial_mean
+
+/-- info: 'FormalProof4FHE.HasteBoots.CanonicalTraceWork.partial_tends_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CanonicalTraceWork.partial_tends_zero
+
+/-- info: 'FormalProof4FHE.HasteBoots.CanonicalTraceWork.expected' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CanonicalTraceWork.expected
+
+/-- info: 'FormalProof4FHE.HasteBoots.CanonicalTraceWork.expected_eq_total' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CanonicalTraceWork.expected_eq_total
+
 end HasteBootsSmoke

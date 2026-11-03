@@ -367,8 +367,15 @@ original staged byte/helper/native execution. `StagedByteChargedLimit` returns
 its original result shape with a normalized account law, and
 `StagedByteExpectedSecurity` bounds the original frozen-source native lookup
 false-acceptance event by the proved lookup/algebra/PCS losses plus that
-actual mean availability account. Computational byte-tail work, physical hash
-work and production FS/Rust refinement remain separate obligations.
+actual mean availability account. `CompletedCostTransfer` now transfers
+unconditional prefix costs to the completed observation measure when the
+incomplete-work mean provably vanishes. `RejectionTraceWork` derives that
+mean as `n * rho^n` and proves its limit is zero for a nonempty accepted
+domain. `CanonicalTraceWork` applies this to actual raw-byte traces: the
+completed mean equals the unconditional byte-work limit, counting every
+rejected chunk. Regressions instantiate Goldilocks and BabyBear. Nested
+coefficient/extension and reciprocal/pair/vector byte-work transfers,
+physical hash work and production FS/Rust refinement remain open.
 
 ## Main checked results
 
