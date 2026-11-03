@@ -3065,3 +3065,69 @@ admitted proofs or compiled proof shortcuts were introduced. The Rust
 worktree remains unchanged. The proof, its source-work regressions and its
 documented remaining interface obligations form one commit chunk. The full
 formal-security objective remains active.
+
+
+## Original staged native lookup bound with an expected availability account
+
+`StagedByteFactor.factor` proves equality of query programs between the
+original `StagedCommitmentPrefix.program` byte/helper/native execution and
+the prefix-plus-completed-continuation program used by the charge proof.
+The original source commitment and its root annotations run before bytes;
+the actual helper builder and chosen helper roots follow completed sampling.
+The typed sample and every raw observation remain stored in the helper
+emission. Projection only repackages returned values and inserts no query,
+fallback typed vector, root or native result on suspension.
+
+Its two structural premises state that suspended samples record no helper
+roots and run no native continuation. The concrete native theorem derives
+both facts from `ByteLookupPairMiddle.completed` and
+`OptionalStagedLookup.continuation`; they are not supplied security or work
+certificates. `StagedByteFactor.charge` then identifies the original staged
+program's charge with the factored program's charge for any state-dependent
+loss, using that pure result projection adds no queries.
+
+`StagedByteChargedLimit` projects the proven completed account construction
+back to the original staged result shape: original source, typed raw-byte/
+optional helper emission, optional native result, and actual final state/
+account. The measure is normalized under the existing sampler/domain
+conditions. Its mean account equals the supremum of the original whole
+staged query program's finite charges, retaining earlier source work and
+both real root-recording stages exactly once.
+
+`StagedByteExpectedSecurity.false_acceptance_bound` now replaces the charge
+supremum in the previously proved unbounded native lookup bound by this
+actual mean availability account. The false-acceptance event remains in the
+original frozen-source witness law; it is not changed to helper-time or
+final-state source decoding. The lookup repetition, scalar algebra and
+grouped PCS losses are retained. The mean account includes all source,
+sampling/helper and native work charged by the actual availability metric,
+including computed native rejection branches. No oracle/retry cap or
+assumed PCS/FS/work certificate is introduced.
+
+The native regressions instantiate exact query-program factorization with
+an earlier source hash, original source-root recording, three genuine byte
+pairs, helper/root construction and the actual algebra/PCS continuation.
+They also verify normalization in the original staged return shape and the
+mean identity against that original program's whole charge supremum.
+
+This closes the earlier staged lookup-bound/expected-account adapter
+obligation. It does not yet convert the state-dependent availability account
+to concrete primitive hash work, transfer unconditional computational byte
+work through partial tails, or refine production SHA/XOF/transcript/FS and
+Rust execution. Honest opening/scheduler completeness, deferred/global PBS,
+application/knowledge/full-PBS composition and the final concrete unbudgeted
+128-bit expected-work theorem also remain open. The full objective remains
+active.
+
+Validation passed: focused HasteBoots build (3,975 jobs), strict
+warning-as-error HasteBoots smoke, full `scripts/check` (10,074 build jobs
+and all strict regression suites, terminal exit zero), and
+`git diff --check`. Logs: `/tmp/hasteboots-staged-expected-smoke-build.log`,
+`/tmp/hasteboots-staged-expected-strict-smoke.log` and
+`/tmp/hasteboots-staged-expected-check.log`. All five new theorem audits
+passed, bringing the total to 1,294; their transitive axiom sets are
+contained in `propext`, `Classical.choice` and `Quot.sound`. No custom
+axioms, admitted proofs or compiled proof shortcuts were introduced. The
+Rust worktree remains unchanged. The exact adapter, expected-account native
+bound, regressions and documented remaining obligations form one commit
+chunk. The full formal-security objective remains active.

@@ -362,9 +362,13 @@ that their mean availability account equals the supremum of the actual
 sampling-plus-continuation charges. The proof uses the derived zero private
 hazard and zero new account on suspension. `ChargedPrefixCompletion` now composes the real earlier prefix with this
 completed continuation, retaining its result/state/account and proving that
-the complete mean equals the actual whole-prefix charge supremum. Exact
-factorization into the earlier staged lookup-bound interface and transfer of
-unconditional partial-tail computational byte work remain separate obligations.
+the complete mean equals the actual whole-prefix charge supremum. `StagedByteFactor` now proves the exact query-program factorization of the
+original staged byte/helper/native execution. `StagedByteChargedLimit` returns
+its original result shape with a normalized account law, and
+`StagedByteExpectedSecurity` bounds the original frozen-source native lookup
+false-acceptance event by the proved lookup/algebra/PCS losses plus that
+actual mean availability account. Computational byte-tail work, physical hash
+work and production FS/Rust refinement remain separate obligations.
 
 ## Main checked results
 

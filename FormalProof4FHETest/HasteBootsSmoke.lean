@@ -10280,4 +10280,99 @@ end StagedRepeatedLookupSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms ChargedPrefixCompletion.expected
 
+
+namespace StagedRepeatedLookupSmoke
+
+open OracleSpec OracleComp MeasureTheory
+noncomputable local instance : SampleableType (ZMod 17) := SampleableType.ofFintype _
+
+private def stagedChargeRequests (first : StagedRepeatedLookup.SourceEmission 1 (Fin 2) Unit)
+    (second : ByteLookupPairMiddle.Emission 17 1 (ZMod 17) (Fin 2) Unit 3) :=
+  OptionalStagedLookup.helperRequests ByteLookupPairMiddle.completed tag first second
+
+private def stagedChargeBuild (_first : StagedRepeatedLookup.SourceEmission 1 (Fin 2) Unit)
+    (_raw : ByteLookupPairTyped.Raw 17 1 (ZMod 17) 3) (_values : Fin 3 → StagedRepeatedLookup.Pair (ZMod 17)) :
+    OracleComp (SharedSequence.Shared Unit ColumnInput (Fin 2)) (StagedRepeatedLookup.HelperEmission 3 (Fin 2) Unit) :=
+  pure (fun _ => 0, ())
+
+private noncomputable def stagedChargeSource : OracleComp (SharedSequence.Shared Unit ColumnInput (Fin 2))
+    (StagedRepeatedLookup.SourceEmission 1 (Fin 2) Unit) := do
+  let _ ← schemeHash (.inl [2])
+  sourceCommit
+
+private theorem stagedChargeRequests_none (first : StagedRepeatedLookup.SourceEmission 1 (Fin 2) Unit)
+    (observed : ByteLookupPairTyped.Sample 17 1 (ZMod 17) 3) (suspended : observed.values = none) :
+    stagedChargeRequests first (observed, none) = [] := by
+  simp only [stagedChargeRequests, OptionalStagedLookup.helperRequests, ByteLookupPairMiddle.completed, suspended]
+  rfl
+
+private theorem stagedChargeNext_none (first : StagedRepeatedLookup.SourceEmission 1 (Fin 2) Unit)
+    (observed : ByteLookupPairTyped.Sample 17 1 (ZMod 17) 3) (suspended : observed.values = none) :
+    byteNativeNext first (observed, none) = pure none := by
+  simp only [byteNativeNext, OptionalStagedLookup.continuation, ByteLookupPairMiddle.completed, suspended]
+
+private noncomputable def stagedChargeLaw := StagedByteChargedLimit.measure reciprocalBasis
+  (fun _ : Fin 1 => fun _ : Fin 1 => (0 : ZMod 17)) columnEncoding 0 workerShape
+  (StagedHeterogeneousBatchOpening.sourceRequests tag (List.finRange 1)) stagedChargeRequests
+  stagedChargeSource stagedChargeBuild byteNativeNext columnStart
+
+/-- The factorization is equality of the actual native query programs. Root
+recording stays on its original side of the raw byte/helper phases. -/
+example : StagedByteFactor.project <$>
+    ChargedPrefixCompletion.program
+      (ByteLookupPairTyped.sample reciprocalBasis (fun _ : Fin 1 => fun _ : Fin 1 => (0 : ZMod 17)) 2 2 4 3)
+      (fun observed => observed.values ≠ none)
+      (StagedByteFactor.before (StagedHeterogeneousBatchOpening.sourceRequests tag (List.finRange 1)) stagedChargeSource)
+      (StagedByteFactor.tail stagedChargeRequests stagedChargeBuild byteNativeNext) =
+    StagedCommitmentPrefix.program (StagedHeterogeneousBatchOpening.sourceRequests tag (List.finRange 1)) stagedChargeRequests
+      stagedChargeSource
+      (fun first => ByteLookupPairMiddle.program reciprocalBasis (fun _ : Fin 1 => fun _ : Fin 1 => (0 : ZMod 17))
+        2 2 4 3 (stagedChargeBuild first)) byteNativeNext :=
+  StagedByteFactor.factor _ _ _ _ _ _ _ _ _ _ stagedChargeRequests_none stagedChargeNext_none
+
+/-- The original source/typed helper/native result shape has a normalized
+account law; native rejection is not conditioned away. -/
+example : IsProbabilityMeasure stagedChargeLaw := by
+  unfold stagedChargeLaw
+  apply StagedByteChargedLimit.probability <;> decide
+
+/-- The mean is the charge supremum of the original staged native program,
+including its earlier source hash and both root-recording times. -/
+example : (∫⁻ outcome, outcome.2.2 ∂stagedChargeLaw) =
+    ⨆ n, ExpectedHazard.charge
+      (CheckpointExecution.handler (QueryImpl.ofLift unifSpec ProbComp) columnEncoding 0 workerShape)
+      (CheckpointCollision.loss unifSpec workerShape)
+      (StagedCommitmentPrefix.program (StagedHeterogeneousBatchOpening.sourceRequests tag (List.finRange 1)) stagedChargeRequests
+        stagedChargeSource
+        (fun first => ByteLookupPairMiddle.program reciprocalBasis (fun _ : Fin 1 => fun _ : Fin 1 => (0 : ZMod 17))
+          n n n 3 (stagedChargeBuild first)) byteNativeNext) columnStart := by
+  unfold stagedChargeLaw
+  apply StagedByteChargedLimit.expected
+  · decide
+  · decide
+  · exact stagedChargeRequests_none
+  · exact stagedChargeNext_none
+
+end StagedRepeatedLookupSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.StagedByteFactor.factor' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms StagedByteFactor.factor
+
+/-- info: 'FormalProof4FHE.HasteBoots.StagedByteFactor.charge' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms StagedByteFactor.charge
+
+/-- info: 'FormalProof4FHE.HasteBoots.StagedByteChargedLimit.probability' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms StagedByteChargedLimit.probability
+
+/-- info: 'FormalProof4FHE.HasteBoots.StagedByteChargedLimit.expected' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms StagedByteChargedLimit.expected
+
+/-- info: 'FormalProof4FHE.HasteBoots.StagedByteExpectedSecurity.false_acceptance_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms StagedByteExpectedSecurity.false_acceptance_bound
+
 end HasteBootsSmoke

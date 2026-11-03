@@ -241,3 +241,6 @@ public import FormalProof4FHE.HasteBoots.ByteLookupChargedLimit
 public import FormalProof4FHE.HasteBoots.ChargeAccountShift
 public import FormalProof4FHE.HasteBoots.CompletedPrefixMixture
 public import FormalProof4FHE.HasteBoots.ChargedPrefixCompletion
+public import FormalProof4FHE.HasteBoots.StagedByteFactor
+public import FormalProof4FHE.HasteBoots.StagedByteChargedLimit
+public import FormalProof4FHE.HasteBoots.StagedByteExpectedSecurity
