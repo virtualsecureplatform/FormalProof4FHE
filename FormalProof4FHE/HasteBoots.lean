@@ -249,3 +249,5 @@ public import FormalProof4FHE.HasteBoots.RejectionTraceWork
 public import FormalProof4FHE.HasteBoots.CanonicalTraceWork
 public import FormalProof4FHE.HasteBoots.CoefficientTraceWork
 public import FormalProof4FHE.HasteBoots.ExtensionTraceWork
+public import FormalProof4FHE.HasteBoots.OptionalRejectionTail
+public import FormalProof4FHE.HasteBoots.ReciprocalTraceWork

@@ -10628,4 +10628,134 @@ end CompletedCoefficientWorkSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms ExtensionTraceWork.probability
 
+
+section CompletedReciprocalWorkSmoke
+
+open OracleSpec OracleComp MeasureTheory
+
+/-- An incomplete inner observation stops the optional loop immediately,
+retaining that observation even when the outer analysis depth is larger. -/
+example : OptionalRejectionLoop.program (pure (none : Option (Fin 2))) id (fun _ => True) 3 =
+    pure (⟨none, [none]⟩ : OptionalRejectionLoop.Result (Fin 2) (Option (Fin 2))) := by rfl
+
+example : IsProbabilityMeasure (ReciprocalTraceWork.measure reciprocalBasis bytePoleTable) :=
+  ReciprocalTraceWork.probability (by decide) reciprocalBasis bytePoleTable (by decide)
+
+/-- The completed measure counts the full nested unconditional byte mean. -/
+example : (∫⁻ result, (ByteReciprocalSampler.consumedBytes result : ENNReal)
+    ∂ReciprocalTraceWork.measure reciprocalBasis bytePoleTable) =
+      ByteReciprocalLimit.totalExpectedBytes reciprocalBasis bytePoleTable :=
+  ReciprocalTraceWork.expected_eq_total (by decide) reciprocalBasis bytePoleTable (by decide)
+
+/-- Two excluded field values give the exact completed raw-byte mean 32/15. -/
+example : (∫⁻ result, (ByteReciprocalSampler.consumedBytes result : ENNReal)
+    ∂ReciprocalTraceWork.measure reciprocalBasis bytePoleTable) = (32 / 15 : ENNReal) := by
+  rw [ReciprocalTraceWork.expected (by decide) reciprocalBasis bytePoleTable (by decide), reciprocalDomain]
+  have single : ByteReciprocalLimit.fieldCost 17 1 = (32 / 17 : ENNReal) := by
+    rw [ByteReciprocalLimit.fieldCost, CanonicalByteSampler.totalExpectedBytes_eq 17 (by decide)]
+    rw [show CanonicalByteSampler.byteCount 17 = 1 by decide, show CanonicalByteSampler.bits 17 = 5 by decide]
+    norm_num
+  rw [single]
+  have domainCard : (Finset.univ \ ({0, 16} : Finset (ZMod 17))).card = 15 := by decide
+  rw [domainCard]
+  norm_num [ZMod.card]
+  have numeric : (32 / 17 * (17 / 15) : NNReal) = 32 / 15 := by norm_num
+  simpa only [ENNReal.coe_mul, ENNReal.coe_div (by norm_num : (17 : NNReal) ≠ 0),
+    ENNReal.coe_div (by norm_num : (15 : NNReal) ≠ 0), ENNReal.coe_ofNat] using
+      congrArg (fun value : NNReal => (value : ENNReal)) numeric
+
+/-- The support bound includes raw bytes on either suspension path. -/
+example (result : OptionalRejectionLoop.Result (ZMod 17) (ByteReciprocalSampler.Trial 17 1 (ZMod 17)))
+    (supported : result ∈ support (ByteReciprocalSampler.program reciprocalBasis bytePoleTable 2 3)) :
+    ByteReciprocalSampler.consumedBytes result ≤ 6 := by
+  simpa only [show CanonicalByteSampler.byteCount 17 = 1 by decide, Nat.reduceMul] using
+    ReciprocalTraceWork.consumed_le reciprocalBasis bytePoleTable 2 3 result supported
+
+/-- The last incomplete field retains bytes and cannot start another trial. -/
+example : (fun outcome => ((outcome.1.value, outcome.1.trials.map ByteReciprocalSampler.candidate,
+      ByteReciprocalSampler.consumedBytes (p := 17) (degree := 1) outcome.1), outcome.2))
+    ((simulateQ retryTape (ByteReciprocalSampler.program reciprocalBasis bytePoleTable 2 4)).run [0, 16, 255, 49, 144, 5, 99]) =
+      ((none, [some 0, some 16, none], 4), [144, 5, 99]) := by rfl
+
+/-- Cofinality applies to a cost-sensitive raw-trace event, not only values. -/
+example : ReciprocalTraceWork.measure reciprocalBasis bytePoleTable
+      {result | 0 < ByteReciprocalSampler.consumedBytes result} =
+    ⨆ outer, ⨆ inner, Pr{let result ← ByteReciprocalSampler.program reciprocalBasis bytePoleTable inner outer}[
+      OptionalTraceOrder.loopComplete result ∧ 0 < ByteReciprocalSampler.consumedBytes result] :=
+  ReciprocalTraceWork.all_depths reciprocalBasis bytePoleTable _
+
+end CompletedReciprocalWorkSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.OptionalRejectionTail.consumed_le' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms OptionalRejectionTail.consumed_le
+
+/-- info: 'FormalProof4FHE.HasteBoots.OptionalRejectionTail.suspended_succ' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms OptionalRejectionTail.suspended_succ
+
+/-- info: 'FormalProof4FHE.HasteBoots.OptionalRejectionTail.suspended_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms OptionalRejectionTail.suspended_le
+
+/-- info: 'FormalProof4FHE.HasteBoots.ReciprocalTraceWork.polynomial_geometric' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ReciprocalTraceWork.polynomial_geometric
+
+/-- info: 'FormalProof4FHE.HasteBoots.ReciprocalTraceWork.diagonal_sup' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ReciprocalTraceWork.diagonal_sup
+
+/-- info: 'FormalProof4FHE.HasteBoots.ReciprocalTraceWork.trial_suspended_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ReciprocalTraceWork.trial_suspended_le
+
+/-- info: 'FormalProof4FHE.HasteBoots.ReciprocalTraceWork.trial_cost_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ReciprocalTraceWork.trial_cost_le
+
+/-- info: 'FormalProof4FHE.HasteBoots.ReciprocalTraceWork.consumed_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ReciprocalTraceWork.consumed_le
+
+/-- info: 'FormalProof4FHE.HasteBoots.ReciprocalTraceWork.rejected_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ReciprocalTraceWork.rejected_le
+
+/-- info: 'FormalProof4FHE.HasteBoots.ReciprocalTraceWork.suspended_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ReciprocalTraceWork.suspended_le
+
+/-- info: 'FormalProof4FHE.HasteBoots.ReciprocalTraceWork.partial_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ReciprocalTraceWork.partial_le
+
+/-- info: 'FormalProof4FHE.HasteBoots.ReciprocalTraceWork.partial_tends_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ReciprocalTraceWork.partial_tends_zero
+
+/-- info: 'FormalProof4FHE.HasteBoots.ReciprocalTraceWork.work_monotone_outer' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ReciprocalTraceWork.work_monotone_outer
+
+/-- info: 'FormalProof4FHE.HasteBoots.ReciprocalTraceWork.work_sup' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ReciprocalTraceWork.work_sup
+
+/-- info: 'FormalProof4FHE.HasteBoots.ReciprocalTraceWork.expected' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ReciprocalTraceWork.expected
+
+/-- info: 'FormalProof4FHE.HasteBoots.ReciprocalTraceWork.expected_eq_total' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ReciprocalTraceWork.expected_eq_total
+
+/-- info: 'FormalProof4FHE.HasteBoots.ReciprocalTraceWork.all_depths' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ReciprocalTraceWork.all_depths
+
+/-- info: 'FormalProof4FHE.HasteBoots.ReciprocalTraceWork.probability' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ReciprocalTraceWork.probability
+
 end HasteBootsSmoke

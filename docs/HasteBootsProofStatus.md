@@ -3236,3 +3236,65 @@ in `propext`, `Classical.choice` and `Quot.sound`. No custom axioms, admitted
 proofs or compiled proof shortcuts were introduced. The Rust worktree remains
 unchanged. The sequential and assembly work transfer, regressions and
 documented remaining obligations form one commit chunk.
+
+
+## Completed reciprocal raw-trial byte-work mean
+
+`OptionalRejectionTail` proves finite support cost bounds and an exact
+suspension recurrence for the actual optional rejection loop. An inner
+suspension stops immediately and retains that trial; only a completed
+rejected candidate starts another trial. If the inner suspension probability
+is `a` and completed rejection probability is `r`, outer depth `O` has
+suspension probability at most `O * a + r^O`. Every supported trial's
+work contributes to the prefix bound, including a partial last trial.
+
+`ReciprocalTraceWork` derives the field-trial suspension bound from the
+sequential coefficient program and the completed pole-rejection rate from
+the actual candidate law. Let `w` be raw byte width, `d` the basis degree,
+`I` inner depth, `O` outer depth, `kappa` the canonical byte rejection
+probability and `theta` the rejection probability of the actual reciprocal
+allowed domain. The full prefix consumes at most `w * d * I * O` bytes
+and suspends with probability at most `O * d * kappa^I + theta^O`.
+Consequently its unfinished expected work is bounded by their product.
+All these are derived analysis-prefix bounds, not native retry or byte caps.
+
+At common depth `n`, this product is
+`w * d^2 * n^3 * kappa^n + w * d * n^2 * theta^n`. Polynomial/geometric
+decay proves both terms tend to zero under `1 < p` and the existing
+accepted-domain size condition. This accounts separately for unfinished
+inner fields and completed but rejected field trials; it does not infer
+work convergence merely from successful mass tending to one.
+
+The completed raw-trial measure is normalized and cofinal in all independent
+inner/outer depths, for arbitrary events on the full retained observation.
+Its exact expected consumed bytes equal the existing unconditional
+reciprocal work supremum and formula: one actual field draw's canonical
+byte mean times `card(K) / card(allowed(table))`. The real allowed-domain
+cardinality preserves duplicate-pole behavior. No cost/value independence
+certificate or finite successful-mass normalization is supplied.
+
+Regressions check immediate stopping on inner suspension, normalized
+completed traces, the exact completed mean `32/15` for the small-field
+one-pole fixture, support bounds including partial work, and cofinality
+for a raw-byte-cost event. The concrete tape regression retains two
+completed rejected fields and an incomplete third field with four issued
+bytes, leaving the later tape unused.
+
+This closes the reciprocal byte-work transfer. Pair/vector byte-work
+transfers, physical SHA/XOF/hash work, production transcript/FS and Rust
+refinement, honest opening/scheduler completeness, deferred/global PBS,
+application/knowledge/full-PBS composition and the final concrete unbudgeted
+128-bit expected-work theorem remain open. The full objective remains active.
+
+Validation passed: focused HasteBoots build (3,982 jobs), strict
+warning-as-error HasteBoots smoke, full `scripts/check` (10,079 build jobs
+and all strict regression suites, terminal exit zero), and
+`git diff --check`. Logs: `/tmp/hasteboots-reciprocal-trace-smoke-build.log`,
+`/tmp/hasteboots-reciprocal-trace-strict-smoke.log` and
+`/tmp/hasteboots-reciprocal-trace-check.log`. All 18 new theorem audits
+passed, bringing the total to 1,342; their transitive axiom sets are contained
+in `propext`, `Classical.choice` and `Quot.sound`. No custom axioms, admitted
+proofs or compiled proof shortcuts were introduced. The Rust worktree remains
+unchanged. The nested rejection bounds, completed reciprocal byte-work
+transfer, regressions and documented remaining obligations form one commit
+chunk. The full formal-security objective remains active.

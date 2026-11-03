@@ -374,13 +374,19 @@ mean as `n * rho^n` and proves its limit is zero for a nonempty accepted
 domain. `CanonicalTraceWork` applies this to actual raw-byte traces: the
 completed mean equals the unconditional byte-work limit, counting every
 rejected chunk. Regressions instantiate Goldilocks and BabyBear. Nested
-reciprocal/pair/vector byte-work transfers, physical hash work and production
+pair/vector byte-work transfers, physical hash work and production
 FS/Rust refinement remain open. `CoefficientTraceWork` now derives a
 suspension union bound and a bound on every finite trace, proving that
 unfinished sequential coefficient work tends to zero. Its normalized completed
 trace mean equals the unconditional coefficient byte-work limit.
 `ExtensionTraceWork` transfers this result through pure basis assembly, with
 exact cost proportional to the requested element count and basis degree.
+`OptionalRejectionTail` derives the actual suspension recurrence and finite
+support cost bounds for nested rejection. `ReciprocalTraceWork` applies them
+to field draws and pole rejection: unfinished byte work vanishes along the
+cofinal common depth. The normalized completed raw-trial mean equals the
+unconditional reciprocal byte-work formula with the actual accepted-domain
+cardinality, retaining every rejected field and raw chunk.
 
 ## Main checked results
 
