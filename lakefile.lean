@@ -11,6 +11,7 @@ package FormalProof4FHE where
   ]
 
 require VCVio from "vendor/VCVio"
+require Arklib from "vendor/ArkLib"
 
 @[default_target]
 lean_lib FormalProof4FHE

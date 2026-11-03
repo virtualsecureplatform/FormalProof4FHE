@@ -1,3 +1,6 @@
 [submodule "vendor/VCVio"]
 	path = vendor/VCVio
 	url = https://github.com/Verified-zkEVM/VCVio.git
+[submodule "vendor/ArkLib"]
+	path = vendor/ArkLib
+	url = https://github.com/Verified-zkEVM/ArkLib.git
