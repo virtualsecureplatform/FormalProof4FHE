@@ -374,8 +374,13 @@ mean as `n * rho^n` and proves its limit is zero for a nonempty accepted
 domain. `CanonicalTraceWork` applies this to actual raw-byte traces: the
 completed mean equals the unconditional byte-work limit, counting every
 rejected chunk. Regressions instantiate Goldilocks and BabyBear. Nested
-coefficient/extension and reciprocal/pair/vector byte-work transfers,
-physical hash work and production FS/Rust refinement remain open.
+reciprocal/pair/vector byte-work transfers, physical hash work and production
+FS/Rust refinement remain open. `CoefficientTraceWork` now derives a
+suspension union bound and a bound on every finite trace, proving that
+unfinished sequential coefficient work tends to zero. Its normalized completed
+trace mean equals the unconditional coefficient byte-work limit.
+`ExtensionTraceWork` transfers this result through pure basis assembly, with
+exact cost proportional to the requested element count and basis degree.
 
 ## Main checked results
 

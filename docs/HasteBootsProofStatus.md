@@ -3183,3 +3183,56 @@ in `propext`, `Classical.choice` and `Quot.sound`. No custom axioms, admitted
 proofs or compiled proof shortcuts were introduced. The Rust worktree remains
 unchanged. The general transfer, canonical sampler application, regressions
 and documented remaining obligations form one commit chunk.
+
+
+## Completed sequential coefficient and extension byte means
+
+`CoefficientTraceWork` derives support and suspension bounds from the actual
+sequential coefficient query program. At analysis depth `n`, a request for
+`c` coefficients retains at most `c * n` raw chunks, including earlier accepted
+coefficients and the suspended last coefficient. Its suspension probability
+is at most `c * rho^n`, where `rho` is the actual base sampler rejection
+probability. The proof starts the suffix only after a completed head; it
+requires no supplied independence certificate.
+
+These bounds give an incomplete expected byte cost of at most
+`byteCount(p) * c * c * (n * rho^n)`. For `1 < p`, the geometric work tail
+vanishes, so `CompletedCostTransfer` identifies the completed raw-trace
+mean with the previously derived unconditional limit, exactly
+`c * CanonicalByteSampler.totalExpectedBytes p`. The same completed measure
+is normalized without rescaling finite successful mass. The per-depth
+support bounds are analysis facts, not protocol retry or byte limits.
+
+`ExtensionTraceWork` retains the actual pure basis assembly together with
+the whole coefficient observation. Its incomplete work equals that of the
+`count * degree` sequential coefficients; completion is precisely coefficient
+completion. Consequently its completed measure is normalized and its exact
+byte mean is `count * degree` times the base sampler mean. The theorem
+does not assume a concrete native field constructor or count pure assembly
+as physical hash work.
+
+Regressions check normalization, zero coefficient requests, two completed
+coefficients, and the real suspended execution that accepts the first
+coefficient and retains both raw chunks. A two-coordinate basis with two
+requested elements checks the four-coefficient completed mean. Native
+Goldilocks degree three and BabyBear degree six regressions check their
+completed raw byte means; lookup degrees remain separate from PCS packing.
+
+This closes the sequential coefficient and pure extension byte-work
+transfers. Reciprocal/pair/vector byte-work transfers, physical SHA/XOF/hash
+work, production transcript/FS and Rust refinement, honest opening/scheduler
+completeness, deferred/global PBS, application/knowledge/full-PBS composition
+and the final concrete unbudgeted 128-bit expected-work theorem remain open.
+The full formal-security objective remains active.
+
+Validation passed: focused HasteBoots build (3,980 jobs), strict
+warning-as-error HasteBoots smoke, full `scripts/check` (10,076 build jobs
+and all strict regression suites, terminal exit zero), and
+`git diff --check`. Logs: `/tmp/hasteboots-coefficient-trace-smoke-build.log`,
+`/tmp/hasteboots-coefficient-trace-strict-smoke.log` and
+`/tmp/hasteboots-coefficient-trace-check.log`. All 11 new theorem audits
+passed, bringing the total to 1,324; their transitive axiom sets are contained
+in `propext`, `Classical.choice` and `Quot.sound`. No custom axioms, admitted
+proofs or compiled proof shortcuts were introduced. The Rust worktree remains
+unchanged. The sequential and assembly work transfer, regressions and
+documented remaining obligations form one commit chunk.

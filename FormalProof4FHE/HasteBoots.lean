@@ -247,3 +247,5 @@ public import FormalProof4FHE.HasteBoots.StagedByteExpectedSecurity
 public import FormalProof4FHE.HasteBoots.CompletedCostTransfer
 public import FormalProof4FHE.HasteBoots.RejectionTraceWork
 public import FormalProof4FHE.HasteBoots.CanonicalTraceWork
+public import FormalProof4FHE.HasteBoots.CoefficientTraceWork
+public import FormalProof4FHE.HasteBoots.ExtensionTraceWork

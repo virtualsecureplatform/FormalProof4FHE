@@ -10514,4 +10514,118 @@ end CompletedByteWorkSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms CanonicalTraceWork.expected_eq_total
 
+
+section CompletedCoefficientWorkSmoke
+
+open OracleSpec OracleComp MeasureTheory
+
+example : IsProbabilityMeasure (CoefficientTraceWork.measure 17 2) :=
+  CoefficientTraceWork.probability 17 (by decide) 2
+
+/-- Completed coefficient traces count rejected chunks before either acceptance. -/
+example : (∫⁻ result, (CanonicalCoefficientWork.consumedBytes 17 result : ENNReal)
+    ∂CoefficientTraceWork.measure 17 2) = (2 : ENNReal) * (32 / 17) := by
+  rw [CoefficientTraceWork.expected_eq_total 17 (by decide),
+    CanonicalCoefficientWork.totalExpectedBytes_formula 17 (by decide)]
+  rw [show CanonicalByteSampler.byteCount 17 = 1 by decide,
+    show CanonicalByteSampler.bits 17 = 5 by decide]
+  norm_num
+
+/-- Zero requested coefficients complete without raw-byte work. -/
+example : (∫⁻ result, (CanonicalCoefficientWork.consumedBytes 17 result : ENNReal)
+    ∂CoefficientTraceWork.measure 17 0) = 0 := by
+  rw [CoefficientTraceWork.expected 17 (by decide)]
+  simp
+
+/-- The second coefficient suspends after the first succeeds, retaining
+both issued chunks and the first accepted value. -/
+example : (fun outcome => ((outcome.1.values.isSome, outcome.1.completed,
+      outcome.1.chunks.map CanonicalByteMask.decode, CanonicalCoefficientWork.consumedBytes 17 outcome.1), outcome.2))
+    ((simulateQ retryTape (CanonicalCoefficientVector.program 17 1 2)).run [1, 255, 99]) =
+      ((false, [1], [1, 255], 2), [99]) := by rfl
+
+/-- The support bound includes both earlier success and current suspension. -/
+example (result : CanonicalCoefficientVector.Result 17 2)
+    (supported : result ∈ support (CanonicalCoefficientVector.program 17 1 2)) :
+    result.chunks.length ≤ 2 := CoefficientTraceWork.chunks_le 17 1 2 result supported
+
+private noncomputable def completedCoordinateBasis : Module.Basis (Fin 2) (ZMod 17) (Fin 2 → ZMod 17) :=
+  Pi.basisFun _ _
+
+example : IsProbabilityMeasure (ExtensionTraceWork.measure completedCoordinateBasis 2) :=
+  ExtensionTraceWork.probability (by decide) completedCoordinateBasis 2
+
+/-- Pure assembly preserves the full cost of four sequential coefficients. -/
+example : (∫⁻ result, (CanonicalCoefficientWork.consumedBytes 17 result.2 : ENNReal)
+    ∂ExtensionTraceWork.measure completedCoordinateBasis 2) = (4 : ENNReal) * (32 / 17) := by
+  rw [ExtensionTraceWork.expected (by decide), CanonicalByteSampler.totalExpectedBytes_eq 17 (by decide)]
+  rw [show CanonicalByteSampler.byteCount 17 = 1 by decide,
+    show CanonicalByteSampler.bits 17 = 5 by decide]
+  norm_num
+
+/-- Native lookup extension degrees are independent of PCS packing widths. -/
+example : (∫⁻ result, (CanonicalCoefficientWork.consumedBytes NativeFields.goldilocksModulus result : ENNReal)
+    ∂CoefficientTraceWork.measure NativeFields.goldilocksModulus 3) =
+      (24 : ENNReal) * (((2 ^ 64 : ℕ) : ENNReal) / NativeFields.goldilocksModulus) := by
+  rw [CoefficientTraceWork.expected_eq_total _ (by decide),
+    CanonicalCoefficientWork.totalExpectedBytes_formula _ (by decide)]
+  rw [show CanonicalByteSampler.byteCount NativeFields.goldilocksModulus = 8 by decide,
+    show CanonicalByteSampler.bits NativeFields.goldilocksModulus = 64 by decide]
+  norm_num [← mul_assoc]
+
+example : (∫⁻ result, (CanonicalCoefficientWork.consumedBytes NativeFields.babyBearModulus result : ENNReal)
+    ∂CoefficientTraceWork.measure NativeFields.babyBearModulus 6) =
+      (24 : ENNReal) * ((2147483648 : ENNReal) / NativeFields.babyBearModulus) := by
+  rw [CoefficientTraceWork.expected_eq_total _ (by decide),
+    CanonicalCoefficientWork.totalExpectedBytes_formula _ (by decide)]
+  rw [show CanonicalByteSampler.byteCount NativeFields.babyBearModulus = 4 by decide,
+    show CanonicalByteSampler.bits NativeFields.babyBearModulus = 31 by decide]
+  norm_num [← mul_assoc]
+
+end CompletedCoefficientWorkSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.CoefficientTraceWork.chunks_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CoefficientTraceWork.chunks_le
+
+/-- info: 'FormalProof4FHE.HasteBoots.CoefficientTraceWork.suspended_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CoefficientTraceWork.suspended_le
+
+/-- info: 'FormalProof4FHE.HasteBoots.CoefficientTraceWork.partial_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CoefficientTraceWork.partial_le
+
+/-- info: 'FormalProof4FHE.HasteBoots.CoefficientTraceWork.partial_tends_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CoefficientTraceWork.partial_tends_zero
+
+/-- info: 'FormalProof4FHE.HasteBoots.CoefficientTraceWork.expected' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CoefficientTraceWork.expected
+
+/-- info: 'FormalProof4FHE.HasteBoots.CoefficientTraceWork.expected_eq_total' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CoefficientTraceWork.expected_eq_total
+
+/-- info: 'FormalProof4FHE.HasteBoots.CoefficientTraceWork.probability' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms CoefficientTraceWork.probability
+
+/-- info: 'FormalProof4FHE.HasteBoots.ExtensionTraceWork.partial_mean' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ExtensionTraceWork.partial_mean
+
+/-- info: 'FormalProof4FHE.HasteBoots.ExtensionTraceWork.partial_tends_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ExtensionTraceWork.partial_tends_zero
+
+/-- info: 'FormalProof4FHE.HasteBoots.ExtensionTraceWork.expected' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ExtensionTraceWork.expected
+
+/-- info: 'FormalProof4FHE.HasteBoots.ExtensionTraceWork.probability' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ExtensionTraceWork.probability
+
 end HasteBootsSmoke
