@@ -44,6 +44,319 @@ probabilities and total variation. The executable-sampler-to-PMF bridge and the 
 lemmas in `Probability/PMFTotalVariation.lean` support the ideal Gaussian and weighted-sampler
 bounds.
 
+`vendor/ArkLib` is a pinned Lake dependency for the modified HasteBoots proof-system
+work. Initialize it with `git submodule update --init vendor/ArkLib`. Its Lean toolchain
+matches this project; the root project's local VCVio dependency is retained.
+`FormalProof4FHE.HasteBoots` contains the algebraic, interactive opening, and
+Merkle extraction proof components, including a canonical cached-hash handler
+and expected accumulated checkpoint-stability bounds. Private computations and
+adaptive root snapshots can interleave with that hash; a persistent failure monitor
+tracks earlier instability without affecting primitive answers. A combined collision
+and stability bound covers every cached authenticated payload of every recorded root.
+The typed native verifier runs on that same hash and inherits the availability bound
+for a single opening selected after an arbitrary adaptive prefix. Interleaved native
+column workers can replay from the final shared cache, so all listed authenticated
+columns share one availability bound without treating whole workers as atomic. Native
+array-address and coordinate-loop proofs connect both response families to the
+fixed-word matrix-opening checks outside that same authentication exception. The
+interactive matrix-opening bound also permits probabilistic adaptive responses
+and arbitrary retained state before the later shared column draw. The private-coin
+shared-handler game now starts from an empty cache, permits arbitrary adaptive
+commitment work before the frozen source and challenges, and bounds false acceptance
+by PCS arithmetic error plus the expected hash charge of the entire run. The source
+snapshot is retained only for analysis and erases to the exact original execution.
+Packed sumcheck now has checked round/fold/degree semantics and an adaptive
+private-coin n-round bound n*(D/card(F))^k against the truthful terminal factor
+obligation. Native evaluation-vector messages provide their degree bound by
+interpolation. Its authenticated opening composition is supplied below; full-stage
+adapters remain open.
+Packed ZeroCheck's special first-round reduction now bounds false-source healing
+by (n/card(F))^k+((D+1)/card(F))^k, allowing first messages to adapt to the equality
+points. The native boundary loop and interpolation degree are checked. Native suffix order,
+EQ-table construction and public equality evaluation are now proved, and the first
+round composes with the remaining packed rounds against truthful terminal factors.
+The native terminal check needs authentication only for original factors; the EQ
+terminal is verifier-computed. Concrete honest provers now use those same verifier
+experiments and accept with probability one for valid sources, with proved native
+message codecs and literal round/boundary checks. The operational packed-sumcheck verifier now returns its query and expected
+vector without source tables, with messages, challenges, callbacks and later opening
+work on one shared hash execution. Its terminal acceptance bound keeps the genuine
+joint wrong-factor event explicit. A fixed decoded-source layout now connects every
+returned query to the PCS split evaluation, and a single-opening bound permits
+arbitrary shared query selection after commitment, retains private commitment memory,
+and charges the whole run.
+Homogeneous factor families now have a joint private-coin bound from empty
+initialization: arithmetic errors sum and one expected hash charge covers the
+whole commitment/query/opening execution. Roots freeze at the actual commitment
+log and sequential openings retain private prover memory. Connecting this joint
+opening experiment to the full operational terminal/ZeroCheck stage, production
+transcript sampling and Rust refinement remain open. The terminal adapter now
+checks supplied values before binding or opening, and a failed factor stops
+later factor work. The joint bound charges this actual stopped program. Literal
+native response/value checks and successful factor coverage connect wrong
+supplied values to the same fixed-source PCS event. An executable worker pool
+now computes acceptance from individual native hash steps and coordinate checks;
+no trusted flag is supplied by the column provider. Earlier workers replay from
+the final cache after later factors. The concrete stopped opening theorem bounds
+wrong supplied values from empty initialization without a replay certificate.
+The complete private-coin authenticated sumcheck program now combines these
+components: false decoded-source sum acceptance is bounded by sumcheck error,
+PCS arithmetic error and one expected hash charge for that exact run. Terminal
+preparation preserves the guarded program's calls, and native messages supply
+the degree bound. No residual wrong-opening event remains in this theorem.
+ZeroCheck now has a source-independent shared-oracle verifier, including
+adaptive first-message work, first-boundary rejection before mixing/callbacks,
+the three-term arithmetic bound and native message-degree specialization.
+Its indexed query computes the public EQ terminal, and terminal preparation
+checks and binds only original-factor values while retaining rejected-work
+memory and hashes. The authenticated ZeroCheck theorem now connects this
+packet to concrete committed native openings of only the original factors.
+It bounds false zero-relation acceptance by all three ZeroCheck terms, PCS
+arithmetic error and one expected hash charge for the complete execution.
+Trusted dimension transport preserves the full query, source and matrix order;
+native vectors supply both degree bounds. Full PBS stage composition, native
+scheduling completeness, Fiat–Shamir and Rust/physical-work refinement remain open.
+The first concrete PBS stage now fixes the native Hadamard relation, degree two,
+coefficient signs and evaluation/key/output factor order. Typed roles cover
+exactly the native source indices, and its authenticated ZeroCheck theorem
+bounds false pointwise product-sum identities. Public-key preprocessing, NTT
+meaning and composition with the remaining PBS stages still require proofs.
+The NTT row phase now has the tensor-fold/linear-transform identity and its
+independent-row detection bound on an actual shared proposal/binding execution.
+Binding work remains before local rejection. The source-query geometry proves
+that coefficient compression followed by scalar row matrices evaluates the
+original source's folded polynomial, including noncommuting compression pairs.
+Fresh coefficient compression now bounds the accepted wrong-row event without
+a loss proportional to the row count. The composed shared NTT arithmetic
+bound is the row-miss term plus c*((2*b-1)/card(F))^b against truthful terminal
+values at the original sources. `AuthenticatedNTT` now discharges those values
+with concrete shared-test/shared-column batches of the two original commitments.
+Its from-empty false-source-relation bound adds two PCS arithmetic errors and
+one expected hash charge for the entire actual run. `NTTButterfly` now proves
+exact field butterflies evaluate at odd powers in bit-reversed output order,
+and proves this domain injective. `PackedNTT` fixes lane-minor polynomial
+addresses and specializes authenticated soundness to the actual field
+butterfly algorithm. `NTTBlockEncoder` proves per-lane zero-padded butterfly
+encoding equals the PCS polynomial encoder. `NativeFields` now proves both
+moduli prime by Lucas certificates. `NTTRootCheck` proves the native half-power
+test equivalent to primitivity in odd characteristic, and `NativeNTTRoots`
+checks the concrete N=1024 roots and full two-adic mathematical root towers.
+`NativeNTTSecurity` specializes authenticated NTT soundness to Goldilocks
+(packing/repetitions 4) and BabyBear (8), with their actual cardinalities and
+without supplied field/root certificates. `PCSAnalysisField` constructs the
+degree-4/8 analysis alphabets and bases, independently of lookup extensions.
+`PCSParameters` expands both code distances and the complete PCS arithmetic
+loss, with a proved finite-real bridge for nonzero alphabet size.
+`ConcreteNTTSecurity` supplies the main NTT bounds without an external
+extension/basis premise, keeping the same actual program and whole-run hash
+charge. Refining native root construction, cache return values, optimized
+integer kernels, lazy residues and Rust execution remains open.
+The native batch-opening components now preserve one shared random test and
+column draw, with one PCS arithmetic error for the whole fixed query family.
+Stable grouping uses raw ordered query prefixes and recovers the first source
+representatives. Actual batch column workers authenticate once per column,
+then check the common test and all grouped responses. The concrete verifier
+now gates workers on exact sampled-column attachment, checks every query's
+finish and runs each root's binding prelude before its test. The committed
+multi-root batch theorem composes PCS arithmetic and availability from empty
+initialization, with one whole-run hash charge and first-failure stopping.
+The NTT adapter replaces factory queries and values with the verifier's computed
+claims, preserves per-root binding before sampling, and rejects failed rows
+before compression or either opening batch.
+See `docs/HasteBootsProofStatus.md` for the source mapping and remaining obligations.
+These components do not yet establish complete PBS or transcript security.
+
+The canonical packed-linear stage now checks trusted ordered scalar/source
+relations under one common matrix query. `PackedLinear` proves native residual
+accumulation and folding preserve the same sources, including repeated indices
+and noncommuting query matrices. `AuthenticatedLinear` composes the computed
+check with stopped original-source openings; `SingletonOpening` proves the
+one-query batch transition equals the typed single-opening worker program,
+including binding before its test and sampled-column attachment before workers.
+The complete bound is one linear-compression term plus one PCS error per source
+and one whole-run hash charge. `ConcreteLinearSecurity` constructs the analysis
+alphabet and expands the numeric PCS loss. Raw preflight/normalization, native
+Rust/work refinement and full PBS stage composition remain open.
+
+`DecompositionLinear` fixes the radix-decomposition registry and its three
+native relations: input reconstruction and zero initial/final borrows. These
+are equivalent to explicit pointwise field identities, satisfy honest local
+completeness and inherit the concrete authenticated bound with 2*d+2 source
+openings. Integer canonicity still requires digit-range and borrow-transition
+lookups; the field reconstruction theorem does not supply those constraints.
+`RadixCanonicity` proves their semantic implication: membership in the literal
+native public tables plus the linear relation identifies both the reconstructed
+integer and each quotient/remainder digit with the input's canonical field
+representative. The bound derives from weighted borrow inequalities, and the
+digit-count specialization derives its width condition from the digits of p-1.
+This applies at active scalar positions without requiring lookups on padding.
+Proving that the actual lookup verifier enforces table membership remains open.
+`RadixWitness` supplies the complementary arithmetic completeness result. It
+computes the native low-to-high borrow sequence, proves its final bit is zero
+exactly for a bounded digit string, and constructs canonical digits and borrow
+columns in the native registry order. The resulting tables preserve the input,
+satisfy all linear constraints and public lookup memberships, and preserve zero
+padding. Honest cryptographic prover/opening completion and native refinement
+remain separate obligations.
+
+`TupleHash` proves that the native power loop, zip and ordered accumulation
+evaluate a degree-(width-1) polynomial over the hash field. One fixed nonmember
+tuple collides with a public table within tableSize*(width-1)/card(hashField);
+selecting one bad source before the shared challenge avoids a source-count
+factor. `RadixTupleHash` proves the actual 2*radix table geometry and distinctness
+under radix<p, giving its degree-two collision bound. `TupleHashOracle` retains
+that bound through arbitrary shared preparation and later adaptive work. These
+results concern tuple hashing; reciprocal detection, repetition, authenticated
+lookup execution and native extension-field/transcript refinement remain open.
+
+`ReciprocalPolynomial` proves that a missing hashed source row gives a nonzero
+degree-(L+T-1) reciprocal numerator when the active count L is below the field
+characteristic. Repeated source rows and arbitrary public multiplicities are
+included. `ReciprocalMask` proves the exact native masked identity forces zero
+helper padding for nonzero r, without requiring zero original-source padding.
+`ReciprocalDetection` excludes zero and public poles, proves the accepted-domain
+size bound and totality under its public size guard, and bounds detection failure
+by (L+T-1)/(card(K)-T-1). This is ideal uniform sampling over accepted values;
+native rejection-loop/transcript/work refinement, hash-plus-reciprocal
+composition and actual authenticated lookup acceptance remain open.
+
+`TupleLookupPair` now composes the ideal scalar-hash and accepted-domain
+reciprocal draws, retaining the full combined loss
+T*(width-1)/card(K)+(L+T-1)/(card(K)-T-1). Independent fresh pairs satisfy an
+exact product law and the corresponding power bound; packing width supplies
+no extra repetitions. A public domain-size guard proves totality of one or
+many ideal pairs. `TupleLookupPairOracle` retains this arithmetic bound through
+shared preparation and arbitrary later adaptive work. Native rejection-loop/
+transcript/work refinement and the implication from actual lookup acceptance
+to these semantic constraints remain open.
+
+`PaddedExtension`, `ExtensionQuery` and `ExtensionSourceOpening` now connect
+lookup extension evaluations to the original base-field PCS source and its
+incorrect-evaluation event. They prove padded basis projection, ordinary tensor
+evaluation, zero-variable post-maps and scalar lane-map order without assuming
+committed helper padding is zero. Lookup basis dimension remains separate from
+PCS analysis width. Native extension-field/basis/Rust refinement and actual
+lookup sumcheck/ZeroCheck/PCS acceptance composition remain open.
+
+`NativePrefixMask` now proves the native high-to-low mask loop evaluates the
+exact active-prefix MLE. `ExtensionLookupIdentity` proves public EQ evaluation,
+hash linearity, partial/full terminal algebra and their degree bounds 4/3.
+`LookupReciprocalEnforcement` connects exact helper sums and masked identities
+to the reciprocal-pair event and its fresh EQ detection term.
+`ExtensionLookupTerminal` reduces an incorrect checked terminal to a false
+original source/helper opening. Complete shared lookup sumcheck/PCS acceptance
+and error/work composition remain open.
+
+`LookupSourceFlattening` identifies those original packed sources with the
+full scalar lookup tables. It proves exact lane+width*row addresses, entry
+recovery, injectivity, scalar MLE equality and both terminal-identity rewrites.
+Zero lane and row dimensions are included; no new source view is committed.
+
+`ScalarSumcheckQuery` and `ScalarSumcheckOracle` connect ordinary scalar
+points to the existing shared verifier and prove every supported returned
+query has that form. The MLE terminal event inherits n*D/card(K), including
+native evaluation-vector messages and arbitrary later shared work.
+`LookupScalarSubclaim` ties helper-sum and both identity branches to those
+events or false original base openings. Complete lookup sequencing and grouped
+PCS/error/work composition remain open.
+
+`LookupPairSequence` now executes the public sum-claim guard, helper-sum,
+fresh EQ and identity stages on one shared state. `LookupPairArithmetic`
+computes their nonpassing-pair bound n/card(K)+n*D/card(K), retaining degree
+four for partial and degree three for full tables. `LookupPairTerminal` and
+`PreparedLookupPair` compute terminal decoding/checking and bind received
+values only after success. The remaining original sum-helper, identity-helper
+and scalar-source opening failures are explicit; grouped authentication and
+outer repetition/error/work composition remain open.
+
+`PreparedLookupSoundness`, `CompletedLookupPair` and `LookupCompletionSoundness`
+now carry this bound through claim reception, binding and arbitrary actual
+later opening work. The remaining original-opening failure is gated by final
+acceptance on that same execution. `VariableHeightBatchVerifier` derives
+arithmetic error or global availability disagreement from computed native
+batch acceptance when different root contexts have different tree heights.
+`HeterogeneousBatchOpening` now composes the native root loop with per-root
+layouts, trusted root/domain overrides, an actual recording prefix and one
+whole-run availability charge. Arithmetic losses retain each root's own code
+parameters and query count. Actual pair/repetition selection and the final
+arithmetic/error/work composition remain open. `StagedCommitmentPrefix` and
+`StagedHeterogeneousBatchOpening` now retain source roots before an adaptive
+middle phase and helper roots afterward. The native PCS bound uses both
+original recording logs and one complete-run availability charge, without
+assuming the earlier and later decoded source words agree.
+`LookupOpeningFamily` now fixes the exact original-root helper/source query
+and raw-value families. `LookupGroupedOpening` bounds final accepted failures
+of those three opening families jointly using native PCS arithmetic and one
+whole-run availability charge. Lookup and PCS analysis fields have separate
+bases. `RepeatedLookupSelector` now runs the actual pair verifiers in native
+order, proves accepted packet provenance and skips later pairs on rejection.
+`RepeatedLookupAlgebra` derives concrete partial/full completion bounds for a
+nonpassing index fixed before the algebra coins, with one scalar loss and
+final-accepted opening failures. `StagedRepeatedLookup` now wires that selector
+to native grouped PCS and combines their bounds on the same two-prefix run:
+the explicit all-pairs-pass probability, one scalar loss, per-root PCS losses
+and one whole-run availability charge. `LookupPairVector` and
+`LookupPairVectorMiddle` now implement the ideal private accepted-domain
+sampler and retain its exact vector through arbitrary helper construction.
+`FrozenLookupSources` fixes tuples at the original source checkpoint, and
+`StagedPrivateLookup.false_acceptance_bound` replaces the explicit all-pass
+term by the derived combined pair error raised to the true repetition count,
+for false original lookup tuples. Native rejection-loop work, deferred PBS
+collection, transcript/Fiat–Shamir/Rust refinement and the final concrete
+security theorem remain open. `RejectionSampling` now gives operational
+prefixes of the unbounded ideal retry loop, retaining every attempted
+candidate. `ReciprocalRejection` proves its limiting accepted-domain law and
+exact expected field-candidate count, with no retry cap. `CanonicalByteMask`
+now derives the uniform low-bit law from little-endian raw bytes, and
+`CanonicalByteSampler` proves the direct masked byte-retry program's uniform
+canonical/residue law and exact unbounded expected byte consumption.
+`CanonicalCoefficientVector` now fills sequential coefficients while retaining
+partial values and rejected-byte traces. `CanonicalExtensionSampler` derives
+joint uniformity through fixed indexed assembly, exact raw-byte cost and a
+continuation bound that lets later shared work inspect the complete trace.
+`ByteReciprocalSampler` now composes those field draws with direct zero/pole
+retries, preserving partial inner trials and all earlier rejected trials.
+`ByteReciprocalLimit` derives the accepted-domain offset law and exact
+unbounded expected byte cost from all nested operational approximations.
+`ByteLookupPairSampler` now fixes the reciprocal domain from the actual raw-byte
+hash challenge and retains both sampling observations. `ByteLookupPairLimit`
+recovers the joint ideal pair law from every nested approximation, and
+`ByteLookupPairWork` derives the exact domain-dependent average byte cost.
+`ObservedOptionalVector` now preserves ordered completed values and all started
+observations across repeated draws. `ByteLookupPairVector` derives the repeated
+lookup bound and exact unbounded byte work at the true repetition count; a
+later shared continuation may inspect all retained traces. `ByteLookupPairTyped`
+attaches nonzero-offset proofs without adding draws or erasing partial samples.
+`ByteLookupPairMiddle` retains the vector across helper work, and
+`StagedByteLookup` bounds its all-pass event for the original frozen source
+tuples. `StagedByteLookupSecurity` now composes that byte-backed helper phase
+with native algebra/PCS acceptance and one complete-run availability charge.
+`CompletedObservation` now orders full completed records across increasing
+sampling depths. `ByteLookupUnbounded` constructs a countably additive,
+normalized probability measure on complete typed vectors and every retained
+raw trace; its lookup bound follows from the actual finite programs.
+`CompletedContinuation` retains arbitrary trace-dependent later execution,
+and `SharedCompletedContinuation` connects it exactly to the interpreted
+shared cache/log program and preserves its earlier observation marginal.
+`StagedByteLookupLimit` now retains the original source commitment, both
+snapshots and later native results in a normalized unbounded measure. Its
+source marginal equals the actual original source/state law, and operational
+erasure is the limit of the real staged query program.
+`StagedByteLookupUnboundedSecurity` transfers native lookup false acceptance
+to this law, retaining the supremum of actual whole-prefix availability
+charges. Identifying that supremum with unbounded expected work, production
+XOF execution, concrete Rust constructor/metadata refinement, transcript/helper
+refinement and primitive hash-work accounting remain separate obligations.
+Algebra/PCS coins still have their ideal private-coin semantics.
+`ExpectedChargeComposition` now composes charges at the actual intermediate
+state. `ChargedExecution` records pre-response charges without changing the
+original query execution, and proves their expected account equals the
+recursive charge. `PrivateSamplingCharge` derives zero availability hazard
+for private sampling while retaining all later trace-dependent charges.
+`CompletedExpectation` identifies unbounded retained-cost means with the
+supremum of completion-gated finite means; unconditional partial-tail work
+still requires a separate transfer proof.
+
 ## Main checked results
 
 - `FormalProof4FHE.RLWE.quotientOf_bijective` and `quotientOf_mul` connect the executable negacyclic carrier
