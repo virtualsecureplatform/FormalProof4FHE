@@ -235,3 +235,6 @@ public import FormalProof4FHE.HasteBoots.ExpectedChargeComposition
 public import FormalProof4FHE.HasteBoots.ChargedExecution
 public import FormalProof4FHE.HasteBoots.PrivateSamplingCharge
 public import FormalProof4FHE.HasteBoots.CompletedExpectation
+public import FormalProof4FHE.HasteBoots.PrivateChargedSampling
+public import FormalProof4FHE.HasteBoots.SharedChargedCompletion
+public import FormalProof4FHE.HasteBoots.ByteLookupChargedLimit

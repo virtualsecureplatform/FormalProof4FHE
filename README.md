@@ -354,8 +354,15 @@ original query execution, and proves their expected account equals the
 recursive charge. `PrivateSamplingCharge` derives zero availability hazard
 for private sampling while retaining all later trace-dependent charges.
 `CompletedExpectation` identifies unbounded retained-cost means with the
-supremum of completion-gated finite means; unconditional partial-tail work
-still requires a separate transfer proof.
+supremum of completion-gated finite means. `PrivateChargedSampling` now keeps
+the existing account through the exact private query program.
+`SharedChargedCompletion` and `ByteLookupChargedLimit` construct normalized
+complete execution/account laws at a fixed incoming shared state, and prove
+that their mean availability account equals the supremum of the actual
+sampling-plus-continuation charges. The proof uses the derived zero private
+hazard and zero new account on suspension. Earlier charged source work and
+unconditional partial-tail byte work still require their composition and
+transfer proofs.
 
 ## Main checked results
 

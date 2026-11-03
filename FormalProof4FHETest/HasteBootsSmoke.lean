@@ -9988,4 +9988,143 @@ end ChargeRecordingSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms CompletedExpectation.gated
 
+
+section PartialAccountSmoke
+
+open OracleSpec OracleComp
+
+/-- Actual partial byte work retains its complete trace and unchanged earlier
+availability account. No helper or native query is moved before completion. -/
+example : (fun outcome => ((outcome.1.1.values.isNone, outcome.1.1.completed,
+      ByteLookupPairVector.consumedBytes outcome.1.1, outcome.1.2.1.hash.log.length, outcome.1.2.2), outcome.2))
+    ((simulateQ retryTape ((simulateQ (ChargedExecution.handler
+      (CheckpointExecution.handler (QueryImpl.ofLift unifSpec ProbComp) columnEncoding 0 workerShape)
+      (CheckpointCollision.loss unifSpec workerShape))
+      (PrivateSampling.embed Unit ColumnInput (Fin 2)
+        (ByteLookupPairVector.program reciprocalBasis bytePairTable 2 2 4 2))).run (columnStart, 7))).run
+        [2, 5, 255, 49, 1, 15, 99]) = ((true, [(2, 5)], 4, 3, 7), [1, 15, 99]) := by
+  rw [PrivateChargedSampling.run_probComp columnEncoding 0 workerShape
+    (CheckpointCollision.loss unifSpec workerShape) (ByteLookupChargedLimit.private_zero workerShape)]
+  rfl
+
+end PartialAccountSmoke
+
+namespace StagedRepeatedLookupSmoke
+
+open OracleSpec OracleComp MeasureTheory
+noncomputable local instance : SampleableType (ZMod 17) := SampleableType.ofFintype _
+
+private def chargedSource : StagedRepeatedLookup.SourceEmission 1 (Fin 2) Unit := (fun _ => 0, ())
+private noncomputable def chargedIncoming := RecordRoots.state workerShape
+  (StagedHeterogeneousBatchOpening.sourceRequests tag (List.finRange 1) chargedSource) columnStart
+
+private noncomputable def chargedNativeTail (observed : ByteLookupPairTyped.Sample 17 1 (ZMod 17) 3) := do
+  let helper ← ByteLookupPairMiddle.after (Cfg := Unit) (Input := ColumnInput) (Digest := Fin 2)
+    (fun _ _ => pure (fun _ => (0 : Fin 2), ())) observed
+  let second := (observed, helper)
+  let _ ← RecordRoots.program (OptionalStagedLookup.helperRequests ByteLookupPairMiddle.completed tag chargedSource second)
+  byteNativeNext chargedSource second
+
+private noncomputable def chargedNativeLaw := ByteLookupChargedLimit.measure reciprocalBasis
+  (fun _ : Fin 1 => fun _ : Fin 1 => (0 : ZMod 17)) 3 columnEncoding 0 workerShape chargedNativeTail chargedIncoming
+
+/-- After the original source root is recorded, the complete raw-byte/helper/
+native-algebra/PCS continuation has a normalized final-state/account law. -/
+example : IsProbabilityMeasure chargedNativeLaw := by
+  unfold chargedNativeLaw
+  apply ByteLookupChargedLimit.probability <;> decide
+
+/-- This account is attached to that actual continuation measure; its mean is
+the supremum of the corresponding whole-prefix availability charges. -/
+example : (∫⁻ outcome, outcome.2.2 ∂chargedNativeLaw) =
+    ⨆ n, ExpectedHazard.charge
+      (CheckpointExecution.handler (QueryImpl.ofLift unifSpec ProbComp) columnEncoding 0 workerShape)
+      (CheckpointCollision.loss unifSpec workerShape)
+      (SharedCompletedContinuation.program
+        (ByteLookupUnbounded.steps reciprocalBasis (fun _ : Fin 1 => fun _ : Fin 1 => (0 : ZMod 17)) 3 n)
+        ByteLookupUnbounded.complete chargedNativeTail) chargedIncoming :=
+  ByteLookupChargedLimit.expected _ _ _ _ _ _ _ _
+
+/-- The account erasure preserves a joint event on rejected-byte cost and the
+actual later hash log, including native runs whose computed PCS flag rejects. -/
+example : chargedNativeLaw {outcome | ByteLookupPairVector.consumedBytes outcome.1.1.raw > 6 ∧
+      outcome.2.1.hash.log.length > 5} =
+    SharedCompletedContinuation.measure
+      (ByteLookupUnbounded.steps reciprocalBasis (fun _ : Fin 1 => fun _ : Fin 1 => (0 : ZMod 17)) 3)
+      ByteLookupUnbounded.complete
+      (ByteLookupUnbounded.grows reciprocalBasis (fun _ : Fin 1 => fun _ : Fin 1 => (0 : ZMod 17)) 3)
+      columnEncoding 0 workerShape chargedNativeTail chargedIncoming
+      {outcome | ByteLookupPairVector.consumedBytes outcome.1.1.raw > 6 ∧ outcome.2.hash.log.length > 5} :=
+by
+  unfold chargedNativeLaw
+  exact ByteLookupChargedLimit.erase_event reciprocalBasis
+    (fun _ : Fin 1 => fun _ : Fin 1 => (0 : ZMod 17)) 3 columnEncoding 0 workerShape chargedNativeTail chargedIncoming
+    (fun outcome => ByteLookupPairVector.consumedBytes outcome.1.1.raw > 6 ∧ outcome.2.hash.log.length > 5)
+
+end StagedRepeatedLookupSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.PrivateChargedSampling.run_query' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms PrivateChargedSampling.run_query
+
+/-- info: 'FormalProof4FHE.HasteBoots.PrivateChargedSampling.run_embed' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms PrivateChargedSampling.run_embed
+
+/-- info: 'FormalProof4FHE.HasteBoots.PrivateChargedSampling.run_probComp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms PrivateChargedSampling.run_probComp
+
+/-- info: 'FormalProof4FHE.HasteBoots.SharedChargedCompletion.run_program' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms SharedChargedCompletion.run_program
+
+/-- info: 'FormalProof4FHE.HasteBoots.SharedChargedCompletion.gated_account' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms SharedChargedCompletion.gated_account
+
+/-- info: 'FormalProof4FHE.HasteBoots.SharedChargedCompletion.ordered' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms SharedChargedCompletion.ordered
+
+/-- info: 'FormalProof4FHE.HasteBoots.SharedChargedCompletion.completion' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms SharedChargedCompletion.completion
+
+/-- info: 'FormalProof4FHE.HasteBoots.SharedChargedCompletion.measure_apply' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms SharedChargedCompletion.measure_apply
+
+/-- info: 'FormalProof4FHE.HasteBoots.SharedChargedCompletion.probability' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms SharedChargedCompletion.probability
+
+/-- info: 'FormalProof4FHE.HasteBoots.SharedChargedCompletion.erase_event' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms SharedChargedCompletion.erase_event
+
+/-- info: 'FormalProof4FHE.HasteBoots.SharedChargedCompletion.expected' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms SharedChargedCompletion.expected
+
+/-- info: 'FormalProof4FHE.HasteBoots.ByteLookupChargedLimit.private_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ByteLookupChargedLimit.private_zero
+
+/-- info: 'FormalProof4FHE.HasteBoots.ByteLookupChargedLimit.expected' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ByteLookupChargedLimit.expected
+
+/-- info: 'FormalProof4FHE.HasteBoots.ByteLookupChargedLimit.erase_event' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ByteLookupChargedLimit.erase_event
+
+/-- info: 'FormalProof4FHE.HasteBoots.ByteLookupChargedLimit.probability' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ByteLookupChargedLimit.probability
+
+/-- info: 'FormalProof4FHE.HasteBoots.ByteLookupChargedLimit.lookup_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ByteLookupChargedLimit.lookup_bound
+
 end HasteBootsSmoke

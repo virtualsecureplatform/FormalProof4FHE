@@ -2930,3 +2930,69 @@ commit. The source content retains the validated state recorded above.
 Subsequent proof milestones should be committed as coherent tested chunks,
 with their regressions and remaining security obligations recorded here.
 The complete formal-security objective remains active.
+
+
+## Recorded availability account in the unbounded byte continuation
+
+`PrivateChargedSampling` proves exact interpretation of private sampling
+through `ChargedExecution.handler`. When the private-query loss is zero,
+each response and the whole embedded query program preserve both the actual
+shared state and its existing account. This includes partial observations,
+all rejected draws and arbitrary existing accounts. No expected-zero-to-
+pathwise-zero inference is used: equality of the actual query program is
+proved before taking probabilities or expectations.
+
+`SharedChargedCompletion` retains the raw observation, actual continuation
+result, final shared state and account in one countably additive measure.
+Complete-observation order lifts through the recorded interpreter; eventual
+sampler completion gives mass one. Erasing the account preserves every event
+on the original complete shared execution, including joint events on raw
+work and the final cache/log.
+
+Starting this continuation's account at zero gives an exact additional fact:
+when private sampling suspends, its account is still zero and the continuation
+has issued no queries. Gating the account by sampling completion therefore
+removes exactly zero new availability charge on every such execution.
+Combining this fact with `CompletedExpectation` and `ChargedExecution` proves
+that the mean account under the unbounded complete measure equals the
+supremum of the actual sampling-plus-continuation prefix charges. There is
+no finite-mean, query-budget or trace/continuation independence premise.
+
+`ByteLookupChargedLimit` specializes this construction to the real repeated
+canonical-byte/reciprocal sampler and actual checkpoint/collision loss.
+The latter's private-query loss is proved zero by definition. Its completed
+execution/account measure is normalized under the existing modulus/domain
+conditions, has the proved expected-account identity, and retains the repeated
+lookup bound through arbitrary trace-dependent shared continuation work.
+This availability identity does not assign zero computational work to bytes.
+
+The partial-byte regression runs the actual recorded interpreter: it retains
+the first completed pair, all four consumed bytes, the three-entry incoming
+hash log, the pre-existing account of seven, and the unused response tape.
+The native regressions record the original source root before byte sampling,
+then run helper construction/root recording and the actual repeated native
+algebra/PCS continuation. They instantiate its normalized full account law,
+expected-charge identity and account erasure for a joint byte-cost/final-log
+event, including runs whose computed verifier flags reject.
+
+The proved expected-account identity is conditional on a fixed incoming
+shared state and starts the new phase's account at zero. Earlier charged
+source commitment work must still be composed in its real original position;
+this entry does not identify the earlier full staged charge supremum with a
+completed whole-protocol expected account. Unconditional partial-tail byte
+work, production SHA/XOF/transcript/FS and Rust refinement, primitive hash
+accounting, honest opening/scheduler completeness, deferred/global PBS,
+application/knowledge/full-PBS composition and the final concrete unbudgeted
+128-bit expected-work theorem remain open. The full objective remains active.
+
+Validation passed: focused HasteBoots build (3,969 jobs), strict
+warning-as-error HasteBoots smoke, full `scripts/check` (10,066 build jobs
+and all strict regression suites, terminal exit zero), and
+`git diff --check`. Logs: `/tmp/hasteboots-charged-limit-smoke-build.log`,
+`/tmp/hasteboots-charged-limit-strict-smoke.log` and
+`/tmp/hasteboots-charged-limit-check.log`. All 16 new theorem audits passed,
+bringing the total to 1,272; their transitive axiom sets are contained in
+`propext`, `Classical.choice` and `Quot.sound`. No custom axioms,
+admitted proofs or compiled proof shortcuts were introduced. The Rust
+worktree remains unchanged. This proof, its regressions and its documented
+scope form one commit chunk. The full formal-security objective remains active.
