@@ -15,7 +15,9 @@ in the kernel. Its bound result remains a PCS boundary. Concrete raw column
 authentication and PCS payload codecs are linked to the existing cached
 verifier. The completed run now also derives every ordered helper PCS call with no
 truncation or extra oracle observation. PCS verification/composition remains
-open. See [the current implementation layer](#computed-helper-opening-handoff-from-completed-lookup-execution).
+open. Base-field challenges, response framing and atomic index draws now
+have executable adapters and a joint finite-byte sampling law. See
+[the current implementation layer](#native-base-field-and-atomic-column-challenges).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -7207,3 +7209,103 @@ subsequent repository audit/smoke command passed. Logs:
 `/tmp/hasteboots-helpers-strict.log` and
 `/tmp/hasteboots-helpers-check.log`. No native Rust, vendor source or dependency
 pin changed.
+
+## Native base-field and atomic column challenges
+
+`NativePrimeRequest` models the classical typed prime request used by the
+Brakedown base-field random linear test. It binds `typed request kind`
+(scalar/vector), then `field challenge kind` (`prime vector`), with no
+extension descriptor or multiplication table. It reuses the canonical field
+collector, preserving every candidate, rejected chunk, suspended reader and
+receipt. The count is a native usize; analysis fuel is not a native retry
+limit. Completed requests have exactly the original count of canonical
+values, and conversion to a raw Goldilocks word preserves each integer
+exactly. Split execution/resumption retains the same request and ordered log.
+
+`NativeIndexRequest` models the classical schedule-5 atomic index API. The
+nonzero power-of-two domain and checked `count*8` guards precede any transcript
+mutation or oracle operation. A valid request appends the raw eight-byte
+little-endian domain, then issues one ordinary byte challenge of length
+`count*8`. The complete ordered list comes from successive eight-byte words
+masked by `domain-1`; it is retained separately from the sorted, deduplicated
+transmitted indices. The adapter proves the original quota, every bound,
+sortedness, no duplicates and exact original membership. Valid usize domains
+also supply the bit bound needed by the finite-byte law. Invalid requests
+produce no observations. Count zero still records its start and empty output.
+
+For kernel evaluation, the executable ascending sort uses the library's
+structural insertion sort. `distinct_eq_mergeSort` proves equality to the
+existing merge-sort/dedup definition on every input, while sortedness and
+membership proofs retain the same specification. This identifies the sorted
+integer sequence; it is not Rust's `sort_unstable` instruction refinement.
+The native whole-block decoder is identified with the typed with-replacement
+positions used by the existing column-opening analysis, in literal word order.
+
+`NativeAtomicIndexLaw` splits the whole byte block into discarded high bits
+and retained low-bit positions at every word, by a bijection. It proves the
+entire vector of positions is jointly uniform for a uniformly fresh block;
+no per-word independence premise is supplied. The existing exact column
+agreement probability then applies with the original quota, including
+repeated positions. These are finite uniform-sample laws. Conditional
+freshness in the actual adaptive transcript execution, including earlier
+private/verification prequeries, remains a separate composition obligation.
+
+`NativeGoldPcsWire` now also supplies the exact pair-of-vectors response
+codec and its kind-1 `mw linear responses` binder. Its original raw words
+and both vector headers precede the atomic index request. The native fixture
+`/tmp/hasteboots-pcs-challenge-fixture` records a base-field vector, those
+responses, atomic draws, sorted indices and the following parent challenge.
+It separately records scalar requests, empty prime/index requests, a
+one-column domain, and invalid domains/overflow with unchanged continuation.
+It invokes the actual native public transcript APIs. This checks the atomic
+API, not the trusted caller's feature-flag selection.
+
+All 24 new kernel regressions pass at default limits, checking exact native
+values, ordered observations and continuation bytes, response encoding,
+scalar/vector and prime/extension framing differences, zero-byte output,
+repeated columns, maximum power-of-two usize domain and count overflow.
+Scripted ideal bytes also reject the all-ones Goldilocks candidate, resume
+at offset eight, retain both raw chunks and emit the receipt only on
+completion. The scripted rejection is not a claimed SHAKE preimage.
+All 38 new guarded theorem audits use only `propext`, `Classical.choice` and
+`Quot.sound`. The combined HasteBoots suite now contains 2,483 guarded audits.
+No `native_decide`, new axiom or increased kernel limits are used.
+Focused evidence:
+`/tmp/hasteboots-pcs-challenges-smoke-focused.log`,
+`/tmp/hasteboots-pcs-challenges-strict-focused.log`,
+`/tmp/hasteboots-pcs-challenges-audit-final.log`,
+`/tmp/hasteboots-atomic-law-build.log` and
+`/tmp/hasteboots-pcs-challenge-fixture.log`.
+
+The native checkout remains clean at
+`dff353006322693cab3dc6b654f82151f658f294`. Relevant source SHA-256:
+
+- `helper/src/transcript.rs`: `81886c85a202293286f68f9df97f9b56b86305ad3c296d95c38d656cbf31c048`
+- `helper/src/classical_transcript.rs`: `8ac0ace46e2da0d135b606bd9d290514c1e5b9a2fd6e1c67a15327b625b82c50`
+- `pcs/src/matrix_weighted.rs`: `69b2da76d44e5abb8824bc701d7a59251709315ff1445efa06ac5e9821e74fdd`
+
+The column bridge must authenticate/extract the original raw `Row` payload
+before mapping words through `goldValue`. The existing semantic worker takes
+an encoding of `List F`; that is not automatically the concrete raw Goldilocks
+column encoding because lazy representatives can denote the same field value.
+A payload-map availability bridge is still needed; canonicalizing before the
+leaf hash would change the native hash input.
+
+The next step is to compose the actual helper PCS verifier's parameter/proof
+shape gates and context/query/value binding, structured prefix weights,
+response encoding, authenticated column coordinate checks and suffix
+finishing with these phases and the already computed helper calls. Trusted
+code/parameter and feature-flag instantiation, source registry/alias/query
+composition, adaptive challenge freshness/work coupling, lookup/PBS
+extraction, strict decoding, checked Rust/compiler/scheduler refinement,
+BabyBear, numerical certification and the final 128-bit application theorem
+remain open.
+
+Final validation: the integrated HasteBoots smoke build passed (4,194 jobs),
+the complete standalone warning-as-error HasteBoots smoke check exited 0,
+and full `scripts/check` exited 0. Its build completed 10,211 jobs and all
+subsequent repository audit/smoke commands passed. Logs:
+`/tmp/hasteboots-pcs-challenges-smoke.log`,
+`/tmp/hasteboots-pcs-challenges-strict.log` and
+`/tmp/hasteboots-pcs-challenges-check.log`. The native checkout, vendor sources
+and dependency pins are unchanged.

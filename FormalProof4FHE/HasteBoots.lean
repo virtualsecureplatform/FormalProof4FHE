@@ -378,3 +378,6 @@ public import FormalProof4FHE.HasteBoots.NativeHashOracleBridge
 public import FormalProof4FHE.HasteBoots.NativeGoldPcsWire
 public import FormalProof4FHE.HasteBoots.NativeGoldColumnAuthentication
 public import FormalProof4FHE.HasteBoots.NativeSharedLookupHelpers
+public import FormalProof4FHE.HasteBoots.NativePrimeRequest
+public import FormalProof4FHE.HasteBoots.NativeIndexRequest
+public import FormalProof4FHE.HasteBoots.NativeAtomicIndexLaw

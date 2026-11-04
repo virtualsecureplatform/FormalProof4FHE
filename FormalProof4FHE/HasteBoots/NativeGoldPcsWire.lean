@@ -145,4 +145,21 @@ theorem claim_encode (ordinal slot : Usize) (query : Query) (values : Row) : cla
 theorem claim_prefix (ordinal slot : Usize) (query : Query) (values : Row) (suffix : Input) :
     claimCodec.read (claim ordinal slot query values ++ suffix) = some ((ordinal,slot,query,values),suffix) := claimCodec.read_encode _ _
 
+/-- Both row-major response arrays are bound before atomic column sampling. -/
+def responseCodec : Codec (Row × Row) := product rowCodec rowCodec
+
+def responses (test evaluation : Row) : Input := responseCodec.encode (test,evaluation)
+
+def bindResponses (transcript : NativeTranscript.Transcript) (test evaluation : Row) : NativeTranscript.Transcript :=
+  NativeTranscript.appendBytes transcript (NativeTranscript.utf8 "mw linear responses") (responses test evaluation)
+
+theorem responses_encode (test evaluation : Row) : responses test evaluation = rowCodec.encode test ++ rowCodec.encode evaluation := rfl
+
+theorem responses_prefix (test evaluation : Row) (suffix : Input) :
+    responseCodec.read (responses test evaluation ++ suffix) = some ((test,evaluation),suffix) := responseCodec.read_encode _ _
+
+theorem bindResponses_input (transcript : NativeTranscript.Transcript) (test evaluation : Row) :
+    (bindResponses transcript test evaluation).input = transcript.input ++
+      TranscriptFrame.encode ⟨1,NativeTranscript.utf8 "mw linear responses",responses test evaluation⟩ := rfl
+
 end FormalProof4FHE.HasteBoots.NativeGoldPcsWire

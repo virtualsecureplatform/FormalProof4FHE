@@ -3,6 +3,7 @@ module
 import all FormalProof4FHE.HasteBoots
 import all FormalProof4FHETest.HasteBootsPcsSmoke
 import all FormalProof4FHETest.HasteBootsHelpersSmoke
+import all FormalProof4FHETest.HasteBootsPcsChallengesSmoke
 import all Batteries.Data.Except
 import all Init.Data.String.Defs
 import all Mathlib.Algebra.Field.ZMod
