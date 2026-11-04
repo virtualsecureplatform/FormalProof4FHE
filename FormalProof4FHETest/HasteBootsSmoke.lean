@@ -10921,4 +10921,70 @@ end SecurityExperimentSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms SecurityExperiment.expectedWork_mono
 
+section InputIndexedOracleSmoke
+open InputIndexedOracle
+
+/-- Splitting the native reader around an empty read reuses the same stream. -/
+example (world : World) (input : Input) (offset : ℕ) :
+    (read world ⟨input, offset⟩ 3).1 ++
+      (read world (read world ⟨input, offset⟩ 3).2 5).1 =
+      (read world ⟨input, offset⟩ 8).1 := by
+  exact (congrArg Prod.fst (read_split world ⟨input, offset⟩ 3 5)).symm
+
+example (world : World) (reader : Reader) :
+    read world (read world reader 7).2 0 = ([], (read world reader 7).2) :=
+  read_zero world _
+
+/-- Two readers of the same input start with the same bytes in every world. -/
+example (world : World) (input : Input) :
+    (read world (start input) 8).1 = bytes world input 0 8 := restart world input 8
+
+/-- Repeating an already observed coordinate does not gain independent mass. -/
+example (coordinate : Coordinate) (values : Coordinate → Byte) :
+    law (assignment (insert coordinate {coordinate}) values) = (256 : ENNReal)⁻¹ := by
+  simp [assignment_mass]
+
+example : MeasureTheory.IsProbabilityMeasure law := law_probability
+end InputIndexedOracleSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.InputIndexedOracle.read_split' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms InputIndexedOracle.read_split
+
+/-- info: 'FormalProof4FHE.HasteBoots.InputIndexedOracle.read_zero' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms InputIndexedOracle.read_zero
+
+/-- info: 'FormalProof4FHE.HasteBoots.InputIndexedOracle.law_probability' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms InputIndexedOracle.law_probability
+
+/-- info: 'FormalProof4FHE.HasteBoots.InputIndexedOracle.block_law' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms InputIndexedOracle.block_law
+
+/-- info: 'FormalProof4FHE.HasteBoots.InputIndexedOracle.hash_law' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms InputIndexedOracle.hash_law
+
+/-- info: 'FormalProof4FHE.HasteBoots.InputIndexedOracle.shake_hash_pair_law' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms InputIndexedOracle.shake_hash_pair_law
+
+/-- info: 'FormalProof4FHE.HasteBoots.InputIndexedOracle.assignment_measurable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms InputIndexedOracle.assignment_measurable
+
+/-- info: 'FormalProof4FHE.HasteBoots.InputIndexedOracle.assignment_mass' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms InputIndexedOracle.assignment_mass
+
+/-- info: 'FormalProof4FHE.HasteBoots.InputIndexedOracle.fresh_assignment_mass' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms InputIndexedOracle.fresh_assignment_mass
+
+/-- info: 'FormalProof4FHE.HasteBoots.InputIndexedOracle.finite_coordinates_uniform' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms InputIndexedOracle.finite_coordinates_uniform
+
 end HasteBootsSmoke

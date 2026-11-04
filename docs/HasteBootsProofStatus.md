@@ -3571,3 +3571,55 @@ passed; full sampler reproduction reached and rejected the callback mismatch.
 Root proof sources and dependency pins remain unchanged. Joint oracle
 semantics, unrestricted work conversion, PBS composition, and full verifier
 correspondence remain unproved; the full objective remains active.
+
+
+## Revised roadmap M1: normalized joint input-indexed oracle world
+
+`InputIndexedOracle.lean` defines one probability measure on all SHAKE byte
+coordinates `(complete input, output position)` and all SHA-512 byte
+coordinates `(complete input, position < 64)`. The two primitive families
+share one world and use disjoint coordinate tags. Only the base byte space
+is discrete; the infinite world has the product sigma algebra. Normalization
+is proved by the infinite-product probability-measure instance.
+
+Readers retain an input and cursor. Every read consults the same fixed
+world, and its cursor advances by the actual requested count. The proved
+split/coalesced-read identity preserves both output and cursor pointwise;
+empty reads preserve the cursor, and restarting a repeated input uses its
+existing prefix. Cloning a reader is ordinary copying of that same state,
+not resampling. The model does not place reader IDs or method labels in
+oracle keys.
+
+Distinct finite coordinates have the exact product byte law and the exact
+uniform finite-vector marginal used by the byte-sampler proofs. The SHAKE
+block law, complete SHA-512 digest law, and joint cross-primitive byte law
+are derived from the same normalized measure. Finite mixed prequery
+assignments are measurable and have mass `256^(-number of distinct
+coordinates)`; adding a fresh coordinate multiplies mass by `1/256`.
+Repeated coordinates remain one assignment, as covered by the regression.
+This is a fixed finite-history extension theorem, not adaptive
+conditioning, a Fiat–Shamir theorem, or a claimed fresh phase.
+
+This implements the joint ideal-law and reader-consistency part of M1.
+Native length framing (kinds 0–8), receipt and child transitions, native
+extension basis descriptors, adaptive revelation/cached-handler equivalence,
+and transcript compilation remain open. M0's full Rust correspondence gate
+also remains open: specialization with `--monomorphize-mut=except-types`,
+`--remove-adt-clauses`, and `--lift-associated-types=*` successfully reaches
+Aeneas but fails with a `core.ops.function.FnOnce` name collision. The pinned
+upstream higher-ranked trait test leaves the mutable-reference callback as a
+TODO. No generated terms or original Rust sources were rewritten to hide
+these failures. Diagnostic artifacts are in
+`build/hasteboots-extraction/sampler-specialized-j53tpgal`.
+
+
+Validation passed: focused HasteBoots smoke build (4,064 jobs), separate
+warning-as-error HasteBoots smoke, and full `scripts/check` (10,083 build
+jobs followed by all strict suites, terminal exit zero). Ten new guarded
+HasteBoots dependency audits passed, bringing the total to 1,374. The new
+proofs depend only on the permitted standard kernel foundations. Logs:
+`/tmp/hasteboots-joint-oracle-smoke.log`,
+`/tmp/hasteboots-joint-oracle-strict.log`, and
+`/tmp/hasteboots-joint-oracle-check.log`. Whitespace checks passed. Root
+dependency pins, vendor sources, and the Rust worktree are unchanged.
+The complete security objective remains active and unproved.
