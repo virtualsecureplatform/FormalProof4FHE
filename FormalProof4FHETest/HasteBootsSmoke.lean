@@ -13453,4 +13453,192 @@ end NativeRootMessageSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeLookupEquality.babyBear
 
+namespace NativeFieldWireSmoke
+open NativeFieldRepresentation
+
+private def lazyZero : GoldWord := ⟨NativeFields.goldilocksModulus, by decide⟩
+
+/-- Field equality cannot justify canonicalizing Goldilocks transcript bytes. -/
+example : goldValue lazyZero = goldValue 0 := by decide +kernel
+example : goldCanonical lazyZero = 0 := by decide +kernel
+example : (NativeFieldWire.gold lazyZero).map Fin.val = [253, 1, 0, 0, 0, 255, 255, 255, 255] := by decide +kernel
+example : NativeFieldWire.gold lazyZero ≠ NativeFieldWire.gold 0 := by decide +kernel
+
+example : (NativeFieldWire.goldExtension (![lazyZero, 0, 0])).map Fin.val =
+    [3, 253, 1, 0, 0, 0, 255, 255, 255, 255, 0, 0] := by decide +kernel
+example : (NativeFieldWire.goldExtension (fun _ => 0)).map Fin.val = [3, 0, 0, 0] := by decide +kernel
+
+/-- Raw Montgomery one and semantic one are different words. -/
+example : fromMonty (⟨0, by decide⟩ : BabyWord) = 0 := by decide +kernel
+example : fromMonty (⟨1, by decide⟩ : BabyWord) = 943718400 := by decide +kernel
+example : fromMonty (⟨268435454, by decide⟩ : BabyWord) = 1 := by decide +kernel
+example : fromMonty (⟨2013265920, by decide⟩ : BabyWord) = 1069547521 := by decide +kernel
+example : (babyOfValue 1).val = 268435454 := by decide +kernel
+example : (NativeFieldWire.baby (babyOfValue 1)).map Fin.val = [252, 254, 255, 255, 15] := by decide +kernel
+example : (NativeFieldWire.babyExtension (![babyOfValue 1, 0, 0, 0, 0, 0])).map Fin.val =
+    [6, 252, 254, 255, 255, 15, 0, 0, 0, 0, 0] := by decide +kernel
+
+/-- Encoded columns preserve raw base-field words and the native hash domain. -/
+example : (NativeFieldWire.goldColumn [0, lazyZero] (by decide)).map Fin.val =
+    [2, 0, 253, 1, 0, 0, 0, 255, 255, 255, 255] := by decide +kernel
+example : (NativeFieldWire.babyColumn [babyOfValue 1, 0] (by decide)).map Fin.val =
+    [2, 252, 254, 255, 255, 15, 0] := by decide +kernel
+example : (NativeFieldWire.goldColumnInput [0, lazyZero] (by decide)).length = 34 := by decide +kernel
+example : (NativeFieldWire.babyColumnInput [babyOfValue 1, 0] (by decide)).length = 30 := by decide +kernel
+
+/-- Prefix parsing preserves the following packet bytes exactly. -/
+example : NativeIntegerPrefix.read (NativeUsizeMessage.encode ⟨65536, by decide⟩ ++ [9, 8]) =
+    some (65536, [9, 8]) := by decide +kernel
+example : NativeIntegerPrefix.readVector
+    (NativeFieldWire.goldExtension (![lazyZero, 0, 0]) ++ [9]) =
+      some ([NativeFields.goldilocksModulus, 0, 0], [9]) := by decide +kernel
+
+/-- The helper reader is structural: it is not asserted to be a strict
+canonical proof-byte decoder. -/
+example : NativeIntegerPrefix.read [251, 0, 0, 9] = some (0, [9]) := by decide +kernel
+example : NativeIntegerPrefix.read [254, 0, 0] = none := by decide +kernel
+example : NativeIntegerPrefix.read [253, 0, 0] = none := by decide +kernel
+
+end NativeFieldWireSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldRepresentation.goldCanonical_lt' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldRepresentation.goldCanonical_lt
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldRepresentation.goldCanonical_cast' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldRepresentation.goldCanonical_cast
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldRepresentation.goldValue_val' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldRepresentation.goldValue_val
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldRepresentation.goldValue_eq_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldRepresentation.goldValue_eq_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldRepresentation.monty_remainder' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldRepresentation.monty_remainder
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldRepresentation.monty_quotient_lt' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldRepresentation.monty_quotient_lt
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldRepresentation.monty_decompose' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldRepresentation.monty_decompose
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldRepresentation.monty_quotient_positive' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldRepresentation.monty_quotient_positive
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldRepresentation.fromMonty_formula' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldRepresentation.fromMonty_formula
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldRepresentation.fromMonty_lt' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldRepresentation.fromMonty_lt
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldRepresentation.radix_nonzero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldRepresentation.radix_nonzero
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldRepresentation.fromMonty_mul' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldRepresentation.fromMonty_mul
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldRepresentation.fromMonty_cast' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldRepresentation.fromMonty_cast
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldRepresentation.babyValue_val' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldRepresentation.babyValue_val
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldRepresentation.babyValue_ofValue' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldRepresentation.babyValue_ofValue
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldRepresentation.babyOfValue_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldRepresentation.babyOfValue_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldRepresentation.babyValue_injective' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldRepresentation.babyValue_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldRepresentation.babyOfValue_raw' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldRepresentation.babyOfValue_raw
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldRepresentation.baby_new_product_fits' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldRepresentation.baby_new_product_fits
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldRepresentation.baby_mu_product_fits' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldRepresentation.baby_mu_product_fits
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeIntegerPrefix.read_encode' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeIntegerPrefix.read_encode
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeIntegerPrefix.readCount_words' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeIntegerPrefix.readCount_words
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeIntegerPrefix.readVector_encode' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeIntegerPrefix.readVector_encode
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeIntegerPrefix.encodeVector_injective' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeIntegerPrefix.encodeVector_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldWire.gold_injective' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldWire.gold_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldWire.baby_injective' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldWire.baby_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldWire.goldExtension_injective' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldWire.goldExtension_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldWire.babyExtension_injective' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldWire.babyExtension_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldWire.goldColumn_injective' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldWire.goldColumn_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldWire.babyColumn_injective' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldWire.babyColumn_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldWire.goldColumnInput_injective' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldWire.goldColumnInput_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldWire.babyColumnInput_injective' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldWire.babyColumnInput_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldWire.goldExtension_coordinate' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldWire.goldExtension_coordinate
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldWire.babyExtension_coordinate' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldWire.babyExtension_coordinate
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldWire.babyExtensionValue_injective' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldWire.babyExtensionValue_injective
+
 end HasteBootsSmoke

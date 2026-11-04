@@ -4693,3 +4693,76 @@ and `/tmp/hasteboots-native-root-rust-fixture.log`.
 Whitespace checks passed. The pinned Rust revision and both transcript
 source hashes were rechecked unchanged. Rust sources, vendor sources and
 dependency pins were not modified.
+
+## Raw native field representatives and wire encodings
+
+Inspection of `sumcheck::batch::verify` confirmed that its ordered messages
+and initial claims are serialized field objects. Canonical mathematical
+field values cannot simply be serialized in their place: Goldilocks keeps
+lazy u64 representatives, while BabyBear stores canonical Montgomery u32
+representatives. This was a prerequisite for a faithful native scalar-batch
+compiler; that verifier has not yet been compiled.
+
+`NativeFieldRepresentation` defines the raw domains and their mathematical
+values. For Goldilocks, one conditional subtraction is proved sufficient
+for every u64, with exact agreement with the mathematical field value and
+native canonical-comparison semantics. The raw word itself is retained.
+For BabyBear, the natural-word model explicitly represents low-word masking,
+wrapping u64 subtraction, high-word extraction and wrapping u32 correction
+of `from_monty`. Its canonical output, radix congruence and mathematical
+field value are proved. The conversion to/from the canonical Montgomery
+word is a bijection. Relevant `new` and Montgomery-multiplier products are
+proved to fit a u64. This is a proof of the stated natural-number word
+semantics; checked Rust/instruction refinement and other field arithmetic
+operations remain open.
+
+`NativeIntegerPrefix` supplies a self-delimiting integer reader and counted
+vector reader, with suffix-preserving left-inverse theorems on the standard
+encoder and an injective vector encoding. These are structural helper
+readers, not a strict canonical decoder for adversarial proof bytes. In
+particular the helper reader may accept a wider spelling of a small value;
+no full native deserializer-equivalence claim is made.
+
+`NativeFieldWire` serializes raw base words and degree-prefixed binomial
+extension sequences, with injectivity on those raw objects and exact basis
+coordinate interpretation. BabyBear mathematical extension values determine
+a unique raw representation; this is deliberately not asserted for lazy
+Goldilocks. Base-field column-slice encodings and their exact native
+`HasteBoots/mw-column/v1` hash-input prefix are also modeled and proved
+injective. This does not assume those inputs are disjoint from other hash
+roles, nor instantiate the complete Merkle commitment/extraction schedule.
+
+A native Rust fixture confirmed that raw Goldilocks zero and raw modulus
+compare equal but have different wire bytes, including inside a degree-three
+extension. It also confirmed BabyBear's Montgomery-one spelling, degree-six
+extension prefix, raw representative conversions and rejection at the prime,
+and both base-field column payload formats. Thus no canonical-value encoder
+has been substituted for the native raw message bytes.
+
+Raw results of native Goldilocks arithmetic still need refinement before
+computing the scalar batch's initial claim bytes. The optimized interpolation
+and independent common-challenge batch, remaining lookup/PBS bodies,
+commitment/leaf schedule, early native validation, final child linking and
+outer scheduling remain open. Whole-history numerical charges, compatible
+unbounded sampler prefixes, chronological attacker-work coupling, strict
+proof-byte decoding and the final 128-bit security theorem remain unproved.
+
+Validation: the focused HasteBoots smoke build passed (4,102 jobs), and
+`scripts/check` finished with exit 0 after the full build (10,122 jobs) and
+all subsequent audit/smoke suites. The 35 new theorem audits use only the
+standard foundation allowlist; HasteBoots smoke now contains 1,809 guarded
+axiom checks. Kernel regressions cover raw lazy zero, Montgomery conversion,
+extension/column bytes, prefix parsing with trailing bytes, and malformed
+integer tags. The isolated fixture using the pinned native Rust algebra
+crate passed and reproduced the corresponding bytes and values. Evidence:
+`/tmp/hasteboots-native-field-wire-build.log`,
+`/tmp/hasteboots-native-field-wire-audit.log`,
+`/tmp/hasteboots-native-field-wire-regressions.log`,
+`/tmp/hasteboots-native-field-wire-smoke.log`,
+`/tmp/hasteboots-native-field-wire-check.log`, and
+`/tmp/hasteboots-native-field-wire-rust-fixture.log`.
+The Rust HEAD and transcript hashes were rechecked unchanged; native Rust,
+vendor sources and dependency pins were not modified.
+The separate warning-as-error HasteBoots smoke run also finished with exit
+0; its final captured log is
+`/tmp/hasteboots-native-field-wire-strict-final.log`.

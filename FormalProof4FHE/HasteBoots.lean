@@ -289,3 +289,6 @@ public import FormalProof4FHE.HasteBoots.NativeHelperPacking
 public import FormalProof4FHE.HasteBoots.NativeRootMessage
 public import FormalProof4FHE.HasteBoots.TypedFieldVector
 public import FormalProof4FHE.HasteBoots.NativeLookupEquality
+public import FormalProof4FHE.HasteBoots.NativeFieldRepresentation
+public import FormalProof4FHE.HasteBoots.NativeIntegerPrefix
+public import FormalProof4FHE.HasteBoots.NativeFieldWire
