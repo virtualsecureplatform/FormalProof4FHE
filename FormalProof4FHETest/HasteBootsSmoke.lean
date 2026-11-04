@@ -17019,4 +17019,182 @@ end SharedValueValidationSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupValidated.withChildState_spec
 
+namespace TupleConfigMetadataSmoke
+open FormalProof4FHE.HasteBoots
+open NativeFields NativeFieldRepresentation NativeFieldWire NativeGoldExtensionArithmetic NativeExtensionFields
+private def word (n : ℕ) : GoldWord := ⟨n % (2^64), Nat.mod_lt _ (by decide)⟩
+private def usize (n : ℕ) : NativeUsizeMessage.Usize := ⟨n % (2^64), Nat.mod_lt _ (by decide)⟩
+private def request (logical repetitions : ℕ) (table : List (List ℕ)) : NativeSharedLookupStatement.Request :=
+  ⟨99,table.map (List.map word),repetitions,⟨[1,0],usize logical⟩⟩
+private def rawRows (req : NativeSharedLookupStatement.Request) := req.table.map (List.map Fin.val)
+private def accepted (logical repetitions : ℕ) (table : List (List ℕ)) :=
+  (NativeTupleLookupConfig.rebuild .retain (request logical repetitions table)).isSome
+-- Actual native Config::new and backend rebuild observations.
+example : accepted 5 2 [[1,2],[3,4]] = true := by decide +kernel
+example : accepted 5 2 [[18446744069414584322,18446744069414584323],[3,4]] = true := by decide +kernel
+example : (NativeTupleLookupConfig.rebuild .retain (request 5 2 [[18446744069414584322,18446744069414584323],[3,4]])).map rawRows =
+    some [[18446744069414584322,18446744069414584323],[3,4]] := by decide +kernel
+example : (NativeTupleLookupConfig.rebuild .canonical (request 5 2 [[18446744069414584322,18446744069414584323],[3,4]])).map rawRows =
+    some [[1,2],[3,4]] := by decide +kernel
+example : (NativeTupleLookupConfig.rebuild .canonical (request 5 2 [[18446744069414584322,18446744069414584323],[3,4]])).map
+    (fun req => (req.columns,req.terminal.logicalLength.val,req.repetitions,req.terminal.sourceSlots)) = some (2,5,2,[1,0]) := by decide +kernel
+example : accepted 18446744069414584319 1 [[1],[2]] = true := by decide +kernel
+example : accepted 18446744069414584320 1 [[1],[2]] = false := by decide +kernel
+example : accepted 0 1 [[1]] = false := by decide +kernel
+example : accepted 1 0 [[1]] = false := by decide +kernel
+example : accepted 1 1 [] = false := by decide +kernel
+example : accepted 1 1 [[]] = false := by decide +kernel
+example : accepted 5 1 [[1,2],[3]] = false := by decide +kernel
+example : accepted 5 1 [[1,2],[1,2]] = false := by decide +kernel
+example : accepted 5 1 [[1,2],[18446744069414584322,18446744069414584323]] = false := by decide +kernel
+example : accepted 5 1 [[0],[18446744069414584321]] = false := by decide +kernel
+example : (NativeTupleLookupConfig.rebuild .canonical (request 5 1 [[0],[18446744069414584321]])).isNone = true := by decide +kernel
+-- Rebuilding never deduplicates, repairs malformed rows or trusts the model's
+-- redundant columns field: native num_columns is computed from the first row.
+example : (NativeTupleLookupConfig.rebuild .retain (request 5 2 [[1,2],[3,4]])).map (fun req => req.columns) = some 2 := by decide +kernel
+example : (NativeTupleLookupConfig.rebuild .canonical (request 5 1 [[1,2],[3]])).isNone = true := by decide +kernel
+private def raw0 := request 5 2 [[18446744069414584322,18446744069414584323],[3,4]]
+private def raw1 : NativeSharedLookupStatement.Request := ⟨1,[[word 0]],1,⟨[0],usize 8⟩⟩
+example : (NativeSharedLookupConfig.rebuild .canonical [raw0,raw1]).map (List.map rawRows) = some [[[1,2],[3,4]],[[0]]] := by decide +kernel
+example : (NativeSharedLookupConfig.rebuild .retain [raw0,raw1]).map (fun reqs => reqs.map (fun req => (req.columns,req.repetitions,req.terminal.sourceSlots))) =
+    some [(2,2,[1,0]),(1,1,[0])] := by decide +kernel
+example : (NativeSharedLookupConfig.rebuild .canonical [raw0,request 0 1 [[1]]]).isNone = true := by decide +kernel
+example : (NativeSharedLookupConfig.rebuild .canonical []).map List.length = some 0 := by decide +kernel
+private def normal0 : NativeSharedLookupStatement.Request := ⟨2,[[word 1,word 2],[word 3,word 4]],2,⟨[1,0],usize 5⟩⟩
+private def requests : Fin 2 → NativeSharedLookupStatement.Request := ![normal0,raw1]
+private def statement : NativeScalarBatchWire.Statement :=
+  ⟨⟨NativeSharedLookupStatement.infos (usize 3) (List.ofFn requests),by decide⟩,⟨List.replicate 6 NativeGoldLookup.zero,by decide⟩⟩
+private def message (degree : Fin 5) : NativeScalarBatchWire.Message :=
+  ⟨⟨List.replicate (degree.val+1) NativeGoldLookup.zero,by rw [List.length_replicate]; have bound := degree.isLt; omega⟩⟩
+private def instanceFor (degree : Fin 5) : NativeScalarBatchPreflight.Instance := ⟨List.replicate 3 (message degree),by simp only [List.length_replicate]; decide⟩
+private def proof : NativeScalarBatchPreflight.Proof := ⟨[instanceFor 1,instanceFor 4,instanceFor 1,instanceFor 4,instanceFor 1,instanceFor 3],by decide⟩
+private def parent : NativeTranscript.Transcript := ⟨[],fun _ => 0⟩
+example : statement.infos.val.map (fun info => (info.maxMultiplicands.val,info.numVariables.val)) =
+    [(1,3),(4,3),(1,3),(4,3),(1,3),(3,3)] := by decide +kernel
+example : NativeScalarBatchPreflight.dimensions statement = true := by decide +kernel
+example : NativeScalarBatchPreflight.proofShape statement proof = true := by decide +kernel
+example : (NativeScalarBatchPreflight.beginVerify parent statement proof).isOk = true := by decide +kernel
+private def badProof : NativeScalarBatchPreflight.Proof := ⟨[instanceFor 1,instanceFor 3,instanceFor 1,instanceFor 4,instanceFor 1,instanceFor 3],by decide⟩
+example : NativeScalarBatchPreflight.proofShape statement badProof = false := by decide +kernel
+example : (NativeScalarBatchPreflight.beginVerify parent statement badProof).isOk = false := by decide +kernel
+example (policy : NativeSharedLookupValues.Policy) (input output : NativeSharedLookupStatement.Request)
+    (constructed : NativeTupleLookupConfig.rebuild policy input = some output) :
+    output.terminal.logicalLength.val < goldilocksModulus ∧ 0 < goldilocksModulus - output.table.length - 1 := by
+  have spec := (NativeTupleLookupConfig.rebuild_spec policy input output constructed).2.2.2.2
+  exact ⟨NativeTupleLookupConfig.logical_lt_characteristic _ _ _ spec,
+    NativeTupleLookupConfig.reciprocal_domain_positive _ _ _ spec⟩
+end TupleConfigMetadataSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.normalizeWord_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.normalizeWord_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.normalizeRow_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.normalizeRow_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.normalizeRow_length' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.normalizeRow_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.normalizeTable_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.normalizeTable_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.rowKey_eq_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.rowKey_eq_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.rowKey_normalize' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.rowKey_normalize
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.columns_normalize' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.columns_normalize
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.nodup_values' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.nodup_values
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.valid_normalize' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.valid_normalize
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.valid_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.valid_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.rebuild_spec' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.rebuild_spec
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.rebuild_domain' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.rebuild_domain
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.first_row' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.first_row
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.logical_lt_characteristic' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.logical_lt_characteristic
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.reciprocal_domain_positive' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTupleLookupConfig.reciprocal_domain_positive
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupConfig.rebuild_calls' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupConfig.rebuild_calls
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupConfig.rebuild_valid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupConfig.rebuild_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupConfig.rebuild_preserves' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupConfig.rebuild_preserves
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupConfig.sampling_preserved' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupConfig.sampling_preserved
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupConfig.repetitions_positive' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupConfig.repetitions_positive
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupMetadata.info_degree' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupMetadata.info_degree
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupMetadata.info_bounds' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupMetadata.info_bounds
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupMetadata.geometry_positive' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupMetadata.geometry_positive
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupMetadata.dimensions_of_infos' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupMetadata.dimensions_of_infos
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupMetadata.constructed_dimensions' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupMetadata.constructed_dimensions
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupMetadata.protocol_dimensions' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupMetadata.protocol_dimensions
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupMetadata.protocol_beginVerify' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupMetadata.protocol_beginVerify
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupMetadata.validated_beginVerify' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupMetadata.validated_beginVerify
+
 end HasteBootsSmoke

@@ -7,11 +7,11 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
-Current native integration gates lookup/equality sampling and child
-initialization on proof dimensions and backend-specific value validation.
-Numeric preflight, statement construction and strict terminal bounds are
-linked to the original requests and retained challenge readers. See
-[the current implementation layer](#backend-value-policies-and-gating-child-initialization).
+Current native integration derives scalar metadata checks from rebuilt
+public tuple configurations, numeric preflight and actual completed
+lookup/equality execution. Backend value gates precede child initialization;
+strict terminal bounds retain original request/challenge linkage. See
+[the current implementation layer](#tuple-configuration-rebuilding-and-derived-scalar-metadata).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -6595,3 +6595,92 @@ the standalone warning-as-error smoke check and full `scripts/check`,
 both with exit 0. The full build completed 10,185 jobs and all subsequent
 repository audit/smoke suites passed. Logs:
 `/tmp/hasteboots-shared-values-{smoke,strict,check}.log`.
+
+
+## Tuple configuration rebuilding and derived scalar metadata
+
+`NativeTupleLookupConfig` now models the native tuple constructor and
+backend normalization used by `canonical_config`. It derives columns from
+the first row and checks positive logical length, width and repetitions,
+rectangular rows, distinct semantic tuples, the rational-degree domain
+and the excluded-reciprocal domain. Distinctness uses Goldilocks canonical
+field keys; raw-distinct lazy aliases of the same tuple are rejected.
+The model's redundant Request.columns field is recomputed: the actual
+native Config stores no independent columns field.
+
+Legacy Brakedown retains the original raw public words. Canonicalizing
+response backends reduce those words before rebuilding the configuration.
+Both policies preserve every row, row order/count, tuple width and
+semantic field value. Normalization preserves constructor validity; it
+never drops duplicates or repairs malformed tables. Successful rebuilding
+also proves logicalLength is below the base-field characteristic, so a
+positive native witness count cannot vanish merely by wrapping that
+characteristic. The native reciprocal-domain lower bound is positive.
+Natural arithmetic models the guards on native usize-sized inputs; this
+is not a proof of Rust HashSet implementation or allocation behavior.
+
+`NativeSharedLookupConfig` rebuilds the complete original request list in
+order, retaining every slot descriptor, logical length and repetition.
+Each output has a validated public table and its derived width. Its
+semantic sampler action agrees with the original native num_columns
+representation. This does not identify raw transcript inputs across
+policies: the later request/context binding must use the actual rebuilt
+raw public tables. Constructor positivity and the checked native
+repetition total rule out the isolated numeric preflight's zero-job case.
+
+`NativeSharedLookupMetadata` connects those rebuilt configurations to the
+independent infos/initial-claims compiler and completed operational
+prelude. Every info has the same positive bound dimension and degree one,
+three or four; the fixed nodes are distinct in the base characteristic,
+and degree+1 fits native usize. Actual prepared-job and claim lengths,
+with positive repetitions, make the scalar batch nonempty. Consequently
+all native scalar metadata and interpolation-node checks pass.
+
+For actual completed prelude runs, scalar preflight now requires only
+the original algebra proof's literal shape check. Its success returns
+the actual statement-bound transcript; no nonempty-batch, metadata,
+degree, node or transcript-equality certificate is independently supplied.
+The final linkage consumes the actual backend-gated stateful child/
+prelude execution from the preceding layer, preserving that same
+initializer's returned child state and constructed statement.
+
+The native fixture calls actual public `Config::new` and its Goldilocks
+HashSet/equality implementation. It compiles the extracted native
+configuration rebuilding and backend normalizer bodies, checking raw
+retention/reduction, semantic duplicate aliases, empty/ragged tables,
+zero lengths/repetitions and the last valid/first invalid rational-domain
+boundary. It also compiles actual shared equation infos and calls the
+native scalar verifier on six zero-claim instances, accepting the proper
+degrees and rejecting a malformed proof message. Kernel regressions
+reproduce constructor, normalization, compiled metadata and scalar
+preflight outcomes. They do not claim the complete native caller/PCS or
+new Fiat-Shamir randomness correspondence from that one fixture.
+
+Remaining work includes complete request/context transcript encoding and
+preflight framing, exact multiplicity-bound child creation/final binding,
+and statement-level helper-sum/identity meaning. Accepted helper/source
+PCS authentication, native query folding, lookup/PBS extraction, checked
+Rust/compiler and scheduler refinement, strict decoder refinement,
+BabyBear arithmetic, chronological attacker work, numerical certification
+and the final 128-bit application theorem remain open.
+
+Validation: all three focused modules build, the native fixture and
+29 isolated normal-depth kernel regression/consumer examples exited 0,
+and all 28 public theorem audits use only `propext`, `Classical.choice`
+and `Quot.sound`. The integrated suite contains 2,305 guarded audits.
+Logs: `/tmp/hasteboots-tuple-config-{rust,regressions,audit}.log` and
+`/tmp/hasteboots-shared-metadata-build.log`.
+The tuple constructor source hash is
+`6673d9642fc2bae48ed36781ca1f9b64b3245c346070027aa14fbc2f4d35f230`;
+the canonical bind/config source remains
+`5c3b74e05efa988a5fa5d6fbf45324c4187f25786de1026496baeb8095d99a1f`;
+the shared infos source remains
+`ccf4c115b1d21717cde1c54de04a199a1b07a02997056866a518939aed59dd9f`.
+No Rust, vendor source or dependency pin changed.
+The integrated HasteBoots smoke build passed (4,171 jobs), followed by
+the standalone warning-as-error smoke check and full `scripts/check`,
+both with exit 0. The full build completed 10,188 jobs and all subsequent
+repository audit/smoke suites passed. Logs:
+`/tmp/hasteboots-tuple-config-{smoke,strict,check}.log`.
+The native checkout remains clean at
+`dff353006322693cab3dc6b654f82151f658f294`.
