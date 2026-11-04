@@ -275,3 +275,5 @@ public import FormalProof4FHE.HasteBoots.OracleExecutionLaw
 public import FormalProof4FHE.HasteBoots.CachedOracleResponse
 public import FormalProof4FHE.HasteBoots.OracleHistoryCharge
 public import FormalProof4FHE.HasteBoots.UnboundedHistorySecurity
+public import FormalProof4FHE.HasteBoots.JointHashCache
+public import FormalProof4FHE.HasteBoots.JointHashKernel

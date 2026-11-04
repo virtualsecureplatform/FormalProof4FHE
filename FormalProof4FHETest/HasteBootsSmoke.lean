@@ -12542,4 +12542,117 @@ end OracleHistoryChargeSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.UnboundedHistorySecurity.expectedWorkSecurity_of_prefix
 
+/-- A full SHAKE observation at the same input never inserts a SHA-512 key. -/
+example (input bytes : InputIndexedOracle.Input) :
+    (JointHashCache.project [.output input 0 bytes]).keys = ∅ := rfl
+
+/-- Hash query keys deduplicate, while the chronological hash log keeps both calls. -/
+example (input : InputIndexedOracle.Input) (digest : JointHashCache.Digest) :
+    (JointHashCache.project [.hash input (List.ofFn digest),
+      .output input 0 [0], .hash input (List.ofFn digest)]).log =
+        [⟨input, digest⟩, ⟨input, digest⟩] := by
+  change ([⟨input, JointHashCache.decode (List.ofFn digest)⟩,
+    ⟨input, JointHashCache.decode (List.ofFn digest)⟩] :
+      MerkleTreeExtractor.QueryLog InputIndexedOracle.Input JointHashCache.Digest) = _
+  rw [JointHashCache.decode_ofFn]
+
+example (input : InputIndexedOracle.Input) (digest : JointHashCache.Digest) :
+    (JointHashCache.project [.hash input (List.ofFn digest),
+      .output input 0 [0], .hash input (List.ofFn digest)]).keys = {input} := by
+  simp [JointHashCache.project_keys, JointHashCache.hashInputs]
+
+/-- Coherence permits collisions: it is not an assumed collision-free history. -/
+example (world : InputIndexedOracle.World) (first second : InputIndexedOracle.Input) :
+    CachedHashHandler.Coherent (JointHashCache.project
+      [.hash first (List.ofFn (InputIndexedOracle.sha512 world first)),
+       .hash second (List.ofFn (InputIndexedOracle.sha512 world second))]) := by
+  apply (JointHashCache.project_valid world _ ?_).1
+  intro entry member
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at member
+  rcases member with rfl | rfl <;> rfl
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashCache.decode_ofFn' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashCache.decode_ofFn
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashCache.empty_agrees' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashCache.empty_agrees
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashCache.cacheQuery_known' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashCache.cacheQuery_known
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashCache.record_valid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashCache.record_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashCache.fold_valid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashCache.fold_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashCache.project_valid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashCache.project_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashCache.project_append' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashCache.project_append
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashCache.keys_record' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashCache.keys_record
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashCache.hashInputs_append' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashCache.hashInputs_append
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashCache.project_keys' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashCache.project_keys
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashCache.mem_hashInputs' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashCache.mem_hashInputs
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashCache.hash_coordinate_seen' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashCache.hash_coordinate_seen
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashKernel.answer_cached' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashKernel.answer_cached
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashKernel.answer_fresh' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashKernel.answer_fresh
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashKernel.reply_law' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashKernel.reply_law
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashKernel.handler_normalize' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashKernel.handler_normalize
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashKernel.reply_event' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashKernel.reply_event
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashKernel.step_event' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashKernel.step_event
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashKernel.digest_card' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashKernel.digest_card
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashKernel.collision_step' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashKernel.collision_step
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashKernel.checkpoint_step' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashKernel.checkpoint_step
+
 end HasteBootsSmoke

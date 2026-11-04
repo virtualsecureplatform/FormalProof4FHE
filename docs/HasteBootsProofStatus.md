@@ -4312,3 +4312,54 @@ whose conditional risk is one. Logs:
 Whitespace checks passed. The Rust revision and transcript hashes were
 rechecked unchanged; Rust sources, vendor sources and dependency pins were
 not modified. The native numerical and refinement gates remain open.
+
+## Joint-world SHA-512 cache refinement
+
+`JointHashCache` now computes the existing cached hash state directly from
+mixed transcript observations. It decodes recorded full digests, keeps
+repeated hash log entries, and deduplicates hash keys. Truthful histories
+imply cache/log/key coherence and agreement with the world, without a
+collision-freedom premise. SHAKE observations never populate SHA-512 keys,
+even at identical input bytes. The footprint correspondence proves that a
+hash input has either all 64 hash coordinates observed or none.
+
+`JointHashKernel` proves the complete conditional answer law after any
+replayable mixed-oracle execution: a new SHA-512 input is uniform on the
+exact digest alphabet of cardinality `2^512`, and a repeated input returns
+its recorded digest. It also proves equality of event probabilities for
+the full updated state, including its chronological log. This connects
+the joint world to the existing canonical cached hash handler rather than
+assuming a separate independent hash execution.
+
+The collision and root-wide Merkle payload checkpoint one-step charges
+therefore hold in the joint world, conditional on the entire preceding
+SHAKE/hash history. Fresh steps retain their concrete cache-key or
+checkpoint target-union numerator over `2^512`; cache hits contribute zero
+new loss. These bounds require safety or checkpoint stability in the
+conditioned history. Earlier bad events are inherited risk and must be
+retained in composition; these theorems do not declare already compromised
+histories safe. They impose no global query cap and no SHAKE freshness
+premise.
+
+This supplies the native hash-state projection and conditional hash hazard
+bridge. Whole mixed-program accumulation with inherited risk, native
+checkpoint placement, private-coin/work-trace coupling, lookup/PBS
+composition, exact numerical certification, strict proof-byte decoding,
+and checked Rust/scheduler refinement remain open. The full 128-bit
+expected-attacker-work security objective remains active and unproved.
+
+Validation passed: focused HasteBoots smoke (4,087 jobs), a separate
+warning-as-error HasteBoots smoke, and full `scripts/check` (10,107 build
+jobs and all subsequent strict suites, terminal exit zero). All 21 new
+public theorem audits satisfy the standard-foundation allowlist; the
+HasteBoots guarded audit count is now 1,650. Regressions check SHAKE/hash
+separation at equal input bytes, repeated chronological hash entries with
+deduplicated keys, and coherence without a collision-freedom premise.
+Successful logs: `/tmp/hasteboots-joint-hash-kernel-build.log`,
+`/tmp/hasteboots-joint-hash-audit.log`,
+`/tmp/hasteboots-joint-hash-smoke.log`,
+`/tmp/hasteboots-joint-hash-strict.log`, and
+`/tmp/hasteboots-joint-hash-check.log`.
+Whitespace checks passed. The pinned Rust revision and both transcript
+source hashes were rechecked unchanged. Rust sources, vendor sources and
+dependency pins were not modified.
