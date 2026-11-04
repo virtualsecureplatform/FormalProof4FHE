@@ -330,3 +330,6 @@ public import FormalProof4FHE.HasteBoots.NativeGoldProjection
 public import FormalProof4FHE.HasteBoots.NativeGoldMatrix
 public import FormalProof4FHE.HasteBoots.NativeGoldMatrixMeaning
 public import FormalProof4FHE.HasteBoots.NativeGoldPostMap
+public import FormalProof4FHE.HasteBoots.NativeGoldMatrixFill
+public import FormalProof4FHE.HasteBoots.NativeGoldMultiplicationMatrix
+public import FormalProof4FHE.HasteBoots.NativeGoldCoefficientsQuery

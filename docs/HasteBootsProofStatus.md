@@ -5829,3 +5829,79 @@ changed.
 The full `scripts/check` also exited 0 after its full build (10,160 jobs)
 and all subsequent audit/smoke suites. Full log:
 `/tmp/hasteboots-gold-query-check.log`.
+
+## Checked raw multiplication-matrix and helper-query constructors
+
+`NativeGoldMatrixFill` models the literal initialized row-major payload and
+ordered column/coordinate writes. It proves raw payload lengths, address
+non-aliasing and the exact resulting getter for every valid row and column.
+All copied coordinates retain their original words; untouched entries stay
+raw zero. The bounds cover rectangular column-copy loops inside the square
+payload and can also support the scalar-query lane constructor.
+
+`NativeGoldMultiplicationMatrix` now models
+`packed_extension::multiplication`: it checks the native dimensions,
+initializes the payload, computes each product with the actual raw basis
+monomial, copies all three raw product coordinates, and runs the checked
+matrix constructor. Raw monomial initialization is linked to its zero-list
+and single-one write. The semantic matrix is derived from that exact
+constructed payload and equals `PaddedExtension.multiplication`. Applying
+it to any original vector gives the encoded extension product of the
+supplied value and the decoded input. Checked output projection succeeds
+even when original unused input lanes are nonzero. Neither theorem assumes
+an unrelated matrix-correctness certificate or zero original padding.
+
+`NativeGoldCoefficientsQuery` now models the checked helper-query
+constructor, including ordered `(M(1-x), M(x))` pairs and the `M(1)` post-map
+only for an empty point. Its field reader checks the actual pair count and
+validates each raw matrix before interpreting its payload. Missing or extra
+pairs cannot be silently truncated; malformed matrix shape is failure.
+The complete constructor/reader composition equals the existing
+`ExtensionQuery.coefficientsQuery` for the supplied raw point words. The
+helper-MLE evaluation theorem now consumes that constructed query and
+allows arbitrary unused helper lanes, retaining the required empty-point
+projection. This theorem identifies the mathematical evaluation of the
+interpreted query; refinement of the full native query-fold and PCS
+opening execution remains separate.
+
+The public Rust fixtures cover monomials, multiplication matrices at
+widths 3, 4 and 8, zero/one/ordinary/lazy extension words, projection after
+application to vectors with nonzero padding, empty/one/two-coordinate
+helper queries, and dimension/overflow rejection. Normal-depth kernel
+regressions reproduce selected raw outputs and rejection cases; universal
+constructor theorems cover all valid widths. The new reader regressions
+also reject wrong pair counts and malformed zero, one
+and post matrices. A universal consumer uses the complete constructed
+helper-query evaluation theorem.
+
+Remaining query-construction work is now the scalar-source lane weights,
+their ordered coordinate-copy loop, and the actual matrix-matrix product
+in the first pair: `M(weight) * L`, with the lane map on the right. Subsequent
+pairs use the helper constructor proved here. The scalar-query empty case
+must replace the helper projection with the lane matrix. Accepted PCS
+openings, native folding, helper-sum/identity guard composition and caller
+geometry remain to connect. Full lookup/PBS extraction and linking,
+checked Rust/scheduler and strict decoder refinement, BabyBear arithmetic,
+chronological attacker-work coupling, numerical certification and the
+final 128-bit application theorem remain open.
+
+Validation for this chunk: the focused constructor build passed (3,925
+jobs), the integrated HasteBoots smoke build passed (4,143 jobs), and the
+isolated normal-depth kernel regression/consumer file exited 0. There are
+25 new regression/consumer examples and 26 new public theorem audits. All
+new audited dependencies lie within `propext`, `Classical.choice` and
+`Quot.sound`; the integrated smoke suite now has 2,096 guarded audits.
+Both native public Rust fixtures exited 0. Logs:
+`/tmp/hasteboots-gold-{multiplication,coefficients}-rust.log` and
+`/tmp/hasteboots-gold-constructor-{regressions,audit,smoke}.log`.
+The native checkout remains clean at
+`dff353006322693cab3dc6b654f82151f658f294`. The packed-extension and matrix
+hashes were rechecked unchanged, and the native monomial implementation
+in `algebra/src/extension/mod.rs` has hash
+`9a53e2a6abe2104855dd58c7c8758354c3cf9734308c413173e947268529b0d7`.
+No Rust, vendor source or dependency pin changed.
+The standalone warning-as-error HasteBoots smoke check exited 0, followed
+by the full `scripts/check` with exit 0 (full build: 10,163 jobs, plus all
+subsequent audit/smoke suites). Logs:
+`/tmp/hasteboots-gold-constructor-strict.log` and
+`/tmp/hasteboots-gold-constructor-check.log`.
