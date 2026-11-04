@@ -1,6 +1,7 @@
 module
 
 public import FormalProof4FHE.HasteBoots.NativeGoldLookupEquality
+public import FormalProof4FHE.HasteBoots.NativeGoldLookupBatch
 public import FormalProof4FHE.HasteBoots.NativeSharedLookupPrepared
 public import FormalProof4FHE.HasteBoots.NativeSharedLookupGeometryLink
 
@@ -13,7 +14,8 @@ The same completed lookup machine supplies the raw producer jobs and the
 child transcript used for root binding and equality draws. The resulting
 statement and guard inputs retain those exact jobs and points. Fuel bounds
 only an analysis prefix; suspension returns no ready statement. Native
-preflight and child creation/final binding are still separate obligations.
+preflight and child lineage are supplied by caller layers; PCS authentication
+remains separate.
 -/
 
 namespace FormalProof4FHE.HasteBoots.NativeSharedLookupPrelude
@@ -57,14 +59,15 @@ def compile {count : ℕ} (fits : count ≤ 2^64) (requests : Fin count → Requ
           else .pure none
   | _ => .pure none
 
-/-- The lookup sampler's full retained execution is the prefix of the same
-oracle program. No lookup/equality transcript is supplied independently. -/
+/-- The computable raw lookup sampler is the prefix of this oracle program.
+Its exact abstract projection retains the existing contracts and full log. -/
 def protocol {count : ℕ} (fits : count ≤ 2^64) (requests : Fin count → Request) (n : Usize)
     (multiplicities : List (List GoldWord)) (roots : List Digest) (rootFits : roots.length < 2^64)
     (w lookupFuel equalityFuel : ℕ) (transcript : Transcript) : Program (Option (Ready n.val)) :=
-  bind (NativeLookupBatch.steps goldilocksBasis w lookupFuel
-    (NativeLookupBatch.initial (NativeLookupBatch.schedule fits (fun i => (requests i).sampling)) transcript))
-    (compile fits requests n multiplicities roots rootFits w equalityFuel)
+  bind (NativeGoldLookupBatch.steps w lookupFuel
+    (NativeGoldLookupBatch.initial (NativeGoldLookupBatch.schedule fits
+      (fun i => ⟨(requests i).columns,(requests i).table,(requests i).repetitions⟩)) transcript))
+    (fun batch => compile fits requests n multiplicities roots rootFits w equalityFuel (NativeGoldLookupBatch.project batch))
 
 theorem pack_spec (n : Usize) (requests : List Request) (jobs : List Prepared) (multiplicities : List (List GoldWord))
     (machine : NativeLookupEquality.Machine n.val Goldilocks3) (ready : Ready n.val)
@@ -146,7 +149,21 @@ theorem run_protocol {count : ℕ} (fits : count ≤ 2^64) (requests : Fin count
         (NativeLookupBatch.initial (NativeLookupBatch.schedule fits (fun i => (requests i).sampling)) transcript) world
       let later := (run (compile fits requests n multiplicities roots rootFits w equalityFuel earlier.1) world).run
       (later.1,earlier.2 ++ later.2) := by
-  simp only [protocol, OracleProgram.run_bind, ObservationReplay.run_bind, NativeLookupBatch.run_steps]
+  simp only [protocol,OracleProgram.run_bind,ObservationReplay.run_bind,NativeGoldLookupBatch.run_steps]
+  have projected := NativeGoldLookupBatch.project_execute w lookupFuel
+    (NativeGoldLookupBatch.initial (NativeGoldLookupBatch.schedule fits
+      (fun i => ⟨(requests i).columns,(requests i).table,(requests i).repetitions⟩)) transcript) world
+  have initialized : NativeGoldLookupBatch.project
+      (NativeGoldLookupBatch.initial (NativeGoldLookupBatch.schedule fits
+        (fun i => ⟨(requests i).columns,(requests i).table,(requests i).repetitions⟩)) transcript) =
+      NativeLookupBatch.initial (NativeLookupBatch.schedule fits (fun i => (requests i).sampling)) transcript := by
+    rw [NativeGoldLookupBatch.project_initial,NativeGoldLookupBatch.project_schedule]
+    rfl
+  rw [initialized] at projected
+  have state := congrArg Prod.fst projected
+  have observations := congrArg Prod.snd projected
+  simp only at state observations
+  rw [← state,← observations]
 
 theorem protocol_contract {count : ℕ} (fits : count ≤ 2^64) (requests : Fin count → Request) (n : Usize)
     (multiplicities : List (List GoldWord)) (roots : List Digest) (rootFits : roots.length < 2^64)

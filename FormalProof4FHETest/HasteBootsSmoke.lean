@@ -17672,57 +17672,33 @@ private noncomputable def world : InputIndexedOracle.World
 private noncomputable def parent : NativeTranscript.Transcript :=
   NativeTranscript.appendBytes (NativeTranscript.new (NativeTranscript.utf8 "HasteBoots typed classical prime v1") (fun _ => 0))
     (NativeTranscript.utf8 "typed prime field") (TranscriptFrame.littleEndian 16 NativeFields.goldilocksModulus)
--- Reconstruct the native accepted-first-offset fixture window with actual
--- raw readers and word production. This is not a replacement for the
--- abstract-field sampler's unbounded retry machine.
-private noncomputable def checkpoint : OracleProgram.Program (Option (NativeSharedLookupChild.State × NativeSharedLookupPrelude.Ready 2)) :=
-  OracleProgram.bind (NativeSharedLookupParent.prepare description registry helper parent requests) (fun (parent,geometry) =>
-    match geometry with
-    | none => .pure none
-    | some _ => OracleProgram.bind (NativeSharedLookupChild.start parent proof.multiplicities) (fun (state,child) =>
-      let child := NativeTranscript.appendBytes child NativeLookupBatch.requestLabel (NativeUsizeMessage.encode (usize 0))
-      OracleProgram.bind (TypedFieldRequest.extension NativeFields.goldilocksModulus 3 7 3 child .scalar NativeLookupChallenge.hashLabel 1) (fun first =>
-        match first with
-        | .suspended _ => .pure none
-        | .finished first child => OracleProgram.bind
-          (TypedFieldRequest.extension NativeFields.goldilocksModulus 3 7 3 child .scalar NativeLookupChallenge.reciprocalLabel 1) (fun last =>
-          match last with
-          | .suspended _ => .pure none
-          | .finished last child => match NativeGoldLookupWords.fromDraws 1 config.table.values first last with
-            | none => .pure none
-            | some output => OracleProgram.bind
-              (NativeLookupEquality.request NativeExtensionFields.goldilocksBasis 7 2 30 child proof.roots.val proof.roots.property) (fun machine =>
-                .pure ((NativeSharedLookupPrelude.pack (usize 2) [request.toModel]
-                  [⟨⟨usize 0,0,request.toModel⟩,output⟩] proof.values.multiplicities machine).map (fun ready => (state,ready))))))))
-private noncomputable def window :=  (OracleProgram.run checkpoint world).run
-private noncomputable def runBody (value : NativeSharedLookupProofData.Proof Unit Unit) (fuel : ℕ) :=
-  match window.1 with
-  | none => (none,[])
-  | some (state,ready) =>
-    let result := (OracleProgram.run (NativeSharedLookupBody.body (NativeSharedLookupParent.models requests)
-      [source.geometry] 4 state ready value fuel) world).run
-    (some result.1,result.2)
-private noncomputable def completed := runBody proof 30
+-- The full entry point now executes the raw retry machine before the
+-- existing equality, scalar, terminal and child-finish phases.
+private noncomputable def window :=
+  (OracleProgram.run (NativeSharedLookupParent.begin description registry helper parent requests proof 30 30) world).run
+private noncomputable def runProtocol (value : NativeSharedLookupProofData.Proof Unit Unit) (fuel : ℕ) :=
+  (OracleProgram.run (NativeSharedLookupExecution.protocol description registry helper parent requests value 30 30 fuel) world).run
+private noncomputable def completed := runProtocol proof 30
 example : (match completed.1 with | some (.bound _) => true | _ => false) = true := by decide +kernel
 
-example : (window.2 ++ completed.2).filterMap (fun event => match event with | .start input => some input | _ => none) = native_starts.take 16 := by decide +kernel
+example : completed.2.filterMap (fun event => match event with | .start input => some input | _ => none) = native_starts.take 16 := by decide +kernel
 example : (match completed.1 with | some (.bound result) => some (result.claims.map (fun claim => (claim.point.map (fun value => List.ofFn (fun i => (value i).val)),List.ofFn (fun i => (claim.expected i).val)))) | _ => none) = some [([[4115011821864827705,11586294933597345815,17561799239099153531],[9006259023012243250,8331017422327780594,3288119909572110942]],[6803274624651909197,6472513147252214956,807119261360511639]),([[4115011821864827705,11586294933597345815,17561799239099153531],[9006259023012243250,8331017422327780594,3288119909572110942]],[18446744069414584321,0,0])] := by decide +kernel
 example : (match completed.1 with | some (.bound result) => some (NativeTranscript.requestInput result.parent (NativeTranscript.utf8 "after full body fixture") 4) | _ => none) = some native_starts[16]! := by decide +kernel
 example : (match completed.1 with | some (.bound result) => result.child.binding.isNone | _ => false) = true := by decide +kernel
-example : (match (runBody proof 0).1 with | some (.suspended _) => true | _ => false) = true := by decide +kernel
-example : (runBody proof 0).2 = [] := by decide +kernel
+example : (match (runProtocol proof 0).1 with | some (.suspended _) => true | _ => false) = true := by decide +kernel
+example : (runProtocol proof 0).2 = window.2 := by decide +kernel
 private noncomputable def badShape : NativeSharedLookupProofData.Proof Unit Unit := {proof with algebra := ⟨[],by decide⟩}
-example : (match (runBody badShape 30).1 with | some (.rejected (.scalar (.reject .proofShape)) _) => true | _ => false) = true := by decide +kernel
-example : (runBody badShape 30).2 = [] := by decide +kernel
+example : (match (runProtocol badShape 30).1 with | some (.rejected (.scalar (.reject .proofShape)) _) => true | _ => false) = true := by decide +kernel
+example : (runProtocol badShape 30).2 = window.2 := by decide +kernel
 private noncomputable def badHelper : NativeSharedLookupProofData.Proof Unit Unit := {proof with helpers := ⟨[![word 6803274624651909198,word 6472513147252214956,word 807119261360511639]],by decide⟩}
-example : (match (runBody badHelper 30).1 with | some (.rejected .terminal _) => true | _ => false) = true := by decide +kernel
-example : ((window.2 ++ (runBody badHelper 30).2).filterMap (fun event => match event with | .start input => some input | _ => none)).length = 14 := by decide +kernel
+example : (match (runProtocol badHelper 30).1 with | some (.rejected .terminal _) => true | _ => false) = true := by decide +kernel
+example : ((runProtocol badHelper 30).2.filterMap (fun event => match event with | .start input => some input | _ => none)).length = 14 := by decide +kernel
 private noncomputable def badIdentity : NativeSharedLookupProofData.Proof Unit Unit := {proof with sources := ⟨[row [1,0,0,0] (by decide)],by decide⟩}
-example : (match (runBody badIdentity 30).1 with | some (.rejected .terminal _) => true | _ => false) = true := by decide +kernel
-example : ((window.2 ++ (runBody badIdentity 30).2).filterMap (fun event => match event with | .start input => some input | _ => none)).length = 14 := by decide +kernel
+example : (match (runProtocol badIdentity 30).1 with | some (.rejected .terminal _) => true | _ => false) = true := by decide +kernel
+example : ((runProtocol badIdentity 30).2.filterMap (fun event => match event with | .start input => some input | _ => none)).length = 14 := by decide +kernel
 private noncomputable def badRecurrence : NativeSharedLookupProofData.Proof Unit Unit := {proof with algebra := ⟨[⟨[⟨⟨[![word 13606549249303818395,word 12945026294504429912,word 1614238522721023278],![word 13606549249303818394,word 12945026294504429912,word 1614238522721023278]],by decide⟩⟩,⟨⟨[![word 6803274624651909197,word 6472513147252214956,word 807119261360511639],![word 6803274624651909197,word 6472513147252214956,word 807119261360511639]],by decide⟩⟩],by decide⟩,⟨[⟨⟨[![word 18446744069414584321,word 18446744069414584321,word 18446744069414584321],![word 18446744069414584321,word 18446744069414584321,word 18446744069414584321],![word 18446744069414584321,word 18446744069414584321,word 18446744069414584321],![word 18446744069414584321,word 18446744069414584321,word 18446744069414584321]],by decide⟩⟩,⟨⟨[![word 18446744069414584321,word 18446744069414584321,word 18446744069414584321],![word 18446744069414584321,word 18446744069414584321,word 18446744069414584321],![word 18446744069414584321,word 18446744069414584321,word 18446744069414584321],![word 18446744069414584321,word 18446744069414584321,word 18446744069414584321]],by decide⟩⟩],by decide⟩],by decide⟩}
-example : (match (runBody badRecurrence 30).1 with | some (.rejected (.scalar (.reject .recurrence)) _) => true | _ => false) = true := by decide +kernel
-example : (runBody badRecurrence 30).2 = [] := by decide +kernel
+example : (match (runProtocol badRecurrence 30).1 with | some (.rejected (.scalar (.reject .recurrence)) _) => true | _ => false) = true := by decide +kernel
+example : (runProtocol badRecurrence 30).2 = window.2 := by decide +kernel
 
 end SharedBodyExecutionSmoke
 
@@ -17782,5 +17758,142 @@ end SharedBodyExecutionSmoke
 /-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupWords.produce_spec' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupWords.produce_spec
+
+namespace RawLookupRetrySmoke
+open FormalProof4FHE.HasteBoots
+private def word (n : ℕ) : NativeFieldRepresentation.GoldWord := ⟨n % (2^64),Nat.mod_lt _ (by decide)⟩
+private def root : NativeTranscript.Transcript := NativeTranscript.new (NativeTranscript.utf8 "raw lookup retry fixture") (fun _ => 0)
+private def rows : List (List NativeFieldRepresentation.GoldWord) := [[word 1]]
+private def bytes (values : List ℕ) : InputIndexedOracle.Input := values.flatMap (TranscriptFrame.littleEndian 8)
+private def oneWorld (input : InputIndexedOracle.Input) (values : List ℕ) : InputIndexedOracle.World
+  | .inl (query,offset) => if query = input then (bytes values)[offset]?.getD 0 else 0
+  | .inr _ => 0
+private def inputOf (transcript : NativeTranscript.Transcript) (label : InputIndexedOracle.Input) : InputIndexedOracle.Input :=
+  (TypedFieldRequest.scalarPhase NativeFields.goldilocksModulus 3 7 transcript label).pending.input
+private def after (transcript : NativeTranscript.Transcript) (label : InputIndexedOracle.Input) (values : List ℕ) : NativeTranscript.Transcript :=
+  match (OracleProgram.run (TypedFieldRequest.extension NativeFields.goldilocksModulus 3 7 3 transcript .scalar label 1)
+      (oneWorld (inputOf transcript label) values)).run.1 with
+  | .finished _ next => next
+  | .suspended _ => transcript
+private def afterY := after root NativeLookupChallenge.hashLabel [2,0,0]
+private def afterZero := after afterY NativeLookupChallenge.reciprocalLabel [0,0,0]
+private def afterPole := after afterZero NativeLookupChallenge.reciprocalLabel [18446744069414584320,0,0]
+private def scripted : List (InputIndexedOracle.Input × List ℕ) :=
+  [(inputOf root NativeLookupChallenge.hashLabel,[2,0,0]),
+   (inputOf afterY NativeLookupChallenge.reciprocalLabel,[0,0,0]),
+   (inputOf afterZero NativeLookupChallenge.reciprocalLabel,[18446744069414584320,0,0]),
+   (inputOf afterPole NativeLookupChallenge.reciprocalLabel,[1,0,0])]
+private def world : InputIndexedOracle.World
+  | .inl (input,offset) => match scripted.find? (fun pair => pair.1 = input) with
+    | none => 0
+    | some pair => (bytes pair.2)[offset]?.getD 0
+  | .inr _ => 0
+private def started := NativeGoldLookupSampler.initialExecute 7 root
+private def selected (fuel : ℕ) := NativeGoldLookupSampler.execute 7 1 rows fuel started.1 world
+example : (NativeGoldLookupSampler.coefficients [18446744069414584320,0,3] 0).val = 18446744069414584320 := by decide +kernel
+example : (NativeGoldLookupSampler.coefficients [18446744069414584321,0,3] 0).val = 0 := by decide +kernel
+example : (selected 3).1.rejected = 0 := by decide +kernel
+example : (selected 6).1.rejected = 1 := by decide +kernel
+example : (selected 9).1.rejected = 2 := by decide +kernel
+example : (selected 12).1.rejected = 2 := by decide +kernel
+example : (selected 12).1.draws.map (fun draw => draw.coefficients.values) =
+    [[2,0,0],[0,0,0],[18446744069414584320,0,0],[1,0,0]] := by decide +kernel
+example : (match (selected 12).1.control with | .finished y r weights table _ => some (List.ofFn (fun i => (y i).val),List.ofFn (fun i => (r i).val),weights.length,table.length) | _ => none) =
+    some ([2,0,0],[1,0,0],1,1) := by decide +kernel
+example : ((started.2 ++ (selected 12).2).filterMap (fun event => match event with | .start input => some input | _ => none)).length = 8 := by decide +kernel
+example : inputOf afterY NativeLookupChallenge.reciprocalLabel ≠ inputOf afterZero NativeLookupChallenge.reciprocalLabel := by decide +kernel
+example : inputOf afterZero NativeLookupChallenge.reciprocalLabel ≠ inputOf afterPole NativeLookupChallenge.reciprocalLabel := by decide +kernel
+-- A split analysis prefix preserves all state and observations over both retries.
+example : NativeGoldLookupSampler.execute 7 1 rows (6+6) started.1 world =
+    let earlier := selected 6
+    let later := NativeGoldLookupSampler.execute 7 1 rows 6 earlier.1 world
+    (later.1,earlier.2 ++ later.2) := NativeGoldLookupSampler.execute_add 7 1 rows 6 6 started.1 world
+private def rejectedBytes : InputIndexedOracle.World := fun _ => 255
+private def retryBytes := NativeGoldLookupSampler.execute 7 1 rows 2 started.1 rejectedBytes
+example : (match retryBytes.1.control with | .compression field => some (field.remaining,field.values,field.phase.consumed.length) | _ => none) =
+    some (3,[],16) := by decide +kernel
+example : retryBytes.1.draws.length = 0 ∧ retryBytes.1.rejected = 0 ∧ retryBytes.2.length = 2 := by decide +kernel
+example : retryBytes.2.filterMap (fun event => match event with | .output _ offset _ => some offset | _ => none) = [0,8] := by decide +kernel
+-- Batch ordinals and repetition order remain literal; no extra sampler cap.
+private def requests : Fin 2 → NativeGoldLookupBatch.Request := ![⟨1,rows,2⟩,⟨1,rows,1⟩]
+example : (NativeGoldLookupBatch.schedule (by decide : 2 ≤ 2^64) requests).filterMap
+    (fun action => match action with | .sample job => some (job.ordinal.val,job.repetition) | _ => none) = [(0,0),(0,1),(1,0)] := by decide +kernel
+end RawLookupRetrySmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupSampler.coefficients_canonical' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupSampler.coefficients_canonical
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupSampler.coefficients_exact' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupSampler.coefficients_exact
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupSampler.coefficients_decode' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupSampler.coefficients_decode
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupSampler.coefficients_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupSampler.coefficients_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupSampler.run_initial' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupSampler.run_initial
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupSampler.run_tick' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupSampler.run_tick
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupSampler.run_steps' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupSampler.run_steps
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupSampler.execute_add' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupSampler.execute_add
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupSampler.project_initial' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupSampler.project_initial
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupSampler.project_tick' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupSampler.project_tick
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupSampler.project_execute' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupSampler.project_execute
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupBatch.run_tick' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupBatch.run_tick
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupBatch.run_steps' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupBatch.run_steps
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupBatch.execute_add' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupBatch.execute_add
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupBatch.project_schedule' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupBatch.project_schedule
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupBatch.project_initial' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupBatch.project_initial
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupBatch.project_afterSample' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupBatch.project_afterSample
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupBatch.project_tick' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupBatch.project_tick
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupBatch.project_execute' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupBatch.project_execute
 
 end HasteBootsSmoke

@@ -6,8 +6,8 @@ public import FormalProof4FHE.HasteBoots.NativeGoldLookupProducer
 
 /-! The computable raw-word producer window after accepted coefficient draws.
 Its relation to the existing abstract sampler's producer is exact. This does
-not yet replace the abstract extension-field retry machine with a fully
-computable raw sampler; that execution/refinement bridge remains open. -/
+not itself implement retries. `NativeGoldLookupSampler` supplies the raw
+retry machine and its exact abstract execution/refinement bridge. -/
 namespace FormalProof4FHE.HasteBoots.NativeGoldLookupWords
 
 open NativeFieldRepresentation (GoldWord)

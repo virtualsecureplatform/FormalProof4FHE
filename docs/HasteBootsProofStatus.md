@@ -7,12 +7,12 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
-Current native integration composes parent preparation and child creation,
-lookup/equality preparation, scalar verification, strict terminal guards,
-terminal-value binding and child finishing in one ideal-oracle program.
-Its bound result is a PCS boundary, not an authenticated proof. The abstract
-lookup sampler still needs a computable raw retry adapter and Rust execution
-refinement. See [the current implementation layer](#composed-child-body-and-pcs-boundary).
+Current native integration executes raw Goldilocks lookup retries with an
+exact projection to the abstract sampler, then equality preparation, scalar
+verification, strict terminal guards, terminal-value binding and child
+finishing. The full entry point is now checked against native fixture bytes
+in the kernel. Its bound result remains a PCS boundary, not authentication.
+See [the current implementation layer](#computable-raw-lookup-retries-and-exact-projection).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -6946,3 +6946,91 @@ The integrated suite contains 2,380 guarded axiom audits. Logs:
 `/tmp/hasteboots-body-{smoke,strict,check}.log`.
 The native checkout remains clean at
 `dff353006322693cab3dc6b654f82151f658f294`.
+
+
+## Computable raw lookup retries and exact projection
+
+`NativeGoldLookupSampler` replaces the operational abstract-field pole
+decision with the existing raw-word predicate. It retains the active
+coefficient reader, canonical compression/offset words, powers and public
+table, every completed draw including rejected offsets, and the offset
+rejection count. A rejected coefficient stays in the same reader and at
+the same coefficient index. A zero or pole offset is absorbed with its
+receipt before another offset request starts. Neither path adds a native
+retry cutoff; fuel specifies a resumable analysis prefix only.
+
+Coefficient conversion is total by reduction modulo the field modulus.
+It agrees with the abstract scalar interpretation for every input list.
+On actual completed canonical coefficient collections it preserves every
+original word exactly, with neither defaulting nor reduction. This conversion
+applies to fresh challenge coefficients, not to retained Brakedown public
+or proof base-field words.
+
+Projection maps the raw selection into `NativeLookupChallenge` and preserves
+the exact machine, complete coefficient records, rejected-draw count and
+ordered oracle observations after initialization, each tick and any finite
+analysis prefix. These are equalities for every world and budget, without a
+freshness, probability, completed-draw or row-identification certificate.
+The split-budget law retains state/logs across retries. The abstract
+`Classical.choice` decision remains a mathematical specification; it is no
+longer evaluated on the operational path.
+
+`NativeGoldLookupBatch` preserves literal request ordinals and repetition
+order, including request-binding frames. Its projection commutes with the
+schedule, initial state, sample completion, each tick and any finite batch
+execution. Raw row words map to their field interpretations only in the
+abstract projection; runtime selection uses the original raw table.
+
+`NativeSharedLookupPrelude.protocol` now executes the raw batch and compiles
+its projection into the existing equality/statement preparation. Its public
+`run_protocol` theorem still identifies exactly the same initialized
+abstract batch execution and log. Thus all existing prepared-job, statement,
+geometry, value-gate, terminal, scalar and child-finish contracts remain in
+force through the same caller APIs. No separate ready transcript or
+acceptance certificate was added to the full entry point.
+
+The previous test-only accepted-first-offset reconstruction was removed.
+All 15 native-fixture regressions now execute
+`NativeSharedLookupExecution.protocol` directly for normal completion,
+suspension and tampered proofs. They retain exact native reader inputs,
+scalar claims, final parent continuation and child-binding checks. The native
+fixture's full Rust verifier includes PCS; the Lean result still stops before
+PCS authentication. Kernel evaluation of the complete entry point now works
+without changing the abstract field's equality instance or using new axioms,
+`native_decide`, elevated recursion depth or an attacker-work cutoff.
+
+Sixteen additional kernel examples exercise a scripted ideal world with a
+zero offset, a nonzero pole, then a valid offset, retaining all four draws
+including the compression draw. They check rejection counts, changed retry
+inputs, exact reader counts and a split prefix across both retries. They
+also check rejected canonical candidates consume bytes at offsets 0 and 8
+without advancing the coefficient index or offset-rejection count, and
+check original request/repetition order. The extracted native predicate
+independently returns false/false/true on zero/pole/valid offsets and the
+native canonical range check rejects the all-ones u64 candidate. These rare
+retry inputs are scripted ideal-oracle cases, not claimed SHAKE preimages.
+
+Validation: both new modules and all downstream execution layers
+build, the 15 full-entry-point and 16 retry examples exited 0, and the 19 new
+public theorem audits plus updated prelude audit use only `propext`,
+`Classical.choice` and `Quot.sound`. Logs:
+`/tmp/hasteboots-raw-{batch,prelude}-build.log`,
+`/tmp/hasteboots-raw-execution-regressions.log`,
+`/tmp/hasteboots-raw-retry-{regressions,rust}.log`, and
+`/tmp/hasteboots-raw-sampler-audit.log`.
+
+The next boundary is helper/source PCS authentication with original query
+folding and alias handling. Lookup/PBS extraction, trusted row-code/parameter
+instantiation, checked Rust/compiler/scheduler and strict decoder refinement,
+BabyBear, chronological attacker work, numerical certification and the final
+128-bit application security theorem remain open. Exact refinement between
+the two Lean sampler programs is not yet a checked Rust implementation proof.
+
+The final integrated HasteBoots smoke build passed (4,184 jobs), followed by
+the standalone warning-as-error smoke check and full `scripts/check`, both
+with exit 0. The full build completed 10,201 jobs and every subsequent
+repository audit/smoke suite passed. The integrated suite contains 2,399
+guarded axiom audits. Logs:
+`/tmp/hasteboots-raw-sampler-{smoke,strict,check}.log`.
+No native Rust, vendor source or dependency pin changed. The native checkout
+remains clean at `dff353006322693cab3dc6b654f82151f658f294`.
