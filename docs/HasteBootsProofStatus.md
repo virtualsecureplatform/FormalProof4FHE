@@ -11,8 +11,10 @@ Current native integration executes raw Goldilocks lookup retries with an
 exact projection to the abstract sampler, then equality preparation, scalar
 verification, strict terminal guards, terminal-value binding and child
 finishing. The full entry point is now checked against native fixture bytes
-in the kernel. Its bound result remains a PCS boundary, not authentication.
-See [the current implementation layer](#computable-raw-lookup-retries-and-exact-projection).
+in the kernel. Its bound result remains a PCS boundary. Concrete raw column
+authentication and PCS payload codecs are now linked to the existing cached verifier;
+helper/source PCS composition remains open.
+See [the current implementation layer](#native-pcs-wire-and-concrete-column-authentication).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -7034,3 +7036,93 @@ guarded axiom audits. Logs:
 `/tmp/hasteboots-raw-sampler-{smoke,strict,check}.log`.
 No native Rust, vendor source or dependency pin changed. The native checkout
 remains clean at `dff353006322693cab3dc6b654f82151f658f294`.
+
+## Native PCS wire and concrete column authentication
+
+`NativeGoldPcsWire` supplies exact constructed-wire codecs for a raw matrix
+(width followed by its raw Goldilocks word vector), ordered zero/one matrix
+pairs, query vectors, `(root, query, values)` binding payloads and
+`(ordinal, slot, query, values)` deferred-claim payloads. The helper query
+packer calls the actual raw coefficient-query construction and packs only
+its PCS pairs. It proves packing succeeds under the existing native matrix
+shape and usize count bounds and preserves every matrix. The local extension
+post-map is absent from the PCS bytes, including for an empty point. Readers
+are structural prefix inverses, not a strict adversarial native decoder.
+
+`NativeHashOracleBridge` compiles hash-only VCVio computations into the same
+causal mixed-oracle program used by the transcript, preserving their exact
+result and ordered observations for every world. It proves truthful hash logs
+replay their original computation from the projected common cache, also when
+an arbitrary truthful earlier mixed log is present. Every repeated call is
+retained in the log; repeated keys share one cache entry. Neither collision
+freedom nor fresh hash inputs are assumed.
+
+`NativeGoldColumnAuthentication` executes the raw whole-column hash and
+bottom-up Merkle sibling loop. Its leaf bytes are the native column domain
+followed by the original raw word-vector encoding; node bytes are exactly the
+two ordered 64-byte digests. Paths include the claimed leaf first. Empty or
+wrong-height paths fail without a hash, matching the outer PCS path-shape
+gate; the standalone Rust `MerkleTree::check` relies on that gate. Digests use
+an explicit byte-list equality decision, so the concrete checker reduces in
+the kernel. For a decoded path the program is exactly the compiled existing
+`NativeMerkleVerifier.verifyPayload`. Acceptance of a received column derives
+a typed path and successful replay of that same payload/path in the common
+cache projected from its actual earlier and column observations. No separate
+replay or authentication certificate is an input.
+
+The new `HasteBootsPcsSmoke` is imported by the existing HasteBoots smoke suite.
+Its 26 kernel examples use native Goldilocks fixtures for indices 0, 1 and 3
+of a four-leaf tree, covering both sibling orders at both levels. They check
+column serialization, exact accepted hash logs, modified values/siblings/
+roots, wrong index, empty/wrong-height paths, repeated calls and shared keys.
+Query/opening/deferred-claim bytes check native integer headers at 251 and
+65536 and the original lazy all-ones raw Goldilocks word. Empty-point tests
+check that the local post-map exists while the serialized query remains `[0]`.
+Prefix-reader tests combine kernel-checked native bytes with the proved
+reader inverses. No `native_decide`, extra axiom or increased kernel limits
+are used. Two earlier large reader-input fixtures are now split into one
+constant per reader to keep elaboration under the same default heartbeat
+limit; their data and assertions are unchanged. All 33 new theorem audits use only `propext`, `Classical.choice` and
+`Quot.sound`; the combined HasteBoots suite now has 2,432 guarded audits.
+
+Native fixture evidence is `/tmp/hasteboots-pcs-fixture.log`; its Cargo project
+is `/tmp/hasteboots-pcs-fixture`. It extracts `hash_column` unchanged, invokes
+the public native `MerkleTree` and `packed_extension::coefficients_query`,
+uses standard bincode serialization and records SHA-512 inputs/outputs. It
+also rejects modified sibling/root data and checks changed payload hashes.
+This is differential fixture evidence, not checked Rust or SHA equivalence.
+The native checkout remains clean at
+`dff353006322693cab3dc6b654f82151f658f294`. Source SHA-256:
+
+- `pcs/src/matrix_weighted.rs`: `69b2da76d44e5abb8824bc701d7a59251709315ff1445efa06ac5e9821e74fdd`
+- `pcs/src/utils/merkle_tree.rs`: `7ded8f3a9c383234b73f0b3c5dd6aa9eb68edf11161d2568b55535ef763390f5`
+- `snarks/src/packed_extension.rs`: `6d8e26d54479ad5e8f9fb5673ef67f5b86f22ec903a556a4c9cbeec785c3e8f1`
+
+Focused module builds, the 26 standalone regressions and all 33 standalone
+audits passed. Logs are `/tmp/hasteboots-pcs-column-build.log`,
+`/tmp/hasteboots-pcs-smoke-final.log`,
+`/tmp/hasteboots-pcs-regressions.log` and `/tmp/hasteboots-pcs-audit.log`.
+
+This authenticates columns only. It does not establish code membership,
+linear-response arithmetic, query finishing, PCS acceptance or lookup/PBS
+security. The next step is to derive helper opening calls from the actual
+completed body, then compose context/binding, base-field random tests,
+responses, schedule-5 atomic index sampling, trusted row-code encoding,
+column checks and suffix finishing. Source composition must retain original
+registry grouping and first registered representatives, including an unused
+alias preceding the first used slot; it must preserve field equality of lazy
+alias values and actual context-hash timing. Trusted native parameters,
+lookup/PBS extraction, strict decoding, Rust/compiler/scheduler refinement,
+BabyBear, chronological attacker work, numerical certification and the final
+128-bit application theorem remain open.
+
+Final validation: the integrated HasteBoots smoke build passed (4,188 jobs),
+the complete standalone warning-as-error HasteBoots smoke check exited 0,
+and full `scripts/check` exited 0. Its build completed 10,205 jobs and all
+subsequent repository audit/smoke commands passed. Logs:
+`/tmp/hasteboots-pcs-smoke-final.log`,
+`/tmp/hasteboots-pcs-strict-final.log`,
+`/tmp/hasteboots-pcs-strict-focused.log`,
+`/tmp/hasteboots-pcs-split-fixtures.log` and
+`/tmp/hasteboots-pcs-check.log`. No native Rust, vendor source or dependency
+pin changed.

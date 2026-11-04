@@ -374,3 +374,6 @@ public import FormalProof4FHE.HasteBoots.NativeSharedLookupExecution
 public import FormalProof4FHE.HasteBoots.NativeGoldLookupWords
 public import FormalProof4FHE.HasteBoots.NativeGoldLookupSampler
 public import FormalProof4FHE.HasteBoots.NativeGoldLookupBatch
+public import FormalProof4FHE.HasteBoots.NativeHashOracleBridge
+public import FormalProof4FHE.HasteBoots.NativeGoldPcsWire
+public import FormalProof4FHE.HasteBoots.NativeGoldColumnAuthentication
