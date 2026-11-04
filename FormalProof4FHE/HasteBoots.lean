@@ -319,3 +319,6 @@ public import FormalProof4FHE.HasteBoots.NativeGoldInterpolationPolynomial
 public import FormalProof4FHE.HasteBoots.NativeScalarBatchUpdate
 public import FormalProof4FHE.HasteBoots.NativeScalarBatchVerifier
 public import FormalProof4FHE.HasteBoots.NativeScalarBatchVerifierInvariant
+public import FormalProof4FHE.HasteBoots.NativeScalarBatchHistory
+public import FormalProof4FHE.HasteBoots.NativeScalarBatchRoundMeaning
+public import FormalProof4FHE.HasteBoots.NativeScalarBatchContract

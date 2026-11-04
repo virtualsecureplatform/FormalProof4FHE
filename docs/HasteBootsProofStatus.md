@@ -5600,3 +5600,76 @@ No Rust, vendor source or dependency pin changed.
 The full `scripts/check` finished with exit 0 after the full build (10,149
 jobs) and all subsequent audit/smoke suites. Full log:
 `/tmp/hasteboots-scalar-verifier-check.log`.
+
+## Actual scalar history supplies the polynomial terminal contract
+
+`NativeScalarBatchHistory` now derives a chained history from actual
+initialized verifier execution. The chain begins with the statement's real
+ordered claims. Each new link's prior expected vector is the preceding
+link's output, its round ordinal is the prior history length, and its
+packet is obtained from the actual submitted proof at that round. Every
+completed record retains the passed independent recurrence checks, the
+literal successful interpolation update, and the completed canonical scalar
+request with its actual decoded raw challenge. Initialization, every tick
+and every finite resumed prefix preserve this property. No caller supplies
+a chain, trace correspondence or successful-draw certificate.
+
+`NativeScalarBatchRoundMeaning` connects those operational records to the
+received-vector polynomials. Every matched equation has the trusted degree
+bound, its received polynomial satisfies `P(0) + P(1) = prior`, and the
+actual interpolation output is `P(r) = next` at the retained common
+challenge. The interface explicitly retains equal original counts for
+infos, messages, prior claims and next claims, so its zipped per-equation
+relation cannot silently omit a slot. The challenge is proved equal to
+assembly of the actual completed coefficient list, with exact canonical
+raw coordinates at every basis index.
+
+`NativeScalarBatchContract` combines these results with the completed
+verifier's structural invariants. Every successful actual run supplies
+consecutive proof rounds of exactly the trusted variable count, a chain
+from the original sums to the final ordered values, and exactly the
+returned subclaims at the common point formed by those retained draws.
+Every original equation remains present. The terminal output's expected
+vector is the endpoint of that same chain; its common point has the trusted
+length. The proof constructs the received polynomials and execution chain
+from the run, rather than assuming independent semantic witnesses.
+
+Kernel regressions observe both actual round packets, their exact prior
+and updated raw claims, the consecutive ordinals and coefficient draws in
+a two-equation/two-round execution. A finished-control tag from that run
+then supplies the complete algebraic contract. Universal consumers cover
+all actually completed records of arbitrary initialized prefixes, including
+packet-source correspondence, and preserve the chain under a suspended
+all-rejecting request. Consecutive ordinals are derived from initialization
+without an externally supplied range assertion.
+
+This closes the deterministic operational-to-polynomial history contract
+for the scalar verifier. It is not a Fiat--Shamir probability bound or a
+terminal authentication proof. The canonical shared lookup caller still
+needs its actual helper equality and reciprocal-identity terminal guards,
+source/helper query bridge and accepted PCS opening composition. The
+existing source-independent terminal adapters are not substituted for those
+bodies. Full lookup/PBS extraction and linking, checked Rust/scheduler and
+strict decoder refinement, BabyBear arithmetic, chronological attacker-work
+coupling, numerical certification and the final 128-bit application theorem
+remain open.
+
+Validation: the focused contract build passed (3,934 jobs), followed by
+HasteBoots smoke (4,132 jobs) and its separate warning-as-error run (exit 0).
+All 13 new public theorem audits use only `propext`, `Classical.choice` and
+`Quot.sound`; the guarded total is 2,026. Isolated warning-as-error kernel
+snapshots and universal contract/history consumers passed. Logs:
+`/tmp/hasteboots-scalar-contract-build.log`,
+`/tmp/hasteboots-scalar-history-audit.log`,
+`/tmp/hasteboots-scalar-history-regressions.log`,
+`/tmp/hasteboots-scalar-history-smoke.log` and
+`/tmp/hasteboots-scalar-history-strict.log`.
+The pinned Rust HEAD, transcript hashes, interpolation and batch verifier
+hashes were rechecked unchanged. The canonical shared lookup caller hash is
+`4aa496ff66e3785bf0d0ccda927dbfd62103dd0870d65ea7d7a1539702899ae3`.
+No operational Lean definitions, Rust, vendor source or dependency pins
+changed in this chunk; these additions prove properties of the existing
+actual driver and its retained records.
+The full `scripts/check` finished with exit 0 after the full build (10,152
+jobs) and all subsequent audit/smoke suites. Full log:
+`/tmp/hasteboots-scalar-history-check.log`.

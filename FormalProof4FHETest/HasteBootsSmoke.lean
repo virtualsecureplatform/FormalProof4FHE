@@ -14991,4 +14991,120 @@ end ScalarVerifierSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchVerifierInvariant.no_internal_failure
 
+
+namespace ScalarHistorySmoke
+open FormalProof4FHE.HasteBoots
+open NativeFieldRepresentation NativeGoldExtensionArithmetic NativeScalarBatchWire
+open NativeScalarBatchPreflight NativeScalarBatchVerifier NativeScalarBatchHistory
+private def word (n : ℕ) : GoldWord := ⟨n % (2^64), Nat.mod_lt _ (by decide)⟩
+private def base (n : ℕ) : Word := ![word n, word 0, word 0]
+private def msg (a b : ℕ) : Message := ⟨⟨[base a, base b], by change 2 < 2^64; decide +kernel⟩⟩
+private def info : Info := ⟨⟨1, by decide⟩, ⟨2, by decide⟩⟩
+private def statement : Statement := ⟨⟨[info, info], by decide⟩, ⟨[base 3, base 7], by decide⟩⟩
+private def proof : Proof := ⟨[⟨[msg 1 2, msg 0 1], by decide⟩, ⟨[msg 3 4, msg 1 2], by decide⟩], by decide⟩
+private def parent : NativeTranscript.Transcript := ⟨[], fun _ => 0⟩
+private def zeroWorld : InputIndexedOracle.World := fun _ => 0
+private def rejectWorld : InputIndexedOracle.World := fun _ => 255
+private def words (value : Word) : List ℕ := (List.ofFn value).map Fin.val
+private def finalMachine : Machine := (execute statement proof 9 (initial parent statement proof) zeroWorld).1
+private def finishedTag (machine : Machine) : Bool :=
+  match machine.control with | .finished _ => true | _ => false
+private theorem accepted : beginVerify parent statement proof = .ok (bindStatement parent statement) := by
+  apply (beginVerify_ok_iff parent (bindStatement parent statement) statement proof).mpr
+  exact ⟨by decide +kernel, by decide +kernel, rfl⟩
+private theorem done : finishedTag finalMachine = true := by decide +kernel
+
+-- Exact source packets, prior/output vectors and raw draws retained in order.
+example : finalMachine.completed.map (fun entry => entry.packet.round.val) = [0, 1] := by decide +kernel
+example : finalMachine.completed.map (fun entry =>
+    entry.packet.messages.val.map (fun message => message.evaluations.val.map words)) =
+    [[[[1,0,0],[2,0,0]],[[3,0,0],[4,0,0]]], [[[0,0,0],[1,0,0]],[[1,0,0],[2,0,0]]]] := by decide +kernel
+example : finalMachine.completed.map (fun entry => (entry.priorExpected.map words, entry.expected.map words)) =
+    [([[3,0,0],[7,0,0]], [[1,0,0],[3,0,0]]), ([[1,0,0],[3,0,0]], [[0,0,0],[1,0,0]])] := by decide +kernel
+example : finalMachine.completed.map (fun entry => (words entry.challenge, entry.coefficients.values)) =
+    [([0,0,0],[0,0,0]), ([0,0,0],[0,0,0])] := by decide +kernel
+
+-- The actual completed run supplies the full contract without a trace certificate.
+example : ∃ claims, NativeScalarBatchContract.Contract statement proof info finalMachine claims := by
+  have terminal := done
+  cases control : finalMachine.control with
+  | finished claims =>
+    exact ⟨claims, NativeScalarBatchContract.finished_contract parent (bindStatement parent statement)
+      statement proof info accepted rfl 9 zeroWorld claims control⟩
+  | ready => simp only [finishedTag, control, Bool.false_eq_true] at terminal
+  | sampling packet field => simp only [finishedTag, control, Bool.false_eq_true] at terminal
+  | failed error => simp only [finishedTag, control, Bool.false_eq_true] at terminal
+
+-- Every actual completed record has a full-width polynomial recurrence and update.
+example (fuel : ℕ) (world : InputIndexedOracle.World) (entry : CompletedRound)
+    (member : entry ∈ (execute statement proof fuel (initial parent statement proof) world).1.completed) :
+    NativeScalarBatchRoundMeaning.RoundMeaning statement entry ∧
+      NativeScalarBatchRoundPacket.packet entry.packet.round proof = some entry.packet := by
+  have meaning := NativeScalarBatchRoundMeaning.initialized_rounds parent (bindStatement parent statement)
+    statement proof accepted fuel world entry member
+  exact ⟨meaning.1, meaning.2.1⟩
+
+-- Prefix suspension retains the chain ending at the current expected vector.
+example : Linked statement proof (execute statement proof 5 (initial parent statement proof) rejectWorld).1 :=
+  initialized_linked parent (bindStatement parent statement) statement proof accepted 5 rejectWorld
+
+-- Consecutive ordinal linkage comes from actual initialization, not a range premise.
+example (fuel : ℕ) (world : InputIndexedOracle.World) :
+    let machine := (execute statement proof fuel (initial parent statement proof) world).1
+    machine.completed.map (fun entry => entry.packet.round.val) = List.range machine.completed.length := by
+  exact chain_ordinals (initialized_linked parent (bindStatement parent statement) statement proof accepted fuel world).1
+end ScalarHistorySmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchHistory.initial_linked' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchHistory.initial_linked
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchHistory.afterField_linked' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchHistory.afterField_linked
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchHistory.tick_linked' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchHistory.tick_linked
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchHistory.execute_linked' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchHistory.execute_linked
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchHistory.chain_all' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchHistory.chain_all
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchHistory.chain_ordinals' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchHistory.chain_ordinals
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchHistory.initialized_linked' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchHistory.initialized_linked
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchRoundMeaning.equations_related' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchRoundMeaning.equations_related
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchRoundMeaning.round_polynomial' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchRoundMeaning.round_polynomial
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchRoundMeaning.round_challenge' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchRoundMeaning.round_challenge
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchRoundMeaning.initialized_rounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchRoundMeaning.initialized_rounds
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchContract.finished_contract' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchContract.finished_contract
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchContract.contract_output' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchContract.contract_output
+
 end HasteBootsSmoke
