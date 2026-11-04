@@ -14250,4 +14250,121 @@ end GoldHelperRegressions
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeGoldHelperPrepared.executed_preparation_value
 
+namespace ScalarWireRegressions
+open NativeFieldRepresentation NativeScalarBatchWire NativePrefixCodec
+
+private def word (value : ℕ) : GoldWord := ⟨value % (2 ^ 64), Nat.mod_lt _ (by decide)⟩
+private def lazyZero : NativeFieldWire.GoldExtension := ![word 18446744069414584321, 0, 0]
+private def small : NativeFieldWire.GoldExtension := ![1, 2, 3]
+private def claims : Vector NativeFieldWire.GoldExtension := ⟨[lazyZero, small], by decide⟩
+private def statement : Statement := ⟨⟨[⟨1, 3⟩, ⟨4, 3⟩], by decide⟩, claims⟩
+private def packet : RoundPacket := ⟨251, ⟨[⟨claims⟩, ⟨⟨[], by decide⟩⟩], by decide⟩⟩
+private def emptyStatement : Statement := ⟨⟨[], by decide⟩, ⟨[], by decide⟩⟩
+private def emptyRound : RoundPacket := ⟨0, ⟨[], by decide⟩⟩
+private def statementBytes : InputIndexedOracle.Input :=
+  [2, 1, 3, 4, 3, 2, 3, 253, 1, 0, 0, 0, 255, 255, 255, 255, 0, 0, 3, 1, 2, 3]
+private def roundBytes : InputIndexedOracle.Input :=
+  [251, 251, 0, 2, 2, 3, 253, 1, 0, 0, 0, 255, 255, 255, 255, 0, 0, 3, 1, 2, 3, 0]
+
+/-- Literal public Rust serde outputs, retaining lazy field storage,
+separate vector counts, degree headers and the empty message's Vec header. -/
+private theorem statement_encoding : statementCodec.encode statement = statementBytes := by decide +kernel
+private theorem round_encoding : roundCodec.encode packet = roundBytes := by decide +kernel
+example : (infoCodec.encode ⟨65536, 251⟩).map Fin.val = [252, 0, 0, 1, 0, 251, 251, 0] := by decide +kernel
+example : statementCodec.encode emptyStatement = [0, 0] := by decide +kernel
+example : roundCodec.encode emptyRound = [0, 0] := by decide +kernel
+
+/-- Composed prefix readers preserve the following packet bytes exactly. -/
+example : statementCodec.read (statementBytes ++ [9, 8]) = some (statement, [9, 8]) := by
+  rw [← statement_encoding, statement_roundtrip]
+example : roundCodec.read (roundBytes ++ [7]) = some (packet, [7]) := by
+  rw [← round_encoding, round_roundtrip]
+example : statementCodec.read [2, 1, 3] = none := by decide +kernel
+example : goldCodec.read [2, 1, 2] = none := by decide +kernel
+
+/-- Structural decoding is not a strict-canonical proof-byte decoder. -/
+example : goldCodec.read [3, 251, 0, 0, 0, 0] = some ((fun _ => 0), []) := by decide +kernel
+
+/-- Equal payload bytes in different roles retain their native labels. -/
+example : (bindStatement ⟨[], fun _ => 0⟩ emptyStatement).input ≠
+    (bindRound ⟨[], fun _ => 0⟩ emptyRound).input := by decide +kernel
+end ScalarWireRegressions
+
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativePrefixCodec.Codec.prefix_injective' does not depend on any axioms -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativePrefixCodec.Codec.prefix_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativePrefixCodec.Codec.encode_injective' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativePrefixCodec.Codec.encode_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativePrefixCodec.readCount_encode' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativePrefixCodec.readCount_encode
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchWire.gold_encode' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchWire.gold_encode
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchWire.info_encode' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchWire.info_encode
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchWire.statement_encode' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchWire.statement_encode
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchWire.message_encode' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchWire.message_encode
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchWire.round_encode' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchWire.round_encode
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchWire.statement_roundtrip' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchWire.statement_roundtrip
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchWire.round_roundtrip' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchWire.round_roundtrip
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchWire.statement_injective' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchWire.statement_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchWire.round_injective' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchWire.round_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchWire.bindStatement_injective' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchWire.bindStatement_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchWire.bindRound_injective' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchWire.bindRound_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativePrefixCodec.usize' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativePrefixCodec.usize
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativePrefixCodec.product' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativePrefixCodec.product
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativePrefixCodec.transport' depends on axioms: [Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativePrefixCodec.transport
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativePrefixCodec.vector' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativePrefixCodec.vector
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativePrefixCodec.fixed' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativePrefixCodec.fixed
+
 end HasteBootsSmoke

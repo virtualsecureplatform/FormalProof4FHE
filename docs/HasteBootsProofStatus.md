@@ -5128,3 +5128,76 @@ Rust, vendor sources and dependency pins were not modified.
 The full `scripts/check` finished with exit 0 after the full build (10,132
 jobs) and all subsequent audit/smoke suites. Full log:
 `/tmp/hasteboots-gold-helper-check.log`.
+
+
+## Scalar-batch statement and round-message wire encodings
+
+`NativePrefixCodec` composes raw usize words, products, bounded vectors and
+fixed-degree sequences using suffix-preserving prefix left inverses. Each
+constructed encoding has a unique decoded value and following suffix; in
+particular its encoder is injective. The codec structures carry their
+encoding-law proofs, and the concrete combinators are audited along with
+the public theorems. Vector counts retain the native 64-bit usize bound.
+
+`NativeScalarBatchWire` gives the exact Goldilocks payloads used by
+`sumcheck::batch::{bind,challenge}`. `PolynomialInfo` writes maximum
+multiplicands before number of variables. The statement tuple contains a
+separately counted info slice and claim slice. Each extension value retains
+its degree-three sequence prefix and three raw u64 coordinates. A round
+packet contains the raw usize round index and counted ordered prover
+messages; each single-field `ProverMsg` contributes its counted evaluation
+vector. Borrowed message references introduce no additional wire wrapper.
+Lazy Goldilocks coordinates are retained throughout.
+
+The statement and round encoders are injective and their structural readers
+preserve arbitrary following bytes on constructed messages. Binding either
+payload to the existing native framed transcript is also injective at fixed
+prior transcript input, under the explicit native frame-byte length bound.
+A vector-count bound alone is not claimed to bound total encoded payload
+bytes. These input-binding theorems do not assert collision freedom of
+oracle outputs or global disjointness from other oracle-input roles.
+
+The isolated Rust fixture directly serializes the pinned public
+`PolynomialInfo` and `ProverMsg` types in the same borrowed tuple/slice forms
+used by the private batch functions. It confirms the complete statement and
+round payloads, wide usize metadata, separate counts, empty evaluation
+messages and empty packet layouts. Kernel regressions reproduce every
+captured byte. Suffix-preserving structured round trips use the proved
+left-inverse laws and those independently checked byte encodings; deciding
+equality of the dependent record objects directly hits Lean reduction limits.
+
+These are payload encoders and structural readers. They do not implement or
+validate the batch's native proof-shape/degree preflight, independent
+recurrences, common challenge, optimized interpolation or terminal checking.
+The encoding fixtures deliberately include empty messages which native
+preflight would reject. The readers may accept a wider integer spelling of
+zero, as the regression records; they are not a strict-canonical proof-byte
+decoder or a Rust decoder resource/error-order refinement. No artificial
+runtime iteration cap or claimed machine-work charge is introduced.
+
+Next is the actual scalar-batch verifier/interpolation body using these
+fixed native encoders, followed by its arithmetic/soundness composition.
+Helper row-code/NTT and commitments, remaining lookup/PBS bodies and
+child/parent linking, BabyBear arithmetic, public registry/source
+correspondence, checked Rust/scheduler refinement, unbounded chronological
+attacker-work coupling, strict proof-byte decoding, numerical certification
+and the final 128-bit application theorem remain open.
+
+Validation: the focused scalar-wire build passed (3,179 jobs),
+followed by HasteBoots smoke (4,115 jobs) and the separate warning-as-error
+HasteBoots smoke (exit 0). Fourteen new public theorem audits and five codec
+definition audits use only the standard foundation allowlist (the generic
+prefix-injectivity theorem requires no axioms), bringing the guarded total
+to 1,922. The isolated kernel regressions and pinned public-type Rust serde
+fixture both finished with exit 0. Logs:
+`/tmp/hasteboots-scalar-wire-build.log`,
+`/tmp/hasteboots-scalar-wire-audit.log`,
+`/tmp/hasteboots-scalar-wire-regressions.log`,
+`/tmp/hasteboots-scalar-wire-smoke.log`,
+`/tmp/hasteboots-scalar-wire-strict.log`, and
+`/tmp/hasteboots-scalar-wire-rust.log`.
+Rust HEAD and transcript source hashes were rechecked unchanged; native
+Rust, vendor sources and dependency pins were not modified.
+The full `scripts/check` finished with exit 0 after the full build (10,133
+jobs) and all subsequent audit/smoke suites. Full log:
+`/tmp/hasteboots-scalar-wire-check.log`.

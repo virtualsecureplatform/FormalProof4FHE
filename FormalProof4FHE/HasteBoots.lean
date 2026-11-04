@@ -303,3 +303,5 @@ public import FormalProof4FHE.HasteBoots.NativeLookupDrawHistory
 public import FormalProof4FHE.HasteBoots.NativeGoldLookupProducer
 public import FormalProof4FHE.HasteBoots.NativeGoldHelper
 public import FormalProof4FHE.HasteBoots.NativeGoldHelperPrepared
+public import FormalProof4FHE.HasteBoots.NativePrefixCodec
+public import FormalProof4FHE.HasteBoots.NativeScalarBatchWire
