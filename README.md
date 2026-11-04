@@ -373,10 +373,9 @@ incomplete-work mean provably vanishes. `RejectionTraceWork` derives that
 mean as `n * rho^n` and proves its limit is zero for a nonempty accepted
 domain. `CanonicalTraceWork` applies this to actual raw-byte traces: the
 completed mean equals the unconditional byte-work limit, counting every
-rejected chunk. Regressions instantiate Goldilocks and BabyBear. Nested
-pair/vector byte-work transfers, physical hash work and production
-FS/Rust refinement remain open. `CoefficientTraceWork` now derives a
-suspension union bound and a bound on every finite trace, proving that
+rejected chunk. Regressions instantiate Goldilocks and BabyBear. Physical
+hash work and production FS/Rust refinement remain open. `CoefficientTraceWork`
+now derives a suspension union bound and a bound on every finite trace, proving that
 unfinished sequential coefficient work tends to zero. Its normalized completed
 trace mean equals the unconditional coefficient byte-work limit.
 `ExtensionTraceWork` transfers this result through pure basis assembly, with
@@ -387,6 +386,14 @@ to field draws and pole rejection: unfinished byte work vanishes along the
 cofinal common depth. The normalized completed raw-trial mean equals the
 unconditional reciprocal byte-work formula with the actual accepted-domain
 cardinality, retaining every rejected field and raw chunk.
+`PairTraceWork` now retains each first-challenge-dependent domain in its
+vanishing unfinished-work proof. `ObservedVectorTail` derives sequential
+support and suspension bounds, and `VectorTraceWork` transfers the full
+repeated byte mean to the existing `ByteLookupUnbounded.measure`. Its exact
+mean is the actual conditional-domain pair byte mean times the true
+repetition count, with a proved public size-based bound. This closes the
+sampler's completed byte-work transfer; physical SHA/XOF/hash-work accounting
+and production FS/Rust refinement remain open.
 
 ## Main checked results
 

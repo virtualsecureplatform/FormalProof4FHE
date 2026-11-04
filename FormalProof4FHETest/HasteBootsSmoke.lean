@@ -10758,4 +10758,136 @@ end CompletedReciprocalWorkSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms ReciprocalTraceWork.probability
 
+
+section CompletedPairVectorWorkSmoke
+
+open OracleSpec OracleComp MeasureTheory
+
+example : IsProbabilityMeasure (PairTraceWork.measure reciprocalBasis bytePairTable) :=
+  PairTraceWork.probability (by decide) reciprocalBasis bytePairTable (by decide)
+
+/-- The completed pair mean retains the true challenge-dependent domains. -/
+example : (∫⁻ result, (ByteLookupPairWork.consumedBytes result : ENNReal)
+    ∂PairTraceWork.measure reciprocalBasis bytePairTable) =
+      ByteLookupPairWork.totalExpectedBytes reciprocalBasis bytePairTable :=
+  PairTraceWork.expected_eq_total (by decide) reciprocalBasis bytePairTable (by decide)
+
+/-- The support bound includes first-challenge bytes and partial offset work. -/
+example (result : ByteLookupPairSampler.Result 17 1 (ZMod 17))
+    (supported : result ∈ support (ByteLookupPairSampler.program reciprocalBasis bytePairTable 2 2 2)) :
+    ByteLookupPairWork.consumedBytes result ≤ 6 := by
+  simpa only [show CanonicalByteSampler.byteCount 17 = 1 by decide, Nat.reduceMul, Nat.reduceAdd] using
+    PairTraceWork.consumed_le reciprocalBasis bytePairTable 2 2 2 result supported
+
+/-- Actual typed completed bytes equal the unconditional repeated byte mean. -/
+example : (∫⁻ observed, (ByteLookupPairVector.consumedBytes observed.raw : ENNReal)
+    ∂ByteLookupUnbounded.measure reciprocalBasis bytePairTable 3) =
+      ByteLookupPairVector.totalExpectedBytes reciprocalBasis bytePairTable 3 :=
+  VectorTraceWork.typed_expected_eq_total (by decide) reciprocalBasis bytePairTable (by decide) 3
+
+/-- The true repetition count is separate from degree and packed width. -/
+example : (∫⁻ observed, (ByteLookupPairVector.consumedBytes observed.raw : ENNReal)
+    ∂ByteLookupUnbounded.measure reciprocalBasis bytePairTable 3) =
+      ByteLookupPairWork.totalExpectedBytes reciprocalBasis bytePairTable * 3 := by
+  exact VectorTraceWork.typed_expected_formula (by decide) reciprocalBasis bytePairTable (by decide) 3
+
+/-- Zero repetitions has zero completed byte mean without a fallback pair. -/
+example : (∫⁻ observed, (ByteLookupPairVector.consumedBytes observed.raw : ENNReal)
+    ∂ByteLookupUnbounded.measure reciprocalBasis bytePairTable 0) = 0 := by
+  rw [VectorTraceWork.typed_expected_formula (by decide) reciprocalBasis bytePairTable (by decide)]
+  simp
+
+/-- The public size bound applies to the actual typed completed measure. -/
+example : (∫⁻ observed, (ByteLookupPairVector.consumedBytes observed.raw : ENNReal)
+    ∂ByteLookupUnbounded.measure reciprocalBasis bytePairTable 3) ≤
+      (ByteReciprocalLimit.fieldCost 17 1 * (1 + (17 : ENNReal) / 14)) * 3 := by
+  simpa only [ZMod.card, Nat.reduceSub, Nat.cast_ofNat] using
+    VectorTraceWork.typed_expected_bound (by decide) reciprocalBasis bytePairTable (by decide) 3
+
+/-- Typing retains the first completed pair and every byte of a suspended
+second pair. Later raw responses are not consumed by a third repetition. -/
+example : (fun outcome => ((outcome.1.values.isNone, outcome.1.completed,
+      outcome.1.trials.map (fun trial => trial.offsetTrials.map (fun last => last.trials.map
+        (fun field => field.2.chunks.map CanonicalByteMask.decode))),
+      ByteLookupPairVector.consumedBytes (p := 17) (degree := 1) outcome.1), outcome.2))
+    ((simulateQ retryTape (ByteLookupPairTyped.Sample.raw <$>
+      ByteLookupPairTyped.sample reciprocalBasis bytePairTable 2 2 2 3)).run [1, 15, 2, 15, 255, 49, 5, 99]) =
+      ((true, [(1, 15)], [some [[15]], some [[15], [255, 49]]], 6), [5, 99]) := by
+  rw [ByteLookupPairTyped.sample_raw]
+  rfl
+
+end CompletedPairVectorWorkSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.PairTraceWork.consumed_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms PairTraceWork.consumed_le
+
+/-- info: 'FormalProof4FHE.HasteBoots.PairTraceWork.suspended_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms PairTraceWork.suspended_le
+
+/-- info: 'FormalProof4FHE.HasteBoots.PairTraceWork.scaled_suspension_tends_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms PairTraceWork.scaled_suspension_tends_zero
+
+/-- info: 'FormalProof4FHE.HasteBoots.PairTraceWork.partial_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms PairTraceWork.partial_le
+
+/-- info: 'FormalProof4FHE.HasteBoots.PairTraceWork.partial_tends_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms PairTraceWork.partial_tends_zero
+
+/-- info: 'FormalProof4FHE.HasteBoots.PairTraceWork.expected_eq_total' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms PairTraceWork.expected_eq_total
+
+/-- info: 'FormalProof4FHE.HasteBoots.PairTraceWork.probability' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms PairTraceWork.probability
+
+/-- info: 'FormalProof4FHE.HasteBoots.ObservedVectorTail.consumed_le' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ObservedVectorTail.consumed_le
+
+/-- info: 'FormalProof4FHE.HasteBoots.ObservedVectorTail.suspended_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms ObservedVectorTail.suspended_le
+
+/-- info: 'FormalProof4FHE.HasteBoots.VectorTraceWork.consumed_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms VectorTraceWork.consumed_le
+
+/-- info: 'FormalProof4FHE.HasteBoots.VectorTraceWork.suspended_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms VectorTraceWork.suspended_le
+
+/-- info: 'FormalProof4FHE.HasteBoots.VectorTraceWork.scaled_suspension_tends_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms VectorTraceWork.scaled_suspension_tends_zero
+
+/-- info: 'FormalProof4FHE.HasteBoots.VectorTraceWork.partial_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms VectorTraceWork.partial_le
+
+/-- info: 'FormalProof4FHE.HasteBoots.VectorTraceWork.partial_tends_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms VectorTraceWork.partial_tends_zero
+
+/-- info: 'FormalProof4FHE.HasteBoots.VectorTraceWork.typed_partial_mean' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms VectorTraceWork.typed_partial_mean
+
+/-- info: 'FormalProof4FHE.HasteBoots.VectorTraceWork.typed_expected_eq_total' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms VectorTraceWork.typed_expected_eq_total
+
+/-- info: 'FormalProof4FHE.HasteBoots.VectorTraceWork.typed_expected_formula' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms VectorTraceWork.typed_expected_formula
+
+/-- info: 'FormalProof4FHE.HasteBoots.VectorTraceWork.typed_expected_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms VectorTraceWork.typed_expected_bound
+
 end HasteBootsSmoke

@@ -3298,3 +3298,73 @@ proofs or compiled proof shortcuts were introduced. The Rust worktree remains
 unchanged. The nested rejection bounds, completed reciprocal byte-work
 transfer, regressions and documented remaining obligations form one commit
 chunk. The full formal-security objective remains active.
+
+
+## Completed pair and repeated typed lookup byte-work means
+
+`PairTraceWork` derives support and suspension bounds from the actual
+byte-backed pair program. The first completed field challenge chooses its
+public-table hashes and reciprocal domain; unfinished first draws start no
+reciprocal trial. With byte width `w`, basis degree `d` and depths `H,I,O`,
+full retained work is at most `w * d * (H + I * O)`. Suspension is bounded by
+`d * kappa^H + O * d * kappa^I + sum_y theta(y)^O`, where `kappa` is the
+base canonical rejection probability and `theta(y)` belongs to the actual
+reciprocal domain for first challenge `y`.
+
+The unweighted finite sum over challenges is only an auxiliary work-tail
+bound. It does not replace the exact conditional-domain average in the
+final mean or add a security loss. Every fixed polynomial multiple of this
+suspension probability tends to zero along common depth, because each
+actual domain is nonempty under the existing size condition. The completed
+pair measure is normalized and its byte mean equals the existing exact
+unconditional pair-work formula, retaining collisions and duplicate poles.
+No independence between the pair coordinates is assumed.
+
+`ObservedVectorTail` derives support and suspension bounds for the actual
+sequential observed-vector program. A failed head stops the suffix; every
+started observation remains in the work sum. For `r` requested repetitions,
+the raw vector support bound is `r * w * d * (n + n^2)` and its suspension
+probability is at most `r` times that of the real single-pair program.
+`VectorTraceWork` combines these bounds with the pair's polynomial tail
+decay to prove that unfinished vector byte work vanishes. Earlier successful
+pairs and the suspended last pair are all counted. These are derived bounds
+on finite analysis approximations, not native retry or byte caps.
+
+The typing adapter uses the already proved exact raw-program erasure and
+completion equivalence. It transfers the result directly to the existing
+`ByteLookupUnbounded.measure` used by the staged native security proof.
+The actual completed typed mean equals the unconditional repeated-byte
+supremum, hence the exact conditional-domain pair byte mean times the true
+repetition count. A public size-based upper bound is also proved for that
+same completed measure. Repetition count, extension degree and PCS packing
+remain separate parameters.
+
+Regressions check pair normalization and mean, support bounds with partial
+work, zero and three repetitions in the original typed measure, and its
+public size-based cost bound. The actual typed trace regression preserves
+one completed pair and six total bytes when the second pair suspends
+inside an offset field draw, leaving the third repetition and later tape
+unstarted. Existing fixtures retain different domain cardinalities at
+different first challenges.
+
+This closes the canonical/coefficient/extension/reciprocal/pair/vector
+byte-work transfers to completed sampler measures, including the existing
+unbounded typed lookup law. Converting these byte means and the separate
+availability account to physical SHA/XOF/hash work remains open, as do
+production transcript/FS and Rust refinement, honest opening/scheduler
+completeness, deferred/global PBS, application/knowledge/full-PBS composition
+and the final concrete unbudgeted 128-bit expected-work theorem. The full
+formal-security objective remains active.
+
+Validation passed: focused HasteBoots build (3,985 jobs), strict
+warning-as-error HasteBoots smoke, full `scripts/check` (10,081 build jobs
+and all strict regression suites, terminal exit zero), and
+`git diff --check`. Logs: `/tmp/hasteboots-pair-vector-trace-smoke-build.log`,
+`/tmp/hasteboots-pair-vector-trace-strict-smoke.log` and
+`/tmp/hasteboots-pair-vector-trace-check.log`. All 18 new theorem audits
+passed, bringing the total to 1,360; their transitive axiom sets are contained
+in `propext`, `Classical.choice` and `Quot.sound`. No custom axioms, admitted
+proofs or compiled proof shortcuts were introduced. The Rust worktree remains
+unchanged. The conditional pair and sequential vector work tails, original
+typed-measure transfer, regressions and documented remaining obligations
+form one commit chunk. The full formal-security objective remains active.
