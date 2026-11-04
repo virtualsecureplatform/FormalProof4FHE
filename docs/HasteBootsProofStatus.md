@@ -5050,3 +5050,81 @@ Rust, vendor sources and dependency pins were not modified.
 The full `scripts/check` finished with exit 0 after the full build (10,128
 jobs) and all subsequent audit/smoke suites. Full log:
 `/tmp/hasteboots-gold-producer-check.log`.
+
+
+## Raw helper construction and the packed PCS source
+
+`NativeGoldHelper.fill` copies the selected raw extension words, stops at
+capacity, and pads remaining cells with raw extension zero. Accessed invalid
+indices are explicit failed preconditions; unread trailing indices are
+ignored. Its exact copy/truncate/pad theorem and length theorem hold on the
+actual result. Mapping the output words to the degree-three field is proved
+to equal the existing `NativeLookupHelper.fill`, including failure paths.
+
+The raw coefficient packer copies all three stored Goldilocks coordinates
+in declared basis order and appends raw zero lanes. Every row-major address
+is proved to return its exact raw word. Packing with width at least three is
+injective on raw extension objects; equal field values cannot be substituted
+for equal storage. Its field projection is exactly the old basis coefficient
+packer for all widths, with the checked constructor enforcing adequate width.
+
+`NativeGoldHelperPrepared` retains the existing 64-bit helper geometry checks,
+explicit geometry/index errors, and the actual raw flat storage. Successful
+preparation has exactly `2^numVars * width` words below the 64-bit size limit,
+and its projected table satisfies the existing packed-table validity
+predicate. Both raw building and preparation project to the old semantic
+constructors. The initialized-execution composition theorem supplies the
+actual raw reciprocal vector from the sampler's retained first/last draws;
+no caller-provided inverse-value certificate is needed for this comparison.
+
+The PCS query theorem evaluates the actual successfully filled raw helper
+through its projected row-major source and returns the same encoded extension
+MLE as the existing query proof. An accepted wrong extension claim therefore
+forces a wrong base-field PCS claim, including the zero-variable post-map
+case. This constructor specifies honest helper generation. It does not
+restrict adversarial committed padding to zero; the existing PCS interface
+for arbitrary unused lanes and adversarial source interpretation remains
+necessary for application soundness.
+
+The Rust fixture directly calls the pinned public
+`snarks::packed_extension::table` constructor after evaluating the literal
+native copy loop. It confirms meaningful lazy coordinates are retained and
+padding lanes are raw zero. It also checks native geometry errors and an
+unread invalid trailing index. The resolved `concrete-ntt` commit matches
+the pinned native lockfile. Kernel regressions reproduce its raw filled and
+packed vectors, and cover an accessed invalid index, geometry-first failure,
+constant helpers, the variable-count/multiplication overflow boundaries,
+and distinguish raw zero from raw modulus after packing.
+
+Preparation is a checked natural-word model. Its explicit preflight errors
+do not claim Rust panic/error-order correspondence. These are pre-row-code
+helper words, not encoded Merkle-column bytes: row-code/NTT refinement,
+column layout, hashing and actual helper commitment construction remain open.
+The source/query arithmetic results alone do not establish a committed
+helper or authenticate a malicious prover's values.
+
+Next are raw scalar-batch statement/message encodings and its independent
+common-challenge verifier/interpolation body, alongside the remaining helper
+commitment bridge. Full lookup/PBS stage composition and child/parent linking,
+BabyBear arithmetic, public registry/source correspondence, checked Rust and
+scheduler refinement, unbounded chronological attacker-work coupling, strict
+proof-byte decoding, numerical certification and the final 128-bit application
+security theorem remain open.
+
+Validation: the focused prepared-helper build passed (3,919 jobs),
+the HasteBoots smoke build passed (4,113 jobs), and the separate
+warning-as-error HasteBoots smoke finished with exit 0. All 19 new public
+theorem audits use only the standard foundation allowlist, bringing the
+guarded HasteBoots total to 1,903. The isolated kernel regression suite and
+the fixture calling the pinned public Rust table constructor finished with
+exit 0. Logs: `/tmp/hasteboots-gold-helper-prepared-build.log`,
+`/tmp/hasteboots-gold-helper-audit.log`,
+`/tmp/hasteboots-gold-helper-regressions.log`,
+`/tmp/hasteboots-gold-helper-smoke.log`,
+`/tmp/hasteboots-gold-helper-strict.log`, and
+`/tmp/hasteboots-gold-helper-rust.log`.
+Rust HEAD and transcript source hashes were rechecked unchanged. Native
+Rust, vendor sources and dependency pins were not modified.
+The full `scripts/check` finished with exit 0 after the full build (10,132
+jobs) and all subsequent audit/smoke suites. Full log:
+`/tmp/hasteboots-gold-helper-check.log`.

@@ -14133,4 +14133,121 @@ end GoldProducerRegressions
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupProducer.executed_tableSum
 
+namespace GoldHelperRegressions
+open NativeFieldRepresentation
+
+private def word (value : ℕ) : GoldWord := ⟨value % (2 ^ 64), Nat.mod_lt _ (by decide)⟩
+private def lazy : NativeFieldWire.GoldExtension :=
+  ![word 18446744069414584321, word 18446744069414584322, word 18446744073709551615]
+private def small : NativeFieldWire.GoldExtension := ![word 5, word 6, word 7]
+private def inverses := [lazy, small]
+private def coords (value : NativeFieldWire.GoldExtension) := List.ofFn (fun i => (value i).val)
+
+/-- Native fill and the public Rust packed-table constructor preserve
+lazy meaningful coordinates while padding every unused lane with raw zero. -/
+example : (NativeGoldHelper.fill 4 inverses [1, 0, 1]).map (List.map coords) = some
+    [[5, 6, 7], [18446744069414584321, 18446744069414584322, 18446744073709551615],
+      [5, 6, 7], [0, 0, 0]] := by decide +kernel
+example : (NativeGoldHelperPrepared.prepare 2 4 inverses [1, 0, 1]).map (List.map Fin.val) =
+    .ok [5, 6, 7, 0, 18446744069414584321, 18446744069414584322, 18446744073709551615, 0,
+      5, 6, 7, 0, 0, 0, 0, 0] := by decide +kernel
+
+/-- Unread trailing indices are ignored, but every accessed invalid index
+is a failed arithmetic/memory precondition in this checked model. -/
+example : (NativeGoldHelper.fill 4 inverses [1, 0, 1, 0, 99]).map (List.map coords) = some
+    [[5, 6, 7], [18446744069414584321, 18446744069414584322, 18446744073709551615],
+      [5, 6, 7], [18446744069414584321, 18446744069414584322, 18446744073709551615]] := by decide +kernel
+example : NativeGoldHelper.fill 0 inverses [99] = some [] := by rfl
+example : NativeGoldHelperPrepared.prepare 2 4 inverses [99] = .error .invalidIndex := by decide +kernel
+example : NativeGoldHelperPrepared.prepare 2 2 inverses [99] = .error .invalidGeometry := by decide +kernel
+example : NativeGoldHelperPrepared.prepare 64 4 inverses [] = .error .invalidGeometry := by decide +kernel
+example : NativeGoldHelperPrepared.prepare 0 4294967296 inverses [] = .error .invalidGeometry := by decide +kernel
+example : NativeGoldHelperPrepared.build 1 4 [small] = .error .invalidGeometry := by decide +kernel
+
+/-- Constant helpers still copy the raw coordinates before post-map queries. -/
+example : (NativeGoldHelperPrepared.prepare 0 4 inverses [0, 99]).map (List.map Fin.val) =
+    .ok [18446744069414584321, 18446744069414584322, 18446744073709551615, 0] := by decide +kernel
+example : (NativeGoldHelper.vector 4 (fun _ => word 18446744069414584321)).map Fin.val =
+    [18446744069414584321, 18446744069414584321, 18446744069414584321, 0] := by decide +kernel
+example : NativeGoldHelper.pack 4 [NativeGoldLookup.zero] ≠
+    NativeGoldHelper.pack 4 [(fun _ => word 18446744069414584321)] := by decide +kernel
+end GoldHelperRegressions
+
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldHelper.vector_length' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldHelper.vector_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldHelper.pack_length' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldHelper.pack_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldHelper.fill_spec' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldHelper.fill_spec
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldHelper.pack_get' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldHelper.pack_get
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldHelper.pack_injective' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldHelper.pack_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldHelper.fill_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldHelper.fill_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldHelper.fill_length' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldHelper.fill_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldHelper.coefficient_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldHelper.coefficient_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldHelper.vector_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldHelper.vector_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldHelper.pack_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldHelper.pack_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldHelperPrepared.build_ok_iff' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldHelperPrepared.build_ok_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldHelperPrepared.prepare_ok_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldHelperPrepared.prepare_ok_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldHelperPrepared.prepare_length' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldHelperPrepared.prepare_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldHelperPrepared.prepare_valid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldHelperPrepared.prepare_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldHelperPrepared.build_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldHelperPrepared.build_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldHelperPrepared.prepare_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldHelperPrepared.prepare_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldHelperPrepared.prepare_query' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldHelperPrepared.prepare_query
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldHelperPrepared.prepare_false_claim' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldHelperPrepared.prepare_false_claim
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldHelperPrepared.executed_preparation_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldHelperPrepared.executed_preparation_value
+
 end HasteBootsSmoke

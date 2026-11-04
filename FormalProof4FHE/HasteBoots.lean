@@ -301,3 +301,5 @@ public import FormalProof4FHE.HasteBoots.NativeGoldLookup
 public import FormalProof4FHE.HasteBoots.NativeGoldLookupCompleted
 public import FormalProof4FHE.HasteBoots.NativeLookupDrawHistory
 public import FormalProof4FHE.HasteBoots.NativeGoldLookupProducer
+public import FormalProof4FHE.HasteBoots.NativeGoldHelper
+public import FormalProof4FHE.HasteBoots.NativeGoldHelperPrepared
