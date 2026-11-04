@@ -10890,4 +10890,35 @@ end CompletedPairVectorWorkSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms VectorTraceWork.typed_expected_bound
 
+
+section SecurityExperimentSmoke
+open SecurityExperiment
+private def sevenSteps : Work := ⟨⟨0, 0, 0⟩, 0, 0, 7⟩
+example : steps .attacker ([.work .verifier sevenSteps, .work .attacker sevenSteps] : Trace Unit Unit) = 7 := by
+  decide
+example : steps .attacker ([.work .setup sevenSteps] : Trace Unit Unit) = 0 := by decide
+example : Bad (fun (_ : Unit) (_ : Unit) => False)
+    ([.submission () () true, .submission () () false] : Trace Unit Unit) := by
+  exact ⟨(), (), by simp, by simp⟩
+/-- Infinite histories have no analysis-depth maximum. -/
+example (n : ℕ) : prefixSteps .attacker (fun _ : ℕ => some (.work .attacker sevenSteps : Event Unit Unit)) n = n * 7 := by
+  simp [prefixSteps, eventSteps, sevenSteps]
+end SecurityExperimentSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.SecurityExperiment.steps_append' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms SecurityExperiment.steps_append
+
+/-- info: 'FormalProof4FHE.HasteBoots.SecurityExperiment.bad_persists' does not depend on any axioms -/
+#guard_msgs (whitespace := lax) in
+#print axioms SecurityExperiment.bad_persists
+
+/-- info: 'FormalProof4FHE.HasteBoots.SecurityExperiment.other_actor_zero' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms SecurityExperiment.other_actor_zero
+
+/-- info: 'FormalProof4FHE.HasteBoots.SecurityExperiment.expectedWork_mono' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms SecurityExperiment.expectedWork_mono
+
 end HasteBootsSmoke

@@ -254,3 +254,4 @@ public import FormalProof4FHE.HasteBoots.ReciprocalTraceWork
 public import FormalProof4FHE.HasteBoots.PairTraceWork
 public import FormalProof4FHE.HasteBoots.ObservedVectorTail
 public import FormalProof4FHE.HasteBoots.VectorTraceWork
+public import FormalProof4FHE.HasteBoots.SecurityExperiment

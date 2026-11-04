@@ -3368,3 +3368,73 @@ proofs or compiled proof shortcuts were introduced. The Rust worktree remains
 unchanged. The conditional pair and sequential vector work tails, original
 typed-measure transfer, regressions and documented remaining obligations
 form one commit chunk. The full formal-security objective remains active.
+
+
+## Revised roadmap M0: experiment contract and extraction probe
+
+The revised plan prioritizes the custom transcript/compiler and unrestricted
+expected-work gaps. Final completion requires both primitive and abstract
+64-bit computation accounting, checked correspondence with the pinned Rust
+typed verifier, and a separate byte-decoding corollary. The original protocol
+12/schedule-5 Brakedown target, dimensions, keys, and Goldilocks-before-BabyBear
+order are unchanged.
+
+`SecurityExperiment` defines the target interface independently of any
+claimed security bound. Chronological events distinguish attacker, verifier
+and setup work. Primitive SHA-512 blocks, SHAKE absorb/squeeze blocks,
+constructed bytes, memory operations and machine steps have separate fields;
+no conversion between them is assumed. Submissions do not magically create
+a paid-work event: native execution and cost refinement must justify that
+charge. Earlier accepted false submissions persist after later rejection.
+
+The final target ranges over an explicit adversary type and its implemented
+experiment. A history is a potentially infinite sequence of optional events,
+with the countable product sigma algebra. Total attacker steps are the
+supremum of actual finite prefix counts. This admits unbounded retries and
+infinite work without using a discrete sigma algebra on an uncountable
+whole-history space. `RiskBound` retains an explicit initial-risk term;
+`ExpectedWorkSecurity` states the desired ratio and does not prove it.
+The current module is a contract, not the joint native execution or a
+security certificate.
+
+Remaining revised milestones, in order: implement joint SHAKE/SHA-512
+transcript semantics; prove one actual linked lookup child under prequeries
+and stream reuse; prove the stopping/work conversion; compose all PBS stages
+and application extraction; compile the whole transcript and prove checked
+Rust correspondence; then certify concrete parameters and the byte corollary.
+No further sampler foundations are planned without a named dependency of
+these end-to-end obligations.
+
+Extraction probe: Aeneas revision
+`15b968482b0dcd7aae45020b6d1bca39b5024af5` was cloned outside the repository.
+Its recorded Charon pin is `ef3748c1a92c6acc402f978770193d34adc0fe6e` and
+its Lean backend targets 4.31.0. Neither extraction executable is installed
+on PATH. A direct source probe failed because Aeneas was not a resolved
+package; this is not a demonstrated Lean compatibility failure. A separate
+temporary checkout now attempts the primitive backend against the existing
+Lean 4.35/mathlib environment. Root dependency pins and vendor sources are
+unchanged. Successful extraction and the Rust refinement gate remain open.
+
+The isolated primitive-backend build terminated with exit 1 after resolving
+mathlib to the root 4.35 source. It fails in `AeneasMeta.BvEnumToBitVec`
+(the imported `Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Enums` module was
+moved) and `AeneasMeta.Simp.Simp` (the simplifier result and hash-set APIs
+changed). Logs: `/tmp/hasteboots-aeneas-m0-build.log`. Reproduction uses the
+pinned checkout above, changes only its temporary Lean toolchain to 4.35.0
+and its mathlib require to `/workspace/.lake/packages/mathlib`, then runs
+`lake update mathlib` and `lake build Aeneas.Std.Primitives` inside the
+project container. This is a diagnosed compatibility task, not evidence that
+extraction is impossible or that the full goal is blocked. The next tooling
+step is to port those two meta modules in isolation and repeat the probe.
+
+Contract validation passed: focused HasteBoots build (3,986 jobs), strict
+warning-as-error smoke, and full `scripts/check` (10,082 build jobs and all
+strict suites, terminal exit zero). Four new guarded theorem audits passed,
+bringing the total to 1,364, with only standard kernel foundations. Logs:
+`/tmp/hasteboots-experiment-smoke.log`, `/tmp/hasteboots-experiment-strict.log`
+and `/tmp/hasteboots-experiment-check.log`. `git diff --check` passed and the
+Rust worktree is unchanged. These checks validate the contract and its ledger
+properties; the final security goal is still unproved. The concrete joint
+execution must additionally establish normalization and correspondence with
+the specified adversary class. M0 is partially implemented; the extraction
+gate and later milestones remain open.

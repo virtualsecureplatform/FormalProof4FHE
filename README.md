@@ -395,6 +395,11 @@ repetition count, with a proved public size-based bound. This closes the
 sampler's completed byte-work transfer; physical SHA/XOF/hash-work accounting
 and production FS/Rust refinement remain open.
 
+`SecurityExperiment` now records the revised end-to-end target contract,
+with separate attacker/verifier/setup accounting and potentially infinite
+histories. It defines the final expected-work goal; the actual joint
+transcript execution and cost/refinement proofs remain to be implemented.
+
 ## Main checked results
 
 - `FormalProof4FHE.RLWE.quotientOf_bijective` and `quotientOf_mul` connect the executable negacyclic carrier
