@@ -14032,4 +14032,105 @@ end GoldLookupRegressions
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupCompleted.tableSum
 
+namespace GoldProducerRegressions
+open NativeFieldRepresentation NativeExtensionFields
+
+private def word (value : ℕ) : GoldWord := ⟨value % (2 ^ 64), Nat.mod_lt _ (by decide)⟩
+private def coords (value : NativeFieldWire.GoldExtension) := List.ofFn (fun i => (value i).val)
+private def parent : NativeTranscript.Transcript := ⟨[], fun _ => 0⟩
+private def coefficients (values : List ℕ) : NativeFieldVector.State :=
+  ⟨⟨parent, [], []⟩, 0, values, []⟩
+private noncomputable def draw (values : List ℕ) : NativeLookupChallenge.Draw Goldilocks3 :=
+  ⟨TypedFieldRequest.scalarValue goldilocksBasis values, coefficients values⟩
+private noncomputable def selection : NativeLookupChallenge.Machine Goldilocks3 :=
+  ⟨.finished (draw [0, 1, 4294967294]).value (draw [3, 4, 5]).value [] [] parent,
+    [draw [0, 1, 4294967294], draw [0, 0, 0], draw [3, 4, 5]], 1⟩
+private def rows : List (List GoldWord) :=
+  [[word 1, word 2, word 3], [word 18446744069414584320, word 0, word 42], [word 5, word 7, word 0]]
+
+/-- Retained-history decoder fixture: the intervening zero offset is
+retained and must not supply either raw source word. Operational provenance
+is proved by `executed_success`, independently of this concrete fixture. -/
+example : (NativeGoldLookupProducer.sourceWords selection).map
+    (fun pair => (coords pair.1, coords pair.2)) = some ([0, 1, 4294967294], [3, 4, 5]) := by decide +kernel
+example : selection.draws.map (fun draw => draw.coefficients.values) =
+    [[0, 1, 4294967294], [0, 0, 0], [3, 4, 5]] := rfl
+
+/-- The history-selected sources drive the same raw reciprocal/table-sum
+fixture as the pinned Rust algebra expression test. -/
+example : (NativeGoldLookupProducer.produce 3 rows selection).map
+    (fun out => (out.inverses.map coords, coords (NativeGoldExtensionArithmetic.tableSum
+      out.inverses [word 1, word 0, word 2]))) = some
+    ([[10669078766548504727, 1677925190385246904, 16416740259981085508],
+      [19636715883431950, 2906257706217974732, 9139279106566647151],
+      [5881221366840243887, 9059788479930208498, 9336486865236760688]],
+     [3984777430814408180, 1350758080831079579, 16642969921040022563]) := by decide +kernel
+
+example : NativeGoldLookupProducer.decode [1, 2] = none := by decide +kernel
+example : NativeGoldLookupProducer.decode [1, 2, 3, 4] = none := by decide +kernel
+example : NativeGoldLookupProducer.decode [0, 18446744069414584321, 1] = none := by decide +kernel
+example : (NativeGoldLookupProducer.decode [0, 18446744069414584320, 1]).map coords =
+    some [0, 18446744069414584320, 1] := by decide +kernel
+example : NativeGoldLookupProducer.sourceWords { selection with draws := [] } = none := by decide +kernel
+example : NativeGoldLookupProducer.sourceWords
+    { selection with draws := [draw [0, 1, 4294967294], draw [3, 4]] } = none := by decide +kernel
+end GoldProducerRegressions
+
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupDrawHistory.initial_roles' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupDrawHistory.initial_roles
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupDrawHistory.tick_roles' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupDrawHistory.tick_roles
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupDrawHistory.execute_roles' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupDrawHistory.execute_roles
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupDrawHistory.request_roles' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupDrawHistory.request_roles
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupDrawHistory.initial_batch' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupDrawHistory.initial_batch
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupDrawHistory.afterSample_batch' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupDrawHistory.afterSample_batch
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupDrawHistory.tick_batch' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupDrawHistory.tick_batch
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupDrawHistory.execute_batch' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupDrawHistory.execute_batch
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupDrawHistory.completed_roles' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupDrawHistory.completed_roles
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupProducer.decode_complete' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupProducer.decode_complete
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupProducer.sourceWords_success' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupProducer.sourceWords_success
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupProducer.completed_success' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupProducer.completed_success
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupProducer.executed_success' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupProducer.executed_success
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupProducer.executed_tableSum' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupProducer.executed_tableSum
+
 end HasteBootsSmoke

@@ -299,3 +299,5 @@ public import FormalProof4FHE.HasteBoots.NativeGoldCubic
 public import FormalProof4FHE.HasteBoots.NativeGoldCubicInverse
 public import FormalProof4FHE.HasteBoots.NativeGoldLookup
 public import FormalProof4FHE.HasteBoots.NativeGoldLookupCompleted
+public import FormalProof4FHE.HasteBoots.NativeLookupDrawHistory
+public import FormalProof4FHE.HasteBoots.NativeGoldLookupProducer

@@ -4976,3 +4976,77 @@ sources and dependency pins were not modified.
 The full `scripts/check` finished with exit 0 after the full build (10,129
 jobs) and all subsequent audit and smoke suites. Full log:
 `/tmp/hasteboots-gold-lookup-check.log`.
+
+
+## Exact retained draw positions supply raw lookup inputs
+
+`NativeLookupDrawHistory.Roles` identifies the complete ordered records,
+not only their mathematical values. During compression the history is empty.
+During reciprocal sampling it is the compression draw followed by exactly
+`rejected` offset draws. On completion the last accepted offset is appended.
+The first record's value is y, the last record's value is r, every middle
+offset fails the actual fixed-table acceptance predicate, and the middle
+length equals the rejection counter. Coefficient states, consumed chunks,
+receipts and all rejected draw records are retained in that same list.
+
+The invariant is proved for initialization, every actual sampler tick and
+every resumed execution. An independent batch invariant lifts it through
+request markers, zero-repetition requests, active jobs, completion and the
+ordered batch execution. The existing sampler and batch programs are
+unchanged. It is not an assumption supplied on an arbitrary execution.
+
+`NativeGoldLookupProducer.sourceWords` reads the first and last coefficient
+records only after the control has finished. Its checked constructor requires
+exactly three canonical coefficients. The sampler's existing field invariant
+proves those conditions, their exact raw spelling and their mathematical
+values. The success theorem also identifies each raw coordinate with the
+corresponding stored first/last coordinate. Intervening rejected offsets
+cannot be mistaken for either input.
+
+The producer then reconstructs the native raw powers, last power update,
+compressed table, additive denominators and individual `one / denominator`
+outputs. `executed_success` starts from the actual batch initializer and
+derives both validity and history roles from execution. It no longer takes
+raw y/r inputs, value-equality premises, a nonzero-domain certificate or a
+reciprocal-value certificate. Its successful output has the sampler's exact
+y/r values, powers, table and reciprocal values. `executed_tableSum` feeds
+that actual output vector to the raw public table sum. The remaining raw-row
+relation explicitly identifies the trusted public request's mathematical
+rows with the supplied native raw rows.
+
+This is a deterministic reconstruction/refinement view of retained native
+arithmetic state. It does not execute an extra native arithmetic pass or
+establish the time/cost of the original computation. Placing and charging
+those operations in the full chronological native experiment remains open.
+Likewise an absent decoded result on an unfinished analysis state is not a
+new native rejection: the original resumable state is retained.
+
+Kernel regressions test head/last decoding across an intervening zero offset,
+exact retention of the middle record, malformed coefficient counts, the
+modulus boundary and empty draw histories. The history-selected inputs also
+reproduce the previously captured pinned-Rust algebra reciprocal/table-sum
+fixture. These concrete decoder fixtures do not establish operational
+provenance; the universal initialized-execution theorem proves that part.
+
+Next are exact raw helper packing/commitment and statement encodings, followed
+by the independent common-challenge scalar-batch/interpolation body. Public
+registry/source correspondence, remaining lookup/PBS bodies and child/parent
+linking, BabyBear arithmetic, checked Rust/scheduler correspondence, strict
+proof-byte decoding, unbounded chronological attacker-work coupling,
+numerical certification and the final 128-bit theorem remain open.
+
+Validation: the focused producer build passed (3,916 jobs), followed
+by the HasteBoots smoke build (4,111 jobs) and the separate warning-as-error
+HasteBoots smoke (exit 0). All 14 new theorem audits use only the standard
+foundation allowlist, bringing the guarded total to 1,884. The isolated
+kernel decoder/producer regression suite finished with exit 0. Logs:
+`/tmp/hasteboots-gold-producer-build.log`,
+`/tmp/hasteboots-gold-producer-audit.log`,
+`/tmp/hasteboots-gold-producer-regressions.log`,
+`/tmp/hasteboots-gold-producer-smoke.log`, and
+`/tmp/hasteboots-gold-producer-strict.log`.
+Rust HEAD and transcript source hashes were rechecked unchanged; native
+Rust, vendor sources and dependency pins were not modified.
+The full `scripts/check` finished with exit 0 after the full build (10,128
+jobs) and all subsequent audit/smoke suites. Full log:
+`/tmp/hasteboots-gold-producer-check.log`.
