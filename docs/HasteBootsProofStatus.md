@@ -3861,3 +3861,53 @@ revision `dff353006322693cab3dc6b654f82151f658f294` and both inspected transcrip
 source hashes were rechecked. Rust sources, vendor sources, and dependency
 pins are unchanged. This milestone does not complete the security theorem
 or the checked Rust correspondence gate.
+
+
+## Native challenge fields and typed assembly
+
+`NativeExtensionFields.lean` proves irreducibility of the actual native
+challenge polynomials: Goldilocks `X^3 - 7` and BabyBear `X^6 - 31`.
+Kernel-checked finite-field exponent witnesses establish the required
+non-cube and non-square facts. For BabyBear, a norm argument over the
+cubic extension excludes a square root of its generator; polynomial
+composition then proves the degree-six polynomial irreducible. No extra
+irreducibility axiom or external primality/certificate trust is introduced.
+
+The resulting quotient fields have explicit power bases indexed by `Fin 3`
+and `Fin 6`, with basis vectors equal to the corresponding generator powers.
+Their cardinalities are proved to be the base modulus cubed and raised to
+the sixth power. These are the native challenge fields, distinct from the
+PCS degree-four/eight symbol fields. This establishes field structure and
+size, without inferring a security bound from either cardinality.
+
+`NativeFieldAssembly.lean` converts a length-checked list of accepted
+canonical integers into indexed base-field coefficients. The canonical
+representative of each converted value equals the original integer under
+the established `< p` bounds. Extension assembly preserves every
+coordinate at flat offset `coordinate + degree * element`. The
+`finished_request_coordinate` theorem obtains both length and bounds from
+the actual completed `NativeFieldVector.request`, including its native
+receipt, for every world and finite analysis budget. Concrete assembly
+functions use the newly proved Goldilocks degree-three and BabyBear
+degree-six power bases. Assembly is pure and issues no oracle operations.
+
+This closes the mathematical field-existence and typed-coordinate grouping
+part of M1. It does not prove Rust lazy/Montgomery representation conversion,
+extension-basis descriptor byte agreement, valid native request sizes, or
+the whole-history conditional distribution bridge. Those obligations,
+the actual lookup compiler, unrestricted stopping/work conversion, full
+PBS security composition, concrete parameter certification, and checked
+Rust/scheduler correspondence remain open. The final security theorem
+remains unproved.
+
+
+Validation passed: focused HasteBoots smoke (4,074 jobs), a separate
+warning-as-error HasteBoots smoke, and full `scripts/check` (10,092 jobs
+and every subsequent strict suite, terminal exit zero). Fourteen new
+guarded theorem audits passed, bringing the HasteBoots total to 1,479;
+all use only the permitted `propext`, `Classical.choice`, and `Quot.sound`
+foundations. Regressions check native cardinalities and cross-element
+coordinate offsets for both extension fields. Logs are
+`/tmp/hasteboots-native-assembly-{build,audit,smoke,strict,check}.log`.
+The inspected Rust revision and transcript hashes remain unchanged;
+Rust sources, vendor sources, and dependency pins were not modified.

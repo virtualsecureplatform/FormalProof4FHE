@@ -11526,4 +11526,84 @@ end NativeFieldVectorSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.request_replay
 
+/-- Native challenge cardinalities use degrees 3 and 6, separately from PCS degrees 4 and 8. -/
+example : Fintype.card NativeExtensionFields.Goldilocks3 = NativeFields.goldilocksModulus ^ 3 :=
+  NativeExtensionFields.goldilocks_card
+
+example : Fintype.card NativeExtensionFields.BabyBear6 = NativeFields.babyBearModulus ^ 6 :=
+  NativeExtensionFields.babyBear_card
+
+/-- The final coordinate of the second native Goldilocks value is flat index five. -/
+example :
+    (NativeExtensionFields.goldilocksBasis.equivFun
+      (NativeFieldAssembly.goldilocks 2 [0, 1, 2, 3, 4, 5] (by decide) 1) 2).val = 5 := by
+  exact NativeFieldAssembly.assemble_canonical_coordinate
+    NativeExtensionFields.goldilocksBasis 2 [0, 1, 2, 3, 4, 5] (by decide)
+    (by intro v hv; simp only [List.mem_cons, List.not_mem_nil, or_false] at hv; rcases hv with h | h | h | h | h | h <;> subst v <;> decide) 1 2
+
+/-- The next BabyBear element starts at coefficient six, rather than the PCS stride eight. -/
+example :
+    (NativeExtensionFields.babyBearBasis.equivFun
+      (NativeFieldAssembly.babyBear 2 [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] (by decide) 1) 0).val = 6 := by
+  apply NativeFieldAssembly.assemble_canonical_coordinate
+  intro v hv
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at hv
+  rcases hv with h | h | h | h | h | h | h | h | h | h | h | h <;> subst v <;> decide
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionFields.no_power_of_witness' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionFields.no_power_of_witness
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionFields.goldilocks_seven_not_cube' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionFields.goldilocks_seven_not_cube
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionFields.babyBear_thirtyOne_not_cube' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionFields.babyBear_thirtyOne_not_cube
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionFields.babyBear_thirtyOne_not_square' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionFields.babyBear_thirtyOne_not_square
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionFields.goldilocks_irreducible' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionFields.goldilocks_irreducible
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionFields.babyBear_cubic_irreducible' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionFields.babyBear_cubic_irreducible
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionFields.babyBear_irreducible' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionFields.babyBear_irreducible
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionFields.goldilocks_basis_power' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionFields.goldilocks_basis_power
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionFields.babyBear_basis_power' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionFields.babyBear_basis_power
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionFields.goldilocks_card' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionFields.goldilocks_card
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionFields.babyBear_card' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionFields.babyBear_card
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldAssembly.coefficients_canonical' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldAssembly.coefficients_canonical
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldAssembly.assemble_canonical_coordinate' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldAssembly.assemble_canonical_coordinate
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldAssembly.finished_request_coordinate' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldAssembly.finished_request_coordinate
+
 end HasteBootsSmoke

@@ -263,3 +263,5 @@ public import FormalProof4FHE.HasteBoots.OracleProgram
 public import FormalProof4FHE.HasteBoots.NativeTranscriptProgram
 public import FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler
 public import FormalProof4FHE.HasteBoots.NativeFieldVector
+public import FormalProof4FHE.HasteBoots.NativeExtensionFields
+public import FormalProof4FHE.HasteBoots.NativeFieldAssembly
