@@ -333,3 +333,8 @@ public import FormalProof4FHE.HasteBoots.NativeGoldPostMap
 public import FormalProof4FHE.HasteBoots.NativeGoldMatrixFill
 public import FormalProof4FHE.HasteBoots.NativeGoldMultiplicationMatrix
 public import FormalProof4FHE.HasteBoots.NativeGoldCoefficientsQuery
+public import FormalProof4FHE.HasteBoots.NativeGoldLaneWeights
+public import FormalProof4FHE.HasteBoots.NativeGoldLaneMatrix
+public import FormalProof4FHE.HasteBoots.NativeGoldMatrixProductLoop
+public import FormalProof4FHE.HasteBoots.NativeGoldMatrixProductPayload
+public import FormalProof4FHE.HasteBoots.NativeGoldMatrixProduct

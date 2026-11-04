@@ -5905,3 +5905,88 @@ by the full `scripts/check` with exit 0 (full build: 10,163 jobs, plus all
 subsequent audit/smoke suites). Logs:
 `/tmp/hasteboots-gold-constructor-strict.log` and
 `/tmp/hasteboots-gold-constructor-check.log`.
+
+## Raw scalar lane maps and ordered checked matrix products
+
+`NativeGoldLaneWeights` models the native low-point enumerated left fold,
+retaining its original coordinate order, offset, raw accumulator and
+shift-and-mask predicate. Its raw word embedding is proved not to wrap for
+any validated lane. The existing matrix-square check derives the machine
+lane bound and, for a power-of-two width, the required shift bound; no
+arbitrary cap is added. The actual native bits are derived from the same
+low-bit address equivalence used by `ExtensionQuery.nativeLanes`, so the
+complete raw weight has the established tensor-weight meaning without an
+external bit-decoding certificate.
+
+`NativeGoldLaneMatrix` uses the ordered raw column-copy loop to store the
+three weight coordinates for every original scalar lane. Only output rows
+beyond the extension degree are left zero. Every original source column
+participates, including columns ignored by helper extension projection.
+The matrix's complete field meaning is derived from its actual payload and
+equals the generic lane matrix with those native tensor weights. Applying
+and projecting this actual matrix yields the weighted sum of all original
+source entries, without an input-padding premise.
+
+`NativeGoldMatrixProductLoop` models the exact native `a,c,b` loop order,
+using the raw add/multiply operations. Its invariants show that each inner
+loop updates every selected column once, later rows preserve completed
+rows, and every final cell retains its ascending-c raw dot-product fold.
+A row-major serialization theorem connects each finite-view write to the
+corresponding single raw list-set write.
+
+`NativeGoldMatrixProductPayload` then executes those same nested loops on
+an actual square-length row-major payload. Every accumulator read carries
+its proved address bound, and every list write preserves the full length.
+Serialization commutes with each step, each nested loop and the complete
+zero-initialized program. Thus the payload correspondence is derived
+through execution rather than supplied as a final-matrix certificate.
+
+`NativeGoldMatrixProduct` validates both original matrices against the
+left matrix's width, reads each operand by bounded getters into its actual
+payload, runs the literal row-major program, and performs the checked final
+matrix construction. Malformed operands retain failure. The resulting
+field matrix is left times right, in that order. Applying it makes the
+right map act first, as required for the native first pair `M(weight) * L`.
+These remain raw arithmetic/program models; instruction and scheduler
+refinement is still open.
+
+The public Rust fixtures obtain lane matrices from the actual scalar-query
+zero-row-variable branch, at widths 4 and 8 and with lazy and Boolean point
+coordinates. They cover all raw lane weights, lane payloads, application
+and projection. Kernel cases reproduce those raw values and show that
+changing the fourth original scalar lane changes the selected result.
+The matrix-product fixture covers widths 1, 2 and 4, lazy operands, malformed
+left/right payloads, wrong widths and overflow. It also checks that the
+actual scalar-query first pair equals forward multiplication by the lane
+matrix; reversing the product yields different raw results. The normal-depth
+kernel suite checks forward and reversed raw products on those native
+payloads, together with universal lane-map and ordered-product consumers.
+
+The outer scalar-query wrapper remains to be connected: the actual
+power-of-two and ilog2 checks, checked point-dimension addition, low/high
+point split, replacement of the empty helper post-map, and first-pair
+mutation must consume these new loop results. Native query folding,
+accepted PCS openings, terminal guard composition and caller geometry
+remain open. Full lookup/PBS extraction and linking, checked Rust/scheduler
+and strict decoder refinement, BabyBear arithmetic, chronological attacker
+work, numerical certification and the final 128-bit application theorem
+also remain open.
+
+Validation for this chunk: the focused lane-matrix and checked matrix-product builds
+both passed (3,928 jobs each). The integrated HasteBoots smoke build passed
+(4,148 jobs). The isolated normal-depth kernel file exited 0, with 29 new
+regression/consumer examples. All 40 new public theorem audits lie within
+`propext`, `Classical.choice` and `Quot.sound`; the integrated suite now has
+2,136 guarded theorem audits. Both public native Rust fixtures exited 0.
+Logs: `/tmp/hasteboots-gold-lanes-rust.log`,
+`/tmp/hasteboots-gold-matrix-product-rust.log` and
+`/tmp/hasteboots-gold-scalar-maps-{regressions,audit,smoke}.log`.
+The native tree remains clean at
+`dff353006322693cab3dc6b654f82151f658f294`. The packed-extension,
+matrix-weighted and monomial implementation source hashes were rechecked
+unchanged. No Rust, vendor source or dependency pin changed.
+The standalone warning-as-error HasteBoots smoke check also exited 0,
+followed by the full `scripts/check` with exit 0 (full build: 10,165 jobs,
+plus every subsequent audit/smoke suite). Logs:
+`/tmp/hasteboots-gold-scalar-maps-strict.log` and
+`/tmp/hasteboots-gold-scalar-maps-check.log`.
