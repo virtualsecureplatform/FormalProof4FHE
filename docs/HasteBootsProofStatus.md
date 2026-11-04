@@ -5358,3 +5358,75 @@ both finished with exit 0. Logs:
 The full `scripts/check` also finished with exit 0, including the full
 build (10,137 jobs) and all subsequent audit/smoke suites. Full log:
 `/tmp/hasteboots-interpolation-check.log`.
+
+## Interpolation safety follows from actual preflight
+
+`NativeInterpolationSafety` now proves a precise field description of the
+literal scan. Its retained list is exactly the consecutive differences
+`point - j`, including the zero node, its product is their product and its
+check counter is the final node. A successful off-node scan rules out
+zero in every retained difference. The preflight's condition that every
+positive cast through the degree is nonzero implies a nonzero factorial.
+
+The descending loop's safety proof maintains its actual remaining-node
+counter and nonzero `up` accumulator. The count relation ensures that every
+nonfinal multiplication by the negated counter is nonzero. It proves every
+list access and division succeeds; no product/nonzero assertion or success
+certificate is supplied by the interpolation caller. Combined with the
+scan index bounds, this proves the whole literal field interpolation is
+total for every challenge whenever its input is nonempty and its node
+range passes the native check. The proof covers singleton diagnostic
+inputs as well as all positive degrees accepted by the batch verifier.
+There is no runtime cap or restriction to lookup degrees 1, 3 and 4.
+
+The same checked node condition makes consecutive casts injective. At
+every node the actual scan takes the matching early return, and field
+interpolation returns exactly that received entry. These are proofs about
+the literal implementation, rather than only the mathematical interpolant.
+
+`NativeGoldInterpolationSafety` transports totality back through the full
+raw-to-field interpretation. Its raw known-node theorem transports the
+scan branch itself, so it proves exact original-word return, including
+lazy challenge and evaluation representatives; semantic equality of the
+result alone would not justify that claim. No canonicalization is inserted.
+
+The bridge obtains nonzero casts from `nodesFrom_iff`, not an independent
+characteristic or denominator certificate. Successful actual dimensions
+and a matched message width therefore imply raw interpolation succeeds.
+The ordered-round theorem combines actual proof shape, dimensions and
+in-range extraction: the resulting packet has exactly the claim count and
+every equation interpolates successfully at any common challenge. The
+regression consumer derives those preconditions directly from a successful
+`beginVerify` result. These theorems do not assume a completed round driver.
+
+Regression consumers cover arbitrary raw messages and challenges through
+the full characteristic-sized node range without evaluating or imposing a
+cap on a characteristic-sized validation loop, exact arbitrary raw node
+returns, and the actual preflight/round packet connection. A kernel test
+also retains failed standalone inversion for a malformed reverse step;
+valid preflight execution is proved to avoid that failure.
+
+The off-node loop's Lagrange/polynomial correspondence remains open.
+Safety and representation refinement do not establish it. Subsequent
+work must prove that correspondence, implement and connect the actual
+common-challenge round driver and terminal authentication, then complete
+scalar-batch soundness. Full lookup/PBS extraction, checked Rust/scheduler
+and strict decoder refinement, BabyBear arithmetic, chronological
+attacker-work coupling, numerical certification and the final 128-bit
+application security theorem also remain open.
+
+Validation: the focused raw-safety build passed (3,922 jobs), followed by
+HasteBoots smoke (4,122 jobs) and its separate warning-as-error run (exit 0).
+All 15 new public theorem audits use only `propext`, `Classical.choice` and
+`Quot.sound`, bringing the guarded total to 1,972. Isolated warning-as-error
+regression consumers and the failed-division kernel regression passed.
+Logs: `/tmp/hasteboots-gold-interpolation-safety-build.log`,
+`/tmp/hasteboots-interpolation-safety-audit.log`,
+`/tmp/hasteboots-interpolation-safety-regressions.log`,
+`/tmp/hasteboots-interpolation-safety-smoke.log` and
+`/tmp/hasteboots-interpolation-safety-strict.log`.
+Rust HEAD, both transcript hashes and the native interpolation source hash
+were rechecked unchanged. No Rust, vendor source or dependency pin changed.
+The full `scripts/check` finished with exit 0 after the full build (10,139
+jobs) and all subsequent audit/smoke suites. Full log:
+`/tmp/hasteboots-interpolation-safety-check.log`.

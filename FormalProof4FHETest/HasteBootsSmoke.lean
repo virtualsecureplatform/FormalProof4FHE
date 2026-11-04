@@ -14595,4 +14595,114 @@ end NativeGoldInterpolationSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeGoldInterpolation.interpolate_zero_node
 
+
+namespace InterpolationSafetySmoke
+open FormalProof4FHE.HasteBoots
+open NativeFields NativeExtensionFields NativeFieldWire NativeGoldExtensionArithmetic
+open NativeScalarBatchWire NativeScalarBatchPreflight
+
+-- Full characteristic-sized range, arbitrary messages and challenges, without
+-- computing or imposing a runtime cap on the literal node-validation loop.
+example (values : List Word) (point : Word) (positive : 0 < values.length)
+    (size : values.length ≤ goldilocksModulus) :
+    ∃ value, NativeGoldInterpolation.interpolate values point = some value := by
+  apply NativeGoldInterpolationSafety.interpolate_safe values point positive
+  exact (nodesFrom_zero_iff _).mpr (by omega)
+
+example (values : List Word) (point : Word) (positive : 0 < values.length)
+    (size : values.length ≤ goldilocksModulus) (node : Fin values.length)
+    (atNode : goldExtensionValue point = (node.val : Goldilocks3)) :
+    NativeGoldInterpolation.interpolate values point = some values[node.val] := by
+  apply NativeGoldInterpolationSafety.interpolate_at_node values point positive _ node atNode
+  exact (nodesFrom_zero_iff _).mpr (by omega)
+
+-- Successful native front-end execution supplies the shape and node conditions.
+example (transcript result : NativeTranscript.Transcript) (statement : Statement) (proof : Proof)
+    (accepted : beginVerify transcript statement proof = .ok result)
+    (round : NativeUsizeMessage.Usize) (first : Info)
+    (head : statement.infos.val.head? = some first) (inside : round.val < first.numVariables.val)
+    (point : Word) :
+    ∃ packet, NativeScalarBatchRoundPacket.packet round proof = some packet ∧
+      packet.messages.val.length = statement.claims.val.length ∧
+      ∀ message ∈ packet.messages.val, ∃ value,
+        NativeGoldInterpolation.interpolate message.evaluations.val point = some value := by
+  have checked := (beginVerify_ok_iff transcript result statement proof).mp accepted
+  exact NativeGoldInterpolationSafety.preflight_round_safe statement proof round first
+    checked.1 checked.2.1 head inside point
+
+-- A malformed standalone reverse step retains its explicit failed-inversion
+-- result. The preflight theorem establishes that valid messages avoid it.
+example : NativeInterpolationCore.reverse NativeGoldInterpolation.arithmetic
+    [NativeGoldLookup.one] [NativeGoldLookup.zero] NativeGoldLookup.one 1
+      ⟨NativeGoldLookup.zero, NativeGoldLookup.one, NativeGoldLookup.one,
+        NativeGoldLookup.zero, NativeGoldLookup.one⟩ = none := by decide +kernel
+
+-- Degree-one interpolation is total for arbitrary lazy raw evaluations.
+example (first second point : Word) :
+    ∃ value, NativeGoldInterpolation.interpolate [first, second] point = some value := by
+  apply NativeGoldInterpolationSafety.interpolate_safe [first, second] point (by simp)
+  change nodesFrom 1 NativeGoldLookup.zero = true
+  decide +kernel
+end InterpolationSafetySmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationSafety.nodeState_zero' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationSafety.nodeState_zero
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationSafety.extend_nodeState' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationSafety.extend_nodeState
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationSafety.scan_nodes' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationSafety.scan_nodes
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationSafety.offNodes_nonzero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationSafety.offNodes_nonzero
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationSafety.factorial_nonzero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationSafety.factorial_nonzero
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationSafety.reverse_safe' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationSafety.reverse_safe
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationSafety.interpolate_safe' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationSafety.interpolate_safe
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationSafety.nodes_injective' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationSafety.nodes_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationSafety.scan_at_node' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationSafety.scan_at_node
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationSafety.interpolate_at_node' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationSafety.interpolate_at_node
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInterpolationSafety.interpolate_safe' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInterpolationSafety.interpolate_safe
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInterpolationSafety.interpolate_at_node' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInterpolationSafety.interpolate_at_node
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInterpolationSafety.message_safe' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInterpolationSafety.message_safe
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInterpolationSafety.messages_safe' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInterpolationSafety.messages_safe
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInterpolationSafety.preflight_round_safe' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInterpolationSafety.preflight_round_safe
+
 end HasteBootsSmoke

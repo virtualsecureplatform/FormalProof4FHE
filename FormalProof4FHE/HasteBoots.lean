@@ -310,3 +310,5 @@ public import FormalProof4FHE.HasteBoots.NativeScalarBatchRoundPacket
 public import FormalProof4FHE.HasteBoots.NativeInterpolationCore
 public import FormalProof4FHE.HasteBoots.NativeInterpolationField
 public import FormalProof4FHE.HasteBoots.NativeGoldInterpolation
+public import FormalProof4FHE.HasteBoots.NativeInterpolationSafety
+public import FormalProof4FHE.HasteBoots.NativeGoldInterpolationSafety
