@@ -12655,4 +12655,155 @@ example (world : InputIndexedOracle.World) (first second : InputIndexedOracle.In
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.JointHashKernel.checkpoint_step
 
+namespace JointHashPrefixRegression
+
+open OracleSpec OracleComp
+
+private def adaptiveRepeat : OracleProgram.Program Bool :=
+  .read [] 0 1 (fun input => .hash input (fun _ => .hash input (fun _ => .pure false)))
+
+/-- The second hash repeats the input chosen from the actual XOF output. -/
+example (world : InputIndexedOracle.World) :
+    JointHashPrefix.loss (OracleProgram.runPrefix 2 adaptiveRepeat world).run = 0 := by
+  let input := InputIndexedOracle.bytes world [] 0 1
+  have observed : (OracleProgram.runPrefix 2 adaptiveRepeat world).run =
+      (.inl (.hash input (fun _ => .pure false)),
+        [.output [] 0 input, .hash input (List.ofFn (InputIndexedOracle.sha512 world input))]) := rfl
+  rw [observed]
+  simp only [JointHashPrefix.loss, JointHashCache.project, List.foldl_cons, List.foldl_nil,
+    JointHashCache.record, CachedHashHandler.observe, QueryCache.cacheQuery_self, reduceCtorEq, ite_false]
+
+private def collidingLog : List NativeTranscript.Observation :=
+  [.hash [] (List.ofFn (fun _ : Fin 64 => (0 : InputIndexedOracle.Byte))),
+   .hash [0] (List.ofFn (fun _ : Fin 64 => (0 : InputIndexedOracle.Byte)))]
+
+private theorem collision : CacheHasCollision (JointHashCache.project collidingLog).cache := by
+  let digest := JointHashCache.decode (List.ofFn (fun _ : Fin 64 => (0 : InputIndexedOracle.Byte)))
+  refine ⟨[], [0], digest, digest, by decide, ?_, ?_, HEq.rfl⟩
+  · simp [collidingLog, JointHashCache.project, JointHashCache.record,
+      CachedHashHandler.observe, CachedHashHandler.empty, QueryCache.cacheQuery, QueryCache.ofFn, digest]
+  · simp [collidingLog, JointHashCache.project, JointHashCache.record,
+      CachedHashHandler.observe, CachedHashHandler.empty, QueryCache.cacheQuery, QueryCache.ofFn, digest]
+
+/-- A later rejection retains the already revealed collision risk. -/
+example : JointHashPrefix.risk ((.inr false : OracleProgram.Program Bool ⊕ Bool), collidingLog) = 1 := by
+  simp only [JointHashPrefix.risk, collision, ite_true]
+
+/-- Completed or rejecting continuations create no new hash charge. -/
+example : JointHashPrefix.loss ((.inr false : OracleProgram.Program Bool ⊕ Bool), collidingLog) = 0 := rfl
+
+end JointHashPrefixRegression
+
+/-- info: 'FormalProof4FHE.HasteBoots.OraclePrefixTrace.advance_replay' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OraclePrefixTrace.advance_replay
+
+/-- info: 'FormalProof4FHE.HasteBoots.OraclePrefixTrace.runPrefix_succ' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OraclePrefixTrace.runPrefix_succ
+
+/-- info: 'FormalProof4FHE.HasteBoots.OraclePrefixTrace.runPrefix_succ_run' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OraclePrefixTrace.runPrefix_succ_run
+
+/-- info: 'FormalProof4FHE.HasteBoots.OraclePrefixTrace.log_prefix' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OraclePrefixTrace.log_prefix
+
+/-- info: 'FormalProof4FHE.HasteBoots.OraclePrefixTrace.eventual_completion' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OraclePrefixTrace.eventual_completion
+
+/-- info: 'FormalProof4FHE.HasteBoots.OracleHistoryDrift.conditional_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OracleHistoryDrift.conditional_bound
+
+/-- info: 'FormalProof4FHE.HasteBoots.OracleHistoryDrift.additive_drift' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OracleHistoryDrift.additive_drift
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashPrefix.nextState_done' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashPrefix.nextState_done
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashPrefix.nextState_pure' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashPrefix.nextState_pure
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashPrefix.zero_log' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashPrefix.zero_log
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashPrefix.nextState_start' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashPrefix.nextState_start
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashPrefix.nextState_read' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashPrefix.nextState_read
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashPrefix.nextState_hash' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashPrefix.nextState_hash
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashPrefix.nextState_prefix' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashPrefix.nextState_prefix
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashPrefix.conditional_step' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashPrefix.conditional_step
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashPrefix.prefix_drift' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashPrefix.prefix_drift
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashPrefix.risk_mean' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashPrefix.risk_mean
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashPrefix.prefix_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashPrefix.prefix_bound
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashPrefix.charge_mean' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashPrefix.charge_mean
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashPrefix.prefix_bound_charge' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashPrefix.prefix_bound_charge
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashPrefix.record_cache_mono' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashPrefix.record_cache_mono
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashPrefix.nextState_cache_mono' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashPrefix.nextState_cache_mono
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashPrefix.collision_prefix_mono' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashPrefix.collision_prefix_mono
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashPrefix.charge_measurable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashPrefix.charge_measurable
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashPrefix.charge_mono' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashPrefix.charge_mono
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashPrefix.totalCharge_mean' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashPrefix.totalCharge_mean
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashPrefix.ever_collision_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashPrefix.ever_collision_bound
+
+/-- info: 'FormalProof4FHE.HasteBoots.JointHashPrefix.terminal_collision_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.JointHashPrefix.terminal_collision_bound
+
 end HasteBootsSmoke

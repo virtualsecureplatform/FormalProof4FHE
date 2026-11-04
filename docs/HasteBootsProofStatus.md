@@ -7,6 +7,13 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+Current status: the joint ideal-oracle model now has a proved accumulated
+SHA-512 collision bound for actual causal mixed SHAKE/hash programs, including
+repeated calls and inherited bad events. See [the latest proof layer](#accumulated-joint-world-hash-collision-charge).
+The full application security theorem remains unproved: native sampler and
+protocol composition, work coupling, numerical certification, strict decoding,
+and checked Rust/scheduler refinement are still required.
+
 ## Implemented definitions and proofs
 
 The `FormalProof4FHE.HasteBoots` namespace contains:
@@ -4362,4 +4369,57 @@ Successful logs: `/tmp/hasteboots-joint-hash-kernel-build.log`,
 `/tmp/hasteboots-joint-hash-check.log`.
 Whitespace checks passed. The pinned Rust revision and both transcript
 source hashes were rechecked unchanged. Rust sources, vendor sources and
+dependency pins were not modified.
+
+## Accumulated joint-world hash collision charge
+
+`OraclePrefixTrace` proves the chronological successor equation for the
+existing causal mixed-oracle interpreter. A paused prefix executes its
+retained next primitive; completed prefixes remain completed, and every
+successor retains the complete earlier log. Every completed inductive
+program is exactly represented by one of its prefixes. This does not prove
+termination or compilation of an unbounded native rejection sampler.
+
+`OracleHistoryDrift` averages conditional bounds against the full attainable
+history partition. Charges are functions of the pre-answer result/log;
+inherited risk remains at its actual history weight. Its additive form
+keeps the earlier-risk integral separately from the new-charge integral.
+
+`JointHashPrefix` supplies the concrete application, rather than assuming
+a per-prefix numerical hash bound. The next fresh SHA-512 input contributes
+the exact current key count divided by `2^512`. SHAKE starts and reads,
+repeated hashes, and completed continuations contribute zero new collision
+loss. Previously colliding histories keep risk one. The inherited-risk
+integral is exactly the earlier collision probability, so the conditional
+bounds telescope over actual mixed prefixes.
+
+The resulting prefix and terminal collision bounds use the expectation
+of the pathwise sum of these charges on the same execution. Truthful cache
+updates are proved monotone, so collisions persist through later reads,
+repeated calls, completion, and rejection represented by return values.
+The event of a collision at any observation prefix is bounded by the
+expected supremum of its prefix charges; that expectation equals the
+supremum of prefix expectations. No global query cutoff, finite-mean
+premise, or conditioning on successful verification is introduced.
+
+The ledger is a probability-loss quantity. It is not attacker work, and
+it does not yet imply the 128-bit expected-work contract. Compatible
+prefixes for native unbounded samplers, accumulated native Merkle checkpoint
+stability with actual checkpoint placement, lookup/PBS composition,
+private-coin and chronological work coupling, exact numerical certification,
+strict proof-byte decoding, and checked Rust/scheduler refinement remain
+open. The end-to-end goal remains active and unproved.
+
+Validation passed: focused HasteBoots smoke (4,090 jobs), a separate
+warning-as-error HasteBoots smoke, and full `scripts/check` (10,109 build
+jobs and every subsequent strict suite, terminal exit zero). All 28 new
+public theorem audits satisfy the permitted standard-foundation allowlist;
+the HasteBoots guarded audit count is now 1,678. Regressions retain an
+actual SHAKE-selected hash input through a repeated call with zero new
+charge and preserve risk one for a revealed collision after a rejecting
+return. Successful logs:
+`/tmp/hasteboots-joint-prefix-{build,audit,regressions,smoke,strict,check}.log`
+and `/tmp/hasteboots-prefix-trace-build.log`.
+Whitespace checks passed. The pinned Rust revision and both transcript
+source hashes were rechecked unchanged. Rust sources, vendor sources, and
 dependency pins were not modified.
