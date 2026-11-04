@@ -307,3 +307,6 @@ public import FormalProof4FHE.HasteBoots.NativePrefixCodec
 public import FormalProof4FHE.HasteBoots.NativeScalarBatchWire
 public import FormalProof4FHE.HasteBoots.NativeScalarBatchPreflight
 public import FormalProof4FHE.HasteBoots.NativeScalarBatchRoundPacket
+public import FormalProof4FHE.HasteBoots.NativeInterpolationCore
+public import FormalProof4FHE.HasteBoots.NativeInterpolationField
+public import FormalProof4FHE.HasteBoots.NativeGoldInterpolation

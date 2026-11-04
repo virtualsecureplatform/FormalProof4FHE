@@ -5284,3 +5284,77 @@ Rust, vendor sources and dependency pins were not modified.
 The full `scripts/check` finished with exit 0 after the full build (10,134
 jobs) and all subsequent audit/smoke suites. Full log:
 `/tmp/hasteboots-scalar-preflight-check.log`.
+
+## Literal scalar interpolation and raw field interpretation
+
+`NativeInterpolationCore` now models the pinned private
+`sumcheck/src/verifier.rs::interpolate_uni_poly` operation order: the
+consecutive-node scan and early return, difference/product accumulation,
+factorial loop, and descending interpolation accumulator. The numerator is
+left-associated exactly as in Rust. The last interpolation step does not
+perform the nonfinal denominator/counter updates. The factorial retains its
+last counter update. The model has no replacement Lagrange evaluator,
+normalization, default array entry or runtime cap. Empty input, missing
+entries and failed inversion are explicit `none`; the corresponding native
+unchecked precondition fails by panic rather than graceful rejection.
+
+The core's homomorphism theorem preserves the complete partial result for
+any arithmetic interpretation preserving every primitive, including
+Boolean equality and partial division. Intermediate scan, factorial and
+reverse-state maps are proved separately. A successful scan's node index
+lies in the tested interval; an off-node scan retains exactly one difference
+per input evaluation. Zero-node return preserves the original stored word.
+
+`NativeInterpolationField` supplies ordinary field operations with checked
+zero division and proves both factorial state components equal the natural
+factorial and the next counter. `NativeGoldInterpolation` instantiates the
+core with the proved raw lazy Goldilocks operations, exact Karatsuba cubic
+multiplication and native cubic inversion/division. It proves raw equality
+matches field equality and that all semantic-zero cubic representatives
+fail inversion. Together with the nonzero inversion theorem, this gives a
+total, branch- and failure-preserving division interpretation. The resulting
+`interpolate_value` theorem maps the entire raw computation to the same
+literal field loop, with no success certificate or nonzero-denominator
+premise supplied by the caller. This is representation refinement; the
+field loop's Lagrange/polynomial correspondence and nonfailure under valid
+node conditions remain open.
+
+An isolated Rust fixture includes the actual interpolation and factorial
+function bodies extracted verbatim from the pinned verifier source; it
+does not reimplement them or modify Rust. Its nine vectors cover linear,
+cubic, quartic and degree-seven messages, node and off-node challenges,
+lazy-zero and near-u64-maximum coordinates, and the diagnostic singleton
+case (rejected by the batch front end). It additionally checks every node
+of each tested message vector returns the exact stored raw word. Lean
+kernel regressions reproduce all nine outputs, empty-input failure, and
+all eight degree-seven node results. Off-node expectations retain raw
+coordinates above the modulus. Agreement of these fixtures is regression
+evidence, not a formal refinement of Rust source or machine work.
+
+The native verifier source hash used by the fixture is
+`9e7049aca6a88123a35dd8a70566bf983dee5f155120aa269a7215589672c5c9`.
+The pinned Rust HEAD and both transcript source hashes remain unchanged.
+No Rust, vendor source or dependency pin was modified.
+
+Next are the interpolation loop's mathematical correctness and safety,
+then the actual common-challenge round driver and terminal authentication.
+This chunk does not close scalar-batch soundness, full lookup/PBS
+extraction, the checked Rust/scheduler and strict decoder gates, BabyBear
+arithmetic, chronological attacker-work coupling, numerical certification
+or the final 128-bit application security theorem.
+
+Validation: the focused interpolation build passed (3,914 jobs), followed
+by the integrated HasteBoots smoke build (4,120 jobs) and its separate
+warning-as-error run (exit 0). All 18 new public theorem audits use only
+`propext`, `Classical.choice` and `Quot.sound`; the guarded total is 1,957.
+Isolated warning-as-error kernel regressions and the pinned native fixture
+both finished with exit 0. Logs:
+`/tmp/hasteboots-gold-interpolation-build.log`,
+`/tmp/hasteboots-interpolation-audit.log`,
+`/tmp/hasteboots-interpolation-regressions.log`,
+`/tmp/hasteboots-interpolation-smoke.log`,
+`/tmp/hasteboots-interpolation-strict.log`, and
+`/tmp/hasteboots-interpolation-rust.log`.
+The full `scripts/check` also finished with exit 0, including the full
+build (10,137 jobs) and all subsequent audit/smoke suites. Full log:
+`/tmp/hasteboots-interpolation-check.log`.

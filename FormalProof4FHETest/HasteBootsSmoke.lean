@@ -14491,4 +14491,108 @@ end ScalarPreflightRegressions
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchRoundPacket.first_two_safe
 
+
+namespace NativeGoldInterpolationSmoke
+open NativeFieldRepresentation NativeGoldExtensionArithmetic
+private def word (n : ℕ) : GoldWord := ⟨n % (2^64), Nat.mod_lt _ (by decide)⟩
+private def cubic (a b c : ℕ) : Word := ![word a, word b, word c]
+private def observe (answer : Option Word) : Option (List ℕ) :=
+  answer.map (fun value => (List.ofFn value).map Fin.val)
+private def linear : List Word := [cubic 18446744069414584321 1 0, cubic 5 6 7]
+private def degreeThree : List Word := [cubic 18446744069414584321 18446744069414584322 18446744073709551615,
+  cubic 1 2 3, cubic 4 5 6, cubic 7 8 9]
+private def degreeFour : List Word := degreeThree ++ [cubic 10 11 12]
+example : observe (NativeGoldInterpolation.interpolate [] (cubic 0 0 0)) = none := by decide +kernel
+example : observe (NativeGoldInterpolation.interpolate linear (cubic 18446744069414584321 0 0)) =
+    some [18446744069414584321, 1, 0] := by decide +kernel
+example : observe (NativeGoldInterpolation.interpolate linear (cubic 1 0 0)) = some [5, 6, 7] := by decide +kernel
+example : observe (NativeGoldInterpolation.interpolate linear (cubic 2 3 4)) =
+    some [18446744069414584618, 18446744069414584543, 18446744069414584370] := by decide +kernel
+example : observe (NativeGoldInterpolation.interpolate degreeThree (cubic 2 0 0)) = some [4, 5, 6] := by decide +kernel
+example : observe (NativeGoldInterpolation.interpolate degreeThree (cubic 2 3 4)) =
+    some [18446740296285813242, 18446739038576226021, 18446741689286875004] := by decide +kernel
+example : observe (NativeGoldInterpolation.interpolate degreeFour (cubic 4 0 0)) = some [10, 11, 12] := by decide +kernel
+example : observe (NativeGoldInterpolation.interpolate degreeFour (cubic 7 0 0)) =
+    some [18446744069414584370, 18446744069414584371, 64424509431] := by decide +kernel
+example : observe (NativeGoldInterpolation.interpolate [cubic 18446744069414584321 1 0] (cubic 3 0 0)) =
+    some [18446744069414584321, 1, 0] := by decide +kernel
+private def degreeSeven : List Word := (List.range 8).map (fun i => cubic (i+1) (2*i+3) (5*i+2))
+example : observe (NativeGoldInterpolation.interpolate degreeSeven (cubic 2 3 4)) =
+    some [18446744069414584485, 18446744069414584471, 18446744069414584343] := by decide +kernel
+example : ((List.range 8).map (fun i => observe (NativeGoldInterpolation.interpolate degreeSeven (cubic i 0 0)))) =
+    degreeSeven.map (fun value => some ((List.ofFn value).map Fin.val)) := by decide +kernel
+end NativeGoldInterpolationSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationCore.extend_map' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationCore.extend_map
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationCore.advance_map' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationCore.advance_map
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationCore.factorial_map' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationCore.factorial_map
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationCore.scan_map' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationCore.scan_map
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationCore.reverse_map' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationCore.reverse_map
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationCore.interpolate_map' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationCore.interpolate_map
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationCore.scan_equal' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationCore.scan_equal
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationCore.interpolate_at_zero' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationCore.interpolate_at_zero
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationCore.scan_bounds' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationCore.scan_bounds
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationCore.offNodes_length' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationCore.offNodes_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationField.factorial_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationField.factorial_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInterpolation.equal_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInterpolation.equal_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInterpolation.inverse_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInterpolation.inverse_zero
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInterpolation.divide_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInterpolation.divide_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInterpolation.arithmetic_hom' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInterpolation.arithmetic_hom
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInterpolation.interpolate_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInterpolation.interpolate_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInterpolation.factorial_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInterpolation.factorial_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInterpolation.interpolate_zero_node' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInterpolation.interpolate_zero_node
+
 end HasteBootsSmoke
