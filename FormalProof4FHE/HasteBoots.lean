@@ -286,3 +286,6 @@ public import FormalProof4FHE.HasteBoots.NativeLookupReciprocals
 public import FormalProof4FHE.HasteBoots.NativeLookupHelper
 public import FormalProof4FHE.HasteBoots.NativeLookupArithmetic
 public import FormalProof4FHE.HasteBoots.NativeHelperPacking
+public import FormalProof4FHE.HasteBoots.NativeRootMessage
+public import FormalProof4FHE.HasteBoots.TypedFieldVector
+public import FormalProof4FHE.HasteBoots.NativeLookupEquality

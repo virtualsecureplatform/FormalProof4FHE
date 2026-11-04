@@ -4623,3 +4623,73 @@ local projection. Successful logs:
 Whitespace checks passed. The pinned Rust revision and both transcript
 source hashes were rechecked unchanged. Rust sources, vendor sources and
 dependency pins were not modified.
+
+## Native helper-root packets and equality-point phase
+
+`NativeRootMessage` models the pinned SHA-512 commitment-vector message.
+`Digest512` serializes as two fixed 32-byte arrays; `Commitment` contains
+only that root. The outer vector has one standard bincode usize count,
+followed by consecutive 64-byte roots, without per-root length prefixes.
+Payload length, payload injectivity, full message length and full message
+injectivity are proved. This does not implement the pending strict decoder
+for arbitrary proof bytes.
+
+`TypedFieldVector` starts the native vector-kind/extension-descriptor
+request with `count*degree` coefficients. Its begin/drive law matches the
+existing typed vector adapter, and a complete canonical vector uses exactly
+its own consecutive coordinate blocks, with no fallback getter or modular
+reduction. The fixed typed prelude is proved unable to erase earlier
+transcript input. Source word-count prechecks and representation refinement
+remain caller obligations.
+
+`NativeLookupEquality` compiles helper-root absorption and the ordered
+shared lookup equality-vector requests. The first observation starts the
+vector reader under the already absorbed full root packet. For well-sized
+frames, equality of first reader inputs implies equality of root lists.
+These are structural input-binding statements, not assumptions that distinct
+inputs have distinct SHAKE outputs or that a previously queried input is
+fresh.
+
+Each analysis tick starts a reader or attempts one canonical coefficient
+candidate. Pauses retain the active reader, raw rejected/accepted chunks,
+completed points, receipts, remaining count and current transcript. Exact
+budget resumption preserves complete results and logs. Completed points
+are appended in native order; completed plus remaining points equals the
+supplied root count. Every retained point has exactly the declared number
+of complete canonical coefficient blocks. Completion clears the active
+reader and emits no more observations. A zero-dimensional point still
+starts its reader and emits one receipt; an empty root list emits no vector
+requests. Concrete Goldilocks and BabyBear entry points use native lookup
+extensions of degrees three and six.
+
+The analysis-level `afterBatch` composition gate permits this phase only
+after a finished compiled compression/reciprocal batch, with the supplied
+root count matching completed jobs. It does not replace Rust's earlier
+proof-dimension checks or treat a suspended reciprocal loop as completion.
+Roots remain supplied by the proof or a still-pending commitment phase.
+Native parameter/packet bounds, early dimension and witness checks,
+root/leaf generation and raw serialization, chronological placement of
+public arithmetic and work, sumcheck/PCS body execution, final child linking
+and outer PBS scheduling remain open. Native cache-aware numerical charges,
+compatible unbounded sampler prefixes, attacker-work refinement, strict
+proof-byte decoding and the final 128-bit security theorem remain unproved.
+
+Validation passed: focused HasteBoots smoke (4,099 jobs), a separate
+warning-as-error HasteBoots smoke, and full `scripts/check` (10,119 build
+jobs and every subsequent strict suite, terminal exit zero). All 34 new
+audits (public theorems and both concrete field entry points) satisfy the
+permitted standard-foundation allowlist; the guarded HasteBoots count is
+now 1,774. Regressions retain canonical rejections in raw vector receipts,
+check point completion/count/order, preserve pending retries and post-finish
+silence, require receipts for zero-dimensional points, skip vector requests
+for an empty root list, reject unfinished phase composition, and distinguish
+first reader inputs when roots are reordered. Root fixtures check fixed
+64-byte placement and the count-251 varint transition. An isolated offline
+Rust fixture uses the pinned native `Digest512` source and copied verbatim
+`Commitment` definition with bincode 2.0.1/serde 1.0.229; counts 0, 1, 2 and
+251 have lengths 1, 65, 129 and 16067, with no per-root prefixes.
+Successful logs: `/tmp/hasteboots-native-equality-{build,audit,regressions,smoke,strict,check}.log`
+and `/tmp/hasteboots-native-root-rust-fixture.log`.
+Whitespace checks passed. The pinned Rust revision and both transcript
+source hashes were rechecked unchanged. Rust sources, vendor sources and
+dependency pins were not modified.
