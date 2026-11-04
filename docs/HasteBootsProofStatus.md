@@ -12,9 +12,10 @@ exact projection to the abstract sampler, then equality preparation, scalar
 verification, strict terminal guards, terminal-value binding and child
 finishing. The full entry point is now checked against native fixture bytes
 in the kernel. Its bound result remains a PCS boundary. Concrete raw column
-authentication and PCS payload codecs are now linked to the existing cached verifier;
-helper/source PCS composition remains open.
-See [the current implementation layer](#native-pcs-wire-and-concrete-column-authentication).
+authentication and PCS payload codecs are linked to the existing cached
+verifier. The completed run now also derives every ordered helper PCS call with no
+truncation or extra oracle observation. PCS verification/composition remains
+open. See [the current implementation layer](#computed-helper-opening-handoff-from-completed-lookup-execution).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -7125,4 +7126,84 @@ subsequent repository audit/smoke commands passed. Logs:
 `/tmp/hasteboots-pcs-strict-focused.log`,
 `/tmp/hasteboots-pcs-split-fixtures.log` and
 `/tmp/hasteboots-pcs-check.log`. No native Rust, vendor source or dependency
+pin changed.
+
+## Computed helper-opening handoff from completed lookup execution
+
+`NativeSharedLookupHelpers` extends the actual parent/lookup/equality/scalar/
+terminal/child-finish entry point with native helper-query and value
+construction. It uses the same proof and trusted helper parameters, deriving
+the scalar point from the completed run. It requires no additional point,
+query, geometry, packet-count or ready-state certificate. The new `protocol`
+returns the original outcome
+alongside its optional helper plan, preserving the complete original oracle
+log. Suspended/rejected upstream runs have no helper plan.
+
+The builder computes the helper coefficient query, packs only its PCS matrix
+pairs and computes every helper-value coefficient vector before the literal
+`roots.zip(values).zip(openings)`. The original stored Goldilocks words are
+copied and unused lanes receive raw zero. This is the Brakedown backend's
+retain normalization: its `CanonicalPcs` implementation uses the default
+identity `normalize_values`. The code does not apply another backend's
+canonicalization policy. The low-level zip deliberately retains native
+truncation behavior on malformed vectors.
+
+`completed_geometry` derives the helper width/square bound, its exact point
+dimension, positive dimension and both original packet-count equalities from
+the actual completed entry point. It uses numeric preflight's computed common
+binding, the real child-launch shape gate, the successful scalar guard and
+the initialized scalar verifier's point-length theorem. It supplies the query
+packer's usize bound without introducing a work cutoff. `completed_handoff`
+then proves the extended program produces a helper plan, its query models the
+actual raw coefficient matrices and its call count equals the original root
+count. `packet_at` identifies each call with the root, coefficient vector and
+opening at the same original index. The ordered calls are constructed data,
+not authenticated openings or proof-supplied acceptance flags.
+
+The native fixture `/tmp/hasteboots-helper-fixture` extends the same tiny
+honest Goldilocks/EF3 Brakedown fixture that passes the complete native
+verifier. Its extracted verifier prefix continues through pure helper query
+and value construction and records the native query, row and root/query/value
+binding bytes. Ten new kernel regressions execute the new full entry point
+and compare those bytes, exact unchanged oracle logs, call count, suspension
+and tampered-proof rejection. Eight independent kernel examples check
+repeated-root/original-opening order, raw all-ones lazy residues, padding,
+empty-point PCS-only serialization, invalid widths and low-level truncation
+without dropping the already computed helper vectors.
+
+All 13 new public theorem audits use only `propext`, `Classical.choice` and
+`Quot.sound`. The combined HasteBoots suite now contains 2,445 guarded audits.
+Focused module/test builds passed. Evidence:
+`/tmp/hasteboots-helpers-build.log`,
+`/tmp/hasteboots-helpers-smoke-focused.log`,
+`/tmp/hasteboots-helpers-audit.log`,
+`/tmp/hasteboots-helpers-execution-regressions.log`,
+`/tmp/hasteboots-helpers-strict-focused.log` and
+`/tmp/hasteboots-helper-fixture.log`.
+
+The native checkout is unchanged at
+`dff353006322693cab3dc6b654f82151f658f294`. In addition to the previously
+recorded shared-lookup and packed-extension hashes, the relevant
+`pcs/src/matrix_weighted/backend.rs` SHA-256 is
+`cc09f13b51d7f20fa76b41b88bc04fd04ad7f987a9f47c966863fd6cc4f631d4`.
+Differential fixture agreement and refinement between Lean computations do
+not establish checked Rust execution or native strict-decoder refinement.
+
+The next step is the actual sequential helper PCS verifier: context/binding,
+base-field random tests, response framing, schedule-5 atomic index draws,
+trusted row-code response encoding, concrete column authentication and
+coordinate/suffix checks. The handoff's original final parent must feed those
+operations in order. Source registry state, alias grouping/values and query
+folding must then compose with the same parent and common oracle cache.
+Lookup/PBS extraction, native parameter/row-code instantiation, strict
+decoding, Rust/compiler/scheduler refinement, BabyBear, chronological work,
+numerical certification and the final 128-bit application theorem remain open.
+
+Final validation: the integrated HasteBoots smoke build passed (4,190 jobs),
+the complete standalone warning-as-error HasteBoots smoke check exited 0,
+and full `scripts/check` exited 0. Its build completed 10,209 jobs and every
+subsequent repository audit/smoke command passed. Logs:
+`/tmp/hasteboots-helpers-smoke.log`,
+`/tmp/hasteboots-helpers-strict.log` and
+`/tmp/hasteboots-helpers-check.log`. No native Rust, vendor source or dependency
 pin changed.
