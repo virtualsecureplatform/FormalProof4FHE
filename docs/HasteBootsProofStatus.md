@@ -7,11 +7,12 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
-Current native integration derives scalar metadata checks from rebuilt
-public tuple configurations, numeric preflight and actual completed
-lookup/equality execution. Backend value gates precede child initialization;
-strict terminal bounds retain original request/challenge linkage. See
-[the current implementation layer](#tuple-configuration-rebuilding-and-derived-scalar-metadata).
+Current native integration uses one typed proof object for grouped multiplicities,
+helper roots, algebra, terminal values and opening packets. Exact request and
+multiplicity encodings feed a concrete classical child initializer behind the
+native shape/value gates. Scalar metadata follows from rebuilt public tuple
+configurations, numeric preflight and completed lookup/equality execution.
+See [the current implementation layer](#typed-shared-proof-data-and-concrete-classical-child).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -6684,3 +6685,75 @@ repository audit/smoke suites passed. Logs:
 `/tmp/hasteboots-tuple-config-{smoke,strict,check}.log`.
 The native checkout remains clean at
 `dff353006322693cab3dc6b654f82151f658f294`.
+
+
+## Typed shared proof data and concrete classical child
+
+`NativeLookupRequestWire` models the native configuration and deferred request
+field order, with nested vector length headers and original source slots.
+Columns are derived from the table rather than serialized as an extra field.
+The request codec has prefix and injectivity proofs; backend normalization
+commutes with valid configuration rebuilding. Binding the first canonical
+request message is injective under the native byte-frame length domains.
+The remaining per-request PCS contexts and registry preflight frames are open.
+
+`NativeLookupMultiplicityWire` derives the flat multiplicity vector from the
+same grouped packet. Both native encodings retain their own length headers.
+Different groupings may have identical flattened bytes, while the grouped
+encoding distinguishes them. Bounds describe native vector/byte allocation
+and encoding domains; they impose no retry or attacker-work cutoff.
+
+`NativeSharedLookupProofData` supplies one typed proof containing multiplicities,
+roots, algebra, source/helper values and backend opening packets. Its terminal
+encoding has prefix/injectivity proofs. The backend opening packets remain
+opaque and unauthenticated at this layer; structural codec readers do not
+establish strict native deserialization refinement.
+
+`NativeSharedLookupChild` absorbs grouped and flat multiplicities in native
+order and executes the concrete classical detached extension fork, parent
+checkpoint and direct zero-count extension identity. Its retained parent and
+binding are computed by that execution. Projection preserves exact oracle
+observations. The terminal-value message is encoded from the same proof.
+Finishing with the retained parent succeeds exactly when the child profile
+matches; this uses the actual checkpoint and does not assume checkpoint
+injectivity. Successful finishing clears the returned child's binding; it
+does not prohibit cloning an earlier immutable state.
+
+The gated launcher uses this initializer with shape/value checks and opening
+counts from that same proof. A successful launch establishes the original
+lookup/equality execution from the initialized child, and connects rebuilt
+configurations to scalar preflight on that proof's algebra packet.
+
+An external native fixture imports the actual public request/configuration
+and transcript types and extracts the actual child/finish wrappers. It checks
+exact request, grouped, flattened and terminal bytes, seven seed/checkpoint/
+identity observations, successful finishing and continuation, and rejection
+when the parent advances. The 28 kernel regression examples reproduce these
+bytes, observations, prefix reads, grouping distinction, normalization,
+spent-binding behavior and pre-child value gates. Zero analysis fuel tests
+suspension after initialization, not native verifier rejection. This fixture
+omits per-request contexts and the lookup/algebra/PCS body and makes no full
+proof-acceptance claim.
+
+The next boundary is complete preflight framing and composition of lookup,
+equality, scalar verification, strict terminal guards, terminal binding and
+child finishing into one actual execution. PCS authentication and query
+folding, lookup/PBS extraction, Rust/compiler and scheduler refinement, strict
+decoder refinement, BabyBear, chronological work, numerical certification
+and the final 128-bit application theorem remain open.
+
+Validation: all four modules build; the native fixture and 28 isolated
+regressions exited 0; all 39 public theorem audits use only `propext`,
+`Classical.choice` and `Quot.sound`. Logs:
+`/tmp/hasteboots-shared-child-{rust,regressions,audit}.log` and
+`/tmp/hasteboots-shared-child-build.log`.
+The deferred request declaration source hash is
+`e2418edd5980c0b0843c73bf1d16ac945de8ce2218f14a3802439b786406fff8`.
+
+The integrated HasteBoots smoke build passed (4,175 jobs), followed by the
+standalone warning-as-error smoke check and full `scripts/check`, both with
+exit 0. The full build completed 10,194 jobs and all subsequent repository
+audit/smoke suites passed. The integrated suite has 2,344 guarded axiom audits.
+Logs: `/tmp/hasteboots-shared-child-{smoke,strict,check}.log`.
+No Rust, vendor source or dependency pin changed. The native checkout remains
+clean at `dff353006322693cab3dc6b654f82151f658f294`.

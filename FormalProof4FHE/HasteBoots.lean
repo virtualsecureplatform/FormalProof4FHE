@@ -361,3 +361,7 @@ public import FormalProof4FHE.HasteBoots.NativeSharedLookupValidated
 public import FormalProof4FHE.HasteBoots.NativeTupleLookupConfig
 public import FormalProof4FHE.HasteBoots.NativeSharedLookupConfig
 public import FormalProof4FHE.HasteBoots.NativeSharedLookupMetadata
+public import FormalProof4FHE.HasteBoots.NativeLookupRequestWire
+public import FormalProof4FHE.HasteBoots.NativeLookupMultiplicityWire
+public import FormalProof4FHE.HasteBoots.NativeSharedLookupProofData
+public import FormalProof4FHE.HasteBoots.NativeSharedLookupChild

@@ -17197,4 +17197,244 @@ end TupleConfigMetadataSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupMetadata.validated_beginVerify
 
+namespace SharedChildWireSmoke
+open FormalProof4FHE.HasteBoots
+open NativeFields NativeFieldRepresentation NativeFieldWire NativeGoldExtensionArithmetic NativeExtensionFields
+private def word (n : ℕ) : GoldWord := ⟨n % (2^64), Nat.mod_lt _ (by decide)⟩
+private def usize (n : ℕ) : NativeUsizeMessage.Usize := ⟨n % (2^64), Nat.mod_lt _ (by decide)⟩
+private def byte (n : ℕ) : InputIndexedOracle.Byte := ⟨n % 256,Nat.mod_lt _ (by decide)⟩
+private def row (values : List ℕ) (fits : values.length < 2^64) : NativeLookupRequestWire.Row :=
+  ⟨values.map word,by rw [List.length_map]; exact fits⟩
+private def cfg0 : NativeLookupRequestWire.Config :=
+  ⟨usize 5,⟨[row [18446744069414584322,18446744069414584323] (by decide),row [3,4] (by decide)],by decide⟩,usize 2⟩
+private def cfg1 : NativeLookupRequestWire.Config := ⟨usize 8,⟨[row [0] (by decide)],by decide⟩,usize 1⟩
+private def req0 : NativeLookupRequestWire.Request := ⟨cfg0,⟨[usize 1,usize 0],by decide⟩⟩
+private def req1 : NativeLookupRequestWire.Request := ⟨cfg1,⟨[usize 0],by decide⟩⟩
+private def requests : NativePrefixCodec.Vector NativeLookupRequestWire.Request := ⟨[req0,req1],by decide⟩
+private def packet : NativeLookupMultiplicityWire.Packet :=
+  ⟨⟨[row [1,18446744069414584321] (by decide),row [253] (by decide)],by decide⟩,by decide⟩
+private def proof : NativeSharedLookupProofData.Proof Unit Unit :=
+  ⟨packet,⟨List.replicate 3 (fun _ => 0),by decide⟩,⟨[],by decide⟩,
+    ⟨[row [1,2,3,0] (by decide),row [4,5,6,0] (by decide)],by decide⟩,
+    ⟨[![word 7,word 11,word 13],![word 17,word 19,word 23],![word 29,word 31,word 37]],by decide⟩,(),⟨[(),(),()],by decide⟩⟩
+example : (NativeLookupRequestWire.requestsCodec.encode requests).map Fin.val = [2,5,2,2,253,2,0,0,0,255,255,255,255,253,3,0,0,0,255,255,255,255,2,3,4,2,2,1,0,8,1,1,0,1,1,0] := by decide +kernel
+example : (NativeLookupMultiplicityWire.grouped packet).map Fin.val = [2,2,1,253,1,0,0,0,255,255,255,255,1,251,253,0] := by decide +kernel
+example : (NativeLookupMultiplicityWire.flattened packet).map Fin.val = [3,1,253,1,0,0,0,255,255,255,255,251,253,0] := by decide +kernel
+example : (NativeSharedLookupProofData.terminal proof).map Fin.val = [2,4,1,2,3,0,4,4,5,6,0,3,3,7,11,13,3,17,19,23,3,29,31,37] := by decide +kernel
+example : NativeLookupRequestWire.requestsCodec.read (NativeLookupRequestWire.requestsCodec.encode requests ++ [byte 42]) =
+    some (requests,[byte 42]) := NativeLookupRequestWire.requests_prefix requests [byte 42]
+example : NativeLookupRequestWire.rowCodec.read (NativeLookupMultiplicityWire.flattened packet ++ [byte 99]) =
+    some (packet.flat,[byte 99]) := NativeLookupMultiplicityWire.flattened_prefix packet [byte 99]
+example : (NativeLookupMultiplicityWire.pack packet.groups.values).map (fun packet => packet.flat.val.map Fin.val) =
+    some [1,18446744069414584321,253] := by decide +kernel
+private def otherGroups : NativeLookupMultiplicityWire.Packet :=
+  ⟨⟨[row [1] (by decide),row [18446744069414584321,253] (by decide)],by decide⟩,by decide⟩
+example : NativeLookupMultiplicityWire.flattened otherGroups = NativeLookupMultiplicityWire.flattened packet := by decide +kernel
+example : NativeLookupMultiplicityWire.grouped otherGroups ≠ NativeLookupMultiplicityWire.grouped packet := by decide +kernel
+example : (NativeLookupRequestWire.requestsCodec.encode ⟨[NativeLookupRequestWire.normalizeRequest .canonical req0,req1],by decide⟩).map Fin.val ≠
+    (NativeLookupRequestWire.requestsCodec.encode requests).map Fin.val := by decide +kernel
+example : (NativeLookupRequestWire.normalizeRequest .canonical req0).toModel.columns = 2 := by decide +kernel
+example : (NativeLookupRequestWire.normalizeRequest .canonical req0).toModel.table.map (List.map Fin.val) = [[1,2],[3,4]] := by decide +kernel
+private def nativeStarts : List InputIndexedOracle.Input := ([[0,8,0,0,0,0,0,0,0,112,114,111,116,111,99,111,108,29,0,0,0,0,0,0,0,72,97,115,116,101,66,111,111,116,115,32,102,114,97,109,101,100,32,83,72,65,75,69,50,53,54,32,118,49,0,11,0,0,0,0,0,0,0,97,112,112,108,105,99,97,116,105,111,110,35,0,0,0,0,0,0,0,72,97,115,116,101,66,111,111,116,115,32,116,121,112,101,100,32,99,108,97,115,115,105,99,97,108,32,112,114,105,109,101,32,118,49,0,15,0,0,0,0,0,0,0,116,114,117,115,116,101,100,32,112,114,111,102,105,108,101,64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,17,0,0,0,0,0,0,0,116,121,112,101,100,32,112,114,105,109,101,32,102,105,101,108,100,16,0,0,0,0,0,0,0,1,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,1,43,0,0,0,0,0,0,0,99,97,110,111,110,105,99,97,108,32,115,104,97,114,101,100,45,113,117,101,114,121,32,101,120,116,101,110,115,105,111,110,32,108,111,111,107,117,112,115,32,118,49,36,0,0,0,0,0,0,0,2,5,2,2,253,2,0,0,0,255,255,255,255,253,3,0,0,0,255,255,255,255,2,3,4,2,2,1,0,8,1,1,0,1,1,0,1,36,0,0,0,0,0,0,0,115,104,97,114,101,100,32,108,111,111,107,117,112,32,103,114,111,117,112,101,100,32,109,117,108,116,105,112,108,105,99,105,116,105,101,115,16,0,0,0,0,0,0,0,2,2,1,253,1,0,0,0,255,255,255,255,1,251,253,0,1,31,0,0,0,0,0,0,0,101,120,116,101,110,115,105,111,110,32,108,111,111,107,117,112,32,109,117,108,116,105,112,108,105,99,105,116,105,101,115,14,0,0,0,0,0,0,0,3,1,253,1,0,0,0,255,255,255,255,251,253,0,6,35,0,0,0,0,0,0,0,99,108,97,115,115,105,99,97,108,32,101,120,116,101,110,115,105,111,110,32,108,111,111,107,117,112,32,99,104,105,108,100,32,118,49,29,0,0,0,0,0,0,0,112,97,99,107,101,100,32,101,120,116,101,110,115,105,111,110,32,116,117,112,108,101,32,108,111,111,107,117,112,2,20,0,0,0,0,0,0,0,99,108,97,115,115,105,99,97,108,32,99,104,105,108,100,32,115,101,101,100,8,0,0,0,0,0,0,0,64,0,0,0,0,0,0,0],[0,8,0,0,0,0,0,0,0,112,114,111,116,111,99,111,108,29,0,0,0,0,0,0,0,72,97,115,116,101,66,111,111,116,115,32,102,114,97,109,101,100,32,83,72,65,75,69,50,53,54,32,118,49,0,11,0,0,0,0,0,0,0,97,112,112,108,105,99,97,116,105,111,110,35,0,0,0,0,0,0,0,72,97,115,116,101,66,111,111,116,115,32,116,121,112,101,100,32,99,108,97,115,115,105,99,97,108,32,112,114,105,109,101,32,118,49,0,15,0,0,0,0,0,0,0,116,114,117,115,116,101,100,32,112,114,111,102,105,108,101,64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,17,0,0,0,0,0,0,0,116,121,112,101,100,32,112,114,105,109,101,32,102,105,101,108,100,16,0,0,0,0,0,0,0,1,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,1,43,0,0,0,0,0,0,0,99,97,110,111,110,105,99,97,108,32,115,104,97,114,101,100,45,113,117,101,114,121,32,101,120,116,101,110,115,105,111,110,32,108,111,111,107,117,112,115,32,118,49,36,0,0,0,0,0,0,0,2,5,2,2,253,2,0,0,0,255,255,255,255,253,3,0,0,0,255,255,255,255,2,3,4,2,2,1,0,8,1,1,0,1,1,0,1,36,0,0,0,0,0,0,0,115,104,97,114,101,100,32,108,111,111,107,117,112,32,103,114,111,117,112,101,100,32,109,117,108,116,105,112,108,105,99,105,116,105,101,115,16,0,0,0,0,0,0,0,2,2,1,253,1,0,0,0,255,255,255,255,1,251,253,0,1,31,0,0,0,0,0,0,0,101,120,116,101,110,115,105,111,110,32,108,111,111,107,117,112,32,109,117,108,116,105,112,108,105,99,105,116,105,101,115,14,0,0,0,0,0,0,0,3,1,253,1,0,0,0,255,255,255,255,251,253,0,6,35,0,0,0,0,0,0,0,99,108,97,115,115,105,99,97,108,32,101,120,116,101,110,115,105,111,110,32,108,111,111,107,117,112,32,99,104,105,108,100,32,118,49,29,0,0,0,0,0,0,0,112,97,99,107,101,100,32,101,120,116,101,110,115,105,111,110,32,116,117,112,108,101,32,108,111,111,107,117,112,2,20,0,0,0,0,0,0,0,99,108,97,115,115,105,99,97,108,32,99,104,105,108,100,32,115,101,101,100,8,0,0,0,0,0,0,0,64,0,0,0,0,0,0,0,3,20,0,0,0,0,0,0,0,99,108,97,115,115,105,99,97,108,32,99,104,105,108,100,32,115,101,101,100,64,0,0,0,0,0,0,0,23,252,191,148,247,88,44,150,230,216,217,84,11,52,106,16,51,51,101,80,92,82,87,149,215,245,138,24,204,247,83,60,19,216,217,110,50,87,47,190,228,46,139,93,99,241,7,8,183,214,172,80,105,189,8,240,255,135,121,237,212,83,27,219,8,17,0,0,0,0,0,0,0,112,97,114,101,110,116,32,99,104,101,99,107,112,111,105,110,116,0,0,0,0,0,0,0,0],[0,8,0,0,0,0,0,0,0,112,114,111,116,111,99,111,108,29,0,0,0,0,0,0,0,72,97,115,116,101,66,111,111,116,115,32,102,114,97,109,101,100,32,83,72,65,75,69,50,53,54,32,118,49,0,11,0,0,0,0,0,0,0,97,112,112,108,105,99,97,116,105,111,110,35,0,0,0,0,0,0,0,72,97,115,116,101,66,111,111,116,115,32,102,114,97,109,101,100,32,83,72,65,75,69,50,53,54,32,99,104,105,108,100,32,118,49,0,15,0,0,0,0,0,0,0,116,114,117,115,116,101,100,32,112,114,111,102,105,108,101,64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,11,0,0,0,0,0,0,0,99,104,105,108,100,32,108,97,98,101,108,35,0,0,0,0,0,0,0,99,108,97,115,115,105,99,97,108,32,101,120,116,101,110,115,105,111,110,32,108,111,111,107,117,112,32,99,104,105,108,100,32,118,49,1,13,0,0,0,0,0,0,0,99,104,105,108,100,32,99,111,110,116,101,120,116,29,0,0,0,0,0,0,0,112,97,99,107,101,100,32,101,120,116,101,110,115,105,111,110,32,116,117,112,108,101,32,108,111,111,107,117,112,1,11,0,0,0,0,0,0,0,112,97,114,101,110,116,32,115,101,101,100,64,0,0,0,0,0,0,0,23,252,191,148,247,88,44,150,230,216,217,84,11,52,106,16,51,51,101,80,92,82,87,149,215,245,138,24,204,247,83,60,19,216,217,110,50,87,47,190,228,46,139,93,99,241,7,8,183,214,172,80,105,189,8,240,255,135,121,237,212,83,27,219,1,20,0,0,0,0,0,0,0,102,105,101,108,100,32,99,104,97,108,108,101,110,103,101,32,107,105,110,100,16,0,0,0,0,0,0,0,101,120,116,101,110,115,105,111,110,32,118,101,99,116,111,114,1,15,0,0,0,0,0,0,0,101,120,116,101,110,115,105,111,110,32,98,97,115,105,115,184,1,0,0,0,0,0,0,3,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,24,0,0,0,0,0,0,0,116,121,112,101,100,32,101,120,116,101,110,115,105,111,110,32,105,100,101,110,116,105,116,121,24,0,0,0,0,0,0,0,1,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[72,97,115,116,101,66,111,111,116,115,32,99,111,110,115,117,109,101,100,32,102,105,101,108,100,32,98,121,116,101,115,32,118,49],[0,8,0,0,0,0,0,0,0,112,114,111,116,111,99,111,108,29,0,0,0,0,0,0,0,72,97,115,116,101,66,111,111,116,115,32,102,114,97,109,101,100,32,83,72,65,75,69,50,53,54,32,118,49,0,11,0,0,0,0,0,0,0,97,112,112,108,105,99,97,116,105,111,110,35,0,0,0,0,0,0,0,72,97,115,116,101,66,111,111,116,115,32,116,121,112,101,100,32,99,108,97,115,115,105,99,97,108,32,112,114,105,109,101,32,118,49,0,15,0,0,0,0,0,0,0,116,114,117,115,116,101,100,32,112,114,111,102,105,108,101,64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,17,0,0,0,0,0,0,0,116,121,112,101,100,32,112,114,105,109,101,32,102,105,101,108,100,16,0,0,0,0,0,0,0,1,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,1,43,0,0,0,0,0,0,0,99,97,110,111,110,105,99,97,108,32,115,104,97,114,101,100,45,113,117,101,114,121,32,101,120,116,101,110,115,105,111,110,32,108,111,111,107,117,112,115,32,118,49,36,0,0,0,0,0,0,0,2,5,2,2,253,2,0,0,0,255,255,255,255,253,3,0,0,0,255,255,255,255,2,3,4,2,2,1,0,8,1,1,0,1,1,0,1,36,0,0,0,0,0,0,0,115,104,97,114,101,100,32,108,111,111,107,117,112,32,103,114,111,117,112,101,100,32,109,117,108,116,105,112,108,105,99,105,116,105,101,115,16,0,0,0,0,0,0,0,2,2,1,253,1,0,0,0,255,255,255,255,1,251,253,0,1,31,0,0,0,0,0,0,0,101,120,116,101,110,115,105,111,110,32,108,111,111,107,117,112,32,109,117,108,116,105,112,108,105,99,105,116,105,101,115,14,0,0,0,0,0,0,0,3,1,253,1,0,0,0,255,255,255,255,251,253,0,6,35,0,0,0,0,0,0,0,99,108,97,115,115,105,99,97,108,32,101,120,116,101,110,115,105,111,110,32,108,111,111,107,117,112,32,99,104,105,108,100,32,118,49,29,0,0,0,0,0,0,0,112,97,99,107,101,100,32,101,120,116,101,110,115,105,111,110,32,116,117,112,108,101,32,108,111,111,107,117,112,2,20,0,0,0,0,0,0,0,99,108,97,115,115,105,99,97,108,32,99,104,105,108,100,32,115,101,101,100,8,0,0,0,0,0,0,0,64,0,0,0,0,0,0,0,3,20,0,0,0,0,0,0,0,99,108,97,115,115,105,99,97,108,32,99,104,105,108,100,32,115,101,101,100,64,0,0,0,0,0,0,0,23,252,191,148,247,88,44,150,230,216,217,84,11,52,106,16,51,51,101,80,92,82,87,149,215,245,138,24,204,247,83,60,19,216,217,110,50,87,47,190,228,46,139,93,99,241,7,8,183,214,172,80,105,189,8,240,255,135,121,237,212,83,27,219,8,17,0,0,0,0,0,0,0,112,97,114,101,110,116,32,99,104,101,99,107,112,111,105,110,116,0,0,0,0,0,0,0,0],[0,8,0,0,0,0,0,0,0,112,114,111,116,111,99,111,108,29,0,0,0,0,0,0,0,72,97,115,116,101,66,111,111,116,115,32,102,114,97,109,101,100,32,83,72,65,75,69,50,53,54,32,118,49,0,11,0,0,0,0,0,0,0,97,112,112,108,105,99,97,116,105,111,110,35,0,0,0,0,0,0,0,72,97,115,116,101,66,111,111,116,115,32,102,114,97,109,101,100,32,83,72,65,75,69,50,53,54,32,99,104,105,108,100,32,118,49,0,15,0,0,0,0,0,0,0,116,114,117,115,116,101,100,32,112,114,111,102,105,108,101,64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,11,0,0,0,0,0,0,0,99,104,105,108,100,32,108,97,98,101,108,35,0,0,0,0,0,0,0,99,108,97,115,115,105,99,97,108,32,101,120,116,101,110,115,105,111,110,32,108,111,111,107,117,112,32,99,104,105,108,100,32,118,49,1,13,0,0,0,0,0,0,0,99,104,105,108,100,32,99,111,110,116,101,120,116,29,0,0,0,0,0,0,0,112,97,99,107,101,100,32,101,120,116,101,110,115,105,111,110,32,116,117,112,108,101,32,108,111,111,107,117,112,1,11,0,0,0,0,0,0,0,112,97,114,101,110,116,32,115,101,101,100,64,0,0,0,0,0,0,0,23,252,191,148,247,88,44,150,230,216,217,84,11,52,106,16,51,51,101,80,92,82,87,149,215,245,138,24,204,247,83,60,19,216,217,110,50,87,47,190,228,46,139,93,99,241,7,8,183,214,172,80,105,189,8,240,255,135,121,237,212,83,27,219,1,20,0,0,0,0,0,0,0,102,105,101,108,100,32,99,104,97,108,108,101,110,103,101,32,107,105,110,100,16,0,0,0,0,0,0,0,101,120,116,101,110,115,105,111,110,32,118,101,99,116,111,114,1,15,0,0,0,0,0,0,0,101,120,116,101,110,115,105,111,110,32,98,97,115,105,115,184,1,0,0,0,0,0,0,3,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,24,0,0,0,0,0,0,0,116,121,112,101,100,32,101,120,116,101,110,115,105,111,110,32,105,100,101,110,116,105,116,121,24,0,0,0,0,0,0,0,1,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,24,0,0,0,0,0,0,0,116,121,112,101,100,32,101,120,116,101,110,115,105,111,110,32,105,100,101,110,116,105,116,121,80,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,183,182,52,111,170,211,33,223,7,70,151,196,155,55,129,27,216,220,105,85,91,166,126,23,56,70,210,51,28,126,173,234,236,55,125,125,75,115,235,234,232,239,32,17,220,139,73,173,242,235,88,190,76,47,120,99,56,56,95,131,6,248,148,233,1,29,0,0,0,0,0,0,0,115,104,97,114,101,100,32,108,111,111,107,117,112,32,116,101,114,109,105,110,97,108,32,118,97,108,117,101,115,24,0,0,0,0,0,0,0,2,4,1,2,3,0,4,4,5,6,0,3,3,7,11,13,3,17,19,23,3,29,31,37,2,22,0,0,0,0,0,0,0,99,108,97,115,115,105,99,97,108,32,99,104,105,108,100,32,102,105,110,105,115,104,8,0,0,0,0,0,0,0,64,0,0,0,0,0,0,0],[0,8,0,0,0,0,0,0,0,112,114,111,116,111,99,111,108,29,0,0,0,0,0,0,0,72,97,115,116,101,66,111,111,116,115,32,102,114,97,109,101,100,32,83,72,65,75,69,50,53,54,32,118,49,0,11,0,0,0,0,0,0,0,97,112,112,108,105,99,97,116,105,111,110,35,0,0,0,0,0,0,0,72,97,115,116,101,66,111,111,116,115,32,116,121,112,101,100,32,99,108,97,115,115,105,99,97,108,32,112,114,105,109,101,32,118,49,0,15,0,0,0,0,0,0,0,116,114,117,115,116,101,100,32,112,114,111,102,105,108,101,64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,17,0,0,0,0,0,0,0,116,121,112,101,100,32,112,114,105,109,101,32,102,105,101,108,100,16,0,0,0,0,0,0,0,1,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,1,43,0,0,0,0,0,0,0,99,97,110,111,110,105,99,97,108,32,115,104,97,114,101,100,45,113,117,101,114,121,32,101,120,116,101,110,115,105,111,110,32,108,111,111,107,117,112,115,32,118,49,36,0,0,0,0,0,0,0,2,5,2,2,253,2,0,0,0,255,255,255,255,253,3,0,0,0,255,255,255,255,2,3,4,2,2,1,0,8,1,1,0,1,1,0,1,36,0,0,0,0,0,0,0,115,104,97,114,101,100,32,108,111,111,107,117,112,32,103,114,111,117,112,101,100,32,109,117,108,116,105,112,108,105,99,105,116,105,101,115,16,0,0,0,0,0,0,0,2,2,1,253,1,0,0,0,255,255,255,255,1,251,253,0,1,31,0,0,0,0,0,0,0,101,120,116,101,110,115,105,111,110,32,108,111,111,107,117,112,32,109,117,108,116,105,112,108,105,99,105,116,105,101,115,14,0,0,0,0,0,0,0,3,1,253,1,0,0,0,255,255,255,255,251,253,0,6,35,0,0,0,0,0,0,0,99,108,97,115,115,105,99,97,108,32,101,120,116,101,110,115,105,111,110,32,108,111,111,107,117,112,32,99,104,105,108,100,32,118,49,29,0,0,0,0,0,0,0,112,97,99,107,101,100,32,101,120,116,101,110,115,105,111,110,32,116,117,112,108,101,32,108,111,111,107,117,112,2,20,0,0,0,0,0,0,0,99,108,97,115,115,105,99,97,108,32,99,104,105,108,100,32,115,101,101,100,8,0,0,0,0,0,0,0,64,0,0,0,0,0,0,0,3,20,0,0,0,0,0,0,0,99,108,97,115,115,105,99,97,108,32,99,104,105,108,100,32,115,101,101,100,64,0,0,0,0,0,0,0,23,252,191,148,247,88,44,150,230,216,217,84,11,52,106,16,51,51,101,80,92,82,87,149,215,245,138,24,204,247,83,60,19,216,217,110,50,87,47,190,228,46,139,93,99,241,7,8,183,214,172,80,105,189,8,240,255,135,121,237,212,83,27,219,7,35,0,0,0,0,0,0,0,99,108,97,115,115,105,99,97,108,32,101,120,116,101,110,115,105,111,110,32,108,111,111,107,117,112,32,99,104,105,108,100,32,118,49,64,0,0,0,0,0,0,0,36,97,80,22,161,35,130,137,223,202,57,45,83,171,64,156,24,199,37,81,22,202,145,177,217,54,204,252,181,152,132,155,77,78,241,113,255,47,146,158,58,79,180,137,16,131,67,215,187,208,166,68,67,109,56,52,161,18,156,112,183,218,57,61,2,26,0,0,0,0,0,0,0,97,102,116,101,114,32,115,104,97,114,101,100,32,99,104,105,108,100,32,102,105,120,116,117,114,101,8,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0]] : List (List ℕ)).map (List.map byte)
+private def nativeStreams : List InputIndexedOracle.Input := ([[23,252,191,148,247,88,44,150,230,216,217,84,11,52,106,16,51,51,101,80,92,82,87,149,215,245,138,24,204,247,83,60,19,216,217,110,50,87,47,190,228,46,139,93,99,241,7,8,183,214,172,80,105,189,8,240,255,135,121,237,212,83,27,219],[116,89,91,204,169,144,217,238,189,58,49,32,142,139,159,20,79,254,105,101,180,101,228,217,210,208,90,0,150,205,195,113,151,188,108,90,215,132,221,40,50,229,203,86,233,242,167,90,217,13,237,198,202,46,99,65,228,17,238,175,31,216,50,233],[],[183,182,52,111,170,211,33,223,7,70,151,196,155,55,129,27,216,220,105,85,91,166,126,23,56,70,210,51,28,126,173,234,236,55,125,125,75,115,235,234,232,239,32,17,220,139,73,173,242,235,88,190,76,47,120,99,56,56,95,131,6,248,148,233],[116,89,91,204,169,144,217,238,189,58,49,32,142,139,159,20,79,254,105,101,180,101,228,217,210,208,90,0,150,205,195,113,151,188,108,90,215,132,221,40,50,229,203,86,233,242,167,90,217,13,237,198,202,46,99,65,228,17,238,175,31,216,50,233],[36,97,80,22,161,35,130,137,223,202,57,45,83,171,64,156,24,199,37,81,22,202,145,177,217,54,204,252,181,152,132,155,77,78,241,113,255,47,146,158,58,79,180,137,16,131,67,215,187,208,166,68,67,109,56,52,161,18,156,112,183,218,57,61],[173,106,92,48]] : List (List ℕ)).map (List.map byte)
+private def world : InputIndexedOracle.World
+  | .inl (input,offset) =>
+      match (nativeStarts.zip nativeStreams).find? (fun pair => pair.1 == input) with
+      | none => byte 255
+      | some pair => pair.2[offset]?.getD (byte 255)
+  | .inr _ => 0
+private def baseParent : NativeTranscript.Transcript :=
+  NativeTranscript.appendBytes (NativeTranscript.new (NativeTranscript.utf8 "HasteBoots typed classical prime v1") (fun _ => 0))
+    (NativeTranscript.utf8 "typed prime field") (TranscriptFrame.littleEndian 16 goldilocksModulus)
+private def parent := NativeLookupRequestWire.bindRequests baseParent requests
+private def started := (OracleProgram.run (NativeSharedLookupChild.start parent packet) world).run
+private def terminalChild := NativeSharedLookupChild.bindTerminal started.1.2 proof
+private def finished := (OracleProgram.run (NativeSharedLookupChild.finish started.1.1 terminalChild) world).run
+example : started.2.length = 7 := by decide +kernel
+example : started.2.filterMap (fun event => match event with | .start input => some input | _ => none) = nativeStarts.take 4 := by decide +kernel
+example : started.2.filterMap (fun event => match event with | .output _ _ bytes => some bytes | _ => none) =
+    [nativeStreams[0]!,nativeStreams[1]!,nativeStreams[3]!] := by decide +kernel
+example : (match finished.1.outcome with | .ok () => true | .error _ => false) = true := by decide +kernel
+example : finished.2.length = 4 := by decide +kernel
+example : finished.2.filterMap (fun event => match event with | .start input => some input | _ => none) = (nativeStarts.drop 4).take 2 := by decide +kernel
+example : finished.2.filterMap (fun event => match event with | .output _ _ bytes => some bytes | _ => none) =
+    [nativeStreams[4]!,nativeStreams[5]!] := by decide +kernel
+example : (match finished.1.parent with | none => [] | some parent => NativeTranscript.requestInput parent (NativeTranscript.utf8 "after shared child fixture") 4) = nativeStarts[6]! := by decide +kernel
+example : finished.1.child.binding.isNone = true := by decide +kernel
+example : (OracleProgram.run (TypedTranscriptChild.finish finished.1.parent finished.1.child) world).run.2 = [] := by decide +kernel
+private def advanced := {started.1.1 with parent := NativeTranscript.appendBytes started.1.1.parent (NativeTranscript.utf8 "advanced parent") [byte 1]}
+example : (match (OracleProgram.run (NativeSharedLookupChild.finish advanced terminalChild) world).run.1.outcome with | .error .parentMismatch => true | _ => false) = true := by decide +kernel
+example : (OracleProgram.run (NativeSharedLookupChild.finish advanced terminalChild) world).run.2.length = 2 := by decide +kernel
+private def models : Fin 2 → NativeSharedLookupStatement.Request := ![req0.toModel,req1.toModel]
+private def registry : List NativeLookupBindGeometry.Parameters := List.replicate 2 ⟨usize 1,usize 4⟩
+private def geometry : NativeSharedLookupPreflight.Output :=
+  match NativeSharedLookupPreflight.preflight registry ⟨usize 3,usize 3⟩ (List.ofFn models) with
+  | some output => output
+  | none => ⟨(usize 0,usize 0),usize 0,[]⟩
+private def helperAlias : NativeSharedLookupProofData.Proof Unit Unit :=
+  {proof with helpers := ⟨[![word 18446744069414584321,word 11,word 13],![word 17,word 19,word 23],![word 29,word 31,word 37]],by decide⟩}
+example : (OracleProgram.run (NativeSharedLookupChild.launch (by decide : 2 ≤ 2^64) models .retain registry geometry helperAlias 0 0 parent) world).run.2 = [] := by decide +kernel
+example : (OracleProgram.run (NativeSharedLookupChild.launch (by decide : 2 ≤ 2^64) models .canonical registry geometry proof 0 0 parent) world).run.2 = [] := by decide +kernel
+-- Passing gates invokes the exact initializer. Lookup fuel zero suspends
+-- before any compression draw, preserving precisely the seven fork observations.
+example : (OracleProgram.run (NativeSharedLookupChild.launch (by decide : 2 ≤ 2^64) models .retain registry geometry proof 0 0 parent) world).run.2 = started.2 := by decide +kernel
+example : (OracleProgram.run (NativeSharedLookupChild.launch (by decide : 2 ≤ 2^64) models .retain registry geometry proof 0 0 parent) world).run.1.isNone = true := by decide +kernel
+end SharedChildWireSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupRequestWire.row_encode' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupRequestWire.row_encode
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupRequestWire.table_encode' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupRequestWire.table_encode
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupRequestWire.config_encode' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupRequestWire.config_encode
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupRequestWire.request_encode' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupRequestWire.request_encode
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupRequestWire.config_prefix' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupRequestWire.config_prefix
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupRequestWire.request_prefix' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupRequestWire.request_prefix
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupRequestWire.requests_prefix' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupRequestWire.requests_prefix
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupRequestWire.requests_injective' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupRequestWire.requests_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupRequestWire.normalize_table_values' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupRequestWire.normalize_table_values
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupRequestWire.rebuild_model' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupRequestWire.rebuild_model
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupRequestWire.bindRequests_input' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupRequestWire.bindRequests_input
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupRequestWire.bindRequests_injective' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupRequestWire.bindRequests_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupMultiplicityWire.group_values' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupMultiplicityWire.group_values
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupMultiplicityWire.pack_spec' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupMultiplicityWire.pack_spec
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupMultiplicityWire.pack_complete' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupMultiplicityWire.pack_complete
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupMultiplicityWire.grouped_encode' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupMultiplicityWire.grouped_encode
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupMultiplicityWire.flattened_encode' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupMultiplicityWire.flattened_encode
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupMultiplicityWire.grouped_prefix' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupMultiplicityWire.grouped_prefix
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupMultiplicityWire.flattened_prefix' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupMultiplicityWire.flattened_prefix
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupMultiplicityWire.grouped_injective' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupMultiplicityWire.grouped_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupProofData.terminal_encode' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupProofData.terminal_encode
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupProofData.terminal_prefix' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupProofData.terminal_prefix
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupProofData.terminal_injective' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupProofData.terminal_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupProofData.multiplicities_raw' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupProofData.multiplicities_raw
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupProofData.opening_count_fits' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupProofData.opening_count_fits
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupChild.prepare_input' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupChild.prepare_input
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupChild.prepare_injective' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupChild.prepare_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupChild.run_start' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupChild.run_start
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupChild.start_projection' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupChild.start_projection
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupChild.start_profiles' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupChild.start_profiles
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupChild.start_binding' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupChild.start_binding
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupChild.start_log_length' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupChild.start_log_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupChild.terminal_bind_injective' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupChild.terminal_bind_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupChild.finish_started_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupChild.finish_started_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupChild.finish_initial' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupChild.finish_initial
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupChild.finish_terminal_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupChild.finish_terminal_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupChild.launch_rejected' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupChild.launch_rejected
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupChild.launch_spec' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupChild.launch_spec
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupChild.launch_beginVerify' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupChild.launch_beginVerify
+
 end HasteBootsSmoke
