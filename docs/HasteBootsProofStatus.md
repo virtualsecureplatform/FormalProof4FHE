@@ -3438,3 +3438,47 @@ properties; the final security goal is still unproved. The concrete joint
 execution must additionally establish normalization and correspondence with
 the specified adversary class. M0 is partially implemented; the extraction
 gate and later milestones remain open.
+
+
+## Revised roadmap M0: pinned Aeneas primitive backend on Lean 4.35
+
+The two diagnosed compatibility failures are repaired in an isolated patch
+against Aeneas `15b968482b0dcd7aae45020b6d1bca39b5024af5`. The enum helper
+imports the relocated Lean module and uses the public reserved-name action
+dispatcher with the already resolved absolute declaration name. It verifies
+that each conversion constant was produced and preserves idempotence, without
+calling private realization helpers. The simplifier preserves explicit
+`Option` values for fresh hypotheses and supplies the hash-set element type
+required by Lean 4.35. No proof axioms or primitive semantics were changed.
+
+`interop/aeneas/lean435.patch` and `scripts/probe-hasteboots-aeneas` make the
+probe reproducible. The script owns a separate checkout, checks its exact
+revision and ownership marker, applies or verifies the patch, uses the root
+toolchain/mathlib, builds `Aeneas.Std.Primitives`, and runs the isolated
+warning-as-error `interop/aeneas/Probe.lean`. Default checkout location is
+ignored `build/aeneas-probe`; root dependencies and vendor sources remain
+unchanged. Existing unmarked checkouts are refused.
+
+The isolated regressions exercise successful `Result` bind, overflow-error
+propagation, divergence propagation, and eager enum conversions in a non-root
+namespace, including repeated realization. The upstream primitive build
+passes (56 jobs), with upstream proposition-style warnings; our regression
+file passes warning-as-error. The preserved upstream warnings are not
+reported as root strict-check failures. Logs:
+`/tmp/hasteboots-aeneas-m0-repair.log` and
+`/tmp/hasteboots-aeneas-repro.log`.
+
+This clears the primitive-backend compatibility subgate only. The full Aeneas
+standard library, Charon/frontend build, extraction of actual HasteBoots
+framing/sampling, oracle-aware result bridge, and checked verifier
+correspondence remain open. No Rust extraction or security theorem is claimed
+from a primitive import. The next tooling step is to extend this isolated
+probe to the standard-library surface needed by the real sampler and then
+build the recorded Charon frontend. The full objective remains active.
+
+Reproduction additionally passed after reversing the patch to the pinned
+pristine source (`/tmp/hasteboots-aeneas-repro-fresh.log`, terminal exit zero),
+and the probe refused an existing unmarked directory without modifying it.
+`bash -n` and `git diff --check` passed. Root Lean proof sources, dependency
+pins and Rust sources are unchanged; validation for this chunk is the
+isolated patched backend and strict regression probe.

@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# An isolated compatibility probe, not a Rust extraction/security certificate.
+ROOT=$(cd -- "$(dirname -- "$0")/.." && pwd)
+PIN=15b968482b0dcd7aae45020b6d1bca39b5024af5
+PROBE=$(realpath -m -- "${1:-${ROOT}/build/aeneas-probe}")
+case "${PROBE}" in
+  "${ROOT}"/*) BACKEND=/workspace/${PROBE#"${ROOT}/"}/backends/lean ;;
+  /tmp/*) BACKEND=${PROBE}/backends/lean ;;
+  *) echo 'Probe must be under the project root or /tmp for container access.' >&2; exit 1 ;;
+esac
+if [[ ! -e "${PROBE}" ]]; then
+  git clone --filter=blob:none --no-checkout https://github.com/AeneasVerif/aeneas.git "${PROBE}"
+  git -C "${PROBE}" checkout --detach "${PIN}"
+  printf '%s\n' "${PIN}" > "${PROBE}/.hasteboots-probe"
+fi
+if [[ ! -f "${PROBE}/.hasteboots-probe" ]] ||
+    [[ $(cat "${PROBE}/.hasteboots-probe") != "${PIN}" ]] ||
+    [[ $(git -C "${PROBE}" rev-parse HEAD) != "${PIN}" ]]; then
+  echo "Refusing to modify a checkout not owned by this pinned probe: ${PROBE}" >&2
+  exit 1
+fi
+PATCH=${ROOT}/interop/aeneas/lean435.patch
+if git -C "${PROBE}" apply --check "${PATCH}" 2>/dev/null; then
+  git -C "${PROBE}" apply "${PATCH}"
+elif ! git -C "${PROBE}" apply --reverse --check "${PATCH}" 2>/dev/null; then
+  echo 'Probe source does not match either the pinned or patched version.' >&2
+  exit 1
+fi
+# Use the root's actual mathlib source, not Aeneas's old manifest revision.
+python3 - "${PROBE}" "${ROOT}" <<'PY'
+from pathlib import Path
+import sys
+probe, root = map(Path, sys.argv[1:])
+backend = probe / 'backends/lean'
+(backend / 'lean-toolchain').write_text((root / 'lean-toolchain').read_text())
+source = (backend / 'lakefile.lean').read_text()
+old = 'require mathlib from git\n  "https://github.com/leanprover-community/mathlib4.git" @ "v4.31.0"'
+new = 'require mathlib from "/workspace/.lake/packages/mathlib"'
+if old not in source and new not in source:
+    raise SystemExit('Unexpected upstream mathlib dependency declaration')
+(backend / 'lakefile.lean').write_text(source.replace(old, new))
+PY
+"${ROOT}/scripts/in-container" bash -euc 'cd -- "$1"; lake update mathlib; lake build Aeneas.Std.Primitives; lake env lean -DwarningAsError=true /workspace/interop/aeneas/Probe.lean' _ "${BACKEND}"

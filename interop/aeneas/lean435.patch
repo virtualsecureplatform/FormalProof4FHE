@@ -1,0 +1,65 @@
+diff --git a/backends/lean/AeneasMeta/BvEnumToBitVec.lean b/backends/lean/AeneasMeta/BvEnumToBitVec.lean
+index 2fadf4bc..0499b8d6 100644
+--- a/backends/lean/AeneasMeta/BvEnumToBitVec.lean
++++ b/backends/lean/AeneasMeta/BvEnumToBitVec.lean
+@@ -3,7 +3,7 @@ Copyright (c) 2025. All rights reserved.
+ Released under Apache 2.0 license as described in the file LICENSE.
+ -/
+ import Lean
+-import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Enums
++import Lean.Meta.Tactic.BVDecide.Normalize.Enums
+
+ /-!
+ # Eagerly realizing `bv_decide`'s enum conversion constants
+@@ -44,7 +44,7 @@ module, turning the lazy per-use realisation into a single deterministic one.
+ namespace Aeneas
+
+ open Lean Meta Elab
+-open Lean.Elab.Tactic.BVDecide.Frontend.Normalize
++open Lean.Meta.Tactic.BVDecide.Normalize
+
+ /-- Marker class enabling `deriving BvEnumToBitVec` on an enum inductive.
+
+@@ -69,11 +69,13 @@ def realizeBvEnumToBitVec (declName : Name) : CoreM Unit := do
+       (parameter-free with only nullary constructors); \
+       `bv_decide` only synthesises `enumToBitVec` for such types."
+   enableRealizationsForConst declName
+-  let act : MetaM Unit := do
+-    discard <| getEnumToBitVecFor declName
+-    discard <| getEnumToBitVecLeFor declName
+-    discard <| getEqIffEnumToBitVecEqFor declName
+-  discard <| act.run' {} {}
++  -- Use the public reserved-name dispatcher; realization helpers are private.
++  for suffix in ["enumToBitVec", "enumToBitVec_le", "eq_iff_enumToBitVec_eq"] do
++    let name := Name.str declName suffix
++    unless (← getEnv).containsOnBranch name do
++      executeReservedNameAction name
++    unless (← getEnv).containsOnBranch name do
++      throwError m!"enum realization did not produce {name}"
+
+ /-- `#define_bv_decide_toBitVec T` eagerly realises `bv_decide`'s enum
+ conversion constants for the enum inductive `T` in the current module.
+diff --git a/backends/lean/AeneasMeta/Simp/Simp.lean b/backends/lean/AeneasMeta/Simp/Simp.lean
+index 322ea73a..7739ae5d 100644
+--- a/backends/lean/AeneasMeta/Simp/Simp.lean
++++ b/backends/lean/AeneasMeta/Simp/Simp.lean
+@@ -116,7 +116,7 @@ where
+     let freshFVarIds ←
+       match result? with
+       | none => replaceMainGoal []; pure none
+-      | some (fvars, mvarId) => replaceMainGoal [mvarId]; pure fvars
++      | some (fvars, mvarId) => replaceMainGoal [mvarId]; pure (some fvars)
+     /- We need to filter the `fvarIdsToSimp` to remove those which have been replaced with fresh fvars -/
+     let fvars ← do
+       match freshFVarIds with
+@@ -124,8 +124,8 @@ where
+       | some freshFVarIds =>
+         withMainContext do
+         let ctx ← getLCtx
+-        let ldecls := ctx.foldl (fun set decl => set.insert decl.fvarId) Std.HashSet.emptyWithCapacity
+-        pure (fvarIdsToSimp.filter ldecls.contains ++ freshFVarIds)
++        let ldecls := ctx.foldl (fun set decl => set.insert decl.fvarId) (∅ : Std.HashSet FVarId)
++        pure (some (fvarIdsToSimp.filter ldecls.contains ++ freshFVarIds))
+     return (fvars, stats)
+
+ /- Call the simp tactic. -/
