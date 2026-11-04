@@ -326,3 +326,7 @@ public import FormalProof4FHE.HasteBoots.NativeTerminalBits
 public import FormalProof4FHE.HasteBoots.NativeTerminalCore
 public import FormalProof4FHE.HasteBoots.NativeTerminalField
 public import FormalProof4FHE.HasteBoots.NativeGoldTerminalArithmetic
+public import FormalProof4FHE.HasteBoots.NativeGoldProjection
+public import FormalProof4FHE.HasteBoots.NativeGoldMatrix
+public import FormalProof4FHE.HasteBoots.NativeGoldMatrixMeaning
+public import FormalProof4FHE.HasteBoots.NativeGoldPostMap

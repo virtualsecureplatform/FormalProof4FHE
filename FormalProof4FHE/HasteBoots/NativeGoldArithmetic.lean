@@ -199,6 +199,11 @@ private theorem fold_value (values : List GoldWord) (initial : GoldWord) :
   | nil => simp
   | cons word tail ih => simp only [List.foldl_cons, ih, add_value, List.map_cons, List.sum_cons, add_assoc]
 
+/-- The exact raw left-to-right addition fold, with an arbitrary accumulator. -/
+theorem fold_add_value (values : List GoldWord) (initial : GoldWord) :
+    goldValue (values.foldl add initial) = goldValue initial + (values.map goldValue).sum :=
+  fold_value values initial
+
 theorem sum_value (values : List GoldWord) : goldValue (sum values) = (values.map goldValue).sum := by
   simpa only [sum, goldValue, Fin.val_zero, Nat.cast_zero, zero_add] using fold_value values 0
 

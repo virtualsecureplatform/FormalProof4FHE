@@ -15242,4 +15242,164 @@ end GoldTerminalSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeGoldTerminalArithmetic.checkFromElements_iff
 
+
+namespace GoldQueryProjectionSmoke
+open FormalProof4FHE.HasteBoots
+open NativeFields NativeFieldRepresentation NativeFieldWire NativeGoldExtensionArithmetic NativeExtensionFields
+private def word (n : ℕ) : GoldWord := ⟨n % (2^64), Nat.mod_lt _ (by decide)⟩
+private def value : Word := ![word 18446744069414584321, word 18446744069414584322, word 18446744073709551615]
+private def vector (answer : Option (List GoldWord)) : Option (List ℕ) := answer.map (List.map Fin.val)
+private def element (answer : Option Word) : Option (List ℕ) := answer.map (fun v => (List.ofFn v).map Fin.val)
+example : [3,4,8].map (fun width => vector (NativeGoldProjection.vector width value)) =
+    [some [18446744069414584321,18446744069414584322,18446744073709551615],
+     some [18446744069414584321,18446744069414584322,18446744073709551615,0],
+     some [18446744069414584321,18446744069414584322,18446744073709551615,0,0,0,0,0]] := by decide +kernel
+private def lazyPadding : List GoldWord := [word 18446744069414584321,word 18446744069414584322,
+  word 18446744073709551615,word 18446744069414584321]
+example : element (NativeGoldProjection.element 4 lazyPadding) =
+    some [18446744069414584321,18446744069414584322,18446744073709551615] := by decide +kernel
+example : element (NativeGoldProjection.element 4 (lazyPadding.take 3 ++ [word 1])) = none := by decide +kernel
+example : element (NativeGoldProjection.element 4 (lazyPadding.take 3)) = none := by decide +kernel
+example : (NativeGoldProjection.vector 2 value).isNone = true := by decide +kernel
+example : (NativeGoldProjection.vector (2^32) value).isNone = true := by decide +kernel
+private def input : List GoldWord := [word 18446744069414584322,word 2,word 18446744073709551615,word 17]
+private def projection : NativeGoldMatrix.Matrix := ⟨4, ([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0] : List ℕ).map word⟩
+private def multiplication : NativeGoldMatrix.Matrix := ⟨4, ([18446744069414584321,30064771058,7,0,1,0,
+  30064771058,0,4294967294,18446744069414584322,0,0,0,0,0,0] : List ℕ).map word⟩
+private def arbitrary : NativeGoldMatrix.Matrix := ⟨4, ([18446744069414584321,18446744069414584322,
+  18446744073709551615,4,5,6,7,8,9,10,11,12,13,14,15,16] : List ℕ).map word⟩
+example : vector (NativeGoldPostMap.apply 4 none input) =
+    some [18446744069414584322,2,18446744073709551615,17] := by decide +kernel
+example : element (NativeGoldPostMap.project 4 none input) = none := by decide +kernel
+example : vector (NativeGoldPostMap.apply 4 (some projection) input) =
+    some [18446744069414584322,2,18446744073709551615,0] := by decide +kernel
+example : element (NativeGoldPostMap.project 4 (some projection) input) =
+    some [18446744069414584322,2,18446744073709551615] := by decide +kernel
+example : vector (NativeGoldPostMap.apply 4 (some multiplication) input) =
+    some [90194313174,18446743979220271127,4294967296,0] := by decide +kernel
+example : element (NativeGoldPostMap.project 4 (some multiplication) input) =
+    some [90194313174,18446743979220271127,4294967296] := by decide +kernel
+example : vector (NativeGoldPostMap.apply 4 (some arbitrary) input) =
+    some [18446744056529682506,30064771211,47244640467,64424509723] := by decide +kernel
+example : element (NativeGoldPostMap.project 4 (some arbitrary) input) = none := by decide +kernel
+example : (NativeGoldMatrix.checked 0 []).isNone = true := by decide +kernel
+example : (NativeGoldMatrix.checked 4 (List.replicate 15 (word 0))).isNone = true := by decide +kernel
+example : (NativeGoldMatrix.checked (2^32) []).isNone = true := by decide +kernel
+example : (NativeGoldPostMap.apply 4 (some ⟨4,List.replicate 15 (word 0)⟩) input).isNone = true := by decide +kernel
+example : (NativeGoldPostMap.apply 4 (some ⟨0,[]⟩) input).isNone = true := by decide +kernel
+example : (NativeGoldPostMap.apply 4 (some ⟨2^32,[]⟩) input).isNone = true := by decide +kernel
+example : (NativeGoldPostMap.apply 4 (some projection) (input.take 3)).isNone = true := by decide +kernel
+example : (NativeGoldPostMap.apply 0 none []).isNone = true := by decide +kernel
+-- All valid widths preserve raw coordinates in the vector/element round trip.
+example (width : ℕ) (v : Word) (valid : NativeGoldProjection.dimensions width = true) :
+    (NativeGoldProjection.vector width v).bind (NativeGoldProjection.element width) = some v :=
+  NativeGoldProjection.vector_element width v valid
+-- Full raw post-map/projection semantics has no matrix-correctness certificate.
+example {padding : ℕ} (post : Option NativeGoldMatrix.Matrix) (v : Fin (3+padding) → GoldWord)
+    (fits : (3+padding)*(3+padding) < 2^64) :
+    (NativeGoldPostMap.project (3+padding) post (List.ofFn v)).map goldExtensionValue =
+      (NativeGoldPostMap.fieldApply (3+padding) post (fun i => goldValue (v i))).bind
+        (PaddedExtension.element goldilocksBasis) := NativeGoldPostMap.project_value post v fits
+end GoldQueryProjectionSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldArithmetic.fold_add_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldArithmetic.fold_add_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldProjection.paddingCheck_iff' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldProjection.paddingCheck_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldProjection.dimensions_iff' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldProjection.dimensions_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldProjection.element_success' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldProjection.element_success
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldProjection.element_some_iff' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldProjection.element_some_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldProjection.zero_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldProjection.zero_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldProjection.padding_ofFn' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldProjection.padding_ofFn
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldProjection.decode_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldProjection.decode_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldProjection.element_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldProjection.element_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldProjection.element_vector' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldProjection.element_vector
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldProjection.vector_element' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldProjection.vector_element
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldProjection.vector_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldProjection.vector_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldMatrix.validate_iff' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldMatrix.validate_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldMatrix.checked_iff' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldMatrix.checked_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldMatrix.dotFrom_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldMatrix.dotFrom_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldMatrix.dot_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldMatrix.dot_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldMatrix.apply_length' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldMatrix.apply_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldMatrixMeaning.address_bound' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldMatrixMeaning.address_bound
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldMatrixMeaning.row_length' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldMatrixMeaning.row_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldMatrixMeaning.row_ofFn' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldMatrixMeaning.row_ofFn
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldMatrixMeaning.dot_ofFn' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldMatrixMeaning.dot_ofFn
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldMatrixMeaning.apply_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldMatrixMeaning.apply_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldPostMap.apply_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldPostMap.apply_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldPostMap.apply_length' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldPostMap.apply_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldPostMap.project_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldPostMap.project_value
+
 end HasteBootsSmoke

@@ -5754,3 +5754,78 @@ No Rust, vendor source or dependency pin changed.
 The full `scripts/check` finished with exit 0 after the full build (10,155
 jobs) and all subsequent audit/smoke suites. Full log:
 `/tmp/hasteboots-terminal-check.log`.
+
+## Checked raw projection and native query post-map
+
+`NativeGoldProjection` now models the native Goldilocks extension bridge's
+actual dimension, usize-square, vector-length and padding checks. Padding
+is tested by an explicit ordered list `all`, using canonical field-zero
+comparison. Lazy zero padding is accepted; meaningful coordinates are
+copied without normalization. Success is characterized by all original
+raw coordinate getters and the full padding check. Packing followed by
+projection returns the exact original raw extension word, including lazy
+representatives. Its complete partial field interpretation agrees with
+`PaddedExtension.element`, including rejected padding.
+
+`NativeGoldMatrix` retains the native row-major payload and checked matrix
+shape. Matrix application rejects zero/wrong widths, checked-square
+overflow, wrong payload length and wrong vector length. Every row uses the
+literal ascending-column raw multiply/add fold from zero. The existing
+base addition-fold interpretation is now exposed and reused, so the new
+matrix proof does not duplicate the base arithmetic induction. No raw
+arithmetic behavior or canonicalization policy changed.
+
+`NativeGoldMatrixMeaning` derives every coefficient from the actual
+validated payload. It proves row lengths and every row-major address bound,
+then identifies the complete raw application with that matrix's field
+product on every original input lane. No separately supplied mathematical
+matrix or correctness certificate is used. In particular, original input
+padding is not assumed zero when applying a matrix; projection may suppress
+an unused lane before the output padding is tested.
+
+`NativeGoldPostMap` models the native optional post-matrix operation and
+then the checked extension projection, in that order. An absent post-map
+returns the original vector after its native width/length check. A present
+post-matrix is validated and applied, with invalid shape still a failure.
+The full partial composition agrees with field matrix application followed
+by the existing padded-extension decoder. These results cover both success
+and failure and do not treat a projection matrix as an ordinary identity.
+
+The pinned Rust fixture calls the real public bridge and matrix functions.
+It covers widths 3, 4 and 8; exact lazy coordinate retention; zero-alias
+padding; the actual empty helper-query post-matrix; raw multiplication and
+arbitrary matrix payloads; wrong lengths, deserialized malformed matrices
+and usize-square overflow. Kernel regressions reproduce the raw outputs
+and rejection cases, including a nonzero original padding lane suppressed
+by the helper projection. Universal consumers cover raw round trips and
+the full post-map/projection field correspondence. All kernel regressions
+run at their normal checking depth.
+
+Query construction itself remains open: the raw multiplication-by-basis
+column loop, lane weights, the first row pair's matrix product on the right
+of the source-lane map, and all subsequent query pairs must still be linked
+to the generic query semantics. The tests use actual native constructor
+payloads as golden inputs to application; they do not prove those
+constructors. Accepted PCS openings, actual helper-sum/identity guard
+composition and caller geometry also remain to connect. Full lookup/PBS
+extraction and linking, checked Rust/scheduler and strict decoder refinement,
+BabyBear arithmetic, chronological attacker-work coupling, numerical
+certification and the final 128-bit application theorem remain open.
+
+Validation for this chunk: the focused post-map build passed (3,918 jobs),
+the integrated HasteBoots smoke build passed (4,140 jobs), and the standalone
+warning-as-error HasteBoots smoke check passed. The smoke suite now contains
+2,070 guarded theorem audits, including 25 new public results, all within
+`propext`, `Classical.choice` and `Quot.sound`. The isolated normal-depth
+kernel regressions and public native Rust fixture both exited 0. Logs:
+`/tmp/hasteboots-gold-query-{regressions,audit,rust,smoke,strict}.log`.
+The pinned HasteBoots HEAD remains
+`dff353006322693cab3dc6b654f82151f658f294`, with a clean native tree.
+The matrix source hash is
+`fb30971cee49a51e49909990254cec582c6b080d24188d755c7ab74a49bdf18e`;
+the packed-extension, terminal, scalar-batch and transcript source hashes
+were also rechecked unchanged. No Rust, vendor source or dependency pin
+changed.
+The full `scripts/check` also exited 0 after its full build (10,160 jobs)
+and all subsequent audit/smoke suites. Full log:
+`/tmp/hasteboots-gold-query-check.log`.
