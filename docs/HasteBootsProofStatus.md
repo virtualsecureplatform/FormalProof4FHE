@@ -3623,3 +3623,66 @@ proofs depend only on the permitted standard kernel foundations. Logs:
 `/tmp/hasteboots-joint-oracle-check.log`. Whitespace checks passed. Root
 dependency pins, vendor sources, and the Rust worktree are unchanged.
 The complete security objective remains active and unproved.
+
+
+## Revised roadmap M1: frame codec and logged native transitions
+
+`TranscriptFrame.lean` specifies the inspected native layout
+`kind || u64le(label length) || label || u64le(message length) || message`.
+Little-endian round trips and injectivity retain explicit length bounds
+below `2^64`; overlarge lengths are not silently treated as injective.
+The decoder checks header/body lengths and rejects kinds outside 0–8.
+Decoding an encoded frame returns an arbitrary suffix unchanged. This
+proves frame-boundary uniqueness and injectivity of complete valid frame
+sequences. Structural decoding does not certify protocol-stage admissibility.
+
+`NativeTranscript.lean` specifies root initialization (kind 0), public byte
+absorption (1), byte requests/results (2/3), canonical-field request and
+receipt framing (4/5), child-fork/finish framing (6/7), and checkpointing (8).
+All methods consult the same joint `World`. A writer log records reader
+starts and returned chunks in model execution order, including empty byte
+challenges and zero-count field requests. Receipt and checkpoint readers
+are logged alongside challenge/seed/fingerprint readers. Reader IDs are
+not oracle keys. Profile inheritance is proved for forks.
+
+Field phases retain every consumed raw chunk. Begin/draw coherence proves
+that retained bytes are the exact prefix of the original request's stream;
+splitting reads preserves the complete raw output and final field phase.
+The 80-byte receipt consists of a 16-byte little-endian consumed length and
+64 bytes from the same-world SHAKE query on the literal domain followed by
+the complete raw prefix. No rejected candidate is removed. The receipt
+query's first UTF-8 byte is 72, outside the frame-kind range, proving that
+its input cannot equal a nonempty framed stream. This does not establish
+freshness relative to arbitrary adversarial prequeries. Request framing
+also preserves label identity under the declared length bounds.
+
+Source inspection was against unchanged HasteBoots revision
+`dff353006322693cab3dc6b654f82151f658f294`,
+`helper/src/classical_transcript.rs` SHA-256
+`8ac0ace46e2da0d135b606bd9d290514c1e5b9a2fd6e1c67a15327b625b82c50`.
+These are source-aligned ideal-model definitions, not an extracted Rust
+correspondence certificate. The native field/basis descriptors (including
+the native extension polynomials), detached wrapper parent-binding checks,
+canonical/reciprocal sampler connection, and scheduler correspondence
+remain open. Adaptive revelation and replay, the linked lookup child
+compiler under whole-history prequeries, the unrestricted stopping/work
+conversion, full PBS composition, and final concrete security theorem
+also remain open. Observation logs are not assumed to be attacker-work
+counters, and no primitive-to-machine-cost conversion is asserted.
+
+
+Validation passed: the focused HasteBoots smoke build (4,066 jobs), separate
+warning-as-error HasteBoots smoke, and full `scripts/check` (10,085 build jobs
+followed by all strict suites, terminal exit zero). Fifteen new guarded
+HasteBoots audits passed, bringing the total to 1,389, all within the
+permitted standard kernel foundations. Regressions cover an independent
+byte fixture, little-endian length order, invalid kinds, truncated headers
+and bodies, u64 truncation, empty challenges, zero-count field-reader starts,
+and complete raw-byte retention. Logs: `/tmp/hasteboots-framed-smoke.log`,
+`/tmp/hasteboots-framed-strict.log`, `/tmp/hasteboots-frame-audit.log`, and
+`/tmp/hasteboots-framed-check.log`. Whitespace checks passed; dependency pins,
+vendor sources, and original Rust sources are unchanged. Next M1 work is
+counterfactual replay from logged observations and typed descriptor/child
+integration; arbitrary-input decoder soundness remains to be proved before
+using the decoder to classify adversarial prequeries. The full security
+objective remains active and unproved.

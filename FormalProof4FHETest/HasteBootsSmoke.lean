@@ -10987,4 +10987,108 @@ end InputIndexedOracleSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms InputIndexedOracle.finite_coordinates_uniform
 
+section TranscriptFrameSmoke
+open TranscriptFrame
+
+/-- The ABI length is little-endian and fixed at eight bytes. -/
+example : littleEndian 8 256 = [0, 1, 0, 0, 0, 0, 0, 0] := by decide
+
+/-- Independent byte fixture for kind 4, label x, and payload [1,2]. -/
+example : encode ⟨4, [120], [1, 2]⟩ =
+    [4, 1, 0, 0, 0, 0, 0, 0, 0, 120, 2, 0, 0, 0, 0, 0, 0, 0, 1, 2] := by decide
+
+example : decode [9] = none := decode_reject_kind 9 [] (by decide)
+
+/-- A truncated header rejects. -/
+example : decode [0, 0, 0, 0] = none := by decide
+
+/-- Full headers declaring one absent payload byte also reject. -/
+example : decode [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0] = none := by decide
+
+/-- The valid-length premise excludes truncation at the u64 boundary. -/
+example : littleEndian 8 (2 ^ 64) = littleEndian 8 0 := by decide
+end TranscriptFrameSmoke
+
+section NativeTranscriptSmoke
+open NativeTranscript
+open InputIndexedOracle (World Input)
+
+/-- Empty challenges retain the start and the empty output event. -/
+example (world : World) (state : Transcript) (label : Input) :
+    (challengeBytes world state label 0).run.2.length = 2 := rfl
+
+/-- Zero requested field values still finalize the request reader. -/
+example (state : Transcript) (label : Input) :
+    (beginField state label 17 0).run.2.length = 1 := rfl
+
+/-- All raw candidate bytes remain, independent of later acceptance tests. -/
+example (world : World) (state : Transcript) (label : Input) :
+    (drawField world
+      (drawField world (beginField state label 17 2).run.1 3).run.1.2 5).run.1.2.consumed.length = 8 := by
+  simp [drawField, beginField, WriterT.run_mk, InputIndexedOracle.bytes_length]
+
+example (world : World) (consumed : Input) :
+    (receipt world consumed).run.1.length = 80 := receipt_length world consumed
+end NativeTranscriptSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.TranscriptFrame.fromLittleEndian_littleEndian' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TranscriptFrame.fromLittleEndian_littleEndian
+
+/-- info: 'FormalProof4FHE.HasteBoots.TranscriptFrame.readSized_sized' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TranscriptFrame.readSized_sized
+
+/-- info: 'FormalProof4FHE.HasteBoots.TranscriptFrame.decode_encode' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TranscriptFrame.decode_encode
+
+/-- info: 'FormalProof4FHE.HasteBoots.TranscriptFrame.boundary_unique' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TranscriptFrame.boundary_unique
+
+/-- info: 'FormalProof4FHE.HasteBoots.TranscriptFrame.encodeMany_injective' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TranscriptFrame.encodeMany_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTranscript.challenge_state' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTranscript.challenge_state
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTranscript.begin_coherent' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTranscript.begin_coherent
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTranscript.draw_coherent' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTranscript.draw_coherent
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTranscript.draw_split' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTranscript.draw_split
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTranscript.receipt_length' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTranscript.receipt_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTranscript.receipt_observations' does not depend on any axioms -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTranscript.receipt_observations
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTranscript.fork_profiles' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTranscript.fork_profiles
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTranscript.receipt_domain_separated' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTranscript.receipt_domain_separated
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTranscript.challenge_observations' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTranscript.challenge_observations
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTranscript.request_label_injective' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTranscript.request_label_injective
+
 end HasteBootsSmoke
