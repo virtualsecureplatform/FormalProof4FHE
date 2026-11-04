@@ -4827,3 +4827,77 @@ The full `scripts/check` subsequently finished with exit 0: the repository
 build passed (10,124 jobs), and all subsequent audit and smoke suites
 completed successfully. Full log:
 `/tmp/hasteboots-gold-arithmetic-check.log`.
+
+
+## Raw degree-three multiplication and inversion
+
+`NativeGoldInverse` models the Goldilocks addition chain in
+`modulus/goldilocks::try_inverse`, including its initial canonicalization
+and the canonicalization inside every specialized `exp_acc` power-of-two
+call. Repeated squaring has a general field-power theorem. The chain is
+proved to compute exponent `p-2`, and Fermat's theorem identifies its value
+with inversion on nonzero inputs. The explicit option-valued base inverse
+fails exactly at semantic zero, including raw zero and raw modulus. This
+is the stated natural-word model of the specialized operations; a checked
+Rust/control-flow refinement of `pow_reduce` and the inversion chain remains
+required. The remaining generic exponent paths have not yet been refined.
+
+`NativeGoldCubic` retains every operation in the native Karatsuba product,
+with constant seven, and proves its three coordinate formulas. The checked
+basis is expanded as a polynomial in the adjoined root, whose cube is seven.
+These results prove that the raw product denotes mathematical multiplication
+in the degree-three lookup field, while preserving the actual lazy words.
+
+`NativeGoldCubicInverse` retains the native determinant, adjugate and final
+left scalar multiplication. Their coordinate identities prove that input
+times adjugate equals the embedded determinant. Irreducibility of `X^3-7`
+rules out a zero adjugate on a nonzero input, and hence the scalar determinant
+is nonzero. The literal base addition chain therefore succeeds and the
+result denotes the inverse extension value. Division first performs this
+inverse and then the native right multiplication; its successful result is
+proved to denote field division. `none` represents a failed arithmetic
+precondition: unchecked Rust inversion panics there. It is not claimed to
+be a graceful native verifier rejection. The accepted nonzero-domain theorem
+avoids that path.
+
+A fixture using the pinned Rust algebra crate supplies raw base inverse
+outputs for eight boundary words, including both zero representatives, and
+raw Karatsuba and inverse outputs for seven degree-three vectors with
+canonical and lazy coordinates. The native fixture checks each nonzero
+inverse by multiplication. Kernel regressions reproduce all captured words
+and the explicit failed arithmetic precondition. They do not normalize
+results before comparison, so equality of field values alone cannot make
+these regressions pass.
+
+These modules complete the explicit natural-word Goldilocks cubic arithmetic
+needed by the lookup compression and reciprocal producers. Linking those
+producers to the existing sampler, helper and table-sum compiler is next;
+the independent common-challenge scalar batch and optimized interpolation
+still require refinement. BabyBear arithmetic, full protocol/PBS/commitment
+composition, checked Rust/scheduler correspondence, unbounded chronological
+attacker-work coupling, strict proof-byte decoding, numerical losses and the
+final application 128-bit security theorem remain open.
+
+The native Goldilocks reciprocal policy evaluates `EF::one() / denominator`.
+Its producer must retain the final Karatsuba multiplication by one in
+`divResult`; byte equality with the raw `inverseResult` alone has not been
+established. This distinction matters when linking the new arithmetic to
+serialized helper/claim values.
+
+Validation: the focused cubic-inverse build passed (3,182 jobs),
+the HasteBoots smoke build passed (4,107 jobs), and the separate
+warning-as-error HasteBoots smoke completed with exit 0. All 22 new theorem
+audits use only the standard foundation allowlist; HasteBoots now has 1,851
+guarded axiom checks. The isolated kernel regression suite and pinned native
+Rust fixture both completed with exit 0. Logs:
+`/tmp/hasteboots-gold-cubic-inverse-build.log`,
+`/tmp/hasteboots-gold-cubic-audit.log`,
+`/tmp/hasteboots-gold-cubic-regressions.log`,
+`/tmp/hasteboots-gold-cubic-smoke.log`,
+`/tmp/hasteboots-gold-cubic-strict.log`, and
+`/tmp/hasteboots-gold-cubic-rust.log`.
+Rust HEAD and transcript source hashes were rechecked unchanged. No native
+Rust, vendor source or dependency pin was modified.
+The full `scripts/check` finished with exit 0 after the repository build
+(10,126 jobs) and every subsequent audit/smoke suite. Full log:
+`/tmp/hasteboots-gold-cubic-check.log`.

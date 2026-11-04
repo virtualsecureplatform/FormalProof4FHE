@@ -294,3 +294,6 @@ public import FormalProof4FHE.HasteBoots.NativeIntegerPrefix
 public import FormalProof4FHE.HasteBoots.NativeFieldWire
 public import FormalProof4FHE.HasteBoots.NativeGoldArithmetic
 public import FormalProof4FHE.HasteBoots.NativeGoldExtensionArithmetic
+public import FormalProof4FHE.HasteBoots.NativeGoldInverse
+public import FormalProof4FHE.HasteBoots.NativeGoldCubic
+public import FormalProof4FHE.HasteBoots.NativeGoldCubicInverse

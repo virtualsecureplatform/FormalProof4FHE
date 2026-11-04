@@ -13768,4 +13768,137 @@ end NativeGoldArithmeticSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeGoldExtensionArithmetic.recurrence_iff
 
+namespace GoldCubicRegressions
+open NativeFieldRepresentation
+
+private def word (value : ℕ) : GoldWord := ⟨value % (2 ^ 64), Nat.mod_lt _ (by decide)⟩
+private def inputs : List NativeFieldWire.GoldExtension :=
+  [![word 1, word 0, word 0], ![word 0, word 1, word 0], ![word 0, word 0, word 1],
+   ![word 1, word 2, word 3],
+   ![word 18446744069414584321, word 1, word 18446744073709551615],
+   ![word 18446744069414584320, word 18446744069414584322, word 4294967295],
+   ![word 18446744073709551615, word 18446744073709551615, word 18446744073709551615]]
+
+/-- Native base inversion distinguishes the two raw spellings of zero from
+nonzero inputs and retains its exact addition-chain outputs. -/
+example :
+    ([0, 1, 2, 7, 18446744069414584320, 18446744069414584321,
+      18446744069414584322, 18446744073709551615] : List ℕ).map
+      (fun value => (NativeGoldInverse.tryInverse (word value)).map Fin.val) =
+    [none, some 1, some 9223372034707292161, some 2635249152773512046,
+      some 18446744069414584320, none, some 1, some 12297829378178067115] := by decide +kernel
+
+/-- Literal native Karatsuba outputs for successive pairs, with the last
+input paired with the first. Lazy coordinates are preserved. -/
+example :
+    (inputs.zip (inputs.drop 1 ++ inputs.take 1)).map
+      (fun pair => List.ofFn (fun i => (NativeGoldCubic.mul pair.1 pair.2 i).val)) =
+    [[0, 1, 0], [7, 0, 0], [14, 21, 1], [60129542137, 90194313175, 4294967296],
+     [60129542123, 18446744009285042183, 18446744065119617028],
+     [18446744035054845948, 18446744009285042184, 18446744060824649730],
+     [18446744073709551615, 4294967294, 4294967294]] := by decide +kernel
+
+/-- Literal outputs of the native cubic inverse on canonical and lazy words. -/
+example : inputs.map (fun value => (NativeGoldCubicInverse.inverseResult value).map
+    (fun result => List.ofFn (fun i => (result i).val))) =
+    [some [1, 0, 0], some [0, 0, 2635249152773512046], some [0, 2635249152773512046, 0],
+     some [13489365479787219954, 13224579679747776160, 6869720478801125102],
+     some [14462024428834940044, 8861124794459371440, 4279294319061390555],
+     some [4318342076940516398, 13250365709266903264, 183589404475363188],
+     some [1024819115206086201, 17421924954208498120, 0]] := by decide +kernel
+
+/-- This is an explicit failed arithmetic precondition, which panics in
+native unchecked inversion; it is not a native verifier rejection claim. -/
+example : NativeGoldCubicInverse.inverseResult (fun _ => word 18446744069414584321) = none := by decide +kernel
+end GoldCubicRegressions
+
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInverse.canonical_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInverse.canonical_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInverse.square_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInverse.square_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInverse.squares_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInverse.squares_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInverse.expAcc_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInverse.expAcc_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInverse.chain_power' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInverse.chain_power
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInverse.chain_inverse' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInverse.chain_inverse
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInverse.canonical_zero_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInverse.canonical_zero_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInverse.tryInverse_none' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInverse.tryInverse_none
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInverse.tryInverse_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInverse.tryInverse_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldCubic.generator_cube' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldCubic.generator_cube
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldCubic.value_expansion' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldCubic.value_expansion
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldCubic.mul_coordinates' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldCubic.mul_coordinates
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldCubic.mul_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldCubic.mul_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldCubicInverse.determinant_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldCubicInverse.determinant_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldCubicInverse.adjugate_coordinates' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldCubicInverse.adjugate_coordinates
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldCubicInverse.product_coordinates' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldCubicInverse.product_coordinates
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldCubicInverse.product_adjugate' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldCubicInverse.product_adjugate
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldCubicInverse.adjugate_nonzero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldCubicInverse.adjugate_nonzero
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldCubicInverse.determinant_nonzero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldCubicInverse.determinant_nonzero
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldCubicInverse.finish_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldCubicInverse.finish_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldCubicInverse.inverseResult_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldCubicInverse.inverseResult_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldCubicInverse.divResult_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldCubicInverse.divResult_value
+
 end HasteBootsSmoke
