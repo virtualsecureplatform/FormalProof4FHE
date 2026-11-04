@@ -4238,3 +4238,77 @@ Logs: `/tmp/hasteboots-cached-response-build.log` and
 Whitespace checks passed. The Rust revision and inspected transcript hashes
 were rechecked unchanged; Rust sources, vendor sources and dependency pins
 were not modified. The full security objective remains active and unproved.
+
+
+## History averaging and unrestricted expected-work reduction
+
+`OracleHistoryCharge.lean` partitions the joint world law over every
+attainable full result/log history. The partition is countable by replay,
+without a supplied query limit or countable payload assumption. Its
+restricted measures sum to the original law exactly. Bounds on each
+restricted bad event average into the same actual nonnegative score,
+including infinite scores. Cache-conditional event/work inequalities from
+the posterior generator have an explicit global-bound corollary.
+
+An inherited-risk version is also proved. A prefix may already contain a
+lucky bad answer, so conditioning on it need not leave a tiny future error
+probability. The interface retains this risk as an unnormalized ledger;
+the cache-conditional corollary weights each risk by its complete history
+mass. Charging the ledger to earlier actual work remains an explicit
+obligation. Neither a fresh-answer assumption nor zero inherited risk is
+inserted by the averaging theorem. Prefix work can be retained in the
+score payload; no work is invented by the reduction itself.
+
+`UnboundedHistorySecurity.lean` connects limiting arguments to the existing
+`SecurityExperiment` contract. A bad prefix means an accepted false
+submission at any earlier observation slot. These events increase with
+depth and their union is exactly `HistoryBad`, so later rejection or idle
+slots cannot remove earlier bad outcomes. Finite actor costs are measurable
+and monotone. The mean total work equals the supremum of all prefix means,
+including infinite work and infinite expectations.
+
+Per-prefix risk inequalities now imply the unrestricted `RiskBound`, with
+the initial-risk term preserved. Multiplicative prefix inequalities imply
+the exact `ExpectedWorkSecurity` interface for any supplied experiment,
+adversary class and bit target, without dividing by success probability.
+All prefixes are proof approximations, not runtime caps or assumed stopping
+budgets. The source must still supply the actual experiment law and prove
+the native numerical inequalities at every prefix. In particular these
+conditional reduction theorems do not certify the HasteBoots 128-bit bound.
+
+Averaging accepts arbitrary nonnegative scores, including primitive-work
+scores. The limit specialization uses the contract's attacker `machineSteps`;
+it does not identify primitive blocks with abstract machine instructions.
+Their implementation/refinement bridge remains separate.
+
+The observation alphabet retains the contract's discrete sigma algebra;
+the infinite history space retains its product sigma algebra. Regression
+histories check persistent accepted-false outcomes after rejection,
+exclusion of verifier work, and genuinely infinite attacker work. A
+zero-work accepting toy experiment satisfies only the risk bound with
+initial risk one and is proved not to satisfy the 128-bit expected-work
+contract. A separate oracle regression records a rare zero byte with
+history mass `1/256` and shows its repeated query has conditional bad
+probability one, preserving rather than erasing cached lucky outcomes.
+
+This proves the history-averaging and unrestricted-limit reductions.
+Native cache-aware charges, inherited-risk charging, the actual experiment
+and chronological work-trace coupling, private-coin averaging, the remaining
+lookup/PBS composition, concrete certification, strict proof-byte decoding,
+and checked Rust/scheduler refinement remain open. The end-to-end security
+objective remains active and unproved.
+
+
+Validation passed: focused HasteBoots smoke (4,085 jobs), a separate
+warning-as-error HasteBoots smoke, and full `scripts/check` (10,102 build
+jobs and all subsequent strict suites, terminal exit zero). Twenty-one
+new guarded theorem audits passed, bringing the HasteBoots total to 1,629;
+the new dependencies satisfy the permitted standard-foundation allowlist.
+Regressions cover persistent bad outcomes after rejection, attacker-only
+costs, infinite total/mean work, retained initial risk, a zero-work accepting
+experiment that fails the 128-bit contract, and a rare cached bad answer
+whose conditional risk is one. Logs:
+`/tmp/hasteboots-history-reduction-{build,audit,smoke,strict,check}.log`.
+Whitespace checks passed. The Rust revision and transcript hashes were
+rechecked unchanged; Rust sources, vendor sources and dependency pins were
+not modified. The native numerical and refinement gates remain open.

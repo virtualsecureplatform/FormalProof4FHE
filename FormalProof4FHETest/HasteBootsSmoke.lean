@@ -12388,4 +12388,158 @@ end OracleHistoryLawSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.CachedOracleResponse.hash_response
 
+namespace UnboundedHistorySecuritySmoke
+open MeasureTheory
+open scoped ENNReal
+open SecurityExperiment UnboundedHistorySecurity
+
+local instance : MeasurableSpace (Option (Event Unit Unit)) := ⊤
+local instance : MeasurableSpace (History Unit Unit) := MeasurableSpace.pi
+private def amount (n : ℕ) : Work := ⟨⟨0, 0, 0⟩, 0, 0, n⟩
+private def history : History Unit Unit := fun time =>
+  if time = 0 then some (.work .verifier (amount 10000))
+  else if time = 1 then some (.work .attacker (amount 5))
+  else if time = 2 then some (.submission () () true)
+  else some (.submission () () false)
+example : prefixSteps .attacker history 4 = 5 := by decide +kernel
+example : history ∈ prefixBad (fun _ _ => False) 4 := by
+  exact ⟨2, by decide, (), (), rfl, by trivial⟩
+example : history ∉ prefixBad (fun _ _ => False) 2 := by
+  intro bad
+  obtain ⟨time, before, _, _, submitted, _⟩ := bad
+  have cases : time = 0 ∨ time = 1 := by omega
+  rcases cases with rfl | rfl <;> simp [history] at submitted
+private def each : History Unit Unit := fun _ => some (.work .attacker (amount 1))
+private theorem each_total : totalSteps .attacker each = ∞ := by
+  have finiteWork (depth : ℕ) : prefixSteps .attacker each depth = depth := by
+    simp [prefixSteps, each, amount, eventSteps]
+  unfold totalSteps
+  simpa only [finiteWork] using ENNReal.iSup_natCast
+example : expectedAttackerWork (Measure.dirac each) = ∞ := by
+  simp [expectedAttackerWork, each_total]
+private def freeBad : History Unit Unit := fun _ => some (.submission () () true)
+private theorem free_mean : expectedAttackerWork (Measure.dirac freeBad) = 0 := by
+  simp [expectedAttackerWork, totalSteps, prefixSteps, freeBad, eventSteps]
+private theorem free_bad : falseAcceptance (fun (_ _ : Unit) => False) (Measure.dirac freeBad) = 1 := by
+  have bad : HistoryBad (fun (_ _ : Unit) => False) freeBad := ⟨0, (), (), rfl, by trivial⟩
+  simp [falseAcceptance, bad]
+example : RiskBound (fun (_ _ : Unit) => False) (Measure.dirac freeBad) 1 0 := by
+  apply riskBound_of_prefix
+  intro depth
+  simpa only [zero_mul, add_zero] using
+    (prob_le_one : (Measure.dirac freeBad) (prefixBad (fun (_ _ : Unit) => False) depth) ≤ 1)
+example : ¬ ExpectedWorkSecurity Unit (fun _ => Measure.dirac freeBad) (fun (_ _ : Unit) => False) 128 := by
+  intro security
+  have bound := security ()
+  rw [free_mean, free_bad] at bound
+  norm_num at bound
+
+end UnboundedHistorySecuritySmoke
+
+namespace OracleHistoryChargeSmoke
+open MeasureTheory ProbabilityTheory InputIndexedOracle
+
+private def query : OracleProgram.Program Input := .read [4] 0 1 .pure
+private def zero : World := fun _ => 0
+private def installed (fresh : World) : World :=
+  OraclePosterior.override (ObservationReplay.footprint (OracleProgram.run query zero).run.2) zero fresh
+/-- A rare but already observed zero byte has conditional risk one. -/
+example : law {fresh | (OracleProgram.run query (installed fresh)).run.1 = [0]} = 1 := by
+  have known (fresh : World) : (OracleProgram.run query (installed fresh)).run.1 = [0] := by rfl
+  have all : {fresh | (OracleProgram.run query (installed fresh)).run.1 = [0]} = Set.univ := by
+    ext fresh
+    simp [known]
+  rw [all, measure_univ]
+example : law {other | (OracleProgram.run query other).run = (OracleProgram.run query zero).run} =
+    (256 : ENNReal)⁻¹ := by
+  rw [ObservationReplay.fiber_mass (OracleProgram.run_replay query) zero]
+  have count : (ObservationReplay.footprint (OracleProgram.run query zero).run.2).card = 1 := by decide +kernel
+  rw [count, pow_one]
+
+end OracleHistoryChargeSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.OracleHistoryCharge.histories_countable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OracleHistoryCharge.histories_countable
+
+/-- info: 'FormalProof4FHE.HasteBoots.OracleHistoryCharge.fiber_measurable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OracleHistoryCharge.fiber_measurable
+
+/-- info: 'FormalProof4FHE.HasteBoots.OracleHistoryCharge.fibers_disjoint' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OracleHistoryCharge.fibers_disjoint
+
+/-- info: 'FormalProof4FHE.HasteBoots.OracleHistoryCharge.fibers_cover' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OracleHistoryCharge.fibers_cover
+
+/-- info: 'FormalProof4FHE.HasteBoots.OracleHistoryCharge.law_sum_fibers' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OracleHistoryCharge.law_sum_fibers
+
+/-- info: 'FormalProof4FHE.HasteBoots.OracleHistoryCharge.average_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OracleHistoryCharge.average_bound
+
+/-- info: 'FormalProof4FHE.HasteBoots.OracleHistoryCharge.average_risk_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OracleHistoryCharge.average_risk_bound
+
+/-- info: 'FormalProof4FHE.HasteBoots.OracleHistoryCharge.continuation_measurable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OracleHistoryCharge.continuation_measurable
+
+/-- info: 'FormalProof4FHE.HasteBoots.OracleHistoryCharge.cached_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OracleHistoryCharge.cached_bound
+
+/-- info: 'FormalProof4FHE.HasteBoots.OracleHistoryCharge.cached_risk_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OracleHistoryCharge.cached_risk_bound
+
+/-- info: 'FormalProof4FHE.HasteBoots.UnboundedHistorySecurity.prefixBad_measurable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.UnboundedHistorySecurity.prefixBad_measurable
+
+/-- info: 'FormalProof4FHE.HasteBoots.UnboundedHistorySecurity.prefixBad_mono' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.UnboundedHistorySecurity.prefixBad_mono
+
+/-- info: 'FormalProof4FHE.HasteBoots.UnboundedHistorySecurity.historyBad_union' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.UnboundedHistorySecurity.historyBad_union
+
+/-- info: 'FormalProof4FHE.HasteBoots.UnboundedHistorySecurity.historyBad_measurable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.UnboundedHistorySecurity.historyBad_measurable
+
+/-- info: 'FormalProof4FHE.HasteBoots.UnboundedHistorySecurity.falseAcceptance_eq_iSup' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.UnboundedHistorySecurity.falseAcceptance_eq_iSup
+
+/-- info: 'FormalProof4FHE.HasteBoots.UnboundedHistorySecurity.prefixSteps_mono' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.UnboundedHistorySecurity.prefixSteps_mono
+
+/-- info: 'FormalProof4FHE.HasteBoots.UnboundedHistorySecurity.prefixWork_measurable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.UnboundedHistorySecurity.prefixWork_measurable
+
+/-- info: 'FormalProof4FHE.HasteBoots.UnboundedHistorySecurity.totalWork_mean' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.UnboundedHistorySecurity.totalWork_mean
+
+/-- info: 'FormalProof4FHE.HasteBoots.UnboundedHistorySecurity.riskBound_of_prefix' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.UnboundedHistorySecurity.riskBound_of_prefix
+
+/-- info: 'FormalProof4FHE.HasteBoots.UnboundedHistorySecurity.expectedWork_of_prefix' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.UnboundedHistorySecurity.expectedWork_of_prefix
+
+/-- info: 'FormalProof4FHE.HasteBoots.UnboundedHistorySecurity.expectedWorkSecurity_of_prefix' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.UnboundedHistorySecurity.expectedWorkSecurity_of_prefix
+
 end HasteBootsSmoke
