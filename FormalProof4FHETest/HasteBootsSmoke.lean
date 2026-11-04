@@ -1,6 +1,7 @@
 module
 
 import all FormalProof4FHE.HasteBoots
+import all Batteries.Data.Except
 import all Mathlib.Algebra.Field.ZMod
 import all Mathlib.LinearAlgebra.Basis.Basic
 import all Mathlib.LinearAlgebra.StdBasis
@@ -11823,5 +11824,185 @@ end NativeExtensionRequestSmoke
 /-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionRequest.request_replay' depends on axioms: [propext, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeExtensionRequest.request_replay
+
+namespace TypedTranscriptChildSmoke
+open TypedTranscriptChild
+
+private def parent : NativeTranscript.Transcript := ⟨[], fun _ => 0⟩
+private def otherProfile : NativeTranscript.Transcript := ⟨[], fun _ => 1⟩
+private def world : InputIndexedOracle.World := fun _ => 0
+private def binding : Binding := ⟨fun _ => 0, List.replicate 64 0, [1]⟩
+private def child : Child := ⟨some parent, some binding⟩
+private def finished : FinishResult := (OracleProgram.run (finish (some parent) child) world).run.1
+private def forked : NativeTranscript.Transcript × Child :=
+  (forkCoreExecute NativeFields.goldilocksModulus 3 7 world parent [1] [2]).1
+
+/-- Missing binding has priority over missing classical parent/child modes. -/
+example : (OracleProgram.run (finish none ⟨none, none⟩) world).run.1.outcome =
+    .error .missingBinding := by decide +kernel
+example : (OracleProgram.run (finish none ⟨none, some binding⟩) world).run.1.outcome =
+    .error .classicalParentRequired := by decide +kernel
+example : (OracleProgram.run (finish (some parent) ⟨none, some binding⟩) world).run.1.outcome =
+    .error .classicalChildRequired := by decide +kernel
+
+/-- Profile mismatches short-circuit before checkpoint queries. -/
+example : (OracleProgram.run (finish (some otherProfile) child) world).run.2 = [] := by decide +kernel
+example : (OracleProgram.run (finish (some parent) ⟨some otherProfile, some binding⟩) world).run.2 = [] := by
+  decide +kernel
+
+/-- Matching profiles with a mismatched checkpoint emit only its start/output. -/
+example : (OracleProgram.run (finish (some parent)
+    ⟨some parent, some { binding with checkpoint := List.replicate 64 1 }⟩) world).run.1.outcome =
+    .error .parentMismatch := by decide +kernel
+example : (OracleProgram.run (finish (some parent)
+    ⟨some parent, some { binding with checkpoint := List.replicate 64 1 }⟩) world).run.2.length = 2 := by
+  decide +kernel
+
+example : finished.outcome = .ok () := by decide +kernel
+example : finished.child.binding.isNone = true := by decide +kernel
+
+/-- A second finish of the returned child fails without observations, in any next world. -/
+example : (OracleProgram.run (finish finished.parent finished.child) (fun _ => 1)).run.1.outcome =
+    .error .missingBinding := by decide +kernel
+example : (OracleProgram.run (finish finished.parent finished.child) (fun _ => 1)).run.2 = [] := by
+  decide +kernel
+
+/-- Fork order: seed start/output, checkpoint start/output, field start,
+then the empty-prefix receipt start/output. -/
+example : ((OracleProgram.run (forkCore NativeFields.goldilocksModulus 3 7 parent [1] [2]) world).run.2.map
+    (fun event => match event with
+      | .start _ => (0 : ℕ)
+      | .output _ _ _ => 1
+      | .hash _ _ => 2)) = [0, 1, 0, 1, 0, 0, 1] := by decide +kernel
+
+example : (OracleProgram.run (finish (some forked.1) forked.2) world).run.1.outcome = .ok () := by
+  decide +kernel
+
+/-- A changed parent can pass in a world with colliding checkpoint bytes.
+No injectivity or zero-probability collision assumption enters the model. -/
+example : (OracleProgram.run
+    (finish (some (NativeTranscript.appendBytes forked.1 [] [1])) forked.2) world).run.1.outcome = .ok () := by
+  decide +kernel
+
+example : (OracleProgram.run (fork NativeFields.goldilocksModulus 3 7 none [1] [2]) world).run.2 = [] := by
+  decide +kernel
+
+end TypedTranscriptChildSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.run_identity' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.run_identity
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.identity_profile' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.identity_profile
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.identity_request_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.identity_request_zero
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.run_forkCore' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.run_forkCore
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.run_fork' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.run_fork
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.fork_legacy' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.fork_legacy
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.fork_binding' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.fork_binding
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.fork_binding_length' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.fork_binding_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.fork_profiles' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.fork_profiles
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.run_finish' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.run_finish
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.identity_log_length' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.identity_log_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.fork_log_length' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.fork_log_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.missing_binding' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.missing_binding
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.missing_parent' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.missing_parent
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.missing_child' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.missing_child
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.parent_profile_rejected' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.parent_profile_rejected
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.child_profile_rejected' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.child_profile_rejected
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.checkpoint_rejected' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.checkpoint_rejected
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.finish_accepts_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.finish_accepts_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.finish_success' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.finish_success
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.finish_success_log_length' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.finish_success_log_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.finish_state_cases' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.finish_state_cases
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.accepted_binding_spent' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.accepted_binding_spent
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.rejected_states_retained' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.rejected_states_retained
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.spent_second_finish' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.spent_second_finish
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.fork_finish_accepts' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.fork_finish_accepts
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.finish_replay' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.finish_replay
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.fork_prefix_replay' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.fork_prefix_replay
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.finish_prefix_replay' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.finish_prefix_replay
 
 end HasteBootsSmoke

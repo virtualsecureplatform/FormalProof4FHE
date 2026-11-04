@@ -267,3 +267,4 @@ public import FormalProof4FHE.HasteBoots.NativeExtensionFields
 public import FormalProof4FHE.HasteBoots.NativeFieldAssembly
 public import FormalProof4FHE.HasteBoots.NativeExtensionDescriptor
 public import FormalProof4FHE.HasteBoots.NativeExtensionRequest
+public import FormalProof4FHE.HasteBoots.TypedTranscriptChild

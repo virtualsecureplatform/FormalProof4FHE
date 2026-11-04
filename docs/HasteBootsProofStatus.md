@@ -4029,3 +4029,65 @@ Logs: `/tmp/hasteboots-extension-request-{build,audit,smoke,strict,check}.log`.
 Whitespace checks passed. The Rust revision and both inspected transcript
 hashes were rechecked unchanged; Rust sources, vendor sources and dependency
 pins were not modified. The end-to-end security theorem remains unproved.
+
+
+## Typed detached extension children and lineage guards
+
+`TypedTranscriptChild.lean` compiles the classical-state projection of
+`transcript.rs::fork_classical_extension` and `finish_classical_child` into
+online oracle programs. The successful fork orders raw framed child
+creation, a checkpoint of the resulting parent, and the child's zero-count
+`typed extension identity` request. The identity program is proved equal
+to the existing native extension request at count zero for every analysis
+budget, with its finished collector state erased. It retains all three
+identity observations and preserves the inherited profile. The saved
+binding records the post-fork parent's profile, exact 64-byte checkpoint
+and child label. A legacy parent rejects without observations.
+
+Finish checks the missing/spent binding, parent mode, child mode, parent
+profile, child profile, and checkpoint bytes in native short-circuit order.
+Profile/mode failures emit no queries. A checkpoint mismatch emits exactly
+the checkpoint start/output and retains both states. Success queries the
+child finish fingerprint, links it into the parent, and clears the returned
+child's binding. The complete state-effect theorem proves that every
+failure retains parent and child, and every success spends this stored
+binding. A second finish of that returned child fails without observations,
+even if evaluated in another world. This is a per-instance state effect,
+not a global prohibition on copied states.
+
+The interpreter theorems preserve complete results and ordered logs in the
+same input-indexed world. The typed fork has seven observations; successful
+finish has four. These are observations, not distinct random-oracle inputs
+or a physical-work metric. Full and partial wrapper execution inherit
+whole-observation replay. Forking and immediately finishing accepts for
+every consistent world, without a fresh-input or collision-free premise.
+
+The acceptance characterization requires equality of the computed
+checkpoint bytes; it does not infer equality of parent transcript inputs.
+A regression deliberately advances the parent in a constant-output world
+and verifies acceptance via the colliding checkpoint. Therefore the model
+does not erase a collision event that a later security bound must charge.
+
+This closes the source-aligned detached wrapper/identity/guard model gap.
+It does not prove Rust execution refinement or protocol-flag transport,
+trusted field/cache success, scoped owned-child semantics, or the actual
+lookup body compiler. Those remain separate, together with the whole-history
+conditional law, unrestricted stopping/work conversion, full PBS security
+composition, concrete certification, strict proof-byte decoding, and checked
+Rust/scheduler correspondence. The final security theorem remains unproved.
+
+
+Validation passed: focused HasteBoots smoke (4,077 jobs), a separate
+warning-as-error HasteBoots smoke, and full `scripts/check` (10,098 build
+jobs and every subsequent strict suite, terminal exit zero). Twenty-nine
+new guarded theorem audits passed, bringing the HasteBoots total to 1,541;
+only permitted standard kernel foundations occur. Kernel-reduced regressions
+cover error priority, profile short-circuiting, checkpoint-only failure,
+spent-child finalization, native fork observation order, immediate finish,
+and changed-parent acceptance with colliding checkpoint bytes. The test
+module imports the existing Batteries `Except` instance transparently for
+kernel evaluation; no dependency pin or proof assumption was changed.
+Logs: `/tmp/hasteboots-typed-child-{build,audit,smoke,strict,check}.log`.
+Whitespace checks passed. The inspected Rust revision and transcript hashes
+were rechecked unchanged. Rust and vendor sources were not modified.
+This milestone does not establish the final security theorem.
