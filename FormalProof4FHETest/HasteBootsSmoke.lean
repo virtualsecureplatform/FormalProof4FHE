@@ -14705,4 +14705,162 @@ end InterpolationSafetySmoke
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeGoldInterpolationSafety.preflight_round_safe
 
+
+namespace InterpolationPolynomialSmoke
+open FormalProof4FHE.HasteBoots
+open NativeFields NativeExtensionFields NativeFieldWire NativeFieldRepresentation NativeGoldExtensionArithmetic
+open NativeScalarBatchWire NativeScalarBatchPreflight
+private def word (n : ℕ) : GoldWord := ⟨n % (2^64), Nat.mod_lt _ (by decide)⟩
+private def cubic (a b c : ℕ) : Word := ![word a, word b, word c]
+private def linear : List Word := [cubic 18446744069414584321 1 0, cubic 5 6 7]
+private def point : Word := cubic 2 3 4
+private def result : Word := cubic 18446744069414584618 18446744069414584543 18446744069414584370
+private theorem golden : NativeGoldInterpolation.interpolate linear point = some result := by decide +kernel
+
+-- The off-node native Rust golden vector now has a mathematical polynomial meaning.
+example : (NativeGoldInterpolationPolynomial.polynomial 1 linear rfl).eval (goldExtensionValue point) =
+    goldExtensionValue result := by
+  have semantic := NativeGoldInterpolationPolynomial.interpolate_value 1 linear rfl (by decide +kernel) point
+  rw [golden, Option.map_some] at semantic
+  exact (Option.some.inj semantic).symm
+
+private def degreeThree : List Word := [cubic 18446744069414584321 18446744069414584322 18446744073709551615,
+  cubic 1 2 3, cubic 4 5 6, cubic 7 8 9]
+private def cubicResult : Word := cubic 18446740296285813242 18446739038576226021 18446741689286875004
+private theorem cubicGolden : NativeGoldInterpolation.interpolate degreeThree point = some cubicResult := by decide +kernel
+example : (NativeGoldInterpolationPolynomial.polynomial 3 degreeThree rfl).eval (goldExtensionValue point) =
+    goldExtensionValue cubicResult := by
+  have semantic := NativeGoldInterpolationPolynomial.interpolate_value 3 degreeThree rfl (by decide +kernel) point
+  rw [cubicGolden, Option.map_some] at semantic
+  exact (Option.some.inj semantic).symm
+
+-- An arbitrary received vector supplies both its polynomial and degree bound;
+-- arbitrary challenges use the literal implementation, with no execution premise.
+example (degree : ℕ) (values : List Word) (width : values.length = degree + 1)
+    (small : degree < goldilocksModulus) (challenge : Word) :
+    (NativeGoldInterpolationPolynomial.polynomial degree values width).natDegree ≤ degree ∧
+      (NativeGoldInterpolation.interpolate values challenge).map goldExtensionValue =
+        some ((NativeGoldInterpolationPolynomial.polynomial degree values width).eval (goldExtensionValue challenge)) := by
+  have nodes := (nodesFrom_zero_iff degree).mpr small
+  exact ⟨NativeGoldInterpolationPolynomial.polynomial_degree degree values width nodes,
+    NativeGoldInterpolationPolynomial.interpolate_value degree values width nodes challenge⟩
+
+-- Actual successful metadata supplies all node and positivity conditions.
+example (statement : Statement) (accepted : dimensions statement = true) (info : Info)
+    (member : info ∈ statement.infos.val) (message : Message)
+    (width : message.evaluations.val.length = info.maxMultiplicands.val + 1) (claim challenge : Word) :
+    (NativeGoldInterpolationPolynomial.polynomial info.maxMultiplicands.val message.evaluations.val width).natDegree ≤
+        info.maxMultiplicands.val ∧
+      (NativeGoldInterpolation.interpolate message.evaluations.val challenge).map goldExtensionValue =
+        some ((NativeGoldInterpolationPolynomial.polynomial info.maxMultiplicands.val message.evaluations.val width).eval
+          (goldExtensionValue challenge)) ∧
+      (recurrence message claim = true ↔
+        (NativeGoldInterpolationPolynomial.polynomial info.maxMultiplicands.val message.evaluations.val width).eval 0 +
+          (NativeGoldInterpolationPolynomial.polynomial info.maxMultiplicands.val message.evaluations.val width).eval 1 =
+            goldExtensionValue claim) := by
+  have interpolation := NativeGoldInterpolationPolynomial.message_value statement accepted info member message width challenge
+  exact ⟨interpolation.1, interpolation.2,
+    NativeGoldInterpolationPolynomial.message_recurrence statement accepted info member message width claim⟩
+end InterpolationPolynomialSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationWeights.lower_product' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationWeights.lower_product
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationWeights.denominator_product' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationWeights.denominator_product
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationWeights.denominator_top' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationWeights.denominator_top
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationWeights.denominator_step' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationWeights.denominator_step
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationWeights.denominator_nonzero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationWeights.denominator_nonzero
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationWeights.denominator_fin' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationWeights.denominator_fin
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationWeights.nodalWeight_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationWeights.nodalWeight_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationAccumulator.partialSum_succ' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationAccumulator.partialSum_succ
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationAccumulator.difference_value' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationAccumulator.difference_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationAccumulator.advance_ratio' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationAccumulator.advance_ratio
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationAccumulator.term_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationAccumulator.term_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationAccumulator.reverse_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationAccumulator.reverse_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationPolynomial.polynomial_degree' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationPolynomial.polynomial_degree
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationPolynomial.polynomial_node' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationPolynomial.polynomial_node
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationPolynomial.nodeProduct' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationPolynomial.nodeProduct
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationPolynomial.nodeProduct_nodal' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationPolynomial.nodeProduct_nodal
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationPolynomial.fullSum_polynomial' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationPolynomial.fullSum_polynomial
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeInterpolationPolynomial.interpolate_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeInterpolationPolynomial.interpolate_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInterpolationPolynomial.nodes_nonzero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInterpolationPolynomial.nodes_nonzero
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInterpolationPolynomial.polynomial_degree' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInterpolationPolynomial.polynomial_degree
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInterpolationPolynomial.polynomial_node' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInterpolationPolynomial.polynomial_node
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInterpolationPolynomial.interpolate_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInterpolationPolynomial.interpolate_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInterpolationPolynomial.recurrence_polynomial' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInterpolationPolynomial.recurrence_polynomial
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInterpolationPolynomial.message_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInterpolationPolynomial.message_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldInterpolationPolynomial.message_recurrence' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldInterpolationPolynomial.message_recurrence
+
 end HasteBootsSmoke

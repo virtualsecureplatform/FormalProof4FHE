@@ -5430,3 +5430,79 @@ were rechecked unchanged. No Rust, vendor source or dependency pin changed.
 The full `scripts/check` finished with exit 0 after the full build (10,139
 jobs) and all subsequent audit/smoke suites. Full log:
 `/tmp/hasteboots-interpolation-safety-check.log`.
+
+## Literal scalar interpolation has polynomial semantics
+
+The previously open off-node interpolation correspondence is now proved.
+`NativeInterpolationWeights` identifies the signed factorial denominator
+with the product of consecutive-node differences omitting its own node,
+and hence with Mathlib's Lagrange nodal weight. The adjacent-index identity
+matches both native updates, `up *= -remaining` and `down *= index`,
+without replacing either update by an inverse operation. These identities
+cover every degree admitted by the node check, with no restriction to the
+current lookup degrees.
+
+`NativeInterpolationAccumulator` keeps both actual denominator accumulators
+in the execution. Its invariant is `up = down * denominator(index)` with
+nonzero `down`. The exact nonfinal counter updates preserve that invariant.
+Each checked division is proved equal to its barycentric summand only in
+the mathematical interpretation; the literal raw operation order remains
+unchanged. Induction over the actual descending loop proves the final
+result is the initial accumulator plus the complete finite partial sum.
+The final-index early stop is included, and there are no default entries,
+iteration caps or caller-supplied evaluation correctness certificates.
+
+`NativeInterpolationPolynomial` constructs a polynomial directly from the
+received evaluation list and its validated width. Its natural degree is
+at most the trusted degree, and it takes the received values at every
+node. The actual scan's retained product equals the nodal polynomial's
+evaluation. The descending-loop sum therefore equals the barycentric
+Lagrange evaluation at every off-node point. Combining that theorem with
+the scan's known-node branch proves the whole literal field interpolation
+returns the constructed polynomial's evaluation for every challenge.
+
+`NativeGoldInterpolationPolynomial` transports the result through the
+full raw Goldilocks representation theorem. The complete partial raw
+computation maps to `some` of the received polynomial's evaluation. No
+successful execution, independently bounded polynomial or nonzero
+denominator certificate is a premise. The node condition comes from the
+literal native `nodesFrom` check. The first-two-entry raw recurrence is
+proved equivalent to `P(0) + P(1) = claim` in the extension field. Successful
+actual dimensions supply all positivity and node conditions for every
+matched equation, giving both its derived degree bound and its actual raw
+interpolation semantics.
+
+Kernel regressions recompute two native Rust off-node golden vectors
+(linear and cubic, including lazy coordinates and a near-u64-maximum
+input), and then use the new theorem to identify those outputs with the
+received polynomial's evaluation. Universal regression consumers cover
+arbitrary messages and challenges throughout the full characteristic
+range, and combine actual successful metadata, derived degree bounds,
+raw interpolation and the native polynomial recurrence.
+
+This closes the scalar interpolation arithmetic/polynomial correspondence,
+not the entire scalar verifier or its soundness proof. The actual
+common-challenge round driver, ordered updated claims and terminal
+authentication still need implementation and composition. Full lookup/PBS
+extraction, remaining helper/PCS bodies and child/parent linking, checked
+Rust/scheduler and strict decoder refinement, BabyBear arithmetic,
+chronological attacker-work coupling, numerical certification and the
+final 128-bit application security theorem remain open.
+
+Validation: the focused raw-polynomial build passed (3,924 jobs), followed
+by HasteBoots smoke (4,126 jobs) and its separate warning-as-error run
+(exit 0). All 25 new public theorem audits use only `propext`,
+`Classical.choice` and `Quot.sound`; the guarded total is 1,997. Isolated
+warning-as-error regressions passed, including both directly kernel-checked
+raw golden computations and their polynomial interpretation. Logs:
+`/tmp/hasteboots-gold-interpolation-polynomial-build.log`,
+`/tmp/hasteboots-interpolation-polynomial-audit.log`,
+`/tmp/hasteboots-interpolation-polynomial-regressions.log`,
+`/tmp/hasteboots-interpolation-polynomial-smoke.log` and
+`/tmp/hasteboots-interpolation-polynomial-strict.log`.
+The pinned Rust HEAD, both transcript source hashes and the native
+interpolation source hash were rechecked unchanged. No Rust, vendor
+source or dependency pin changed.
+The full `scripts/check` finished with exit 0 after the full build (10,143
+jobs) and all subsequent audit/smoke suites. Full log:
+`/tmp/hasteboots-interpolation-polynomial-check.log`.

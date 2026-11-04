@@ -312,3 +312,7 @@ public import FormalProof4FHE.HasteBoots.NativeInterpolationField
 public import FormalProof4FHE.HasteBoots.NativeGoldInterpolation
 public import FormalProof4FHE.HasteBoots.NativeInterpolationSafety
 public import FormalProof4FHE.HasteBoots.NativeGoldInterpolationSafety
+public import FormalProof4FHE.HasteBoots.NativeInterpolationWeights
+public import FormalProof4FHE.HasteBoots.NativeInterpolationAccumulator
+public import FormalProof4FHE.HasteBoots.NativeInterpolationPolynomial
+public import FormalProof4FHE.HasteBoots.NativeGoldInterpolationPolynomial
