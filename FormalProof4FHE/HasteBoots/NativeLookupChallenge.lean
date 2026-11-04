@@ -12,8 +12,9 @@ its accepted reciprocal offset. One analysis step drives one canonical
 coefficient candidate. Inner rejection retains the reader; a completed
 forbidden offset retains its whole draw and receipt before starting the
 next scalar request. Exhaustion is a resumable analysis state, not native
-rejection. Repetitions, inverse-table representation, the rest of the child
-body, whole-history probability/work bounds and Rust refinement remain open.
+rejection. `NativeLookupBatch` composes ordered repetitions and shared
+request markers. Inverse-table representation, the rest of the child body,
+whole-history probability/work bounds and Rust refinement remain open.
 -/
 
 namespace FormalProof4FHE.HasteBoots.NativeLookupChallenge

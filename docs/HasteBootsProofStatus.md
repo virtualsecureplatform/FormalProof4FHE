@@ -4423,3 +4423,73 @@ and `/tmp/hasteboots-prefix-trace-build.log`.
 Whitespace checks passed. The pinned Rust revision and both transcript
 source hashes were rechecked unchanged. Rust sources, vendor sources, and
 dependency pins were not modified.
+
+## Ordered native shared lookup challenge batches
+
+`NativeLookupBatch` extends the one-repetition compiler through the ordered
+request/repetition control in `shared::all_challenges`, which the canonical
+shared lookup also uses. The pinned Rust implementation samples the entire
+challenge batch before constructing helper roots. A request index is
+absorbed before its repetitions, including a request with zero repetitions.
+Each repetition completes its reciprocal-rejection loop before another
+repetition or request can begin. This is one shared child's challenge
+batch; the outer PBS group scheduler and complete child body are not yet
+compiled.
+
+The request marker uses `NativeUsizeMessage`: standard bincode 2.0.1
+variable-integer, little-endian serialization for the native 64-bit target.
+Serde 1.0.229 serializes usize as u64. The Lean encoding has a proved
+numeral round trip, is injective and occupies at most nine bytes. Request
+ordinals have type `Fin (2^64)`; the schedule requires an explicit registry
+size bound, so no modulo conversion can alias two ordinals. Its structural
+numeral reader is not the pending strict decoder for adversarial proof
+bytes. The installed pinned bincode/serde sources were inspected and an
+isolated offline Rust fixture confirms every tag boundary; checked source
+refinement remains open.
+
+The machine retains the entire active field reader, all completed and
+rejected scalar draws and receipts, every completed repetition, the
+remaining schedule and current transcript. Compiled and direct execution
+agree on complete results/logs. Exact budget resumption preserves both;
+exhaustion is an analysis pause and introduces no native retry limit.
+Completed machines emit no more observations. Native Goldilocks degree
+three and BabyBear degree six entry points use the proved extension bases.
+
+The progress invariant proves that completed actions followed by pending
+actions are exactly the original schedule. A separate ordering invariant
+proves that retained results are exactly its completed sample jobs. A
+finished batch therefore returns every scheduled request/repetition in
+order. Active and completed selections preserve the earlier canonical
+field-state, draw-count and public-table invariants. Every completed
+reciprocal avoids zero and every pole of its own request's table compressed
+with its own retained compression challenge. No independent field coin or
+fresh-input assumption replaces the native sampler.
+
+Native registry/preflight checks (including total repetition-count overflow),
+inverse-table arithmetic and lazy/Montgomery representation, helper/root and
+equality-point phases, sumcheck/PCS bodies and final child linking remain
+open. The separate whole-history laws apply to the compiled oracle programs,
+but the actual lookup probability charges, compatible unbounded sampler
+prefixes and chronological attacker-work coupling still need proof. Full
+PBS composition, numerical certification, strict proof-byte decoding and
+checked Rust/scheduler refinement remain open; the final 128-bit security
+objective remains active and unproved.
+
+Validation passed: focused HasteBoots smoke (4,092 jobs), a separate
+warning-as-error HasteBoots smoke, and full `scripts/check` (10,109 build
+jobs and every subsequent strict suite, terminal exit zero). All 25 new
+audits (public theorems and both concrete field entry points) satisfy the
+permitted standard-foundation allowlist; the HasteBoots guarded audit count
+is now 1,703. A three-request regression with repetition counts `[2,0,1]`
+retains all three request markers, returns jobs `[(0,0),(0,1),(2,0)]` in
+order, completes after 13 analysis steps with 24 observations, and emits
+no more observations afterward. A zero-world regression suspends the first
+job after five forbidden reciprocal draws, retaining all six complete
+scalar draws and no completed job. Eight kernel-checked usize encoding
+fixtures agree with the isolated offline Rust bincode 2.0.1/serde 1.0.229
+run, including every tag transition and maximum u64.
+Successful logs: `/tmp/hasteboots-native-batch-{build,audit,regressions,smoke,strict,check}.log`
+and `/tmp/hasteboots-native-usize-rust-fixture.log`.
+Whitespace checks passed. The pinned Rust revision and both transcript
+source hashes were rechecked unchanged. Rust sources, vendor sources and
+dependency pins were not modified.

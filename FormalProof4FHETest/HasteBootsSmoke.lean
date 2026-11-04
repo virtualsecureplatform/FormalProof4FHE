@@ -12806,4 +12806,168 @@ end JointHashPrefixRegression
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.JointHashPrefix.terminal_collision_bound
 
+namespace NativeLookupBatchSmoke
+open NativeLookupBatch
+local instance : Fact (Nat.Prime 3) := ⟨by decide⟩
+private noncomputable def basis : Module.Basis (Fin 1) (ZMod 3) (ZMod 3) := Module.Basis.singleton _ _
+private def parent : NativeTranscript.Transcript := ⟨[], fun _ => 0⟩
+private def ones : InputIndexedOracle.World := fun _ => 1
+private def zeroWorld : InputIndexedOracle.World := fun _ => 0
+private def configs : Fin 3 → Request 3 := fun index => ⟨1, [[1]], if index.val = 0 then 2 else if index.val = 1 then 0 else 1⟩
+private theorem fits : 3 ≤ 2 ^ 64 := by decide
+
+/-- The empty middle request still has a request marker in the native order. -/
+example : (schedule fits configs).map (fun action => match action with
+    | .request index => (index.val, none)
+    | .sample job => (job.ordinal.val, some job.repetition)) =
+      [(0, none), (0, some 0), (0, some 1), (1, none), (2, none), (2, some 0)] := by decide +kernel
+
+/-- Multiple repetitions complete before the next request, retaining the
+native request ordinal for every output. -/
+example : (OracleProgram.run (request basis 1 13 fits configs parent) ones).run.1.completed.map
+    (fun completed => (completed.job.ordinal.val, completed.job.repetition)) = [(0, 0), (0, 1), (2, 0)] := by
+  simp only [basis, request, steps, tick, NativeLookupChallenge.tick, TypedFieldRequest.scalarValue_singleton]
+  decide +kernel
+
+example : (OracleProgram.run (request basis 1 13 fits configs parent) ones).run.2.length = 24 := by
+  simp only [basis, request, steps, tick, NativeLookupChallenge.tick, TypedFieldRequest.scalarValue_singleton]
+  decide +kernel
+
+example : (match (OracleProgram.run (request basis 1 13 fits configs parent) ones).run.1.control with
+    | .finished _ => true
+    | _ => false) = true := by
+  simp only [basis, request, steps, tick, NativeLookupChallenge.tick, TypedFieldRequest.scalarValue_singleton]
+  decide +kernel
+
+/-- Exhaustion during repeated forbidden reciprocals cannot skip ahead to
+another repetition or request. All rejected complete draws remain stored. -/
+example : (match (OracleProgram.run (request basis 1 8 fits configs parent) zeroWorld).run.1.control with
+    | .sampling job _ selection => (job.ordinal.val, job.repetition, selection.rejected, selection.draws.length)
+    | _ => (9, 9, 9, 9)) = (0, 0, 5, 6) := by
+  simp only [basis, request, steps, tick, NativeLookupChallenge.tick, TypedFieldRequest.scalarValue_singleton]
+  decide +kernel
+
+example : (OracleProgram.run (request basis 1 8 fits configs parent) zeroWorld).run.1.completed.length = 0 := by
+  simp only [basis, request, steps, tick, NativeLookupChallenge.tick, TypedFieldRequest.scalarValue_singleton]
+  decide +kernel
+
+/-- Extra analysis steps after completion produce no additional observations. -/
+example : (OracleProgram.run (request basis 1 15 fits configs parent) ones).run.2.length = 24 := by
+  simp only [basis, request, steps, tick, NativeLookupChallenge.tick, TypedFieldRequest.scalarValue_singleton]
+  decide +kernel
+
+end NativeLookupBatchSmoke
+
+namespace NativeUsizeMessageSmoke
+open NativeUsizeMessage
+example : (encode ⟨0, by decide⟩).map Fin.val = [0] := by decide +kernel
+example : (encode ⟨250, by decide⟩).map Fin.val = [250] := by decide +kernel
+example : (encode ⟨251, by decide⟩).map Fin.val = [251, 251, 0] := by decide +kernel
+example : (encode ⟨65535, by decide⟩).map Fin.val = [251, 255, 255] := by decide +kernel
+example : (encode ⟨65536, by decide⟩).map Fin.val = [252, 0, 0, 1, 0] := by decide +kernel
+example : (encode ⟨4294967295, by decide⟩).map Fin.val = [252, 255, 255, 255, 255] := by decide +kernel
+example : (encode ⟨4294967296, by decide⟩).map Fin.val = [253, 0, 0, 0, 0, 1, 0, 0, 0] := by decide +kernel
+example : (encode ⟨18446744073709551615, by decide⟩).map Fin.val = [253, 255, 255, 255, 255, 255, 255, 255, 255] := by decide +kernel
+end NativeUsizeMessageSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeUsizeMessage.read_encode' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeUsizeMessage.read_encode
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeUsizeMessage.encode_injective' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeUsizeMessage.encode_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeUsizeMessage.encode_length' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeUsizeMessage.encode_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupBatch.run_tick' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupBatch.run_tick
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupBatch.run_steps' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupBatch.run_steps
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupBatch.execute_add' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupBatch.execute_add
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupBatch.tick_progress' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupBatch.tick_progress
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupBatch.execute_progress' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupBatch.execute_progress
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupBatch.steps_replay' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupBatch.steps_replay
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupBatch.initial_valid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupBatch.initial_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupBatch.afterSample_valid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupBatch.afterSample_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupBatch.tick_valid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupBatch.tick_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupBatch.execute_valid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupBatch.execute_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupBatch.completed_allowed' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupBatch.completed_allowed
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupBatch.tick_ordered' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupBatch.tick_ordered
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupBatch.execute_ordered' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupBatch.execute_ordered
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupBatch.finished_jobs' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupBatch.finished_jobs
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupBatch.execute_finished' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupBatch.execute_finished
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupBatch.request_add' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupBatch.request_add
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupBatch.request_valid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupBatch.request_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupBatch.request_progress' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupBatch.request_progress
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupBatch.request_ordered' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupBatch.request_ordered
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupBatch.request_replay' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupBatch.request_replay
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupBatch.goldilocks' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupBatch.goldilocks
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupBatch.babyBear' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupBatch.babyBear
+
 end HasteBootsSmoke
