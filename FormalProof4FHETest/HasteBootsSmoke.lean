@@ -16037,4 +16037,201 @@ end GoldScalarQueryCompleteSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeGoldScalarQueryMeaning.scalarQuery_project_truth
 
+
+namespace GoldTerminalQuerySmoke
+open FormalProof4FHE.HasteBoots
+open NativeFields NativeFieldRepresentation NativeFieldWire NativeGoldExtensionArithmetic NativeExtensionFields
+open scoped BigOperators
+private def word (n : ℕ) : GoldWord := ⟨n % (2^64), Nat.mod_lt _ (by decide)⟩
+private def point : List Word := [![word 2,word 3,word 4],![word 5,word 6,word 7],![word 8,word 9,word 10]]
+private def eqPoint : List Word := [![word 3,word 1,word 2],![word 6,word 4,word 5],![word 9,word 7,word 8]]
+private def r : Word := ![word 7,word 11,word 13]
+private def helper : Word := ![word 17,word 19,word 23]
+private def query : NativeGoldCoefficientsQuery.Query := NativeGoldScalarQuery.built 4 (point.take 2) (point.drop 2) (by decide +kernel)
+private def postQuery : NativeGoldCoefficientsQuery.Query := NativeGoldScalarQuery.built 4 (point.take 2) [] (by decide +kernel)
+private def badQuery : NativeGoldCoefficientsQuery.Query := ⟨[],some ⟨4,List.replicate 15 (word 0)⟩⟩
+private def good : List GoldWord := [word 1,word 2,word 3,word 0]
+private def lazyZero : List GoldWord := [word 5,word 6,word 7,word 18446744069414584321]
+private def short : List GoldWord := [word 1,word 2,word 3]
+private def bad : List GoldWord := [word 1,word 2,word 3,word 1]
+private def weight : Word := ![word 2,word 3,word 4]
+private def extraWeight : Word := ![word 18446744069414584321,word 18446744069414584322,word 18446744073709551615]
+private def rawWord (value : Word) : List ℕ := (List.ofFn value).map Fin.val
+private def count5 : NativeUsizeMessage.Usize := ⟨5,by decide⟩
+private def count3 : NativeUsizeMessage.Usize := ⟨3,by decide⟩
+-- Extracted pinned Rust check_terminal: matched.
+example : (NativeGoldTerminalQuery.compress 4 query [good,lazyZero] [NativeGoldLookup.one,weight]).map rawWord =
+    some [326,225,55] := by decide +kernel
+example : (NativeGoldTerminalQuery.value 4 query (eqPoint) (point) count5 r [good,lazyZero] [NativeGoldLookup.one,weight] helper).map rawWord =
+    some [1630462402075517295,10497350151018163408,5487564783088376576] := by decide +kernel
+private def matchedExpected : Word := ![word 1630462402075517295,word 10497350151018163408,word 5487564783088376576]
+example : [matchedExpected,NativeGoldExtensionArithmetic.add matchedExpected NativeGoldLookup.one].map
+    (fun expected => NativeGoldTerminalQuery.check 4 query (eqPoint) (point) count5 r [good,lazyZero] [NativeGoldLookup.one,weight] helper expected) =
+      [some true,some false] := by decide +kernel
+-- Extracted pinned Rust check_terminal: post.
+example : (NativeGoldTerminalQuery.compress 4 postQuery [([1,2,3,4] : List ℕ).map word,([5,6,7,8] : List ℕ).map word] [NativeGoldLookup.one,weight]).map rawWord =
+    some [18446744069414585166,18446744069414584921,18446744069414584488] := by decide +kernel
+example : (NativeGoldTerminalQuery.value 4 postQuery (eqPoint.take 2) (point.take 2) count3 r [([1,2,3,4] : List ℕ).map word,([5,6,7,8] : List ℕ).map word] [NativeGoldLookup.one,weight] helper).map rawWord =
+    some [18446593207006605689,18446665213237720341,18446702762155787869] := by decide +kernel
+private def postExpected : Word := ![word 18446593207006605689,word 18446665213237720341,word 18446702762155787869]
+example : [postExpected,NativeGoldExtensionArithmetic.add postExpected NativeGoldLookup.one].map
+    (fun expected => NativeGoldTerminalQuery.check 4 postQuery (eqPoint.take 2) (point.take 2) count3 r [([1,2,3,4] : List ℕ).map word,([5,6,7,8] : List ℕ).map word] [NativeGoldLookup.one,weight] helper expected) =
+      [some true,some false] := by decide +kernel
+-- Extracted pinned Rust check_terminal: sourceTail.
+example : (NativeGoldTerminalQuery.compress 4 query [good,short,bad] [NativeGoldLookup.one]).map rawWord =
+    some [1,2,3] := by decide +kernel
+example : (NativeGoldTerminalQuery.value 4 query (eqPoint) (point) count5 r [good,short,bad] [NativeGoldLookup.one] helper).map rawWord =
+    some [331313068402732208,173104698990784112,90525706543652064] := by decide +kernel
+private def sourceTailExpected : Word := ![word 331313068402732208,word 173104698990784112,word 90525706543652064]
+example : [sourceTailExpected,NativeGoldExtensionArithmetic.add sourceTailExpected NativeGoldLookup.one].map
+    (fun expected => NativeGoldTerminalQuery.check 4 query (eqPoint) (point) count5 r [good,short,bad] [NativeGoldLookup.one] helper expected) =
+      [some true,some false] := by decide +kernel
+-- Extracted pinned Rust check_terminal: powerTail.
+example : (NativeGoldTerminalQuery.compress 4 query [good] [NativeGoldLookup.one,weight,extraWeight]).map rawWord =
+    some [1,2,3] := by decide +kernel
+example : (NativeGoldTerminalQuery.value 4 query (eqPoint) (point) count5 r [good] [NativeGoldLookup.one,weight,extraWeight] helper).map rawWord =
+    some [331313068402732208,173104698990784112,90525706543652064] := by decide +kernel
+private def powerTailExpected : Word := ![word 331313068402732208,word 173104698990784112,word 90525706543652064]
+example : [powerTailExpected,NativeGoldExtensionArithmetic.add powerTailExpected NativeGoldLookup.one].map
+    (fun expected => NativeGoldTerminalQuery.check 4 query (eqPoint) (point) count5 r [good] [NativeGoldLookup.one,weight,extraWeight] helper expected) =
+      [some true,some false] := by decide +kernel
+-- Extracted pinned Rust check_terminal: zeroBad.
+example : (NativeGoldTerminalQuery.compress 4 query [bad] [NativeGoldLookup.zero]).map rawWord =
+    none := by decide +kernel
+example : (NativeGoldTerminalQuery.value 4 query (eqPoint) (point) count5 r [bad] [NativeGoldLookup.zero] helper).map rawWord =
+    none := by decide +kernel
+-- Extracted pinned Rust check_terminal: short.
+example : (NativeGoldTerminalQuery.compress 4 query [short] [NativeGoldLookup.one]).map rawWord =
+    none := by decide +kernel
+example : (NativeGoldTerminalQuery.value 4 query (eqPoint) (point) count5 r [short] [NativeGoldLookup.one] helper).map rawWord =
+    none := by decide +kernel
+-- Extracted pinned Rust check_terminal: badPost.
+example : (NativeGoldTerminalQuery.compress 4 badQuery [good] [NativeGoldLookup.one]).map rawWord =
+    none := by decide +kernel
+example : (NativeGoldTerminalQuery.value 4 badQuery (eqPoint) (point) count5 r [good] [NativeGoldLookup.one] helper).map rawWord =
+    none := by decide +kernel
+-- Extracted pinned Rust check_terminal: emptySources.
+example : (NativeGoldTerminalQuery.compress 4 badQuery [] [NativeGoldLookup.one,weight]).map rawWord =
+    some [0,0,0] := by decide +kernel
+example : (NativeGoldTerminalQuery.value 4 badQuery (eqPoint) (point) count5 r [] [NativeGoldLookup.one,weight] helper).map rawWord =
+    some [18446621025066183633,18446679662662150801,18446710324431882081] := by decide +kernel
+private def emptySourcesExpected : Word := ![word 18446621025066183633,word 18446679662662150801,word 18446710324431882081]
+example : [emptySourcesExpected,NativeGoldExtensionArithmetic.add emptySourcesExpected NativeGoldLookup.one].map
+    (fun expected => NativeGoldTerminalQuery.check 4 badQuery (eqPoint) (point) count5 r [] [NativeGoldLookup.one,weight] helper expected) =
+      [some true,some false] := by decide +kernel
+-- Extracted pinned Rust check_terminal: emptyPowers.
+example : (NativeGoldTerminalQuery.compress 4 badQuery [short,bad] []).map rawWord =
+    some [0,0,0] := by decide +kernel
+example : (NativeGoldTerminalQuery.value 4 badQuery (eqPoint) (point) count5 r [short,bad] [] helper).map rawWord =
+    some [18446621025066183633,18446679662662150801,18446710324431882081] := by decide +kernel
+private def emptyPowersExpected : Word := ![word 18446621025066183633,word 18446679662662150801,word 18446710324431882081]
+example : [emptyPowersExpected,NativeGoldExtensionArithmetic.add emptyPowersExpected NativeGoldLookup.one].map
+    (fun expected => NativeGoldTerminalQuery.check 4 badQuery (eqPoint) (point) count5 r [short,bad] [] helper expected) =
+      [some true,some false] := by decide +kernel
+-- Extracted pinned Rust check_terminal: beforePrefix.
+example : (NativeGoldTerminalQuery.compress 4 query [short] [NativeGoldLookup.one]).map rawWord =
+    none := by decide +kernel
+example : (NativeGoldTerminalQuery.value 4 query ([]) (List.replicate 64 NativeGoldLookup.one) (0 : NativeUsizeMessage.Usize) r [short] [NativeGoldLookup.one] helper).map rawWord =
+    none := by decide +kernel
+-- The caller constructs the real pulled query before entering the guard.
+example : NativeGoldTerminalQuery.constructedCheck 1 4 eqPoint point count5 r [good,lazyZero]
+    [NativeGoldLookup.one,weight] helper matchedExpected = some true := by decide +kernel
+example : NativeGoldTerminalQuery.constructedCheck 0 4 (eqPoint.take 2) (point.take 2) count3 r
+    [([1,2,3,4] : List ℕ).map word,([5,6,7,8] : List ℕ).map word] [NativeGoldLookup.one,weight] helper postExpected =
+      some true := by decide +kernel
+example : NativeGoldTerminalQuery.constructedCheck 1 4 eqPoint point count5 r [bad]
+    [NativeGoldLookup.zero] helper matchedExpected = none := by decide +kernel
+example {padding pointVars sourceCount : ℕ} (sourceVars : ℕ) (eqPoint point : Fin pointVars → Word)
+    (accepted : NativeScalarQueryShape.check sourceVars (3+padding) (List.ofFn point).length = true)
+    (count : NativeUsizeMessage.Usize) (shift : pointVars < 64) (enough : count.val ≤ 2^pointVars)
+    (r : Word) (inputs : Fin sourceCount → Fin (3+padding) → GoldWord) (powers : Fin sourceCount → Word)
+    (tables : Fin sourceCount → MatrixFold.Cube sourceVars → Fin (3+padding) → Goldilocks) (helper expected : Word)
+    (passed : NativeGoldTerminalQuery.constructedCheck sourceVars (3+padding) (List.ofFn eqPoint) (List.ofFn point) count r
+      (List.ofFn (fun i => List.ofFn (inputs i))) (List.ofFn powers) helper expected = some true) :
+    ExtensionLookupIdentity.terminal (fun i => goldExtensionValue (eqPoint i)) (fun i => goldExtensionValue (point i))
+      (goldExtensionValue r) (∑ i : Fin sourceCount, goldExtensionValue (powers i) *
+        NativeGoldTerminalConstructed.sourceTruth sourceVars (List.ofFn point) accepted (tables i))
+      (goldExtensionValue helper) count.val enough = goldExtensionValue expected ∨
+      ∃ i, (fun lane => goldValue (inputs i lane)) ≠
+        (NativeGoldTerminalConstructed.pulled sourceVars (List.ofFn point) accepted).query.fold (tables i) :=
+  NativeGoldTerminalConstructed.constructedCheck_truthful_or_wrong sourceVars eqPoint point accepted count shift enough r
+    inputs powers tables helper expected passed
+end GoldTerminalQuerySmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldTerminalQuery.compress_no_sources' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldTerminalQuery.compress_no_sources
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldTerminalQuery.compress_no_powers' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldTerminalQuery.compress_no_powers
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldTerminalQuery.compressFrom_head_failure' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldTerminalQuery.compressFrom_head_failure
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldTerminalQuery.compress_take_min' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldTerminalQuery.compress_take_min
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldTerminalQuery.compress_append_sources' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldTerminalQuery.compress_append_sources
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldTerminalQuery.compress_append_powers' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldTerminalQuery.compress_append_powers
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldTerminalQueryMeaning.project_wrong_length' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldTerminalQueryMeaning.project_wrong_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldTerminalQueryMeaning.source_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldTerminalQueryMeaning.source_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldTerminalQueryMeaning.compressFrom_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldTerminalQueryMeaning.compressFrom_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldTerminalQueryMeaning.compress_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldTerminalQueryMeaning.compress_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldTerminalQueryMeaning.source_ofFn' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldTerminalQueryMeaning.source_ofFn
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldTerminalQueryMeaning.compressFrom_ofFn' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldTerminalQueryMeaning.compressFrom_ofFn
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldTerminalQueryMeaning.compress_ofFn' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldTerminalQueryMeaning.compress_ofFn
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldTerminalQueryMeaning.value_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldTerminalQueryMeaning.value_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldTerminalQueryMeaning.check_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldTerminalQueryMeaning.check_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldTerminalConstructed.constructedCheck_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldTerminalConstructed.constructedCheck_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldTerminalConstructed.source_truth' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldTerminalConstructed.source_truth
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldTerminalConstructed.constructedCheck_truthful_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldTerminalConstructed.constructedCheck_truthful_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldTerminalConstructed.constructedCheck_truthful_or_wrong' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldTerminalConstructed.constructedCheck_truthful_or_wrong
+
 end HasteBootsSmoke

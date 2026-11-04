@@ -6074,3 +6074,78 @@ followed by the full `scripts/check` with exit 0 (full build: 10,172 jobs,
 plus all subsequent audit/smoke suites). Logs:
 `/tmp/hasteboots-gold-scalar-query-strict.log` and
 `/tmp/hasteboots-gold-scalar-query-check.log`.
+
+## Native source-query terminal fold and original-opening consequence
+
+`NativeGoldTerminalQuery` now models the literal source-vector/power
+zip/fold in `check_terminal`. Every used vector is passed through the
+actual query post-map and extension decoder before its weighted raw
+extension product is accumulated. A zero weight does not skip those
+checks. Unmatched tails remain uninspected, including malformed vectors;
+empty source/power zips do not inspect even an invalid post-map. The
+minimum-length and unmatched-tail identities are proved. Only after this
+fold succeeds are the prefix, equality, raw residual and comparison run.
+Projection/domain failure and an unequal computed value remain distinct
+`none` and `some false` outcomes; acceptance is `some true`.
+
+`NativeGoldTerminalQueryMeaning` derives a complete partial field decoder
+from each original vector's actual length and bounded getters. It finishes
+the interpreted query and checks output padding. The whole ordered raw
+fold maps to the same partial field fold, including failures, without a
+separately supplied decoded-source list or an always-success premise.
+The literal terminal value and comparison then have the same partial
+field identity meaning. Their machine-shift and logical-prefix bounds are
+explicit premises still to be supplied by the checked caller geometry.
+
+`NativeGoldTerminalConstructed` composes this fold with the complete actual
+scalar-query constructor at the original point. No independent query,
+split point, weights or decoded-source certificate is supplied. With
+matched typed source slots and weights, truthful original-root openings
+produce the weighted source-MLE terminal expression. More generally, an
+accepting constructed terminal has that truthful source expression or
+exposes a specific wrong original-source opening. Every source lane is
+included. The helper in this statement remains the actual supplied helper
+claim; deriving its authentication and the source opening premises from
+PCS acceptance remains open. Runtime slot-count/point geometry is also a
+caller obligation, rather than inferred from zip acceptance alone.
+
+The native fixture compiles the pinned source's actual private `Challenge`,
+equality, prefix and terminal functions, with their error helpers, through
+source extraction into a temporary fixture module. It does not alter the
+native source. Tests cover matched lazy-zero-padded sources, the empty
+scalar-query lane post-map on arbitrary original lanes, unmatched bad
+source and extra power tails, zero-weight malformed sources, wrong vector
+lengths and malformed post-matrices. Empty zips retain their native
+noninspection behavior. A malformed used vector is rejected before a
+64-coordinate prefix would be evaluated, checking that failure order.
+The normal-depth kernel suite reproduces the raw compressed and terminal
+values, exact/one-offset acceptance comparisons and all failure/tail cases.
+It also runs complete constructed-query terminal calls for both row-variable
+branches and a universal truthful-terminal-or-wrong-opening consumer.
+
+The next step is the actual shared caller: its computed subclaim point,
+interleaved helper-sum/identity claims, source-slot and power counts,
+helper authentication and checked source/table geometry must now feed
+these results. Accepted native PCS openings and native query folding are
+still open. Full lookup/PBS extraction and linking, checked Rust/scheduler
+and strict decoder refinement, BabyBear arithmetic, chronological attacker
+work, numerical certification and the final 128-bit application theorem
+also remain open.
+
+Validation for this chunk: the focused constructed-terminal build passed
+(3,944 jobs), and the integrated HasteBoots smoke build passed (4,155 jobs).
+The isolated normal-depth kernel file exited 0, with 30 new regression/
+consumer examples. All 19 new public theorem audits lie within `propext`,
+`Classical.choice` and `Quot.sound`; the integrated suite now has 2,185
+guarded audits. The extracted-source native fixture exited 0. Logs:
+`/tmp/hasteboots-terminal-query-{rust,regressions,audit,smoke}.log`.
+The native checkout remains clean at
+`dff353006322693cab3dc6b654f82151f658f294`. The terminal source hash remains
+`f724877b5a4bc61d736b29fbad6ad7365765af145d71c55d51faf40a4ac6d3db`,
+and the packed-extension and canonical shared-caller hashes were rechecked
+unchanged. No Rust, vendor source or dependency pin changed.
+The standalone warning-as-error HasteBoots smoke check also exited 0,
+followed by the full `scripts/check` with exit 0 (full build: 10,172 jobs,
+plus all subsequent audit/smoke suites). Logs:
+`/tmp/hasteboots-terminal-query-strict.log` and
+`/tmp/hasteboots-terminal-query-check.log`.

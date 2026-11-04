@@ -342,3 +342,6 @@ public import FormalProof4FHE.HasteBoots.NativeScalarQueryShape
 public import FormalProof4FHE.HasteBoots.NativeGoldScalarQuery
 public import FormalProof4FHE.HasteBoots.NativeGoldQueryProjection
 public import FormalProof4FHE.HasteBoots.NativeGoldScalarQueryMeaning
+public import FormalProof4FHE.HasteBoots.NativeGoldTerminalQuery
+public import FormalProof4FHE.HasteBoots.NativeGoldTerminalQueryMeaning
+public import FormalProof4FHE.HasteBoots.NativeGoldTerminalConstructed
