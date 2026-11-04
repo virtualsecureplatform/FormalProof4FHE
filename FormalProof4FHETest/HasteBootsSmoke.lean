@@ -13901,4 +13901,135 @@ end GoldCubicRegressions
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeGoldCubicInverse.divResult_value
 
+namespace GoldLookupRegressions
+open NativeFieldRepresentation
+
+private def word (value : ℕ) : GoldWord := ⟨value % (2 ^ 64), Nat.mod_lt _ (by decide)⟩
+private def y : NativeFieldWire.GoldExtension := ![word 0, word 1, word 4294967294]
+private def r : NativeFieldWire.GoldExtension := ![word 3, word 4, word 5]
+private def rows : List (List GoldWord) :=
+  [[word 1, word 2, word 3], [word 18446744069414584320, word 0, word 42], [word 5, word 7, word 0]]
+private def coords (value : NativeFieldWire.GoldExtension) : List ℕ := List.ofFn (fun i => (value i).val)
+private def table := NativeGoldLookup.tableAt rows 3 y
+private def inverses := NativeGoldLookup.reciprocals (NativeGoldLookup.denominators r table)
+
+/-- Literal native powers include the otherwise unused last multiplication. -/
+example : ((NativeGoldLookup.powerRun y 3).1.map coords, coords (NativeGoldLookup.powerRun y 3).2) =
+    ([[1, 0, 0], [0, 1, 4294967294], [60129542116, 18446743979220271126, 1]],
+     [1262720384884, 90194313174, 18446743798831644736]) := by decide +kernel
+example : ((NativeGoldLookup.powerRun y 0).1.map coords, coords (NativeGoldLookup.powerRun y 0).2) =
+    ([], [1, 0, 0]) := by decide +kernel
+
+/-- Actual raw tuple compression and additive denominators. -/
+example : table.map coords =
+    [[180388626349, 18446743798831644738, 8589934591],
+     [2525440768871, 18446740281253430131, 42], [5, 7, 30064771058]] := by decide +kernel
+example : (NativeGoldLookup.denominators r table).map coords =
+    [[180388626352, 18446743798831644742, 8589934596],
+     [2525440768874, 18446740281253430135, 47], [8, 11, 30064771063]] := by decide +kernel
+example : NativeGoldLookup.allowed table r = true := by decide +kernel
+example : NativeGoldLookup.allowed table NativeGoldLookup.zero = false := by decide +kernel
+example : NativeGoldLookup.allowed table (fun _ => word 18446744069414584321) = false := by decide +kernel
+example : NativeGoldLookup.allowed table
+    (NativeGoldExtensionArithmetic.neg (NativeGoldLookup.compress (NativeGoldLookup.powers y 3)
+      [word 1, word 2, word 3])) = false := by decide +kernel
+
+/-- The individual policy uses division by each denominator, retaining
+its final Karatsuba multiplication by one. -/
+example : inverses.map (List.map coords) = some
+    [[10669078766548504727, 1677925190385246904, 16416740259981085508],
+     [19636715883431950, 2906257706217974732, 9139279106566647151],
+     [5881221366840243887, 9059788479930208498, 9336486865236760688]] := by decide +kernel
+example : inverses.map (fun values => coords
+    (NativeGoldExtensionArithmetic.tableSum values [word 1, word 0, word 2])) =
+      some [3984777430814408180, 1350758080831079579, 16642969921040022563] := by decide +kernel
+
+/-- Zip truncation and explicit arithmetic failure remain visible. -/
+example : NativeGoldLookup.compress (NativeGoldLookup.powers y 3) [word 1, word 2, word 3, word 99] =
+    NativeGoldLookup.compress (NativeGoldLookup.powers y 3) [word 1, word 2, word 3] := by decide +kernel
+example : NativeGoldLookup.reciprocals [] = some [] := by rfl
+example : NativeGoldLookup.reciprocals [NativeGoldLookup.zero] = none := by decide +kernel
+
+/-- Coefficient storage is the accepted canonical native word itself. -/
+example : coords (NativeGoldLookupCompleted.fromCoefficients [0, 1, 4294967294] (by decide)
+    (by decide)) = [0, 1, 4294967294] := by decide +kernel
+end GoldLookupRegressions
+
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookup.zero_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookup.zero_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookup.one_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookup.one_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookup.powerRun_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookup.powerRun_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookup.powers_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookup.powers_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookup.compress_tableSum' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookup.compress_tableSum
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookup.compress_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookup.compress_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookup.tableAt_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookup.tableAt_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookup.isZero_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookup.isZero_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookup.allowed_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookup.allowed_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookup.denominators_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookup.denominators_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookup.reciprocals_success' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookup.reciprocals_success
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookup.reciprocals_length' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookup.reciprocals_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookup.accepted_reciprocals' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookup.accepted_reciprocals
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookup.tableSum_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookup.tableSum_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupCompleted.fromCoefficients_canonical' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupCompleted.fromCoefficients_canonical
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupCompleted.fromCoefficients_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupCompleted.fromCoefficients_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupCompleted.draw_words' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupCompleted.draw_words
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupCompleted.reciprocals' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupCompleted.reciprocals
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldLookupCompleted.tableSum' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldLookupCompleted.tableSum
+
 end HasteBootsSmoke

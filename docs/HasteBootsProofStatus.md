@@ -4901,3 +4901,78 @@ Rust, vendor source or dependency pin was modified.
 The full `scripts/check` finished with exit 0 after the repository build
 (10,126 jobs) and every subsequent audit/smoke suite. Full log:
 `/tmp/hasteboots-gold-cubic-check.log`.
+
+
+## Raw lookup compression and individual reciprocal producer
+
+`NativeGoldLookup` now executes the native ordered powers, tuple row zip/fold,
+additive denominators, and individual reciprocal policy over raw degree-three
+Goldilocks words. `powerRun` retains both the emitted powers and the final
+power update, including the update after the last emitted column. Their
+field values are proved to be the existing `NativeLookupChallenge.powers`
+and the next power. This records arithmetic state; it does not assign a
+physical-work charge to the last update or any other arithmetic operation.
+
+Compression preserves shorter-input truncation. Its mathematical value is
+exactly the old tuple compression, and its raw operation sequence agrees
+with the native table-sum zip/fold after swapping only the pair orientation.
+The raw zero test compares canonical coordinate values, accepting both raw
+zero and raw modulus as field zero. The forbidden-offset predicate is proved
+to equal the old sampler predicate. Denominator values are exactly the old
+additive denominators.
+
+`reciprocals` uses literal `divResult one denominator`, preserving the final
+Karatsuba multiplication by one. An accepted offset supplies all needed
+nonzero premises and therefore a successful ordered output vector with the
+same mathematical inverses as the native Goldilocks individual policy. Output length follows from successful execution without a separate nonzero
+certificate. Failed
+arithmetic returns `none` in this model, representing the unchecked native
+panic precondition, rather than claiming a native verifier rejection.
+
+`NativeGoldLookupCompleted` derives this successful production directly from
+a completed sampler job's existing batch validity and fixed request rows.
+Its source-state relation explicitly identifies raw y/r words and raw rows
+with the sampler's mathematical inputs. It proves the powers/table relation,
+the accepted raw predicate, and ordered reciprocal values. The same actual
+output vector supplies exactly the public table sum used by the old lookup
+arithmetic. No new independent accepted-domain or reciprocal-value
+certificate is required. Separately, completed coefficient draws construct
+canonical raw words from their stored coefficients, with exact coordinate
+spelling and the retained draw's mathematical value.
+
+The source-state relation must still be attached operationally to the native
+compression and accepted-offset positions in the retained draw history.
+These results do not yet constitute a complete raw transcript/body compiler.
+Helper-vector raw packing/commitment bytes, lookup equality bodies, the
+common-challenge scalar batch and interpolation, whole child/parent linking,
+BabyBear arithmetic and the remaining protocol/PBS bodies are still open.
+So are checked Rust/scheduler correspondence, chronological unbounded
+attacker-work coupling, strict proof-byte decoding, numerical certification
+and the final 128-bit application security theorem.
+
+An isolated Rust fixture evaluates the literal producer expressions with the
+pinned native algebra crate. It supplies raw words for every emitted power,
+the last update, all compressed rows and denominators, individual division
+outputs and the accumulated table sum. It also checks zero/forbidden offsets
+and zip truncation. This fixture does not directly call the private native
+`challenges` function and is not a checked Rust refinement. Kernel regressions
+reproduce all its captured raw words and exercise empty powers, empty inverse
+tables, arithmetic failure and canonical coefficient construction.
+
+Validation: the focused completed-job module build passed (3,914 jobs),
+the HasteBoots smoke build passed (4,109 jobs), and the separate
+warning-as-error HasteBoots smoke finished with exit 0. All 19 new public
+theorem audits use only `propext`, `Classical.choice` and `Quot.sound`;
+the guarded HasteBoots total is 1,870. The isolated kernel regression suite
+and Rust algebra expression fixture finished with exit 0. Logs:
+`/tmp/hasteboots-gold-lookup-completed-build.log`,
+`/tmp/hasteboots-gold-lookup-audit.log`,
+`/tmp/hasteboots-gold-lookup-regressions.log`,
+`/tmp/hasteboots-gold-lookup-smoke.log`,
+`/tmp/hasteboots-gold-lookup-strict.log`, and
+`/tmp/hasteboots-gold-lookup-rust.log`.
+Rust HEAD and transcript source hashes were rechecked unchanged; Rust/vendor
+sources and dependency pins were not modified.
+The full `scripts/check` finished with exit 0 after the full build (10,129
+jobs) and all subsequent audit and smoke suites. Full log:
+`/tmp/hasteboots-gold-lookup-check.log`.
