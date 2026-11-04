@@ -3749,3 +3749,61 @@ prefix fiber mass. Logs: `/tmp/hasteboots-replay-smoke.log`,
 sources, vendor sources, and root dependency pins are unchanged. The complete
 security theorem remains unproved; no milestone here discharges the actual
 lookup body, unrestricted work conversion, or Rust refinement obligations.
+
+
+## Revised roadmap M1: canonical native sampler prefix compilation
+
+`CanonicalTranscriptSampler.lean` compiles the canonical rejection subloop
+into the online oracle-program language. Each attempt calls the existing
+field reader for the configured byte width, decodes little-endian, applies
+the native mask (including the full 128-bit branch), and accepts exactly
+below the modulus. The source-aligned evaluator and compiled program have
+proved identical outcomes and ordered logs. Native callers still require
+`1 < p` and `p < 2^128`; the generic mathematical definitions also exist
+outside that native domain and do not model invalid-constructor panics.
+
+The byte-list decoder is proved equal to the existing finite-vector decoder.
+Zero padding the unread suffix of the native 16-byte scratch array preserves
+the decoded value, and that scratch value fits u128. The operational accept
+test is exactly the existing canonical masked-vector test. Every accepted
+value is proved below the modulus. Full raw chunks are retained, including
+rejected candidates and high bits discarded by the mask.
+
+The final field phase contains exactly the previous consumed prefix followed
+by all new raw chunks. Reader coherence is preserved. Successful observations
+are unchanged by every larger analysis depth, and suspended logs refine to
+larger logs. An exact resumption theorem identifies execution at depth
+`first + extra` with continuing the first observation, concatenating its
+chunks and logs. Suspension emits no receipt. It is not a native rejection,
+verification result, or implementation retry limit.
+
+The typed raw observation is proved reachable in the existing private
+canonical sampler for every world. This transfers the previously proved
+support-level attempt bound and exact suspended attempt count. Actual added
+reader bytes equal the earlier trace byte-cost function pointwise; the
+unread scratch zeros are not counted as returned bytes. This is neither an
+expected-work theorem nor a primitive-to-machine-cost conversion.
+
+The support bridge does not assert equality of distributions for a stage
+chosen after adversarial prequeries. That probability bridge still requires
+the whole-history first-query compiler and its freshness premises. Also open
+are the coefficient/vector collector and field finalization, native typed
+basis descriptors, reciprocal/lookup body compilation, arbitrary-input
+frame-decoder soundness, unrestricted stopping/work conversion, full PBS
+composition, concrete certification, and checked Rust/scheduler refinement.
+The full objective remains active and unproved.
+
+
+Validation passed: focused HasteBoots smoke build (4,070 jobs), separate
+warning-as-error HasteBoots smoke, and full `scripts/check` (10,089 build jobs
+followed by all strict suites, terminal exit zero). Twenty new guarded audits
+passed, bringing the HasteBoots total to 1,435, all within the permitted
+standard kernel foundations. Kernel-reduced fixtures cover rejection then
+acceptance, ordered rejected-byte retention, no premature receipt, stable
+completion at every larger depth, continued suspension, and unused high bits
+retained despite masking. Logs: `/tmp/hasteboots-canonical-program-smoke.log`,
+`/tmp/hasteboots-canonical-program-strict.log`,
+`/tmp/hasteboots-canonical-program-audit.log`, and
+`/tmp/hasteboots-canonical-program-check.log`. Whitespace checks passed.
+Original Rust sources, vendor sources, and dependency pins are unchanged.
+The full security theorem and Rust refinement remain unproved.

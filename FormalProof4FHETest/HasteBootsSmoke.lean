@@ -11238,4 +11238,127 @@ end OracleReplaySmoke
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeTranscriptProgram.linked_child_prefix_replay
 
+section CanonicalTranscriptSamplerSmoke
+open InputIndexedOracle (Byte Input World)
+open CanonicalTranscriptSampler
+
+private def samplerPhase : NativeTranscript.FieldPhase := ⟨⟨[], fun _ => 0⟩, [], []⟩
+private def rejectThenAccept : World
+  | .inl (_, position) => if position = 0 then 3 else 2
+  | .inr _ => 0
+private def alwaysReject : World
+  | .inl _ => 3
+  | .inr _ => 0
+
+/-- Modulus 3 rejects the first masked value 3, then accepts 2. -/
+example : (executePrefix 3 1 samplerPhase rejectThenAccept).1.accepted = none := by decide +kernel
+example : value 3 (executePrefix 3 2 samplerPhase rejectThenAccept).1 = some 2 := by decide +kernel
+
+/-- The rejected bytes are retained in order and no receipt is emitted. -/
+example : (executePrefix 3 2 samplerPhase rejectThenAccept).1.chunks = [[3], [2]] := by decide +kernel
+example : (executePrefix 3 2 samplerPhase rejectThenAccept).1.phase.consumed = [3, 2] := by decide +kernel
+example : (executePrefix 3 1 samplerPhase rejectThenAccept).2 = [.output [] 0 [3]] := by decide +kernel
+
+example : (OracleProgram.run (samplePrefix 3 2 samplerPhase) rejectThenAccept).run.1.accepted = some [2] := by
+  rw [run_samplePrefix]
+  decide +kernel
+
+/-- Completion stops further reads at every larger analysis depth. -/
+example (extra : ℕ) : executePrefix 3 (2 + extra) samplerPhase rejectThenAccept =
+    executePrefix 3 2 samplerPhase rejectThenAccept :=
+  completed_stable 3 2 extra samplerPhase rejectThenAccept (by decide +kernel)
+
+/-- Suspension is not rejection by the verifier or an implementation cutoff. -/
+example : (executePrefix 3 5 samplerPhase alwaysReject).1.chunks.length = 5 :=
+  suspended_attempts 3 5 samplerPhase alwaysReject (by decide +kernel)
+
+private def unusedHighBits : World
+  | .inl (_, position) => if position = 0 then 0 else 129
+  | .inr _ => 0
+
+/-- 0x8100 is masked to 0x100, but the raw high bit stays in the receipt input. -/
+example : value 257 (executePrefix 257 1 samplerPhase unusedHighBits).1 = some 256 := by decide +kernel
+example : (executePrefix 257 1 samplerPhase unusedHighBits).1.phase.consumed = [0, 129] := by decide +kernel
+end CanonicalTranscriptSamplerSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.fromLittleEndian_ofFn' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.fromLittleEndian_ofFn
+
+/-- info: 'FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.candidate_ofFn' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.candidate_ofFn
+
+/-- info: 'FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.scratch_decode' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.scratch_decode
+
+/-- info: 'FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.scratch_fits_u128' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.scratch_fits_u128
+
+/-- info: 'FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.vector_ofFn' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.vector_ofFn
+
+/-- info: 'FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.ofFn_vector' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.ofFn_vector
+
+/-- info: 'FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.candidate_vector' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.candidate_vector
+
+/-- info: 'FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.run_samplePrefix' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.run_samplePrefix
+
+/-- info: 'FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.phase_retains_chunks' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.phase_retains_chunks
+
+/-- info: 'FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.chunks_width' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.chunks_width
+
+/-- info: 'FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.accepted_below' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.accepted_below
+
+/-- info: 'FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.final_coherent' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.final_coherent
+
+/-- info: 'FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.completed_stable' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.completed_stable
+
+/-- info: 'FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.log_refines' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.log_refines
+
+/-- info: 'FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.resume_exact' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.resume_exact
+
+/-- info: 'FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.typed_supported' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.typed_supported
+
+/-- info: 'FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.attempts_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.attempts_le
+
+/-- info: 'FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.suspended_attempts' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.suspended_attempts
+
+/-- info: 'FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.added_bytes' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.added_bytes
+
+/-- info: 'FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.sample_replay' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.sample_replay
+
 end HasteBootsSmoke
