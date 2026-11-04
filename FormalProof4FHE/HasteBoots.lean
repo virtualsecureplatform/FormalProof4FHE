@@ -270,3 +270,6 @@ public import FormalProof4FHE.HasteBoots.NativeExtensionRequest
 public import FormalProof4FHE.HasteBoots.TypedTranscriptChild
 public import FormalProof4FHE.HasteBoots.TypedFieldRequest
 public import FormalProof4FHE.HasteBoots.NativeLookupChallenge
+public import FormalProof4FHE.HasteBoots.OraclePosterior
+public import FormalProof4FHE.HasteBoots.OracleExecutionLaw
+public import FormalProof4FHE.HasteBoots.CachedOracleResponse

@@ -4165,3 +4165,76 @@ Logs: `/tmp/hasteboots-lookup-compiler-{build,audit,smoke,strict,check}.log`.
 Whitespace checks passed. The inspected Rust revision and transcript hashes
 were rechecked unchanged; Rust and vendor sources were not modified.
 The final end-to-end security objective remains active and unproved.
+
+
+## Whole-history posterior and continuation laws
+
+`OraclePosterior.lean` proves the exact joint-world posterior after any
+finite coordinate assignment. The observed finite tuple is independent
+of the entire unobserved complement in the original product sigma algebra.
+Consequently, conditioning fixes exactly the seen bytes and leaves all
+unseen coordinates with their original product law. This applies jointly
+to SHAKE and SHA-512, including arbitrary prequeries and partial overlap.
+The generator depends only on the finite cached values, not on the witness
+world's unobserved bytes. Reinstalling that cache preserves the recorded
+execution pointwise by replay.
+
+Both normalized and unnormalized forms are proved. The restriction of the
+world law to the exact history equals the history mass times the cached
+world law. Nonzero mass of each attainable finite history is derived from
+its finite assignment; no numerical history/success floor is assumed.
+There is no conditioning on verification success and no discarded failure
+or suspended mass.
+
+`OracleExecutionLaw.lean` proves that a replayable execution's countable
+finite byte log determines its entire result. Reachable results are therefore
+countable even when the payload type is not, so every execution predicate
+and nonnegative score is measurable without making the infinite world
+discrete. An adaptive continuation chosen from the complete retained past
+has its exact conditional event law under one cached independent-world
+generator. The same unnormalized identity holds for nonnegative integrals,
+including infinite scores and infinite expectations, without bounded-work
+or finite-mean premises. The score is evaluated on the actual continuation
+result/log, not on virtual samples used by the mathematical generator.
+Complete programs and paused prefixes with their residual programs have
+explicit corollaries.
+
+`CachedOracleResponse.lean` derives finite response laws from that posterior.
+The response retains cached coordinate values and masks a uniform word
+only on unseen coordinates. Partial overlap is handled explicitly; no
+freshness premise is imposed on the general response theorem. Fully fresh
+blocks have their uniform law, while fully repeated blocks have a Dirac law
+at the previously observed answer. Native SHAKE offsets and SHA-512 digest
+positions discharge within-block coordinate distinctness. The same generated
+world feeds the whole future continuation, so these marginal laws do not
+resample each read independently or introduce reader-instance entropy.
+
+This closes the finite-history disintegration part of the joint-oracle
+bridge. A smoke application instantiates the conditional work identity with
+the actual native Goldilocks lookup-selection compiler after arbitrary
+previous transcript/hash activity. Further work must derive cache-aware
+bad-event charges, rather than treating prequeried field requests as uniform.
+Native/private sampler distribution correspondence, private-coin averaging,
+production Merkle-handler and scheduler coupling, and unrestricted stopping
+still require composition. The remaining lookup body, full PBS security,
+concrete certification, strict proof-byte decoding, and checked Rust
+refinement also remain open. No numerical security or physical-work bound
+is inferred from the new conditional identities; the final theorem remains
+unproved.
+
+
+Validation passed: focused HasteBoots smoke (4,083 jobs), a separate
+warning-as-error HasteBoots smoke, and full `scripts/check` (10,103 build
+jobs and every subsequent strict suite, terminal exit zero). Thirty-three
+new guarded theorem audits passed, bringing the HasteBoots total to 1,608.
+One new theorem is axiom-free; the others use only permitted standard kernel
+foundations. Regressions cover an adaptive mixed history with 68 returned
+byte occurrences but only 67 distinct coordinates, the corresponding exact
+fiber mass, partial-overlap responses, deterministic restarts, unchanged
+SHAKE uniformity after a same-input SHA-512 prequery, and native Goldilocks
+lookup continuation work scores after arbitrary earlier transcript activity.
+Logs: `/tmp/hasteboots-cached-response-build.log` and
+`/tmp/hasteboots-oracle-history-{audit,smoke,strict,check}.log`.
+Whitespace checks passed. The Rust revision and inspected transcript hashes
+were rechecked unchanged; Rust sources, vendor sources and dependency pins
+were not modified. The full security objective remains active and unproved.

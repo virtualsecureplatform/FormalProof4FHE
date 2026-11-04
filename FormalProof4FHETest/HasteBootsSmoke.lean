@@ -12198,4 +12198,194 @@ end NativeLookupChallengeSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeLookupChallenge.babyBear
 
+namespace OracleHistoryLawSmoke
+open MeasureTheory ProbabilityTheory InputIndexedOracle
+
+private def history : OracleProgram.Program (Input × (Fin 64 → Byte) × Input) :=
+  .start [4] (.read [4] 0 2 (fun first =>
+    .hash [4] (fun digest =>
+      if first.head? = some 7 then .read [4] 1 2 (fun last => .pure (first, digest, last))
+      else .read [5] 0 3 (fun last => .pure (first, digest, last)))))
+private def recorded : World
+  | .inl _ => 7
+  | .inr _ => 11
+private def seen := ObservationReplay.footprint (OracleProgram.run history recorded).run.2
+private def raw : Fin 4 → Byte := fun i => ⟨20 + i.val, by omega⟩
+example : seen.card = 67 := by decide +kernel
+example : List.ofFn (CachedOracleResponse.mask seen recorded (CachedOracleResponse.shakeCoordinates [4] 1 4) raw) =
+    [7, 7, 22, 23] := by decide +kernel
+example : List.ofFn (CachedOracleResponse.mask seen recorded (CachedOracleResponse.shakeCoordinates [5] 0 4) raw) =
+    [20, 21, 22, 23] := by decide +kernel
+example : List.ofFn (CachedOracleResponse.mask seen recorded (CachedOracleResponse.hashCoordinates [4]) (fun _ => 99)) =
+    List.replicate 64 11 := by decide +kernel
+example : law {other | (OracleProgram.run history other).run = (OracleProgram.run history recorded).run} =
+    (256 : ENNReal)⁻¹ ^ 67 := by
+  rw [ObservationReplay.fiber_mass (OracleProgram.run_replay history) recorded]
+  have count : seen.card = 67 := by decide +kernel
+  change (256 : ENNReal)⁻¹ ^ seen.card = (256 : ENNReal)⁻¹ ^ 67
+  rw [count]
+example :
+    (law[|{other | (OracleProgram.run history other).run = (OracleProgram.run history recorded).run}]).map
+      (fun other => block other [4] 0 3) = Measure.dirac (fun _ : Fin 3 => (7 : Byte)) := by
+  rw [ObservationReplay.fiber_eq_assignment (OracleProgram.run_replay history) recorded]
+  exact CachedOracleResponse.repeated_response seen recorded (CachedOracleResponse.shakeCoordinates [4] 0 3)
+    (CachedOracleResponse.shake_distinct [4] 0 3) (by decide +kernel)
+
+private def hashOnly : OracleProgram.Program (Fin 64 → Byte) := .hash [4] .pure
+example :
+    (law[|{other | (OracleProgram.run hashOnly other).run = (OracleProgram.run hashOnly recorded).run}]).map
+      (fun other => block other [4] 0 4) = uniformOn (Set.univ : Set (Fin 4 → Byte)) := by
+  rw [ObservationReplay.fiber_eq_assignment (OracleProgram.run_replay hashOnly) recorded]
+  exact CachedOracleResponse.fresh_response _ recorded (CachedOracleResponse.shakeCoordinates [4] 0 4)
+    (CachedOracleResponse.shake_distinct [4] 0 4) (by decide +kernel)
+
+/-- The generic conditional work law applies to the actual native lookup
+compiler after arbitrary earlier hash/XOF transcript activity. -/
+example (past : OracleProgram.Program NativeTranscript.Transcript) (width fuel : ℕ)
+    (rows : List (List NativeFields.Goldilocks)) (world : World)
+    (score : NativeLookupChallenge.Machine NativeExtensionFields.Goldilocks3 × List NativeTranscript.Observation → ENNReal) :
+    (∫⁻ other, score (OracleProgram.run
+      (NativeLookupChallenge.goldilocks width fuel rows (OracleProgram.run past other).run.1) other).run
+      ∂law.restrict {other | (OracleProgram.run past other).run = (OracleProgram.run past world).run}) =
+      law {other | (OracleProgram.run past other).run = (OracleProgram.run past world).run} *
+        ∫⁻ fresh, score (OracleProgram.run
+          (NativeLookupChallenge.goldilocks width fuel rows (OracleProgram.run past world).run.1)
+          (OraclePosterior.override (ObservationReplay.footprint (OracleProgram.run past world).run.2) world fresh)).run ∂law :=
+  OracleExecutionLaw.program_lintegral past
+    (fun result => NativeLookupChallenge.goldilocks width fuel rows result.1) world score
+
+end OracleHistoryLawSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.OraclePosterior.restore_measurable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OraclePosterior.restore_measurable
+
+/-- info: 'FormalProof4FHE.HasteBoots.OraclePosterior.override_measurable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OraclePosterior.override_measurable
+
+/-- info: 'FormalProof4FHE.HasteBoots.OraclePosterior.override_seen' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OraclePosterior.override_seen
+
+/-- info: 'FormalProof4FHE.HasteBoots.OraclePosterior.override_unseen' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OraclePosterior.override_unseen
+
+/-- info: 'FormalProof4FHE.HasteBoots.OraclePosterior.override_of_assignment' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OraclePosterior.override_of_assignment
+
+/-- info: 'FormalProof4FHE.HasteBoots.OraclePosterior.old_independent_override' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OraclePosterior.old_independent_override
+
+/-- info: 'FormalProof4FHE.HasteBoots.OraclePosterior.assignment_restrict' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OraclePosterior.assignment_restrict
+
+/-- info: 'FormalProof4FHE.HasteBoots.OraclePosterior.assignment_event' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OraclePosterior.assignment_event
+
+/-- info: 'FormalProof4FHE.HasteBoots.OraclePosterior.assignment_ne_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OraclePosterior.assignment_ne_zero
+
+/-- info: 'FormalProof4FHE.HasteBoots.OraclePosterior.restrict_eq_cached' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OraclePosterior.restrict_eq_cached
+
+/-- info: 'FormalProof4FHE.HasteBoots.OraclePosterior.override_cache_ext' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OraclePosterior.override_cache_ext
+
+/-- info: 'FormalProof4FHE.HasteBoots.OraclePosterior.assignment_posterior' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OraclePosterior.assignment_posterior
+
+/-- info: 'FormalProof4FHE.HasteBoots.OraclePosterior.execution_posterior' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OraclePosterior.execution_posterior
+
+/-- info: 'FormalProof4FHE.HasteBoots.OraclePosterior.replay_override' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OraclePosterior.replay_override
+
+/-- info: 'FormalProof4FHE.HasteBoots.OracleExecutionLaw.logs_determine_result' does not depend on any axioms -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OracleExecutionLaw.logs_determine_result
+
+/-- info: 'FormalProof4FHE.HasteBoots.OracleExecutionLaw.range_countable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OracleExecutionLaw.range_countable
+
+/-- info: 'FormalProof4FHE.HasteBoots.OracleExecutionLaw.event_measurable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OracleExecutionLaw.event_measurable
+
+/-- info: 'FormalProof4FHE.HasteBoots.OracleExecutionLaw.score_measurable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OracleExecutionLaw.score_measurable
+
+/-- info: 'FormalProof4FHE.HasteBoots.OracleExecutionLaw.continuation_lintegral' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OracleExecutionLaw.continuation_lintegral
+
+/-- info: 'FormalProof4FHE.HasteBoots.OracleExecutionLaw.program_lintegral' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OracleExecutionLaw.program_lintegral
+
+/-- info: 'FormalProof4FHE.HasteBoots.OracleExecutionLaw.continuation_event' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OracleExecutionLaw.continuation_event
+
+/-- info: 'FormalProof4FHE.HasteBoots.OracleExecutionLaw.program_continuation' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OracleExecutionLaw.program_continuation
+
+/-- info: 'FormalProof4FHE.HasteBoots.OracleExecutionLaw.prefix_continuation' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OracleExecutionLaw.prefix_continuation
+
+/-- info: 'FormalProof4FHE.HasteBoots.CachedOracleResponse.observe_measurable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CachedOracleResponse.observe_measurable
+
+/-- info: 'FormalProof4FHE.HasteBoots.CachedOracleResponse.mask_measurable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CachedOracleResponse.mask_measurable
+
+/-- info: 'FormalProof4FHE.HasteBoots.CachedOracleResponse.assignment_response' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CachedOracleResponse.assignment_response
+
+/-- info: 'FormalProof4FHE.HasteBoots.CachedOracleResponse.execution_response' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CachedOracleResponse.execution_response
+
+/-- info: 'FormalProof4FHE.HasteBoots.CachedOracleResponse.fresh_response' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CachedOracleResponse.fresh_response
+
+/-- info: 'FormalProof4FHE.HasteBoots.CachedOracleResponse.repeated_response' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CachedOracleResponse.repeated_response
+
+/-- info: 'FormalProof4FHE.HasteBoots.CachedOracleResponse.shake_distinct' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CachedOracleResponse.shake_distinct
+
+/-- info: 'FormalProof4FHE.HasteBoots.CachedOracleResponse.hash_distinct' does not depend on any axioms -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CachedOracleResponse.hash_distinct
+
+/-- info: 'FormalProof4FHE.HasteBoots.CachedOracleResponse.shake_response' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CachedOracleResponse.shake_response
+
+/-- info: 'FormalProof4FHE.HasteBoots.CachedOracleResponse.hash_response' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.CachedOracleResponse.hash_response
+
 end HasteBootsSmoke
