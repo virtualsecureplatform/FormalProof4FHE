@@ -6149,3 +6149,86 @@ followed by the full `scripts/check` with exit 0 (full build: 10,172 jobs,
 plus all subsequent audit/smoke suites). Logs:
 `/tmp/hasteboots-terminal-query-strict.log` and
 `/tmp/hasteboots-terminal-query-check.log`.
+
+## Strict shared lookup guard window and actual scalar-batch linkage
+
+`NativeSharedLookupGuard` now models the canonical strict caller's window
+from `claims[0].point` through all interleaved helper/identity guards. It
+constructs the actual pulled scalar query once. Each ordered job first
+compares `claims[2*i].expected` with `helper_values[i]` using native field
+equality, then looks up the request and clones its original registry slots,
+then checks the identity using `claims[2*i+1].expected`, the stored equality
+point, actual helper and the same head-claim point. A mismatched helper
+stops before request/source lookup. Job challenges can be projected directly
+from the existing raw lookup producer's output.
+
+Successful execution retains a formal trace of the values actually read;
+the caller does not supply checked-job certificates. Every job is retained
+in order with consecutive ordinals, and each accepted record identifies
+its exact even/odd claims, request, helper, equality point and source-slot
+copies. The source-copy relation covers the complete original slot list,
+including aliases and repetitions. Checked getters model native index
+preconditions; the full caller's preflight and statement/job alignment
+remain to establish all reachable-domain obligations. The trace is proof
+metadata, not an added wire payload or an instruction-cost certificate.
+
+`NativeSharedLookupBatchLink` consumes the existing initialized scalar
+verifier's completed contract. It derives the guard's head point from the
+actual retained common-challenge draws, proves that every used even and
+odd subclaim has that point, and preserves the full original batch chain,
+round-message and polynomial meaning. Each point coordinate is linked to
+its original sampled coefficient vector. The sum/helper field equality is
+derived from the actual raw guard comparison. No independent common-point
+or completed-draw certificate is supplied to the initialized-run theorem.
+
+The actual returned query also supplies its own source/lane geometry:
+packing width is a power of two, lane bits plus source variables equal the
+completed scalar-batch dimension, lane shifts fit the machine domain, and
+the matrix square fits 64 bits. Every used even/odd claim address is bounded
+by the actual returned claim length, and the original statement-vector
+bound yields its 64-bit safety. These are derived bounds, not extra caps.
+The stronger full-point prefix bound and logical-prefix geometry still
+need the trusted source/table preflight.
+
+The native fixture compiles the exact strict guard window extracted from
+`canonical/shared.rs`, together with the actual extracted terminal and
+prefix/equality helpers. Its wrapper supplies records for the fields read
+by that window; it does not claim a full native caller/PCS verification.
+It covers three ordered jobs over two requests, repeated source slots,
+canonical field equality with a lazy sum representative, last-identity
+rejection, wrong source dimension, malformed used vectors and rejection
+before an invalid request index when the sum/helper guard fails. It also
+confirms the window ignores other subclaims' point fields: consistency is
+proved from actual scalar-verifier output, not added as a runtime guard.
+Normal-depth kernel tests reproduce all those outcomes and the retained
+trace, plus checked-index precondition failures. A universal consumer
+instantiates the initialized scalar-verifier-to-guard linkage.
+
+Remaining caller work is the exact independent construction of equation
+infos and table-sum/zero initial claims, alignment with the expanded actual
+challenge-job schedule, equality-point draw composition, proof-value
+validation, statement-level helper-sum/identity meaning, complete preflight geometry
+and child framing. Accepted helper/source PCS authentication and native
+query folding remain open. Full lookup/PBS extraction and linking,
+checked Rust/scheduler and strict decoder refinement, BabyBear arithmetic,
+chronological attacker work, numerical certification and the final 128-bit
+application theorem remain open.
+
+Validation for this chunk: the focused scalar-batch linkage build passed
+(3,958 jobs), and the integrated HasteBoots smoke build passed (4,157 jobs).
+The isolated normal-depth kernel file exited 0, with 21 new regression/
+consumer examples. All ten new public theorem audits lie within `propext`,
+`Classical.choice` and `Quot.sound`; the integrated suite now has 2,195
+guarded audits. The extracted native shared-window fixture exited 0. Logs:
+`/tmp/hasteboots-shared-lookup-guard-{rust,regressions,audit,smoke}.log`.
+The native checkout remains clean at
+`dff353006322693cab3dc6b654f82151f658f294`. The canonical shared-caller hash
+remains `4aa496ff66e3785bf0d0ccda927dbfd62103dd0870d65ea7d7a1539702899ae3`,
+and the terminal hash remains
+`f724877b5a4bc61d736b29fbad6ad7365765af145d71c55d51faf40a4ac6d3db`.
+No Rust, vendor source or dependency pin changed.
+The standalone warning-as-error HasteBoots smoke check also exited 0,
+followed by the full `scripts/check` with exit 0 (full build: 10,175 jobs,
+plus all subsequent audit/smoke suites). Logs:
+`/tmp/hasteboots-shared-lookup-guard-strict.log` and
+`/tmp/hasteboots-shared-lookup-guard-check.log`.

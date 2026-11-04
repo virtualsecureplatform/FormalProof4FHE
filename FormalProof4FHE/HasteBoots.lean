@@ -345,3 +345,5 @@ public import FormalProof4FHE.HasteBoots.NativeGoldScalarQueryMeaning
 public import FormalProof4FHE.HasteBoots.NativeGoldTerminalQuery
 public import FormalProof4FHE.HasteBoots.NativeGoldTerminalQueryMeaning
 public import FormalProof4FHE.HasteBoots.NativeGoldTerminalConstructed
+public import FormalProof4FHE.HasteBoots.NativeSharedLookupGuard
+public import FormalProof4FHE.HasteBoots.NativeSharedLookupBatchLink

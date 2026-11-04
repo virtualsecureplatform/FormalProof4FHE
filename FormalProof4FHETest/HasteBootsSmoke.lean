@@ -16234,4 +16234,118 @@ end GoldTerminalQuerySmoke
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeGoldTerminalConstructed.constructedCheck_truthful_or_wrong
 
+
+namespace SharedLookupGuardSmoke
+open FormalProof4FHE.HasteBoots
+open NativeFields NativeFieldRepresentation NativeFieldWire NativeGoldExtensionArithmetic NativeExtensionFields
+open NativeSharedLookupGuard
+private def word (n : ℕ) : GoldWord := ⟨n % (2^64), Nat.mod_lt _ (by decide)⟩
+private def rawWord (value : Word) : List ℕ := (List.ofFn value).map Fin.val
+private def point : List Word := [![word 2,word 3,word 4],![word 5,word 6,word 7],![word 8,word 9,word 10]]
+private def eqPoints : List (List Word) := [
+  [![word 3,word 1,word 2],![word 6,word 4,word 5],![word 9,word 7,word 8]],
+  [![word 2,word 4,word 6],![word 3,word 5,word 7],![word 11,word 13,word 17]],
+  [![word 5,word 3,word 1],![word 7,word 5,word 3],![word 13,word 11,word 9]]]
+private def sources : List (List GoldWord) := [([1,2,3,0] : List ℕ).map word,([5,6,7,0] : List ℕ).map word]
+private def requests : List Request := [⟨[1,0,1],⟨5,by decide⟩⟩,⟨[0],⟨8,by decide⟩⟩]
+private def helper0 : Word := ![word 17,word 19,word 23]
+private def identity0 : Word := ![word 7482570207208425720,word 13979843137951800132,word 12337459919140652122]
+private def job0 : Job := ⟨0,![word 7,word 11,word 13],[![word 1,word 0,word 0],![word 2,word 3,word 4],![word 172,word 124,word 25]]⟩
+private def helper1 : Word := ![word 29,word 31,word 37]
+private def identity1 : Word := ![word 2615763279883823929,word 4357038583407674296,word 18179382422698383869]
+private def job1 : Job := ⟨0,![word 11,word 13,word 17],[![word 1,word 0,word 0],![word 3,word 1,word 2],![word 37,word 34,word 13]]⟩
+private def helper2 : Word := ![word 41,word 43,word 47]
+private def identity2 : Word := ![word 203098466639656,word 106201633309289,word 55517547310989]
+private def job2 : Job := ⟨1,![word 19,word 23,word 29],[![word 1,word 0,word 0]]⟩
+private def jobs : List Job := [job0,job1,job2]
+private def claims : List FormalProof4FHE.HasteBoots.NativeScalarBatchVerifier.SubClaim := [⟨point,helper0⟩,⟨point,identity0⟩,⟨point,helper1⟩,⟨point,identity1⟩,⟨point,helper2⟩,⟨point,identity2⟩]
+private def data : Inputs := ⟨requests,jobs,eqPoints,sources,[helper0,helper1,helper2]⟩
+-- These flags are from the extracted STRICT=true native shared window.
+example : (guard data claims 1 4).isSome = true := by decide +kernel
+private def aliasClaims : List FormalProof4FHE.HasteBoots.NativeScalarBatchVerifier.SubClaim := claims.set 0 ⟨point,![word 18446744069414584338,word 19,word 23]⟩
+example : (guard data aliasClaims 1 4).isSome = true := by decide +kernel
+private def otherClaims : List FormalProof4FHE.HasteBoots.NativeScalarBatchVerifier.SubClaim := [⟨point,helper0⟩,⟨[NativeGoldLookup.one],identity0⟩,⟨[],helper1⟩,⟨point,identity1⟩,
+  ⟨point,helper2⟩,⟨List.replicate 6 NativeGoldLookup.zero,identity2⟩]
+example : (guard data otherClaims 1 4).isSome = true := by decide +kernel
+private def wrongSum : List FormalProof4FHE.HasteBoots.NativeScalarBatchVerifier.SubClaim := claims.set 0 ⟨point,NativeGoldExtensionArithmetic.add helper0 NativeGoldLookup.one⟩
+example : (guard data wrongSum 1 4).isSome = false := by decide +kernel
+example : (guard data (claims.set 5 ⟨point,NativeGoldExtensionArithmetic.add identity2 NativeGoldLookup.one⟩) 1 4).isSome = false := by decide +kernel
+example : (guard data claims 2 4).isSome = false := by decide +kernel
+example : (guard {data with sourceValues := sources.set 1 (([5,6,7,1] : List ℕ).map word)} claims 1 4).isSome = false := by decide +kernel
+example : (guard {data with jobs := jobs.set 0 {job0 with request := 2^64-1}} wrongSum 1 4).isSome = false := by decide +kernel
+-- The returned trace retains every indexed job and the actual copied vectors.
+example : (guard data claims 1 4).map (fun result => result.checked.map Checked.ordinal) = some [0,1,2] := by decide +kernel
+example : (guard data claims 1 4).map (fun result => result.checked.map (fun entry => entry.job.request)) = some [0,0,1] := by decide +kernel
+example : (guard data claims 1 4).map (fun result => result.checked.map (fun entry => entry.request.sourceSlots)) =
+    some [[1,0,1],[1,0,1],[0]] := by decide +kernel
+example : (guard data claims 1 4).map (fun result => result.checked.map (fun entry => entry.values.map (List.map Fin.val))) =
+    some [[[5,6,7,0],[1,2,3,0],[5,6,7,0]],[[5,6,7,0],[1,2,3,0],[5,6,7,0]],[[1,2,3,0]]] := by decide +kernel
+example : (guard data claims 1 4).map (fun result => result.checked.map (fun entry => rawWord entry.identityClaim.expected)) =
+    some [[7482570207208425720,13979843137951800132,12337459919140652122],[2615763279883823929,4357038583407674296,18179382422698383869],[203098466639656,106201633309289,55517547310989]] := by decide +kernel
+example : (guard data aliasClaims 1 4).map (fun result => result.checked.map (fun entry => rawWord entry.sumClaim.expected)) =
+    some [[18446744069414584338,19,23],[29,31,37],[41,43,47]] := by decide +kernel
+example : (guard data otherClaims 1 4).map (fun result => (result.point.length,result.checked.map (fun entry => entry.identityClaim.point.length))) =
+    some (3,[1,3,6]) := by decide +kernel
+-- Additional checked-index precondition failures; these inputs are excluded
+-- by the native caller/batch preflight rather than accepted into this window.
+example : (guard data [] 1 4).isNone = true := by decide +kernel
+example : (guard data (claims.take 5) 1 4).isNone = true := by decide +kernel
+example : (guard {data with helperValues := [helper0,helper1]} claims 1 4).isNone = true := by decide +kernel
+example : (guard {data with requests := requests.set 0 ⟨[9],⟨5,by decide⟩⟩} claims 1 4).isNone = true := by decide +kernel
+example (data : Inputs) (claims : List FormalProof4FHE.HasteBoots.NativeScalarBatchVerifier.SubClaim) (sourceVars width : ℕ) (result : Result)
+    (success : guard data claims sourceVars width = some result) : result.checked.length = data.jobs.length :=
+  (guard_spec data claims sourceVars width result success).count
+example (data : Inputs) (transcript resultTranscript : NativeTranscript.Transcript)
+    (statement : NativeScalarBatchWire.Statement) (proof : NativeScalarBatchPreflight.Proof) (first : NativeScalarBatchWire.Info)
+    (accepted : NativeScalarBatchPreflight.beginVerify transcript statement proof = .ok resultTranscript)
+    (head : statement.infos.val.head? = some first) (fuel : ℕ) (world : InputIndexedOracle.World) (claims : List FormalProof4FHE.HasteBoots.NativeScalarBatchVerifier.SubClaim)
+    (finished : (NativeScalarBatchVerifier.execute statement proof fuel (NativeScalarBatchVerifier.initial transcript statement proof) world).1.control =
+      .finished claims) (sourceVars width : ℕ) (result : Result) (success : guard data claims sourceVars width = some result) :
+    NativeSharedLookupBatchLink.Linked data statement proof first
+      (NativeScalarBatchVerifier.execute statement proof fuel (NativeScalarBatchVerifier.initial transcript statement proof) world).1
+      claims sourceVars width result :=
+  NativeSharedLookupBatchLink.initialized_link data transcript resultTranscript statement proof first accepted head fuel world claims
+    finished sourceVars width result success
+end SharedLookupGuardSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupGuard.gather_related' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupGuard.gather_related
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupGuard.gather_complete' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupGuard.gather_complete
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupGuard.runJob_spec' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupGuard.runJob_spec
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupGuard.runJobs_spec' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupGuard.runJobs_spec
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupGuard.guard_spec' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupGuard.guard_spec
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupBatchLink.link_contract' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupBatchLink.link_contract
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupBatchLink.initialized_link' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupBatchLink.initialized_link
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupBatchLink.source_geometry' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupBatchLink.source_geometry
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupBatchLink.claim_addresses' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupBatchLink.claim_addresses
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupBatchLink.point_coordinate' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupBatchLink.point_coordinate
+
 end HasteBootsSmoke
