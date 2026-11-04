@@ -11606,4 +11606,96 @@ example :
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeFieldAssembly.finished_request_coordinate
 
+/-- A successful arbitrary parse certifies exact bytes and native length bounds. -/
+example (input suffix : InputIndexedOracle.Input) (frame : TranscriptFrame.Frame)
+    (parsed : TranscriptFrame.decode input = some (frame, suffix)) :
+    TranscriptFrame.Valid frame ∧ input = TranscriptFrame.encode frame ++ suffix :=
+  TranscriptFrame.decode_sound input frame suffix parsed
+
+/-- Truncated kind/header and declared body are rejected rather than padded. -/
+example : TranscriptFrame.decodeAll [4] = none := by decide +kernel
+
+example : TranscriptFrame.decodeAll ([4] ++ TranscriptFrame.littleEndian 8 1) = none := by
+  decide +kernel
+
+/-- An adversarial maximum-u64 length is checked before taking the missing body. -/
+example : TranscriptFrame.decodeAll ([4] ++ List.replicate 8 255) = none := by decide +kernel
+
+/-- A one-frame parse retains trailing bytes; full-stream parsing rejects them. -/
+example : TranscriptFrame.decode
+    (TranscriptFrame.encode ⟨0, [], []⟩ ++ [9]) = some (⟨0, [], []⟩, [9]) := by
+  decide +kernel
+
+example : TranscriptFrame.decodeAll
+    (TranscriptFrame.encode ⟨0, [], []⟩ ++ [9]) = none := by decide +kernel
+
+/-- Every structural tag is accepted, preserving zero and high bytes in payloads. -/
+example :
+    let frames : List TranscriptFrame.Frame := (List.finRange 9).map (fun kind => ⟨kind, [255, 0, 1], [2, 0, 255]⟩)
+    TranscriptFrame.decodeAll (TranscriptFrame.encodeMany frames) = some frames := by
+  decide +kernel
+
+example : TranscriptFrame.decodeAll [] = some [] := by decide +kernel
+
+/-- Receipt-domain rejection covers arbitrary consumed bytes, rather than only encoded examples. -/
+example (consumed : InputIndexedOracle.Input) :
+    TranscriptFrame.decodeAll (NativeTranscript.utf8 "HasteBoots consumed field bytes v1" ++ consumed) = none :=
+  NativeTranscript.receipt_decode_rejected consumed
+
+/-- info: 'FormalProof4FHE.HasteBoots.TranscriptFrame.decodeAll' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TranscriptFrame.decodeAll
+
+/-- info: 'FormalProof4FHE.HasteBoots.TranscriptFrame.fromLittleEndian_lt' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TranscriptFrame.fromLittleEndian_lt
+
+/-- info: 'FormalProof4FHE.HasteBoots.TranscriptFrame.littleEndian_fromLittleEndian' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TranscriptFrame.littleEndian_fromLittleEndian
+
+/-- info: 'FormalProof4FHE.HasteBoots.TranscriptFrame.takeBytes_sound' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TranscriptFrame.takeBytes_sound
+
+/-- info: 'FormalProof4FHE.HasteBoots.TranscriptFrame.readSized_sound' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TranscriptFrame.readSized_sound
+
+/-- info: 'FormalProof4FHE.HasteBoots.TranscriptFrame.decode_sound' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TranscriptFrame.decode_sound
+
+/-- info: 'FormalProof4FHE.HasteBoots.TranscriptFrame.decode_eq_some_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TranscriptFrame.decode_eq_some_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.TranscriptFrame.decode_progress' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TranscriptFrame.decode_progress
+
+/-- info: 'FormalProof4FHE.HasteBoots.TranscriptFrame.decode_complete_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TranscriptFrame.decode_complete_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.TranscriptFrame.decodeAll_sound' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TranscriptFrame.decodeAll_sound
+
+/-- info: 'FormalProof4FHE.HasteBoots.TranscriptFrame.decodeAll_encodeMany' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TranscriptFrame.decodeAll_encodeMany
+
+/-- info: 'FormalProof4FHE.HasteBoots.TranscriptFrame.decodeAll_eq_some_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TranscriptFrame.decodeAll_eq_some_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTranscript.receipt_not_frame_stream' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTranscript.receipt_not_frame_stream
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTranscript.receipt_decode_rejected' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTranscript.receipt_decode_rejected
+
 end HasteBootsSmoke

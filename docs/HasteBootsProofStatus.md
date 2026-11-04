@@ -3911,3 +3911,58 @@ coordinate offsets for both extension fields. Logs are
 `/tmp/hasteboots-native-assembly-{build,audit,smoke,strict,check}.log`.
 The inspected Rust revision and transcript hashes remain unchanged;
 Rust sources, vendor sources, and dependency pins were not modified.
+
+
+## Sound recognition of arbitrary transcript inputs
+
+`TranscriptFrame.lean` now proves the missing converse for arbitrary input
+bytes. Successful `takeBytes` parsing reconstructs the consumed prefix and
+suffix and certifies the exact count. Successful `readSized` parsing
+certifies the u64 length bound and reconstructs the header and payload.
+The underlying little-endian inverse theorem covers every byte sequence,
+including zero high bytes; no alternate header representation is accepted.
+
+`decode_sound` and `decode_eq_some_iff` establish that a successful one-frame
+parse is equivalent to a valid native frame encoding followed by exactly
+the returned suffix. Frame kind validation is part of the decoder. The
+complete-input corollary requires the returned suffix to be empty.
+
+The new `decodeAll` consumes a complete frame stream, including the empty
+stream. Termination follows from the strict decrease in remaining byte
+length on every successful frame; it imposes no external frame-count cap.
+Its soundness and completeness theorems characterize successful results
+exactly as valid frame lists whose `encodeMany` equals the entire input.
+Malformed or leftover bytes cannot disappear from a successful full parse.
+This closes the arbitrary-input structural decoder soundness gate noted
+in the earlier milestones, so arbitrary prequeries can now be interpreted
+without assuming that the adversary used the encoder.
+
+`NativeTranscript.receipt_not_frame_stream` extends the existing receipt
+input domain separation to the whole framed language, including its empty
+stream. `receipt_decode_rejected` proves that full-stream recognition
+rejects every consumed-byte receipt input, for arbitrary consumed bytes.
+It is a byte-domain separation result; it does not assert freshness or
+exclude earlier adversarial queries to either domain.
+
+Protocol-stage admissibility, parent/child wrapper lineage checks,
+extension-basis descriptor agreement, the whole-history conditional law,
+the actual lookup compiler, unrestricted stopping/work conversion, full
+PBS security composition, concrete parameter certification, and checked
+Rust/scheduler correspondence remain open. The structural decoder is a
+Lean analysis tool, not a claimed refinement of a Rust transcript parser
+or the final strict proof-byte decoder. The end-to-end security theorem
+remains unproved.
+
+
+Validation passed: focused HasteBoots smoke (4,074 jobs), a separate
+warning-as-error HasteBoots smoke, and full `scripts/check` (10,092 build
+jobs and all subsequent strict suites, terminal exit zero). Fourteen new
+guarded audits cover the parser and new theorems, bringing the HasteBoots
+total to 1,493. All use only permitted standard kernel foundations.
+Kernel-reduced regressions cover truncated headers/bodies, the maximum
+u64 header with no body, trailing malformed bytes after a valid frame,
+all nine structural tags with zero/high payload bytes, and the empty
+stream. Logs: `/tmp/hasteboots-frame-sound-{build,audit,smoke,strict,check}.log`.
+Whitespace checks passed; the inspected Rust revision and transcript hashes
+remain unchanged. Rust sources, vendor sources, and dependency pins were
+not modified. This milestone does not complete the final security theorem.

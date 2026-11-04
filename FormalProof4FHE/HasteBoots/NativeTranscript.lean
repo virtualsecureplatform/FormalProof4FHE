@@ -23,7 +23,7 @@ revelation, work accounting, and checked Rust correspondence remain separate.
 namespace FormalProof4FHE.HasteBoots.NativeTranscript
 
 open InputIndexedOracle (Byte Input World bytes)
-open TranscriptFrame (Frame encode littleEndian)
+open TranscriptFrame (Frame encode littleEndian encodeMany decodeAll decodeAll_sound)
 
 def utf8 (text : String) : Input :=
   text.toUTF8.data.toList.map (fun byte => ⟨byte.toNat % 256, Nat.mod_lt _ (by decide)⟩)
@@ -214,5 +214,31 @@ theorem receipt_domain_separated (consumed suffix : Input) (frame : Frame) :
   have bound := frame.kind.isLt
   change 72 = frame.kind.val at value
   omega
+
+/-- Receipt keys are outside the complete framed language, including the
+empty stream. This is separation of query inputs, not a freshness claim. -/
+theorem receipt_not_frame_stream (consumed : Input) (frames : List Frame) :
+    utf8 "HasteBoots consumed field bytes v1" ++ consumed ≠ encodeMany frames := by
+  cases frames with
+  | nil =>
+    intro same
+    have domain : (utf8 "HasteBoots consumed field bytes v1").head? = some 72 := by
+      unfold utf8
+      decide
+    have first := congrArg List.head? same
+    rw [List.head?_append, domain] at first
+    change some (72 : Byte) = none at first
+    contradiction
+  | cons frame tail => exact receipt_domain_separated consumed (encodeMany tail) frame
+
+/-- The total structural decoder rejects every receipt input, including
+adversarially chosen consumed bytes. -/
+theorem receipt_decode_rejected (consumed : Input) :
+    decodeAll (utf8 "HasteBoots consumed field bytes v1" ++ consumed) = none := by
+  cases parsed : decodeAll (utf8 "HasteBoots consumed field bytes v1" ++ consumed) with
+  | none => rfl
+  | some frames =>
+    exact False.elim (receipt_not_frame_stream consumed frames
+      (decodeAll_sound _ frames parsed).2)
 
 end FormalProof4FHE.HasteBoots.NativeTranscript
