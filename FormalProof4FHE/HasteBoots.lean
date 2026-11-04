@@ -353,3 +353,6 @@ public import FormalProof4FHE.HasteBoots.NativeSharedLookupGeometryLink
 public import FormalProof4FHE.HasteBoots.NativeSharedLookupPrepared
 public import FormalProof4FHE.HasteBoots.NativeGoldLookupEquality
 public import FormalProof4FHE.HasteBoots.NativeSharedLookupPrelude
+public import FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight
+public import FormalProof4FHE.HasteBoots.NativeSharedLookupProofShape
+public import FormalProof4FHE.HasteBoots.NativeSharedLookupPreflightLink

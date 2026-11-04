@@ -7,10 +7,10 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
-Current native integration composes lookup sampling, helper-root binding,
-equality-point draws and independent shared statement construction. It links
-both challenge families used by the strict terminal to their actual retained
-readers. See [the current implementation layer](#composed-native-lookup-and-equality-prelude).
+Current native integration connects numeric shared preflight and proof
+dimensions to lookup/equality sampling, statement construction and strict
+terminal bounds. Both challenge families retain their actual coefficient
+readers. See [the current implementation layer](#shared-preflight-proof-dimensions-and-original-request-bounds).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -6412,3 +6412,96 @@ The standalone warning-as-error HasteBoots smoke check and full
 `scripts/check` both exited 0. The full build completed 10,182 jobs,
 followed by all repository audit/smoke suites. Logs:
 `/tmp/hasteboots-shared-lookup-prelude-{strict,check}.log`.
+
+
+## Shared preflight, proof dimensions and original-request bounds
+
+`NativeSharedLookupPreflight` now models the numeric shared preflight in
+native order: nonempty registry/requests, per-request column/slot bounds,
+uniform logical geometry of every registry entry, ordered local gathering,
+the existing numeric bind, common dimension/width comparison and checked
+usize repetition addition. Computed binding records retain every original
+request and source-slot copy, including aliases. Successful execution
+identifies the accepted geometry with the original registry head and
+preserves the independent helper-width-three option. Every original
+request's logical bound and the full-point shift domain follow from its
+computed binding. Physical PCS contexts are not equated by this numeric
+registry test. Binding records are proof metadata, not extra native wire
+payloads or a physical work metric.
+
+The checked repetition count equals the actual expanded sampler-tag count.
+No extra repetition cap or nonzero-total check is added. In particular,
+zero repetitions can pass this isolated numeric window; earlier canonical
+`Config` validation excludes them. Empty local sources return `none` in
+the checked model, whereas native `sources[0]` requires the earlier
+nonzero-column configuration domain. The matrix-square restriction is
+still a later scalar-query check, not a preflight restriction.
+
+`NativeSharedLookupProofShape` models the helper opening count followed by
+the complete proof-dimension window: multiplicity/request and per-table
+lengths, helper root/value counts, registry source-value count and every
+source vector's width. Helper opening contents are not interpreted; the
+openingCount argument represents their original vector length. Successful
+checks pair all multiplicity vectors with the complete original request
+list. Actual prepared tags supply original request-index bounds and exact
+request getters. Consequently all multiplicity lookups succeed, initial
+claims can be constructed, and helper/root/opening counts match the
+actual prepared job count. Registry/proof dimensions also discharge all
+original source-slot lookups and preserve complete vector width, aliases
+and column count.
+
+`protocol_complete` starts from the actual initialized lookup sampler and
+the actual completed equality request. Numeric preflight and proof shape
+checks supply the root/job, raw-producer and multiplicity domains needed
+to construct a ready statement. No raw-word, order, root/job or getter
+certificate is a theorem input. The explicit `2*jobCount < 2^64` premise
+is the native infos/claims vector allocation domain; it is not a retry or
+attacker-work bound. This module does not prove native allocation success
+for unrealistically large vectors or add a machine-work cap.
+
+`NativeSharedLookupPreflightLink` connects the same preflight and proof
+values to the existing composed prelude and initialized scalar verifier.
+It identifies the ready job, equality-point, metadata and helper counts
+with the checked native repetition total. Every accepted terminal request
+is looked up in the original request list, so its logical-prefix bound
+holds at the actual returned scalar point, whose length is below 64. No
+independent point-length, selected-bind or logical-prefix certificate is
+supplied to this initialized-run linkage.
+
+The native fixture compiles the exact extracted shared numeric preflight
+body with the exact extracted numeric bind prefix and proof-dimension
+window. Minimal records supply the fields/getters read by those windows;
+context/framing operations are deliberately outside this fixture. It
+checks ordered repeated slots, the last valid usize repetition total and
+overflow, an unused registry entry with mismatched geometry, invalid slot/
+column counts, empty inputs, zero repetitions in the isolated numeric
+window and all seven proof-dimension failure branches. Kernel regressions
+reproduce those outcomes, distinguish shape checks from raw value
+validation, and instantiate the actual-run statement construction theorem.
+These fixtures are correspondence evidence for the modeled windows,
+not a checked Rust refinement or complete native caller/PCS verification.
+
+Remaining work includes canonical table/configuration normalization and
+validation, PCS context checks and preflight framing, canonical proof-value
+validation and unused-source zero checks, child creation/final binding,
+and statement-level helper-sum/identity meaning. Accepted helper/source
+PCS authentication, native query folding, lookup/PBS extraction, checked
+Rust/compiler and scheduler refinement, strict decoder refinement,
+BabyBear arithmetic, chronological attacker work, numerical certification
+and the final 128-bit application theorem remain open.
+
+Validation: all three focused modules build, the extracted native
+fixture and 31 isolated normal-depth kernel regression/consumer examples
+exited 0, and all 26 new public theorem audits use only `propext`,
+`Classical.choice` and `Quot.sound`. The integrated suite has 2,255 guarded
+audits. Logs: `/tmp/hasteboots-shared-preflight-{rust,regressions,audit}.log`.
+The native checkout remains unchanged. Its canonical shared caller hash is
+`4aa496ff66e3785bf0d0ccda927dbfd62103dd0870d65ea7d7a1539702899ae3`;
+the canonical bind source hash remains
+`5c3b74e05efa988a5fa5d6fbf45324c4187f25786de1026496baeb8095d99a1f`.
+No Rust, vendor source or dependency pin changed.
+The integrated HasteBoots smoke build passed (4,166 jobs), followed by
+the standalone warning-as-error smoke check and full `scripts/check`,
+both with exit 0. The full build completed 10,183 jobs and all subsequent
+repository audit/smoke suites passed. Logs:
+`/tmp/hasteboots-shared-preflight-{smoke,strict,check}.log`.

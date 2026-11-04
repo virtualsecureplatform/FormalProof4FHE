@@ -16641,4 +16641,192 @@ end SharedLookupPreludeSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupPrelude.protocol_scalar_link
 
+namespace SharedPreflightSmoke
+open FormalProof4FHE.HasteBoots
+open NativeFields NativeFieldRepresentation NativeFieldWire NativeGoldExtensionArithmetic NativeExtensionFields
+private def usize (n : ℕ) : NativeUsizeMessage.Usize := ⟨n % (2^64), Nat.mod_lt _ (by decide)⟩
+private def word (n : ℕ) : GoldWord := ⟨n % (2^64), Nat.mod_lt _ (by decide)⟩
+private def params (n k : ℕ) : NativeLookupBindGeometry.Parameters := ⟨usize n,usize k⟩
+private def registry : List NativeLookupBindGeometry.Parameters := List.replicate 3 (params 1 4)
+private def helper : NativeLookupBindGeometry.Parameters := params 3 3
+private def request (slots : List ℕ) (logical repetitions rows : ℕ) : NativeSharedLookupStatement.Request :=
+  ⟨slots.length,List.replicate rows (List.replicate slots.length (word 0)),repetitions,⟨slots,usize logical⟩⟩
+private def r0 := request [1,0,1] 5 2 2
+private def r1 := request [2] 8 3 1
+private def requests : List NativeSharedLookupStatement.Request := [r0,r1]
+private def run (registry : List NativeLookupBindGeometry.Parameters) (requests : List NativeSharedLookupStatement.Request) :=
+  NativeSharedLookupPreflight.preflight registry helper requests
+private def result := run registry requests
+example : result.map (fun out => (out.geometry.1.val,out.geometry.2.val,out.repetitions.val)) = some (3,4,5) := by decide +kernel
+example : result.map (fun out => out.bindings.map (fun binding => binding.request.terminal.sourceSlots)) = some [[1,0,1],[2]] := by decide +kernel
+example : result.map (fun out => out.bindings.map (fun binding => binding.sources.map (fun p => (p.numVariables.val,p.width.val)))) =
+    some [[(1,4),(1,4),(1,4)],[(1,4)]] := by decide +kernel
+example : (run registry [{r0 with repetitions := 2^64-3},{r1 with repetitions := 2}]).map (fun out => out.repetitions.val) =
+    some (2^64-1) := by decide +kernel
+example : (run registry [{r0 with repetitions := 2^64-3},{r1 with repetitions := 3}]).isNone = true := by decide +kernel
+-- Zero repetitions are rejected by earlier canonical config validation, not this numeric window.
+example : (run registry [{r0 with repetitions := 0},{r1 with repetitions := 0}]).map (fun out => out.repetitions.val) = some 0 := by decide +kernel
+example : (run [params 1 4,params 1 4,params 2 4] [request [0] 5 1 1]).isNone = true := by decide +kernel
+example : (run registry [{r0 with terminal := ⟨[3,0,1],usize 5⟩},r1]).isNone = true := by decide +kernel
+example : (run registry [{r0 with columns := 2},r1]).isNone = true := by decide +kernel
+example : (run [] requests).isNone = true := by decide +kernel
+example : (run registry []).isNone = true := by decide +kernel
+example : (run registry [request [0] 9 1 1]).isNone = true := by decide +kernel
+-- Checked source[0] domain: native canonical config must exclude a zero-column request.
+example : (run registry [request [] 0 1 1]).isNone = true := by decide +kernel
+-- Native nonzero/power-of-two and helper geometry checks are still delegated to bind.
+example : (NativeSharedLookupPreflight.preflight registry (params 3 4) requests).isSome = true := by decide +kernel
+example : (NativeSharedLookupPreflight.preflight registry (params 3 8) requests).isNone = true := by decide +kernel
+example : (NativeSharedLookupPreflight.preflight registry (params 4 3) requests).isNone = true := by decide +kernel
+-- The common-geometry gate also protects resumed/independent loop states.
+example : (NativeSharedLookupPreflight.step registry helper ⟨some (usize 4,usize 4),usize 0,[]⟩ r0).isNone = true := by decide +kernel
+private def geometry : NativeSharedLookupPreflight.Output :=
+  match result with
+  | some output => output
+  | none => ⟨(usize 0,usize 0),usize 0,[]⟩
+private def values : NativeSharedLookupProofShape.Values :=
+  ⟨[List.replicate 2 (word 0),[word 0]],List.replicate 5 (fun _ => 0),
+    List.replicate 5 NativeGoldLookup.zero,List.replicate 3 (List.replicate 4 (word 0))⟩
+private def shape (count : ℕ) (proof : NativeSharedLookupProofShape.Values) :=
+  NativeSharedLookupProofShape.check registry requests geometry count proof
+example : shape 5 values = true := by decide +kernel
+example : shape 4 values = false := by decide +kernel
+example : shape 5 {values with multiplicities := values.multiplicities.take 1} = false := by decide +kernel
+example : shape 5 {values with multiplicities := [List.replicate 3 (word 0),[word 0]]} = false := by decide +kernel
+example : shape 5 {values with roots := values.roots.take 4} = false := by decide +kernel
+example : shape 5 {values with helpers := values.helpers.take 4} = false := by decide +kernel
+example : shape 5 {values with sources := values.sources.take 2} = false := by decide +kernel
+example : shape 5 {values with sources := values.sources.set 1 (List.replicate 3 (word 0))} = false := by decide +kernel
+-- Shape checks alone do not validate raw field representations.
+example : shape 5 {values with sources := values.sources.set 2 (List.replicate 4 (word 18446744069414584321))} = true := by decide +kernel
+example : shape 5 {values with helpers := values.helpers.set 0 ![word 18446744069414584321,word 0,word 0]} = true := by decide +kernel
+example : (NativeSharedLookupGuard.gather values.sources [1,0,1]).map List.length = some 3 := by decide +kernel
+example : (NativeSharedLookupStatement.tags (by decide : 2 ≤ 2^64) ![r0,r1]).map (fun tag => (tag.ordinal.val,tag.repetition)) =
+    [(0,0),(0,1),(1,0),(1,1),(1,2)] := by decide +kernel
+example (registry : List NativeLookupBindGeometry.Parameters) (helper : NativeLookupBindGeometry.Parameters)
+    (requests : List NativeSharedLookupStatement.Request) (geometry : NativeSharedLookupPreflight.Output)
+    (success : NativeSharedLookupPreflight.preflight registry helper requests = some geometry) :
+    geometry.geometry.1.val < 64 ∧ ∀ request ∈ requests, request.terminal.logicalLength.val ≤ 2^geometry.geometry.1.val :=
+  NativeSharedLookupPreflight.geometry_bounds registry helper requests geometry success
+example {count : ℕ} (fits : count ≤ 2^64) (requests : Fin count → FormalProof4FHE.HasteBoots.NativeSharedLookupStatement.Request)
+    (registry : List FormalProof4FHE.HasteBoots.NativeLookupBindGeometry.Parameters) (helper : FormalProof4FHE.HasteBoots.NativeLookupBindGeometry.Parameters) (geometry : NativeSharedLookupPreflight.Output)
+    (preflight : NativeSharedLookupPreflight.preflight registry helper (List.ofFn requests) = some geometry)
+    (openingCount : ℕ) (values : FormalProof4FHE.HasteBoots.NativeSharedLookupProofShape.Values) (accepted : NativeSharedLookupProofShape.check registry (List.ofFn requests) geometry openingCount values = true)
+    (rootFits : values.roots.length < 2^64) (vectorFits : 2 * geometry.repetitions.val < 2^64)
+    (w lookupFuel equalityFuel : ℕ) (transcript : NativeTranscript.Transcript) (world : InputIndexedOracle.World)
+    (child : NativeTranscript.Transcript)
+    (finished : (NativeLookupBatch.execute goldilocksBasis w lookupFuel
+      (NativeLookupBatch.initial (NativeLookupBatch.schedule fits (fun i => (requests i).sampling)) transcript) world).1.control = .finished child)
+    (complete : (OracleProgram.run (NativeLookupEquality.request goldilocksBasis w geometry.geometry.1.val equalityFuel
+      child values.roots rootFits) world).run.1.remaining = 0) :
+    ∃ ready, (OracleProgram.run (NativeSharedLookupPrelude.protocol fits requests geometry.geometry.1 values.multiplicities
+      values.roots rootFits w lookupFuel equalityFuel transcript) world).run.1 = some ready :=
+  NativeSharedLookupProofShape.protocol_complete fits requests registry helper geometry preflight openingCount values accepted rootFits vectorFits
+    w lookupFuel equalityFuel transcript world child finished complete
+end SharedPreflightSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.gather_related' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.gather_related
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.registryDimensions_iff' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.registryDimensions_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.uniform_spec' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.uniform_spec
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.step_spec' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.step_spec
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.step_valid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.step_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.loop_valid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.loop_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.loop_requests' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.loop_requests
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.preflight_spec' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.preflight_spec
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.request_geometry' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.request_geometry
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.gather_members' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.gather_members
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.registry_geometry' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.registry_geometry
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.tags_length' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.tags_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.repetitions_tags' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.repetitions_tags
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.geometry_bounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight.geometry_bounds
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupProofShape.check_spec' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupProofShape.check_spec
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupProofShape.tag_bound' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupProofShape.tag_bound
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupProofShape.prepared_count' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupProofShape.prepared_count
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupProofShape.multiplicity_getters' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupProofShape.multiplicity_getters
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupProofShape.initialClaims_complete' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupProofShape.initialClaims_complete
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupProofShape.build_complete' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupProofShape.build_complete
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupProofShape.prepared_dimensions' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupProofShape.prepared_dimensions
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupProofShape.tag_request' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupProofShape.tag_request
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupProofShape.source_getters' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupProofShape.source_getters
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupProofShape.protocol_complete' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupProofShape.protocol_complete
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupPreflightLink.protocol_counts' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupPreflightLink.protocol_counts
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupPreflightLink.terminal_bounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupPreflightLink.terminal_bounds
+
 end HasteBootsSmoke
