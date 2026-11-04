@@ -11698,4 +11698,130 @@ example (consumed : InputIndexedOracle.Input) :
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeTranscript.receipt_decode_rejected
 
+namespace NativeExtensionRequestSmoke
+open NativeExtensionDescriptor
+
+private def transcript : NativeTranscript.Transcript := ⟨[], fun _ => 0⟩
+private def zeroWorld : InputIndexedOracle.World := fun _ => 0
+
+/-- Native descriptors bind 27/216 u128 coefficients after the degree header. -/
+example : (descriptor 3 7).length = 440 := tableBytes_length 3 (entry 3 7)
+example : (descriptor 6 31).length = 3464 := tableBytes_length 6 (entry 6 31)
+
+/-- Wrapped monomial products use the native constants at the reduced exponent. -/
+example : entry 3 7 2 2 1 = 7 := by decide +kernel
+example : entry 6 31 5 5 4 = 31 := by decide +kernel
+example : entry 6 31 5 5 5 = 0 := by decide +kernel
+
+/-- i,j,k loop order puts the Goldilocks wrapped coefficient at byte 408. -/
+example : ((descriptor 3 7).drop 408).take 16 = TranscriptFrame.littleEndian 16 7 := by
+  decide +kernel
+
+/-- The exact largest valid count is accepted; the next count overflows. -/
+example : (NativeExtensionRequest.goldilocks 0 transcript [] ((2 ^ 64 - 1) / 3)).isSome = true := by
+  decide +kernel
+example : (NativeExtensionRequest.goldilocks 0 transcript [] ((2 ^ 64 - 1) / 3 + 1)).isNone = true := by
+  decide +kernel
+example : (NativeExtensionRequest.checkedRequest 17 0 7 0 transcript [] 0).isNone = true := by
+  decide +kernel
+
+/-- A degree-three element needs three accepted candidates, even when every byte is zero. -/
+example :
+    (NativeFieldVector.stateOf (OracleProgram.run
+      (NativeExtensionRequest.request NativeFields.goldilocksModulus 3 7 2 transcript [] 1) zeroWorld).run.1).remaining = 1 := by
+  decide +kernel
+example :
+    (NativeFieldVector.stateOf (OracleProgram.run
+      (NativeExtensionRequest.request NativeFields.goldilocksModulus 3 7 3 transcript [] 1) zeroWorld).run.1).phase.consumed.length = 24 := by
+  decide +kernel
+
+/-- BabyBear uses six four-byte coefficients, separately from the degree-eight PCS field. -/
+example :
+    (NativeFieldVector.stateOf (OracleProgram.run
+      (NativeExtensionRequest.request NativeFields.babyBearModulus 6 31 6 transcript [] 1) zeroWorld).run.1).values.length = 6 := by
+  decide +kernel
+
+/-- Zero-count extension requests still emit reader start and receipt start/output. -/
+example : (OracleProgram.run
+    (NativeExtensionRequest.request NativeFields.goldilocksModulus 3 7 0 transcript [] 0) zeroWorld).run.2.length = 3 := by
+  decide +kernel
+
+end NativeExtensionRequestSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionDescriptor.product_coordinate' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionDescriptor.product_coordinate
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionDescriptor.entry_fits' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionDescriptor.entry_fits
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionDescriptor.tableBytes_length' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionDescriptor.tableBytes_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionDescriptor.canonical_entry' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionDescriptor.canonical_entry
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionDescriptor.basisDescriptor_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionDescriptor.basisDescriptor_eq
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionDescriptor.goldilocks_descriptor' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionDescriptor.goldilocks_descriptor
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionDescriptor.babyBear_descriptor' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionDescriptor.babyBear_descriptor
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionRequest.prepare_input' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionRequest.prepare_input
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionRequest.checked_zero_degree' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionRequest.checked_zero_degree
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionRequest.checked_overflow' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionRequest.checked_overflow
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionRequest.checked_valid' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionRequest.checked_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionRequest.request_count' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionRequest.request_count
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionRequest.request_values_valid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionRequest.request_values_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionRequest.request_start' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionRequest.request_start
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionRequest.request_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionRequest.request_zero
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionRequest.finished_coordinate' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionRequest.finished_coordinate
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionRequest.prime_domain_separated' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionRequest.prime_domain_separated
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionRequest.request_add' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionRequest.request_add
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeExtensionRequest.request_replay' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeExtensionRequest.request_replay
+
 end HasteBootsSmoke

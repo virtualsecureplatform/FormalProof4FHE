@@ -3966,3 +3966,66 @@ stream. Logs: `/tmp/hasteboots-frame-sound-{build,audit,smoke,strict,check}.log`
 Whitespace checks passed; the inspected Rust revision and transcript hashes
 remain unchanged. Rust sources, vendor sources, and dependency pins were
 not modified. This milestone does not complete the final security theorem.
+
+
+## Native extension descriptors and online challenge requests
+
+`NativeExtensionDescriptor.lean` derives the complete multiplication table
+from a power basis and its root relation. For `X^degree - w`, the product
+of basis monomials has coefficient one at `i+j` when this is below the
+degree, and coefficient `w` at `i+j-degree` otherwise; every other
+coordinate is zero. Since both indices are below the degree, wrapping
+occurs at most once. The canonical-integer theorem uses explicit modulus
+and `w` bounds rather than assuming a native coefficient conversion.
+
+The resulting computable descriptor matches the source layout of
+`classical_transcript.rs::extension_basis`: u64le degree, then each
+canonical coefficient as u128le, with `i` outermost, `j` in the middle,
+and `k` innermost. Its length is proved to be `8 + 16*degree^3`; table
+entries fit their u128 encoding whenever `w` does. The native power bases
+proved earlier instantiate this theorem: Goldilocks uses degree three and
+`w=7`, BabyBear uses degree six and `w=31`. Their mathematical basis
+descriptors equal these closed byte formulas. This proves the descriptor
+for the mathematical native fields; Rust multiplication, lazy/Montgomery
+storage and `.value()` correspondence are still required to identify the
+actual Rust descriptor computation with it.
+
+`NativeExtensionRequest.lean` appends the native kind-1 `extension vector`
+and `extension basis` frames before calling the online canonical collector
+for `count*degree` coefficients. Its checked entry rejects zero degree and
+64-bit product overflow before returning an executable oracle program.
+Concrete entries select the native Goldilocks and BabyBear parameters.
+Generic core requests still require the native modulus/degree/representation
+contract; the checked entry models count arithmetic, not arbitrary field
+validation or Rust cache locking/error behavior.
+
+Theorems identify the exact prelude input and first reader-start event,
+retain the collector's count and canonical-value invariants, and connect
+finished requests to typed extension coordinates. Resumption preserves the
+full result and ordered observation log without replaying the prelude or
+a finished receipt. Zero-count requests retain descriptor binding, reader
+start and the empty-prefix receipt. From the same prior transcript,
+extension and prime requests cannot have equal field-reader inputs, even
+with different request labels, moduli or counts. This is structural domain
+separation, without a freshness assumption or a security probability claim.
+
+The whole-history conditional law and actual lookup child compiler remain
+open, including the typed child wrapper's checkpoint, zero-count field-identity
+phase and parent-lineage composition. Unrestricted stopping/work conversion,
+full PBS security composition, concrete certification, strict proof-byte
+decoding, and checked Rust/scheduler correspondence also remain open. In particular the descriptor theorem does
+not close the Rust refinement gate or establish the final security theorem.
+
+
+Validation passed: focused HasteBoots smoke (4,076 jobs), a separate
+warning-as-error HasteBoots smoke, and full `scripts/check` (10,097 build
+jobs and all subsequent strict suites, terminal exit zero). Nineteen new
+guarded audits passed, bringing the HasteBoots total to 1,512; only permitted
+standard kernel foundations occur. Regressions cover native descriptor
+lengths, wrapped products and serialized coefficient offset, the exact
+64-bit request-count boundary, zero-degree rejection, degree-three/six
+coefficient collection, consumed-byte length and zero-count receipt events.
+Logs: `/tmp/hasteboots-extension-request-{build,audit,smoke,strict,check}.log`.
+Whitespace checks passed. The Rust revision and both inspected transcript
+hashes were rechecked unchanged; Rust sources, vendor sources and dependency
+pins were not modified. The end-to-end security theorem remains unproved.
