@@ -5506,3 +5506,97 @@ source or dependency pin changed.
 The full `scripts/check` finished with exit 0 after the full build (10,143
 jobs) and all subsequent audit/smoke suites. Full log:
 `/tmp/hasteboots-interpolation-polynomial-check.log`.
+
+## Actual common-challenge scalar verifier loop
+
+`NativeScalarBatchUpdate` now implements the native expected-vector mutation
+through a zip with the actual round messages. A missing message leaves the
+remaining expected entries untouched; extra messages are ignored. These
+malformed-state semantics are retained rather than replacing the loop by
+a potentially truncating map of messages. Successful updates preserve the
+original expected length. Under the validated count equality, a `Forall₂`
+theorem proves each message updates exactly its corresponding output in
+statement order. Interpolation success follows from the existing actual
+preflight/message safety theorem.
+
+`NativeScalarBatchVerifier` compiles the complete raw independent-scalar
+round driver into the existing online oracle program. It runs actual
+preflight, collects the actual ordered round messages, checks every
+recurrence before any round binding, binds the native round packet,
+starts the typed scalar request with the Goldilocks degree-three descriptor
+and native challenge label, collects actual canonical coefficients, decodes
+their raw word and performs literal interpolation updates. Only then does
+it append the one shared challenge to the point and advance the round.
+Finished output maps every ordered expected value to a subclaim carrying
+a clone of that same point. These are unauthenticated subclaims, exactly
+as in native `batch::verify`; caller-side terminal authentication is not
+silently supplied by this model.
+
+The machine retains active coefficient readers, rejected chunks, receipt
+state and completed-round records. A completed-round record stores the
+actual packet, canonical challenge coefficients, raw challenge and prior
+and updated expected vectors; it adds no native transcript frames. One
+analysis tick drives one candidate while sampling. Prefix exhaustion
+returns the active machine instead of a native rejection, and the exact
+execution-addition theorem resumes without repeating completed requests
+or receipts. Program execution is proved equal to the direct interpreter,
+and every compiled prefix has the existing counterfactual replay property.
+Native rejection and finished states stutter without further queries.
+
+`NativeScalarBatchVerifierInvariant` proves the expected count, trusted
+round bound, ordered completed challenge list, and common point throughout
+arbitrary analysis prefixes. Active requests retain the actual packet
+widths/count, passed individual recurrence checks and canonical sampler
+validity. From successful real preflight, all internal checked-model
+failures are unreachable: any failed execution is specifically a native
+individual-recurrence rejection. Finished runs return exactly the original
+claim count, every subclaim has the same point, and that point has the
+trusted number of variables. The explicit internal access/decode/inversion
+failures are checked precondition failures, not additional reachable native
+rejection paths.
+
+Kernel regressions cover two equations across two actual rounds, updated
+claims and their common point, exact observation counts, rejection of a
+second-round recurrence before binding or challenge, an all-rejecting oracle
+retained as a pending request at prefix exhaustion, and rejection followed
+by successful canonical collection retaining the full consumed-byte sequence.
+Malformed standalone zip cases retain the native untouched-tail/ignored-
+extra behavior. A universal regression consumes successful `beginVerify`
+and the no-internal-failure theorem without extra safety certificates.
+
+A separate isolated fixture calls pinned public `sumcheck::batch::verify`
+for two rounds and independent equations. Its reference transcript uses
+the actual shared challenges and verbatim included private interpolation
+body from the pinned verifier source. It compares exact raw subclaims,
+common-point coordinates and transcript continuation. A corrupted second
+recurrence rejects against the actual first-round interpolated claim and
+retains exactly the transcript after round zero. This is native regression
+evidence, not a checked Rust-to-Lean refinement or machine-work theorem.
+
+Per-round polynomial meaning must still be connected to the retained
+completed-round history and the soundness/extraction argument. Terminal
+claims need authentication in the actual lookup/PCS caller. Full lookup/PBS
+bodies and child/parent linking, checked Rust/scheduler and strict decoder
+refinement, BabyBear arithmetic, chronological attacker-work coupling,
+numerical certification and the final 128-bit application theorem remain
+open. The driver and structural invariants do not establish those claims.
+
+Validation: the focused verifier-invariant build passed (3,931 jobs),
+followed by HasteBoots smoke (4,129 jobs) and its separate warning-as-error
+run (exit 0). All 16 new public theorem audits use only `propext`,
+`Classical.choice` and `Quot.sound`; the guarded total is 2,013. Isolated
+warning-as-error kernel regressions and the two-round pinned public Rust
+verifier fixture both finished with exit 0. Logs:
+`/tmp/hasteboots-scalar-verifier-invariant-build.log`,
+`/tmp/hasteboots-scalar-verifier-audit.log`,
+`/tmp/hasteboots-scalar-verifier-regressions.log`,
+`/tmp/hasteboots-scalar-verifier-rust.log`,
+`/tmp/hasteboots-scalar-verifier-smoke.log` and
+`/tmp/hasteboots-scalar-verifier-strict.log`.
+The pinned Rust HEAD, both transcript hashes and the native interpolation
+source hash were rechecked unchanged. The batch verifier source hash is
+`885d88c73cca04ab14e05cb2744ef5aba377a894172b2c8dd6077bff4db19905`.
+No Rust, vendor source or dependency pin changed.
+The full `scripts/check` finished with exit 0 after the full build (10,149
+jobs) and all subsequent audit/smoke suites. Full log:
+`/tmp/hasteboots-scalar-verifier-check.log`.

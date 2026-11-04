@@ -316,3 +316,6 @@ public import FormalProof4FHE.HasteBoots.NativeInterpolationWeights
 public import FormalProof4FHE.HasteBoots.NativeInterpolationAccumulator
 public import FormalProof4FHE.HasteBoots.NativeInterpolationPolynomial
 public import FormalProof4FHE.HasteBoots.NativeGoldInterpolationPolynomial
+public import FormalProof4FHE.HasteBoots.NativeScalarBatchUpdate
+public import FormalProof4FHE.HasteBoots.NativeScalarBatchVerifier
+public import FormalProof4FHE.HasteBoots.NativeScalarBatchVerifierInvariant

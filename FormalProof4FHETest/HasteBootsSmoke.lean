@@ -14863,4 +14863,132 @@ end InterpolationPolynomialSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeGoldInterpolationPolynomial.message_recurrence
 
+
+namespace ScalarVerifierSmoke
+open FormalProof4FHE.HasteBoots
+open NativeFieldRepresentation NativeGoldExtensionArithmetic NativeScalarBatchWire
+open NativeScalarBatchPreflight NativeScalarBatchVerifier
+private def word (n : ℕ) : GoldWord := ⟨n % (2^64), Nat.mod_lt _ (by decide)⟩
+private def base (n : ℕ) : Word := ![word n, word 0, word 0]
+private def msg (a b : ℕ) : Message := ⟨⟨[base a, base b], by change 2 < 2^64; decide +kernel⟩⟩
+private def info (numVariables : NativeUsizeMessage.Usize) : Info := ⟨⟨1, by decide⟩, numVariables⟩
+private def statement : Statement := ⟨⟨[info ⟨2, by decide⟩, info ⟨2, by decide⟩], by decide⟩,
+  ⟨[base 3, base 7], by decide⟩⟩
+private def proof : Proof := ⟨[⟨[msg 1 2, msg 0 1], by decide⟩, ⟨[msg 3 4, msg 1 2], by decide⟩], by decide⟩
+private def badProof : Proof := ⟨[⟨[msg 1 2, msg 0 2], by decide⟩, ⟨[msg 3 4, msg 1 2], by decide⟩], by decide⟩
+private def parent : NativeTranscript.Transcript := NativeTranscript.new (NativeTranscript.utf8 "scalar verifier fixture") (fun _ => 0)
+private def zeroWorld : InputIndexedOracle.World := fun _ => 0
+private def rejectWorld : InputIndexedOracle.World := fun _ => 255
+private def mixedWorld : InputIndexedOracle.World
+  | .inl (_, offset) => if offset < 8 then 255 else 0
+  | .inr _ => 0
+private def words (value : Word) : List ℕ := (List.ofFn value).map Fin.val
+private def outcome (machine : Machine) : NativeScalarBatchVerifier.Error ⊕ Option (List (List (List ℕ) × List ℕ)) :=
+  match machine.control with
+  | .failed error => .inl error
+  | .finished claims => .inr (some (claims.map (fun claim => (claim.point.map words, words claim.expected))))
+  | _ => .inr none
+private def pending (machine : Machine) : Option (ℕ × List ℕ × ℕ × ℕ) :=
+  match machine.control with
+  | .sampling _ field => some (field.remaining, field.values, field.phase.consumed.length, field.chunks.length)
+  | _ => none
+
+-- Two independent equations, two actual rounds and one common point.
+example : outcome (execute statement proof 9 (initial parent statement proof) zeroWorld).1 =
+    .inr (some [([[0,0,0],[0,0,0]], [0,0,0]), ([[0,0,0],[0,0,0]], [1,0,0])]) := by decide +kernel
+example : (execute statement proof 9 (initial parent statement proof) zeroWorld).2.length = 12 := by decide +kernel
+
+-- The second recurrence is checked against the interpolated first-round claims.
+example : outcome (execute statement badProof 5 (initial parent statement badProof) zeroWorld).1 =
+    .inl (.reject .recurrence) := by decide +kernel
+example : (execute statement badProof 5 (initial parent statement badProof) zeroWorld).1.state.transcript.input =
+    (execute statement badProof 4 (initial parent statement badProof) zeroWorld).1.state.transcript.input := by decide +kernel
+
+-- Analysis exhaustion preserves the pending request and every rejected chunk.
+example : pending (execute statement proof 5 (initial parent statement proof) rejectWorld).1 =
+    some (3, [], 32, 4) := by decide +kernel
+example : (execute statement proof 5 (initial parent statement proof) rejectWorld).1.completed.length = 0 := by decide +kernel
+example : pending (execute statement proof 5 (initial parent statement proof) mixedWorld).1 = none := by decide +kernel
+example : (execute statement proof 5 (initial parent statement proof) mixedWorld).1.completed.map
+    (fun completed => (completed.coefficients.values, completed.coefficients.phase.consumed.length,
+      completed.coefficients.chunks.length)) = [([0,0,0],32,4)] := by decide +kernel
+
+-- Literal malformed-zip behavior: preserve untouched trailing claims and ignore extras.
+example : (NativeScalarBatchUpdate.update [base 9, base 10] [msg 1 2] (base 0)).map (List.map words) =
+    some [[1,0,0],[10,0,0]] := by decide +kernel
+example : NativeScalarBatchUpdate.update [] [⟨⟨[], by decide⟩⟩] (base 0) = some [] := by decide +kernel
+
+-- The initialized run's only possible failure after preflight is a native recurrence rejection.
+example (transcript bound : NativeTranscript.Transcript) (statement : Statement) (proof : Proof)
+    (accepted : beginVerify transcript statement proof = .ok bound) (fuel : ℕ)
+    (world : InputIndexedOracle.World) (error : NativeScalarBatchVerifier.Error)
+    (failed : (execute statement proof fuel (initial transcript statement proof) world).1.control = .failed error) :
+    error = .reject .recurrence :=
+  NativeScalarBatchVerifierInvariant.no_internal_failure transcript bound statement proof accepted fuel world error failed
+end ScalarVerifierSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchUpdate.update_length' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchUpdate.update_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchUpdate.update_related' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchUpdate.update_related
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchUpdate.update_success' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchUpdate.update_success
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchVerifier.run_tick' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchVerifier.run_tick
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchVerifier.run_steps' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchVerifier.run_steps
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchVerifier.execute_add' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchVerifier.execute_add
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchVerifier.steps_replay' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchVerifier.steps_replay
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchVerifier.execute_terminal' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchVerifier.execute_terminal
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchVerifier.initial_success' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchVerifier.initial_success
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchVerifier.initial_failure' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchVerifier.initial_failure
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchVerifierInvariant.initial_valid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchVerifierInvariant.initial_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchVerifierInvariant.afterField_valid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchVerifierInvariant.afterField_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchVerifierInvariant.tick_valid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchVerifierInvariant.tick_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchVerifierInvariant.execute_valid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchVerifierInvariant.execute_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchVerifierInvariant.finished_shape' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchVerifierInvariant.finished_shape
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchVerifierInvariant.no_internal_failure' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchVerifierInvariant.no_internal_failure
+
 end HasteBootsSmoke
