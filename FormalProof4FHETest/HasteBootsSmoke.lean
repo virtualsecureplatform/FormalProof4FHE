@@ -13641,4 +13641,131 @@ end NativeFieldWireSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeFieldWire.babyExtensionValue_injective
 
+namespace NativeGoldArithmeticSmoke
+open NativeFieldRepresentation
+
+private def word (value : ℕ) : GoldWord := ⟨value % (2 ^ 64), Nat.mod_lt _ (by decide)⟩
+
+/-- Literal raw-word outputs from the pinned Rust algebra crate. These
+include both carry/borrow corrections and deliberately lazy results. -/
+example :
+    ([(18446744069414584321, 0), (18446744069414584321, 1),
+      (18446744073709551615, 18446744073709551615), (0, 18446744073709551615),
+      (0, 18446744069414584321), (18446744073709551615, 18446744069414584321),
+      (18446744069414584321, 18446744069414584321),
+      (18446744069414584320, 18446744069414584320), (4294967295, 18446744073709551615)] :
+      List (ℕ × ℕ)).map (fun pair =>
+        let left := word pair.1
+        let right := word pair.2
+        ((NativeGoldArithmetic.add left right).val,
+         (NativeGoldArithmetic.sub left right).val,
+         (NativeGoldArithmetic.mul left right).val,
+         (NativeGoldArithmetic.neg left).val)) =
+      [(18446744069414584321, 18446744069414584321, 0, 0),
+       (18446744069414584322, 18446744069414584320, 18446744069414584321, 0),
+       (8589934588, 0, 18446744056529682436, 18446744065119617027),
+       (18446744073709551615, 18446744065119617027, 0, 0),
+       (18446744069414584321, 0, 0, 0),
+       (18446744073709551615, 4294967294, 0, 18446744065119617027),
+       (18446744069414584321, 0, 18446744069414584321, 0),
+       (18446744069414584319, 0, 18446744069414584322, 1),
+       (8589934589, 1, 18446744060824649730, 18446744065119617026)] := by decide +kernel
+
+/-- `table_sum` uses the ordered raw extension/base multiplication and fold,
+retaining noncanonical coordinates even when an added term is field zero. -/
+example :
+    let inverse : NativeFieldWire.GoldExtension :=
+      ![word 18446744069414584321, word 18446744073709551615, word 1]
+    List.ofFn (fun i => (NativeGoldExtensionArithmetic.tableSum [inverse, inverse]
+      [word 1, word 18446744069414584321] i).val) =
+        [18446744069414584321, 18446744073709551615, 18446744069414584322] := by decide +kernel
+
+/-- The native zip stops at the shorter input; unmatched values are unused. -/
+example :
+    NativeGoldExtensionArithmetic.tableSum [(fun _ => word 17)] [] = (fun _ => 0) := by rfl
+example :
+    NativeGoldExtensionArithmetic.tableSum [] [word 3] = (fun _ => 0) := by rfl
+
+end NativeGoldArithmeticSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldArithmetic.add_bounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldArithmetic.add_bounds
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldArithmetic.add_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldArithmetic.add_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldArithmetic.sub_bounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldArithmetic.sub_bounds
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldArithmetic.sub_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldArithmetic.sub_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldArithmetic.neg_bound' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldArithmetic.neg_bound
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldArithmetic.neg_canonical' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldArithmetic.neg_canonical
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldArithmetic.neg_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldArithmetic.neg_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldArithmetic.reduce_bounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldArithmetic.reduce_bounds
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldArithmetic.wide_decomposition' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldArithmetic.wide_decomposition
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldArithmetic.reduce_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldArithmetic.reduce_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldArithmetic.mul_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldArithmetic.mul_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldArithmetic.sum_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldArithmetic.sum_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldExtensionArithmetic.zero_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldExtensionArithmetic.zero_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldExtensionArithmetic.add_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldExtensionArithmetic.add_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldExtensionArithmetic.sub_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldExtensionArithmetic.sub_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldExtensionArithmetic.neg_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldExtensionArithmetic.neg_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldExtensionArithmetic.scale_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldExtensionArithmetic.scale_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldExtensionArithmetic.tableSum_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldExtensionArithmetic.tableSum_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldExtensionArithmetic.equal_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldExtensionArithmetic.equal_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldExtensionArithmetic.recurrence_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldExtensionArithmetic.recurrence_iff
+
 end HasteBootsSmoke

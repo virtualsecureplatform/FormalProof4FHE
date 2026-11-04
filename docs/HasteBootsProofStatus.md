@@ -4766,3 +4766,64 @@ vendor sources and dependency pins were not modified.
 The separate warning-as-error HasteBoots smoke run also finished with exit
 0; its final captured log is
 `/tmp/hasteboots-native-field-wire-strict-final.log`.
+
+
+## Raw Goldilocks arithmetic for native lookup claims
+
+`NativeGoldArithmetic` now retains the literal natural-word carry/borrow
+steps of `modulus/goldilocks/ops.rs` for addition and subtraction. It proves
+the output fits a u64 and gives the required prime-correction balance for
+every pair of raw u64 representatives. Negation follows the native initial
+canonicalization and returns a canonical result. Each operation is proved
+to agree with the corresponding mathematical Goldilocks field operation.
+
+Multiplication retains the u128 product, its u64/u32 decomposition, the
+conditional subtraction of `EPSILON`, and the final native fast-add
+correction in `reduce128`. The proof covers every u128 and establishes both
+native safety preconditions: the conditional subtraction cannot underflow,
+and the fast addition lies below `2^64 + p`. Its output fits a u64 and has
+exactly the input's field value. These are proofs of explicit natural-word
+semantics, not a checked extraction or assembly-instruction equivalence.
+
+`NativeGoldExtensionArithmetic` applies the native coordinate loops for
+extension addition, subtraction, negation and multiplication by a base-field
+word. Basis-coordinate theorems prove their mathematical meanings. The
+native coordinate-comparison predicate is equivalent to mathematical
+extension equality; therefore the individual sumcheck recurrence is checked
+without changing the raw storage or its serialized bytes. Its `tableSum`
+retains the native ordered zip/fold, including shorter-input truncation,
+and proves its mathematical sum of multiplicity-scaled inverse values.
+The supplied inverse words have not yet been computed by a refined native
+extension inversion algorithm.
+
+A fixture using the pinned native Rust algebra crate checks all 49 pairs
+from `{0, 1, 2^32-1, p-1, p, p+1, u64::MAX}` against modular arithmetic.
+Nine pairs additionally supply literal raw addition/subtraction/product/
+negation outputs for kernel regressions, including both correction paths
+and lazy products. A native degree-three extension table sum supplies a
+further raw-coordinate regression. Thus this layer can preserve the native
+initial-claim bytes once its inverse-word producer is refined.
+
+Remaining prerequisites include raw extension multiplication/inversion,
+BabyBear arithmetic refinement, native optimized interpolation, the actual
+common-challenge scalar-batch compiler and its soundness composition. The
+full lookup/PBS/commitment bodies, checked Rust/scheduler correspondence,
+unrestricted chronological attacker-work coupling, strict proof-byte
+decoding, numerical losses and final 128-bit theorem remain open.
+
+Validation: the focused extension build passed (3,179 jobs), followed
+by the HasteBoots smoke build (4,104 jobs) and the separate warning-as-error
+HasteBoots smoke run (exit 0). All 20 new public theorem axiom audits use
+only `propext`, `Classical.choice` and `Quot.sound`, bringing the guarded
+HasteBoots total to 1,829. The native Rust boundary fixture passed (exit 0).
+Logs: `/tmp/hasteboots-gold-extension-build.log`,
+`/tmp/hasteboots-gold-arithmetic-audit.log`,
+`/tmp/hasteboots-gold-arithmetic-smoke.log`,
+`/tmp/hasteboots-gold-arithmetic-strict.log`, and
+`/tmp/hasteboots-gold-arithmetic-rust.log`. Rust HEAD and the two transcript
+hashes were rechecked unchanged; Rust/vendor sources and dependency pins
+were not modified.
+The full `scripts/check` subsequently finished with exit 0: the repository
+build passed (10,124 jobs), and all subsequent audit and smoke suites
+completed successfully. Full log:
+`/tmp/hasteboots-gold-arithmetic-check.log`.

@@ -292,3 +292,5 @@ public import FormalProof4FHE.HasteBoots.NativeLookupEquality
 public import FormalProof4FHE.HasteBoots.NativeFieldRepresentation
 public import FormalProof4FHE.HasteBoots.NativeIntegerPrefix
 public import FormalProof4FHE.HasteBoots.NativeFieldWire
+public import FormalProof4FHE.HasteBoots.NativeGoldArithmetic
+public import FormalProof4FHE.HasteBoots.NativeGoldExtensionArithmetic
