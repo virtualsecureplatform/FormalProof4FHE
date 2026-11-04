@@ -369,3 +369,6 @@ public import FormalProof4FHE.HasteBoots.NativeByteCodec
 public import FormalProof4FHE.HasteBoots.NativeBrakedownContext
 public import FormalProof4FHE.HasteBoots.NativeCanonicalLookupWire
 public import FormalProof4FHE.HasteBoots.NativeSharedLookupParent
+public import FormalProof4FHE.HasteBoots.NativeSharedLookupBody
+public import FormalProof4FHE.HasteBoots.NativeSharedLookupExecution
+public import FormalProof4FHE.HasteBoots.NativeGoldLookupWords

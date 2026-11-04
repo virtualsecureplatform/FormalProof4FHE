@@ -7,12 +7,12 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
-Current native integration executes Goldilocks Brakedown context hashing,
-ordered request bind messages and registry framing before the concrete
-classical child launcher. Successful framed preparation implies the existing
-numeric preflight; rebuilt configurations and the same proof's algebra
-packet discharge scalar preflight through this entry point. See
-[the current implementation layer](#ordered-parent-context-hashing-and-preflight-framing).
+Current native integration composes parent preparation and child creation,
+lookup/equality preparation, scalar verification, strict terminal guards,
+terminal-value binding and child finishing in one ideal-oracle program.
+Its bound result is a PCS boundary, not an authenticated proof. The abstract
+lookup sampler still needs a computable raw retry adapter and Rust execution
+refinement. See [the current implementation layer](#composed-child-body-and-pcs-boundary).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -6848,5 +6848,101 @@ with exit 0. The full build completed 10,199 jobs and every subsequent
 repository audit/smoke suite passed. The integrated suite contains 2,366
 guarded axiom audits. Logs:
 `/tmp/hasteboots-parent-{smoke,strict,check}.log`.
+The native checkout remains clean at
+`dff353006322693cab3dc6b654f82151f658f294`.
+
+
+## Composed child body and PCS boundary
+
+`NativeSharedLookupBody` takes the actual ready prelude, retained child state
+and single proof object into the existing scalar verifier. It distinguishes
+scalar suspension from rejection and consumes only the verifier's returned
+claims in strict terminal guards. Source variable count comes from the
+original registry head; width comes from the computed shared geometry.
+Terminal values are absorbed only after all guards pass, followed by the
+actual typed child finish. Checked lineage failures prevent reaching the
+bound result; the native wrapper uses `expect` on that path, so this is not
+yet a Rust error/panic refinement theorem.
+
+A `Bound` result is operational output before helper/source PCS checks.
+Its contract identifies the executed scalar machine and returned claims,
+the actual registry geometry, exact guard execution and successful finish.
+Scalar completion derives its own initial preflight and first-info witness.
+The existing independent scalar contract then supplies every sampled point
+coordinate, per-equation recurrence/interpolation chain, original source
+slots and sum/helper relation. Successful finishing spends the returned
+child binding and has exactly four observations, retaining both the parent
+checkpoint and child fingerprint even when oracle keys repeat. Terminal
+guard failure emits no finish observations or terminal-value binding.
+
+`NativeSharedLookupExecution` composes the parent/child entry point with
+this body. The program accepts no supplied ready transcript, compiled
+statement, point, terminal query or lineage certificate. Its success theorem
+identifies the actual preparation and child execution and derives numeric
+preflight. The terminal theorem derives every accepted original request's
+logical-prefix bound and equality draw evidence at the actual computed
+point, and proves the returned binding spent. The same proof provides
+multiplicities, roots, algebra, terminal values and opaque backend packets.
+Those packets have not been authenticated by this result.
+
+A computational limitation is now explicit: the existing abstract
+Goldilocks-extension lookup pole predicate reduces to a decision using
+`Classical.choice`. Thus the complete abstract sampler is not directly
+executable by a kernel `decide` regression. Its logical contracts remain
+proved, but a computable raw unbounded retry machine and its refinement to
+that abstract sampler are still required. This is additional native
+execution/refinement work, not an assumption that any sampled pole is safe.
+`NativeGoldLookupWords` supplies the computable accepted-draw producer:
+actual coefficient records determine y/r, and powers, public compressed
+table, pole check and individual reciprocals are computed without supplied
+certificates. Its word-production function agrees exactly with the prior
+producer when the actual source-word getter succeeds. This does not itself
+implement the unbounded retry machine.
+
+The external Rust fixture constructs an actual small Goldilocks Brakedown
+lookup proof and passes the full native verifier, including PCS. It also
+extracts the native canonical shared verifier prefix through finishing,
+retaining actual private helper functions and native scalar/terminal code,
+and records SHA-512 inputs/outputs, typed readers, returned scalar claims
+and the parent continuation. Malformed algebra shape, recurrence tampering,
+helper mismatch and reciprocal-identity tampering reject before finishing;
+reader counts distinguish the pre-scalar and post-scalar failures.
+
+The 15 kernel regressions reconstruct this fixture's accepted-first-offset
+window using actual parent preparation, child creation, coefficient readers,
+raw-word production and equality request/statement construction, then run
+the new body. They check every native reader input through finishing,
+exact scalar claims, the final parent continuation, spent binding,
+suspension and the four rejection cases. The fixture window does not claim
+to replace or execute the abstract sampler's unbounded retry loop. Backend
+opening contents remain opaque in Lean; full native acceptance of the
+fixture is not a Lean PCS-authentication proof. Large captured byte inputs
+are chunked and declared noncomputable to avoid code-generator inlining;
+the regression propositions are checked by the kernel at normal recursion
+depth, without `native_decide` or new axioms.
+
+Validation: all three modules build, the native fixture and 15 isolated
+kernel regressions exited 0, and all 14 public theorem audits use only
+`propext`, `Classical.choice` and `Quot.sound`. Logs:
+`/tmp/hasteboots-{body,execution}-build.log`,
+`/tmp/hasteboots-body-words-build.log`,
+`/tmp/hasteboots-body-{rust,regressions,audit,computability}.log`.
+The source revision and canonical/shared/lookup/transcript hashes remain
+those recorded above; no native Rust, vendor source or dependency pin changed.
+
+Next work includes the computable raw retry/refinement bridge and helper/
+source PCS authentication with original query folding and alias handling.
+Lookup/PBS extraction, trusted row-code/parameter instantiation, checked
+Rust/compiler/scheduler and strict decoder refinement, BabyBear,
+chronological work, numerical certification and the final 128-bit
+application security theorem remain open.
+
+The final integrated smoke build passed (4,182 jobs). Captured reader inputs
+were split into individual constants to keep the standard per-declaration
+heartbeat limit; no checking limit was raised. The standalone warning-as-error
+smoke check and full `scripts/check` both exited 0. The full build completed
+10,200 jobs and every subsequent repository audit/smoke suite passed.
+The integrated suite contains 2,380 guarded axiom audits. Logs:
+`/tmp/hasteboots-body-{smoke,strict,check}.log`.
 The native checkout remains clean at
 `dff353006322693cab3dc6b654f82151f658f294`.
