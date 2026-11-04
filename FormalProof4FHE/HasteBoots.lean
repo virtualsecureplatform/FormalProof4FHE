@@ -338,3 +338,7 @@ public import FormalProof4FHE.HasteBoots.NativeGoldLaneMatrix
 public import FormalProof4FHE.HasteBoots.NativeGoldMatrixProductLoop
 public import FormalProof4FHE.HasteBoots.NativeGoldMatrixProductPayload
 public import FormalProof4FHE.HasteBoots.NativeGoldMatrixProduct
+public import FormalProof4FHE.HasteBoots.NativeScalarQueryShape
+public import FormalProof4FHE.HasteBoots.NativeGoldScalarQuery
+public import FormalProof4FHE.HasteBoots.NativeGoldQueryProjection
+public import FormalProof4FHE.HasteBoots.NativeGoldScalarQueryMeaning

@@ -15828,4 +15828,213 @@ end GoldScalarMapsSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeGoldMatrixProduct.apply_value
 
+
+namespace GoldScalarQueryCompleteSmoke
+open FormalProof4FHE.HasteBoots
+open NativeFields NativeFieldRepresentation NativeFieldWire NativeGoldExtensionArithmetic NativeExtensionFields
+private def word (n : ℕ) : GoldWord := ⟨n % (2^64), Nat.mod_lt _ (by decide)⟩
+private def x : Word := ![word 18446744069414584321,word 18446744069414584322,word 18446744073709551615]
+private def y : Word := ![word 17,word 29,word 43]
+private def z : Word := ![word 3,word 5,word 7]
+private def w : Word := ![word 43,word 47,word 53]
+private def rawMatrix (value : NativeGoldMatrix.Matrix) : List ℕ := value.values.map Fin.val
+private def rawWord (value : Word) : List ℕ := (List.ofFn value).map Fin.val
+private def rawQuery (value : NativeGoldCoefficientsQuery.Query) : List (List ℕ × List ℕ) × Option (List ℕ) :=
+  (value.pairs.map (fun pair => (rawMatrix pair.zero,rawMatrix pair.one)),value.post.map rawMatrix)
+private def input : List GoldWord := ([5,7,11,13,17,19,23,29] : List ℕ).map word
+-- Public Rust scalar_query: empty4, with original point order and raw payloads.
+example : (NativeGoldScalarQuery.scalarQuery 0 4 [x,y]).map rawQuery =
+    some ([],some [871878360967,18446743197536223338,18446743197536223355,871878360983,1292785155481,18446742776629428811,18446742776629428839,1292785155511,68719476690,18446744000695107588,18446743996400140337,73014444027,0,0,0,0]) := by decide +kernel
+example : ((NativeGoldScalarQuery.scalarQuery 0 4 [x,y]).bind (fun query =>
+    NativeGoldPostMap.project 4 query.post (input.take 4))).map rawWord = some [18446744069414584428,18446744069414584497,8589934846] := by decide +kernel
+-- Public Rust scalar_query: row4, with original point order and raw payloads.
+example : (NativeGoldScalarQuery.scalarQuery 1 4 [x,y,z]).map rawQuery =
+    some ([([18446676574003559668,67495411027611,67645734879990,18446676423679701371,18446733757198110714,10312216475852,10522669871010,18446733546744711061,18446731364901326767,12704513257897,12713103192140,18446731356311391831,0,0,0,0],[68367289385620,18446675702125195727,18446675551801343365,68517613243933,11605001629088,18446732464412952959,18446732253959557829,11815455028771,12773232734244,18446731296181849691,18446731283296948197,12786117636517,0,0,0,0])],none) := by decide +kernel
+example : ((NativeGoldScalarQuery.scalarQuery 1 4 [x,y,z]).bind (fun query =>
+    NativeGoldPostMap.project 4 query.post (input.take 4))).map rawWord = none := by decide +kernel
+-- Public Rust scalar_query: rows4, with original point order and raw payloads.
+example : (NativeGoldScalarQuery.scalarQuery 2 4 [x,y,z,w]).map rawQuery =
+    some ([([18446676574003559668,67495411027611,67645734879990,18446676423679701371,18446733757198110714,10312216475852,10522669871010,18446733546744711061,18446731364901326767,12704513257897,12713103192140,18446731356311391831,0,0,0,0],[68367289385620,18446675702125195727,18446675551801343365,68517613243933,11605001629088,18446732464412952959,18446732253959557829,11815455028771,12773232734244,18446731296181849691,18446731283296948197,12786117636517,0,0,0,0]),([18446744069414584279,18446744069414583950,18446744069414583992,0,18446744069414584274,18446744069414584279,18446744069414583950,0,18446744069414584268,18446744069414584274,18446744069414584279,0,0,0,0,0],[43,371,329,0,47,43,371,0,53,47,43,0,0,0,0,0])],none) := by decide +kernel
+example : ((NativeGoldScalarQuery.scalarQuery 2 4 [x,y,z,w]).bind (fun query =>
+    NativeGoldPostMap.project 4 query.post (input.take 4))).map rawWord = none := by decide +kernel
+-- Public Rust scalar_query: row8, with original point order and raw payloads.
+example : (NativeGoldScalarQuery.scalarQuery 1 8 [x,y,z,w]).map rawQuery =
+    some ([([10840424436478889,18435903644977035454,18435816427077265971,10927642338392570,18435364794086430357,11379275329249520,11467906273233480,18435276163140251001,8318771828602719,18438425297585621033,18438406206456358431,8337862958589360,18438304527400633961,8439542014328852,8460226576439600,18438283842837763281,4595520515383406,18442148548898924220,18442130329647937501,4613739766924150,18442038692225741077,4705377189123956,4723776828733000,18442020292585569921,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[18435836149567080779,10907919848576478,10995288072198340,18435748781341308801,11447642617539584,18435296426795946207,18435207645528109885,11536423887577253,18438414985369507995,8329084045439140,8348385628096900,18438395683786121701,8451147015579448,18438292922398624107,18438272027383118229,8472042031849811,18442135844385943361,4608225028917998,4626452869838960,18442117616544467681,4718150421577488,18442025918992725735,18442007506468215197,4736562946650917,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])],none) := by decide +kernel
+example : ((NativeGoldScalarQuery.scalarQuery 1 8 [x,y,z,w]).bind (fun query =>
+    NativeGoldPostMap.project 8 query.post (input.take 8))).map rawWord = none := by decide +kernel
+-- Public Rust scalar_query: boolean4, with original point order and raw payloads.
+example : (NativeGoldScalarQuery.scalarQuery 0 4 [NativeGoldLookup.one,NativeGoldLookup.one]).map rawQuery =
+    some ([],some [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]) := by decide +kernel
+example : ((NativeGoldScalarQuery.scalarQuery 0 4 [NativeGoldLookup.one,NativeGoldLookup.one]).bind (fun query =>
+    NativeGoldPostMap.project 4 query.post (input.take 4))).map rawWord = some [13,0,0] := by decide +kernel
+-- A nonempty query leaves an already opened vector for padding projection.
+example : ((NativeGoldScalarQuery.scalarQuery 1 4 [x,y,z]).bind (fun query =>
+    NativeGoldPostMap.project 4 query.post [word 5,word 7,word 11,word 0])).map rawWord =
+      some [5,7,11] := by decide +kernel
+example : ((NativeGoldScalarQuery.scalarQuery 1 4 [x,y,z]).bind (fun query =>
+    NativeGoldPostMap.project 4 query.post [word 5,word 7,word 11])).isNone = true := by decide +kernel
+example : [0,1,2,3,6,2^32].map (fun width => (NativeGoldScalarQuery.scalarQuery 0 width [x,y]).isNone) =
+    [true,true,true,true,true,true] := by decide +kernel
+example : ([(0,[]),(0,[x]),(0,[x,y,z]),(1,[x,y]),(2^64-1,[x,y]),(2^64-2,[x,y]),(2^64-3,[x,y])] : List (ℕ × List Word)).map
+    (fun test => (NativeGoldScalarQuery.scalarQuery test.1 4 test.2).isNone) =
+      [true,true,true,true,true,true,true] := by decide +kernel
+example : (NativeScalarQueryShape.dimension (2^64-3) 4 (2^64-1), NativeScalarQueryShape.dimension (2^64-2) 4 (2^64)) =
+    (true,false) := by decide +kernel
+example : [0,1,2,3,4,6,8,2^31,2^32,2^64-1].map NativeScalarQueryShape.powerOfTwo =
+    [false,true,true,false,true,false,true,true,true,false] := by decide +kernel
+private theorem acceptedRows4 : NativeScalarQueryShape.check 2 4 ([x,y,z,w] : List Word).length = true := by decide +kernel
+example : (List.ofFn (NativeGoldScalarQuery.lowPoint 2 4 [x,y,z,w] acceptedRows4)).map rawWord =
+    [[18446744069414584321,18446744069414584322,18446744073709551615],[17,29,43]] := by decide +kernel
+example : (List.ofFn (NativeGoldScalarQuery.highPoint 2 4 [x,y,z,w] acceptedRows4)).map rawWord =
+    [[3,5,7],[43,47,53]] := by decide +kernel
+example (sourceVars width : ℕ) (point : List Word) (query : NativeGoldCoefficientsQuery.Query)
+    (success : NativeGoldScalarQuery.scalarQuery sourceVars width point = some query) :
+    query.pairs.length = sourceVars := NativeGoldScalarQuery.scalarQuery_length sourceVars width point query success
+example {padding : ℕ} (sourceVars : ℕ) (point : List Word)
+    (accepted : NativeScalarQueryShape.check sourceVars (3+padding) point.length = true)
+    (table : MatrixFold.Cube sourceVars → Fin (3+padding) → Goldilocks) :
+    ((NativeGoldScalarQuery.scalarQuery sourceVars (3+padding) point).bind
+      (NativeGoldCoefficientsQuery.interpret (3+padding) sourceVars)).map (fun query => query.evaluate table) =
+        some (PaddedExtension.encode (padding := padding) goldilocksBasis
+          (ExtensionLookupTerminal.sourceTruth (NativeScalarQueryShape.checked_power _ _ _ accepted)
+            (NativeGoldScalarQueryMeaning.fullPoint sourceVars point accepted) table)) :=
+  NativeGoldScalarQueryMeaning.scalarQuery_evaluate sourceVars point accepted table
+example {padding : ℕ} (sourceVars : ℕ) (point : List Word)
+    (accepted : NativeScalarQueryShape.check sourceVars (3+padding) point.length = true)
+    (v : Fin (3+padding) → GoldWord) :
+    ((NativeGoldScalarQuery.scalarQuery sourceVars (3+padding) point).bind (fun raw =>
+      NativeGoldPostMap.project (3+padding) raw.post (List.ofFn v))).map goldExtensionValue =
+        PaddedExtension.element goldilocksBasis
+          ((ExtensionLookupTerminal.sourceQuery goldilocksBasis (NativeScalarQueryShape.checked_power _ _ _ accepted)
+            (NativeGoldScalarQueryMeaning.fullPoint sourceVars point accepted)).finish (fun i => goldValue (v i))) :=
+  NativeGoldScalarQueryMeaning.scalarQuery_project_value sourceVars point accepted v
+example {padding n : ℕ} (point : Fin n → Word)
+    (shape : NativeGoldProjection.dimensions (3+padding) = true) (v : Fin (3+padding) → GoldWord) :
+    ((NativeGoldCoefficientsQuery.coefficientsQuery (3+padding) (List.ofFn point)).bind (fun raw =>
+      NativeGoldPostMap.project (3+padding) raw.post (List.ofFn v))).map goldExtensionValue =
+        PaddedExtension.element goldilocksBasis
+          ((ExtensionQuery.coefficientsQuery (padding := padding) goldilocksBasis (fun i => goldExtensionValue (point i))).finish
+            (fun i => goldValue (v i))) := NativeGoldQueryProjection.coefficientsQuery_project_value point shape v
+end GoldScalarQueryCompleteSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarQueryShape.powerOfTwo_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarQueryShape.powerOfTwo_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarQueryShape.power_eq_laneBits' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarQueryShape.power_eq_laneBits
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarQueryShape.dimension_iff' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarQueryShape.dimension_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarQueryShape.check_iff' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarQueryShape.check_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarQueryShape.checked_dimensions' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarQueryShape.checked_dimensions
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarQueryShape.checked_power' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarQueryShape.checked_power
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarQueryShape.checked_shift' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarQueryShape.checked_shift
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarQueryShape.checked_length' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarQueryShape.checked_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarQueryShape.checked_point_fits' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarQueryShape.checked_point_fits
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldScalarQuery.install_built' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldScalarQuery.install_built
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldScalarQuery.scalarQuery_success' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldScalarQuery.scalarQuery_success
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldScalarQuery.scalarQuery_invalid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldScalarQuery.scalarQuery_invalid
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldScalarQuery.scalarQuery_none_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldScalarQuery.scalarQuery_none_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldScalarQuery.scalarQuery_checked' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldScalarQuery.scalarQuery_checked
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldScalarQuery.built_length' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldScalarQuery.built_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldScalarQuery.scalarQuery_length' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldScalarQuery.scalarQuery_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldScalarQuery.take_eq_ofFn' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldScalarQuery.take_eq_ofFn
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldScalarQuery.drop_eq_ofFn' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldScalarQuery.drop_eq_ofFn
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldQueryProjection.interpret_post' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldQueryProjection.interpret_post
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldQueryProjection.fieldApply_readPost' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldQueryProjection.fieldApply_readPost
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldQueryProjection.query_project_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldQueryProjection.query_project_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldQueryProjection.coefficientsQuery_project_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldQueryProjection.coefficientsQuery_project_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldQueryProjection.coefficientsQuery_project_truth' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldQueryProjection.coefficientsQuery_project_truth
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldScalarQueryMeaning.readFirstProduct' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldScalarQueryMeaning.readFirstProduct
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldScalarQueryMeaning.interpret_built' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldScalarQueryMeaning.interpret_built
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldScalarQueryMeaning.scalarQuery_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldScalarQueryMeaning.scalarQuery_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldScalarQueryMeaning.scalarQuery_sourceQuery' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldScalarQueryMeaning.scalarQuery_sourceQuery
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldScalarQueryMeaning.scalarQuery_evaluate' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldScalarQueryMeaning.scalarQuery_evaluate
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldScalarQueryMeaning.scalarQuery_project_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldScalarQueryMeaning.scalarQuery_project_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldScalarQueryMeaning.scalarQuery_project_truth' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldScalarQueryMeaning.scalarQuery_project_truth
+
 end HasteBootsSmoke

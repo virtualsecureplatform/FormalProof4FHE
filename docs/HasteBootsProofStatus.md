@@ -5990,3 +5990,87 @@ followed by the full `scripts/check` with exit 0 (full build: 10,165 jobs,
 plus every subsequent audit/smoke suite). Logs:
 `/tmp/hasteboots-gold-scalar-maps-strict.log` and
 `/tmp/hasteboots-gold-scalar-maps-check.log`.
+
+## Complete raw scalar-query construction and query projection
+
+`NativeScalarQueryShape` now retains the native outer dimension checks,
+nonzero power-of-two bit test, ilog2, checked 64-bit dimension addition and
+exact original point length. Accepted checks derive the power shape, lane
+shift bound and full point-length bound. No external geometry decoder or
+additional cap is supplied. The bit-test-to-power proof uses the existing
+Lean natural-number theorem; no vendor source or new axiom is introduced.
+
+`NativeGoldScalarQuery` now composes the actual raw lane constructor,
+helper constructor and ordered checked matrix product. It splits the
+original point at the checked ilog2 width. With row variables, the first
+pair is mutated to `M(1-x)*L, M(x)*L` and every subsequent helper pair is
+retained. With no row variable, the helper query is still constructed and
+its post-map is replaced by the lane matrix. The literal program retains
+that construction before replacement. Success is characterized by the
+outer checks, with all inner matrix validation obligations proved from the
+actual constructed operands. A returned raw query supplies its own check
+evidence and has exactly the original source-variable pair count.
+
+The low and high point views use bounded getters into that same original
+raw list. Their exact take/drop identities are proved, including retention
+of lazy stored point words. `NativeGoldScalarQueryMeaning` interprets the
+complete raw constructor through the checked pair/matrix reader and
+identifies it with the existing lookup-terminal `sourceQuery` at the full
+original point. Its evaluation is the existing scalar `sourceTruth` over
+every original base-field source lane. The caller supplies neither a
+separate query nor independently chosen lane weights or split coordinates.
+
+`NativeGoldQueryProjection` connects an interpreted query's actual post-map
+to its field finish operation. Applying the raw returned post-map and then
+the raw padding check has the same complete partial meaning as finishing
+and decoding that query. This is proved for both the helper and complete
+scalar constructors. Empty helper queries retain `M(1)` projection; empty
+scalar queries replace it with `L`; nonempty queries project the vector
+already returned by the opening without applying the first pair again.
+Failed padding remains failure, and no padded original input is assumed.
+
+The conditional truthful-opening lemmas now connect those actual raw
+constructor/application/decoder compositions to helper and source MLE
+truth. Their original-root opening correctness premises are explicit.
+These lemmas do not derive correctness from accepted PCS verification;
+that authentication refinement remains open, as do native folding and
+instruction/scheduler refinement.
+
+The public Rust fixture covers complete scalar queries with zero, one and
+two row variables; widths 4 and 8; lazy point coordinates; Boolean lane
+selection; exact first-pair products and unchanged later pairs; empty
+post-map replacement; and checked projection on both valid and nonzero
+padding. Normal-depth kernel examples reproduce all five constructor
+payload cases, including the width-eight products, and their projection
+outcomes. Further cases cover wrong dimensions, non-power-of-two widths,
+wrong point lengths, checked-add overflow and its exact safe boundary,
+short claimed vectors and exact original low/high getters. Universal
+consumers cover returned pair counts, complete query evaluation, and both
+helper/scalar constructor-to-decoder correspondences.
+
+The next connection is the actual lookup-terminal source-vector zip/fold:
+it must use this returned query and decoder while preserving unmatched-tail
+and failure behavior, then compose with the already proved raw residual.
+The actual caller's subclaims, helper-sum/identity guards, common point and
+PCS openings still need to supply the corresponding obligations. Native
+query folding, full lookup/PBS extraction and linking, checked Rust and
+strict decoder refinement, BabyBear arithmetic, chronological attacker
+work, numerical certification and the final 128-bit application theorem
+remain open.
+
+Validation for this chunk: the focused complete constructor/meaning build
+passed (3,933 jobs), and the integrated HasteBoots smoke build passed
+(4,152 jobs). The isolated normal-depth kernel file exited 0, with 22 new
+regression/consumer examples. All 30 new public theorem audits lie within
+`propext`, `Classical.choice` and `Quot.sound`; the integrated suite now has
+2,166 guarded audits. The native public Rust fixture exited 0. Logs:
+`/tmp/hasteboots-gold-scalar-query-{rust,regressions,audit,smoke}.log`.
+The native tree remains clean at
+`dff353006322693cab3dc6b654f82151f658f294`. Packed-extension, lookup-terminal
+and matrix source hashes were rechecked unchanged. No Rust, vendor source
+or dependency pin changed.
+The standalone warning-as-error HasteBoots smoke check also exited 0,
+followed by the full `scripts/check` with exit 0 (full build: 10,172 jobs,
+plus all subsequent audit/smoke suites). Logs:
+`/tmp/hasteboots-gold-scalar-query-strict.log` and
+`/tmp/hasteboots-gold-scalar-query-check.log`.
