@@ -7,9 +7,10 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
-Current native integration connects completed lookup sampling to independent
-shared equation/claim construction, and connects the actual scalar verifier's
-terminal guard to checked geometry. See [the current implementation layer](#native-shared-statement-construction-and-derived-terminal-geometry).
+Current native integration composes lookup sampling, helper-root binding,
+equality-point draws and independent shared statement construction. It links
+both challenge families used by the strict terminal to their actual retained
+readers. See [the current implementation layer](#composed-native-lookup-and-equality-prelude).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -6324,3 +6325,90 @@ the standalone warning-as-error smoke check and the full `scripts/check`,
 both with exit 0. The full build completed 10,180 jobs, and all subsequent
 repository audit/smoke suites passed. Logs:
 `/tmp/hasteboots-shared-lookup-statement-{smoke,strict,check}.log`.
+
+
+## Composed native lookup and equality prelude
+
+`NativeGoldLookupEquality` now converts the actual completed equality-point
+readers into raw Goldilocks extension words. Consecutive triples retain
+ascending native extension-coordinate order. Successful conversion proves
+the original coefficient getter and canonical bound for every coordinate,
+and identifies each raw point with the existing typed vector value. The
+initialized equality request supplies conversion success, complete draw
+order, root/point count, cleared active reader and final child transcript.
+Incomplete canonical sampling cannot export a ready equality output.
+
+`NativeSharedLookupPrelude` composes the existing initialized lookup sampler
+with raw job preparation, helper-root binding, the existing resumable
+vector sampler, and independent equation/initial-claim construction. A
+successful run supplies its own completed lookup control, prepared jobs,
+root/job count agreement, actual equality machine and every raw point.
+Its contract preserves the exact equality observations, while
+`run_protocol` retains all lookup observations before them. Pure statement
+construction adds no oracle calls. The ready statement has matching
+infos/claims lengths, twice the original job count, and its child state is
+the equality machine's actual final transcript.
+
+The prelude does not accept raw challenges, equality points or draw/order
+certificates. Analysis fuel controls suspension only. Root-count and
+checked-getter gates expose native reachable-domain requirements; they do
+not replace the native preflight which runs before the lookup child.
+In particular, out-of-domain rejections of this isolated prelude are not
+claims about the full native caller's earlier rejection timing. Pure
+table-sum arithmetic is grouped after the equality requests; physical
+instruction/work-order refinement remains open.
+
+`protocol_scalar_link` starts the existing scalar verifier from that exact
+ready child state and statement. Successful strict guarding retains the
+full scalar round/subclaim contract and fixes the returned point length
+to the constructed dimension. Every accepted terminal equality point is
+identified by its ordinal with an original equality draw, retaining its
+raw coefficient getters, canonical bounds and typed value. The common
+scalar point remains tied to the actual completed scalar draws through
+the existing batch linkage. These are two distinct challenge families;
+no point consistency certificate is an independent theorem input.
+
+The native fixture runs actual `ClassicalTranscript` root serialization,
+typed extension-vector requests and consecutive coefficient conversion.
+Its audit observer records exact SHAKE inputs/output chunks, receipts and
+a continuation request. A kernel fixture instantiates one ideal world
+with those actual recorded input/offset bytes and reproduces both raw
+points, all coefficient bytes, all reader starts and the final continuation
+input. Unknown inputs receive 255, so a framing mismatch cannot silently
+supply the fixture's coefficient bytes. This is one observed execution,
+not a cryptographic SHAKE theorem or a full shared caller/PCS verification.
+Normal-depth regressions additionally cover partial requests, endlessly
+rejected canonical candidates, exact coefficient grouping, malformed raw
+conversion domains, zero-dimensional receipts, missing lookup completion,
+root-count mismatch and empty metadata rejected by scalar preflight.
+
+Remaining work includes canonical configuration/table validation, full
+shared preflight and source/helper geometry agreement, proof-value
+validation, child creation/final binding and statement-level helper-sum/
+identity meaning. Accepted helper/source PCS authentication, native query
+folding, lookup/PBS extraction, Rust/compiler and scheduler refinement,
+strict decoder refinement, BabyBear arithmetic, chronological attacker
+work, numerical certification and the final 128-bit application theorem
+remain open.
+
+Validation: the focused raw conversion and composed prelude builds
+passed (3,920 and 3,971 jobs). The isolated normal-depth kernel file exited
+0 with 26 new regression/consumer examples, and all twelve public theorem
+audits lie within `propext`, `Classical.choice` and `Quot.sound`. The
+integrated smoke build passed (4,163 jobs) with 2,229 guarded audits.
+The native fixture also passed with the actual native
+`Commitment<Digest512>` root type; all captured inputs, bytes and points
+match the kernel fixture. Logs:
+`/tmp/hasteboots-shared-lookup-prelude-{build,regressions,audit,smoke}.log`
+and `/tmp/hasteboots-lookup-equality-native-roots.log`.
+The native checkout is unchanged. The classical transcript source hash is
+`8ac0ace46e2da0d135b606bd9d290514c1e5b9a2fd6e1c67a15327b625b82c50`,
+the typed transcript adapter hash is
+`81886c85a202293286f68f9df97f9b56b86305ad3c296d95c38d656cbf31c048`,
+and the canonical shared caller hash remains
+`4aa496ff66e3785bf0d0ccda927dbfd62103dd0870d65ea7d7a1539702899ae3`.
+No Rust, vendor source or dependency pin changed.
+The standalone warning-as-error HasteBoots smoke check and full
+`scripts/check` both exited 0. The full build completed 10,182 jobs,
+followed by all repository audit/smoke suites. Logs:
+`/tmp/hasteboots-shared-lookup-prelude-{strict,check}.log`.
