@@ -4091,3 +4091,77 @@ Logs: `/tmp/hasteboots-typed-child-{build,audit,smoke,strict,check}.log`.
 Whitespace checks passed. The inspected Rust revision and transcript hashes
 were rechecked unchanged. Rust and vendor sources were not modified.
 This milestone does not establish the final security theorem.
+
+
+## Online native lookup challenge selection
+
+`TypedFieldRequest.lean` models the extension adapter's additional
+`typed request kind` frame for scalar/vector calls. Its scalar-start
+program exposes the actual reader before the first coefficient candidate;
+beginning and driving this reader is proved equal to a native extension
+scalar request. Complete draws have exactly the declared coefficient count
+and canonical bounds. The coordinate theorem proves that total mathematical
+assembly uses neither its default getter nor modular reduction on these
+completed draws. A pending one-candidate drive logs its actual byte read
+before any receipt or subsequent request start.
+
+`NativeLookupChallenge.lean` compiles one iteration of the challenge-selection
+part of `packed_extension_lookup.rs::challenges`, through the accepted
+reciprocal offset. It first samples the compression scalar, builds powers
+by the native multiplication loop, and compresses public rows with the
+literal zip/fold. It then retries reciprocal scalars until nonzero and off
+every pole of that compressed table. Native Goldilocks degree-three and
+BabyBear degree-six entry points use the previously proved bases and
+multiplication-table descriptors. Public table geometry and trusted field
+contracts remain caller obligations; the literal zip semantics do not
+replace native preflight validation.
+
+Each analysis step drives one canonical coefficient candidate. A rejected
+canonical integer retains the current reader and raw bytes. A completed
+forbidden reciprocal retains its full coefficient state and receipt before
+starting a new typed scalar request from the resulting transcript. Every
+completed draw is retained, along with the actual reciprocal-rejection
+counter. No rejected candidate is replaced with an independent field coin.
+A completed pair emits no further observations when driven again.
+
+The compiled programs and direct execution model agree on full results and
+ordered logs. Exact resumption preserves the machine, all previous draws,
+byte cursors and receipts for every split of the analysis budget. Exhaustion
+returns a suspended analysis machine, not a verifier rejection or Rust retry
+cutoff. The field-validity invariant proves every retained draw complete,
+canonical, and equal to its assembled coordinates. The selection invariant
+freezes the public powers/table and proves every returned reciprocal is
+nonzero and off every pole in the table compressed by its own compression
+challenge. The count invariant distinguishes the compression draw, all
+rejected reciprocal draws, and the accepted terminal draw. Positive-degree
+requests retain pending readers in every active state. These are operational
+and algebraic theorems in the same joint world; they do not assume freshness
+or establish a conditional sampling distribution or work bound.
+
+This implements the native compression/reciprocal selection prefix for one
+lookup repetition. Repeated/grouped request control, inverse-table arithmetic
+and lazy-representation serialization, helper/root and equality-point phases,
+sumcheck/PCS execution, and final child linking still need composition into
+the actual lookup body compiler. Typed prime-field adapters, whole-history
+conditional laws, unrestricted stopping/work conversion, full PBS security,
+concrete certification, strict proof-byte decoding, and checked Rust/scheduler
+correspondence remain open. The final security theorem remains unproved.
+
+
+Validation passed: focused HasteBoots smoke (4,079 jobs), a separate
+warning-as-error HasteBoots smoke, and full `scripts/check` (10,097 build
+jobs and all subsequent strict suites, terminal exit zero). Thirty-four
+new guarded audits cover the public theorems and both concrete native
+entry points, bringing the HasteBoots total to 1,575; only permitted standard
+kernel foundations occur. The mixed trace rejects a masked integer before
+compression completes, then rejects zero and a table pole before accepting;
+its retained raw draws are `[3,1]`, `[0]`, `[2]`, `[1]` and its complete log
+has 17 observations. Further regressions check suspension, repeated zero
+offsets, stopping after acceptance, power order and literal zip truncation.
+The smoke imports existing string definitions transparently to reduce
+actual transcript input lengths in the kernel; no native evaluation trust
+or dependency pin change was introduced.
+Logs: `/tmp/hasteboots-lookup-compiler-{build,audit,smoke,strict,check}.log`.
+Whitespace checks passed. The inspected Rust revision and transcript hashes
+were rechecked unchanged; Rust and vendor sources were not modified.
+The final end-to-end security objective remains active and unproved.

@@ -2,6 +2,7 @@ module
 
 import all FormalProof4FHE.HasteBoots
 import all Batteries.Data.Except
+import all Init.Data.String.Defs
 import all Mathlib.Algebra.Field.ZMod
 import all Mathlib.LinearAlgebra.Basis.Basic
 import all Mathlib.LinearAlgebra.StdBasis
@@ -12004,5 +12005,197 @@ end TypedTranscriptChildSmoke
 /-- info: 'FormalProof4FHE.HasteBoots.TypedTranscriptChild.finish_prefix_replay' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.TypedTranscriptChild.finish_prefix_replay
+
+namespace NativeLookupChallengeSmoke
+open NativeLookupChallenge
+
+local instance : Fact (Nat.Prime 3) := ⟨by decide⟩
+private noncomputable def basis : Module.Basis (Fin 1) (ZMod 3) (ZMod 3) := Module.Basis.singleton _ _
+private def parent : NativeTranscript.Transcript := ⟨[], fun _ => 0⟩
+private def zeroWorld : InputIndexedOracle.World := fun _ => 0
+example : (OracleProgram.run (request basis 1 1 3 [[1]] parent) zeroWorld).run.1.rejected = 2 := by
+  simp only [basis, request, steps, tick, TypedFieldRequest.scalarValue_singleton]
+  decide +kernel
+private def ones : InputIndexedOracle.World := fun _ => 1
+private def hashPhase := TypedFieldRequest.scalarPhase 3 1 1 parent hashLabel
+private def firstReciprocal := TypedFieldRequest.scalarPhase 3 1 1
+  (NativeTranscript.finishField ones { hashPhase with consumed := [3, 1] }).run.1 reciprocalLabel
+private def secondReciprocal := TypedFieldRequest.scalarPhase 3 1 1
+  (NativeTranscript.finishField ones { firstReciprocal with consumed := [0] }).run.1 reciprocalLabel
+private def mixedWorld : InputIndexedOracle.World
+  | .inl (input, position) =>
+    if input.length = hashPhase.pending.input.length then (if position = 0 then 3 else 1)
+    else if input.length = firstReciprocal.pending.input.length then 0
+    else if input.length = secondReciprocal.pending.input.length then 2
+    else 1
+  | .inr _ => 1
+example : (OracleProgram.run (request basis 1 1 5 [[1]] parent) mixedWorld).run.1.rejected = 2 := by
+  simp only [basis, request, steps, tick, TypedFieldRequest.scalarValue_singleton]
+  decide +kernel
+example : (OracleProgram.run (request basis 1 1 5 [[1]] parent) mixedWorld).run.1.draws.map
+    (fun draw => draw.coefficients.phase.consumed) = [[3, 1], [0], [2], [1]] := by
+  simp only [basis, request, steps, tick, TypedFieldRequest.scalarValue_singleton]
+  decide +kernel
+example : (OracleProgram.run (request basis 1 1 5 [[1]] parent) mixedWorld).run.2.length = 17 := by
+  simp only [basis, request, steps, tick, TypedFieldRequest.scalarValue_singleton]
+  decide +kernel
+
+/-- The completed request stops at its first allowed reciprocal. -/
+example : (OracleProgram.run (request basis 1 1 7 [[1]] parent) mixedWorld).run.2.length = 17 := by
+  simp only [basis, request, steps, tick, TypedFieldRequest.scalarValue_singleton]
+  decide +kernel
+
+/-- Exhaustion retains the current rejected raw byte, rather than rejecting the proof. -/
+example : (match (OracleProgram.run (request basis 1 1 1 [[1]] parent) mixedWorld).run.1.control with
+    | .compression field => field.phase.consumed
+    | _ => []) = [3] := by
+  simp only [basis, request, steps, tick, TypedFieldRequest.scalarValue_singleton]
+  decide +kernel
+
+/-- Source powers start at one; zip/fold retains the native truncation behavior. -/
+example : powers (2 : ZMod 17) 3 = [1, 2, 4] := by decide +kernel
+example : compress (p := 17) ([1, 2] : List (ZMod 17)) [3, 4, 16] = 11 := by decide +kernel
+
+example : allowed ([1] : List (ZMod 3)) 0 = false := by decide +kernel
+example : allowed ([1] : List (ZMod 3)) 2 = false := by decide +kernel
+example : allowed ([1] : List (ZMod 3)) 1 = true := by decide +kernel
+
+end NativeLookupChallengeSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedFieldRequest.run_beginScalar' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedFieldRequest.run_beginScalar
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedFieldRequest.drive_scalar' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedFieldRequest.drive_scalar
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedFieldRequest.begin_valid' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedFieldRequest.begin_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedFieldRequest.drive_valid' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedFieldRequest.drive_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedFieldRequest.drive_finished_length' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedFieldRequest.drive_finished_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedFieldRequest.drive_read_head' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedFieldRequest.drive_read_head
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedFieldRequest.scalar_coordinate' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedFieldRequest.scalar_coordinate
+
+/-- info: 'FormalProof4FHE.HasteBoots.TypedFieldRequest.scalarValue_singleton' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.TypedFieldRequest.scalarValue_singleton
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupChallenge.allowed_iff' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupChallenge.allowed_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupChallenge.run_initial' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupChallenge.run_initial
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupChallenge.run_tick' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupChallenge.run_tick
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupChallenge.run_steps' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupChallenge.run_steps
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupChallenge.execute_add' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupChallenge.execute_add
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupChallenge.run_request' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupChallenge.run_request
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupChallenge.request_add' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupChallenge.request_add
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupChallenge.append_draw_valid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupChallenge.append_draw_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupChallenge.initial_valid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupChallenge.initial_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupChallenge.tick_valid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupChallenge.tick_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupChallenge.execute_valid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupChallenge.execute_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupChallenge.request_valid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupChallenge.request_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupChallenge.draw_coordinate' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupChallenge.draw_coordinate
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupChallenge.tick_selection' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupChallenge.tick_selection
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupChallenge.execute_selection' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupChallenge.execute_selection
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupChallenge.returned_allowed' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupChallenge.returned_allowed
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupChallenge.execute_finished' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupChallenge.execute_finished
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupChallenge.tick_counts' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupChallenge.tick_counts
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupChallenge.execute_counts' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupChallenge.execute_counts
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupChallenge.request_counts' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupChallenge.request_counts
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupChallenge.tick_pending' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupChallenge.tick_pending
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupChallenge.execute_pending' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupChallenge.execute_pending
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupChallenge.request_pending' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupChallenge.request_pending
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupChallenge.request_replay' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupChallenge.request_replay
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupChallenge.goldilocks' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupChallenge.goldilocks
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupChallenge.babyBear' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupChallenge.babyBear
 
 end HasteBootsSmoke
