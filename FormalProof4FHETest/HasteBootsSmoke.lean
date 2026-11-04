@@ -17437,4 +17437,181 @@ end SharedChildWireSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupChild.launch_beginVerify
 
+namespace ParentFramingSmoke
+open FormalProof4FHE.HasteBoots
+private def byte (value : ℕ) : InputIndexedOracle.Byte := ⟨value % 256,Nat.mod_lt _ (by decide)⟩
+private def usize (value : ℕ) : NativeUsizeMessage.Usize := ⟨value % (2^64),Nat.mod_lt _ (by decide)⟩
+private def word := usize
+private def root (value : ℕ) : NativeRootMessage.Digest := fun _ => byte value
+private def code0 : InputIndexedOracle.Input := ([2,2,1,32,20,49,56,52,52,54,55,52,52,48,54,57,52,49,52,53,56,52,51,50,49,253,0,0,0,0,128,0,0,0] : List ℕ).map byte
+private def code1 : InputIndexedOracle.Input := ([1,2,1,32,20,49,56,52,52,54,55,52,52,48,54,57,52,49,52,53,56,52,51,50,49,253,0,0,0,0,128,0,0,0] : List ℕ).map byte
+private def code2 : InputIndexedOracle.Input := ([8,2,4,32,20,49,56,52,52,54,55,52,52,48,54,57,52,49,52,53,56,52,51,50,49,253,0,0,0,0,128,0,0,0] : List ℕ).map byte
+private def description : NativeBrakedownContext.RowDescription (Fin 3) :=
+  ⟨fun _ => usize 2,fun _ => usize 32,fun _ => ⟨NativeTranscript.utf8 "block-rs/negacyclic-ntt/v1",by decide⟩,
+    fun code => some (if code.val = 0 then code0 else if code.val = 1 then code1 else code2)⟩
+private def source0 : NativeBrakedownContext.Parameters (Fin 3) := ⟨usize 1,usize 4,usize 0,usize 3,0⟩
+private def source1 : NativeBrakedownContext.Parameters (Fin 3) := ⟨usize 1,usize 4,usize 1,usize 5,1⟩
+private def helper : NativeBrakedownContext.Parameters (Fin 3) := ⟨usize 3,usize 3,usize 0,usize 7,2⟩
+private def registry : NativePrefixCodec.Vector (NativeSharedLookupParent.Oracle (Fin 3)) :=
+  ⟨[⟨source0,root 17⟩,⟨source1,root 29⟩],by decide⟩
+private def row (values : List ℕ) (fits : values.length < 2^64) : NativeLookupRequestWire.Row :=
+  ⟨values.map word,by rw [List.length_map]; exact fits⟩
+private def cfg0 : NativeLookupRequestWire.Config :=
+  ⟨usize 5,⟨[row [1,2] (by decide),row [3,4] (by decide)],by decide⟩,usize 2⟩
+private def cfg1 : NativeLookupRequestWire.Config := ⟨usize 8,⟨[row [0] (by decide)],by decide⟩,usize 1⟩
+private def req0 : NativeLookupRequestWire.Request := ⟨cfg0,⟨[usize 1,usize 0],by decide⟩⟩
+private def req1 : NativeLookupRequestWire.Request := ⟨cfg1,⟨[usize 0],by decide⟩⟩
+private def requests : NativePrefixCodec.Vector NativeLookupRequestWire.Request := ⟨[req0,req1],by decide⟩
+private def hash_inputs : List InputIndexedOracle.Input := ([[72,97,115,116,101,66,111,111,116,115,47,109,119,45,112,97,114,97,109,101,116,101,114,115,47,118,50,20,49,56,52,52,54,55,52,52,48,54,57,52,49,52,53,56,52,51,50,49,1,4,1,5,2,32,26,98,108,111,99,107,45,114,115,47,110,101,103,97,99,121,99,108,105,99,45,110,116,116,47,118,49,1,2,1,32,20,49,56,52,52,54,55,52,52,48,54,57,52,49,52,53,56,52,51,50,49,253,0,0,0,0,128,0,0,0],[72,97,115,116,101,66,111,111,116,115,47,109,119,45,112,97,114,97,109,101,116,101,114,115,47,118,50,20,49,56,52,52,54,55,52,52,48,54,57,52,49,52,53,56,52,51,50,49,1,4,0,3,2,32,26,98,108,111,99,107,45,114,115,47,110,101,103,97,99,121,99,108,105,99,45,110,116,116,47,118,49,2,2,1,32,20,49,56,52,52,54,55,52,52,48,54,57,52,49,52,53,56,52,51,50,49,253,0,0,0,0,128,0,0,0],[72,97,115,116,101,66,111,111,116,115,47,109,119,45,112,97,114,97,109,101,116,101,114,115,47,118,50,20,49,56,52,52,54,55,52,52,48,54,57,52,49,52,53,56,52,51,50,49,3,3,0,7,2,32,26,98,108,111,99,107,45,114,115,47,110,101,103,97,99,121,99,108,105,99,45,110,116,116,47,118,49,8,2,4,32,20,49,56,52,52,54,55,52,52,48,54,57,52,49,52,53,56,52,51,50,49,253,0,0,0,0,128,0,0,0],[72,97,115,116,101,66,111,111,116,115,47,109,119,45,112,97,114,97,109,101,116,101,114,115,47,118,50,20,49,56,52,52,54,55,52,52,48,54,57,52,49,52,53,56,52,51,50,49,1,4,0,3,2,32,26,98,108,111,99,107,45,114,115,47,110,101,103,97,99,121,99,108,105,99,45,110,116,116,47,118,49,2,2,1,32,20,49,56,52,52,54,55,52,52,48,54,57,52,49,52,53,56,52,51,50,49,253,0,0,0,0,128,0,0,0],[72,97,115,116,101,66,111,111,116,115,47,109,119,45,112,97,114,97,109,101,116,101,114,115,47,118,50,20,49,56,52,52,54,55,52,52,48,54,57,52,49,52,53,56,52,51,50,49,3,3,0,7,2,32,26,98,108,111,99,107,45,114,115,47,110,101,103,97,99,121,99,108,105,99,45,110,116,116,47,118,49,8,2,4,32,20,49,56,52,52,54,55,52,52,48,54,57,52,49,52,53,56,52,51,50,49,253,0,0,0,0,128,0,0,0],[72,97,115,116,101,66,111,111,116,115,47,109,119,45,112,97,114,97,109,101,116,101,114,115,47,118,50,20,49,56,52,52,54,55,52,52,48,54,57,52,49,52,53,56,52,51,50,49,1,4,0,3,2,32,26,98,108,111,99,107,45,114,115,47,110,101,103,97,99,121,99,108,105,99,45,110,116,116,47,118,49,2,2,1,32,20,49,56,52,52,54,55,52,52,48,54,57,52,49,52,53,56,52,51,50,49,253,0,0,0,0,128,0,0,0],[72,97,115,116,101,66,111,111,116,115,47,109,119,45,112,97,114,97,109,101,116,101,114,115,47,118,50,20,49,56,52,52,54,55,52,52,48,54,57,52,49,52,53,56,52,51,50,49,1,4,1,5,2,32,26,98,108,111,99,107,45,114,115,47,110,101,103,97,99,121,99,108,105,99,45,110,116,116,47,118,49,1,2,1,32,20,49,56,52,52,54,55,52,52,48,54,57,52,49,52,53,56,52,51,50,49,253,0,0,0,0,128,0,0,0]] : List (List ℕ)).map (List.map byte)
+private def hash_outputs : List InputIndexedOracle.Input := ([[180,13,101,170,235,85,103,79,213,180,23,185,253,27,227,136,107,85,165,161,118,81,86,226,146,158,250,133,89,12,227,89,154,192,250,227,194,246,2,207,44,160,118,115,152,81,69,155,62,250,116,209,97,124,149,195,46,115,191,170,28,54,197,169],[233,248,88,179,195,6,0,246,149,240,244,44,75,191,51,227,237,110,192,116,57,44,183,67,235,123,20,165,131,78,252,247,12,156,221,166,129,53,27,104,45,117,119,162,177,191,136,50,70,86,105,19,22,20,237,229,34,156,197,208,196,227,68,77],[179,233,134,126,227,205,18,43,108,2,141,11,18,42,39,2,168,92,232,19,25,120,6,185,170,61,169,18,115,80,208,125,74,109,75,10,139,176,33,235,51,110,60,115,160,71,240,96,50,48,161,204,238,171,242,76,199,75,126,219,203,183,150,143],[233,248,88,179,195,6,0,246,149,240,244,44,75,191,51,227,237,110,192,116,57,44,183,67,235,123,20,165,131,78,252,247,12,156,221,166,129,53,27,104,45,117,119,162,177,191,136,50,70,86,105,19,22,20,237,229,34,156,197,208,196,227,68,77],[179,233,134,126,227,205,18,43,108,2,141,11,18,42,39,2,168,92,232,19,25,120,6,185,170,61,169,18,115,80,208,125,74,109,75,10,139,176,33,235,51,110,60,115,160,71,240,96,50,48,161,204,238,171,242,76,199,75,126,219,203,183,150,143],[233,248,88,179,195,6,0,246,149,240,244,44,75,191,51,227,237,110,192,116,57,44,183,67,235,123,20,165,131,78,252,247,12,156,221,166,129,53,27,104,45,117,119,162,177,191,136,50,70,86,105,19,22,20,237,229,34,156,197,208,196,227,68,77],[180,13,101,170,235,85,103,79,213,180,23,185,253,27,227,136,107,85,165,161,118,81,86,226,146,158,250,133,89,12,227,89,154,192,250,227,194,246,2,207,44,160,118,115,152,81,69,155,62,250,116,209,97,124,149,195,46,115,191,170,28,54,197,169]] : List (List ℕ)).map (List.map byte)
+private def native_input : InputIndexedOracle.Input := ([0,8,0,0,0,0,0,0,0,112,114,111,116,111,99,111,108,29,0,0,0,0,0,0,0,72,97,115,116,101,66,111,111,116,115,32,102,114,97,109,101,100,32,83,72,65,75,69,50,53,54,32,118,49,0,11,0,0,0,0,0,0,0,97,112,112,108,105,99,97,116,105,111,110,35,0,0,0,0,0,0,0,72,97,115,116,101,66,111,111,116,115,32,116,121,112,101,100,32,99,108,97,115,115,105,99,97,108,32,112,114,105,109,101,32,118,49,0,15,0,0,0,0,0,0,0,116,114,117,115,116,101,100,32,112,114,111,102,105,108,101,64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,17,0,0,0,0,0,0,0,116,121,112,101,100,32,112,114,105,109,101,32,102,105,101,108,100,16,0,0,0,0,0,0,0,1,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,1,43,0,0,0,0,0,0,0,99,97,110,111,110,105,99,97,108,32,115,104,97,114,101,100,45,113,117,101,114,121,32,101,120,116,101,110,115,105,111,110,32,108,111,111,107,117,112,115,32,118,49,20,0,0,0,0,0,0,0,2,5,2,2,1,2,2,3,4,2,2,1,0,8,1,1,0,1,1,0,1,50,0,0,0,0,0,0,0,112,97,99,107,101,100,32,99,97,110,111,110,105,99,97,108,32,98,97,99,107,101,110,100,32,101,120,116,101,110,115,105,111,110,32,116,117,112,108,101,32,108,111,111,107,117,112,32,118,49,75,1,0,0,0,0,0,0,5,2,2,1,2,2,3,4,2,3,179,233,134,126,227,205,18,43,108,2,141,11,18,42,39,2,168,92,232,19,25,120,6,185,170,61,169,18,115,80,208,125,74,109,75,10,139,176,33,235,51,110,60,115,160,71,240,96,50,48,161,204,238,171,242,76,199,75,126,219,203,183,150,143,2,180,13,101,170,235,85,103,79,213,180,23,185,253,27,227,136,107,85,165,161,118,81,86,226,146,158,250,133,89,12,227,89,154,192,250,227,194,246,2,207,44,160,118,115,152,81,69,155,62,250,116,209,97,124,149,195,46,115,191,170,28,54,197,169,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,233,248,88,179,195,6,0,246,149,240,244,44,75,191,51,227,237,110,192,116,57,44,183,67,235,123,20,165,131,78,252,247,12,156,221,166,129,53,27,104,45,117,119,162,177,191,136,50,70,86,105,19,22,20,237,229,34,156,197,208,196,227,68,77,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,1,50,0,0,0,0,0,0,0,112,97,99,107,101,100,32,99,97,110,111,110,105,99,97,108,32,98,97,99,107,101,110,100,32,101,120,116,101,110,115,105,111,110,32,116,117,112,108,101,32,108,111,111,107,117,112,32,118,49,199,0,0,0,0,0,0,0,8,1,1,0,1,3,179,233,134,126,227,205,18,43,108,2,141,11,18,42,39,2,168,92,232,19,25,120,6,185,170,61,169,18,115,80,208,125,74,109,75,10,139,176,33,235,51,110,60,115,160,71,240,96,50,48,161,204,238,171,242,76,199,75,126,219,203,183,150,143,1,233,248,88,179,195,6,0,246,149,240,244,44,75,191,51,227,237,110,192,116,57,44,183,67,235,123,20,165,131,78,252,247,12,156,221,166,129,53,27,104,45,117,119,162,177,191,136,50,70,86,105,19,22,20,237,229,34,156,197,208,196,227,68,77,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,1,35,0,0,0,0,0,0,0,112,97,99,107,101,100,32,100,101,102,101,114,114,101,100,32,111,112,101,110,105,110,103,32,114,101,103,105,115,116,114,121,32,118,49,1,1,0,0,0,0,0,0,2,233,248,88,179,195,6,0,246,149,240,244,44,75,191,51,227,237,110,192,116,57,44,183,67,235,123,20,165,131,78,252,247,12,156,221,166,129,53,27,104,45,117,119,162,177,191,136,50,70,86,105,19,22,20,237,229,34,156,197,208,196,227,68,77,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,180,13,101,170,235,85,103,79,213,180,23,185,253,27,227,136,107,85,165,161,118,81,86,226,146,158,250,133,89,12,227,89,154,192,250,227,194,246,2,207,44,160,118,115,152,81,69,155,62,250,116,209,97,124,149,195,46,115,191,170,28,54,197,169,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,2,20,0,0,0,0,0,0,0,97,102,116,101,114,32,112,97,114,101,110,116,32,102,105,120,116,117,114,101,8,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0] : List ℕ).map byte
+private def native_overflow_input : InputIndexedOracle.Input := ([0,8,0,0,0,0,0,0,0,112,114,111,116,111,99,111,108,29,0,0,0,0,0,0,0,72,97,115,116,101,66,111,111,116,115,32,102,114,97,109,101,100,32,83,72,65,75,69,50,53,54,32,118,49,0,11,0,0,0,0,0,0,0,97,112,112,108,105,99,97,116,105,111,110,35,0,0,0,0,0,0,0,72,97,115,116,101,66,111,111,116,115,32,116,121,112,101,100,32,99,108,97,115,115,105,99,97,108,32,112,114,105,109,101,32,118,49,0,15,0,0,0,0,0,0,0,116,114,117,115,116,101,100,32,112,114,111,102,105,108,101,64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,17,0,0,0,0,0,0,0,116,121,112,101,100,32,112,114,105,109,101,32,102,105,101,108,100,16,0,0,0,0,0,0,0,1,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,1,43,0,0,0,0,0,0,0,99,97,110,111,110,105,99,97,108,32,115,104,97,114,101,100,45,113,117,101,114,121,32,101,120,116,101,110,115,105,111,110,32,108,111,111,107,117,112,115,32,118,49,28,0,0,0,0,0,0,0,2,5,2,2,1,2,2,3,4,253,255,255,255,255,255,255,255,255,2,1,0,8,1,1,0,1,1,0,1,50,0,0,0,0,0,0,0,112,97,99,107,101,100,32,99,97,110,111,110,105,99,97,108,32,98,97,99,107,101,110,100,32,101,120,116,101,110,115,105,111,110,32,116,117,112,108,101,32,108,111,111,107,117,112,32,118,49,83,1,0,0,0,0,0,0,5,2,2,1,2,2,3,4,253,255,255,255,255,255,255,255,255,3,179,233,134,126,227,205,18,43,108,2,141,11,18,42,39,2,168,92,232,19,25,120,6,185,170,61,169,18,115,80,208,125,74,109,75,10,139,176,33,235,51,110,60,115,160,71,240,96,50,48,161,204,238,171,242,76,199,75,126,219,203,183,150,143,2,180,13,101,170,235,85,103,79,213,180,23,185,253,27,227,136,107,85,165,161,118,81,86,226,146,158,250,133,89,12,227,89,154,192,250,227,194,246,2,207,44,160,118,115,152,81,69,155,62,250,116,209,97,124,149,195,46,115,191,170,28,54,197,169,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,29,233,248,88,179,195,6,0,246,149,240,244,44,75,191,51,227,237,110,192,116,57,44,183,67,235,123,20,165,131,78,252,247,12,156,221,166,129,53,27,104,45,117,119,162,177,191,136,50,70,86,105,19,22,20,237,229,34,156,197,208,196,227,68,77,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,1,50,0,0,0,0,0,0,0,112,97,99,107,101,100,32,99,97,110,111,110,105,99,97,108,32,98,97,99,107,101,110,100,32,101,120,116,101,110,115,105,111,110,32,116,117,112,108,101,32,108,111,111,107,117,112,32,118,49,199,0,0,0,0,0,0,0,8,1,1,0,1,3,179,233,134,126,227,205,18,43,108,2,141,11,18,42,39,2,168,92,232,19,25,120,6,185,170,61,169,18,115,80,208,125,74,109,75,10,139,176,33,235,51,110,60,115,160,71,240,96,50,48,161,204,238,171,242,76,199,75,126,219,203,183,150,143,1,233,248,88,179,195,6,0,246,149,240,244,44,75,191,51,227,237,110,192,116,57,44,183,67,235,123,20,165,131,78,252,247,12,156,221,166,129,53,27,104,45,117,119,162,177,191,136,50,70,86,105,19,22,20,237,229,34,156,197,208,196,227,68,77,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,17,2,20,0,0,0,0,0,0,0,97,102,116,101,114,32,112,97,114,101,110,116,32,102,105,120,116,117,114,101,8,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0] : List ℕ).map byte
+private def native_invalid_input : InputIndexedOracle.Input := ([0,8,0,0,0,0,0,0,0,112,114,111,116,111,99,111,108,29,0,0,0,0,0,0,0,72,97,115,116,101,66,111,111,116,115,32,102,114,97,109,101,100,32,83,72,65,75,69,50,53,54,32,118,49,0,11,0,0,0,0,0,0,0,97,112,112,108,105,99,97,116,105,111,110,35,0,0,0,0,0,0,0,72,97,115,116,101,66,111,111,116,115,32,116,121,112,101,100,32,99,108,97,115,115,105,99,97,108,32,112,114,105,109,101,32,118,49,0,15,0,0,0,0,0,0,0,116,114,117,115,116,101,100,32,112,114,111,102,105,108,101,64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,17,0,0,0,0,0,0,0,116,121,112,101,100,32,112,114,105,109,101,32,102,105,101,108,100,16,0,0,0,0,0,0,0,1,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,2,20,0,0,0,0,0,0,0,97,102,116,101,114,32,112,97,114,101,110,116,32,102,105,120,116,117,114,101,8,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0] : List ℕ).map byte
+private def native_partial_input : InputIndexedOracle.Input := ([0,8,0,0,0,0,0,0,0,112,114,111,116,111,99,111,108,29,0,0,0,0,0,0,0,72,97,115,116,101,66,111,111,116,115,32,102,114,97,109,101,100,32,83,72,65,75,69,50,53,54,32,118,49,0,11,0,0,0,0,0,0,0,97,112,112,108,105,99,97,116,105,111,110,35,0,0,0,0,0,0,0,72,97,115,116,101,66,111,111,116,115,32,116,121,112,101,100,32,99,108,97,115,115,105,99,97,108,32,112,114,105,109,101,32,118,49,0,15,0,0,0,0,0,0,0,116,114,117,115,116,101,100,32,112,114,111,102,105,108,101,64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,17,0,0,0,0,0,0,0,116,121,112,101,100,32,112,114,105,109,101,32,102,105,101,108,100,16,0,0,0,0,0,0,0,1,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0,1,43,0,0,0,0,0,0,0,99,97,110,111,110,105,99,97,108,32,115,104,97,114,101,100,45,113,117,101,114,121,32,101,120,116,101,110,115,105,111,110,32,108,111,111,107,117,112,115,32,118,49,20,0,0,0,0,0,0,0,2,5,2,2,1,2,2,3,4,2,2,1,0,8,1,1,0,1,1,0,2,20,0,0,0,0,0,0,0,97,102,116,101,114,32,112,97,114,101,110,116,32,102,105,120,116,117,114,101,8,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0] : List ℕ).map byte
+private def world : InputIndexedOracle.World
+  | .inl _ => byte 255
+  | .inr (input,index) => match (hash_inputs.zip hash_outputs).find? (fun pair => pair.1 = input) with
+      | none => byte 255
+      | some pair => pair.2[index.val]?.getD (byte 255)
+private def parent : NativeTranscript.Transcript :=
+  NativeTranscript.appendBytes (NativeTranscript.new (NativeTranscript.utf8 "HasteBoots typed classical prime v1") (fun _ => 0))
+    (NativeTranscript.utf8 "typed prime field") (TranscriptFrame.littleEndian 16 NativeFields.goldilocksModulus)
+private def actual := (OracleProgram.run (NativeSharedLookupParent.prepare description registry helper parent requests) world).run
+private def afterInput (state : NativeTranscript.Transcript) := NativeTranscript.requestInput state (NativeTranscript.utf8 "after parent fixture") 4
+example : (NativeByteCodec.bytes.encode ⟨[byte 251,byte 255],by decide⟩).map Fin.val = [2,251,255] := by decide +kernel
+example : NativeByteCodec.digest.read (List.ofFn (root 253) ++ [byte 42]) = some (root 253,[byte 42]) := NativeByteCodec.digest_prefix _ _
+example : (NativeBrakedownContext.metadata description source0).map (List.map Fin.val) = some [20,49,56,52,52,54,55,52,52,48,54,57,52,49,52,53,56,52,51,50,49,1,4,0,3,2,32,26,98,108,111,99,107,45,114,115,47,110,101,103,97,99,121,99,108,105,99,45,110,116,116,47,118,49,2,2,1,32,20,49,56,52,52,54,55,52,52,48,54,57,52,49,52,53,56,52,51,50,49,253,0,0,0,0,128,0,0,0] := by decide +kernel
+example : (NativeBrakedownContext.metadata description source1).map (List.map Fin.val) = some [20,49,56,52,52,54,55,52,52,48,54,57,52,49,52,53,56,52,51,50,49,1,4,1,5,2,32,26,98,108,111,99,107,45,114,115,47,110,101,103,97,99,121,99,108,105,99,45,110,116,116,47,118,49,1,2,1,32,20,49,56,52,52,54,55,52,52,48,54,57,52,49,52,53,56,52,51,50,49,253,0,0,0,0,128,0,0,0] := by decide +kernel
+example : (NativeBrakedownContext.metadata description helper).map (List.map Fin.val) = some [20,49,56,52,52,54,55,52,52,48,54,57,52,49,52,53,56,52,51,50,49,3,3,0,7,2,32,26,98,108,111,99,107,45,114,115,47,110,101,103,97,99,121,99,108,105,99,45,110,116,116,47,118,49,8,2,4,32,20,49,56,52,52,54,55,52,52,48,54,57,52,49,52,53,56,52,51,50,49,253,0,0,0,0,128,0,0,0] := by decide +kernel
+example : NativeBrakedownContext.input description source0 ≠ NativeBrakedownContext.input description source1 := by decide +kernel
+example : source0.geometry = source1.geometry := by decide +kernel
+example : actual.1.2.map (fun out => (out.geometry.1.val,out.geometry.2.val,out.repetitions.val)) = some (3,4,3) := by decide +kernel
+example : actual.2.length = 7 := by decide +kernel
+example : actual.2.filterMap (fun event => match event with | .hash input _ => some input | _ => none) = hash_inputs := by decide +kernel
+example : actual.2.filterMap (fun event => match event with | .hash _ bytes => some bytes | _ => none) = hash_outputs := by decide +kernel
+example : afterInput actual.1.1 = native_input := by decide +kernel
+private def overflow : NativePrefixCodec.Vector NativeLookupRequestWire.Request :=
+  ⟨[{req0 with config := {cfg0 with repetitions := usize (2^64-1)}},req1],by decide⟩
+private def overflowResult := (OracleProgram.run (NativeSharedLookupParent.preflight description registry.val helper parent overflow) world).run
+example : overflowResult.1.2.isNone = true := by decide +kernel
+example : overflowResult.2.length = 5 := by decide +kernel
+example : afterInput overflowResult.1.1 = native_overflow_input := by decide +kernel
+private def invalidResult := (OracleProgram.run (NativeSharedLookupParent.preflight description registry.val helper parent ⟨[],by decide⟩) world).run
+example : invalidResult.1.2.isNone = true := by decide +kernel
+example : invalidResult.2 = [] := by decide +kernel
+example : afterInput invalidResult.1.1 = native_invalid_input := by decide +kernel
+private def failing : NativeBrakedownContext.RowDescription (Fin 3) :=
+  {description with serialize := fun code => if code.val = 0 then none else description.serialize code}
+private def partialResult := (OracleProgram.run (NativeSharedLookupParent.preflight failing registry.val helper parent requests) world).run
+example : partialResult.1.2.isNone = true := by decide +kernel
+example : partialResult.2.length = 1 := by decide +kernel
+example : afterInput partialResult.1.1 = native_partial_input := by decide +kernel
+example : partialResult.1.1.input = (NativeLookupRequestWire.bindRequests parent requests).input := by decide +kernel
+example : (OracleProgram.run (NativeSharedLookupParent.register description ⟨[],by decide⟩ parent) world).run = (none,[]) := by rfl
+private def packet : NativeLookupMultiplicityWire.Packet :=
+  ⟨⟨[row [1,0] (by decide),row [1] (by decide)],by decide⟩,by decide⟩
+private def proof : NativeSharedLookupProofData.Proof Unit Unit :=
+  ⟨packet,⟨List.replicate 3 (root 0),by decide⟩,⟨[],by decide⟩,
+    ⟨[row [1,2,3,0] (by decide),row [4,5,6,0] (by decide)],by decide⟩,
+    ⟨[![word 7,word 11,word 13],![word 17,word 19,word 23],![word 29,word 31,word 37]],by decide⟩,(),⟨[(),(),()],by decide⟩⟩
+-- Analysis fuel zero suspends sampling after the actual initializer; it
+-- does not model rejection by the unbounded native verifier.
+private noncomputable def begun := (OracleProgram.run (NativeSharedLookupParent.begin description registry helper parent requests proof 0 0) world).run
+example : begun.1.isNone = true := by decide +kernel
+example : begun.2.length = 14 := by decide +kernel
+example : begun.2.take 7 = actual.2 := by decide +kernel
+private def malformed : NativeSharedLookupProofData.Proof Unit Unit := {proof with helperOpenings := ⟨[],by decide⟩}
+private noncomputable def rejected := (OracleProgram.run (NativeSharedLookupParent.begin description registry helper parent requests malformed 0 0) world).run
+example : rejected.1.isNone = true := by decide +kernel
+example : rejected.2 = actual.2 := by decide +kernel
+end ParentFramingSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeByteCodec.bytes_encode' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeByteCodec.bytes_encode
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeByteCodec.digest_encode' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeByteCodec.digest_encode
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeByteCodec.digest_prefix' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeByteCodec.digest_prefix
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeBrakedownContext.context_success' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeBrakedownContext.context_success
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeBrakedownContext.context_failure' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeBrakedownContext.context_failure
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeCanonicalLookupWire.sources_encode' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeCanonicalLookupWire.sources_encode
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeCanonicalLookupWire.sources_prefix' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeCanonicalLookupWire.sources_prefix
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeCanonicalLookupWire.payload_injective' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeCanonicalLookupWire.payload_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeCanonicalLookupWire.bind_input' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeCanonicalLookupWire.bind_input
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeCanonicalLookupWire.registry_input' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeCanonicalLookupWire.registry_input
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeCanonicalLookupWire.append_injective' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeCanonicalLookupWire.append_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeCanonicalLookupWire.bind_injective' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeCanonicalLookupWire.bind_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeCanonicalLookupWire.registry_injective' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeCanonicalLookupWire.registry_injective
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupParent.gather_geometry' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupParent.gather_geometry
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupParent.step_numeric' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupParent.step_numeric
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupParent.loop_numeric' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupParent.loop_numeric
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupParent.preflight_numeric' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupParent.preflight_numeric
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupParent.prepare_numeric' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupParent.prepare_numeric
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupParent.contexts_length' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupParent.contexts_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupParent.models_list' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupParent.models_list
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupParent.begin_spec' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupParent.begin_spec
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupParent.begin_beginVerify' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupParent.begin_beginVerify
+
 end HasteBootsSmoke

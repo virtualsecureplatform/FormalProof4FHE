@@ -365,3 +365,7 @@ public import FormalProof4FHE.HasteBoots.NativeLookupRequestWire
 public import FormalProof4FHE.HasteBoots.NativeLookupMultiplicityWire
 public import FormalProof4FHE.HasteBoots.NativeSharedLookupProofData
 public import FormalProof4FHE.HasteBoots.NativeSharedLookupChild
+public import FormalProof4FHE.HasteBoots.NativeByteCodec
+public import FormalProof4FHE.HasteBoots.NativeBrakedownContext
+public import FormalProof4FHE.HasteBoots.NativeCanonicalLookupWire
+public import FormalProof4FHE.HasteBoots.NativeSharedLookupParent

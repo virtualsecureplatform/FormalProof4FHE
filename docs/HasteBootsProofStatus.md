@@ -7,12 +7,12 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
-Current native integration uses one typed proof object for grouped multiplicities,
-helper roots, algebra, terminal values and opening packets. Exact request and
-multiplicity encodings feed a concrete classical child initializer behind the
-native shape/value gates. Scalar metadata follows from rebuilt public tuple
-configurations, numeric preflight and completed lookup/equality execution.
-See [the current implementation layer](#typed-shared-proof-data-and-concrete-classical-child).
+Current native integration executes Goldilocks Brakedown context hashing,
+ordered request bind messages and registry framing before the concrete
+classical child launcher. Successful framed preparation implies the existing
+numeric preflight; rebuilt configurations and the same proof's algebra
+packet discharge scalar preflight through this entry point. See
+[the current implementation layer](#ordered-parent-context-hashing-and-preflight-framing).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -6757,3 +6757,96 @@ audit/smoke suites passed. The integrated suite has 2,344 guarded axiom audits.
 Logs: `/tmp/hasteboots-shared-child-{smoke,strict,check}.log`.
 No Rust, vendor source or dependency pin changed. The native checkout remains
 clean at `dff353006322693cab3dc6b654f82151f658f294`.
+
+
+## Ordered parent context hashing and preflight framing
+
+`NativeByteCodec` provides raw u8, byte-vector and fixed-byte-array codecs.
+Digest bytes have no sequence header. Byte vectors have one usize length
+header and raw u8 entries, including values 251 through 255. Prefix-reader
+proofs concern constructed values, not strict native proof deserialization.
+
+`NativeBrakedownContext` builds the exact Goldilocks Brakedown context input:
+the native domain bytes followed by the serialized tuple of decimal modulus,
+number of variables, width, left variables, queries, row-code block width,
+codeword blocks, row-code domain and complete row-code serialization. The
+same parameter object supplies numeric geometry and metadata. Context calls
+are actual common-domain hash-oracle programs, and repeated calls remain in
+the observation log. Digests are not input certificates. Row-code accessors
+and serialization are an explicit trusted interface; their instantiation and
+Rust refinement, plus complete trusted-parameter validity, remain open.
+A serialization failure produces no hash-oracle observation at this layer.
+
+`NativeCanonicalLookupWire` encodes each bind tuple in native order:
+configuration, degree three, helper context, then the vector of ordered
+(context, commitment-root) pairs. The registry uses the native Brakedown
+registry label and the same pair-vector encoding. No context equality is
+inferred from equal numeric geometry. Payload and complete-message
+injectivity retain native byte-frame allocation domains and make no
+checkpoint-injectivity assumption.
+
+`NativeSharedLookupParent` takes already rebuilt requests and executes the
+native top-level dimension checks, request-list absorption, and each ordered
+numeric bind, selected-source context computation, helper context computation
+and bind absorption. Common-geometry checking and checked repetition addition
+follow that message. Thus overflow retains the already absorbed bind message;
+context serialization failure retains prior hashes but does not append that
+request's bind message. Registry setup recomputes every source context before
+absorbing the complete ordered registry. Alias-group construction and source
+claim authentication remain separate; setup framing alone does not establish
+an authenticated registry.
+
+Successful framed steps, loops, preflight and complete preparation erase to
+the existing numeric preflight on the same requests and source geometry.
+Successful context collection preserves source count, so vector bounds used
+when constructing framed payloads are native domains rather than work caps.
+The new `begin` entry point passes the actual prepared parent into the prior
+shape/value-gated child launcher with the native Brakedown retain policy.
+Helper extension values still require canonical representations. Its success theorem identifies that actual
+execution and derives numeric preflight. Rebuilt original configurations
+then discharge scalar preflight on the same proof's algebra packet.
+This does not yet execute the full scalar verifier, strict terminal guards,
+terminal binding, child finishing and PCS checks in one combined body.
+
+The external Rust fixture extracts the actual canonical `bind` and shared
+`preflight`, calls the public `CanonicalOpeningBatch::new`, and uses actual
+BlockReedSolomonCode/Parameters constructors. A Hash implementation records
+exact inputs and delegates to standard SHA-512. The fixture uses sources with
+equal logical geometry but distinct contexts, verifies all seven ordered
+context calls, and records the next native transcript request input. It also
+checks repetition overflow after five hashes and both bind frames, initial
+rejection without hashes/framing, and serialization failure after one hash
+without a request bind frame. The 28 kernel examples reproduce metadata,
+complete parent prefixes, exact hash inputs/outputs, these failure paths,
+raw bytes, and integration into the actual child initializer. Zero sampling
+fuel tests suspension after initialization, not native verifier rejection.
+
+All four modules build and the native fixture, 28 isolated regressions and
+22 public theorem audits exited 0. The audits use only `propext`,
+`Classical.choice` and `Quot.sound`. Logs:
+`/tmp/hasteboots-parent-{build,rust,regressions,audit}.log`.
+Source hashes: `packed_opening_batch.rs`
+`deea60168b5c12d1d0f5ad6b08c5128cca8be302bad6ecea2f952fe946c9930e`;
+`pcs/src/matrix_weighted.rs`
+`69b2da76d44e5abb8824bc701d7a59251709315ff1445efa06ac5e9821e74fdd`;
+`pcs/src/utils/hash.rs`
+`12e63c9f28f2b47219b96d0a6339a5ad6621ead755473fd8c4ff2a62c8d326fb`.
+The canonical/shared caller hashes and native revision remain those recorded
+above. No native Rust source, vendor source or dependency pin was changed.
+
+The next boundary is full child-body orchestration from this prepared
+parent through scalar verification, strict terminal guards, terminal binding
+and finishing. PCS authentication/query folding, lookup/PBS extraction,
+row-code/parameter and Rust/compiler/scheduler refinement, strict decoding,
+BabyBear, chronological work, numerical certification and the final 128-bit
+application theorem remain open. Other canonical PCS backend context
+formats are not claimed by this Goldilocks Brakedown layer.
+
+The final integrated HasteBoots smoke build passed (4,179 jobs), followed by
+the standalone warning-as-error smoke check and full `scripts/check`, both
+with exit 0. The full build completed 10,199 jobs and every subsequent
+repository audit/smoke suite passed. The integrated suite contains 2,366
+guarded axiom audits. Logs:
+`/tmp/hasteboots-parent-{smoke,strict,check}.log`.
+The native checkout remains clean at
+`dff353006322693cab3dc6b654f82151f658f294`.
