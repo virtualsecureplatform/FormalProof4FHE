@@ -32,10 +32,12 @@ structure Transcript where
   input : Input
   profile : Fin 64 → Byte
 
-/-- These are observations, not distinct random-oracle keys or a work metric. -/
+/-- Shared primitive observations retain repeated reads and hash calls.
+They are not distinct random-oracle keys or a work metric. -/
 inductive Observation where
   | start (input : Input)
   | output (input : Input) (offset : ℕ) (bytes : Input)
+  | hash (input : Input) (digest : Input)
   deriving DecidableEq
 
 abbrev Execution := Writer (List Observation)

@@ -11091,4 +11091,151 @@ end NativeTranscriptSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeTranscript.request_label_injective
 
+section OracleReplaySmoke
+open InputIndexedOracle (Byte Input Coordinate World bytes sha512)
+open OracleProgram
+
+private def adaptiveMixed : Program Input :=
+  .read [] 0 1 (fun first => .hash first (fun digest => .read (List.ofFn digest) 0 1 .pure))
+
+/-- The next hash input is chosen from the earlier returned XOF byte. -/
+example (world : World) :
+    nextRequest (runPrefix 1 adaptiveMixed world).run.1 = some (.hash (bytes world [] 0 1)) := rfl
+
+/-- Only after receiving the hash result can it determine a later XOF input. -/
+example (world : World) :
+    nextRequest (runPrefix 2 adaptiveMixed world).run.1 =
+      some (.read (List.ofFn (sha512 world (bytes world [] 0 1))) 0 1) := rfl
+
+private def repeatRead : Program Input :=
+  .read [] 0 1 (fun _ => .read [] 0 1 .pure)
+
+/-- Repeated reads remain two events but reveal only one distinct byte. -/
+example (world : World) :
+    (ObservationReplay.footprint (run repeatRead world).run.2).card = 1 := by
+  change (ObservationReplay.footprint
+    [.output [] 0 (bytes world [] 0 1), .output [] 0 (bytes world [] 0 1)]).card = 1
+  simp [ObservationReplay.footprint, ObservationReplay.coordinates, InputIndexedOracle.bytes_length]
+
+/-- A start alone does not reveal any output, including for an empty challenge. -/
+example (world : World) (state : NativeTranscript.Transcript) (label : Input) :
+    nextRequest (runPrefix 1 (NativeTranscriptProgram.challengeBytes state label 0) world).run.1 =
+      some (.read (NativeTranscript.requestInput state label 0) 0 0) := rfl
+
+private def zeroWorld : World := fun _ => 0
+
+/-- Updating an observed byte changes the response: the freshness premise matters. -/
+example : (ObservationReplay.read (Function.update zeroWorld (.inl ([], 0)) 1) [] 0 1).run.1 = [1] := by decide
+example : (ObservationReplay.read zeroWorld [] 0 1).run.1 = [0] := by decide
+
+example (world : World) :
+    InputIndexedOracle.law {other | (runPrefix 2 adaptiveMixed other).run = (runPrefix 2 adaptiveMixed world).run} =
+      (256 : ENNReal)⁻¹ ^ (ObservationReplay.footprint (runPrefix 2 adaptiveMixed world).run.2).card :=
+  ObservationReplay.fiber_mass (prefix_replay 2 adaptiveMixed) world
+end OracleReplaySmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.ObservationReplay.bind_replay' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.ObservationReplay.bind_replay
+
+/-- info: 'FormalProof4FHE.HasteBoots.ObservationReplay.read_replay' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.ObservationReplay.read_replay
+
+/-- info: 'FormalProof4FHE.HasteBoots.ObservationReplay.hash_replay' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.ObservationReplay.hash_replay
+
+/-- info: 'FormalProof4FHE.HasteBoots.ObservationReplay.same_of_agrees' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.ObservationReplay.same_of_agrees
+
+/-- info: 'FormalProof4FHE.HasteBoots.ObservationReplay.fiber_eq_assignment' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.ObservationReplay.fiber_eq_assignment
+
+/-- info: 'FormalProof4FHE.HasteBoots.ObservationReplay.fiber_measurable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.ObservationReplay.fiber_measurable
+
+/-- info: 'FormalProof4FHE.HasteBoots.ObservationReplay.fiber_mass' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.ObservationReplay.fiber_mass
+
+/-- info: 'FormalProof4FHE.HasteBoots.ObservationReplay.update_unobserved' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.ObservationReplay.update_unobserved
+
+/-- info: 'FormalProof4FHE.HasteBoots.ObservationReplay.fresh_byte_mass' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.ObservationReplay.fresh_byte_mass
+
+/-- info: 'FormalProof4FHE.HasteBoots.OracleProgram.run_bind' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OracleProgram.run_bind
+
+/-- info: 'FormalProof4FHE.HasteBoots.OracleProgram.run_replay' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OracleProgram.run_replay
+
+/-- info: 'FormalProof4FHE.HasteBoots.OracleProgram.prefix_replay' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OracleProgram.prefix_replay
+
+/-- info: 'FormalProof4FHE.HasteBoots.OracleProgram.next_request_replay' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OracleProgram.next_request_replay
+
+/-- info: 'FormalProof4FHE.HasteBoots.OracleProgram.prefix_update_unobserved' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.OracleProgram.prefix_update_unobserved
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTranscriptProgram.run_query' does not depend on any axioms -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTranscriptProgram.run_query
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTranscriptProgram.run_challengeBytes' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTranscriptProgram.run_challengeBytes
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTranscriptProgram.run_checkpoint' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTranscriptProgram.run_checkpoint
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTranscriptProgram.run_beginField' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTranscriptProgram.run_beginField
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTranscriptProgram.run_drawField' does not depend on any axioms -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTranscriptProgram.run_drawField
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTranscriptProgram.run_receipt' does not depend on any axioms -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTranscriptProgram.run_receipt
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTranscriptProgram.run_finishField' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTranscriptProgram.run_finishField
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTranscriptProgram.run_forkChild' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTranscriptProgram.run_forkChild
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTranscriptProgram.run_finishLinkedChild' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTranscriptProgram.run_finishLinkedChild
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTranscriptProgram.run_linkedChild' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTranscriptProgram.run_linkedChild
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTranscriptProgram.native_fork_replay' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTranscriptProgram.native_fork_replay
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTranscriptProgram.linked_child_prefix_replay' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTranscriptProgram.linked_child_prefix_replay
+
 end HasteBootsSmoke

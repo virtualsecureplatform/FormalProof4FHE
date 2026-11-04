@@ -3686,3 +3686,66 @@ counterfactual replay from logged observations and typed descriptor/child
 integration; arbitrary-input decoder soundness remains to be proved before
 using the decoder to classify adversarial prequeries. The full security
 objective remains active and unproved.
+
+
+## Revised roadmap M1: mixed-oracle prefix replay and exact fiber laws
+
+`ObservationReplay.lean` adds truthfulness and counterfactual replay for a
+shared log containing SHAKE starts/chunks and complete SHA-512 digest
+observations. The native observation type now also admits hash entries.
+Truthfulness prevents replay certificates from holding vacuously for an
+impossible observation log. The finite footprint counts distinct returned
+coordinates across both primitives, retaining repeated calls in the ordered
+log. Changing bytes outside that footprint preserves the complete execution.
+The primitive hash action uses the same joint world; connecting the existing
+Merkle cached handler to this action remains a separate bridge.
+
+Whole-execution replay alone would not establish online query selection.
+`OracleProgram.lean` therefore supplies explicit start/read/hash nodes whose
+continuations receive results but no world argument. Every finite prefix
+returns its actual residual program. Agreement with the observed prefix
+preserves its log, residual program, and next request's primitive, complete
+input, offset, and count. This proves that the next request is determined
+before its response is supplied. The prefix budget is an analysis device,
+not an implementation retry cap or a machine-work counter. Unbounded loops
+still require compiled compatible prefix families and a completion bridge.
+
+For any certified execution, its exact fiber is proved equal to a finite
+coordinate-assignment event in the original product sigma algebra. It is
+measurable and has exact mass `(1/256)^(number of distinct returned bytes)`.
+Fixing any byte value at a coordinate outside that footprint multiplies the
+fiber mass by `1/256`, without division by successful mass or a success-floor
+premise. Whole-history use requires the program to include the complete
+observed past. Native stage compilers must still establish the required
+unobserved-coordinate premise; labels alone do not establish it.
+
+`NativeTranscriptProgram.lean` represents the native-model operations as
+online programs. Nine interpretation theorems preserve both the result
+and ordered observations for queries, byte challenges, checkpoints,
+field starts/reads/receipts/finishes, forks, and child finishes. A linked-child
+interface composes an online body between native fork and finish and inherits
+prefix replay. The body remains an explicit parameter: the actual typed
+lookup protocol has not been compiled or proved secure by this interface.
+The equalities relate Lean models; they are not Rust extraction certificates.
+
+Still open: native typed field/basis descriptors, canonical and reciprocal
+sampler prefix compilation, arbitrary-input decoder soundness, the actual
+linked lookup compiler with whole-history prequeries and stream reuse,
+unrestricted stopping/work conversion, full PBS composition, concrete
+parameter certification, and checked Rust/scheduler correspondence. The
+full security objective remains active and unproved.
+
+
+Validation passed: focused HasteBoots smoke build (4,069 jobs), separate
+warning-as-error HasteBoots smoke, and full `scripts/check` (10,088 build jobs
+and all strict suites, terminal exit zero). Twenty-six new guarded audits
+passed, bringing the HasteBoots total to 1,415. Dependencies remain within
+`propext`, `Classical.choice`, and `Quot.sound`. Regressions cover adaptive
+mixed-oracle next-input selection, repeated-read footprint deduplication,
+empty-challenge prefix state, observed-byte mutation, and exact adaptive
+prefix fiber mass. Logs: `/tmp/hasteboots-replay-smoke.log`,
+`/tmp/hasteboots-replay-strict.log`, `/tmp/hasteboots-replay-audit.log`, and
+`/tmp/hasteboots-replay-check.log`. Whitespace checks passed. Original Rust
+sources, vendor sources, and root dependency pins are unchanged. The complete
+security theorem remains unproved; no milestone here discharges the actual
+lookup body, unrestricted work conversion, or Rust refinement obligations.
