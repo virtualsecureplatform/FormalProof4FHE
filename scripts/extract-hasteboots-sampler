@@ -1,0 +1,173 @@
+#!/usr/bin/env python3
+"""Pinned, fail-closed extraction probe; not a compiler-correctness theorem."""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import re
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+RELEASE = "https://github.com/AeneasVerif/aeneas/releases/download/nightly-2026.07.11-15b9684/aeneas-linux-x86_64.tar.gz"
+BUNDLE_SHA256 = "a3ebfd35c9c77873bcc6e22fa0f1d9965539b6364c6b706a5af8aeca41d"
+TOOLS = {
+    "aeneas": "fc0f92b96a3a3b852c90f6e8327d92aef6b57d697375b74384e4e6c8336d771f",
+    "charon": "85b14babd0eeac36c647fef951231fe7c64ad12d4daa1af517b51f2fb60fa700",
+    "charon-driver": "800a798cec1ae70fb15c76346caaf726666583cfeaa46ce2f7e3294b413f9a21",
+    "rust-toolchain": "27e050e8fc5ac827e1264abf38c27fcaf18e73f4305104c866179cb84721898c",
+}
+SOURCE_SHA256 = "81886c85a202293286f68f9df97f9b56b86305ad3c296d95c38d656cbf31c048"
+FRAGMENT_SHA256 = "aafbc3fcce81d4d6b7087a73ed2bdeda4c07f2ebe4ed794b378b38f6349c6c6a"
+PIN = "15b968482b0dcd7aae45020b6d1bca39b5024af5"
+
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def checked_hash(path, expected):
+    data = path.read_bytes()
+    if digest(data) != expected:
+        raise SystemExit(f"Unexpected pinned file: {path}")
+    return data
+
+
+def container_path(path):
+    if path.is_relative_to(ROOT):
+        return "/workspace/" + str(path.relative_to(ROOT))
+    if path.is_relative_to(Path("/tmp")):
+        return str(path)
+    raise SystemExit("Backend must be inside the project or /tmp")
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--tools", type=Path, required=True,
+                        help="Directory containing the verified official release executables")
+    parser.add_argument("--backend", type=Path, required=True,
+                        help="Owned checkout prepared by scripts/probe-hasteboots-aeneas")
+    parser.add_argument("--source", type=Path,
+                        default=ROOT.parent / "HasteBoots/helper/src/transcript.rs")
+    parser.add_argument("--mode", choices=["constructor", "sampler"], default="constructor")
+    args = parser.parse_args()
+    tools, backend = args.tools.resolve(), args.backend.resolve()
+    backend_container = container_path(backend / "backends/lean")
+    if (backend / ".hasteboots-probe").read_text().strip() != PIN:
+        raise SystemExit("Backend is not owned by the pinned compatibility probe")
+    revision = subprocess.check_output(["git", "-C", str(backend), "rev-parse", "HEAD"], text=True).strip()
+    if revision != PIN:
+        raise SystemExit("Unexpected backend revision")
+    # Verify the compatibility patches before invoking any frontend.
+    for patch in ("lean435.patch", "stdlib435.patch"):
+        subprocess.run(["git", "-C", str(backend), "apply", "--reverse", "--check",
+                        str(ROOT / "interop/aeneas" / patch)], check=True)
+    for name, sha in TOOLS.items():
+        checked_hash(tools / name, sha)
+    source = checked_hash(args.source.resolve(), SOURCE_SHA256)
+    start = source.index(b"pub(crate) struct CanonicalSampler {")
+    stop = source.index(b"\nstruct DirectReader", start)
+    fragment = source[start:stop]
+    if digest(fragment) != FRAGMENT_SHA256:
+        raise SystemExit("Unexpected sampler fragment")
+
+    # A fresh directory prevents reuse of stale generated output after failures.
+    parent = ROOT / "build/hasteboots-extraction"
+    parent.mkdir(parents=True, exist_ok=True)
+    output = Path(tempfile.mkdtemp(prefix=args.mode + "-", dir=parent))
+    manifest = {"status": "started", "mode": args.mode, "release": RELEASE,
+                "bundle_sha256": BUNDLE_SHA256, "tools": TOOLS,
+                "backend_revision": PIN, "source_sha256": SOURCE_SHA256,
+                "fragment_sha256": FRAGMENT_SHA256,
+                "commands": [], "claim": "extraction probe only",
+                "backend_diff_sha256": digest(subprocess.check_output(
+                    ["git", "-C", str(backend), "diff", "HEAD"])),
+                "patches": {name: digest((ROOT / "interop/aeneas" / name).read_bytes())
+                            for name in ("lean435.patch", "stdlib435.patch")},
+                "root_toolchain": (ROOT / "lean-toolchain").read_text().strip(),
+                "root_manifest_sha256": digest((ROOT / "lake-manifest.json").read_bytes()),
+                "mathlib_revision": subprocess.check_output(
+                    ["git", "-C", str(ROOT / ".lake/packages/mathlib"), "rev-parse", "HEAD"],
+                    text=True).strip()}
+
+    def save():
+        (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+
+    def run(command, log):
+        manifest["commands"].append([str(x) for x in command])
+        save()
+        with (output / log).open("w") as stream:
+            subprocess.run(command, cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT, check=True)
+
+    print(f"Probe artifacts: {output}", flush=True)
+    save()
+    try:
+        rust = output / "sampler.rs"
+        rust.write_bytes(b"#![allow(dead_code)]\n" + fragment + b"""
+pub fn sample_repeated_block(p: u128, block: [u8; 16]) -> u128 {
+    CanonicalSampler::new(p).sample(&mut |out| {
+        let len = out.len();
+        out.copy_from_slice(&block[..len]);
+    })
+}
+""")
+        # The wrapper is diagnostic; a repeated block is not a random oracle.
+        manifest["fixture_sha256"] = digest(rust.read_bytes())
+        llbc = output / "hasteboots_sampler.llbc"
+        command = [str(tools / "charon"), "rustc", "--preset=aeneas",
+                   "--include", "core::num::_::div_ceil", "--include", "core::ops::range"]
+        if args.mode == "constructor":
+            command += ["--start-from", "hasteboots_sampler::_::new"]
+        command += ["--dest-file", str(llbc), "--", "--crate-type=lib", "--edition=2024",
+                    "--crate-name", "hasteboots_sampler", str(rust)]
+        run(command, "charon.log")
+        manifest["llbc_sha256"] = digest(llbc.read_bytes())
+        run([str(tools / "aeneas"), "-backend", "lean", "-dest", str(output),
+             "-abort-on-error", str(llbc)], "aeneas.log")
+        generated = output / "HastebootsSampler.lean"
+        raw = generated.read_text()
+        if raw.count("import Aeneas\n") != 1:
+            raise RuntimeError("Unexpected generated import surface")
+        if re.search(r"(?m)^\s*(axiom|opaque)\b|\bsorry\b", raw):
+            raise RuntimeError("Generated source contains an admitted/opaque declaration")
+        if "def CanonicalSampler.new " not in raw or "def core.num.U32.div_ceil" not in raw:
+            raise RuntimeError("Required transparent constructor/div_ceil missing")
+        # Only imports change. Preserve every generated declaration and term.
+        imports = "import Aeneas.Std\nimport Aeneas.Tactic.RustAttributes\n"
+        runtime = raw.replace("import Aeneas\n", imports)
+        audit = "\n#print axioms hasteboots_sampler.CanonicalSampler.new\n"
+        if args.mode == "sampler":
+            if not re.search(r"def\s+CanonicalSampler\.sample\s", raw):
+                raise RuntimeError("Required sampler missing")
+            audit += "#print axioms hasteboots_sampler.CanonicalSampler.sample\n"
+        checked = output / "HastebootsSamplerChecked.lean"
+        checked.write_text(runtime + audit)
+        manifest["generated_sha256"] = digest(generated.read_bytes())
+        manifest["import_only_sha256"] = digest(runtime.encode())
+        run([str(ROOT / "scripts/in-container"), "bash", "-euc",
+             'cd -- "$1"; lake env lean -DwarningAsError=true "$2"', "_",
+             backend_container, container_path(checked)], "lean.log")
+        log = (output / "lean.log").read_text()
+        declarations = ["hasteboots_sampler.CanonicalSampler.new"]
+        if args.mode == "sampler":
+            declarations.append("hasteboots_sampler.CanonicalSampler.sample")
+        for declaration in declarations:
+            match = re.search("'" + re.escape(declaration) +
+                              r"' depends on axioms: \[([^\]]*)\]", log)
+            if not match:
+                raise RuntimeError(f"Missing dependency audit: {declaration}")
+            axioms = {s.strip() for s in match[1].split(",") if s.strip()}
+            if not axioms <= {"propext", "Classical.choice", "Quot.sound"}:
+                raise RuntimeError(f"Disallowed dependencies: {axioms}")
+        manifest["status"] = "passed"
+        print(f"{args.mode} extraction and dependency audit passed; security/refinement unproved")
+    except (subprocess.CalledProcessError, RuntimeError, OSError) as error:
+        manifest["status"] = "failed"
+        manifest["error"] = str(error)
+        raise SystemExit(f"Probe failed; inspect {output}: {error}") from error
+    finally:
+        save()
+
+
+if __name__ == "__main__":
+    main()

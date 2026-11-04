@@ -3510,3 +3510,64 @@ Root proof sources, dependency pins, vendor sources, and the HasteBoots Rust
 worktree are unchanged. No root full-suite rerun was needed for this isolated
 backend change; the previous root full-suite result remains the one above.
 The sampler extraction and full Rust correspondence obligations remain open.
+
+
+## Revised roadmap M0: actual sampler extraction probe
+
+`scripts/extract-hasteboots-sampler` copies the complete `CanonicalSampler`
+fragment verbatim from the pinned Rust `helper/src/transcript.rs`, lines
+544–573. It checks both the complete source SHA-256 and the fragment SHA-256.
+A separate diagnostic wrapper supplies a fixed repeated block to the reader;
+that wrapper is not an oracle model and is not used as a replacement sampler.
+No original Rust source is modified.
+
+The frontend is the official Aeneas release
+[nightly-2026.07.11-15b9684](https://github.com/AeneasVerif/aeneas/releases/tag/nightly-2026.07.11-15b9684),
+with bundled Charon 0.1.223 (recorded Charon revision
+`ef3748c1a92c6acc402f978770193d34adc0fe6e`). The Linux archive SHA-256 is
+`a3ebfd35c9c77873bcc6e22fa0f1d9965539b6364c6b706a5af8aeca41d`.
+The harness additionally verifies the three executable hashes and the bundled
+Rust toolchain file. It requires Rust nightly-2026-06-01 with `rustc-dev`,
+`rust-src`, `llvm-tools-preview`, and `miri` installed. Miri's sysroot is
+necessary to expose the Rust standard-library MIR for `div_ceil`. This
+experiment uses the verified official binaries, not a local frontend build.
+
+Given the unpacked release directory and the prepared isolated backend:
+
+```sh
+scripts/probe-hasteboots-aeneas /tmp/hasteboots-aeneas-m0
+scripts/extract-hasteboots-sampler --tools /tmp/hasteboots-aeneas-tools \
+  --backend /tmp/hasteboots-aeneas-m0
+scripts/extract-hasteboots-sampler --tools /tmp/hasteboots-aeneas-tools \
+  --backend /tmp/hasteboots-aeneas-m0 --mode sampler
+```
+
+The default constructor-only extraction passes Lean 4.35 typechecking and
+its target dependency audit is exactly `[propext, Classical.choice,
+Quot.sound]`. `u32::div_ceil` is extracted transparently by the inclusion
+pattern `core::num::_::div_ceil`; treating it as an opaque axiom is refused.
+Only the generated import changes, from the umbrella `Aeneas` to `Aeneas.Std`
+and `Aeneas.Tactic.RustAttributes`. Every generated declaration and term is
+preserved. This establishes an import/extraction subgate, not constructor
+functional correctness or Rust compiler correctness.
+
+The full sampler command currently **fails** Lean typechecking. The generated
+`FnMut` callback use carries the updated mutable slice, whereas the backend
+`FnMut` class expects only the unit result and updated closure. The closure's
+`FnOnce` instance also mismatches its expected unit result. Elaboration then
+reports `sorryAx` in the sampler dependency closure; the command exits
+nonzero and its manifest records failure. No admitted sampler is accepted.
+This is a concrete frontend/backend correspondence gap to resolve before the
+full Rust refinement gate can pass. Broad extraction of Rust internals also
+exposes unsupported pointer/transmute operations; the narrow inclusion rules
+avoid those without hiding `div_ceil`.
+
+Each run has a fresh directory under ignored `build/hasteboots-extraction`,
+with the exact fixture, LLBC, generated Lean, import-only checked file,
+commands, logs, source/tool/output hashes, backend diff fingerprint, root
+manifest/toolchain, mathlib revision, and explicit pass/failure status.
+Failures cannot reuse an earlier successful output. Constructor reproduction
+passed; full sampler reproduction reached and rejected the callback mismatch.
+Root proof sources and dependency pins remain unchanged. Joint oracle
+semantics, unrestricted work conversion, PBS composition, and full verifier
+correspondence remain unproved; the full objective remains active.
