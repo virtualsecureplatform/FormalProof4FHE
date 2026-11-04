@@ -3807,3 +3807,57 @@ retained despite masking. Logs: `/tmp/hasteboots-canonical-program-smoke.log`,
 `/tmp/hasteboots-canonical-program-check.log`. Whitespace checks passed.
 Original Rust sources, vendor sources, and dependency pins are unchanged.
 The full security theorem and Rust refinement remain unproved.
+
+
+## Revised roadmap M1: coefficient collection and one-shot field receipts
+
+`NativeFieldVector.lean` compiles scalar coefficient collection around the
+canonical sampler. Its analysis budget counts candidate trials across the
+whole vector. Rejection retains the coefficient index; acceptance appends
+the canonical natural value and advances the index. The collector keeps
+both accepted values and all raw chunks. The online program is proved equal
+to its source-aligned evaluator, including ordered observations.
+
+The invariant `remaining + accepted length = requested count` is proved for
+requests, including suspended ones. Every returned value is below the
+modulus, and a finished request has exactly the requested number of values.
+Raw-byte retention, reader coherence, the pending request, and its receipt
+label are preserved. Exact resumption concatenates the original logs and
+continues with the current coefficient and byte cursor; it does not replay
+previous candidates or restart the field request.
+
+Finalization distinguishes suspended from finished requests. A pending
+collector emits no receipt. A completed collector emits the native 80-byte
+receipt and kind-5 frame once. Resuming a finished request produces no
+additional observations. A separate zero-count theorem retains the field
+reader start and empty-prefix receipt, even at analysis budget zero. The
+prime-vector helper adds the native kind-1 `prime vector` prelude.
+
+This models the scalar collection in `field_values`/`field_build`, with
+canonical naturals as values. Typed field conversion, extension grouping,
+and the selected basis descriptors remain open. Native callers must also
+establish valid modulus and machine-word request-count bounds. Suspension
+is an analysis state, not a Rust API return or a verifier rejection.
+The request/resume theorems do not introduce a native retry cutoff.
+
+The whole-history distribution bridge, reciprocal and actual lookup body
+compilation, arbitrary-input decoder soundness, unrestricted stopping/work
+conversion, full PBS composition, concrete certification, and checked Rust
+and scheduler correspondence remain open. The full security objective
+remains active and unproved.
+
+
+Validation passed: focused HasteBoots smoke build (4,071 jobs), separate
+warning-as-error HasteBoots smoke, and full `scripts/check` (10,090 build jobs
+followed by all strict suites, terminal exit zero). Thirty new guarded audits
+passed, bringing the HasteBoots total to 1,465, with only permitted standard
+kernel foundations. Kernel-reduced regressions cover rejection without
+coefficient advancement, partial-vector resumption, no premature receipt,
+finished-request idempotence, zero-count finalization, and masked high bits
+retained in the raw receipt input. Logs: `/tmp/hasteboots-field-vector-smoke.log`,
+`/tmp/hasteboots-field-vector-strict.log`, `/tmp/hasteboots-field-vector-audit.log`,
+and `/tmp/hasteboots-field-vector-check.log`. Whitespace checks passed. Rust
+revision `dff353006322693cab3dc6b654f82151f658f294` and both inspected transcript
+source hashes were rechecked. Rust sources, vendor sources, and dependency
+pins are unchanged. This milestone does not complete the security theorem
+or the checked Rust correspondence gate.

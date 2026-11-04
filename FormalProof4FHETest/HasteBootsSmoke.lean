@@ -11361,4 +11361,169 @@ end CanonicalTranscriptSamplerSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler.sample_replay
 
+section NativeFieldVectorSmoke
+open InputIndexedOracle (World)
+open NativeFieldVector
+
+private def collectorRoot : NativeTranscript.Transcript := ⟨[], fun _ => 0⟩
+private def collectorWorld : World
+  | .inl (_, position) => if position = 0 then 3 else 2
+  | .inr _ => 0
+private def collectorObserved (fuel count : ℕ) : Status × List NativeTranscript.Observation :=
+  (OracleProgram.run (request 3 fuel collectorRoot [] count) collectorWorld).run
+private def collectorValues : Status → Option (List ℕ)
+  | .suspended _ => none
+  | .finished state _ => some state.values
+
+/-- Rejection consumes a trial without advancing the requested coefficient. -/
+example : (stateOf (collectorObserved 1 2).1).remaining = 2 := by decide +kernel
+example : (stateOf (collectorObserved 2 2).1).values = [2] := by decide +kernel
+example : collectorValues (collectorObserved 2 2).1 = none := by decide +kernel
+example : (collectorObserved 2 2).2.length = 3 := by decide +kernel
+
+/-- A later trial completes the vector in the same reader, retaining rejection bytes. -/
+example : collectorValues (collectorObserved 3 2).1 = some [2, 2] := by decide +kernel
+example : (stateOf (collectorObserved 3 2).1).phase.consumed = [3, 2, 2] := by decide +kernel
+example : (collectorObserved 3 2).2.length = 6 := by decide +kernel
+
+example : collectorValues
+    (OracleProgram.run (resume 3 1 (collectorObserved 2 2).1) collectorWorld).run.1 = some [2, 2] := by decide +kernel
+example : (OracleProgram.run (resume 3 10 (collectorObserved 3 2).1) collectorWorld).run.2 = [] := by decide +kernel
+
+/-- Zero requested coefficients still create a reader and an empty-prefix receipt. -/
+example : collectorValues (collectorObserved 0 0).1 = some [] := by decide +kernel
+example : (collectorObserved 0 0).2.length = 3 := by decide +kernel
+example : (stateOf (collectorObserved 0 0).1).phase.consumed = [] := by decide +kernel
+
+private def collectorHighBits : World
+  | .inl (_, position) => if position = 0 then 0 else 129
+  | .inr _ => 0
+
+/-- The finished request keeps raw 0x8100 while returning masked coefficient 0x100. -/
+example : collectorValues
+    (OracleProgram.run (request 257 1 collectorRoot [] 1) collectorHighBits).run.1 = some [256] := by decide +kernel
+example : (stateOf
+    (OracleProgram.run (request 257 1 collectorRoot [] 1) collectorHighBits).run.1).phase.consumed = [0, 129] := by decide +kernel
+end NativeFieldVectorSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.run_collect' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.run_collect
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.execute_complete' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.execute_complete
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.execute_add' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.execute_add
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.advance_count' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.advance_count
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.count_invariant' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.count_invariant
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.completed_length' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.completed_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.advance_valid' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.advance_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.values_valid' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.values_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.advance_retains' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.advance_retains
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.retains' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.retains
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.advance_header' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.advance_header
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.header_preserved' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.header_preserved
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.advance_coherent' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.advance_coherent
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.coherent' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.coherent
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.run_finalize' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.run_finalize
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.run_drive' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.run_drive
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.run_resume' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.run_resume
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.run_request' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.run_request
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.finish_state' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.finish_state
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.finish_status' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.finish_status
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.request_status' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.request_status
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.request_count' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.request_count
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.request_values_valid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.request_values_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.request_finished_length' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.request_finished_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.drive_add' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.drive_add
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.request_add' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.request_add
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.request_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.request_zero
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.no_premature_receipt' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.no_premature_receipt
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.finished_resume' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.finished_resume
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeFieldVector.request_replay' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeFieldVector.request_replay
+
 end HasteBootsSmoke

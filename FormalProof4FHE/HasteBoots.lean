@@ -262,3 +262,4 @@ public import FormalProof4FHE.HasteBoots.ObservationReplay
 public import FormalProof4FHE.HasteBoots.OracleProgram
 public import FormalProof4FHE.HasteBoots.NativeTranscriptProgram
 public import FormalProof4FHE.HasteBoots.CanonicalTranscriptSampler
+public import FormalProof4FHE.HasteBoots.NativeFieldVector
