@@ -16829,4 +16829,194 @@ end SharedPreflightSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupPreflightLink.terminal_bounds
 
+namespace SharedValueValidationSmoke
+open FormalProof4FHE.HasteBoots
+open NativeFields NativeFieldRepresentation NativeFieldWire NativeGoldExtensionArithmetic NativeExtensionFields
+private def word (n : ℕ) : GoldWord := ⟨n % (2^64), Nat.mod_lt _ (by decide)⟩
+private def usize (n : ℕ) : NativeUsizeMessage.Usize := ⟨n % (2^64), Nat.mod_lt _ (by decide)⟩
+private def params (n k : ℕ) : NativeLookupBindGeometry.Parameters := ⟨usize n,usize k⟩
+private def registry : List NativeLookupBindGeometry.Parameters := List.replicate 3 (params 1 4)
+private def r0 : NativeSharedLookupStatement.Request :=
+  ⟨3,[[word 0,word 0,word 0],[word 1,word 1,word 1]],1,⟨[1,0,1],usize 5⟩⟩
+private def r1 : NativeSharedLookupStatement.Request := ⟨1,[[word 0]],1,⟨[0],usize 8⟩⟩
+private def requests : Fin 2 → NativeSharedLookupStatement.Request := ![r0,r1]
+private def values : NativeSharedLookupProofShape.Values :=
+  ⟨[[word 2,word 1],[word 3]],List.replicate 2 (fun _ => 0),
+    [![word 7,word 11,word 13],![word 17,word 19,word 23]],
+    [([1,2,3,0] : List ℕ).map word,([4,5,6,0] : List ℕ).map word,List.replicate 4 (word 0)]⟩
+private def multAlias := {values with multiplicities := [[word 18446744069414584323,word 1],[word 3]]}
+private def sourceAlias := {values with sources := values.sources.set 0 (([18446744069414584322,2,3,0] : List ℕ).map word)}
+private def unusedAlias := {values with sources := values.sources.set 2 (List.replicate 4 (word 18446744069414584321))}
+private def unusedNonzero := {values with sources := values.sources.set 2 (([1,0,0,0] : List ℕ).map word)}
+private def helperAlias := {values with helpers := values.helpers.set 0 ![word 18446744069414584321,word 11,word 13]}
+private def lastAlias := {values with helpers := values.helpers.set 1 ![word 17,word 19,word 18446744069414584322]}
+private def observed (proof : NativeSharedLookupProofShape.Values) :=
+  (NativeSharedLookupValues.check .retain 3 (List.ofFn requests) proof,
+   NativeSharedLookupValues.check .canonical 3 (List.ofFn requests) proof)
+-- Golden outcomes from the extracted native validation window and backend bodies.
+example : NativeSharedLookupValues.usedSlots 3 (List.ofFn requests) = [true,true,false] := by decide +kernel
+example : observed values = (true,true) := by decide +kernel
+example : observed multAlias = (true,false) := by decide +kernel
+example : observed sourceAlias = (true,false) := by decide +kernel
+example : observed unusedAlias = (true,false) := by decide +kernel
+example : observed unusedNonzero = (false,false) := by decide +kernel
+example : observed helperAlias = (false,false) := by decide +kernel
+example : observed lastAlias = (false,false) := by decide +kernel
+-- Field equality accepts lazy zero only where the backend permits its representation.
+example : NativeSharedLookupValues.zeros [word 18446744069414584321] = true := by decide +kernel
+example : NativeSharedLookupValues.zeros [word 18446744069414584322] = false := by decide +kernel
+example : NativeSharedLookupValues.canonical [word 18446744069414584320] = true := by decide +kernel
+example : NativeSharedLookupValues.canonical [word 18446744069414584321] = false := by decide +kernel
+example : NativeSharedLookupValues.helperCanonical ![word 0,word 0,word 18446744069414584321] = false := by decide +kernel
+-- Used slots are determined by original requests, even when repeated or when
+-- a separately invalid zero-repetition request is supplied to this window.
+example : NativeSharedLookupValues.usedSlots 3 [r0,{r0 with repetitions := 0}] = [true,true,false] := by decide +kernel
+example : NativeSharedLookupValues.usedSlots 4 [] = [false,false,false,false] := by decide +kernel
+example : NativeSharedLookupValues.mark [false,false,false] [1,1,0,1] = [true,true,false] := by decide +kernel
+private def geometry : NativeSharedLookupPreflight.Output :=
+  match NativeSharedLookupPreflight.preflight registry (params 3 3) (List.ofFn requests) with
+  | some output => output
+  | none => ⟨(usize 0,usize 0),usize 0,[]⟩
+private def checked (policy : NativeSharedLookupValues.Policy) (openingCount : ℕ) (proof : NativeSharedLookupProofShape.Values) :=
+  NativeSharedLookupValidated.checks policy registry (List.ofFn requests) geometry openingCount proof
+example : checked .retain 2 unusedAlias = true := by decide +kernel
+example : checked .canonical 2 unusedAlias = false := by decide +kernel
+example : checked .retain 2 helperAlias = false := by decide +kernel
+example : checked .retain 1 values = false := by decide +kernel
+example : checked .retain 2 {values with sources := []} = false := by decide +kernel
+private def parent : NativeTranscript.Transcript := ⟨[],fun _ => 0⟩
+private def world : InputIndexedOracle.World := fun _ => 0
+-- An actual observable initializer must be skipped on every failed gate.
+private def startChild : OracleProgram.Program NativeTranscript.Transcript :=
+  .start [] (.read [] 0 1 (fun _ => .pure parent))
+private noncomputable def runGate (policy : NativeSharedLookupValues.Policy) (openings : ℕ)
+    (proof : NativeSharedLookupProofShape.Values) (rootFits : proof.roots.length < 2^64) :=
+  (OracleProgram.run (NativeSharedLookupValidated.withChild (by decide : 2 ≤ 2^64) requests policy registry geometry openings proof rootFits
+    7 0 0 startChild) world).run
+example : (runGate .retain 2 helperAlias (by decide)).2 = [] := by decide +kernel
+example : (runGate .canonical 2 unusedAlias (by decide)).2 = [] := by decide +kernel
+example : (runGate .retain 2 unusedNonzero (by decide)).2 = [] := by decide +kernel
+example : (runGate .retain 1 values (by decide)).2 = [] := by decide +kernel
+-- Passing the gates executes the initializer exactly once; zero lookup
+-- analysis fuel leaves sampling unfinished and still preserves its observations.
+example : (runGate .retain 2 values (by decide)).2.length = 2 := by decide +kernel
+example : (runGate .retain 2 unusedAlias (by decide)).2.length = 2 := by decide +kernel
+example : (runGate .canonical 2 values (by decide)).2.length = 2 := by decide +kernel
+example : (runGate .retain 2 values (by decide)).1.isNone = true := by decide +kernel
+example (policy : NativeSharedLookupValues.Policy) (count : ℕ) (requests : List NativeSharedLookupStatement.Request)
+    (values : NativeSharedLookupProofShape.Values) (accepted : NativeSharedLookupValues.check policy count requests values = true) :
+    ∀ helper ∈ values.helpers, ∀ coordinate, (helper coordinate).val < goldilocksModulus :=
+  (NativeSharedLookupValues.check_spec policy count requests values accepted).helpers
+example (count : ℕ) (requests : List NativeSharedLookupStatement.Request) (values : NativeSharedLookupProofShape.Values)
+    (accepted : NativeSharedLookupValues.check .canonical count requests values = true) (index : ℕ)
+    (inside : index < values.sources.length) (unused : ¬ NativeSharedLookupValues.Requested requests index) :
+    ∀ value ∈ values.sources[index], value.val = 0 :=
+  NativeSharedLookupValues.canonical_unused count requests values accepted index inside unused
+private def startPair : OracleProgram.Program (ℕ × NativeTranscript.Transcript) :=
+  .start [] (.read [] 0 1 (fun _ => .pure (42,parent)))
+example : (OracleProgram.run (NativeSharedLookupValidated.withChildState (by decide : 2 ≤ 2^64) requests .retain registry geometry
+    2 helperAlias (by decide) 7 0 0 startPair) world).run.2 = [] := by decide +kernel
+example : (OracleProgram.run (NativeSharedLookupValidated.withChildState (by decide : 2 ≤ 2^64) requests .retain registry geometry
+    2 values (by decide) 7 0 0 startPair) world).run.2.length = 2 := by decide +kernel
+example {A : Type} {count : ℕ} (fits : count ≤ 2^64) (requests : Fin count → NativeSharedLookupStatement.Request)
+    (policy : NativeSharedLookupValues.Policy) (registry : List NativeLookupBindGeometry.Parameters)
+    (geometry : NativeSharedLookupPreflight.Output) (openingCount : ℕ) (values : NativeSharedLookupProofShape.Values)
+    (rootFits : values.roots.length < 2^64) (w lookupFuel equalityFuel : ℕ)
+    (startChild : OracleProgram.Program (A × NativeTranscript.Transcript)) (world : InputIndexedOracle.World)
+    (state : A) (ready : NativeSharedLookupPrelude.Ready geometry.geometry.1.val)
+    (success : (OracleProgram.run (NativeSharedLookupValidated.withChildState fits requests policy registry geometry openingCount values rootFits
+      w lookupFuel equalityFuel startChild) world).run.1 = some (state,ready)) :
+    state = (OracleProgram.run startChild world).run.1.1 :=
+  (NativeSharedLookupValidated.withChildState_spec fits requests policy registry geometry openingCount values rootFits
+    w lookupFuel equalityFuel startChild world state ready success).1
+end SharedValueValidationSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupValues.canonical_iff' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupValues.canonical_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupValues.helperCanonical_iff' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupValues.helperCanonical_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupValues.zeros_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupValues.zeros_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupValues.canonical_zero' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupValues.canonical_zero
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupValues.mark_length' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupValues.mark_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupValues.mark_get' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupValues.mark_get
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupValues.usedSlots_length' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupValues.usedSlots_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupValues.usedSlots_get' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupValues.usedSlots_get
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupValues.checkSources_spec' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupValues.checkSources_spec
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupValues.check_spec' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupValues.check_spec
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupValues.canonical_unused' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupValues.canonical_unused
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupValidated.checks_iff' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupValidated.checks_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupValidated.run_accepted' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupValidated.run_accepted
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupValidated.run_rejected' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupValidated.run_rejected
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupValidated.protocol_spec' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupValidated.protocol_spec
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupValidated.protocol_complete' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupValidated.protocol_complete
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupValidated.withChild_accepted' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupValidated.withChild_accepted
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupValidated.withChild_rejected' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupValidated.withChild_rejected
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupValidated.withChild_spec' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupValidated.withChild_spec
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupValidated.withChildState_accepted' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupValidated.withChildState_accepted
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupValidated.withChildState_rejected' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupValidated.withChildState_rejected
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupValidated.withChildState_spec' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupValidated.withChildState_spec
+
 end HasteBootsSmoke

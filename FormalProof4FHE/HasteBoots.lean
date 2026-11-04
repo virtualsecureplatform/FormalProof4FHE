@@ -356,3 +356,5 @@ public import FormalProof4FHE.HasteBoots.NativeSharedLookupPrelude
 public import FormalProof4FHE.HasteBoots.NativeSharedLookupPreflight
 public import FormalProof4FHE.HasteBoots.NativeSharedLookupProofShape
 public import FormalProof4FHE.HasteBoots.NativeSharedLookupPreflightLink
+public import FormalProof4FHE.HasteBoots.NativeSharedLookupValues
+public import FormalProof4FHE.HasteBoots.NativeSharedLookupValidated

@@ -7,10 +7,11 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
-Current native integration connects numeric shared preflight and proof
-dimensions to lookup/equality sampling, statement construction and strict
-terminal bounds. Both challenge families retain their actual coefficient
-readers. See [the current implementation layer](#shared-preflight-proof-dimensions-and-original-request-bounds).
+Current native integration gates lookup/equality sampling and child
+initialization on proof dimensions and backend-specific value validation.
+Numeric preflight, statement construction and strict terminal bounds are
+linked to the original requests and retained challenge readers. See
+[the current implementation layer](#backend-value-policies-and-gating-child-initialization).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -6505,3 +6506,92 @@ the standalone warning-as-error smoke check and full `scripts/check`,
 both with exit 0. The full build completed 10,183 jobs and all subsequent
 repository audit/smoke suites passed. Logs:
 `/tmp/hasteboots-shared-preflight-{smoke,strict,check}.log`.
+
+
+## Backend value policies and gating child initialization
+
+`NativeSharedLookupValues` now models the native used-slot construction and
+proof-value validation window. Ordered slot marking retains every request,
+including repeated slots, and its flags are true exactly for slots appearing
+in the original requests. Earlier numeric preflight supplies index safety;
+the checked model's out-of-bounds list updates are not a claim about native
+indexing outside that domain. Earlier proof shape supplies complete source
+coverage for the native zip loop.
+
+The trusted backend selects the validation policy. Legacy non-hiding
+Brakedown `Parameters<C>` retains the trait defaults: base-field value
+validation accepts lazy representatives. The response backends for
+PolyFRIM require canonical base values. This choice is an argument of the
+compiler, not a proof field. Multiplicities and source values follow that
+policy; helper extension scalars are always required to have canonical
+coordinates. No extra canonical guard is added to the legacy backend.
+
+Unused-source zeros use native field equality, not raw-word equality.
+Consequently a lazy Goldilocks zero can pass in an unused legacy source
+slot. A nonzero value fails in either policy, and a lazy helper zero fails
+in either policy. Successful checking supplies semantic zero for every
+unused supplied source coordinate and canonical coordinates for every
+helper. With the canonical policy, unused zeros are also literally raw
+zero. Original raw values and their wire spelling are retained throughout;
+this validator does not normalize proof data.
+
+`NativeSharedLookupValidated` gates the existing operational prelude on
+both dimension and value checks. Successful execution supplies both
+contracts and the actual original lookup/equality/statement run. Completed
+valid runs still construct ready statements under the existing native
+vector allocation domain. Rejected checks return no ready output and
+issue no prelude observations.
+
+The child-program entry places the actual initializer behind those gates.
+Rejection skips its oracle calls entirely. Acceptance executes it once,
+retains all of its observations before the prelude, and uses its actual
+returned child state. Successful runs derive the full original prelude
+contract from this same initializer execution; no parent/child transcript
+equality certificate is an input. The stateful child-program entry additionally retains the initializer's
+computed parent/private state alongside every ready result for later
+finishing and authentication. Its source is identified with the actual
+initializer output, without a supplied state-equality certificate. The
+exact native multiplicity-bound child initializer and finish binding remain
+to instantiate. Earlier PCS context/preflight framing is also separate.
+
+The native fixture compiles the exact used-slot and value-validation
+windows extracted from the shared caller, plus the actual legacy default
+and unmasked PolyFRIM validation bodies. Native Goldilocks and extension
+implementations perform the equality and canonicality checks; minimal
+records/error wrappers provide the fields read by those windows. It
+checks canonical values, lazy multiplicities, lazy used sources, lazy
+unused zeros, nonzero unused sources and noncanonical helper coordinates
+under both policies. Kernel regressions reproduce every outcome and test
+that rejected gates skip an observable initializer, while accepted gates
+preserve its issued observations even if sampling remains suspended.
+This is correspondence evidence for the modeled window, not a full native
+caller or Rust refinement theorem.
+
+Remaining work includes canonical table/configuration normalization and
+validation with the same backend distinction, PCS context checks and
+preflight framing, exact multiplicity-bound child creation/final binding,
+and statement-level helper-sum/identity meaning. Accepted helper/source
+PCS authentication, native query folding, lookup/PBS extraction, checked
+Rust/compiler and scheduler refinement, strict decoder refinement,
+BabyBear arithmetic, chronological attacker work, numerical certification
+and the final 128-bit application theorem remain open.
+
+Validation: both focused module builds passed, the extracted native
+fixture and 34 isolated normal-depth kernel regression/consumer examples
+exited 0, and all 22 new public theorem audits use only `propext`,
+`Classical.choice` and `Quot.sound`. The integrated suite contains 2,277
+guarded audits. Logs: `/tmp/hasteboots-shared-values-{rust,regressions,audit}.log`.
+No Rust, vendor source or dependency pin changed.
+The native checkout remains clean at
+`dff353006322693cab3dc6b654f82151f658f294`. The backend adapter hash is
+`cc09f13b51d7f20fa76b41b88bc04fd04ad7f987a9f47c966863fd6cc4f631d4`,
+the Goldilocks implementation hash is
+`8c8718fba7266592138788aef9b114995af311198fe8c7f900165be167cb3f54`,
+and the extension implementation hash is
+`b33a6f3770ac5320247235e7a84574dd7b87dc8866028aac327a3a0e41b3b2bd`.
+The canonical shared caller hash remains unchanged.
+The integrated HasteBoots smoke build passed (4,168 jobs), followed by
+the standalone warning-as-error smoke check and full `scripts/check`,
+both with exit 0. The full build completed 10,185 jobs and all subsequent
+repository audit/smoke suites passed. Logs:
+`/tmp/hasteboots-shared-values-{smoke,strict,check}.log`.
