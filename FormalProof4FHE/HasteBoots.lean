@@ -322,3 +322,7 @@ public import FormalProof4FHE.HasteBoots.NativeScalarBatchVerifierInvariant
 public import FormalProof4FHE.HasteBoots.NativeScalarBatchHistory
 public import FormalProof4FHE.HasteBoots.NativeScalarBatchRoundMeaning
 public import FormalProof4FHE.HasteBoots.NativeScalarBatchContract
+public import FormalProof4FHE.HasteBoots.NativeTerminalBits
+public import FormalProof4FHE.HasteBoots.NativeTerminalCore
+public import FormalProof4FHE.HasteBoots.NativeTerminalField
+public import FormalProof4FHE.HasteBoots.NativeGoldTerminalArithmetic

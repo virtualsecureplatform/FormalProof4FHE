@@ -15107,4 +15107,139 @@ end ScalarHistorySmoke
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchContract.contract_output
 
+
+namespace GoldTerminalSmoke
+open FormalProof4FHE.HasteBoots
+open NativeFieldRepresentation NativeGoldExtensionArithmetic NativeFieldWire NativeExtensionFields
+private def word (n : ℕ) : GoldWord := ⟨n % (2^64), Nat.mod_lt _ (by decide)⟩
+private def cubic (a b c : ℕ) : Word := ![word a, word b, word c]
+private def countWord (n : ℕ) : NativeUsizeMessage.Usize := ⟨n % (2^64), Nat.mod_lt _ (by decide)⟩
+private def observe (answer : Option Word) : Option (List ℕ) := answer.map (fun value => (List.ofFn value).map Fin.val)
+private def point : List Word := [cubic 2 3 4, cubic 5 6 7, cubic 8 9 10, cubic 11 12 13]
+private def cases : List (ℕ × ℕ) := [(0,0),(0,1),(1,1),(1,2),(2,1),(2,3),(2,4),(4,3),(4,5),(4,9),(4,15),(4,16)]
+example : cases.map (fun entry => observe (NativeGoldTerminalArithmetic.prefixValue (point.take entry.1) (countWord entry.2))) =
+    [some [0,0,0], some [1,0,0], some [18446744069414584320,18446744069414584318,18446744069414584317],
+     some [1,0,0], some [18446744069414584640,18446744069414584535,18446744069414584362],
+     some [18446744069414583997,18446744069414584098,18446744069414584269], some [1,0,0],
+     some [18446744069413162810,18446744069413738702,18446744069414155805],
+     some [18446744069413249381,18446744069413774091,18446744069414179249],
+     some [18446744069413253954,18446744069413775455,18446744069414180659],
+     some [18446744069413111685,18446744069413718407,18446744069414142412], some [1,0,0]] := by decide +kernel
+private def lazyPoint : List Word := [cubic 18446744069414584321 18446744069414584322 18446744073709551615, cubic 2 3 4]
+example : observe (NativeGoldTerminalArithmetic.prefixValue lazyPoint (countWord 1)) =
+    some [90194313201,120259084230,18446744073709551614] := by decide +kernel
+example : (List.ofFn (NativeGoldTerminalArithmetic.equality [] point)).map Fin.val = [1,0,0] := by decide +kernel
+example : (List.ofFn (NativeGoldTerminalArithmetic.equality lazyPoint (point.take 3))).map Fin.val =
+    [312162517936752,242111601355411,130180458687543] := by decide +kernel
+example : observe (NativeGoldTerminalArithmetic.prefixValue (List.replicate 63 NativeGoldLookup.zero) (countWord (2^63))) =
+    some [1,0,0] := by decide +kernel
+example : observe (NativeGoldTerminalArithmetic.prefixValue (List.replicate 63 NativeGoldLookup.zero) (countWord (2^62+3))) =
+    some [1,0,0] := by decide +kernel
+-- Explicit checked-model shift/access preconditions, not added native rejection claims.
+example : observe (NativeGoldTerminalArithmetic.prefixValue (List.replicate 64 NativeGoldLookup.zero) (countWord 1)) = none := by decide +kernel
+example : (NativeTerminalCore.prefixLoop NativeGoldInterpolation.arithmetic [] (countWord 1) 1
+    ⟨NativeGoldLookup.one, NativeGoldLookup.zero⟩).isNone = true := by decide +kernel
+private def eqPoint : List Word := [cubic 3 1 2, cubic 6 4 5, cubic 9 7 8]
+private def sources : List Word := [cubic 1 2 3, cubic 5 6 7]
+private def powers : List Word := [NativeGoldLookup.one, cubic 2 3 4]
+private def r : Word := cubic 7 11 13
+private def helper : Word := cubic 17 19 23
+example : (List.ofFn (NativeGoldTerminalArithmetic.compress sources powers)).map Fin.val = [326,225,55] := by decide +kernel
+private def counts : List ℕ := [0,1,5,8]
+private def expected : List Word := [cubic 29304515896768 15269373315136 7975851069792,
+  cubic 17119120838104356034 8107618179199797609 13041926500576646473,
+  cubic 1630462402075517295 10497350151018163408 5487564783088376576,
+  cubic 399336773060912 208721786990168 109265972136552]
+example : counts.map (fun count => observe (NativeGoldTerminalArithmetic.valueFromElements eqPoint (point.take 3)
+    (countWord count) r sources powers helper)) = expected.map (fun value => some ((List.ofFn value).map Fin.val)) := by decide +kernel
+example : (counts.zip expected).map (fun entry => NativeGoldTerminalArithmetic.checkFromElements eqPoint (point.take 3)
+    (countWord entry.1) r sources powers helper entry.2) = [some true, some true, some true, some true] := by decide +kernel
+example : (counts.zip expected).map (fun entry => NativeGoldTerminalArithmetic.checkFromElements eqPoint (point.take 3)
+    (countWord entry.1) r sources powers helper (add entry.2 NativeGoldLookup.one)) =
+    [some false, some false, some false, some false] := by decide +kernel
+example {n : ℕ} (eqPoint point : Fin n → Word) (count : NativeUsizeMessage.Usize)
+    (shift : n < 64) (enough : count.val ≤ 2^n) (r helper expected : Word) (sources powers : List Word) :
+    NativeGoldTerminalArithmetic.checkFromElements (List.ofFn eqPoint) (List.ofFn point) count r sources powers helper expected = some true ↔
+      ExtensionLookupIdentity.terminal (fun i => goldExtensionValue (eqPoint i)) (fun i => goldExtensionValue (point i))
+        (goldExtensionValue r) (goldExtensionValue (NativeGoldTerminalArithmetic.compress sources powers))
+        (goldExtensionValue helper) count.val enough = goldExtensionValue expected :=
+  NativeGoldTerminalArithmetic.checkFromElements_iff eqPoint point count shift enough r sources powers helper expected
+end GoldTerminalSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTerminalBits.address_bit' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTerminalBits.address_bit
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTerminalBits.address_testBit' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTerminalBits.address_testBit
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTerminalBits.bit_testBit' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTerminalBits.bit_testBit
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTerminalBits.threshold_bit' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTerminalBits.threshold_bit
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTerminalCore.equalityFrom_map' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTerminalCore.equalityFrom_map
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTerminalCore.equality_map' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTerminalCore.equality_map
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTerminalCore.prefixStep_map' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTerminalCore.prefixStep_map
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTerminalCore.prefixLoop_map' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTerminalCore.prefixLoop_map
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTerminalCore.prefix_map' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTerminalCore.prefix_map
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTerminalField.equalityFrom_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTerminalField.equalityFrom_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTerminalField.equality_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTerminalField.equality_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTerminalField.prefixLoop_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTerminalField.prefixLoop_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeTerminalField.prefixValue_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeTerminalField.prefixValue_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldTerminalArithmetic.compress_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldTerminalArithmetic.compress_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldTerminalArithmetic.residual_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldTerminalArithmetic.residual_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldTerminalArithmetic.equality_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldTerminalArithmetic.equality_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldTerminalArithmetic.prefixValue_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldTerminalArithmetic.prefixValue_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldTerminalArithmetic.valueFromElements_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldTerminalArithmetic.valueFromElements_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldTerminalArithmetic.checkFromElements_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldTerminalArithmetic.checkFromElements_iff
+
 end HasteBootsSmoke

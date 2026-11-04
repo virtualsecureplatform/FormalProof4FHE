@@ -5673,3 +5673,84 @@ actual driver and its retained records.
 The full `scripts/check` finished with exit 0 after the full build (10,152
 jobs) and all subsequent audit/smoke suites. Full log:
 `/tmp/hasteboots-scalar-history-check.log`.
+
+## Raw equality, prefix mask and lookup terminal residual
+
+`NativeTerminalBits` now connects the literal unsigned usize shift-and-mask
+predicate to the threshold coordinate of the existing low-bit-first address
+bijection. The proof handles every coordinate, rather than accepting a
+caller-supplied decoded threshold. The native count remains a 64-bit word.
+
+`NativeTerminalCore` retains the exact equality zip/fold, descending point
+accesses, `same`/`out` prefix updates and separate full-table shortcut. Each
+prefix access is checked, and missing entries are explicit failed internal
+preconditions. Its representation theorem preserves the whole partial
+result, including failure, through arithmetic homomorphisms. It inserts no
+normalization, default point entry or alternative prefix evaluator.
+
+`NativeTerminalField` proves the literal equality fold equals the public
+field equality product on equal-dimension points. Its prefix-loop theorem
+uses the original coordinates and actual shift bits, then connects the
+whole loop to the already proved prefix-mask MLE, including zero count,
+empty points and the full-table branch. The unsigned word-shift domain
+`point.length < 64` is explicit in this checked model. It is an internal
+machine precondition, not a new reachable native rejection or retry cap;
+unchecked out-of-domain Rust behavior is not claimed. Deriving that bound
+and the logical-prefix bound from the actual caller's public geometry is
+still part of the remaining caller/source refinement.
+
+`NativeGoldTerminalArithmetic` instantiates the loops with proved raw lazy
+Goldilocks operations and exact cubic multiplication. It also models the
+native ordered full-extension compression of decoded source elements and
+powers, and the exact association of the masked reciprocal residual. The
+complete raw value maps to the same public terminal formula used by
+`ExtensionLookupIdentity`. Native canonical-coordinate equality against
+the supplied expected value is equivalent to that field identity. Both
+zip truncation and raw lazy representatives remain literal.
+
+The interface is deliberately `valueFromElements`/`checkFromElements`:
+these elements must still be produced by the actual source query and
+padding projection. This arithmetic theorem neither bypasses those checks
+nor assumes PCS authentication. The native caller's helper-sum equality,
+interleaved claim accesses, source/helper query construction, terminal-value
+binding and accepted opening composition remain to implement and connect.
+
+An isolated Rust fixture compiles the verbatim pinned private `equality`,
+`prefix` and `check_terminal` functions and their actual challenge structure.
+It calls the real public source-query/projection functions and compares
+native acceptance/rejection for exact and one-offset expected values.
+Kernel regressions reproduce all twelve small prefix vectors, lazy
+near-u64-maximum inputs, empty/truncated equality, both 63-bit threshold
+cases, the compression output, and four full terminal raw outputs. They
+check exact stored words, including outputs above the modulus. Additional
+kernel tests exercise explicit bad-shift/missing-access model failures;
+those are not assertions of graceful native rejection. A universal consumer
+uses the field-identity theorem with explicit valid machine geometry.
+
+The remaining lookup caller and PCS/query bridge obligations, full PBS
+extraction and linking, checked Rust/scheduler and strict decoder refinement,
+BabyBear arithmetic, chronological attacker-work coupling, numerical
+certification and the final 128-bit application theorem remain open. The
+native fixture is regression evidence, not a formal Rust refinement.
+
+Validation: the focused raw-terminal build passed (3,918 jobs), followed
+by HasteBoots smoke (4,136 jobs) and its separate warning-as-error run
+(exit 0). All 19 new public theorem audits use only `propext`,
+`Classical.choice` and `Quot.sound`; the guarded total is 2,045. Isolated
+warning-as-error kernel regressions and the pinned native terminal fixture
+both finished with exit 0. Logs:
+`/tmp/hasteboots-gold-terminal-build.log`,
+`/tmp/hasteboots-terminal-audit.log`,
+`/tmp/hasteboots-terminal-regressions.log`,
+`/tmp/hasteboots-terminal-rust.log`,
+`/tmp/hasteboots-terminal-smoke.log` and
+`/tmp/hasteboots-terminal-strict.log`.
+The pinned Rust HEAD, both transcript hashes and batch verifier hash were
+rechecked unchanged. The fixture's terminal source hash is
+`f724877b5a4bc61d736b29fbad6ad7365765af145d71c55d51faf40a4ac6d3db`;
+the public packed-extension query source hash is
+`6d8e26d54479ad5e8f9fb5673ef67f5b86f22ec903a556a4c9cbeec785c3e8f1`.
+No Rust, vendor source or dependency pin changed.
+The full `scripts/check` finished with exit 0 after the full build (10,155
+jobs) and all subsequent audit/smoke suites. Full log:
+`/tmp/hasteboots-terminal-check.log`.
