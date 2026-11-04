@@ -4562,3 +4562,64 @@ Successful logs: `/tmp/hasteboots-native-arithmetic-build.log` and
 Whitespace checks passed. The pinned Rust revision and both transcript
 source hashes were rechecked unchanged. Rust sources, vendor sources and
 dependency pins were not modified.
+
+## Native coefficient-helper packing and PCS source
+
+`NativeHelperPacking` models `packed_extension::table` at the field-value
+level. Each extension value is copied in declared basis order into a
+width-sized vector, with zero unused lanes. The flat order is exactly
+Boolean-cell-major, then coefficient lane. The proved optional lookup at
+`row * width + lane` succeeds with the expected coefficient; no default
+getter or row/lane transposition changes a constructed helper entry.
+
+The checked constructor retains the native admissible geometry on the
+supported 64-bit target: nonzero extension degree, degree at most packed
+width, checked width-square, checked shift, exact `2^numVars` extension-value
+count and checked total scalar count. Successful construction satisfies the
+field-level `PackedTable::validate` shape. Failure and success are related
+by a proved iff specification. This specifies the admissible natural-number
+geometry; checked Rust error-order, word arithmetic and memory refinement
+are still separate obligations.
+
+A composed constructor consumes the actual reciprocal vector and witness
+indices through the previous checked helper fill, then packs its resulting
+extension vector. Geometry is checked before filling; invalid accessed
+indices are explicit errors. The constructor's iff, shape and query theorems
+retain that exact filled vector and prove its length. Native Goldilocks and
+BabyBear entry points preserve individual and batched inverse policies,
+respectively. Valid-call denominator conditions still come from the proved
+compiled lookup selection; this does not refine invalid reciprocal panics.
+
+The view used by the existing PCS interface is now linked to the actual
+flat constructor output. Its native ordered coefficient query returns the
+encoding of the same extension MLE, including the zero-variable post-map.
+An accepted wrong extension claim about that constructed source forces a
+wrong underlying base-field PCS claim. Separately, shape validation alone
+proves the view's lookup succeeds for every arbitrary valid PCS table, even
+with nonzero unused lanes. Honest helper padding is therefore not imposed
+as an assumption about adversarial committed tables.
+
+This supplies the field-level helper vector, coefficient packing, checked
+geometry and source-query bridge. It does not establish raw native basis
+slices or lazy/Montgomery representatives as the same serialized bytes.
+Actual helper commitment, leaf encoding, helper-root absorption, equality
+challenges, sumcheck/PCS body execution, final child linking, native
+preflight/witness and outer scheduler refinement remain open. Whole-history
+native charges, compatible unbounded sampler prefixes, chronological
+attacker-work coupling, numerical certification, strict proof-byte decoding
+and the final application security theorem remain unproved.
+
+Validation passed: focused HasteBoots smoke (4,096 jobs), a separate
+warning-as-error HasteBoots smoke, and full `scripts/check` (10,113 build
+jobs and every subsequent strict suite, terminal exit zero). All 15 new
+audits (public theorems and both concrete field entry points) satisfy the
+permitted standard-foundation allowlist; the guarded HasteBoots count is
+now 1,740. Regressions cover row-major coefficient/zero-lane placement,
+checked shift and multiplication boundaries, width and value-count errors,
+repeated reciprocal indices, invalid accessed indices, geometry rejection
+before filling, valid nonzero unused lanes, and the zero-variable query's
+local projection. Successful logs:
+`/tmp/hasteboots-native-packing-{build,audit,regressions,smoke,strict,check}.log`.
+Whitespace checks passed. The pinned Rust revision and both transcript
+source hashes were rechecked unchanged. Rust sources, vendor sources and
+dependency pins were not modified.

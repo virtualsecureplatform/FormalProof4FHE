@@ -13105,4 +13105,137 @@ end NativeLookupHelperSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeLookupReciprocals.babyBear
 
+namespace NativeHelperPackingSmoke
+open NativeHelperPacking
+local instance : Fact (Nat.Prime 17) := ⟨by decide⟩
+private noncomputable def basis : Module.Basis (Fin 1) (ZMod 17) (ZMod 17) := Module.Basis.singleton _ _
+
+private theorem coefficients_singleton (width : ℕ) (value : ZMod 17) :
+    coefficients basis width value = fun lane => if lane.val < 1 then value else 0 := by
+  funext lane
+  simp [coefficients, basis, Module.Basis.equivFun_apply]
+
+private theorem pack_singleton (width : ℕ) (values : List (ZMod 17)) :
+    pack basis width values = values.flatMap (fun value => List.ofFn
+      (fun lane : Fin width => if lane.val < 1 then value else 0)) := by
+  unfold pack
+  congr 1
+  funext value
+  rw [NativeHelperPacking.vector, coefficients_singleton]
+
+/-- Boolean-cell-major storage, with basis coefficients before zero lanes. -/
+example : pack basis 2 [3, 5, 7, 11] = [3, 0, 5, 0, 7, 0, 11, 0] := by
+  simp only [pack_singleton]
+  decide +kernel
+
+example : (build basis 2 2 [3, 5, 7, 11]).map Packed.values = .ok [3, 0, 5, 0, 7, 0, 11, 0] := by
+  simp only [build, pack_singleton]
+  decide +kernel
+
+/-- The checked shift, square and exact value-count guards remain separate. -/
+example : build basis 64 2 [] = .error .invalidGeometry := by decide +kernel
+example : build basis 0 (2 ^ 32) [1] = .error .invalidGeometry := by decide +kernel
+example : build basis 0 0 [1] = .error .invalidGeometry := by decide +kernel
+example : build basis 0 2 [1, 2] = .error .invalidGeometry := by decide +kernel
+example : ¬Geometry 1 63 2 (2 ^ 63) := by decide +kernel
+example : Geometry 1 63 1 (2 ^ 63) := by decide +kernel
+
+/-- Repeated witness indices and trailing extension zero become the exact
+base-field helper vector that is passed to commitment construction. -/
+example : (prepare basis 2 2 .batched 3 [0, 1, 2] [2, 0, 2]).map Packed.values =
+    .ok [7, 0, 6, 0, 7, 0, 0, 0] := by
+  simp only [prepare, build, pack_singleton]
+  decide +kernel
+
+example : prepare basis 0 2 .individual 3 [0] [999] = .error .invalidIndex := by decide +kernel
+
+/-- Invalid dimensions are rejected before an enormous fill is attempted. -/
+example : prepare basis 64 2 .individual 3 [] [] = .error .invalidGeometry := by decide +kernel
+
+/-- Valid arbitrary PCS tables may contain nonzero unused lanes. -/
+example : (⟨0, 2, [3, 9]⟩ : Packed (ZMod 17)).Valid := by
+  unfold Packed.Valid
+  decide +kernel
+example : view 0 2 ([3, 9] : List (ZMod 17)) () (1 : Fin 2) = 9 := by decide +kernel
+
+private theorem encoded (value : ZMod 17) : PaddedExtension.encode (padding := 1) basis value = ![value, 0] := by
+  rw [← coefficients_padded]
+  rw [coefficients_singleton]
+  funext lane
+  fin_cases lane <;> rfl
+
+/-- A zero-variable helper is a constant vector opened before the local
+projection; its encoded value is preserved. -/
+example : (ExtensionQuery.coefficientsQuery (padding := 1) basis (Fin.elim0 : Fin 0 → ZMod 17)).evaluate
+    (view 0 2 (pack basis 2 [3])) = ![3, 0] := by
+  rw [query_pack basis [3] rfl]
+  have indexZero : FlatMatrixFold.index 0 () = (0 : Fin 1) := by
+    apply Fin.ext
+    have bound := (FlatMatrixFold.index 0 ()).isLt
+    norm_num at bound ⊢
+  simp only [ExtensionQuery.evaluate, indexZero]
+  exact encoded 3
+
+end NativeHelperPackingSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeHelperPacking.vector_length' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeHelperPacking.vector_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeHelperPacking.coefficients_padded' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeHelperPacking.coefficients_padded
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeHelperPacking.pack_length' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeHelperPacking.pack_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeHelperPacking.pack_get' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeHelperPacking.pack_get
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeHelperPacking.build_ok_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeHelperPacking.build_ok_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeHelperPacking.build_valid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeHelperPacking.build_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeHelperPacking.view_valid_lookup' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeHelperPacking.view_valid_lookup
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeHelperPacking.view_pack' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeHelperPacking.view_pack
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeHelperPacking.query_pack' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeHelperPacking.query_pack
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeHelperPacking.query_pack_false_claim' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeHelperPacking.query_pack_false_claim
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeHelperPacking.prepare_ok_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeHelperPacking.prepare_ok_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeHelperPacking.prepare_valid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeHelperPacking.prepare_valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeHelperPacking.prepare_query' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeHelperPacking.prepare_query
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeHelperPacking.goldilocks' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeHelperPacking.goldilocks
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeHelperPacking.babyBear' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeHelperPacking.babyBear
+
 end HasteBootsSmoke

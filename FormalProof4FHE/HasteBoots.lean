@@ -285,3 +285,4 @@ public import FormalProof4FHE.HasteBoots.NativeLookupBatch
 public import FormalProof4FHE.HasteBoots.NativeLookupReciprocals
 public import FormalProof4FHE.HasteBoots.NativeLookupHelper
 public import FormalProof4FHE.HasteBoots.NativeLookupArithmetic
+public import FormalProof4FHE.HasteBoots.NativeHelperPacking
