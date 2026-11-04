@@ -21,13 +21,14 @@ if [[ ! -f "${PROBE}/.hasteboots-probe" ]] ||
   echo "Refusing to modify a checkout not owned by this pinned probe: ${PROBE}" >&2
   exit 1
 fi
-PATCH=${ROOT}/interop/aeneas/lean435.patch
+for PATCH in "${ROOT}/interop/aeneas/lean435.patch" "${ROOT}/interop/aeneas/stdlib435.patch"; do
 if git -C "${PROBE}" apply --check "${PATCH}" 2>/dev/null; then
   git -C "${PROBE}" apply "${PATCH}"
 elif ! git -C "${PROBE}" apply --reverse --check "${PATCH}" 2>/dev/null; then
   echo 'Probe source does not match either the pinned or patched version.' >&2
   exit 1
 fi
+done
 # Use the root's actual mathlib source, not Aeneas's old manifest revision.
 python3 - "${PROBE}" "${ROOT}" <<'PY'
 from pathlib import Path
@@ -42,4 +43,4 @@ if old not in source and new not in source:
     raise SystemExit('Unexpected upstream mathlib dependency declaration')
 (backend / 'lakefile.lean').write_text(source.replace(old, new))
 PY
-"${ROOT}/scripts/in-container" bash -euc 'cd -- "$1"; lake update mathlib; lake build Aeneas.Std.Primitives; lake env lean -DwarningAsError=true /workspace/interop/aeneas/Probe.lean' _ "${BACKEND}"
+"${ROOT}/scripts/in-container" bash -euc 'cd -- "$1"; lake update mathlib; lake build Aeneas.Std; lake env lean -DwarningAsError=true /workspace/interop/aeneas/Probe.lean' _ "${BACKEND}"

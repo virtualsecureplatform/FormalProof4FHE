@@ -1,0 +1,235 @@
+diff --git a/backends/lean/Aeneas/Std/Array/Array.lean b/backends/lean/Aeneas/Std/Array/Array.lean
+index 32b40235..46904b0c 100644
+--- a/backends/lean/Aeneas/Std/Array/Array.lean
++++ b/backends/lean/Aeneas/Std/Array/Array.lean
+@@ -4,6 +4,8 @@ import Aeneas.Tactic.Step.Init
+ import Aeneas.Std.Array.Core
+ import Aeneas.Std.Core.Default
+
++set_option backward.isDefEq.respectTransparency false
++
+ namespace Aeneas.Std
+
+ open Result Error WP
+diff --git a/backends/lean/Aeneas/Std/Array/ArraySlice.lean b/backends/lean/Aeneas/Std/Array/ArraySlice.lean
+index 32b7f741..43d7f7cf 100644
+--- a/backends/lean/Aeneas/Std/Array/ArraySlice.lean
++++ b/backends/lean/Aeneas/Std/Array/ArraySlice.lean
+@@ -8,6 +8,8 @@ import Aeneas.Std.Core.Cmp
+
+ /-! Array definitions which mention slices -/
+
++set_option backward.isDefEq.respectTransparency false
++
+ namespace Aeneas.Std
+
+ open Result Error core.ops.range WP
+diff --git a/backends/lean/Aeneas/Std/Scalar/CoreConvertNum.lean b/backends/lean/Aeneas/Std/Scalar/CoreConvertNum.lean
+index fac90e77..22f2d5e5 100644
+--- a/backends/lean/Aeneas/Std/Scalar/CoreConvertNum.lean
++++ b/backends/lean/Aeneas/Std/Scalar/CoreConvertNum.lean
+@@ -594,19 +594,19 @@ iscalar_no_isize def core.num.«%S».to_be_bytes (x : «%S») : Array I8 (%Size)
+ # From Little-Endian
+ -/
+ uscalar_no_usize def core.num.«%S».from_le_bytes (a : Array U8 (%Size)#usize) : «%S» :=
+-  ⟨ (BitVec.fromLEBytes (List.map U8.bv a.val)).cast (by simp) ⟩
++  ⟨ (BitVec.fromLEBytes (List.map U8.bv a.val)).cast (by simp [Array.length_eq]) ⟩
+
+ iscalar_no_isize def core.num.«%S».from_le_bytes (a : Array I8 (%Size)#usize) : «%S» :=
+-  ⟨ (BitVec.fromLEBytes (List.map I8.bv a.val)).cast (by simp) ⟩
++  ⟨ (BitVec.fromLEBytes (List.map I8.bv a.val)).cast (by simp [Array.length_eq]) ⟩
+
+ /-!
+ # From Big-Endian
+ -/
+ uscalar_no_usize def core.num.«%S».from_be_bytes (a : Array U8 (%Size)#usize) : «%S» :=
+-  ⟨ (BitVec.fromBEBytes (List.map U8.bv a.val)).cast (by simp) ⟩
++  ⟨ (BitVec.fromBEBytes (List.map U8.bv a.val)).cast (by simp [Array.length_eq]) ⟩
+
+ iscalar_no_isize def core.num.«%S».from_be_bytes (a : Array I8 (%Size)#usize) : «%S» :=
+-  ⟨ (BitVec.fromBEBytes (List.map I8.bv a.val)).cast (by simp) ⟩
++  ⟨ (BitVec.fromBEBytes (List.map I8.bv a.val)).cast (by simp [Array.length_eq]) ⟩
+
+ /-!
+ # Progress theorems: To Little-Endian
+@@ -614,25 +614,25 @@ iscalar_no_isize def core.num.«%S».from_be_bytes (a : Array I8 (%Size)#usize)
+ uscalar_no_usize @[step]
+ theorem core.num.«%S».to_le_bytes.step_spec (x : «%S») :
+   lift (core.num.«%S».to_le_bytes x) ⦃ y => y.val = x.bv.toLEBytes.map (@UScalar.mk UScalarTy.U8) ⦄ := by
+-  simp only [spec_ok, lift, to_le_bytes, UScalarTy.U8_numBits_eq]
++  simp only [lift, WP.spec, WP.theta, WP.wp_return, to_le_bytes, UScalarTy.U8_numBits_eq]
+
+ iscalar_no_isize @[step]
+ theorem core.num.«%S».to_le_bytes.step_spec (x : «%S») :
+   lift (core.num.«%S».to_le_bytes x) ⦃ y => y.val = x.bv.toLEBytes.map (@IScalar.mk IScalarTy.I8) ⦄ := by
+-  simp only [spec_ok, lift, to_le_bytes, IScalarTy.I8_numBits_eq]
++  simp only [lift, WP.spec, WP.theta, WP.wp_return, to_le_bytes, IScalarTy.I8_numBits_eq]
+
+ /-!
+ # Progress theorems: From Little-Endian
+ -/
+ uscalar_no_usize @[step]
+ theorem core.num.«%S».from_le_bytes.step_spec (x : Array U8 (%Size)#usize) :
+-  lift (core.num.«%S».from_le_bytes x) ⦃ y => y.bv = (BitVec.fromLEBytes (x.val.map U8.bv)).cast (by simp) ⦄ := by
+-  simp only [spec_ok, lift, from_le_bytes]
++  lift (core.num.«%S».from_le_bytes x) ⦃ y => y.bv = (BitVec.fromLEBytes (x.val.map U8.bv)).cast (by simp [Array.length_eq]) ⦄ := by
++  simp only [lift, WP.spec, WP.theta, WP.wp_return, from_le_bytes]
+
+ iscalar_no_isize @[step]
+ theorem core.num.«%S».from_le_bytes.step_spec (x : Array I8 (%Size)#usize) :
+-  lift (core.num.«%S».from_le_bytes x) ⦃ y => y.bv = (BitVec.fromLEBytes (x.val.map I8.bv)).cast (by simp) ⦄  := by
+-  simp only [spec_ok, lift, from_le_bytes]
++  lift (core.num.«%S».from_le_bytes x) ⦃ y => y.bv = (BitVec.fromLEBytes (x.val.map I8.bv)).cast (by simp [Array.length_eq]) ⦄  := by
++  simp only [lift, WP.spec, WP.theta, WP.wp_return, from_le_bytes]
+
+ /-!
+ # Progress theorems: To Big-Endian
+@@ -640,25 +640,25 @@ theorem core.num.«%S».from_le_bytes.step_spec (x : Array I8 (%Size)#usize) :
+ uscalar_no_usize @[step]
+ theorem core.num.«%S».to_be_bytes.step_spec (x : «%S») :
+   lift (core.num.«%S».to_be_bytes x) ⦃ y => y.val = x.bv.toBEBytes.map (@UScalar.mk UScalarTy.U8) ⦄ := by
+-  simp only [spec_ok, lift, to_be_bytes, UScalarTy.U8_numBits_eq]
++  simp only [lift, WP.spec, WP.theta, WP.wp_return, to_be_bytes, UScalarTy.U8_numBits_eq]
+
+ iscalar_no_isize @[step]
+ theorem core.num.«%S».to_be_bytes.step_spec (x : «%S») :
+   lift (core.num.«%S».to_be_bytes x) ⦃ y => y.val = x.bv.toBEBytes.map (@IScalar.mk IScalarTy.I8) ⦄ := by
+-  simp only [spec_ok, lift, to_be_bytes, IScalarTy.I8_numBits_eq]
++  simp only [lift, WP.spec, WP.theta, WP.wp_return, to_be_bytes, IScalarTy.I8_numBits_eq]
+
+ /-!
+ # Progress theorems: From Big-Endian
+ -/
+ uscalar_no_usize @[step]
+ theorem core.num.«%S».from_be_bytes.step_spec (x : Array U8 (%Size)#usize) :
+-  lift (core.num.«%S».from_be_bytes x) ⦃ y => y.bv = (BitVec.fromBEBytes (x.val.map U8.bv)).cast (by simp) ⦄ := by
+-  simp only [spec_ok, lift, from_be_bytes]
++  lift (core.num.«%S».from_be_bytes x) ⦃ y => y.bv = (BitVec.fromBEBytes (x.val.map U8.bv)).cast (by simp [Array.length_eq]) ⦄ := by
++  simp only [lift, WP.spec, WP.theta, WP.wp_return, from_be_bytes]
+
+ iscalar_no_isize @[step]
+ theorem core.num.«%S».from_be_bytes.step_spec (x : Array I8 (%Size)#usize) :
+-  lift (core.num.«%S».from_be_bytes x) ⦃ y => y.bv = (BitVec.fromBEBytes (x.val.map I8.bv)).cast (by simp) ⦄  := by
+-  simp only [spec_ok, lift, from_be_bytes]
++  lift (core.num.«%S».from_be_bytes x) ⦃ y => y.bv = (BitVec.fromBEBytes (x.val.map I8.bv)).cast (by simp [Array.length_eq]) ⦄  := by
++  simp only [lift, WP.spec, WP.theta, WP.wp_return, from_be_bytes]
+
+ /-!
+ # `cast_signed` / `cast_unsigned`
+diff --git a/backends/lean/Aeneas/Std/Slice.lean b/backends/lean/Aeneas/Std/Slice.lean
+index 16da42b2..2262b281 100644
+--- a/backends/lean/Aeneas/Std/Slice.lean
++++ b/backends/lean/Aeneas/Std/Slice.lean
+@@ -7,6 +7,8 @@ import Aeneas.Std.RawPtr
+ import Aeneas.Tactic.Simp.SimpScalar.SimpScalar
+ import Aeneas.Std.SliceDef
+
++set_option backward.isDefEq.respectTransparency false
++
+ namespace Aeneas.Std
+
+ open Result Error core.ops.range WP
+diff --git a/backends/lean/Aeneas/Std/Vec.lean b/backends/lean/Aeneas/Std/Vec.lean
+index c58199c4..39843c68 100644
+--- a/backends/lean/Aeneas/Std/Vec.lean
++++ b/backends/lean/Aeneas/Std/Vec.lean
+@@ -7,6 +7,8 @@ import Aeneas.Std.Slice
+ import Aeneas.Tactic.Solver.ScalarTac
+ import Aeneas.Tactic.Step.Init
+
++set_option backward.isDefEq.respectTransparency false
++
+ namespace Aeneas
+
+ namespace Std
+diff --git a/backends/lean/Aeneas/Std/WP.lean b/backends/lean/Aeneas/Std/WP.lean
+index 84b6a840..e0e3511a 100644
+--- a/backends/lean/Aeneas/Std/WP.lean
++++ b/backends/lean/Aeneas/Std/WP.lean
+@@ -8,10 +8,10 @@ namespace Aeneas.Std.WP
+
+ open Std Result
+
+-def Post α := (α -> Prop)
+-def Pre := Prop
++abbrev Post α := (α -> Prop)
++abbrev Pre := Prop
+
+-def Wp α := Post α → Pre
++abbrev Wp α := Post α → Pre
+
+ def wp_return (x:α) : Wp α := fun p => p x
+
+@@ -37,7 +37,7 @@ theorem spec_dspec (α) (x : Result α) (p: Post α) : spec x p → dspec x p :=
+ theorem dspec_admissible {α} (p : Post α )
+   : Lean.Order.admissible (fun x => dspec x p) := by
+   apply Lean.Order.admissible_flatOrder
+-  simp [dspec]
++  simp [dspec, Lean.Order.FlatOrder.mk]
+
+ /-- Variant of `uncurry` used to decompose tuples in post-conditions.
+
+@@ -237,7 +237,7 @@ def qimp_dspec_iff {α β} (P : α → Prop) (k : α → Result β) (Q : β →
+   simp [qimp_dspec, imp]
+
+ @[simp, grind =, agrind =]
+-theorem dspec_ok (x : α) : dspec (ok x) p ↔ p x := by simp [dspec]
++theorem dspec_ok (x : α) : dspec (ok x) p ↔ p x := by simp [dspec, Lean.Order.FlatOrder.mk]
+
+ theorem dspec_imp_forall {m:Result α} {P:Post α} :
+   dspec m P → (∀ y, m = ok y → P y) := by
+diff --git a/backends/lean/Aeneas/Tactic/Simp/SimpScalar/Lemmas.lean b/backends/lean/Aeneas/Tactic/Simp/SimpScalar/Lemmas.lean
+index b8e88f92..b488740d 100644
+--- a/backends/lean/Aeneas/Tactic/Simp/SimpScalar/Lemmas.lean
++++ b/backends/lean/Aeneas/Tactic/Simp/SimpScalar/Lemmas.lean
+@@ -8,7 +8,7 @@ section
+   initialize registerTraceClass `ReduceLog2
+
+   -- TODO: the pattern `Nat.log2 (@OfNat.ofNat _ _ _)` doesn't work
+-  simproc Nat.reduceLog2 (Nat.log2 _) := fun e => do
++  simproc Aeneas.reduceLog2 (Nat.log2 _) := fun e => do
+     match e.consumeMData.getAppFnArgs with
+     | (``Nat.log2, #[value]) =>
+       trace[ReduceLog2] "- value: {value}"
+@@ -23,7 +23,7 @@ section
+
+   example : (2^128).log2 = 128 := by simp
+
+-  attribute [scalar_tac_simps, simp_scalar_safe] Nat.reduceLog2
++  attribute [scalar_tac_simps, simp_scalar_safe] Aeneas.reduceLog2
+
+ end
+
+diff --git a/backends/lean/Aeneas/Tactic/Simproc/ReduceZMod/ReduceZMod.lean b/backends/lean/Aeneas/Tactic/Simproc/ReduceZMod/ReduceZMod.lean
+index 4e63f80b..cfffa0d1 100644
+--- a/backends/lean/Aeneas/Tactic/Simproc/ReduceZMod/ReduceZMod.lean
++++ b/backends/lean/Aeneas/Tactic/Simproc/ReduceZMod/ReduceZMod.lean
+@@ -77,14 +77,7 @@ simproc reduceZModInv (@Inv.inv _ (ZMod.instInv _) _) := fun e => do
+   | _ => return .continue
+
+ /-- A simproc to reduce powers in ZMod. -/
+-simproc reduceZModPow
+-  (@HPow.hPow _ Nat _
+-      (@instHPow _ Nat
+-        (@Monoid.toPow _
+-          (@MonoidWithZero.toMonoid _
+-            (@Semiring.toMonoidWithZero _
+-              (@CommSemiring.toSemiring _ (@CommRing.toCommSemiring _ (ZMod.commRing _)))))))
+-      _ _) := fun e => do
++simproc reduceZModPow ((_ : ZMod _) ^ (_ : Nat)) := fun e => do
+   trace[ReduceZMod] "Visiting: {e}"
+   match e.consumeMData.getAppFnArgs with
+   | (``HPow.hPow, #[fieldTy, _, _, inst, value, pow]) =>
+diff --git a/backends/lean/Aeneas/Tactic/Solver/Arith/Lemmas.lean b/backends/lean/Aeneas/Tactic/Solver/Arith/Lemmas.lean
+index f55a0301..45059232 100644
+--- a/backends/lean/Aeneas/Tactic/Solver/Arith/Lemmas.lean
++++ b/backends/lean/Aeneas/Tactic/Solver/Arith/Lemmas.lean
+@@ -282,7 +282,7 @@ theorem ZMod.mul_inv_eq_int_gcd {n : ℕ} (a : ℤ) :
+     simp only [Nat.cast_inj]
+     rfl
+   else
+-    have hn : 0 < n := by cases n <;> simp_all only [AddLeftCancelMonoid.add_eq_zero, one_ne_zero,
++    have hn : 0 < n := by cases n <;> simp_all only [Nat.add_eq_zero, one_ne_zero,
+       and_false, not_false_eq_true, lt_add_iff_pos_left, add_pos_iff,
+       zero_lt_one, or_true, not_true_eq_false]
+     rw [ZMod.mul_inv_eq_gcd]

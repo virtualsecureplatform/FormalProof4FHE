@@ -3482,3 +3482,31 @@ and the probe refused an existing unmarked directory without modifying it.
 `bash -n` and `git diff --check` passed. Root Lean proof sources, dependency
 pins and Rust sources are unchanged; validation for this chunk is the
 isolated patched backend and strict regression probe.
+
+
+## Revised roadmap M0: standard library compatibility
+
+`interop/aeneas/stdlib435.patch` extends the isolated port to `Aeneas.Std`.
+It restores definition-alias transparency in the WP and collection proofs,
+updates numeric conversion cast proofs and WP unfolding, uses the current
+natural-number cancellation lemma, avoids the new `Nat.reduceLog2` name
+collision, and matches powers without depending on a removed instance path.
+The primitive arithmetic definitions are preserved. The compatibility script
+now applies both patches and builds `Aeneas.Std` before the strict probe.
+
+Validation: all 1,666 standard-library build jobs passed; the strict probe
+also passed, including little-endian byte conversion and leading-zero counts
+at zero, one, and a 64-bit boundary. Log:
+`/tmp/hasteboots-std-repro.log`. This is not a claim that upstream is free of
+admissions: it includes an unused `StringIter` declaration using `sorry`.
+Each extracted target must pass its own dependency audit. The umbrella
+`Aeneas` build still fails in unrelated BV tactic examples, a duplicate
+array lemma, and diagnostic-message tests on Lean 4.35. Generated probes use
+`Aeneas.Std` and the Rust attribute module by an import-only change; no
+program terms are repaired to make them typecheck.
+
+The patch reverse-check, script syntax check, and whitespace checks passed.
+Root proof sources, dependency pins, vendor sources, and the HasteBoots Rust
+worktree are unchanged. No root full-suite rerun was needed for this isolated
+backend change; the previous root full-suite result remains the one above.
+The sampler extraction and full Rust correspondence obligations remain open.
