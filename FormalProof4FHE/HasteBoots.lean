@@ -347,3 +347,7 @@ public import FormalProof4FHE.HasteBoots.NativeGoldTerminalQueryMeaning
 public import FormalProof4FHE.HasteBoots.NativeGoldTerminalConstructed
 public import FormalProof4FHE.HasteBoots.NativeSharedLookupGuard
 public import FormalProof4FHE.HasteBoots.NativeSharedLookupBatchLink
+public import FormalProof4FHE.HasteBoots.NativeLookupBindGeometry
+public import FormalProof4FHE.HasteBoots.NativeSharedLookupStatement
+public import FormalProof4FHE.HasteBoots.NativeSharedLookupGeometryLink
+public import FormalProof4FHE.HasteBoots.NativeSharedLookupPrepared

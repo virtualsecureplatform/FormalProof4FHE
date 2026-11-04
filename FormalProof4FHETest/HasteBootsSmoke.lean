@@ -16348,4 +16348,167 @@ end SharedLookupGuardSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupBatchLink.point_coordinate
 
+namespace SharedLookupStatementSmoke
+open FormalProof4FHE.HasteBoots
+open NativeFields NativeFieldRepresentation NativeFieldWire NativeGoldExtensionArithmetic NativeExtensionFields
+private def usize (n : ℕ) : NativeUsizeMessage.Usize := ⟨n % (2^64), Nat.mod_lt _ (by decide)⟩
+private def word (n : ℕ) : GoldWord := ⟨n % (2^64), Nat.mod_lt _ (by decide)⟩
+private def rawWord (value : Word) : List ℕ := (List.ofFn value).map Fin.val
+private def params (n k : ℕ) : NativeLookupBindGeometry.Parameters := ⟨usize n,usize k⟩
+private def numericBind (columns logical n k : ℕ) (sources : List (ℕ × ℕ)) : Option (ℕ × ℕ × ℕ) :=
+  (NativeLookupBindGeometry.bind columns (usize logical) (params n k) (sources.map (fun source => params source.1 source.2))).map
+    (fun geometry => (geometry.numVariables.val, geometry.width.val, geometry.capacity.val))
+example : numericBind 2 5 3 4 [(1,4),(1,4)] = some (3,4,8) := by decide +kernel
+example : numericBind 2 8 3 3 [(1,4),(1,4)] = some (3,4,8) := by decide +kernel
+example : numericBind 2 0 63 3 [(61,4),(61,4)] = some (63,4,2^63) := by decide +kernel
+example : numericBind 2 0 64 3 [(62,4),(62,4)] = none := by decide +kernel
+example : numericBind 2 0 32 3 [(0,4294967296),(0,4294967296)] = some (32,2^32,2^32) := by decide +kernel
+example : numericBind 2 0 63 3 [(0,9223372036854775808),(0,9223372036854775808)] = some (63,2^63,2^63) := by decide +kernel
+example : numericBind 2 0 1 3 [(18446744073709551615,4),(18446744073709551615,4)] = none := by decide +kernel
+example : numericBind 2 5 4 3 [(1,4),(1,4)] = none := by decide +kernel
+example : numericBind 2 5 3 8 [(1,4),(1,4)] = none := by decide +kernel
+example : numericBind 2 9 3 3 [(1,4),(1,4)] = none := by decide +kernel
+example : numericBind 2 5 3 3 [(1,4),(2,4)] = none := by decide +kernel
+example : numericBind 1 5 3 3 [(1,4),(1,4)] = none := by decide +kernel
+example : numericBind 2 0 1 3 [(1,0),(1,0)] = none := by decide +kernel
+example : numericBind 2 0 2 3 [(1,2),(1,2)] = none := by decide +kernel
+example : numericBind 2 0 2 3 [(1,3),(1,3)] = none := by decide +kernel
+example : numericBind 2 0 3 3 [(1,6),(1,6)] = none := by decide +kernel
+-- Empty sources are outside the native index precondition; the model returns none.
+example : numericBind 0 0 3 3 [] = none := by decide +kernel
+example : (NativeLookupBindGeometry.capacity (usize (2^32))).isNone = true := by decide +kernel
+example : (NativeLookupBindGeometry.capacity (usize 0)).map Fin.val = some 1 := by decide +kernel
+-- The bind prefix accepts this geometry; the later scalar matrix-square check rejects it.
+example : NativeScalarQueryShape.check 0 (2^32) 32 = false := by decide +kernel
+private def request (logical repetitions : ℕ) : NativeSharedLookupStatement.Request :=
+  ⟨1,[[word 1],[word 2]],repetitions,⟨[0],usize logical⟩⟩
+private def reqs : Fin 3 → NativeSharedLookupStatement.Request := ![request 5 2,request 8 0,request 8 1]
+example : (NativeSharedLookupStatement.infos (usize 3) (List.ofFn reqs)).map
+    (fun info => (info.maxMultiplicands.val,info.numVariables.val)) = [(1,3),(4,3),(1,3),(4,3),(1,3),(3,3)] := by decide +kernel
+example : (NativeSharedLookupStatement.tags (by decide : 3 ≤ 2^64) reqs).map
+    (fun tag => (tag.ordinal.val,tag.repetition)) = [(0,0),(0,1),(2,0)] := by decide +kernel
+example : (NativeLookupBatch.jobs (NativeLookupBatch.schedule (by decide : 3 ≤ 2^64) (fun i => (reqs i).sampling))).map
+    (fun job => (job.ordinal.val,job.repetition)) = [(0,0),(0,1),(2,0)] := by decide +kernel
+private def prepared (ordinal repetition : ℕ) (req : NativeSharedLookupStatement.Request) (inverses : List Word) : NativeSharedLookupStatement.Prepared :=
+  ⟨⟨usize ordinal,repetition,req⟩,⟨NativeGoldLookup.zero,NativeGoldLookup.one,[],NativeGoldLookup.one,[],inverses⟩⟩
+private def preparedJobs : List NativeSharedLookupStatement.Prepared := [
+  prepared 0 0 (request 5 2) [![word 2,word 3,word 4],![word 5,word 6,word 7]],
+  prepared 0 1 (request 5 2) [![word 11,word 13,word 17],![word 19,word 23,word 29]],
+  prepared 2 0 (request 8 1) [![word 18446744069414584322,word 31,word 37]]]
+private def counts : List (List GoldWord) := [([3,7] : List ℕ).map word,[],[word 11]]
+private def expectedSums : List (List ℕ) := [[41,51,61],[0,0,0],[166,200,254],[0,0,0],[18446744069414584332,341,407],[0,0,0]]
+example : (NativeSharedLookupStatement.initialClaims counts preparedJobs).map (List.map rawWord) = some expectedSums := by decide +kernel
+example : (NativeSharedLookupStatement.initialClaims (counts.take 2) preparedJobs).isNone = true := by decide +kernel
+example : NativeSharedLookupStatement.initialClaims [] [] = some [] := by decide +kernel
+example : (NativeSharedLookupStatement.build (usize 3) (List.ofFn reqs) preparedJobs counts).map
+    (fun statement => (statement.infos.val.map (fun info => info.maxMultiplicands.val),statement.claims.val.map rawWord)) =
+    some ([1,4,1,4,1,3],expectedSums) := by decide +kernel
+example : (NativeSharedLookupPrepared.guardJobs preparedJobs).map NativeSharedLookupGuard.Job.request = [0,0,2] := by decide +kernel
+-- Successful operational preparation supplies the dimensions of the independently built statement.
+example {count : ℕ} (fits : count ≤ 2^64) (requests : Fin count → NativeSharedLookupStatement.Request)
+    (n : NativeUsizeMessage.Usize) (completed : List (NativeLookupBatch.Completed goldilocksModulus Goldilocks3))
+    (jobs : List NativeSharedLookupStatement.Prepared) (success : NativeSharedLookupPrepared.prepare completed (NativeSharedLookupStatement.tags fits requests) = some jobs)
+    (multiplicities : List (List GoldWord)) (statement : NativeScalarBatchWire.Statement)
+    (built : NativeSharedLookupStatement.build n (List.ofFn requests) jobs multiplicities = some statement) :
+    statement.infos.val.length = statement.claims.val.length ∧ statement.claims.val.length = 2*jobs.length :=
+  NativeSharedLookupPrepared.build_dimensions fits requests n completed jobs success multiplicities statement built
+example {count : ℕ} (fits : count ≤ 2^64) (requests : Fin count → NativeSharedLookupStatement.Request)
+    (w fuel : ℕ) (transcript : NativeTranscript.Transcript) (world : InputIndexedOracle.World) (final : NativeTranscript.Transcript)
+    (finished : (NativeLookupBatch.execute goldilocksBasis w fuel
+      (NativeLookupBatch.initial (NativeLookupBatch.schedule fits (fun i => (requests i).sampling)) transcript) world).1.control = .finished final) :
+    ∃ jobs, NativeSharedLookupPrepared.prepare
+      (NativeLookupBatch.execute goldilocksBasis w fuel
+        (NativeLookupBatch.initial (NativeLookupBatch.schedule fits (fun i => (requests i).sampling)) transcript) world).1.completed
+      (NativeSharedLookupStatement.tags fits requests) = some jobs ∧ jobs.map NativeSharedLookupStatement.Prepared.tag = NativeSharedLookupStatement.tags fits requests :=
+  NativeSharedLookupPrepared.executed_prepare fits requests w fuel transcript world final finished
+end SharedLookupStatementSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupBindGeometry.addVariables_some' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupBindGeometry.addVariables_some
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupBindGeometry.capacity_some' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupBindGeometry.capacity_some
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupBindGeometry.compatible_iff' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupBindGeometry.compatible_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupBindGeometry.bind_spec' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupBindGeometry.bind_spec
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupBindGeometry.terminal_bounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupBindGeometry.terminal_bounds
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupStatement.schedule_jobs' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupStatement.schedule_jobs
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupStatement.finished_jobs' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupStatement.finished_jobs
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupStatement.infos_tags' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupStatement.infos_tags
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupStatement.initialClaims_length' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupStatement.initialClaims_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupStatement.pair_length' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupStatement.pair_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupStatement.infos_numVariables' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupStatement.infos_numVariables
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupStatement.infos_length_tags' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupStatement.infos_length_tags
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupStatement.initialClaims_pair' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupStatement.initialClaims_pair
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupStatement.build_spec' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupStatement.build_spec
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupGeometryLink.statement_head' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupGeometryLink.statement_head
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupGeometryLink.linked_terminal_bounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupGeometryLink.linked_terminal_bounds
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupGeometryLink.initialized_terminal_bounds' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupGeometryLink.initialized_terminal_bounds
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupPrepared.prepare_exists' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupPrepared.prepare_exists
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupPrepared.prepare_spec' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupPrepared.prepare_spec
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupPrepared.executed_prepare' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupPrepared.executed_prepare
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupPrepared.guard_requests' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupPrepared.guard_requests
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupPrepared.build_dimensions' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupPrepared.build_dimensions
+
 end HasteBootsSmoke

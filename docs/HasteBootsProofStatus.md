@@ -7,12 +7,14 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
-Current status: the joint ideal-oracle model now has a proved accumulated
-SHA-512 collision bound for actual causal mixed SHAKE/hash programs, including
-repeated calls and inherited bad events. See [the latest proof layer](#accumulated-joint-world-hash-collision-charge).
-The full application security theorem remains unproved: native sampler and
-protocol composition, work coupling, numerical certification, strict decoding,
-and checked Rust/scheduler refinement are still required.
+Current native integration connects completed lookup sampling to independent
+shared equation/claim construction, and connects the actual scalar verifier's
+terminal guard to checked geometry. See [the current implementation layer](#native-shared-statement-construction-and-derived-terminal-geometry).
+The joint ideal-oracle model also has a proved accumulated SHA-512 collision
+bound for causal mixed SHAKE/hash programs, including repeated calls and
+inherited bad events. The full application security theorem remains unproved:
+full native protocol/PCS composition, work coupling, numerical certification,
+strict decoding and checked Rust/scheduler refinement are still required.
 
 ## Implemented definitions and proofs
 
@@ -6232,3 +6234,93 @@ followed by the full `scripts/check` with exit 0 (full build: 10,175 jobs,
 plus all subsequent audit/smoke suites). Logs:
 `/tmp/hasteboots-shared-lookup-guard-strict.log` and
 `/tmp/hasteboots-shared-lookup-guard-check.log`.
+
+
+## Native shared statement construction and derived terminal geometry
+
+`NativeLookupBindGeometry` now models the numeric prefix of canonical
+`bind`: source-column count, degree-three/power-of-two packing, checked
+variable addition, u32 conversion and usize shift, logical length and
+uniform source/helper geometry. A helper may have width three or the
+source packing width. No matrix-square restriction is added to this
+prefix; native binding accepts some geometries that the later scalar
+query rejects. Successful binding supplies the actual dimension, capacity,
+logical-prefix bound and full-point shift domain. Empty sources return
+`none` in this checked model; native indexing requires a nonempty source
+precondition. Context retrieval, hashing and framing remain open.
+
+`NativeSharedLookupStatement` independently constructs equation infos
+from the original request/repetition list. Each job contributes degrees
+one and three for a full logical domain, or one and four for a partial
+domain. Its tags erase to exactly the existing operational sampler's
+schedule, including original request indices when a request has zero
+repetitions. Actual finished sampler execution supplies the completed-job
+order. Initial claims use each raw producer's own inverse vector with
+its original request-indexed multiplicities, followed by raw zero.
+Success identifies every even and odd getter and preserves the exact
+native raw arithmetic, including noncanonical Goldilocks representatives.
+The infos and claims vectors retain their independent native usize bounds.
+
+`NativeSharedLookupPrepared` pairs those tags with the actual completed
+sampler records and calls the existing raw producer. Initialized finished
+execution supplies producer success, raw public-table identification and
+all job tags from the existing operational invariants. No raw-challenge,
+row-identification or job-order certificate is an input to that execution
+theorem. Successful preparation retains every original tag and producer
+call in order; projecting guard jobs retains the original request indices.
+This alignment proves that successful independent statement construction
+has equal infos/claims lengths, each twice the actual prepared-job count.
+The native zero-denominator rejection loop remains the existing sampler;
+this construction introduces no retry cap.
+
+`NativeSharedLookupGeometryLink` connects the constructed statement's
+metadata to the initialized scalar-verifier/strict-guard linkage. It
+therefore derives `point.length < 64` and
+`logicalLength ≤ 2^point.length` at the returned common point from successful
+numeric binding and the exact statement construction. Neither terminal
+bound nor the point itself is supplied as an independent certificate.
+The current theorem takes the selected binding inputs explicitly; the
+full shared caller must still establish that every original request,
+helper, source registry and guard input uses those same geometries.
+
+The native fixture compiles the exact numeric prefix extracted from
+`canonical.rs`, independent `equation_infos` from `shared.rs` and actual
+`table_sum` from the lookup module, with minimal records for their fields.
+It covers sixteen geometry cases, including helper width three, last
+valid shift, checked-add/shift failures, oversized logical length,
+mismatched sources and bind acceptance before later matrix rejection.
+It also checks repetitions `[2,0,1]`, original job indices `[0,0,2]`,
+per-request multiplicity reuse and raw table-sum output. Its supplied
+inverse vectors exercise statement construction; it is not a native
+sampler or complete caller/PCS verification. Thirty new normal-depth
+kernel regression/consumer examples reproduce these observations and
+checked-domain failures and instantiate the actual sampler and dimension
+linkages.
+
+Remaining work includes canonical configuration/table validation, full
+shared preflight and geometry agreement, equality-point draw composition,
+proof-value validation, child transcript framing and statement-level
+helper-sum/identity meaning. Accepted helper/source PCS authentication,
+native query folding, lookup/PBS extraction, checked Rust/compiler and
+scheduler refinement, strict decoder refinement, BabyBear arithmetic,
+chronological attacker work, numerical certification and the final
+128-bit application theorem remain open.
+
+Validation: all four focused module builds passed; the isolated
+normal-depth kernel regressions and extracted native fixture exited 0.
+All 22 new public theorem audits use only `propext`, `Classical.choice`
+and `Quot.sound`; the integrated suite now contains 2,217 guarded audits.
+Logs: `/tmp/hasteboots-shared-lookup-statement-{rust,regressions,audit}.log`.
+The native checkout remains clean at
+`dff353006322693cab3dc6b654f82151f658f294`. Source hashes:
+`canonical.rs` is
+`5c3b74e05efa988a5fa5d6fbf45324c4187f25786de1026496baeb8095d99a1f`;
+`shared.rs` is
+`ccf4c115b1d21717cde1c54de04a199a1b07a02997056866a518939aed59dd9f`.
+The canonical shared caller and terminal source hashes remain unchanged.
+No Rust, vendor source or dependency pin changed.
+The integrated HasteBoots smoke build passed (4,161 jobs), followed by
+the standalone warning-as-error smoke check and the full `scripts/check`,
+both with exit 0. The full build completed 10,180 jobs, and all subsequent
+repository audit/smoke suites passed. Logs:
+`/tmp/hasteboots-shared-lookup-statement-{smoke,strict,check}.log`.
