@@ -5201,3 +5201,86 @@ Rust, vendor sources and dependency pins were not modified.
 The full `scripts/check` finished with exit 0 after the full build (10,133
 jobs) and all subsequent audit/smoke suites. Full log:
 `/tmp/hasteboots-scalar-wire-check.log`.
+
+
+## Scalar-batch preflight and checked round extraction
+
+`NativeScalarBatchPreflight` now models the verifier's ordered front end.
+It checks proof/metadata shape first, then the empty-batch case, metadata
+dimensions, and interpolation-node collisions, before binding any statement
+bytes. The error categories remain separate. The native usize `degree + 1`
+overflow check is retained before evaluation-vector length checks. Successful
+shape is characterized by a `Forall₂` relation between every trusted info
+and its proof instance, including all round counts and evaluation counts.
+
+The actual consecutive-node loop uses raw extension addition by one and
+canonical field-zero comparison after every addition. Its theorem covers
+all intermediate nodes. Starting from raw zero it accepts exactly degrees
+below the Goldilocks characteristic. The characteristic follows from the
+injective base-field algebra map into the checked degree-three extension.
+Positive-degree and common-variable-count conditions follow from successful
+preflight; no interpolation domain or degree certificate is supplied by the
+caller. There is no introduced runtime iteration cap or replacement fast
+range check. The characteristic boundary regression uses this universal
+loop theorem rather than evaluating a characteristic-sized loop.
+
+Each recurrence reads the first two actual message evaluations and compares
+their raw sum using native semantic equality. The checker is the ordered
+zip of these independent checks. Under the validated length invariant it is
+exactly a `Forall₂` assertion checking every claim, and compensating errors
+in two claims are rejected. Its round-binding helper rejects before any
+round-message absorption. These are phase helpers, not a complete verifier:
+standalone zip checks still have native truncation semantics, and the full
+round driver must retain the proved count invariant after interpolation.
+
+`NativeScalarBatchRoundPacket` extracts each instance's actual round-th
+message with an explicit failed-access result and no default message.
+Accepted preflight and an in-range round prove extraction succeeds in
+statement order, its packet count fits usize and equals the claim count,
+and each equation has the validated evaluation width. Positivity then
+proves the first-two-entry access is safe for every matched equation.
+
+The isolated native fixture directly calls pinned public
+`sumcheck::batch::verify` with the classical extension transcript. It covers
+shape-error priority, empty batch, wrong evaluation count, zero variables,
+zero degree, claim-count mismatch, degree overflow, inconsistent variables
+and compensating false claims. It compares subsequent challenge bytes with
+a reference transcript having the expected statement prefix: preflight
+failures have no binding, while recurrence failure retains only the statement
+binding. A valid two-equation run returns one common point, the expected
+linear evaluations and the matching transcript continuation. A separate raw
+addition confirms that the first characteristic wrap is stored as raw modulus
+and nevertheless compares equal to zero.
+
+Kernel regressions cover the corresponding front-end guards, exact bound
+input on success, lazy-zero node detection, the characteristic boundary,
+independent rejection despite equal total sums, and ordered/failed round
+extraction. They observe error tags and input bytes, avoiding equality tests
+on transcript function fields. These tests and front-end theorems do not
+establish optimized interpolation, the actual common-challenge/interpolation
+loop or terminal authentication. Those are next, together with the scalar
+batch's arithmetic/soundness composition.
+
+Helper row-code/NTT and commitments, remaining lookup/PBS bodies and
+child/parent linking, BabyBear arithmetic, public registry/source
+correspondence, checked Rust/scheduler and decoder refinement, unbounded
+chronological attacker-work coupling, strict proof-byte decoding, numerical
+certification and the final 128-bit application theorem remain open.
+
+Validation: the focused round-packet build passed (3,915 jobs),
+followed by HasteBoots smoke (4,117 jobs) and the separate warning-as-error
+HasteBoots smoke (exit 0). All 17 new public theorem audits use only the
+standard foundation allowlist, bringing the guarded total to 1,939. The
+isolated kernel regressions and pinned native public-verifier fixture both
+finished with exit 0. Logs:
+`/tmp/hasteboots-scalar-preflight-build.log`,
+`/tmp/hasteboots-scalar-preflight-audit.log`,
+`/tmp/hasteboots-scalar-preflight-regressions.log`,
+`/tmp/hasteboots-scalar-preflight-smoke.log`,
+`/tmp/hasteboots-scalar-preflight-strict.log`, and
+`/tmp/hasteboots-scalar-preflight-rust.log`.
+Rust HEAD and transcript source hashes were rechecked unchanged; native
+Rust, vendor sources and dependency pins were not modified.
+The full `scripts/check` finished with exit 0 after the full build (10,134
+jobs) and all subsequent audit/smoke suites. Full log:
+`/tmp/hasteboots-scalar-preflight-check.log`.

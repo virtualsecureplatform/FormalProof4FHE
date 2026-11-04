@@ -14367,4 +14367,128 @@ end ScalarWireRegressions
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativePrefixCodec.fixed
 
+namespace ScalarPreflightRegressions
+open NativeFieldRepresentation NativeScalarBatchWire NativeScalarBatchPreflight
+
+private def word (value : ℕ) : GoldWord := ⟨value % (2 ^ 64), Nat.mod_lt _ (by decide)⟩
+private def base (value : ℕ) : NativeFieldWire.GoldExtension := ![word value, 0, 0]
+private def m12 : Message := ⟨⟨[base 1, base 2], by decide⟩⟩
+private def m34 : Message := ⟨⟨[base 3, base 4], by decide⟩⟩
+private def statement : Statement := ⟨⟨[⟨1, 1⟩, ⟨1, 1⟩], by decide⟩, ⟨[base 3, base 7], by decide⟩⟩
+private def proof : NativeScalarBatchPreflight.Proof := ⟨[⟨[m12], by decide⟩, ⟨[m34], by decide⟩], by decide⟩
+private def parent : NativeTranscript.Transcript := ⟨[], fun _ => 0⟩
+private def packet : RoundPacket := ⟨0, ⟨[m12, m34], by decide⟩⟩
+private def emptyStatement : Statement := ⟨⟨[], by decide⟩, ⟨[], by decide⟩⟩
+private def emptyProof : NativeScalarBatchPreflight.Proof := ⟨[], by decide⟩
+private def overflow : Statement := ⟨⟨[⟨18446744073709551615, 1⟩], by decide⟩, ⟨[base 0], by decide⟩⟩
+private def overflowProof : NativeScalarBatchPreflight.Proof := ⟨[⟨[⟨⟨[], by decide⟩⟩], by decide⟩], by decide⟩
+private def zeroDegree : Statement := ⟨⟨[⟨0, 1⟩], by decide⟩, ⟨[base 3], by decide⟩⟩
+private def zeroDegreeProof : NativeScalarBatchPreflight.Proof := ⟨[⟨[⟨⟨[base 3], by decide⟩⟩], by decide⟩], by decide⟩
+
+private def outcome (result : Except NativeScalarBatchPreflight.Error NativeTranscript.Transcript) :
+    NativeScalarBatchPreflight.Error ⊕ InputIndexedOracle.Input :=
+  match result with
+  | .error error => .inl error
+  | .ok transcript => .inr transcript.input
+
+/-- Actual ordered preflight guards: shape errors precede binding/dimensions;
+empty batch and scalar dimension errors stay separate. -/
+example : outcome (beginVerify parent statement emptyProof) = .inl .proofShape := by decide +kernel
+example : outcome (beginVerify parent emptyStatement emptyProof) = .inl .emptyBatch := by decide +kernel
+example : outcome (beginVerify parent zeroDegree zeroDegreeProof) = .inl .dimensions := by decide +kernel
+example : outcome (beginVerify parent overflow overflowProof) = .inl .proofShape := by decide +kernel
+example : dimensions overflow = false := by decide +kernel
+example : outcome (beginVerify parent statement proof) =
+    .inr (bindStatement parent statement).input := by decide +kernel
+
+/-- Early lazy-zero detection is essential in the literal node loop. -/
+example : nodesFrom 3 NativeGoldLookup.zero = true := by decide +kernel
+example : nodesFrom 1 (base 18446744069414584320) = false := by decide +kernel
+example : ¬ nodesFrom NativeFields.goldilocksModulus NativeGoldLookup.zero = true := by
+  rw [nodesFrom_zero_iff]
+  exact Nat.lt_irrefl _
+
+/-- Compensating errors preserve the total but fail the independent checks. -/
+example : NativeGoldExtensionArithmetic.add (base 3) (base 7) =
+    NativeGoldExtensionArithmetic.add (base 4) (base 6) := by decide +kernel
+example : check [m12, m34] [base 3, base 7] = true := by decide +kernel
+example : check [m12, m34] [base 4, base 6] = false := by decide +kernel
+example : outcome (bindCheckedRound parent packet [base 4, base 6]) = .inl .recurrence := by decide +kernel
+
+/-- Round extraction retains instance order and fails on every absent index. -/
+example : (NativeScalarBatchRoundPacket.packet 0 proof).map (fun out =>
+    (out.round.val, out.messages.val.map (fun message => message.evaluations.val.map (fun value => (value 0).val)))) =
+      some (0, [[1, 2], [3, 4]]) := by decide +kernel
+example : NativeScalarBatchRoundPacket.packet 1 proof = none := by decide +kernel
+end ScalarPreflightRegressions
+
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchPreflight.nodesFrom_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchPreflight.nodesFrom_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchPreflight.nodesFrom_zero_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchPreflight.nodesFrom_zero_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchPreflight.beginVerify_proof_failure' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchPreflight.beginVerify_proof_failure
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchPreflight.beginVerify_empty_failure' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchPreflight.beginVerify_empty_failure
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchPreflight.beginVerify_dimension_failure' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchPreflight.beginVerify_dimension_failure
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchPreflight.beginVerify_node_failure' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchPreflight.beginVerify_node_failure
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchPreflight.recurrence_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchPreflight.recurrence_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchPreflight.check_cons' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchPreflight.check_cons
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchPreflight.bindCheckedRound_failure' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchPreflight.bindCheckedRound_failure
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchPreflight.proofShape_iff' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchPreflight.proofShape_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchPreflight.dimensions_success' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchPreflight.dimensions_success
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchPreflight.beginVerify_ok_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchPreflight.beginVerify_ok_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchPreflight.check_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchPreflight.check_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchRoundPacket.uniform_rounds' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchRoundPacket.uniform_rounds
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchRoundPacket.collect_success' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchRoundPacket.collect_success
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchRoundPacket.packet_success' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchRoundPacket.packet_success
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeScalarBatchRoundPacket.first_two_safe' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeScalarBatchRoundPacket.first_two_safe
+
 end HasteBootsSmoke
