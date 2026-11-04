@@ -12970,4 +12970,139 @@ end NativeUsizeMessageSmoke
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeLookupBatch.babyBear
 
+namespace NativeLookupHelperSmoke
+local instance : Fact (Nat.Prime 17) := ⟨by decide⟩
+
+example : NativeLookupReciprocals.forward (1 : ZMod 17) [1, 16, 3, 5] =
+    (2, [(1, 1), (16, 1), (3, 16), (5, 14)]) := by decide +kernel
+
+example : NativeLookupReciprocals.batch ([1, 16, 3, 5] : List (ZMod 17)) = [1, 16, 6, 7] := by decide +kernel
+example : NativeLookupReciprocals.batch ([] : List (ZMod 17)) = [] := rfl
+
+/-- Helper entries reuse the public reciprocal vector, including repeated
+witness indices, followed by native zero padding. -/
+example : NativeLookupHelper.fill 5
+    (NativeLookupReciprocals.inverses .batched (3 : ZMod 17) [0, 1, 2]) [2, 0, 2] =
+      some [7, 6, 7, 0, 0] := by decide +kernel
+
+/-- Native zip truncation ignores an invalid but unread trailing index. -/
+example : NativeLookupHelper.fill 2 ([6, 13, 7] : List (ZMod 17)) [2, 0, 999] = some [7, 6] := by decide +kernel
+
+/-- An actually accessed invalid index is a failure, never zero padding. -/
+example : NativeLookupHelper.fill 2 ([6, 13, 7] : List (ZMod 17)) [0, 999] = none := by decide +kernel
+example : NativeLookupHelper.fill 0 ([] : List (ZMod 17)) [999] = some [] := rfl
+
+example : NativeLookupArithmetic.tableSum (p := 17) .individual (3 : ZMod 17) [0, 1, 2] [1, 0, 2] = 3 := by decide +kernel
+example : NativeLookupArithmetic.tableSum (p := 17) .batched (3 : ZMod 17) [0, 1, 2] [1, 0, 2] = 3 := by decide +kernel
+
+example : NativeLookupArithmetic.tableSum (p := 17) .batched (1 : ZMod 17)
+    (NativeLookupChallenge.tableAt (p := 17) [[1, 2], [3, 4]] 2 2) [2, 3] = 2 := by decide +kernel
+
+local instance : Fact (Nat.Prime 3) := ⟨by decide⟩
+private noncomputable def basis : Module.Basis (Fin 1) (ZMod 3) (ZMod 3) := Module.Basis.singleton _ _
+private def parent : NativeTranscript.Transcript := ⟨[], fun _ => 0⟩
+private def ones : InputIndexedOracle.World := fun _ => 1
+private def config : Fin 1 → NativeLookupBatch.Request 3 := fun _ => ⟨1, [[1]], 1⟩
+private theorem fits : 1 ≤ 2 ^ 64 := by decide
+
+/-- The inverse-table phase consumes the completed compiler output without
+replacing its compression or reciprocal by a fresh independent value. -/
+example : ((OracleProgram.run (NativeLookupBatch.request basis 1 5 fits config parent) ones).run.1.completed.map
+    (fun completed => match completed.selection.control with
+      | .finished _ r _ table _ => NativeLookupReciprocals.inverses .individual r table
+      | _ => [])) = [[2]] := by
+  simp only [basis, NativeLookupBatch.request, NativeLookupBatch.steps, NativeLookupBatch.tick,
+    NativeLookupChallenge.tick, TypedFieldRequest.scalarValue_singleton]
+  decide +kernel
+
+end NativeLookupHelperSmoke
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupReciprocals.backward_forward' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupReciprocals.backward_forward
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupReciprocals.batch_correct' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupReciprocals.batch_correct
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupReciprocals.tableReciprocals_correct' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupReciprocals.tableReciprocals_correct
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupReciprocals.allowed_nonzero' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupReciprocals.allowed_nonzero
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupReciprocals.inverses_correct' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupReciprocals.inverses_correct
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupReciprocals.inverses_length' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupReciprocals.inverses_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupReciprocals.inverses_get' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupReciprocals.inverses_get
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupReciprocals.inverse_identity' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupReciprocals.inverse_identity
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupHelper.fill_length' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupHelper.fill_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupHelper.fill_spec' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupHelper.fill_spec
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupHelper.fill_reciprocals' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupHelper.fill_reciprocals
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupHelper.helper_identity' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupHelper.helper_identity
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupHelper.helper_inactive_identity' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupHelper.helper_inactive_identity
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupHelper.completed_inverses' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupHelper.completed_inverses
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupArithmetic.powersFrom_eq' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupArithmetic.powersFrom_eq
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupArithmetic.compress_tuple' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupArithmetic.compress_tuple
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupArithmetic.tableAt_vectors' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupArithmetic.tableAt_vectors
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupArithmetic.compress_vectors' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupArithmetic.compress_vectors
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupArithmetic.tableSum_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupArithmetic.tableSum_eq
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupArithmetic.completed_tableSum' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupArithmetic.completed_tableSum
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupReciprocals.goldilocks' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupReciprocals.goldilocks
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeLookupReciprocals.babyBear' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeLookupReciprocals.babyBear
+
 end HasteBootsSmoke

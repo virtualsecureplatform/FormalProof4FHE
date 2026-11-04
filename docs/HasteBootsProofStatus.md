@@ -4493,3 +4493,72 @@ and `/tmp/hasteboots-native-usize-rust-fixture.log`.
 Whitespace checks passed. The pinned Rust revision and both transcript
 source hashes were rechecked unchanged. Rust sources, vendor sources and
 dependency pins were not modified.
+
+## Native reciprocal/helper arithmetic and soundness bridge
+
+`NativeLookupReciprocals` models the actual forward prefix-product tape and
+reverse traversal of `batch_reciprocals`. Its loop invariant proves both
+the complete ordered inverse vector and the final running inverse. It does
+not assume the batched outputs are independently inverted values. The
+empty branch returns immediately. The accepted native challenge's exclusion
+check proves every denominator nonzero, discharging the valid-call domain
+of the source's assertions.
+
+The two native policies remain explicit. BabyBear uses the batch algorithm;
+Goldilocks uses individual divisions as in the pinned Rust source. Both
+are proved to yield the mathematical reciprocal of each denominator, with
+exact length, checked lookup and multiplicative identity theorems. This
+field equality does not identify lazy/Montgomery representatives, serialized
+bytes, inversion work or commitment roots. In particular it does not justify
+replacing the Goldilocks branch with batching.
+
+`NativeLookupHelper` supplies the checked semantics of the native
+zero-initialized helper vector filled by a zip with private table indices.
+It copies exactly the accessible indexed inverse values, truncates at
+capacity and zero-pads the rest. An invalid accessed index is explicit
+failure, rather than an invented default value. Every successful output has
+the requested capacity. Safe index/lookup certificates prove the exact
+copy/truncate/pad result and its specialization to the same reciprocal
+vector as the public table sum. Active inverse cells and inactive zero
+padding satisfy the literal native reciprocal identity. An unread invalid
+trailing index is ignored as by native zip. Native witness/index validation
+and refinement of the source's panic-free path remain obligations.
+
+`NativeLookupArithmetic` connects the native powers and literal zip/fold
+to `TupleHash.hash` for rectangular public tables. It proves that the native
+inverse/multiplicity fold is exactly `LookupPairArithmetic.tableSum`,
+including base-field embedding and multiplication order. Its completed-job
+theorem consumes the existing compiled batch validity and retained result;
+it derives the accepted-domain condition internally after identifying the
+trusted request with the rectangular public table. A separate theorem links
+a completed compiled job directly to its reciprocal vector. Thus the new
+arithmetic uses the actual retained compression/reciprocal pair, rather than
+fresh ideal field draws or unrelated public tables.
+
+This supplies the field-level reciprocal/helper construction and its
+connection to existing soundness arithmetic. It does not yet compile the
+remaining native child body or its work schedule. Raw representation and
+basis-vector serialization, coefficient helper packing, actual commitment
+and helper-root absorption, equality-point and sumcheck/PCS execution,
+final child linking, native preflight/witness checks and the outer PBS
+scheduler still need refinement/composition. Whole-history native charges,
+compatible unbounded sampler prefixes, chronological attacker-work coupling,
+concrete numerical certification and strict proof-byte decoding remain
+open. The final 128-bit application security theorem remains unproved.
+
+Validation passed: focused HasteBoots smoke (4,095 jobs), a separate
+warning-as-error HasteBoots smoke, and full `scripts/check` (10,115 build
+jobs and every subsequent strict suite, terminal exit zero). All 22 new
+audits (public theorems and both native policy entry points) satisfy the
+permitted standard-foundation allowlist; the guarded HasteBoots audit count
+is now 1,725. Kernel-checked regressions cover the ordered prefix tape and
+reverse inversion, empty tables, both inverse policies, repeated helper
+indices, zero padding, capacity truncation, ignored unread indices and
+failure on an invalid accessed index. A completed compiled challenge supplies
+its actual inverse table in the regression; the native public fold is also
+checked on a nontrivial two-column public table.
+Successful logs: `/tmp/hasteboots-native-arithmetic-build.log` and
+`/tmp/hasteboots-native-helper-{audit,regressions,smoke,strict,check}.log`.
+Whitespace checks passed. The pinned Rust revision and both transcript
+source hashes were rechecked unchanged. Rust sources, vendor sources and
+dependency pins were not modified.

@@ -282,3 +282,6 @@ public import FormalProof4FHE.HasteBoots.OracleHistoryDrift
 public import FormalProof4FHE.HasteBoots.JointHashPrefix
 public import FormalProof4FHE.HasteBoots.NativeUsizeMessage
 public import FormalProof4FHE.HasteBoots.NativeLookupBatch
+public import FormalProof4FHE.HasteBoots.NativeLookupReciprocals
+public import FormalProof4FHE.HasteBoots.NativeLookupHelper
+public import FormalProof4FHE.HasteBoots.NativeLookupArithmetic
