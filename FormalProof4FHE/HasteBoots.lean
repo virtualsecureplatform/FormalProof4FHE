@@ -414,3 +414,6 @@ public import FormalProof4FHE.HasteBoots.NativeGoldRawRequests
 public import FormalProof4FHE.HasteBoots.NativeGoldRawAvailability
 public import FormalProof4FHE.HasteBoots.NativeGoldPcsRawAvailability
 public import FormalProof4FHE.HasteBoots.NativeGoldPcsRawFailure
+public import FormalProof4FHE.HasteBoots.NativeGoldPcsDraws
+public import FormalProof4FHE.HasteBoots.NativeGoldPcsAgrees
+public import FormalProof4FHE.HasteBoots.NativeGoldPcsOpeningChecks

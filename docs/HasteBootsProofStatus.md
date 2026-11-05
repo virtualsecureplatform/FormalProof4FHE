@@ -19,7 +19,7 @@ open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#raw-frozen-word-availability-and-pool-loss).
+[the current implementation layer](#original-draw-semantic-opening-checks).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -8146,3 +8146,100 @@ are retained. Native HasteBoots and concrete-ntt tracked sources and vendor
 pins are unchanged. These checks validate the stated recorded-checkpoint/raw
 projection and symbolic pool-loss results, not complete native PCS/lookup
 acceptance or the final application security theorem.
+
+
+## Original-draw semantic opening checks
+
+`NativeGoldPcsDraws.typed` checks both the exact original quota length and all
+position bounds, then retains the complete draw vector in original order.
+It neither sorts nor deduplicates it. `typed_values` proves equality with the
+entire original list; `typed_complete` proves conversion succeeds when the
+existing native request bounds hold. Malformed lengths or positions return
+`none`, rather than truncating or substituting a fallback draw.
+
+`prepared_sample` extracts the original actual atomic-request result from the
+checked PCS execution. The full request equation includes the actual
+response-bound transcript and the original native label/domain/quota.
+Prepared job indices equal its sorted/deduplicated indices, but its ordered
+draw list still has the original query quota. Every draw, including each
+repeat, is bounded by the computed Merkle domain and covered by an unchanged
+prepared job. The resulting transcript is retained. `prepared_typed` derives
+the typed original vector and this coverage directly from execution success.
+These results identify samples; they do not assume or establish fresh
+uniform production challenges.
+
+`NativeGoldPcsAgrees.pool_position` transports the existing raw-pool equations
+to a fixed recorded checkpoint at any covered position. It recovers the
+actual request's tag, root and index from the lossless raw adapter; those
+identities are not incoming Merkle/availability certificates. Its semantic
+`source` takes only that checkpoint and trusted row/symbol dimensions. The
+challenge-dependent weights and computed responses are separate arguments.
+The source continues to project the prefix-frozen raw word after extraction;
+no semantic field list is hashed.
+
+`agrees_of_equations` identifies the original raw coordinate sums with
+`StructuredOpening.combine` and `ColumnOpening.Agrees`. `pool_agrees` proves
+both random-test and structured-response agreement families on every covered
+ordered draw, including repetitions, against that same fixed source.
+Sorting/deduplicating transmitted columns introduces no extra loss and does
+not replace the query quota by the number of distinct received columns.
+The existing shared raw-availability exception is unchanged.
+
+`NativeGoldPcsOpeningChecks.prepared_parameters` derives that geometry is the
+deterministic checked construction from trusted parameters, with the original
+root and packing width. The query, challenge values and oracle world do not
+supply that geometry. `original_draws` computes the actual quota-sized draw
+function at the matching trusted checkpoint height. Finally,
+`prepared_agrees` combines actual checked-prefix success, the original atomic
+request, actual raw-pool acceptance and the fixed recorded checkpoint to
+establish both existing semantic opening-check families. It takes no supplied
+draw vector or coverage certificate. The raw request list is the checked
+adapter's computed result; its completeness is supplied by the preceding
+layer.
+
+A read-only native fixture at the unchanged pinned HasteBoots commit passes
+full native single-opening verification with quotas 8 and 33 over a 32-symbol
+domain. It records the complete atomic byte blocks, ordered draws and actual
+transmitted column counts. The quota-33 fixture has 18 distinct transmitted
+columns but 33 ordered draws. Kernel tests compare both literal blocks and
+their exact native ordered/sorted results, preserve the 33-element typed
+vector, reject substituting its 18-element transport count, and cover repeats,
+invalid bounds/lengths and an empty mathematical vector. The existing checked
+native PCS fixture additionally computes its typed draw from the actual
+completed atomic request. All original native fixtures remain intact.
+
+All 10 new public theorems have guarded audits using only `propext`,
+`Classical.choice` and `Quot.sound`; the combined HasteBoots suite now has
+2,721 guarded audits. No `sorry`, new axiom, native decision procedure or
+raised proof limit is introduced.
+
+This closes original-draw transport at the stated recorded-checkpoint/pool
+interface. The near/far probability bound still needs its concrete response
+code/degree and structured-prefix tensor instantiation and production
+freshness/work coupling. Native checkpoint placement and mixed-prefix/cache
+state coupling are not proved by these agreement lemmas. Final suffix/claim
+enforcement, full PCS/lookup composition, registry/alias/query folding,
+lookup/PBS extraction, production profile instantiation, strict decoding,
+root generation/cache, Div64/SIMD/Rust/compiler/scheduler refinement,
+BabyBear, numerical certification and the final 128-bit application theorem
+remain open.
+
+
+Validation: full native verifier fixtures passed for quotas 8 and 33. The
+focused Lean draw/checked-prefix build passed (4,064 jobs, 90 seconds for the
+PCS fixture), as did the standalone warning-as-error draw check and all 10
+guarded theorem audits. The combined HasteBoots smoke build passed (4,236
+jobs, 592 seconds for its smoke file), and the standalone warning-as-error
+HasteBoots check exited 0. Full `scripts/check` exited 0: its build completed
+10,254 jobs and all subsequent repository audit/smoke commands passed.
+Evidence: `/tmp/hasteboots-ordered-draws-native.log`,
+`/tmp/hasteboots-ordered-draws-focused.log`,
+`/tmp/hasteboots-ordered-draws-audit.log`,
+`/tmp/hasteboots-ordered-draws-strict-focused.log`,
+`/tmp/hasteboots-ordered-draws-smoke.log`,
+`/tmp/hasteboots-ordered-draws-strict.log` and
+`/tmp/hasteboots-ordered-draws-check.log`. Native HasteBoots remains clean at
+its pinned commit; native/concrete-ntt tracked sources and vendor pins are
+unchanged. These checks establish original-draw transport and the stated
+conditional semantic check interface, not the remaining near/far/native
+coupling or complete application security theorem.

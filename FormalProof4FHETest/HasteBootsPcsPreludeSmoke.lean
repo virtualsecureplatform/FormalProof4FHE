@@ -5,6 +5,7 @@ import all Batteries.Data.Except
 import all FormalProof4FHE.HasteBoots.NativeGoldPcsEncoding
 import all FormalProof4FHE.HasteBoots.NativeGoldPcsWorkers
 import all FormalProof4FHE.HasteBoots.NativeGoldPcsRawAvailability
+import all FormalProof4FHE.HasteBoots.NativeGoldPcsOpeningChecks
 
 import all FormalProof4FHE.HasteBoots.NativeGoldPcsPrelude
 import all FormalProof4FHE.HasteBoots.NativeGoldPcsColumnsShape
@@ -258,6 +259,11 @@ example : (match preparedRun.1 with
   | .prepared work => (NativeGoldPcsRawAvailability.prepare (fun _ : Unit => 5) () work).map
       (List.map (fun entry => entry.2.payload))
   | _ => none) = some (opening.columns.val.map NativeGoldColumnAuthentication.Column.values) := by decide +kernel
+
+example : (match columnsCompleted.1 with
+  | .columns geometry _ _ sample => (NativeGoldPcsDraws.typed geometry.height parameters.queries.val sample.draws).map
+      (fun draw => (List.ofFn draw).map Fin.val)
+  | _ => none) = some [27] := by decide +kernel
 
 end NativePcsPreludeSmoke
 
