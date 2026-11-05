@@ -1,6 +1,9 @@
 module
 
 import all FormalProof4FHE.HasteBoots.NativeGoldRowEncoding
+import all FormalProof4FHE.HasteBoots.NativeGoldResponseMeaning
+import all FormalProof4FHE.HasteBoots.NativeGoldNttMeaning
+import all FormalProof4FHE.HasteBoots.NTTRootCheck
 import all FormalProof4FHE.HasteBoots.NativeGoldNtt
 import all FormalProof4FHE.HasteBoots.NativeGoldSolinas
 
@@ -47,6 +50,51 @@ example : NativeGoldRowEncoding.encodeRow {code_zero with messageLength := 0} []
 example : NativeGoldRowEncoding.encodeRow code_partial (words [1]) = none := by decide +kernel
 example : NativeGoldRowEncoding.encodeResponses pcsCode 3 (words [1]) = none := by decide +kernel
 example : NativeGoldRowEncoding.encodeResponses pcsCode 0 [] = some [] := by decide +kernel
+private theorem root32_primitive : IsPrimitiveRoot (NativeGoldSolinas.value (canonical 549755813888)) (2^(5+1)) := by
+  apply NTTRootCheck.primitive_of_half_power 5 _ NativeFields.goldilocks_odd
+  decide +kernel
+private theorem root64_primitive : IsPrimitiveRoot (NativeGoldSolinas.value (canonical 17870292113338400769)) (2^(6+1)) := by
+  apply NTTRootCheck.primitive_of_half_power 6 _ NativeFields.goldilocks_odd
+  decide +kernel
+example (result : List NativeFieldRepresentation.GoldWord)
+    (success : NativeGoldNtt.forward 5 (canonical 549755813888) input5 = some result) :
+    result.map NativeFieldRepresentation.goldValue = List.ofFn (NTTRowCheck.evaluation
+      (NTTButterfly.nodes 5 (NativeGoldSolinas.value (canonical 549755813888)))
+      (fun index => NativeFieldRepresentation.goldValue (input5[index.val]?.getD 0))) :=
+  NativeGoldNttMeaning.forward_evaluation _ _ _ _ success root32_primitive
+example (result : List NativeFieldRepresentation.GoldWord)
+    (success : NativeGoldNtt.forward 6 (canonical 17870292113338400769) input6 = some result) :
+    result.map NativeFieldRepresentation.goldValue = List.ofFn (NTTRowCheck.evaluation
+      (NTTButterfly.nodes 6 (NativeGoldSolinas.value (canonical 17870292113338400769)))
+      (fun index => NativeFieldRepresentation.goldValue (input6[index.val]?.getD 0))) :=
+  NativeGoldNttMeaning.forward_evaluation _ _ _ _ success root64_primitive
+example (result : List NativeFieldRepresentation.GoldWord)
+    (success : NativeGoldRowEncoding.encodeRow code_partial input_partial = some result) :
+    NativeGoldRowMeaning.word code_partial result ∈ BlockCode.code
+      (NTTButterfly.domain 5 (NativeGoldSolinas.value code_partial.planRoot) root32_primitive) 4 3 :=
+  NativeGoldRowMeaning.encodeRow_mem_code _ _ _ _ success (by decide) (by decide) root32_primitive
+example (result : List NativeFieldRepresentation.GoldWord)
+    (success : NativeGoldRowEncoding.encodeRow code_nonconstant input_nonconstant = some result) :
+    NativeGoldRowMeaning.word code_nonconstant result ∈ BlockCode.code
+      (NTTButterfly.domain 6 (NativeGoldSolinas.value code_nonconstant.planRoot) root64_primitive) 16 2 :=
+  NativeGoldRowMeaning.encodeRow_mem_code _ _ _ _ success (by decide) (by decide) root64_primitive
+example (result : List NativeFieldRepresentation.GoldWord)
+    (success : NativeGoldRowEncoding.encodeRow code_zero input_zero = some result) :
+    NativeGoldRowMeaning.word code_zero result ∈ BlockCode.code
+      (NTTButterfly.domain 5 (NativeFieldRepresentation.goldValue code_zero.domainRoot) root32_primitive) 4 3 :=
+  NativeGoldRowMeaning.encodeRow_mem_retained_code _ _ _ _ success (by decide) (by decide) root32_primitive
+example (input result : List NativeFieldRepresentation.GoldWord)
+    (success : NativeGoldRowEncoding.encodeResponses pcsCode 3 input = some result) (lane : ℕ) (bound : lane < 3) :
+    NativeGoldResponseMeaning.laneWord pcsCode result lane ∈ BlockCode.code
+      (NTTButterfly.domain 5 (NativeFieldRepresentation.goldValue pcsCode.domainRoot) root32_primitive) 1 2 :=
+  (NativeGoldResponseMeaning.encodeResponses_retained_lanes pcsCode 1 3 input result success (by decide) (by decide) root32_primitive lane bound).2
+example (input result : List NativeFieldRepresentation.GoldWord)
+    (success : NativeGoldRowEncoding.encodeResponses pcsCode 3 input = some result) (lane : ℕ) (bound : lane < 3) :
+    NativeGoldResponseMeaning.laneWord pcsCode result lane = BlockEncoder.encode
+      (NTTButterfly.domain 5 (NativeFieldRepresentation.goldValue pcsCode.domainRoot) root32_primitive)
+      (NativeGoldRowMeaning.coefficients pcsCode 1 ((input.drop (lane*2)).take 2)) :=
+  (NativeGoldResponseMeaning.encodeResponses_retained_lanes pcsCode 1 3 input result success (by decide) (by decide) root32_primitive lane bound).1
+
 end NativeGoldEncodingSmoke
 
 /-- info: 'FormalProof4FHE.HasteBoots.NativeGoldSolinas.canonical_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
@@ -176,3 +224,187 @@ end NativeGoldEncodingSmoke
 /-- info: 'FormalProof4FHE.HasteBoots.NativeGoldRowEncoding.encodeResponses_shape' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeGoldRowEncoding.encodeResponses_shape
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttTwiddles.reverse_zero' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttTwiddles.reverse_zero
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttTwiddles.reverse_append' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttTwiddles.reverse_append
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttTwiddles.reverse_one' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttTwiddles.reverse_one
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttTwiddles.reverse_child' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttTwiddles.reverse_child
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttTwiddles.reverse_involution' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttTwiddles.reverse_involution
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttTwiddles.reverse_eq_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttTwiddles.reverse_eq_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttTwiddles.init_get' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttTwiddles.init_get
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttTwiddles.twiddles_get' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttTwiddles.twiddles_get
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttTwiddles.subtree_exponent' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttTwiddles.subtree_exponent
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttTwiddles.twiddles_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttTwiddles.twiddles_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttStages.stage_get' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttStages.stage_get
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttStages.stride_factor' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttStages.stride_factor
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttStages.entry_append_left' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttStages.entry_append_left
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttStages.entry_append_right' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttStages.entry_append_right
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttStages.stage_append' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttStages.stage_append
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttSchedule.breadth_append' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttSchedule.breadth_append
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttSchedule.tree_length' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttSchedule.tree_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttSchedule.breadth_tree' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttSchedule.breadth_tree
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttSchedule.depthFirst_tree' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttSchedule.depthFirst_tree
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.child_base' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.child_base
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.child_omega' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.child_omega
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.first_twiddle' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.first_twiddle
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.top_entry' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.top_entry
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.halfData_length' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.halfData_length
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.half_view' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.half_view
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.top_reduced' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.top_reduced
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.view_append_left' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.view_append_left
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.view_append_right' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.view_append_right
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.tree_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.tree_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.depthFirst_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.depthFirst_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.forwardData_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.forwardData_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.forwardData_evaluation' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.forwardData_evaluation
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.forward_evaluation' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldNttMeaning.forward_evaluation
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldRowMeaning.root_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldRowMeaning.root_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldRowMeaning.coordinate_padded' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldRowMeaning.coordinate_padded
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldRowMeaning.payload_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldRowMeaning.payload_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldRowMeaning.rawZero_get' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldRowMeaning.rawZero_get
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldRowMeaning.encodeRow_value' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldRowMeaning.encodeRow_value
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldRowMeaning.encodeRow_mem_code' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldRowMeaning.encodeRow_mem_code
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldRowMeaning.encodeRow_mem_retained_code' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldRowMeaning.encodeRow_mem_retained_code
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldResponseMeaning.rows_parts' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldResponseMeaning.rows_parts
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldResponseMeaning.encodeResponses_parts' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldResponseMeaning.encodeResponses_parts
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldResponseMeaning.flatten_get' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldResponseMeaning.flatten_get
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldResponseMeaning.encodeResponses_coded' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldResponseMeaning.encodeResponses_coded
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldResponseMeaning.encodeResponses_lanes' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldResponseMeaning.encodeResponses_lanes
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldResponseMeaning.encodeResponses_retained_lanes' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldResponseMeaning.encodeResponses_retained_lanes

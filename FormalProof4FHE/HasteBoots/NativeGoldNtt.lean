@@ -8,8 +8,9 @@ public import FormalProof4FHE.HasteBoots.NativeGoldSolinas
 kernel. Twiddle initialization, breadth-first stages, and the depth-first
 1024-element cutoff follow the locked source. SIMD, root discovery/cache,
 Div64 instruction refinement, in-place writes and work costs remain separate.
-No transform result or correctness certificate is a protocol input. The
-universal scalar-NTT evaluation/code correspondence is still open. -/
+No transform result or correctness certificate is a protocol input. Scalar
+field/code correspondence is proved in NativeGoldNttMeaning and
+NativeGoldRowMeaning; native root/cache and SIMD/Rust refinement remain open. -/
 namespace FormalProof4FHE.HasteBoots.NativeGoldNtt
 
 open NativeFieldRepresentation NativeFields

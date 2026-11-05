@@ -17,7 +17,7 @@ verifier. The completed run now also derives every ordered helper PCS call with 
 truncation or extra oracle observation. PCS verification/composition remains
 open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. See
-[the current implementation layer](#native-goldilocks-scalar-ntt-and-response-encoding).
+[the current implementation layer](#scalar-ntt-to-code-correspondence).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -7625,11 +7625,12 @@ recursive depth/half offsets. Forward outputs have exactly the original
 buffer length and all raw words are canonical.
 
 The universal correspondence between this scalar execution and the existing
-`NTTButterfly`/`NTTBlockEncoder` field evaluation/code is still open. The
-current theorems do not establish NTT polynomial evaluation or code membership
-merely from successful buffer construction. Root discovery, plan/cache
+`NTTButterfly`/`NTTBlockEncoder` field evaluation/code is supplied by the next
+implementation layer below. Successful buffer construction alone does not
+establish code membership: the actual root must be primitive and the message
+coefficients must fit the chosen code degree. Root discovery, plan/cache
 instantiation, the Div64 implementation, SIMD dispatch/lane operations,
-mutable buffer refinement and native work-cost coupling also remain open.
+mutable buffer refinement and native work-cost coupling remain open.
 The scalar model preserves the real radix-two dataflow and cutoff rather
 than replacing its output with a polynomial evaluator.
 
@@ -7685,14 +7686,16 @@ HasteBoots suite now has 2,600 guarded audits, allowing only `propext`,
 tactics or raised default elaboration limits are introduced.
 
 `NativeGoldPcsColumns.protocol` still ends at the atomic column boundary.
-The next work is the scalar NTT/code correspondence and trusted code-object
-linkage, then composition of computed response encoding, raw column
+The scalar NTT/code correspondence is supplied below. Next is trusted
+code-object linkage, then composition of computed response encoding, raw column
 authentication, coordinate checks and suffix/claim equality. Full PCS/lookup
 composition, raw availability, prefix tensor correspondence, source registry
 and alias/query folding, adaptive freshness/work coupling, lookup/PBS
 extraction, production parameter/code/profile instantiation, strict decoding,
 Rust/compiler/scheduler refinement, BabyBear, numerical certification and
 the final 128-bit application theorem remain open.
+
+
 
 
 The existing full-body native reader fixtures are now assembled from separate
@@ -7722,4 +7725,101 @@ repository audit/smoke command passed. Evidence:
 `/tmp/hasteboots-gold-encoding-check.log`. Native HasteBoots source and vendor
 sources/pins remain unchanged; the native checkout is clean at its pinned
 commit. This validates the stated arithmetic, buffer and layout results,
-not the outstanding universal NTT/code or complete security theorem.
+not the then-outstanding scalar correspondence or complete security theorem;
+the scalar correspondence is supplied by the following layer.
+
+
+## Scalar NTT-to-code correspondence
+
+The functional canonical scalar NTT now has a universal evaluation proof and
+a block-RS code-membership proof. The operational encoder is unchanged:
+its original twiddle initialization, breadth/depth loops and 1024-element
+cutoff still compute the returned raw words. The proof does not replace that
+computation with a polynomial evaluator or accept an encoder-correctness
+certificate as a protocol input.
+
+`NativeGoldNttTwiddles` proves bit reversal reverses concatenated bit blocks,
+is involutive on valid addresses and makes distinct writes non-aliasing.
+The actual ordered initializer therefore puts the exact computed power in
+every reversed slot. Each lookup's field value is the corresponding power
+of the actual root, including the first twiddle of every recursive subtree.
+These facts hold for arbitrary roots; no table-correctness premise is used.
+
+`NativeGoldNttStages` proves contiguous-half separation for lower butterfly
+stages, retaining stored-word equality. `NativeGoldNttSchedule` extends this
+to all remaining breadth-first rounds and proves both complete breadth-first
+execution and the actual cutoff-based depth-first execution equal one
+recursive raw butterfly tree. This covers every size, including recursion
+above 1024; the tree is a proof intermediary rather than a substituted
+operational transform.
+
+`NativeGoldNttMeaning.tree_value` connects each actual tree output to the
+existing `NTTButterfly.transform`, with coefficients from the original
+buffer and the computed full-plan table. The proof derives child roots,
+subtree twiddles, source slices and output addresses. `depthFirst_value`
+and `forwardData_value` lift this to complete flat output vectors, including
+raw-u64 canonicalization. For a primitive root of order `2^(logSize+1)`,
+`forwardData_evaluation` and the checked `forward_evaluation` API theorem
+prove evaluation on the native bit-reversed odd-root domain.
+
+`NativeGoldRowMeaning` proves coordinate gathering and all zero padding equal
+the semantic coefficient table, including partially filled input blocks.
+The scalar transform and original symbol-major scatter therefore compute
+`BlockEncoder.encode` on that table. The raw-zero shortcut is proved to
+compute the same codeword; lazy zero inputs remain on their original
+transform branch. A successful encoded row lands in `BlockCode.code`, the
+same whole-symbol distance code used by the opening argument. The retained
+code-root version derives its agreement with the actual plan root from the
+successful encoder's root check.
+
+`NativeGoldResponseMeaning` extracts every ordered row from the actual
+successful response encoder. Each comes from its original exact response
+chunk, and uniform flattening preserves the native lane-major addresses.
+`encodeResponses_lanes` proves that every lane of the returned flat raw
+vector equals the semantic encoder of those original coefficients and is
+coded. `encodeResponses_retained_lanes` states this using the original
+retained code root; the required plan-root equality is derived from actual
+successful checks, not supplied as a cache-consistency certificate.
+
+The code-membership theorems require a primitive actual root, a chosen
+coefficient count `m` no larger than the domain and message length at most
+`m*blockWidth`. These are explicit mathematical parameter conditions, not
+an assumption that the scalar transform or encoder is correct. Deriving
+them from the actual native constructor/cache and linking the trusted
+configuration to its serialized code object remain open. Packing-lane count,
+code-symbol width and the total interleaved dimension `blockWidth*m` stay
+separate.
+
+All earlier raw native golden examples are retained. Seven added proof
+instantiations check the forward API, nonconstant/partial rows, the retained
+root on a zero row, and membership/coefficient linkage for arbitrary
+three-lane raw responses. Two private kernel computations validate the
+actual native 32/64-point root literals before applying these theorems.
+All 46 new public theorems have guarded audits using only `propext`,
+`Classical.choice` and `Quot.sound`. The combined HasteBoots suite now has
+2,646 guarded audits. Default heartbeat and recursion limits are unchanged.
+
+`NativeGoldPcsColumns.protocol` still stops at the atomic column boundary.
+Next is trusted code-object linkage and composition of this computed scalar
+response encoding with raw column authentication, coordinate checks and
+suffix/claim equality. Actual root generation/cache behavior, Div64 and
+SIMD/instruction refinement are not proved by the scalar correspondence.
+Full PCS/lookup composition, raw availability, prefix tensor correspondence,
+registry/alias/query folding, adaptive freshness/work coupling, lookup/PBS
+extraction, production parameter/profile instantiation, strict decoding,
+Rust/compiler/scheduler refinement, BabyBear, numerical certification and
+the final 128-bit application theorem remain open.
+
+Validation: the focused encoding build and all 46 new theorem audits passed.
+The combined HasteBoots smoke build passed (4,217 jobs, with the smoke file
+checked in 595 seconds), and the standalone warning-as-error HasteBoots
+smoke check exited 0. Full `scripts/check` exited 0: its build completed
+10,235 jobs and all subsequent repository audit/smoke commands passed.
+Evidence: `/tmp/hasteboots-ntt-correspondence-focused.log`,
+`/tmp/hasteboots-ntt-correspondence-audit.log`,
+`/tmp/hasteboots-ntt-correspondence-smoke.log`,
+`/tmp/hasteboots-ntt-correspondence-strict.log` and
+`/tmp/hasteboots-ntt-correspondence-check.log`. Native HasteBoots remains
+clean at its pinned commit; native and vendor sources/pins are unchanged.
+These checks validate the stated scalar correspondence, not the remaining
+native implementation linkage or complete security theorem.

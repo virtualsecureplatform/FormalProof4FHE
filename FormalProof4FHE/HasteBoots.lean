@@ -395,3 +395,9 @@ public import FormalProof4FHE.HasteBoots.NativeGoldPcsColumnsShape
 public import FormalProof4FHE.HasteBoots.NativeGoldSolinas
 public import FormalProof4FHE.HasteBoots.NativeGoldNtt
 public import FormalProof4FHE.HasteBoots.NativeGoldRowEncoding
+public import FormalProof4FHE.HasteBoots.NativeGoldNttTwiddles
+public import FormalProof4FHE.HasteBoots.NativeGoldNttStages
+public import FormalProof4FHE.HasteBoots.NativeGoldNttSchedule
+public import FormalProof4FHE.HasteBoots.NativeGoldNttMeaning
+public import FormalProof4FHE.HasteBoots.NativeGoldRowMeaning
+public import FormalProof4FHE.HasteBoots.NativeGoldResponseMeaning
