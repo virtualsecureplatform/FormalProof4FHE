@@ -381,3 +381,7 @@ public import FormalProof4FHE.HasteBoots.NativeSharedLookupHelpers
 public import FormalProof4FHE.HasteBoots.NativePrimeRequest
 public import FormalProof4FHE.HasteBoots.NativeIndexRequest
 public import FormalProof4FHE.HasteBoots.NativeAtomicIndexLaw
+public import FormalProof4FHE.HasteBoots.NativeBrakedownParameters
+public import FormalProof4FHE.HasteBoots.NativeGoldPcsOpening
+public import FormalProof4FHE.HasteBoots.NativeGoldPcsBinding
+public import FormalProof4FHE.HasteBoots.NativeGoldPcsPrelude

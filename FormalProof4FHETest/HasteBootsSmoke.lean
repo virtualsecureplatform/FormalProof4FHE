@@ -4,6 +4,7 @@ import all FormalProof4FHE.HasteBoots
 import all FormalProof4FHETest.HasteBootsPcsSmoke
 import all FormalProof4FHETest.HasteBootsHelpersSmoke
 import all FormalProof4FHETest.HasteBootsPcsChallengesSmoke
+import all FormalProof4FHETest.HasteBootsPcsPreludeSmoke
 import all Batteries.Data.Except
 import all Init.Data.String.Defs
 import all Mathlib.Algebra.Field.ZMod
@@ -17725,6 +17726,7 @@ private noncomputable def runHelpers (value : NativeSharedLookupProofData.Proof 
 private noncomputable def handoff := runHelpers proof 30
 example : handoff.2 = completed.2 := by decide +kernel
 example : handoff.1.2.map (fun plan => plan.calls.length) = some 1 := by decide +kernel
+example : handoff.1.2.map (fun plan => plan.calls.all (fun call => NativeGoldPcsBinding.check helper call.query call.values)) = some true := by decide +kernel
 example : handoff.1.2.map (fun plan => NativeGoldPcsWire.queryCodec.encode plan.query) = some helperQueryBytes := by decide +kernel
 example : handoff.1.2.map (fun plan => plan.values.val.map NativeLookupRequestWire.rowCodec.encode) = some [helperValueBytes] := by decide +kernel
 example : handoff.1.2.map (fun plan => plan.calls.map (fun call => NativeGoldPcsWire.opening call.root call.query call.values)) = some [helperBindingBytes] := by decide +kernel

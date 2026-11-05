@@ -17,7 +17,7 @@ verifier. The completed run now also derives every ordered helper PCS call with 
 truncation or extra oracle observation. PCS verification/composition remains
 open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. See
-[the current implementation layer](#native-base-field-and-atomic-column-challenges).
+[the current implementation layer](#native-single-opening-parameter-binding-and-random-test-prefix).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -7309,3 +7309,101 @@ subsequent repository audit/smoke commands passed. Logs:
 `/tmp/hasteboots-pcs-challenges-strict.log` and
 `/tmp/hasteboots-pcs-challenges-check.log`. The native checkout, vendor sources
 and dependency pins are unchanged.
+
+## Native single-opening parameter, binding and random-test prefix
+
+`NativeBrakedownParameters` models the checked `Parameters::new_encoded`
+constructor for the selected 64-bit machine model. The original code object
+supplies message length, block count and block width, together with the same
+row description already used by its parameter context. The basic dimension
+and query-count guards precede exponentiation; code-message/stride checks
+precede checked table, encoded-matrix, linear-test and Merkle-tree sizes.
+The returned geometry and native random-test count are computed data.
+The constructor proves that the next power-of-two leaf count minimally covers
+the code blocks and that every accepted path length is below 64.
+
+No atomic-only domain or quota constraint is added to this constructor. The
+native constructor can accept a non-power-of-two code length and very large
+nonzero query counts; the atomic index API checks its separate domain and
+`count*8` bounds later. Geometry accessors do not certify a code's distance,
+encoder correctness, serialization or actual native parameter instantiation.
+
+`NativeGoldPcsOpening` supplies the original non-hiding single-opening record:
+raw test/evaluation vectors followed by a vector of raw columns with complete
+leaf-first paths. Its codec matches the native struct order and has a proved
+constructed-wire prefix inverse. Outer shape gates check both response lengths,
+a nonempty column list, the `min(queries, blocks)` cap and every column's value
+and path lengths. No column authentication is performed by this shape gate.
+
+`NativeGoldPcsBinding` checks the original query/value counts and every actual
+zero/one matrix before computing the code context in the common hash oracle.
+Only a successfully serialized context contributes its hash observation.
+The original digest, commitment, ordered matrices and raw values are then
+appended under the native two binding labels, with kind-1 frames. The digest
+is computed from the same parameter object, not supplied as a certificate.
+Invalid shapes or code serialization fail before any oracle observation.
+`NativeSharedLookupHelpers.completed_binding_checks` now derives that every
+helper call from the actual completed lookup run passes these native binding
+shape checks. Its matrices and coefficient vectors are computed by the caller.
+
+`NativeGoldPcsPrelude` composes parameter initialization, proof-shape checks,
+binding and the actual base-field random-test sampler. It accepts no prepared
+geometry, bound parent or randomness certificate. Its returned `sampling`
+state retains the actual sampler and computed geometry, including analysis
+suspension. Rejection and suspension remain distinct. Successful finished
+states have exactly `rows*width` canonical samples, with exact raw Goldilocks
+conversion. The execution theorem preserves binding observations before field
+sampling. Parameter initialization here represents native construction before
+verification; it does not claim Rust repeats its constructor at each opening.
+
+The fixture `/tmp/hasteboots-pcs-prelude-fixture` constructs an honest tiny
+opening with two variables, width three, one left variable, one query and the
+native block-RS code (message length 2, 32 blocks, block width 2). It uses the
+actual `new_classical_atomic_columns` constructor, including its schedule
+headers, and passes the complete native PCS verifier. The Lean checks compare
+its opening bytes, code-context input/digest, 18 random-test samples, exact
+22-event hash/field log and the following atomic reader input after responses
+and the index-domain frame. Native lazy claim/evaluation words above the
+modulus retain their original serialization.
+
+There are 29 new focused kernel regressions plus one new check on the existing
+full lookup/helper handoff. They cover completed and suspended prefixes,
+changed response contents, malformed response/column/path counts, query/value
+and matrix mismatches, serialization failure and parameter overflow edges.
+Changing response contents preserves the random-test prefix but changes the
+later atomic reader input. The fixture independently confirms nine early
+native rejection cases produce no reader starts or completed hash queries,
+seven invalid parameter cases are rejected, and non-power-of-two/large-quota
+parameter cases remain admitted. The geometry-only native code used for the
+non-power-of-two constructor probe makes no coding-security claim.
+
+All 22 new public theorem audits use only `propext`, `Classical.choice` and
+`Quot.sound`; the combined HasteBoots suite now has 2,505 guarded audits.
+Focused module builds, the standalone regressions and the new theorem audit
+passed. Evidence:
+`/tmp/hasteboots-pcs-binding-helpers-build.log`,
+`/tmp/hasteboots-pcs-prelude-smoke-focused.log`,
+`/tmp/hasteboots-pcs-prelude-audit.log` and
+`/tmp/hasteboots-pcs-prelude-fixture.log`. The native checkout remains clean at
+`dff353006322693cab3dc6b654f82151f658f294`, with the previously recorded
+`matrix_weighted.rs`, `transcript.rs` and `classical_transcript.rs` hashes.
+
+The next operations to execute are structured prefix weights, trusted row-code
+response encoding, concrete column/coordinate checks and suffix finishing,
+with atomic sampling and response framing in their native positions. Raw
+column payloads must remain authenticated/extracted before field projection;
+the semantic worker's `List F` encoding is not the concrete raw-word encoding.
+Source registry/alias/query composition, conditional adaptive freshness/work
+coupling, lookup/PBS extraction, native parameter/code/profile instantiation,
+strict decoding, checked Rust/compiler/scheduler refinement, BabyBear,
+numerical certification and the final 128-bit application theorem remain open.
+
+Final validation: the integrated HasteBoots smoke build passed (4,199 jobs),
+the complete standalone warning-as-error HasteBoots smoke check exited 0,
+and full `scripts/check` exited 0. Its build completed 10,216 jobs and every
+subsequent repository audit/smoke command passed. Logs:
+`/tmp/hasteboots-pcs-prelude-smoke.log`,
+`/tmp/hasteboots-pcs-prelude-strict-focused.log`,
+`/tmp/hasteboots-pcs-prelude-strict.log` and
+`/tmp/hasteboots-pcs-prelude-check.log`. Native Rust, vendor sources and
+dependency pins are unchanged.

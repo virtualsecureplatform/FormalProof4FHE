@@ -1,6 +1,7 @@
 module
 
 public import FormalProof4FHE.HasteBoots.NativeSharedLookupExecution
+public import FormalProof4FHE.HasteBoots.NativeGoldPcsBinding
 public import FormalProof4FHE.HasteBoots.NativeGoldPcsWire
 public import FormalProof4FHE.HasteBoots.NativeGoldHelper
 
@@ -70,6 +71,24 @@ theorem calls_get {S : Type} (query : Query) (roots : List Digest) (claimed : Li
   rw [List.getElem?_eq_getElem inside]
   simp only [calls,List.getElem_map,List.getElem_zip,rootEq,valueEq,openingEq]
 
+theorem calls_members {S : Type} (query : Query) (roots : List Digest) (claimed : List Row) (openings : List S) :
+    ∀ call ∈ calls query roots claimed openings, call.query = query ∧ call.values ∈ claimed := by
+  induction roots generalizing claimed openings with
+  | nil => intro call member; cases member
+  | cons root roots ih =>
+    cases claimed with
+    | nil => intro call member; cases member
+    | cons value claimed =>
+      cases openings with
+      | nil => intro call member; cases member
+      | cons opening openings =>
+        intro call member
+        change call ∈ (⟨root,query,value,opening⟩ :: calls query roots claimed openings) at member
+        rcases List.mem_cons.mp member with same | member
+        · subst call; exact ⟨rfl,List.mem_cons_self⟩
+        · have previous := ih claimed openings call member
+          exact ⟨previous.1,List.mem_cons_of_mem value previous.2⟩
+
 structure Spec {S B : Type} (width : Usize) (point : List GoldExtension)
     (proof : NativeSharedLookupProofData.Proof S B) (plan : Plan S) : Prop where
   packed : NativeGoldPcsWire.coefficientsQuery width.val point = some plan.query
@@ -110,6 +129,24 @@ theorem packet_at {S B : Type} (width : Usize) (point : List GoldExtension)
   rw [spec.ordered,spec.vectors]
   apply calls_get _ _ _ _ _ _ _ _ atRoot _ atOpening
   simp only [values,List.getElem?_map,atValue,Option.map_some]
+
+theorem calls_checked {C S B : Type} (parameters : Parameters C) (point : List GoldExtension)
+    (proof : NativeSharedLookupProofData.Proof S B) (plan : Plan S) (success : build parameters.width point proof = some plan)
+    (shape : NativeGoldProjection.dimensions parameters.width.val = true) (dimension : point.length = parameters.numVariables.val) :
+    ∀ call ∈ plan.calls, NativeGoldPcsBinding.check parameters call.query call.values = true := by
+  intro call member
+  have spec := build_spec _ _ _ _ success
+  rw [spec.ordered] at member
+  obtain ⟨querySame,valueMember⟩ := calls_members _ _ _ _ call member
+  apply NativeGoldPcsBinding.coefficients_check parameters point call.query call.values shape
+  · rw [querySame,query_length _ _ _ _ success shape]
+    exact dimension
+  · rw [querySame]
+    exact NativeGoldPcsWire.coefficientsQuery_models _ _ _ shape spec.packed
+  · rw [spec.vectors] at valueMember
+    obtain ⟨value,_,same⟩ := List.mem_map.mp valueMember
+    rw [← same]
+    exact NativeGoldHelper.vector_length _ _
 
 /-- Shape checks upstream make the literal native zip lossless. -/
 theorem no_truncation {S B : Type} (width : Usize) (point : List GoldExtension)
@@ -216,6 +253,20 @@ theorem completed_handoff {C S B : Type} (row : RowDescription C) (registry : Na
   · rw [run_protocol]
     simp only [success,handoff,built]
   · exact NativeGoldPcsWire.coefficientsQuery_models _ _ _ geometry.1 spec.packed
+
+/-- Every actual helper call passes native binding shape checks. The helper
+point, raw matrices and coefficient vectors are all computed by the caller. -/
+theorem completed_binding_checks {C S B : Type} (row : RowDescription C) (registry : NativePrefixCodec.Vector (Oracle C)) (helper : Parameters C)
+    (parent : Transcript) (requests : NativePrefixCodec.Vector NativeLookupRequestWire.Request) (proof : NativeSharedLookupProofData.Proof S B)
+    (lookupFuel equalityFuel scalarFuel : ℕ) (world : World) (result : Bound)
+    (success : (run (NativeSharedLookupExecution.protocol row registry helper parent requests proof lookupFuel equalityFuel scalarFuel) world).run.1 = some (.bound result)) :
+    ∃ plan, (run (protocol row registry helper parent requests proof lookupFuel equalityFuel scalarFuel) world).run.1 = (some (.bound result),some plan) ∧
+      ∀ call ∈ plan.calls, NativeGoldPcsBinding.check helper call.query call.values = true := by
+  have computed := completed_geometry row registry helper parent requests proof lookupFuel equalityFuel scalarFuel world result success
+  obtain ⟨plan,built⟩ := build_complete helper.width result.terminal.point proof computed.1 (by rw [computed.2.1]; exact helper.numVariables.isLt)
+  refine ⟨plan,?_,calls_checked helper _ _ _ built computed.1 computed.2.1⟩
+  rw [run_protocol]
+  simp only [success,handoff,built]
 
 end
 end FormalProof4FHE.HasteBoots.NativeSharedLookupHelpers
