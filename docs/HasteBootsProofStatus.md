@@ -19,7 +19,7 @@ open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#native-prequery-aware-index-laws).
+[the current implementation layer](#rectangular-proximity-and-shared-column-opening).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -8695,3 +8695,65 @@ HasteBoots smoke module (612 seconds), and all subsequent strict audits and
 smoke commands. Lean sources remained frozen during each complete check.
 All original fixture bytes/assertions, native/vendor sources, dependency
 pins and default proof limits remain intact.
+
+
+## Rectangular proximity and shared-column opening
+
+`ModuleCodeProximity` separates the scalar field used for test coins from the
+module used for whole code symbols. It generalizes the pinned ArkLib AHIV22
+affine-line and row-span argument, retaining its Apache 2.0 attribution. The
+module proves common-support alignment for sparse subspaces, a far direction
+in the source-row span, affine-line counting and the uniform coefficient law.
+The scalar-field-size premise `radius < |F|` is explicit, along with
+`3 * radius < minimum distance`; no small-field alignment exception is omitted.
+Dependent source rows are allowed through proved uniform fibers.
+
+For minimum distance `delta` and `testWidth` independent base-field rows, the
+proved proximity term is `(delta / |F|)^testWidth`. The alphabet may be
+`Fin codeWidth → F` with no equality between `codeWidth` and `testWidth`.
+This is the conservative repeated-row bound, not an assumed extension of the
+older square bound `delta / |F|^testWidth`. The two expressions are not
+interchangeable. No numeric production security level follows yet.
+
+`RectangularBaseProximity` specializes that law to the existing semantic
+`BlockCode`, `StructuredOpening.combine` and the common-source decoder's
+complete-column metric. Every column includes all source rows and all symbol
+coordinates. Its explicit-distance corollary uses the existing checked
+`BlockCode.minDist` theorem and retains independent test and code widths.
+
+`RectangularOpening` now composes the far and near branches for a fixed
+available word. Malicious coded responses may depend on the preceding random
+matrix. The encoded far-branch corollary derives their code membership from
+their coefficient arrays using `BlockEncoder.encode_mem_code`. Every response
+uses the same ordered column vector. The near/far column terms are combined
+by a maximum; shared column acceptance probabilities are not multiplied.
+All structured queries use one total common decoder for that available word.
+
+There are eighteen new public production theorems, each with a guarded axiom
+audit using only `propext`, `Classical.choice` and `Quot.sound`. The focused
+suite supplies an inhabited width-3/code-width-4 example over `ZMod 5` with
+proved code distance 2 and a far word. A second example instantiates the actual
+semantic `BlockCode` bridge at those unequal widths, deriving the distance and
+common-source far premise. Honest encoded zero responses accept for every
+matrix and shared draw. A separate regression proves that three identical
+checks sharing one column draw accept with probability `1/2`, rather than a
+product of three independent column probabilities.
+
+This closes the rectangular fixed-word proximity and shared-column interactive
+opening interface. It does not yet connect rectangular response finishing to
+the native matrix query, instantiate the retained native constructor and all
+production roles, or certify numeric 128-bit feasibility. Global first-exposure
+Fiat–Shamir causality, the lazy/world distribution bridge, native batch and
+helper composition, application extraction and concrete attacker-work
+realization remain open, together with native refinement and BabyBear. The
+full security goal remains active.
+
+
+Validation: all three production modules build. The focused suite passes
+3,591 build jobs and also passes standalone with warnings as errors,
+including all eighteen new production axiom guards. Full `scripts/check`
+exits zero: 10,283 build jobs, the combined HasteBoots smoke module
+(668 seconds), and every subsequent strict audit and smoke command.
+Lean sources remained frozen throughout the full check. Native/vendor
+sources, dependency pins, all original fixture bytes/assertions and default
+proof limits are unchanged.
