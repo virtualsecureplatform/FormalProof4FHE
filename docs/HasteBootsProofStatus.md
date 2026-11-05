@@ -19,7 +19,7 @@ open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#lifetime-seed-risk-and-inherited-helper-context-chains).
+[the current implementation layer](#inherited-source-keys-and-causal-seed-prequery-coverage).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -9338,3 +9338,58 @@ elaboration limit. Their bytes are identical, with SHA-256
 every original assertion is unchanged, and the extracted fixture namespace
 also passes with warnings treated as errors. Native/vendor revisions and
 default proof limits are unchanged.
+
+## Inherited source keys and causal seed-prequery coverage
+
+`NativeSourceLineage` extends chronological metadata inheritance to complete
+source `(context digest,root)` keys. Its `Known` certificate starts with a
+source key parsed from an observed parent request, follows actual logical
+seed quotes through later parent requests, and permits intervening raw
+activity. `binding_source` obtains those keys from the exact canonical bind
+payload, including duplicate and otherwise unused entries. `Known.sound`
+places every certified key in the table reconstructed from the same truthful
+history, using its actual partial byte cache. `resolve_known_source` and
+`known_source_snapshot` then provide a retained checkpoint through every
+supported continuation of a later nonempty read, even when the descendant
+input contains no direct source mentions. Equal roots under different context
+digests remain different keys. This does not establish native first-original
+slot aliases, query grouping, parameter identity or source availability.
+
+`CausalExposureCoverage` closes the link from a first hit in the complete raw
+log to the machine's causally pending request. `read_hits` shows that a seed
+hit uses the same complete input, positive count and offset below 64.
+`firstRead_of_next_hit` excludes completed states, starts and shared hashes;
+`selected_at_first_exposure` proves that the earliest seed hit in an actual
+finite machine execution selects exactly the earlier prefix's pending read.
+The proof uses actual suspension/resumption and ordered log prefixes, rather
+than assuming that an input picked from a later witness was fixed earlier.
+
+`prior_quote_lifetime` places an earlier matching child-header quote in the
+existing causal lifetime event. `SeedPrequery` describes this witness using
+the first-hit position in a complete machine log. `SeedPrequeryAfter` retains
+an arbitrary replayable prelude and uses the pending next read. Both events
+are measurable without a measurable/countable attacker-state assumption;
+their characterizations combine ordinary replayable prefix events and the
+existing first-exposure event. The probability bounds transfer to the same
+expected lifetime risk charge, with unconditional and prelude-conditional
+forms that keep inherited bad probability. No input-space factor is added to
+the loss: the actual pending request selects the input for the bound.
+
+These events concern prior raw observations and an entirely unobserved
+logical 64-byte seed. They do not classify a quote appearing for the first
+time in the pending input, partial-seed association/collision cases, or
+receipt-linked guesses. Exhaustive accepted-verifier coverage must still
+prove input-role separation or account for such cases. The risk charge is
+still probability accounting, not physical attacker work. Completing global
+Fiat–Shamir composition, native registry/group order, trusted contexts,
+rectangular/numerical certification, BabyBear, application soundness and
+extraction, and fail-closed Rust/scheduler refinement remains required.
+
+Validation: seventeen focused regressions and twenty-one guarded public
+theorem axiom audits pass, including the focused file with warnings treated
+as errors. Full `scripts/check` exits zero: 10,324 build jobs (combined
+HasteBoots suite 476 seconds), followed by every strict audit and smoke
+command. All new public theorems use only `propext`, `Classical.choice` and
+`Quot.sound` (or fewer). Lean sources remained frozen throughout the check.
+Native/vendor revisions, fixture bytes/assertions and default proof limits
+are unchanged.
