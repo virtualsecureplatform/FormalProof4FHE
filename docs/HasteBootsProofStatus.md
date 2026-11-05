@@ -19,7 +19,7 @@ open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#partial-parent-association-and-causal-helper-root-snapshots).
+[the current implementation layer](#reconstructed-parent-state-and-declared-helper-coverage).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -9198,3 +9198,76 @@ smoke command. All new public theorems use only `propext`, `Classical.choice`
 and `Quot.sound` (or fewer). Lean sources remained frozen throughout the
 check. Native/vendor revisions, fixture bytes/assertions and default proof
 limits are unchanged.
+
+## Reconstructed parent state and declared-helper coverage
+
+`NativeParentHistory` reconstructs the complete final ledger and owned SHAKE
+cache from the ordered native observations. `compile_records` holds on every
+supported free compiled execution, and `simulated_records` transports it
+through any typed shared handler. Cache writes retain every returned byte,
+including repeats and overlaps. Parent entries and frozen keys are monotone
+under arbitrary later observations; splitting the history preserves the same
+state by `record_append`.
+
+`NativeParentStateExecution` extends reconstruction to the actual shared
+checkpoint handler. The observation fold records newly resolved keys at the
+pre-read hash log, advances the owned byte cache with the returned interval,
+and updates the common SHA-512 cache/log and passive monitor at real hash
+calls. `execute_records_support` proves this full-state invariant for every
+supported execution. `execute_records` identifies the entire instrumented
+computation with deterministic reconstruction from the original native
+value/log computation. No additional coins or ghost-state input to native
+continuations are introduced.
+
+`state_law` and `from_empty` give exact conditional/unconditional event
+probabilities including ledger, caches, checkpoints and monitor. `prefix_law`
+also retains the actual residual native program; `execute_bind` threads every
+field across composition. `after_prelude_law` derives all initial fields by
+replaying the **same** complete prior log from empty initialization. Its
+observed SHAKE cache and canonical shared hash cache are proved equal to the
+caches required by the existing posterior law, removing separately supplied
+initial ledger/checkpoint certificates for this case.
+
+The `Covered` invariant means that every frozen context/root key has an
+actual retained checkpoint. `record_covered`, `fold_covered` and
+`execute_covered` preserve it, with `empty_covered` discharging initialization.
+This certifies registration, not Merkle availability. `resolved_snapshot`
+handles both cases: an already frozen key retains its earlier snapshot; a
+newly resolved key is recorded at the current actual pre-read cumulative
+hash log. Monitor failure does not prevent retention.
+
+`NativeParentCoverage` now derives pending-parent membership from an earlier
+observed input rather than assuming a parent-table entry. Any recognized
+parent request observed in a start, raw read (including an empty read), or
+shared hash declares its helper contexts. `binding_helper` obtains a context
+from the exact canonical bind payload in those decoded frames. Later raw
+activity preserves that declaration. With a truthful whole history and the
+actual logical 64-byte parent seed quoted by the child, the helper root is
+resolved using the history-owned cache even after partial seed reads.
+`declared_helper_snapshot` consequently proves a retained checkpoint through
+every supported continuation of a later nonempty child read, starting with
+all fields reconstructed from the same prelude.
+
+`prior_quote_target` and `prior_quote_event` connect earlier positive-read or
+hash child-header candidates to the existing causally selected first-seed
+exposure event. Its exact conditional probability remains the previously
+proved prior-candidate count divided by `2^512` when **all** logical seed
+coordinates were unobserved. This is not yet exhaustive orphan classification
+or a lifetime union/work bound, and it gives no 512-bit claim for receipt
+inputs or partially exposed seeds.
+
+Next, prove exhaustive chronological root/exposure coverage for the actual
+native schedule, including descendant and receipt-linked exceptions, then
+compose availability and arithmetic with the actual attacker-work machine.
+Trusted context/shape identity, first-original registry aliases, ordered-prefix
+grouping, rectangular/numerical certification, BabyBear, application security
+and fail-closed Rust/scheduler refinement remain open.
+
+Validation: twenty-three focused regressions and thirty-nine guarded public
+theorem axiom audits pass, including the focused file with warnings treated
+as errors. Full `scripts/check` exits zero: 10,318 build jobs (combined
+HasteBoots suite 491 seconds), followed by every strict audit and smoke
+command. All new public theorems use only `propext`, `Classical.choice` and
+`Quot.sound` (or fewer). Lean sources remained frozen throughout the check.
+Native/vendor revisions, fixture bytes/assertions and default proof limits
+are unchanged.
