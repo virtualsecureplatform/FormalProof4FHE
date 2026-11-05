@@ -1,6 +1,7 @@
 module
 
 import all Mathlib.Data.List.Sort
+import all FormalProof4FHE.HasteBoots.NativeGoldPcsAcceptanceSoundness
 import all Batteries.Data.Except
 import all FormalProof4FHE.HasteBoots.NativeGoldPcsEncoding
 import all FormalProof4FHE.HasteBoots.NativeGoldPcsWorkers
@@ -264,6 +265,39 @@ example : (match columnsCompleted.1 with
   | .columns geometry _ _ sample => (NativeGoldPcsDraws.typed geometry.height parameters.queries.val sample.draws).map
       (fun draw => (List.ofFn draw).map Fin.val)
   | _ => none) = some [27] := by decide +kernel
+
+-- Suffix claims compare field values while preserving the raw bound claim.
+example : NativeGoldPcsClaim.verify retainedParameters query opening.evaluation.val claimed = .ok () := by decide +kernel
+example : NativeGoldPcsClaim.verify retainedParameters query opening.evaluation.val
+    (row [1224,775,218] (by decide)) = .ok () := by decide +kernel
+example : NativeGoldPcsClaim.equal claimed.val (row [1224,775,218] (by decide)).val = true := by decide +kernel
+example : claimed.val ≠ (row [1224,775,218] (by decide)).val := by decide +kernel
+example : NativeGoldPcsClaim.verify retainedParameters query opening.evaluation.val
+    (row [1,0,0] (by decide)) = .error .claim := by decide +kernel
+example : NativeGoldPcsClaim.verify retainedParameters query [] claimed = .error .finish := by decide +kernel
+
+-- Residual programs determine completion; an unfinished pool cannot accept.
+private noncomputable def tailCase (flag : Bool) (values : NativeLookupRequestWire.Row) : Nat :=
+  match preparedRun.1 with
+  | .prepared work =>
+    match NativeGoldPcsAcceptance.finish retainedParameters query opening values work
+        (⟨fun _ => pure flag,()⟩ : HashWorkerPool.Outcome InputIndexedOracle.Input NativeRootMessage.Digest Unit work.jobs.length) with
+    | .accepted _ => 1
+    | .columns => 2
+    | .claim .claim => 3
+    | _ => 0
+  | _ => 0
+example : tailCase true claimed = 1 := by decide +kernel
+example : tailCase false claimed = 2 := by decide +kernel
+example : tailCase true (row [1,0,0] (by decide)) = 3 := by decide +kernel
+example : (match preparedRun.1 with
+  | .prepared work =>
+    match NativeGoldPcsAcceptance.finish retainedParameters query opening claimed work
+        (⟨fun _ => OracleComp.queryBind [] (fun _ => pure true),()⟩ :
+          HashWorkerPool.Outcome InputIndexedOracle.Input NativeRootMessage.Digest Unit work.jobs.length) with
+    | .suspended => true
+    | _ => false
+  | _ => false) = true := by decide +kernel
 
 end NativePcsPreludeSmoke
 

@@ -417,3 +417,7 @@ public import FormalProof4FHE.HasteBoots.NativeGoldPcsRawFailure
 public import FormalProof4FHE.HasteBoots.NativeGoldPcsDraws
 public import FormalProof4FHE.HasteBoots.NativeGoldPcsAgrees
 public import FormalProof4FHE.HasteBoots.NativeGoldPcsOpeningChecks
+public import FormalProof4FHE.HasteBoots.NativeGoldPcsClaim
+public import FormalProof4FHE.HasteBoots.NativeGoldPcsFinishComplete
+public import FormalProof4FHE.HasteBoots.NativeGoldPcsAcceptance
+public import FormalProof4FHE.HasteBoots.NativeGoldPcsAcceptanceSoundness

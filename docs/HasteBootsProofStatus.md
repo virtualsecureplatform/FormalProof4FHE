@@ -19,7 +19,7 @@ open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#original-draw-semantic-opening-checks).
+[the current implementation layer](#computed-pcs-completion-and-suffix-claims).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -8243,3 +8243,77 @@ its pinned commit; native/concrete-ntt tracked sources and vendor pins are
 unchanged. These checks establish original-draw transport and the stated
 conditional semantic check interface, not the remaining near/far/native
 coupling or complete application security theorem.
+
+
+## Computed PCS completion and suffix claims
+
+`NativeGoldPcsClaim.verify` computes the native suffix fold from the original
+unencoded `opening.evaluation` and compares the result with the original raw
+claimed row using Goldilocks field equality. It does not compare serialized
+words or take a supplied finished vector. `equal_iff`, `accepted_iff` and
+`accepted_value` connect the executable check to the semantic suffix equation.
+The prefix continues to bind the original serialized claim without replacing
+it by its canonical representative.
+
+`NativeGoldPcsFinishComplete` proves completeness of the raw packed fold loop,
+its evaluator and the PCS suffix wrapper. `prepared_finish` derives all
+matrix validation, query/response dimensions, nonzero width and allocation
+bounds from the actual completed checked prefix. Consequently
+`prepared_no_finish_error` rules out the defensive suffix-shape failure on
+that prefix; a wrong final claim can still be rejected.
+
+`NativeGoldPcsAcceptance.program` maps the existing general interleaved worker
+pool to a computed completion status. Acceptance requires that every residual
+worker has actually returned true, followed by a successful suffix/claim
+check. A returned false worker rejects columns; an unfinished pool is an
+analysis suspension. The latter is not a native verifier error. The scheduler
+cannot supply an acceptance flag. `failed_iff` and `anyRejected_iff` identify
+rejection with actual false-returning residual programs.
+
+`program_origin` and `accepted_origin` retain the original pool result,
+scheduler memory and shared final state/cache, with no additional oracle
+queries. `NativeGoldPcsAcceptanceSoundness.accepted_workers` derives raw
+payload/path replay and both native coordinate checks for every original job
+from this supported accepted execution. `accepted_value` additionally uses
+the actual checked prefix to derive the semantic final claim equation. The
+statement deliberately retains separate checked-prefix and supported-pool
+execution premises: coupling these interfaces into one native transcript and
+checkpoint/cache execution remains required.
+
+Two additional read-only fixtures at the unchanged pinned HasteBoots commit
+exercise full native single-opening verification. CANONICAL accepts the claim
+`[1224,775,218]`, although the raw computed suffix words are lazy aliases.
+ZERO_BAD uses a zero table and claim `[1,0,0]`; column authentication and both
+coordinate families pass, then native verification returns exactly
+`incorrect opening value`. Both fixtures record three original SHAKE reader
+inputs/streams and all seven SHA-512 input/output pairs. Kernel regression
+checks decode the original query/opening bytes, execute the checked prefix,
+computed encoding, raw worker and completion/claim tail, and compare every
+observation. Their single-worker harness is test-only; the production
+acceptance program uses the existing general interleaved pool.
+
+Additional kernel checks cover raw versus canonical claim equality, wrong
+claims, invalid suffix lengths, accepted and rejected residual workers, and
+unfinished workers. All 15 new public theorems have guarded axiom audits;
+only `propext`, `Classical.choice` and `Quot.sound` occur. The combined
+HasteBoots suite now contains 2,736 guarded audits. No new axiom,
+`sorry`, native decision procedure or raised proof limit is introduced.
+
+This closes the computed pool tail and final suffix/claim enforcement at the
+stated operational interface. Full native mixed-prefix/checkpoint/cache
+coupling, production freshness, the concrete code/structured tensor near/far
+bound, PCS/lookup batch/grouping composition and application extraction remain
+open. Native Rayon/compiler/strict decoder refinement, root-generation/cache
+and SIMD/Div64 correspondence, BabyBear, trusted production profiles and the
+final chronological-work/128-bit theorem are not established by this layer.
+
+Validation for this layer: all four production modules build; the existing
+PCS prelude fixture passes with ten additional kernel cases (4,067 build
+jobs), and the two new complete native fixtures plus 15 guarded audits pass
+(4,065 build jobs). The new fixture also passes standalone with warnings as
+errors. All 46 retained native byte arrays match a fresh successful native
+run. The combined HasteBoots suite passes all 4,241 build jobs, with its main
+smoke module taking 562 seconds. The complete `scripts/check` exits zero:
+10,258 build jobs and all subsequent strict audits and smoke checks pass.
+Native/vendor sources and pins remain unchanged. These checks validate this
+milestone; the complete security goal remains active.
