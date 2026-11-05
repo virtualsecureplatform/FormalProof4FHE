@@ -19,7 +19,7 @@ open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#full-shared-state-execution-and-causal-lifetime-limits).
+[the current implementation layer](#raw-first-seed-exposure-and-cache-aware-guessing-risk).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -8940,3 +8940,65 @@ jobs (combined HasteBoots suite 518 seconds), followed by all strict audits and
 smoke commands. The new theorems use only `propext`, `Classical.choice` and
 `Quot.sound` (or fewer). Lean sources remained frozen throughout the check.
 Native/vendor revisions, fixture bytes and default proof limits are unchanged.
+
+## Raw first-seed exposure and cache-aware guessing risk
+
+`OracleFirstExposure` finds the earliest returned-coordinate exposure directly
+in the complete raw native observation log. Its minimality certificate splits
+that **same** log into the earlier history, first relevant observation and
+suffix; every earlier coordinate set is disjoint from the relevant set. Starts,
+empty reads and SHA-512 coordinates cannot expose SHAKE bytes. Complete input
+bytes and offsets identify cells, so clones/restarts share exposure while
+prefix-related but unequal inputs do not. Appending observations cannot move
+an existing first exposure. Arbitrary, unclassified, duplicate and rejected
+queries remain in the original ordered log; this index is not a work metric.
+
+The seed specialization includes all 64 coordinates of a native parent seed
+under its exact complete SHAKE input. It detects a first read at any seed
+position, rather than assuming a verifier read or offset zero came first.
+`OracleMachineExposure.log_take` identifies log truncation with an actual
+causal-machine analysis prefix. `pre_exposure_fresh` therefore gives a replayable
+**actual** pre-exposure history with all 64 seed coordinates unseen.
+`pre_exposure_targets` derives exact fixed-target hit probability
+`targets.card / 2^512` under that complete-history conditional.
+
+`OracleMaskCounting` separately counts full raw-mask fibers. A target
+inconsistent with any known byte has no fiber. Each compatible target has
+exactly `256^known.card` raw responses, and distinct targets have disjoint
+fibers. Cancellation gives the exact masked uniform target-hit probability:
+
+```
+compatible_target_count / 256^(coordinate_count - known_coordinate_count)
+```
+
+`OracleSeedGuessing.target_law` transfers this count to the whole-history SHAKE
+posterior, retaining arbitrary partial overlap and mixed prequeries. Its
+`risk_read_average` and `risk_hash_average` prove exact conditional averaging
+across an actual later read or shared hash query. A partial read can increase
+or decrease the pointwise completion risk; only its conditional average is
+preserved. No per-byte `2^-512` claim is made. `fresh_seed_targets` uses the full
+`2^512` denominator only with the explicit all-64-unseen premise.
+
+These results supply the earliest-seed-exposure and orphan-guessing
+probability primitives. **They do not yet freeze native roots.** The next
+required bridge must parse complete raw native inputs, extract context/root
+keys and quoted parent seeds, retain orphan descendant queries, prove that
+the target set and next request are selected from the prior history, and
+place proof-only availability registrations before the first relevant
+response. In particular, a target set chosen using future seed bytes cannot
+be substituted into the fixed-target theorem. Native root/context classifier
+completeness, parent-child guessing exceptions, protocol composition and real
+attacker-work coupling remain open, along with the other application and
+native-refinement gates.
+
+Validation: nineteen focused regression statements and nineteen guarded
+public-theorem axiom audits pass. Full `scripts/check` exits zero: 10,305 build
+jobs (combined HasteBoots suite 551 seconds), followed by all strict audits and
+smoke commands. The new theorems use only `propext`, `Classical.choice` and
+`Quot.sound` (or fewer). Lean sources remained frozen throughout the passing
+full check. A preceding full run reached the default heartbeat limit while
+elaborating the existing `nativeStart6` literal; splitting it into seven
+chunks preserves all 884 bytes, with SHA-256
+`2282a9035d6d8de1246659fa88eb7ba8025c3f437dafb3b89796c60411b0adaa`.
+Existing assertion declaration lines, native/vendor revisions and default
+proof limits are unchanged.
