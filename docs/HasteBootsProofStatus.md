@@ -17,7 +17,7 @@ verifier. The completed run now also derives every ordered helper PCS call with 
 truncation or extra oracle observation. PCS verification/composition remains
 open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. See
-[the current implementation layer](#native-single-opening-execution-through-atomic-columns).
+[the current implementation layer](#native-goldilocks-scalar-ntt-and-response-encoding).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -7601,3 +7601,125 @@ subsequent repository audit/smoke commands passed. Evidence:
 `/tmp/hasteboots-pcs-columns-strict.log` and
 `/tmp/hasteboots-pcs-columns-check.log`. Native source, vendor dependencies
 and pins remain unchanged; the native checkout is clean at the pinned commit.
+
+
+## Native Goldilocks scalar NTT and response encoding
+
+`NativeGoldSolinas` models the canonical arithmetic used by concrete-ntt's
+`PrimeModulus for Solinas` at locked revision
+`cdeba793e46208320b30d78be19f7be78d49016a`. This is distinct from algebra's
+lazy Goldilocks arithmetic: add/subtract return canonical words, and the
+wide-product reduction retains the source's two wrapping corrections.
+`reduce_spec` proves that reduction returns a canonical representative for
+every 128-bit input. The field interpretation of add, subtract, reduce,
+multiply and the sequential power accumulator is proved in Lean. No integer
+kernel result or transform-correctness certificate is supplied as an input.
+
+`NativeGoldNtt` supplies functional buffers for the actual scalar forward
+algorithm: bit-reversed twiddle writes, canonical input conversion,
+breadth-first butterfly stages and depth-first recursion above the native
+1024-element threshold. The complete plan twiddle table is retained when
+recursing into sub-buffers. The size proofs cover every recursion branch;
+valid-stage source-pair and twiddle-address bounds are proved, including
+recursive depth/half offsets. Forward outputs have exactly the original
+buffer length and all raw words are canonical.
+
+The universal correspondence between this scalar execution and the existing
+`NTTButterfly`/`NTTBlockEncoder` field evaluation/code is still open. The
+current theorems do not establish NTT polynomial evaluation or code membership
+merely from successful buffer construction. Root discovery, plan/cache
+instantiation, the Div64 implementation, SIMD dispatch/lane operations,
+mutable buffer refinement and native work-cost coupling also remain open.
+The scalar model preserves the real radix-two dataflow and cutoff rather
+than replacing its output with a polynomial evaluator.
+
+`NativeGoldRowEncoding` computes block-RS rows and PCS response lanes from
+the original raw inputs. Its checked wrappers expose existing successful
+native plan/shape preconditions; `none` represents a failed precondition,
+not a claim that native assertions return a verifier `Err`. The retained
+code root is compared in the field with the trusted plan root before the
+zero-row shortcut. The shortcut tests literal raw zero, proved equivalent
+to native canonical-and-field-zero, so lazy zero inputs take the transform
+branch. The Goldilocks wrapper canonicalizes the gathered coordinate buffer
+immediately before the integer kernel, without changing the original response
+bytes already used by transcript binding.
+
+The gather handles each coordinate of consecutive input blocks, a partial
+final block and all zero padding. `payload_get` proves the final
+symbol-major scatter contains exactly the corresponding raw coordinate
+transform output. Row encoding produces `2^logSize*blockWidth` canonical
+words. Response encoding independently processes every packing lane's
+exact-length message chunk and concatenates lane outputs. Its completeness
+and shape theorems rule out truncation under the checked preconditions.
+Neither API accepts encoded responses from the proof. The code/plan
+configuration is trusted input; its construction and linkage to the original
+serialized native code object are not yet established.
+
+The differential fixture `/tmp/hasteboots-gold-encoding-fixture` extracts the
+unchanged Solinas trait/implementation and scalar forward bodies from the
+locked dependency, and invokes the unchanged native Goldilocks wrapper and
+`BlockReedSolomonCode::encode_row`. It compares all scalar and selected native
+backend output words at sizes 32, 64, 2048 and 4096; all comparisons pass,
+including both sides of the recursion cutoff. These are native differential
+checks, not universal SIMD or Rust refinement proofs. Lean kernel fixtures
+compare complete transform vectors at sizes 32/64, nonconstant block-code
+rows, partial coefficient blocks, canonical/lazy zero rows and the actual
+honest PCS fixture's three test/evaluation response lanes. The larger-domain
+scalar/backend comparisons are native-only checks.
+
+Source hashes, with native HasteBoots pinned at
+`dff353006322693cab3dc6b654f82151f658f294`:
+
+- `pcs/src/utils/code/block.rs`:
+  `ac94d4153b7fba7956c7609d1eb2b99f233f200163096ecd4cffb389d611c62e`.
+- `algebra/src/transformation/concrete.rs`:
+  `d57e69cea2bc8c18d5bd5ceb95e99ae2bb21c98d30f4ab8044929b31cb26c76e`.
+- concrete-ntt `src/prime64/generic_solinas.rs`:
+  `0929b3b57ec46b32d5b9679994de780070ffb80ccee003e4f0d35029ba779bd5`.
+- concrete-ntt `src/prime64.rs`:
+  `c68e3a56e71347ccc66bd3717addd24dbea1357eda63d1851fb99d1f2191ac0b`.
+
+There are 21 new kernel examples and 32 public theorem audits. The combined
+HasteBoots suite now has 2,600 guarded audits, allowing only `propext`,
+`Classical.choice` and `Quot.sound`. No proof holes, new axioms, native decision
+tactics or raised default elaboration limits are introduced.
+
+`NativeGoldPcsColumns.protocol` still ends at the atomic column boundary.
+The next work is the scalar NTT/code correspondence and trusted code-object
+linkage, then composition of computed response encoding, raw column
+authentication, coordinate checks and suffix/claim equality. Full PCS/lookup
+composition, raw availability, prefix tensor correspondence, source registry
+and alias/query folding, adaptive freshness/work coupling, lookup/PBS
+extraction, production parameter/code/profile instantiation, strict decoding,
+Rust/compiler/scheduler refinement, BabyBear, numerical certification and
+the final 128-bit application theorem remain open.
+
+
+The existing full-body native reader fixtures are now assembled from separate
+128-byte natural-list constants. This keeps each literal's elaboration within
+the default heartbeat budget as the combined import set grows. All original
+reader bytes and assertions are retained: a direct comparison against `HEAD`
+confirmed identical bytes and SHA-256 digests for all 11 fragmented readers.
+The saved comparison data is
+`/tmp/hasteboots-gold-encoding-fixture-fragments.json`. No heartbeat or
+recursion-limit increase is used.
+
+
+Validation: focused module builds, all 21 kernel examples, all 32 public
+theorem audits and the standalone warning-as-error encoding check passed.
+The combined HasteBoots smoke build passed (4,211 jobs, 475 seconds), as did
+the complete standalone warning-as-error HasteBoots smoke check. Full
+`scripts/check` exited 0: its build completed 10,230 jobs and every subsequent
+repository audit/smoke command passed. Evidence:
+`/tmp/hasteboots-solinas-build.log`,
+`/tmp/hasteboots-gold-encoding-address-build.log`,
+`/tmp/hasteboots-gold-encoding-focused.log`,
+`/tmp/hasteboots-gold-encoding-audit.log`,
+`/tmp/hasteboots-gold-encoding-fixture.log`,
+`/tmp/hasteboots-gold-encoding-strict-focused.log`,
+`/tmp/hasteboots-gold-encoding-smoke.log`,
+`/tmp/hasteboots-gold-encoding-strict.log` and
+`/tmp/hasteboots-gold-encoding-check.log`. Native HasteBoots source and vendor
+sources/pins remain unchanged; the native checkout is clean at its pinned
+commit. This validates the stated arithmetic, buffer and layout results,
+not the outstanding universal NTT/code or complete security theorem.

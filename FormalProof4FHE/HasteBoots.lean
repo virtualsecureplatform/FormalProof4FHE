@@ -392,3 +392,6 @@ public import FormalProof4FHE.HasteBoots.NativeGoldPackedMeaning
 public import FormalProof4FHE.HasteBoots.NativeGoldPcsArithmetic
 public import FormalProof4FHE.HasteBoots.NativeGoldPcsColumns
 public import FormalProof4FHE.HasteBoots.NativeGoldPcsColumnsShape
+public import FormalProof4FHE.HasteBoots.NativeGoldSolinas
+public import FormalProof4FHE.HasteBoots.NativeGoldNtt
+public import FormalProof4FHE.HasteBoots.NativeGoldRowEncoding
