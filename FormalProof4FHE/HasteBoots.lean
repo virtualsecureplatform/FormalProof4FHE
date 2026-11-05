@@ -453,3 +453,5 @@ public import FormalProof4FHE.HasteBoots.NativeParentLineage
 
 public import FormalProof4FHE.HasteBoots.NativeSourceLineage
 public import FormalProof4FHE.HasteBoots.CausalExposureCoverage
+
+public import FormalProof4FHE.HasteBoots.NativeSeedAncestry

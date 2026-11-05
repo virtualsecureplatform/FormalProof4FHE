@@ -19,7 +19,7 @@ open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#inherited-source-keys-and-causal-seed-prequery-coverage).
+[the current implementation layer](#pending-seed-quotes-and-derived-native-ancestry).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -9393,3 +9393,33 @@ command. All new public theorems use only `propext`, `Classical.choice` and
 `Quot.sound` (or fewer). Lean sources remained frozen throughout the check.
 Native/vendor revisions, fixture bytes/assertions and default proof limits
 are unchanged.
+
+## Pending seed quotes and derived native ancestry
+
+`PendingSeedQuote` covers a seed quote first appearing in the currently pending
+input. Its exact conditional guessing risk is 1/2^512 when all 64 logical seed
+bytes remain unseen. This risk combines with earlier quoted-seed risks over an
+unbounded execution, retaining prelude and inherited bad events.
+
+`SeedQuoteOrder` proves that outside these two events, every observed input
+quoting a producer's seed occurs strictly after that producer's first logical
+seed exposure. This includes positive reads outside the seed window and shared
+hash calls. Any finite closed dependency graph therefore implies a bad event.
+
+`NativeSeedAncestry` starts from semantic source/helper ancestry and actual
+producer-read occurrences, without assuming chronological parent order. It
+derives chronological metadata, concrete root resolution before descendant
+reads, and retained snapshots in the reconstructed shared oracle state. The
+regressions include a distinct-output execution with a partial producer read,
+an intervening shared hash, and a descendant read outside its seed window;
+the absence of both bad events is proved for every execution prefix.
+
+The two new smoke modules contain 20 examples and 35 guarded public-theorem
+axiom reports. These results do not yet establish native accepted-run ancestry,
+Merkle availability, partial-seed or receipt risk bounds, arithmetic soundness,
+physical attacker-work coupling, or Rust/scheduler refinement. Probability
+charges in these lemmas are not a physical-work accounting model.
+
+Validation: `scripts/check` passed all 10,332 build jobs (combined HasteBoots
+smoke: 477 seconds) and strict audits. Both new smoke modules also passed
+standalone Lean checks with `-DwarningAsError=true`.
