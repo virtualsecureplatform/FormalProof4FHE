@@ -4,6 +4,7 @@ import all Mathlib.Data.List.Sort
 import all Batteries.Data.Except
 import all FormalProof4FHE.HasteBoots.NativeGoldPcsEncoding
 import all FormalProof4FHE.HasteBoots.NativeGoldPcsWorkers
+import all FormalProof4FHE.HasteBoots.NativeGoldPcsRawAvailability
 
 import all FormalProof4FHE.HasteBoots.NativeGoldPcsPrelude
 import all FormalProof4FHE.HasteBoots.NativeGoldPcsColumnsShape
@@ -248,6 +249,15 @@ private noncomputable def authenticated := (OracleProgram.run oneWorkerHandoff f
 example : authenticated.1 = true := by decide +kernel
 example : authenticated.2 = events ++ [.start nativeStart2,.output nativeStart2 0 nativeStream2] ++
   [.hash authHashInput1 authHashOutput1,.hash authHashInput2 authHashOutput2,.hash authHashInput3 authHashOutput3,.hash authHashInput4 authHashOutput4,.hash authHashInput5 authHashOutput5,.hash authHashInput6 authHashOutput6] := by decide +kernel
+
+example : (match preparedRun.1 with
+  | .prepared work => (NativeGoldPcsRawAvailability.prepare (fun _ : Unit => 5) () work).map
+      (List.map (fun entry => (entry.1.index,entry.2.position.val,entry.2.siblings.toList.length)))
+  | _ => none) = some [(27,27,5)] := by decide +kernel
+example : (match preparedRun.1 with
+  | .prepared work => (NativeGoldPcsRawAvailability.prepare (fun _ : Unit => 5) () work).map
+      (List.map (fun entry => entry.2.payload))
+  | _ => none) = some (opening.columns.val.map NativeGoldColumnAuthentication.Column.values) := by decide +kernel
 
 end NativePcsPreludeSmoke
 

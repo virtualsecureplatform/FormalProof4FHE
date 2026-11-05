@@ -19,7 +19,7 @@ open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#raw-column-workers-and-checked-pcs-preparation).
+[the current implementation layer](#raw-frozen-word-availability-and-pool-loss).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -8043,3 +8043,106 @@ repository audit/smoke command passed. Evidence:
 pinned commit, and concrete-ntt tracked sources and all vendor pins are
 unchanged. These checks validate the stated raw-worker/preparation layer,
 not complete native PCS/lookup acceptance or the final security theorem.
+
+
+## Raw frozen-word availability and pool loss
+
+`NativeGoldPcsPaths.prepared_paths` derives every prepared job's typed Merkle
+position and exact leaf-first path length from the actual checked PCS prefix.
+It uses the original column/path guards, bounded sampled indices and computed
+Merkle height. This part needs neither primitive-root correctness nor a
+caller-supplied path/geometry certificate.
+
+`NativeGoldRawRequests.fromJob` computes the typed availability request from
+the original job: its sampled index, original raw `Row`, retained root and
+parsed leaf/siblings. The context tag and height family identify the trusted
+checkpoint configuration. Out-of-range positions or incorrect path lengths
+return `none`. `entries` requires every original job to convert successfully;
+it retains each job alongside its request and never drops, truncates or merges
+a worker, even when two positions coincide. Its proved first projection is
+the entire original job list, and every second component is its actual
+computed request. `replay_of_worker` transfers replay from the literal raw
+worker computation to the generic raw-payload availability interface.
+
+`NativeGoldRawAvailability.frozenRaw` selects the immutable total raw word
+from a recorded checkpoint's cumulative prefix log and root, with an empty
+raw-row fallback. Only after that selection do `frozenValue`/`frozenWord`
+interpret coordinates in Goldilocks, with zero for missing coordinates.
+The frozen object depends on the checkpoint and trusted layout dimensions;
+it has no later query, response, worker-result or challenge input. Placing
+the actual native checkpoint before the opening challenges remains part of
+the state-coupling obligation. This is the information-theoretic prefix
+resolver, not an efficient decoder claim.
+
+Outside the existing `ParallelColumnAvailability.Failure` event, an accepted
+raw request equals this frozen raw payload. Field-value projection therefore
+preserves the original native coordinate equations against the same frozen
+word. Both random and structured response families use one conjunction of
+equations. No projected field list is substituted into a hash input, and no
+injectivity of Goldilocks value projection is assumed (it is false for lazy
+aliases). Missing/unavailable payloads and malformed unqueried raw lengths
+still give a total semantic word; native queried lengths remain established
+by the earlier checked-prefix array-bound theorem.
+
+`NativeGoldPcsRawAvailability.prepare` applies that lossless adapter to an
+actual prepared PCS result. Its completeness theorem derives all request
+preconditions from the checked prefix when the trusted context height matches
+the computed native height. Actual pool acceptance then derives raw replay
+and the coordinate checks for every computed request from the final shared
+cache, without incoming replay/acceptance certificates. `pool_equations`
+transports those checks to every recorded matching root's frozen semantic
+word outside the same joint availability event.
+
+`NativeGoldRawAvailability.failure_le_charge` and its empty-initialization
+version reduce failed semantic transport to the existing joint root-wide
+hash hazard for arbitrary adaptive programs returning request views.
+`NativeGoldPcsRawFailure.failure_le_charge` additionally specializes this
+reduction to the actual worker-pool computation: the event requires its
+computed all-accepted residual-worker flag, yet the frozen equations fail.
+The reduction uses support of that actual pool run, not arbitrary fabricated
+pool outputs. All original scheduler work, interleaving, cancellation and
+issued hashes stay in the charged program. No per-worker, per-lane,
+per-coordinate or extra response-family union factor is introduced. This is
+a symbolic expected-hazard bound, not the final numerical security claim.
+
+Eight new kernel adapter cases reuse the pinned native raw-column fixtures.
+They check the complete original payload/root/leaf and index/path geometry,
+reject invalid indices and context heights, preserve distinct lazy payloads
+at duplicate positions, and reject an invalid later job without returning a
+truncated prefix. Two additional checked-prefix fixture cases compute the
+requests from the actual prepared state and recover the original received
+payload list in order. All earlier native hash/arithmetic/lazy-alias tests
+remain intact. All 19 new public theorems have guarded audits using only
+`propext`, `Classical.choice` and `Quot.sound`; the combined HasteBoots suite
+now has 2,711 guarded audits. Default proof limits are unchanged.
+
+The next integration steps are the actual mixed-prefix/checkpoint-state
+coupling, transport to the original ordered draws and near/far PCS analysis,
+and final suffix/claim enforcement. Full PCS/lookup composition, prefix
+tensor correspondence, registry/alias/query folding, adaptive freshness/work
+coupling, lookup/PBS extraction, production profile instantiation, strict
+decoding, root generation/cache, Div64/SIMD/Rust/compiler/scheduler refinement,
+BabyBear, numerical certification and the final 128-bit application theorem
+remain open. The raw frozen-word projection gap is closed at the stated
+shared-cache/recorded-checkpoint interface; it does not by itself close
+those remaining native/application boundaries.
+
+
+Validation: the focused adapter/checked-prefix tests passed (4,062 jobs,
+82 seconds for the PCS fixture), as did the guarded raw-column build,
+standalone warning-as-error raw-column check and all 19 theorem audits.
+The combined HasteBoots smoke build passed (4,232 jobs, 545 seconds for its
+smoke file), and its standalone warning-as-error check exited 0. Full
+`scripts/check` exited 0: its build completed 10,249 jobs and every subsequent
+repository audit/smoke command passed. Evidence:
+`/tmp/hasteboots-raw-availability-focused.log`,
+`/tmp/hasteboots-raw-availability-guarded.log`,
+`/tmp/hasteboots-raw-availability-audit.log`,
+`/tmp/hasteboots-raw-availability-strict-focused.log`,
+`/tmp/hasteboots-raw-availability-smoke.log`,
+`/tmp/hasteboots-raw-availability-strict.log` and
+`/tmp/hasteboots-raw-availability-check.log`. All original native byte fixtures
+are retained. Native HasteBoots and concrete-ntt tracked sources and vendor
+pins are unchanged. These checks validate the stated recorded-checkpoint/raw
+projection and symbolic pool-loss results, not complete native PCS/lookup
+acceptance or the final application security theorem.

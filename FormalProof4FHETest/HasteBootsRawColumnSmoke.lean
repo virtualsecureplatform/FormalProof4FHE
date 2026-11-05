@@ -1,6 +1,8 @@
 module
 
 import all FormalProof4FHE.HasteBoots.NativeGoldPcsWorkerSoundness
+import all FormalProof4FHE.HasteBoots.NativeGoldPcsRawFailure
+import all FormalProof4FHE.HasteBoots.NativeGoldRawRequests
 import all FormalProof4FHE.HasteBoots.NativeGoldColumnChecks
 import all FormalProof4FHE.HasteBoots.NativeGoldColumnWorker
 import all FormalProof4FHE.HasteBoots.NativeGoldPcsWorkers
@@ -74,6 +76,23 @@ example : execute column test (List.replicate 192 0) = (false,events) := by deci
 example : NativeGoldPcsWorkers.attach [27,28] [column] = none := by decide +kernel
 example : NativeGoldPcsWorkers.attach [27] [column,column] = none := by decide +kernel
 example : (NativeGoldPcsWorkers.attach [27] [column]).map (List.map NativeGoldColumnWorker.Job.index) = some [27] := by decide +kernel
+private noncomputable def rawJob : NativeGoldColumnWorker.Job := ⟨27,column⟩
+private noncomputable def lazyJob : NativeGoldColumnWorker.Job := ⟨27,lazyColumn⟩
+private noncomputable def rawRequest := NativeGoldRawRequests.fromJob (fun _ : Unit => 5) () root rawJob
+example : rawRequest.map (fun request => (request.position.val,request.payload.val.map Fin.val,request.siblings.toList.length)) =
+  some (27,[0,6,1,7,2,8,3,9,4,10,5,11],5) := by decide +kernel
+example : rawRequest.map (fun request => (List.ofFn request.root,List.ofFn request.leaf)) =
+  some (List.ofFn root,hashOutput1) := by decide +kernel
+example : (NativeGoldRawRequests.fromJob (fun _ : Unit => 5) () root {rawJob with index := 32}).isNone = true := by decide +kernel
+example : (NativeGoldRawRequests.fromJob (fun _ : Unit => 6) () root rawJob).isNone = true := by decide +kernel
+example : (NativeGoldRawRequests.fromJob (fun _ : Unit => 5) () root
+  {rawJob with column := {column with path := ⟨[],by decide +kernel⟩}}).isNone = true := by decide +kernel
+private noncomputable def rawEntries := NativeGoldRawRequests.entries (fun _ : Unit => 5) () root [rawJob,lazyJob]
+example : rawEntries.map (List.map (fun entry => (entry.1.index,entry.2.position.val))) = some [(27,27),(27,27)] := by decide +kernel
+example : rawEntries.map (List.map (fun entry => entry.2.payload.val.map Fin.val)) =
+  some [[0,6,1,7,2,8,3,9,4,10,5,11],[18446744069414584321,6,1,7,2,8,3,9,4,10,5,11]] := by decide +kernel
+example : (NativeGoldRawRequests.entries (fun _ : Unit => 5) () root [rawJob,{lazyJob with index := 32}]).isNone = true := by decide +kernel
+
 end NativeGoldColumnSmoke
 
 /-- info: 'FormalProof4FHE.HasteBoots.NativeGoldColumnChecks.equal_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
@@ -165,3 +184,113 @@ end NativeGoldColumnSmoke
  Quot.sound] -/
 #guard_msgs in
 #print axioms FormalProof4FHE.HasteBoots.NativeGoldPcsWorkerSoundness.accepted_checks
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldPcsPaths.prepared_paths' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
+#guard_msgs in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldPcsPaths.prepared_paths
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldRawRequests.fromJob_spec' depends on axioms: [propext] -/
+#guard_msgs in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldRawRequests.fromJob_spec
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldRawRequests.decode_complete' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
+#guard_msgs in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldRawRequests.decode_complete
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldRawRequests.fromJob_complete' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
+#guard_msgs in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldRawRequests.fromJob_complete
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldRawRequests.entries_spec' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldRawRequests.entries_spec
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldRawRequests.entries_complete' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
+#guard_msgs in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldRawRequests.entries_complete
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldRawRequests.replay_of_worker' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
+#guard_msgs in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldRawRequests.replay_of_worker
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldRawAvailability.empty_view' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
+#guard_msgs in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldRawAvailability.empty_view
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldRawAvailability.payload_of_no_failure' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
+#guard_msgs in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldRawAvailability.payload_of_no_failure
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldRawAvailability.values_of_no_failure' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
+#guard_msgs in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldRawAvailability.values_of_no_failure
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldRawAvailability.equations_of_no_failure' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
+#guard_msgs in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldRawAvailability.equations_of_no_failure
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldRawAvailability.failure_implies_availability' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
+#guard_msgs in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldRawAvailability.failure_implies_availability
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldRawAvailability.failure_le_charge' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
+#guard_msgs in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldRawAvailability.failure_le_charge
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldRawAvailability.failure_from_empty_le_charge' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
+#guard_msgs in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldRawAvailability.failure_from_empty_le_charge
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldPcsRawAvailability.prepare_complete' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
+#guard_msgs in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldPcsRawAvailability.prepare_complete
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldPcsRawAvailability.pool_replays' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
+#guard_msgs in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldPcsRawAvailability.pool_replays
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldPcsRawAvailability.pool_equations' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
+#guard_msgs in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldPcsRawAvailability.pool_equations
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldPcsRawFailure.failure_implies_availability' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
+#guard_msgs in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldPcsRawFailure.failure_implies_availability
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldPcsRawFailure.failure_le_charge' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
+#guard_msgs in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldPcsRawFailure.failure_le_charge

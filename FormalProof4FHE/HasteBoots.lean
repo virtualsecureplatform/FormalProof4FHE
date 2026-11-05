@@ -409,3 +409,8 @@ public import FormalProof4FHE.HasteBoots.NativeGoldColumnChecks
 public import FormalProof4FHE.HasteBoots.NativeGoldColumnWorker
 public import FormalProof4FHE.HasteBoots.NativeGoldPcsWorkers
 public import FormalProof4FHE.HasteBoots.NativeGoldPcsWorkerSoundness
+public import FormalProof4FHE.HasteBoots.NativeGoldPcsPaths
+public import FormalProof4FHE.HasteBoots.NativeGoldRawRequests
+public import FormalProof4FHE.HasteBoots.NativeGoldRawAvailability
+public import FormalProof4FHE.HasteBoots.NativeGoldPcsRawAvailability
+public import FormalProof4FHE.HasteBoots.NativeGoldPcsRawFailure
