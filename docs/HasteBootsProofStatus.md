@@ -19,7 +19,7 @@ open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#combined-source-and-helper-checkpoint-execution).
+[the current implementation layer](#persistent-shake-cache-and-lazy-native-programs).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -8580,3 +8580,54 @@ the main module). Full `scripts/check` exits zero: 10,272 build jobs and every
 subsequent strict audit/smoke command pass. All original fixture bytes and
 assertions, native/vendor sources, dependency pins and proof limits remain
 unchanged. The full security goal remains active.
+
+
+## Persistent SHAKE cache and lazy native programs
+
+`NativeShakeCache` owns a persistent cache keyed by the complete SHAKE input
+and byte offset. A hit returns the saved byte without an oracle request;
+a miss consumes one private uniform byte and installs its answer. No reader
+identity occurs in the key. Every possible read preserves all previously
+exposed answers and records its entire returned interval in the final cache.
+Consequently, rereading an interval returns exactly the same bytes without
+new randomness. Splitting a read preserves byte order and the complete cache.
+These laws apply to arbitrary initial caches, including partial overlaps.
+
+`NativeLazyProgram.compile` executes the original causal native program in
+this cache state over the existing shared checkpoint specification. All
+SHA-512 requests still use that specification's canonical hash interface.
+The compiler retains every ordered native observation, including repeated
+reads and hash calls. Native continuations receive only their returned
+answer; they cannot supply or replace the cache. Composition threads one
+cache through both programs, and every possible compiled branch preserves
+previously exposed bytes.
+
+`NativeProgramPrefix.take` retains the actual residual program at an analysis
+boundary. Its world semantics is the existing `OracleProgram.runPrefix`.
+Binding the residual continuation reconstructs the original program exactly.
+`NativeLazyProgram.compile_resume` transports that identity to the stateful
+interpreter, including both observation lists and the persistent cache.
+Thus analysis fuel does not impose a native retry limit or refresh challenges.
+
+All fifteen new public theorems have guarded axiom audits; four use no axioms
+and the remainder use only `propext` and `Quot.sound`. Focused regressions cover
+complete-input separation, retained prequery answers, fresh-coordinate updates,
+compiled cached reads and suspended next requests. No original fixture,
+native/vendor source, dependency pin or proof limit changes.
+
+This is the operational foundation of revised Gate A. It does not yet prove
+finite-prefix distributional equivalence to `InputIndexedOracle.law`, nor a
+prequery-aware atomic-index security bound. The compiler is not yet integrated
+with the worker scheduler or the source/helper checkpoint compiler. The
+first-exposure ledger, early root freezing and parent/child guessing exceptions
+remain required. Rectangular PCS bounds and all subsequent application,
+cost-realization, profile-certificate and native-refinement gates remain open.
+The full formal security goal remains active.
+
+
+Validation: all three new production modules build. The focused regression
+module, including all fifteen guarded axiom audits, passes standalone with
+warnings as errors. Full `scripts/check` exits zero: 10,276 build jobs,
+including the combined HasteBoots smoke module (514 seconds), followed by
+all strict repository audit and smoke commands. Lean sources remained
+frozen throughout the full check.

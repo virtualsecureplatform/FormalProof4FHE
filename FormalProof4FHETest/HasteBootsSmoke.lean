@@ -1,6 +1,7 @@
 module
 
 import all FormalProof4FHE.HasteBoots
+import all FormalProof4FHETest.HasteBootsLazyProgramSmoke
 import all FormalProof4FHETest.HasteBootsPcsSmoke
 import all FormalProof4FHETest.HasteBootsHelpersSmoke
 import all FormalProof4FHETest.HasteBootsPcsChallengesSmoke

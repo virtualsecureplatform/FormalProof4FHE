@@ -432,3 +432,4 @@ public import FormalProof4FHE.HasteBoots.NativeProgramComposition
 public import FormalProof4FHE.HasteBoots.NativeSharedLookupHelperCheckpoints
 public import FormalProof4FHE.HasteBoots.NativeSharedLookupChildCheckpoints
 public import FormalProof4FHE.HasteBoots.NativeSharedLookupCheckpointExecution
+public import FormalProof4FHE.HasteBoots.NativeLazyProgram
