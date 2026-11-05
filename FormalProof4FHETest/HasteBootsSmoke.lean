@@ -2,6 +2,7 @@ module
 
 import all FormalProof4FHE.HasteBoots
 import all FormalProof4FHETest.HasteBootsShakeKernelSmoke
+import all FormalProof4FHETest.HasteBootsParentRootFreezeSmoke
 import all FormalProof4FHETest.HasteBootsCausalRootFreezeSmoke
 import all FormalProof4FHETest.HasteBootsNativeInputViewSmoke
 import all FormalProof4FHETest.HasteBootsFirstExposureSmoke

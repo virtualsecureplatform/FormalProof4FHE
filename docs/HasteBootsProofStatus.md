@@ -19,7 +19,7 @@ open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#causally-selected-seed-exposures-and-online-direct-root-snapshots).
+[the current implementation layer](#partial-parent-association-and-causal-helper-root-snapshots).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -9143,3 +9143,58 @@ smoke commands. The new theorems use only `propext`, `Classical.choice` and
 `Quot.sound` (or fewer). Lean sources remained frozen throughout the check.
 Native/vendor revisions, fixture bytes/assertions and default proof limits
 are unchanged.
+
+## Partial-parent association and causal helper-root snapshots
+
+`NativeParentInputView` recognizes the actual native parent-seed request
+(kind 6 fork followed by the kind 2, 64-byte classical-child-seed request),
+canonical helper contexts in bind messages, and canonical helper-root
+vectors. `parseParent_request` links recognition to
+`NativeTranscript.requestInput (absorb parent 6 label context) ... 64`.
+Compatibility inspects only already observed positions of the seed, and
+`compatible_observed` proves that the actual logical seed remains compatible
+after arbitrary partial reads. A single unknown final byte retains all 256
+possible values.
+
+`NativeParentLedger` stores every compatible pending parent, its resolved
+source keys and its inherited helper contexts. A child header can resolve
+helper roots against several compatible parents; the resolver does not pick
+the first seed match or require a complete seed read. Stored metadata also
+allows source/context propagation into later descendants. Discovery uses the
+old parent table and old byte cache. Its frozen set is unchanged: a parent
+discovered after an earlier child read cannot backdate that read's snapshot.
+Only preparation for a subsequent nonempty read adds resolved keys to the
+persistent frozen set. Duplicate keys are removed, complete context/root
+pairs remain distinct, existing parents are retained, and previously frozen
+keys are never requested again.
+
+`NativeParentRootFreeze` threads this ledger through the actual owned-cache
+compiler. Starts, hashes and empty reads may discover parent structure;
+nonempty reads issue newly resolved root checkpoints before reading any
+bytes. The compiler never supplies its ghost state to the native continuation.
+`erase_compile`, `canonical_compile` and `execute_erasure` prove exact
+projection to the original native value/log, owned SHAKE cache and shared
+SHA-512 cache. `compile_bind` and `compile_resume` preserve the ledger and
+cache across composition/suspension. `read_snapshot` retains the actual
+pre-read cumulative hash-log checkpoint through every supported continuation,
+even after monitor failure. `actual_helper_snapshot` combines that guarantee
+with actual-parent compatibility after partial seed reads.
+
+These are structural and operational guarantees. An initial parent table is
+not evidence of authenticated lineage; use an empty ledger or prove it arose
+from the same instrumented prelude as the caches/checkpoints. Whole native
+root/exposure coverage remains open, including explicit orphan and
+receipt-linked exceptions, causal parent selection and trusted context/shape
+interpretation. Late discovery is not retroactive security coverage. The
+first-original-slot registry map, ordered-prefix grouping, native protocol
+composition, attacker-work coupling, rectangular/numerical certification,
+BabyBear and fail-closed Rust/scheduler refinement remain mandatory.
+
+Validation: eighteen focused regressions and thirty-five guarded public
+theorem axiom audits pass, including the focused test file with warnings
+treated as errors. Full `scripts/check` exits zero: 10,317 build jobs
+(combined HasteBoots suite 510 seconds), followed by every strict audit and
+smoke command. All new public theorems use only `propext`, `Classical.choice`
+and `Quot.sound` (or fewer). Lean sources remained frozen throughout the
+check. Native/vendor revisions, fixture bytes/assertions and default proof
+limits are unchanged.

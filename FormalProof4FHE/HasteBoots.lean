@@ -443,3 +443,5 @@ public import FormalProof4FHE.HasteBoots.NativeChildSeedView
 public import FormalProof4FHE.HasteBoots.NativeRootInputView
 public import FormalProof4FHE.HasteBoots.CausalSeedExposure
 public import FormalProof4FHE.HasteBoots.NativeDirectRootFreeze
+
+public import FormalProof4FHE.HasteBoots.NativeParentRootFreeze
