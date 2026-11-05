@@ -437,3 +437,4 @@ public import FormalProof4FHE.HasteBoots.NativeGoldPrequeryIndices
 public import FormalProof4FHE.HasteBoots.RectangularOpening
 public import FormalProof4FHE.HasteBoots.NativeLazyIndexExecution
 public import FormalProof4FHE.HasteBoots.NativeLazyExecutionLaw
+public import FormalProof4FHE.HasteBoots.OracleMachine

@@ -19,7 +19,7 @@ open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#conditional-mixed-program-execution-and-final-byte-cache).
+[the current implementation layer](#full-shared-state-execution-and-causal-lifetime-limits).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -8879,4 +8879,64 @@ public-theorem axiom audits pass. Full `scripts/check` exits zero: 10,297 build
 jobs (combined HasteBoots suite 530 seconds), followed by all strict audits and
 smoke commands. The new theorems use only `propext`, `Classical.choice` and
 `Quot.sound` (or fewer). Lean sources were frozen throughout the full check.
+Native/vendor revisions, fixture bytes and default proof limits are unchanged.
+
+## Full shared-state execution and causal lifetime limits
+
+`NativeLazyStateExecution.state_law` extends the exact mixed-program
+probability bridge to **the entire actual compiled outcome**: arbitrary result,
+complete native log, owned SHAKE cache, canonical SHA-512 cache, checkpoint
+registry and passive failure flag. The implementation is the existing
+`simulateQ CheckpointExecution.handler ((NativeLazyProgram.compile p).run cache)`
+with both state layers retained, rather than a replacement oracle interpreter.
+Supported executions reconstruct both state layers from the literal ordered
+log; this gives an equality of actual `ProbComp` computations before applying
+the conditional event law. `fold_project` identifies the final shared hash
+state with the canonical projection of the old-plus-new native log.
+
+The shared-state fold applies the actual `afterHash` update on every hash,
+including cached repeats. It retains a failure detected before later queries
+repair source stability. Starts and reads leave the shared state unchanged.
+This program syntax issues no checkpoint-registration query, so it preserves
+the **initial** registry; this theorem does not insert or relocate native root
+registration. `prefix_law` retains the residual program and every state field,
+and `from_empty` discharges the initial-history premises.
+
+`OracleMachine` supplies a causal interface for truly unbounded retry loops.
+A local state chooses a done/start/read/hash command; response continuations
+receive only the corresponding response. Local state can include the entire
+attacker memory and an initially chosen random tape. Finite `take` prefixes
+return the real residual local state or completed result. They do not impose
+a runtime retry limit. The syntax permits machines with no terminating run.
+
+`take_resume` proves exact prefix compatibility. `compile_resume` carries the
+owned byte cache, and `execute_resume` carries **both caches and the complete
+shared state** across suspension. Thus longer prefixes use the actual cached
+execution, with no independent rerun of already sampled bytes. Their ideal
+logs extend by prefix. Completed results/logs are absorbing at all later fuel.
+
+`conditional_lifetime_law` proves that the probability of ever seeing a
+persistent bad-log event equals the supremum of the actual full-state prefix
+probabilities after any replayable prequery history. `lifetime_law` starts from
+empty caches. `completion_lifetime_law` gives the corresponding exact limit
+for bad completed results, with no termination assumption, query cutoff,
+success floor or conditioning on successful completion. `eventual_measurable`
+proves measurability of arbitrary eventual prefix-result events in the original
+joint product sigma algebra. These are lifetime **event-probability** limits;
+no claim about a general infinite-trace distribution or almost-sure termination
+is needed or made.
+
+Gate A now has a full-state finite-prefix bridge and compatible causal
+lifetime-event limits. Its next substantive obligation is the first-exposure
+ledger and earliest relevant-byte root freezing, including raw/off-path and
+descendant prequeries, followed by native phase/registration composition.
+The attacker-work coupling, rectangular native finishing/constructor and
+numerical-profile gates, final application/extraction theorem, BabyBear and
+fail-closed Rust/scheduler refinement remain open.
+
+Validation: nineteen focused regression statements and twenty-three guarded
+public-theorem axiom audits pass. Full `scripts/check` exits zero: 10,301 build
+jobs (combined HasteBoots suite 518 seconds), followed by all strict audits and
+smoke commands. The new theorems use only `propext`, `Classical.choice` and
+`Quot.sound` (or fewer). Lean sources remained frozen throughout the check.
 Native/vendor revisions, fixture bytes and default proof limits are unchanged.
