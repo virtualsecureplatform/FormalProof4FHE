@@ -19,7 +19,7 @@ open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#lazy-shake-read-law-and-native-index-execution).
+[the current implementation layer](#conditional-mixed-program-execution-and-final-byte-cache).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -8821,3 +8821,62 @@ and twenty-six guarded axiom audits. Full `scripts/check` exits zero:
 all subsequent strict audits and smoke commands. Lean sources remained
 frozen throughout the full check. Native/vendor sources, dependency pins,
 all original fixture bytes/assertions and default proof limits are unchanged.
+
+## Conditional mixed-program execution and final byte cache
+
+`NativeLazyExecutionLaw.execute_law` proves exact conditional event probability
+for **the actual `NativeLazyProgram.compile` interpreter** under the shared
+`CheckpointExecution.handler`, against the original joint product world.
+The event may inspect the arbitrary result and complete ordered native log.
+The initial history is any replayable execution, including prequeries; its
+observed SHAKE cache and projected SHA-512 cache supply the interpreter state.
+Read lengths, offsets, inputs and subsequent read/hash instructions may depend
+on preceding responses. Repeated inputs, partial overlaps, reader restarts,
+zero-length reads and cached hashes require no disjointness premise.
+
+The proof has these independently checked layers:
+
+- `OracleHistoryComposition`: exact total probability over the countable range
+  of complete replayable histories, for any finite measure, then exact
+  refinement inside an earlier history conditional. Zero-mass refined fibers
+  remain in the partition; no successful-execution normalization is used.
+- `OracleHistorySnapshot`: retain the whole prior result/log and the actual
+  next response in the analysis payload. Later fibers fix both the earlier
+  history and the response without adding oracle observations.
+- `NativeShakeProjection`: a truthful log fold reconstructs the observed byte
+  cache; appending a read updates precisely its interval, while starts and
+  hashes leave the SHAKE cache unchanged. A whole-history fiber fixes this
+  cache even when other coordinates remain unknown.
+- `OracleKernelComposition`: exact score and arbitrary-continuation transfer
+  for physical SHAKE sampling and canonical cached SHA-512 answers, using the
+  whole-history posterior and exact history-refinement averaging.
+- `NativeLazyExecution`: literal code equalities for pure/start/read/hash
+  execution, including the canonical hash-state and passive-monitor update.
+  `executeWithCache_records` derives the owned final SHAKE cache from supported
+  executions of that actual handler and the retained complete log.
+- `NativeLazyExecutionLaw`: structural induction over mixed programs combines
+  those laws. `prefix_law` retains the actual residual program, `from_empty`
+  discharges both initial-cache premises, and `cache_law` extends the exact
+  event equality to the owned final byte cache of the old-plus-new history.
+
+This closes the general finite-program and finite-analysis-prefix
+**value/log/SHAKE-cache probability bridge**, beyond the prior one-request laws.
+It does not yet assert equality of all final shared monitor/checkpoint states,
+an infinite sampler completion theorem, native Rust refinement, or complete
+Fiat–Shamir/application security. The syntax is a causal well-founded program;
+unbounded retry processes still need compatible prefix families and limits.
+
+The next Gate A obligations are final SHA-512/monitor state recovery and
+compatible-prefix limits, followed by the first-exposure ledger and earliest
+relevant-byte root freezing across raw/off-path/descendant prequeries. Gate B
+still needs rectangular native finishing and constructor instantiation, then
+an inhabited numerical Goldilocks profile and query-feasibility certificate.
+The final work theorem, BabyBear profile and fail-closed Rust refinement remain
+mandatory. No verifier-work substitution or query cutoff is introduced here.
+
+Validation: twelve focused regression statements and thirty-five guarded
+public-theorem axiom audits pass. Full `scripts/check` exits zero: 10,297 build
+jobs (combined HasteBoots suite 530 seconds), followed by all strict audits and
+smoke commands. The new theorems use only `propext`, `Classical.choice` and
+`Quot.sound` (or fewer). Lean sources were frozen throughout the full check.
+Native/vendor revisions, fixture bytes and default proof limits are unchanged.
