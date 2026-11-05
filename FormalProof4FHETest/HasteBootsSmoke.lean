@@ -5,6 +5,7 @@ import all FormalProof4FHETest.HasteBootsPcsSmoke
 import all FormalProof4FHETest.HasteBootsHelpersSmoke
 import all FormalProof4FHETest.HasteBootsPcsChallengesSmoke
 import all FormalProof4FHETest.HasteBootsPcsPreludeSmoke
+import all FormalProof4FHETest.HasteBootsPcsArithmeticSmoke
 import all Batteries.Data.Except
 import all Init.Data.String.Defs
 import all Mathlib.Algebra.Field.ZMod

@@ -385,3 +385,8 @@ public import FormalProof4FHE.HasteBoots.NativeBrakedownParameters
 public import FormalProof4FHE.HasteBoots.NativeGoldPcsOpening
 public import FormalProof4FHE.HasteBoots.NativeGoldPcsBinding
 public import FormalProof4FHE.HasteBoots.NativeGoldPcsPrelude
+public import FormalProof4FHE.HasteBoots.NativeGoldMatrixAccumulate
+public import FormalProof4FHE.HasteBoots.NativeGoldMatrixWeights
+public import FormalProof4FHE.HasteBoots.NativeGoldPackedFold
+public import FormalProof4FHE.HasteBoots.NativeGoldPackedMeaning
+public import FormalProof4FHE.HasteBoots.NativeGoldPcsArithmetic

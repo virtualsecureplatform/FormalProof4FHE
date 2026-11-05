@@ -17,7 +17,7 @@ verifier. The completed run now also derives every ordered helper PCS call with 
 truncation or extra oracle observation. PCS verification/composition remains
 open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. See
-[the current implementation layer](#native-single-opening-parameter-binding-and-random-test-prefix).
+[the current implementation layer](#native-raw-pcs-weights-and-suffix-folding).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -7407,3 +7407,102 @@ subsequent repository audit/smoke command passed. Logs:
 `/tmp/hasteboots-pcs-prelude-strict.log` and
 `/tmp/hasteboots-pcs-prelude-check.log`. Native Rust, vendor sources and
 dependency pins are unchanged.
+
+
+## Native raw PCS weights and suffix folding
+
+`NativeGoldMatrixAccumulate` computes the native `Matrix::add_mul` row loop
+with its original accumulator. Its field projection is the previous output
+plus the matrix-vector product. In particular, the one-branch fold starts
+from the actual raw output of the zero-branch fold; replacing that execution
+by two independently zero-initialized products can change lazy representatives.
+
+`NativeGoldMatrixWeights` executes `matrix_weights` on raw query matrices.
+The initial identity has literal raw zero/one entries, with checked-square
+rejection before allocation. Each round emits all zero products before all
+one products, and each later query matrix acts on the left. Valid queries
+produce exactly `2^query.length` validated matrices. Every output product's
+field projection, and the complete expansion's projection from identity,
+are proved against the same ordered semantic expansion. Identifying this
+native prefix expansion and its flattened layout with the existing semantic
+Boolean-cube tensor remains a composition obligation.
+
+`NativeGoldPackedFold` computes checked packed-table folding and evaluation,
+including the native constant-lane optimization. The shortcut compares field
+values via the proved canonical-word equality test, while preserving cell
+zero's original words. No constant flag or semantic-table certificate is
+supplied. Successful folds preserve table validity, decrement the variable
+count by exactly one and retain the width. A completed checked evaluation
+returns exactly that width's number of words.
+
+`NativeGoldPackedMeaning` proves the raw fold's field interpretation. The
+rectangular flattening lemma recovers each original raw cell at its native
+address. The computed constant predicate proves the first cell is equal in
+the field to every selected input, including inputs with different lazy
+representatives. Both fold branches therefore refine the same adjacent-cell
+matrix-vector operation. The complete raw loop and checked evaluation refine
+the existing `FlatMatrixFold.foldAll` on the actual payload and actual query
+matrices, with the least significant variable eliminated first.
+
+`NativeGoldPcsArithmetic` copies prefix weights in lane/left-cell/source-lane
+order and transposes the lane-major response without normalization. The
+structured constructor's successful size is `width*(2^leftVars*width)`.
+Its checked finishing wrapper exposes the native private routine's existing
+constructor/query/response preconditions; it does not add a verifier
+acceptance claim. `finish_value` proves that the computed suffix output is
+exactly the existing flat MW-MLE fold of the original lane-major response.
+`finish_length` proves its final width. Native in-place writes, allocation
+behavior and Rust instruction refinement remain separate obligations.
+
+The differential fixture `/tmp/hasteboots-pcs-arithmetic-fixture` calls the
+unchanged native matrix and packed-table methods at
+`dff353006322693cab3dc6b654f82151f658f294`. Two noncommuting width-two query
+pairs produce `[B0*A0,B0*A1,B1*A0,B1*A1]`. The checked source hashes are
+`algebra/src/matrix_weighted.rs`:
+`fb30971cee49a51e49909990254cec582c6b080d24188d755c7ab74a49bdf18e`,
+and `pcs/src/matrix_weighted.rs`:
+`69b2da76d44e5abb8824bc701d7a59251709315ff1445efa06ac5e9821e74fdd`.
+Other cases cover an existing lazy
+accumulator, a general table, cells equal in the field but stored as different words and a table
+that differs in one field lane. Native allocating and in-place folds agree
+on every recorded raw output. The instrumented structured layout and response
+transpose follow the source's private copy loops; this differential evidence
+is not a Rust refinement proof. The suffix uses the exact lazy evaluation
+words from the preceding honest full-native PCS fixture and reproduces its
+claimed words. `HasteBootsPcsPreludeSmoke` now also checks that result directly
+from its original opening/query/claim data.
+
+There are 26 new standalone kernel examples and one additional check on that
+existing honest opening. Cases include raw native outputs, zero variables,
+invalid query/response lengths, malformed tables, width zero and square/shift
+overflow rejection before allocation. All 52 new public theorems have guarded
+axiom audits allowing only `propext`, `Classical.choice` and `Quot.sound`;
+the combined suite has 2,557 guarded audits. No proof placeholders, new axioms,
+native decision tactics or raised default elaboration limits are introduced.
+
+The PCS prelude still ends after random-test collection. The next integration
+must execute the structured computation before response binding and the
+atomic column draw, then compute responses' codewords with the trusted native
+encoder, authenticate/check the actual raw columns and compare the computed
+suffix with the claim using native field equality. Raw payload availability must precede field
+projection. Full PCS/lookup composition, source registry/alias/query folding,
+adaptive freshness and work coupling, lookup/PBS extraction, trusted native
+parameter/code/profile instantiation, strict decoding, Rust/compiler/scheduler
+refinement, BabyBear, numerical certification and the final 128-bit security
+theorem remain open.
+
+
+Validation: the focused module and opening-fixture builds passed, as did the
+standalone warning-as-error arithmetic test and all 52 new theorem audits.
+The integrated HasteBoots smoke build passed (4,205 jobs, 399 seconds), and
+the complete standalone warning-as-error HasteBoots smoke check exited 0.
+Full `scripts/check` exited 0: its build completed 10,225 jobs and every
+subsequent repository audit/smoke command passed. Evidence:
+`/tmp/hasteboots-pcs-arithmetic-focused.log`,
+`/tmp/hasteboots-pcs-arithmetic-audit.log`,
+`/tmp/hasteboots-pcs-arithmetic-fixture.log`,
+`/tmp/hasteboots-pcs-arithmetic-strict-focused.log`,
+`/tmp/hasteboots-pcs-arithmetic-smoke.log`,
+`/tmp/hasteboots-pcs-arithmetic-strict.log` and
+`/tmp/hasteboots-pcs-arithmetic-check.log`. The native checkout remains clean
+at the pinned commit above; vendor sources and dependency pins are unchanged.

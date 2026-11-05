@@ -1,6 +1,7 @@
 module
 
 import all FormalProof4FHE.HasteBoots.NativeGoldPcsPrelude
+import all FormalProof4FHE.HasteBoots.NativeGoldPcsArithmetic
 import all FormalProof4FHE.HasteBoots.NativeIndexRequest
 import all FormalProof4FHE.HasteBoots.NativeSharedLookupHelpers
 import all FormalProof4FHE.HasteBoots.NativeTranscript
@@ -10,7 +11,8 @@ open FormalProof4FHE.HasteBoots
 /-! Native fixtures at dff353006322693cab3dc6b654f82151f658f294. The fixture
 passes the full native schedule-5 single-opening verifier. Lean compares the
 checked parameter/binding/random-test prefix and the next atomic reader input;
-it does not yet execute structured weights, response encoding or column checks. -/
+the raw suffix now also reproduces the exact native claimed words. It does not
+yet execute response encoding or column checks. -/
 
 namespace NativePcsPreludeSmoke
 private noncomputable def byte (n : ℕ) : InputIndexedOracle.Byte := ⟨n % 256,Nat.mod_lt _ (by decide)⟩
@@ -56,6 +58,8 @@ private noncomputable def execute (proof : NativeGoldPcsOpening.Opening) (q : Na
 private noncomputable def completed := execute opening query claimed 18
 private noncomputable def events : List NativeTranscript.Observation := [.hash nativeHashInput0 nativeHashOutput0,.start nativeStart0] ++
   (List.range 18).map (fun index => .output nativeStart0 (index*8) ((nativeStream0.drop (index*8)).take 8)) ++ [.start nativeStart1,.output nativeStart1 0 nativeStream1]
+example : NativeGoldPcsArithmetic.finish parameters.numVariables.val parameters.width.val
+    parameters.leftVariables.val query.models opening.evaluation.val = some claimed.val := by decide +kernel
 example : NativeGoldPcsWire.queryCodec.encode query = nativeQuery := by decide +kernel
 example : NativeGoldPcsOpening.codec.encode opening = nativeOpeningBytes := by decide +kernel
 example : NativeGoldPcsOpening.codec.read (nativeOpeningBytes ++ [byte 88]) = some (opening,[byte 88]) := by
