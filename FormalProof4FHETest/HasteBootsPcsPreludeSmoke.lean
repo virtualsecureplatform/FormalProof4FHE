@@ -3,6 +3,7 @@ module
 import all Mathlib.Data.List.Sort
 import all Batteries.Data.Except
 import all FormalProof4FHE.HasteBoots.NativeGoldPcsEncoding
+import all FormalProof4FHE.HasteBoots.NativeGoldPcsWorkers
 
 import all FormalProof4FHE.HasteBoots.NativeGoldPcsPrelude
 import all FormalProof4FHE.HasteBoots.NativeGoldPcsColumnsShape
@@ -204,6 +205,49 @@ example : (match NativeGoldPcsEncoding.continueColumns {blockTables with load :=
     retainedParameters opening columnsCompleted.1 with | .encodingUnavailable => true | _ => false) = true := by decide +kernel
 example : (match NativeGoldPcsEncoding.continueColumns {blockTables with load := fun _ => some ⟨1,by decide⟩}
     retainedParameters opening columnsCompleted.1 with | .encodingUnavailable => true | _ => false) = true := by decide +kernel
+
+private noncomputable def preparedRun :=
+  (OracleProgram.run (NativeGoldPcsWorkers.protocol blockTables retainedParameters parent root query claimed opening 18) world).run
+example : (match preparedRun.1 with
+  | .prepared work => some (work.width,work.jobs.map NativeGoldColumnWorker.Job.index,work.test.length,work.evaluation.length)
+  | _ => none) = some (3,[27],192,192) := by decide +kernel
+example : preparedRun.2 = events ++ [.start nativeStart2,.output nativeStart2 0 nativeStream2] := by decide +kernel
+example : (match preparedRun.1 with
+  | .prepared work => some (work.jobs.map NativeGoldColumnWorker.Job.column)
+  | _ => none) = some opening.columns.val := by decide +kernel
+
+-- Test-only single-worker handoff for the native one-column fixture.
+private noncomputable def authHashInput1 : InputIndexedOracle.Input := ([72, 97, 115, 116, 101, 66, 111, 111, 116, 115, 47, 109, 119, 45, 99, 111, 108, 117, 109, 110, 47, 118, 49, 12, 0, 6, 1, 7, 2, 8, 3, 9, 4, 10, 5, 11] : List ℕ).map byte
+private noncomputable def authHashOutput1 : InputIndexedOracle.Input := ([173, 84, 12, 187, 195, 197, 34, 174, 121, 112, 70, 60, 134, 225, 99, 186, 121, 86, 141, 167, 73, 208, 34, 143, 79, 206, 162, 70, 81, 74, 145, 8, 32, 213, 38, 95, 80, 214, 90, 17, 91, 133, 108, 148, 111, 54, 9, 37, 136, 88, 170, 122, 59, 199, 32, 181, 51, 149, 247, 88, 96, 40, 160, 2] : List ℕ).map byte
+private noncomputable def authHashInput2 : InputIndexedOracle.Input := ([173, 84, 12, 187, 195, 197, 34, 174, 121, 112, 70, 60, 134, 225, 99, 186, 121, 86, 141, 167, 73, 208, 34, 143, 79, 206, 162, 70, 81, 74, 145, 8, 32, 213, 38, 95, 80, 214, 90, 17, 91, 133, 108, 148, 111, 54, 9, 37, 136, 88, 170, 122, 59, 199, 32, 181, 51, 149, 247, 88, 96, 40, 160, 2, 173, 84, 12, 187, 195, 197, 34, 174, 121, 112, 70, 60, 134, 225, 99, 186, 121, 86, 141, 167, 73, 208, 34, 143, 79, 206, 162, 70, 81, 74, 145, 8, 32, 213, 38, 95, 80, 214, 90, 17, 91, 133, 108, 148, 111, 54, 9, 37, 136, 88, 170, 122, 59, 199, 32, 181, 51, 149, 247, 88, 96, 40, 160, 2] : List ℕ).map byte
+private noncomputable def authHashOutput2 : InputIndexedOracle.Input := ([76, 217, 186, 226, 59, 186, 49, 62, 109, 245, 171, 100, 190, 9, 225, 215, 186, 94, 254, 194, 208, 76, 0, 246, 235, 199, 174, 117, 18, 56, 66, 82, 244, 152, 57, 151, 29, 228, 34, 80, 184, 209, 118, 34, 102, 223, 5, 22, 125, 253, 14, 254, 122, 18, 127, 241, 34, 224, 230, 111, 245, 200, 43, 179] : List ℕ).map byte
+private noncomputable def authHashInput3 : InputIndexedOracle.Input := ([76, 217, 186, 226, 59, 186, 49, 62, 109, 245, 171, 100, 190, 9, 225, 215, 186, 94, 254, 194, 208, 76, 0, 246, 235, 199, 174, 117, 18, 56, 66, 82, 244, 152, 57, 151, 29, 228, 34, 80, 184, 209, 118, 34, 102, 223, 5, 22, 125, 253, 14, 254, 122, 18, 127, 241, 34, 224, 230, 111, 245, 200, 43, 179, 76, 217, 186, 226, 59, 186, 49, 62, 109, 245, 171, 100, 190, 9, 225, 215, 186, 94, 254, 194, 208, 76, 0, 246, 235, 199, 174, 117, 18, 56, 66, 82, 244, 152, 57, 151, 29, 228, 34, 80, 184, 209, 118, 34, 102, 223, 5, 22, 125, 253, 14, 254, 122, 18, 127, 241, 34, 224, 230, 111, 245, 200, 43, 179] : List ℕ).map byte
+private noncomputable def authHashOutput3 : InputIndexedOracle.Input := ([177, 243, 248, 73, 103, 223, 92, 140, 108, 165, 86, 195, 214, 166, 109, 208, 121, 195, 188, 87, 181, 23, 222, 176, 41, 44, 142, 234, 62, 91, 98, 157, 247, 123, 113, 122, 152, 148, 217, 204, 23, 21, 237, 179, 162, 165, 159, 105, 190, 43, 220, 200, 167, 255, 250, 239, 150, 127, 57, 123, 213, 64, 220, 42] : List ℕ).map byte
+private noncomputable def authHashInput4 : InputIndexedOracle.Input := ([177, 243, 248, 73, 103, 223, 92, 140, 108, 165, 86, 195, 214, 166, 109, 208, 121, 195, 188, 87, 181, 23, 222, 176, 41, 44, 142, 234, 62, 91, 98, 157, 247, 123, 113, 122, 152, 148, 217, 204, 23, 21, 237, 179, 162, 165, 159, 105, 190, 43, 220, 200, 167, 255, 250, 239, 150, 127, 57, 123, 213, 64, 220, 42, 177, 243, 248, 73, 103, 223, 92, 140, 108, 165, 86, 195, 214, 166, 109, 208, 121, 195, 188, 87, 181, 23, 222, 176, 41, 44, 142, 234, 62, 91, 98, 157, 247, 123, 113, 122, 152, 148, 217, 204, 23, 21, 237, 179, 162, 165, 159, 105, 190, 43, 220, 200, 167, 255, 250, 239, 150, 127, 57, 123, 213, 64, 220, 42] : List ℕ).map byte
+private noncomputable def authHashOutput4 : InputIndexedOracle.Input := ([134, 66, 93, 124, 67, 97, 21, 157, 112, 222, 111, 251, 80, 12, 57, 163, 22, 183, 184, 88, 51, 224, 68, 24, 144, 88, 2, 145, 75, 127, 200, 251, 9, 169, 47, 41, 201, 88, 120, 179, 134, 235, 187, 75, 211, 103, 99, 233, 117, 28, 181, 163, 171, 241, 25, 52, 34, 147, 108, 101, 129, 99, 227, 84] : List ℕ).map byte
+private noncomputable def authHashInput5 : InputIndexedOracle.Input := ([134, 66, 93, 124, 67, 97, 21, 157, 112, 222, 111, 251, 80, 12, 57, 163, 22, 183, 184, 88, 51, 224, 68, 24, 144, 88, 2, 145, 75, 127, 200, 251, 9, 169, 47, 41, 201, 88, 120, 179, 134, 235, 187, 75, 211, 103, 99, 233, 117, 28, 181, 163, 171, 241, 25, 52, 34, 147, 108, 101, 129, 99, 227, 84, 134, 66, 93, 124, 67, 97, 21, 157, 112, 222, 111, 251, 80, 12, 57, 163, 22, 183, 184, 88, 51, 224, 68, 24, 144, 88, 2, 145, 75, 127, 200, 251, 9, 169, 47, 41, 201, 88, 120, 179, 134, 235, 187, 75, 211, 103, 99, 233, 117, 28, 181, 163, 171, 241, 25, 52, 34, 147, 108, 101, 129, 99, 227, 84] : List ℕ).map byte
+private noncomputable def authHashOutput5 : InputIndexedOracle.Input := ([28, 254, 215, 41, 136, 34, 8, 19, 2, 117, 43, 255, 110, 170, 74, 246, 86, 89, 22, 145, 147, 119, 181, 228, 68, 244, 152, 235, 104, 18, 123, 231, 255, 106, 1, 183, 165, 212, 247, 190, 56, 172, 107, 27, 91, 114, 223, 85, 190, 136, 27, 48, 206, 247, 44, 138, 217, 72, 245, 178, 238, 177, 93, 166] : List ℕ).map byte
+private noncomputable def authHashInput6 : InputIndexedOracle.Input := ([28, 254, 215, 41, 136, 34, 8, 19, 2, 117, 43, 255, 110, 170, 74, 246, 86, 89, 22, 145, 147, 119, 181, 228, 68, 244, 152, 235, 104, 18, 123, 231, 255, 106, 1, 183, 165, 212, 247, 190, 56, 172, 107, 27, 91, 114, 223, 85, 190, 136, 27, 48, 206, 247, 44, 138, 217, 72, 245, 178, 238, 177, 93, 166, 28, 254, 215, 41, 136, 34, 8, 19, 2, 117, 43, 255, 110, 170, 74, 246, 86, 89, 22, 145, 147, 119, 181, 228, 68, 244, 152, 235, 104, 18, 123, 231, 255, 106, 1, 183, 165, 212, 247, 190, 56, 172, 107, 27, 91, 114, 223, 85, 190, 136, 27, 48, 206, 247, 44, 138, 217, 72, 245, 178, 238, 177, 93, 166] : List ℕ).map byte
+private noncomputable def authHashOutput6 : InputIndexedOracle.Input := ([222, 45, 145, 29, 105, 30, 117, 235, 89, 81, 42, 179, 206, 224, 99, 102, 124, 123, 183, 252, 222, 171, 151, 183, 97, 141, 92, 122, 24, 0, 206, 60, 199, 203, 57, 67, 46, 150, 71, 26, 22, 161, 42, 236, 45, 230, 229, 100, 85, 209, 123, 3, 102, 39, 42, 46, 29, 11, 5, 11, 176, 232, 58, 201] : List ℕ).map byte
+private noncomputable def authHashPairs : List (InputIndexedOracle.Input × InputIndexedOracle.Input) := [(authHashInput1,authHashOutput1),(authHashInput2,authHashOutput2),(authHashInput3,authHashOutput3),(authHashInput4,authHashOutput4),(authHashInput5,authHashOutput5),(authHashInput6,authHashOutput6)]
+private noncomputable def fullWorld : InputIndexedOracle.World
+  | .inl key => world (.inl key)
+  | .inr (input,index) => if input=nativeHashInput0 then nativeHashOutput0[index.val]?.getD (byte 255) else
+    match authHashPairs.find? (fun pair => pair.1=input) with
+    | none => byte 255
+    | some pair => pair.2[index.val]?.getD (byte 255)
+private noncomputable def oneWorkerHandoff := OracleProgram.bind
+  (NativeGoldPcsWorkers.protocol blockTables retainedParameters parent root query claimed opening 18)
+  (fun result => match result with
+    | .prepared work => match work.jobs with
+      | [job] => NativeHashOracleBridge.compile (NativeGoldColumnWorker.worker work.geometry work.width work.random
+          work.structured work.test work.evaluation work.root job.index job.column)
+      | _ => .pure false
+    | _ => .pure false)
+private noncomputable def authenticated := (OracleProgram.run oneWorkerHandoff fullWorld).run
+example : authenticated.1 = true := by decide +kernel
+example : authenticated.2 = events ++ [.start nativeStart2,.output nativeStart2 0 nativeStream2] ++
+  [.hash authHashInput1 authHashOutput1,.hash authHashInput2 authHashOutput2,.hash authHashInput3 authHashOutput3,.hash authHashInput4 authHashOutput4,.hash authHashInput5 authHashOutput5,.hash authHashInput6 authHashOutput6] := by decide +kernel
 
 end NativePcsPreludeSmoke
 

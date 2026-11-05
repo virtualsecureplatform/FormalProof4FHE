@@ -405,3 +405,7 @@ public import FormalProof4FHE.HasteBoots.NativeGoldBlockCode
 public import FormalProof4FHE.HasteBoots.NativeGoldBlockCodeContext
 public import FormalProof4FHE.HasteBoots.NativeGoldBlockCodeMeaning
 public import FormalProof4FHE.HasteBoots.NativeGoldPcsEncoding
+public import FormalProof4FHE.HasteBoots.NativeGoldColumnChecks
+public import FormalProof4FHE.HasteBoots.NativeGoldColumnWorker
+public import FormalProof4FHE.HasteBoots.NativeGoldPcsWorkers
+public import FormalProof4FHE.HasteBoots.NativeGoldPcsWorkerSoundness

@@ -19,7 +19,7 @@ open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#retained-block-code-and-pcs-response-encoding).
+[the current implementation layer](#raw-column-workers-and-checked-pcs-preparation).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -7940,3 +7940,106 @@ passed. Evidence: `/tmp/hasteboots-block-code-fixture.log`,
 remains clean at the pinned commit; native/vendor sources and pins are
 unchanged. This establishes the stated constructor/context/encoding layer,
 not full PCS acceptance or the final application security theorem.
+
+
+## Raw column workers and checked PCS preparation
+
+`NativeGoldColumnChecks` computes the original lane/coordinate loop from raw
+Goldilocks words. Products and ascending left-to-right accumulation use the
+verified lazy u64 arithmetic; equality compares canonical field values, as
+native Goldilocks comparison does. Every dot product is proved equal to its
+semantic row sum and to the existing `NativeColumnLayout.dot`. The complete
+boolean loop is equivalent to both coordinate equation families. Native
+indexing preconditions are explicit as `Shape`; `addresses` proves every
+weight, payload and encoded-response access is in bounds under that shape.
+Optional getters totalize the source model outside these preconditions; they
+are not used to justify accepting malformed arrays.
+
+`NativeGoldColumnWorker` hashes the original received `Row`, parses its
+leaf-first path, checks the native sibling chain, and computes coordinate
+checks only after authentication succeeds. Its hash-only VCVio computation
+compiles to the same mixed-oracle native authentication/coordinate program.
+The shared hash encoding is the existing injective raw-row encoding. No
+semantic field list is serialized in place of the raw payload; distinct lazy
+representatives remain distinct hash inputs.
+
+The raw workers instantiate the existing `HashWorkerPool`. Arbitrary
+individual hash advances, interleaving, shared scheduler work, cancellation
+and retained earlier calls are covered by that pool's operational theorem.
+Its computed final all-accepted flag derives replay of every original raw
+payload/path and the actual coordinate flag from the final shared cache.
+`NativeGoldPcsWorkerSoundness.accepted_checks` turns those flags into both
+semantic coordinate families. It does not take supplied worker traces or
+external Merkle-acceptance/replay certificates.
+
+`NativeGoldPcsWorkers.protocol` continues the actual retained-code PCS
+encoding entry point into prepared worker inputs. It preserves every earlier
+rejection, suspension and backend-unavailability outcome. Recursive pairing
+requires both lists to end together; its projections recover the complete
+ordered received columns and sampled indices. The preceding actual distinct
+count check proves this pairing succeeds. Preparation retains the computed
+random/structured weights, both computed encoded vectors, original root,
+geometry, packing width and resulting atomic transcript for later steps.
+It emits no additional oracle observations and is not an acceptance result.
+
+`prepared_shape` derives every worker's array preconditions from the actual
+checked prefix and retained block-code constructor. It uses the original
+received-column shape checks, actual bounded sampled indices, computed
+random/structured matrix sizes and actual response-encoder output lengths.
+There is no caller-provided geometry or response-shape certificate in the
+entry point. Packing width and code-symbol width remain separate.
+
+The mixed-oracle prefix and probabilistic shared-cache pool still have
+separate execution interfaces. Their checkpoint/observation-state coupling,
+native Rayon scheduling/completion refinement and a full PCS acceptance
+entry point are not established by these local worker theorems. In
+particular this does not yet connect authenticated raw payloads to the
+prefix-frozen semantic word used by proximity analysis. Final suffix/claim
+enforcement and full lookup/helper PCS composition remain open.
+
+A fresh read-only native fixture at the unchanged pinned HasteBoots commit
+passes the full native schedule-5 single-opening verifier. It records exact
+raw dot products, the complete column hash path, and rejection of a lazy-zero
+alias: replacing raw zero by `p` preserves every field value and coordinate
+check but changes the serialized leaf and fails authentication. Seventeen
+kernel examples compare those raw arithmetic/hash results, full honest and
+short-circuited rejection traces, both response families, malformed paths,
+and lossless pairing. The existing honest PCS fixture additionally runs the
+new preparation entry point, checks the exact column/index pairing and
+unchanged prefix trace, and passes its actually prepared state to the raw
+worker in a test-only one-column handoff. That handoff reproduces the native
+prefix plus all six authentication hashes; it is not a substitute for a
+production scheduler or the full final claim check.
+
+All 17 new public theorems have guarded audits using only `propext`,
+`Classical.choice` and `Quot.sound`; the combined HasteBoots suite now has
+2,692 guarded audits. No axioms, `sorry`, native decision procedure or raised
+proof limits were introduced. Native/vendor sources and pins are unchanged.
+
+Next is coupling the prepared raw worker pool to the actual mixed prefix,
+projecting authenticated raw availability to the frozen semantic word, and
+composing the final suffix/claim check. Prefix tensor correspondence,
+registry/alias/query folding, full PCS/lookup composition, adaptive
+freshness/work coupling, lookup/PBS extraction, production profile
+instantiation, strict decoding, root generation/cache, Div64/SIMD/Rust/
+compiler/scheduler refinement, BabyBear, numerical certification and the
+final 128-bit application theorem remain open.
+
+
+Validation: all focused raw-worker/preparation checks passed (4,055 jobs;
+91 seconds for the extended PCS fixture), as did the standalone
+warning-as-error raw-column check and all 17 guarded theorem audits. The
+combined HasteBoots smoke build passed (4,227 jobs, 564 seconds for its smoke
+file), and the standalone warning-as-error HasteBoots check exited 0. Full
+`scripts/check` exited 0: its build completed 10,247 jobs and every subsequent
+repository audit/smoke command passed. Evidence:
+`/tmp/hasteboots-raw-column-native.log`,
+`/tmp/hasteboots-raw-column-focused.log`,
+`/tmp/hasteboots-raw-column-audit.log`,
+`/tmp/hasteboots-raw-column-strict-focused.log`,
+`/tmp/hasteboots-raw-column-smoke.log`,
+`/tmp/hasteboots-raw-column-strict.log` and
+`/tmp/hasteboots-raw-column-check.log`. Native HasteBoots remains clean at its
+pinned commit, and concrete-ntt tracked sources and all vendor pins are
+unchanged. These checks validate the stated raw-worker/preparation layer,
+not complete native PCS/lookup acceptance or the final security theorem.

@@ -8,6 +8,7 @@ import all FormalProof4FHETest.HasteBootsPcsPreludeSmoke
 import all FormalProof4FHETest.HasteBootsPcsArithmeticSmoke
 import all FormalProof4FHETest.HasteBootsEncodingSmoke
 import all FormalProof4FHETest.HasteBootsBlockCodeSmoke
+import all FormalProof4FHETest.HasteBootsRawColumnSmoke
 import all Batteries.Data.Except
 import all Init.Data.String.Defs
 import all Mathlib.Algebra.Field.ZMod
