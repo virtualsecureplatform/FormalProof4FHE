@@ -19,7 +19,7 @@ open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#computed-pcs-completion-and-suffix-claims).
+[the current implementation layer](#one-shared-pcs-prefix-and-pool-execution).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -8317,3 +8317,101 @@ smoke module taking 562 seconds. The complete `scripts/check` exits zero:
 10,258 build jobs and all subsequent strict audits and smoke checks pass.
 Native/vendor sources and pins remain unchanged. These checks validate this
 milestone; the complete security goal remains active.
+
+
+## One shared PCS prefix and pool execution
+
+`NativeCheckpointProgram.compile` translates the existing online native
+`OracleProgram.Program` into the existing shared checkpoint oracle spec.
+Every native SHA-512 call goes through the same canonical cached handler as
+later worker and scheduler calls. SHAKE starts and reads retain their complete
+native ordered observations. The reader is an explicit functional backend;
+compilation assigns it no fresh-uniform or independent probability law.
+There are no additional primitive queries hidden by the compiler.
+`hash_record` identifies each actual cached step, including hits and repeated
+calls. `supported_hash_state` proves the complete outgoing hash state is
+exactly the fold of those retained native observations over the incoming
+state, including its cache, chronological hash log and populated keys.
+
+`supported_replay` proves that every supported compiled prefix equals the
+original native computation, including its complete return value and
+observation list, in any world matching its reader and final cache.
+`supported_actual` constructs such a world from the actual cache, with zero
+only at unqueried hash inputs. `supported_later` preserves that equation after
+later shared work extends the cache. This world completion is a deterministic
+replay construction, not a distributional coupling or a claim that unqueried
+hashes have constant production answers.
+
+`NativeGoldPcsExecution.program` compiles the actual checked parameter,
+binding, field sampling, structured weights, response framing, atomic draw,
+response encoding and raw-job preparation prefix, then continues with the
+existing general interleaved worker pool and final suffix/claim check. The
+same state flows through their monadic bind. Prefix rejection, pairing
+failure and analysis suspension remain distinguishable from a completed
+worker tail. The context consists solely of the original protocol inputs and
+backend/fuel parameters; it contains no supplied finished vector, transcript
+log, prefix-success certificate or pool-start state.
+
+`completed_origin` obtains the real intermediate state and both supported
+subruns from the complete supported execution. `completed_native` recovers
+the original native prefix and its complete observations against the actual
+final shared cache. `accepted_value` and `accepted_workers` therefore derive
+the original final claim equation, raw payload/path replay and both native
+coordinate families from one accepted run. The independent prefix-success
+and pool-state premises of the previous acceptance layer are discharged.
+
+`NativeGoldPcsExecutionAgrees.accepted_agrees` connects this same run to both
+semantic opening-check families at one fixed recorded checkpoint. The raw
+request list is computed by the adapter, its completeness follows from this
+run's checked prefix, and the original quota-sized draw vector is recovered
+in full order, including repetitions. `Failure` existentially packages the
+existing root-wide availability exception for that unique computed request
+list. Matching the fixed checkpoint root uses the original context root,
+with prepared-root equality derived from execution. Recording the correct
+checkpoint before the outer lookup challenge, including all registered
+representative roots, remains a separate placement obligation.
+
+The native CANONICAL and ZERO_BAD fixtures now also execute this full
+production program with the general pool. Six real worker advances reproduce
+all seven native hash calls and the exact 24 prefix observations. CANONICAL
+accepts and ZERO_BAD reaches final-claim rejection after all raw checks.
+Five advances leave an actual unfinished pool and retain all six issued
+hashes, including the prefix hash. Scheduler cancellation retains the prefix
+hash and returns suspension. These are interpretations for comparing native
+observations; the canonical cached-handler semantics are established by the
+support theorems. Three further kernel checks compare a mixed read/hash
+program with its original native return value, observations and issued hashes.
+All original fixtures and assertions remain intact.
+
+All twelve new public theorems have guarded audits using only `propext`,
+`Classical.choice` and `Quot.sound`; the combined HasteBoots suite contains
+2,748 guarded audits. No `sorry`, new axiom, native decision procedure or
+raised proof limit is introduced.
+
+This closes the operational prefix-to-pool cache connection for one PCS
+invocation with an explicit reader. Next is transporting the existing joint
+SHAKE/hash probability law through this compiler and placing the native
+registry checkpoints before the outer challenge. Concrete prefix tensors,
+code/degree near/far instantiation, batch/grouped PCS and full lookup/helper
+composition, production freshness and chronological work, application/PBS
+extraction and the final 128-bit theorem remain open. Strict decoder,
+root-generation/cache, SIMD/Div64, native scheduler/compiler refinement,
+BabyBear and trusted production profiles also remain required.
+
+
+The larger combined import environment exposed the default heartbeat limit
+while elaborating the existing `SharedChildWireSmoke.nativeStart5` literal.
+Its 1,255 bytes are now factored into 128-byte literal chunks. Reconstruction
+was checked byte for byte against the committed fixture; SHA-256 remains
+`63366f8b0bba01cc24da3d8966cf2ae380a59e3dbf0c032471710b4de6696e67`.
+No fixture byte, assertion, heartbeat or recursion limit was changed.
+
+Validation for this layer: all three production modules build. The focused
+suite passes 4,071 build jobs, including 17 new kernel checks and all twelve
+new guarded audits; the checkpoint/compiler smoke file also passes standalone
+with warnings as errors. All 46 retained native byte arrays still match the
+pinned native run. After the unchanged literal was factored, the combined
+HasteBoots smoke suite passes all 4,245 build jobs (569 seconds for the main
+smoke module). Full `scripts/check` exits zero: 10,262 build jobs and every
+subsequent strict audit/smoke command pass. Native/vendor sources and pins
+remain unchanged. The complete security goal remains active.

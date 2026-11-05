@@ -421,3 +421,6 @@ public import FormalProof4FHE.HasteBoots.NativeGoldPcsClaim
 public import FormalProof4FHE.HasteBoots.NativeGoldPcsFinishComplete
 public import FormalProof4FHE.HasteBoots.NativeGoldPcsAcceptance
 public import FormalProof4FHE.HasteBoots.NativeGoldPcsAcceptanceSoundness
+public import FormalProof4FHE.HasteBoots.NativeCheckpointProgram
+public import FormalProof4FHE.HasteBoots.NativeGoldPcsExecution
+public import FormalProof4FHE.HasteBoots.NativeGoldPcsExecutionAgrees

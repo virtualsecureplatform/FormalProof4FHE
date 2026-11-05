@@ -6,6 +6,9 @@ import all FormalProof4FHE.HasteBoots.NativeGoldPcsColumnsShape
 import all FormalProof4FHE.HasteBoots.NativeIndexRequest
 import all FormalProof4FHE.HasteBoots.NativeSharedLookupHelpers
 
+import all FormalProof4FHE.HasteBoots.NativeCheckpointProgram
+import all FormalProof4FHE.HasteBoots.NativeGoldPcsExecutionAgrees
+import all FormalProof4FHE.HasteBoots.HashWorkerPool
 import all FormalProof4FHE.HasteBoots.NativeGoldPcsAcceptanceSoundness
 import all Init.Data.String.Defs
 import all FormalProof4FHE.HasteBoots.NativeGoldPcsPrelude
@@ -39,6 +42,29 @@ private noncomputable def retainedCode : NativeGoldBlockCode.Stored :=
   ⟨usize 2,usize 2,usize 1,usize 32,NativeBrakedownContext.modulus,usize 549755813888⟩
 private noncomputable def retainedParameters : NativeBrakedownContext.Parameters NativeGoldBlockCode.Stored :=
   ⟨usize 2,usize 3,usize 1,usize 1,retainedCode⟩
+
+-- Test interpretation of the actual production program. The canonical shared
+-- cache is covered by the support theorems; this interpreter compares every
+-- issued hash against the unchanged native fixture world.
+private noncomputable def executionHandler (actual : InputIndexedOracle.World) :
+    QueryImpl (CheckpointExecution.Spec unifSpec Unit InputIndexedOracle.Input NativeRootMessage.Digest)
+      NativeTranscript.Execution := fun request => match request with
+  | .inl size => pure ⟨0,by omega⟩
+  | .inr (.inl input) => ObservationReplay.hash actual input
+  | .inr (.inr _) => pure ()
+private noncomputable def chooseWorker (cancel : Bool) (work : NativeGoldPcsWorkers.Prepared)
+    (_ : HashWorkerPool.Workers InputIndexedOracle.Input NativeRootMessage.Digest work.jobs.length) (_ : Unit) :
+    OracleComp (CheckpointExecution.Spec unifSpec Unit InputIndexedOracle.Input NativeRootMessage.Digest)
+      (Option (Fin work.jobs.length) × Unit) :=
+  pure (if cancel then none else if positive : 0 < work.jobs.length then some ⟨0,positive⟩ else none,())
+private noncomputable def executionTag : NativeGoldPcsExecution.Outcome Unit → Nat
+  | .prefix _ _ => 0
+  | .completed _ _ completion => match completion.status with
+    | .accepted _ => 1
+    | .columns => 2
+    | .claim .claim => 3
+    | .suspended => 4
+    | .claim .finish => 5
 
 namespace Canonical
 private noncomputable def nativeRootPart0 : List ℕ := [222, 45, 145, 29, 105, 30, 117, 235, 89, 81, 42, 179, 206, 224, 99, 102, 124, 123, 183, 252, 222, 171, 151, 183, 97, 141, 92, 122, 24, 0, 206, 60, 199, 203, 57, 67, 46, 150, 71, 26, 22, 161, 42, 236, 45, 230, 229, 100, 85, 209, 123, 3, 102, 39, 42, 46, 29, 11, 5, 11, 176, 232, 58, 201]
@@ -152,6 +178,24 @@ private noncomputable def expected : List NativeTranscript.Observation :=
   [.start start1,.output start1 0 stream1,.start start2,.output start2 0 stream2] ++
   [.hash hashInput1 hashOutput1,.hash hashInput2 hashOutput2,.hash hashInput3 hashOutput3,.hash hashInput4 hashOutput4,.hash hashInput5 hashOutput5,.hash hashInput6 hashOutput6]
 example : result.2 = expected := by decide +kernel
+
+-- Full production prefix/pool/claim program, including computed residuals.
+private noncomputable def fullRun (fuel : ℕ) (cancel : Bool) :
+    NativeGoldPcsExecution.Outcome Unit × List NativeTranscript.Observation :=
+  match query,opening with
+  | some q,some proof =>
+    (simulateQ (executionHandler world) (NativeGoldPcsExecution.program
+      ⟨blockTables,retainedParameters,parent,root,q,claimed,proof,18⟩
+      (InputIndexedOracle.shake world) (chooseWorker cancel) fuel ())).run
+  | _,_ => (.prefix .pairingUnavailable [],[])
+example : executionTag (fullRun 6 false).1 = 1 := by decide +kernel
+example : (fullRun 6 false).2 = hashPairs.map (fun pair => .hash pair.1 pair.2) := by decide +kernel
+example : (match (fullRun 6 false).1 with
+  | .completed _ observations _ => some observations | _ => none) = some (expected.take 24) := by decide +kernel
+example : executionTag (fullRun 5 false).1 = 4 := by decide +kernel
+example : (fullRun 5 false).2 = (hashPairs.take 6).map (fun pair => .hash pair.1 pair.2) := by decide +kernel
+example : executionTag (fullRun 6 true).1 = 4 := by decide +kernel
+example : (fullRun 6 true).2 = [.hash hashInput0 hashOutput0] := by decide +kernel
 end Canonical
 
 namespace ZeroBad
@@ -265,6 +309,24 @@ private noncomputable def expected : List NativeTranscript.Observation :=
   [.start start1,.output start1 0 stream1,.start start2,.output start2 0 stream2] ++
   [.hash hashInput1 hashOutput1,.hash hashInput2 hashOutput2,.hash hashInput3 hashOutput3,.hash hashInput4 hashOutput4,.hash hashInput5 hashOutput5,.hash hashInput6 hashOutput6]
 example : result.2 = expected := by decide +kernel
+
+-- Full production prefix/pool/claim program, including computed residuals.
+private noncomputable def fullRun (fuel : ℕ) (cancel : Bool) :
+    NativeGoldPcsExecution.Outcome Unit × List NativeTranscript.Observation :=
+  match query,opening with
+  | some q,some proof =>
+    (simulateQ (executionHandler world) (NativeGoldPcsExecution.program
+      ⟨blockTables,retainedParameters,parent,root,q,claimed,proof,18⟩
+      (InputIndexedOracle.shake world) (chooseWorker cancel) fuel ())).run
+  | _,_ => (.prefix .pairingUnavailable [],[])
+example : executionTag (fullRun 6 false).1 = 3 := by decide +kernel
+example : (fullRun 6 false).2 = hashPairs.map (fun pair => .hash pair.1 pair.2) := by decide +kernel
+example : (match (fullRun 6 false).1 with
+  | .completed _ observations _ => some observations | _ => none) = some (expected.take 24) := by decide +kernel
+example : executionTag (fullRun 5 false).1 = 4 := by decide +kernel
+example : (fullRun 5 false).2 = (hashPairs.take 6).map (fun pair => .hash pair.1 pair.2) := by decide +kernel
+example : executionTag (fullRun 6 true).1 = 4 := by decide +kernel
+example : (fullRun 6 true).2 = [.hash hashInput0 hashOutput0] := by decide +kernel
 end ZeroBad
 
 end NativePcsClaimSmoke
