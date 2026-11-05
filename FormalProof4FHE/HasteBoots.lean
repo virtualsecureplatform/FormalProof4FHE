@@ -433,3 +433,4 @@ public import FormalProof4FHE.HasteBoots.NativeSharedLookupHelperCheckpoints
 public import FormalProof4FHE.HasteBoots.NativeSharedLookupChildCheckpoints
 public import FormalProof4FHE.HasteBoots.NativeSharedLookupCheckpointExecution
 public import FormalProof4FHE.HasteBoots.NativeLazyProgram
+public import FormalProof4FHE.HasteBoots.NativeGoldPrequeryIndices

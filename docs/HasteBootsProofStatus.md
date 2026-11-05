@@ -19,7 +19,7 @@ open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#persistent-shake-cache-and-lazy-native-programs).
+[the current implementation layer](#native-prequery-aware-index-laws).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -8631,3 +8631,67 @@ warnings as errors. Full `scripts/check` exits zero: 10,276 build jobs,
 including the combined HasteBoots smoke module (514 seconds), followed by
 all strict repository audit and smoke commands. Lean sources remained
 frozen throughout the full check.
+
+
+## Native prequery-aware index laws
+
+`NativePrequeryIndexLaw` proves the actual native atomic-index phase's exact
+conditional law after the entire mixed SHAKE/SHA-512 history. It retains the
+old byte on every previously exposed coordinate and samples only the unseen
+coordinates. This covers partial reads, overlapping and cloned readers,
+off-path queries, and request inputs selected after prequerying them. It
+conditions on the complete prior result and ordered log, rather than success
+or a purported first verifier visit. The product-world sigma algebra is
+unchanged; no full-reader conditioning or zero-probability fiber is used.
+
+The native decoder transports that masked byte law to the complete ordered
+draw vector. The usual Hamming-agreement probability is recovered only under
+an explicit disjointness premise for every byte in the requested block.
+Complete overlap instead yields a deterministic vector, including on the
+verifier's first visit. A separate law preserves the native ordered list,
+without reducing the quota when equal positions occur.
+
+The native request theorem includes its entire `Option Result`, updated
+transcript, sorted/deduplicated transport indices and both native observations.
+Adaptive request parameters—including transcript, label, domain and original
+quota—and the tested predicate may be selected from the whole prior result
+and log. The unnormalized law retains that history's exact mass, without a
+success floor or query cutoff. Validity is required only for the selected
+request on the analyzed history, not for unrelated histories.
+
+`NativeGoldPrequeryIndices` identifies the checked Goldilocks PCS draw adapter
+with the original literal draw vector. Its conditional event law consequently
+uses the same cache-masked generator. Successful parsing and transport
+deduplication introduce no new independence or freshness assumption.
+
+Twelve new public theorems have guarded axiom audits using only `propext`,
+`Classical.choice` and `Quot.sound`. Kernel regressions include retained and
+fresh bytes in one block, complete-input separation, cloned observations,
+prequeries to discarded high bytes, duplicate draws versus unique transport
+indices, complete prior exposure and a native framed request selected after
+its complete input was prequeried. The last case remains determined by the
+old bytes even when the fresh generator supplies different bytes.
+
+This establishes the native atomic-index conditional law in the joint-world
+model. Finite-prefix distributional equivalence of `NativeLazyProgram` to
+that world, the first-exposure ledger, early root freezing and parent/child
+guessing exceptions remain open. The scheduler and checkpoint compilers
+still require lazy-cache integration. Rectangular PCS bounds, full native
+batch composition, application extraction, concrete work realization,
+production profile certificates and the final 128-bit theorem remain open,
+as do the native refinement and BabyBear gates. The full goal remains active.
+
+
+Validation: the two production modules and focused suite pass 4,045 build
+jobs. The focused suite also passes standalone with warnings as errors,
+including all eighteen kernel cases and twelve guarded axiom audits. The
+initial full check exposed a legacy child-start literal at the default
+heartbeat limit. Its 1,017 bytes were split into eight 128-byte-or-smaller
+chunks, with exact before/after equality verified and SHA-256
+`d0efb3aad5bb54b5ffd06808f09e73332a89b35bd13822dc0badbcd9fefb2ce9`.
+The complete affected namespace then passed standalone strictly. Full
+`scripts/check` subsequently exits zero: 10,281 build jobs, the combined
+HasteBoots smoke module (612 seconds), and all subsequent strict audits and
+smoke commands. Lean sources remained frozen during each complete check.
+All original fixture bytes/assertions, native/vendor sources, dependency
+pins and default proof limits remain intact.
