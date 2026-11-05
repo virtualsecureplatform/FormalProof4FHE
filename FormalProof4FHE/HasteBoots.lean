@@ -401,3 +401,7 @@ public import FormalProof4FHE.HasteBoots.NativeGoldNttSchedule
 public import FormalProof4FHE.HasteBoots.NativeGoldNttMeaning
 public import FormalProof4FHE.HasteBoots.NativeGoldRowMeaning
 public import FormalProof4FHE.HasteBoots.NativeGoldResponseMeaning
+public import FormalProof4FHE.HasteBoots.NativeGoldBlockCode
+public import FormalProof4FHE.HasteBoots.NativeGoldBlockCodeContext
+public import FormalProof4FHE.HasteBoots.NativeGoldBlockCodeMeaning
+public import FormalProof4FHE.HasteBoots.NativeGoldPcsEncoding

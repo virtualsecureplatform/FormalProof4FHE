@@ -16,8 +16,10 @@ authentication and PCS payload codecs are linked to the existing cached
 verifier. The completed run now also derives every ordered helper PCS call with no
 truncation or extra oracle observation. PCS verification/composition remains
 open. Base-field challenges, response framing and atomic index draws now
-have executable adapters and a joint finite-byte sampling law. See
-[the current implementation layer](#scalar-ntt-to-code-correspondence).
+have executable adapters and a joint finite-byte sampling law. The retained
+block-code constructor and its complete serialization now supply the same
+code object to parameter binding and computed scalar response encoding. See
+[the current implementation layer](#retained-block-code-and-pcs-response-encoding).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -7823,3 +7825,118 @@ Evidence: `/tmp/hasteboots-ntt-correspondence-focused.log`,
 clean at its pinned commit; native and vendor sources/pins are unchanged.
 These checks validate the stated scalar correspondence, not the remaining
 native implementation linkage or complete security theorem.
+
+
+## Retained block code and PCS response encoding
+
+`NativeGoldBlockCode.Stored` retains the actual native struct fields in
+serde declaration order: message length, symbol width, padded message-block
+count, domain-block count, modulus string bytes and the raw domain root.
+Its compositional prefix codec serializes the complete object, preserves raw
+root spelling and has a proved prefix inverse and injective encoding.
+`description` supplies parameter accessors and serialization from this same
+object, replacing the earlier fixture-only accessor/serialized-byte pairing
+in the new PCS entry point.
+
+`build` models the native constructor arithmetic: nonzero message/symbol
+width; power-of-two blowup at least two; overflow-safe ceiling division;
+checked next power of two; checked domain multiplication; minimum domain 32;
+and checked interleaved output size. Generation, initialization and root
+loading are separate backend responses with distinct failures. The stored
+root comes from the actual modeled load response. This is a functional
+source model. The backend calls' implementation, mutable cache, allocation,
+Rust machine operations and scheduling have not been refined into it.
+
+`NativeGoldBlockCodeMeaning` proves ceiling coverage/minimality, least
+power-of-two padding, the exact domain exponent and strict expansion.
+Constructor success therefore derives the coefficient count and all padding
+and output-size inequalities required by the scalar correspondence. The
+Brakedown code-shape gate follows when the constructor message length matches
+the native left/right split; no independently chosen coefficient count or
+code-shape certificate is needed.
+
+`primitive_log_upper` proves that a Goldilocks primitive root for degree
+`2^(logSize+1)` forces `logSize <= 31`, since `2^33` does not divide `p-1`.
+With a primitive retained root, the constructor's own loaded backend derives
+root agreement and every scalar encoder precondition. Exact-size response
+encoding is consequently total. `response_lanes` connects every returned
+lane to the original response chunk and `BlockCode.code` at the constructor's
+own `messageBlocks`, removing the earlier free degree/padding premises.
+Root primitivity is still an explicit mathematical backend obligation;
+it has not been derived from concrete-ntt's repeated-square-root discovery.
+
+`NativeGoldBlockCodeContext` computes the complete native parameter metadata
+and hash input from the retained object. Structural injectivity of that input
+recovers all parameter fields and the complete stored code, including the
+padded coefficient count, modulus bytes and raw root. This is injectivity of
+hash inputs, not a claim that hash outputs are collision-free. The structural
+prefix readers are not a strict adversarial Rust decoder refinement.
+
+`NativeGoldPcsEncoding.protocol` continues the original checked single-opening
+PCS prefix through response encoding after the distinct column count check.
+The exact same retained object supplies context bytes and encoding geometry.
+A loaded plan root is obtained from the backend; both response vectors are
+computed by the original scalar encoder, never passed in as certificates.
+The prior random state, structured weights, sampled indices and observation
+trace are preserved. Loading/encoding unavailability models the native trusted
+cache/assertion boundary separately from verifier rejection or analysis
+suspension. The functional backend response is shared at the retained size;
+concurrent mutation and individual native cache calls are not refined here.
+
+`columns_complete` derives both response shapes from the actual checked
+prefix and proves response encoding succeeds for the constructed code with
+its own primitive backend root. `encoded_coded` proves both actual output
+vectors are coded and have coefficients from their original exact chunks.
+This is an encoding boundary, not PCS acceptance. Column authentication,
+coordinate checks and final suffix/claim equality remain to be composed.
+
+Native fixtures at the unchanged HasteBoots pin compare six constructor
+layouts, including partial input blocks, minimum-domain enlargement and
+32/64/256/512-symbol domains. Kernel tests compare every serialized byte and
+the complete parameter-context input. Dimension, message/domain/output
+overflow and unsupported-domain rejection cases match native observations;
+separate probes cover initialization/loading failure. A finite fixture table
+supplies the observed roots; it does not assert universal backend support.
+The original honest full-native-verifier fixture now runs through this
+retained-object entry point in Lean, comparing the complete trace, column 27,
+plan root and both full 192-word encoded vectors. Suspension and malformed
+proof behavior are retained, and missing/mismatched cache probes stop at the
+trusted backend boundary. All 29 new theorems have guarded axiom audits;
+the combined HasteBoots suite now has 2,675. No proof limits were raised.
+The growing import environment exposed a default-heartbeat timeout while
+elaborating an older shared-lookup fixture literal. Its three large reader
+inputs are now assembled from 128-byte constants, as in the existing body
+fixtures. Direct comparison against the prior committed literals preserves
+all 1,012/1,772/1,944 bytes and their SHA-256 hashes. All original assertions
+remain intact. The comparison manifest is
+`/tmp/hasteboots-retained-code-fixture-fragments.json`.
+
+The next integration step is raw column authentication and coordinate checks
+against these computed response vectors, then final suffix/claim enforcement.
+The full lookup entry still ends at its helper PCS boundary. Raw-payload
+availability, prefix tensor correspondence, registry/alias/query folding,
+adaptive freshness/work coupling, lookup/PBS extraction, production
+parameter/profile instantiation, strict decoding, root generation/cache,
+Div64/SIMD/Rust/compiler/scheduler refinement, BabyBear, numerical
+certification and the final 128-bit application theorem remain open.
+
+
+Validation: the constructor/context kernel fixtures, the 29 guarded theorem
+audits and the focused warning-as-error block-code check passed. The extended
+native PCS fixture passed (4,041 jobs, 71 seconds for its smoke file). After
+fragmenting the unchanged reader literals, the combined HasteBoots smoke build
+passed (4,222 jobs, 581 seconds for its smoke file), and its standalone
+warning-as-error check exited 0. Full `scripts/check` exited 0: its build
+completed 10,242 jobs and all subsequent repository audit/smoke commands
+passed. Evidence: `/tmp/hasteboots-block-code-fixture.log`,
+`/tmp/hasteboots-block-code-focused.log`,
+`/tmp/hasteboots-block-code-smoke.log`,
+`/tmp/hasteboots-block-code-audit.log`,
+`/tmp/hasteboots-pcs-encoding-smoke.log`,
+`/tmp/hasteboots-retained-code-strict-focused.log`,
+`/tmp/hasteboots-retained-code-smoke.log`,
+`/tmp/hasteboots-retained-code-strict.log` and
+`/tmp/hasteboots-retained-code-check.log`. The native HasteBoots checkout
+remains clean at the pinned commit; native/vendor sources and pins are
+unchanged. This establishes the stated constructor/context/encoding layer,
+not full PCS acceptance or the final application security theorem.

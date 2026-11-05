@@ -1,6 +1,8 @@
 module
 
 import all Mathlib.Data.List.Sort
+import all Batteries.Data.Except
+import all FormalProof4FHE.HasteBoots.NativeGoldPcsEncoding
 
 import all FormalProof4FHE.HasteBoots.NativeGoldPcsPrelude
 import all FormalProof4FHE.HasteBoots.NativeGoldPcsColumnsShape
@@ -16,8 +18,8 @@ open FormalProof4FHE.HasteBoots
 passes the full native schedule-5 single-opening verifier. Lean compares the
 checked parameter/binding/random-test prefix and the next atomic reader input;
 the column prefix now computes structured weights and the actual atomic draw.
-The raw suffix reproduces the exact native claimed words. Response encoding
-and column authentication/checking are not yet composed into this entry point. -/
+The raw suffix reproduces the exact native claimed words. A retained block-code specialization now continues through computed response
+encoding. Column authentication/checking is not yet composed into that entry point. -/
 
 namespace NativePcsPreludeSmoke
 private noncomputable def byte (n : ℕ) : InputIndexedOracle.Byte := ⟨n % 256,Nat.mod_lt _ (by decide)⟩
@@ -169,6 +171,39 @@ example : (match (after description parameters ⟨[],by decide⟩ opening).1 wit
 example : (after description parameters ⟨[],by decide⟩ opening).2 = [] := by decide +kernel
 example : (match (after description parameters query extraColumns).1 with | .rejected .distinctCount => true | _ => false) = true := by decide +kernel
 example : (after description parameters query extraColumns).2 = [.start nativeStart2,.output nativeStart2 0 nativeStream2] := by decide +kernel
+
+-- The retained native code now supplies both context serialization and encoding.
+private noncomputable def blockPlanRoot : NativeGoldSolinas.Word := ⟨549755813888,by decide⟩
+private noncomputable def blockTables : NativeGoldBlockCode.Tables :=
+  ⟨fun log => decide (log=5),fun _ => true,fun log => if log=5 then some blockPlanRoot else none⟩
+private noncomputable def retainedCode : NativeGoldBlockCode.Stored :=
+  ⟨usize 2,usize 2,usize 1,usize 32,NativeBrakedownContext.modulus,usize 549755813888⟩
+private noncomputable def retainedParameters : NativeBrakedownContext.Parameters NativeGoldBlockCode.Stored :=
+  ⟨usize 2,usize 3,usize 1,usize 1,retainedCode⟩
+example : NativeGoldBlockCode.build blockTables (usize 2) (usize 2) (usize 2) = .ok retainedCode := by decide +kernel
+example : NativeBrakedownContext.input NativeGoldBlockCode.description.row retainedParameters = some nativeHashInput0 := by decide +kernel
+private noncomputable def encodingRun (proof : NativeGoldPcsOpening.Opening) (fuel : ℕ) :=
+  (OracleProgram.run (NativeGoldPcsEncoding.protocol blockTables retainedParameters parent root query claimed proof fuel) world).run
+private noncomputable def encodingCompleted := encodingRun opening 18
+example : (match encodingCompleted.1 with
+  | .encoded _ _ _ sample plan test evaluation => some (sample.indices,plan.val,test.length,evaluation.length)
+  | _ => none) = some ([27],549755813888,192,192) := by decide +kernel
+example : encodingCompleted.2 = events ++ [.start nativeStart2,.output nativeStart2 0 nativeStream2] := by decide +kernel
+example : (match encodingCompleted.1 with | .encoded _ _ _ _ _ test _ => some (test.map Fin.val) | _ => none) =
+  some (((List.replicate 32 [10663165317240926990,18396346353517193167]).flatten) ++
+    ((List.replicate 32 [16715989892425570710,11700256917557985223]).flatten) ++
+    ((List.replicate 32 [3430785603203941070,8169463425760920726]).flatten)) := by decide +kernel
+example : (match encodingCompleted.1 with | .encoded _ _ _ _ _ _ evaluation => some (evaluation.map Fin.val) | _ => none) =
+  some (((List.replicate 32 [174,180]).flatten) ++ ((List.replicate 32 [121,127]).flatten) ++
+    ((List.replicate 32 [32,38]).flatten)) := by decide +kernel
+example : (match (encodingRun opening 0).1 with | .prefix (.suspended _ _) => true | _ => false) = true := by decide +kernel
+example : (encodingRun opening 0).2 = (execute opening query claimed 0).2 := by decide +kernel
+example : (match (encodingRun shortTest 18).1 with | .prefix (.rejected (.prelude .proofShape)) => true | _ => false) = true := by decide +kernel
+example : (encodingRun shortTest 18).2 = [] := by decide +kernel
+example : (match NativeGoldPcsEncoding.continueColumns {blockTables with load := fun _ => none}
+    retainedParameters opening columnsCompleted.1 with | .encodingUnavailable => true | _ => false) = true := by decide +kernel
+example : (match NativeGoldPcsEncoding.continueColumns {blockTables with load := fun _ => some ⟨1,by decide⟩}
+    retainedParameters opening columnsCompleted.1 with | .encodingUnavailable => true | _ => false) = true := by decide +kernel
 
 end NativePcsPreludeSmoke
 
