@@ -19,7 +19,7 @@ open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#rectangular-proximity-and-shared-column-opening).
+[the current implementation layer](#lazy-shake-read-law-and-native-index-execution).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -8757,3 +8757,67 @@ exits zero: 10,283 build jobs, the combined HasteBoots smoke module
 Lean sources remained frozen throughout the full check. Native/vendor
 sources, dependency pins, all original fixture bytes/assertions and default
 proof limits are unchanged.
+
+
+## Lazy SHAKE read law and native index execution
+
+`NativeShakeKernel` identifies the physical cached-or-uniform byte sampler
+with the joint world's exact conditional byte law after the entire mixed
+SHAKE/SHA-512 past. Its initial cache comes from that finite observed footprint.
+The kernel transports arbitrary byte predicates and predicates on the returned
+byte plus updated cache. The actual shared interpreter step leaves every
+SHA-512/checkpoint field unchanged. A prior observation of SHA-512 on the same
+input does not populate a SHAKE coordinate.
+
+`NativeShakeHistory` reconstructs the exact byte-cache effect of every supported
+read and compiled program from the complete retained observation list. Hits,
+repeated reads and partial overlaps remain in that list. The same property
+holds after any typed shared oracle implementation, using proved support
+inclusion rather than an external cache-coherence certificate.
+
+`NativeShakeReadLaw` extends the physical byte step to a whole read. Its
+actual shared execution preserves the entire shared state and uses the
+private cached sampler. The sampler has exactly the eager finite-vector
+masked law, including its final byte cache. This is an equality of probability
+laws: the eager generator's unused coins at cached coordinates are analytical
+and are not charged as native work. Output order, interval writes and every
+previously exposed answer are retained. The final event theorem compares the
+joint world's whole-history conditional read with the actual shared execution,
+including both states and allowing arbitrary partial overlap. No fresh-block,
+first-reader, or successful-verification premise is used.
+
+`NativeLazyIndexExecution` applies that read law to the actual checked native
+atomic-index program, compiled by `NativeLazyProgram`. It proves equality of
+the complete native result, updated transcript, ordered observation list,
+owned byte cache and shared hash/checkpoint state under the full conditional
+past. Native framing and decoding coincide with the earlier finite-vector
+index law. Invalid dimensions return before drawing bytes and preserve both
+prior interpreter states. Sorting and transport deduplication leave the
+original with-replacement draw quota intact.
+
+All twenty-six new public lemmas have guarded axiom audits using only
+`propext`, `Classical.choice` and `Quot.sound`. Thirty focused regressions cover
+an actual mixed read/hash history, namespace separation, input separation,
+partial/cached/empty reads, cache reconstruction, physical zero-query cache
+hits, native framed partial prequeries, ordered duplicates versus unique
+transport indices, and invalid native dimensions.
+
+This completes a conditional distribution bridge for a real native atomic-index
+phase and its physical lazy read. It does not yet prove the general mixed
+program's finite-prefix distribution law from empty interpreter states, nor
+integrate the worker scheduler and source/helper checkpoint compiler. In
+particular, cache reconstruction alone is not the probability theorem.
+First-exposure root freezing, parent/child guessing exceptions, rectangular
+matrix finishing and actual batch/helper PCS composition remain open, followed
+by full application extraction, numeric profiles, concrete attacker-work
+realization and the final 128-bit expected-work theorem. Native refinement
+and BabyBear remain separate required gates. The full goal stays active.
+
+
+Validation: all four production modules build. The focused suite passes
+standalone with warnings as errors, including all thirty regression examples
+and twenty-six guarded axiom audits. Full `scripts/check` exits zero:
+10,291 build jobs, the combined HasteBoots smoke module (487 seconds), and
+all subsequent strict audits and smoke commands. Lean sources remained
+frozen throughout the full check. Native/vendor sources, dependency pins,
+all original fixture bytes/assertions and default proof limits are unchanged.

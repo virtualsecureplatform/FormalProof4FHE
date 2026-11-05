@@ -1,6 +1,7 @@
 module
 
 import all FormalProof4FHE.HasteBoots
+import all FormalProof4FHETest.HasteBootsShakeKernelSmoke
 import all FormalProof4FHETest.HasteBootsRectangularProximitySmoke
 import all FormalProof4FHETest.HasteBootsPrequeryIndexSmoke
 import all FormalProof4FHETest.HasteBootsLazyProgramSmoke
