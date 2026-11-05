@@ -17,7 +17,7 @@ verifier. The completed run now also derives every ordered helper PCS call with 
 truncation or extra oracle observation. PCS verification/composition remains
 open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. See
-[the current implementation layer](#native-raw-pcs-weights-and-suffix-folding).
+[the current implementation layer](#native-single-opening-execution-through-atomic-columns).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -7506,3 +7506,98 @@ subsequent repository audit/smoke command passed. Evidence:
 `/tmp/hasteboots-pcs-arithmetic-strict.log` and
 `/tmp/hasteboots-pcs-arithmetic-check.log`. The native checkout remains clean
 at the pinned commit above; vendor sources and dependency pins are unchanged.
+
+
+## Native single-opening execution through atomic columns
+
+`NativeGoldPcsColumns.protocol` now composes the original checked PCS prelude
+with actual structured-weight computation, the original raw response binding,
+the schedule-5 whole-block index request, sorting/deduplication and the exact
+received-column-count check. Parameter construction, proof-shape checks, code
+context hashing, query/value/matrix binding and canonical random-test
+collection still execute in their original order. There is no supplied
+geometry, bound transcript, random matrix or structured-weight certificate.
+The program returns a column boundary, not PCS acceptance.
+
+Analysis suspension retains the actual field state and computed geometry.
+It runs no structured computation, response binding or column request.
+A completed field request computes weights before appending the original raw
+test/evaluation arrays. Its successful result retains the original field
+state, computed weights, quota-sized ordered draws, sorted distinct indices
+and actual post-request transcript. `random` converts that state's canonical
+integers into raw words without changing their values.
+
+An invalid atomic domain or checked byte count is represented separately as
+`atomicUnavailable`, retaining the transcript after response binding. The
+native `sample_columns` reaches an `expect` panic in this case, rather than
+returning a verifier `Err`. No index-domain frame or reader observation is
+issued on this path. The parameter constructor's existing admissible domain
+is preserved: it can accept non-power-of-two block counts or oversized quotas
+that do not meet this later atomic API's trusted preconditions.
+
+`NativeGoldPcsColumns.columns_origin` derives the original completed prelude,
+actual weight result and response-bound atomic request in the same world.
+`columns_observations` proves that this extension adds exactly one reader
+start and one output containing the whole `queries*8` byte block. Pure
+structured computation and response framing add no oracle observations.
+The actual response bytes enter the request input before the atomic block;
+this execution theorem does not assume adaptive freshness or uniformity.
+
+`NativeGoldPcsColumnsShape` derives dimensions from the completed run.
+The constructor's random-matrix allocation bound implies the square-matrix
+bound, and a returned binding proves all original raw query matrices valid.
+`finished_structure` proves the structured computation cannot fail after an
+actual completed checked prelude. Both test matrices have exactly
+`geometry.rows*width` words, and the random words are canonical. A column
+boundary has exactly the original quota of ordered draws, sorted distinct
+bounded indices and exactly the received number of columns. None of these
+facts is a new input certificate or an extra acceptance hypothesis.
+
+The existing honest native schedule-5 fixture is extended in
+`/tmp/hasteboots-pcs-prelude-fixture` and recorded in
+`/tmp/hasteboots-pcs-columns-fixture.log`. It still passes the complete native
+PCS verifier at `dff353006322693cab3dc6b654f82151f658f294`. Instrumentation
+records `matrix_weights`' raw prefix layout; no native source is modified.
+Lean now reproduces those 18 structured words, the actual atomic bytes
+`[187,3,162,26,70,229,227,156]`, selected column 27 and the exact 24-event
+context/field/index log. Its post-request transcript also reproduces the
+next native reader input, since later column authentication and suffix
+checking append no parent transcript frames. This compares the framing
+state; it does not skip those checks in an acceptance theorem.
+
+There are 23 added kernel examples in `HasteBootsPcsPreludeSmoke`, retaining
+all earlier examples. Whole-entry cases cover completion, partial field
+collection, zero analysis fuel, malformed outer proof shape and response
+changes that preserve the field prefix but alter the later atomic input.
+Direct continuation probes cover an unusable domain, byte-count overflow,
+defensive structured failure and distinct-column-count rejection; these
+probes are distinguished from complete native-entry fixtures. All 11 new
+public theorems have guarded axiom audits using only `propext`,
+`Classical.choice` and `Quot.sound`. The combined suite now has 2,568 audits.
+
+The next PCS work is trusted response encoding, raw column authentication
+and coordinate checks, followed by comparison of the computed suffix with
+the claim using native field equality. Proof-supplied encoded responses
+cannot replace the trusted encoder. Raw payload availability must precede
+field projection. The prefix's Boolean-cube tensor correspondence and full
+PCS/lookup/helper composition remain open, as do registry/alias/query folding,
+adaptive freshness/work coupling, lookup/PBS extraction, native trusted
+parameter/code/profile instantiation, strict decoding, Rust/compiler/scheduler
+refinement, BabyBear, numerical certification and the final 128-bit theorem.
+
+
+Validation: focused module builds, all 23 added kernel examples, all 11 new
+axiom audits and the standalone warning-as-error prefix check passed.
+The integrated HasteBoots smoke build passed (4,207 jobs, 383 seconds), and
+the complete standalone warning-as-error HasteBoots smoke check exited 0.
+Full `scripts/check` exited 0: its build completed 10,227 jobs and all
+subsequent repository audit/smoke commands passed. Evidence:
+`/tmp/hasteboots-pcs-columns-shape-build.log`,
+`/tmp/hasteboots-pcs-columns-focused.log`,
+`/tmp/hasteboots-pcs-columns-audit.log`,
+`/tmp/hasteboots-pcs-columns-fixture.log`,
+`/tmp/hasteboots-pcs-columns-strict-focused.log`,
+`/tmp/hasteboots-pcs-columns-smoke.log`,
+`/tmp/hasteboots-pcs-columns-strict.log` and
+`/tmp/hasteboots-pcs-columns-check.log`. Native source, vendor dependencies
+and pins remain unchanged; the native checkout is clean at the pinned commit.

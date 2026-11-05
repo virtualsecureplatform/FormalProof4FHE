@@ -390,3 +390,5 @@ public import FormalProof4FHE.HasteBoots.NativeGoldMatrixWeights
 public import FormalProof4FHE.HasteBoots.NativeGoldPackedFold
 public import FormalProof4FHE.HasteBoots.NativeGoldPackedMeaning
 public import FormalProof4FHE.HasteBoots.NativeGoldPcsArithmetic
+public import FormalProof4FHE.HasteBoots.NativeGoldPcsColumns
+public import FormalProof4FHE.HasteBoots.NativeGoldPcsColumnsShape

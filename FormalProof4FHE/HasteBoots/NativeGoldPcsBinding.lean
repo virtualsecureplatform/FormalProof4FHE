@@ -70,6 +70,15 @@ theorem rejected {C : Type} (row : RowDescription C) (parameters : Parameters C)
     (run (protocol row parameters transcript root query values) world).run = (none,[]) := by
   simp only [protocol,ite_eq_right invalid,OracleProgram.run,CanonicalTranscriptSampler.run_pure]
 
+/-- A returned bound parent has passed every original query/value/matrix check. -/
+theorem bound_check {C : Type} (row : RowDescription C) (parameters : Parameters C) (transcript : Transcript)
+    (root : Digest) (query : Query) (values : Row) (world : World) (bound : Transcript)
+    (success : (run (protocol row parameters transcript root query values) world).run.1 = some bound) :
+    check parameters query values = true := by
+  by_contra invalid
+  rw [rejected row parameters transcript root query values world invalid] at success
+  contradiction
+
 theorem serialization_failure {C : Type} (row : RowDescription C) (parameters : Parameters C) (transcript : Transcript)
     (root : Digest) (query : Query) (values : Row) (world : World) (valid : check parameters query values = true)
     (invalid : NativeBrakedownContext.input row parameters = none) :

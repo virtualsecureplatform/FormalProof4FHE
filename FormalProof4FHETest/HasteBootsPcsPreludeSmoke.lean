@@ -1,6 +1,10 @@
 module
 
+import all Mathlib.Data.List.Sort
+
 import all FormalProof4FHE.HasteBoots.NativeGoldPcsPrelude
+import all FormalProof4FHE.HasteBoots.NativeGoldPcsColumnsShape
+import all FormalProof4FHE.HasteBoots.NativeGoldPcsColumns
 import all FormalProof4FHE.HasteBoots.NativeGoldPcsArithmetic
 import all FormalProof4FHE.HasteBoots.NativeIndexRequest
 import all FormalProof4FHE.HasteBoots.NativeSharedLookupHelpers
@@ -11,8 +15,9 @@ open FormalProof4FHE.HasteBoots
 /-! Native fixtures at dff353006322693cab3dc6b654f82151f658f294. The fixture
 passes the full native schedule-5 single-opening verifier. Lean compares the
 checked parameter/binding/random-test prefix and the next atomic reader input;
-the raw suffix now also reproduces the exact native claimed words. It does not
-yet execute response encoding or column checks. -/
+the column prefix now computes structured weights and the actual atomic draw.
+The raw suffix reproduces the exact native claimed words. Response encoding
+and column authentication/checking are not yet composed into this entry point. -/
 
 namespace NativePcsPreludeSmoke
 private noncomputable def byte (n : ℕ) : InputIndexedOracle.Byte := ⟨n % 256,Nat.mod_lt _ (by decide)⟩
@@ -38,6 +43,8 @@ private noncomputable def nativePath0_4 : InputIndexedOracle.Input := ([134, 66,
 private noncomputable def nativePath0_5 : InputIndexedOracle.Input := ([28, 254, 215, 41, 136, 34, 8, 19, 2, 117, 43, 255, 110, 170, 74, 246, 86, 89, 22, 145, 147, 119, 181, 228, 68, 244, 152, 235, 104, 18, 123, 231, 255, 106, 1, 183, 165, 212, 247, 190, 56, 172, 107, 27, 91, 114, 223, 85, 190, 136, 27, 48, 206, 247, 44, 138, 217, 72, 245, 178, 238, 177, 93, 166] : List ℕ).map byte
 private noncomputable def opening : NativeGoldPcsOpening.Opening := ⟨row [10663165317240926990, 18396346353517193167, 16715989892425570710, 11700256917557985223, 3430785603203941070, 8169463425760920726] (by decide),row [18446744069414584495, 18446744069414584501, 18446744069414584442, 18446744069414584448, 18446744069414584353, 18446744069414584359] (by decide),⟨[⟨row [0, 6, 1, 7, 2, 8, 3, 9, 4, 10, 5, 11] (by decide),⟨[digestOf nativePath0_0,digestOf nativePath0_1,digestOf nativePath0_2,digestOf nativePath0_3,digestOf nativePath0_4,digestOf nativePath0_5],by decide⟩⟩],by decide⟩⟩
 private noncomputable def claimed := row [18446744069414585545, 18446744069414585096, 18446744069414584539] (by decide)
+private noncomputable def nativeStream2 : InputIndexedOracle.Input := ([187, 3, 162, 26, 70, 229, 227, 156] : List ℕ).map byte
+private noncomputable def nativeAfterColumns : InputIndexedOracle.Input := ([0, 8, 0, 0, 0, 0, 0, 0, 0, 112, 114, 111, 116, 111, 99, 111, 108, 29, 0, 0, 0, 0, 0, 0, 0, 72, 97, 115, 116, 101, 66, 111, 111, 116, 115, 32, 102, 114, 97, 109, 101, 100, 32, 83, 72, 65, 75, 69, 50, 53, 54, 32, 118, 49, 0, 11, 0, 0, 0, 0, 0, 0, 0, 97, 112, 112, 108, 105, 99, 97, 116, 105, 111, 110, 35, 0, 0, 0, 0, 0, 0, 0, 72, 97, 115, 116, 101, 66, 111, 111, 116, 115, 32, 116, 121, 112, 101, 100, 32, 99, 108, 97, 115, 115, 105, 99, 97, 108, 32, 112, 114, 105, 109, 101, 32, 118, 49, 0, 15, 0, 0, 0, 0, 0, 0, 0, 116, 114, 117, 115, 116, 101, 100, 32, 112, 114, 111, 102, 105, 108, 101, 64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 17, 0, 0, 0, 0, 0, 0, 0, 116, 121, 112, 101, 100, 32, 112, 114, 105, 109, 101, 32, 102, 105, 101, 108, 100, 16, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 1, 28, 0, 0, 0, 0, 0, 0, 0, 99, 108, 97, 115, 115, 105, 99, 97, 108, 32, 99, 104, 97, 108, 108, 101, 110, 103, 101, 32, 115, 99, 104, 101, 100, 117, 108, 101, 23, 0, 0, 0, 0, 0, 0, 0, 97, 116, 111, 109, 105, 99, 32, 78, 84, 84, 32, 114, 111, 119, 32, 112, 104, 97, 115, 101, 32, 118, 50, 1, 28, 0, 0, 0, 0, 0, 0, 0, 99, 108, 97, 115, 115, 105, 99, 97, 108, 32, 99, 104, 97, 108, 108, 101, 110, 103, 101, 32, 115, 99, 104, 101, 100, 117, 108, 101, 27, 0, 0, 0, 0, 0, 0, 0, 97, 116, 111, 109, 105, 99, 32, 106, 111, 105, 110, 116, 32, 112, 114, 111, 106, 101, 99, 116, 105, 111, 110, 115, 32, 118, 51, 1, 28, 0, 0, 0, 0, 0, 0, 0, 99, 108, 97, 115, 115, 105, 99, 97, 108, 32, 99, 104, 97, 108, 108, 101, 110, 103, 101, 32, 115, 99, 104, 101, 100, 117, 108, 101, 26, 0, 0, 0, 0, 0, 0, 0, 97, 116, 111, 109, 105, 99, 32, 112, 97, 99, 107, 101, 100, 32, 122, 101, 114, 111, 99, 104, 101, 99, 107, 32, 118, 52, 1, 28, 0, 0, 0, 0, 0, 0, 0, 99, 108, 97, 115, 115, 105, 99, 97, 108, 32, 99, 104, 97, 108, 108, 101, 110, 103, 101, 32, 115, 99, 104, 101, 100, 117, 108, 101, 27, 0, 0, 0, 0, 0, 0, 0, 97, 116, 111, 109, 105, 99, 32, 66, 114, 97, 107, 101, 100, 111, 119, 110, 32, 99, 111, 108, 117, 109, 110, 115, 32, 118, 53, 1, 24, 0, 0, 0, 0, 0, 0, 0, 109, 119, 32, 98, 114, 97, 107, 101, 100, 111, 119, 110, 32, 114, 111, 119, 45, 99, 111, 100, 101, 32, 118, 50, 64, 0, 0, 0, 0, 0, 0, 0, 168, 24, 26, 181, 23, 86, 1, 91, 75, 211, 134, 164, 239, 10, 145, 57, 198, 141, 122, 167, 100, 222, 125, 71, 160, 7, 224, 215, 227, 62, 1, 201, 190, 51, 51, 84, 116, 84, 188, 171, 139, 20, 238, 241, 201, 229, 125, 48, 206, 254, 209, 28, 25, 39, 209, 120, 172, 7, 53, 249, 138, 244, 227, 145, 1, 23, 0, 0, 0, 0, 0, 0, 0, 109, 119, 32, 99, 111, 109, 109, 105, 116, 109, 101, 110, 116, 32, 97, 110, 100, 32, 113, 117, 101, 114, 121, 25, 1, 0, 0, 0, 0, 0, 0, 222, 45, 145, 29, 105, 30, 117, 235, 89, 81, 42, 179, 206, 224, 99, 102, 124, 123, 183, 252, 222, 171, 151, 183, 97, 141, 92, 122, 24, 0, 206, 60, 199, 203, 57, 67, 46, 150, 71, 26, 22, 161, 42, 236, 45, 230, 229, 100, 85, 209, 123, 3, 102, 39, 42, 46, 29, 11, 5, 11, 176, 232, 58, 201, 2, 3, 9, 253, 0, 0, 0, 0, 255, 255, 255, 255, 253, 222, 255, 255, 255, 254, 255, 255, 255, 253, 236, 255, 255, 255, 254, 255, 255, 255, 253, 254, 255, 255, 255, 254, 255, 255, 255, 253, 0, 0, 0, 0, 255, 255, 255, 255, 253, 222, 255, 255, 255, 254, 255, 255, 255, 253, 252, 255, 255, 255, 254, 255, 255, 255, 253, 254, 255, 255, 255, 254, 255, 255, 255, 253, 0, 0, 0, 0, 255, 255, 255, 255, 3, 9, 2, 35, 21, 3, 2, 35, 5, 3, 2, 3, 9, 253, 251, 255, 255, 255, 254, 255, 255, 255, 253, 166, 255, 255, 255, 254, 255, 255, 255, 253, 180, 255, 255, 255, 254, 255, 255, 255, 253, 246, 255, 255, 255, 254, 255, 255, 255, 253, 251, 255, 255, 255, 254, 255, 255, 255, 253, 166, 255, 255, 255, 254, 255, 255, 255, 253, 244, 255, 255, 255, 254, 255, 255, 255, 253, 246, 255, 255, 255, 254, 255, 255, 255, 253, 251, 255, 255, 255, 254, 255, 255, 255, 3, 9, 7, 91, 77, 11, 7, 91, 13, 11, 7, 3, 253, 201, 4, 0, 0, 255, 255, 255, 255, 253, 8, 3, 0, 0, 255, 255, 255, 255, 253, 219, 0, 0, 0, 255, 255, 255, 255, 1, 18, 0, 0, 0, 0, 0, 0, 0, 116, 121, 112, 101, 100, 32, 114, 101, 113, 117, 101, 115, 116, 32, 107, 105, 110, 100, 6, 0, 0, 0, 0, 0, 0, 0, 118, 101, 99, 116, 111, 114, 1, 20, 0, 0, 0, 0, 0, 0, 0, 102, 105, 101, 108, 100, 32, 99, 104, 97, 108, 108, 101, 110, 103, 101, 32, 107, 105, 110, 100, 12, 0, 0, 0, 0, 0, 0, 0, 112, 114, 105, 109, 101, 32, 118, 101, 99, 116, 111, 114, 4, 21, 0, 0, 0, 0, 0, 0, 0, 109, 119, 32, 114, 97, 110, 100, 111, 109, 32, 108, 105, 110, 101, 97, 114, 32, 116, 101, 115, 116, 24, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 5, 21, 0, 0, 0, 0, 0, 0, 0, 109, 119, 32, 114, 97, 110, 100, 111, 109, 32, 108, 105, 110, 101, 97, 114, 32, 116, 101, 115, 116, 80, 0, 0, 0, 0, 0, 0, 0, 144, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 229, 125, 50, 231, 144, 114, 248, 153, 230, 232, 125, 70, 152, 157, 137, 210, 201, 204, 114, 197, 161, 100, 10, 58, 191, 223, 199, 219, 223, 105, 244, 252, 197, 75, 141, 165, 176, 135, 78, 178, 192, 143, 20, 181, 121, 154, 78, 17, 243, 134, 190, 195, 162, 176, 214, 203, 141, 102, 83, 70, 225, 234, 121, 23, 1, 19, 0, 0, 0, 0, 0, 0, 0, 109, 119, 32, 108, 105, 110, 101, 97, 114, 32, 114, 101, 115, 112, 111, 110, 115, 101, 115, 110, 0, 0, 0, 0, 0, 0, 0, 6, 253, 14, 51, 105, 51, 92, 44, 251, 147, 253, 207, 231, 113, 94, 138, 243, 76, 255, 253, 150, 217, 11, 247, 61, 32, 251, 231, 253, 199, 191, 217, 7, 173, 169, 95, 162, 253, 206, 194, 126, 59, 84, 153, 156, 47, 253, 150, 132, 6, 186, 179, 195, 95, 113, 6, 253, 175, 0, 0, 0, 255, 255, 255, 255, 253, 181, 0, 0, 0, 255, 255, 255, 255, 253, 122, 0, 0, 0, 255, 255, 255, 255, 253, 128, 0, 0, 0, 255, 255, 255, 255, 253, 33, 0, 0, 0, 255, 255, 255, 255, 253, 39, 0, 0, 0, 255, 255, 255, 255, 1, 12, 0, 0, 0, 0, 0, 0, 0, 105, 110, 100, 101, 120, 32, 100, 111, 109, 97, 105, 110, 8, 0, 0, 0, 0, 0, 0, 0, 32, 0, 0, 0, 0, 0, 0, 0, 2, 25, 0, 0, 0, 0, 0, 0, 0, 109, 119, 32, 97, 116, 111, 109, 105, 99, 32, 99, 111, 108, 117, 109, 110, 32, 98, 108, 111, 99, 107, 32, 118, 53, 8, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 3, 25, 0, 0, 0, 0, 0, 0, 0, 109, 119, 32, 97, 116, 111, 109, 105, 99, 32, 99, 111, 108, 117, 109, 110, 32, 98, 108, 111, 99, 107, 32, 118, 53, 8, 0, 0, 0, 0, 0, 0, 0, 187, 3, 162, 26, 70, 229, 227, 156, 2, 30, 0, 0, 0, 0, 0, 0, 0, 97, 102, 116, 101, 114, 32, 80, 67, 83, 32, 118, 101, 114, 105, 102, 105, 99, 97, 116, 105, 111, 110, 32, 102, 105, 120, 116, 117, 114, 101, 8, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0] : List ℕ).map byte
 private noncomputable def description : NativeBrakedownParameters.Description Unit :=
   ⟨⟨fun _ => usize 2,fun _ => usize 32,fun _ => ⟨NativeTranscript.utf8 "block-rs/negacyclic-ntt/v1",by decide⟩,fun _ => some nativeCode⟩,fun _ => usize 2⟩
 private noncomputable def parameters : NativeBrakedownContext.Parameters Unit := ⟨usize 2,usize 3,usize 1,usize 1,()⟩
@@ -50,7 +57,7 @@ private noncomputable def parent := (["atomic NTT row phase v2","atomic joint pr
   (fun state schedule => NativeTranscript.appendBytes state (NativeTranscript.utf8 "classical challenge schedule") (NativeTranscript.utf8 schedule)) initial
 private noncomputable def world : InputIndexedOracle.World
   | .inr (input,index) => if input = nativeHashInput0 then nativeHashOutput0[index.val]?.getD (byte 255) else byte 255
-  | .inl (input,offset) => match ([(nativeStart0,nativeStream0),(nativeStart1,nativeStream1)] : List (InputIndexedOracle.Input × InputIndexedOracle.Input)).find? (fun pair => pair.1 = input) with
+  | .inl (input,offset) => match ([(nativeStart0,nativeStream0),(nativeStart1,nativeStream1),(nativeStart2,nativeStream2)] : List (InputIndexedOracle.Input × InputIndexedOracle.Input)).find? (fun pair => pair.1 = input) with
     | none => byte 255
     | some pair => pair.2[offset]?.getD (byte 255)
 private noncomputable def execute (proof : NativeGoldPcsOpening.Opening) (q : NativeGoldPcsWire.Query) (value : NativeLookupRequestWire.Row) (fuel : ℕ) :=
@@ -114,6 +121,55 @@ example : (NativeBrakedownParameters.build description (changed 2 3 1 (2^64-1)))
 private noncomputable def nonpower : NativeBrakedownParameters.Description Unit := {description with row := {description.row with blocks := fun _ => usize 3}}
 example : (NativeBrakedownParameters.build nonpower parameters).map (fun geometry => (geometry.blocks,geometry.height)) = some (3,2) := by decide +kernel
 example : NativeIndexRequest.check (usize 3) (usize 1) = false := by decide +kernel
+-- The same original opening now executes through the atomic column boundary.
+private noncomputable def columnsRun (proof : NativeGoldPcsOpening.Opening) (fuel : ℕ) :=
+  (OracleProgram.run (NativeGoldPcsColumns.protocol description parameters parent root query claimed proof fuel) world).run
+private noncomputable def columnsCompleted := columnsRun opening 18
+example : (match columnsCompleted.1 with | .columns _ _ _ _ => true | _ => false) = true := by decide +kernel
+example : columnsCompleted.2 = events ++ [.start nativeStart2,.output nativeStart2 0 nativeStream2] := by decide +kernel
+example : (match columnsCompleted.1 with | .columns _ _ _ sample => some (sample.draws,sample.indices) | _ => none) =
+  some ([27],[27]) := by decide +kernel
+example : (match columnsCompleted.1 with | .columns _ state _ _ => some ((NativeGoldPcsColumns.random state).map Fin.val) | _ => none) =
+  (match completed.1 with | .sampling _ (.finished state _) => some state.values | _ => none) := by decide +kernel
+example : (match columnsCompleted.1 with | .columns _ _ weights _ => some (weights.map Fin.val) | _ => none) =
+  some [18446744069414584320, 18446744069414584286, 18446744069414584300, 2, 35, 21, 18446744069414584318, 18446744069414584320, 18446744069414584286, 3, 2, 35, 18446744069414584316, 18446744069414584318, 18446744069414584320, 5, 3, 2] := by decide +kernel
+-- No later authentication operation appends a frame to the parent transcript.
+-- This compares the next reader input only; the model has not accepted PCS.
+example : (match columnsCompleted.1 with
+  | .columns _ _ _ sample => some (NativeTranscript.requestInput sample.transcript (NativeTranscript.utf8 "after PCS verification fixture") 4)
+  | _ => none) = some nativeAfterColumns := by decide +kernel
+example : (columnsRun opening 0).2 = (execute opening query claimed 0).2 := by decide +kernel
+example : (match (columnsRun opening 0).1 with | .suspended _ state => some (state.remaining,state.values.length) | _ => none) =
+  some (18,0) := by decide +kernel
+example : (columnsRun opening 17).2 = (execute opening query claimed 17).2 := by decide +kernel
+example : (match (columnsRun opening 17).1 with | .suspended _ state => some (state.remaining,state.values.length) | _ => none) =
+  some (1,17) := by decide +kernel
+example : (match (columnsRun shortTest 18).1 with | .rejected (.prelude .proofShape) => true | _ => false) = true := by decide +kernel
+example : (columnsRun shortTest 18).2 = [] := by decide +kernel
+example : (columnsRun changedResponse 18).2.take events.length = events := by decide +kernel
+example : (match (columnsRun changedResponse 18).1 with | .columns _ _ _ sample => some sample.indices | _ => none) =
+  some [31] := by decide +kernel
+example : (columnsRun changedResponse 18).2 ≠ columnsCompleted.2 := by decide +kernel
+-- Direct continuation probes distinguish defensive failures from main-entry checks.
+private noncomputable def fieldGeometry : NativeBrakedownParameters.Geometry :=
+  (NativeBrakedownParameters.build description parameters).getD ⟨0,0,0,0,0,0,0,0,usize 0⟩
+private noncomputable def fieldState : NativeFieldVector.State := match completed.1 with
+  | .sampling _ (.finished state _) => state
+  | _ => NativeFieldVector.initial ⟨parent,[],[]⟩ 0
+private noncomputable def fieldNext : NativeTranscript.Transcript := match completed.1 with
+  | .sampling _ (.finished _ next) => next | _ => parent
+private noncomputable def after (desc : NativeBrakedownParameters.Description Unit)
+    (params : NativeBrakedownContext.Parameters Unit) (q : NativeGoldPcsWire.Query) (proof : NativeGoldPcsOpening.Opening) :=
+  (OracleProgram.run (NativeGoldPcsColumns.afterField desc params q proof fieldGeometry (.finished fieldState fieldNext)) world).run
+example : (match (after nonpower parameters query opening).1 with | .atomicUnavailable _ => true | _ => false) = true := by decide +kernel
+example : (after nonpower parameters query opening).2 = [] := by decide +kernel
+example : (match (after description (changed 2 3 1 (2^64-1)) query opening).1 with | .atomicUnavailable _ => true | _ => false) = true := by decide +kernel
+example : (after description (changed 2 3 1 (2^64-1)) query opening).2 = [] := by decide +kernel
+example : (match (after description parameters ⟨[],by decide⟩ opening).1 with | .rejected .structured => true | _ => false) = true := by decide +kernel
+example : (after description parameters ⟨[],by decide⟩ opening).2 = [] := by decide +kernel
+example : (match (after description parameters query extraColumns).1 with | .rejected .distinctCount => true | _ => false) = true := by decide +kernel
+example : (after description parameters query extraColumns).2 = [.start nativeStart2,.output nativeStart2 0 nativeStream2] := by decide +kernel
+
 end NativePcsPreludeSmoke
 
 /-- info: 'FormalProof4FHE.HasteBoots.NativeBrakedownParameters.build_spec' depends on axioms: [propext, Quot.sound] -/
@@ -203,3 +259,47 @@ end NativePcsPreludeSmoke
 /-- info: 'FormalProof4FHE.HasteBoots.NativeSharedLookupHelpers.completed_binding_checks' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeSharedLookupHelpers.completed_binding_checks
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldPcsColumns.run_protocol' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldPcsColumns.run_protocol
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldPcsColumns.run_afterField' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldPcsColumns.run_afterField
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldPcsColumns.suspended' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldPcsColumns.suspended
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldPcsColumns.columns_origin' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldPcsColumns.columns_origin
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldPcsColumns.columns_observations' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldPcsColumns.columns_observations
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldPcsColumns.atomic_unavailable' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldPcsColumns.atomic_unavailable
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldPcsColumnsShape.square_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldPcsColumnsShape.square_bound
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldPcsColumnsShape.binding_models' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldPcsColumnsShape.binding_models
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldPcsColumnsShape.finished_structure' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldPcsColumnsShape.finished_structure
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldPcsColumnsShape.columns_shape' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldPcsColumnsShape.columns_shape
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldPcsBinding.bound_check' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeGoldPcsBinding.bound_check
