@@ -19,7 +19,7 @@ open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#raw-first-seed-exposure-and-cache-aware-guessing-risk).
+[the current implementation layer](#native-raw-input-root-and-parent-seed-views).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -9002,3 +9002,71 @@ chunks preserves all 884 bytes, with SHA-256
 `2282a9035d6d8de1246659fa88eb7ba8025c3f437dafb3b89796c60411b0adaa`.
 Existing assertion declaration lines, native/vendor revisions and default
 proof limits are unchanged.
+
+## Native raw-input root and parent-seed views
+
+`NativeExactCodec` turns existing structural prefix codecs into exact input
+views: recognition requires an empty trailing suffix and byte-for-byte
+canonical reencoding. `read_iff` proves that recognizing a value is equivalent
+to the input being its exact encoding. This is an analysis parser; it does not
+replace or refine the native adversarial proof deserializer.
+
+`NativeChildSeedView` reads the fixed sixth frame (index 5) of a **complete**
+raw framed input. It recognizes the immediate-parent-seed label only there,
+with exactly the canonical 64-byte digest payload. A forged later frame with
+the same label does not add or replace the candidate. Soundness identifies the
+actual decoded frame and exact bytes. Completeness is proved against the real
+`NativeTranscript.forkChild` output, with the native frame-length bounds.
+A `HasHeader` invariant preserves that seed through any valid absorption,
+byte-challenge request and field-reader request, including zero-length field
+requests. The unframed consumed-field-byte receipt domain is explicitly
+rejected by this framed view; its raw observations remain in the execution.
+
+The collector takes at most one quoted candidate per nonempty raw output or
+hash observation, retains repeated observations in the underlying log, and
+deduplicates only the guessed-seed target set. Its cardinality is at most the
+actual raw observation count. `orphan_probability` combines this native
+collector with the earlier first-exposure law: the event of the logical
+parent seed matching a candidate parsed from the **actual prior machine log**
+has exact probability `candidate_count / 2^512`. The target set is fixed by
+conditioning on the complete prior result/log, rather than chosen using later
+seed bytes. The all-64-unseen premise comes from the actual pre-exposure
+prefix. This count is not an attacker-work certificate and includes no claim
+that verifier queries can be charged to the attacker.
+
+`NativeRootInputView` recognizes context/root source vectors in the actual
+Goldilocks canonical-bind and deferred-registry encodings. Its binding reader
+checks the serialized extension degree 3, helper context and full source
+vector. Exact canonical guards reject trailing or altered payloads. Single
+PCS openings recognize the adjacent native row-code-context and
+commitment/query frames using the complete opening codec. Complete raw input
+views first decode the entire framed stream, then retain ordered mentions.
+Recognition is proved for the actual `registry`, `bind` and
+`NativeGoldPcsBinding.appendBound` functions. Original source vectors survive
+as ordered sublists, retaining repetitions and unused entries. Adjacent single
+opening pairs remain present after any earlier frame prefix.
+
+The mention list is **not** the native opening registry or its first-original
+representative map. Flattening mentions must not substitute a first-mentioned
+alias for the native first original registry slot. The exact decoded frames
+and registry vector remain the authoritative evidence for that later bridge.
+The views also do not establish that a parsed context digest names trusted
+parameters, that a quoted seed authenticates parent ownership, or that a
+mentioned root has an available word.
+
+Next, associate parsed descendants and helper roots with their actual parent
+contexts, prove causal selection of the parent request from the prior machine
+state, and insert availability snapshots before the first relevant raw
+response while proving erasure to the actual interpreter. Receipt-linked
+future prefixes need their own guessing/freshness argument; a guessed consumed
+field block does not automatically have 512 bits of entropy. Native first-slot
+alias/group order, full protocol composition, attacker-work coupling and the
+remaining rectangular/numerical/application/refinement gates stay open.
+
+Validation: twenty-nine focused regression statements and thirty-seven guarded
+public-theorem axiom audits pass. Full `scripts/check` exits zero: 10,308 build
+jobs (combined HasteBoots suite 524 seconds), followed by all strict audits and
+smoke commands. The new theorems use only `propext`, `Classical.choice` and
+`Quot.sound` (or fewer). Lean sources remained frozen throughout the check.
+Native/vendor revisions, fixture bytes/assertions and default proof limits
+are unchanged.

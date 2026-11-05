@@ -439,3 +439,5 @@ public import FormalProof4FHE.HasteBoots.NativeLazyIndexExecution
 public import FormalProof4FHE.HasteBoots.NativeLazyExecutionLaw
 public import FormalProof4FHE.HasteBoots.OracleMachine
 public import FormalProof4FHE.HasteBoots.OracleMachineExposure
+public import FormalProof4FHE.HasteBoots.NativeChildSeedView
+public import FormalProof4FHE.HasteBoots.NativeRootInputView
