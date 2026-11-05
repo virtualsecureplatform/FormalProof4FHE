@@ -19,7 +19,7 @@ open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#native-raw-input-root-and-parent-seed-views).
+[the current implementation layer](#causally-selected-seed-exposures-and-online-direct-root-snapshots).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -9066,6 +9066,79 @@ remaining rectangular/numerical/application/refinement gates stay open.
 Validation: twenty-nine focused regression statements and thirty-seven guarded
 public-theorem axiom audits pass. Full `scripts/check` exits zero: 10,308 build
 jobs (combined HasteBoots suite 524 seconds), followed by all strict audits and
+smoke commands. The new theorems use only `propext`, `Classical.choice` and
+`Quot.sound` (or fewer). Lean sources remained frozen throughout the check.
+Native/vendor revisions, fixture bytes/assertions and default proof limits
+are unchanged.
+
+## Causally selected seed exposures and online direct-root snapshots
+
+`CausalSeedExposure` selects the pending native request from the actual local
+machine state retained by a replayable prefix. An eligible first read is
+nonempty, intersects positions 0–63, and has no earlier exposure of any of the
+64 logical seed coordinates. Both its complete input and the guessed-seed set
+parsed from the prior raw log are fixed on the complete history fiber. The
+exact conditional event probability is therefore `prior_candidate_count /
+2^512`, with no selection of a request input from later witness data.
+`event_measurable` and `averaged_event` prove measurability and exact averaging
+over the actual countable range of complete histories; no measurable local
+state or payload assumption is added. This event concerns a **new** first
+exposure. It does not reset inherited bad risk or assign 512 bits of entropy
+to receipt guesses or partially exposed seeds.
+
+`NativeDirectRootFreeze` now instruments the **actual owned-cache lazy
+compiler**, rather than only recording roots at a verifier phase boundary.
+For each nonempty raw read, it parses the complete input with
+`NativeRootInputView`, removes duplicate context/root keys and those already
+present in earlier nonempty read observations, and issues `RecordRoots`
+checkpoint annotations before the byte read. Context digests are the ghost
+configuration tags; an application must still prove their trusted shape and
+parameter interpretation. Empty reads keep their original native observation
+but record no root. Starts and shared hash calls remain in the complete
+history; neither is silently charged as a SHAKE exposure.
+
+The operational guarantees are proved as follows:
+
+- `erase_compile` erases only checkpoint requests and recovers the original
+  `NativeLazyProgram.compile` computation, retaining its complete result/log,
+  owned SHAKE cache, and literal private/hash queries.
+- `canonical_compile` and `execute_erasure` reuse the existing canonical
+  checkpoint-erasure theorem. Under the actual shared handler, result/log,
+  owned byte cache and shared hash cache agree exactly with the original
+  execution. The proof-only registry and failure monitor intentionally differ.
+- `execute_read` identifies the root state recorded from the actual pre-read
+  cumulative hash log before the private byte sampler. `read_snapshot` proves
+  that every supported continuation retains that exact checkpoint, without
+  assuming monitor success, collision freedom or a query bound.
+- `fresh_after_output` prevents a cloned read of the same input from recording
+  the keys again. Key identity is the complete `(context digest,root)` pair;
+  equal roots under different contexts remain distinct.
+- `compile_bind` and `compile_resume` thread the real ordered history and the
+  same owned byte cache through composition and finite-prefix suspension.
+  A suspension does not refresh root snapshots or challenge bytes.
+
+These guarantees apply to directly parsed source mentions. They do **not**
+yet cover helper-root frames lacking their parent helper context, associate
+orphan descendants with parents, or establish availability of every root used
+by an accepted verifier run. Earliest-exposure application requires the initial
+history, owned byte cache and prior checkpoints to come from the same
+instrumented prelude (or the empty initial state). Passing a historical log
+alone is not a certificate that its earlier roots were registered. Similarly,
+the flat mention order does not replace the native first-original-slot alias
+map or ordered-prefix query grouping.
+
+Next, retain compatible pending-parent contexts during partial seed reads,
+use those contexts to register helper roots before their equality challenges,
+and prove the whole native root/exposure coverage statement with explicit
+orphan/receipt exceptions. Then compose source availability and arithmetic
+with the real attacker-work ledger; raw log cardinality is not substituted for
+attacker cost, and no verifier/setup work is charged to the attacker. The
+remaining rectangular/numerical/application and fail-closed refinement gates
+remain mandatory.
+
+Validation: nineteen focused regression statements and twenty-one guarded
+public-theorem axiom audits pass. Full `scripts/check` exits zero: 10,313 build
+jobs (combined HasteBoots suite 516 seconds), followed by all strict audits and
 smoke commands. The new theorems use only `propext`, `Classical.choice` and
 `Quot.sound` (or fewer). Lean sources remained frozen throughout the check.
 Native/vendor revisions, fixture bytes/assertions and default proof limits
