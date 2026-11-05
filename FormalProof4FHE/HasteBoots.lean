@@ -447,3 +447,6 @@ public import FormalProof4FHE.HasteBoots.NativeDirectRootFreeze
 public import FormalProof4FHE.HasteBoots.NativeParentRootFreeze
 
 public import FormalProof4FHE.HasteBoots.NativeParentCoverage
+
+public import FormalProof4FHE.HasteBoots.CausalExposureLifetime
+public import FormalProof4FHE.HasteBoots.NativeParentLineage

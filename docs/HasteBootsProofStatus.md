@@ -19,7 +19,7 @@ open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#reconstructed-parent-state-and-declared-helper-coverage).
+[the current implementation layer](#lifetime-seed-risk-and-inherited-helper-context-chains).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -9271,3 +9271,70 @@ command. All new public theorems use only `propext`, `Classical.choice` and
 `Quot.sound` (or fewer). Lean sources remained frozen throughout the check.
 Native/vendor revisions, fixture bytes/assertions and default proof limits
 are unchanged.
+
+## Lifetime seed risk and inherited helper-context chains
+
+`CausalExposureLifetime` accumulates the existing causally selected
+first-seed-exposure risk over every finite analysis prefix of an unbounded
+machine. Its local state is initialized from the actual prelude result, and
+every prefix retains that prelude's entire raw log. Earlier child-header
+candidates therefore remain in the target set. `lifetime_le_totalCharge`
+bounds the union of an inherited bad event and all new exposure events by
+the inherited event probability plus the expected sum of the per-step risks.
+The nonnegative sum and integral may be infinite. No termination, finite mean,
+query cap, discarded rejection path or success floor is assumed. This is a
+**probability-risk charge**, not attacker work.
+
+The conditional version retains the prelude result and log boundary as
+proof-only data. `retained_history` projects it back to the original history;
+it issues no oracle observation. `retained_replay` and `retained_event`
+justify its full-history posterior, then `conditional_step_event` composes
+that posterior inside the original prelude fiber. `conditional_lifetime_le`
+preserves inherited bad probability and averages the same infinite risk sum
+inside that fiber. Both the lifetime event and total charge are measurable.
+The all-unobserved 64-byte seed premise remains exactly the earlier
+first-read predicate; partial seeds and receipt guesses do not receive a
+new 512-bit bound.
+
+`NativeParentLineage.Known` is a finite chronological certificate made of
+observed native parent requests. It starts with a directly parsed helper
+context, follows actual logical seed quotes into later recognized parent
+requests, and permits arbitrary intervening raw observations. It has no fixed
+ancestry-depth limit. `Known.sound` proves that every such context occurs in
+the actual table reconstructed from the same truthful history. The inherited
+step uses every compatible old parent and the history-owned partial byte
+cache, rather than requiring full seeds or selecting the first seed match.
+
+`resolve_known_helper` extends helper-root resolution to those inherited
+contexts. `known_helper_snapshot` consequently proves a retained checkpoint
+through every supported continuation of a later positive-length raw read,
+with ledger, byte cache, hash cache and checkpoints replayed from the same
+empty initialization. A context need not occur directly in the descendant's
+own frames. This does not backdate a snapshot for an earlier orphan read,
+authenticate native ownership, or establish Merkle availability. Registration
+through all compatible partial parents also does not yet supply a
+single-context arithmetic loss; partial-seed association/collision accounting
+remains part of the global Fiat–Shamir argument.
+
+The next global obligation is to classify every security-relevant native
+root/challenge exposure using chronological coverage or an explicit exception,
+including inherited source keys and receipt-linked inputs. The risk charge
+must then be coupled to an actual attacker-work machine, with prior work and
+failure/abort paths retained. Native registry aliases/grouping, trusted
+context/shape identity, rectangular/numerical certification, BabyBear,
+application soundness/extraction and fail-closed Rust/scheduler refinement
+remain required.
+
+Validation: eighteen focused regressions and seventeen guarded public-theorem
+axiom audits pass, including the focused file with warnings treated as errors.
+Full `scripts/check` exits zero: 10,321 build jobs (combined HasteBoots suite
+464 seconds), followed by every strict audit and smoke command. All new public
+theorems use only `propext`, `Classical.choice` and `Quot.sound` (or fewer).
+Lean sources remained frozen throughout the successful full check. Two
+751-byte `SharedChildWireSmoke` literals (`nativeStart1` and `nativeStart4`)
+now use six Nat chunks of at most 128 entries each to stay within the default
+elaboration limit. Their bytes are identical, with SHA-256
+`35bd0aa8bdce585a77c0eccb1459980c96465bad1d7c86cbea689d9ab8b41a65`;
+every original assertion is unchanged, and the extracted fixture namespace
+also passes with warnings treated as errors. Native/vendor revisions and
+default proof limits are unchanged.
