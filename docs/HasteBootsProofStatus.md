@@ -19,7 +19,7 @@ open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#source-checkpoints-before-native-lookup-challenges).
+[the current implementation layer](#combined-source-and-helper-checkpoint-execution).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -8503,3 +8503,80 @@ jobs (538 seconds for the main smoke module). Full `scripts/check` exits zero:
 No original fixture bytes or assertions, native/vendor source, dependency
 pin, heartbeat limit or recursion limit changed. The full security goal
 remains active.
+
+
+## Combined source and helper checkpoint execution
+
+`NativeSharedLookupHelperCheckpoints` computes the actual outer lookup batch
+before recording helper roots. Its gate is exactly the original finished
+sampler, prepared-job and root-count gate. `gate_spec` derives the finished
+transcript, original ordered jobs and exact root count; no completed sampler
+or job-alignment certificate is accepted as input. `native_eq` proves that
+factoring this gate and equality continuation preserves the original native
+prelude program itself. All helper roots retain their original quota/order.
+
+Helper snapshots are placed after the outer sampler and before
+`NativeLookupEquality.request`, whose unchanged initializer binds the helper
+root message before any equality draw. `recorded_helpers` derives the real
+sampler state and snapshot states from one supported returned execution.
+Snapshots persist through equality/statement construction, including all
+issued hash work and the same existing failure monitor. A suspended lookup
+or failed job/count gate records no helper roots. Unlike source preparation,
+this helper boundary may depend on the preceding lookup challenge; there is
+no assertion that its computation is independent of the reader.
+
+`NativeSharedLookupChildCheckpoints` integrates the existing proof/value
+gates, actual child creation, outer sampling, helper recording and original
+equality/scalar/terminal/finish continuation. `native_eq` is an equality of
+native programs, with the dimension-dependent equality result retained.
+`native_replay` recovers the original complete child/body continuation.
+`recorded_helpers` derives successful preparation, the actual child/raw batch,
+its checked helper gate, and both pre-equality and final checkpoint membership
+from a supported execution returning a body result.
+
+`NativeSharedLookupCheckpointExecution.program` combines the earlier source
+freeze with this annotated child in one shared execution. Source snapshots
+precede child sampling; helper snapshots follow the completed outer sampler
+and precede equality/scalar challenges. `origin` recovers the actual source
+and child subruns and their intermediate shared state. `native_replay`
+preserves the complete original entry point, including every native return
+value and ordered observation. `recorded_families` derives both complete
+families in the final state, using the actual earlier source log and actual
+later helper log, and retains the supported stage executions and checked
+helper gate. Neither an independent prefix-success premise nor a supplied
+checkpoint-membership certificate is needed.
+
+A small native program associativity lemma supports the exact stage
+factorizations; it changes no action, branch or observation. All twelve new
+public theorems have guarded axiom audits using only `propext`,
+`Classical.choice` and `Quot.sound`. The combined HasteBoots suite contains
+2,784 guarded audits. No `sorry`, new axiom, native decision procedure or
+raised proof limit is introduced.
+
+The existing complete native body fixture now runs the combined source/helper
+entry point. New kernel checks compare its bound result, entire original
+observation list, all native hashes and both ordered recording requests.
+Lookup suspension preserves only the earlier source record. Equality and
+scalar suspension preserve both families at their actual boundaries.
+Malformed helper-root counts preserve the source record and emit no helper
+record. Original fixture bytes and assertions remain intact.
+
+This completes the two verifier-side recording placements at the stated
+operational interface. It does not assert freshness against adversarial
+prequeries in the preceding mixed-oracle history. Joint-world probability
+transport, stopping/work accounting and global Fiat–Shamir causality remain
+required. Native alias grouping and batch/source/helper PCS composition,
+concrete tensor/code/degree near/far instantiation, application/PBS extraction,
+production profiles and the final 128-bit theorem remain open, together with
+strict decoder, root-generation/cache, SIMD/Div64, compiler/scheduler and
+BabyBear refinement obligations.
+
+Validation for this layer: all four production modules build. The public
+root and new guarded-audit module pass 4,242 build jobs. The focused complete
+native body fixture, including all twelve new kernel cases, passes standalone
+with warnings as errors, as does the audit module with all twelve new guards.
+The combined HasteBoots smoke suite passes 4,255 build jobs (507 seconds for
+the main module). Full `scripts/check` exits zero: 10,272 build jobs and every
+subsequent strict audit/smoke command pass. All original fixture bytes and
+assertions, native/vendor sources, dependency pins and proof limits remain
+unchanged. The full security goal remains active.

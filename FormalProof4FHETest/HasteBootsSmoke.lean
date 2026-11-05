@@ -9,6 +9,7 @@ import all FormalProof4FHETest.HasteBootsPcsArithmeticSmoke
 import all FormalProof4FHETest.HasteBootsEncodingSmoke
 import all FormalProof4FHETest.HasteBootsBlockCodeSmoke
 import all FormalProof4FHETest.HasteBootsRawColumnSmoke
+import all FormalProof4FHETest.HasteBootsHelperCheckpointsSmoke
 import all FormalProof4FHETest.HasteBootsSourceCheckpointsSmoke
 import all FormalProof4FHETest.HasteBootsCheckpointSmoke
 import all FormalProof4FHETest.HasteBootsPcsClaimSmoke
@@ -18070,6 +18071,33 @@ example : (match checkpointed.1.1 with | some (.bound _) => true | _ => false) =
 example : checkpointed.1.2 = completed.2 := by decide +kernel
 example : checkpointed.2 = (native_hash_inputs.zip native_hash_outputs).map (fun pair => .hash pair.1 pair.2) ++
   [.record 0 native_root] := by decide +kernel
+
+
+-- Source and helper families use distinct native challenge boundaries.
+private noncomputable def allCheckpoints (ctx : NativeSharedLookupCheckpoints.Context (Fin 2) Unit Unit) :=
+  (simulateQ (SourceCheckpointTest.handler id world)
+    (NativeSharedLookupCheckpointExecution.program ctx (InputIndexedOracle.shake world)
+      (fun index => index.val) (fun index => 1+index.val))).run
+private noncomputable def recordedTags (events : List SourceCheckpointTest.Event) : List ℕ :=
+  events.filterMap (fun event => match event with | .record tag _ => some tag | _ => none)
+example : (match (allCheckpoints checkpointContext).1.1 with | some (.bound _) => true | _ => false) = true := by decide +kernel
+example : (allCheckpoints checkpointContext).1.2 = completed.2 := by decide +kernel
+example : (allCheckpoints checkpointContext).2 =
+    (native_hash_inputs.zip native_hash_outputs).map (fun pair => .hash pair.1 pair.2) ++
+      [.record 0 native_root,.record 1 native_helper_roots[0]!] := by decide +kernel
+private noncomputable def lookupSuspended := allCheckpoints {checkpointContext with lookupFuel := 0}
+example : lookupSuspended.1.1.isNone = true := by decide +kernel
+example : recordedTags lookupSuspended.2 = [0] := by decide +kernel
+private noncomputable def equalitySuspended := allCheckpoints {checkpointContext with equalityFuel := 0}
+example : equalitySuspended.1.1.isNone = true := by decide +kernel
+example : recordedTags equalitySuspended.2 = [0,1] := by decide +kernel
+private noncomputable def badRoots := allCheckpoints {checkpointContext with proof := {proof with roots := ⟨[],by decide⟩}}
+example : badRoots.1.1.isNone = true := by decide +kernel
+example : recordedTags badRoots.2 = [0] := by decide +kernel
+private noncomputable def scalarSuspended := allCheckpoints {checkpointContext with scalarFuel := 0}
+example : (match scalarSuspended.1.1 with | some (.suspended _) => true | _ => false) = true := by decide +kernel
+example : scalarSuspended.1.2 = (runProtocol proof 0).2 := by decide +kernel
+example : recordedTags scalarSuspended.2 = [0,1] := by decide +kernel
 
 end SharedBodyExecutionSmoke
 
