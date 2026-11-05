@@ -19,7 +19,7 @@ open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#pending-seed-quotes-and-derived-native-ancestry).
+[the current implementation layer](#native-fork-execution-and-program-machine-bridge).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -9423,3 +9423,42 @@ charges in these lemmas are not a physical-work accounting model.
 Validation: `scripts/check` passed all 10,332 build jobs (combined HasteBoots
 smoke: 477 seconds) and strict audits. Both new smoke modules also passed
 standalone Lean checks with `-DwarningAsError=true`.
+
+## Native fork execution and program-machine bridge
+
+`OracleProgramMachine` interprets each native program constructor as the
+corresponding causal machine command. Its finite prefixes equal the existing
+native program-prefix semantics exactly, including the retained continuation.
+Every finite native program execution has a path-dependent completed prefix,
+and every shorter machine log is a prefix of that same full native log. This
+introduces no uniform retry bound, native cutoff, or physical-work model.
+
+`NativeForkAncestry` obtains the producer seed read from execution of the actual
+native fork. Canonical source keys and the helper context survive the shared
+lookup's grouped/flattened multiplicity frames and are realized by its actual
+initializer. Header preservation through the typed zero-count identity includes
+its real receipt frame. Subsequent executed forks inherit source/helper facts
+from that header without supplied seed-link equalities or producer-read indices.
+The exact program-machine bridge transfers the existing risk-conditioned
+chronology theorem to the full native program log.
+
+The new regression uses a native parent with a canonical binding, a raw
+prequery, shared lookup initialization, a nested fork and a final challenge.
+It checks both equal-root/different-context source keys, helper ancestry,
+retention of the raw query, metadata/root resolution before the final read,
+and retained checkpoints through supported continuations. Reader starts alone
+cannot realize a producer. Sixteen regression examples and twenty guarded
+public-theorem axiom reports cover these additions.
+
+The chronology/resolution/snapshot assertions retain the explicit absence of
+prior/pending seed-quote bad events. Accepted native application runs still
+need exhaustive certificate coverage and byte/domain validation. Merkle
+availability, partial-seed and receipt risks, native stage admissibility,
+full arithmetic/PCS composition, numerical certification for both fields,
+attacker-work coupling, extraction and Rust/scheduler refinement remain open.
+
+Validation: `scripts/check` passed all 10,335 build jobs (combined HasteBoots
+smoke: 554 seconds) and every strict audit/smoke command. Both new production
+modules and the new regression module also passed standalone checks with
+`-DwarningAsError=true`. All twenty new public theorem axiom reports contain
+only the existing allowed axioms; no proof limits or fixture assertions changed.
