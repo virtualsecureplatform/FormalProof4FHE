@@ -424,3 +424,7 @@ public import FormalProof4FHE.HasteBoots.NativeGoldPcsAcceptanceSoundness
 public import FormalProof4FHE.HasteBoots.NativeCheckpointProgram
 public import FormalProof4FHE.HasteBoots.NativeGoldPcsExecution
 public import FormalProof4FHE.HasteBoots.NativeGoldPcsExecutionAgrees
+public import FormalProof4FHE.HasteBoots.NativeHashPrefix
+public import FormalProof4FHE.HasteBoots.NativeSharedLookupHashPrefix
+public import FormalProof4FHE.HasteBoots.NativeCheckpointBoundary
+public import FormalProof4FHE.HasteBoots.NativeSharedLookupCheckpoints

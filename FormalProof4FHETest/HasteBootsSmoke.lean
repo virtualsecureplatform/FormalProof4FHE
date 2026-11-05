@@ -9,6 +9,7 @@ import all FormalProof4FHETest.HasteBootsPcsArithmeticSmoke
 import all FormalProof4FHETest.HasteBootsEncodingSmoke
 import all FormalProof4FHETest.HasteBootsBlockCodeSmoke
 import all FormalProof4FHETest.HasteBootsRawColumnSmoke
+import all FormalProof4FHETest.HasteBootsSourceCheckpointsSmoke
 import all FormalProof4FHETest.HasteBootsCheckpointSmoke
 import all FormalProof4FHETest.HasteBootsPcsClaimSmoke
 import all FormalProof4FHETest.HasteBootsPcsDrawsSmoke
@@ -17595,6 +17596,40 @@ private def malformed : NativeSharedLookupProofData.Proof Unit Unit := {proof wi
 private noncomputable def rejected := (OracleProgram.run (NativeSharedLookupParent.begin description registry helper parent requests malformed 0 0) world).run
 example : rejected.1.isNone = true := by decide +kernel
 example : rejected.2 = actual.2 := by decide +kernel
+
+-- Actual native parent preparation followed by passive source checkpoints.
+private noncomputable def checkpointContext : NativeSharedLookupCheckpoints.Context (Fin 3) Unit Unit :=
+  ⟨description,registry,helper,parent,requests,proof,0,0,0⟩
+private noncomputable def frozen := (simulateQ (SourceCheckpointTest.handler Fin.val world)
+  (NativeSharedLookupCheckpoints.freeze checkpointContext (InputIndexedOracle.shake world) id)).run
+example : frozen.1.2 = actual.2 := by decide +kernel
+example : frozen.1.1.2.map (fun out => (out.geometry.1.val,out.geometry.2.val,out.repetitions.val)) = some (3,4,3) := by decide +kernel
+example : frozen.2 = (hash_inputs.zip hash_outputs).map (fun pair => .hash pair.1 pair.2) ++
+  [.record 0 (List.ofFn (root 17)),.record 1 (List.ofFn (root 29))] := by decide +kernel
+private noncomputable def frozenOther := (simulateQ (SourceCheckpointTest.handler Fin.val world)
+  (NativeSharedLookupCheckpoints.freeze checkpointContext (fun _ _ => byte 0) id)).run
+example : frozenOther.2 = frozen.2 := by decide +kernel
+example : frozenOther.1.2 = actual.2 := by decide +kernel
+
+-- Slot zero is an unused earlier alias of the first used source at slot two.
+private noncomputable def aliasContext : NativeSharedLookupCheckpoints.Context (Fin 3) Unit Unit :=
+  { checkpointContext with
+    registry := ⟨[⟨source0,root 17⟩,⟨source1,root 29⟩,⟨source0,root 17⟩],by decide⟩
+    requests := ⟨[{req0 with sourceSlots := ⟨[usize 1,usize 2],by decide⟩},
+      {req1 with sourceSlots := ⟨[usize 2],by decide⟩}],by decide⟩ }
+private noncomputable def aliasFrozen := (simulateQ (SourceCheckpointTest.handler Fin.val world)
+  (NativeSharedLookupCheckpoints.freeze aliasContext (InputIndexedOracle.shake world) id)).run
+example : aliasFrozen.1.1.2.isSome = true := by decide +kernel
+example : aliasFrozen.1.2.length = 8 := by decide +kernel
+example : aliasFrozen.2.filterMap (fun event => match event with | .record tag digest => some (tag,digest) | _ => none) =
+  [(0,List.ofFn (root 17)),(1,List.ofFn (root 29)),(2,List.ofFn (root 17))] := by decide +kernel
+private noncomputable def invalidContext : NativeSharedLookupCheckpoints.Context (Fin 3) Unit Unit :=
+  {checkpointContext with requests := ⟨[],by decide⟩}
+private noncomputable def invalidFrozen := (simulateQ (SourceCheckpointTest.handler Fin.val world)
+  (NativeSharedLookupCheckpoints.freeze invalidContext (InputIndexedOracle.shake world) id)).run
+example : invalidFrozen.1.1.2.isNone = true := by decide +kernel
+example : invalidFrozen.2 = [] := by decide +kernel
+
 end ParentFramingSmoke
 
 /-- info: 'FormalProof4FHE.HasteBoots.NativeByteCodec.bytes_encode' depends on axioms: [propext, Quot.sound] -/
@@ -18024,6 +18059,17 @@ example : (runHelpers proof 0).2 = window.2 := by decide +kernel
 example : (runHelpers badShape 30).1.2.isNone = true := by decide +kernel
 example : (runHelpers badHelper 30).1.2.isNone = true := by decide +kernel
 example : (runHelpers badRecurrence 30).1.2.isNone = true := by decide +kernel
+
+
+-- The complete native body keeps every original observation after recording.
+private noncomputable def checkpointContext : NativeSharedLookupCheckpoints.Context (Fin 2) Unit Unit :=
+  ⟨description,registry,helper,parent,requests,proof,30,30,30⟩
+private noncomputable def checkpointed := (simulateQ (SourceCheckpointTest.handler Fin.val world)
+  (NativeSharedLookupCheckpoints.program checkpointContext (InputIndexedOracle.shake world) id)).run
+example : (match checkpointed.1.1 with | some (.bound _) => true | _ => false) = true := by decide +kernel
+example : checkpointed.1.2 = completed.2 := by decide +kernel
+example : checkpointed.2 = (native_hash_inputs.zip native_hash_outputs).map (fun pair => .hash pair.1 pair.2) ++
+  [.record 0 native_root] := by decide +kernel
 
 end SharedBodyExecutionSmoke
 

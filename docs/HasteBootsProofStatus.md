@@ -19,7 +19,7 @@ open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#one-shared-pcs-prefix-and-pool-execution).
+[the current implementation layer](#source-checkpoints-before-native-lookup-challenges).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -8415,3 +8415,91 @@ HasteBoots smoke suite passes all 4,245 build jobs (569 seconds for the main
 smoke module). Full `scripts/check` exits zero: 10,262 build jobs and every
 subsequent strict audit/smoke command pass. Native/vendor sources and pins
 remain unchanged. The complete security goal remains active.
+
+
+## Source checkpoints before native lookup challenges
+
+`NativeHashPrefix.HashOnly` excludes SHAKE starts and reads on every adaptive
+hash-answer branch. Its bind closure and native-log theorem retain all hash
+observations. `compile_independent` proves that changing the complete reader
+backend leaves the compiled hash-only program unchanged. This is a structural
+statement conditional on the same inputs and preceding state, not a new
+probability or transcript-input freshness assumption.
+
+`NativeSharedLookupHashPrefix` establishes this property for the actual
+context computation, selected-source contexts, framing, numeric preflight
+steps/loop, complete registry registration and parent preparation. All
+failure branches are included. Thus the actual parent metadata processing
+and all original registry context hashes precede the child/outer lookup
+challenge stage, rather than using a late checkpoint before PCS randomness.
+
+`NativeCheckpointBoundary` executes a compiled native stage, records its
+computed root family using the existing passive `RecordRoots` operation,
+then executes the native continuation in the same shared state. Its origin
+lemmas recover the actual intermediate states. Every snapshot uses the same
+actual pre-recording hash log; recording preserves the hash cache/log/keys.
+`native_replay` proves exact erasure of the ghost annotations, including the
+whole original native value and ordered observation list. `program_recorded`
+retains each snapshot through the complete continuation without conditioning
+on acceptance, collision freedom or an unset stability monitor.
+
+`NativeSharedLookupCheckpoints` factors the original complete shared lookup
+entry point into parent preparation followed by its existing child launcher
+and scalar/terminal/finish body. `native_eq` proves equality of the native
+programs themselves. The wrapper records every original registry slot after
+successful preparation and before that continuation. Failed preparation
+records no roots and retains its actual partial hash work. Root selection
+uses the original ordered registry, independently of which slots later open.
+It includes unused slots and unused earlier aliases of a later used source.
+A configuration-tag embedding permits the same shared state to contain later
+helper checkpoints with different trusted shapes. No slot is truncated,
+sorted or deduplicated by this layer.
+
+`freeze_independent` proves the complete preparation/recording computation is
+unchanged by the reader supplying the later lookup challenges. `native_replay`
+recovers the complete original lookup entry point from the final shared cache.
+`recorded_sources` derives successful parent preparation and actual earlier,
+recorded and final states from one supported run returning a body result.
+Every original source root has a snapshot of that earlier prefix log in both
+the pre-child state and the final state. The caller supplies no independent
+prepared transcript, successful parent prefix or checkpoint-membership proof.
+Existing checkpoint-history lemmas retain these same snapshots through
+subsequent PCS/scheduler work.
+
+The existing native parent fixture now checks unchanged context hashes and
+native observations together with the computed recording requests. A
+three-slot case uses slots one and two while slot zero is an unused earlier
+alias of slot two; all three roots are recorded in original order. Changing
+the reader leaves preparation/recording unchanged, while invalid preparation
+emits no recording requests. The existing complete native body fixture also
+executes the new annotated entry point and checks its bound result, every
+original native observation and all hashes plus the passive source record.
+All previous fixture bytes and assertions remain intact.
+
+All 24 new public theorems have guarded axiom audits using only `propext`,
+`Classical.choice` and `Quot.sound`; the combined HasteBoots suite contains
+2,772 guarded audits. No `sorry`, new axiom, native decision
+procedure or increased proof limit is introduced. This places source
+snapshots before the native child/outer challenge at the stated execution
+interface. This is the verifier execution boundary. A full Fiat–Shamir
+argument must also handle adversarial prequeries in the preceding mixed
+oracle history; the statement does not assert that the challenge input was
+unqueried there, or that the incoming cache is independent of its answer.
+Transport to the joint-world/stopping-work model remains required. It does not complete native alias grouping, source PCS batching,
+helper-root checkpoint placement, the reader's joint probability law or
+freshness proof. Those remain required alongside concrete tensor/code/degree
+near/far instantiation, full lookup/PCS composition, application/PBS extraction,
+chronological work, production profiles and the final 128-bit theorem. Native
+strict decoder, root-generation/cache, SIMD/Div64, compiler/scheduler and
+BabyBear refinement obligations also remain open.
+
+Validation for this layer: all four production modules build. The public
+HasteBoots root and standalone guarded-audit module pass 4,238 build jobs.
+The focused native parent/body fixtures, including all 13 new kernel checks,
+pass standalone with warnings as errors, as does the audit module with all
+24 new theorem guards. The combined HasteBoots smoke suite passes 4,250 build
+jobs (538 seconds for the main smoke module). Full `scripts/check` exits zero:
+10,269 build jobs and every subsequent strict audit/smoke command pass.
+No original fixture bytes or assertions, native/vendor source, dependency
+pin, heartbeat limit or recursion limit changed. The full security goal
+remains active.
