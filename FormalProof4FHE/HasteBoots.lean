@@ -473,3 +473,5 @@ public import FormalProof4FHE.HasteBoots.NativeGoldBatchBinding
 public import FormalProof4FHE.HasteBoots.NativeGoldBatchPcsProgram
 
 public import FormalProof4FHE.HasteBoots.NativeGoldLookupVerification
+
+public import FormalProof4FHE.HasteBoots.NativeGoldLookupSourceInvariant

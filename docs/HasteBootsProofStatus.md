@@ -10,8 +10,8 @@ are separate claims.
 Current native integration executes raw Goldilocks lookup retries with an
 exact projection to the abstract sampler, then equality preparation, scalar
 verification, strict terminal guards, terminal-value binding and child
-finishing. The full entry point is now checked against native fixture bytes
-in the kernel. Its bound result remains a PCS boundary. Concrete raw column
+finishing. The lookup-body entry point is checked against native fixture bytes
+in the kernel. Its bound result feeds the PCS continuation. Concrete raw column
 authentication and PCS payload codecs are linked to the existing cached
 verifier. The completed run now also derives every ordered helper PCS call with no
 truncation or extra oracle observation. The ordered helper loop now executes
@@ -9853,10 +9853,9 @@ keys to different parameter objects to check original-owner selection; it is
 not evidence that distinct contexts cannot collide. These regressions do not
 constitute new native Rust differential fixtures.
 
-Remaining source obligations include a general seen-list/first-used claim
-invariant and discharging every reachable indexing/allocation/conversion
-unavailability from the actual preflight, geometry and vector bounds.
-The typed operational entry point does not supply a strict hostile-byte proof
+The first-used source invariants and these local domain obligations are
+discharged in the next section. The typed operational entry point still
+does not supply a strict hostile-byte proof
 decoder or a checked Rust equivalence theorem. Still open are complete
 application/extractor soundness, raw frozen-word availability, global causal
 Fiat–Shamir exposure accounting, physical attacker-work coupling, original
@@ -9874,3 +9873,78 @@ guarded public theorem reports pass; the reports use only `propext`,
 passes for accepted, last-claim rejection and second-response rejection,
 matching bytes, all fourteen joint observations and final parents in each
 case. No proof limits or existing fixture bytes were changed.
+
+
+## First-used source claim invariants and domain discharge
+
+`NativeSourceClaimInvariant` proves the general source loop invariants for
+actual executions, including stopped prefixes. Raw slot/query/value triples
+in the deferred claim vector correspond exactly to the seen list. Complete
+keys stay unique, inserted source slots form an ordered subsequence of the
+original registry, and claim/seen counts are equal and bounded by the source
+vector length. Every retained entry comes from an actually used original
+slot, its computed context/root key and the original proof value row.
+
+On successful collection, every used original slot is covered by a retained
+representative with the same complete key and a field-equal value. Its slot
+is no later than the original slot. Combining this coverage with key
+uniqueness proves first-used minimality against every used source with that
+computed context/root key. This first USED representative supplies the raw
+claim; the first ORIGINAL registry representative still supplies the batch
+parameter/root object, even when that original slot was unused.
+
+`NativeSourceClaimDomain` proves the source-index, value-index and local
+claim-counter allocation failures unreachable when original registry and
+value-vector lengths agree and collection starts empty. The loop tracks
+remaining source slots: each possible insertion is paid for by a consumed
+original slot, and the native vector's own usize bound supplies counter
+capacity. No retry cap or attacker lifetime bound is added.
+`NativeGoldScalarPcsQuery` proves that the actual successful scalar guard
+already constructs validated matrices with the count and matrix allocation
+bounds needed by PCS packing. The packed models are exactly its pulled
+pairs; its local post-map stays outside the PCS query.
+
+`NativeDeferredBatchDomain` proves that original registry length and the
+actual seal packet-count gate rule out auxiliary dispatch index and packet
+unavailability. `NativeGoldLookupSourceInvariant` derives all source-domain
+premises from the actual earlier initializer and native proof-shape gate.
+Completed helper verification always has retained metadata and a representable
+source query. The combined pipeline's source claims are unique, ordered,
+provenance-bearing and bounded, with keys matching the original initialized
+registry. Every used source is tied to an actual inserted raw claim carrying
+the guarded query and a field-equal claimed value. These are derived from the
+executed pipeline; no successful-domain or alias-consistency certificate is
+an input.
+
+The new focused regressions instantiate the general invariants on lazy
+aliases, alias rejection and earlier-unused registry ownership. They check
+scalar packing and its omitted local post-map, wrong dimensions, non-power
+width and usize overflow rejection. A deliberate complete-key collision
+uses the same world for actual initialization and collection: all three
+original slots merge into first-used slot zero, while all six context
+observations remain. Deterministic provenance does not assume collisions
+absent or imply equality of aliased parameter objects. These are kernel
+regressions, not new Rust differential fixtures.
+
+Still required are full application soundness and independent public
+extraction, raw frozen-word availability and its PCS linkage, global causal
+Fiat–Shamir risk including partial/pending/receipt exposures, physical
+attacker-work coupling, original Goldilocks/BabyBear parameter certificates,
+strict hostile-byte decoding and checked Rust/Charon/Aeneas/NTT/SIMD/Div64/
+scheduler refinement. Internal PCS encoding/table/worker domains remain
+separate from the source and dispatch domains discharged here. The target
+remains complete protocol 12/schedule 5 at original degree 1024 and LWE
+dimension 728 with public evaluation/output keys and the unbounded-lifetime
+`2^128 * Pr[any accepted false PBS] ≤ E[attacker work]` theorem. It is not yet
+proved.
+
+
+Validation: full `scripts/check` passes with 10,369 build jobs and combined
+HasteBoots smoke in 636 seconds. All five new production modules and both
+new test modules pass direct `-DwarningAsError=true` checks. Nineteen focused
+regression statements and forty-four guarded public theorem reports pass;
+the reports use only `propext`, `Classical.choice` and `Quot.sound`. Fresh
+pinned Rust comparisons pass accepted, last-claim rejection and
+second-response rejection, matching native bytes, all fourteen joint
+observations and final parents. Existing fixtures, proof limits and pinned
+native sources are unchanged.
