@@ -1,4 +1,6 @@
 module
+import all FormalProof4FHETest.HasteBootsFreshReceiptSmoke
+import all FormalProof4FHETest.HasteBootsFreshReceiptAudit
 import all FormalProof4FHETest.HasteBootsEarlyReceiptSmoke
 import all FormalProof4FHETest.HasteBootsEarlyReceiptAudit
 import all FormalProof4FHETest.HasteBootsFieldInputSmoke

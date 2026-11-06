@@ -10788,3 +10788,58 @@ Validation: full `scripts/check` passed with 10,505 build jobs, including the
 combined HasteBoots smoke module. Separate warning-as-error checks passed for
 all three new production modules and both regression/audit modules. No new
 axioms, proof placeholders, native decision proofs or limit increases were used.
+
+
+## Fresh receipt digests and the combined early-receipt bound
+
+`NativeFieldObservationScope` proves that every actual collector observation is
+an output under its original field input, including rejected candidates and
+resumed states. Collection preserves the absence of every distinct receipt key.
+`OracleProgramHistory` retains the entire selecting result/log alongside a
+history-selected native program's result and full log, with replay and
+measurability lemmas for posterior refinement.
+
+`NativeFreshReceiptDigest` uses the actual native collector in that retained
+history. Once its result is known, its receipt key is also known. If that key
+was unseen in the original history, the collector has not exposed it: the
+parsed field input is disjoint from the receipt domain. A full native receipt
+payload matching the pending quote implies a match of its 64-byte digest, giving
+the conditional 2^-512 bound. The full 80-byte payload is retained in the event;
+no consumed-length decoding, nonwrapping premise or completion normalization is
+introduced. Complete and suspended collector outcomes remain in the averaging.
+
+`NativeFreshReceiptLifetime` proves stability after completion and takes the
+increasing union over all collector budgets. A second lifetime bound ranges
+over every actual machine prefix. Only selected early nonces have a fresh-digest
+charge, so completed/repeated/ineligible machine prefixes add zero.
+
+`NativeEarlyReceiptBound` combines this branch with the earlier receipt-key
+prefix branch. For a recovered Goldilocks phase with at least nine coefficients,
+a matching completed receipt at any budget lies in one of those two events.
+An eligible nonce has charge qPrefix/2^576 + 1/2^512, where qPrefix is the
+cardinality of the deduplicated raw-prefix target set in the original history.
+Exact posterior refinement, measurability, averaging and the unbounded-machine
+lifetime inequality are proved without a rejection or attacker-lifetime cap.
+The native test-width-at-least-three geometry supplies the coefficient bound.
+
+Regressions exercise a previously unseen receipt key chosen from newly collected
+bytes, genuine full receipt matching, one-byte prior receipt knowledge, exclusion
+of that partially cached key from the fresh branch, both combined charges,
+completion stability, rejected-byte log scope, and retention of the full old
+selecting history. Thirty-one theorem axiom guards permit only the allowed
+three axioms or subsets; the history projection equality is axiom-free.
+
+This closes the recovered-phase early-receipt probability bound, not the full
+application security theorem. Remaining work includes the field/column
+false-acceptance composition, trusted ownership and public extraction, complete
+seed/lookup lineage coverage, PBS application semantics, BabyBear, physical
+attacker work, strict implementation refinement and final 128-bit numerics.
+Analysis collector reads refine a posterior; they are not asserted to be
+physical attacker work, and no log-length cost certificate is used.
+
+Validation: full `scripts/check` passed with 10,514 build jobs, including
+the combined HasteBoots smoke module and subsequent warning-as-error audits.
+Separate warning-as-error checks passed for all five new production modules
+and both regression/audit modules. All thirty-one new axiom guards passed.
+No new axioms, proof placeholders, native decision proofs or limit increases
+were used.
