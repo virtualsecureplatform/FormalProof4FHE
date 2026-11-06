@@ -1,3 +1,5 @@
+import FormalProof4FHETest.HasteBootsLifetimeSoundnessSmoke
+import FormalProof4FHETest.HasteBootsLifetimeSoundnessAudit
 import FormalProof4FHETest.HasteBootsCausalCoverageSmoke
 import FormalProof4FHETest.HasteBootsCausalCoverageAudit
 import FormalProof4FHETest.HasteBootsFieldProximitySmoke

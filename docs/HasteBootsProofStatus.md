@@ -7,6 +7,45 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+A combined lifetime probability bound now covers false claims across all
+accepted native batches with the fixed public parameters and transcript profile. The batch root,
+parent input, opening, scheduler, private memory and native verification budget
+may vary; no union factor over those batches or response groups is added.
+Changing the verifier context while keeping its public parameters fixed
+leaves the causal events unchanged. The bound combines one global source/hash hazard supremum
+with the early-receipt, first-field proximity and shared-column lifetime
+charges. The any-batch failure event is measurable: complete-history replay
+preserves accepted work and the canonical field view used by the analysis
+extractor, without countability assumptions on scheduler or memory types.
+
+Finite causal oracle preludes are rebased into the same machine before the
+unbounded continuation. An exact log bridge preserves every prelude read and
+hash and resets no history or cache. The resulting `prelude_bound` charges
+exposures during the prelude and leaves no uncharged inherited-exposure
+probability. For an arbitrary replayable past without a causal-program origin,
+the more general bound retains its inherited term explicitly. This reification
+is chronological; it does not assert a physical cost for local callbacks.
+
+The combined bound is still against the recovered-source analysis extractor,
+under constructor, primitive-root, native framing/allocation and radius
+obligations. It is not yet public PBS application soundness or the 128-bit
+expected-work theorem. In particular, the broad column selector still charges
+foreign smaller quotas; it must be filtered to the fixed native quota while
+preserving actual accepted-run coverage before numerical calibration.
+Trusted registry/context binding at the application boundary, independent
+public extraction, physical initialization/local/abort/reject accounting,
+BabyBear and backend implementation refinement remain open. Regression tests
+cover context variation, retained partial prelude exposure, actual native
+verification rebased from a prelude, arbitrary-memory measurability and the
+combined lifetime bound. Sixteen new theorem guards audit dependencies.
+
+Validation for lifetime composition: `scripts/check` passed all 10,571 build
+jobs and all strict audit/smoke commands. Six focused modules passed with
+`warningAsError=true`. Sixteen new theorem guards confirm only the allowed
+axioms; the prelude log bridge and failure rebasing use only `propext`, and
+clean-history inherited exclusion uses `propext` and `Quot.sound`. Regression
+tests and guards are imported through the main test root.
+
 Accepted native false claims in a complete causal machine prefix now derive
 their own first-column packet and, for proximity, their earlier first-field
 packet and exact history split. Native execution supplies both positive
@@ -21,9 +60,11 @@ knowledge or truthful-history certificate is supplied by the caller.
 
 Falsity here is still original-query disagreement against the full history's
 recovered-source analysis extractor. This does not yet provide public PBS
-semantics or independent public extraction. The inherited stream flags must
-still be charged through the prelude, and the event branches must be combined
-with the global source/hash hazard under trusted registry/context selection.
+semantics or independent public extraction. The combined lifetime theorem
+above charges finite causal preludes and
+combines the event branches with the global source/hash hazard; arbitrary
+replayable pasts retain an explicit inherited term. Trusted registry/context
+selection at the application boundary remains open.
 Physical expected-work coupling, 128-bit calibration, BabyBear instantiation
 and implementation refinement remain open. Regression tests exercise mixed
 stream lineage, partial inherited exposure, an actual native verifier entirely
@@ -50,8 +91,8 @@ event using a recorded first-read split and the same recovered source log,
 even with subsequent hashes in the column history.
 
 The direct transport lemma takes the earlier first-field packet and its
-history split; the causal accepted-run theorem above derives both. Charging
-inherited exposures, binding trusted context/registry profiles, independent
+history split; the causal accepted-run theorem above derives both. Finite causal prelude exposures are now charged by rebasing. Binding
+trusted context/registry profiles at the application boundary, independent
 public extraction, expected physical work and implementation refinement
 remain open. The new regression checks cover the 18-coefficient,
 three-test/six-source-row layout with code-symbol width four, quotient-power
