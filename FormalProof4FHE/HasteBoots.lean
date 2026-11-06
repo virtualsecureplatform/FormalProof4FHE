@@ -484,3 +484,4 @@ public import FormalProof4FHE.HasteBoots.NativeGoldBatchRawAvailability
 
 public import FormalProof4FHE.HasteBoots.NativeGoldBatchFamilyAvailability
 public import FormalProof4FHE.HasteBoots.NativeGoldBatchSourceRisk
+public import FormalProof4FHE.HasteBoots.NativeGoldBatchLifetimeSourceRisk

@@ -1,4 +1,6 @@
 module
+import all FormalProof4FHETest.HasteBootsLifetimeSourceSmoke
+import all FormalProof4FHETest.HasteBootsLifetimeSourceAudit
 import all FormalProof4FHETest.HasteBootsObservedSourceSmoke
 import all FormalProof4FHETest.HasteBootsObservedSourceAudit
 import all FormalProof4FHETest.HasteBootsShapeFamilySmoke

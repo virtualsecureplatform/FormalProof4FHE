@@ -31,6 +31,21 @@ framing and the encoded batch message allocation bound remain explicit domain
 obligations; this does not establish complete first-exposure lineage or PCS
 soundness. Rejected canonical candidates and suspension retain their raw bytes.
 
+The availability bound now covers any witnessed accepted native batch in a
+complete mixed history, including all such batches in any finite prefix of a
+possibly nonterminating causal machine. The global source predicate requires the verifier's actual context-hash result,
+rather than an arbitrary tag sharing the root. The context computation is a
+recorded native subtrace. Acceptance and context witnesses replay under the
+same observations, making both finite and lifetime failure events measurable.
+Truthful reconstruction is audited; hash-cache collisions and source-failure
+flags persist under later observations. One global lifetime bound uses the
+supremum of nondecreasing actual prefix charges, including the causal prelude.
+It adds no factor for batches, columns, response groups or prefix count, and
+prefix suspension retains the real residual machine state, ledger and caches.
+The native framing/message-size domain remains in each acceptance witness.
+This is raw-source availability; the supremum has not yet been related to
+physical attacker work or the final 128-bit application-security theorem.
+
 Still open: complete first-exposure lineage for orphan/pending/receipt cases,
 application soundness and independent public extraction, BabyBear integration,
 physical attacker-work accounting and the final 128-bit numerical theorem,
