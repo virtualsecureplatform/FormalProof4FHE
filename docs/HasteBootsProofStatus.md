@@ -11020,3 +11020,60 @@ confirmed all seven streams were unchanged, the isolated fixture passed with
 warnings treated as errors, and the full rerun passed. No proof limits were
 increased, and no axioms, proof placeholders or native decision proofs were
 introduced.
+
+
+## Parsed response families and pointwise false-claim witnesses
+
+`NativeGoldBatchFixedResponseData` defines the ordered original-query left
+weights, first-original group owners, finishing right weights, raw response
+messages and original claimed values from fixed parameters and serialized data.
+The definitions take no oracle world, prepared work, plan root or scheduler.
+Total indexing is analysis only: equality with native projections is proved
+at the original validated indices, preserving low-bit matrix order and all
+original right queries. Test and code packing widths remain independent.
+
+`NativeGoldBatchParsedResponseData` derives the binding of those data to a
+successfully parsed actual native column nonce, using the native preparation
+and explicit framing bounds. Its derived analysis facts retain every raw test
+and group response, query and claimed value. Each resulting function is proved
+equal to the corresponding native response or finishing projection. The
+analysis binding is not a verifier input or a freshness/source certificate.
+
+`RectangularBatchDisagreement` separates the deterministic disagreement facts
+from the interactive probability theorem. In the near branch, a false original
+message finishing forces one structured response to disagree on at least
+code-distance-minus-radius columns. Outside the random-matrix proximity event,
+a coded random-test response disagrees on at least radius+1 columns.
+
+`NativeGoldBatchFalseClaimWitness.near_witness` derives the near witness from
+actual accepted native finishing and a false original claimed value against
+the common analysis extraction. Its result uses a natural group index bounded
+by the parsed query data and a lane of the fixed width; no future Prepared index
+is needed in the response-family definition or witness predicate. The far
+witness uses the recovered-state matrix and parsed raw test response. Neither
+witness introduces a query/group/lane factor or a probabilistic independence
+assumption.
+
+Regressions exercise B*A versus A*B, lazy field representatives, first-original
+owners, the three-test/four-packing geometry, parsed response transports, and an
+actual accepted native run with distinct finishing suffixes for two original
+claims in one group. A separately supplied coded analysis word makes the second
+original claim false and produces the near-branch distance witness. This tests
+the pointwise finishing implication; authentication of that analysis word is
+supplied separately by the earlier selected-source results. Eighteen axiom
+guards cover the new production lemmas.
+
+Next, combine these witnesses with the earlier-history-selected source and
+native first-field/column posterior laws into the complete causal probability
+reduction. The column history must recover the same source prefix used by the
+first field exposure, rather than silently replacing it with a future source.
+Registry/context ownership, complete seed/lookup lineage coverage, independent
+public extraction, PBS semantics, native BabyBear, physical-work accounting,
+strict implementation refinement and final 128-bit numerics remain open.
+
+Validation: full `scripts/check` passed with 10,536 build jobs, including
+the combined HasteBoots smoke module and all subsequent audits. Separate
+warning-as-error checks passed for all four new production modules and both
+regression/audit modules. All eighteen new theorem axiom guards passed using
+only the three allowed axioms or subsets. No axioms, proof placeholders,
+native decision proofs or proof-limit increases were introduced.
