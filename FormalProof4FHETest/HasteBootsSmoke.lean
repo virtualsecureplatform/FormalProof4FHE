@@ -1,4 +1,6 @@
 module
+import all FormalProof4FHETest.HasteBootsRecoveredChallengeSmoke
+import all FormalProof4FHETest.HasteBootsRecoveredChallengeAudit
 import all FormalProof4FHETest.HasteBootsFieldColumnSmoke
 import all FormalProof4FHETest.HasteBootsFieldColumnAudit
 import all FormalProof4FHETest.HasteBootsFreshReceiptSmoke

@@ -10901,3 +10901,58 @@ warning-as-error checks passed for all four new production modules and both
 regression/audit modules. All fourteen new theorem axiom guards passed with
 only the three allowed axioms or subsets. No new axioms, proof placeholders,
 native decision proofs or proof-limit increases were introduced.
+
+
+## Recovering the native collector from an actual column nonce
+
+`NativeGoldBatchChallengeOrigin` reconstructs the complete column input from
+its recovered field prefix, the true native receipt and all raw batch
+responses. It proves the exact collector execution and preserved header from
+successful native preparation, including rejected candidates and their logs.
+The structural parser completeness theorem keeps explicit framing bounds and
+does not interpret or require nonwrapping of the receipt length header.
+
+`NativeGoldBatchPreparedChallenge` derives those frame bounds from a decoded
+parent and the batch/response allocation bounds. Successful native preparation
+then supplies the decoded field phase and coefficient count, exact collected
+state, true receipt quote, original root/queries/values, computed context digest,
+raw test/group responses, and native column request dimensions. This is
+pointwise execution recovery; it does not make future prepared work measurable
+in an earlier history or assert trusted source ownership.
+
+`NativeGoldBatchRecoveredCollector.first_column_cases` connects the earlier
+receipt bound to an actual native column nonce. At its causal first positive
+read, either its actual field stream was already exposed or it belongs to the
+bounded early-receipt event. Completion, receipt matching, coefficient count at
+least nine and positive column quota are derived from native preparation and
+the test-width-at-least-three geometry. No caller-supplied completion or receipt
+certificate is required. Partial prior receipt reads remain covered.
+
+`NativeGoldBatchRecoveredMatrix.random` defines the rectangular test matrix
+using only fixed context dimensions and the retained coefficient state. The
+native rectangular matrix is proved equal to this function, and the actual
+acceptance view retains the identical random checks under this replacement.
+The matrix definition does not inspect a world, future prepared work, source
+logs or scheduler state. The test width and code packing width remain separate.
+
+Regressions recover the actual state and all response groups, exercise clean,
+partial-receipt and partial-field histories, retain the three-test/four-packing
+fixture, and check that a forged 80-byte receipt quote can parse while producing
+a different complete nonce from native execution. A changed coefficient changes
+the recovered matrix. Fourteen axiom guards cover the new production lemmas.
+
+The remaining integration must freeze the common source at the selecting
+history, express the complete random/group response family through the parsed
+binding and recovered state, and derive its disagreement witness from actual
+accepted false original claims. Public extraction, global lineage coverage,
+PBS semantics, native BabyBear, physical-work accounting, strict implementation
+refinement and the final 128-bit theorem also remain open. This milestone does
+not equate structural recovery or analysis collector reads with authentication
+or physical attacker work.
+
+Validation: full `scripts/check` passed with 10,526 build jobs, including
+the combined HasteBoots smoke module and all subsequent audits. Separate
+warning-as-error checks passed for all four new production modules and both
+regression/audit modules. All fourteen new theorem axiom guards passed using
+only the three allowed axioms or subsets. No new axioms, proof placeholders,
+native decision proofs or proof-limit increases were introduced.
