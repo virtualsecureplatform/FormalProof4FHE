@@ -1,4 +1,6 @@
 module
+import all FormalProof4FHETest.HasteBootsShapeFamilySmoke
+import all FormalProof4FHETest.HasteBootsShapeFamilyAudit
 
 import all FormalProof4FHE.HasteBoots
 import all FormalProof4FHETest.HasteBootsBatchPrefixSmoke

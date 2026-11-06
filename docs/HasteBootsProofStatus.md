@@ -7,6 +7,23 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+The causal Merkle shape-family implementation removes the future-dependent
+height lookup from the batch availability path. Each newly resolved complete
+(context digest, root) key records all 64 native-sized perfect-tree shapes
+before its first nonempty byte read. The checked native allocation theorem
+proves every prepared batch height belongs to this family. Erasure preserves
+the native value, observation log, owned SHAKE cache and hash cache. Full-state
+reconstruction, conditional/prefix laws and retention hold for every height.
+Actual accepted batch requests select their height without an external height
+agreement premise. The resulting global ideal-oracle failure charge includes
+the entire annotated family; no factor is silently dropped. This local shape
+domain is not a trial, history or attacker-lifetime bound.
+
+Still open: complete first-exposure lineage for orphan/pending/receipt cases,
+application soundness and independent public extraction, BabyBear integration,
+physical attacker-work accounting and the final 128-bit numerical theorem,
+and strict decoder plus Rust/Charon/Aeneas/NTT/SIMD/Div64/scheduler refinement.
+
 Current native integration executes raw Goldilocks lookup retries with an
 exact projection to the abstract sampler, then equality preparation, scalar
 verification, strict terminal guards, terminal-value binding and child

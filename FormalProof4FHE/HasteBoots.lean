@@ -481,3 +481,5 @@ public import FormalProof4FHE.HasteBoots.NativeGoldLookupProgramDomain
 public import FormalProof4FHE.HasteBoots.NativeGoldBatchExposure
 
 public import FormalProof4FHE.HasteBoots.NativeGoldBatchRawAvailability
+
+public import FormalProof4FHE.HasteBoots.NativeGoldBatchFamilyAvailability
