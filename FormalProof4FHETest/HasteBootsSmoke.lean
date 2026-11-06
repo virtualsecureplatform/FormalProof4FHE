@@ -1,6 +1,7 @@
 module
 
 import all FormalProof4FHE.HasteBoots
+import all FormalProof4FHETest.HasteBootsCausalPcsSmoke
 import all FormalProof4FHETest.HasteBootsShakeKernelSmoke
 import all FormalProof4FHETest.HasteBootsScalarFinishAncestrySmoke
 import all FormalProof4FHETest.HasteBootsSamplerAncestrySmoke

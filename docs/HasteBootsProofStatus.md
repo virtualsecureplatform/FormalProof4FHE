@@ -14,12 +14,14 @@ finishing. The full entry point is now checked against native fixture bytes
 in the kernel. Its bound result remains a PCS boundary. Concrete raw column
 authentication and PCS payload codecs are linked to the existing cached
 verifier. The completed run now also derives every ordered helper PCS call with no
-truncation or extra oracle observation. PCS verification/composition remains
-open. Base-field challenges, response framing and atomic index draws now
-have executable adapters and a joint finite-byte sampling law. The retained
+truncation or extra oracle observation. The ordered helper loop now executes
+the checked PCS prefix, raw column workers and computed claim check in one
+causal oracle program. Grouped source verification and PCS soundness
+composition remain open. Base-field challenges, response framing and atomic
+index draws now have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#scalar-and-terminal-child-ancestry).
+[the current implementation layer](#causal-pcs-and-ordered-helper-verification).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -9593,4 +9595,65 @@ errors. Full `scripts/check` exits zero: 10,340 build jobs (combined HasteBoots
 smoke: 573 seconds), followed by every strict audit/smoke command. Both new
 production modules and the standalone regression module also pass with
 `-DwarningAsError=true`. Allowed axioms, default proof limits and all existing
+native fixture bytes/assertions are unchanged.
+
+## Causal PCS and ordered helper verification
+
+`CausalHashWorkerPool` executes the original raw hash workers inside
+`OracleProgram`. Scheduler selection is itself a mixed-oracle program, so
+scheduler SHAKE/hash prequeries and worker authentication calls belong to the
+same causal history. An accepted pool replays every original worker in the
+common final hash cache, including when earlier and later work surround it.
+Increasing worker analysis fuel extends the history; it does not impose a
+native retry cap. Cancellation preserves the selected scheduler memory and
+the complete observed prefix. This is an execution model; physical cost,
+fairness, termination and native Rayon refinement remain open.
+
+`NativeGoldPcsProgram` combines the actual native checked PCS prefix, that
+worker pool and the existing computed suffix/claim check. The SHAKE reader
+is no longer an external functional argument at this entry point. A completed
+result derives its preparation, pool result, status and complete history
+from the actual program execution. Accepted results enforce the original
+claim fold and authenticate every original raw column/path, together with
+both coordinate checks, in any truthful enclosing history containing the
+actual run. No prepared-prefix or authentication certificate is supplied.
+Because the whole execution is an `OracleProgram`, the existing shared lazy
+SHAKE/hash interpreters and causal machine translation apply to it.
+
+`NativeGoldHelperVerification.program` runs the actual parent/lookup/equality/
+scalar/finish handoff and then verifies its computed helper calls in native
+order. Each accepted call advances the transcript and scheduler memory and
+records its computed result. The first nonaccepted call stops the loop,
+retaining the last accepted progress and the complete failed or suspended
+PCS outcome. A derived trace identifies precisely the passed prefix and the
+first unpassed call. On completion, receipt order equals the actual helper
+plan and its length equals the original helper-root count, using upstream
+geometry gates to discharge the literal zip's lengths. Every recorded
+helper's raw authentication replays in the final cache of the entire combined
+execution, including later helper observations. A `.helpers ... (.done ...)`
+result means helper verification completed; it does not mean final source
+verification or application acceptance.
+
+The regressions reuse the existing native canonical PCS and false-claim
+fixtures without changing their bytes. They check exact mixed-oracle logs,
+acceptance, native claim rejection, worker suspension, cancellation and
+ordered helper stopping. Synthetic interleavings check scheduler prequeries,
+shared hash reuse and cancellation memory. These tests do not constitute a
+new full native accepted PBS fixture.
+
+Remaining obligations include grouped source `verify_many`, exact ordered
+left-prefix matrix grouping modulo the native field, root/word availability,
+global Fiat–Shamir risk accounting, physical-work coupling, both native
+parameter profiles, strict adversarial decoding and Rust/Charon/Aeneas/NTT/
+SIMD/Div64/scheduler refinement. The full false-PBS/extraction and 128-bit
+expected-work theorems remain unproved. The new deterministic authentication
+results do not discharge those probability or implementation obligations.
+
+Validation: twenty-eight new regression assertions and eighteen guarded
+public-theorem axiom reports pass. Full `scripts/check` exits zero: 10,347
+build jobs, with the combined HasteBoots smoke taking 625 seconds, followed
+by every strict repository audit/smoke command. All three new production
+modules and the standalone regression module also pass direct checks with
+`-DwarningAsError=true`. Only `propext`, `Classical.choice` and `Quot.sound`
+occur in the new public theorem reports; default proof limits and existing
 native fixture bytes/assertions are unchanged.
