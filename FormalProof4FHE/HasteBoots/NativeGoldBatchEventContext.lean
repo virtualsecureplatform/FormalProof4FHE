@@ -67,5 +67,22 @@ theorem column_event {S A : Type} (dummy : Digest) (first second : Context)
     NativeGoldBatchConcreteColumnBound.distance NativeGoldBatchFieldColumnLaw.event NativeGoldBatchWitnessedColumnBound.checked
   simp only [raw,claim]
   rfl
+theorem profile_column_event {S A : Type} (dummy : Digest) (first second : Context)
+    (same : first.parameters = second.parameters)
+    (firstPrimitive : IsPrimitiveRoot (NativeFieldRepresentation.goldValue first.parameters.code.domainRoot) (2^(logSize first.parameters.code+1)))
+    (secondPrimitive : IsPrimitiveRoot (NativeFieldRepresentation.goldValue second.parameters.code.domainRoot) (2^(logSize second.parameters.code+1)))
+    (radius : ℕ) (profile : Digest) (step : S → OracleMachine.Command S A) (packet : Packet S A) (world : World) :
+    NativeGoldBatchProfileColumnExposure.event dummy first firstPrimitive profile step packet radius world ↔
+      NativeGoldBatchProfileColumnExposure.event dummy second secondPrimitive profile step packet radius world := by
+  have raw := fun decoded sourceLog => raw_heq dummy first second same decoded sourceLog
+  have claim := fun decoded => claim_heq first second same firstPrimitive secondPrimitive decoded
+  cases first
+  cases second
+  cases same
+  simp only [heq_eq_eq] at raw claim
+  unfold NativeGoldBatchProfileColumnExposure.event NativeGoldBatchConcreteColumnBound.event
+    NativeGoldBatchConcreteColumnBound.distance NativeGoldBatchFieldColumnLaw.event NativeGoldBatchWitnessedColumnBound.checked
+  simp only [raw,claim]
+  rfl
 end
 end FormalProof4FHE.HasteBoots.NativeGoldBatchEventContext

@@ -62,7 +62,7 @@ theorem failure_covered {P S A : Type} (Memory : Type) (dummy : Digest) (ctx : C
     Inherited Memory dummy ctx radius past initial step world ∨ SourceBad dummy past initial step world ∨
     (∃ index, NativeEarlyReceiptBound.event ctx.parent.profile step (history past initial step index world).run world) ∨
     (∃ index, NativeGoldBatchFieldProximity.event dummy ctx primitive radius ctx.parent.profile step (history past initial step index world).run world) ∨
-    (∃ index, NativeGoldBatchConcreteColumnExposure.event dummy ctx primitive ctx.parent.profile step (history past initial step index world).run radius world) := by
+    (∃ index, NativeGoldBatchProfileColumnExposure.event dummy ctx primitive ctx.parent.profile step (history past initial step index world).run radius world) := by
   obtain ⟨fuel,⟨witness⟩⟩ := failed
   have candidateConstructed : NativeGoldBlockCode.build tables message block blowup = .ok witness.candidate.parameters.code := by
     rw [witness.sameParameters]
@@ -93,7 +93,7 @@ theorem failure_covered {P S A : Type} (Memory : Type) (dummy : Digest) (ctx : C
     exact ⟨index,transferred⟩
   · right; right; right; right
     obtain ⟨index,_,event⟩ := column
-    have transferred := (NativeGoldBatchEventContext.column_event dummy witness.candidate ctx witness.sameParameters witness.primitive primitive
+    have transferred := (NativeGoldBatchEventContext.profile_column_event dummy witness.candidate ctx witness.sameParameters witness.primitive primitive
       radius witness.candidate.parent.profile step _ world).mp event
     rw [witness.sameProfile] at transferred
     exact ⟨index,transferred⟩
@@ -113,17 +113,17 @@ theorem lifetime_bound {P S A : Type} (Memory : Type) (dummy : Digest) (ctx : Co
       (law {world | SourceBad dummy past initial step world} +
         ((∫⁻ world, NativeEarlyReceiptBound.totalCharge past initial step world ∂law) +
         ((∫⁻ world, NativeGoldBatchFieldProximity.totalCharge past initial dummy ctx primitive radius step world ∂law) +
-          (∫⁻ world, NativeGoldBatchConcreteColumnExposure.totalCharge past initial dummy ctx primitive step radius world ∂law)))) := by
+          (∫⁻ world, NativeGoldBatchProfileColumnExposure.totalCharge past initial dummy ctx primitive step radius world ∂law)))) := by
   have receipt := NativeEarlyReceiptBound.lifetime_le replay initial ctx.parent.profile step ∅
   have field := NativeGoldBatchFieldProximity.lifetime_le replay initial dummy ctx primitive radius ctx.parent.profile step ∅ large small
-  have column := NativeGoldBatchConcreteColumnExposure.lifetime_le replay initial dummy ctx primitive ctx.parent.profile step radius ∅
+  have column := NativeGoldBatchProfileColumnExposure.lifetime_le replay initial dummy ctx primitive ctx.parent.profile step radius ∅
   simp only [Set.empty_union,measure_empty,zero_add] at receipt field column
   have included : {world | Failure Memory dummy ctx radius past initial step world} ⊆
       {world | Inherited Memory dummy ctx radius past initial step world} ∪
       ({world | SourceBad dummy past initial step world} ∪
       ({world | ∃ index, NativeEarlyReceiptBound.event ctx.parent.profile step (history past initial step index world).run world} ∪
       ({world | ∃ index, NativeGoldBatchFieldProximity.event dummy ctx primitive radius ctx.parent.profile step (history past initial step index world).run world} ∪
-       {world | ∃ index, NativeGoldBatchConcreteColumnExposure.event dummy ctx primitive ctx.parent.profile step (history past initial step index world).run radius world}))) := by
+       {world | ∃ index, NativeGoldBatchProfileColumnExposure.event dummy ctx primitive ctx.parent.profile step (history past initial step index world).run radius world}))) := by
     intro world failed
     exact failure_covered Memory dummy ctx primitive tables message block blowup constructed radius width replay initial step world failed
   apply (measure_mono included).trans
@@ -141,7 +141,7 @@ def exposureCharge {P S A : Type} (past : World → Execution P) (initial : P �
     (radius : ℕ) (step : S → OracleMachine.Command S A) : ENNReal :=
   (∫⁻ world, NativeEarlyReceiptBound.totalCharge past initial step world ∂law) +
     ((∫⁻ world, NativeGoldBatchFieldProximity.totalCharge past initial dummy ctx primitive radius step world ∂law) +
-      (∫⁻ world, NativeGoldBatchConcreteColumnExposure.totalCharge past initial dummy ctx primitive step radius world ∂law))
+      (∫⁻ world, NativeGoldBatchProfileColumnExposure.totalCharge past initial dummy ctx primitive step radius world ∂law))
 
 def clean {S : Type} (state : S) (_ : World) : Execution S := pure state
 

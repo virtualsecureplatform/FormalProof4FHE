@@ -1,4 +1,5 @@
 module
+public import FormalProof4FHE.HasteBoots.NativeGoldBatchProfileColumnNative
 public import FormalProof4FHE.HasteBoots.CausalStreamLineage
 public import FormalProof4FHE.HasteBoots.NativeGoldBatchChallengeHistory
 public import FormalProof4FHE.HasteBoots.NativeGoldBatchFieldProximityCoverage
@@ -48,7 +49,7 @@ def Covered {P S A : Type} (past : World → Execution P) (initial : P → S)
     (∃ index < machineFuel, NativeEarlyReceiptBound.event ctx.parent.profile step (history past initial step index world).run world) ∨
     (∃ index < machineFuel, NativeGoldBatchFieldProximity.event dummy ctx primitive radius ctx.parent.profile step
       (history past initial step index world).run world) ∨
-    (∃ index < machineFuel, NativeGoldBatchConcreteColumnExposure.event dummy ctx primitive ctx.parent.profile step
+    (∃ index < machineFuel, NativeGoldBatchProfileColumnExposure.event dummy ctx primitive ctx.parent.profile step
       (history past initial step index world).run radius world)
 
 theorem accepted_coverage {P S A Memory : Type} (past : World → Execution P) (replay : ObservationReplay.Replayable past) (initial : P → S)
@@ -121,6 +122,8 @@ theorem accepted_coverage {P S A Memory : Type} (past : World → Execution P) (
         exact NativeGoldBatchFieldProximityCoverage.later_proximity dummy ctx world work prepared frames parent valid fits responseFits decoded parsed
           primitive radius step (history past initial step fieldIndex world).run fieldFirst _ sourceLog found fieldOffset fieldValues fieldPositive middle fieldSplit proximity
     · right; right; right; right; right
-      exact ⟨columnIndex,columnLt,column⟩
+      refine ⟨columnIndex,columnLt,?_⟩
+      exact NativeGoldBatchProfileColumnNative.event_of_native ctx world work prepared frames parent valid fits responseFits decoded parsed
+        tables message block blowup constructed step (history past initial step columnIndex world).run columnFirst dummy primitive radius column
 end
 end FormalProof4FHE.HasteBoots.NativeGoldBatchCausalCoverage
