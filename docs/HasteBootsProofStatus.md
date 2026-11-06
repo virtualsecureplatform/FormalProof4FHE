@@ -59,6 +59,19 @@ one global charge. Native framing/message-size domains remain explicit per
 receipt. Codeword/application soundness, full exposure lineage, physical work
 and implementation refinement are still required.
 
+Deferred receipt framing is now derived by the real transitions instead of
+supplied per receipt. Structural transcript framing survives prime collection,
+rejection/suspension/resumption, field receipts, checked atomic index sampling,
+batch binding/responses, deferred sealing, source-claim insertion and alias
+rejection. The dispatcher induction retains framing for earlier accepted
+receipts when a later call stops. Its domain bounds the original ordered
+group/packet pairs; no future oracle answer chooses a framing certificate.
+Source collection carries framing from the helper's actual last-accepted parent
+into the deferred handoff. Availability corollaries use that parent and static
+encoded claim/binding/response size bounds. Those native allocation bounds and
+upstream helper-parent framing remain explicit; strict Rust decoding/refinement
+and the remaining security obligations are not discharged by this invariant.
+
 Still open: complete first-exposure lineage for orphan/pending/receipt cases,
 application soundness and independent public extraction, BabyBear integration,
 physical attacker-work accounting and the final 128-bit numerical theorem,

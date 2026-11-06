@@ -486,3 +486,4 @@ public import FormalProof4FHE.HasteBoots.NativeGoldBatchFamilyAvailability
 public import FormalProof4FHE.HasteBoots.NativeGoldBatchSourceRisk
 public import FormalProof4FHE.HasteBoots.NativeGoldBatchLifetimeSourceRisk
 public import FormalProof4FHE.HasteBoots.NativeGoldLookupLifetimeAvailability
+public import FormalProof4FHE.HasteBoots.NativeFramedDeferredAvailability
