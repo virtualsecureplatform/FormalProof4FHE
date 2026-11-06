@@ -114,17 +114,21 @@ The fixed-word interactive kernel allows probabilistic adaptive response state
 between the uniform test matrix and shared ordered columns. One query-independent
 analysis table supports an any-false-original-query batch bound, without query,
 group or lane count factors. Its proximity term is `(distance / field size)^testWidth`.
-This is not yet the production Fiat–Shamir theorem: native finishing translation,
-full freshness/lineage, efficient public extraction and work/refinement transfer
-remain required.
+This is not yet the production Fiat–Shamir theorem: full native probability
+composition, freshness/lineage, efficient public extraction and work/refinement
+transfer remain required.
 
 Native accepted suffix claims now equal the rectangular finishing of their
 actual computed encoded response group. Lane chunks are exactly the original
 messages with zero padding, and native query/message counts supply the index
 transport. Every original right query is retained even when responses share a
-left-prefix group. This closes the right-fold/encoding equation; interpreting
-native grouped left weights and source-row layout in the abstract batch kernel,
-then composing the production transcript law, remains open.
+left-prefix group. The right-fold/encoding equation is closed. Native grouped
+left weights now also have the ordered tensor semantics, and a single checked
+geometry bijection reindexes the native source rows as left cell/source lane.
+Every original query's computed structured combination uses those rectangular
+weights on that common source, including field-representative aliases. Composing
+these deterministic equations with the full batch probability/transcript law
+remains open.
 
 Still open: complete first-exposure lineage for orphan/pending/receipt cases,
 application soundness and independent public extraction, BabyBear integration,
@@ -10386,7 +10390,45 @@ two original queries and one response group. Nonzero lazy representatives
 computed encoding finishes to `[3, 5, 15]`. A shared response can pass the first
 original query and fail the second when its distinct right query is given the
 wrong claim; the native finishing loop checks both. Twelve production axiom
-guards use only the allowed axioms. Native grouped-left-weight/source-row
-interpretation, production Fiat–Shamir freshness/lineage, efficient public
+guards use only the allowed axioms. The grouped-left-weight/source-row bridge
+is supplied below. Production Fiat–Shamir freshness/lineage, efficient public
 extraction/application soundness, BabyBear integration, attacker-work/numerics
 and strict implementation refinement remain open.
+
+
+## Native ordered left weights and common source rows
+
+`NativeGoldOrderedWeights` proves the actual native zero-block/one-block list
+expansion agrees with `FlatMatrixFold.weights` at low-bit-first addresses. Its
+arbitrary-initial-list invariant retains every matrix product in native order;
+no matrix commutation or bit permutation is assumed. `NativeGoldWeightLayout`
+projects validated raw matrix rows and the lane/left-cell/source-lane flattened
+word addresses to `RectangularMatrixResponse.weights`.
+
+`NativeGoldQueryWeightMeaning` transports exact ordered prefix equality modulo
+the field to equality of semantic pair lists. `NativeGoldBatchWeightMeaning`
+selects actual computed group weights from native preparation and identifies
+every original query's left weights, using the first original group owner.
+Width, allocation, query-length and prefix-length facts come from native gates.
+
+`NativeGoldBatchRectangularWeights` gives one geometry-only bijection between
+native rows and `(left cell, source lane)`, independent of group or query.
+The reindexed frozen source retains the original code-symbol position. Each
+original query's native structured linear combination is exactly its rectangular
+left-weight combination on that same source. These deterministic transports do
+not assert the production random-oracle probability law or a public extractor.
+
+Regressions exercise actual width-three native expansion with noncommuting
+matrices: the original order gives `B*A` while reversing it gives `A*B` and a
+different checked entry. They check branch addresses, zero-variable identity,
+zero-width/prefix-overrun rejection, raw `p`/`p+1` grouping aliases, first original
+ownership and separation of reversed prefixes. The actual three-packing/four-code
+batch instantiates the original-query weight and common-source combination
+bridges. Twenty-five theorem axiom guards use only `propext`, `Classical.choice`
+and `Quot.sound` (the list-block helper uses a subset).
+
+Remaining work includes native all-group/random/finishing probability
+composition with production Fiat–Shamir freshness and complete causal lineage,
+application soundness and efficient independent public extraction, native
+BabyBear integration, physical attacker-work/numerics, and strict decoder plus
+Rust/Charon/Aeneas/NTT/SIMD/Div64/scheduler refinement.

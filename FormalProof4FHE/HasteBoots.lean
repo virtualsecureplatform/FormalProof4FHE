@@ -492,3 +492,4 @@ public import FormalProof4FHE.HasteBoots.NativeGoldBatchLinearEquations
 public import FormalProof4FHE.HasteBoots.NativeGoldBatchOpeningView
 public import FormalProof4FHE.HasteBoots.RectangularBatchOpeningKernel
 public import FormalProof4FHE.HasteBoots.NativeGoldBatchFinishingMeaning
+public import FormalProof4FHE.HasteBoots.NativeGoldBatchRectangularWeights
