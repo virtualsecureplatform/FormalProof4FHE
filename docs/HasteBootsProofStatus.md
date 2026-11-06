@@ -10683,3 +10683,60 @@ Validation: full `scripts/check` passed with 10,494 build jobs, including the
 combined HasteBoots smoke module. Separate warning-as-error checks passed for
 all three new production modules and both regression/audit modules. No new
 axioms, proof placeholders, native decision proofs or limit increases were used.
+
+
+## Native field-input selection, source association and receipt-prefix links
+
+`NativeGoldBatchFieldInputView` recovers the exact Goldilocks field request
+from its complete pending input. It checks the vector tag, prime-field tag,
+Goldilocks modulus, native challenge label, positive coefficient count, and
+immediately preceding canonical batch binding. It does not scan for an earlier
+decoy binding. Soundness reconstructs the native phase input and retains the
+raw context/root, original queries and claimed rows. Completeness keeps the
+native encoder's explicit framing bounds.
+
+`NativeGoldBatchFieldExposure` selects the phase directly from the pending
+first stream read. Its exact finite-budget coefficient law and all-budget
+bound derive freshness from the observed history. The sampler proof builds
+its auxiliary shared-hash state from that same history; no caller-supplied
+phase, prepared work, freshness or hash-start certificate selects the request.
+The measurable adaptive event ranges over all native candidate budgets, and
+its lifetime bound sums uniform-vector charges over every machine prefix.
+There is no rejection cap, success-floor normalization or attacker-lifetime
+bound. The native-origin theorem identifies the recovered phase with the
+actual successful batch preparation.
+
+The parsed batch binding resolves its context/root key through the existing
+ledger. A positive read of that same input derives one retained source log for
+all 64 native heights, including earlier off-path/far-offset reads. This is
+structural source association and snapshot retention; it does not establish
+trusted parameter identity, authenticated registry ownership or availability.
+
+`NativeGoldBatchChallengeLink` recovers the field prefix and exact 80-byte raw
+receipt quote behind the parsed column nonce. It checks placement and length,
+without assuming the quote equals the true digest of consumed field bytes.
+Regressions recover the actual 18-coefficient native phase, original raw batch
+binding, common all-height snapshot, field/column prefix link and actual receipt
+bytes. A correctly shaped fake receipt remains only a quote, while a 79-byte
+receipt is rejected. Other regressions reject a decoy earlier binding, wrong
+field modulus, zero count, truncated integer payload, trailing frame bytes and
+prior exposure to the same stream. Twenty-four theorem axiom guards permit
+only the allowed three axioms or subsets.
+
+Still open are trusted context/profile and first registry-owner identity,
+source/test-matrix measurability and the complete field/column false-acceptance
+composition, receipt/seed validity and lineage, efficient public extraction,
+PBS application semantics, native BabyBear, physical attacker work, strict
+Rust/Charon/Aeneas/NTT/SIMD/Div64/scheduler refinement and final 128-bit numerics.
+The new views are analysis parsers of pending inputs, not the Rust proof decoder.
+
+The next early-receipt argument should distinguish earlier receipt queries whose
+keys already name the consumed-byte prefix from guesses of a previously unseen
+receipt digest. Both cases must retain the same mixed history and partial cache.
+The prefix length must follow from actual native completion and the trusted test
+width; native receipt-length wrapping and memory semantics need explicit treatment.
+
+Validation: full `scripts/check` passed with 10,500 build jobs, including the
+combined HasteBoots smoke module. Separate warning-as-error checks passed for
+all three new production modules and both regression/audit modules. No new
+axioms, proof placeholders, native decision proofs or limit increases were used.
