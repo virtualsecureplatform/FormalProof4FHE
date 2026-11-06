@@ -2,6 +2,7 @@ module
 
 import all FormalProof4FHE.HasteBoots
 import all FormalProof4FHETest.HasteBootsShakeKernelSmoke
+import all FormalProof4FHETest.HasteBootsScalarFinishAncestrySmoke
 import all FormalProof4FHETest.HasteBootsSamplerAncestrySmoke
 import all FormalProof4FHETest.HasteBootsRegistryAncestrySmoke
 import all FormalProof4FHETest.HasteBootsForkAncestrySmoke
@@ -18226,6 +18227,90 @@ example : ∃ geometry launched, window.1 = some (Sigma.mk geometry launched) �
   exact NativeLookupTranscriptExtension.launch_draw_header requests.property.le
     (NativeSharedLookupParent.models requests) .retain (registry.val.map NativeSharedLookupParent.Oracle.geometry)
     geometry proof 30 30 ancestryParent world launched.1 launched.2 executed (by decide +kernel) draw member
+
+
+private noncomputable def scalarPacket0 :=
+  (NativeScalarBatchRoundPacket.packet (usize 0) proof.algebra).get (by decide +kernel)
+private noncomputable def scalarPacket1 :=
+  (NativeScalarBatchRoundPacket.packet (usize 1) proof.algebra).get (by decide +kernel)
+private theorem scalarRoundDomain : NativeScalarTranscriptExtension.RoundDomain proof.algebra := by
+  intro round packet computed
+  obtain ⟨round,bounded⟩ := round
+  cases round with
+  | zero =>
+    have fixed : NativeScalarBatchRoundPacket.packet (usize 0) proof.algebra = some scalarPacket0 := by decide +kernel
+    have same : scalarPacket0 = packet := Option.some.inj (fixed.symm.trans computed)
+    rw [← same]
+    decide +kernel
+  | succ round =>
+    cases round with
+    | zero =>
+      have fixed : NativeScalarBatchRoundPacket.packet (usize 1) proof.algebra = some scalarPacket1 := by decide +kernel
+      have same : scalarPacket1 = packet := Option.some.inj (fixed.symm.trans computed)
+      rw [← same]
+      decide +kernel
+    | succ round =>
+      change none = some packet at computed
+      contradiction
+
+private noncomputable def finishingPrepared := window.1.get (by decide +kernel)
+private theorem finishingBegan :
+    (OracleProgram.run (NativeSharedLookupParent.begin description registry helper parent requests proof 30 30) world).run.1 =
+      some finishingPrepared := by
+  have present : window.1.isSome = true := by decide +kernel
+  change window.1 = some finishingPrepared
+  cases selected : window.1 with
+  | none => simp only [selected,Option.isSome_none,Bool.false_eq_true] at present
+  | some prepared => simp only [finishingPrepared,selected,Option.get_some]
+
+private theorem finishingStatementFits :
+    (NativeScalarBatchWire.statementCodec.encode finishingPrepared.2.2.statement).length < TranscriptFrame.lengthLimit := by decide +kernel
+private theorem finishingTerminalFits : (NativeSharedLookupProofData.terminal proof).length < TranscriptFrame.lengthLimit := by decide +kernel
+private theorem finishingHeader : NativeChildSeedView.HasHeader finishingPrepared.2.2.equality.transcript ancestryParent.profile
+    NativeSharedLookupChild.childLabel NativeSharedLookupChild.childContext ancestrySeed := by
+  obtain ⟨geometry,launched,same,_,_,executed⟩ :=
+    NativeSharedLookupParent.begin_spec description registry helper parent requests proof 30 30 world finishingPrepared finishingBegan
+  rw [same]
+  exact NativeLookupTranscriptExtension.launch_header requests.property.le (NativeSharedLookupParent.models requests) .retain
+    (registry.val.map NativeSharedLookupParent.Oracle.geometry) geometry proof 30 30 ancestryParent world launched.1 launched.2 executed (by decide +kernel)
+
+private theorem finishingBody (result : NativeSharedLookupBody.Bound)
+    (success : completed.1 = some (.bound result)) :
+    (OracleProgram.run (NativeSharedLookupExecution.continueBody registry requests proof 30 finishingPrepared) world).run.1 = .bound result := by
+  change (OracleProgram.run (NativeSharedLookupExecution.protocol description registry helper parent requests proof 30 30 30) world).run.1 = some (.bound result) at success
+  simp only [NativeSharedLookupExecution.run_protocol,finishingBegan] at success
+  exact Option.some.inj success
+
+example : ∃ result, completed.1 = some (NativeSharedLookupBody.Outcome.bound result) ∧
+    ∃ child, result.child.bytes = some child ∧ NativeChildSeedView.HasHeader child ancestryParent.profile
+      NativeSharedLookupChild.childLabel NativeSharedLookupChild.childContext ancestrySeed := by
+  obtain ⟨result,success⟩ := accepted_bound
+  obtain ⟨child,bytes,extension⟩ := NativeFinishedChildAncestry.body_bound_child (NativeSharedLookupParent.models requests)
+    (registry.val.map NativeSharedLookupParent.Oracle.geometry) finishingPrepared.1.geometry.2.val finishingPrepared.2.1 finishingPrepared.2.2
+    proof 30 world result (finishingBody result success) finishingStatementFits scalarRoundDomain finishingTerminalFits
+  exact ⟨result,success,child,bytes,extension.header finishingHeader⟩
+
+example : ∃ result, completed.1 = some (NativeSharedLookupBody.Outcome.bound result) ∧
+    NativeTranscriptExtension.Extends finishingPrepared.2.1.parent result.parent := by
+  obtain ⟨result,success⟩ := accepted_bound
+  exact ⟨result,success,NativeFinishedChildAncestry.body_bound_parent (NativeSharedLookupParent.models requests)
+    (registry.val.map NativeSharedLookupParent.Oracle.geometry) finishingPrepared.1.geometry.2.val finishingPrepared.2.1 finishingPrepared.2.2
+    proof 30 world result (finishingBody result success) (by decide +kernel)⟩
+
+example : ∃ result, completed.1 = some (NativeSharedLookupBody.Outcome.bound result) ∧
+    ∀ record ∈ result.machine.completed,
+      NativeChildSeedView.HasHeader record.coefficients.phase.pending ancestryParent.profile
+        NativeSharedLookupChild.childLabel NativeSharedLookupChild.childContext ancestrySeed := by
+  obtain ⟨result,success⟩ := accepted_bound
+  have contract := NativeSharedLookupBody.body_bound (NativeSharedLookupParent.models requests)
+    (registry.val.map NativeSharedLookupParent.Oracle.geometry) finishingPrepared.1.geometry.2.val finishingPrepared.2.1 finishingPrepared.2.2
+    proof 30 world result (finishingBody result success)
+  have scalar := NativeScalarTranscriptExtension.execute finishingPrepared.2.2.equality.transcript finishingPrepared.2.2.statement proof.algebra 30 _ world scalarRoundDomain
+    (NativeScalarTranscriptExtension.initial finishingPrepared.2.2.equality.transcript finishingPrepared.2.2.statement proof.algebra finishingStatementFits)
+  refine ⟨result,success,?_⟩
+  intro record member
+  rw [contract.1] at member
+  exact (scalar.2.2 record member).1.header finishingHeader
 
 end SharedBodyExecutionSmoke
 

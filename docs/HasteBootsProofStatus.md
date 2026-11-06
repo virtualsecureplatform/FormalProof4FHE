@@ -19,7 +19,7 @@ open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#sampler-preservation-of-child-ancestry-and-helper-roots).
+[the current implementation layer](#scalar-and-terminal-child-ancestry).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -9545,6 +9545,52 @@ public-theorem axiom reports pass. The native launcher assertions also pass
 in an isolated fixture check with warnings treated as errors. Full
 `scripts/check` exits zero: 10,340 build jobs (combined HasteBoots smoke:
 550 seconds), followed by every strict audit/smoke command. Both new
+production modules and the standalone regression module also pass with
+`-DwarningAsError=true`. Allowed axioms, default proof limits and all existing
+native fixture bytes/assertions are unchanged.
+
+## Scalar and terminal child ancestry
+
+`NativeScalarTranscriptExtension` preserves framed transcript ancestry through
+statement binding, actual checked round packets, shared scalar requests and
+coefficient retries. Its invariant includes the current transcript, active
+reader and every completed-round reader. Preflight and round rejection,
+coefficient decode failure and interpolation failure retain their earlier
+transcripts and records. Statement and round-packet frame allocation domains
+remain explicit. The latter quantifies over packets actually returned for the
+proof, rather than imposing a bound on sampler retries or native round loops.
+
+`NativeFinishedChildAncestry` covers the actual child-finish challenge and
+parent acknowledgement. Failed mode/profile/checkpoint guards retain prior
+states; success appends the native finish frames. `body_bound_child` derives
+that a body reaching `.bound` returns child bytes extending its actual
+pre-scalar transcript, through scalar execution, terminal-value binding and
+child finishing. `body_bound_parent` retains the parent’s earlier source and
+context frames through acknowledgement.
+
+Twenty-one standalone assertions exercise scalar completion and suspension,
+rejected coefficients, early proof/recurrence rejection, active/completed
+reader ancestry, successful finishing, spent bindings, missing modes and
+checkpoint/profile mismatches. Three further assertions use the existing
+native fixture to derive returned-child ancestry, parent extension and every
+recorded scalar reader’s ancestry from the actual completed protocol. Its
+statement, terminal and returned-packet frame domains are discharged against
+the same proof object. The fixture’s two stored rounds are used to discharge
+its packet domain; the production theorem has no such round cap.
+
+These results close deterministic scalar/terminal ancestry at the current
+PCS boundary. They do not authenticate the returned claims or PCS sources,
+establish fresh arithmetic challenges, bound partial-seed/receipt risks,
+prove final false-PBS acceptance/extraction or the 128-bit expected-work
+claim, certify both native parameter profiles, or complete Rust/scheduler
+refinement. Full source/helper PCS execution and global Fiat–Shamir
+composition remain required.
+
+Validation: twenty-four new regression assertions and sixteen guarded
+public-theorem axiom reports pass. The native child/parent/scalar-reader
+assertions also pass in an isolated fixture check with warnings treated as
+errors. Full `scripts/check` exits zero: 10,340 build jobs (combined HasteBoots
+smoke: 573 seconds), followed by every strict audit/smoke command. Both new
 production modules and the standalone regression module also pass with
 `-DwarningAsError=true`. Allowed axioms, default proof limits and all existing
 native fixture bytes/assertions are unchanged.

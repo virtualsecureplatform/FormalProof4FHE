@@ -461,3 +461,5 @@ public import FormalProof4FHE.HasteBoots.NativeForkAncestry
 public import FormalProof4FHE.HasteBoots.NativeRegistryAncestry
 
 public import FormalProof4FHE.HasteBoots.NativeLookupTranscriptExtension
+
+public import FormalProof4FHE.HasteBoots.NativeFinishedChildAncestry
