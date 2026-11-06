@@ -1,6 +1,8 @@
 module
 
 import all FormalProof4FHE.HasteBoots
+import all FormalProof4FHETest.HasteBootsBatchPrefixSmoke
+import all FormalProof4FHETest.HasteBootsBatchPcsSmoke
 import all FormalProof4FHETest.HasteBootsSourceGroupsSmoke
 import all FormalProof4FHETest.HasteBootsCausalPcsSmoke
 import all FormalProof4FHETest.HasteBootsShakeKernelSmoke
