@@ -118,6 +118,14 @@ This is not yet the production Fiat–Shamir theorem: native finishing translati
 full freshness/lineage, efficient public extraction and work/refinement transfer
 remain required.
 
+Native accepted suffix claims now equal the rectangular finishing of their
+actual computed encoded response group. Lane chunks are exactly the original
+messages with zero padding, and native query/message counts supply the index
+transport. Every original right query is retained even when responses share a
+left-prefix group. This closes the right-fold/encoding equation; interpreting
+native grouped left weights and source-row layout in the abstract batch kernel,
+then composing the production transcript law, remains open.
+
 Still open: complete first-exposure lineage for orphan/pending/receipt cases,
 application soundness and independent public extraction, BabyBear integration,
 physical attacker-work accounting and the final 128-bit numerical theorem,
@@ -10352,3 +10360,33 @@ Eleven production axiom guards use only the allowed axioms. These tests do not
 establish native BabyBear integration, Fiat–Shamir freshness/lineage, full PBS
 application soundness/extraction, physical attacker work/numerics or strict native
 implementation refinement.
+
+
+## Native encoded response messages and accepted suffix finishing
+
+`NativeGoldResponseMessages` identifies each computed response lane with the
+padded original message chunk, using native lane-major addresses and field
+projection after chunk selection. Missing/padding coordinates are zero. Its
+finishing theorem applies the rectangular coefficient inverse to the actual
+successful encoder result; no encoder or finished-value certificate is added
+to the verifier.
+
+`NativeGoldSuffixFinishing` converts the native low-bit-first suffix fold to the
+ordered right-matrix finishing sum. A checked query-length equality and the
+native message length transport the finite index type; padding capacity and
+code-symbol width are not substituted for that original length.
+`NativeGoldBatchFinishingMeaning` derives both lengths and each response encoder
+result from actual batch preparation. Every accepted original claim then equals
+the rectangular encoded finishing of its assigned computed response group.
+Retained code-constructor and primitive-root correctness remain backend premises.
+
+Regressions execute an accepted three-packing/four-code-coordinate batch with
+two original queries and one response group. Nonzero lazy representatives
+`p+1` and `p` become field values `1` and `0` in their original chunks, and a
+computed encoding finishes to `[3, 5, 15]`. A shared response can pass the first
+original query and fail the second when its distinct right query is given the
+wrong claim; the native finishing loop checks both. Twelve production axiom
+guards use only the allowed axioms. Native grouped-left-weight/source-row
+interpretation, production Fiat–Shamir freshness/lineage, efficient public
+extraction/application soundness, BabyBear integration, attacker-work/numerics
+and strict implementation refinement remain open.

@@ -1,4 +1,6 @@
 module
+import all FormalProof4FHETest.HasteBootsNativeFinishingSmoke
+import all FormalProof4FHETest.HasteBootsNativeFinishingAudit
 import all FormalProof4FHETest.HasteBootsRectangularMatrixSmoke
 import all FormalProof4FHETest.HasteBootsRectangularFinishingAudit
 import all FormalProof4FHETest.HasteBootsBatchOrderedSmoke
