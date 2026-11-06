@@ -2,6 +2,7 @@ module
 
 import all FormalProof4FHE.HasteBoots
 import all FormalProof4FHETest.HasteBootsShakeKernelSmoke
+import all FormalProof4FHETest.HasteBootsRegistryAncestrySmoke
 import all FormalProof4FHETest.HasteBootsForkAncestrySmoke
 import all FormalProof4FHETest.HasteBootsPendingQuoteSmoke
 import all FormalProof4FHETest.HasteBootsRealizedAncestrySmoke
@@ -18141,6 +18142,58 @@ private noncomputable def scalarSuspended := allCheckpoints {checkpointContext w
 example : (match scalarSuspended.1.1 with | some (.suspended _) => true | _ => false) = true := by decide +kernel
 example : scalarSuspended.1.2 = (runProtocol proof 0).2 := by decide +kernel
 example : recordedTags scalarSuspended.2 = [0,1] := by decide +kernel
+
+
+-- Native PCS-boundary fixture: derive all registry ancestry from the completed protocol.
+private theorem accepted_bound : ∃ result, completed.1 = some (NativeSharedLookupBody.Outcome.bound result) := by
+  have accepted : (match completed.1 with | some (.bound _) => true | _ => false) = true := by decide +kernel
+  cases selected : completed.1 with
+  | none => simp only [selected,Bool.false_eq_true] at accepted
+  | some outcome =>
+    cases outcome with
+    | bound result => exact ⟨result,rfl⟩
+    | suspended machine => simp only [selected,Bool.false_eq_true] at accepted
+    | rejected reason machine => simp only [selected,Bool.false_eq_true] at accepted
+
+example : (OracleProgram.run (NativeSharedLookupChild.start
+    (OracleProgram.run (NativeSharedLookupParent.prepare description registry helper parent requests) world).run.1.1
+    proof.multiplicities) world).run.2.Sublist completed.2 := by
+  obtain ⟨result,success⟩ := accepted_bound
+  exact NativeRegistryAncestry.bound_start description registry helper parent requests proof 30 30 30 world result success
+
+example : ∃ sources : NativePrefixCodec.Vector NativeCanonicalLookupWire.Source,
+    (OracleProgram.run (NativeSharedLookupParent.contexts description registry.val) world).run.1 = some sources.val ∧
+    (OracleProgram.run (NativeSharedLookupParent.prepare description registry helper parent requests) world).run.1.1 =
+      NativeCanonicalLookupWire.registry
+        (OracleProgram.run (NativeSharedLookupParent.preflight description registry.val helper parent requests) world).run.1.1 sources := by
+  obtain ⟨result,success⟩ := accepted_bound
+  exact NativeRegistryAncestry.bound_registration description registry helper parent requests proof 30 30 30 world result success
+
+private noncomputable def registryPreflightFrames :=
+  (TranscriptFrame.decodeAll (OracleProgram.run (NativeSharedLookupParent.preflight description registry.val helper parent requests) world).run.1.1.input).getD []
+private theorem registryPreflightDecoded :
+    TranscriptFrame.decodeAll (OracleProgram.run (NativeSharedLookupParent.preflight description registry.val helper parent requests) world).run.1.1.input =
+      some registryPreflightFrames := by decide +kernel
+
+example : ∃ sources : NativePrefixCodec.Vector NativeCanonicalLookupWire.Source,
+    (OracleProgram.run (NativeSharedLookupParent.contexts description registry.val) world).run.1 = some sources.val ∧
+    ∀ key ∈ sources.val, ∃ index, NativeSeedAncestry.Realized world completed.2
+      (NativeForkAncestry.seedInput (NativeSharedLookupChild.prepare
+        (OracleProgram.run (NativeSharedLookupParent.prepare description registry helper parent requests) world).run.1.1 proof.multiplicities)
+        NativeSharedLookupChild.childLabel NativeSharedLookupChild.childContext) index (.source key) := by
+  obtain ⟨result,success⟩ := accepted_bound
+  obtain ⟨sources,computed,coverage⟩ :=
+    NativeRegistryAncestry.bound_registered_sources description registry helper parent requests proof 30 30 30 world result success
+  refine ⟨sources,computed,?_⟩
+  have length : sources.val.length = 1 := NativeSharedLookupParent.contexts_length description registry.val world sources.val computed
+  obtain ⟨key,one⟩ := List.length_eq_one_iff.mp length
+  have registryFits : (NativeCanonicalLookupWire.sourcesCodec.encode sources).length < TranscriptFrame.lengthLimit := by
+    simp only [NativeCanonicalLookupWire.sources_encode,one,List.flatMap_cons,List.flatMap_nil,List.append_nil,
+      List.length_append,List.length_ofFn]
+    change 129 < TranscriptFrame.lengthLimit
+    decide +kernel
+  have framing := TranscriptFrame.decodeAll_sound _ registryPreflightFrames registryPreflightDecoded
+  exact coverage registryPreflightFrames framing.2 framing.1 registryFits (by decide +kernel) (by decide +kernel)
 
 end SharedBodyExecutionSmoke
 

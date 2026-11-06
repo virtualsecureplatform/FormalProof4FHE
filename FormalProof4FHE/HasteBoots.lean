@@ -457,3 +457,5 @@ public import FormalProof4FHE.HasteBoots.CausalExposureCoverage
 public import FormalProof4FHE.HasteBoots.NativeSeedAncestry
 
 public import FormalProof4FHE.HasteBoots.NativeForkAncestry
+
+public import FormalProof4FHE.HasteBoots.NativeRegistryAncestry

@@ -19,7 +19,7 @@ open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#native-fork-execution-and-program-machine-bridge).
+[the current implementation layer](#native-registry-provenance-at-the-pcs-boundary).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -9462,3 +9462,43 @@ smoke: 554 seconds) and every strict audit/smoke command. Both new production
 modules and the new regression module also passed standalone checks with
 `-DwarningAsError=true`. All twenty new public theorem axiom reports contain
 only the existing allowed axioms; no proof limits or fixture assertions changed.
+
+## Native registry provenance at the PCS boundary
+
+`NativeRegistryAncestry.contexts_order` and `contexts_slot` identify each
+computed context/root pair with its original registry position and the actual
+context-hash computation for that entry. `register_spec` and
+`prepare_registered` derive the complete appended source vector from the
+executed registration and preflight branches. Repeated and unused entries
+remain present; this is not an alias-map or first-original-slot proof.
+
+`launch_start` retains the executed initializer log after successful gates,
+even if subsequent sampling remains unfinished. `bound_start` derives its
+presence in the same full protocol log when the run reaches `.bound`.
+`bound_registration` derives that run's exact complete source registry.
+`bound_registered_sources` then realizes every registered source in the actual
+initializer, without supplied membership or seed-read certificates. Native
+framing and allocation domains remain explicit: the actual preflight parent's
+valid frame stream, registry payload size, and multiplicity payload sizes.
+
+The standalone regression uses three original entries: two duplicates and a
+third entry sharing the root but having a different computed context. Only
+slot1 is requested; earlier slot0 and unused slot2 still receive source
+ancestry. Failed serialization retains earlier hash observations, and an
+empty registry performs no hash work. The existing native fixture reaching
+`.bound` additionally instantiates registry provenance and realizes every
+source in its actual full log, discharging these byte-domain premises.
+
+These results cover the native source registry at the PCS handoff. They do
+not prove source availability or authentication, helper coverage through the
+entire verifier, first-original aliases, global arithmetic Fiat–Shamir
+composition, final false-PBS acceptance/extraction, the 128-bit expected-work
+bound, both-field numerical certification, or Rust/scheduler refinement.
+
+Validation: seventeen new regression assertions and nine guarded public
+theorem axiom reports pass. The native fixture assertions also pass as an
+isolated check with warnings treated as errors. Full `scripts/check` exits
+zero: 10,337 build jobs (combined HasteBoots smoke: 555 seconds), followed by
+all strict audits/smokes. The new production and standalone regression modules
+also pass with `-DwarningAsError=true`. Allowed axioms, default proof limits
+and all existing native fixture bytes/assertions are unchanged.
