@@ -10843,3 +10843,61 @@ Separate warning-as-error checks passed for all five new production modules
 and both regression/audit modules. All thirty-one new axiom guards passed.
 No new axioms, proof placeholders, native decision proofs or limit increases
 were used.
+
+
+## Native field-to-column posterior composition
+
+`NativeGoldBatchChallengeScope` proves that a parsed complete column nonce
+strictly extends its recovered field input in encoded byte length. Thus the
+actual native collector, including rejects and suspended prefixes, cannot
+expose that column stream. This separation requires neither a correct receipt
+quote nor a collision assumption.
+
+`NativeIndexUnseenLaw` extends the original ordered-index laws to arbitrary
+replayable retained histories. `NativeGoldBatchFieldColumnLaw` retains the
+entire original selecting history and the actual field collector result/log,
+derives column freshness from the original pending first read and the input
+separation theorem, and proves the exact conditional uniform law on each
+retained fiber. Averaging those fibers gives an exact original-posterior
+identity for every predicate depending on the collector state and the ordered
+column vector. Incomplete outcomes keep their original mass. Prior partial
+field and receipt queries are permitted; no complete receipt knowledge or
+field-stream freshness certificate is required for this column law.
+
+`NativeGoldBatchFieldColumnBound` applies that identity to a family of column
+checks depending on all collected field values. Given a disagreement witness
+for each reachable completed state in the original posterior, the probability
+of all checks passing is bounded by one shared ordered-quota miss term.
+Completion stability gives the same bound over all collector budgets, with
+no retry, group, or lane factor and no completion normalization.
+
+The regression uses the actual native 32-column fixture with ordered draws
+[7, 1, 7], two state-dependent checks, a single disagreeing column, a partially
+queried field input and one prior receipt byte. It checks suspension versus
+completion, retention of the original history, and the unchanged single miss
+term (31/32)^3. Fourteen new theorem axiom guards cover the production lemmas.
+
+This establishes the field-to-column sampling composition. It does not yet
+lift arbitrary false native acceptance into the required source disagreement
+witness, bind the recovered field matrix to the first-field-exposure source,
+or provide the independent public extractor. Global lineage coverage, PBS
+semantics, native BabyBear, physical attacker work, strict implementation
+refinement and the final 128-bit theorem also remain open. Auxiliary collector
+reads are posterior analysis, with no physical-work claim.
+
+The next integration step is to express the random/group check family in
+`NativeGoldBatchRectangularChecks` using only trusted fixed parameters, the
+recovered nonce binding/responses, the retained coefficient state, and a source
+fixed by the selecting history. Its present `Prepared`-indexed representation
+cannot simply be treated as past-measurable. Then prove that actual native
+acceptance supplies these same checks and the disagreement witness outside
+the field-proximity event, while retaining every original finishing claim.
+This representation/ownership obligation precedes combining the native
+first-field law and the column law into the full Fiat–Shamir reduction.
+
+Validation: full `scripts/check` passed with 10,518 build jobs, including
+the combined HasteBoots smoke module and all subsequent audits. Separate
+warning-as-error checks passed for all four new production modules and both
+regression/audit modules. All fourteen new theorem axiom guards passed with
+only the three allowed axioms or subsets. No new axioms, proof placeholders,
+native decision proofs or proof-limit increases were introduced.
