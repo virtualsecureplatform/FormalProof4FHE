@@ -1,4 +1,6 @@
 module
+import all FormalProof4FHETest.HasteBootsDeferredAvailabilitySmoke
+import all FormalProof4FHETest.HasteBootsLookupAvailabilityAudit
 import all FormalProof4FHETest.HasteBootsLifetimeSourceSmoke
 import all FormalProof4FHETest.HasteBootsLifetimeSourceAudit
 import all FormalProof4FHETest.HasteBootsObservedSourceSmoke

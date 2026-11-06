@@ -46,6 +46,19 @@ The native framing/message-size domain remains in each acceptance witness.
 This is raw-source availability; the supremum has not yet been related to
 physical attacker work or the final 128-bit application-security theorem.
 
+The actual deferred dispatcher now supplies receipt acceptance and observation
+subtraces to the availability proof, including receipts retained before a later
+stopped/rejected batch. Receipt calls retain first-original registry ownership,
+original grouped raw queries/values, root and width. The whole registered lookup
+connects those owners to its computed original metadata, including earlier
+unused aliases. Its frozen-source witness is tagged by that complete original
+context/root key; equal digests are not used to infer parameter-object equality.
+Whole-lookup source failures now reduce to the shared any-batch event over
+finite histories and unbounded causal lifetimes, with measurable events and
+one global charge. Native framing/message-size domains remain explicit per
+receipt. Codeword/application soundness, full exposure lineage, physical work
+and implementation refinement are still required.
+
 Still open: complete first-exposure lineage for orphan/pending/receipt cases,
 application soundness and independent public extraction, BabyBear integration,
 physical attacker-work accounting and the final 128-bit numerical theorem,
