@@ -80,6 +80,16 @@ no intermediate future transcript framing certificate is supplied. Strict Rust
 decoding/refinement and the remaining security obligations are not discharged
 by this invariant.
 
+Caller-domain whole-lookup source failures now have finite-history and unbounded
+lifetime bounds with intermediate receipt framing derived from execution. The
+failure witnesses carry original caller framing and explicit message allocation
+domains, rather than per-receipt framing. Replay retains the same prepared
+lookup, source progress, receipt and actual context hash, so the events are
+measurable. All witnessed lookups in one shared history reduce to the same
+any-batch charge; the lifetime bound adds no lookup, receipt or prefix factor.
+Message allocation/refinement, full lineage and attacker-work transfer remain
+separate obligations.
+
 Still open: complete first-exposure lineage for orphan/pending/receipt cases,
 application soundness and independent public extraction, BabyBear integration,
 physical attacker-work accounting and the final 128-bit numerical theorem,
@@ -10183,3 +10193,33 @@ allowed axioms. Complete first-exposure lineage, PCS/application soundness,
 independent extraction, BabyBear integration, physical attacker-work/numerical
 security and executable decoder/Rust/NTT/SIMD/Div64/scheduler refinement remain
 open.
+
+
+## Caller-domain finite and lifetime availability events
+
+`NativeCallerLookupAvailability` defines a missing-source event for a receipt
+actually emitted by the whole registered lookup. Its witness requires original
+caller framing and explicit body/helper/source/ordered-batch allocation domains;
+it does not require a framing predicate on an intermediate state or receipt.
+`receipt_framed` derives that invariant from the native preflight, child/body,
+helper, source-claim and deferred dispatch transitions. The event reduces to the
+existing shared any-batch failure bound without a multiplicative lookup or
+receipt count.
+
+The replay proof keeps the same prepared body, source progress and receipt;
+the actual context hash replays under the containing truthful history. Finite
+failure events are measurable. `NativeCallerLookupLifetimeAvailability` covers
+all witnessed whole lookups whose complete logs occur in any shared finite
+history, and all finite prefixes of an unbounded causal machine. Its lifetime
+bound is the same supremum of actual prefix charges, without a prefix-count
+factor or a lifetime/trial cap. This remains an ideal-oracle availability charge,
+not physical attacker work or the final application-security theorem.
+
+Regression checks exercise the actual empty-registry gate: neither scheduler
+runs, no receipt failure can occur in any containing history, and the event is
+measurable. The lifetime theorem is instantiated on the existing nonterminating
+causal cache/read machine. Twelve new production axiom guards use only the
+allowed axioms. Static allocation domains still require executable decoder and
+Rust refinement; complete lineage, PCS/application soundness, independent
+extraction, both-field integration/numerics and expected attacker-work security
+remain open.
