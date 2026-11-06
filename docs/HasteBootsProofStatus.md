@@ -19,6 +19,18 @@ agreement premise. The resulting global ideal-oracle failure charge includes
 the entire annotated family; no factor is silently dropped. This local shape
 domain is not a trial, history or attacker-lifetime bound.
 
+Accepted Goldilocks batches now derive their actual context hash, computed raw
+requests and positive random-test exposure from the native program. Complete
+history reconstruction proves that all 64 heights share one retained log per
+frozen key. Under global no-disagreement, every accepted column equals that
+immutable raw source and satisfies all response groups. No supplied checkpoint,
+exposure observation, request list or height agreement is needed at this
+boundary. Arbitrary causal prequeries and epilogue calls share the same caches
+and one global ideal-oracle hash charge for missing-source acceptance. Parent
+framing and the encoded batch message allocation bound remain explicit domain
+obligations; this does not establish complete first-exposure lineage or PCS
+soundness. Rejected canonical candidates and suspension retain their raw bytes.
+
 Still open: complete first-exposure lineage for orphan/pending/receipt cases,
 application soundness and independent public extraction, BabyBear integration,
 physical attacker-work accounting and the final 128-bit numerical theorem,
