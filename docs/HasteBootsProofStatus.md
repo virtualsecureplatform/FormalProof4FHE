@@ -7,6 +7,36 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+Accepted native false claims in a complete causal machine prefix now derive
+their own first-column packet and, for proximity, their earlier first-field
+packet and exact history split. Native execution supplies both positive
+stream-touch facts. The generic stream-lineage theorem retains starts, empty
+reads and hashes before the first positive read and works at arbitrary byte
+offsets. The native coverage theorem assumes a replayable prelude and derives
+truthful full history from it. Its explicit outcomes are an inherited column
+or field exposure, global source disagreement, early receipt at an earlier
+machine prefix, field proximity at an earlier prefix, or the concrete column
+event at an earlier prefix. No first-read, source-log consistency, receipt
+knowledge or truthful-history certificate is supplied by the caller.
+
+Falsity here is still original-query disagreement against the full history's
+recovered-source analysis extractor. This does not yet provide public PBS
+semantics or independent public extraction. The inherited stream flags must
+still be charged through the prelude, and the event branches must be combined
+with the global source/hash hazard under trusted registry/context selection.
+Physical expected-work coupling, 128-bit calibration, BabyBear instantiation
+and implementation refinement remain open. Regression tests exercise mixed
+stream lineage, partial inherited exposure, an actual native verifier entirely
+after a clean causal prelude, and native verification inherited at machine
+fuel zero.
+
+Validation for causal accepted-run coverage: `scripts/check` passed all
+10,567 build jobs and its strict audit/smoke commands. Six focused strict
+checks passed, including the native causal integration tests. Six new
+theorem guards confirm the allowed axiom set; `seen_of_output` uses only
+`propext` and `Quot.sound`, and the other five use those plus
+`Classical.choice`. Tests are included from the main test root.
+
 The native first-field proximity event now has a causal conditional bound
 and an unbounded lifetime charge. The source word is selected from the
 history before that field stream's first positive read. An exact equivalence
@@ -19,11 +49,11 @@ budgets share one loss. The later concrete proximity obstruction enters this
 event using a recorded first-read split and the same recovered source log,
 even with subsequent hashes in the column history.
 
-This still requires the actual earlier first-field packet and its history
-split. Deriving those witnesses inside complete causal accepted-run coverage,
-handling inherited exposures, binding trusted context/registry profiles,
-independent public extraction, expected physical work and implementation
-refinement remain open. The new regression checks cover the 18-coefficient,
+The direct transport lemma takes the earlier first-field packet and its
+history split; the causal accepted-run theorem above derives both. Charging
+inherited exposures, binding trusted context/registry profiles, independent
+public extraction, expected physical work and implementation refinement
+remain open. The new regression checks cover the 18-coefficient,
 three-test/six-source-row layout with code-symbol width four, quotient-power
 loss, mismatched count rejection, later-source transport and arbitrary-lifetime
 charging. Nine theorem guards audit the new proof dependencies.
@@ -51,10 +81,9 @@ This is coverage at an actual first-column packet, not yet a full accepted-PBS
 application theorem. It still requires original-query falsity against the
 analysis extractor, an actual native first-read witness, truthful history,
 response allocation bounds, and the code-domain primitive-root assumption.
-Deriving earlier first-field and first-column witnesses for every later
-accepted run, trusted registry/profile selection, independent public
-extraction, physical work and Rust refinement
-remain open. Regression tests cover clean and partially queried field
+The causal wrapper derives the first-field and first-column witnesses.
+Trusted registry/profile selection, independent public extraction, physical
+work and Rust refinement remain open. Regression tests cover clean and partially queried field
 histories and actual accepted native runs; six new theorem guards check the
 allowed axiom set.
 
