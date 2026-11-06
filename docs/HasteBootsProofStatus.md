@@ -131,6 +131,17 @@ these deterministic equations with the production transcript probability law
 remains open. The native finishing gate is now composed with the interactive
 any-false-original-query bound under a uniform matrix and fresh shared draws.
 
+The actual native shared-candidate-budget collector now has a conditional
+scaled-uniform field-vector/matrix law on an unread SHAKE tail after any
+replayable mixed history. Exact typed-value and full-log projections connect
+that law to the native Goldilocks batch's `work.random` array and common row
+bijection. The first positive read of the exact challenge input, at any offset,
+derives fresh-tail eligibility from the actual history, excluding prior partial
+reads. The increasing union of all candidate prefixes is dominated by the
+joint uniform law, without a retry cap or division by completion probability.
+Global coverage/lineage and the response-bound column challenge law still need
+composition with the interactive batch soundness theorem.
+
 Still open: complete first-exposure lineage for orphan/pending/receipt cases,
 application soundness and independent public extraction, BabyBear integration,
 physical attacker-work accounting and the final 128-bit numerical theorem,
@@ -10485,3 +10496,65 @@ independent public extraction and full PBS application soundness remain open.
 Native BabyBear integration, physical attacker-work and final 128-bit numerics,
 and strict decoder plus Rust/Charon/Aeneas/NTT/SIMD/Div64/scheduler refinement
 remain mandatory unfinished work.
+
+
+## Native shared-budget field and first-stream matrix laws
+
+`BudgetedUniformSequence` models one candidate budget shared across all
+coefficients. Rejection consumes a candidate without advancing the coefficient
+index. It proves the exact successful tuple law as the actual completion mass
+times the joint uniform law, its two-branch completion recurrence and
+monotonicity. It does not replace the native global candidate budget with a
+separate retry budget per coefficient.
+
+`NativeFieldVectorValues` and `NativeFieldVectorProgram` give exact typed-value
+and complete ordered-log projections of actual native execution, including
+rejected chunks, accepted prefixes and resumption. Final receipt emission does
+not change the completed collector state. `FreshShakeTail` handles the real
+cache: arbitrary entries outside the unread tail remain, earlier installed
+bytes do not affect later positions, and any entry inside the tail prevents
+freshness. `NativeFieldVectorFresh` derives the interpreter's single-candidate
+law from canonical masked bytes and uses the actual shared cache transitions.
+
+`NativeFieldVectorLaw` transfers the compiled law to the posterior after a
+replayable whole mixed SHA512/SHAKE history. Its finite law retains the computed
+completion factor. Native completed events are increasing under actual
+resumption; their union over all candidate prefixes is bounded by the joint
+uniform event probability. No completion conditioning, success floor or native
+attempt limit is imposed. `NativeFieldMatrixLaw` transports this law through a
+lane-major finite bijection, keeping modulus, test rows and source rows
+independent.
+
+`NativeGoldBatchRandomLaw` derives the actual completed prime request, geometry
+count and canonical raw-word conversion from checked native batch preparation.
+Its sampler matrix equals `work.random` at native lane-major addresses, then
+reindexes to exactly `NativeGoldBatchRectangularChecks.random` on the common
+left-cell/source-lane rows. The conditional law and unbounded domination apply
+to this same rectangular matrix.
+
+`CausalStreamExposure` selects the actual next first positive read of a complete
+input. A first read can occur at any offset. All earlier positive reads of that
+input count, including partial/far-offset reads; starts, empty reads and SHA-512
+observations do not expose SHAKE coordinates. Eligibility proves the whole
+stream is absent from the observed cache. `NativeGoldBatchFirstReadLaw` supplies
+the checked native rectangular matrix law at this causal first-read point,
+without an external freshness certificate.
+
+Regressions use modulus three to force a rejected first byte, retained partial
+coefficients and byte chunks, correct resumed values and read offsets. They
+check shared-budget recurrence values `9/16` and `27/32`, actual posterior laws
+after a cached read of a different input, rejection of overlapping-cache
+freshness, far-offset first exposure and earlier-partial-read exclusion. The
+actual three-packing/four-code-width Goldilocks batch supplies its eighteen
+coefficients and instantiates the first-read rectangular law. Generic canonical
+sampler/matrix transport also typechecks at BabyBear's modulus and width six;
+this does not establish native BabyBear Montgomery/PCS integration. Forty-six
+new axiom guards use only the allowed three axioms or subsets.
+
+Remaining production obligations include complete first-exposure coverage and
+past-measurability of the source/phase metadata through orphan, pending,
+partial-seed and receipt lineage; the response-bound ordered-column law and
+full global risk composition; efficient public extraction and PBS application
+soundness; native BabyBear integration; physical attacker-work and final
+128-bit numerics; and strict decoder plus Rust/Charon/Aeneas/NTT/SIMD/Div64/
+scheduler refinement.

@@ -494,3 +494,4 @@ public import FormalProof4FHE.HasteBoots.RectangularBatchOpeningKernel
 public import FormalProof4FHE.HasteBoots.NativeGoldBatchFinishingMeaning
 public import FormalProof4FHE.HasteBoots.NativeGoldBatchRectangularWeights
 public import FormalProof4FHE.HasteBoots.NativeGoldBatchInteractiveSoundness
+public import FormalProof4FHE.HasteBoots.NativeGoldBatchFirstReadLaw
