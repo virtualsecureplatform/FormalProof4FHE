@@ -471,3 +471,5 @@ public import FormalProof4FHE.HasteBoots.NativeSourceRegistry
 public import FormalProof4FHE.HasteBoots.NativeGoldBatchBinding
 
 public import FormalProof4FHE.HasteBoots.NativeGoldBatchPcsProgram
+
+public import FormalProof4FHE.HasteBoots.NativeGoldLookupVerification

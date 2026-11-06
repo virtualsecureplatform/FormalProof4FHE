@@ -16,8 +16,9 @@ authentication and PCS payload codecs are linked to the existing cached
 verifier. The completed run now also derives every ordered helper PCS call with no
 truncation or extra oracle observation. The ordered helper loop now executes
 the checked PCS prefix, raw column workers and computed claim check in one
-causal oracle program. Grouped source verification and PCS soundness
-composition remain open. Base-field challenges, response framing and atomic
+causal oracle program. The typed Goldilocks continuation now collects source
+claims and dispatches sealed native batches. Application/PCS soundness
+composition remains open. Base-field challenges, response framing and atomic
 index draws now have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
@@ -9796,8 +9797,7 @@ Lean regression constants. This makes case identity and trace capture
 reproducible; stale same-name fixture binaries are not used as evidence.
 The scripts are differential checks, not Rust/compiler refinement proofs.
 
-Still required: native source-claim alias consistency and framing, registry
-sealing and first-original-owner dispatch into this batch verifier, complete
+The deferred source continuation is recorded below. Still required: complete
 application/extractor composition, raw frozen-word availability, global
 Fiat–Shamir risk accounting including partial/pending/receipt exposures,
 physical attacker work with initialization/local/abort/rejection costs,
@@ -9819,3 +9819,58 @@ and shell syntax checks pass. Only `propext`, `Classical.choice` and
 `Quot.sound` occur in the new public theorem reports. Default proof limits,
 existing native fixture bytes/assertions and the pinned native source tree
 are unchanged.
+
+## Deferred source registry execution
+
+`NativeGoldLookupVerification.program` now composes registered lookup body
+execution, the existing ordered helper loop, source-claim collection and
+sealed source batches in one causal oracle program. Registry metadata is
+retained from initialization before child launch; erasing that metadata
+preserves the previous preparation/body/helper results and every observation.
+The source query comes from the terminal scalar guard's actual pulled pairs,
+with the local extension post-map omitted. Source collection resumes at the
+actual post-helper parent and batch scheduling receives post-helper memory.
+
+`NativeSharedSourceClaims` traverses original slots, hashes every used slot's
+context before deciding aliases, compares aliases modulo the field, and
+pushes only the first used claim for each complete context/root key. Raw
+queries and values retain their native transcript spelling.
+`NativeDeferredOpeningBatch` supplies native claim/seal frames, original-slot
+claims, ordered group buckets, and packet-count rejection before sealing.
+The original registry's first owner, including an earlier unused slot,
+supplies each batch's parameter/root object. Successful dispatch consumes all
+used groups and all supplied packets in order, with exact receipt counts;
+first failure preserves the accepted prefix and actual failed batch outcome.
+Receipt provenance and worker replay use actual executions and containing
+truthful histories, rather than caller-supplied acceptance certificates.
+
+The new kernel regressions exercise earlier-unused ownership, distinct
+contexts with the same root, lazy field aliases without duplicate pushes,
+raw value retention, alias rejection after its context hash, unused-slot
+skipping, empty claims, packet mismatch before seal, and metadata erasure.
+The synthetic collision dispatch case intentionally assigns equal complete
+keys to different parameter objects to check original-owner selection; it is
+not evidence that distinct contexts cannot collide. These regressions do not
+constitute new native Rust differential fixtures.
+
+Remaining source obligations include a general seen-list/first-used claim
+invariant and discharging every reachable indexing/allocation/conversion
+unavailability from the actual preflight, geometry and vector bounds.
+The typed operational entry point does not supply a strict hostile-byte proof
+decoder or a checked Rust equivalence theorem. Still open are complete
+application/extractor soundness, raw frozen-word availability, global causal
+Fiat–Shamir exposure accounting, physical attacker-work coupling, original
+Goldilocks and BabyBear numerical certificates, and checked
+Rust/Charon/Aeneas/NTT/SIMD/Div64/scheduler refinement. No final 128-bit
+security theorem follows from this milestone.
+
+
+Validation: full `scripts/check` passes with 10,363 build jobs, including the
+combined HasteBoots smoke in 613 seconds and all strict repository audits.
+All five new production modules and both new test modules also pass direct
+`-DwarningAsError=true` checks. Twenty-two regression assertions and forty-four
+guarded public theorem reports pass; the reports use only `propext`,
+`Classical.choice` and `Quot.sound`. A fresh pinned native fixture comparison
+passes for accepted, last-claim rejection and second-response rejection,
+matching bytes, all fourteen joint observations and final parents in each
+case. No proof limits or existing fixture bytes were changed.
