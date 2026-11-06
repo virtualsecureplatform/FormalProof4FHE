@@ -461,3 +461,4 @@ import FormalProof4FHE.LWE.GSWCorrelatedMidpoint
 import FormalProof4FHE.LWE.GSWRedundantDigits
 import FormalProof4FHE.LWE.GSWBodyAdaptiveProjection
 import FormalProof4FHE.LWE.GSWCommutingProjection
+import FormalProof4FHE.HasteBoots.NativeGoldBatchCalibration
