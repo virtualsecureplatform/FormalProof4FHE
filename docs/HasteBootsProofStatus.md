@@ -7,6 +7,36 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+At the actual first positive column read, an accepted false native claim
+against the recovered-source analysis extractor now has explicit pointwise
+coverage: global source disagreement, the existing early-receipt event,
+matrix proximity of a far common source, or the concrete shared-column event.
+If an old field read exists, the first-field source recovered from that
+original column history fixes all random and structured checks. If it does
+not, native preparation supplies the matching receipt and completed collector
+for early-receipt coverage. Constructor success supplies the nonzero block
+width and exact power-of-two column domain; no source-consistency assumption
+is hidden in the top cover theorem. All original finishing claims remain
+available to the false-claim witness reduction.
+
+This is coverage at an actual first-column packet, not yet a full accepted-PBS
+application theorem. It still requires original-query falsity against the
+analysis extractor, an actual native first-read witness, truthful history,
+response allocation bounds, and the code-domain primitive-root assumption.
+Connecting proximity to the earlier first-field exposure, transporting every
+later accepted run to a causal first-read packet, trusted registry/profile
+selection, independent public extraction, physical work and Rust refinement
+remain open. Regression tests cover clean and partially queried field
+histories and actual accepted native runs; six new theorem guards check the
+allowed axiom set.
+
+Validation for this coverage step: `scripts/check` passed all 10,559 build
+jobs and all strict audit/smoke commands. Six focused strict checks passed,
+including the new coverage regression and its six theorem axiom guards.
+The unchanged combined HasteBoots smoke module was validated through the
+normal build dependency cache; the new coverage tests build from the main
+test root.
+
 The parsed column nonce now reproduces the native ordered draw vector,
 including duplicates, directly from equality of complete request inputs. No
 prior receipt knowledge is required. Actual native acceptance transports all
@@ -14,8 +44,8 @@ random and structured checks to the concrete parsed response family on those
 same draws and the source recovered from the original column history. This
 bridge retains the existing global no-disagreement assumption. Regression
 coverage includes three draws `[7,1,7]` producing two deduplicated jobs and an
-accepted execution whose first field read precedes a later hash. Application
-false-claim event inclusion, the proximity branch, trusted-profile exposure
+accepted execution whose first field read precedes a later hash. Full application
+false-claim coverage, first-field proximity charging, trusted-profile exposure
 selection, physical-work accounting and implementation refinement remain open.
 
 Validation for this bridge: `scripts/check` passed all 10,554 build jobs

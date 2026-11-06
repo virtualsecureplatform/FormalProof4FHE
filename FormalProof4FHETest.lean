@@ -1,3 +1,5 @@
+import FormalProof4FHETest.HasteBootsConcreteCoverageSmoke
+import FormalProof4FHETest.HasteBootsConcreteCoverageAudit
 import FormalProof4FHETest.AxiomAudit
 import FormalProof4FHETest.GSWSelfKeyAudit
 import FormalProof4FHETest.GSWAccumulatorSmoke
