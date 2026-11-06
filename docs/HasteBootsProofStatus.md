@@ -11134,3 +11134,69 @@ warning-as-error checks passed for all four new production modules and both
 regression/audit modules. All eighteen new theorem axiom guards passed using
 only the three allowed axioms or subsets. No axioms, proof placeholders,
 native decision proofs or proof-limit increases were introduced.
+
+
+## Concrete native column family and causal lifetime charge
+
+`NativeGoldBatchConcreteColumnFamily` instantiates the test family with a sum
+of random rows and parsed structured group/lane pairs. Both branches use the
+same recovered source word and one ordered column vector. Raw combinations
+use the actual retained coefficient state or the ordered structured weights;
+claimed responses are computed from all parsed raw test/group rows. All
+claimed responses are proved coded. These definitions take fixed parameters,
+parsed data and the selected source log, with no arbitrary response callback
+or future prepared work. Test width and code packing width remain separate.
+
+`NativeGoldBatchConcreteColumnBound` instantiates the all-budget witnessed
+bound with this family. Its source is computed from the selecting history by
+first-field prefix recovery. The winning event contains its own disagreement
+witness and all shared checks; correct or suspended states are not normalized
+away. The distance is min(code-distance-minus-radius, radius+1), and its miss
+term is proved equal to the maximum of the two branch miss terms. No union
+factor is introduced for choosing a branch or response test.
+
+`NativeGoldBatchConcreteColumnExposure` derives selection from the actual
+pending first positive read and complete linked-column parser, checks the
+native label, positive ordered quota and fixed code domain, and computes the
+source from the old history. It proves the local conditional inequality,
+measurability, averaging and a lifetime inequality over all causal machine
+prefixes and all collector budgets. The risk is zero for ineligible/repeated
+inputs and when no earlier field source is recoverable. The latter case
+remains covered separately by the early-receipt reduction; zero column risk
+does not assert that the complete native security loss is zero there.
+
+`NativeGoldBatchConcreteColumnWitness` lifts the actual accepted-native
+near-branch false-claim witness and the recovered-matrix far-branch witness
+into this sum family at the minimum distance used by the causal bound.
+The near lift retains the false original claim and parsed group bound.
+
+Regressions use six combined tests, three ordered draws [7,1,7] and two
+transported columns in the native three-test/four-packing fixture. They check
+coding, source recovery, the exact single miss term (31/32)^3 at radius zero,
+the conditional bound, absence of an earlier field source, repeated far-offset
+column reads, source preservation over arbitrary suffixes, and the full
+unbounded lifetime theorem. Fourteen new axiom guards cover the production
+lemmas. These are probability charges, not physical attacker-work costs.
+
+Next, prove that every accepted native false claim outside the first-field
+proximity and shared source exceptions enters this concrete checked event.
+This still needs the exact parsed-request draw identity and transport of all
+accepted random/group checks to the concrete family on the same recovered
+source. Then combine first-field proximity, early receipts and causal exposure
+coverage. Registry/context ownership, remaining seed/lookup lineage, independent
+public extraction, PBS semantics, native BabyBear, physical-work accounting,
+strict implementation refinement and the final 128-bit inequality remain open.
+
+The current concrete selector uses the parsed positive quota, rather than
+asserting that it equals an owned application's trusted quota. Its lifetime
+inequality is valid for that broader event, but must be restricted through the
+registry/context and parameter-profile reduction before calibrating a final
+128-bit application loss. A fixed-code-domain check alone is not such a
+trusted-parameter binding.
+
+Validation: full `scripts/check` passed with 10,546 build jobs, including
+the combined HasteBoots smoke module and all subsequent audits. Separate
+warning-as-error checks passed for all four new production modules and both
+regression/audit modules. All fourteen new theorem axiom guards passed using
+only the three allowed axioms or subsets. No axioms, proof placeholders,
+native decision proofs or proof-limit increases were introduced.
