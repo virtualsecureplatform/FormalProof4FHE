@@ -1,3 +1,5 @@
+import FormalProof4FHETest.HasteBootsProfileColumnSmoke
+import FormalProof4FHETest.HasteBootsProfileColumnAudit
 import FormalProof4FHETest.HasteBootsLifetimeSoundnessSmoke
 import FormalProof4FHETest.HasteBootsLifetimeSoundnessAudit
 import FormalProof4FHETest.HasteBootsCausalCoverageSmoke

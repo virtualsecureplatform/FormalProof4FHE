@@ -7,6 +7,35 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+The combined lifetime theorem now uses a column selector restricted to the
+fixed native ordered quota and complete field coefficient count. Native
+preparation derives both equalities at the actual first column read, and the
+accepted-run causal coverage proof transports that event through the filter.
+No eligibility certificate is added to the verifier or failure witness. Each
+active column charge is exactly the fixed-quota loss, equivalently the maximum
+of the two shared miss terms at distances `Code.minDist - radius` and
+`radius + 1`. The filtered charge is pointwise and lifetime-wise no larger
+than the earlier broad charge. Context transport and arbitrary-batch lifetime
+composition preserve these tighter events and charges.
+
+Regression tests distinguish quota three from two distinct transport jobs.
+A valid foreign one-draw nonce receives the broad charge `31/32` but zero
+filtered charge; the native request retains `(31/32)^3`. A nonce with an
+incompatible coefficient count is also excluded. Foreign prequeries remain
+in the global history and can freeze the same earlier source log. The filter
+changes neither native verification nor shared oracle/cache semantics.
+Fourteen new theorem guards audit the sampler, native preservation and
+context-transport proofs. Numerical calibration, physical cost coupling,
+public application extraction, registry/context binding at that boundary,
+BabyBear and strict implementation refinement remain open.
+
+Validation for trusted-quota column charging: `scripts/check` passed all
+10,579 build jobs and its strict audit/smoke commands. Six focused strict
+checks passed, including updated causal/lifetime proofs. Fourteen new guards
+confirm only allowed axioms; selector/link preservation needs only `propext`
+and `Quot.sound`, while the remaining new theorems also use
+`Classical.choice`. Regression tests and guards build from the main test root.
+
 A combined lifetime probability bound now covers false claims across all
 accepted native batches with the fixed public parameters and transcript profile. The batch root,
 parent input, opening, scheduler, private memory and native verification budget
@@ -29,9 +58,9 @@ is chronological; it does not assert a physical cost for local callbacks.
 The combined bound is still against the recovered-source analysis extractor,
 under constructor, primitive-root, native framing/allocation and radius
 obligations. It is not yet public PBS application soundness or the 128-bit
-expected-work theorem. In particular, the broad column selector still charges
-foreign smaller quotas; it must be filtered to the fixed native quota while
-preserving actual accepted-run coverage before numerical calibration.
+expected-work theorem. The native quota and coefficient-count filter above
+now removes foreign smaller-quota charges while preserving accepted coverage;
+numerical calibration and physical cost coupling remain open.
 Trusted registry/context binding at the application boundary, independent
 public extraction, physical initialization/local/abort/reject accounting,
 BabyBear and backend implementation refinement remain open. Regression tests
