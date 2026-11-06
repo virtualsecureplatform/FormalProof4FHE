@@ -7,6 +7,24 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+The parsed column nonce now reproduces the native ordered draw vector,
+including duplicates, directly from equality of complete request inputs. No
+prior receipt knowledge is required. Actual native acceptance transports all
+random and structured checks to the concrete parsed response family on those
+same draws and the source recovered from the original column history. This
+bridge retains the existing global no-disagreement assumption. Regression
+coverage includes three draws `[7,1,7]` producing two deduplicated jobs and an
+accepted execution whose first field read precedes a later hash. Application
+false-claim event inclusion, the proximity branch, trusted-profile exposure
+selection, physical-work accounting and implementation refinement remain open.
+
+Validation for this bridge: `scripts/check` passed all 10,554 build jobs
+and its strict audit/smoke commands; the combined HasteBoots smoke test took
+645 seconds. The new regression smoke and six additional focused modules
+also passed with `warningAsError=true`. Four new production theorem guards
+confirm only `propext`, `Classical.choice` and `Quot.sound` dependencies
+(the input identity needs only `propext` and `Quot.sound`).
+
 The causal Merkle shape-family implementation removes the future-dependent
 height lookup from the batch availability path. Each newly resolved complete
 (context digest, root) key records all 64 native-sized perfect-tree shapes
