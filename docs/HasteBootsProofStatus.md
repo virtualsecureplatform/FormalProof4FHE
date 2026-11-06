@@ -10956,3 +10956,67 @@ warning-as-error checks passed for all four new production modules and both
 regression/audit modules. All fourteen new theorem axiom guards passed using
 only the three allowed axioms or subsets. No new axioms, proof placeholders,
 native decision proofs or proof-limit increases were introduced.
+
+
+## Selecting the common source from the earlier history
+
+`NativeRootFamilySourceSelection` selects a source log without reading a world
+or future verifier work. For a previously frozen complete context/root key,
+it searches the finite checkpoint list for one log recorded at all 64 supported
+heights. A one-height candidate is insufficient. The reconstruction invariant
+supplies an existing common log, so the old-key search succeeds. For a new key,
+it uses the actual current pre-read hash log. A positive resolved read records
+the selected log at every height; all later history extensions retain it.
+The 64-height family is the native shape domain, not an attacker lifetime cap.
+
+`NativeGoldBatchSelectedSource` applies that selector to a parsed field nonce's
+context/root binding and the entire original prefix. Actual native acceptance,
+truthful observation and exclusion of the existing global disagreement event
+then imply that every authenticated payload and native column equation uses
+this exact earlier selected log. No future source-log witness or assumed
+checkpoint certificate is chosen for this native field-read theorem. Partial
+and off-path reads at arbitrary offsets are included.
+
+`NativeGoldBatchSelectedWord` gives the rectangular source word a definition
+using fixed public dimensions, an explicit context/root and the selected log.
+Its definition does not inspect future prepared work or an oracle world.
+The actual native frozen word and common row reindexing are proved equal to it.
+This remains an analysis word; the efficient independent public application
+extractor and its implementation/work refinement are still required.
+
+`NativeGoldBatchSelectedChecks.accepted_checks` carries that same source through
+all actual accepted random and response-group checks. It derives one typed
+ordered draw vector, retains duplicates and the original quota, and preserves
+every original finishing claim. The random matrix is the recovered-state
+matrix from the previous milestone. No group/lane/query factor or new oracle
+call is introduced by this deterministic transport.
+
+Regressions check selection before the first read, preservation after a later
+hash changes the current log, rejection of a one-height decoy log, all-height
+retention over arbitrary suffixes, the word identity using only fixed parameters and the selected log, and an
+actual accepted native run with an earlier off-path field read. Twelve axiom
+guards cover the new production lemmas.
+
+Next, express the complete structured weight/response family through the parsed
+binding, trusted fixed parameters and recovered coefficients, rather than its
+current future-Prepared indices. Then derive the false-original-claim
+disagreement witness and combine the first-field proximity and column laws.
+Registry/context ownership and full global lineage composition, independent
+public extraction, PBS semantics, native BabyBear, physical-work accounting,
+strict implementation refinement and the final 128-bit theorem remain open.
+Source availability here excludes the existing global disagreement event; it
+does not claim authentication from syntax or identify log length with work.
+
+Validation: full `scripts/check` passed with 10,530 build jobs, including
+the combined HasteBoots smoke module and all subsequent audits. Separate
+warning-as-error checks passed for all four new production modules and both
+regression/audit modules. All twelve new theorem axiom guards passed using
+only the three allowed axioms or subsets.
+
+The first full run exposed a default-heartbeat timeout while elaborating an
+existing seven-stream byte literal in the shared-child fixture. Its streams
+were factored into separately typed definitions. A byte-for-byte comparison
+confirmed all seven streams were unchanged, the isolated fixture passed with
+warnings treated as errors, and the full rerun passed. No proof limits were
+increased, and no axioms, proof placeholders or native decision proofs were
+introduced.

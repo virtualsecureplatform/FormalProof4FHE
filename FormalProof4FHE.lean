@@ -1,3 +1,4 @@
+import FormalProof4FHE.HasteBoots.NativeGoldBatchSelectedChecks
 import FormalProof4FHE.HasteBoots.NativeGoldBatchRecoveredMatrix
 import FormalProof4FHE.HasteBoots.NativeGoldBatchFieldColumnBound
 import FormalProof4FHE.HasteBoots.NativeEarlyReceiptBound
