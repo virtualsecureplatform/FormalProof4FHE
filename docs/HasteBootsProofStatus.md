@@ -10636,3 +10636,50 @@ Validation: full `scripts/check` passed with 10,490 build jobs, including the
 combined HasteBoots smoke module. Separate warning-as-error checks passed for
 all three new production modules and both regression/audit modules. No new
 axioms, proof placeholders, native decision proofs or limit increases were used.
+
+
+## Causal recovery of the response-bound column request
+
+`NativeIndexInputView` now recovers an atomic index request from its complete
+pending SHAKE input. It checks both suffix frames, exact eight-byte integer
+encoding, byte-count divisibility by eight, and the native power-of-two and
+byte-count gates. Soundness reconstructs the exact input for the selected
+request; completeness holds for correctly framed native requests with explicit
+native frame-length bounds. The full structural decoder rejects trailing or
+malformed frame bytes.
+
+`NativeGoldBatchColumnInputView` additionally decodes the preceding response
+frame using a canonical whole-payload codec. It recovers the raw test row and
+all raw response-group rows, preserving field-equal lazy word aliases. Later
+authentication columns are excluded from this nonce and are represented by an
+empty column vector in the analysis view. This parser does not establish
+native opening validity or trusted parameter identity.
+
+`NativeGoldBatchColumnExposure` selects directly from the actual pending first
+stream read, checks the native column label and positive batch quota, and uses
+the parsed request and responses in the exact conditional, averaged and
+unbounded-lifetime probability charges. No external history-to-request selector
+or future prepared work is an input to this selector. In particular, selecting
+the complete nonce does not require knowing whether the receipt digest quoted
+inside it is valid. A history with only 32 known receipt bytes instantiates the
+law and still recovers the actual ordered native draws [7,1,7] and distinct
+transport indices [1,7]. The shared-check charge retains the original quota and
+one witness miss bound, without a response-group/lane factor.
+
+Regressions also cover every raw group, a lazy Goldilocks word in the second
+group, malformed and noncanonical response payloads, truncated/overlong u64s,
+nondivisible byte counts, invalid domains, trailing frame bytes, absent response
+frames, wrong challenge labels, zero batch quotas and repeated-stream exclusion.
+Twenty new theorem axiom guards permit only the allowed three axioms or subsets.
+
+The new parser is an analysis view of complete SHAKE inputs, not a refinement of
+the Rust proof deserializer. Trusted parameter/profile identity, source ownership
+and extraction, source/test-matrix measurability, unknown or partial receipt and
+seed lineage, and the reduction of every false native acceptance to the global
+charges remain open. Physical work, native BabyBear, application semantics,
+strict implementation refinement and the final 128-bit inequality remain open.
+
+Validation: full `scripts/check` passed with 10,494 build jobs, including the
+combined HasteBoots smoke module. Separate warning-as-error checks passed for
+all three new production modules and both regression/audit modules. No new
+axioms, proof placeholders, native decision proofs or limit increases were used.
