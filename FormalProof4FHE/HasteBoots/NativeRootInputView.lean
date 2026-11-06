@@ -2,12 +2,14 @@ module
 public import FormalProof4FHE.HasteBoots.NativeCanonicalLookupWire
 public import FormalProof4FHE.HasteBoots.NativeGoldPcsBinding
 public import FormalProof4FHE.HasteBoots.NativeExactCodec
+public import FormalProof4FHE.HasteBoots.NativeGoldBatchMessage
 import all Init.Data.String.Defs
 @[expose] public section
 
 /-! Structural context/root mentions in complete native framed inputs.
 Canonical bind and registry source vectors retain their original order and
-repetitions; single PCS openings pair the adjacent context/root frames.
+repetitions; single PCS openings pair adjacent context/root frames, and native
+batch messages retain their complete context/root tuple.
 Mention extraction does not establish trusted-parameter identity, root
 availability, helper-parent association or first-exposure registration. -/
 namespace FormalProof4FHE.HasteBoots.NativeRootInputView
@@ -50,6 +52,8 @@ def frameSources (frame : TranscriptFrame.Frame) : Option (List NativeCanonicalL
       (NativeExactCodec.read NativeCanonicalLookupWire.sourcesCodec frame.message).map (fun sources => sources.val)
     else if frame.label = NativeCanonicalLookupWire.label then
       (NativeExactCodec.read bindingCodec frame.message).map (fun binding => binding.sources.val)
+    else if frame.label = NativeTranscript.utf8 "mw batched row-code v1" then
+      (NativeExactCodec.read NativeGoldBatchMessage.codec frame.message).map (fun data => [(data.context,data.root)])
     else none
   else none
 
@@ -66,6 +70,14 @@ theorem binding_complete (binding : Binding) :
   change (NativeExactCodec.read bindingCodec (bindingCodec.encode binding)).map _ = _
   rw [NativeExactCodec.read_encode]
   rfl
+
+
+theorem batch_complete (data : NativeGoldBatchMessage.Data) :
+    frameSources ⟨1,NativeTranscript.utf8 "mw batched row-code v1",NativeGoldBatchMessage.codec.encode data⟩ =
+      some [(data.context,data.root)] := by
+  have registry : NativeTranscript.utf8 "mw batched row-code v1" ≠ NativeCanonicalLookupWire.registryLabel := by decide +kernel
+  have binding : NativeTranscript.utf8 "mw batched row-code v1" ≠ NativeCanonicalLookupWire.label := by decide +kernel
+  simp only [frameSources,ite_true,registry,binding,ite_false,NativeGoldBatchMessage.read_exact,Option.map_some]
 
 
 def single (contextFrame openingFrame : TranscriptFrame.Frame) : Option NativeCanonicalLookupWire.Source :=
