@@ -9948,3 +9948,100 @@ pinned Rust comparisons pass accepted, last-claim rejection and
 second-response rejection, matching native bytes, all fourteen joint
 observations and final parents. Existing fixtures, proof limits and pinned
 native sources are unchanged.
+
+
+## Direct batch exposure and shared raw availability
+
+The parent exposure monitor previously recognized registry/shared-binding
+vectors and adjacent single-opening frames, but missed the native
+`mw batched row-code v1` frame. `NativeGoldBatchMessage` now supplies its
+exact structural codec, preserving raw queries and values. The monitor
+recognizes its complete context/root tuple even on raw/off-path inputs and
+native-invalid empty batches. Recognition rejects trailing bytes and wrong
+frame kinds/domains. This is an analysis parser; it is not a strict native
+proof-deserializer refinement.
+
+`NativeGoldBatchRootMentions` ties that codec to the actual native binding
+payload and framed input. `NativeGoldBatchExposure` proves that any nonempty
+raw read of such a framed input, at any offset and without a preceding start
+or verifier declaration, records a newly resolved key at the actual pre-read
+hash log. Previously frozen keys retain their earlier snapshots. Earlier
+history and arbitrary later continuations, including rejection, remain in
+the parent-instrumented interpreter. This closes the direct batch-frame
+channel; arbitrary orphan/pending/receipt ancestry coverage and trusted
+context/shape interpretation remain separate obligations.
+
+`NativeGoldBatchPaths` derives every original worker's typed Merkle position
+and path length from the checked batch prefix. `NativeGoldBatchRawRequests`
+computes a lossless raw request for each worker. Actual accepted causal batch
+execution derives Merkle replay in the containing truthful history's shared
+hash cache, together with the shared test and every structured response-group
+check. The adapter receives no replay or authentication certificate.
+
+`NativeGoldBatchRawAvailability` reconstructs the actual parent ledger,
+owned byte cache, checkpoints and hash cache from the complete mixed history,
+including prequeries. Original raw rows are frozen before field projection;
+every response group uses the same matching recorded raw word. Any selected
+batch/group/column equation failure implies the existing global checkpoint
+disagreement event. An exact event law connects this reconstruction to the
+actual mixed byte/hash interpreter, with its real cached byte-reader law.
+The probability is bounded by one global expected hash-hazard charge,
+without an additional union factor for batches, groups, columns or checkpoints. This is
+a finite ideal-oracle hash-risk bound, not the physical attacker-work theorem.
+The selected views and recorded checkpoints still need complete application
+instantiation and first-exposure coverage; the result does not itself assert
+that every accepted PBS is covered or sound.
+
+`NativeGoldLookupProgramDomain` also combines the preceding source-domain
+results across every phase of the actual typed lookup execution, including
+rejected source prefixes. It does not discharge internal PCS encoding,
+worker/sampling domains, hostile-byte decoding or native/compiler refinement.
+
+The focused kernel regressions use captured Rust batch bytes and actual
+SHAKE inputs. They exercise recognition before verifier declaration, a first
+one-byte raw read at offset 7, zero-length/start behavior, exact pre-read
+snapshot logs, persistence after later hashes/reads, malformed frames and
+trailing bytes, and conservative recognition of an empty batch that the
+native binder rejects. Captured native columns produce unchanged leaf-hash
+inputs and replay successfully from both accepted and rejected mixed traces.
+No frozen-word availability is assumed merely because a fixture verifies;
+actual Merkle-construction/setup history must be included where required.
+Existing pinned native fixtures remain differential checks, not Rust
+refinement or target numerical-profile certificates.
+
+The height function in the world-risk theorem is a fixed parameter, not a
+function selected from future oracle answers. Native instantiation must
+supply a causal shape policy and prove the adapter's height match. The existing
+`NativeBrakedownParameters.path_shift` derives `geometry.height + 1 < 64`
+from actual checked native allocation bounds; a finite family of native
+heights is an available route, without adding an attacker lifetime/trial cap.
+The shared raw representation for Goldilocks/BabyBear must also be justified
+before field-specific interpretation. Neither obligation is hidden in a
+trusted callback here.
+
+Full protocol/application soundness, independent public evaluation/extraction,
+all first-exposure lineages and pending/receipt hazards, physical attacker
+work with setup/verifier roles separated, original Goldilocks/BabyBear
+numerical certificates, strict decoding and checked
+Rust/Charon/Aeneas/NTT/SIMD/Div64/scheduler refinement remain open. Preserve
+protocol 12/schedule 5, degree 1024, LWE dimension 728, public evaluation/output
+keys, rectangular profiles and `(δ/p)^w`. The unbounded-lifetime target
+`2^128 * Pr[any accepted false PBS] ≤ E[attacker work]` remains unproved.
+
+
+Validation: full `scripts/check` passes with 10,379 build jobs and combined
+HasteBoots smoke in 536 seconds. All seven new production modules, the
+modified root-input monitor and both new test modules pass direct
+`-DwarningAsError=true` checks. Twenty-three regression statements and
+twenty-six guarded theorem reports pass, using only `propext`,
+`Classical.choice` and `Quot.sound`. Fresh pinned native comparisons pass all
+three batch cases, matching bytes, fourteen joint observations and final
+parents. Native sources and all fixture bytes/assertions remain unchanged.
+
+The first full check exposed an existing 1,361-byte parent-framing literal's
+default elaboration timeout. It is now represented by eleven smaller
+constants with byte-for-byte equality against the committed fixture verified;
+SHA-256 remains
+`2ab97b4d2cb4314e64908c02396adf58b65402dcd27fbba3b73e2b622ad08d90`.
+The affected complete smoke section passes independently, and the full check
+then passes. No proof limit was raised or assertion removed.

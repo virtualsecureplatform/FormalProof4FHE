@@ -3,6 +3,8 @@ module
 import all FormalProof4FHE.HasteBoots
 import all FormalProof4FHETest.HasteBootsBatchPrefixSmoke
 import all FormalProof4FHETest.HasteBootsBatchPcsSmoke
+import all FormalProof4FHETest.HasteBootsBatchAvailabilityAudit
+import all FormalProof4FHETest.HasteBootsBatchExposureSmoke
 import all FormalProof4FHETest.HasteBootsSourceInvariantAudit
 import all FormalProof4FHETest.HasteBootsSourceInvariantSmoke
 import all FormalProof4FHETest.HasteBootsDeferredRegistryAudit
