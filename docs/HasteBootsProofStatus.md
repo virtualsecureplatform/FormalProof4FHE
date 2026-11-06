@@ -127,8 +127,9 @@ left weights now also have the ordered tensor semantics, and a single checked
 geometry bijection reindexes the native source rows as left cell/source lane.
 Every original query's computed structured combination uses those rectangular
 weights on that common source, including field-representative aliases. Composing
-these deterministic equations with the full batch probability/transcript law
-remains open.
+these deterministic equations with the production transcript probability law
+remains open. The native finishing gate is now composed with the interactive
+any-false-original-query bound under a uniform matrix and fresh shared draws.
 
 Still open: complete first-exposure lineage for orphan/pending/receipt cases,
 application soundness and independent public extraction, BabyBear integration,
@@ -10432,3 +10433,55 @@ composition with production Fiat–Shamir freshness and complete causal lineage,
 application soundness and efficient independent public extraction, native
 BabyBear integration, physical attacker-work/numerics, and strict decoder plus
 Rust/Charon/Aeneas/NTT/SIMD/Div64/scheduler refinement.
+
+
+## Native acceptance view and interactive finishing soundness
+
+`NativeGoldBatchRectangularData` projects the actual native response groups and
+every original query onto the rectangular message interface. Actual group
+encodings equal padded original message chunks; owner-group indices round-trip,
+and group-owner left weights equal each original query's ordered left weights.
+Accepted original values equal their own right finishing of the assigned shared
+response. Every encoder and shape fact is derived from preparation, retaining
+backend constructor and primitive-root correctness as explicit premises.
+
+`NativeGoldBatchRectangularChecks` transports actual random and grouped column
+checks to the same reindexed source and original typed draw vector. Repeated
+draws remain repeated, while actual authentication jobs remain deduplicated.
+`NativeGoldBatchRectangularAcceptance.accepted_view` obtains the full analysis
+view from native accepted execution, truthful history and absence of source
+inconsistency. Its context digest, common log and all 64 snapshots come from the
+strong actual-context source witness. These are theorem conclusions, never extra
+native verifier inputs. `false_iff_error` identifies falsity of any original
+claim against the common analysis table with the rectangular batch error event,
+with every random and structured check attached.
+
+`NativeGoldBatchInteractiveSoundness.soundness_bound` composes the actual pure
+native `finish` gate with that batch kernel. An arbitrary probabilistic response
+procedure can retain private coins/state and depend on the entire earlier test
+matrix. Its raw opening payload supplies message chunks without response
+enumeration, losslessness, a success floor or a trial cap. Under the interactive
+uniform-matrix/fresh-shared-draw experiment, any false original native claim
+passing native finishing and all common-source checks has loss
+`(minimumDistance / fieldSize)^packingWidth + max(miss(distance-radius), miss(radius+1))`.
+No query/group/lane factor is inserted, and packing width is independent of the
+code-symbol width.
+
+The regression uses a real prepared three-packing/four-code-width batch with
+two original queries and one response group. Ordered draw checks retain
+`[7,1,7]`. A second fixture has identity left matrices and different original
+right queries. Its honestly encoded nonzero source table makes the second
+original claim false, avoiding a vacuous false-event regression. The response
+experiment retains the earlier matrix and a private coin, and native finishing
+rejects a shared response that passes only the first original query. Thirteen
+axiom guards use only the allowed three axioms (owner-group round-trip uses a
+subset).
+
+This does not prove that production SHA512/SHAKE execution has the interactive
+challenge law: complete first-exposure/causal lineage, including prequeries,
+partial caches and orphan/pending/receipt cases, still needs composition. The
+common decoder remains an information-theoretic analysis extractor; efficient
+independent public extraction and full PBS application soundness remain open.
+Native BabyBear integration, physical attacker-work and final 128-bit numerics,
+and strict decoder plus Rust/Charon/Aeneas/NTT/SIMD/Div64/scheduler refinement
+remain mandatory unfinished work.
