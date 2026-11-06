@@ -19,7 +19,7 @@ open. Base-field challenges, response framing and atomic index draws now
 have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#native-registry-provenance-at-the-pcs-boundary).
+[the current implementation layer](#sampler-preservation-of-child-ancestry-and-helper-roots).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -9502,3 +9502,49 @@ zero: 10,337 build jobs (combined HasteBoots smoke: 555 seconds), followed by
 all strict audits/smokes. The new production and standalone regression modules
 also pass with `-DwarningAsError=true`. Allowed axioms, default proof limits
 and all existing native fixture bytes/assertions are unchanged.
+
+## Sampler preservation of child ancestry and helper roots
+
+`NativeTranscriptExtension.Extends` records valid appended frames and exact
+profile retention. It preserves constructed child headers and the earlier
+literal helper-root list in the complete decoded input. Native field-vector
+retries preserve the exact pending transcript and field label, including
+rejected candidates. Suspension, resumption, zero-count requests and receipt
+finalization preserve this relation. Valid label and descriptor allocation
+domains are explicit; a raw field phase does not silently provide them.
+
+`NativeLookupTranscriptExtension` carries the invariant through compression
+and reciprocal selection, reciprocal retries, ordered lookup batches, equality
+samplers, active readers, completed draw records and completed jobs. Every
+finite analysis prefix is covered; no native retry limit or termination
+assumption is introduced. `ready_origins` identifies both the initial child
+prefix and the exact helper-root-bound equality state in a successful native
+prelude, including the readers recorded in its returned machine.
+
+`launch_header` and `launch_draw_header` derive the actual gated Goldilocks
+launcher's fork header for the final equality transcript and every completed
+equality reader. Their seed is the output of that launcher's executed native
+fork, rather than an input lineage certificate. The helper-root payload domain
+remains explicit. The same initializer, raw lookup projection, equality
+machine and proof object supply the evidence.
+
+Nineteen standalone regression assertions cover rejected coefficients,
+continued byte cursors, no repeated reader start on resumption, zero-count
+receipts, no repeated receipt after completion, repeated rejected reciprocals,
+completed batches and helper-root retention in equality readers. Two further
+assertions instantiate the launcher lemmas in the existing native fixture.
+These are deterministic ancestry and frame-retention results. They do not
+bound partial-seed or receipt guesses, establish fresh arithmetic challenges,
+authenticate PCS sources, prove final false-PBS acceptance/extraction or the
+128-bit expected-work claim, or complete either-field numeric certification
+and Rust/scheduler refinement. Scalar/terminal/PCS stage coverage also remains
+required beyond this lookup/equality prelude.
+
+Validation: twenty-one new regression assertions and thirty-eight guarded
+public-theorem axiom reports pass. The native launcher assertions also pass
+in an isolated fixture check with warnings treated as errors. Full
+`scripts/check` exits zero: 10,340 build jobs (combined HasteBoots smoke:
+550 seconds), followed by every strict audit/smoke command. Both new
+production modules and the standalone regression module also pass with
+`-DwarningAsError=true`. Allowed axioms, default proof limits and all existing
+native fixture bytes/assertions are unchanged.

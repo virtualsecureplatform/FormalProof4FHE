@@ -2,6 +2,7 @@ module
 
 import all FormalProof4FHE.HasteBoots
 import all FormalProof4FHETest.HasteBootsShakeKernelSmoke
+import all FormalProof4FHETest.HasteBootsSamplerAncestrySmoke
 import all FormalProof4FHETest.HasteBootsRegistryAncestrySmoke
 import all FormalProof4FHETest.HasteBootsForkAncestrySmoke
 import all FormalProof4FHETest.HasteBootsPendingQuoteSmoke
@@ -18194,6 +18195,37 @@ example : ∃ sources : NativePrefixCodec.Vector NativeCanonicalLookupWire.Sourc
     decide +kernel
   have framing := TranscriptFrame.decodeAll_sound _ registryPreflightFrames registryPreflightDecoded
   exact coverage registryPreflightFrames framing.2 framing.1 registryFits (by decide +kernel) (by decide +kernel)
+
+
+-- The actual native launch retains its executed fork header through both samplers.
+private noncomputable def ancestryParent :=
+  (OracleProgram.run (NativeSharedLookupParent.prepare description registry helper parent requests) world).run.1.1
+private noncomputable def ancestrySeed := InputIndexedOracle.block world
+  (NativeForkAncestry.seedInput (NativeSharedLookupChild.prepare ancestryParent proof.multiplicities)
+    NativeSharedLookupChild.childLabel NativeSharedLookupChild.childContext) 0 64
+
+example : ∃ geometry launched, window.1 = some (Sigma.mk geometry launched) ∧
+    NativeChildSeedView.HasHeader launched.2.equality.transcript ancestryParent.profile
+      NativeSharedLookupChild.childLabel NativeSharedLookupChild.childContext ancestrySeed := by
+  obtain ⟨result,success⟩ := accepted_bound
+  obtain ⟨geometry,launched,began,_,executed,_⟩ :=
+    NativeSharedLookupExecution.bound_origin description registry helper parent requests proof 30 30 30 world result success
+  exact ⟨geometry,launched,began,NativeLookupTranscriptExtension.launch_header requests.property.le
+    (NativeSharedLookupParent.models requests) .retain (registry.val.map NativeSharedLookupParent.Oracle.geometry)
+    geometry proof 30 30 ancestryParent world launched.1 launched.2 executed (by decide +kernel)⟩
+
+example : ∃ geometry launched, window.1 = some (Sigma.mk geometry launched) ∧
+    ∀ draw ∈ launched.2.machine.draws,
+      NativeChildSeedView.HasHeader draw.coefficients.phase.pending ancestryParent.profile
+        NativeSharedLookupChild.childLabel NativeSharedLookupChild.childContext ancestrySeed := by
+  obtain ⟨result,success⟩ := accepted_bound
+  obtain ⟨geometry,launched,began,_,executed,_⟩ :=
+    NativeSharedLookupExecution.bound_origin description registry helper parent requests proof 30 30 30 world result success
+  refine ⟨geometry,launched,began,?_⟩
+  intro draw member
+  exact NativeLookupTranscriptExtension.launch_draw_header requests.property.le
+    (NativeSharedLookupParent.models requests) .retain (registry.val.map NativeSharedLookupParent.Oracle.geometry)
+    geometry proof 30 30 ancestryParent world launched.1 launched.2 executed (by decide +kernel) draw member
 
 end SharedBodyExecutionSmoke
 
