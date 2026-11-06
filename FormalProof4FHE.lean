@@ -1,3 +1,4 @@
+import FormalProof4FHE.HasteBoots.NativeGoldBatchFieldProximityCoverage
 import FormalProof4FHE.HasteBoots.NativeGoldBatchConcreteExposureCoverage
 import FormalProof4FHE.HasteBoots.NativeGoldBatchConcreteAcceptedChecks
 import FormalProof4FHE.HasteBoots.NativeGoldBatchConcreteColumnWitness
