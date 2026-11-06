@@ -1,4 +1,6 @@
 module
+import all FormalProof4FHETest.HasteBootsStreamCoverageSmoke
+import all FormalProof4FHETest.HasteBootsStreamCoverageAudit
 import all FormalProof4FHETest.HasteBootsNativeColumnLawSmoke
 import all FormalProof4FHETest.HasteBootsNativeColumnLawAudit
 import all FormalProof4FHETest.HasteBootsNativeFieldLawSmoke

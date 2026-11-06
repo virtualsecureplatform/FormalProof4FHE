@@ -10589,3 +10589,50 @@ Validation: the full `scripts/check` passed (10,486 build jobs, including the
 combined HasteBoots smoke module), as did separate warning-as-error checks of
 all four new production modules and both new regression/audit modules. No new
 axioms, proof placeholders, native decision proofs or limit increases were used.
+
+
+## Complete-stream chronological coverage and adaptive index charges
+
+`CausalStreamCoverage` locates the first positive read anywhere in a complete
+SHAKE stream. Its coverage theorem retains arbitrary inherited mixed histories:
+a stream touched in a finite machine prefix was either touched in the prelude
+or selected by `CausalStreamExposure.firstRead` at an actual earlier prefix.
+Starts, empty reads and SHA-512 observations do not expose SHAKE coordinates.
+The locator handles far-offset reads that leave seed coordinates 0–63 untouched.
+
+`NativeGoldBatchStreamCoverage` derives the real ordered-column output and its
+positive quota from native preparation and parameter validation. Together with
+the existing actual field read, this supplies both stream coverage witnesses.
+The native-program interpreter yields a path-dependent completion prefix after
+an arbitrary prelude, without a caller-supplied native-log embedding or a
+uniform termination/trial bound. The first exposures need not follow the
+verifier's later order of use.
+
+`NativeIndexExposureRisk` selects requests and event predicates from the current
+complete history and checks eligibility against the actual pending first read.
+It retains the complete native result and ordered observation log, proves the
+exact conditional and averaged charge, and sums those charges over every
+analysis prefix of an unbounded machine. Invalid dimensions, repeated streams
+and mismatched pending requests contribute no event or charge. A shared-check
+charge has one witness miss bound with the original ordered quota; it does not
+acquire a group or lane factor.
+
+Regressions cover far-offset exposure versus the old seed-only locator, empty
+reads/hash/start observations, same-stream versus foreign cached reads,
+inherited native column prequeries, native field/column coverage, quotas three
+and one selected from causal state, overflow rejection, and the shared native
+miss bound. Twenty-two theorem axiom guards use only the allowed three axioms
+or subsets.
+
+Chronological coverage alone does not prove past-measurability of metadata
+selected from a future accepted request. The probability monitor still needs
+the protocol-specific history-based selector and the reduction of every false
+native acceptance to its charged events, including unknown or partial receipt
+and seed lineage. Physical work, public extraction/application semantics,
+native BabyBear, strict decoding/refinement, and the final 128-bit inequality
+remain open.
+
+Validation: full `scripts/check` passed with 10,490 build jobs, including the
+combined HasteBoots smoke module. Separate warning-as-error checks passed for
+all three new production modules and both regression/audit modules. No new
+axioms, proof placeholders, native decision proofs or limit increases were used.

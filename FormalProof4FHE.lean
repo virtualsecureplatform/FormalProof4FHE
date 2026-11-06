@@ -1,3 +1,5 @@
+import FormalProof4FHE.HasteBoots.NativeGoldBatchStreamCoverage
+import FormalProof4FHE.HasteBoots.NativeIndexExposureRisk
 import FormalProof4FHE.HasteBoots.NativeGoldBatchColumnRequestLaw
 import FormalProof4FHE.LWE.Basic
 import FormalProof4FHE.LWE.AffineCircular
