@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ROOT=$(cd -- "$(dirname -- "$0")/.." && pwd)
+NATIVE_ROOT="${ROOT}/../HasteBoots"
+PIN=dff353006322693cab3dc6b654f82151f658f294
+if [[ $(git -C "$NATIVE_ROOT" rev-parse HEAD) != "$PIN" ]]; then
+  echo "Native batch fixtures require HasteBoots commit $PIN in $NATIVE_ROOT" >&2
+  exit 1
+fi
+if ! git -C "$NATIVE_ROOT" diff --quiet HEAD --; then
+  echo "Native batch fixtures require unchanged tracked HasteBoots sources" >&2
+  exit 1
+fi
+cd -- "$ROOT"
+exec env CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-${ROOT}/.lake/native-fixtures}" \
+  cargo run --locked --manifest-path "$ROOT/scripts/native-fixtures/batch-pcs/Cargo.toml"

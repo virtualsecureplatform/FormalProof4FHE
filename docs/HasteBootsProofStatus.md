@@ -21,7 +21,7 @@ composition remain open. Base-field challenges, response framing and atomic
 index draws now have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#original-source-ownership-and-native-batch-binding).
+[the current implementation layer](#shared-native-batch-pcs-execution).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -9695,7 +9695,8 @@ bindings retain precisely those checked queries and values for subsequent
 response grouping. Serialization failure and rejected binding preserve their
 actual observed prefixes. This is the binding prefix of `verify_many`;
 shared random-test sampling, responses, ordered columns, worker authentication
-and finishing every original claim still require implementation/composition.
+and finishing every original claim are now executed by the following layer.
+Source-claim/seal/dispatch and application-security composition remain open.
 
 A new differential fixture runs successful native `open_many` and `verify_many`
 at HasteBoots commit `dff353006322693cab3dc6b654f82151f658f294` with four
@@ -9730,3 +9731,91 @@ modules and the standalone regression module also pass direct checks with
 `-DwarningAsError=true`. Only `propext`, `Classical.choice` and `Quot.sound`
 appear in the new public theorem reports; default proof limits and existing
 native fixture bytes/assertions are unchanged.
+
+
+## Shared native batch PCS execution
+
+`NativeGoldBatchOpening` supplies the original non-hiding batch wire shape:
+one random-test response, one evaluation response per computed ordered prefix
+group, and one set of raw columns with leaf-first paths. Its prefix readers
+cover constructed messages; strict adversarial Rust decoding/resource
+refinement remains open.
+
+`NativeGoldBatchPrelude` preserves the native `verify_many` order: construct
+trusted geometry, bind the checked batch, then check proof shape, then request
+one shared random matrix. Proof-shape rejection retains the already-bound
+parent and context observations. The group count comes from the checked
+queries. Suspension retains the active field state and does not become a
+native rejection or impose a retry cap.
+
+`NativeGoldBatchColumns` computes structured weights from each first original
+prefix representative in group order, binds the test and all evaluation
+responses in one native frame, and issues one atomic schedule-5 request.
+The complete quota-sized ordered draw list is retained separately from its
+ascending distinct transport indices. Successful results derive their
+actual completed prelude, computed groups, atomic request and count gates;
+no sampled-index or successful-prefix certificate is supplied.
+
+`NativeGoldBatchColumnWorker` authenticates the original raw column/path
+once, then performs the shared random test and every grouped structured
+check in native lane/coordinate order. Each grouped check is related to the
+existing single-response semantic coordinate interface. It does not replace
+raw hashing with field-projected hashing or authenticate each group again.
+Native Rayon/compiler and physical-cost refinement remain open.
+
+`NativeGoldBatchPcsProgram` composes that prefix with actual retained-code
+response encoding, one causal worker per distinct column, and an ordered
+finish loop over **every original query**, including prefix aliases. The
+program computes acceptance from the actual residual workers and native
+claim comparisons. Prepared root/width/query/value provenance, matching group
+counts, nonempty original job coverage, nontruncating response pairing and
+query validation are derived from actual execution. Totalized claim indexing
+is proved unreachable on prepared batches. Accepted claims satisfy the
+semantic native suffix fold. All original raw workers replay in the final
+shared hash cache of any truthful enclosing history containing the run.
+Scheduler prequeries and later surrounding work remain in that common
+history; there is no external functional SHAKE reader at this entry point.
+
+Three native differential cases exercise four claims and two response groups:
+a successful batch, an authenticated batch whose last aliased claim is false,
+and a batch whose second structured response is wrong while the first passes.
+The last case would pass a verifier that omitted that response check; the
+last-claim case requires finishing original aliases beyond representatives.
+Each complete native verifier trace contains fourteen mixed observations,
+including seven SHA-512 calls: one context hash and six hashes authenticating
+the shared column. Native final parent bytes also match the model. Field and
+worker suspension, cancellation and binding-before-shape rejection are
+checked separately. These small fixtures do not certify target parameter
+profiles or prove native instruction equivalence.
+
+`scripts/native-batch-fixture` rebuilds and runs all three cases in one
+uniquely named executable, requiring the pinned clean native checkout and
+locked Cargo dependencies. `scripts/check-native-batch-fixtures` compares
+fresh native bytes, actual joint observations and final parents with the
+Lean regression constants. This makes case identity and trace capture
+reproducible; stale same-name fixture binaries are not used as evidence.
+The scripts are differential checks, not Rust/compiler refinement proofs.
+
+Still required: native source-claim alias consistency and framing, registry
+sealing and first-original-owner dispatch into this batch verifier, complete
+application/extractor composition, raw frozen-word availability, global
+Fiat–Shamir risk accounting including partial/pending/receipt exposures,
+physical attacker work with initialization/local/abort/rejection costs,
+both original Goldilocks/BabyBear parameter certificates, strict decoding and
+checked Rust/Charon/Aeneas/NTT/SIMD/Div64/scheduler refinement. The target
+remains protocol 12/schedule 5 with original degree 1024, LWE dimension 728,
+public evaluation/output keys and `2^128 * Pr[any accepted false PBS] ≤
+E[attacker work]` for all causal attackers over an unbounded lifetime. The
+new deterministic batch execution results do not establish that theorem.
+
+Validation: thirty-eight new regression assertions and forty guarded public
+axiom reports pass. Full `scripts/check` exits zero: 10,355 build jobs,
+including the combined HasteBoots smoke in 646 seconds, followed by every
+strict repository audit/smoke command. All five new production modules and
+both regression modules pass direct checks with `-DwarningAsError=true`.
+The fresh native fixture-integrity command also exits zero for all three
+cases, matching complete joint traces and final parent bytes. Rust formatting
+and shell syntax checks pass. Only `propext`, `Classical.choice` and
+`Quot.sound` occur in the new public theorem reports. Default proof limits,
+existing native fixture bytes/assertions and the pinned native source tree
+are unchanged.

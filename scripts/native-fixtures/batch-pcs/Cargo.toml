@@ -1,0 +1,13 @@
+[package]
+name = "formalproof4fhe-native-batch-pcs-fixture"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+algebra = { path = "../../../../HasteBoots/algebra" }
+helper = { path = "../../../../HasteBoots/helper", features = ["transcript-audit"] }
+pcs = { path = "../../../../HasteBoots/pcs" }
+bincode = { version = "=2.0.1", features = ["serde"] }
+serde = { version = "=1.0.229", features = ["derive"] }
+sha2 = "=0.10.9"

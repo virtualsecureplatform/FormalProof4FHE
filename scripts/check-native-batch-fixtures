@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+"""Compare fresh pinned-native observations with the Lean batch regression data."""
+import ast
+from pathlib import Path
+import re
+import subprocess
+import sys
+
+if not __debug__:
+    raise SystemExit('Run fixture checks without Python optimization flags')
+
+root = Path(__file__).resolve().parent.parent
+run = subprocess.run([str(root / 'scripts/native-batch-fixture')], capture_output=True, text=True)
+if run.returncode:
+    sys.stderr.write(run.stderr)
+    sys.stderr.write(run.stdout)
+    sys.exit(run.returncode)
+
+cases = {}
+current = None
+for line in run.stdout.splitlines():
+    if line.startswith('CASE '):
+        current = line[5:]
+        assert current not in cases, f'duplicate native case: {current}'
+        cases[current] = {}
+    elif line.startswith('CASE_OK '):
+        assert line[8:] == current
+        cases[current]['case_ok'] = True
+    elif current:
+        key, _, value = line.partition(' ')
+        if key in {'ROOT', 'OPENING', 'VALUES', 'STARTS', 'OUTPUTS', 'HASHES', 'OBSERVATIONS', 'FINAL_PARENT'}:
+            cases[current][key] = ast.literal_eval(value)
+assert list(cases) == ['accepted', 'last-claim', 'second-response']
+
+source = (root / 'FormalProof4FHETest/HasteBootsBatchPcsSmoke.lean').read_text()
+for name, namespace in [('accepted', 'Accepted'), ('last-claim', 'LastClaim'), ('second-response', 'SecondResponse')]:
+    native = cases[name]
+    assert native.get('case_ok'), f'missing success marker: {name}'
+    section = source.split(f'namespace {namespace}\n', 1)[1].split(f'end {namespace}', 1)[0]
+    constants = {}
+    for line in section.splitlines():
+        part = re.fullmatch(r'def (\w+Part\d+) : Input := bytes (\[.*\])', line)
+        combined = re.fullmatch(r'def (\w+) : Input := List.flatten \[(.*)\]', line)
+        if part:
+            values = ast.literal_eval(part[2])
+            assert all(isinstance(value, int) and 0 <= value < 256 for value in values)
+            constants[part[1]] = values
+        elif combined:
+            constants[combined[1]] = sum((constants[piece] for piece in combined[2].split(',')), [])
+    for label, key in [('ROOT', 'rootBytes'), ('OPENING', 'openingBytes'), ('VALUES', 'valueBytes'), ('FINAL_PARENT', 'nativeFinal')]:
+        assert native[label] == constants[key], f'{name}: {label} differs from Lean'
+    hashes = [(constants[f'hashInput{i}'], constants[f'hashOutput{i}']) for i in range(7)]
+    assert native['HASHES'] == hashes, f'{name}: hash trace differs'
+    assert native['STARTS'][:3] == [constants[f'start{i}'] for i in range(3)]
+    outputs = []
+    for reader in range(3):
+        stream = []
+        for actual_reader, offset, chunk in native['OUTPUTS']:
+            if actual_reader == reader:
+                assert offset == len(stream)
+                stream.extend(chunk)
+                outputs.append((reader, offset, chunk))
+        assert stream == constants[f'stream{reader}'], f'{name}: reader {reader} differs'
+    # This is the verifier-only joint trace; the later parent probe is excluded.
+    expected = [(2, hashes[0][0], 0, hashes[0][1])]
+    for reader in range(3):
+        expected.append((0, constants[f'start{reader}'], 0, []))
+        expected.extend((1, constants[f'start{reader}'], offset, chunk)
+                        for actual_reader, offset, chunk in outputs if actual_reader == reader)
+    expected.extend((2, key, 0, answer) for key, answer in hashes[1:])
+    assert len(expected) == 14 and native['OBSERVATIONS'] == expected, f'{name}: joint trace differs'
+    print(f'{name}: native bytes, 14 joint observations and final parent match Lean')
