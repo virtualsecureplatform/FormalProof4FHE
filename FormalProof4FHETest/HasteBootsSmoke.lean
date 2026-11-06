@@ -1,4 +1,6 @@
 module
+import all FormalProof4FHETest.HasteBootsNativeColumnLawSmoke
+import all FormalProof4FHETest.HasteBootsNativeColumnLawAudit
 import all FormalProof4FHETest.HasteBootsNativeFieldLawSmoke
 import all FormalProof4FHETest.HasteBootsNativeFieldLawAudit
 import all FormalProof4FHETest.HasteBootsNativeRectangularSmoke

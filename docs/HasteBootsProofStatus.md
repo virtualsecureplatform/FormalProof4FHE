@@ -10558,3 +10558,34 @@ full global risk composition; efficient public extraction and PBS application
 soundness; native BabyBear integration; physical attacker-work and final
 128-bit numerics; and strict decoder plus Rust/Charon/Aeneas/NTT/SIMD/Div64/
 scheduler refinement.
+
+
+## Native response-bound column challenge laws
+
+The native Goldilocks batch column request now has an exact first-read posterior
+law. Its computed typed vector retains the original ordered draws and duplicates;
+a shared-column miss bound applies to all checks without a group or lane factor.
+The complete request input binds the raw test row and every raw group response.
+Field-equal lazy word aliases therefore remain different committed responses.
+Authentication columns and paths are later data and do not enter this nonce.
+
+The native field completion bridge identifies the actual receipt-derived parent.
+Receipt replay works when all 64 receipt coordinates are already known, including
+split or cloned reads; it does not require a previous complete receipt read.
+The regression covers two 32-byte reads, rejects a single partial receipt as
+sufficient knowledge, preserves draws [7,1,7], and exercises two response groups
+with three original claims. All 24 new theorem axiom guards permit only propext,
+Classical.choice and Quot.sound.
+
+This closes a local column-law interface, not the final security theorem. The
+law requires receipt knowledge and an actual first read of the complete bound
+input. Global causal coverage must still handle earlier unknown-parent guesses,
+partially known receipts and seed lineages, orphan/pending requests, and all
+attacker histories. Physical work accounting, the public evaluator/extractor,
+BabyBear native integration, strict decoding and implementation refinement, and
+the final 128-bit application-security inequality remain outstanding.
+
+Validation: the full `scripts/check` passed (10,486 build jobs, including the
+combined HasteBoots smoke module), as did separate warning-as-error checks of
+all four new production modules and both new regression/audit modules. No new
+axioms, proof placeholders, native decision proofs or limit increases were used.

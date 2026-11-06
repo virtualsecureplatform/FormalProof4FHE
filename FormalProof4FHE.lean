@@ -1,3 +1,4 @@
+import FormalProof4FHE.HasteBoots.NativeGoldBatchColumnRequestLaw
 import FormalProof4FHE.LWE.Basic
 import FormalProof4FHE.LWE.AffineCircular
 import FormalProof4FHE.LWE.RecursiveQuadratic
