@@ -10740,3 +10740,51 @@ Validation: full `scripts/check` passed with 10,500 build jobs, including the
 combined HasteBoots smoke module. Separate warning-as-error checks passed for
 all three new production modules and both regression/audit modules. No new
 axioms, proof placeholders, native decision proofs or limit increases were used.
+
+
+## Early receipt keys as guesses of consumed field-byte prefixes
+
+`NativeFieldConsumedPrefix` now proves that actual collector completion consumes
+at least byteCount(p) times the accepted coefficient count and retains a literal
+prefix of the same oracle stream. Rejected candidates stay in that prefix. For
+Goldilocks test width at least three, native geometry requires at least nine
+coefficients, hence at least 72 raw bytes. Code packing width is kept separate.
+No retry bound or nonwrapping receipt-length assumption is used in this result.
+
+`NativeReceiptPrefixView` extracts raw field-byte prefixes named by receipt query
+keys. Any positive partial receipt read contributes its complete key, including
+far-offset or cloned reads; a full 64-byte receipt read is unnecessary. Starts
+and empty reads add no candidates. Candidate prefixes are deduplicated and all
+underlying mixed-oracle observations are retained.
+
+`NativeEarlyReceiptPrefixRisk` selects an actual pending first column read,
+parses its field/receipt prefix link, and checks that the recovered field stream
+is wholly unseen in the current history. Its event asks whether earlier receipt
+keys name that field stream's raw prefix. Exact conditional and averaged laws
+use the finite target-set cardinality divided by 256^prefixLength. For 72 raw bytes
+the denominator is 2^576. The measurable lifetime event and total probability
+charge range over every actual machine prefix, with no attacker-lifetime cap.
+The coverage lemma derives the named prefix directly from a completed collector
+under the recovered phase. A separate structural theorem proves that the parsed
+field input cannot equal a receipt-domain key.
+
+The regression reads only receipt byte 63 before the pending column nonce, keeps
+full receipt knowledge false, and derives a single-candidate conditional risk
+of 1/2^576 from the real native fixture. It also checks exclusion after prior
+field exposure, short or wrong-domain keys, ignored starts/empty reads, native
+completion coverage, and retention of a rejected byte in a modulus-three run.
+Twenty-five theorem axiom guards permit only the allowed three axioms or subsets.
+
+This closes the earlier-receipt-key prefix-guess charge, not the full early
+receipt argument. Guesses of a previously unseen receipt digest, the complete
+field/column false-acceptance reduction, trusted ownership and public extraction,
+PBS application semantics, BabyBear, physical work, strict implementation
+refinement and the final 128-bit inequality remain open. These charges count
+probability risk; candidate cardinality or observation-log length is not asserted
+to be physical attacker work. The raw-key prefix case does not interpret or
+assume nonwrapping of the 16-byte consumed-length quote.
+
+Validation: full `scripts/check` passed with 10,505 build jobs, including the
+combined HasteBoots smoke module. Separate warning-as-error checks passed for
+all three new production modules and both regression/audit modules. No new
+axioms, proof placeholders, native decision proofs or limit increases were used.

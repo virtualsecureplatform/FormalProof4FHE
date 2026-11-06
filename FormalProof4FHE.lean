@@ -1,3 +1,4 @@
+import FormalProof4FHE.HasteBoots.NativeEarlyReceiptPrefixRisk
 import FormalProof4FHE.HasteBoots.NativeGoldBatchChallengeLink
 import FormalProof4FHE.HasteBoots.NativeGoldBatchColumnExposure
 import FormalProof4FHE.HasteBoots.NativeGoldBatchStreamCoverage
