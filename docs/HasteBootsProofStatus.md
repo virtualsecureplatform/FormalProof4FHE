@@ -7,6 +7,53 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+Candidate native-role calibration is now kernel checked. For every role quota
+`Q ≥ 544`, the rectangular error is at most `17 / 2^141`; the sum over
+four roles is at most `17 / 2^139`. Multiplying that sum by the 64-shape
+arithmetic allowance and `2^128` gives at most `17/32`. This is an arithmetic
+certificate, not an application soundness or physical-work theorem. The
+64 shapes are a structural domain, not a bound on attacker trials. Native
+query defaults are unchanged.
+
+Validation: `scripts/check` passed all 10,583 build jobs and its strict
+audit/smoke commands. Six additional strict calibration, profile-column and
+lifetime checks passed. The 31 new theorem guards use only `propext`,
+`Classical.choice` and `Quot.sound`; `prime_nonzero` is axiom-free.
+
+The calibration follows HasteBoots commit
+`dff353006322693cab3dc6b654f82151f658f294`, including the minimum domain
+of 32 blocks. LWE dimension remains 728; its round count is padded to 1024.
+Test and code widths remain independent:
+
+| Field / role | Variables | Left variables | Message blocks | Domain blocks | Test width | Code width |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Goldilocks source | 19 | 9 | 256 | 512 | 4 | 4 |
+| Goldilocks helper | 21 | 10 | 512 | 1024 | 3 | 4 |
+| Goldilocks final source | 9 | 4 | 8 | 32 | 4 | 4 |
+| Goldilocks final helper | 11 | 5 | 16 | 32 | 3 | 4 |
+| BabyBear source | 18 | 9 | 64 | 128 | 8 | 8 |
+| BabyBear helper | 21 | 10 | 256 | 512 | 6 | 8 |
+| BabyBear final source | 8 | 4 | 2 | 32 | 8 | 8 |
+| BabyBear final helper | 11 | 5 | 8 | 32 | 6 | 8 |
+
+`RectangularPCSParameters` uses proximity `(δ/p)^w` and the maximum of the
+two shared ordered-column miss terms. Its finite and extended-real versions
+agree exactly. `NativeGoldBatchArithmetic` identifies those terms with the
+actual native analysis losses, under successful code construction and the
+primitive-root premise. `NativeGoldBatchCalibration` bounds both losses and
+per-packet risks and discharges the lifetime theorem's width/radius premises
+for compatible Goldilocks roles. The resulting lifetime bound retains all
+hash, receipt and exposure charges, including the arbitrary causal prelude.
+It does not turn exposure count into physical work. BabyBear currently has
+these numerical certificates, not the corresponding native execution bridge.
+
+Next obligations are the closed physical instruction machine and cost coupling
+(including initialization, local work, aborts/rejections and role separation),
+whole-protocol error accounting, first-original registry/context binding,
+independent public evaluation/extraction, and strict Rust/backend refinement
+including decoding, NTT, SIMD, Div64 and scheduling. Trusted profile dimensions
+must also be connected to actual application construction.
+
 The combined lifetime theorem now uses a column selector restricted to the
 fixed native ordered quota and complete field coefficient count. Native
 preparation derives both equalities at the actual first column read, and the
@@ -25,7 +72,7 @@ incompatible coefficient count is also excluded. Foreign prequeries remain
 in the global history and can freeze the same earlier source log. The filter
 changes neither native verification nor shared oracle/cache semantics.
 Fourteen new theorem guards audit the sampler, native preservation and
-context-transport proofs. Numerical calibration, physical cost coupling,
+context-transport proofs. Whole-protocol calibration, physical cost coupling,
 public application extraction, registry/context binding at that boundary,
 BabyBear and strict implementation refinement remain open.
 

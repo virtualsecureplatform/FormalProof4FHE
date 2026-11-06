@@ -23,3 +23,5 @@ import FormalProof4FHETest.GSWLinearCharacterSmoke
 import FormalProof4FHETest.GSWLinearCharacterSecuritySmoke
 import FormalProof4FHETest.GSWLinearCharacterBootstrapSmoke
 import FormalProof4FHETest.GSWTripleLocalSmoke
+import FormalProof4FHETest.HasteBootsCalibrationSmoke
+import FormalProof4FHETest.HasteBootsCalibrationAudit
