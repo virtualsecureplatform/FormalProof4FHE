@@ -465,3 +465,7 @@ public import FormalProof4FHE.HasteBoots.NativeLookupTranscriptExtension
 public import FormalProof4FHE.HasteBoots.NativeFinishedChildAncestry
 
 public import FormalProof4FHE.HasteBoots.NativeGoldHelperVerification
+
+public import FormalProof4FHE.HasteBoots.NativeSourceRegistry
+
+public import FormalProof4FHE.HasteBoots.NativeGoldBatchBinding

@@ -21,7 +21,7 @@ composition remain open. Base-field challenges, response framing and atomic
 index draws now have executable adapters and a joint finite-byte sampling law. The retained
 block-code constructor and its complete serialization now supply the same
 code object to parameter binding and computed scalar response encoding. See
-[the current implementation layer](#causal-pcs-and-ordered-helper-verification).
+[the current implementation layer](#original-source-ownership-and-native-batch-binding).
 The joint ideal-oracle model also has a proved accumulated SHA-512 collision
 bound for causal mixed SHAKE/hash programs, including repeated calls and
 inherited bad events. The full application security theorem remains unproved:
@@ -9656,4 +9656,77 @@ by every strict repository audit/smoke command. All three new production
 modules and the standalone regression module also pass direct checks with
 `-DwarningAsError=true`. Only `propext`, `Classical.choice` and `Quot.sound`
 occur in the new public theorem reports; default proof limits and existing
+native fixture bytes/assertions are unchanged.
+
+
+## Original source ownership and native batch binding
+
+`NativeSourceRegistry` computes alias groups from the full original ordered
+registry, using both the complete computed context digest and the root.
+Each group selects its first original slot, before any unused-source filter.
+The owner is at or before each aliased slot, has exactly the same key, is
+idempotent and is minimal among original slots. Equal roots with different
+contexts remain distinct. These are digest-key facts; parameter equality
+still needs the separate context-collision argument. Tests deliberately
+include a colliding context oracle to preserve that boundary.
+
+The metadata-bearing initializer erases to the existing native registry
+initializer with the same returned parent and complete oracle log. Successful
+preparation recovers that metadata and its original registration observations.
+`bound_metadata` and `helpers_metadata` derive the original parameter/context/
+root correspondence from the actual completed lookup body or helper pipeline;
+callers do not supply an alias map or a successful-registration certificate.
+An existing native completed-body fixture exercises this derivation.
+
+`NativeGoldQueryGroups` groups response rows by the exact ordered list of
+left-prefix matrix pairs. Every matrix retains its width and all ordered
+entries; equality compares Goldilocks entries modulo the base field. Group
+representatives are first original queries. Suffix differences may share a
+response; reordered left matrices do not share merely because another
+algebraic summary agrees. Equality keys do not replace the original raw
+query bytes. Native binding/shape gates must precede use of the total key
+functions.
+
+`NativeGoldBatchBinding` implements native `bind_many`: reject empty or
+mismatched counts and invalid query/value/matrix dimensions before context
+hashing, compute the actual row-code context, and append the original raw
+context/root/queries/values tuple under `mw batched row-code v1`. Returned
+bindings retain precisely those checked queries and values for subsequent
+response grouping. Serialization failure and rejected binding preserve their
+actual observed prefixes. This is the binding prefix of `verify_many`;
+shared random-test sampling, responses, ordered columns, worker authentication
+and finishing every original claim still require implementation/composition.
+
+A new differential fixture runs successful native `open_many` and `verify_many`
+at HasteBoots commit `dff353006322693cab3dc6b654f82151f658f294` with four
+claims and two left-prefix response groups. Lean kernel checks match the
+115-byte context-hash input, its 64-byte digest, original query/value encodings,
+and the complete 783-byte native transcript prefix ending at batch binding.
+It includes a lazy representative equal to zero in the field whose raw wire
+bytes differ. This small fixture checks correspondence; it does not certify
+the target native parameter profiles or replace Rust refinement.
+
+The final target remains both native Goldilocks/BabyBear profiles, original
+degree 1024/LWE dimension 728 and public keys, full protocol/schedule execution,
+independent public extraction and the 128-bit expected physical-work theorem
+for all causal attackers. Grouped source claims/sealing/dispatch, the rest of
+`verify_many`, availability, global Fiat–Shamir risk, physical work, numerical
+certification, strict adversarial decoding and checked native/compiler/
+scheduler refinement remain open. No full application-security theorem is
+claimed by these deterministic ownership/grouping/binding results.
+
+An existing 616-byte child fixture literal is split into five definitions
+of at most 128 bytes to stay within the default elaboration heartbeat limit. The concatenated bytes retain SHA-256
+`02c4e5f50cdd104ed36b3c3b80f5a0b57bd9c5cf4f28d215b1010d8721ed375d`;
+no fixture assertion or proof limit is relaxed. The complete affected child
+fixture namespace passes its isolated strict check after this change.
+
+Validation: twenty-seven new standalone regression assertions, one new
+assertion in the existing native completed-body fixture, and thirty guarded
+public-theorem axiom reports pass. Full `scripts/check` exits zero: 10,350
+build jobs, including the combined HasteBoots smoke in 599 seconds, followed
+by every strict repository audit/smoke command. All three new production
+modules and the standalone regression module also pass direct checks with
+`-DwarningAsError=true`. Only `propext`, `Classical.choice` and `Quot.sound`
+appear in the new public theorem reports; default proof limits and existing
 native fixture bytes/assertions are unchanged.
