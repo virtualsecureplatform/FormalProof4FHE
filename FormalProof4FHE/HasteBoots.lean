@@ -490,3 +490,4 @@ public import FormalProof4FHE.HasteBoots.NativeFramedDeferredAvailability
 public import FormalProof4FHE.HasteBoots.NativeCallerLookupLifetimeAvailability
 public import FormalProof4FHE.HasteBoots.NativeGoldBatchLinearEquations
 public import FormalProof4FHE.HasteBoots.NativeGoldBatchOpeningView
+public import FormalProof4FHE.HasteBoots.RectangularBatchOpeningKernel

@@ -108,6 +108,16 @@ indices expose coded responses and shared frozen-word agreement in the form
 used by rectangular opening soundness. No freshness, probability bound or
 independence between response families is inferred from this transport.
 
+Rectangular finishing/extraction algebra now separates packing width from code
+symbol width and truncates decoded padding to the original message length.
+The fixed-word interactive kernel allows probabilistic adaptive response state
+between the uniform test matrix and shared ordered columns. One query-independent
+analysis table supports an any-false-original-query batch bound, without query,
+group or lane count factors. Its proximity term is `(distance / field size)^testWidth`.
+This is not yet the production Fiat–Shamir theorem: native finishing translation,
+full freshness/lineage, efficient public extraction and work/refinement transfer
+remain required.
+
 Still open: complete first-exposure lineage for orphan/pending/receipt cases,
 application soundness and independent public extraction, BabyBear integration,
 physical attacker-work accounting and the final 128-bit numerical theorem,
@@ -10303,3 +10313,42 @@ every finite group/lane test. Ten production axiom guards use only the allowed
 axioms. Full Fiat–Shamir freshness/lineage, native finishing-to-extraction and
 application soundness, BabyBear integration, attacker-work/numerical security,
 and strict decoder/Rust/NTT/SIMD/Div64/scheduler refinement remain open.
+
+
+## Rectangular matrix finishing and any-false-query batch soundness
+
+`RectangularMatrixResponse` separates the packing channels used by left/right
+matrices from the code's symbol coordinates. Coefficient recovery and the final
+right-matrix fold retain native multiplication order. Truncation discards decoded
+padding even when an abstract source has nonzero padding coefficients.
+`RectangularMatrixOpeningKernel.extract` is one query-independent analysis table;
+`extract_encoded` proves exact recovery of an honestly padded table through the
+common decoder and coefficient inverse. This remains an information-theoretic,
+noncomputable extractor, not an efficient executable public extraction result.
+
+`RectangularOpeningKernel` permits arbitrary probabilistic adaptive responses,
+including retained private coins/state. No losslessness or response enumeration
+premise is added. Its experiment draws the uniform matrix first, runs the
+response computation, and then samples one fresh ordered shared column vector.
+The near/far proof has proximity `(distance / field size)^testWidth` plus the
+maximum of the two column losses. Random and structured column events are not
+multiplied.
+
+`RectangularMatrixOpeningKernel` derives response code membership from padded
+message arrays and proves the false matrix-evaluation bound against that single
+extracted table. `RectangularBatchOpeningKernel` finishes every original right
+query using its assigned left-prefix response group. Any false original query
+is contained in one vector-valued finishing error, so the same bound has no
+query-count, group-count or lane-count factor. The abstract grouping map is fixed
+in this interactive game; connecting the native grouping/finishing representation
+and full production transcript law remains open.
+
+Regressions exercise noncommuting left/right matrices, nonzero decoded padding,
+honest recovery, three packing channels with four code coordinates, and six/eight
+BabyBear field algebra. Probabilistic response state retains both private coins
+and the preceding matrix. Three original queries sharing two response groups
+instantiate the any-false-query bound and retain distinct right-query finishing.
+Eleven production axiom guards use only the allowed axioms. These tests do not
+establish native BabyBear integration, Fiat–Shamir freshness/lineage, full PBS
+application soundness/extraction, physical attacker work/numerics or strict native
+implementation refinement.
