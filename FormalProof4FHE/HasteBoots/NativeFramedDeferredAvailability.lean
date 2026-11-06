@@ -1,6 +1,6 @@
 module
 
-public import FormalProof4FHE.HasteBoots.NativeGoldHelperFraming
+public import FormalProof4FHE.HasteBoots.NativeLookupBodyFraming
 public import FormalProof4FHE.HasteBoots.NativeDeferredBatchFraming
 public import FormalProof4FHE.HasteBoots.NativeSourceClaimFraming
 public import FormalProof4FHE.HasteBoots.NativeGoldLookupAvailability
@@ -133,6 +133,30 @@ theorem lookup_from_body {Memory : Type} (dummy : Digest)
   have origin := NativeGoldLookupVerification.program_batches_origin ctx chooseHelper chooseBatch memory world prepared progress (.verification result) executed
   have helperFramed := NativeGoldHelperFraming.prepared_framed ctx chooseHelper memory world prepared origin.1 framed helpers
   exact lookup_from_helpers dummy ctx chooseHelper chooseBatch memory world prepared progress result executed helperFramed claims domain history truthful observed receipt member noBad
+
+/-- All intermediate parent framing follows from the original caller parent
+and static message allocation bounds along the actual native lookup run. -/
+theorem lookup_from_parent {Memory : Type} (dummy : Digest)
+    (ctx : NativeGoldHelperVerification.Context (NativePrefixCodec.Vector NativeGoldBatchOpening.Opening))
+    (chooseHelper : NativeGoldPcsProgram.Scheduler Memory) (chooseBatch : Scheduler Memory) (memory : Memory) (world : World)
+    (prepared : NativeGoldLookupVerification.Prepared Memory) (progress : NativeSharedSourceClaims.Progress) (result : Result Memory)
+    (executed : (run (NativeGoldLookupVerification.program ctx chooseHelper chooseBatch memory) world).run.1.phase = .batches prepared progress (.verification result))
+    (framed : NativeTranscriptFraming.Framed ctx.parent)
+    (bodyDomain : NativeLookupBodyFraming.Domain ctx.registry ctx.requests ctx.proof)
+    (helpers : NativeGoldHelperFraming.Domain prepared.plan.calls)
+    (claims : NativeSourceClaimFraming.Domain ctx.registry ctx.requests prepared.query ctx.proof.sources)
+    (domain : NativeDeferredBatchFraming.Domain (NativeGoldLookupVerification.batchContext ctx progress))
+    (history : List Observation) (truthful : ObservationReplay.Agrees world history)
+    (observed : (run (NativeGoldLookupVerification.program ctx chooseHelper chooseBatch memory) world).run.2.Sublist history)
+    (receipt : Receipt Memory) (member : receipt ∈ result.progress.receipts)
+    (noBad : ¬CheckpointCollision.Bad shape (reconstructed dummy history)) :
+    NativeDeferredBatchOwnership.OriginalCall ctx.registry progress.state receipt.call ∧
+      receipt.work.root = receipt.call.oracle.root ∧ receipt.work.width = receipt.call.oracle.parameters.width.val ∧
+      receipt.work.binding.queries = receipt.call.queries ∧ receipt.work.binding.values = receipt.call.values ∧
+      HasSource dummy (receipt.call.context ctx.tables ctx.fieldFuel receipt.before) receipt.work history world := by
+  have origin := NativeGoldLookupVerification.program_batches_origin ctx chooseHelper chooseBatch memory world prepared progress (.verification result) executed
+  have bodyFramed := NativeLookupBodyFraming.prepared_body ctx chooseHelper memory world prepared origin.1 framed bodyDomain
+  exact lookup_from_body dummy ctx chooseHelper chooseBatch memory world prepared progress result executed bodyFramed helpers claims domain history truthful observed receipt member noBad
 
 end
 end FormalProof4FHE.HasteBoots.NativeFramedDeferredAvailability

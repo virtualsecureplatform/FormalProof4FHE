@@ -72,9 +72,13 @@ encoded claim/binding/response size bounds. Single-opening PCS and the ordered
 helper loop now preserve framed ancestry as well, using actual accepted sampler
 and PCS transitions. Registered lookup preparation carries that result into
 the availability corollary, which can start from the earlier lookup-body parent.
-Native message allocation bounds and lookup-body parent framing remain explicit;
-strict Rust decoding/refinement and the remaining security obligations are not
-discharged by this invariant.
+The caller-parent corollary now derives lookup-body framing through original
+request preflight, full registry serialization, multiplicity binding, retained
+child initialization and successful child finishing. It assumes only the
+original caller parent is framed and static native message allocation bounds;
+no intermediate future transcript framing certificate is supplied. Strict Rust
+decoding/refinement and the remaining security obligations are not discharged
+by this invariant.
 
 Still open: complete first-exposure lineage for orphan/pending/receipt cases,
 application soundness and independent public extraction, BabyBear integration,
@@ -10144,3 +10148,38 @@ Eleven production theorem axiom guards use only `propext`, `Classical.choice`
 and `Quot.sound`. Upstream child/body framing and executable allocation/decoder
 refinement remain open, as do the final application, extraction and expected
 attacker-work security claims.
+
+
+## Caller-parent framing through the full lookup body
+
+`NativeChildParentFraming` derives the retained parent extension through the
+actual fork/seed request and successful typed child finish. A child fingerprint
+has its actual fixed 64-byte length; parent framing needs no framing certificate
+for the scalar child transcript. This preserves the native control flow and
+adds no verifier checks. Child framing and complete lineage are separate
+invariants needed elsewhere in the security proof.
+
+`NativeCanonicalMessageBounds` bounds canonical source serialization by
+`9 + 128 * original slot count`, independently of context/root digest contents.
+`NativeLookupParentFraming` propagates ancestry through original request binding,
+numeric/context preflight, post-binding rejection and full registry construction.
+Its bounds refer only to original request/configuration bytes and selected slot
+counts, including repeated and unused registry entries. No future oracle answer
+selects a framing certificate.
+
+`NativeLookupBodyFraming` composes those transitions with the actual child launch
+and body result. Registered-helper erasure and lookup preparation recover the
+executed original body. `lookup_from_parent` consequently derives all parent
+framing required for deferred receipt availability from the caller's original
+framed parent, with static body/helper/source/ordered-batch message domains.
+Those allocation domains still require strict native front-end refinement.
+
+Focused regressions cover original duplicated/unused registry slots, context
+serialization failure, rejection after appending a binding frame, retained
+parent framing and a malformed child whose actual fingerprint still has fixed
+length. The native completed body fixture also instantiates caller-to-body
+framing. Twenty-two production theorem axiom guards contain only the existing
+allowed axioms. Complete first-exposure lineage, PCS/application soundness,
+independent extraction, BabyBear integration, physical attacker-work/numerical
+security and executable decoder/Rust/NTT/SIMD/Div64/scheduler refinement remain
+open.

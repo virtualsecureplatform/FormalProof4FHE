@@ -1,4 +1,6 @@
 module
+import all FormalProof4FHETest.HasteBootsParentFramingAudit
+import all FormalProof4FHETest.HasteBootsParentFramingSmoke
 import all FormalProof4FHETest.HasteBootsHelperFramingSmoke
 import all FormalProof4FHETest.HasteBootsHelperFramingAudit
 import all FormalProof4FHETest.HasteBootsDeferredFramingSmoke
@@ -18194,6 +18196,23 @@ private theorem accepted_bound : ∃ result, completed.1 = some (NativeSharedLoo
     | bound result => exact ⟨result,rfl⟩
     | suspended machine => simp only [selected,Bool.false_eq_true] at accepted
     | rejected reason machine => simp only [selected,Bool.false_eq_true] at accepted
+
+private theorem originalParentFramed : NativeTranscriptFraming.Framed parent := by
+  rw [NativeTranscriptFraming.framed_iff_decode]
+  decide +kernel
+
+private theorem originalBodyDomain : NativeLookupBodyFraming.Domain registry requests proof := by
+  refine ⟨⟨?_,?_⟩,?_,?_,?_⟩
+  · decide +kernel
+  · exact HasteBootsParentFramingSmoke.calls_domain registry.val requests.val (by decide +kernel)
+  · decide +kernel
+  · decide +kernel
+  · decide +kernel
+
+example : ∃ result, completed.1 = some (.bound result) ∧ NativeTranscriptFraming.Framed result.parent := by
+  obtain ⟨result,success⟩ := accepted_bound
+  exact ⟨result,success,NativeLookupBodyFraming.protocol_framed description registry helper parent requests proof
+    30 30 30 world result success originalParentFramed originalBodyDomain⟩
 
 example : (OracleProgram.run (NativeSharedLookupChild.start
     (OracleProgram.run (NativeSharedLookupParent.prepare description registry helper parent requests) world).run.1.1
