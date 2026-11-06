@@ -1,4 +1,6 @@
 module
+import all FormalProof4FHETest.HasteBootsBatchMeaningSmoke
+import all FormalProof4FHETest.HasteBootsBatchMeaningAudit
 import all FormalProof4FHETest.HasteBootsCallerAvailabilitySmoke
 import all FormalProof4FHETest.HasteBootsCallerAvailabilityAudit
 import all FormalProof4FHETest.HasteBootsParentFramingAudit

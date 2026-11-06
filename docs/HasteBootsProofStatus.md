@@ -90,6 +90,16 @@ any-batch charge; the lifetime bound adds no lookup, receipt or prefix factor.
 Message allocation/refinement, full lineage and attacker-work transfer remain
 separate obligations.
 
+Batch response semantics now derive polynomial-code membership for every
+computed test lane and every actual response group from successful preparation,
+the retained code constructor and its primitive root. The native stride, block
+width and Merkle height match that code. Accepted raw-source equations transport
+to vector linear checks on one complete frozen context/root word for all lanes
+and groups. These deterministic results retain independent test and symbol
+widths. They do not supply Fiat–Shamir freshness or the final PCS soundness
+probability composition; root-generation and implementation refinement remain
+explicit backend obligations.
+
 Still open: complete first-exposure lineage for orphan/pending/receipt cases,
 application soundness and independent public extraction, BabyBear integration,
 physical attacker-work accounting and the final 128-bit numerical theorem,
@@ -10223,3 +10233,36 @@ allowed axioms. Static allocation domains still require executable decoder and
 Rust refinement; complete lineage, PCS/application soundness, independent
 extraction, both-field integration/numerics and expected attacker-work security
 remain open.
+
+
+## Computed batch response codewords and frozen-word linear checks
+
+`NativeGoldBatchResponseMeaning` derives the test response and every structured
+response lane from the actual successful batch preparation. Their coefficients
+are the original response chunks, and every returned lane belongs to the
+retained block Reed–Solomon code. Native constructor success fixes the degree,
+padding, block width and domain; successful encoding supplies its own plan/root
+agreement. Primitive-root correctness of the retained backend root remains an
+explicit premise. `prepared_layout` derives the actual flat response stride and
+Merkle height, so code width is not identified with test width.
+
+`NativeGoldBatchLinearEquations` turns native coordinate equations into vector
+linear-combination equalities. One complete frozen word, keyed by the actual
+context hash, root and common checkpoint log, serves every requested symbol,
+test row and response group. Request tags/roots and typed positions come from
+the actual computed raw requests. `accepted_combinations` derives those checks
+from an actual accepted batch and the global no-disagreement condition, without
+a caller-supplied availability or coordinate-check certificate. This is a
+deterministic bridge to rectangular opening soundness; the preceding random
+matrix and later column draws have not yet received the full production
+Fiat–Shamir/freshness probability composition.
+
+Regressions execute a rectangular Goldilocks prefix with three test rows and
+four code coordinates. Two distinct right queries share one left-prefix group,
+one ordered column draw and one computed response. Every lane is coded, the
+native coordinate equations become vector equalities, and changing a returned
+coordinate rejects. The existing nonzero native batch fixture separately
+instantiates the codeword theorem. Ten production axiom guards use only the
+allowed axioms. Full lineage, semantic extraction/application soundness,
+BabyBear integration, attacker-work accounting/numerics and strict native
+refinement remain open.

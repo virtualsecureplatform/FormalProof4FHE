@@ -488,3 +488,4 @@ public import FormalProof4FHE.HasteBoots.NativeGoldBatchLifetimeSourceRisk
 public import FormalProof4FHE.HasteBoots.NativeGoldLookupLifetimeAvailability
 public import FormalProof4FHE.HasteBoots.NativeFramedDeferredAvailability
 public import FormalProof4FHE.HasteBoots.NativeCallerLookupLifetimeAvailability
+public import FormalProof4FHE.HasteBoots.NativeGoldBatchLinearEquations
