@@ -1,3 +1,5 @@
+import FormalProof4FHE.HasteBoots.NativeGoldBatchRecoveredSourceAvailability
+import FormalProof4FHE.HasteBoots.NativeGoldBatchWitnessedColumnBound
 import FormalProof4FHE.HasteBoots.NativeGoldBatchFalseClaimWitness
 import FormalProof4FHE.HasteBoots.NativeGoldBatchSelectedChecks
 import FormalProof4FHE.HasteBoots.NativeGoldBatchRecoveredMatrix

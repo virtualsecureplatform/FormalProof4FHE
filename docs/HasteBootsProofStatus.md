@@ -11077,3 +11077,60 @@ warning-as-error checks passed for all four new production modules and both
 regression/audit modules. All eighteen new theorem axiom guards passed using
 only the three allowed axioms or subsets. No axioms, proof placeholders,
 native decision proofs or proof-limit increases were introduced.
+
+
+## Recovering the first field source and bounding witnessed column events
+
+`CausalFirstStreamPrefix` recovers the complete mixed-log prefix preceding a
+stream's earliest positive read. Its soundness theorem identifies the actual
+output, offset and nonempty bytes. Starts, hashes and empty reads remain in
+the prefix but do not count as exposure. Once recovered, that prefix is
+unchanged by arbitrary suffixes; no seed-window or lifetime cap is used.
+
+`NativeGoldBatchFirstFieldSource` uses this prefix to recover the earlier
+selected common source log from a later history. The strict linked-column
+parser supplies its exact canonical field input. If that stream has already
+been exposed, recovery succeeds; the recovered source has all 64 checkpoint
+snapshots and remains unchanged after suffixes or actual auxiliary collector
+reads. The source is computed from the old selecting history and parsed data,
+not a future native preparation or a later hash log.
+
+`NativeGoldBatchRecoveredSourceAvailability` proves that actual later native
+acceptance uses that recovered source for every authenticated payload and
+native column equation, outside the existing global disagreement event. Its
+column-history theorem derives the actual field phase from the parsed native
+column input, preserves the source through all later verification queries,
+and needs no future source-log witness or supplied checkpoint certificate.
+
+`NativeGoldBatchWitnessedColumnBound` bounds the event that a completed state
+both has a distance witness and passes every shared column check. Unlike the
+older unconditional-witness lemma, it does not require every completed state
+to have a false response. Unwitnessed and suspended states retain their full
+original probability mass. Exact posterior refinement gives the single
+ordered-quota miss bound, and completion stability extends it over all native
+collector budgets without a retry, group or lane factor. Measurability of the
+all-budget event is also proved.
+
+Regressions exercise ignored starts/empty reads, a first field read at offset
+999, retention of hashes and other-input reads in the recovered prefix,
+arbitrary suffixes, and preservation under auxiliary collection. An actual
+accepted native run uses the source recovered before an intervening hash in
+its column history. The probability regression includes a completed correct
+state with no disagreement witness, demonstrating that no unconditional
+witness premise is needed, as well as a witnessed passing state. Eighteen
+new axiom guards cover the production lemmas.
+
+Next, instantiate the witnessed event with the concrete combined random and
+structured response family and the recovered old-history source. Map accepted
+false original claims into that event or the first-field proximity event,
+then apply complete causal exposure coverage and lifetime averaging. The
+registry/context binding, remaining seed/lookup lineage, independent public
+extractor, PBS semantics, native BabyBear, physical attacker work, strict
+implementation refinement and final 128-bit inequality remain open.
+
+Validation: full `scripts/check` passed with 10,541 build jobs, including
+the combined HasteBoots smoke module and all subsequent audits. Separate
+warning-as-error checks passed for all four new production modules and both
+regression/audit modules. All eighteen new theorem axiom guards passed using
+only the three allowed axioms or subsets. No axioms, proof placeholders,
+native decision proofs or proof-limit increases were introduced.
