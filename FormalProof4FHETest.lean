@@ -1,3 +1,5 @@
+import FormalProof4FHETest.HasteBootsFieldProximitySmoke
+import FormalProof4FHETest.HasteBootsFieldProximityAudit
 import FormalProof4FHETest.HasteBootsConcreteCoverageSmoke
 import FormalProof4FHETest.HasteBootsConcreteCoverageAudit
 import FormalProof4FHETest.AxiomAudit

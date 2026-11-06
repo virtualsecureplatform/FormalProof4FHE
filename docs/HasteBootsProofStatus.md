@@ -7,6 +7,34 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+The native first-field proximity event now has a causal conditional bound
+and an unbounded lifetime charge. The source word is selected from the
+history before that field stream's first positive read. An exact equivalence
+maps the ordered native coefficients to the rectangular matrix in lane-major
+order. It preserves the actual completed collector; no completion mass is
+conditioned away. The charge is `(Code.minDist / card Goldilocks)^testWidth`,
+with independent test and code-symbol widths, and is zero for an incompatible
+parsed coefficient count or a source that is not far. All native candidate
+budgets share one loss. The later concrete proximity obstruction enters this
+event using a recorded first-read split and the same recovered source log,
+even with subsequent hashes in the column history.
+
+This still requires the actual earlier first-field packet and its history
+split. Deriving those witnesses inside complete causal accepted-run coverage,
+handling inherited exposures, binding trusted context/registry profiles,
+independent public extraction, expected physical work and implementation
+refinement remain open. The new regression checks cover the 18-coefficient,
+three-test/six-source-row layout with code-symbol width four, quotient-power
+loss, mismatched count rejection, later-source transport and arbitrary-lifetime
+charging. Nine theorem guards audit the new proof dependencies.
+
+Validation for the first-field proximity step: `scripts/check` passed all
+10,564 build jobs and its strict audit/smoke commands. Six focused modules
+also passed with `warningAsError=true`. All nine new theorem guards confirm
+only `propext`, `Classical.choice` and `Quot.sound` dependencies. New tests
+are included through the main test root; the unchanged combined HasteBoots
+smoke module remains covered by the normal dependency build.
+
 At the actual first positive column read, an accepted false native claim
 against the recovered-source analysis extractor now has explicit pointwise
 coverage: global source disagreement, the existing early-receipt event,
@@ -23,9 +51,9 @@ This is coverage at an actual first-column packet, not yet a full accepted-PBS
 application theorem. It still requires original-query falsity against the
 analysis extractor, an actual native first-read witness, truthful history,
 response allocation bounds, and the code-domain primitive-root assumption.
-Connecting proximity to the earlier first-field exposure, transporting every
-later accepted run to a causal first-read packet, trusted registry/profile
-selection, independent public extraction, physical work and Rust refinement
+Deriving earlier first-field and first-column witnesses for every later
+accepted run, trusted registry/profile selection, independent public
+extraction, physical work and Rust refinement
 remain open. Regression tests cover clean and partially queried field
 histories and actual accepted native runs; six new theorem guards check the
 allowed axiom set.
@@ -45,7 +73,7 @@ same draws and the source recovered from the original column history. This
 bridge retains the existing global no-disagreement assumption. Regression
 coverage includes three draws `[7,1,7]` producing two deduplicated jobs and an
 accepted execution whose first field read precedes a later hash. Full application
-false-claim coverage, first-field proximity charging, trusted-profile exposure
+false-claim coverage, causal exposure lineage, trusted-profile exposure
 selection, physical-work accounting and implementation refinement remain open.
 
 Validation for this bridge: `scripts/check` passed all 10,554 build jobs
