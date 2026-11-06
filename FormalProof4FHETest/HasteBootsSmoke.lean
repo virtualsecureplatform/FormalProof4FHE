@@ -1,4 +1,6 @@
 module
+import all FormalProof4FHETest.HasteBootsHelperFramingSmoke
+import all FormalProof4FHETest.HasteBootsHelperFramingAudit
 import all FormalProof4FHETest.HasteBootsDeferredFramingSmoke
 import all FormalProof4FHETest.HasteBootsFramingAudit
 import all FormalProof4FHETest.HasteBootsDeferredAvailabilitySmoke

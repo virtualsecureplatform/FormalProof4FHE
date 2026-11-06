@@ -68,9 +68,13 @@ receipts when a later call stops. Its domain bounds the original ordered
 group/packet pairs; no future oracle answer chooses a framing certificate.
 Source collection carries framing from the helper's actual last-accepted parent
 into the deferred handoff. Availability corollaries use that parent and static
-encoded claim/binding/response size bounds. Those native allocation bounds and
-upstream helper-parent framing remain explicit; strict Rust decoding/refinement
-and the remaining security obligations are not discharged by this invariant.
+encoded claim/binding/response size bounds. Single-opening PCS and the ordered
+helper loop now preserve framed ancestry as well, using actual accepted sampler
+and PCS transitions. Registered lookup preparation carries that result into
+the availability corollary, which can start from the earlier lookup-body parent.
+Native message allocation bounds and lookup-body parent framing remain explicit;
+strict Rust decoding/refinement and the remaining security obligations are not
+discharged by this invariant.
 
 Still open: complete first-exposure lineage for orphan/pending/receipt cases,
 application soundness and independent public extraction, BabyBear integration,
@@ -10115,3 +10119,28 @@ SHA-256 remains
 `2ab97b4d2cb4314e64908c02396adf58b65402dcd27fbba3b73e2b622ad08d90`.
 The affected complete smoke section passes independently, and the full check
 then passes. No proof limit was raised or assertion removed.
+
+
+## Single-opening helper framing through deferred availability
+
+`NativeGoldPcsTranscriptExtension` follows the actual single-opening binding,
+completed random field request (including candidate retries), original response
+binding and accepted atomic index request. Its accepted-parent extension is
+derived from the executed PCS program and its computed acceptance status.
+The domain bounds only the original opening and response message byte lengths;
+it contains no predicate on future hash or SHAKE answers.
+
+`NativeGoldHelperFraming` lifts that result through the real ordered helper
+trace. Done, stopped, cancelled and suspended outcomes retain the ancestry of
+the last accepted parent. `prepared_framed` uses the actual registered-helper
+erasure and lookup preparation, so the deferred availability corollary
+`lookup_from_body` now needs framing of the earlier lookup-body parent rather
+than an assumed framed final helper transcript. Original helper allocation
+bounds, source-claim bounds and ordered deferred packet bounds remain explicit.
+
+Regression cases cover successful helper acceptance, worker suspension,
+cancellation and a second helper stopping after the first receipt was accepted.
+Eleven production theorem axiom guards use only `propext`, `Classical.choice`
+and `Quot.sound`. Upstream child/body framing and executable allocation/decoder
+refinement remain open, as do the final application, extraction and expected
+attacker-work security claims.
