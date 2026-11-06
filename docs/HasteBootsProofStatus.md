@@ -100,6 +100,14 @@ widths. They do not supply Fiat–Shamir freshness or the final PCS soundness
 probability composition; root-generation and implementation refinement remain
 explicit backend obligations.
 
+The native batch now supplies the original typed ordered draw vector to these
+checks, with exact quota, order and repetitions. Every draw occurrence has a
+computed raw request even though workers transport sorted distinct columns.
+Nonempty response groups follow from the actual binding gate. Finite group/lane
+indices expose coded responses and shared frozen-word agreement in the form
+used by rectangular opening soundness. No freshness, probability bound or
+independence between response families is inferred from this transport.
+
 Still open: complete first-exposure lineage for orphan/pending/receipt cases,
 application soundness and independent public extraction, BabyBear integration,
 physical attacker-work accounting and the final 128-bit numerical theorem,
@@ -10266,3 +10274,32 @@ instantiates the codeword theorem. Ten production axiom guards use only the
 allowed axioms. Full lineage, semantic extraction/application soundness,
 BabyBear integration, attacker-work accounting/numerics and strict native
 refinement remain open.
+
+
+## Original ordered batch draws and the rectangular opening interface
+
+`NativeGoldBatchDraws` derives the actual draw quota, native bounds and worker
+coverage from the checked atomic request. The typed vector is computed with
+the existing strict length/range interpretation. Its literal ordered values
+equal the original draw list, including repeats; every occurrence is represented
+by an actual computed raw request. Sorted/deduplicated worker indices are not
+substituted for this vector.
+
+`NativeGoldBatchOrderedChecks` derives nonempty response groups from the native
+nonempty binding check and transfers the shared random and every structured
+response check to that original vector. One immutable full checkpoint word is
+used for all groups, lanes and draw occurrences. Actual accepted execution and
+the shared no-disagreement condition supply the source and preparation witnesses.
+`NativeGoldBatchOpeningView` indexes the structured family by finite group/lane
+pairs and combines it with derived codeword membership. The resulting
+deterministic interface matches rectangular opening soundness, retaining
+independent test and code widths and introducing no group-event independence.
+
+The regression executes a three-test/four-coordinate prefix with original
+column draws `[7, 1, 7]`. Native transport creates two jobs at sorted indices
+`[1, 7]`; the proof retains all three checks, two original queries and their
+single left-prefix response group. Coded and linear checks are instantiated for
+every finite group/lane test. Ten production axiom guards use only the allowed
+axioms. Full Fiat–Shamir freshness/lineage, native finishing-to-extraction and
+application soundness, BabyBear integration, attacker-work/numerical security,
+and strict decoder/Rust/NTT/SIMD/Div64/scheduler refinement remain open.
