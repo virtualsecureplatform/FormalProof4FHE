@@ -35,6 +35,20 @@ theorem pointTable_cost (ctx : Context) :
       2^(logSize ctx.parameters.code)*(2*logSize ctx.parameters.code+9) :=
   NTTDomainCost.nodes_cost _ _
 
+/-- Abstract field/access charge including domain generation. Consumes stored
+columns directly. Raw byte/input materialization and backend refinement remain
+separate. -/
+def extractPreparedWithCost (ctx : Context) (radius : ℕ)
+    (capacity : ctx.parameters.code.messageLength.val ≤ ctx.parameters.code.messageBlocks.val*ctx.parameters.code.blockWidth.val)
+    (raw : DenseCommonSource.Columns Goldilocks (2^(logSize ctx.parameters.code))
+      (2^ctx.parameters.leftVariables.val*ctx.parameters.width.val) ctx.parameters.code.blockWidth.val) :
+    SolverOperationCost.Run (Vector (Vector (Vector Goldilocks ctx.parameters.width.val) ctx.parameters.code.messageLength.val)
+      (2^ctx.parameters.leftVariables.val)) :=
+  let domain := pointTableWithCost ctx
+  let result := DenseSourceExtraction.extractRectangular radius domain.value capacity
+    raw
+  ⟨result.value,domain.cost+result.cost+1⟩
+
 /-- Abstract field/access charge including domain generation. Raw byte/input
 materialization and native backend refinement remain separate. -/
 def extractWithCost (ctx : Context) (radius : ℕ)
@@ -42,23 +56,41 @@ def extractWithCost (ctx : Context) (radius : ℕ)
     (raw : Fin (2^(logSize ctx.parameters.code)) → Row ctx → Fin ctx.parameters.code.blockWidth.val → Goldilocks) :
     SolverOperationCost.Run (Vector (Vector (Vector Goldilocks ctx.parameters.width.val) ctx.parameters.code.messageLength.val)
       (2^ctx.parameters.leftVariables.val)) :=
-  let domain := pointTableWithCost ctx
-  let result := DenseSourceExtraction.extractRectangular radius domain.value capacity
+  extractPreparedWithCost ctx radius capacity
     (ExecutableCommonSource.prepareRaw (CommonSourceReindex.reindex finProdFinEquiv.symm raw))
-  ⟨result.value,domain.cost+result.cost+1⟩
 
 theorem extractWithCost_value (ctx : Context) (radius : ℕ)
     (capacity : ctx.parameters.code.messageLength.val ≤ ctx.parameters.code.messageBlocks.val*ctx.parameters.code.blockWidth.val)
     (raw : Fin (2^(logSize ctx.parameters.code)) → Row ctx → Fin ctx.parameters.code.blockWidth.val → Goldilocks) :
     (extractWithCost ctx radius capacity raw).value =
       (ExecutableRectangularMatrixExtraction.extractWithCost radius (points ctx) capacity raw).value := by
-  simp only [extractWithCost,pointTable_value,ExecutableRectangularMatrixExtraction.extractWithCost]
+  simp only [extractWithCost,extractPreparedWithCost,pointTable_value,ExecutableRectangularMatrixExtraction.extractWithCost]
 
 def extract (ctx : Context) (radius : ℕ)
     (capacity : ctx.parameters.code.messageLength.val ≤ ctx.parameters.code.messageBlocks.val*ctx.parameters.code.blockWidth.val)
     (raw : Fin (2^(logSize ctx.parameters.code)) → Row ctx → Fin ctx.parameters.code.blockWidth.val → Goldilocks) :
     Vector (Vector (Vector Goldilocks ctx.parameters.width.val) ctx.parameters.code.messageLength.val)
       (2^ctx.parameters.leftVariables.val) := (extractWithCost ctx radius capacity raw).value
+
+theorem extractPreparedWithCost_cost (ctx : Context) (radius : ℕ)
+    (capacity : ctx.parameters.code.messageLength.val ≤ ctx.parameters.code.messageBlocks.val*ctx.parameters.code.blockWidth.val)
+    (raw : DenseCommonSource.Columns Goldilocks (2^(logSize ctx.parameters.code))
+      (2^ctx.parameters.leftVariables.val*ctx.parameters.width.val) ctx.parameters.code.blockWidth.val) :
+    let n := 2^(logSize ctx.parameters.code)
+    let left := 2^ctx.parameters.leftVariables.val
+    let packing := ctx.parameters.width.val
+    let m := ctx.parameters.code.messageBlocks.val
+    let b := ctx.parameters.code.blockWidth.val
+    let size := ctx.parameters.code.messageLength.val
+    (extractPreparedWithCost ctx radius capacity raw).cost ≤ DenseCommonSource.operationBound n (left*packing) m b radius+
+      (left*packing)*(7*size+2)+left*(size*(5*packing+2)+2)+
+      n*(2*logSize ctx.parameters.code+9)+5 := by
+  have domain := pointTable_cost ctx
+  have bound := DenseSourceExtraction.extractRectangular_cost radius
+    (pointTableWithCost ctx).value capacity
+    raw
+  dsimp only [extractPreparedWithCost]
+  omega
 
 theorem extractWithCost_cost (ctx : Context) (radius : ℕ)
     (capacity : ctx.parameters.code.messageLength.val ≤ ctx.parameters.code.messageBlocks.val*ctx.parameters.code.blockWidth.val)
@@ -71,13 +103,36 @@ theorem extractWithCost_cost (ctx : Context) (radius : ℕ)
     let size := ctx.parameters.code.messageLength.val
     (extractWithCost ctx radius capacity raw).cost ≤ DenseCommonSource.operationBound n (left*packing) m b radius+
       (left*packing)*(7*size+2)+left*(size*(5*packing+2)+2)+
-      n*(2*logSize ctx.parameters.code+9)+5 := by
-  have domain := pointTable_cost ctx
-  have bound := DenseSourceExtraction.extractRectangular_cost radius
-    (pointTableWithCost ctx).value capacity
+      n*(2*logSize ctx.parameters.code+9)+5 :=
+  extractPreparedWithCost_cost ctx radius capacity
     (ExecutableCommonSource.prepareRaw (CommonSourceReindex.reindex finProdFinEquiv.symm raw))
-  dsimp only [extractWithCost]
-  omega
+
+def preparedWord (ctx : Context)
+    (raw : DenseCommonSource.Columns Goldilocks (2^(logSize ctx.parameters.code))
+      (2^ctx.parameters.leftVariables.val*ctx.parameters.width.val) ctx.parameters.code.blockWidth.val) :
+    Fin (2^(logSize ctx.parameters.code)) → Row ctx → Fin ctx.parameters.code.blockWidth.val → Goldilocks :=
+  fun pos row lane => DenseCommonSource.input raw pos (finProdFinEquiv row) lane
+
+theorem prepare_preparedWord (ctx : Context)
+    (raw : DenseCommonSource.Columns Goldilocks (2^(logSize ctx.parameters.code))
+      (2^ctx.parameters.leftVariables.val*ctx.parameters.width.val) ctx.parameters.code.blockWidth.val) :
+    ExecutableCommonSource.prepareRaw
+      (CommonSourceReindex.reindex finProdFinEquiv.symm (preparedWord ctx raw)) = raw := by
+  have word : CommonSourceReindex.reindex finProdFinEquiv.symm (preparedWord ctx raw) =
+      DenseCommonSource.input raw := by
+    funext pos row lane
+    simp only [CommonSourceReindex.reindex,preparedWord,Equiv.apply_symm_apply]
+  rw [word,ExecutableCommonSource.prepareRaw_input_eq]
+
+/-- Equality of the complete runs, including charges. The prepared path does
+not allocate the specification's redundant input-table copy. -/
+theorem extractPreparedWithCost_eq (ctx : Context) (radius : ℕ)
+    (capacity : ctx.parameters.code.messageLength.val ≤ ctx.parameters.code.messageBlocks.val*ctx.parameters.code.blockWidth.val)
+    (raw : DenseCommonSource.Columns Goldilocks (2^(logSize ctx.parameters.code))
+      (2^ctx.parameters.leftVariables.val*ctx.parameters.width.val) ctx.parameters.code.blockWidth.val) :
+    extractPreparedWithCost ctx radius capacity raw =
+      extractWithCost ctx radius capacity (preparedWord ctx raw) := by
+  simp only [extractWithCost,prepare_preparedWord]
 
 def table (ctx : Context) (radius : ℕ)
     (capacity : ctx.parameters.code.messageLength.val ≤ ctx.parameters.code.messageBlocks.val*ctx.parameters.code.blockWidth.val)

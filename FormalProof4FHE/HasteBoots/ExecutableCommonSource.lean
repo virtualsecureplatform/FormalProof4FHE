@@ -50,6 +50,22 @@ theorem prepareRaw_word (raw : Fin n → Fin rows → Fin b → F) :
   funext pos row lane
   exact prepareRaw_input raw pos row lane
 
+omit [Field F] [DecidableEq F] in
+/-- Reading a stored input and materializing it again preserves every entry.
+Used only as a specification bridge: prepared extraction avoids this copy. -/
+theorem prepareRaw_input_eq (raw : DenseCommonSource.Columns F n rows b) :
+    prepareRaw (DenseCommonSource.input raw) = raw := by
+  apply Vector.ext
+  intro pos hp
+  simp only [prepareRaw,Vector.getElem_ofFn]
+  apply Vector.ext
+  intro row hr
+  simp only [Vector.getElem_ofFn]
+  apply Vector.ext
+  intro lane hl
+  simp only [Vector.getElem_ofFn,DenseCommonSource.input]
+  rfl
+
 omit [DecidableEq F] in
 theorem prepared_word (points : Fin n → F) (table : Table F rows m b) :
     DenseCommonSource.word (Vector.ofFn points) table = word points table := by
