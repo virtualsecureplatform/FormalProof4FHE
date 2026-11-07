@@ -1,0 +1,219 @@
+#!/usr/bin/env python3
+"""Fail-closed extraction of actual pinned Rust parameter methods; no security certificate."""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import sys
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+COMMON = runpy.run_path(str(ROOT / 'scripts/extract-hasteboots-sampler'))
+PIN = COMMON['PIN']
+TOOLS = COMMON['TOOLS']
+NATIVE_PIN = 'dff353006322693cab3dc6b654f82151f658f294'
+NAMESPACE = 'formalproof4fhe_native_ntt_cache_fixture'
+METHODS = ['pcs.matrix_weighted.Parameters.impl.' + n for n in
+           ['queries', 'num_vars', 'width', 'left_vars', 'code']]
+PROOFS = ['header_exact', 'retained_code_exact', 'generic_code_exact', 'code_fields',
+          'header_code_independent', 'read_header_and_code']
+
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def checked(command, **kwargs):
+    return subprocess.check_output([str(x) for x in command], **kwargs)
+
+
+def validate_generated(raw, mode):
+    if raw.count('import Aeneas\n') != 1:
+        raise RuntimeError('Unexpected generated import surface')
+    if re.search(r'\b(axiom|opaque|constant|sorry|sorryAx|native_decide|unsafe)\b', raw):
+        raise RuntimeError('Admitted or opaque generated declaration')
+    if 'set_option maxHeartbeats 200000\n' not in raw or 'set_option maxRecDepth 1000\n' not in raw:
+        raise RuntimeError('Unexpected generated proof limits')
+    required = METHODS + ['header', 'retained_code'] if mode == 'retained' else ['new_encoded']
+    for name in required:
+        if not re.search(r'(?m)^def ' + re.escape(name) + r'\s', raw):
+            raise RuntimeError(f'Missing complete generated method: {name}')
+    for name in ['pcs.matrix_weighted.Parameters', 'pcs.utils.code.block.BlockReedSolomonCode']:
+        if not re.search(r'(?m)^structure ' + re.escape(name) + r'\s', raw):
+            raise RuntimeError(f'Missing actual retained structure: {name}')
+    if not raw.rstrip().endswith('end ' + NAMESPACE):
+        raise RuntimeError('Truncated generated namespace')
+    return raw.replace('import Aeneas\n', 'import Aeneas.Std\nimport Aeneas.Tactic.RustAttributes\n')
+
+
+def verify_snapshot(raw, expected):
+    # Comparison only: compiled/generated artifacts are never normalized or edited.
+    def portable(text):
+        return re.sub(r"(?m)^(\s*Source: ')[^'\n]*/HasteBoots/", r"\1<HASTEBOOTS>/", text)
+    if portable(raw) != portable(expected):
+        raise RuntimeError('Generated declarations differ from the reviewed retained snapshot')
+
+
+def audit_log(log, names):
+    records = re.findall(r"'([^']+)' (depends on axioms: \[[^]]*\]|does not depend on any axioms)", log)
+    if len(records) != len(names) or {n for n, _ in records} != set(names):
+        raise RuntimeError('Incomplete or duplicate dependency audit')
+    for name, report in records:
+        if '[' in report:
+            axioms = {s.strip() for s in report.split('[', 1)[1].rstrip(']').split(',') if s.strip()}
+            if not axioms <= {'propext', 'Classical.choice', 'Quot.sound'}:
+                raise RuntimeError(f'Disallowed dependencies for {name}: {axioms}')
+    return dict(records)
+
+
+def verify_backend(backend, output):
+    if (backend / '.hasteboots-probe').read_text().strip() != PIN:
+        raise RuntimeError('Backend is not owned by the pinned compatibility probe')
+    if checked(['git', '-C', backend, 'rev-parse', 'HEAD'], text=True).strip() != PIN:
+        raise RuntimeError('Unexpected backend revision')
+    patches = [ROOT / 'interop/aeneas' / n for n in ['lean435.patch', 'stdlib435.patch']]
+    paths = set()
+    for patch in patches:
+        paths.update(re.findall(r'^\+\+\+ b/(.+)$', patch.read_text(), re.M))
+    # Replay patches into an isolated index: never change the backend checkout/index.
+    index = output / 'backend-validation.index'
+    env = dict(os.environ, GIT_INDEX_FILE=str(index))
+    subprocess.run(['git', '-C', str(backend), 'read-tree', PIN], env=env, check=True)
+    for patch in patches:
+        subprocess.run(['git', '-C', str(backend), 'apply', '--cached', str(patch)], env=env, check=True)
+    for path in paths:
+        expected = checked(['git', '-C', backend, 'show', ':' + path], env=env)
+        if (backend / path).read_bytes() != expected:
+            raise RuntimeError(f'Backend source differs from exact pinned patches: {path}')
+    changed = set(checked(['git', '-C', backend, 'diff', 'HEAD', '--name-only'], text=True).splitlines())
+    config = {'backends/lean/lakefile.lean', 'backends/lean/lake-manifest.json', 'backends/lean/lean-toolchain'}
+    if changed - paths - config:
+        raise RuntimeError(f'Unexpected backend modifications: {changed - paths - config}')
+    if (backend / 'backends/lean/lean-toolchain').read_bytes() != (ROOT / 'lean-toolchain').read_bytes():
+        raise RuntimeError('Backend Lean toolchain differs')
+    return {p.name: digest(p.read_bytes()) for p in patches}
+
+
+def main():
+    if sys.flags.optimize:
+        raise SystemExit('Refusing optimized Python execution')
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--tools', type=Path, required=True)
+    parser.add_argument('--backend', type=Path, required=True)
+    parser.add_argument('--mode', choices=['constructor', 'retained'], default='constructor',
+                        help='Constructor is the full requested gate; retained checks only actual getters/borrowed code')
+    args = parser.parse_args()
+    tools, backend = args.tools.resolve(), args.backend.resolve()
+    native = ROOT.parent / 'HasteBoots'
+    parent = ROOT / 'build/hasteboots-extraction'
+    parent.mkdir(parents=True, exist_ok=True)
+    output = Path(tempfile.mkdtemp(prefix='parameters-' + args.mode + '-', dir=parent))
+    manifest = {'status': 'started', 'mode': args.mode, 'claim': 'source extraction subgate only; full security unproved',
+                'native_revision': NATIVE_PIN, 'backend_revision': PIN, 'commands': [],
+                'tools': TOOLS, 'proof_limits': {'maxHeartbeats': 200000, 'maxRecDepth': 1000}}
+
+    def save():
+        (output / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+
+    def run(command, name, cwd=ROOT, env=None):
+        manifest['commands'].append([str(x) for x in command]); save()
+        with (output / name).open('w') as stream:
+            subprocess.run([str(x) for x in command], cwd=cwd, env=env, stdout=stream,
+                           stderr=subprocess.STDOUT, check=True)
+
+    print('Extraction artifacts: ' + str(output), flush=True)
+    save()
+    try:
+        if checked(['git', '-C', native, 'rev-parse', 'HEAD'], text=True).strip() != NATIVE_PIN:
+            raise RuntimeError('Unexpected native source revision')
+        if checked(['git', '-C', native, 'diff', 'HEAD', '--name-only'], text=True).strip():
+            raise RuntimeError('Tracked native source changes')
+        for name, expected in TOOLS.items():
+            if digest((tools / name).read_bytes()) != expected:
+                raise RuntimeError(f'Unexpected pinned tool: {name}')
+        manifest['patches'] = verify_backend(backend, output)
+        manifest['backend_diff_sha256'] = digest(checked(['git', '-C', backend, 'diff', 'HEAD']))
+        manifest['native_sources'] = {name: digest((native / name).read_bytes()) for name in
+            ['pcs/src/matrix_weighted.rs', 'pcs/src/utils/code/block.rs', 'algebra/src/goldilocks/mod.rs']}
+        manifest['root_manifest_sha256'] = digest((ROOT / 'lake-manifest.json').read_bytes())
+        manifest['root_toolchain'] = (ROOT / 'lean-toolchain').read_text().strip()
+        manifest['backend_manifest_sha256'] = digest((backend / 'backends/lean/lake-manifest.json').read_bytes())
+        manifest['mathlib_revision'] = checked(['git', '-C', ROOT / '.lake/packages/mathlib', 'rev-parse', 'HEAD'], text=True).strip()
+        manifest['script_sha256'] = digest(Path(__file__).read_bytes())
+        fixture = ROOT / 'scripts/native-fixtures/ntt-cache'
+        cargo = (fixture / 'Cargo.toml').read_text().replace('../../../../HasteBoots', str(native))
+        (output / 'Cargo.toml').write_text(cargo)
+        (output / 'Cargo.lock').write_bytes((fixture / 'Cargo.lock').read_bytes())
+        (output / 'src').mkdir()
+        wrapper = (ROOT / 'interop/aeneas/parameters/wrapper.rs').read_bytes()
+        (output / 'src/lib.rs').write_bytes(wrapper)
+        manifest['wrapper_sha256'] = digest(wrapper)
+        manifest['lock_sha256'] = digest((output / 'Cargo.lock').read_bytes())
+        llbc = output / 'hasteboots_parameters.llbc'
+        command = [tools / 'charon', 'cargo', '--preset=aeneas']
+        if args.mode == 'constructor':
+            command += ['--monomorphize', '--start-from', NAMESPACE + '::new_encoded',
+                        '--include', 'core::option', '--include', 'core::result',
+                        '--include', 'core::num::_::checked_next_power_of_two',
+                        '--include', 'core::num::_::one_less_than_next_power_of_two']
+        else:
+            command += ['--start-from', NAMESPACE + '::header', '--start-from', NAMESPACE + '::retained_code']
+        command += ['--include', 'pcs', '--include', 'algebra', '--dest-file', llbc,
+                    '--', '--manifest-path', output / 'Cargo.toml', '--lib', '--locked']
+        env = dict(os.environ)
+        env.setdefault('CARGO_TARGET_DIR', str(ROOT / 'build/hasteboots-extraction/cargo-target'))
+        run(command, 'charon.log', env=env)
+        llbc_data = json.loads(llbc.read_text())
+        if llbc_data.get('has_errors') is not False:
+            raise RuntimeError('Charon reported incomplete extraction')
+        target = llbc_data['translated']['target_information']
+        expected_target = [{'key': 'x86_64-unknown-linux-gnu',
+                            'value': {'target_pointer_size': 8, 'is_little_endian': True}}]
+        if target != expected_target:
+            raise RuntimeError('Extraction target is not the selected 64-bit little-endian machine')
+        manifest['target_information'] = target
+        manifest['llbc_sha256'] = digest(llbc.read_bytes())
+        run([tools / 'aeneas', '-backend', 'lean', '-max-heartbeats', '200000', '-max-recdepth', '1000',
+             '-dest', output, '-abort-on-error', llbc], 'aeneas.log')
+        log = re.sub(r'\x1b\[[0-9;?]*[A-Za-z]', '', (output / 'aeneas.log').read_text())
+        if 'Uncaught exception' in log or re.search(r'\[Error\]', log):
+            raise RuntimeError('Aeneas reported an error, even if its exit code was zero')
+        generated = output / 'HastebootsParameters.lean'
+        raw = generated.read_text()
+        runtime = validate_generated(raw, args.mode)
+        manifest['generated_sha256'] = digest(generated.read_bytes())
+        manifest['import_only_sha256'] = digest(runtime.encode())
+        if args.mode == 'retained':
+            snapshot = (ROOT / 'interop/aeneas/parameters/Generated.lean').read_text()
+            verify_snapshot(raw, snapshot)
+            manifest['reviewed_snapshot_sha256'] = digest(snapshot.encode())
+            proof = (ROOT / 'interop/aeneas/parameters/Proof.lean').read_text()
+            names = [NAMESPACE + '.' + n for n in METHODS + ['header', 'retained_code']]
+            names += ['HasteBootsExtractedParametersProof.' + n for n in PROOFS]
+            manifest['proof_sha256'] = digest(proof.encode())
+        else:
+            proof = ''
+            names = [NAMESPACE + '.new_encoded']
+        checked_file = output / 'HastebootsParametersChecked.lean'
+        checked_file.write_text(runtime + '\n' + proof + ''.join('\n#print axioms ' + n + '\n' for n in names))
+        manifest['checked_sha256'] = digest(checked_file.read_bytes())
+        run([ROOT / 'scripts/in-container', 'bash', '-euc',
+             'cd -- "$1"; lake env lean -DwarningAsError=true "$2"', '_',
+             COMMON['container_path'](backend / 'backends/lean'), COMMON['container_path'](checked_file)], 'lean.log')
+        manifest['dependency_audit'] = audit_log((output / 'lean.log').read_text(), names)
+        manifest['status'] = 'passed'
+        print(f'{args.mode} extraction passed: {len(names)} dependency audits; full constructor/security refinement remains unproved')
+    except (Exception, SystemExit) as error:
+        manifest['status'] = 'failed'; manifest['error'] = str(error)
+        raise SystemExit(f'Extraction failed; inspect {output}: {error}') from error
+    finally:
+        manifest['logs'] = {p.name: digest(p.read_bytes()) for p in output.glob('*.log')}
+        save()
+
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+"""Unit checks for rejection/audit guards; the extraction command checks Lean itself."""
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+MODULE = runpy.run_path(str(ROOT / 'scripts/extract-hasteboots-parameters'))
+validate = MODULE['validate_generated']
+audit = MODULE['audit_log']
+NAMESPACE = MODULE['NAMESPACE']
+
+
+def surface():
+    # This is only a validator input, never a Lean proof or extraction artifact.
+    return ('import Aeneas\nset_option maxHeartbeats 200000\nset_option maxRecDepth 1000\n' +
+            '\n'.join('def ' + n + ' := ()' for n in MODULE['METHODS'] + ['header', 'retained_code']) +
+            '\nstructure pcs.matrix_weighted.Parameters where\n  value : Unit\n' +
+            '\nstructure pcs.utils.code.block.BlockReedSolomonCode where\n  value : Unit\nend ' + NAMESPACE + '\n')
+
+
+class Guards(unittest.TestCase):
+    def test_import_only(self):
+        raw = surface()
+        self.assertEqual(validate(raw, 'retained'), raw.replace('import Aeneas\n',
+                         'import Aeneas.Std\nimport Aeneas.Tactic.RustAttributes\n'))
+
+    def test_truncated_success_exit_is_rejected(self):
+        with self.assertRaises(RuntimeError):
+            validate(surface().split('end ' + NAMESPACE)[0], 'retained')
+
+    def test_missing_methods_and_structures(self):
+        for name in MODULE['METHODS'] + ['header', 'retained_code', 'pcs.matrix_weighted.Parameters',
+                                       'pcs.utils.code.block.BlockReedSolomonCode']:
+            with self.subTest(name=name), self.assertRaises(RuntimeError):
+                validate(surface().replace(name, 'missing'), 'retained')
+
+    def test_retained_does_not_pass_constructor_gate(self):
+        with self.assertRaises(RuntimeError):
+            validate(surface(), 'constructor')
+
+    def test_admissions_and_limit_increases(self):
+        for text in ['axiom bad : False', '@[simp] axiom bad : False', 'opaque bad : False',
+                     'def bad : False := sorry', 'def bad := native_decide', 'unsafe def bad := ()']:
+            with self.subTest(text=text), self.assertRaises(RuntimeError):
+                validate(surface().replace('end ' + NAMESPACE, text + '\nend ' + NAMESPACE), 'retained')
+        for text in ['maxHeartbeats 1000000', 'maxRecDepth 2048']:
+            with self.subTest(text=text), self.assertRaises(RuntimeError):
+                key = text.split()[0]
+                old = key + (' 200000' if key == 'maxHeartbeats' else ' 1000')
+                validate(surface().replace(old, text), 'retained')
+
+    def test_snapshot_allows_only_source_comment_path_difference(self):
+        check = MODULE['verify_snapshot']
+        original = "    Source: '/a/HasteBoots/pcs/src/matrix_weighted.rs', lines 1:0-2:0\ndef f := 1\n"
+        check(original, original.replace('/a/HasteBoots/', '/b/HasteBoots/'))
+        with self.assertRaises(RuntimeError):
+            check(original, original.replace(':= 1', ':= 2'))
+        with self.assertRaises(RuntimeError):
+            check(original, original.replace('lines 1:0', 'lines 2:0'))
+
+    def test_dependency_whitelist_and_complete_coverage(self):
+        good = "'a' does not depend on any axioms\n'b' depends on axioms: [propext,\n Classical.choice, Quot.sound]\n"
+        self.assertEqual(set(audit(good, ['a', 'b'])), {'a', 'b'})
+        for bad in [good.replace('Quot.sound', 'sorryAx'), good + good,
+                    good.split("'b'")[0], good.replace("'b'", "'c'")]:
+            with self.subTest(log=bad), self.assertRaises(RuntimeError):
+                audit(bad, ['a', 'b'])
+
+
+if __name__ == '__main__':
+    unittest.main()
