@@ -607,3 +607,7 @@ import FormalProof4FHE.HasteBoots.ConcreteNTTGoldTable
 import FormalProof4FHE.HasteBoots.ConcreteNTTCacheLookup
 import FormalProof4FHE.HasteBoots.ConcreteNTTGoldCache
 import FormalProof4FHE.HasteBoots.ConcreteNTTGoldCacheRCU
+import FormalProof4FHE.HasteBoots.NativeGoldBlockCodeLayout
+import FormalProof4FHE.HasteBoots.ConcreteNTTGoldCapturedAttempt
+import FormalProof4FHE.HasteBoots.NativeGoldBlockCodeProgram
+import FormalProof4FHE.HasteBoots.NativeGoldBlockCodeBackend
