@@ -178,6 +178,22 @@ fn main() {
             .expect("fixture domain must be supported");
         assert_eq!(plan.root(), expected);
         println!("ROOT modulus={modulus} size={size} value={}", plan.root());
+        if modulus == 18446744069414584321 {
+            for degree in [0, 1, size / 2, size - 1] {
+                let mut values = vec![0_u64; size];
+                values[degree] = 1;
+                plan.fwd(&mut values);
+                for (index, value) in values.iter().enumerate() {
+                    println!("NTTFWD {modulus} {size} {degree} {index} {value}");
+                }
+                plan.inv(&mut values);
+                plan.normalize(&mut values);
+                for (index, value) in values.iter().enumerate() {
+                    println!("NTTINV {modulus} {size} {degree} {index} {value}");
+                    assert_eq!(*value, u64::from(index == degree));
+                }
+            }
+        }
         assert_eq!(plan.root_powers().len(), 2 * size);
         for (index, value) in plan.root_powers().iter().enumerate() {
             println!("POWER {modulus} {size} {index} {value}");

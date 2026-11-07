@@ -107,3 +107,15 @@ these exact powers and write safety; the Goldilocks constructor prefix derives
 its stored root/state and array contents internally. This still leaves the
 original twiddle arrays, constants, complete Plan allocation/storage, cache and
 machine/physical refinements open; no full Plan result is claimed.
+
+The fixture now exercises the private native twiddle arrays through actual
+Goldilocks `Plan::fwd`, `inv`, and `normalize` at N=32 and N=1024, for monomial
+degrees 0, 1, N/2 and N-1. All 4,224 forward values are checked against independent
+Python bit-string reversal and polynomial evaluation. All 4,224 normalized
+inverse values must recover the original monomials; every case is required once
+and canonical range is enforced. These are regression cases, not a general
+native transform/compiler/SIMD proof. Lean now proves the non-Shoup paired-array
+writes, source-word index permutation and separately initialized root/state,
+composed with the earlier Goldilocks constructor prefix. Full Plan constants,
+reverse-index assembly, allocation, cache and machine/physical refinement remain
+open.

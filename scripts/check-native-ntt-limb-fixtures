@@ -29,7 +29,11 @@ wide_rights = [0, 1, mask, 2**64, 2**64 + 1, 2**128 - 1]
 plan_roots = {(97, 16): 51, (193, 16): 151, (193, 32): 94,
               (18446744069414584321, 32): 549755813888,
               (18446744069414584321, 1024): 455906449640507599}
+gold_ntt_cases = {(18446744069414584321, n, degree, i)
+                  for n in [32, 1024] for degree in [0, 1, n // 2, n - 1] for i in range(n)}
 expected = {
+    'NTTFWD': gold_ntt_cases,
+    'NTTINV': gold_ntt_cases,
     'POWER': {(p, n, i) for p, n in plan_roots for i in range(2 * n)},
     'LIMB64': {(limbs, right) for limbs in inputs for right in rights},
     'LIMB128': {(limbs, right) for limbs in inputs for right in wide_rights},
@@ -47,13 +51,26 @@ def digits(value):
     return [(value >> (64 * index)) & mask for index in range(4)]
 
 for line in run.stdout.splitlines():
-    if not (line.startswith('LIMB') or line.startswith('DIVINIT') or line.startswith('PRIME') or line.startswith('POWER')):
+    if not (line.startswith('LIMB') or line.startswith('DIVINIT') or line.startswith('PRIME') or line.startswith('POWER') or line.startswith('NTT')):
         continue
     label, *fields = line.split()
     assert label in expected, f'unknown native limb record: {label}'
     values = [int(value) for value in fields]
     assert all(value >= 0 for value in values), 'negative native word'
-    if label == 'POWER':
+    if label in ('NTTFWD', 'NTTINV'):
+        assert len(values) == 5, f'malformed NTT record: {line}'
+        key = tuple(values[:4])
+        assert key in expected[label], f'unexpected NTT case: {key}'
+        p, n, degree, i = key
+        assert 0 <= values[4] < p, 'noncanonical Goldilocks NTT output'
+        if label == 'NTTFWD':
+            # Independent bit-string reversal and polynomial evaluation.
+            reverse = int(format(i, f'0{n.bit_length() - 1}b')[::-1], 2)
+            reference = [pow(plan_roots[p, n], (2 * reverse + 1) * degree, p)]
+        else:
+            reference = [int(i == degree)]
+        actual = values[4:]
+    elif label == 'POWER':
         assert len(values) == 4, f'malformed root-power record: {line}'
         key = tuple(values[:3])
         p, n, i = key
@@ -122,3 +139,4 @@ for label, cases in expected.items():
 print('Native limb arithmetic matches Python integers: 35 mul64, 42 wrapping mul128, 49 additions, 49 divisions, 7 initializations')
 print('Native primality gate matches independent expectations: 205 inputs')
 print('Native stored root powers match Python modular exponentiation: 2240 entries across 5 plans')
+print('Native Goldilocks transforms match independent evaluations: 4224 forward and 4224 normalized inverse outputs')
