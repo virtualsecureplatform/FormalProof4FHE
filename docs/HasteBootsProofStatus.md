@@ -7,6 +7,29 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Native context metadata exposes two compiler blockers
+
+The row metadata used by native `Parameters::context_digest` is now isolated in
+`scripts/probe-hasteboots-row-metadata`, with generic and concrete fixtures under
+`interop/aeneas/row-metadata`. Both call original trait methods for block width,
+codeword blocks and domain separator. The generic path reports a missing-borrow
+invariant failure at the metadata call returning the static slice; the concrete Goldilocks path reaches an unsupported
+associated-type constraint in the concrete NTT table root signature.
+
+The diagnostic preserves the accepted registry pipeline and reproduces its
+pinned extraction before each native attempt. It records locked input hashes,
+complete target-checked LLBC and compiler rejection logs. Recognized and unknown
+failures both remain unproved and return nonzero; translation progress alone
+also requires reviewed output and kernel proofs. This is a reproducible native
+refinement blocker, not a new security theorem. The required next work is to
+isolate the borrow/lifetime translation and normalize the associated-type constraint without
+dropping either obligation or introducing opaque axioms.
+
+Validation: both committed fixture modes reproduced their compiler rejections
+with nonzero status; each fresh accepted preflight passed 107 dependency audits.
+Three diagnostic classifier guards and seven registry guards passed. No new
+native refinement theorem is claimed by these failed gates.
+
 ## Actual native digest comparison agrees with the model
 
 The registry fixture now extracts the unchanged derived native `Digest512::eq`
