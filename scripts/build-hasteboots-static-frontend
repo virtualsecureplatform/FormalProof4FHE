@@ -12,6 +12,7 @@ PIN = '15b968482b0dcd7aae45020b6d1bca39b5024af5'
 CHARON_PIN = 'ef3748c1a92c6acc402f978770193d34adc0fe6e'
 OPAM_SHA512 = 'd4271d2387751313d5f904e8fdb3133ea893c72d09737139266d2bbe7624f81665a4276d2e55aa71856630ece8ce226b989560076599baae9afc053c5815f8c8'
 DATA = ROOT / 'interop/aeneas/static-strings'
+PROFILES = {'static-strings': DATA, 'usize-ctlz': ROOT / 'interop/aeneas/usize-ctlz'}
 
 
 def digest(data):
@@ -22,12 +23,12 @@ def output(command, **kwargs):
     return subprocess.check_output([str(x) for x in command], **kwargs)
 
 
-def verify_source(source):
+def verify_source(source, profile="static-strings"):
     if (source / '.hasteboots-probe').exists():
         raise RuntimeError('Refusing to modify the prepared official backend checkout')
     if output(['git', '-C', source, 'rev-parse', 'HEAD'], text=True).strip() != PIN:
         raise RuntimeError('Frontend source revision differs')
-    patch = (DATA / 'frontend.patch').read_bytes()
+    patch = (PROFILES[profile] / 'frontend.patch').read_bytes()
     diff = output(['git', '-C', source, 'diff', 'HEAD', '--binary'])
     if diff != patch:
         raise RuntimeError('Frontend source is not the exact reviewed patch')
@@ -46,6 +47,7 @@ def main():
     parser.add_argument('--opam-root', type=Path, required=True)
     parser.add_argument('--switch', required=True)
     parser.add_argument('--jobs', type=int, default=8)
+    parser.add_argument('--profile', choices=list(PROFILES), default='static-strings')
     args = parser.parse_args()
     if args.jobs < 1:
         parser.error('jobs must be positive')
@@ -55,7 +57,7 @@ def main():
     artifacts = Path(tempfile.mkdtemp(prefix='static-frontend-build-', dir=parent))
     record = {'status': 'started', 'claim': 'isolated experimental frontend build only',
               'source': str(source), 'source_revision': PIN, 'charon_revision': CHARON_PIN, 'commands': [],
-              'script_sha256': digest(Path(__file__).read_bytes())}
+              'script_sha256': digest(Path(__file__).read_bytes()), 'profile': args.profile}
 
     def save():
         (artifacts / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
@@ -69,8 +71,8 @@ def main():
         if output(['git', '-C', source, 'rev-parse', 'HEAD'], text=True).strip() != PIN:
             raise RuntimeError('Unexpected source revision')
         if not output(['git', '-C', source, 'diff', 'HEAD', '--name-only'], text=True).strip():
-            subprocess.run(['git', '-C', str(source), 'apply', str(DATA / 'frontend.patch')], check=True)
-        record['patch_sha256'] = verify_source(source)
+            subprocess.run(['git', '-C', str(source), 'apply', str(PROFILES[args.profile] / 'frontend.patch')], check=True)
+        record['patch_sha256'] = verify_source(source, args.profile)
         opam_args = ['--root=' + str(args.opam_root.resolve()), '--switch=' + args.switch]
         versions = output([opam, 'list', *opam_args, '--installed', '--columns=name,version', '--short', '--color=never'], text=True)
         rows = [line.split() for line in versions.splitlines() if line.strip()]
@@ -85,7 +87,7 @@ def main():
         record['commands'].append([str(x) for x in command]); save()
         with (artifacts / 'build.log').open('w') as log:
             subprocess.run([str(x) for x in command], cwd=source / 'src', stdout=log, stderr=subprocess.STDOUT, check=True)
-        verify_source(source)
+        verify_source(source, args.profile)
         executable = source / 'src/_build/default/main.exe'
         record['executable'] = str(executable)
         record['executable_sha256'] = digest(executable.read_bytes())
