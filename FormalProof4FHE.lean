@@ -467,3 +467,4 @@ import FormalProof4FHE.HasteBoots.ClosedByteMachineGoldRisk
 import FormalProof4FHE.HasteBoots.ClosedByteMachineReceiptWork
 import FormalProof4FHE.HasteBoots.ClosedByteMachineRootBudget
 import FormalProof4FHE.HasteBoots.ClosedByteMachineGoldAllRisk
+import FormalProof4FHE.HasteBoots.ClosedByteMachineNativeSoundness
