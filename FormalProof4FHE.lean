@@ -499,3 +499,4 @@ import FormalProof4FHE.HasteBoots.CostedMerkleTree
 import FormalProof4FHE.HasteBoots.MerkleLeafIndexCost
 import FormalProof4FHE.HasteBoots.CostedMerkleLeafAccess
 import FormalProof4FHE.HasteBoots.CostedMerkleWord
+import FormalProof4FHE.HasteBoots.RawGoldColumnCost
