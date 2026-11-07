@@ -604,3 +604,6 @@ import FormalProof4FHE.HasteBoots.ConcreteNTTConstructedTwiddles
 import FormalProof4FHE.HasteBoots.ConcreteNTTPlanConstants
 import FormalProof4FHE.HasteBoots.ConcreteNTTGoldPlan
 import FormalProof4FHE.HasteBoots.ConcreteNTTGoldTable
+import FormalProof4FHE.HasteBoots.ConcreteNTTCacheLookup
+import FormalProof4FHE.HasteBoots.ConcreteNTTGoldCache
+import FormalProof4FHE.HasteBoots.ConcreteNTTGoldCacheRCU
