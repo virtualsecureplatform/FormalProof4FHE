@@ -1,6 +1,6 @@
 module
 public import FormalProof4FHE.HasteBoots.ExecutableBerlekampWelch
-public import FormalProof4FHE.HasteBoots.CodeCorrespondence
+public import FormalProof4FHE.HasteBoots.BlockEvaluationCost
 @[expose] public section
 
 /-! A materialized decoder for an entire matrix of block symbols.
@@ -20,10 +20,19 @@ def word (points : Fin n → F) (table : Table F rows m b) : Fin n → Fin rows 
   fun pos row lane => BlockEncoder.encode points (input table row) pos lane
 
 -- Position-major materialization; each whole symbol contains every row and lane.
+-- The charge begins after the input-point vector has been prepared.
+def materializeWithCost (points : Fin n → F) (table : Table F rows m b) :
+    SolverOperationCost.Run (Vector (Vector (Vector F b) rows) n) :=
+  BlockEvaluationCost.evaluate (Vector.ofFn points) table
+
 def materialize (points : Fin n → F) (table : Table F rows m b) :
     Vector (Vector (Vector F b) rows) n :=
-  Vector.ofFn (fun pos => Vector.ofFn (fun row => Vector.ofFn (fun lane =>
-    ∑ j : Fin m, input table row j lane * points pos ^ j.val)))
+  (materializeWithCost points table).value
+
+omit [DecidableEq F] in
+theorem materializeWithCost_cost (points : Fin n → F) (table : Table F rows m b) :
+    (materializeWithCost points table).cost = n*(5*m+rows*(b*(6*m+2)+2)+10)+1 :=
+  BlockEvaluationCost.evaluate_cost _ _
 
 def candidates (e : ℕ) (points : Fin n → F) (raw : Fin n → Fin rows → Fin b → F) : Table F rows m b :=
   let polynomials := Vector.ofFn (fun row : Fin rows => Vector.ofFn (fun lane : Fin b =>
@@ -44,7 +53,8 @@ omit [DecidableEq F] in
 theorem materialize_get (points : Fin n → F) (table : Table F rows m b)
     (pos : Fin n) (row : Fin rows) (lane : Fin b) :
     (((materialize points table).get pos).get row).get lane = word points table pos row lane := by
-  simp only [materialize,FiniteLinearSolver.get_ofFn,word,BlockEncoder.encode]
+  simp only [materialize,materializeWithCost,BlockEvaluationCost.evaluate_get,FiniteLinearSolver.get_ofFn,word]
+  rfl
 
 omit [DecidableEq F] in
 @[simp] theorem zeroTable_input (row : Fin rows) (j : Fin m) (lane : Fin b) :
