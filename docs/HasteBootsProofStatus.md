@@ -141,11 +141,45 @@ offset first reads and later cache reads, and explicit failure without a
 positive field read. Twenty-six new guards use only `propext`, `Classical.choice`
 and `Quot.sound`. No proof limits or native defaults changed.
 
-This is an executable reference replay, not yet a polynomial-cost extractor.
-The reference parent lists preserve duplicates; compacting that representation
-and proving its cost are still required. Application-level ownership by the
-first ORIGINAL registry entry, trusted-context/key linkage, physical actor-cost
-separation, and Rust arithmetic/decoder/NTT/scheduler refinement remain open.
+The public history extractor now uses compact parent replay.
+`CompactParentLedger` removes duplicate inherited source/helper entries while
+preserving every compatible parent and both directions of source/helper
+membership. Its frozen-key set and newly requested-key set agree with the
+reference. `CompactParentHistory` lifts this correspondence to arbitrary
+complete mixed histories and derives coherence from the actual observed
+context/root pools, with no supplied source-pool certificate.
+
+`CompactSourceHistory` transports snapshot construction through the changed
+request ordering. Checkpoint entries are permuted, while each step still records
+one common hash log. Thus the ordered candidate-log sequence and all membership
+predicates used by selection remain identical. Complete-history selection and
+first-field source recovery are proved equal to the reference; the public
+extractor and its native expected-work event now run through this compact path.
+The reference implementations remain as proof targets.
+
+Stored source/helper metadata entries are bounded by
+`H * (4*B^2 + 2*B)`, where H is the number of observations and B their total
+input-byte count. `CompactParentWorkStorage` and `CompactSourceHistory` derive
+`W * (4*W^2 + 2*W)` from actual closed-interpreter work; work is not defined by
+log length. Each stored parent has duplicate-free source/helper lists, and at
+most H parent records are retained. These are entry-count bounds, not total
+physical memory or running-time bounds.
+
+Validation for compact replay: `scripts/check` passed all 10,651 build jobs
+and its strict audit/smoke commands. Four focused strict checks passed: the new
+compact-parent smoke/audit and the existing public-source/native work-security
+audits. Seven executable regressions cover reference list doubling versus
+compact storage, a 20-parent chain, frozen-key equivalence, ambiguous/partial
+seed parents, duplicate helper/source removal, reordered checkpoint entries
+with identical candidate-log order and selections, and complete-history field
+recovery through the compact replay. Forty new axiom guards use only `propext`,
+`Classical.choice` and `Quot.sound`. No proof limits or native defaults changed.
+
+A complete extraction-cost theorem still requires bounds for parsing, cache
+lookup, snapshot search, polynomial arithmetic and linear solving, together
+with implementation refinement. Application-level ownership by the first
+ORIGINAL registry entry, trusted-context/key linkage, physical actor-cost
+separation and Rust arithmetic/decoder/NTT/scheduler refinement remain open.
 BabyBear arithmetic executes in the generic extraction regression; native
 BabyBear verification and its complete work-security theorem remain open.
 No full PBS application-security theorem is claimed.

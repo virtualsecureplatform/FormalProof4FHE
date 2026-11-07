@@ -1,3 +1,5 @@
+import FormalProof4FHETest.HasteBootsCompactParentsSmoke
+import FormalProof4FHETest.HasteBootsCompactParentsAudit
 import FormalProof4FHETest.HasteBootsSourceSelectionSmoke
 import FormalProof4FHETest.HasteBootsSourceSelectionAudit
 import FormalProof4FHETest.HasteBootsPublicMerkleSourceSmoke
