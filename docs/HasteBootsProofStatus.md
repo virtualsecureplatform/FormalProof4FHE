@@ -7,6 +7,31 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+The executable-extraction work now has a deterministic field linear solver.
+`FiniteLinearSolver` materializes coefficients and solutions in vectors, picks
+the first nonzero pivot, and sets free variables to zero. Its correctness theorem
+covers both successful solutions and rejection exactly when no solution exists.
+`FiniteMatrixSolver` exposes that result for arbitrary rectangular matrices,
+including empty rows or columns. These runtime definitions use explicit field
+operations and decidable equality, without classical solution selection or
+field enumeration. No running-time or physical-cost theorem is claimed.
+
+Validation for this extraction foundation: `scripts/check` passed all 10,618
+build jobs and its strict audit/smoke commands. The new strict smoke and audit
+files also passed independently. Five executable tests cover a later-row pivot,
+inconsistency, a free column, an empty system, and an inconsistent zero-column
+system. All 21 solver theorem guards permit only `propext`, `Classical.choice`
+and `Quot.sound`. No proof limits were raised.
+
+This is a foundation for executable Berlekamp–Welch decoding, not yet a
+replacement for `CommonSource.decode` or `ResponseCoefficients.decode`.
+ArkLib's decoder chooses its linear solution classically; directly substituting
+our solver also encounters Mathlib's noncomputable polynomial operations.
+The next extraction step therefore needs explicit coefficient-vector polynomial
+arithmetic and division, proved to agree with polynomial semantics, followed by
+scalar decoding, joint whole-column distance validation, and connection to the
+existing common-source and response-coefficient interfaces.
+
 Native batch-model accepted-false-analysis-claim coverage now uses the closed
 interpreter's actual instruction clock. `ClosedByteMachineLineage` supplies the
 exact first positive-read packet and complete chronological log split, including
@@ -27,7 +52,7 @@ The original-size Goldilocks role premises still require successful code
 construction, the primitive-root premise and compatible trusted parameters
 including `Q ≥ 544`.
 
-Validation: `scripts/check` passed all 10,612 build jobs and its strict
+Validation for the earlier native-coverage milestone: `scripts/check` passed all 10,612 build jobs and its strict
 audit/smoke commands. Six focused strict closed-native, root-work and earlier
 native-lifetime checks passed. Eight new guards use only `propext`,
 `Classical.choice` and `Quot.sound`. Regression checks cover the exact priced

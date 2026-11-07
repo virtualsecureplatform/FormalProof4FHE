@@ -1,3 +1,5 @@
+import FormalProof4FHETest.HasteBootsExecutableDecodingAudit
+import FormalProof4FHETest.HasteBootsExecutableDecodingSmoke
 import FormalProof4FHETest.HasteBootsProfileColumnSmoke
 import FormalProof4FHETest.HasteBootsProfileColumnAudit
 import FormalProof4FHETest.HasteBootsLifetimeSoundnessSmoke
