@@ -1,4 +1,5 @@
 module
+import all FormalProof4FHE.HasteBoots.SolverOperationCost
 import all FormalProof4FHE.HasteBoots.ExecutableSourceCoefficients
 import all FormalProof4FHE.HasteBoots.ExecutableCommonSource
 import all FormalProof4FHE.HasteBoots.ExecutableBerlekampWelch

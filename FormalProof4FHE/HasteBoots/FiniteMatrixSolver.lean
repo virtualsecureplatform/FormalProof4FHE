@@ -1,5 +1,5 @@
 module
-public import FormalProof4FHE.HasteBoots.FiniteLinearSolver
+public import FormalProof4FHE.HasteBoots.SolverOperationBounds
 @[expose] public section
 
 /-! Executable rectangular matrix solving through materialized elimination.
@@ -13,8 +13,26 @@ variable {F : Type} [Field F] [DecidableEq F] {n m : ℕ}
 def equations (matrix : Matrix (Fin n) (Fin m) F) (rhs : Fin n → F) : List (Equation F m) :=
   List.ofFn (fun row => ⟨Vector.ofFn (fun column => matrix row column),rhs row⟩)
 
+/-- Measured elimination of the materialized equations plus one return step.
+Evaluating the supplied matrix/rhs functions, constructing their equations,
+backend field costs and later reads of the returned function are excluded. -/
+def solveWithCost (matrix : Matrix (Fin n) (Fin m) F) (rhs : Fin n → F) : SolverOperationCost.Run (Option (Fin m → F)) :=
+  let solved := SolverOperationCost.solve m (equations matrix rhs)
+  ⟨solved.value.map (fun value index => value.get index),solved.cost+1⟩
+
 def solve (matrix : Matrix (Fin n) (Fin m) F) (rhs : Fin n → F) : Option (Fin m → F) :=
-  (FiniteLinearSolver.solve m (equations matrix rhs)).map (fun value index => value.get index)
+  (solveWithCost matrix rhs).value
+
+theorem solve_eq_reference (matrix : Matrix (Fin n) (Fin m) F) (rhs : Fin n → F) :
+    solve matrix rhs = (FiniteLinearSolver.solve m (equations matrix rhs)).map (fun value index => value.get index) := by
+  simp only [solve,solveWithCost,SolverOperationCost.solve_value]
+
+theorem solveWithCost_bound (matrix : Matrix (Fin n) (Fin m) F) (rhs : Fin n → F) :
+    (solveWithCost matrix rhs).cost ≤ 8*(n+1)*(m+1)^2+1 := by
+  have bounded := SolverOperationCost.solve_cost m (equations matrix rhs)
+  have length : (equations matrix rhs).length = n := by simp only [equations,List.length_ofFn]
+  rw [length] at bounded
+  exact Nat.add_le_add_right bounded 1
 
 omit [DecidableEq F] in
 theorem satisfies_equations (matrix : Matrix (Fin n) (Fin m) F) (rhs : Fin n → F) (value : Vector F m) :
@@ -30,7 +48,7 @@ theorem satisfies_equations (matrix : Matrix (Fin n) (Fin m) F) (rhs : Fin n →
 
 theorem solve_some (matrix : Matrix (Fin n) (Fin m) F) (rhs : Fin n → F) (value : Fin m → F)
     (solved : solve matrix rhs = some value) : matrix.mulVec value = rhs := by
-  unfold solve at solved
+  rw [solve_eq_reference] at solved
   obtain ⟨vector,vectorSolved,equal⟩ := Option.map_eq_some_iff.mp solved
   subst value
   exact (satisfies_equations matrix rhs vector).mp (FiniteLinearSolver.solve_some _ _ vectorSolved)
@@ -42,7 +60,7 @@ theorem solve_complete (matrix : Matrix (Fin n) (Fin m) F) (rhs : Fin n → F)
     simpa only [get_ofFn] using valid
   obtain ⟨vector,solved⟩ := FiniteLinearSolver.solve_complete (equations matrix rhs)
     ⟨Vector.ofFn value,(satisfies_equations _ _ _).mpr materialized⟩
-  exact ⟨fun index => vector.get index,by simp only [solve,solved,Option.map_some]⟩
+  exact ⟨fun index => vector.get index,by simp only [solve_eq_reference,solved,Option.map_some]⟩
 
 theorem solve_none (matrix : Matrix (Fin n) (Fin m) F) (rhs : Fin n → F)
     (failed : solve matrix rhs = none) : ¬∃ value, matrix.mulVec value = rhs := by

@@ -1,4 +1,5 @@
 module
+import all FormalProof4FHE.HasteBoots.SolverOperationCost
 import all FormalProof4FHE.HasteBoots.FiniteMatrixSolver
 import all FormalProof4FHE.HasteBoots.FiniteLinearSolver
 import all Mathlib.Data.ZMod.Basic
