@@ -586,3 +586,6 @@ import FormalProof4FHE.HasteBoots.ConcreteNTTU256Mul64
 import FormalProof4FHE.HasteBoots.ConcreteNTTLimbAdd
 import FormalProof4FHE.HasteBoots.ConcreteNTTU256Add
 import FormalProof4FHE.HasteBoots.ConcreteNTTU256Mul128
+import FormalProof4FHE.HasteBoots.ConcreteNTTU256Division
+import FormalProof4FHE.HasteBoots.ConcreteNTTDiv64Initialization
+import FormalProof4FHE.HasteBoots.ConcreteNTTInitializedPower

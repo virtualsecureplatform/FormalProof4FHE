@@ -7,6 +7,54 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`ConcreteNTTU256Division` now retains all four literal high-to-low division
+steps from locked `u256::div_rem_u256_u64`. Each concatenated intermediate fits
+u128; each quotient digit and remainder cast fits u64. Their exact recomposition
+proves the full u256 quotient and remainder without a supplied division
+correctness callback.
+
+`ConcreteNTTDiv64Initialization` now models the actual `Div64::new` word-formula
+path. It divides the four-limb MAX value, adds the original one-limb constant,
+and retains the double reciprocal, u128 single reciprocal and original divisor.
+The final addition does not overflow for valid divisors. Both retained values
+are derived from this constructor, rather than supplied as initialization
+certificates. The constructor's zero/one assertion failure is retained.
+Successful `new` now supplies canonical limb remainder and modular-product
+correctness without the previous caller reciprocal-initialization premise.
+
+`ConcreteNTTInitializedPower` retains that same constructed Div64 state through
+all odd multiplies, squares and final multiplication of the native exponentiation
+loop. Its complete value simulates the previous natural-word power program;
+actual constructor success implies the canonical modular-power result. No
+arbitrary modular multiplication callback or caller arithmetic certificate is
+introduced, and the reciprocal is not reconstructed between products.
+
+Ten Lean regression groups cover complete small prior-remainder ranges with
+boundary digits, all native division cases, full recomposition, both retained
+reciprocals, zero/one assertion failure, initialized remainder/product/power,
+quotient limb order and the carry chain when adding one to MAX/2. The fresh
+native/Python checker now verifies 49 divisions and seven retained initialization
+states in addition to the existing 126 limb cases (182 total), using independent
+arbitrary-precision division and reciprocal formulas. The same native executable
+still checks its existing arithmetic and root assertions. Twenty-three public
+theorem axiom guards cover the new division, initialization and retained-state
+power results.
+
+Validation: `scripts/check` passed all 10,872 build jobs and its strict audit
+and smoke checks. The 10 new initialization regression groups and 23-theorem
+audit also passed directly with `-DwarningAsError=true`. The fresh native/Python
+checker passed all 182 limb/division/initialization cases, and the same executable
+completed its existing 420 arithmetic cases and root assertions. Rust formatting
+passed. Audited theorems use only `propext`, `Classical.choice` and `Quot.sound`.
+
+These are exact bounded natural-word/limb semantics, not yet proofs of actual
+Rust machine division, casts, bit assembly or compiler execution. The remaining
+backend composition includes retained-state root construction, native plan guards/
+root storage and cache concurrency, then the actual retained code constructor.
+Nonwrapping mul128 high results where used, frame domains, all-original-claim/
+PBS/application soundness, actor-separated physical/compiler/SIMD/scheduler
+refinement, BabyBear and the final expected-work theorem remain open.
+
 `ConcreteNTTLimbArithmetic` now models the literal u64 multiply-with-carry
 primitive in locked `u256_impl.rs`. The full u128 intermediate is proved not to
 overflow, both output limbs fit u64, and their exact recomposition is proved.
@@ -26,8 +74,8 @@ Its value is the low 256 bits of the full product. Combined with the proved
 u256-by-u64 high carry, its `remainder_formula` recovers the complete limb-level
 `Div64::rem_u128` formula. The final remainder theorem reduces it to `%` with
 the stored reciprocal initialization relation still explicit. That relation is
-the next native u256 division/initialization obligation, not a supplied modular
-multiplication/remainder callback or an assumed initialized backend.
+now derived by `ConcreteNTTU256Division` and `ConcreteNTTDiv64Initialization`
+above; actual machine/compiler refinement remains open.
 
 Eleven Lean regression groups cover 125 primitive multiply/carry cases, both
 carry-flag paths, full product recomposition, high-carry increment bounds,
@@ -50,9 +98,9 @@ checks passed. Audited theorems use only `propext`, `Classical.choice` and
 `Quot.sound`.
 
 This refines the original ordered **limb arithmetic formulas**, not actual Rust
-instructions or compiler execution. The remaining arithmetic path includes the
-u256 reciprocal long division and initialization, nonwrapping mul128 high-result
-path where needed, and machine casts/shifts/overflow semantics. Native plan
+instructions or compiler execution. The u256 reciprocal long division and initialization word semantics are now
+supplied above. The remaining arithmetic path includes the nonwrapping mul128
+high-result path where needed, and machine casts/shifts/overflow semantics. Native plan
 preflight/root storage, cache concurrency and retained code-constructor provenance
 must then connect to these results. Frame domains, all-original-claim/PBS/
 application soundness, actor-separated physical/compiler/SIMD/scheduler
