@@ -7,6 +7,43 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Balanced Goldilocks layout selection and constructor handoff
+
+`NativeGoldBalancedLayout` models the increasing row-split search in
+`Parameters::balanced_block_rs`, including checked candidate sizes, the closed
+Goldilocks field compatibility test, the nine-byte field score coefficient and
+strict replacement of the current best candidate. Selection derives candidate
+origin, minimum score, retained earliest ties and checked dimensions. The
+score-arithmetic bound and candidate/selected no-wrap theorems connect unsigned
+128-bit score arithmetic to the ordinary natural-number score.
+
+`NativeGoldBalancedInitialization` derives the exact constructor request and
+`new_encoded` header from the selected layout. The handoff proves that the row
+split and column count fit their words, and successful explicit code construction
+and parameter initialization supply the selected message length, original header,
+primitive root and checked geometry. The existing immutable parameter store and
+first-original-owner registry bridge can consume these constructor receipts.
+
+Validation: `scripts/check` passed all 10,918 build jobs and the full strict
+audit/smoke sequence. The two new test modules also passed directly with
+`-DwarningAsError=true`: seven executable smoke groups and 19 theorem axiom
+guards, restricted to propext, Classical.choice and Quot.sound. The pinned
+native cache/parameter/layout checker passed.
+
+Native regressions cover six selected layouts, including degree 1024 at widths
+3 and 4 and an actual minimum-score tie (two variables, width 4, one query,
+blowup 2). Python independently enumerates every candidate and checks the earliest
+minimum, all code/context bytes and SHA-512 digests; seven errors cover invalid
+inputs, table overflow and no compatible layout. Lean compares complete native
+code and context byte fixtures after the explicit word-model constructor.
+
+The selector is now connected at the word-model level. Actual Rust control-flow,
+checked-operation, allocation/borrow/heap and Charon/Aeneas refinement remain open,
+as do NTT/SIMD/Div64 source binding and actor-separated scheduler/physical costs.
+The global causal oracle history, unbounded-lifetime work bound, BabyBear and
+full protocol security remain required. The earlier automatic-selector next step
+below is superseded only by this functional selection and handoff result.
+
 ## Constructed parameters and original registry provenance
 
 `NativeGoldEncodedParameters` models the ordered `new_encoded` checks and the
