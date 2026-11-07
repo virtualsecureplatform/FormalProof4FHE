@@ -37,6 +37,11 @@ ASSOCIATION_PROOFS = ['initialization_run', 'initialization_origin', 'prelude_ru
 LOOKUP_PROOFS = ['receipt_original_read', 'receipt_bad_or_original_read', 'receipt_from_parent_bad_or_original_read', 'receipt_from_original_parent']
 
 
+CAUSAL_LOOKUP_PROOFS = ['dispatch_run', 'dispatch_origin', 'prelude_run', 'prelude_origin',
+                        'lookup_included', 'receipt_bad_or_original_read', 'misassociation_bad',
+                        'lifetime_misassociation_le_charge']
+
+
 def digest(data):
     return hashlib.sha256(data).hexdigest()
 
@@ -149,7 +154,8 @@ def main():
                                         ('Decode.lean', 'HasteBootsExtractedRegistryDecode', DECODE_PROOFS),
                                         ('Registry.lean', 'HasteBootsExtractedRegistry', REGISTRY_PROOFS),
                                         ('Association.lean', 'HasteBootsExtractedRegistryAssociation', ASSOCIATION_PROOFS),
-                                        ('Lookup.lean', 'HasteBootsExtractedRegistryLookup', LOOKUP_PROOFS)]:
+                                        ('Lookup.lean', 'HasteBootsExtractedRegistryLookup', LOOKUP_PROOFS),
+                                        ('CausalLookup.lean', 'HasteBootsExtractedRegistryCausalLookup', CAUSAL_LOOKUP_PROOFS)]:
             proof = (DATA / file).read_text()
             PARAMETERS['validate_proof_source'](proof, proofs)
             source += '\n' + proof
