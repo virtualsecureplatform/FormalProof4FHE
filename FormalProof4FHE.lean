@@ -1,3 +1,4 @@
+import FormalProof4FHE.HasteBoots.DenseCommonSource
 import FormalProof4FHE.HasteBoots.DenseBerlekampWelch
 import FormalProof4FHE.HasteBoots.DenseCandidateCheck
 import FormalProof4FHE.HasteBoots.BerlekampWelchReconstruction
