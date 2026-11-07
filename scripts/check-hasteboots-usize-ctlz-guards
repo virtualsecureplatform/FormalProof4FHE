@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+"""Check intrinsic output rejection and separation of frontend build profiles."""
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT=Path(__file__).resolve().parent.parent
+PROBE=runpy.run_path(str(ROOT/'scripts/probe-hasteboots-usize-ctlz'))
+validate=PROBE['validate_output']
+
+
+def surface():
+    return ('import Aeneas\nset_option maxHeartbeats 200000\nset_option maxRecDepth 1000\n'
+            'def raw_count := ()\ndef count := ()\nend hasteboots_usize_ctlz\n')
+
+
+class Guards(unittest.TestCase):
+    def test_imports_only(self):
+        raw=surface()
+        self.assertEqual(validate(raw),raw.replace('import Aeneas\n','import Aeneas.Std\nimport Aeneas.Tactic.RustAttributes\n'))
+
+    def test_truncation_and_missing_calls(self):
+        for bad in [surface().split('end hasteboots_usize_ctlz')[0],
+                    surface().replace('def count ','def missing '),surface().replace('def raw_count ','def missing ')]:
+            with self.assertRaises(RuntimeError):validate(bad)
+
+    def test_no_primitive_admission_or_native_proof(self):
+        for text in ['axiom core.intrinsics.ctlz_nonzero : Nat','opaque primitive : Nat',
+                     'def bad := sorry','def bad := by decide +native','def bad := native_decide']:
+            with self.subTest(text=text),self.assertRaises(RuntimeError):
+                validate(surface().replace('end hasteboots_usize_ctlz',text+'\nend hasteboots_usize_ctlz'))
+
+    def test_every_limit_setting_is_checked(self):
+        for bad in [surface().replace('200000','1000000'),surface().replace('1000\n','2048\n'),
+                    surface().replace('end hasteboots_usize_ctlz','set_option maxHeartbeats 1000000\nend hasteboots_usize_ctlz')]:
+            with self.assertRaises(RuntimeError):validate(bad)
+
+    def test_distinct_reviewed_profiles(self):
+        profiles=PROBE['BUILD']['PROFILES']
+        self.assertEqual(set(profiles),{'static-strings','usize-ctlz'})
+        self.assertNotEqual((profiles['static-strings']/'frontend.patch').read_bytes(),
+                            (profiles['usize-ctlz']/'frontend.patch').read_bytes())
+
+    def test_exact_runtime_and_proof_audit_lists(self):
+        check=PROBE['PARAMETERS']['validate_proof_source']
+        data=ROOT/'interop/aeneas/usize-ctlz'
+        check((data/'Runtime.lean').read_text(),PROBE['RUNTIME_PROOFS'])
+        check((data/'Proof.lean').read_text(),PROBE['PROOFS'])
+        with self.assertRaises(RuntimeError):
+            check((data/'Runtime.lean').read_text(),PROBE['RUNTIME_PROOFS'][:-1])
+
+
+if __name__=='__main__':unittest.main()

@@ -1,0 +1,132 @@
+#!/usr/bin/env python3
+"""Check the concrete usize intrinsic mapping; constructor/security gates remain separate."""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+DATA = ROOT / 'interop/aeneas/usize-ctlz'
+BASE = runpy.run_path(str(ROOT / 'scripts/probe-hasteboots-static-strings'))
+PARAMETERS, BUILD, COMMON = BASE['PARAMETERS'], BASE['BUILD'], BASE['COMMON']
+RUNTIME_PROOFS = ['zero_rejected','nonzero_result','nonzero_bits','leading_value']
+PROOFS = ['raw_model','raw_defined','raw_undefined_rejected','count_zero','count_defined','count_total','raw_value']
+
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def validate_output(raw):
+    if raw.count('import Aeneas\n') != 1 or not raw.rstrip().endswith('end hasteboots_usize_ctlz'):
+        raise RuntimeError('Truncated or unexpected intrinsic extraction')
+    if re.search(r'\b(axiom|opaque|sorry|sorryAx|native_decide|unsafe)\b|decide\s*\+native',raw):
+        raise RuntimeError('Admitted or native-proof intrinsic extraction')
+    for name in ['raw_count','count']:
+        if not re.search(r'^def '+name+r'\s',raw,re.M):
+            raise RuntimeError('Missing source function: '+name)
+    if re.findall(r'^set_option (maxHeartbeats|maxRecDepth) ([0-9]+)$',raw,re.M) != [('maxHeartbeats','200000'),('maxRecDepth','1000')]:
+        raise RuntimeError('Unexpected proof limits')
+    return raw.replace('import Aeneas\n','import Aeneas.Std\nimport Aeneas.Tactic.RustAttributes\n')
+
+
+def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--tools',type=Path,required=True)
+    parser.add_argument('--backend',type=Path,required=True)
+    parser.add_argument('--build-receipt',type=Path,required=True)
+    args=parser.parse_args()
+    tools,backend=args.tools.resolve(),args.backend.resolve()
+    parent=ROOT/'build/hasteboots-extraction';parent.mkdir(parents=True,exist_ok=True)
+    out=Path(tempfile.mkdtemp(prefix='usize-ctlz-probe-',dir=parent))
+    record={'status':'started','claim':'usize primitive subgate; constructor/compiler/security refinement unproved',
+            'commands':[],'script_sha256':digest(Path(__file__).read_bytes())}
+    def save():
+        (out/'manifest.json').write_text(json.dumps(record,indent=2)+'\n')
+    def run(command,name,required=True):
+        record['commands'].append([str(x) for x in command]);save()
+        with (out/name).open('w') as log:
+            result=subprocess.run([str(x) for x in command],cwd=ROOT,stdout=log,stderr=subprocess.STDOUT)
+        if required and result.returncode:
+            raise RuntimeError(f'{name} exited {result.returncode}')
+        return result.returncode
+    def extract(file,crate):
+        llbc=out/(crate+'.llbc')
+        run([tools/'charon','rustc','--preset=aeneas','--dest-file',llbc,'--','--crate-type','lib',
+             '--edition=2024','--crate-name',crate,DATA/file],crate+'-charon.log')
+        ir=json.loads(llbc.read_text())
+        if ir.get('has_errors') is not False or ir['translated']['target_information'] != [
+            {'key':'x86_64-unknown-linux-gnu','value':{'target_pointer_size':8,'is_little_endian':True}}]:
+            raise RuntimeError('Incomplete or wrong-target Charon extraction')
+        return llbc
+    print('Probe artifacts: '+str(out),flush=True);save()
+    try:
+        for name,expected in PARAMETERS['TOOLS'].items():
+            if digest((tools/name).read_bytes())!=expected:raise RuntimeError('Official tool hash differs: '+name)
+        record['backend_patches']=PARAMETERS['verify_backend'](backend,out)
+        receipt=json.loads(args.build_receipt.read_text())
+        if receipt.get('status')!='passed' or receipt.get('profile')!='usize-ctlz':
+            raise RuntimeError('Missing passed usize-ctlz build receipt')
+        if receipt.get('script_sha256')!=digest((ROOT/'scripts/build-hasteboots-static-frontend').read_bytes()):
+            raise RuntimeError('Stale builder policy')
+        source=Path(receipt['source']);patch=BUILD['verify_source'](source,'usize-ctlz')
+        if receipt['patch_sha256']!=patch or receipt['package_profile_sha256']!=digest((BUILD['DATA']/'opam-packages.json').read_bytes()):
+            raise RuntimeError('Stale source/package profile')
+        frontend=Path(receipt['executable'])
+        if digest(frontend.read_bytes())!=receipt['executable_sha256']:raise RuntimeError('Frontend executable differs')
+        record.update(frontend_sha256=receipt['executable_sha256'],patch_sha256=patch,
+                      build_receipt_sha256=digest(args.build_receipt.read_bytes()))
+        record['fixtures']={name:digest((DATA/name).read_bytes()) for name in
+                           ['fixture.rs','unsupported.rs','unsupported-generic.rs','unsupported-alias.rs']}
+        llbc=extract('fixture.rs','hasteboots_usize_ctlz');record['llbc_sha256']=digest(llbc.read_bytes())
+        options=['-backend','lean','-checks','-sequential','-max-heartbeats','200000','-max-recdepth','1000','-abort-on-error']
+        run([tools/'aeneas',*options,'-dest',out/'official',llbc],'official.log')
+        baseline=(out/'official/HastebootsUsizeCtlz.lean').read_text()
+        if not re.search(r'^axiom core.intrinsics.ctlz_nonzero\s',baseline,re.M):
+            raise RuntimeError('Official unmodeled-intrinsic baseline changed')
+        record['official_status']='admission_rejected_as_expected'
+        run([frontend,*options,'-dest',out/'patched',llbc],'patched.log')
+        if re.search(r'Uncaught exception|\[Error\]',BASE['clear_colors']((out/'patched.log').read_text())):
+            raise RuntimeError('Frontend reported errors despite exit status')
+        raw=(out/'patched/HastebootsUsizeCtlz.lean').read_text();runtime=validate_output(raw)
+        support=(DATA/'Runtime.lean').read_text();proof=(DATA/'Proof.lean').read_text()
+        PARAMETERS['validate_proof_source'](support,RUNTIME_PROOFS)
+        PARAMETERS['validate_proof_source'](proof,PROOFS)
+        if support.count('import Aeneas.Std\n')!=1:raise RuntimeError('Unexpected runtime imports')
+        # Keep every generated term unchanged. The transparent runtime is a separate prelude.
+        support=support.replace('import Aeneas.Std\n','')
+        marker='open Aeneas Aeneas.Std Result ControlFlow Error\n'
+        if runtime.count(marker)!=1:raise RuntimeError('Unexpected generated prelude')
+        runtime=runtime.replace(marker,support+'\n'+marker,1)
+        names=['HasteBootsUsizeCtlz.'+n for n in RUNTIME_PROOFS]
+        names+=['HasteBootsExtractedUsizeCtlzProof.'+n for n in PROOFS]
+        names+=['hasteboots_usize_ctlz.raw_count','hasteboots_usize_ctlz.count']
+        checked=out/'Checked.lean';checked.write_text(runtime+'\n'+proof+''.join('\n#print axioms '+n+'\n' for n in names))
+        record.update(generated_sha256=digest(raw.encode()),runtime_sha256=digest((DATA/'Runtime.lean').read_bytes()),
+                      proof_sha256=digest(proof.encode()),checked_sha256=digest(checked.read_bytes()))
+        run([ROOT/'scripts/in-container','bash','-euc','cd -- "$1"; lake env lean -DwarningAsError=true "$2"','_',
+             COMMON['container_path'](backend/'backends/lean'),COMMON['container_path'](checked)],'lean.log')
+        record['dependency_audit']=PARAMETERS['audit_log']((out/'lean.log').read_text(),names)
+        rejected=[]
+        for file,crate in [('unsupported.rs','unsupported'),('unsupported-generic.rs','unsupported_generic'),
+                           ('unsupported-alias.rs','unsupported_alias')]:
+            bad=extract(file,crate)
+            status=run([frontend,*options,'-dest',out/crate,bad],crate+'-frontend.log',False)
+            log=BASE['clear_colors']((out/(crate+'-frontend.log')).read_text())
+            if status==0 or 'only concrete usize instantiations are modeled' not in log:
+                raise RuntimeError('Unsupported intrinsic reference was not rejected: '+file)
+            rejected.append(file)
+        record['rejected']=rejected;record['status']='passed'
+        print('usize ctlz passed: 13 dependency audits; zero/defined-input specifications; three unsupported instantiations rejected')
+    except (Exception,SystemExit) as error:
+        record['status']='failed';record['error']=str(error)
+        raise SystemExit(f'Intrinsic probe failed; inspect {out}: {error}') from error
+    finally:
+        record['logs']={p.name:digest(p.read_bytes()) for p in out.glob('*.log')};save()
+
+
+if __name__=='__main__':main()
