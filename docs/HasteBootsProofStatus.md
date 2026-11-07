@@ -7,6 +7,53 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`VectorWireReadCost` and `VectorWireEncodeCost` now provide measured repeated
+wire loops. Every element reader/encoder charge is included, and length witnesses
+remain separate from resource bounds. Their contracts concern the reference
+operation model, not arbitrary Lean callback runtime. Public byte endpoints fix
+concrete element programs and do not accept attacker-supplied reader/encoder
+callbacks. Forged counts stop when supplied bytes end, without a trial cap.
+
+`GoldQueryWireCost` instantiates those loops for original width/value matrices,
+zero/one matrix pairs and ordered PCS queries. Widths, raw u64 words and pair
+order are retained; caller-local extension post-maps are not serialized. Query
+prefix reading equals the native codec on every input, preserves suffixes and
+costs at most `136*(N+1)+3`; successful reads cost at most `136*consumed+1`.
+For query weight `W` (raw entries plus four per matrix pair), serialization costs
+at most `250*W+93` and produces at most `9*(W+1)` bytes. Matrix validity and trusted
+PCS parameter checks remain separate from structural recognition.
+
+`StoredSingleOpeningCost` now measures complete root/query/response decoding,
+canonical re-encoding and byte comparison. It equals the native exact opening
+codec for every input, reconstructs accepted bytes and round-trips every stored
+canonical opening. Its bound is `419*N+1400`. A stored root prefix cannot be
+accepted while ignoring malformed or noncanonical query/response data.
+
+`StoredSingleSourcesCost` checks the original adjacent context/opening frame
+roles, exact context-digest width and full opening payload. Its viewed pair equals
+`NativeRootInputView.single` for every pair of frames. Collection visits every
+original adjacency in order and retains duplicates and distinct contexts sharing
+a root. Intervening frames do not create a source. Each message is charged as the
+opening on the right of its actual pair, yielding raw-input bound
+`(2346+6*(Kc+Ko))*N+5` for fixed context/opening label lengths. Invalid payloads
+contribute no pair; malformed outer framing rejects the whole stream. This is
+the single-opening component, not a replacement for the complete multi-format
+source view. All charges are reference byte/list/word upper bounds, not physical
+runtime or attacker-work credit.
+
+Twelve regressions and sixty axiom guards cover huge counts, query widths/raw
+values and order, empty queries, exact opening data, root-only/truncated/trailing
+payloads, noncanonical query/width/response spellings, re-encoding, frame roles,
+exact adjacency, source aliases/duplicates, malformed framing and exact charges.
+`scripts/check` passed all 10,782 build jobs and its standard strict checks;
+the new stored-single-source smoke/audit also passed with `warningAsError=true`.
+Batched source messages, composition of all original source formats, inherited
+stored metadata replay, snapshot selection and complete extraction composition
+remain open. First original complete context/root registry ownership including
+earlier unused aliases, runtime size production, actor/physical/compiler/native
+refinement, BabyBear and full application security remain required. No new axioms
+or proof-limit increases were introduced; existing codec definitions are unchanged.
+
 `UsizeVectorSuccessCost`, `TableWireCost` and `ConfigWireCost` now measure the
 nested public-table and configuration wire path. Successful row reads cost at
 most `107*consumed+1`. Amortized table prefix reading costs at most

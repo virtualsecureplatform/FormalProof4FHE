@@ -524,3 +524,8 @@ import FormalProof4FHE.HasteBoots.TableWireCost
 import FormalProof4FHE.HasteBoots.ConfigWireCost
 import FormalProof4FHE.HasteBoots.StoredCanonicalBindingCost
 import FormalProof4FHE.HasteBoots.StoredBindingFramesCost
+import FormalProof4FHE.HasteBoots.VectorWireReadCost
+import FormalProof4FHE.HasteBoots.VectorWireEncodeCost
+import FormalProof4FHE.HasteBoots.GoldQueryWireCost
+import FormalProof4FHE.HasteBoots.StoredSingleOpeningCost
+import FormalProof4FHE.HasteBoots.StoredSingleSourcesCost
