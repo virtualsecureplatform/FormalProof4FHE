@@ -519,3 +519,8 @@ import FormalProof4FHE.HasteBoots.StoredHelperRootsCost
 import FormalProof4FHE.HasteBoots.StoredSourceVectorReadCost
 import FormalProof4FHE.HasteBoots.StoredSourceVectorCost
 import FormalProof4FHE.HasteBoots.StoredRegistrySourcesCost
+import FormalProof4FHE.HasteBoots.UsizeVectorSuccessCost
+import FormalProof4FHE.HasteBoots.TableWireCost
+import FormalProof4FHE.HasteBoots.ConfigWireCost
+import FormalProof4FHE.HasteBoots.StoredCanonicalBindingCost
+import FormalProof4FHE.HasteBoots.StoredBindingFramesCost

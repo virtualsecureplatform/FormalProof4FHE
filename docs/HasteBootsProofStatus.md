@@ -7,6 +7,53 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`UsizeVectorSuccessCost`, `TableWireCost` and `ConfigWireCost` now measure the
+nested public-table and configuration wire path. Successful row reads cost at
+most `107*consumed+1`. Amortized table prefix reading costs at most
+`113*(N+1)+3`, independent of forged row/word counts; successful table reads cost
+at most `113*consumed+1`. Empty/ragged rows, original row order and every lazy raw
+u64 are retained. If `T` counts table entries plus one per row, table serialization
+costs at most `129*T+93` and produces at most `9*(T+1)` bytes. Configuration prefix
+reading costs at most `113*(N+1)+15`; serialization costs at most `156*T+372`.
+The exact logical length, table and repetitions are preserved, with no separate
+columns field. All-input equality to the existing native codecs is proved.
+Pure structural list-length witnesses remain separate from arithmetic cost bounds.
+
+`StoredCanonicalBindingCost` now reads the complete original canonical binding:
+configuration, serialized degree-3 field, stored 64-byte helper and ordered stored
+context/root source pairs. It preserves the existing degree field independently
+of lookup widths. Prefix reading preserves arbitrary suffixes and costs at most
+`113*(N+1)+916*(N/128+1)+700`. Strict complete decoding charges full canonical
+serialization and byte comparison; it equals the original exact binding codec
+on every input, reconstructs accepted bytes and round-trips every canonical stored
+binding. Its bound is `302*N+1764*(N/128+1)+1100`. Alternate nested count/word/degree
+spellings and trailing bytes reject. No functional helper/context/root or serializer
+callback executes in these programs.
+
+`StoredBindingFramesCost` charges exact binding kind/label checks, complete message
+decoding, binding-list construction and outer-frame parsing. Full stored binding
+records retain original configurations, helpers and all source aliases/duplicates.
+The helper projection equals `ExecutableParentInputView.frameHelper`; under the
+binding label the source projection equals `NativeRootInputView.frameSources`.
+Collection from `N` raw bytes costs at most `(4971+6*K)*N+5`, for fixed binding
+label length `K`. Invalid binding payloads contribute no records, while malformed
+outer framing rejects the whole stream. These are reference byte/list/word upper
+bounds, not native physical runtime or attacker-work credit.
+
+Twelve regressions and forty-six axiom guards cover huge nested counts, ragged and
+empty tables, raw lazy words, exact field order, source aliases, prefix suffixes,
+degree rejection, noncanonical nested/header/degree/source spellings, exact message
+reconstruction, binding labels, mixed valid/invalid frames and exact charges.
+`scripts/check` passed all 10,775 build jobs and its standard strict checks;
+the new stored-binding smoke/audit also passed with `warningAsError=true`.
+Trusted-configuration validation, inherited stored metadata replay, the remaining
+single-opening/batch source formats, snapshot selection and complete extraction
+composition remain open. First original complete context/root registry ownership
+including earlier unused aliases, runtime size production, actor/physical/compiler/
+native refinement, BabyBear and full application security remain required.
+No new axioms or proof-limit increases were introduced; existing codec encoding
+definitions and dependencies are unchanged.
+
 `StoredSourceVectorReadCost` now measures native context/root source-vector
 prefix reading into stored pairs of 64-byte vectors. It preserves both roles,
 all raw bytes, original order, duplicates and arbitrary prefix suffixes. A pair
