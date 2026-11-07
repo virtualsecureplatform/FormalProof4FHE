@@ -1,4 +1,6 @@
 module
+import all FormalProof4FHE.HasteBoots.BytePrefixCost
+import all FormalProof4FHE.HasteBoots.IntegerPrefixCost
 import all FormalProof4FHE.HasteBoots.CompactSourceHistory
 import all FormalProof4FHE.HasteBoots.CompactParentLedger
 import all FormalProof4FHE.HasteBoots.CompactParentHistory

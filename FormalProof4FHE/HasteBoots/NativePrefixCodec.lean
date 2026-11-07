@@ -1,6 +1,7 @@
 module
 
 public import FormalProof4FHE.HasteBoots.NativeIntegerPrefix
+public import FormalProof4FHE.HasteBoots.IntegerPrefixCost
 
 @[expose] public section
 
@@ -34,11 +35,17 @@ theorem Codec.encode_injective {A : Type} (codec : Codec A) : Function.Injective
 
 def usize : Codec Usize where
   encode := NativeUsizeMessage.encode
-  read := fun bytes => (NativeIntegerPrefix.read bytes).bind (fun pair =>
-    if fits : pair.1 < 2 ^ 64 then some (⟨pair.1, fits⟩, pair.2) else none)
+  read := fun bytes => (IntegerPrefixCost.readUsize bytes).value
   read_encode := by
     intro value suffix
-    rw [NativeIntegerPrefix.read_encode, Option.bind_some, dite_eq_left value.isLt]
+    rw [IntegerPrefixCost.readUsize_value,NativeIntegerPrefix.read_encode, Option.bind_some, dite_eq_left value.isLt]
+
+/-- The measured usize prefix reader preserves the previous structural parser
+on every input; strict role canonicality is still enforced by role decoders. -/
+theorem usize_read_eq_reference (bytes : Input) :
+    usize.read bytes = (NativeIntegerPrefix.read bytes).bind (fun pair =>
+      if fits : pair.1 < 2^64 then some (⟨pair.1,fits⟩,pair.2) else none) :=
+  IntegerPrefixCost.readUsize_value bytes
 
 def product {A B : Type} (first : Codec A) (second : Codec B) : Codec (A × B) where
   encode := fun pair => first.encode pair.1 ++ second.encode pair.2

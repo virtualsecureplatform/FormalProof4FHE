@@ -1,4 +1,6 @@
 module
+import all FormalProof4FHE.HasteBoots.BytePrefixCost
+import all FormalProof4FHE.HasteBoots.IntegerPrefixCost
 import all Mathlib.Data.Fintype.Basic
 import all Mathlib.Data.Fintype.Defs
 import all FormalProof4FHE.HasteBoots.NativeGoldBatchPrelude

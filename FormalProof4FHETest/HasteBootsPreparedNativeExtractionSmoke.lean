@@ -1,4 +1,6 @@
 module
+import all FormalProof4FHE.HasteBoots.BytePrefixCost
+import all FormalProof4FHE.HasteBoots.IntegerPrefixCost
 import all FormalProof4FHE.HasteBoots.PreparedMerklePayloads
 import all FormalProof4FHE.HasteBoots.SolverOperationCost
 import all FormalProof4FHE.HasteBoots.ScalarDistanceCost
