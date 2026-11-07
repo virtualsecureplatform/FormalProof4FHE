@@ -1,0 +1,26 @@
+#!/usr/bin/env python3
+"""Keep diagnostic rejection distinct from accepted refinement."""
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+PROBE = runpy.run_path(str(ROOT / 'scripts/probe-hasteboots-row-metadata'))
+
+
+class Guards(unittest.TestCase):
+    def test_known_failures(self):
+        self.assertEqual(PROBE['classify_failure']('Could not find borrow b@1\ninterp/Invariants.ml'), 'borrow-invariant')
+        self.assertEqual(PROBE['classify_failure']('Internal error, please file an issue\ntransformation/concrete.rs\nSymbolicToPureTypes.ml, line 1012'), 'associated-type-constraint')
+
+    def test_unknown_failures_stay_unknown(self):
+        for log in ['', 'success', 'Could not find borrow', 'Internal error, please file an issue', 'Formatter axiom']:
+            self.assertIsNone(PROBE['classify_failure'](log))
+
+    def test_ansi_failure_logs(self):
+        self.assertEqual(PROBE['classify_failure'](
+            '\x1b[31mCould not find borrow b@1\x1b[0m\ninterp/Invariants.ml'), 'borrow-invariant')
+
+
+if __name__ == '__main__':
+    unittest.main()

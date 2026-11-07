@@ -1,0 +1,116 @@
+#!/usr/bin/env python3
+"""Reproduce native row metadata translation blockers; never certify refinement."""
+import argparse
+import json
+import os
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+BASE = runpy.run_path(str(ROOT / 'scripts/extract-hasteboots-registry'))
+DATA = ROOT / 'interop/aeneas/row-metadata'
+
+
+def classify_failure(log):
+    clean = re.sub(r'\x1b\[[0-9;?]*[A-Za-z]', '', log)
+    if 'Could not find borrow' in clean and 'interp/Invariants.ml' in clean:
+        return 'borrow-invariant'
+    if ('Internal error, please file an issue' in clean and
+            'SymbolicToPureTypes.ml, line 1012' in clean and 'transformation/concrete.rs' in clean):
+        return 'associated-type-constraint'
+    return None
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--tools', type=Path, required=True)
+    parser.add_argument('--backend', type=Path, required=True)
+    parser.add_argument('--mode', choices=['generic', 'concrete'], required=True)
+    args = parser.parse_args()
+    parent = ROOT / 'build/hasteboots-extraction'
+    parent.mkdir(parents=True, exist_ok=True)
+    out = Path(tempfile.mkdtemp(prefix='row-metadata-' + args.mode + '-', dir=parent))
+    record = {'status': 'started', 'mode': args.mode, 'commands': [],
+              'claim': 'translation diagnostic only; no source refinement or security proof',
+              'script_sha256': BASE['digest'](Path(__file__).read_bytes())}
+    def save():
+        (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
+    def run(command, name, env=None):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out / name).open('w') as log:
+            return subprocess.run([str(x) for x in command], cwd=ROOT, env=env,
+                                  stdout=log, stderr=subprocess.STDOUT).returncode
+    print('Row metadata artifacts: ' + str(out), flush=True); save()
+    try:
+        tools, backend = args.tools.resolve(), args.backend.resolve()
+        # Fresh accepted carrier extraction checks source/tool/backend pins.
+        if run([ROOT / 'scripts/extract-hasteboots-registry', '--tools', tools,
+                '--backend', backend], 'registry.log'):
+            raise RuntimeError('Accepted registry preflight failed')
+        paths = re.findall(r'^Registry artifacts: (.+)$', (out / 'registry.log').read_text(), re.M)
+        if len(paths) != 1:
+            raise RuntimeError('Missing registry preflight path')
+        source = Path(paths[0])
+        manifest = json.loads((source / 'manifest.json').read_text())
+        if manifest.get('status') != 'passed':
+            raise RuntimeError('Registry preflight was not accepted')
+        record['preflight_manifest_sha256'] = BASE['digest']((source / 'manifest.json').read_bytes())
+        record['preflight_manifest'] = str(source / 'manifest.json')
+        native = ROOT.parent / 'HasteBoots'
+        cargo = (source / 'Cargo.toml').read_text() + 'algebra = { path = "' + str(native / 'algebra') + '" }\n'
+        lock = (source / 'Cargo.lock').read_text().replace(
+            'name = "formalproof4fhe-native-registry-fixture"\nversion = "0.1.0"\ndependencies = [',
+            'name = "formalproof4fhe-native-registry-fixture"\nversion = "0.1.0"\ndependencies = [\n "algebra",')
+        BASE['validate_lock']((native / 'Cargo.lock').read_text(), lock)
+        (out / 'Cargo.toml').write_text(cargo); (out / 'Cargo.lock').write_text(lock)
+        (out / 'src').mkdir()
+        wrapper = (DATA / (args.mode + '.rs')).read_bytes()
+        (out / 'src/lib.rs').write_bytes(wrapper)
+        record['wrapper_sha256'] = BASE['digest'](wrapper)
+        record['cargo_sha256'] = BASE['digest'](cargo.encode())
+        record['lock_sha256'] = BASE['digest'](lock.encode())
+        llbc = out / 'row_metadata.llbc'
+        command = [tools / 'charon', 'cargo', '--preset=aeneas', '--start-from',
+                   BASE['NAMESPACE'] + '::row_metadata']
+        for method in ['block_width', 'codeword_blocks', 'domain_separator']:
+            command += ['--include', 'pcs::utils::code::block::_::' + method]
+        command += ['--dest-file', llbc, '--', '--manifest-path', out / 'Cargo.toml', '--lib', '--locked']
+        env = dict(os.environ)
+        env.setdefault('CARGO_TARGET_DIR', str(parent / 'cargo-registry-target'))
+        if run(command, 'charon.log', env):
+            raise RuntimeError('Charon rejected native metadata')
+        ir = json.loads(llbc.read_text())
+        if ir.get('has_errors') is not False or ir['translated']['target_information'] != [
+                {'key': 'x86_64-unknown-linux-gnu', 'value': {'target_pointer_size': 8, 'is_little_endian': True}}]:
+            raise RuntimeError('Incomplete or wrong-target Charon extraction')
+        def check_native():
+            parameters = BASE['PARAMETERS']
+            if parameters['checked'](['git', '-C', native, 'rev-parse', 'HEAD'], text=True).strip() != parameters['NATIVE_PIN']:
+                raise RuntimeError('Native source revision changed during probe')
+            if parameters['checked'](['git', '-C', native, 'diff', 'HEAD', '--name-only'], text=True).strip():
+                raise RuntimeError('Native source changed during probe')
+        check_native()
+        record['native_sources'] = {name: BASE['digest']((native / name).read_bytes()) for name in
+                                    ['pcs/src/utils/code/block.rs', 'algebra/src/transformation/concrete.rs', 'Cargo.lock']}
+        record['llbc_sha256'] = BASE['digest'](llbc.read_bytes())
+        code = run([tools / 'aeneas', '-backend', 'lean', '-checks', '-sequential',
+                    '-max-heartbeats', '200000', '-max-recdepth', '1000', '-abort-on-error',
+                    '-dest', out / 'lean', llbc], 'aeneas.log')
+        check_native()
+        record['aeneas_exit_code'] = code
+        record['failure_kind'] = classify_failure((out / 'aeneas.log').read_text())
+        if code:
+            raise RuntimeError('Aeneas rejected metadata: ' + str(record['failure_kind']))
+        # Translation alone never promotes this diagnostic to an accepted proof.
+        raise RuntimeError('Translation progressed; reviewed snapshot and kernel refinement proofs required')
+    except (Exception, SystemExit) as error:
+        record['status'] = 'rejected-unproved'; record['error'] = str(error); save()
+        print('Row metadata remains unproved; inspect ' + str(out) + ': ' + str(error), flush=True)
+        return 1
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())
