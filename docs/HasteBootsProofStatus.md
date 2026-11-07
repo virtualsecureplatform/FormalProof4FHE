@@ -7,6 +7,44 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Actual Rust retained-parameter extraction and constructor gate
+
+`scripts/extract-hasteboots-parameters` now compiles a wrapper against the
+unchanged pinned native workspace and runs actual Charon/Aeneas extraction.
+Retained mode extracts the actual private-field parameter and block-code
+structures, five native getters and two wrappers. The six proofs in
+`interop/aeneas/parameters/Proof.lean` establish exact header reads, retained
+code and all six code fields, header independence and combined reads. All
+13 audited generated/proof declarations have empty axiom dependency closures.
+The generated terms are preserved; only imports change. Strict Lean checking
+passes, as do seven rejection/audit guard tests. The complete reviewed generated
+source is committed; fresh extraction must match it, allowing only checkout
+paths in source-location comments to differ for comparison.
+
+The default constructor gate remains **failed**, with a fresh failed manifest:
+Charon reaches the actual native `new_encoded`, but Aeneas rejects its captured
+reference option combinators and reports a bottom-value constructor return.
+Retained-mode success does not pass or replace that gate. A diagnostic tool
+configuration returned zero despite a NameMatcher exception and truncated Lean;
+the harness checks error logs, complete required declarations and namespace
+termination before kernel checking, so exit status alone cannot pass it.
+
+The harness checks native revision/tracked cleanliness, official executable
+hashes, the selected 64-bit little-endian target and exact patched backend
+source, and records fresh Rust/Cargo inputs,
+LLBC, commands, output/log/lock/proof/source hashes and an explicit status.
+It rejects admissions/opaque declarations, unexpected proof limits and missing
+or forbidden dependency audits. The backend validation uses a separate index
+and leaves the source checkout and its index untouched. Detailed commands and
+known translation failures are in `interop/aeneas/parameters/README.md`.
+
+This advances actual extracted accessor correctness. It does not prove the
+constructor, the source-to-word-model bridge, compiler correctness, physical
+borrow/heap ownership, native NTT/SIMD/Div64 or scheduler/actor costs. Those and
+the causal unbounded-lifetime 128-bit attacker-work theorem remain required.
+Root Lean modules were unchanged in this milestone; validation directly checks
+the generated native declarations and appended proofs in the pinned backend.
+
 ## Balanced Goldilocks layout selection and constructor handoff
 
 `NativeGoldBalancedLayout` models the increasing row-split search in
