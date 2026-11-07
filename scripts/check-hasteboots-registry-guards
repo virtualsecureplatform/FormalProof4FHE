@@ -1,0 +1,68 @@
+#!/usr/bin/env python3
+"""Check registry extraction completeness, dependency versions and proof coverage."""
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+MODULE = runpy.run_path(str(ROOT / 'scripts/extract-hasteboots-registry'))
+validate = MODULE['validate_generated']
+
+
+def surface():
+    return ('import Aeneas\nset_option maxHeartbeats 200000\nset_option maxRecDepth 1000\n' +
+            ''.join('def ' + n + ' := ()\n' for n in MODULE['FUNCTIONS'] + ['pcs.utils.hash.Digest512']) +
+            'structure pcs.matrix_weighted.Commitment where\n  root : Unit\n' +
+            'structure snarks.packed_oracle.CanonicalVerifierOracle where\n  value : Unit\n' +
+            'end ' + MODULE['NAMESPACE'] + '\n')
+
+
+class Guards(unittest.TestCase):
+    def test_import_only(self):
+        self.assertEqual(validate(surface()), surface().replace('import Aeneas\n', ''))
+
+    def test_missing_or_truncated_source(self):
+        for bad in [surface().rsplit('end ', 1)[0], surface() + surface()]:
+            with self.assertRaises(RuntimeError):
+                validate(bad)
+        for name in MODULE['FUNCTIONS'] + ['pcs.utils.hash.Digest512', 'pcs.matrix_weighted.Commitment',
+                                          'snarks.packed_oracle.CanonicalVerifierOracle']:
+            with self.subTest(name=name), self.assertRaises(RuntimeError):
+                validate(surface().replace(name, 'missing'))
+
+    def test_admissions_and_limits(self):
+        for extra in ['axiom bad : False', 'opaque bad : Nat', 'def bad := sorry',
+                      'def bad := native_decide', 'def bad := by decide +native',
+                      'set_option maxHeartbeats 1000000']:
+            with self.subTest(extra=extra), self.assertRaises(RuntimeError):
+                validate(surface().replace('end ' + MODULE['NAMESPACE'], extra + '\nend ' + MODULE['NAMESPACE']))
+        with self.assertRaises(RuntimeError):
+            validate(surface().replace('1000\n', '2048\n'))
+
+    def test_dependency_lock_matches_native(self):
+        native = (ROOT.parent / 'HasteBoots/Cargo.lock').read_text()
+        lock = (MODULE['DATA'] / 'Cargo.lock').read_text()
+        MODULE['validate_lock'](native, lock)
+        for bad in [lock.replace('name = "formalproof4fhe-native-registry-fixture"', 'name = "unexpected"'),
+                    lock + '\n[[package]]\nname = "unexpected"\nversion = "0.1.0"\n']:
+            with self.assertRaises(RuntimeError):
+                MODULE['validate_lock'](native, bad)
+
+    def test_checksum_changes_rejected(self):
+        native = '[[package]]\nname = "dependency"\nversion = "1.0.0"\nchecksum = "original"\n'
+        wrapper = '[[package]]\nname = "formalproof4fhe-native-registry-fixture"\nversion = "0.1.0"\n'
+        MODULE['validate_lock'](native, native + wrapper)
+        with self.assertRaises(RuntimeError):
+            MODULE['validate_lock'](native, native.replace('original', 'changed') + wrapper)
+
+    def test_exact_proof_audits(self):
+        for file, names in [('Proof.lean', MODULE['PROOFS']), ('Decode.lean', MODULE['DECODE_PROOFS']),
+                            ('Registry.lean', MODULE['REGISTRY_PROOFS'])]:
+            text = (MODULE['DATA'] / file).read_text()
+            MODULE['PARAMETERS']['validate_proof_source'](text, names)
+            with self.assertRaises(RuntimeError):
+                MODULE['PARAMETERS']['validate_proof_source'](text, names[:-1])
+
+
+if __name__ == '__main__':
+    unittest.main()

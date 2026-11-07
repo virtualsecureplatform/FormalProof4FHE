@@ -1,0 +1,165 @@
+#!/usr/bin/env python3
+"""Extract native verifier-carrier reads and decode their values; no ownership/security certificate."""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+import tomllib
+
+ROOT = Path(__file__).resolve().parent.parent
+PARAMETERS = runpy.run_path(str(ROOT / 'scripts/extract-hasteboots-parameters'))
+COMMON = PARAMETERS['COMMON']
+DATA = ROOT / 'interop/aeneas/registry'
+NAMESPACE = 'formalproof4fhe_native_registry_fixture'
+FUNCTIONS = ['fields', 'registry_len', 'registry_get', 'root_bytes']
+PROOFS = ['fields_exact', 'length_exact', 'length_value', 'get_exact', 'get_present', 'get_absent',
+          'root_bytes_exact', 'root_length']
+DECODE_PROOFS = ['root_value', 'root_injective', 'decode_fields', 'decode_injective',
+                 'read_decoded_exact', 'read_root_exact', 'decode_exists_iff']
+
+
+REGISTRY_PROOFS = ['collect_correct', 'collect_length', 'collect_append', 'registry_values',
+                   'registry_length', 'registry_slot', 'original_owner_read']
+
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def validate_generated(raw):
+    if raw.count('import Aeneas\n') != 1 or not raw.rstrip().endswith('end ' + NAMESPACE):
+        raise RuntimeError('Incomplete registry extraction')
+    if re.search(r'\b(axiom|opaque|constant|sorry|sorryAx|native_decide|unsafe)\b|decide\s*\+native', raw):
+        raise RuntimeError('Admitted registry declaration')
+    if re.findall(r'^set_option (maxHeartbeats|maxRecDepth) ([0-9]+)$', raw, re.M) != [
+            ('maxHeartbeats', '200000'), ('maxRecDepth', '1000')]:
+        raise RuntimeError('Unexpected proof limits')
+    for name in FUNCTIONS + ['pcs.utils.hash.Digest512']:
+        if not re.search(r'^def ' + re.escape(name) + r'\s', raw, re.M):
+            raise RuntimeError('Missing source definition: ' + name)
+    for name in ['pcs.matrix_weighted.Commitment', 'snarks.packed_oracle.CanonicalVerifierOracle']:
+        if not re.search(r'^structure ' + re.escape(name) + r'\s', raw, re.M):
+            raise RuntimeError('Missing native carrier: ' + name)
+    # The preflight already imports the exact compatibility libraries.
+    return raw.replace('import Aeneas\n', '')
+
+
+def validate_lock(native, fixture):
+    def keys(lock):
+        return {(p['name'], p['version'], p.get('source', ''), p.get('checksum')) for p in lock['package']}
+    allowed = keys(tomllib.loads(native))
+    actual = keys(tomllib.loads(fixture))
+    wrapper = (NAMESPACE.replace('_', '-'), '0.1.0', '', None)
+    if actual - allowed != {wrapper}:
+        raise RuntimeError('Registry dependency versions differ from the pinned native lock')
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--tools', type=Path, required=True)
+    parser.add_argument('--backend', type=Path, required=True)
+    args = parser.parse_args()
+    tools, backend = args.tools.resolve(), args.backend.resolve()
+    parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
+    out = Path(tempfile.mkdtemp(prefix='registry-extraction-', dir=parent))
+    record = {'status': 'started', 'commands': [], 'script_sha256': digest(Path(__file__).read_bytes()),
+              'claim': 'native reads/decoded model owner bridge; native initialization, heap and security unproved'}
+    def save():
+        (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
+    def run(command, name, env=None):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out / name).open('w') as log:
+            subprocess.run([str(x) for x in command], cwd=ROOT, env=env,
+                           stdout=log, stderr=subprocess.STDOUT, check=True)
+    print('Registry artifacts: ' + str(out), flush=True); save()
+    try:
+        # Fresh source extraction also checks exact native/tool/backend pins.
+        run([ROOT / 'scripts/extract-hasteboots-parameters', '--tools', tools,
+             '--backend', backend, '--mode', 'retained'], 'parameters.log')
+        paths = re.findall(r'^Extraction artifacts: (.+)$', (out / 'parameters.log').read_text(), re.M)
+        if len(paths) != 1:
+            raise RuntimeError('Missing parameter preflight path')
+        preflight = Path(paths[0])
+        manifest = json.loads((preflight / 'manifest.json').read_text())
+        if manifest.get('status') != 'passed' or manifest.get('mode') != 'retained':
+            raise RuntimeError('Parameter preflight did not pass')
+        record['parameter_manifest'] = str(preflight / 'manifest.json')
+        record['parameter_manifest_sha256'] = digest((preflight / 'manifest.json').read_bytes())
+        native = ROOT.parent / 'HasteBoots'
+        lock = (DATA / 'Cargo.lock').read_text()
+        validate_lock((native / 'Cargo.lock').read_text(), lock)
+        (out / 'Cargo.lock').write_text(lock)
+        (out / 'Cargo.toml').write_text((DATA / 'Cargo.toml').read_text().replace('../../../../HasteBoots', str(native)))
+        (out / 'src').mkdir()
+        (out / 'src/lib.rs').write_bytes((DATA / 'wrapper.rs').read_bytes())
+        record['inputs'] = {name: digest((DATA / name).read_bytes()) for name in
+                            ['Cargo.toml', 'Cargo.lock', 'wrapper.rs', 'Generated.lean', 'Proof.lean', 'Decode.lean', 'Registry.lean']}
+        record['native_sources'] = {name: digest((native / name).read_bytes()) for name in
+                                    ['snarks/src/packed_oracle.rs', 'pcs/src/matrix_weighted.rs', 'pcs/src/utils/hash.rs', 'Cargo.lock']}
+        llbc = out / 'registry.llbc'
+        command = [tools / 'charon', 'cargo', '--preset=aeneas']
+        for name in FUNCTIONS:
+            command += ['--start-from', NAMESPACE + '::' + name]
+        command += ['--include', 'snarks::packed_oracle', '--dest-file', llbc, '--',
+                    '--manifest-path', out / 'Cargo.toml', '--lib', '--locked']
+        env = dict(os.environ)
+        env.setdefault('CARGO_TARGET_DIR', str(parent / 'cargo-registry-target'))
+        run(command, 'charon.log', env)
+        ir = json.loads(llbc.read_text())
+        if ir.get('has_errors') is not False or ir['translated']['target_information'] != [
+                {'key': 'x86_64-unknown-linux-gnu', 'value': {'target_pointer_size': 8, 'is_little_endian': True}}]:
+            raise RuntimeError('Incomplete or wrong-target Charon extraction')
+        record['llbc_sha256'] = digest(llbc.read_bytes())
+        if PARAMETERS['checked'](['git', '-C', native, 'rev-parse', 'HEAD'], text=True).strip() != PARAMETERS['NATIVE_PIN']:
+            raise RuntimeError('Native source revision changed during extraction')
+        if PARAMETERS['checked'](['git', '-C', native, 'diff', 'HEAD', '--name-only'], text=True).strip():
+            raise RuntimeError('Native source changed during extraction')
+        run([tools / 'aeneas', '-backend', 'lean', '-checks', '-sequential', '-max-heartbeats', '200000',
+             '-max-recdepth', '1000', '-abort-on-error', '-dest', out / 'lean', llbc], 'aeneas.log')
+        log = re.sub(r'\x1b\[[0-9;?]*[A-Za-z]', '', (out / 'aeneas.log').read_text())
+        if re.search(r'Uncaught exception|\[Error\]', log):
+            raise RuntimeError('Aeneas reported errors despite exit status')
+        raw = (out / 'lean/Registry.lean').read_text()
+        runtime = validate_generated(raw)
+        PARAMETERS['verify_snapshot'](raw, (DATA / 'Generated.lean').read_text())
+        source = (preflight / 'HastebootsParametersChecked.lean').read_text()
+        marker = 'import FormalProof4FHE.HasteBoots.NativeGoldParameterInitialization\n'
+        if source.count(marker) != 1:
+            raise RuntimeError('Unexpected parameter import surface')
+        source = source.replace(marker, marker + 'import FormalProof4FHE.HasteBoots.NativeSourceRegistry\n', 1)
+        names = list(manifest['dependency_audit'])
+        names += [NAMESPACE + '.' + n for n in FUNCTIONS]
+        source += '\n' + runtime
+        for file, namespace, proofs in [('Proof.lean', 'HasteBootsExtractedRegistryProof', PROOFS),
+                                        ('Decode.lean', 'HasteBootsExtractedRegistryDecode', DECODE_PROOFS),
+                                        ('Registry.lean', 'HasteBootsExtractedRegistry', REGISTRY_PROOFS)]:
+            proof = (DATA / file).read_text()
+            PARAMETERS['validate_proof_source'](proof, proofs)
+            source += '\n' + proof
+            names += [namespace + '.' + name for name in proofs]
+        new_names = names[len(manifest['dependency_audit']):]
+        source += ''.join('\n#print axioms ' + name + '\n' for name in new_names)
+        checked = out / 'Checked.lean'; checked.write_text(source)
+        record.update(generated_sha256=digest(raw.encode()), checked_sha256=digest(checked.read_bytes()))
+        run([ROOT / 'scripts/in-container', 'lake', 'build', 'FormalProof4FHE.HasteBoots.NativeSourceRegistry'], 'model-build.log')
+        run([ROOT / 'scripts/in-container', 'bash', '-euc',
+             'project_path=$(lake env printenv LEAN_PATH); cd -- "$1"; backend_path=$(lake env printenv LEAN_PATH); '
+             'LEAN_PATH="$project_path:$backend_path" lean -DwarningAsError=true "$2"', '_',
+             COMMON['container_path'](backend / 'backends/lean'), COMMON['container_path'](checked)], 'lean.log')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), names)
+        record['status'] = 'passed'
+        print(f'Registry reads/model-owner bridge passed: {len(names)} dependency audits; native initialization/heap/security refinement unproved')
+    except (Exception, SystemExit) as error:
+        record['status'] = 'failed'; record['error'] = str(error)
+        raise SystemExit(f'Registry extraction failed; inspect {out}: {error}') from error
+    finally:
+        record['logs'] = {p.name: digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__':
+    main()
