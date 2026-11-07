@@ -7,6 +7,47 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+The global source/collision event now has an unbounded first-moment work
+bound for the closed byte interpreter. `NativeRootFamilyHashStep` combines the
+existing posterior checkpoint and cached-hash collision laws under the complete
+mixed history. Prior bad states are retained explicitly. Starts and SHAKE reads
+preserve the bad-state predicate, and cached hash calls have zero fresh charge.
+`ClosedByteMachineRootFailure` derives the conditional and averaged first-new-
+failure laws and locates every actual global bad prefix at an earlier actual
+hash instruction. No one-observation/one-instruction clock assumption is used.
+
+`ClosedByteMachineRootWork` uses the derived per-hash envelope and an
+analysis-only work split. Low-work charges sum against actual instruction
+prices; Markov pays the entire large-work branch. With analysis threshold
+`2^160`, the global root/source/collision lifetime probability is at most
+`2^-159 * expectedWork`. The execution is unrestricted, infinite means are
+allowed, and no finite second moment or success floor is assumed.
+
+`ClosedByteMachineGoldAllRisk` unites that global event with the existing
+field/column/receipt events on the SAME interpreter execution and proves
+measurability and the unconditioned bound
+`(2^-159 + 17/2^141 + 2^-255) * expectedWork`. Its coefficient is at most
+`18/2^141`. The numerical allowance satisfies
+`2^128 * (64 * 4 * coefficient) ≤ 9/16`. This last inequality is arithmetic;
+it does not prove how the application consumes a shape/role union, and the
+finite factors are not attacker trial or lifetime caps.
+
+Validation: `scripts/check` passed all 10,608 build jobs and its strict
+audit/smoke commands. Six focused strict root-work, root-budget and receipt-work
+checks passed. Twenty-five new guards use only `propext`, `Classical.choice`
+and `Quot.sound`. Tests include cached-query zero charge, non-hash preservation,
+a concrete truthful collision world with earlier instruction coverage, stopped
+zero charge, the numerical work split, and the combined constructor-backed
+Goldilocks event bound. Native defaults and proof limits are unchanged.
+
+The priced event union still needs application false-acceptance coverage on
+the closed instruction clock, together with independent public evaluation and
+efficient extraction. Honest/verifier actor costs, initialization and submission
+cost separation, randomized initialization, original registry/context ownership,
+physical-unit refinement, BabyBear execution and strict Rust/decoder/NTT/SIMD/
+Div64/scheduler refinement remain required. These interpreter-unit bounds do
+not yet establish the full 128-bit modified-PBS application theorem.
+
 The actual root/source registry now has a derived per-hash work envelope.
 `NativeRootFamilyBudget` proves that the reconstructed history records exactly
 64 shape checkpoints per distinct frozen context/root key. Request uniqueness
@@ -38,10 +79,9 @@ malformed source-vector input, empty-input hash cost accounting and the
 actual closed-prefix per-hash envelope. No native defaults or proof limits
 changed.
 
-This is a per-hash charge bound. The global lifetime source/collision event
-still needs its first-failure conditional law and an analysis-only work split
-that retains a first-moment expected-work result. Integrating a quadratic work
-bound or assuming a finite second moment would not establish the target.
+This per-hash envelope now feeds the first-failure and lifetime work bounds
+above. The proof uses an analysis-only work split, rather than assuming a
+finite second moment.
 Application coverage on the closed instruction clock, honest/verifier actor
 cost separation, original registry ownership, independent public extraction,
 randomized initialization, physical pricing, BabyBear execution and strict
@@ -75,8 +115,8 @@ Regression tests include partial and duplicate receipt guesses, hash-key
 candidates, starts/empty reads and the combined constructor-backed Goldilocks
 exposure bound. No native defaults, execution caps or proof limits changed.
 
-Root/source hazards still have an explicit global charge supremum and need
-lifetime work coupling beyond the per-hash envelope above. Application false-acceptance coverage must be connected to the
+Root/source hazards now have the lifetime interpreter-work coupling above;
+the earlier explicit global charge supremum remains available. Application false-acceptance coverage must be connected to the
 closed instruction clock. Actor separation, honest verification and submission
 costs, randomized initialization, physical pricing, public extraction,
 registry/context binding, BabyBear execution and strict backend refinement
