@@ -23,14 +23,41 @@ inconsistency, a free column, an empty system, and an inconsistent zero-column
 system. All 21 solver theorem guards permit only `propext`, `Classical.choice`
 and `Quot.sound`. No proof limits were raised.
 
-This is a foundation for executable Berlekamp–Welch decoding, not yet a
-replacement for `CommonSource.decode` or `ResponseCoefficients.decode`.
-ArkLib's decoder chooses its linear solution classically; directly substituting
-our solver also encounters Mathlib's noncomputable polynomial operations.
-The next extraction step therefore needs explicit coefficient-vector polynomial
-arithmetic and division, proved to agree with polynomial semantics, followed by
-scalar decoding, joint whole-column distance validation, and connection to the
-existing common-source and response-coefficient interfaces.
+The executable scalar and matrix decoders are now implemented.
+`ExecutablePolynomial` constructs finite supports directly and materializes
+coefficient vectors after arithmetic. `ExecutablePolynomialDivision` is proved
+equal to Mathlib quotient and remainder. `ExecutableBerlekampWelch` uses the
+executable linear solver, division and evaluation: success implies bounded
+degree and distance; within the unique-decoding radius it returns the promised
+polynomial; failure is equivalent to absence of such a polynomial. ArkLib's
+choice-based `linsolve` appears only in the completeness proof, not in runtime
+code. Degree-zero dimensions fail closed.
+
+`ExecutableCommonSource` decodes every row/lane and then checks the distance of
+whole columns, containing all rows and lanes. It returns a materialized zero
+table outside that joint promise. Its encoded output is proved equal to
+`CommonSource.decode`, including the fallback, for finite block-code domains
+with positive dimensions, enough evaluation points, and the stated unique-
+decoding radius. `ExecutableSourceCoefficients` proves exact agreement with
+`ResponseCoefficients.decode` on that common source and materializes original
+message coordinates with padding removed. Both analysis selections therefore
+have executable counterparts at this finite block-code interface.
+
+Validation for the decoder stage: `scripts/check` passed all 10,625 build jobs
+and its strict audit/smoke commands. Three new smoke/audit files also passed
+independently with warnings treated as errors. Nine executable regressions cover
+scalar error correction, the zero message, dimension-zero and out-of-radius
+rejection, division by nonmonic and zero polynomials, joint-column recovery,
+rejection of errors spread across columns despite scalar recovery, and padding
+truncation. All 25 new theorem guards use only `propext`, `Classical.choice` and
+`Quot.sound`. No proof limits were raised.
+
+This does not yet install that counterpart into every native/application
+extractor: native row/product indexing and the opening-kernel interfaces still
+need explicit transport. No polynomial running-time theorem, field-operation
+cost bound, physical implementation refinement or application-security result
+is inferred from executable Lean code. Native strict decoding, NTT and scheduler
+refinement remain required.
 
 Native batch-model accepted-false-analysis-claim coverage now uses the closed
 interpreter's actual instruction clock. `ClosedByteMachineLineage` supplies the
@@ -65,7 +92,7 @@ The falsity predicate remains the common-source analysis extractor. The event
 retains actual Lean native-program acceptance/log inclusion, canonical parsed
 views and framing/capacity premises. Neither strict Rust execution refinement
 nor public PBS semantics is inferred from those premises. Remaining work includes
-independent public evaluation/efficient extraction, original registry/context
+public evaluator/extractor implementation and cost refinement, original registry/context
 ownership (including unused aliases and parent/seed hazards at that boundary),
 honest/verifier actor-cost and submission-cost separation, randomized setup,
 physical pricing, BabyBear execution and strict decoder/NTT/SIMD/Div64/scheduler
