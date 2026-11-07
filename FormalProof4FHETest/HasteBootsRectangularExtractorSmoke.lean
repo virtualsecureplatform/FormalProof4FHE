@@ -2,6 +2,7 @@ module
 import all FormalProof4FHE.HasteBoots.SolverOperationCost
 import all FormalProof4FHE.HasteBoots.ScalarDistanceCost
 import all FormalProof4FHE.HasteBoots.DenseCandidateCheck
+import all FormalProof4FHE.HasteBoots.DenseBerlekampWelch
 import all FormalProof4FHE.HasteBoots.BerlekampWelchPowers
 import all FormalProof4FHE.HasteBoots.BerlekampWelchSystem
 import all FormalProof4FHE.HasteBoots.BerlekampWelchReconstruction

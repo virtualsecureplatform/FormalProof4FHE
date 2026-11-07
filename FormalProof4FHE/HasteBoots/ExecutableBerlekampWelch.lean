@@ -4,6 +4,7 @@ public import FormalProof4FHE.HasteBoots.BerlekampWelchReconstruction
 public import FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision
 public import FormalProof4FHE.HasteBoots.ScalarDistanceCost
 public import FormalProof4FHE.HasteBoots.DenseCandidateCheck
+public import FormalProof4FHE.HasteBoots.DenseBerlekampWelch
 public import ArkLib.Data.CodingTheory.BerlekampWelch.BerlekampWelch
 @[expose] public section
 
@@ -113,7 +114,7 @@ theorem denseCandidateCheckWithCost_cost {w : ℕ} (e k : ℕ) (candidate remain
     (denseCandidateCheckWithCost e k candidate remainder points received).cost ≤ n*(7*w+12)+16*w+23 :=
   DenseCandidateCheck.check_cost _ _ _ _ _ _
 
-def decoder (e k : ℕ) (points received : Fin n → F) : Option (Polynomial F) :=
+private def referenceDecoder (e k : ℕ) (points received : Fin n → F) : Option (Polynomial F) :=
   if k = 0 then none
   else if (normWithCost received).value ≤ e then some ExecutablePolynomial.zero
   else match (solveSystemVector e k points received).value with
@@ -124,11 +125,63 @@ def decoder (e k : ℕ) (points received : Fin n → F) : Option (Polynomial F) 
         some (PolynomialShapeCost.polynomial reconstruction.value.1)
       else none
 
+/-- Full prepared-vector scalar execution. Input-function evaluation and
+materialization, output polynomial conversion and physical costs are separate.
+Dimension zero rejects before preparing the input vectors. -/
+def decodeWithCost (e k : ℕ) (points received : Fin n → F) :
+    SolverOperationCost.Run (Option (Vector F (e+k+1))) :=
+  if k = 0 then ⟨none,2⟩
+  else DenseBerlekampWelch.decode e k (Vector.ofFn points) (Vector.ofFn received)
+
+def decoder (e k : ℕ) (points received : Fin n → F) : Option (Polynomial F) :=
+  (decodeWithCost e k points received).value.map PolynomialShapeCost.polynomial
+
+omit [NeZero n] in
+theorem decodeWithCost_value (e k : ℕ) (points received : Fin n → F) :
+    (decodeWithCost e k points received).value.map PolynomialShapeCost.polynomial = decoder e k points received := rfl
+
+omit [NeZero n] in
+theorem decodeWithCost_cost (e k : ℕ) (points received : Fin n → F) :
+    (decodeWithCost e k points received).cost ≤ DenseBerlekampWelch.operationBound n e k := by
+  by_cases zero : k = 0
+  · rw [decodeWithCost,ite_eq_left zero]
+    dsimp only
+    unfold DenseBerlekampWelch.operationBound
+    omega
+  · rw [decodeWithCost,ite_eq_right zero]
+    exact DenseBerlekampWelch.decode_cost e k _ _
+
+omit [NeZero n] in
+theorem decodeWithCost_of_vectors (e k : ℕ) (points received : Vector F n) :
+    decodeWithCost e k (fun i => points.get i) (fun i => received.get i) =
+      DenseBerlekampWelch.decode e k points received := by
+  have stored (values : Vector F n) : Vector.ofFn (fun i => values.get i) = values := by
+    apply Vector.ext
+    intro i bound
+    change (Vector.ofFn (fun j => values.get j)).get ⟨i,bound⟩ = values.get ⟨i,bound⟩
+    exact FiniteLinearSolver.get_ofFn _ _
+  by_cases zero : k = 0
+  · simp only [decodeWithCost,DenseBerlekampWelch.decode,zero,ite_true]
+  · simp only [decodeWithCost,zero,ite_false,stored]
+
+omit [NeZero n] in
+private theorem decoder_eq_reference (e k : ℕ) (points received : Fin n → F) :
+    decoder e k points received = referenceDecoder e k points received := by
+  by_cases zero : k = 0
+  · simp only [decoder,decodeWithCost,referenceDecoder,zero,ite_true,Option.map_none]
+  · unfold decoder decodeWithCost
+    rw [ite_eq_right zero,DenseBerlekampWelch.decode_map,ite_eq_right zero]
+    unfold referenceDecoder
+    rw [ite_eq_right zero]
+    simp only [solveSystemVector,normWithCost,denseCandidateCheckWithCost,ExecutablePolynomial.zero_eq]
+    congr 1
+
 omit [NeZero n] in
 theorem success {e k : ℕ} {points received : Fin n → F} {candidate : Polynomial F}
     (accepted : decoder e k points received = some candidate) :
     candidate.natDegree < k ∧ Δ₀(received, candidate.eval ∘ points) ≤ e := by
-  unfold decoder at accepted
+  rw [decoder_eq_reference] at accepted
+  unfold referenceDecoder at accepted
   simp only [normWithCost_value] at accepted
   by_cases hk : k = 0
   · simp only [hk,ite_eq_left] at accepted
@@ -155,7 +208,8 @@ theorem complete {e k : ℕ} {points received : Fin n → F} {message : Polynomi
     (nearby : Δ₀(received, message.eval ∘ points) ≤ e) :
     decoder e k points received = some message := by
   have positive : k ≠ 0 := by omega
-  unfold decoder
+  rw [decoder_eq_reference]
+  unfold referenceDecoder
   simp only [normWithCost_value]
   rw [ite_eq_right positive]
   by_cases sparse : ‖received‖₀ ≤ e
@@ -208,5 +262,23 @@ theorem failure_iff {e k : ℕ} {points received : Fin n → F}
     cases result : decoder e k points received with
     | none => rfl
     | some message => exact False.elim (absent ⟨message,success result⟩)
+
+omit [NeZero n] in
+theorem decodeWithCost_success {e k : ℕ} {points received : Fin n → F}
+    {candidate : Vector F (e+k+1)} (selected : (decodeWithCost e k points received).value = some candidate) :
+    (PolynomialShapeCost.polynomial candidate).natDegree < k ∧
+      Δ₀(received,(PolynomialShapeCost.polynomial candidate).eval ∘ points) ≤ e := by
+  apply success
+  rw [decoder,selected]
+  rfl
+
+theorem decodeWithCost_complete {e k : ℕ} {points received : Fin n → F} {message : Polynomial F}
+    (radius : 2*e < n-k+1) (dimension : k ≤ n) (distinct : Function.Injective points)
+    (degree : message.natDegree < k) (nearby : Δ₀(received,message.eval ∘ points) ≤ e) :
+    ∃ candidate, (decodeWithCost e k points received).value = some candidate ∧
+      PolynomialShapeCost.polynomial candidate = message := by
+  have selected := complete radius dimension distinct degree nearby
+  rw [decoder] at selected
+  exact Option.map_eq_some_iff.mp selected
 
 end FormalProof4FHE.HasteBoots.ExecutableBerlekampWelch

@@ -6,6 +6,7 @@ import all FormalProof4FHE.HasteBoots.ExecutableBerlekampWelch
 import all FormalProof4FHE.HasteBoots.SolverOperationCost
 import all FormalProof4FHE.HasteBoots.ScalarDistanceCost
 import all FormalProof4FHE.HasteBoots.DenseCandidateCheck
+import all FormalProof4FHE.HasteBoots.DenseBerlekampWelch
 import all FormalProof4FHE.HasteBoots.ColumnDistanceCost
 import all FormalProof4FHE.HasteBoots.FiniteLinearSolver
 import all FormalProof4FHE.HasteBoots.FiniteMatrixSolver
