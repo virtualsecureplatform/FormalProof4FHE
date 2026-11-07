@@ -156,6 +156,92 @@ fn parameters() {
     println!("PARAM_ERROR merkle-overflow");
 }
 
+fn balanced_parameters() {
+    use pcs::{
+        matrix_weighted::Parameters,
+        utils::{code::BlockReedSolomonCode, hash::Digest512},
+    };
+    for (n, w, q, b) in [
+        (0, 3, 1, 2),
+        (2, 4, 1, 2),
+        (5, 3, 2, 2),
+        (10, 3, 128, 2),
+        (10, 4, 128, 4),
+        (16, 4, 64, 2),
+    ] {
+        let params =
+            Parameters::<BlockReedSolomonCode<Goldilocks>>::balanced_block_rs(n, w, q, b).unwrap();
+        let code =
+            bincode::serde::encode_to_vec(params.code(), bincode::config::standard()).unwrap();
+        let Digest512(digest) = params.context_digest::<Goldilocks, ContextSpy>().unwrap();
+        let input = CONTEXT_INPUTS.lock().unwrap().pop().unwrap();
+        println!(
+            "BALANCED {n} {w} {q} {b} {} {} {} {}",
+            params.left_vars(),
+            hex(&code),
+            hex(&input),
+            hex(&digest)
+        );
+    }
+    for (name, n, w, q, b, expected) in [
+        (
+            "width-zero",
+            0,
+            0,
+            1,
+            2,
+            "invalid block RS layout parameters",
+        ),
+        (
+            "queries-zero",
+            0,
+            1,
+            0,
+            2,
+            "invalid block RS layout parameters",
+        ),
+        (
+            "variables-too-large",
+            64,
+            1,
+            1,
+            2,
+            "invalid block RS layout parameters",
+        ),
+        (
+            "small-blowup",
+            0,
+            1,
+            1,
+            1,
+            "invalid block RS layout parameters",
+        ),
+        (
+            "nonpower-blowup",
+            0,
+            1,
+            1,
+            3,
+            "invalid block RS layout parameters",
+        ),
+        ("table-overflow", 63, 2, 1, 2, "table size overflow"),
+        (
+            "unsupported-layout",
+            0,
+            1,
+            1,
+            1_usize << 63,
+            "no supported block RS layout",
+        ),
+    ] {
+        let error = Parameters::<BlockReedSolomonCode<Goldilocks>>::balanced_block_rs(n, w, q, b)
+            .err()
+            .expect("must reject");
+        assert_eq!(error.0, expected);
+        println!("BALANCED_ERROR {name}");
+    }
+}
+
 fn block_codes() {
     use pcs::utils::code::{BlockReedSolomonCode, RowCode};
     for (message, block, blowup) in [(1, 1, 2), (7, 3, 2), (1024, 4, 4), (4096, 4, 4)] {
@@ -318,4 +404,5 @@ fn main() {
     println!("CACHE_OK workers=8 logs=3 retained-handles=24");
     block_codes();
     parameters();
+    balanced_parameters();
 }

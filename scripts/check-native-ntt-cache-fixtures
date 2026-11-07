@@ -44,6 +44,34 @@ parameter_seen = set()
 parameter_errors = {'width-zero','left-too-large','variables-too-large','queries-zero','code-shape',
                     'table-overflow','encoded-overflow','linear-overflow','merkle-overflow'}
 parameter_error_seen = set()
+balanced_cases = {(0,3,1,2),(2,4,1,2),(5,3,2,2),(10,3,128,2),(10,4,128,4),(16,4,64,2)}
+balanced_seen = set()
+balanced_errors = {'width-zero','queries-zero','variables-too-large','small-blowup',
+                   'nonpower-blowup','table-overflow','unsupported-layout'}
+balanced_error_seen = set()
+def read_u64(data, offset):
+    tag = data[offset]
+    if tag < 251:
+        return tag,offset+1
+    width = {251:2,252:4,253:8}[tag]
+    return int.from_bytes(data[offset+1:offset+1+width],'little'),offset+1+width
+
+def balanced_reference(n,w,q,b):
+    choices = []
+    for left in range(n+1):
+        columns = 2**(n-left)
+        padded = 1 << (((columns+w-1)//w)-1).bit_length()
+        if padded >= 2**64 or padded*b >= 2**64:
+            continue
+        blocks = max(padded*b,32)
+        rows = 2**left*w
+        if (p-1)%(2*blocks) or rows >= 2**64 or rows*blocks >= 2**64 or rows*blocks*w >= 2**64:
+            continue
+        unique = min(q,blocks)
+        score = ((2*w*columns+unique*rows*w)*9+unique*blocks.bit_length()*32) % 2**128
+        choices.append((score,left,columns,padded,blocks))
+    return min(choices) # Lexicographic left index implements the earliest tie.
+
 def encode_u64(value):
     assert 0 <= value < 2**64
     if value < 251:
@@ -54,8 +82,41 @@ def encode_u64(value):
     raise AssertionError('unreachable u64 encoding')
 for line in run.stdout.splitlines():
     label, *fields = line.split()
-    assert label in (*seen, 'CACHE_ERROR', 'CACHE_OK', 'BLOCK', 'BLOCK_ERROR', 'PARAM', 'PARAM_ERROR'), f'unknown cache record: {line}'
-    if label == 'PARAM':
+    assert label in (*seen, 'CACHE_ERROR', 'CACHE_OK', 'BLOCK', 'BLOCK_ERROR', 'PARAM', 'PARAM_ERROR', 'BALANCED', 'BALANCED_ERROR'), f'unknown cache record: {line}'
+    if label == 'BALANCED':
+        assert len(fields) == 8
+        key = tuple(map(int,fields[:4]))
+        assert key in balanced_cases and key not in balanced_seen
+        balanced_seen.add(key)
+        n,w,q,b = key
+        _,left,columns,padded,blocks = balanced_reference(*key)
+        assert int(fields[4]) == left
+        data = bytes.fromhex(fields[5])
+        offset = 0
+        decoded = []
+        for _ in range(5):
+            value,offset = read_u64(data,offset)
+            decoded.append(value)
+        assert decoded == [columns,w,padded,blocks,len(str(p))]
+        assert data[offset:offset+decoded[-1]] == str(p).encode()
+        offset += decoded[-1]
+        root,offset = read_u64(data,offset)
+        assert offset == len(data) and 0 < root < p
+        assert pow(root,2*blocks,p) == 1 and pow(root,blocks,p) == p-1
+        code = b''.join(encode_u64(v) for v in (columns,w,padded,blocks,len(str(p))))
+        code += str(p).encode()+encode_u64(root)
+        assert data == code
+        modulus = str(p).encode()
+        domain = b'block-rs/negacyclic-ntt/v1'
+        context = b'HasteBoots/mw-parameters/v2'+encode_u64(len(modulus))+modulus
+        context += b''.join(encode_u64(v) for v in (n,w,left,q,w,blocks))
+        context += encode_u64(len(domain))+domain+code
+        assert bytes.fromhex(fields[6]) == context
+        assert fields[7] == hashlib.sha512(context).hexdigest()
+    elif label == 'BALANCED_ERROR':
+        assert len(fields) == 1 and fields[0] in balanced_errors and fields[0] not in balanced_error_seen
+        balanced_error_seen.add(fields[0])
+    elif label == 'PARAM':
         assert len(fields) == 10
         key = tuple(map(int, fields[:7]))
         assert key in parameter_cases and key not in parameter_seen
@@ -110,8 +171,10 @@ for line in run.stdout.splitlines():
 assert all(keys == set(expected) for keys in seen.values())
 assert block_seen == set(block_cases) and error_seen == errors
 assert parameter_seen == parameter_cases and parameter_error_seen == parameter_errors
+assert balanced_seen == balanced_cases and balanced_error_seen == balanced_errors
 assert markers == ['CACHE_ERROR root-error=true init-panic=true retained-stable=true',
                    'CACHE_OK workers=8 logs=3 retained-handles=24']
 print('Native NTT caches passed: 3 exact roots, 24 shared Arc handles across 8 threads, retained roots and error/panic distinction')
 print('Native block code constructors passed: 4 complete serialized objects and 8 ordered rejection cases')
 print('Native encoded parameters passed: 3 retained codes and complete SHA-512 context inputs/digests, 9 ordered rejection cases')
+print('Native balanced layouts passed: 6 minimum-score selections with complete code/context bytes and 7 ordered errors')

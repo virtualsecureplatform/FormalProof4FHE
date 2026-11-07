@@ -47,3 +47,12 @@ Nine errors cover dimensions, code shape and all four allocation overflow classe
 The Merkle overflow uses a fixture-only generic RowCode with a huge tree; it is
 not claimed reachable through BlockReedSolomonCode::new (that type derives
 Serialize, not Deserialize). This remains regression evidence, not source refinement.
+
+Balanced-layout fixtures call actual `Parameters::balanced_block_rs` for six
+requests, including degree 1024 at widths 3/4. A two-variable width-4 request
+with one query and blowup 2 has tied minima at row splits 0 and 1; the source
+must retain split 0. Python independently enumerates the guarded candidates,
+checks the minimum and earliest tie, and validates complete code/context bytes
+and SHA-512 digests. Seven failures cover the layout input guards, table-size
+overflow and absence of a field-compatible domain. Lean compares all six full
+native code/context byte pairs after selection and explicit code construction.
