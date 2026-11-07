@@ -1,6 +1,7 @@
 module
 
 public import FormalProof4FHE.HasteBoots.NativeTupleLookupConfig
+public import FormalProof4FHE.HasteBoots.UsizeVectorCost
 import all Init.Data.String.Defs
 
 @[expose] public section
@@ -49,7 +50,17 @@ def requestEquiv : (Config × NativePrefixCodec.Vector Usize) ≃ Request where
   left_inv := fun _ => rfl
   right_inv := fun _ => rfl
 
-def rowCodec : Codec Row := vector usize
+def rowCodec : Codec Row where
+  encode := (vector usize).encode
+  read := fun bytes => (UsizeVectorCost.read bytes).value
+  read_encode := by
+    intro row suffix
+    rw [UsizeVectorCost.read_value]
+    exact (vector usize).read_encode row suffix
+
+theorem rowCodec_read_eq_reference (bytes : Input) :
+    rowCodec.read bytes = (vector usize).read bytes := UsizeVectorCost.read_value bytes
+
 def tableCodec : Codec Table := vector rowCodec
 def configCodec : Codec Config := transport (product usize (product tableCodec usize)) configEquiv
 def requestCodec : Codec Request := transport (product configCodec (vector usize)) requestEquiv
