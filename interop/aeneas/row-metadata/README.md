@@ -54,3 +54,12 @@ passes the earlier missing-borrow point and fails at the original
 separately rejected direct-literal fixture. The actual domain function is not
 replaced by a supplied constant, and its failure does not certify any native
 context bytes. The concrete associated-type gate remains open too.
+
+## Compare raw byte constants
+
+The `static-bytes` experiment additionally requires `--raw-consts`. The same
+receipt verification applies, and the Charon configuration is recorded. Use
+`--mode generic --raw-consts --build-receipt /path/to/static-bytes/manifest.json`.
+The metadata bodies then translate before the NTTField associated-type interface
+is rejected. A recorded rejection remains nonzero and unproved, even after
+these earlier translation stages advance.

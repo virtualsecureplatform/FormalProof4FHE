@@ -24,6 +24,9 @@ def classify_failure(log):
     if ('There should be no bottoms in the value' in clean and
             'interp/InterpExpressions.ml' in clean and 'pcs/src/utils/code/block.rs' in clean):
         return 'native-domain-literal-bottom'
+    if ('Found an associated type in a trait declaration' in clean and
+            'ntt_fields.rs' in clean and 'Unexpected' in clean and 'extract/ExtractTypes.ml' in clean):
+        return 'ntt-associated-type-interface'
     return None
 
 
@@ -32,12 +35,13 @@ def main():
     parser.add_argument('--tools', type=Path, required=True)
     parser.add_argument('--backend', type=Path, required=True)
     parser.add_argument('--mode', choices=['generic', 'concrete'], required=True)
-    parser.add_argument('--build-receipt', type=Path, help='Optional reviewed static-slices experiment; still unproved')
+    parser.add_argument('--build-receipt', type=Path, help='Optional reviewed static-slices/static-bytes experiment; still unproved')
+    parser.add_argument('--raw-consts', action='store_true', help='Preserve constant references in Charon')
     args = parser.parse_args()
     parent = ROOT / 'build/hasteboots-extraction'
     parent.mkdir(parents=True, exist_ok=True)
     out = Path(tempfile.mkdtemp(prefix='row-metadata-' + args.mode + '-', dir=parent))
-    record = {'status': 'started', 'mode': args.mode, 'commands': [],
+    record = {'status': 'started', 'mode': args.mode, 'raw_consts': args.raw_consts, 'commands': [],
               'claim': 'translation diagnostic only; no source refinement or security proof',
               'script_sha256': BASE['digest'](Path(__file__).read_bytes())}
     def save():
@@ -77,8 +81,10 @@ def main():
         record['cargo_sha256'] = BASE['digest'](cargo.encode())
         record['lock_sha256'] = BASE['digest'](lock.encode())
         llbc = out / 'row_metadata.llbc'
-        command = [tools / 'charon', 'cargo', '--preset=aeneas', '--start-from',
-                   BASE['NAMESPACE'] + '::row_metadata']
+        command = [tools / 'charon', 'cargo', '--preset=aeneas']
+        if args.raw_consts:
+            command += ['--raw-consts']
+        command += ['--start-from', BASE['NAMESPACE'] + '::row_metadata']
         for method in ['block_width', 'codeword_blocks', 'domain_separator']:
             command += ['--include', 'pcs::utils::code::block::_::' + method]
         command += ['--include', 'pcs::utils::code::block::BlockReedSolomonCode',
@@ -110,11 +116,14 @@ def main():
         if args.build_receipt:
             build = runpy.run_path(str(ROOT / 'scripts/build-hasteboots-static-frontend'))
             receipt = json.loads(args.build_receipt.read_text())
-            if receipt.get('status') != 'passed' or receipt.get('profile') != 'static-slices':
+            if receipt.get('status') != 'passed' or receipt.get('profile') not in ['static-slices', 'static-bytes']:
                 raise RuntimeError('Wrong or failed experimental frontend receipt')
             if receipt.get('script_sha256') != BASE['digest']((ROOT / 'scripts/build-hasteboots-static-frontend').read_bytes()):
                 raise RuntimeError('Stale frontend builder policy')
-            patch_hash = build['verify_source'](Path(receipt['source']), 'static-slices')
+            profile = receipt['profile']
+            if profile == 'static-bytes' and not args.raw_consts:
+                raise RuntimeError('Static-byte experiment requires --raw-consts')
+            patch_hash = build['verify_source'](Path(receipt['source']), profile)
             if receipt.get('patch_sha256') != patch_hash:
                 raise RuntimeError('Stale frontend patch receipt')
             package_hash = BASE['digest']((build['DATA'] / 'opam-packages.json').read_bytes())

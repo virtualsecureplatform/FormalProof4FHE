@@ -18,6 +18,11 @@ class Guards(unittest.TestCase):
         self.assertEqual(PROBE['classify_failure'](log), 'native-domain-literal-bottom')
         self.assertIsNone(PROBE['classify_failure'](log.replace('pcs/src/utils/code/block.rs', 'unrelated.rs')))
 
+    def test_ntt_interface_failure(self):
+        log = 'Found an associated type in a trait declaration\nalgebra/src/field/ntt_fields.rs\nUnexpected\nextract/ExtractTypes.ml'
+        self.assertEqual(PROBE['classify_failure'](log), 'ntt-associated-type-interface')
+        self.assertIsNone(PROBE['classify_failure'](log.replace('ntt_fields.rs', 'unrelated.rs')))
+
     def test_unknown_failures_stay_unknown(self):
         for log in ['', 'success', 'Could not find borrow', 'Internal error, please file an issue', 'Formatter axiom']:
             self.assertIsNone(PROBE['classify_failure'](log))

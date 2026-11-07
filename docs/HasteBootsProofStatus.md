@@ -7,6 +7,33 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Raw constant references preserve the native domain-tag data
+
+The separate `static-bytes` frontend profile handles explicit shared constant
+references to literal U8 arrays. Charon's pinned `--raw-consts` option retains
+constant-storage provenance; the interpreter checks exact element types and
+length, then represents that immutable data with a persistent shared loan.
+Mutable, nested-reference and non-byte constants remain rejected. No frame-local
+borrow is reclassified as static and no generated term or LLBC is rewritten.
+
+Six extracted regression functions and eight kernel checks establish exact
+bytes, copies, empty/control values, borrowed-input identity and tag-value
+agreement with the model. The combined fresh probe includes the earlier 29
+slice/string audits, totaling 43 dependency audits, and three valid-Rust negative
+rejections. These are compiler regression and tag-value checks; they do not
+substitute a fixture for the actual native RowCode method.
+
+The native metadata diagnostic now supports a receipt-checked static-byte
+comparison using the same raw-constant LLBC. All four metadata function bodies
+translate in the experiment, then extraction remains rejected at NTTField's
+associated-type interface. Field formatting, serialization, hash updates, native
+owner selection, heap refinement and physical-work security remain open.
+
+Validation: the new profile passed 43 fresh dependency audits, three negative
+rejections and upstream arrays regeneration; all 62 guard tests passed. The
+native comparison preflight passed 107 audits and retained a nonzero unproved
+result at the NTT interface. Formatting and clean patch-application checks passed.
+
 ## Reduced static-slice trait calls have a checked frontend experiment
 
 The missing-borrow failure reduces to a trait method returning a shared static
