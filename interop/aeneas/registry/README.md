@@ -110,7 +110,15 @@ retry/lifetime cutoff or per-field multiplier. This is an ideal-oracle charge
 bound; actor attribution, physical attacker work and the final 128-bit theorem
 are not established here.
 
-The field-key membership condition and canonical stored-vector decoding remain
-explicit computed conditions. Connecting them and the modeled prelude to the
-native verifier/initializer body, and proving parameter construction, heap,
+`Lookup.lean` connects the modeled dispatcher's checked receipt to the extracted
+original Rust source read. Two theorems derive stored-vector decoding and field
+membership from `receipt_extracted`; callers supply neither a stored source
+vector nor a matching field key. The read index equals the receipt's first-owner
+slot, the decoded carrier equals its oracle, parameters equal the extraction
+context, and all root bytes agree. The enclosing-program theorem derives log
+truthfulness and returns either the existing joint bad event or that exact read.
+
+Framing validity/length bounds, receipt framing, registry decoding and lookup
+trace inclusion remain explicit premises. Connecting the modeled dispatcher and
+initializer to their native bodies, and proving parameter construction, heap,
 Serde/bincode/hash-update and physical-work refinement, remain required.

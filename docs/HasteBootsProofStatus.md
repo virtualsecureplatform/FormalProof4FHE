@@ -7,6 +7,21 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Dispatcher receipts reach extracted original Rust source reads
+
+`interop/aeneas/registry/Lookup.lean` composes receipt-derived stored-vector
+membership with the extracted original registry getter. Its two theorems require
+no caller field-key equality or successful stored-packet decoder certificate.
+Outside the existing persistent bad event, the exact receipt owner slot returns
+a carrier decoding to the receipt oracle and extraction parameters, with the
+same raw root. The enclosing-program version derives history truthfulness.
+Framing, lookup inclusion and source-registry decoding remain explicit; native
+initializer/dispatcher, heap and physical-work refinement are still open.
+
+Validation: fresh pinned registry extraction passed all 90 dependency audits;
+the six registry guard tests and the 4658-job dependency build passed. Both new
+theorems use only `propext`, `Classical.choice` and `Quot.sound`.
+
 ## Matched source associations reduce to one persistent causal bad event
 
 `interop/aeneas/registry/Association.lean` now connects successful modeled field
