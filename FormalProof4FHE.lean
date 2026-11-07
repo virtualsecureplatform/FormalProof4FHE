@@ -486,3 +486,4 @@ import FormalProof4FHE.HasteBoots.PreparedMerklePayloads
 import FormalProof4FHE.HasteBoots.BytePrefixCost
 import FormalProof4FHE.HasteBoots.IntegerPrefixCost
 import FormalProof4FHE.HasteBoots.IntegerPrefixProgress
+import FormalProof4FHE.HasteBoots.UsizeVectorCost
