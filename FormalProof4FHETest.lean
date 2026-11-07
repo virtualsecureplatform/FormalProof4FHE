@@ -94,3 +94,5 @@ import FormalProof4FHETest.HasteBootsCostedNodeSmoke
 import FormalProof4FHETest.HasteBootsCostedNodeAudit
 import FormalProof4FHETest.HasteBootsCostedTreeSmoke
 import FormalProof4FHETest.HasteBootsCostedTreeAudit
+import FormalProof4FHETest.HasteBootsCostedWordSmoke
+import FormalProof4FHETest.HasteBootsCostedWordAudit

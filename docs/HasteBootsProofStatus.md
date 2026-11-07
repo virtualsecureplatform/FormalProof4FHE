@@ -7,6 +7,31 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`CostedMerkleWord` now directly materializes raw column words from stored
+root/dummy bytes and prepared node/payload tables. It charges power and path
+construction, concrete node lookup, child-label copies, first-valid payload
+lookup and output stores. Public reconstruction uses this producer, with its
+all-height, all-log value theorem preserved. There are no arbitrary resolver
+callbacks in the producer. The implementation follows each leaf path separately;
+it trades repeated path lookup for a simple measured direct materialization.
+
+For height `h`, `N = 2^h`, node count `Ln` and payload count `Lp`, the bound is
+`wordCost ≤ N*(2*h*h+(394*Ln+145)*h+394*Lp+8)+3*h+3`.
+Combined strict role preparation and materialization satisfy
+`cost ≤ 208*(B+L)+(9*d+944)*L+N*perLeaf(h,L,L)+3*h+8`,
+where `B` is supplied input byte length, `L` the stored log length and `d` the
+leaf-role domain size. These are abstract operation charges, not physical runtime.
+Eleven regression checks exercise ordered paths, exact charges, empty and partial
+branches, malformed-first aliases, cyclic dummy labels and combined preparation.
+Seventeen axiom guards cover the new contracts and public reconstruction.
+`scripts/check` passed all 10,734 build jobs and its standard strict checks.
+The new smoke/audit and affected public-source smoke/audit and prepared native
+extraction smoke also passed with `warningAsError=true`.
+Incoming digest/root/dummy adapters, native field-row materialization, full
+extractor-wide composition, physical/compiler/backend refinement and the full
+application security theorem remain open. No new axioms or proof-limit increases
+were introduced.
+
 `CostedMerkleTree` now constructs the public partial tree with a concrete
 measured program over stored root/dummy bytes and prepared nodes. It charges
 first-response lookup, copies of both stored child labels, and subtree/absent
@@ -19,14 +44,13 @@ recurrence for every height and prepared node table. With `A = 394*L+269` and
 The combined `prepareTree` entry point prepares strict leaf and node data once
 and constructs the tree. After labels/root/dummy are stored, its bound is
 `cost + A ≤ 208*(B+L)+(9*d+944)*L+(A+3)*N+5`, where `B` is total supplied input
-byte length and `d` the leaf-role domain size. Public reconstruction now calls
-this implementation; its original all-height word-equality theorem remains
-proved. Eleven runtime regressions cover exact charges, height zero with a long
+byte length and `d` the leaf-role domain size. This tree API remains available
+as a proved reference; public reconstruction now uses `prepareWord` above. Eleven runtime regressions cover exact charges, height zero with a long
 prepared log, absent and partial branches, malformed-first aliases, cyclic dummy
 labels, ordered leaf positions and combined preparation. Seventeen axiom guards
 cover the adapters, construction, costs and retained public reconstruction.
-Incoming digest/root/dummy adapters, leaf traversal/materialization, field row
-materialization, full extractor-wide composition and physical/compiler/backend
+At that milestone, incoming digest/root/dummy adapters, leaf traversal and field
+row materialization, full extractor-wide composition and physical/compiler/backend
 refinement remain open, along with full application security. The new tree
 smoke/audit, affected public-source smoke/audit and prepared extraction smoke
 passed with `warningAsError=true`; existing encoding axiom guards remain unchanged.
