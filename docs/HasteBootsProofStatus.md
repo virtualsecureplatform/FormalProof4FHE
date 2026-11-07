@@ -7,6 +7,51 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`StoredFrozenRequestsCost` now executes complete source-request preparation
+using stored context/root pairs. It resolves every compatible parent against the
+current cache, applies the original compact-request deduplication, filters keys
+already frozen by charged full-pair byte membership, and appends fresh keys to
+the stored frozen list. Request views equal `CompactParentLedger.prepare.requests`
+in exact order; the resulting frozen view equals its `next.frozen`. Different
+contexts sharing a root remain distinct. Every comparison, compaction, filter and
+append is charged, with bounds in terms of actual source/frozen list lengths.
+
+`StoredFrozenLedgerHistory` now replays the **full parent ledger, frozen-key set
+and SHAKE byte cache** of `CompactParentHistory`. It emits the exact fresh request
+list at each nonempty-output transition. Starts, hashes and empty outputs still
+discover metadata but emit no requests and freeze no keys. Nonempty outputs use
+the old cache for both inheritance and request resolution, then retain the new
+observed bytes. Repeated outputs and later corrections cannot refreeze a key.
+The stored frozen list is proved unique and has length at most `4*N^2`, where `N`
+is total actual observed input bytes. Earlier complete but unused source aliases
+are included in the freeze requests; this is not yet the application registry's
+first-original-owner theorem.
+
+`StoredFrozenLedgerBudget` derives an explicit polynomial operation bound for
+that entire ledger replay, including extra source resolution, deduplication and
+frozen-key comparisons. With actual input bytes `N`, observation count `P` and
+observed output bytes `Q`, replay costs at most `stepBound N P Q * P + 1`.
+The bound is obtained from actual metadata/cache/frozen-list invariants, without
+a lifetime cap, trial cap or attacker observation-count fee. These are reference
+extractor operations; they do not grant physical attacker-work credit.
+
+Eight regression groups and twenty-nine theorem axiom guards cover distinct
+contexts sharing roots, native request order, no-freeze observation roles,
+before-write inheritance, repeated outputs/corrections, earlier unused aliases,
+old frozen keys surviving later incompatibility, malformed inputs, empty
+histories and polynomial cost/size bounds. Only `propext`, `Classical.choice`
+and `Quot.sound` occur in the audited theorems.
+`scripts/check` passed all 10,803 build jobs and its standard strict checks;
+the new frozen-ledger smoke and axiom audit also passed with
+`warningAsError=true`.
+
+The next obligation is **stored snapshot-log replay and selection**: attach each
+fresh request to its original common causal hash log and prove selection agrees
+with `ExecutableSourceSelection`, then compose public-source extraction. Original
+application registry ownership, full application/PBS binding, runtime size
+production, actor/physical/compiler/native backend refinement, BabyBear and the
+final expected-physical-work theorem remain required.
+
 `StoredMetadataCost` now supplies closed byte-vector equality, source-pair
 equality, list membership and compact-ledger last-occurrence deduplication.
 Comparisons inspect stored bytes, with no functional digest callback. Root/source
@@ -61,11 +106,10 @@ use only `propext`, `Classical.choice` and `Quot.sound`.
 the new stored-parent metadata smoke and axiom audit also passed with
 `warningAsError=true`.
 
-The next obligation is **costed frozen-request and snapshot selection replay**:
-retain the original first-complete context/root ownership, including earlier
-unused aliases, and freeze each step's common causal hash log before later
-exposures. Compose that with stored public-source extraction and runtime size
-production. Full application/PBS binding, actor/physical/compiler/native backend
+The stored frozen-ledger milestone above supersedes the prior frozen-request
+replay obligation. Stored common causal hash-log snapshots and their selection
+remain open, along with original application registry ownership and composition
+with stored public-source extraction and runtime size production. Full application/PBS binding, actor/physical/compiler/native backend
 refinement, BabyBear and the final expected-physical-work theorem remain required.
 No physical security theorem follows merely from these reference-operation bounds.
 

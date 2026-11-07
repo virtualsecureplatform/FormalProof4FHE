@@ -541,3 +541,6 @@ import FormalProof4FHE.HasteBoots.StoredParentContextsCost
 import FormalProof4FHE.HasteBoots.StoredParentMetadataHistory
 import FormalProof4FHE.HasteBoots.StoredParentMetadataBudget
 import FormalProof4FHE.HasteBoots.StoredHistorySourceResolutionCost
+import FormalProof4FHE.HasteBoots.StoredFrozenRequestsCost
+import FormalProof4FHE.HasteBoots.StoredFrozenLedgerHistory
+import FormalProof4FHE.HasteBoots.StoredFrozenLedgerBudget
