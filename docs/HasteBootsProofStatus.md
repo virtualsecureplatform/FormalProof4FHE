@@ -7,6 +7,68 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`StoredMetadataCost` now supplies closed byte-vector equality, source-pair
+equality, list membership and compact-ledger last-occurrence deduplication.
+Comparisons inspect stored bytes, with no functional digest callback. Root/source
+equality costs at most `660`/`1323`; membership costs at most `664*L+1`/
+`1327*L+1`; deduplication costs at most `668*(L+1)^2`/`1331*(L+1)^2`.
+Generic loops include every supplied comparison charge; public root/source
+endpoints fix concrete byte programs. Their views match the existing compact
+ledger's deduplication, independently of registry ownership and snapshot order.
+
+`StoredParentContributionsCost`, `StoredParentResolutionCost`,
+`StoredBindingHelpersCost` and `StoredParentContextsCost` now compose all stored
+parent-source/helper contributions. They retain every compatible parent record,
+including repeated inputs, unexposed seeds and partial exposures, with exact
+original contribution order and multiplicity before compaction. Helper/root
+cross-products, source appends, all local source formats, complete binding-helper
+recognition, child-seed parsing and cache comparisons are charged. Source and
+context views equal the original executable resolvers for the supplied cache.
+
+`StoredParentMetadataHistory` now replays the **complete inherited parent metadata
+and byte-cache projection** of `CompactParentHistory` and `CompactSourceHistory`.
+Every start, hash and output observation is visited, including empty outputs.
+Metadata is resolved using the preceding cache and compacted before the current
+output bytes are written. Later exposures cannot retrospectively change stored
+parent metadata. Hash answers are not SHAKE exposures; all observed SHAKE bytes
+remain in the cache, including repeated/overlapping writes. Exact parent-record
+and cache-view equivalences are proved for every history, without a lifetime or
+trial cap. The stored state deliberately projects parent metadata and byte cache;
+it does not yet execute frozen-request or snapshot transitions.
+
+`StoredParentMetadataBudget` derives polynomial replay time from the existing
+compact metadata invariant. For total actual input bytes `N`, observation count
+`P` and actual observed output bytes `Q`, both source and helper entry counts are
+bounded by `M = P*(4*N^2+2*N)`. Stored parent-input bytes are at most `N`, parent
+records at most `P`, and cached entries exactly `Q`. Its explicit polynomial
+`stepBound N P Q` bounds each metadata step. Complete replay costs at most
+`(stepBound N P Q+8*Q+8)*P+1`. These parameters bound extractor operations;
+no observation-count fee is granted to the attacker.
+
+`StoredHistorySourceResolutionCost.run` uses that causal stored replay for a new
+raw child input. Its source view equals the complete compact-history resolver,
+with an explicit polynomial time bound and output length at most
+`childBytes + M*(childBytes+1)`. It does not recompute old metadata using the final
+cache. This closes the previously open stored source/helper inheritance path.
+
+Nine regression groups cover full-byte comparisons, distinct contexts sharing a
+root, last-occurrence compaction, all compatible parents, ordered cross-products,
+before-write self-parent inheritance, hash/empty-output discovery, conflicting
+exposures, malformed inputs, later corrections, retained old metadata, empty
+histories and end-to-end operation bounds. Eighty-four new theorem axiom guards
+use only `propext`, `Classical.choice` and `Quot.sound`.
+`scripts/check` passed all 10,798 build jobs and its standard strict checks;
+the new stored-parent metadata smoke and axiom audit also passed with
+`warningAsError=true`.
+
+The next obligation is **costed frozen-request and snapshot selection replay**:
+retain the original first-complete context/root ownership, including earlier
+unused aliases, and freeze each step's common causal hash log before later
+exposures. Compose that with stored public-source extraction and runtime size
+production. Full application/PBS binding, actor/physical/compiler/native backend
+refinement, BabyBear and the final expected-physical-work theorem remain required.
+No physical security theorem follows merely from these reference-operation bounds.
+
 `GoldBatchQueriesCost` now measures the outer original batch-query vector,
 including every nested matrix reader/encoder. Its prefix decoder equals the
 original vector codec on every input, costs at most `145*(N+1)+3`, and successful
@@ -47,11 +109,9 @@ new modules; only `propext`, `Classical.choice` and `Quot.sound` occur.
 the new batch/source smoke and axiom audit also passed with
 `warningAsError=true`.
 
-The next obligation is **inherited stored source/helper metadata replay**: compose
-these direct sources with compatible causal parent candidates and stored helper
-roots without uncharged callbacks or retrospective oracle information. Then
-prove snapshot selection and complete extraction composition with runtime size
-production. First original complete context/root registry ownership including
+The stored replay milestone above supersedes the prior inherited metadata
+obligation. Costed frozen requests, snapshot selection and complete extraction
+composition with runtime size production remain open. First original complete context/root registry ownership including
 earlier unused aliases, actor/physical/compiler/native refinement, BabyBear and
 full application security remain required. This milestone does not discharge
 those obligations or the final expected-physical-work theorem.
