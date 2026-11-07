@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+"""Check fresh pinned-native cache identity, roots and error behavior."""
+from pathlib import Path
+import subprocess
+import sys
+import tomllib
+
+if not __debug__:
+    raise SystemExit('Run fixture checks without Python optimization flags')
+
+root = Path(__file__).resolve().parent.parent
+lock = tomllib.loads((root / 'scripts/native-fixtures/ntt-cache/Cargo.lock').read_text())
+backend = [p for p in lock['package'] if p['name'] == 'concrete-ntt']
+assert len(backend) == 1
+assert backend[0]['source'] == 'git+https://github.com/pado-labs/concrete-ntt?branch=dev#cdeba793e46208320b30d78be19f7be78d49016a'
+native_lock = tomllib.loads((root.parent / 'HasteBoots/Cargo.lock').read_text())
+for name in ('arc-swap', 'concrete-ntt'):
+    selected = [p for p in lock['package'] if p['name'] == name]
+    pinned = [p for p in native_lock['package'] if p['name'] == name]
+    assert len(selected) == len(pinned) == 1
+    assert all(selected[0].get(field) == pinned[0].get(field)
+               for field in ('version', 'source', 'checksum')), f'native dependency mismatch: {name}'
+run = subprocess.run([str(root / 'scripts/native-ntt-cache-fixture')], capture_output=True, text=True)
+if run.returncode:
+    sys.stderr.write(run.stdout)
+    sys.stderr.write(run.stderr)
+    raise SystemExit(run.returncode)
+
+expected = {4: 70368744161280, 5: 549755813888, 10: 455906449640507599}
+p = 18446744069414584321
+seen = {'CACHE_PRE': set(), 'CACHE_AFTER': set()}
+markers = []
+for line in run.stdout.splitlines():
+    label, *fields = line.split()
+    assert label in (*seen, 'CACHE_ERROR', 'CACHE_OK'), f'unknown cache record: {line}'
+    if label in seen:
+        assert len(fields) == (2 if label == 'CACHE_PRE' else 3)
+        log, value = map(int, fields[:2])
+        assert log in expected and log not in seen[label], f'unexpected/duplicate cache key: {line}'
+        seen[label].add(log)
+        assert value == expected[log] and 0 < value < p
+        assert pow(value, 2**(log+1), p) == 1 and pow(value, 2**log, p) == p-1
+        if label == 'CACHE_AFTER':
+            assert fields[2] == '8'
+    else:
+        markers.append(line)
+assert all(keys == set(expected) for keys in seen.values())
+assert markers == ['CACHE_ERROR root-error=true init-panic=true retained-stable=true',
+                   'CACHE_OK workers=8 logs=3 retained-handles=24']
+print('Native NTT caches passed: 3 exact roots, 24 shared Arc handles across 8 threads, retained roots and error/panic distinction')
