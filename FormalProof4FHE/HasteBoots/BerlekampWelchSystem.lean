@@ -81,21 +81,35 @@ theorem build_cost (e k : ℕ) (points received : Vector F n) :
 
 variable [DecidableEq F]
 
-def solve (e k : ℕ) (points received : Vector F n) : Run (Option (Fin (2*e+k) → F)) :=
+/-- Keep the materialized solution available for subsequent reconstruction. -/
+def solveVector (e k : ℕ) (points received : Vector F n) : Run (Option (Vector F (2*e+k))) :=
   let system := build e k points received
   let solved := SolverOperationCost.solve (2*e+k) system.value
-  ⟨solved.value.map (fun value i => value.get i),system.cost+solved.cost+1⟩
+  ⟨solved.value,system.cost+solved.cost⟩
+
+def solve (e k : ℕ) (points received : Vector F n) : Run (Option (Fin (2*e+k) → F)) :=
+  let solved := solveVector e k points received
+  ⟨solved.value.map (fun value i => value.get i),solved.cost+1⟩
+
+theorem solveVector_map (e k : ℕ) (points received : Vector F n) :
+    (solveVector e k points received).value.map (fun value i => value.get i) = (solve e k points received).value := rfl
+
+theorem solveVector_cost (e k : ℕ) (points received : Vector F n) :
+    (solveVector e k points received).cost ≤ n*(13*e+9*k+17)+8*(n+1)*(2*e+k+1)^2+2 := by
+  have eliminated := SolverOperationCost.solve_cost (2*e+k) (build e k points received).value
+  rw [build_length] at eliminated
+  simp only [solveVector,build_cost]
+  omega
 
 theorem solve_value (e k : ℕ) (points received : Vector F n) :
     (solve e k points received).value = FiniteMatrixSolver.solve
       (BerlekampWelch.BerlekampWelchMatrix e k (fun i => points.get i) (fun i => received.get i))
       (BerlekampWelch.Rhs e (fun i => points.get i) (fun i => received.get i)) := by
-  simp only [solve,SolverOperationCost.solve_value,build_value,FiniteMatrixSolver.solve_eq_reference]
+  simp only [solve,solveVector,SolverOperationCost.solve_value,build_value,FiniteMatrixSolver.solve_eq_reference]
 
 theorem solve_cost (e k : ℕ) (points received : Vector F n) :
     (solve e k points received).cost ≤ n*(13*e+9*k+17)+8*(n+1)*(2*e+k+1)^2+3 := by
-  have eliminated := SolverOperationCost.solve_cost (2*e+k) (build e k points received).value
-  rw [build_length] at eliminated
-  simp only [solve,build_cost]
+  have bound := solveVector_cost e k points received
+  simp only [solve]
   omega
 end FormalProof4FHE.HasteBoots.BerlekampWelchSystem

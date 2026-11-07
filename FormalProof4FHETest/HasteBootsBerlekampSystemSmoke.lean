@@ -1,6 +1,7 @@
 module
 import all FormalProof4FHE.HasteBoots.BerlekampWelchPowers
 import all FormalProof4FHE.HasteBoots.BerlekampWelchSystem
+import all FormalProof4FHE.HasteBoots.BerlekampWelchReconstruction
 import all FormalProof4FHE.HasteBoots.ExecutableBerlekampWelch
 import all FormalProof4FHE.HasteBoots.SolverOperationCost
 import all FormalProof4FHE.HasteBoots.ScalarDistanceCost
@@ -66,3 +67,11 @@ private def received : Vector (ZMod 7) 5 := Vector.ofFn (fun i => if i = 2 then 
 #eval let run := BerlekampWelchSystem.solve 0 0 (Vector.ofFn (fun _ : Fin 1 => (0 : ZMod 7)))
         (Vector.ofFn (fun _ : Fin 1 => (1 : ZMod 7)))
       run.value.isNone && decide (run.cost = 25)
+
+-- Reconstruction can consume the stored solver vector without a function round trip.
+/-- info: true -/
+#guard_msgs in
+#eval let run := BerlekampWelchSystem.solveVector 1 2 points received
+      match run.value with
+      | some value => decide (value.toList = [5,3,3,3] ∧ run.cost ≤ 1442)
+      | none => false

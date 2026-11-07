@@ -1,5 +1,6 @@
 module
 public import FormalProof4FHE.HasteBoots.BerlekampWelchSystem
+public import FormalProof4FHE.HasteBoots.BerlekampWelchReconstruction
 public import FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision
 public import FormalProof4FHE.HasteBoots.ScalarDistanceCost
 public import ArkLib.Data.CodingTheory.BerlekampWelch.BerlekampWelch
@@ -29,6 +30,20 @@ omit [NeZero n] in
 theorem solveSystem_cost (e k : ℕ) (points received : Fin n → F) :
     (solveSystem e k points received).cost ≤ n*(13*e+9*k+17)+8*(n+1)*(2*e+k+1)^2+3 :=
   BerlekampWelchSystem.solve_cost e k _ _
+
+def solveSystemVector (e k : ℕ) (points received : Fin n → F) :
+    SolverOperationCost.Run (Option (Vector F (2*e+k))) :=
+  BerlekampWelchSystem.solveVector e k (Vector.ofFn points) (Vector.ofFn received)
+
+omit [NeZero n] in
+theorem solveSystemVector_map (e k : ℕ) (points received : Fin n → F) :
+    (solveSystemVector e k points received).value.map (fun value i => value.get i) =
+      (solveSystem e k points received).value := rfl
+
+omit [NeZero n] in
+theorem solveSystemVector_cost (e k : ℕ) (points received : Fin n → F) :
+    (solveSystemVector e k points received).cost ≤ n*(13*e+9*k+17)+8*(n+1)*(2*e+k+1)^2+2 :=
+  BerlekampWelchSystem.solveVector_cost e k _ _
 
 /-- Input-function evaluation and vector preparation are separate costs. -/
 def normWithCost (received : Fin n → F) : SolverOperationCost.Run ℕ :=
@@ -78,14 +93,12 @@ theorem candidateCheckWithCost_cost_le_dimension (e k : ℕ) (candidate : Polyno
 def decoder (e k : ℕ) (points received : Fin n → F) : Option (Polynomial F) :=
   if k = 0 then none
   else if (normWithCost received).value ≤ e then some ExecutablePolynomial.zero
-  else match (solveSystem e k points received).value with
+  else match (solveSystemVector e k points received).value with
     | none => none
     | some solution =>
-      let locator := solutionToE e k solution
-      let numerator := solutionToQ e k solution
-      let reconstruction := ExecutablePolynomialDivision.divMod numerator locator
-      if reconstruction.2.support = ∅ then
-        let candidate := reconstruction.1
+      let reconstruction := BerlekampWelchReconstruction.reconstruct e k solution
+      if (PolynomialShapeCost.polynomial reconstruction.value.2).support = ∅ then
+        let candidate := PolynomialShapeCost.polynomial reconstruction.value.1
         if candidate.natDegree < k ∧ (candidateCheckWithCost e candidate points received).value then
           some candidate
         else none
@@ -133,13 +146,20 @@ theorem complete {e k : ℕ} {points received : Fin n → F} {message : Polynomi
           simpa [hammingDist_comm,hammingDist_zero_right] using hammingDist_triangle 0 received (message.eval ∘ points)
         _ ≤ 2 * e := by omega
     rw [zero]
-  · rw [ite_eq_right sparse,solveSystem_value]
+  · rw [ite_eq_right sparse]
     have consistent : ∃ value, (BerlekampWelchMatrix e k points received).mulVec value = Rhs e points received := by
       cases chosen : linsolve (BerlekampWelchMatrix e k points received) (Rhs e points received) with
       | none => exact False.elim (linsolve_always_some_berlekamp_welch degree nearby chosen)
       | some value => exact ⟨value,linsolve_some chosen⟩
-    obtain ⟨solution,solved⟩ := FiniteMatrixSolver.solve_complete _ _ consistent
-    rw [solved]
+    obtain ⟨referenceSolution,referenceSolved⟩ := FiniteMatrixSolver.solve_complete _ _ consistent
+    have mapped : (solveSystemVector e k points received).value.map (fun value i => value.get i) = some referenceSolution := by
+      rw [solveSystemVector_map,solveSystem_value,referenceSolved]
+    obtain ⟨solution,selected,_⟩ := Option.map_eq_some_iff.mp mapped
+    rw [selected]
+    have solved : FiniteMatrixSolver.solve (BerlekampWelchMatrix e k points received) (Rhs e points received) =
+        some (fun i => solution.get i) := by
+      rw [← solveSystem_value e k points received,← solveSystemVector_map e k points received,selected]
+      rfl
     have condition := BerlekampWelchCondition_iff_Solution.mp (FiniteMatrixSolver.solve_some _ _ _ solved)
     have nonzero : message ≠ 0 := by
       intro zero
@@ -149,7 +169,7 @@ theorem complete {e k : ℕ} {points received : Fin n → F} {message : Polynomi
     have quotient := Q'_div_E'_eq_p degree radius dimension nearby distinct
       (solutionToQ_ne_zero (not_le.mp sparse) (BerlekampWelchCondition_iff_Solution.mpr condition) distinct)
       nonzero condition
-    simp only [ExecutablePolynomialDivision.divMod_snd_eq,ExecutablePolynomialDivision.divMod_fst_eq,
+    simp only [BerlekampWelchReconstruction.reconstruct_snd,BerlekampWelchReconstruction.reconstruct_fst,
       support_eq_empty,EuclideanDomain.mod_eq_zero.mpr quotient.1,ite_eq_left,quotient.2,
       candidateCheckWithCost_value,decide_eq_true_eq]
     exact ite_eq_left ⟨degree,nearby⟩
