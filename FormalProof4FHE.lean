@@ -483,3 +483,6 @@ import FormalProof4FHE.HasteBoots.ClosedByteMachineGoldAllRisk
 import FormalProof4FHE.HasteBoots.ClosedByteMachineNativeSoundness
 import FormalProof4FHE.HasteBoots.NTTDomainCost
 import FormalProof4FHE.HasteBoots.PreparedMerklePayloads
+import FormalProof4FHE.HasteBoots.BytePrefixCost
+import FormalProof4FHE.HasteBoots.IntegerPrefixCost
+import FormalProof4FHE.HasteBoots.IntegerPrefixProgress
