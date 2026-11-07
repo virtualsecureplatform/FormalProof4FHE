@@ -1,3 +1,4 @@
+import FormalProof4FHE.HasteBoots.FiniteMatrixSolver
 import FormalProof4FHE.HasteBoots.NativeGoldBatchLifetimeMeasurable
 import FormalProof4FHE.HasteBoots.NativeGoldBatchCausalCoverage
 import FormalProof4FHE.HasteBoots.NativeGoldBatchFieldProximityCoverage
