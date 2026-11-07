@@ -32,21 +32,43 @@ theorem monicAux_eq (p q : F[X]) (monic : Monic q) :
       rw [ih _ (div_wf_lemma h monic)]
     · simp only [zero_eq]
 
-def divide (p q : F[X]) : F[X] :=
-  let normalized := mul q (constant (leadingCoeff q)⁻¹)
-  if h : Monic normalized then mul (constant (leadingCoeff q)⁻¹) (monicAux p h).1 else zero
+/-- Normalize the divisor once and share the recursive division result. -/
+def divMod (p q : F[X]) : F[X] × F[X] :=
+  let inverse := (leadingCoeff q)⁻¹
+  let scalar := constant inverse
+  let normalized := mul q scalar
+  if h : Monic normalized then
+    let result := monicAux p h
+    (mul scalar result.1,result.2)
+  else (zero,p)
 
-def remainder (p q : F[X]) : F[X] :=
-  let normalized := mul q (constant (leadingCoeff q)⁻¹)
-  if h : Monic normalized then (monicAux p h).2 else p
-
-theorem divide_eq (p q : F[X]) : divide p q = p / q := by
+theorem divMod_fst_eq (p q : F[X]) : (divMod p q).1 = p / q := by
   rw [Polynomial.div_def]
   by_cases h : Monic (q * C (leadingCoeff q)⁻¹)
-  all_goals simp [divide,mul_eq,constant_eq,divByMonic,h,monicAux_eq,zero_eq]
+  all_goals simp [divMod,mul_eq,constant_eq,divByMonic,h,monicAux_eq,zero_eq]
 
-theorem remainder_eq (p q : F[X]) : remainder p q = p % q := by
+theorem divMod_snd_eq (p q : F[X]) : (divMod p q).2 = p % q := by
   rw [Polynomial.mod_def]
   by_cases h : Monic (q * C (leadingCoeff q)⁻¹)
-  all_goals simp [remainder,mul_eq,constant_eq,modByMonic,h,monicAux_eq]
+  all_goals simp [divMod,mul_eq,constant_eq,modByMonic,h,monicAux_eq]
+
+theorem divMod_eq (p q : F[X]) : divMod p q = (p / q,p % q) := by
+  exact Prod.ext (divMod_fst_eq p q) (divMod_snd_eq p q)
+
+theorem divMod_reconstruct (p q : F[X]) : q * (divMod p q).1 + (divMod p q).2 = p := by
+  rw [divMod_fst_eq,divMod_snd_eq]
+  exact EuclideanDomain.div_add_mod p q
+
+theorem divMod_remainder_degree (p q : F[X]) (nonzero : q ≠ 0) :
+    (divMod p q).2.degree < q.degree := by
+  rw [divMod_snd_eq]
+  exact Polynomial.degree_mod_lt p nonzero
+
+def divide (p q : F[X]) : F[X] := (divMod p q).1
+
+def remainder (p q : F[X]) : F[X] := (divMod p q).2
+
+theorem divide_eq (p q : F[X]) : divide p q = p / q := divMod_fst_eq p q
+
+theorem remainder_eq (p q : F[X]) : remainder p q = p % q := divMod_snd_eq p q
 end FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision
