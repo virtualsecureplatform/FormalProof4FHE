@@ -7,6 +7,64 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`ByteChunkEncodingCost` now measures raw byte-vector serialization and stored
+chunk concatenation. Count traversal, canonical integer headers and every prefix
+copy are charged. `StoredGoldCodeEncodingCost` serializes all retained code fields
+in original order, including padded message blocks, raw modulus bytes and raw
+domain root. Its value equals `NativeGoldBlockCode.codec.encode`, costs at most
+`6*codeModulusBytes+600`, and produces at most `codeModulusBytes+54` bytes.
+
+`StoredGoldContextEncodingCost` now encodes the **complete original parameter
+context hash input** from retained fields. The outer modulus, all six native
+parameter/accessor words, row-code domain and complete retained code object are
+included without a caller serializer. Its value equals
+`NativeBrakedownContext.input NativeGoldBlockCode.description.row`, and structural
+injectivity is inherited from the complete native context codec. Encoding is
+linear in retained modulus bytes with explicit fixed-domain bounds. Raw field
+representatives remain unchanged; no code-root validity or hash-collision claim
+is inferred from serialization alone.
+
+`StoredGoldContextObservationCost` now verifies that exact complete context bytes
+and an exact 64-byte stored context appear in an actual hash observation. Starts,
+SHAKE outputs, different input bytes and truncated/trailing hash responses cannot
+stand in for that observation. Encoding, full byte comparisons and history scan
+are charged. Under truthful history, acceptance identifies the native SHA-512
+context and the exact native context-program result/log. Conversely, an included
+native context execution returning that digest produces acceptance. Two verified
+parameter objects for the same context are equal outside the **existing shared
+hash-cache collision event**, using complete-input injectivity; no independent
+hash event, collision certificate or oracle callback is added to execution.
+
+`ObservedGoldFieldExtraction` now requires the parsed field count to equal the
+validated geometry's actual shared random count, and verifies its complete
+parameter-context association before extracting from the original recovered
+snapshot. Its success theorem derives those checks; its operation bound includes
+the entire prior extraction path, complete context encoding and history scan.
+An accepted parameter object is proved equal to an original object's included
+native context initializer outside that same shared-cache collision event.
+The program consumes the supplied mixed history; identifying the relevant
+initializer as the actual first-original registry owner's causal execution is
+still an application-orchestration obligation.
+
+Eleven regression groups and thirty-three theorem axiom guards cover raw byte
+headers, every retained/outer context field, full native serialization, exact
+hash-observation roles and response width, missing/altered context observations,
+derived-count mismatch rejection, complete-context mismatch rejection and actual
+checked extraction with its operation bound. Only `propext`, `Classical.choice`
+and `Quot.sound` occur in the audited theorems.
+
+Validation: `scripts/check` passed all 10,834 build jobs and its strict audit
+and smoke checks. The new context-association smoke and 33-theorem axiom audit
+also passed directly with `-DwarningAsError=true`.
+
+The next obligation is **first-original registry orchestration and actual instance
+refinement**: connect the costed original-owner lookup, complete serialized context
+and included initializer trace to the actual retained owner parameter object,
+including earlier unused aliases. Instantiate shared-cache collision exclusion
+from the existing global persistent bad event, then finish application/PBS
+soundness, code-root/initialization and actor/physical/compiler/native backend
+refinement, BabyBear and the final expected-physical-work theorem.
+
 `StoredGeometryArithmeticCost` now supplies explicit charged power-of-two and
 halving bit-length loops. Their values equal native powers and `Nat.size`, with
 costs `3*exponent+1` and `4*bitLength+1`. No table/row-code callback is evaluated.
@@ -49,14 +107,11 @@ owner lookup, validated extraction and early rejection. Only `propext`,
 the new geometry/owner smoke and axiom audit also passed with
 `warningAsError=true`.
 
-The next obligation is **measured complete context serialization and original-owner
-parameter association**: show the parsed context/root refers to the actual
-initialized parameter object at the computed first original registry slot,
-including earlier unused aliases, and bind the field count to its derived native
-geometry. Geometry checks alone do not validate the retained code root or prove
-this application identity. Complete application/PBS soundness, initialization and
-actor/physical/compiler/native backend refinement, BabyBear and the final
-expected-physical-work theorem remain required.
+The complete-context/count association milestone above supersedes those
+component obligations. Actual first-original registry orchestration and retained
+code-root/initializer refinement remain open, together with full application/PBS
+soundness, actor/physical/compiler/native backend refinement, BabyBear and the
+final expected-physical-work theorem.
 
 `FrameMatchCost` now prices complete frame kind/label/message equality and
 exact fixed-width u64 decoding. Byte-list comparisons have explicit bounds;
