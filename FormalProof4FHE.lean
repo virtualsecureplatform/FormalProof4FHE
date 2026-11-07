@@ -601,3 +601,6 @@ import FormalProof4FHE.HasteBoots.ConcreteNTTBitReverse
 import FormalProof4FHE.HasteBoots.ConcreteNTTTwiddleIndices
 import FormalProof4FHE.HasteBoots.ConcreteNTTTwiddleArray
 import FormalProof4FHE.HasteBoots.ConcreteNTTConstructedTwiddles
+import FormalProof4FHE.HasteBoots.ConcreteNTTPlanConstants
+import FormalProof4FHE.HasteBoots.ConcreteNTTGoldPlan
+import FormalProof4FHE.HasteBoots.ConcreteNTTGoldTable
