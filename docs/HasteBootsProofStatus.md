@@ -52,12 +52,44 @@ rejection of errors spread across columns despite scalar recovery, and padding
 truncation. All 25 new theorem guards use only `propext`, `Classical.choice` and
 `Quot.sound`. No proof limits were raised.
 
-This does not yet install that counterpart into every native/application
-extractor: native row/product indexing and the opening-kernel interfaces still
-need explicit transport. No polynomial running-time theorem, field-operation
-cost bound, physical implementation refinement or application-security result
-is inferred from executable Lean code. Native strict decoding, NTT and scheduler
-refinement remain required.
+The executable extractor is now connected to the rectangular matrix-opening
+interface. `CommonSourceReindex` proves that a row equivalence preserves coded
+membership, whole-column distance and common decoding, including the zero
+fallback. `ExecutableRectangularMatrixExtraction` materializes the exact
+left-major/channel-minor output table with independent packing and code-symbol
+widths. `ExecutableRectangularMatrixSoundness` transports the existing
+interactive soundness bound to that table, preserving `(distance/fieldSize)^w`
+and the same shared ordered column experiment.
+
+`NativeGoldExecutableExtraction` uses the native bit-reversed odd-root points
+and product-row layout. Constructor-backed dimensions and the primitive-root
+premise prove equality with the native analysis extractor for every raw word,
+and equivalence of the original-query false-claim predicates.
+`ClosedByteMachineExecutableSoundness` defines accepted witnesses directly
+against executable extraction and proves equivalence of the full lifetime
+failure events under the original-size compatible profile. This yields
+measurability for arbitrary scheduler memory and the same declared-work bound:
+`2^128 * Pr[any native accepted false executable-extraction claim] ≤
+(9/4096) * expectedWork`. The source recovery, actual acceptance/log inclusion,
+canonical parsing and framing/capacity premises are retained.
+
+Validation for the native extraction bridge: `scripts/check` passed all 10,632
+build jobs and its strict audit/smoke commands. The new rectangular smoke and
+native audit also passed independently with warnings treated as errors. Four
+executable regressions test independent packing/code-symbol widths, channel
+ordering and padding truncation over F7, Goldilocks and BabyBear, plus rejection
+when scalar errors exceed the joint-column radius. Fourteen new theorem guards
+use only `propext`, `Classical.choice` and `Quot.sound`. No proof limits or native
+defaults changed. These small extraction fixtures do not assert a complete PBS
+execution.
+
+This still requires supplying the raw available word. Efficient public source
+reconstruction from byte histories, polynomial running-time and field-operation
+cost bounds, physical actor-cost separation and Rust arithmetic/decoder/NTT/
+scheduler refinement are not inferred from executable Lean code. BabyBear
+arithmetic executes in the generic extraction regression; native BabyBear
+verification and its complete work-security theorem remain open. No full PBS
+application-security theorem is claimed.
 
 Native batch-model accepted-false-analysis-claim coverage now uses the closed
 interpreter's actual instruction clock. `ClosedByteMachineLineage` supplies the
@@ -88,7 +120,8 @@ hazard coverage and the constructor-backed scaled lifetime interface. The
 numerical fixture does not assert a complete PBS run. Native defaults and
 proof limits are unchanged.
 
-The falsity predicate remains the common-source analysis extractor. The event
+The earlier theorem uses the common-source analysis extractor; the executable
+counterpart above proves equivalence at the native batch interface. The event
 retains actual Lean native-program acceptance/log inclusion, canonical parsed
 views and framing/capacity premises. Neither strict Rust execution refinement
 nor public PBS semantics is inferred from those premises. Remaining work includes
