@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+"""Exercise admission, completeness, profile and dependency-audit rejection."""
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+PROBE = runpy.run_path(str(ROOT / 'scripts/probe-hasteboots-constructor-typing'))
+validate = PROBE['validate_output']
+
+
+def surface(mode='fixture'):
+    namespace = PROBE['NAMESPACE'] if mode == 'fixture' else PROBE['PARAMETERS']['NAMESPACE']
+    names = ['both', 'propagate'] if mode == 'fixture' else [
+        'generic_new_encoded', 'pcs.matrix_weighted.Parameters.new_encoded']
+    return ('import Aeneas\nset_option maxHeartbeats 200000\nset_option maxRecDepth 1000\n' +
+            ''.join('def ' + n + ' := ()\n' for n in names) + 'end ' + namespace + '\n')
+
+
+class Guards(unittest.TestCase):
+    def test_imports_only(self):
+        for mode in ['fixture', 'constructor']:
+            imports = 'import Aeneas.Std\nimport Aeneas.Tactic.RustAttributes\n'
+            if mode == 'constructor':
+                imports += 'import Aeneas.Data.Discriminant\n'
+            self.assertEqual(validate(surface(mode), mode), surface(mode).replace('import Aeneas\n', imports))
+
+    def test_incomplete_and_wrong_mode(self):
+        for mode in ['fixture', 'constructor']:
+            raw = surface(mode)
+            for bad in [raw.rsplit('end ', 1)[0], raw.replace('def ', 'abbrev ', 1),
+                        raw.replace('import Aeneas\n', ''), raw + raw]:
+                with self.subTest(mode=mode), self.assertRaises(RuntimeError):
+                    validate(bad, mode)
+        with self.assertRaises(RuntimeError):
+            validate(surface(), 'constructor')
+
+    def test_admissions_and_limits(self):
+        for declaration in ['axiom bad : Nat', 'opaque bad : Nat', 'def bad := sorry',
+                            'def bad := native_decide', 'def bad := by decide +native',
+                            'set_option maxHeartbeats 1000000']:
+            with self.subTest(declaration=declaration), self.assertRaises(RuntimeError):
+                validate(surface().replace('end hasteboots_constructor_typing', declaration + '\nend hasteboots_constructor_typing'), 'fixture')
+        with self.assertRaises(RuntimeError):
+            validate(surface().replace('1000\n', '2048\n'), 'fixture')
+
+    def test_exact_proof_audit_list(self):
+        PROBE['PARAMETERS']['validate_proof_source'](
+            (PROBE['DATA'] / 'Proof.lean').read_text(), PROBE['PROOFS'])
+
+    def test_formatter_dependency_is_rejected(self):
+        audit = PROBE['PARAMETERS']['audit_log']
+        audit("'ctor' depends on axioms: [propext, Classical.choice, Quot.sound]", ['ctor'])
+        for log in ["'ctor' depends on axioms: [core.fmt.Formatter]",
+                    "'ctor' depends on axioms: [sorryAx]", '',
+                    "'wrong' does not depend on any axioms"]:
+            with self.assertRaises(RuntimeError):
+                audit(log, ['ctor'])
+
+    def test_distinct_source_profiles(self):
+        profiles = PROBE['BUILD']['PROFILES']
+        patches = [(path / 'frontend.patch').read_bytes() for path in profiles.values()]
+        self.assertEqual(len(set(patches)), 3)
+        patch = (profiles['constructor-typing'] / 'frontend.patch').read_text()
+        self.assertIn('src/extract/Extract.ml', patch)
+        self.assertIn('src/llbc/FunsAnalysis.ml', patch)
+
+
+if __name__ == '__main__':
+    unittest.main()
