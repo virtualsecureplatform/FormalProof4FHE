@@ -565,3 +565,5 @@ import FormalProof4FHE.HasteBoots.StoredGoldCodeEncodingCost
 import FormalProof4FHE.HasteBoots.StoredGoldContextEncodingCost
 import FormalProof4FHE.HasteBoots.StoredGoldContextObservationCost
 import FormalProof4FHE.HasteBoots.ObservedGoldFieldExtraction
+import FormalProof4FHE.HasteBoots.NativeRegistryContextTrace
+import FormalProof4FHE.HasteBoots.StoredGoldRegistryAssociation

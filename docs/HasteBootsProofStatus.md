@@ -7,6 +7,40 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`NativeRegistryContextTrace` now proves that every original registry slot's
+native context execution is included in the successful initializer trace. This
+covers unused entries and repeated aliases, without filtering or a caller-supplied
+execution of the selected context.
+
+`StoredGoldRegistryAssociation` connects the measured complete-key owner lookup
+to that actual initializer. The selected original index is no later than the
+requested slot, its context returns the selected stored digest, its root is the
+selected stored root, and its context log is included in the actual initializer.
+For accepted checked extraction, the extracted context's complete parameters
+equal that selected original entry outside the existing shared-cache collision.
+The stored/native source-vector relation is derived from the measured exact
+decoder on the actual initializer's complete source-vector bytes. The stronger
+bridge derives collision exclusion from `NativeRootFamilyLifetime.Bad`, retaining
+the existing persistent source/hash bad event rather than adding a separate
+context-collision allowance. Successful native `prepare` supplies initializer-log
+inclusion directly; only the enclosing preparation trace needs inclusion in the
+same truthful mixed history. All original slots, including earlier unused
+aliases, participate in the owner computation.
+
+Validation: `scripts/check` passed all 10,837 build jobs and its strict audit
+and smoke checks. The new eight-theorem audit also passed directly with
+`-DwarningAsError=true`; only `propext`, `Classical.choice` and `Quot.sound`
+occur in its reports.
+
+Eight theorem axiom guards cover these bridges. This is a semantic orchestration
+bridge using existing measured decoding and owner selection, not a newly refined
+physical dispatcher. The decoder still needs the actual registry packet extracted
+from the enclosing execution, and the field key must be connected to the selected
+slot by the actual claim/receipt dispatcher. Further obligations include the full
+protocol/application trace, code-root/initialization validity, PBS soundness,
+actor-separated physical/compiler/native backend refinement, BabyBear and the
+final expected-physical-work theorem.
+
 `ByteChunkEncodingCost` now measures raw byte-vector serialization and stored
 chunk concatenation. Count traversal, canonical integer headers and every prefix
 copy are charged. `StoredGoldCodeEncodingCost` serializes all retained code fields
@@ -42,9 +76,9 @@ snapshot. Its success theorem derives those checks; its operation bound includes
 the entire prior extraction path, complete context encoding and history scan.
 An accepted parameter object is proved equal to an original object's included
 native context initializer outside that same shared-cache collision event.
-The program consumes the supplied mixed history; identifying the relevant
-initializer as the actual first-original registry owner's causal execution is
-still an application-orchestration obligation.
+The original application-orchestration gap at this layer is addressed by
+`StoredGoldRegistryAssociation` above, conditional on the actual registry-packet
+and selected-field-key links; full application and physical refinement remain open.
 
 Eleven regression groups and thirty-three theorem axiom guards cover raw byte
 headers, every retained/outer context field, full native serialization, exact
@@ -57,13 +91,11 @@ Validation: `scripts/check` passed all 10,834 build jobs and its strict audit
 and smoke checks. The new context-association smoke and 33-theorem axiom audit
 also passed directly with `-DwarningAsError=true`.
 
-The next obligation is **first-original registry orchestration and actual instance
-refinement**: connect the costed original-owner lookup, complete serialized context
-and included initializer trace to the actual retained owner parameter object,
-including earlier unused aliases. Instantiate shared-cache collision exclusion
-from the existing global persistent bad event, then finish application/PBS
-soundness, code-root/initialization and actor/physical/compiler/native backend
-refinement, BabyBear and the final expected-physical-work theorem.
+The measured context encoding/observation milestones above are now connected to
+the actual first-original native registry owner by `StoredGoldRegistryAssociation`.
+The next orchestration obligations are extracting the real registry packet and
+selected-field key from the actual dispatcher, and composing the full protocol
+trace before completing the remaining instance and physical refinements.
 
 `StoredGeometryArithmeticCost` now supplies explicit charged power-of-two and
 halving bit-length loops. Their values equal native powers and `Nat.size`, with
