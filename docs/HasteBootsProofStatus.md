@@ -7,6 +7,35 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`RawGoldColumnCost` now measures field-column materialization from stored raw
+rows. Its concrete list reader charges each traversed cons and preserves missing
+coordinate zero padding and lazy raw u64 interpretation. Column/row/lane output
+order and wrapped source indices are proved equal to the original program for
+all dimensions and raw rows, including zero dimensions. For `r` rows and `b`
+lanes, `columnBound(r,b) = r*(b*(2*r*b+8)+2)+1`; materializing `n` columns costs
+at most `n*(columnBound(r,b)+4)+1`. Repeated list lookup is deliberate and is
+included in this bound. Supplied dimension values, abstract field interpretation,
+vector access, arithmetic and stores follow the existing operation model.
+
+`NativeGoldPublicSource.materializeWithCost` composes strict role preparation,
+raw-word recovery and field-column conversion. `extractWithCost` additionally
+composes native domain generation and the complete prepared matrix extractor.
+The public `materialize` and `extract` functions now use these measured programs;
+their original selected-source and analysis equivalences remain proved. The
+combined bound is `materializeBound + DenseCommonSource.operationBound` plus the
+existing padding-removal, output-assembly and domain terms, as stated explicitly
+in `extractWithCost_cost`. This closes the field-row materialization gap for this
+Goldilocks reference interface. Incoming function-to-storage adapters and runtime
+size production, complete-history selection/composition, physical/compiler/native
+backend refinement and the full application security theorem remain open.
+Five runtime checks cover exact traversal charges, short rows, lazy values,
+source-index wrapping, zero dimensions and composed preparation/extraction;
+fourteen axiom guards cover the new contracts and retained public equivalences.
+`scripts/check` passed all 10,737 build jobs and its standard strict checks.
+The new smoke/audit, prepared native extraction smoke/audit and public Merkle
+source audit also passed with `warningAsError=true`.
+No new axioms or proof-limit increases were introduced.
+
 `CostedMerkleWord` now directly materializes raw column words from stored
 root/dummy bytes and prepared node/payload tables. It charges power and path
 construction, concrete node lookup, child-label copies, first-valid payload
@@ -27,9 +56,11 @@ Seventeen axiom guards cover the new contracts and public reconstruction.
 `scripts/check` passed all 10,734 build jobs and its standard strict checks.
 The new smoke/audit and affected public-source smoke/audit and prepared native
 extraction smoke also passed with `warningAsError=true`.
-Incoming digest/root/dummy adapters, native field-row materialization, full
-extractor-wide composition, physical/compiler/backend refinement and the full
-application security theorem remain open. No new axioms or proof-limit increases
+At the raw-word milestone, incoming adapters, field-row materialization and
+extractor-wide composition remained open. The new composition above covers
+field rows and extraction for this reference interface; incoming adapters,
+complete-history composition, physical/backend refinement and full application
+security still remain open. No new axioms or proof-limit increases
 were introduced.
 
 `CostedMerkleTree` now constructs the public partial tree with a concrete

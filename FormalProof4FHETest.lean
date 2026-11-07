@@ -96,3 +96,5 @@ import FormalProof4FHETest.HasteBootsCostedTreeSmoke
 import FormalProof4FHETest.HasteBootsCostedTreeAudit
 import FormalProof4FHETest.HasteBootsCostedWordSmoke
 import FormalProof4FHETest.HasteBootsCostedWordAudit
+import FormalProof4FHETest.HasteBootsRawGoldColumnSmoke
+import FormalProof4FHETest.HasteBootsRawGoldColumnAudit
