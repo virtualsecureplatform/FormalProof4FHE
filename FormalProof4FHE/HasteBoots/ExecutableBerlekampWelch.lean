@@ -1,5 +1,5 @@
 module
-public import FormalProof4FHE.HasteBoots.FiniteMatrixSolver
+public import FormalProof4FHE.HasteBoots.BerlekampWelchSystem
 public import FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision
 public import ArkLib.Data.CodingTheory.BerlekampWelch.BerlekampWelch
 @[expose] public section
@@ -12,10 +12,27 @@ namespace FormalProof4FHE.HasteBoots.ExecutableBerlekampWelch
 open Polynomial BerlekampWelch
 variable {F : Type} [Field F] [DecidableEq F] {n : ℕ} [NeZero n]
 
+/-- Measured system construction and elimination from prepared input vectors.
+Evaluation of the input functions and their initial materialization is excluded;
+this is not the cost of all decoder branches or polynomial reconstruction. -/
+def solveSystem (e k : ℕ) (points received : Fin n → F) : SolverOperationCost.Run (Option (Fin (2*e+k) → F)) :=
+  BerlekampWelchSystem.solve e k (Vector.ofFn points) (Vector.ofFn received)
+
+omit [NeZero n] in
+theorem solveSystem_value (e k : ℕ) (points received : Fin n → F) :
+    (solveSystem e k points received).value =
+      FiniteMatrixSolver.solve (BerlekampWelchMatrix e k points received) (Rhs e points received) := by
+  simp only [solveSystem,BerlekampWelchSystem.solve_value,FiniteLinearSolver.get_ofFn]
+
+omit [NeZero n] in
+theorem solveSystem_cost (e k : ℕ) (points received : Fin n → F) :
+    (solveSystem e k points received).cost ≤ n*(13*e+9*k+17)+8*(n+1)*(2*e+k+1)^2+3 :=
+  BerlekampWelchSystem.solve_cost e k _ _
+
 def decoder (e k : ℕ) (points received : Fin n → F) : Option (Polynomial F) :=
   if k = 0 then none
   else if ‖received‖₀ ≤ e then some ExecutablePolynomial.zero
-  else match FiniteMatrixSolver.solve (BerlekampWelchMatrix e k points received) (Rhs e points received) with
+  else match (solveSystem e k points received).value with
     | none => none
     | some solution =>
       let locator := solutionToE e k solution
@@ -68,7 +85,7 @@ theorem complete {e k : ℕ} {points received : Fin n → F} {message : Polynomi
           simpa [hammingDist_comm,hammingDist_zero_right] using hammingDist_triangle 0 received (message.eval ∘ points)
         _ ≤ 2 * e := by omega
     rw [zero]
-  · rw [ite_eq_right sparse]
+  · rw [ite_eq_right sparse,solveSystem_value]
     have consistent : ∃ value, (BerlekampWelchMatrix e k points received).mulVec value = Rhs e points received := by
       cases chosen : linsolve (BerlekampWelchMatrix e k points received) (Rhs e points received) with
       | none => exact False.elim (linsolve_always_some_berlekamp_welch degree nearby chosen)

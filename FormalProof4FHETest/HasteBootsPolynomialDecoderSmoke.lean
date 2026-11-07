@@ -1,5 +1,7 @@
 module
 import all FormalProof4FHE.HasteBoots.SolverOperationCost
+import all FormalProof4FHE.HasteBoots.BerlekampWelchPowers
+import all FormalProof4FHE.HasteBoots.BerlekampWelchSystem
 import all FormalProof4FHE.HasteBoots.ExecutableBerlekampWelch
 import all FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision
 import all FormalProof4FHE.HasteBoots.ExecutablePolynomial
