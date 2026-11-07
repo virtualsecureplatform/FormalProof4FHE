@@ -7,6 +7,36 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`ConcreteNTTMillerRabinField`, `ConcreteNTTMillerRabinRound` and
+`ConcreteNTTPrimeGate` now model the locked backend's separate primality gate:
+the ordered twelve small-prime exits, factorization of p-1, its own Div64
+initialization, and short-circuit Miller–Rabin rounds. Round powers and squares
+use the retained, derived reciprocal state and proved limb arithmetic. Field
+simulation proves prime-input completeness, and the existing kernel prime facts
+derive acceptance for Goldilocks and BabyBear without a caller-supplied
+primality-gate Boolean. Gate initialization cannot assert after its input guard.
+
+This proves **prime ⇒ accepts**, not the converse for arbitrary 64-bit inputs.
+Four smoke groups check all inputs below 200, both native primes, three large
+composites and exact base order. The locked Rust fixture checks the same 205
+inputs against independent small trial division, known kernel prime facts or
+explicit proper composite divisors. Those regression cases do not prove generic
+twelve-base composite-test soundness. Fifteen theorem axiom guards permit only
+propext, Classical.choice and Quot.sound.
+
+Validation: `scripts/check` passed all 10,882 build jobs and every strict
+repository audit/smoke check. The new four-group smoke and 15-theorem audit also
+passed directly with `-DwarningAsError=true`. The fresh locked Rust/Python
+fixture passed 205 primality cases plus all existing 182 limb/initialization
+cases, 420 arithmetic cases, five plan-root literals and two plan rejections.
+
+The next native-constructor obligation remains the original Plan::try_new
+preflight/root storage and table/cache provenance. This gate is a dependency of
+that path, not a complete Plan constructor. Actual machine counter/subtraction
+bounds, Rust/Charon/Aeneas refinement, allocation, twiddle arrays, cache/RCU
+behavior and actor-separated physical cost remain open, as does the complete
+application security theorem. No alternative native validation gate is added.
+
 `ConcreteNTTInitializedSearch` now retains one constructed Div64 state through
 all root arithmetic and square-before-test search. The u64 argument casts are
 proved inert on the original word domains, and every complete search index/value
