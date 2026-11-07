@@ -1,0 +1,128 @@
+diff --git a/src/PrePasses.ml b/src/PrePasses.ml
+index b613aba1..d8e32813 100644
+--- a/src/PrePasses.ml
++++ b/src/PrePasses.ml
+@@ -1306,6 +1306,12 @@ let decompose_str_borrows (_ : crate) (f : fun_decl) : fun_decl =
+               *)
+               method! visit_Constant env (cv : constant_expr) =
+                 match (cv.kind, cv.ty) with
++                | ( CLiteral (VStr _),
++                    TRef (_, TAdt { id = TBuiltin TStr; _ }, RShared) ) ->
++                    (* String literals have static storage. Keep the constant so
++                       the interpreter places its shared loan in a persistent
++                       dummy binding, not a local that is invalidated on return. *)
++                    super#visit_Constant env cv
+                 | ( CLiteral (VStr str),
+                     TRef
+                       (_, (TAdt { id = TBuiltin TStr; _ } as str_ty), ref_kind)
+diff --git a/src/extract/ExtractTypes.ml b/src/extract/ExtractTypes.ml
+index 37171763..0624bebf 100644
+--- a/src/extract/ExtractTypes.ml
++++ b/src/extract/ExtractTypes.ml
+@@ -10,10 +10,22 @@ module T = Types
+ let extract_str (_span : Meta.span) (fmt : F.formatter) ~(inside : bool)
+     (s : string) : unit =
+   let chars = StringUtils.string_to_chars s in
+-  (* Using the OCaml escape conventions for now.
+-
+-     TODO: does this really work? *)
+-  let s = String.concat "" (List.map Char.escaped chars) in
++  (* Lean string literals contain UTF-8 directly. Escape ASCII syntax/control
++     bytes using Lean conventions; retain other backend conventions. *)
++  let escape c =
++    if backend () <> Lean then Char.escaped c
++    else
++      match c with
++      | '"' -> "\\\""
++      | '\\' -> "\\\\"
++      | '\n' -> "\\n"
++      | '\r' -> "\\r"
++      | '\t' -> "\\t"
++      | c when Char.code c < 32 || Char.code c = 127 ->
++          Printf.sprintf "\\u%04x" (Char.code c)
++      | c -> String.make 1 c
++  in
++  let s = String.concat "" (List.map escape chars) in
+   let s = "\"" ^ s ^ "\"" in
+ 
+   (* We need to convert the string to a str (the conversion inserts a static check
+@@ -22,6 +34,10 @@ let extract_str (_span : Meta.span) (fmt : F.formatter) ~(inside : bool)
+   F.pp_print_string fmt "toStr";
+   F.pp_print_space fmt ();
+   F.pp_print_string fmt s;
++  if backend () = Lean then
++    F.pp_print_string fmt
++      " (by simp only [U32.max, U32.numBits, UScalarTy.U32_numBits_eq]; decide \
++       +kernel)";
+   if inside then F.pp_print_string fmt ")"
+ 
+ (** Format a constant value.
+diff --git a/src/interp/InterpStatements.ml b/src/interp/InterpStatements.ml
+index cb9203a0..263e6588 100644
+--- a/src/interp/InterpStatements.ml
++++ b/src/interp/InterpStatements.ml
+@@ -1539,7 +1539,17 @@ and eval_function_call_symbolic_from_inst_sig (config : config)
+ 
+   (* Generate a fresh symbolic value for the return value *)
+   let ret_sv_ty = inst_sg.output in
+-  let ret_spc = mk_fresh_symbolic_value span ctx ret_sv_ty in
++  (* An explicit shared static scalar slice has immutable storage independent
++     of the input region abstractions. Represent its data as the call result,
++     and keep its shared loan in a persistent dummy, as for static globals.
++     Other output shapes retain the existing translation. *)
++  let static_slice =
++    match ret_sv_ty with
++    | TRef (RStatic, (TSlice (TLiteral _) as inner), RShared) -> Some inner
++    | _ -> None
++  in
++  let data_ty = Option.value static_slice ~default:ret_sv_ty in
++  let ret_spc = mk_fresh_symbolic_value span ctx data_ty in
+   let ret_value = mk_tvalue_from_symbolic_value ret_spc in
+   let args_places =
+     List.map (fun p -> S.mk_opt_place_from_op span p ctx) args
+@@ -1548,6 +1558,11 @@ and eval_function_call_symbolic_from_inst_sig (config : config)
+ 
+   (* Evaluate the input operands *)
+   let args, ctx, cc = eval_operands config span args ctx in
++  let ctx, ret_value =
++    match static_slice with
++    | Some _ -> push_value_to_dummy_shared_loan span ctx ret_value
++    | None -> (ctx, ret_value)
++  in
+ 
+   [%ldebug
+     "- args:\n"
+diff --git a/src/llbc/Substitute.ml b/src/llbc/Substitute.ml
+index fbd7f003..a69d599f 100644
+--- a/src/llbc/Substitute.ml
++++ b/src/llbc/Substitute.ml
+@@ -7,6 +7,29 @@ open Types
+ open Values
+ open LlbcAst
+ 
++(* Runtime value types erase static regions too; declared signatures retain
++   static regions until runtime erasure is explicitly requested. *)
++let erase_regions ty =
++  let erase =
++    object
++      inherit [_] map_ty
++      method! visit_region _ _ = RErased
++    end
++  in
++  erase#visit_ty () ty
++
++(* Aeneas runtime field types erase every lifetime, including 'static.
++   Charon's generic substitution erases region variables but preserves 'static. *)
++let type_decl_get_instantiated_field_etypes def opt_variant_id generics =
++  let erase =
++    object
++      inherit [_] map_ty
++      method! visit_region _ _ = RErased
++    end
++  in
++  List.map (erase#visit_ty ())
++    (type_decl_get_instantiated_field_types def opt_variant_id generics)
++
+ (* Fails if the variable is bound *)
+ let expect_free_var span (var : 'id de_bruijn_var) : 'id =
+   match var with

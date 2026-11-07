@@ -13,7 +13,8 @@ CHARON_PIN = 'ef3748c1a92c6acc402f978770193d34adc0fe6e'
 OPAM_SHA512 = 'd4271d2387751313d5f904e8fdb3133ea893c72d09737139266d2bbe7624f81665a4276d2e55aa71856630ece8ce226b989560076599baae9afc053c5815f8c8'
 DATA = ROOT / 'interop/aeneas/static-strings'
 PROFILES = {'static-strings': DATA, 'usize-ctlz': ROOT / 'interop/aeneas/usize-ctlz',
-            'constructor-typing': ROOT / 'interop/aeneas/constructor-typing'}
+            'constructor-typing': ROOT / 'interop/aeneas/constructor-typing',
+            'static-slices': ROOT / 'interop/aeneas/static-slices'}
 
 
 def digest(data):

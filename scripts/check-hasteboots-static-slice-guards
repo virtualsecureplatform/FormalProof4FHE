@@ -1,0 +1,78 @@
+#!/usr/bin/env python3
+"""Regression checks for experimental frontend output/source rejection guards."""
+from pathlib import Path
+import runpy
+import tempfile
+import unittest
+from unittest.mock import patch
+
+ROOT = Path(__file__).resolve().parent.parent
+PROBE = runpy.run_path(str(ROOT / 'scripts/probe-hasteboots-static-slices'))
+validate = PROBE['validate_output']
+
+
+def surface():
+    # Validator input only; the real probe independently kernel-checks actual output.
+    return ('import Aeneas\nset_option maxHeartbeats 200000\nset_option maxRecDepth 1000\n' +
+            '\n'.join('def ' + name + ' := ()' for name in PROBE['FUNCTIONS']) +
+            '\nend hasteboots_static_slices\n')
+
+
+class Guards(unittest.TestCase):
+    def test_import_only_adaptation(self):
+        raw = surface()
+        self.assertEqual(validate(raw), raw.replace('import Aeneas\n',
+                         'import Aeneas.Std\nimport Aeneas.Tactic.RustAttributes\n'))
+
+    def test_truncated_namespace(self):
+        with self.assertRaises(RuntimeError):
+            validate(surface().split('end hasteboots_static_slices')[0])
+
+    def test_missing_functions(self):
+        for name in PROBE['FUNCTIONS']:
+            with self.subTest(name=name), self.assertRaises(RuntimeError):
+                validate(surface().replace('def ' + name + ' ', 'def missing '))
+
+    def test_admissions_and_native_proofs(self):
+        for text in ['axiom admitted : False', 'opaque admitted : False', 'constant admitted : False', 'def admitted := sorryAx', 'def admitted := sorry',
+                     'def admitted := native_decide', 'def admitted := by decide +native', 'unsafe def admitted := ()']:
+            with self.subTest(text=text), self.assertRaises(RuntimeError):
+                validate(surface().replace('end hasteboots_static_slices', text + '\nend hasteboots_static_slices'))
+
+    def test_all_proof_limit_settings_are_checked(self):
+        for change in [lambda s: s.replace('200000', '1000000'),
+                       lambda s: s.replace('1000\n', '2048\n'),
+                       lambda s: s.replace('end hasteboots_static_slices',
+                                           'set_option maxHeartbeats 1000000\nend hasteboots_static_slices')]:
+            with self.assertRaises(RuntimeError):
+                validate(change(surface()))
+
+    def test_prepared_backend_cannot_be_patched(self):
+        with tempfile.TemporaryDirectory() as name:
+            directory = Path(name)
+            (directory / '.hasteboots-probe').write_text('owned backend')
+            with self.assertRaisesRegex(RuntimeError, 'prepared official backend'):
+                PROBE['BUILD']['verify_source'](directory, 'static-slices')
+
+    def test_unreviewed_frontend_source_is_rejected(self):
+        verify = PROBE['BUILD']['verify_source']
+        with tempfile.TemporaryDirectory() as name:
+            directory = Path(name)
+            with patch.dict(verify.__globals__, {'output': lambda *a, **k: 'wrong revision\n'}):
+                with self.assertRaisesRegex(RuntimeError, 'revision differs'):
+                    verify(directory, 'static-slices')
+            def wrong_diff(command, **kwargs):
+                return PROBE['BUILD']['PIN'] + '\n' if 'rev-parse' in command else b'unreviewed patch'
+            with patch.dict(verify.__globals__, {'output': wrong_diff}):
+                with self.assertRaisesRegex(RuntimeError, 'exact reviewed patch'):
+                    verify(directory, 'static-slices')
+
+    def test_exact_proof_audit_coverage(self):
+        proof = (PROBE['DATA'] / 'Proof.lean').read_text()
+        PROBE['PARAMETERS']['validate_proof_source'](proof, PROBE['PROOFS'])
+        with self.assertRaises(RuntimeError):
+            PROBE['PARAMETERS']['validate_proof_source'](proof, PROBE['PROOFS'][:-1])
+
+
+if __name__ == '__main__':
+    unittest.main()
