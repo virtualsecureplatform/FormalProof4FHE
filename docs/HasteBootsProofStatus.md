@@ -7,6 +7,25 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+The default executable Berlekamp–Welch decoder now builds its linear system
+with a measured constructor before measured elimination. It generates consecutive
+powers once per row in a materialized vector, and the constructed equations are
+proved equal to ArkLib's matrix and right-hand side. For `n` received symbols,
+error budget `e`, and message dimension `k`, construction costs exactly
+`n * (13*e + 9*k + 17) + 2` abstract field/access units. Construction plus
+elimination costs at most
+`n * (13*e + 9*k + 17) + 8*(n+1)*(2*e+k+1)^2 + 3`.
+This starts from materialized input vectors. Evaluating input functions and
+preparing those vectors, distance checks, polynomial arithmetic, field backend
+costs and physical execution refinement remain outside this bound. It is a
+phase bound, not a complete extractor running-time or application-security proof.
+Six executable regressions exercise powers, matrix entries, correction, no-error
+solving and inconsistent zero-dimensional rejection; 16 kernel axiom guards
+cover the new exported construction and integration theorems.
+Validation: `scripts/check` passed all 10,664 build jobs and its strict checks;
+the two new files and three existing integration audits also passed with
+`warningAsError=true`.
+
 The executable-extraction work now has a deterministic field linear solver.
 `FiniteLinearSolver` materializes coefficients and solutions in vectors, picks
 the first nonzero pivot, and sets free variables to zero. Its correctness theorem
