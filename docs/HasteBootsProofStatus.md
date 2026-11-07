@@ -7,6 +7,25 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`DenseMonicDivision` now implements the complete monic long-division loop on
+prepared fixed-width coefficient vectors, including quotient accumulation.
+Its guard uses measured degree/leading-coefficient inspection. Every recursive
+step strictly decreases effective coefficient length, proving termination.
+The represented quotient/remainder pair is proved equal both to the prior
+executable monic auxiliary and to Mathlib's monic division. Projection,
+numerator-reconstruction and strict remainder-degree theorems are available.
+The charged field/access execution includes metadata scans, cancellation,
+quotient stores, zero-vector initialization and ten structural/control units per
+branch. Its total cost is at most `50*(n+1)^2` for vector width `n`; a tighter
+bound in initial effective length is also proved. Six runtime regressions test
+multi-step quotient accumulation, exact division, constant divisors, inactive
+degree/zero branches and width-one storage, with exact charges. Fourteen axiom
+guards cover all exported theorems. Input preparation, nonmonic normalization,
+zero-divisor handling, full decoder integration and physical/native refinement
+remain open, along with the full application-security goal.
+Validation: `scripts/check` passed all 10,685 build jobs and its strict checks.
+The new smoke and audit also passed independently with `warningAsError=true`.
+
 `DensePolynomialStepCost` now implements measured shifted subtraction and a
 leading-term cancellation step on fixed-width coefficient vectors. The shifted
 subtraction is proved equal to `p - C(a) * (X^s * q)` whenever the shifted divisor
@@ -19,9 +38,9 @@ the represented vector size, so cancellation does not truncate a leading term.
 Seven runtime regressions cover consecutive division steps, complete cancellation,
 a constant divisor, explicit nonmonic scaling, out-of-window shifts, zero scaling
 and empty vectors. Ten axiom guards cover all exported step theorems.
-This is a verified primitive for the forthcoming dense division loop; normalization,
-quotient accumulation, the complete iteration/cost proof and decoder integration
-remain open, as do preparation, physical refinement and application security.
+This primitive now underlies `DenseMonicDivision`. Nonmonic normalization and
+decoder integration remain open, as do preparation, physical refinement and
+application security.
 Validation: `scripts/check` passed all 10,678 build jobs and its strict checks.
 The new smoke and audit also passed independently with `warningAsError=true`.
 
@@ -36,9 +55,9 @@ including empty vectors, constants and trailing-zero storage. Inspection costs
 exactly `8*n+6` abstract field/access units for a prepared vector of length `n`;
 this includes scanning, vector/list conversion and metadata extraction.
 Six runtime regressions and thirteen axiom guards cover these results.
-This primitive is exposed from the library root. Connecting it to a dense
-reconstruction representation and replacing the current decoder's degree and
-leading-coefficient queries remain open, along with coefficient preparation,
+This primitive is exposed from the library root and used by the dense monic
+division loop. Replacing the current decoder's degree and leading-coefficient
+queries remains open, along with coefficient preparation,
 complete polynomial arithmetic/division costs, physical refinement and the full
 application-security goal.
 Validation: `scripts/check` passed all 10,679 build jobs and its strict checks.
