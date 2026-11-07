@@ -7,6 +7,47 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+The actual root/source registry now has a derived per-hash work envelope.
+`NativeRootFamilyBudget` proves that the reconstructed history records exactly
+64 shape checkpoints per distinct frozen context/root key. Request uniqueness
+and the exact frozen-cardinality increment follow from the actual ledger's
+`eraseDups` and fresh-key filter. The existing node-budget clamp bounds a fresh
+hash's combined source/collision charge by
+`(3 * populatedHashKeys + recordedCheckpoints) / 2^512`; no full-tree-size
+factor is needed.
+
+`NativeParentLedgerPools` proves every frozen source belongs to the Cartesian
+product of context and root values found in actual observed inputs. All
+compatible parents, partial seeds, orphans, inherited metadata and repeated
+mentions remain present. Repeated metadata cannot generate new endpoint
+values. `NativeRootMentionSize` derives list/pool cardinality bounds from
+canonical analysis-parser reencoding and complete framed-input parsing;
+this is not a claim about the native proof-byte deserializer.
+`ClosedByteMachineRootBudget` derives actual input-byte cost from the existing
+instruction prices and bounds actual hash keys by executed work. On any actual
+closed-interpreter prefix with spent work `W`, the combined charge at a hash
+request is at most `(3*W + 256*W^2) / 2^512`. No caller-supplied checkpoint,
+source-pool, parser-size or hash-budget certificate is required.
+
+Validation: `scripts/check` passed all 10,601 build jobs and its strict
+audit/smoke commands. Six focused strict root-budget, shape-family and
+receipt-work checks passed. Forty-eight new guards permit only `propext`,
+`Classical.choice` and `Quot.sound`. Regressions cover one frozen key across
+64 annotations, repeated-read deduplication, both compatible parents,
+malformed source-vector input, empty-input hash cost accounting and the
+actual closed-prefix per-hash envelope. No native defaults or proof limits
+changed.
+
+This is a per-hash charge bound. The global lifetime source/collision event
+still needs its first-failure conditional law and an analysis-only work split
+that retains a first-moment expected-work result. Integrating a quadratic work
+bound or assuming a finite second moment would not establish the target.
+Application coverage on the closed instruction clock, honest/verifier actor
+cost separation, original registry ownership, independent public extraction,
+randomized initialization, physical pricing, BabyBear execution and strict
+Rust/backend refinement remain open. No full 128-bit application theorem is
+claimed.
+
 Early receipt events now have a first-moment work bound on the same closed
 interpreter prefixes. `ClosedByteMachineLogWork` derives that actual observed
 receipt-prefix guesses are bounded by spent instruction work. This uses the
@@ -35,7 +76,7 @@ candidates, starts/empty reads and the combined constructor-backed Goldilocks
 exposure bound. No native defaults, execution caps or proof limits changed.
 
 Root/source hazards still have an explicit global charge supremum and need
-work coupling. Application false-acceptance coverage must be connected to the
+lifetime work coupling beyond the per-hash envelope above. Application false-acceptance coverage must be connected to the
 closed instruction clock. Actor separation, honest verification and submission
 costs, randomized initialization, physical pricing, public extraction,
 registry/context binding, BabyBear execution and strict backend refinement
