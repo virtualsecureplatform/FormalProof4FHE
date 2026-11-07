@@ -7,6 +7,30 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Checked source-object decoder replaces representation premises at reads
+
+`interop/aeneas/parameters/Decode.lean` now constructs model code and parameters
+from the actual extracted retained fields. It embeds the explicit 32/64-bit
+source usize bound into 64-bit model words, copies all four header fields and all
+six code fields, preserves every UTF-8 modulus byte, and preserves the raw U64
+root without modular normalization. Its only rejection is an out-of-range
+modulus byte length, checked before building the model's bounded vector.
+
+Fourteen kernel theorems prove decoder soundness/completeness and equivalence to
+the existing CodeRep/ParametersRep relations. A represented value exists exactly
+when the modulus byte length is below `2^64`. Extracted header/code reads and the
+actual retained-code call followed by decoding agree with the decoded model
+without a supplied representation premise. These results replace an abstract
+object-to-model relation at read sites with an explicit checked computation.
+They do not prove dimensions, canonicality, primitive roots or code validity.
+
+Retained extraction now includes all 36 generated/accessor/bridge/decoder
+dependency audits. The 14 decoder proofs use only propext and Quot.sound. Exact
+proof-list coverage has a new guard; all 33 guard tests pass. Constructor
+correctness must still establish that its actual result decodes to the modeled
+initializer result. Target-ABI arithmetic, Rust/compiler/heap/physical work,
+shared global histories and the final protocol security theorem remain open.
+
 ## Erased signature regions now reject before symbolic execution
 
 The accepted `constructor-typing` profile now checks every translated function's
