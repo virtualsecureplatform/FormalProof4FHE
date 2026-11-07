@@ -7,6 +7,37 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`CostedMerkleLeaf` now accounts for strict leaf-role decoding: matching the
+role prefix, parsing the bounded row, rejecting trailing bytes, serializing the
+canonical row, and comparing the complete byte spelling. The measured decoder
+is proved equal to the previous guarded decoder on every input and now
+implements `NativeMerkleRoleDecoders.leaf.decode`. Its abstract byte/access/word
+arithmetic/control charge is at most
+`208*(inputBytes+1)+9*domainBytes+25`, including malformed and rejecting inputs.
+`BytePrefixMatchCost`, `IntegerEncodingCost` and `RowEncodingCost` expose the
+underlying matching, little-endian/varint serialization, length discovery and
+list-copy charges, with value and size proofs. The native leaf role and its
+reference equality retain their smaller `propext`/`Quot.sound` dependencies.
+
+`PreparedMerklePayloads.prepareStoredWithCost` now decodes each supplied input
+once after its digest label is stored bytes. It preserves preparation order,
+malformed entries and first-valid lookup semantics. Its charge is at most
+`208*(B+L)+(9*domainBytes+29)*L+1` for total supplied byte length `B` and entry
+count `L`. Its result is proved equal to public-log preparation after the digest
+adapter. The bound excludes that adapter: public-function digest materialization,
+node-role processing, tree construction/traversal, remaining extractor-wide
+cost composition and physical/compiler/backend refinement remain required.
+Full application security remains open.
+Thirteen runtime regressions cover prefix/suffix equality, every integer width,
+exact canonical serialization and decode charges, lazy u64 values, noncanonical
+spellings, trailing/truncated input, enormous row counts, stored-log preparation
+and first-valid lookup. Thirty-eight axiom guards cover all new component
+contracts and retained native/public reconstruction meaning. The new smoke/audit,
+affected public-source smoke/audit and prepared-payload audit passed with
+`warningAsError=true`; existing encoding axiom guards remain unchanged.
+`scripts/check` passed all 10,720 build jobs and its standard strict checks.
+No new axioms or proof-limit increases were introduced.
+
 `UsizeVectorCost` now measures repeated integer reads and the bounded native
 row parser. Repeated reads cost at most
 `107*(min(declaredCount, suppliedBytes)+1)`, including rejection; no declared-count
@@ -19,8 +50,8 @@ the existing encoding lemmas’ smaller axiom dependencies.
 The measured parser is proved equal to the previous generic vector codec on
 every input and now implements `NativeLookupRequestWire.rowCodec.read`.
 Encodings and raw/lazy u64 spellings are preserved. A successful row's output
-length plus suffix length is smaller than its original input length. Canonical
-Merkle role guards, re-encoding/byte comparison, digest preparation, remaining
+length plus suffix length is smaller than its original input length. Node-role processing,
+digest preparation, remaining
 Merkle/extractor costs and physical/backend refinement still need cost
 composition before a full extractor-work or application-security theorem.
 Ten runtime regressions cover all integer widths, suffix preservation, exact
@@ -46,8 +77,8 @@ charge is at most 97, or 101 with the usize range check. The native
 all-input equality theorem to the previous reader. `IntegerPrefixProgress` proves
 that every successful integer or usize parse consumes between one and nine
 bytes, supporting row-loop resource bounds in supplied bytes. Strict Merkle role guards
-continue to enforce canonical complete encodings. The remaining leaf-role
-checks, canonical re-encoding/comparison, digest preparation, and physical
+continue to enforce canonical complete encodings. The remaining node-role
+processing, digest preparation, and physical
 backend costs remain open before full decoder/extractor cost composition.
 Nine runtime regressions cover all bincode integer-width boundaries through
 `2^64-1`, exact structural/usize charges, invalid/truncated tags, retained
@@ -69,8 +100,8 @@ Byte comparison is executable over stored lists, with proved equality and cost
 bounds; the scan invokes no decoder or arbitrary callback. Its abstract byte,
 list/access and control charge is at most `394*L+1` for `L` prepared entries.
 A successful matching head costs exactly 389, and appending any entries after a
-successful prepared prefix preserves both result and scan charge. Strict leaf-role decoding,
-digest materialization, Merkle tree construction/traversal, field conversion and
+successful prepared prefix preserves both result and scan charge. Digest materialization,
+node-role processing, Merkle tree construction/traversal, field conversion and
 physical/backend execution still need their own cost proofs before this can be
 composed into a complete extractor-work theorem. Full application security
 remains open.
