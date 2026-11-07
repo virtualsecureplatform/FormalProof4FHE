@@ -1,6 +1,7 @@
 # Constructor trait names and builtin effects
 
-This isolated profile extends `usize-ctlz` with two compiler fixes. It preserves
+This isolated profile extends `usize-ctlz` with two compiler fixes and an early
+signature-region validation pass. It preserves
 all original trait clauses, including Copy assumptions, and uses invariant
 checks. It does not enable `--remove-unused-clauses`.
 
@@ -13,6 +14,12 @@ checks. It does not enable `--remove-unused-clauses`.
   retained its Rust body. Previously the infallible Rust `Result::branch` body
   overrode its fallible-model signature, producing an extra `lift` around a
   model that already returns `Std.Result`. Nonbuiltin body analysis is unchanged.
+
+* Before symbolic execution, every function input/output signature is checked
+  for erased or body regions. Erased lifetimes require a lifetime-preserving
+  extraction, rather than an invented input/output or alias relationship. Named,
+  bound and static regions remain unchanged. This check applies to function
+  declarations, including opaque ones; it is not a universal LLBC verifier.
 
 The combined six-file `frontend.patch` applies to pinned Aeneas
 `15b968482b0dcd7aae45020b6d1bca39b5024af5`. It includes the previous string and
@@ -92,10 +99,11 @@ scripts/probe-hasteboots-captured-option \
 The paired probe first runs a fresh constructor-typing fixture preflight to
 validate the exact tool/source/build/package/backend policy. It then extracts
 the same minimal Rust file both ways. Generic mode passes strict checking; mono
-mode must fail at the symbolic input invariant. The LLBC inspection resolves
+mode must fail at the early signature-region check. The LLBC inspection resolves
 Charon's hash-consed types without editing them and checks precisely one
 `is_none_or` declaration, no region/type parameters, and a closure input with
-`regions = [Erased]`. The invariant requires non-erased symbolic input types.
+`regions = [Erased]`. The diagnostic requires lifetime-preserving extraction; the interpreter
+invariant still requires non-erased symbolic input types.
 The mono failure is retained as a rejected route, never a constructor pass.
 Five guard groups cover signature identity, ambiguous/changed signatures,
 hash-consing, nonmutation, and proof audit coverage.
@@ -107,3 +115,16 @@ establish a correct specialization. A source-preserving solution still needs
 explicit binder and call-site correspondence. A diagnostic concrete generic
 route including pcs/algebra also emitted Charon errors and was rejected before
 it could qualify as an alternative extraction.
+
+The paired probe also extracts `unsupported-returned-borrow.rs` and
+`unsupported-mutable-capture.rs` through the pinned full mono route. Both are
+valid Rust and complete Charon extractions, but the signature-region guard must
+reject each before interpretation. Their fresh source/LLBC hashes and terminal
+statuses are recorded separately. Neither case is accepted by inventing a
+lifetime or dropping an ownership relationship.
+
+A private prototype that freshened shared input regions and resolved standalone
+impl methods still failed context-collapse/dependency invariants. It is excluded
+from this patch. A successful repair must address lifetime relationships,
+concrete dispatch metadata, declaration dependencies and branch-join semantics
+together; the early rejection does not discharge that source-refinement task.

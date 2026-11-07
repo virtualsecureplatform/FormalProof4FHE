@@ -7,6 +7,32 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Erased signature regions now reject before symbolic execution
+
+The accepted `constructor-typing` profile now checks every translated function's
+input and output signature types before interpreting its body. Erased regions
+are rejected with an explicit lifetime-preserving-extraction diagnostic; body
+regions are also rejected as signature parameters. Bound/named lifetimes and
+static regions are preserved. This adds no fresh lifetimes or alias assumptions
+and leaves all interpreter invariants enabled.
+
+The paired captured-option probe still checks three axiom-free declarations in
+generic mode, and its fresh preflight checks the five existing trait/Result
+declarations. In mono mode it now requires the early signature rejection.
+Two further valid Rust fixtures independently check returned borrows and mutable
+captures; both also reject before interpretation. All 32 guard tests pass.
+A fresh actual generic constructor still typechecks but fails the dependency
+audit for `core.fmt.Formatter`, as required.
+
+An isolated attempted shared-input freshener and concrete dispatch resolver did
+not close the gate: the minimal fixture failed the context-collapse marker
+invariant and the concrete constructor exposed a mixed dependency cycle. Those
+transformations are not included in the accepted patch. Correct specialization
+must preserve signature/call-site lifetime relationships, dispatch metadata and
+declaration dependencies through branch joins; advancing past the first error
+alone is insufficient. Full source/compiler/machine refinement and protocol
+security remain open.
+
 ## Concrete closure lifetime failure reduced to a checked reproducer
 
 The monomorphized concrete constructor failure is now reduced to
