@@ -7,6 +7,33 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`UsizeVectorCost` now measures repeated integer reads and the bounded native
+row parser. Repeated reads cost at most
+`107*(min(declaredCount, suppliedBytes)+1)`, including rejection; no declared-count
+cap or accepted-input premise is used. The row parser costs at most
+`107*(suppliedBytes+1)+3`. Successful parsing proves the returned list length
+matches the declared count and each parsed word consumes input, so construction
+of the bounded row can reuse that proof instead of traversing the list again.
+The structural length proof is separate from resource inequalities, preserving
+the existing encoding lemmas’ smaller axiom dependencies.
+The measured parser is proved equal to the previous generic vector codec on
+every input and now implements `NativeLookupRequestWire.rowCodec.read`.
+Encodings and raw/lazy u64 spellings are preserved. A successful row's output
+length plus suffix length is smaller than its original input length. Canonical
+Merkle role guards, re-encoding/byte comparison, digest preparation, remaining
+Merkle/extractor costs and physical/backend refinement still need cost
+composition before a full extractor-work or application-security theorem.
+Ten runtime regressions cover all integer widths, suffix preservation, exact
+charges, maximum declared counts with short input, immediate/mid-row rejection,
+noncanonical structural spellings, empty rows with long suffixes and native row
+codec integration. Ten axiom guards cover the new repeated/vector parser
+contracts, native codec equality and retained strict leaf/reconstruction meaning.
+The new smoke/audit and affected public-source smoke/audit passed with
+`warningAsError=true`; existing encoding axiom guards were preserved unchanged.
+`scripts/check` passed all 10,714 build jobs, including the broad HasteBoots
+smoke, and its standard strict checks. No new axioms or proof-limit increases
+were introduced.
+
 `BytePrefixCost` now implements exact-width byte extraction and little-endian
 arithmetic with explicit abstract byte/list/access/control charges. Prefix
 extraction costs exactly `5*min(requestedWidth, suppliedLength)+1`; it stops at
@@ -19,8 +46,8 @@ charge is at most 97, or 101 with the usize range check. The native
 all-input equality theorem to the previous reader. `IntegerPrefixProgress` proves
 that every successful integer or usize parse consumes between one and nine
 bytes, supporting row-loop resource bounds in supplied bytes. Strict Merkle role guards
-continue to enforce canonical complete encodings. The remaining vector/leaf
-parser work, canonical re-encoding/comparison, digest preparation, and physical
+continue to enforce canonical complete encodings. The remaining leaf-role
+checks, canonical re-encoding/comparison, digest preparation, and physical
 backend costs remain open before full decoder/extractor cost composition.
 Nine runtime regressions cover all bincode integer-width boundaries through
 `2^64-1`, exact structural/usize charges, invalid/truncated tags, retained
@@ -42,7 +69,7 @@ Byte comparison is executable over stored lists, with proved equality and cost
 bounds; the scan invokes no decoder or arbitrary callback. Its abstract byte,
 list/access and control charge is at most `394*L+1` for `L` prepared entries.
 A successful matching head costs exactly 389, and appending any entries after a
-successful prepared prefix preserves both result and scan charge. Log decoding,
+successful prepared prefix preserves both result and scan charge. Strict leaf-role decoding,
 digest materialization, Merkle tree construction/traversal, field conversion and
 physical/backend execution still need their own cost proofs before this can be
 composed into a complete extractor-work theorem. Full application security
