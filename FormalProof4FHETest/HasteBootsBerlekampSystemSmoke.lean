@@ -8,6 +8,10 @@ import all FormalProof4FHE.HasteBoots.ColumnDistanceCost
 import all FormalProof4FHE.HasteBoots.FiniteLinearSolver
 import all FormalProof4FHE.HasteBoots.FiniteMatrixSolver
 import all FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision
+import all FormalProof4FHE.HasteBoots.DensePolynomialDivision
+import all FormalProof4FHE.HasteBoots.DenseMonicDivision
+import all FormalProof4FHE.HasteBoots.DensePolynomialStepCost
+import all FormalProof4FHE.HasteBoots.PolynomialShapeCost
 import all FormalProof4FHE.HasteBoots.ExecutablePolynomial
 import all FormalProof4FHE.HasteBoots.PolynomialEvaluationCost
 import all ArkLib.Data.CodingTheory.BerlekampWelch.Condition

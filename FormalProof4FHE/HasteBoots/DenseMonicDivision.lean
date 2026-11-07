@@ -1,6 +1,6 @@
 module
 public import FormalProof4FHE.HasteBoots.DensePolynomialStepCost
-public import FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision
+public import FormalProof4FHE.HasteBoots.ExecutablePolynomialDivisionAux
 @[expose] public section
 namespace FormalProof4FHE.HasteBoots.DenseMonicDivision
 open SolverOperationCost Polynomial PolynomialShapeCost DensePolynomialStepCost

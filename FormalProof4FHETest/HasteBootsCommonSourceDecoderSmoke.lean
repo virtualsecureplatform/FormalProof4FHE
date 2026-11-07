@@ -9,6 +9,10 @@ import all FormalProof4FHE.HasteBoots.ExecutableSourceCoefficients
 import all FormalProof4FHE.HasteBoots.ExecutableCommonSource
 import all FormalProof4FHE.HasteBoots.ExecutableBerlekampWelch
 import all FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision
+import all FormalProof4FHE.HasteBoots.DensePolynomialDivision
+import all FormalProof4FHE.HasteBoots.DenseMonicDivision
+import all FormalProof4FHE.HasteBoots.DensePolynomialStepCost
+import all FormalProof4FHE.HasteBoots.PolynomialShapeCost
 import all FormalProof4FHE.HasteBoots.ExecutablePolynomial
 import all FormalProof4FHE.HasteBoots.PolynomialEvaluationCost
 import all FormalProof4FHE.HasteBoots.FiniteMatrixSolver

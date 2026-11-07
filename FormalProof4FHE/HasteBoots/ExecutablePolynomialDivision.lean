@@ -1,56 +1,50 @@
-/-
-Adapted from Mathlib.Algebra.Polynomial.Div (Apache 2.0).
-The recursion uses explicit executable coefficient operations and equality.
--/
 module
-public import FormalProof4FHE.HasteBoots.ExecutablePolynomial
+public import FormalProof4FHE.HasteBoots.ExecutablePolynomialDivisionAux
+public import FormalProof4FHE.HasteBoots.DensePolynomialDivision
 @[expose] public section
 namespace FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision
 open Polynomial
 open ExecutablePolynomial
 variable {F : Type} [Field F] [DecidableEq F]
 
-def monicAux : (p : F[X]) → {q : F[X]} → Monic q → F[X] × F[X]
-  | p,q,hq =>
-    if h : degree q ≤ degree p ∧ p.support.Nonempty then
-      let z := term (leadingCoeff p) (natDegree p - natDegree q)
-      have _wf : (sub p (mul q z)).degree < p.degree := by
-        simpa only [z,sub_eq,mul_eq,term_eq] using div_wf_lemma ⟨h.1,support_nonempty.mp h.2⟩ hq
-      let dm := monicAux (sub p (mul q z)) hq
-      (add z dm.1,dm.2)
-    else (zero,p)
-  termination_by p => p
+def coefficientVector (p : F[X]) (length : ℕ) : Vector F length :=
+  Vector.ofFn (fun i : Fin length => p.coeff i.val)
 
-theorem monicAux_eq (p q : F[X]) (monic : Monic q) :
-    monicAux p monic = divModByMonicAux p monic := by
-  induction p using WellFounded.induction Polynomial.degree_lt_wf with
-  | h p ih =>
-    rw [monicAux,divModByMonicAux]
-    simp only [support_nonempty]
-    split_ifs with h
-    · simp only [sub_eq,mul_eq,term_eq,add_eq]
-      rw [ih _ (div_wf_lemma h monic)]
-    · simp only [zero_eq]
+theorem coefficientVector_polynomial (p : F[X]) (length : ℕ) (bound : p.natDegree < length) :
+    PolynomialShapeCost.polynomial (coefficientVector p length) = p := by
+  ext i
+  by_cases inside : i < length
+  · rw [DensePolynomialStepCost.polynomial_coeff_fin _ ⟨i,inside⟩]
+    simp only [coefficientVector,FiniteLinearSolver.get_ofFn]
+  · rw [DensePolynomialStepCost.polynomial_coeff_above _ i (by omega),coeff_eq_zero_of_natDegree_lt (by omega)]
 
-/-- Normalize the divisor once and share the recursive division result. -/
+def inputWidth (p q : F[X]) : ℕ := max p.natDegree q.natDegree+1
+
+/-- Charge for the dense division core after input vectors have been prepared.
+Degree discovery, coefficient materialization and output polynomial conversion
+are separate costs. -/
+def divModWithCost (p q : F[X]) :
+    SolverOperationCost.Run (Vector F (inputWidth p q) × Vector F (inputWidth p q)) :=
+  DensePolynomialDivision.divMod (coefficientVector p (inputWidth p q)) (coefficientVector q (inputWidth p q))
+
+/-- One measured dense division supplies both reconstructed polynomials. -/
 def divMod (p q : F[X]) : F[X] × F[X] :=
-  let inverse := (leadingCoeff q)⁻¹
-  let scalar := constant inverse
-  let normalized := mul q scalar
-  if h : Monic normalized then
-    let result := monicAux p h
-    (mul scalar result.1,result.2)
-  else (zero,p)
+  let result := divModWithCost p q
+  (PolynomialShapeCost.polynomial result.value.1,PolynomialShapeCost.polynomial result.value.2)
 
 theorem divMod_fst_eq (p q : F[X]) : (divMod p q).1 = p / q := by
-  rw [Polynomial.div_def]
-  by_cases h : Monic (q * C (leadingCoeff q)⁻¹)
-  all_goals simp [divMod,mul_eq,constant_eq,divByMonic,h,monicAux_eq,zero_eq]
+  simp only [divMod,divModWithCost,DensePolynomialDivision.divMod_fst_eq]
+  rw [coefficientVector_polynomial p _ (by unfold inputWidth; omega),
+    coefficientVector_polynomial q _ (by unfold inputWidth; omega)]
 
 theorem divMod_snd_eq (p q : F[X]) : (divMod p q).2 = p % q := by
-  rw [Polynomial.mod_def]
-  by_cases h : Monic (q * C (leadingCoeff q)⁻¹)
-  all_goals simp [divMod,mul_eq,constant_eq,modByMonic,h,monicAux_eq]
+  simp only [divMod,divModWithCost,DensePolynomialDivision.divMod_snd_eq]
+  rw [coefficientVector_polynomial p _ (by unfold inputWidth; omega),
+    coefficientVector_polynomial q _ (by unfold inputWidth; omega)]
+
+theorem divModWithCost_cost (p q : F[X]) :
+    (divModWithCost p q).cost ≤ 50*(inputWidth p q+1)^2+14*inputWidth p q+19 :=
+  DensePolynomialDivision.divMod_cost _ _
 
 theorem divMod_eq (p q : F[X]) : divMod p q = (p / q,p % q) := by
   exact Prod.ext (divMod_fst_eq p q) (divMod_snd_eq p q)

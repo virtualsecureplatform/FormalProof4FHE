@@ -6,6 +6,10 @@ import all FormalProof4FHE.HasteBoots.BerlekampWelchPowers
 import all FormalProof4FHE.HasteBoots.BerlekampWelchSystem
 import all FormalProof4FHE.HasteBoots.ExecutableBerlekampWelch
 import all FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision
+import all FormalProof4FHE.HasteBoots.DensePolynomialDivision
+import all FormalProof4FHE.HasteBoots.DenseMonicDivision
+import all FormalProof4FHE.HasteBoots.DensePolynomialStepCost
+import all FormalProof4FHE.HasteBoots.PolynomialShapeCost
 import all FormalProof4FHE.HasteBoots.ExecutablePolynomial
 import all FormalProof4FHE.HasteBoots.PolynomialEvaluationCost
 import all FormalProof4FHE.HasteBoots.FiniteMatrixSolver
@@ -106,3 +110,8 @@ private def divisor : Polynomial (ZMod 7) := ExecutablePolynomial.ofCoefficients
 #eval let affine := ExecutablePolynomial.ofCoefficients 2 (fun i => if i = 0 then (2 : ZMod 7) else 3)
       let run := ExecutableBerlekampWelch.candidateCheckWithCost 0 affine points corrupted
       !run.value && decide (run.cost = 134)
+
+/-- info: true -/
+#guard_msgs in
+#eval let run := ExecutablePolynomialDivision.divModWithCost numerator divisor
+      decide (run.value.1.toList = [3,4,0] ∧ run.value.2.toList = [2,0,0] ∧ run.cost = 456 ∧ run.cost ≤ 861)

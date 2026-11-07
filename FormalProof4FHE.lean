@@ -1,3 +1,4 @@
+import FormalProof4FHE.HasteBoots.DensePolynomialDivision
 import FormalProof4FHE.HasteBoots.DenseMonicDivision
 import FormalProof4FHE.HasteBoots.DensePolynomialStepCost
 import FormalProof4FHE.HasteBoots.PolynomialShapeCost
