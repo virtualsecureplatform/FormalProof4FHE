@@ -529,3 +529,7 @@ import FormalProof4FHE.HasteBoots.VectorWireEncodeCost
 import FormalProof4FHE.HasteBoots.GoldQueryWireCost
 import FormalProof4FHE.HasteBoots.StoredSingleOpeningCost
 import FormalProof4FHE.HasteBoots.StoredSingleSourcesCost
+import FormalProof4FHE.HasteBoots.GoldBatchQueriesCost
+import FormalProof4FHE.HasteBoots.StoredBatchMessageCost
+import FormalProof4FHE.HasteBoots.StoredBatchFramesCost
+import FormalProof4FHE.HasteBoots.StoredSourceMentionsCost

@@ -7,6 +7,55 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`GoldBatchQueriesCost` now measures the outer original batch-query vector,
+including every nested matrix reader/encoder. Its prefix decoder equals the
+original vector codec on every input, costs at most `145*(N+1)+3`, and successful
+reads cost at most `145*consumed+1`. For outer query weight `W` (the sum of query
+weights plus one per query), serialization costs at most `379*W+93` and produces
+at most `9*(W+1)` bytes.
+
+`StoredBatchMessageCost` reads the original context/root pair, complete ordered
+query vector and complete nested response table. Raw words, empty/ragged rows,
+empty queries and mismatched query/value counts are retained for subsequent
+semantic verification. Strict decoding charges EOF checking, full canonical
+re-encoding and byte comparison. All-input equality to the original exact batch
+codec, accepted-byte reconstruction, view injectivity and stored round trips are
+proved. Decoding costs at most `557*N+2400`; a context/root prefix alone cannot
+supply a source when the remaining payload is malformed or noncanonical.
+`StoredBatchFramesCost` checks original batch kind/label roles and projects its
+stored pair exactly to the original frame-source branch.
+
+`StoredSourceMentionsCost` now composes **all original direct source formats**:
+registry vectors, canonical bindings, complete batch messages and adjacent
+single openings. Its output, viewed as native context/root pairs, equals
+`NativeRootInputView.mentions` and, from raw bytes, `ExecutableParentLedger.direct`.
+It retains original order, duplicates and distinct contexts sharing a root:
+frame sources first, the actual adjacent single pair next, then remaining frames.
+Malformed payloads contribute no source; malformed outer framing rejects the
+whole stream. With `Kr`, `Kb`, `Km` the three source labels and `Kc`, `Ko` the
+single-opening labels' byte lengths, the closed raw-input operation bound is
+`(9456+12*(Kr+Kb+Km)+6*(Kc+Ko))*N+5`. Output length is at most `N`.
+These are explicit reference byte/list/word operation bounds, not physical
+runtime measurements or attacker-work credit.
+
+Six batch/mixed-format regression groups cover complete nested data and raw lazy
+words, trailing/root-only/noncanonical payloads, forged nested counts, structural
+shape retention, interleaved original formats, aliases/duplicates, exact adjacency,
+malformed framing and charged bounds. Thirty-two theorem axiom guards cover the
+new modules; only `propext`, `Classical.choice` and `Quot.sound` occur.
+`scripts/check` passed all 10,788 build jobs and its standard strict checks;
+the new batch/source smoke and axiom audit also passed with
+`warningAsError=true`.
+
+The next obligation is **inherited stored source/helper metadata replay**: compose
+these direct sources with compatible causal parent candidates and stored helper
+roots without uncharged callbacks or retrospective oracle information. Then
+prove snapshot selection and complete extraction composition with runtime size
+production. First original complete context/root registry ownership including
+earlier unused aliases, actor/physical/compiler/native refinement, BabyBear and
+full application security remain required. This milestone does not discharge
+those obligations or the final expected-physical-work theorem.
+
 `VectorWireReadCost` and `VectorWireEncodeCost` now provide measured repeated
 wire loops. Every element reader/encoder charge is included, and length witnesses
 remain separate from resource bounds. Their contracts concern the reference
@@ -47,9 +96,9 @@ payloads, noncanonical query/width/response spellings, re-encoding, frame roles,
 exact adjacency, source aliases/duplicates, malformed framing and exact charges.
 `scripts/check` passed all 10,782 build jobs and its standard strict checks;
 the new stored-single-source smoke/audit also passed with `warningAsError=true`.
-Batched source messages, composition of all original source formats, inherited
-stored metadata replay, snapshot selection and complete extraction composition
-remain open. First original complete context/root registry ownership including
+The batch/source-composition milestone above supersedes the earlier open batch
+and direct-format composition obligations. Inherited stored metadata replay,
+snapshot selection and complete extraction composition remain open. First original complete context/root registry ownership including
 earlier unused aliases, runtime size production, actor/physical/compiler/native
 refinement, BabyBear and full application security remain required. No new axioms
 or proof-limit increases were introduced; existing codec definitions are unchanged.
