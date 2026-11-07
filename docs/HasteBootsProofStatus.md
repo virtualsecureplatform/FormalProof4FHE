@@ -7,6 +7,57 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`StoredGeometryArithmeticCost` now supplies explicit charged power-of-two and
+halving bit-length loops. Their values equal native powers and `Nat.size`, with
+costs `3*exponent+1` and `4*bitLength+1`. No table/row-code callback is evaluated.
+
+`StoredGoldGeometryCost` now validates the retained Gold parameter object with
+cached measured arithmetic. Its output equals
+`NativeBrakedownParameters.build NativeGoldBlockCode.description` on every
+parameter input. The original basic, code-shape and allocation gates are
+preserved; invalid large exponents reject before the power loops. Constructor
+success produces the original geometry specification, including rows, columns,
+stride, response sizes, height and shared random count. Total reference operation
+cost is at most `1500`, using the existing native 64-bit input bounds. Scalar
+word/physical/backend refinement is not implied by that operation count.
+
+`ValidatedGoldFieldExtraction` now produces the extractor's capacity witness at
+runtime. It first runs the measured native geometry gate, then checks the
+preceding extractor's explicit message-capacity precondition. This additional
+extractor gate is stated in its value theorem; it is not silently added to the
+original native geometry constructor. `constructor_complete` reuses the existing
+`NativeGoldBlockCodeMeaning.constructor_dimensions` theorem to prove every
+successful native code constructor with accepted geometry passes it. Validation
+costs at most `1516`; rejected dimensions stop before field parsing, causal replay
+or extraction. The extraction entry point takes no separate capacity certificate
+and includes validation plus the complete earlier extraction bound.
+
+`StoredRegistryOwnerCost` now performs charged index access and first-original
+full-key lookup in all stored registry slots. The returned index equals
+`NativeSourceRegistry.owner` exactly. Earlier unused aliases participate,
+different complete contexts sharing a root remain distinct, and differing roots
+remain distinct. There is no used-slot filtering or registry reordering. Lookup
+costs at most `1329*registryLength+6`, including access to the queried key.
+
+Ten regression groups and twenty-seven theorem axiom guards cover arithmetic
+word boundaries, computed geometry/random count, early large-exponent/basic
+rejection, code-shape/allocation overflow, capacity production, successful native
+code construction, first-original unused aliases, complete-key identity, charged
+owner lookup, validated extraction and early rejection. Only `propext`,
+`Classical.choice` and `Quot.sound` occur in the audited theorems.
+`scripts/check` passed all 10,827 build jobs and its standard strict checks;
+the new geometry/owner smoke and axiom audit also passed with
+`warningAsError=true`.
+
+The next obligation is **measured complete context serialization and original-owner
+parameter association**: show the parsed context/root refers to the actual
+initialized parameter object at the computed first original registry slot,
+including earlier unused aliases, and bind the field count to its derived native
+geometry. Geometry checks alone do not validate the retained code root or prove
+this application identity. Complete application/PBS soundness, initialization and
+actor/physical/compiler/native backend refinement, BabyBear and the final
+expected-physical-work theorem remain required.
+
 `FrameMatchCost` now prices complete frame kind/label/message equality and
 exact fixed-width u64 decoding. Byte-list comparisons have explicit bounds;
 bounded integer witnesses are derived from the successful eight-byte structural
@@ -52,12 +103,11 @@ in the audited theorems.
 the new stored-field smoke and axiom audit also passed with
 `warningAsError=true`.
 
-The next obligation is **application-derived trusted context and dimensions**:
-validate the original application instance/parameters, produce required runtime
-geometry/capacity witnesses and prove that its original first-complete registry
-owner supplies this parsed context/root, including earlier unused aliases. Full
-application/PBS soundness, actor/physical/compiler/native backend refinement,
-BabyBear and the final expected-physical-work theorem remain required.
+The measured dimension/capacity and owner-lookup milestone above supersedes
+those component obligations. Association with the actual original initialized
+parameter object and parsed field, full application/PBS soundness,
+actor/physical/compiler/native backend refinement, BabyBear and the final
+expected-physical-work theorem remain open.
 
 `CausalPrefixReadCost` now recovers the complete mixed-history prefix before a
 stream's first positive read using charged byte comparisons and list traversal.
