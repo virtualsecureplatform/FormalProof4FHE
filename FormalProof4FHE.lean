@@ -615,3 +615,5 @@ import FormalProof4FHE.HasteBoots.NativeGoldEncodedParameters
 import FormalProof4FHE.HasteBoots.NativeGoldParameterInitialization
 import FormalProof4FHE.HasteBoots.NativeGoldParameterStore
 import FormalProof4FHE.HasteBoots.NativeGoldConstructedRegistry
+import FormalProof4FHE.HasteBoots.NativeGoldBalancedLayout
+import FormalProof4FHE.HasteBoots.NativeGoldBalancedInitialization
