@@ -57,7 +57,7 @@ updates, physical work and full protocol security remain open.
 Use the pinned official tools and prepared backend described in
 `../parameters/README.md`. The harness first freshly checks the 50 parameter
 source/accessor/decoder/binding audits, then extracts this native carrier and
-checks the combined artifact with all 76 dependency audits. Only propext,
+checks the combined artifact with all 88 dependency audits. Only propext,
 Classical.choice and Quot.sound are allowed; no admissions, native proofs or
 proof-limit increases are accepted.
 
@@ -77,3 +77,40 @@ only imports, and then append the checked proofs. Proof limits remain 200,000
 heartbeats and recursion depth 1,000. Six guard groups check output completeness,
 imports, admissions/limits, dependency lock/checksum integrity and exact proof
 audit coverage.
+
+## Accepted associations and the full causal history
+
+`Association.lean` adds a data-only setup containing saved local state, the native
+source slice and parent transcript. A causal prior program produces this setup;
+the new modeled prelude decodes the original registry and runs the existing
+modeled initializer. Initialization outcomes retain the setup and their full
+observation trace, including failure paths. The continuation receives saved
+state and primitive oracle responses, and every analysis prefix retains the
+same prequery/initializer/continuation history.
+
+Twelve theorems prove initialization/prelude origin and trace inclusion, then
+transfer successful modeled field associations to native original-slot reads.
+The complete field source key must match an entry in the canonical stored vector
+decoded from the initializer. Outside the existing persistent bad event, the
+first owner's actual extracted slice read returns parameters that decode exactly
+to the extraction context, and its raw root equals the field's root.
+
+The causal-prefix theorem derives history truthfulness and initializer inclusion
+from execution. Its conclusion explicitly separates the persistent bad event
+from original-source association; it takes no independent truthful-log,
+root-safety or collision-exclusion certificate. A more general trace formulation
+covers every initializer whose computed trace is included in one full program
+history, allowing multiple registry/field witnesses without separate losses.
+
+The event that any such association fails at any finite machine prefix is
+bounded by the supremum of the existing joint persistent-root hazard charges
+for that same machine. All registries, source positions, inputs and matched
+fields in the event are covered together. Fuel is an analysis prefix, with no
+retry/lifetime cutoff or per-field multiplier. This is an ideal-oracle charge
+bound; actor attribution, physical attacker work and the final 128-bit theorem
+are not established here.
+
+The field-key membership condition and canonical stored-vector decoding remain
+explicit computed conditions. Connecting them and the modeled prelude to the
+native verifier/initializer body, and proving parameter construction, heap,
+Serde/bincode/hash-update and physical-work refinement, remain required.

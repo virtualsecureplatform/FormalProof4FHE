@@ -7,6 +7,36 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Matched source associations reduce to one persistent causal bad event
+
+`interop/aeneas/registry/Association.lean` now connects successful modeled field
+associations to actual original-slot source reads. A causal prequery program
+produces the source slice, parent and saved local state; a data-only modeled
+prelude decodes all original entries, runs the existing registry initializer,
+and retains its complete trace and outcome. Arbitrary causal continuation
+prefixes include the same prequeries, initialization and later observations.
+
+Twelve kernel theorems derive prelude/initializer provenance and trace inclusion.
+For a field whose complete key matches a slot in the initializer's canonical
+stored vector, the result is either the existing persistent bad event or a
+first-original native slice read whose parameters decode to the extraction
+context and whose raw root matches the field. Truthfulness follows from the modeled
+causal execution, and the final causal theorem takes no separate safe-root or
+collision-exclusion premise.
+
+A general trace event covers all matching initializer/field witnesses in one
+complete history. Misassociation at any finite prefix is bounded by the
+supremum of the existing joint persistent-root charges on that same causal
+machine. There is no per-registry/field multiplier, new independent hash history,
+trial cap or forced termination. This is an ideal-oracle association-loss bound;
+physical attacker-work coupling and the 128-bit false-PBS theorem remain open.
+
+Fresh registry extraction now checks all 88 dependency closures using only the
+three permitted axioms. All 40 guard tests pass. Native field-key membership,
+initializer/owner-body execution, parameter/code construction, source/heap,
+serialization/hash updates and physical-work refinement remain separate required
+steps. The association result does not certify complete protocol acceptance.
+
 ## Actual native carrier reads reach the first-original model owner
 
 The new `interop/aeneas/registry` gate extracts the actual
