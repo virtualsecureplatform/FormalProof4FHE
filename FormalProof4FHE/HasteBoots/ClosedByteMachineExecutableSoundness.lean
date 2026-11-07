@@ -1,5 +1,5 @@
 module
-public import FormalProof4FHE.HasteBoots.NativeGoldExecutableExtraction
+public import FormalProof4FHE.HasteBoots.NativeGoldPublicSource
 public import FormalProof4FHE.HasteBoots.ClosedByteMachineNativeSoundness
 @[expose] public section
 namespace FormalProof4FHE.HasteBoots.ClosedByteMachineExecutableSoundness
@@ -16,6 +16,7 @@ local instance : DecidableEq Digest := NativeGoldColumnAuthentication.digestDeci
 
 /-! The accepted native failure event with executable extraction. All original
 query finishing claims, acceptance/log premises and scheduler memory remain.
+Raw source columns are reconstructed from the recovered frozen hash log.
 The result prices declared interpreter work; it is not a physical PBS theorem. -/
 structure Witness (Memory : Type) (dummy : Digest) (ctx : Context) (radius : ℕ) (world : World) (log : List Observation) where
   candidate : Context
@@ -31,7 +32,7 @@ structure Witness (Memory : Type) (dummy : Digest) (ctx : Context) (radius : ℕ
   parsed : NativeGoldBatchChallengeLink.parse (NativeGoldBatchColumnRequestLaw.input candidate work world) = some decoded
   responseFits : (NativeGoldBatchResponseBinding.payload candidate.opening).length < TranscriptFrame.lengthLimit
   accepted : NativeGoldBatchAnySourceRisk.Accepted world log candidate choose verifierFuel memory work
-  falseClaim : NativeGoldExecutableExtraction.FalseClaim dummy candidate work decoded log capacity radius
+  falseClaim : NativeGoldPublicSource.FalseClaim dummy candidate work decoded log capacity radius
 
 def Failure (Memory : Type) (code : List Instruction) (publicData : Input) (privateData : Tape → Input)
     (dummy : Digest) (ctx : Context) (role : Role) (world : World) : Prop :=
@@ -57,7 +58,8 @@ def toAnalysis {Memory : Type} {dummy : Digest} {ctx : Context} {radius : ℕ} {
   responseFits := witness.responseFits
   accepted := witness.accepted
   falseClaim := (NativeGoldExecutableExtraction.falseClaim_iff_analysis dummy witness.candidate tables message block blowup
-    constructed witness.primitive witness.work witness.decoded log witness.capacity radius uniqueRadius).mp witness.falseClaim
+    constructed witness.primitive witness.work witness.decoded log witness.capacity radius uniqueRadius).mp
+      ((NativeGoldPublicSource.falseClaim_iff_executable dummy witness.candidate witness.work witness.decoded log witness.capacity radius).mp witness.falseClaim)
 
 def ofAnalysis {Memory : Type} {dummy : Digest} {ctx : Context} {radius : ℕ} {world : World} {log : List Observation}
     (witness : NativeGoldBatchLifetimeSoundness.Witness Memory dummy ctx radius world log)
@@ -78,8 +80,9 @@ def ofAnalysis {Memory : Type} {dummy : Digest} {ctx : Context} {radius : ℕ} {
   parsed := witness.parsed
   responseFits := witness.responseFits
   accepted := witness.accepted
-  falseClaim := (NativeGoldExecutableExtraction.falseClaim_iff_analysis dummy witness.candidate tables message block blowup
-    constructed witness.primitive witness.work witness.decoded log witness.capacity radius uniqueRadius).mpr witness.falseClaim
+  falseClaim := (NativeGoldPublicSource.falseClaim_iff_executable dummy witness.candidate witness.work witness.decoded log witness.capacity radius).mpr
+    ((NativeGoldExecutableExtraction.falseClaim_iff_analysis dummy witness.candidate tables message block blowup
+      constructed witness.primitive witness.work witness.decoded log witness.capacity radius uniqueRadius).mpr witness.falseClaim)
 
 theorem failure_iff_analysis (Memory : Type) (code : List Instruction) (publicData : Input) (privateData : Tape → Input)
     (dummy : Digest) (ctx : Context) (role : Role)
