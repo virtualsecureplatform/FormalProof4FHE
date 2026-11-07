@@ -1,3 +1,5 @@
+import FormalProof4FHETest.HasteBootsSolverCostSmoke
+import FormalProof4FHETest.HasteBootsSolverCostAudit
 import FormalProof4FHETest.HasteBootsCompactParentsSmoke
 import FormalProof4FHETest.HasteBootsCompactParentsAudit
 import FormalProof4FHETest.HasteBootsSourceSelectionSmoke

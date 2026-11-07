@@ -175,8 +175,35 @@ with identical candidate-log order and selections, and complete-history field
 recovery through the compact replay. Forty new axiom guards use only `propext`,
 `Classical.choice` and `Quot.sound`. No proof limits or native defaults changed.
 
+`SolverOperationCost` now executes deterministic elimination with explicit
+counters for field arithmetic, zero tests, coefficient/rhs loads, coefficient
+stores and specified structural steps. `SolverOperationErasure` proves its
+returned result equals the original solver on every system. The total is at
+most `8*(rows+1)*(columns+1)^2`, including rank deficiency, inconsistent systems
+and zero dimensions. The rectangular matrix interface now uses this runner via
+`solveWithCost`; its charge adds one return step and its result is proved equal
+to the previous interface, preserving soundness and completeness.
+
+This is an abstract field/access count, not a complete RAM instruction or
+physical-time bound. Evaluating input matrix/rhs functions, constructing their
+materialized equations, backend arithmetic costs and later result reads are
+excluded. The elimination bound therefore does not price arbitrary callbacks or
+assert a complete extraction running-time theorem.
+
+Validation for measured elimination: `scripts/check` passed all 10,660 build
+jobs and its strict audit/smoke commands. Five focused strict checks passed:
+the new solver-cost smoke/audit and the existing solver, public-source and
+native work-security audits. Five executable regressions check returned values
+and exact charges for a skipped first pivot, a free column, inconsistency,
+an empty system and an inconsistent zero-column system. Existing scalar,
+common-source, rectangular and public-log extraction regressions also pass
+with the measured solver, including Goldilocks and BabyBear arithmetic.
+Twenty new axiom guards use only `propext`, `Classical.choice` and `Quot.sound`.
+No proof limits or native defaults changed.
+
 A complete extraction-cost theorem still requires bounds for parsing, cache
-lookup, snapshot search, polynomial arithmetic and linear solving, together
+lookup, snapshot search, polynomial arithmetic, matrix generation and linear-
+solver implementation costs, together
 with implementation refinement. Application-level ownership by the first
 ORIGINAL registry entry, trusted-context/key linkage, physical actor-cost
 separation and Rust arithmetic/decoder/NTT/scheduler refinement remain open.
