@@ -7,6 +7,51 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`ParentSeedRequestCost` now measures the original terminal parent seed-request
+recognizer. It parses the whole frame stream, reverses the stored frames and
+checks both terminal kinds, the exact request label and the exact raw little-
+endian length-64 message. It equals `ExecutableParentInputView.parseParent` on
+every input and proves structural validity, exact byte reconstruction and the
+original seed-request proposition on success. For `N` input bytes, fixed request
+label length `Kp` and message length `M`, its bound is `27*N+6*Kp+6*M+32`.
+This recognizes the existing structural view; ownership and trusted parameter
+identity are separate claims.
+
+`ParentInputHistoryCost` discovers all parent inputs from complete mixed
+histories. Starts, hashes and every output (including empty outputs) are visited.
+The resulting newest-first list exactly equals the original compact ledger's
+parent-input projection, retaining every original duplicate. If total observed
+input bytes are `I` and observation count is `H`, replay costs at most
+`27*I+A*H+1`, with `A = 6*Kp+6*M+37`. It stores at most `H` parent entries with
+total shared input byte length at most `I`. Source/helper metadata is not created
+by this projection and is not assumed free.
+
+`HistoryParentCandidatesCost.run` now computes parent-input candidates directly
+from the complete raw history and child input, without a caller-supplied parent
+ledger. It composes measured parent discovery, stored SHAKE-coordinate replay,
+raw fixed-slot child-seed parsing and filtering of every compatible parent.
+Its result equals the active-parent input projection of the full compact ledger,
+for every history and child input. Unknown seed coordinates remain wildcards;
+only observed conflicts reject, and original duplicates/order are preserved.
+With output bytes `B`, child-input bytes `N` and fixed child-seed label length
+`Kc`, its upper bound is
+`27*I+8*B+(A+459)*H+24*N+6*Kc+497+64*(6*I+14*H)*B`.
+Invalid child inputs return no candidates while retaining all replay/parse cost.
+These are abstract byte/list/access upper bounds, not attacker-work credit or
+physical runtime.
+
+Ten regressions and twenty-eight axiom guards cover strict terminal semantics,
+malformed/trailing frames, whole-history discovery, off-path/unused and duplicate
+parents, empty outputs, hash/SHAKE separation, partial seed compatibility,
+composed rejection and exact charges.
+`scripts/check` passed all 10,758 build jobs and its standard strict checks;
+the new parent-history smoke/audit also passed with `warningAsError=true`.
+Stored source/helper metadata replay,
+source snapshot selection and complete extraction composition remain open.
+Runtime size production, actor/physical/compiler/native refinement, BabyBear and
+full application security also remain required. No new axioms or proof-limit
+increases were introduced.
+
 `SizedFrameCost`, `TranscriptFrameCost` and `TranscriptFrameStreamCost` now
 measure structural parsing of the actual native transcript bytes. Each frame
 checks its kind and two little-endian u64 lengths; forged lengths traverse only
@@ -43,8 +88,10 @@ wrong/missing seed frames and raw-history all-parent composition. Twenty-five
 axiom guards cover the new contracts and compatibility proofs.
 `scripts/check` passed all 10,753 build jobs and its standard strict checks;
 the new frame-stream smoke/audit also passed with `warningAsError=true`.
-Parent seed-request
-semantics, source/helper-frame meanings and stored ledger replay, source snapshot
+At that milestone, parent seed-request
+recognition and source/helper-frame meanings remained open. The measured parent
+recognizer and complete-history candidate projection above now cover the former;
+source/helper metadata replay, source snapshot
 selection and complete extraction composition remain open. Runtime size production,
 actor/physical/compiler/native refinement, BabyBear and full application security
 also remain required. No new axioms or proof-limit increases were introduced.

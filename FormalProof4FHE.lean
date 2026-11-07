@@ -510,3 +510,6 @@ import FormalProof4FHE.HasteBoots.SizedFrameCost
 import FormalProof4FHE.HasteBoots.TranscriptFrameCost
 import FormalProof4FHE.HasteBoots.TranscriptFrameStreamCost
 import FormalProof4FHE.HasteBoots.StoredChildSeedQuote
+import FormalProof4FHE.HasteBoots.ParentSeedRequestCost
+import FormalProof4FHE.HasteBoots.ParentInputHistoryCost
+import FormalProof4FHE.HasteBoots.HistoryParentCandidatesCost
