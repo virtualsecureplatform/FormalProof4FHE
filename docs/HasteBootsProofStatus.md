@@ -7,6 +7,48 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`SizedFrameCost`, `TranscriptFrameCost` and `TranscriptFrameStreamCost` now
+measure structural parsing of the actual native transcript bytes. Each frame
+checks its kind and two little-endian u64 lengths; forged lengths traverse only
+the supplied bytes. Value equality with the original readers holds for every
+input. Successful single-frame parsing costs at most 20 times consumed bytes;
+the complete stream costs at most `24*N+1` for `N` input bytes, including
+malformed-input rejection. The bound is amortized over consumed bytes, with
+strict byte progress and no trial/frame cap or runtime length-fee proxy.
+Successful streams reconstruct the exact original encoding and canonical valid
+streams round-trip. Structural parsing does not assert protocol-stage validity.
+
+`StoredChildSeedQuote` now measures complete stream parsing, fixed slot-5 access,
+exact parent-seed label/kind recognition and the strict stored 64-byte seed read.
+It is proved equal to `NativeChildSeedView.quote` for every input. A later seed
+label does not replace the original slot, and malformed trailing data rejects
+the quote. With `K` the fixed seed-label byte length, its bound is `24*N+6*K+487`.
+The stored active-parent entry point consumes this raw quote and visits every
+supplied parent through the measured partial-exposure compatibility filter;
+it equals `ExecutableParentLedger.active` without a caller-supplied quote premise.
+
+`activeFromHistory` composes stored SHAKE replay, raw child parsing and all-parent
+filtering. Its value equals the existing active-parent algorithm using the byte
+cache of `CompactSourceHistory.reconstruct`. For history output bytes `B`,
+observations `H`, child input bytes `N`, parent count `P`, and total parent input
+bytes `S`, the upper bound is
+`8*B+5*H+24*N+6*K+493+64*(6*S+14*P)*B+454*P`.
+The caller still supplies the parent ledger; its source/helper construction and
+replay are not priced by this entry point. These are reference byte/list/access
+upper bounds, not physical runtime or attacker-work credit.
+
+Twelve regressions cover every raw kind byte, forged widths, truncation and
+trailing data, long valid streams, exact charges, fixed-slot seed semantics,
+wrong/missing seed frames and raw-history all-parent composition. Twenty-five
+axiom guards cover the new contracts and compatibility proofs.
+`scripts/check` passed all 10,753 build jobs and its standard strict checks;
+the new frame-stream smoke/audit also passed with `warningAsError=true`.
+Parent seed-request
+semantics, source/helper-frame meanings and stored ledger replay, source snapshot
+selection and complete extraction composition remain open. Runtime size production,
+actor/physical/compiler/native refinement, BabyBear and full application security
+also remain required. No new axioms or proof-limit increases were introduced.
+
 `StoredShakeByteCache` now implements observed SHAKE-coordinate lookup and
 interval writes over stored entries. Complete input-byte comparison and offset
 comparison are charged. Writes shadow older coordinates without discarding any
@@ -42,8 +84,11 @@ input separation, off-seed offsets, empty output, exact charges, short-circuit
 rejection, composition and preservation of all compatible parent records.
 `scripts/check` passed all 10,747 build jobs and its standard strict checks;
 the new stored-SHAKE smoke/audit also passed with `warningAsError=true`.
-Parent/child frame parsing, stored source/helper ledger replay, source snapshot
-selection and history-wide extraction composition remain open. Enclosing byte
+At that milestone, parent/child frame parsing and stored source/helper ledger
+replay remained open. The new raw-child parsing path above closes structural
+frame parsing and child-quote checking; parent seed-request semantics, stored
+ledger replay, snapshot selection and history-wide extraction composition remain
+open. Enclosing byte
 framing, runtime size production, actor/physical/compiler/native refinement,
 BabyBear and full application security also remain required. No new axioms or
 proof-limit increases were introduced.

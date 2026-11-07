@@ -506,3 +506,7 @@ import FormalProof4FHE.HasteBoots.PublicGoldByteExtraction
 import FormalProof4FHE.HasteBoots.StoredShakeByteCache
 import FormalProof4FHE.HasteBoots.StoredParentSeedCheck
 import FormalProof4FHE.HasteBoots.StoredShakeHistory
+import FormalProof4FHE.HasteBoots.SizedFrameCost
+import FormalProof4FHE.HasteBoots.TranscriptFrameCost
+import FormalProof4FHE.HasteBoots.TranscriptFrameStreamCost
+import FormalProof4FHE.HasteBoots.StoredChildSeedQuote
