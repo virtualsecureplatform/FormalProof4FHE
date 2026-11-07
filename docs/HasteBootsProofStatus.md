@@ -7,6 +7,48 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`StoredSourceVectorReadCost` now measures native context/root source-vector
+prefix reading into stored pairs of 64-byte vectors. It preserves both roles,
+all raw bytes, original order, duplicates and arbitrary prefix suffixes. A pair
+read costs at most 911 and consumes exactly 128 supplied bytes on success; a
+forged count stops at the first truncated context or root. The body bound is
+`916*(min(count,N/128)+1)` and the full prefix bound is `916*(N/128+1)+110`.
+All-input equality to `NativeCanonicalLookupWire.sourcesCodec.read` is proved.
+
+`StoredSourceVectorCost` adds measured canonical serialization and strict complete
+decoding. Pair serialization costs exactly 455, the body exactly `845*R+1`, and
+full serialization at most `848*R+93`. Strict decoding equals the original exact
+source-vector reader for every input, reconstructs accepted bytes, and round-trips
+every canonical stored vector. Its bound is `1764*(N/128+1)+6*N+1`. Different
+contexts sharing a root remain distinct; original duplicate pairs remain present.
+No functional context/root or serializer callback executes in these programs.
+
+`StoredRegistrySourcesCost` measures the registry-frame branch of original source
+mentions, including exact kind/label checks, strict vector decoding, output-list
+copying and full outer-frame parsing. Its viewed result equals the guarded
+registry projection of `NativeRootInputView.frameSources`. For fixed registry
+label length `K`, collection from `N` raw bytes costs at most `(3624+6*K)*N+5`.
+Invalid registry payloads contribute no pairs; malformed outer framing rejects
+the whole stream. This component does not replace the other source-mention
+formats: canonical bindings, adjacent single openings and batched messages remain
+separate measured-decoder obligations. No first-owner selection or deduplication
+is introduced. First original complete context/root registry ownership, including
+earlier unused aliases, remains a full-execution obligation.
+
+Eleven regressions and thirty-seven axiom guards cover forged counts, suffixes,
+shared roots under distinct contexts, duplicates, context/root byte fidelity,
+noncanonical count headers, truncated pairs, rejection work, exact registry
+labels, mixed payloads, whole-stream rejection and exact charges.
+`scripts/check` passed all 10,768 build jobs and its standard strict checks;
+the new stored-registry-source smoke/audit also passed with `warningAsError=true`.
+These are
+reference byte/list/access upper bounds, not physical runtime or attacker-work
+credit. Helper bindings, the remaining source formats, inherited metadata replay,
+snapshot selection and complete extraction composition remain open. Runtime size
+production, actor/physical/compiler/native refinement, BabyBear and full
+application security also remain required. No new axioms or proof-limit increases
+were introduced; existing codec encoding definitions and dependencies are unchanged.
+
 `StoredDigestVectorReadCost` now measures native digest-vector prefix reading
 into stored 64-byte vectors. A successful digest consumes exactly 64 supplied
 bytes; a forged count stops at the first truncated digest. The body bound is

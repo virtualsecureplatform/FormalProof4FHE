@@ -516,3 +516,6 @@ import FormalProof4FHE.HasteBoots.HistoryParentCandidatesCost
 import FormalProof4FHE.HasteBoots.StoredDigestVectorReadCost
 import FormalProof4FHE.HasteBoots.StoredDigestVectorCost
 import FormalProof4FHE.HasteBoots.StoredHelperRootsCost
+import FormalProof4FHE.HasteBoots.StoredSourceVectorReadCost
+import FormalProof4FHE.HasteBoots.StoredSourceVectorCost
+import FormalProof4FHE.HasteBoots.StoredRegistrySourcesCost
