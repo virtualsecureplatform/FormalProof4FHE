@@ -7,6 +7,56 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`StoredRegistryPacketCost` now strictly decodes the **terminal original
+registry packet from the actual initialized parent transcript**. It charges
+whole-stream framing, reversal, label comparison and complete source-vector
+decoding, with bound `1797*inputBytes + 6*registryLabelBytes + 1787`.
+Earlier registry frames are neither merged nor used as a fallback. Soundness
+recovers the exact terminal native packet; completeness proves every valid native
+registry input has a stored result with the identical complete ordered source
+vector. Native transcript framing and allocation domains remain explicit.
+
+`StoredGoldRegistryPacketAssociation` transports this result through the actual
+initializer origin and into the previous original-parameter association proof.
+It removes the synthetic source-payload decoder premise: the measured parser now
+consumes `initialized.parent.input` itself.
+
+`StoredGoldNativeFieldAssociation` identifies accepted extraction on an actual
+prepared native batch's pending field input. The complete parsed view comes from
+that preparation: context, root, all original ordered queries/values and the
+actual derived random count. Count positivity is derived from native geometry,
+not supplied as a successful-parser certificate. A native context/root relation
+therefore determines the stored raw field key.
+
+`StoredGoldLookupFieldAssociation.receipt_packet_key` composes both paths through
+an actual lookup dispatcher receipt. The original metadata is derived from the
+executed registered preparation; the registry decoder consumes its actual parent
+input, and extraction consumes the receipt's actual pending field input. It
+produces the original slot, raw key equality, and measured owner lookup returning
+that same slot. No caller supplies equality of either the parsed field key or the
+stored/native registry vectors. Earlier unused aliases remain included when
+proving first-original ownership, even if a later batch stops.
+
+Six regression groups exercise terminal selection, aliases and complete-key
+ownership, authoritative empty terminal registries, wrong roles/labels, malformed
+or noncanonical payloads, and incomplete/trailing whole-stream framing. Twenty
+public theorem axiom guards cover the parser, native completeness and dispatcher
+bridges. These are abstract operation counts and semantic native-program bridges;
+the strict Rust/Charon/Aeneas deserializer, physical execution and complete
+application proof remain open.
+
+Validation: `scripts/check` passed all 10,843 build jobs and its strict audit
+and smoke checks. The six new packet regression groups and 20-theorem audit also
+passed directly with `-DwarningAsError=true`. Only `propext`, `Classical.choice`
+and `Quot.sound` occur in the audited theorem reports.
+
+The next composition obligation is the actual enclosing initializer/preparation
+trace in the same causal history, then combining the receipt packet/key theorem
+with parameter identity outside the existing persistent bad event. Native frame
+allocation domains, code-root/initialization validity, PBS/application soundness,
+actor-separated physical work and compiler/backend/scheduler refinement, BabyBear
+and the final expected-work theorem still require completion.
+
 `NativeRegistryContextTrace` now proves that every original registry slot's
 native context execution is included in the successful initializer trace. This
 covers unused entries and repeated aliases, without filtering or a caller-supplied
@@ -34,9 +84,9 @@ occur in its reports.
 
 Eight theorem axiom guards cover these bridges. This is a semantic orchestration
 bridge using existing measured decoding and owner selection, not a newly refined
-physical dispatcher. The decoder still needs the actual registry packet extracted
-from the enclosing execution, and the field key must be connected to the selected
-slot by the actual claim/receipt dispatcher. Further obligations include the full
+physical dispatcher. The actual parent-packet and receipt-field-key links are now supplied by
+`StoredRegistryPacketCost` and `StoredGoldLookupFieldAssociation` above, under
+explicit native framing/allocation premises. Further obligations include the full
 protocol/application trace, code-root/initialization validity, PBS soundness,
 actor-separated physical/compiler/native backend refinement, BabyBear and the
 final expected-physical-work theorem.
@@ -93,8 +143,8 @@ also passed directly with `-DwarningAsError=true`.
 
 The measured context encoding/observation milestones above are now connected to
 the actual first-original native registry owner by `StoredGoldRegistryAssociation`.
-The next orchestration obligations are extracting the real registry packet and
-selected-field key from the actual dispatcher, and composing the full protocol
+The real registry-packet and selected-field-key links are now provided above.
+The next orchestration obligation is composing the actual enclosing protocol
 trace before completing the remaining instance and physical refinements.
 
 `StoredGeometryArithmeticCost` now supplies explicit charged power-of-two and
