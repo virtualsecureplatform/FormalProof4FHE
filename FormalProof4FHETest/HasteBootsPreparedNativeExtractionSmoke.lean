@@ -1,4 +1,5 @@
 module
+import all FormalProof4FHE.HasteBoots.RawGoldColumnCost
 import all FormalProof4FHE.HasteBoots.MerkleLeafIndexCost
 import all FormalProof4FHE.HasteBoots.CostedMerkleLeafAccess
 import all FormalProof4FHE.HasteBoots.CostedMerkleWord

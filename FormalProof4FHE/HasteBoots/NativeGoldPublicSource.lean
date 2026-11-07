@@ -1,5 +1,6 @@
 module
 public import FormalProof4FHE.HasteBoots.ExecutableMerkleAvailability
+public import FormalProof4FHE.HasteBoots.RawGoldColumnCost
 public import FormalProof4FHE.HasteBoots.CompactSourceHistory
 public import FormalProof4FHE.HasteBoots.NativeGoldExecutableExtraction
 @[expose] public section
@@ -17,13 +18,59 @@ open NativeFields (Goldilocks)
 open NativeFieldRepresentation (goldValue)
 open ExecutableMerkleAvailability (Log)
 
-def materialize (dummy root : Digest) (ctx : Context) (sourceLog : Log) :
-    Vector (Vector (Vector Goldilocks ctx.parameters.code.blockWidth.val)
-      (2^ctx.parameters.leftVariables.val*ctx.parameters.width.val)) (2^(logSize ctx.parameters.code)) :=
+/-- Measured reconstruction and field-row conversion after the incoming digest,
+root and dummy adapters. Those function-to-storage adapters are not charged here. -/
+def materializeWithCost (dummy root : Digest) (ctx : Context) (sourceLog : Log) :=
   let height := (Fin.ofNat 64 (logSize ctx.parameters.code)).val
-  let raw := ExecutableMerkleAvailability.reconstruct height dummy sourceLog root
-  Vector.ofFn (fun pos => Vector.ofFn (fun row => Vector.ofFn (fun lane =>
-    goldValue ((raw.get (Fin.ofNat (2^height) pos.val)).val[row.val*ctx.parameters.code.blockWidth.val+lane.val]?.getD 0))))
+  let storedLog := sourceLog.map (fun entry => (entry.1,PreparedMerklePayloads.store entry.2))
+  let raw := CostedMerkleWord.prepareWord height (Vector.ofFn dummy) storedLog
+    (PreparedMerklePayloads.store root)
+  let result := RawGoldColumnCost.columns (2^(logSize ctx.parameters.code))
+    (2^ctx.parameters.leftVariables.val*ctx.parameters.width.val)
+    ctx.parameters.code.blockWidth.val raw.value
+  SolverOperationCost.Run.mk result.value (raw.cost+result.cost+2)
+
+def materialize (dummy root : Digest) (ctx : Context) (sourceLog : Log) :=
+  (materializeWithCost dummy root ctx sourceLog).value
+
+theorem materialize_get (dummy root : Digest) (ctx : Context) (sourceLog : Log)
+    (pos : Fin (2^(logSize ctx.parameters.code)))
+    (row : Fin (2^ctx.parameters.leftVariables.val*ctx.parameters.width.val))
+    (lane : Fin ctx.parameters.code.blockWidth.val) :
+    (((materialize dummy root ctx sourceLog).get pos).get row).get lane =
+      goldValue (((ExecutableMerkleAvailability.reconstruct
+        (Fin.ofNat 64 (logSize ctx.parameters.code)).val dummy sourceLog root).get
+        (Fin.ofNat (2^((Fin.ofNat 64 (logSize ctx.parameters.code)).val)) pos.val)).val[
+          row.val*ctx.parameters.code.blockWidth.val+lane.val]?.getD 0) := by
+  simp only [materialize,materializeWithCost,RawGoldColumnCost.columns_get,
+    ExecutableMerkleAvailability.reconstruct]
+
+def materializeBound (ctx : Context) (sourceLog : Log) : ℕ :=
+  let height := (Fin.ofNat 64 (logSize ctx.parameters.code)).val
+  let storedLog := sourceLog.map (fun entry => (entry.1,PreparedMerklePayloads.store entry.2))
+  let n := 2^(logSize ctx.parameters.code)
+  let rows := 2^ctx.parameters.leftVariables.val*ctx.parameters.width.val
+  let lanes := ctx.parameters.code.blockWidth.val
+  208*(PreparedMerklePayloads.storedInputBytes storedLog+storedLog.length)+
+    (9*NativeFieldWire.columnDomain.length+944)*storedLog.length+
+    2^height*CostedMerkleWord.perLeaf height storedLog.length storedLog.length+3*height+8+
+    n*(RawGoldColumnCost.columnBound rows lanes+4)+3
+
+theorem materializeWithCost_cost (dummy root : Digest) (ctx : Context) (sourceLog : Log) :
+    (materializeWithCost dummy root ctx sourceLog).cost ≤ materializeBound ctx sourceLog := by
+  let height := (Fin.ofNat 64 (logSize ctx.parameters.code)).val
+  let storedLog := sourceLog.map (fun entry => (entry.1,PreparedMerklePayloads.store entry.2))
+  have raw := CostedMerkleWord.prepareWord_cost height (Vector.ofFn dummy) storedLog
+    (PreparedMerklePayloads.store root)
+  have converted := RawGoldColumnCost.columns_cost (2^(logSize ctx.parameters.code))
+    (2^ctx.parameters.leftVariables.val*ctx.parameters.width.val)
+    ctx.parameters.code.blockWidth.val
+    (CostedMerkleWord.prepareWord height (Vector.ofFn dummy) storedLog
+      (PreparedMerklePayloads.store root)).value
+  dsimp only [materializeWithCost,materializeBound]
+  change _ ≤ _ at raw converted
+  dsimp only [height,storedLog] at raw converted
+  omega
 
 def word (dummy root : Digest) (ctx : Context) (sourceLog : Log) :
     Fin (2^(logSize ctx.parameters.code)) → Row ctx → Fin ctx.parameters.code.blockWidth.val → Goldilocks :=
@@ -33,26 +80,50 @@ def word (dummy root : Digest) (ctx : Context) (sourceLog : Log) :
 theorem word_eq_analysis (dummy context root : Digest) (ctx : Context) (sourceLog : Log) :
     word dummy root ctx sourceLog = NativeGoldBatchSelectedWord.word dummy context root ctx sourceLog := by
   funext pos row lane
-  simp only [word,materialize,FiniteLinearSolver.get_ofFn,ExecutableMerkleAvailability.reconstruct_get,
+  simp only [word,materialize_get,ExecutableMerkleAvailability.reconstruct_get,
     NativeGoldBatchSelectedWord.word,NativeGoldBatchSelectedWord.values,NativeGoldBatchSelectedWord.atTag,
     NativeGoldRawAvailability.frozenValue,NativeGoldRawAvailability.frozenRaw,NativeGoldColumnChecks.view,
     NativeMerkleShapeFamily.height,finProdFinEquiv_apply_val]
   have stride : row.2.val + ctx.parameters.width.val * row.1.val = row.1.val * ctx.parameters.width.val + row.2.val := by ring
   rw [stride]
 
-/-- Extract directly from the stored columns produced by public reconstruction.
-The prepared extraction charge covers domain generation and field extraction;
-public-log reconstruction/materialization costs are still separate. -/
+/-- Compose measured public reconstruction, field-row conversion, domain
+construction and extraction. Incoming adapters and backend refinement remain open. -/
+def extractWithCost (dummy root : Digest) (ctx : Context) (sourceLog : Log) (radius : ℕ)
+    (capacity : ctx.parameters.code.messageLength.val ≤ ctx.parameters.code.messageBlocks.val*ctx.parameters.code.blockWidth.val) :=
+  let prepared := materializeWithCost dummy root ctx sourceLog
+  let result := NativeGoldExecutableExtraction.extractPreparedWithCost ctx radius capacity prepared.value
+  SolverOperationCost.Run.mk result.value (prepared.cost+result.cost+1)
+
 def extract (dummy root : Digest) (ctx : Context) (sourceLog : Log) (radius : ℕ)
     (capacity : ctx.parameters.code.messageLength.val ≤ ctx.parameters.code.messageBlocks.val*ctx.parameters.code.blockWidth.val) :=
-  (NativeGoldExecutableExtraction.extractPreparedWithCost ctx radius capacity
-    (materialize dummy root ctx sourceLog)).value
+  (extractWithCost dummy root ctx sourceLog radius capacity).value
+
+theorem extractWithCost_cost (dummy root : Digest) (ctx : Context) (sourceLog : Log) (radius : ℕ)
+    (capacity : ctx.parameters.code.messageLength.val ≤ ctx.parameters.code.messageBlocks.val*ctx.parameters.code.blockWidth.val) :
+    let n := 2^(logSize ctx.parameters.code)
+    let left := 2^ctx.parameters.leftVariables.val
+    let packing := ctx.parameters.width.val
+    let m := ctx.parameters.code.messageBlocks.val
+    let b := ctx.parameters.code.blockWidth.val
+    let size := ctx.parameters.code.messageLength.val
+    (extractWithCost dummy root ctx sourceLog radius capacity).cost ≤ materializeBound ctx sourceLog+
+      DenseCommonSource.operationBound n (left*packing) m b radius+
+      (left*packing)*(7*size+2)+left*(size*(5*packing+2)+2)+
+      n*(2*logSize ctx.parameters.code+9)+6 := by
+  have prepared := materializeWithCost_cost dummy root ctx sourceLog
+  have extracted := NativeGoldExecutableExtraction.extractPreparedWithCost_cost ctx radius capacity
+    (materialize dummy root ctx sourceLog)
+  dsimp only [extractWithCost]
+  dsimp only [materialize] at extracted
+  omega
 
 theorem extract_eq_executable (dummy root : Digest) (ctx : Context) (sourceLog : Log) (radius : ℕ)
     (capacity : ctx.parameters.code.messageLength.val ≤ ctx.parameters.code.messageBlocks.val*ctx.parameters.code.blockWidth.val) :
     extract dummy root ctx sourceLog radius capacity =
       NativeGoldExecutableExtraction.extract ctx radius capacity (word dummy root ctx sourceLog) := by
-  unfold extract
+  unfold extract extractWithCost
+  dsimp only
   rw [NativeGoldExecutableExtraction.extractPreparedWithCost_eq]
   rfl
 
