@@ -1,0 +1,224 @@
+diff --git a/src/PrePasses.ml b/src/PrePasses.ml
+index b613aba1..df0f1f99 100644
+--- a/src/PrePasses.ml
++++ b/src/PrePasses.ml
+@@ -87,6 +87,52 @@ let erase_body_regions (crate : crate) (f : fun_decl) : fun_decl =
+     ^ Print.fun_decl_to_string env "" "  " f];
+   f
+ 
++(* The Lean ctlz_nonzero runtime currently models only usize. Validate every
++   direct function reference, including function-pointer constants, before the
++   generic intrinsic declaration is treated as a builtin. *)
++let validate_ctlz_nonzero (crate : crate) (f : fun_decl) : fun_decl =
++  if Config.backend () <> Config.Lean then f
++  else
++    let pat = NameMatcher.parse_pattern "core::intrinsics::ctlz_nonzero" in
++    let mctx = NameMatcher.ctx_from_crate crate in
++    let matches =
++      NameMatcher.match_name mctx
++        {
++          map_vars_to_vars = true;
++          match_with_trait_decl_refs =
++            Config.match_patterns_with_trait_decl_refs;
++        }
++        pat
++    in
++    let visitor =
++      object
++        inherit [_] map_statement as super
++
++        method! visit_fn_ptr env ptr =
++          (match ptr.kind with
++          | FunId (FRegular id) -> (
++              match FunDeclId.Map.find_opt id crate.fun_decls with
++              | Some decl when matches decl.item_meta.name -> (
++                  match ptr.generics.types with
++                  | [ TLiteral (TUInt Usize) ] -> ()
++                  | _ ->
++                      [%craise] f.item_meta.span
++                        "ctlz_nonzero: only concrete usize instantiations are \
++                         modeled")
++              | _ -> ())
++          | _ -> ());
++          super#visit_fn_ptr env ptr
++      end
++    in
++    match f.body with
++    | StructuredBody body ->
++        {
++          f with
++          body =
++            StructuredBody { body with body = visitor#visit_block () body.body };
++        }
++    | _ -> f
++
+ (** Replace the occurrences of [core::intrinsics::unreachable] with
+     [Abort UndefinedBehavior]. This helps with the analyzes and the symbolic
+     evaluation (in particular, we stop the evaluation when encountering an
+@@ -1306,6 +1352,12 @@ let decompose_str_borrows (_ : crate) (f : fun_decl) : fun_decl =
+               *)
+               method! visit_Constant env (cv : constant_expr) =
+                 match (cv.kind, cv.ty) with
++                | ( CLiteral (VStr _),
++                    TRef (_, TAdt { id = TBuiltin TStr; _ }, RShared) ) ->
++                    (* String literals have static storage. Keep the constant so
++                       the interpreter places its shared loan in a persistent
++                       dummy binding, not a local that is invalidated on return. *)
++                    super#visit_Constant env cv
+                 | ( CLiteral (VStr str),
+                     TRef
+                       (_, (TAdt { id = TBuiltin TStr; _ } as str_ty), ref_kind)
+@@ -2271,6 +2323,7 @@ let apply_passes (crate : crate) : crate =
+   (* Passes that apply to individual function bodies *)
+   let function_passes =
+     [
++      ("validate_ctlz_nonzero", validate_ctlz_nonzero);
+       ("fix_closure_lifetimes", fix_closure_lifetimes);
+       ("erase_body_regions", erase_body_regions);
+       ("remove_unreachable", remove_unreachable);
+diff --git a/src/extract/Extract.ml b/src/extract/Extract.ml
+index 2dc4a57f..85dd55c9 100644
+--- a/src/extract/Extract.ml
++++ b/src/extract/Extract.ml
+@@ -2693,6 +2693,7 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
+   let clause_names =
+     match builtin_info with
+     | None ->
++        let used = ref Collections.StringSet.empty in
+         List.map
+           (fun (c : trait_param) ->
+             let name = ctx_compute_trait_parent_clause_name ctx trait_decl c in
+@@ -2701,6 +2702,14 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
+               if !record_fields_short_names then name
+               else ctx_compute_trait_decl_name ctx trait_decl ^ name
+             in
++            (* Short field names may coincide across records, but each parent
++               projection in this record still needs its own identifier. *)
++            let name =
++              basename_to_unique_aux
++                (fun candidate -> Collections.StringSet.mem candidate !used)
++                name_append_index name
++            in
++            used := Collections.StringSet.add name !used;
+             (c.clause_id, name))
+           trait_decl.parent_clauses
+     | Some info ->
+diff --git a/src/extract/ExtractBuiltin.ml b/src/extract/ExtractBuiltin.ml
+index 6e28b984..b90e45f5 100644
+--- a/src/extract/ExtractBuiltin.ml
++++ b/src/extract/ExtractBuiltin.ml
+@@ -614,6 +614,14 @@ let mk_builtin_funs () : (pattern * Pure.builtin_fun_info) list =
+                ^ ".from"))
+           ~can_fail:false ())
+       int_and_smaller_list
++  (* Calls are checked to have exactly the concrete usize instantiation by
++     validate_ctlz_nonzero before this generic builtin mapping is used. *)
++  @ mk_lean_only
++      [
++        mk_fun "core::intrinsics::ctlz_nonzero" ~keep_params:(Some [ false ])
++          ~keep_trait_clauses:(Some [ false ])
++          ~extract_name:(Some "HasteBootsUsizeCtlz.nonzero") ();
++      ]
+   (* Leading zeros *)
+   @ mk_scalar_fun
+       (fun ty -> "core::num::{" ^ ty ^ "}::leading_zeros")
+diff --git a/src/extract/ExtractTypes.ml b/src/extract/ExtractTypes.ml
+index 37171763..0624bebf 100644
+--- a/src/extract/ExtractTypes.ml
++++ b/src/extract/ExtractTypes.ml
+@@ -10,10 +10,22 @@ module T = Types
+ let extract_str (_span : Meta.span) (fmt : F.formatter) ~(inside : bool)
+     (s : string) : unit =
+   let chars = StringUtils.string_to_chars s in
+-  (* Using the OCaml escape conventions for now.
+-
+-     TODO: does this really work? *)
+-  let s = String.concat "" (List.map Char.escaped chars) in
++  (* Lean string literals contain UTF-8 directly. Escape ASCII syntax/control
++     bytes using Lean conventions; retain other backend conventions. *)
++  let escape c =
++    if backend () <> Lean then Char.escaped c
++    else
++      match c with
++      | '"' -> "\\\""
++      | '\\' -> "\\\\"
++      | '\n' -> "\\n"
++      | '\r' -> "\\r"
++      | '\t' -> "\\t"
++      | c when Char.code c < 32 || Char.code c = 127 ->
++          Printf.sprintf "\\u%04x" (Char.code c)
++      | c -> String.make 1 c
++  in
++  let s = String.concat "" (List.map escape chars) in
+   let s = "\"" ^ s ^ "\"" in
+ 
+   (* We need to convert the string to a str (the conversion inserts a static check
+@@ -22,6 +34,10 @@ let extract_str (_span : Meta.span) (fmt : F.formatter) ~(inside : bool)
+   F.pp_print_string fmt "toStr";
+   F.pp_print_space fmt ();
+   F.pp_print_string fmt s;
++  if backend () = Lean then
++    F.pp_print_string fmt
++      " (by simp only [U32.max, U32.numBits, UScalarTy.U32_numBits_eq]; decide \
++       +kernel)";
+   if inside then F.pp_print_string fmt ")"
+ 
+ (** Format a constant value.
+diff --git a/src/llbc/FunsAnalysis.ml b/src/llbc/FunsAnalysis.ml
+index ab1fbdfe..100d186d 100644
+--- a/src/llbc/FunsAnalysis.ml
++++ b/src/llbc/FunsAnalysis.ml
+@@ -213,9 +213,12 @@ let analyze_module (m : crate) (funs_map : fun_decl FunDeclId.Map.t) :
+       let builtin_info = get_builtin_info f in
+       let has_builtin_info = builtin_info <> None in
+       group_has_builtin_info := !group_has_builtin_info || has_builtin_info;
+-      match f.body with
+-      | StructuredBody body -> obj#visit_block body.body.span body.body
+-      | TargetDispatchBody targets ->
++      (* Extracted builtin calls use the backend model, even when Charon also
++         retained a Rust body. Its declared effects determine the model's type. *)
++      match (builtin_info, f.body) with
++      | Some info, _ -> obj#may_fail info.can_fail
++      | None, StructuredBody body -> obj#visit_block body.body.span body.body
++      | None, TargetDispatchBody targets ->
+           (* get_target can fail, and so can each target function *)
+           obj#may_fail true;
+           (* Also propagate effects from the target implementations *)
+@@ -223,13 +226,7 @@ let analyze_module (m : crate) (funs_map : fun_decl FunDeclId.Map.t) :
+             (fun ((_target_name : string), (fdr : Types.fun_decl_ref)) ->
+               obj#visit_fid f.item_meta.span fdr.id)
+             targets
+-      | _ ->
+-          let info_can_fail =
+-            match builtin_info with
+-            | None -> true
+-            | Some { can_fail } -> can_fail
+-          in
+-          obj#may_fail info_can_fail
++      | None, _ -> obj#may_fail true
+     in
+     List.iter visit_fun d;
+     (* We need to know if the declaration group contains a global - note that
+diff --git a/src/llbc/Substitute.ml b/src/llbc/Substitute.ml
+index fbd7f003..94d66db1 100644
+--- a/src/llbc/Substitute.ml
++++ b/src/llbc/Substitute.ml
+@@ -7,6 +7,18 @@ open Types
+ open Values
+ open LlbcAst
+ 
++(* Aeneas runtime field types erase every lifetime, including 'static.
++   Charon's generic substitution erases region variables but preserves 'static. *)
++let type_decl_get_instantiated_field_etypes def opt_variant_id generics =
++  let erase =
++    object
++      inherit [_] map_ty
++      method! visit_region _ _ = RErased
++    end
++  in
++  List.map (erase#visit_ty ())
++    (type_decl_get_instantiated_field_types def opt_variant_id generics)
++
+ (* Fails if the variable is bound *)
+ let expect_free_var span (var : 'id de_bruijn_var) : 'id =
+   match var with
