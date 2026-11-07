@@ -3,6 +3,7 @@ import all FormalProof4FHE.HasteBoots.SolverOperationCost
 import all FormalProof4FHE.HasteBoots.BerlekampWelchPowers
 import all FormalProof4FHE.HasteBoots.BerlekampWelchSystem
 import all FormalProof4FHE.HasteBoots.BlockEvaluationCost
+import all FormalProof4FHE.HasteBoots.ColumnDistanceCost
 import all FormalProof4FHE.HasteBoots.ExecutableSourceCoefficients
 import all FormalProof4FHE.HasteBoots.ExecutableCommonSource
 import all FormalProof4FHE.HasteBoots.ExecutableBerlekampWelch
@@ -44,3 +45,15 @@ private def differentColumns (pos : Fin 5) (row lane : Fin 2) : ZMod 7 :=
 #eval let table := ExecutableSourceCoefficients.extract 1 points (size := 3) (m := 2) (b := 2) (by decide) sameColumn
       decide (((table.get 0).get 0 = 1) ∧ ((table.get 0).get 1 = 2) ∧ ((table.get 0).get 2 = 3) ∧
         ((table.get 1).get 0 = 2))
+
+-- The measured final check preserves the joint column radius and has one
+-- data-independent charge for evaluation, scanning and the radius comparison.
+/-- info: true -/
+#guard_msgs in
+#eval let run := ExecutableCommonSource.checkWithCost 1 points sameColumn source
+      run.value && decide (run.cost = 634)
+
+/-- info: true -/
+#guard_msgs in
+#eval let run := ExecutableCommonSource.checkWithCost 1 points differentColumns source
+      !run.value && decide (run.cost = 634)

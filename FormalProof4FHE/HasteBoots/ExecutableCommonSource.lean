@@ -1,6 +1,7 @@
 module
 public import FormalProof4FHE.HasteBoots.ExecutableBerlekampWelch
 public import FormalProof4FHE.HasteBoots.BlockEvaluationCost
+public import FormalProof4FHE.HasteBoots.ColumnDistanceCost
 @[expose] public section
 
 /-! A materialized decoder for an entire matrix of block symbols.
@@ -43,11 +44,29 @@ def candidates (e : ℕ) (points : Fin n → F) (raw : Fin n → Fin rows → Fi
 def zeroTable : Table F rows m b :=
   Vector.ofFn (fun _ => Vector.ofFn (fun _ => Vector.ofFn (fun _ => 0)))
 
-def decode (e : ℕ) (points : Fin n → F) (raw : Fin n → Fin rows → Fin b → F) : Table F rows m b :=
-  let table := candidates e points raw
-  let evaluated := materialize points table
-  if hammingDist raw (fun pos row lane => ((evaluated.get pos).get row).get lane) ≤ e then table
-  else zeroTable
+/-- Scan charge starts after materialization of the raw input functions. -/
+def distanceWithCost (raw : Fin n → Fin rows → Fin b → F)
+    (evaluated : ColumnDistanceCost.Columns F n rows b) : SolverOperationCost.Run ℕ :=
+  ColumnDistanceCost.distance
+    (Vector.ofFn (fun pos => Vector.ofFn (fun row => Vector.ofFn (raw pos row)))) evaluated
+
+omit [Field F] in
+theorem distanceWithCost_value (raw : Fin n → Fin rows → Fin b → F)
+    (evaluated : ColumnDistanceCost.Columns F n rows b) :
+    (distanceWithCost raw evaluated).value =
+      hammingDist raw (fun pos row lane => ((evaluated.get pos).get row).get lane) := by
+  have rawEq : ColumnDistanceCost.word
+      (Vector.ofFn (fun pos => Vector.ofFn (fun row => Vector.ofFn (raw pos row)))) = raw := by
+    funext pos row lane
+    simp only [ColumnDistanceCost.word,FiniteLinearSolver.get_ofFn]
+  rw [distanceWithCost,ColumnDistanceCost.distance_value,rawEq]
+  rfl
+
+omit [Field F] in
+theorem distanceWithCost_cost (raw : Fin n → Fin rows → Fin b → F)
+    (evaluated : ColumnDistanceCost.Columns F n rows b) :
+    (distanceWithCost raw evaluated).cost = n*(rows*(6*b+7)+8)+2 :=
+  ColumnDistanceCost.distance_cost _ _
 
 omit [DecidableEq F] in
 theorem materialize_get (points : Fin n → F) (table : Table F rows m b)
@@ -55,6 +74,30 @@ theorem materialize_get (points : Fin n → F) (table : Table F rows m b)
     (((materialize points table).get pos).get row).get lane = word points table pos row lane := by
   simp only [materialize,materializeWithCost,BlockEvaluationCost.evaluate_get,FiniteLinearSolver.get_ofFn,word]
   rfl
+
+/-- Cost of the final candidate evaluation, joint distance scan and comparison.
+Preparation of input point/raw vectors is excluded. This is not candidate decoding. -/
+def checkWithCost (e : ℕ) (points : Fin n → F) (raw : Fin n → Fin rows → Fin b → F)
+    (table : Table F rows m b) : SolverOperationCost.Run Bool :=
+  let evaluated := materializeWithCost points table
+  let scanned := distanceWithCost raw evaluated.value
+  ⟨decide (scanned.value ≤ e),evaluated.cost+scanned.cost+1⟩
+
+theorem checkWithCost_value (e : ℕ) (points : Fin n → F) (raw : Fin n → Fin rows → Fin b → F)
+    (table : Table F rows m b) :
+    (checkWithCost e points raw table).value = decide (hammingDist raw (word points table) ≤ e) := by
+  change decide ((distanceWithCost raw (materialize points table)).value ≤ e) = _
+  simp only [distanceWithCost_value,materialize_get]
+
+theorem checkWithCost_cost (e : ℕ) (points : Fin n → F) (raw : Fin n → Fin rows → Fin b → F)
+    (table : Table F rows m b) :
+    (checkWithCost e points raw table).cost = n*(5*m+rows*(b*(6*m+8)+9)+18)+4 := by
+  simp only [checkWithCost,materializeWithCost_cost,distanceWithCost_cost]
+  ring
+
+def decode (e : ℕ) (points : Fin n → F) (raw : Fin n → Fin rows → Fin b → F) : Table F rows m b :=
+  let table := candidates e points raw
+  if (checkWithCost e points raw table).value then table else zeroTable
 
 omit [DecidableEq F] in
 @[simp] theorem zeroTable_input (row : Fin rows) (j : Fin m) (lane : Fin b) :
@@ -105,7 +148,7 @@ theorem decode_complete [NeZero n] [NeZero m]
     (nearby : hammingDist raw (word points source) ≤ e) : decode e points raw = source := by
   unfold decode
   rw [candidates_complete e points raw source radius dimension nearby]
-  simp only [materialize_get,ite_eq_left nearby]
+  simp only [checkWithCost_value,decide_eq_true_eq,ite_eq_left nearby]
 
 omit [DecidableEq F] in
 theorem word_representation [NeZero m] [NeZero b] (points : Fin n ↪ F)
@@ -125,7 +168,7 @@ theorem decode_fallback [NeZero b] (e : ℕ) (points : Fin n ↪ F)
     (far : ¬∃ source, CommonSource.RowsIn (BlockCode.code points m b) source ∧ hammingDist raw source ≤ e) :
     decode e points raw = (zeroTable : Table F rows m b) := by
   unfold decode
-  simp only [materialize_get]
+  simp only [checkWithCost_value,decide_eq_true_eq]
   apply ite_eq_right
   intro close
   exact far ⟨word points (candidates e points raw),word_rowsIn points _,close⟩
