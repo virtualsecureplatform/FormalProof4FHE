@@ -1,4 +1,8 @@
 module
+import all FormalProof4FHE.HasteBoots.BytePrefixMatchCost
+import all FormalProof4FHE.HasteBoots.IntegerEncodingCost
+import all FormalProof4FHE.HasteBoots.RowEncodingCost
+import all FormalProof4FHE.HasteBoots.CostedMerkleLeaf
 import all FormalProof4FHE.HasteBoots.UsizeVectorCost
 import all FormalProof4FHE.HasteBoots.BytePrefixCost
 import all FormalProof4FHE.HasteBoots.IntegerPrefixCost

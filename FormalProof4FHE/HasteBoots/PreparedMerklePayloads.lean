@@ -25,6 +25,46 @@ def store (label : Digest) : StoredDigest := ⟨List.ofFn label,by simp⟩
 def prepare (log : QueryLog Input Digest) : List Entry :=
   log.map (fun entry => ⟨store entry.2,NativeMerkleRoleDecoders.leaf.decode entry.1⟩)
 
+/-- Full strict payload preparation after labels are stored bytes. Digest
+materialization from the public function representation remains separate. -/
+def prepareStoredWithCost : List (Input × StoredDigest) → Run (List Entry)
+  | [] => ⟨[],1⟩
+  | (input,label)::tail =>
+    let payload := CostedMerkleLeaf.decode input
+    let rest := prepareStoredWithCost tail
+    ⟨⟨label,payload.value⟩::rest.value,payload.cost+rest.cost+4⟩
+
+theorem prepareStoredWithCost_value (log : List (Input × StoredDigest)) :
+    (prepareStoredWithCost log).value =
+      log.map (fun entry => (⟨entry.2,NativeMerkleRoleDecoders.leaf.decode entry.1⟩ : Entry)) := by
+  induction log with
+  | nil => rfl
+  | cons head tail ih =>
+    rcases head with ⟨input,label⟩
+    simp only [prepareStoredWithCost,List.map_cons,ih]
+    rfl
+
+/-- Analysis-only size of supplied inputs, not a charge or runtime callback. -/
+def storedInputBytes : List (Input × StoredDigest) → ℕ
+  | [] => 0
+  | head::tail => head.1.length+storedInputBytes tail
+
+theorem prepareStoredWithCost_cost (log : List (Input × StoredDigest)) :
+    (prepareStoredWithCost log).cost ≤ 208*(storedInputBytes log+log.length)+
+      (9*NativeFieldWire.columnDomain.length+29)*log.length+1 := by
+  induction log with
+  | nil => simp [prepareStoredWithCost,storedInputBytes]
+  | cons head tail ih =>
+    rcases head with ⟨input,label⟩
+    have first := CostedMerkleLeaf.decode_cost input
+    simp only [prepareStoredWithCost,storedInputBytes,List.length_cons]
+    nlinarith
+
+theorem prepareStoredWithCost_raw (log : QueryLog Input Digest) :
+    (prepareStoredWithCost (log.map (fun entry => (entry.1,store entry.2)))).value = prepare log := by
+  rw [prepareStoredWithCost_value]
+  simp only [prepare,List.map_map,Function.comp_def]
+
 def byteEqual : List Byte → List Byte → Run Bool
   | [],[] => ⟨true,1⟩
   | [],_::_ => ⟨false,1⟩
