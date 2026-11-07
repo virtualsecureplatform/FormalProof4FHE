@@ -1,0 +1,213 @@
+#!/usr/bin/env python3
+"""Compare official/patched extraction and kernel-check static byte constant regressions."""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+DATA = ROOT / 'interop/aeneas/static-bytes'
+SLICES = runpy.run_path(str(ROOT / 'scripts/probe-hasteboots-static-slices'))
+STRINGS = runpy.run_path(str(ROOT / 'scripts/probe-hasteboots-static-strings'))
+PARAMETERS = runpy.run_path(str(ROOT / 'scripts/extract-hasteboots-parameters'))
+BUILD = runpy.run_path(str(ROOT / 'scripts/build-hasteboots-static-frontend'))
+COMMON = PARAMETERS['COMMON']
+FUNCTIONS = ['domain', 'array', 'empty', 'copy_domain', 'escaped', 'preserve_borrow']
+PROOFS = ['domain_bytes', 'array_bytes', 'empty_bytes', 'copied_bytes', 'escaped_bytes',
+          'borrow_identity', 'domain_length', 'domain_model']
+
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def clear_colors(text):
+    return re.sub(r'\x1b\[[0-9;?]*[A-Za-z]', '', text)
+
+
+def validate_output(raw):
+    if raw.count('import Aeneas\n') != 1 or not raw.rstrip().endswith('end hasteboots_static_bytes'):
+        raise RuntimeError('Missing imports or truncated generated namespace')
+    if re.search(r'\b(axiom|opaque|constant|sorry|sorryAx|native_decide|unsafe)\b|decide\s*\+native', raw):
+        raise RuntimeError('Admitted, opaque or native-proof generated declaration')
+    for name in FUNCTIONS:
+        if not re.search(r'^def ' + name + r'\s', raw, re.M):
+            raise RuntimeError('Missing generated function: ' + name)
+    limits = re.findall(r'^set_option (maxHeartbeats|maxRecDepth) ([0-9]+)$', raw, re.M)
+    if limits != [('maxHeartbeats', '200000'), ('maxRecDepth', '1000')]:
+        raise RuntimeError('Unexpected generated proof limits')
+    return raw.replace('import Aeneas\n', 'import Aeneas.Std\nimport Aeneas.Tactic.RustAttributes\nimport FormalProof4FHE.HasteBoots.NativeGoldBlockCode\n')
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--tools', type=Path, required=True, help='Unchanged pinned official release')
+    parser.add_argument('--backend', type=Path, required=True, help='Prepared pinned Lean backend')
+    parser.add_argument('--build-receipt', type=Path, required=True, help='Passed isolated frontend build manifest')
+    args = parser.parse_args()
+    tools, backend = args.tools.resolve(), args.backend.resolve()
+    parent = ROOT / 'build/hasteboots-extraction'
+    parent.mkdir(parents=True, exist_ok=True)
+    artifacts = Path(tempfile.mkdtemp(prefix='static-byte-probe-', dir=parent))
+    manifest = {'status': 'started', 'claim': 'frontend regression only; compiler/security correctness unproved',
+                'commands': [], 'proof_limits': {'maxHeartbeats': 200000, 'maxRecDepth': 1000},
+                'script_sha256': digest(Path(__file__).read_bytes())}
+
+    def save():
+        (artifacts / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+
+    def run(command, name, require_success=True):
+        manifest['commands'].append([str(x) for x in command]); save()
+        with (artifacts / name).open('w') as log:
+            result = subprocess.run([str(x) for x in command], cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
+        if require_success and result.returncode:
+            raise RuntimeError(f'{name} exited {result.returncode}')
+        return result.returncode
+
+    print('Probe artifacts: ' + str(artifacts), flush=True); save()
+    try:
+        for name, expected in PARAMETERS['TOOLS'].items():
+            if digest((tools / name).read_bytes()) != expected:
+                raise RuntimeError('Official tool hash differs: ' + name)
+        manifest['backend_patches'] = PARAMETERS['verify_backend'](backend, artifacts)
+        receipt = json.loads(args.build_receipt.read_text())
+        if receipt.get('profile') != 'static-bytes':
+            raise RuntimeError('Wrong frontend profile')
+        if receipt.get('status') != 'passed':
+            raise RuntimeError('Frontend build receipt did not pass')
+        if receipt.get('script_sha256') != digest((ROOT / 'scripts/build-hasteboots-static-frontend').read_bytes()):
+            raise RuntimeError('Stale frontend builder policy')
+        source = Path(receipt['source'])
+        patch_hash = BUILD['verify_source'](source, 'static-bytes')
+        if receipt.get('patch_sha256') != patch_hash:
+            raise RuntimeError('Stale frontend patch receipt')
+        profile_hash = digest((BUILD['DATA'] / 'opam-packages.json').read_bytes())
+        if receipt.get('package_profile_sha256') != profile_hash:
+            raise RuntimeError('Stale frontend package profile')
+        frontend = Path(receipt['executable'])
+        if digest(frontend.read_bytes()) != receipt['executable_sha256']:
+            raise RuntimeError('Frontend executable differs from build receipt')
+        manifest['build_receipt_sha256'] = digest(args.build_receipt.read_bytes())
+        manifest['frontend_sha256'] = receipt['executable_sha256']
+        manifest['frontend_patch_sha256'] = patch_hash
+        manifest['source_revision'] = BUILD['PIN']
+        manifest['charon_revision'] = BUILD['CHARON_PIN']
+        fixture = artifacts / 'fixture.rs'
+        fixture.write_bytes((DATA / 'fixture.rs').read_bytes())
+        manifest['fixture_sha256'] = digest(fixture.read_bytes())
+        llbc = artifacts / 'hasteboots_static_bytes.llbc'
+        run([tools / 'charon', 'rustc', '--preset=aeneas', '--raw-consts', '--dest-file', llbc, '--', '--crate-type', 'lib',
+             '--edition=2024', '--crate-name', 'hasteboots_static_bytes', fixture], 'charon.log')
+        ir = json.loads(llbc.read_text())
+        if ir.get('has_errors') is not False:
+            raise RuntimeError('Charon reported incomplete extraction')
+        target = ir['translated']['target_information']
+        if target != [{'key': 'x86_64-unknown-linux-gnu', 'value': {'target_pointer_size': 8, 'is_little_endian': True}}]:
+            raise RuntimeError('Unexpected extraction target')
+        manifest['target_information'] = target
+        manifest['llbc_sha256'] = digest(llbc.read_bytes())
+        options = ['-backend', 'lean', '-checks', '-sequential', '-max-heartbeats', '200000', '-max-recdepth', '1000', '-abort-on-error']
+        baseline = run([tools / 'aeneas', *options, '-dest', artifacts / 'official', llbc], 'official.log', False)
+        baseline_log = clear_colors((artifacts / 'official.log').read_text())
+        if baseline == 0 and not re.search(r'Uncaught exception|\[Error\]', baseline_log):
+            raise RuntimeError('Official failure baseline unexpectedly passed')
+        if 'Found unexpected constant' not in baseline_log or 'Compiler source: interp/InterpExpressions.ml' not in baseline_log:
+            raise RuntimeError('Official baseline failed for an unexpected reason')
+        manifest['official_returncode'] = baseline
+        manifest['official_status'] = 'failed_as_expected'
+        run([frontend, *options, '-dest', artifacts / 'patched', llbc], 'patched.log')
+        if re.search(r'Uncaught exception|\[Error\]', clear_colors((artifacts / 'patched.log').read_text())):
+            raise RuntimeError('Patched frontend reported errors despite its exit code')
+        generated = artifacts / 'patched/HastebootsStaticBytes.lean'
+        raw = generated.read_text()
+        runtime = validate_output(raw)
+        manifest['generated_sha256'] = digest(generated.read_bytes())
+        manifest['import_only_sha256'] = digest(runtime.encode())
+        proof = (DATA / 'Proof.lean').read_text()
+        PARAMETERS['validate_proof_source'](proof, PROOFS)
+        manifest['proof_sha256'] = digest(proof.encode())
+        names = ['hasteboots_static_bytes.' + n for n in FUNCTIONS]
+        names += ['HasteBootsStaticBytesProof.' + n for n in PROOFS]
+        negative_results = {}
+        for negative in ['unsupported-mut', 'unsupported-nested', 'unsupported-wide']:
+            fixture = artifacts / (negative + '.rs')
+            fixture.write_bytes((DATA / (negative + '.rs')).read_bytes())
+            negative_llbc = artifacts / (negative + '.llbc')
+            run([tools / 'charon', 'rustc', '--preset=aeneas', '--raw-consts', '--dest-file', negative_llbc, '--', '--crate-type', 'lib',
+                 '--edition=2024', '--crate-name', 'hasteboots_negative', fixture], negative + '-charon.log')
+            negative_ir = json.loads(negative_llbc.read_text())
+            if negative_ir.get('has_errors') is not False or negative_ir['translated']['target_information'] != target:
+                raise RuntimeError('Invalid negative Rust fixture: ' + negative)
+            status = run([frontend, *options, '-dest', artifacts / negative, negative_llbc], negative + '.log', False)
+            log = clear_colors((artifacts / (negative + '.log')).read_text())
+            if status == 0 or not re.search(r'Uncaught exception|\[Error\]', log):
+                raise RuntimeError('Unsupported case unexpectedly accepted: ' + negative)
+            negative_results[negative] = {'status': 'rejected', 'exit_code': status,
+                'fixture_sha256': digest(fixture.read_bytes()), 'llbc_sha256': digest(negative_llbc.read_bytes())}
+        manifest['negative_results'] = negative_results
+        # The earlier static-string fixes are part of this patch profile too.
+        strings_fixture = artifacts / 'strings.rs'
+        strings_fixture.write_bytes((STRINGS['DATA'] / 'fixture.rs').read_bytes())
+        strings_llbc = artifacts / 'hasteboots_static_strings.llbc'
+        run([tools / 'charon', 'rustc', '--preset=aeneas', '--raw-consts', '--dest-file', strings_llbc, '--', '--crate-type', 'lib',
+             '--edition=2024', '--crate-name', 'hasteboots_static_strings', strings_fixture], 'strings-charon.log')
+        strings_ir = json.loads(strings_llbc.read_text())
+        if strings_ir.get('has_errors') is not False or strings_ir['translated']['target_information'] != target:
+            raise RuntimeError('Incomplete static-string regression extraction')
+        run([frontend, *options, '-dest', artifacts / 'strings', strings_llbc], 'strings-aeneas.log')
+        strings_raw = (artifacts / 'strings/HastebootsStaticStrings.lean').read_text()
+        strings_runtime = STRINGS['validate_output'](strings_raw)
+        strings_proof = (STRINGS['DATA'] / 'Proof.lean').read_text()
+        PARAMETERS['validate_proof_source'](strings_proof, STRINGS['PROOFS'])
+        runtime += '\n' + strings_runtime.replace('import Aeneas.Std\n', '').replace('import Aeneas.Tactic.RustAttributes\n', '')
+        proof += '\n' + strings_proof
+        names += ['hasteboots_static_strings.' + n for n in STRINGS['FUNCTIONS']]
+        names += ['HasteBootsStaticStringsProof.' + n for n in STRINGS['PROOFS']]
+        manifest['strings_regression'] = {'fixture_sha256': digest(strings_fixture.read_bytes()),
+            'llbc_sha256': digest(strings_llbc.read_bytes()), 'generated_sha256': digest(strings_raw.encode()),
+            'proof_sha256': digest(strings_proof.encode())}
+        slices_fixture = artifacts / 'slices.rs'
+        slices_fixture.write_bytes((SLICES['DATA'] / 'fixture.rs').read_bytes())
+        slices_llbc = artifacts / 'hasteboots_static_slices.llbc'
+        run([tools / 'charon', 'rustc', '--preset=aeneas', '--raw-consts', '--dest-file', slices_llbc, '--', '--crate-type', 'lib',
+             '--edition=2024', '--crate-name', 'hasteboots_static_slices', slices_fixture], 'slices-charon.log')
+        slices_ir = json.loads(slices_llbc.read_text())
+        if slices_ir.get('has_errors') is not False or slices_ir['translated']['target_information'] != target:
+            raise RuntimeError('Incomplete static-slice regression extraction')
+        run([frontend, *options, '-dest', artifacts / 'slices', slices_llbc], 'slices-aeneas.log')
+        slices_raw = (artifacts / 'slices/HastebootsStaticSlices.lean').read_text()
+        slices_runtime = SLICES['validate_output'](slices_raw)
+        slices_proof = (SLICES['DATA'] / 'Proof.lean').read_text()
+        PARAMETERS['validate_proof_source'](slices_proof, SLICES['PROOFS'])
+        runtime += '\n' + slices_runtime.replace('import Aeneas.Std\n', '').replace('import Aeneas.Tactic.RustAttributes\n', '')
+        proof += '\n' + slices_proof
+        names += ['hasteboots_static_slices.' + n for n in SLICES['FUNCTIONS']]
+        names += ['HasteBootsStaticSlicesProof.' + n for n in SLICES['PROOFS']]
+        manifest['slices_regression'] = {'fixture_sha256': digest(slices_fixture.read_bytes()),
+            'llbc_sha256': digest(slices_llbc.read_bytes()), 'generated_sha256': digest(slices_raw.encode()),
+            'proof_sha256': digest(slices_proof.encode())}
+        checked = artifacts / 'Checked.lean'
+        checked.write_text(runtime + '\n' + proof + ''.join('\n#print axioms ' + n + '\n' for n in names))
+        manifest['checked_sha256'] = digest(checked.read_bytes())
+        run([ROOT / 'scripts/in-container', 'lake', 'build', 'FormalProof4FHE.HasteBoots.NativeGoldBlockCode'], 'model-build.log')
+        run([ROOT / 'scripts/in-container', 'bash', '-euc',
+             'project_path=$(lake env printenv LEAN_PATH); cd -- "$1"; backend_path=$(lake env printenv LEAN_PATH); '
+             'LEAN_PATH="$project_path:$backend_path" lean -DwarningAsError=true "$2"', '_',
+             COMMON['container_path'](backend / 'backends/lean'), COMMON['container_path'](checked)], 'lean.log')
+        manifest['dependency_audit'] = PARAMETERS['audit_log']((artifacts / 'lean.log').read_text(), names)
+        manifest['status'] = 'passed'
+        print('Static-byte regression passed: 43 dependency audits; 3 unsupported cases rejected; native metadata refinement unproved')
+    except (Exception, SystemExit) as error:
+        manifest['status'] = 'failed'; manifest['error'] = str(error)
+        raise SystemExit(f'Static-byte probe failed; inspect {artifacts}: {error}') from error
+    finally:
+        manifest['logs'] = {p.name: digest(p.read_bytes()) for p in artifacts.glob('*.log')}
+        save()
+
+
+if __name__ == '__main__':
+    main()

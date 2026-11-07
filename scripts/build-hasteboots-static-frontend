@@ -14,7 +14,8 @@ OPAM_SHA512 = 'd4271d2387751313d5f904e8fdb3133ea893c72d09737139266d2bbe7624f8166
 DATA = ROOT / 'interop/aeneas/static-strings'
 PROFILES = {'static-strings': DATA, 'usize-ctlz': ROOT / 'interop/aeneas/usize-ctlz',
             'constructor-typing': ROOT / 'interop/aeneas/constructor-typing',
-            'static-slices': ROOT / 'interop/aeneas/static-slices'}
+            'static-slices': ROOT / 'interop/aeneas/static-slices',
+            'static-bytes': ROOT / 'interop/aeneas/static-bytes'}
 
 
 def digest(data):
