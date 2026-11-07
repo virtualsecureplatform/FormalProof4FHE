@@ -7,6 +7,32 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`CostedMerkleTree` now constructs the public partial tree with a concrete
+measured program over stored root/dummy bytes and prepared nodes. It charges
+first-response lookup, copies of both stored child labels, and subtree/absent
+construction; no arbitrary resolver callback executes in this program.
+`StoredDigestView` supplies proved views and the charged conversion of known
+64-byte vectors. Tree construction is proved equal to the existing resolver
+recurrence for every height and prepared node table. With `A = 394*L+269` and
+`N = 2^height`, its bound is `treeCost + A ≤ (A+3)*N`.
+
+The combined `prepareTree` entry point prepares strict leaf and node data once
+and constructs the tree. After labels/root/dummy are stored, its bound is
+`cost + A ≤ 208*(B+L)+(9*d+944)*L+(A+3)*N+5`, where `B` is total supplied input
+byte length and `d` the leaf-role domain size. Public reconstruction now calls
+this implementation; its original all-height word-equality theorem remains
+proved. Eleven runtime regressions cover exact charges, height zero with a long
+prepared log, absent and partial branches, malformed-first aliases, cyclic dummy
+labels, ordered leaf positions and combined preparation. Seventeen axiom guards
+cover the adapters, construction, costs and retained public reconstruction.
+Incoming digest/root/dummy adapters, leaf traversal/materialization, field row
+materialization, full extractor-wide composition and physical/compiler/backend
+refinement remain open, along with full application security. The new tree
+smoke/audit, affected public-source smoke/audit and prepared extraction smoke
+passed with `warningAsError=true`; existing encoding axiom guards remain unchanged.
+`scripts/check` passed all 10,729 build jobs and its standard strict checks.
+No new axioms or proof-limit increases were introduced.
+
 `FixedByteReadCost` and `CostedMerkleNode` now measure exact-width byte reads
 into stored vectors and strict native node decoding. The generic prefix-reader
 bound is `7*min(width,inputBytes)+4`; native nodes contain two raw 64-byte digests
@@ -29,7 +55,7 @@ large suffixes, all child bytes, exact charges and malformed-first aliases.
 Three additional public reconstruction cases distinguish malformed versus absent
 responses and preserve repeated dummy-label fallback through multiple levels.
 Twenty-seven axiom guards cover the new contracts and retained reconstruction
-meaning. Digest/root/dummy adapters, tree traversal and row materialization,
+meaning. Digest/root/dummy adapters, leaf traversal and row materialization,
 full extractor-wide work composition and physical/compiler/backend refinement
 remain open, along with full application security. The new node smoke/audit,
 affected public-source smoke/audit and prepared native extraction smoke passed
@@ -55,7 +81,7 @@ malformed entries and first-valid lookup semantics. Its charge is at most
 `208*(B+L)+(9*domainBytes+29)*L+1` for total supplied byte length `B` and entry
 count `L`. Its result is proved equal to public-log preparation after the digest
 adapter. The bound excludes that adapter: public-function digest materialization,
-tree construction/traversal, remaining extractor-wide
+leaf traversal/materialization, remaining extractor-wide
 cost composition and physical/compiler/backend refinement remain required.
 Full application security remains open.
 Thirteen runtime regressions cover prefix/suffix equality, every integer width,
@@ -129,7 +155,7 @@ bounds; the scan invokes no decoder or arbitrary callback. Its abstract byte,
 list/access and control charge is at most `394*L+1` for `L` prepared entries.
 A successful matching head costs exactly 389, and appending any entries after a
 successful prepared prefix preserves both result and scan charge. Digest materialization,
-Merkle tree construction/traversal, field conversion and
+leaf traversal/materialization, field conversion and
 physical/backend execution still need their own cost proofs before this can be
 composed into a complete extractor-work theorem. Full application security
 remains open.
