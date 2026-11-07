@@ -487,3 +487,7 @@ import FormalProof4FHE.HasteBoots.BytePrefixCost
 import FormalProof4FHE.HasteBoots.IntegerPrefixCost
 import FormalProof4FHE.HasteBoots.IntegerPrefixProgress
 import FormalProof4FHE.HasteBoots.UsizeVectorCost
+import FormalProof4FHE.HasteBoots.BytePrefixMatchCost
+import FormalProof4FHE.HasteBoots.IntegerEncodingCost
+import FormalProof4FHE.HasteBoots.RowEncodingCost
+import FormalProof4FHE.HasteBoots.CostedMerkleLeaf
