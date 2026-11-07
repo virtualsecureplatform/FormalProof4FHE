@@ -7,6 +7,22 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+The common-source decoder's final candidate-table evaluation now uses
+`BlockEvaluationCost`: consecutive powers are shared across all rows and lanes
+at each position. Its output is proved equal to `BlockEncoder.encode`, so the
+existing whole-column distance check and exact analysis-decoder correspondence
+are preserved. For `n` positions, `r` rows, message width `m` and lane width `b`,
+the exact abstract field/access charge is
+`n * (5*m + r*(b*(6*m+2)+2) + 10) + 1`.
+Nested coefficient loads, field operations, sums and vector stores are included;
+input-point vector preparation, distance checking, field backend and physical
+execution costs are excluded. Five runtime regressions cover nonconstant
+multirow/multilane evaluation and empty position/row/lane/message dimensions.
+Seven axiom guards cover the new evaluation and integration theorems.
+Validation: `scripts/check` passed all 10,667 build jobs and its strict checks.
+The two new test/audit files and three existing integration audits also passed
+with `warningAsError=true`.
+
 The default executable Berlekamp–Welch decoder now builds its linear system
 with a measured constructor before measured elimination. It generates consecutive
 powers once per row in a materialized vector, and the constructed equations are
