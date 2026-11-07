@@ -7,6 +7,62 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`ConcreteNTTCacheLookup` now proves the literal first-match vector read,
+including the complete earlier-key-exclusion prefix, exact append behavior and
+preservation of prior reads. No uniqueness assumption, key merge or reordering
+is introduced.
+
+`ConcreteNTTGoldCache` models the original table/root-cache bodies. Table
+initialization checks and the inner RCU clone/recheck/append callback invoke the
+actual proved word-formula ConcreteTable builder. Its unwrap maps table error
+to assertion failure. Root reads first use the retained root vector, then a
+retained table or a newly generated temporary table which is dropped; only the
+root is appended. Each successful mutation preserves constructor provenance,
+first-match order and the unrelated cache. Raw reads preserve the original
+behavior even on malformed vectors; provenance is derived from empty-state
+execution rather than an added runtime validation gate.
+
+`ConcreteNTTGoldCacheRCU` records actual logical captures in private indexed
+snapshot receipts, evaluates the original callback before comparing publication
+identities, and retains rejected proposals in retry receipts. The from-empty
+invariant proves all captured tables came from construction, a matching current
+snapshot is exact, and every old table vector is a prefix of the current vector.
+Successful publication appends only, so all earlier first-match reads survive.
+Root reads can use stale captured table views and generate a temporary Plan even
+after another publication; merging their roots preserves the newer global table
+vector. Successful reads derive the exact constructor origin, canonical word
+and primitive order without a caller root/initialization/width certificate.
+Retained roots agree with retained tables for the same key.
+
+Eleven smoke groups cover duplicate first matches, temporary roots, later table
+initialization, raw cache hits, error/panic distinctions, capture values, stale
+proposals, fresh retries, stale root views, inner rechecks and retained-root
+stability. Thirty-three theorem axiom guards permit only propext,
+Classical.choice and Quot.sound. A new locked fixture runs unchanged HasteBoots
+at dff353006322693cab3dc6b654f82151f658f294: three exact roots are read before any
+table initialization; eight threads produce 24 handles sharing the retained Arc
+for their key; repeated roots stay identical. Native root error versus init
+unwrap panic and retained-table stability after that panic are checked too.
+Independent Python checks exact roots, canonicality and primitive power equations.
+
+Validation: `scripts/check` passed all 10,902 build jobs and all strict
+repository audit/smoke checks. The eleven new cache regression groups and
+33-theorem audit also passed directly with `-DwarningAsError=true`. The fresh
+native cache fixture passed exact roots, all 24 shared-handle checks, retained
+identity and error/panic behavior; both ArcSwap and concrete-ntt match the pinned
+native lockfile in version/source/checksum. Tracked HasteBoots sources are unchanged.
+
+These are cache **value/provenance semantics**, not completed ArcSwap/Mutex or
+Rust refinement. Logical publication versions are not an assumed pointer/ABA
+proof; ghost receipts supply no physical work bound or successful-retry cap.
+Full Mutex scheduling, Arc lifetime/reclamation, actual retry instructions and
+orphan allocation/work charges remain mandatory. The next integration link is
+actual cache/code-initializer receipts and retained original code/context objects.
+Existing extraction/backend premises remain until that link and the strict
+Rust/Charon/Aeneas, optimized NTT/SIMD, scheduler and actor-separated physical
+refinements are supplied. Full PBS/application soundness, BabyBear and the final
+unbounded-lifetime expected-work theorem remain open.
+
 `ConcreteNTTPlanConstants` now retains the literal inverse exponentiation,
 u128 shifted words, quotient casts, bit-length and Barrett computation. The
 64-bit scaling intermediate and quotient bounds are proved; canonical inverse
@@ -51,9 +107,9 @@ size and empty-Shoup assertions, and every earlier arithmetic, initialization,
 primality, root-power and forward/inverse regression.
 
 This completes the **stored-field word-formula model** of the Goldilocks Plan,
-not actual Rust/Charon/Aeneas or allocation/physical refinement. The next link is
-retained table/root-cache provenance, including original first-match reads and
-RCU publication behavior. Actual instruction/cast/shift/division/ilog2, unsafe
+not actual Rust/Charon/Aeneas or allocation/physical refinement. The cache value/provenance models above now derive first-match reads, logical
+RCU publication and stale-view root reads. Actual cache/code-initializer receipt
+integration and Rust/ArcSwap/Mutex refinement remain open. Actual instruction/cast/shift/division/ilog2, unsafe
 field transmute, optimized NTT/SIMD, compiler, allocation, concurrency/scheduler
 and actor-separated physical work remain mandatory. Existing native code/source
 extraction premises remain until those links are supplied; complete original
