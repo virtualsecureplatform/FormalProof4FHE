@@ -7,6 +7,45 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`ConcreteNTTRootPowerArray` now retains the allocated array and proves the
+literal two initial writes plus every tail write of `root_powers`. Each product
+uses the same initialized Div64 state. Its loop invariant proves all write
+indices are in bounds, earlier entries are preserved, and every completed entry
+is canonical and equals the original root raised to its index, both in ZMod and
+as the exact integer remainder. Bounds failure remains distinct from ordinary
+Plan rejection; no native validation gate is added.
+
+`ConcreteNTTPlanRootPowers` composes this with the original Goldilocks constructor
+prefix: first Div64 initialization, minimum size, the separate literal prime
+gate, root construction, and root-power storage. The log-size input specializes
+the original power-of-two path. Successful prefixes retain the original first
+state, derive the primitive order of their stored root, and supply every stored
+root-power value without a caller root/reciprocal/arithmetic certificate or an
+assumed successful array builder. Goldilocks modulus bounds derive the original
+non-Shoup and non-IFMA branches. No index failure can occur on this path.
+
+Eight new regression groups cover checked writes, zero-iteration behavior,
+exhaustive small canonical roots, unchanged direct noncanonical root writes,
+complete arrays for the five native plan literals, minimum-size rejection,
+original retained state, and the degree-1024 negacyclic half-period. The locked
+native fixture emits every root-power entry of those five actual plans; Python
+independently verifies all 2,240 entries using modular exponentiation. Fourteen
+new theorem axiom guards permit only propext, Classical.choice and Quot.sound.
+
+Validation: `scripts/check` passed all 10,886 build jobs and all strict
+repository audit/smoke checks. The eight new smoke groups and 14-theorem audit
+also passed directly with `-DwarningAsError=true`. The fresh locked native
+fixture passed all 2,240 stored root-power comparisons and every existing
+primality, limb, initialization, arithmetic, root and rejection regression.
+
+This is a proved constructor **prefix**, not a complete Plan or Rust refinement.
+The next construction steps are the original twiddle initializer (including its
+separate Div64/root construction), bit-reversed writes, inverse/Barrett constants,
+and reverse-index storage, followed by complete retained table/cache provenance.
+Interleaved allocation effects, usize/u64 casts and overflow, machine/compiler,
+SIMD/scheduler and actor-separated physical work remain open. The full protocol
+and expected-work security target is unchanged and remains incomplete.
+
 `ConcreteNTTMillerRabinField`, `ConcreteNTTMillerRabinRound` and
 `ConcreteNTTPrimeGate` now model the locked backend's separate primality gate:
 the ordered twelve small-prime exits, factorization of p-1, its own Div64
@@ -30,9 +69,9 @@ passed directly with `-DwarningAsError=true`. The fresh locked Rust/Python
 fixture passed 205 primality cases plus all existing 182 limb/initialization
 cases, 420 arithmetic cases, five plan-root literals and two plan rejections.
 
-The next native-constructor obligation remains the original Plan::try_new
-preflight/root storage and table/cache provenance. This gate is a dependency of
-that path, not a complete Plan constructor. Actual machine counter/subtraction
+The prime gate now feeds the constructor prefix above. Completing the original
+Plan::try_new arrays/constants and retained table/cache provenance remains open.
+This gate and prefix are not a complete Plan constructor. Actual machine counter/subtraction
 bounds, Rust/Charon/Aeneas refinement, allocation, twiddle arrays, cache/RCU
 behavior and actor-separated physical cost remain open, as does the complete
 application security theorem. No alternative native validation gate is added.
