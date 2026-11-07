@@ -7,6 +7,27 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+The default Berlekamp–Welch decoder now retains the solver's materialized
+solution vector and reconstructs directly from it. `BerlekampWelchReconstruction`
+loads locator and numerator coefficients into vectors of fixed width `e+k+1`.
+Their represented polynomials are proved equal to ArkLib's `solutionToE` and
+`solutionToQ`, including `e=0` and zero dimensions. Construction plus dense
+division costs at most `50*(e+k+2)^2+21*(e+k+1)+22` abstract field/access units.
+This phase performs no polynomial degree discovery or coefficient-function
+materialization. The vector-valued solver is linked to the existing function
+view by a proved map equality; the old function API and its operation bounds
+remain unchanged. The scalar decoder's success, completeness and failure
+results are proved for the vector path. Six new runtime checks cover exact
+constructed coefficients, correction, nonzero remainders, zero dimensions and
+the retained solver vector; eleven axiom guards cover the new reconstruction
+and solver-interface theorems. Points/raw input preparation, output-polynomial
+conversion, complete cost composition and physical/native refinement remain
+open, along with full application security.
+Validation: `scripts/check` passed all 10,686 build jobs and its strict checks.
+The new reconstruction smoke/audit, solver smoke/audit, polynomial smoke/audit,
+common-source smoke and native/public-source audits also passed with
+`warningAsError=true`.
+
 The default polynomial division API now uses `DensePolynomialDivision` for its
 prepared-vector core. It inspects the divisor, handles zero by returning a zero
 quotient and the unchanged numerator, and otherwise scales the divisor to monic
@@ -17,8 +38,8 @@ The charged core costs at most `50*(n+1)^2+14*n+19` for vector width `n`, includ
 normalization, inversion, division and quotient rescaling. The public
 `ExecutablePolynomialDivision.divModWithCost` exposes this charge; `divMod`,
 `divide` and `remainder` retain their result types and correctness theorems.
-The Berlekamp–Welch decoder therefore uses this core through its existing shared
-reconstruction call. The legacy monic auxiliary retains its declaration names
+The Berlekamp–Welch decoder uses this same dense core through its dedicated
+vector reconstruction path. The legacy monic auxiliary retains its declaration names
 in a separate module to avoid an import cycle. Seven new runtime regressions
 cover nonmonic/constant/zero divisors, zero/empty numerators, width-one inputs
 and the polynomial wrapper. Eleven new axiom guards cover the dense and
