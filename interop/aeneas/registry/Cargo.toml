@@ -1,0 +1,8 @@
+[package]
+name = "formalproof4fhe-native-registry-fixture"
+version = "0.1.0"
+edition = "2024"
+publish = false
+[dependencies]
+snarks = { path = "../../../../HasteBoots/snarks" }
+pcs = { path = "../../../../HasteBoots/pcs" }
