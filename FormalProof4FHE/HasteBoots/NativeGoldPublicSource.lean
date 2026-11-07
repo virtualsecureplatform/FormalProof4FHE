@@ -40,9 +40,21 @@ theorem word_eq_analysis (dummy context root : Digest) (ctx : Context) (sourceLo
   have stride : row.2.val + ctx.parameters.width.val * row.1.val = row.1.val * ctx.parameters.width.val + row.2.val := by ring
   rw [stride]
 
+/-- Extract directly from the stored columns produced by public reconstruction.
+The prepared extraction charge covers domain generation and field extraction;
+public-log reconstruction/materialization costs are still separate. -/
 def extract (dummy root : Digest) (ctx : Context) (sourceLog : Log) (radius : ℕ)
     (capacity : ctx.parameters.code.messageLength.val ≤ ctx.parameters.code.messageBlocks.val*ctx.parameters.code.blockWidth.val) :=
-  NativeGoldExecutableExtraction.extract ctx radius capacity (word dummy root ctx sourceLog)
+  (NativeGoldExecutableExtraction.extractPreparedWithCost ctx radius capacity
+    (materialize dummy root ctx sourceLog)).value
+
+theorem extract_eq_executable (dummy root : Digest) (ctx : Context) (sourceLog : Log) (radius : ℕ)
+    (capacity : ctx.parameters.code.messageLength.val ≤ ctx.parameters.code.messageBlocks.val*ctx.parameters.code.blockWidth.val) :
+    extract dummy root ctx sourceLog radius capacity =
+      NativeGoldExecutableExtraction.extract ctx radius capacity (word dummy root ctx sourceLog) := by
+  unfold extract
+  rw [NativeGoldExecutableExtraction.extractPreparedWithCost_eq]
+  rfl
 
 def table (dummy root : Digest) (ctx : Context) (sourceLog : Log) (radius : ℕ)
     (capacity : ctx.parameters.code.messageLength.val ≤ ctx.parameters.code.messageBlocks.val*ctx.parameters.code.blockWidth.val) :
@@ -54,7 +66,8 @@ theorem table_eq_executable (dummy context root : Digest) (ctx : Context) (sourc
     (capacity : ctx.parameters.code.messageLength.val ≤ ctx.parameters.code.messageBlocks.val*ctx.parameters.code.blockWidth.val) :
     table dummy root ctx sourceLog radius capacity = NativeGoldExecutableExtraction.table ctx radius capacity
       (NativeGoldBatchSelectedWord.word dummy context root ctx sourceLog) := by
-  unfold table extract
+  unfold table
+  rw [extract_eq_executable]
   rw [word_eq_analysis dummy context root ctx sourceLog]
   rfl
 
@@ -69,7 +82,7 @@ theorem extract_eq_analysis (dummy context root : Digest) (ctx : Context) (sourc
     (((extract dummy root ctx sourceLog radius capacity).get left).get right).get channel =
       RectangularMatrixOpeningKernel.extract (NativeGoldBatchResponseMeaning.Domain ctx primitive) capacity radius
         (NativeGoldBatchSelectedWord.word dummy context root ctx sourceLog) left right channel := by
-  unfold extract
+  rw [extract_eq_executable]
   rw [NativeGoldExecutableExtraction.extract_eq_analysis ctx tables message block blowup constructed primitive radius uniqueRadius]
   rw [word_eq_analysis dummy context root ctx sourceLog]
 
