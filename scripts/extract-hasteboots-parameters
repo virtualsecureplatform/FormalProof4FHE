@@ -26,6 +26,12 @@ BRIDGE_PROOFS = ['code_model_unique', 'parameters_model_unique', 'header_corresp
                  'constructed_read_root_canonical', 'constructed_read_modulus']
 
 
+DECODE_PROOFS = ['usize_fits64', 'pack_code_rep', 'decode_code_correct', 'decode_code_complete',
+                 'decode_code_iff', 'pack_parameters_rep', 'decode_parameters_correct',
+                 'decode_parameters_complete', 'decode_parameters_iff', 'decoded_header', 'decoded_code',
+                 'decode_code_exists_iff', 'decode_parameters_exists_iff', 'retained_decode']
+
+
 def digest(data):
     return hashlib.sha256(data).hexdigest()
 
@@ -213,10 +219,14 @@ def main():
             bridge = (ROOT / 'interop/aeneas/parameters/ModelBridge.lean').read_text()
             validate_proof_source(bridge, BRIDGE_PROOFS)
             manifest['model_bridge_sha256'] = digest(bridge.encode())
-            proof += '\n' + bridge
+            decoder = (ROOT / 'interop/aeneas/parameters/Decode.lean').read_text()
+            validate_proof_source(decoder, DECODE_PROOFS)
+            manifest['decoder_sha256'] = digest(decoder.encode())
+            proof += '\n' + bridge + '\n' + decoder
             names = [NAMESPACE + '.' + n for n in METHODS + ['header', 'retained_code']]
             names += ['HasteBootsExtractedParametersProof.' + n for n in PROOFS]
             names += ['HasteBootsExtractedParametersBridge.' + n for n in BRIDGE_PROOFS]
+            names += ['HasteBootsExtractedParametersDecode.' + n for n in DECODE_PROOFS]
             run([ROOT / 'scripts/in-container', 'lake', 'build',
                  'FormalProof4FHE.HasteBoots.NativeGoldParameterInitialization'], 'model-build.log')
             manifest['proof_sha256'] = digest(proof.encode())
