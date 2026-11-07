@@ -500,3 +500,6 @@ import FormalProof4FHE.HasteBoots.MerkleLeafIndexCost
 import FormalProof4FHE.HasteBoots.CostedMerkleLeafAccess
 import FormalProof4FHE.HasteBoots.CostedMerkleWord
 import FormalProof4FHE.HasteBoots.RawGoldColumnCost
+import FormalProof4FHE.HasteBoots.StoredGoldPublicSource
+import FormalProof4FHE.HasteBoots.PublicSourceByteInputs
+import FormalProof4FHE.HasteBoots.PublicGoldByteExtraction

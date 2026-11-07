@@ -7,6 +7,39 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`StoredGoldPublicSource` now exposes a concrete stored-byte materializer and
+extractor. Functional digest views occur only in compatibility statements and
+analysis bounds, never in these executed entry points. Both value and declared
+charge are proved equal to the existing functional reference interface.
+
+`PublicSourceByteInputs` strictly reads the dummy, root and every supplied public
+hash-output spelling. Each spelling must contain exactly 64 bytes; truncation or
+trailing bytes rejects the whole supplied snapshot. It preserves original entry
+order and duplicates. Successful reads reconstruct the supplied bytes, and every
+canonical stored input round-trips. Fixed-vector digest reading costs at most
+455, conversion to stored digest bytes at most 586, log preparation at most
+`589*L+1`, and combined dummy/root/log decoding at most `589*L+1049`.
+
+`PublicGoldByteExtraction.run` composes those adapters with the full stored
+extractor. Rejection is explicit `none`, retains the actual decode charge and
+never runs field extraction. On success, the bound adds the existing source
+materialization/domain/extraction bound for the decoded snapshot; rejection costs
+at most `589*L+1051`. These are upper bounds on the reference operation count,
+not lower bounds or attacker-work credit. Arbitrary function evaluation is not
+assigned a fixed cost. Eight runtime regressions and twenty-one axiom guards
+cover strict widths, order/duplicates, malformed aliases, compatibility, composed
+success/rejection and exact adapter charges.
+`scripts/check` passed all 10,742 build jobs and its standard strict checks;
+the new byte-input smoke/audit also passed with `warningAsError=true`.
+
+This closes the incoming digest representation gap for already framed byte
+snapshots. The caller still supplies a context and dimension values. Enclosing
+byte framing, runtime size production, complete-history source selection and
+composition, actor/physical/compiler/native backend refinement, BabyBear and the
+full application security theorem remain open. The legacy function interface
+remains an analysis/compatibility adapter; its function evaluation is not priced.
+No new axioms or proof-limit increases were introduced.
+
 `RawGoldColumnCost` now measures field-column materialization from stored raw
 rows. Its concrete list reader charges each traversed cons and preserves missing
 coordinate zero padding and lazy raw u64 interpretation. Column/row/lane output
@@ -27,7 +60,9 @@ existing padding-removal, output-assembly and domain terms, as stated explicitly
 in `extractWithCost_cost`. This closes the field-row materialization gap for this
 Goldilocks reference interface. Incoming function-to-storage adapters and runtime
 size production, complete-history selection/composition, physical/compiler/native
-backend refinement and the full application security theorem remain open.
+backend refinement and the full application security theorem remained open
+at that milestone; the stored-byte input path above now supplies concrete digest
+adapters for already framed snapshots.
 Five runtime checks cover exact traversal charges, short rows, lazy values,
 source-index wrapping, zero dimensions and composed preparation/extraction;
 fourteen axiom guards cover the new contracts and retained public equivalences.
