@@ -7,6 +7,28 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+The default polynomial division API now uses `DensePolynomialDivision` for its
+prepared-vector core. It inspects the divisor, handles zero by returning a zero
+quotient and the unchanged numerator, and otherwise scales the divisor to monic
+form, runs the verified loop once and rescales the quotient. Its represented
+pair is proved equal to Mathlib's quotient/remainder for every divisor, with
+reconstruction and strict remainder-degree results for nonzero divisors.
+The charged core costs at most `50*(n+1)^2+14*n+19` for vector width `n`, including
+normalization, inversion, division and quotient rescaling. The public
+`ExecutablePolynomialDivision.divModWithCost` exposes this charge; `divMod`,
+`divide` and `remainder` retain their result types and correctness theorems.
+The Berlekamp–Welch decoder therefore uses this core through its existing shared
+reconstruction call. The legacy monic auxiliary retains its declaration names
+in a separate module to avoid an import cycle. Seven new runtime regressions
+cover nonmonic/constant/zero divisors, zero/empty numerators, width-one inputs
+and the polynomial wrapper. Eleven new axiom guards cover the dense and
+integration theorems. Degree discovery, input coefficient materialization and
+output-polynomial conversion are excluded from this phase charge; complete
+extractor costs, physical/native refinement and application security remain open.
+Validation: `scripts/check` passed all 10,687 build jobs and its strict checks.
+The new smoke/audit, monic audit, polynomial smoke/audit, common-source smoke
+and native/public-source audits also passed with `warningAsError=true`.
+
 `DenseMonicDivision` now implements the complete monic long-division loop on
 prepared fixed-width coefficient vectors, including quotient accumulation.
 Its guard uses measured degree/leading-coefficient inspection. Every recursive
@@ -20,9 +42,9 @@ branch. Its total cost is at most `50*(n+1)^2` for vector width `n`; a tighter
 bound in initial effective length is also proved. Six runtime regressions test
 multi-step quotient accumulation, exact division, constant divisors, inactive
 degree/zero branches and width-one storage, with exact charges. Fourteen axiom
-guards cover all exported theorems. Input preparation, nonmonic normalization,
-zero-divisor handling, full decoder integration and physical/native refinement
-remain open, along with the full application-security goal.
+guards cover all exported theorems. This loop now underlies general dense
+division and default reconstruction. Input preparation, complete decoder cost
+composition, physical/native refinement and application security remain open.
 Validation: `scripts/check` passed all 10,685 build jobs and its strict checks.
 The new smoke and audit also passed independently with `warningAsError=true`.
 
@@ -38,9 +60,9 @@ the represented vector size, so cancellation does not truncate a leading term.
 Seven runtime regressions cover consecutive division steps, complete cancellation,
 a constant divisor, explicit nonmonic scaling, out-of-window shifts, zero scaling
 and empty vectors. Ten axiom guards cover all exported step theorems.
-This primitive now underlies `DenseMonicDivision`. Nonmonic normalization and
-decoder integration remain open, as do preparation, physical refinement and
-application security.
+This primitive now underlies `DenseMonicDivision` and general dense division.
+Complete decoder cost composition, preparation, physical refinement and
+application security remain open.
 Validation: `scripts/check` passed all 10,678 build jobs and its strict checks.
 The new smoke and audit also passed independently with `warningAsError=true`.
 
@@ -56,8 +78,8 @@ exactly `8*n+6` abstract field/access units for a prepared vector of length `n`;
 this includes scanning, vector/list conversion and metadata extraction.
 Six runtime regressions and thirteen axiom guards cover these results.
 This primitive is exposed from the library root and used by the dense monic
-division loop. Replacing the current decoder's degree and leading-coefficient
-queries remains open, along with coefficient preparation,
+division loop and normalization. Degree discovery for the current decoder's
+input preparation and candidate checks remains open, along with coefficient preparation,
 complete polynomial arithmetic/division costs, physical refinement and the full
 application-security goal.
 Validation: `scripts/check` passed all 10,679 build jobs and its strict checks.
