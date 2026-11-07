@@ -21,6 +21,9 @@ METHODS = ['pcs.matrix_weighted.Parameters.impl.' + n for n in
            ['queries', 'num_vars', 'width', 'left_vars', 'code']]
 PROOFS = ['header_exact', 'retained_code_exact', 'generic_code_exact', 'code_fields',
           'header_code_independent', 'read_header_and_code']
+BRIDGE_PROOFS = ['code_model_unique', 'parameters_model_unique', 'header_correspondence',
+                 'code_correspondence', 'returned_representation', 'read_root_meaning', 'constructed_read_root',
+                 'constructed_read_root_canonical', 'constructed_read_modulus']
 
 
 def digest(data):
@@ -48,6 +51,16 @@ def validate_generated(raw, mode):
     if not raw.rstrip().endswith('end ' + NAMESPACE):
         raise RuntimeError('Truncated generated namespace')
     return raw.replace('import Aeneas\n', 'import Aeneas.Std\nimport Aeneas.Tactic.RustAttributes\n')
+
+
+def validate_proof_source(text, expected):
+    if re.search(r'\b(axiom|opaque|constant|sorry|sorryAx|native_decide|unsafe)\b', text):
+        raise RuntimeError('Admitted or opaque proof declaration')
+    if re.search(r'\bset_option\s+(maxHeartbeats|maxRecDepth)\b', text):
+        raise RuntimeError('Proof source changes proof limits')
+    names = re.findall(r'^theorem (\w+)', text, re.M)
+    if len(names) != len(expected) or set(names) != set(expected):
+        raise RuntimeError('Proof declaration list differs from the dependency audit')
 
 
 def verify_snapshot(raw, expected):
@@ -186,14 +199,26 @@ def main():
         raw = generated.read_text()
         runtime = validate_generated(raw, args.mode)
         manifest['generated_sha256'] = digest(generated.read_bytes())
+        if args.mode == 'retained':
+            runtime = runtime.replace('import Aeneas.Tactic.RustAttributes\n',
+                'import Aeneas.Tactic.RustAttributes\nimport FormalProof4FHE.HasteBoots.NativeGoldParameterInitialization\n')
         manifest['import_only_sha256'] = digest(runtime.encode())
         if args.mode == 'retained':
             snapshot = (ROOT / 'interop/aeneas/parameters/Generated.lean').read_text()
             verify_snapshot(raw, snapshot)
             manifest['reviewed_snapshot_sha256'] = digest(snapshot.encode())
             proof = (ROOT / 'interop/aeneas/parameters/Proof.lean').read_text()
+            validate_proof_source(proof, PROOFS)
+            manifest['accessor_proof_sha256'] = digest(proof.encode())
+            bridge = (ROOT / 'interop/aeneas/parameters/ModelBridge.lean').read_text()
+            validate_proof_source(bridge, BRIDGE_PROOFS)
+            manifest['model_bridge_sha256'] = digest(bridge.encode())
+            proof += '\n' + bridge
             names = [NAMESPACE + '.' + n for n in METHODS + ['header', 'retained_code']]
             names += ['HasteBootsExtractedParametersProof.' + n for n in PROOFS]
+            names += ['HasteBootsExtractedParametersBridge.' + n for n in BRIDGE_PROOFS]
+            run([ROOT / 'scripts/in-container', 'lake', 'build',
+                 'FormalProof4FHE.HasteBoots.NativeGoldParameterInitialization'], 'model-build.log')
             manifest['proof_sha256'] = digest(proof.encode())
         else:
             proof = ''
@@ -201,8 +226,10 @@ def main():
         checked_file = output / 'HastebootsParametersChecked.lean'
         checked_file.write_text(runtime + '\n' + proof + ''.join('\n#print axioms ' + n + '\n' for n in names))
         manifest['checked_sha256'] = digest(checked_file.read_bytes())
-        run([ROOT / 'scripts/in-container', 'bash', '-euc',
-             'cd -- "$1"; lake env lean -DwarningAsError=true "$2"', '_',
+        compile_script = ('project_path=$(lake env printenv LEAN_PATH); cd -- "$1"; '
+                          'backend_path=$(lake env printenv LEAN_PATH); '
+                          'LEAN_PATH="$project_path:$backend_path" lean -DwarningAsError=true "$2"')
+        run([ROOT / 'scripts/in-container', 'bash', '-euc', compile_script, '_',
              COMMON['container_path'](backend / 'backends/lean'), COMMON['container_path'](checked_file)], 'lean.log')
         manifest['dependency_audit'] = audit_log((output / 'lean.log').read_text(), names)
         manifest['status'] = 'passed'

@@ -59,6 +59,16 @@ class Guards(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             check(original, original.replace('lines 1:0', 'lines 2:0'))
 
+    def test_proof_audit_coverage_and_limits(self):
+        check = MODULE['validate_proof_source']
+        good = 'theorem checked : True := True.intro\n'
+        check(good, ['checked'])
+        for bad in [good + good, good + 'axiom bad : False\n',
+                    good + 'set_option maxHeartbeats 1000000\n',
+                    good + 'theorem unaudited : True := True.intro\n']:
+            with self.subTest(source=bad), self.assertRaises(RuntimeError):
+                check(bad, ['checked'])
+
     def test_dependency_whitelist_and_complete_coverage(self):
         good = "'a' does not depend on any axioms\n'b' depends on axioms: [propext,\n Classical.choice, Quot.sound]\n"
         self.assertEqual(set(audit(good, ['a', 'b'])), {'a', 'b'})
