@@ -17,12 +17,33 @@ open NativeFieldRepresentation (goldValue)
 def points (ctx : Context) : Fin (2^(logSize ctx.parameters.code)) → Goldilocks :=
   NTTButterfly.nodes (logSize ctx.parameters.code) (goldValue ctx.parameters.code.domainRoot)
 
+/-- Abstract field/access extraction charge after point/raw preparation.
+Byte availability, domain-node preparation and native backend refinement are separate. -/
+def extractWithCost (ctx : Context) (radius : ℕ)
+    (capacity : ctx.parameters.code.messageLength.val ≤ ctx.parameters.code.messageBlocks.val*ctx.parameters.code.blockWidth.val)
+    (raw : Fin (2^(logSize ctx.parameters.code)) → Row ctx → Fin ctx.parameters.code.blockWidth.val → Goldilocks) :
+    SolverOperationCost.Run (Vector (Vector (Vector Goldilocks ctx.parameters.width.val) ctx.parameters.code.messageLength.val)
+      (2^ctx.parameters.leftVariables.val)) :=
+  ExecutableRectangularMatrixExtraction.extractWithCost radius (points ctx) capacity raw
+
 def extract (ctx : Context) (radius : ℕ)
     (capacity : ctx.parameters.code.messageLength.val ≤ ctx.parameters.code.messageBlocks.val*ctx.parameters.code.blockWidth.val)
     (raw : Fin (2^(logSize ctx.parameters.code)) → Row ctx → Fin ctx.parameters.code.blockWidth.val → Goldilocks) :
     Vector (Vector (Vector Goldilocks ctx.parameters.width.val) ctx.parameters.code.messageLength.val)
-      (2^ctx.parameters.leftVariables.val) :=
-  ExecutableRectangularMatrixExtraction.extract radius (points ctx) capacity raw
+      (2^ctx.parameters.leftVariables.val) := (extractWithCost ctx radius capacity raw).value
+
+theorem extractWithCost_cost (ctx : Context) (radius : ℕ)
+    (capacity : ctx.parameters.code.messageLength.val ≤ ctx.parameters.code.messageBlocks.val*ctx.parameters.code.blockWidth.val)
+    (raw : Fin (2^(logSize ctx.parameters.code)) → Row ctx → Fin ctx.parameters.code.blockWidth.val → Goldilocks) :
+    let n := 2^(logSize ctx.parameters.code)
+    let left := 2^ctx.parameters.leftVariables.val
+    let packing := ctx.parameters.width.val
+    let m := ctx.parameters.code.messageBlocks.val
+    let b := ctx.parameters.code.blockWidth.val
+    let size := ctx.parameters.code.messageLength.val
+    (extractWithCost ctx radius capacity raw).cost ≤ DenseCommonSource.operationBound n (left*packing) m b radius+
+      (left*packing)*(7*size+2)+left*(size*(5*packing+2)+2)+4 :=
+  ExecutableRectangularMatrixExtraction.extractWithCost_cost radius (points ctx) capacity raw
 
 def table (ctx : Context) (radius : ℕ)
     (capacity : ctx.parameters.code.messageLength.val ≤ ctx.parameters.code.messageBlocks.val*ctx.parameters.code.blockWidth.val)

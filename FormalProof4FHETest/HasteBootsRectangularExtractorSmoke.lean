@@ -13,6 +13,7 @@ import all FormalProof4FHE.HasteBoots.CommonSourceReindex
 import all FormalProof4FHE.HasteBoots.ExecutableSourceCoefficients
 import all FormalProof4FHE.HasteBoots.ExecutableCommonSource
 import all FormalProof4FHE.HasteBoots.DenseCommonSource
+import all FormalProof4FHE.HasteBoots.DenseSourceExtraction
 import all FormalProof4FHE.HasteBoots.ExecutableBerlekampWelch
 import all FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision
 import all FormalProof4FHE.HasteBoots.DensePolynomialDivision
@@ -59,3 +60,8 @@ private def recoverCheck (F : Type) [Field F] [DecidableEq F] : Bool :=
 #guard_msgs in
 #eval let table := ExecutableRectangularMatrixExtraction.table (m := 2) (size := 3) 1 points (by decide) (spread (F := ZMod 7))
       decide (table 0 0 0 = 0 ∧ table 1 1 2 = 0 ∧ table 1 2 2 = 0)
+
+/-- info: true -/
+#guard_msgs in
+#eval let run := ExecutableRectangularMatrixExtraction.extractWithCost (m := 2) (size := 3) 1 points (by decide) (close (F := ZMod 7))
+      decide ((((run.value.get 1).get 2).get 2) = 3 ∧ run.cost ≤ 40139)
