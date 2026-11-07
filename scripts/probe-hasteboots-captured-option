@@ -13,6 +13,7 @@ BASE = runpy.run_path(str(ROOT / 'scripts/probe-hasteboots-constructor-typing'))
 DATA = BASE['DATA']
 digest = BASE['digest']
 PROOFS = ['none_exact', 'some_exact']
+ERASED_SIGNATURE_ERROR = 'Signature regions: erased lifetimes require lifetime-preserving extraction'
 
 
 def erased_closure_signature(ir):
@@ -111,9 +112,27 @@ def main():
             if mode == 'mono':
                 record['mono_signature_failure'] = erased_closure_signature(ir)
                 log = BASE['BASE']['BASE']['clear_colors']((out / 'mono-aeneas.log').read_text())
-                if status == 0 or 'InterpUtils.ml, line 151' not in log or 'Internal error' not in log:
-                    raise RuntimeError('Mono failure does not match the erased symbolic-input invariant')
-                record['mono_status'] = 'rejected; constructor route remains open'
+                if status == 0 or ERASED_SIGNATURE_ERROR not in log:
+                    raise RuntimeError('Mono extraction was not rejected by the signature-region guard')
+                record['mono_status'] = 'rejected before symbolic execution; constructor route remains open'
+        rejected = []
+        for fixture in ['unsupported-returned-borrow.rs', 'unsupported-mutable-capture.rs']:
+            crate = fixture.removesuffix('.rs').replace('-', '_')
+            llbc = out / (crate + '.llbc')
+            run([tools / 'charon', 'rustc', '--preset=aeneas', '--monomorphize',
+                 '--include', 'core::option', '--dest-file', llbc, '--', '--crate-type', 'lib',
+                 '--edition=2024', '--crate-name', crate, DATA / fixture], crate + '-charon.log')
+            ir = json.loads(llbc.read_text())
+            if ir.get('has_errors') is not False or ir['translated']['target_information'] != [
+                    {'key': 'x86_64-unknown-linux-gnu', 'value': {'target_pointer_size': 8, 'is_little_endian': True}}]:
+                raise RuntimeError('Incomplete or wrong-target negative extraction')
+            status = run([frontend, *options, '-dest', out / crate, llbc], crate + '-aeneas.log', False)
+            log = BASE['BASE']['BASE']['clear_colors']((out / (crate + '-aeneas.log')).read_text())
+            if status == 0 or ERASED_SIGNATURE_ERROR not in log:
+                raise RuntimeError('Unsupported signature was not rejected: ' + fixture)
+            rejected.append({'fixture': fixture, 'source_sha256': digest((DATA / fixture).read_bytes()),
+                             'llbc_sha256': digest(llbc.read_bytes())})
+        record['rejected_signatures'] = rejected
         raw = (out / 'generic/Generic.lean').read_text()
         if (raw.count('import Aeneas\n') != 1 or
                 not raw.rstrip().endswith('end hasteboots_captured_option') or
@@ -137,7 +156,7 @@ def main():
              BASE['COMMON']['container_path'](checked)], 'lean.log')
         record['dependency_audit'] = BASE['PARAMETERS']['audit_log']((out / 'lean.log').read_text(), names)
         record['status'] = 'passed'
-        print('Generic captured option: 3 dependency audits; mono route rejected for erased captured lifetime')
+        print('Generic captured option: 3 dependency audits; erased captured/returned/mutable signature routes rejected before interpretation')
     except (Exception, SystemExit) as error:
         record['status'] = 'failed'; record['error'] = str(error)
         raise SystemExit(f'Captured option probe failed; inspect {out}: {error}') from error

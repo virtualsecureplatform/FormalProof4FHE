@@ -1,14 +1,40 @@
 diff --git a/src/PrePasses.ml b/src/PrePasses.ml
-index b613aba1..df0f1f99 100644
+index b613aba1..a428cc4b 100644
 --- a/src/PrePasses.ml
 +++ b/src/PrePasses.ml
-@@ -87,6 +87,52 @@ let erase_body_regions (crate : crate) (f : fun_decl) : fun_decl =
+@@ -87,6 +87,78 @@ let erase_body_regions (crate : crate) (f : fun_decl) : fun_decl =
      ^ Print.fun_decl_to_string env "" "  " f];
    f
  
++(** Symbolic execution requires signature lifetimes to be named. In particular,
++    full monomorphization may leave erased regions embedded in closure types.
++    Reject that unsupported input before interpreting any branch; do not infer
++    lifetime or alias relationships from erased annotations. *)
++let validate_signature_regions (_crate : crate) (f : fun_decl) : fun_decl =
++  if Config.backend () = Config.Lean then (
++    let visitor =
++      object
++        inherit [_] iter_ty
++
++        method! visit_RErased _ =
++          [%craise] f.item_meta.span
++            "Signature regions: erased lifetimes require lifetime-preserving \
++             extraction"
++
++        method! visit_RBody _ _ =
++          [%craise] f.item_meta.span
++            "Signature regions: body lifetimes are not valid signature \
++             parameters"
++      end
++    in
++    List.iter (visitor#visit_ty ()) f.signature.inputs;
++    visitor#visit_ty () f.signature.output);
++  f
++
 +(* The Lean ctlz_nonzero runtime currently models only usize. Validate every
 +   direct function reference, including function-pointer constants, before the
 +   generic intrinsic declaration is treated as a builtin. *)
++
 +let validate_ctlz_nonzero (crate : crate) (f : fun_decl) : fun_decl =
 +  if Config.backend () <> Config.Lean then f
 +  else
@@ -55,7 +81,7 @@ index b613aba1..df0f1f99 100644
  (** Replace the occurrences of [core::intrinsics::unreachable] with
      [Abort UndefinedBehavior]. This helps with the analyzes and the symbolic
      evaluation (in particular, we stop the evaluation when encountering an
-@@ -1306,6 +1352,12 @@ let decompose_str_borrows (_ : crate) (f : fun_decl) : fun_decl =
+@@ -1306,6 +1378,12 @@ let decompose_str_borrows (_ : crate) (f : fun_decl) : fun_decl =
                *)
                method! visit_Constant env (cv : constant_expr) =
                  match (cv.kind, cv.ty) with
@@ -68,10 +94,11 @@ index b613aba1..df0f1f99 100644
                  | ( CLiteral (VStr str),
                      TRef
                        (_, (TAdt { id = TBuiltin TStr; _ } as str_ty), ref_kind)
-@@ -2271,6 +2323,7 @@ let apply_passes (crate : crate) : crate =
+@@ -2271,6 +2349,8 @@ let apply_passes (crate : crate) : crate =
    (* Passes that apply to individual function bodies *)
    let function_passes =
      [
++      ("validate_signature_regions", validate_signature_regions);
 +      ("validate_ctlz_nonzero", validate_ctlz_nonzero);
        ("fix_closure_lifetimes", fix_closure_lifetimes);
        ("erase_body_regions", erase_body_regions);
