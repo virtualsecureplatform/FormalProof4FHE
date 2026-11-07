@@ -7,6 +7,59 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`StoredHashLogCost` now retains all ordered hash observations as stored bytes,
+including unrelated/off-path inputs and repeated entries. Its fixed-size measured
+decoder exactly matches `JointHashCache.decode` on arbitrary analysis histories:
+missing bytes are zero-padded and bytes beyond 64 are ignored. Decoding costs at
+most `259`; appending a hash costs at most `3*oldLogLength+264`. This preserves the
+existing analysis decoder, not acceptance of malformed native SHA-512 outputs.
+Strict native output parsing/refinement remains a separate obligation.
+
+`StoredSourceSnapshotHistory` now replays immutable stored source snapshots.
+Each first-frozen full context/root key stores one mark sharing the exact current
+immutable hash log. Later hashes append to the current log and cannot alter old
+marks. The 64-height expansion exists only in the semantic view, which equals
+`CompactSourceHistory.reconstruct` exactly, including the full ordered checkpoint
+list and its common logs. Stored snapshot keys equal the stored frozen list,
+so marks are unique and their count is at most `4*N^2`. Current hash count is at
+most observation count `P`. Complete hash observations, partial seeds, inherited
+metadata, aliases and all freeze roles retain their existing causal semantics.
+
+`StoredSourceSnapshotBudget` proves a polynomial operation bound for complete
+ledger/cache/hash/snapshot replay. With total observed input bytes `N`, observation
+count `P` and observed output bytes `Q`, replay costs at most
+`stepBound N P Q * P + 1`. Mark construction charges record/pointer construction
+and list appends; fixed digest decoding and hash-log append traversals are charged
+separately. Physical memory/compiler/backend refinement is not inferred from
+persistent sharing in this reference program.
+
+`StoredSourceSnapshotSelection` now performs charged full context/root byte
+lookup in the stored marks. Coverage and uniqueness are derived from replay.
+The selected stored-log view is proved equal to the original
+`ExecutableSourceSelection.select (ExecutableSourceHistory.reconstruct history)`
+for every history and stored key. The proof covers every height and the original
+candidate-log search, including real empty-log snapshots and missing-key current-log
+fallback. Keys sharing only a root do not merge. Lookup costs at most
+`5308*N^2+3`; the complete-history entry point includes replay cost as well.
+No functional digest/cache/selection callback executes in that entry point.
+
+Nine regression groups and fifty-two theorem axiom guards cover reference digest
+decoding, repeated/unrelated hashes, immutable old logs, original key order,
+full-pair lookup, different alias freeze times, empty snapshots versus fallback,
+no-freeze roles, empty histories and polynomial replay/lookup bounds. Only
+`propext`, `Classical.choice` and `Quot.sound` occur in the audited theorems.
+`scripts/check` passed all 10,809 build jobs and its standard strict checks;
+the new stored-snapshot smoke and axiom audit also passed with
+`warningAsError=true`.
+
+The next obligation is **original causal-boundary recovery and integrated stored
+public-source extraction**: recover the original first complete field input's
+history prefix, parse its stored context/root, select this exact snapshot and
+compose the measured extractor with runtime size production. Original application
+registry ownership (including earlier unused aliases), full application/PBS
+binding, actor/physical/compiler/native backend refinement, BabyBear and the final
+expected-physical-work theorem remain required.
+
 `StoredFrozenRequestsCost` now executes complete source-request preparation
 using stored context/root pairs. It resolves every compatible parent against the
 current cache, applies the original compact-request deduplication, filters keys
@@ -45,9 +98,9 @@ and `Quot.sound` occur in the audited theorems.
 the new frozen-ledger smoke and axiom audit also passed with
 `warningAsError=true`.
 
-The next obligation is **stored snapshot-log replay and selection**: attach each
-fresh request to its original common causal hash log and prove selection agrees
-with `ExecutableSourceSelection`, then compose public-source extraction. Original
+The stored snapshot milestone above supersedes the prior snapshot replay and
+selection obligations. Original causal-boundary recovery and composition with
+stored public-source extraction remain open. Original
 application registry ownership, full application/PBS binding, runtime size
 production, actor/physical/compiler/native backend refinement, BabyBear and the
 final expected-physical-work theorem remain required.
