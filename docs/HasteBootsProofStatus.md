@@ -7,6 +7,58 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`FrameMatchCost` now prices complete frame kind/label/message equality and
+exact fixed-width u64 decoding. Byte-list comparisons have explicit bounds;
+bounded integer witnesses are derived from the successful eight-byte structural
+parse independently of resource bounds. `GoldBatchFieldCountCost` checks the
+original field-challenge frame: exact kind, label, 16-byte Gold modulus, eight-byte
+count, whole-frame equality and positivity. Its value equals the original
+`NativeGoldBatchFieldInputView.readCount` on every input, with no count/trial cap.
+Structural maximum-u64 acceptance is not a trusted geometry/count check.
+
+`StoredGoldBatchFieldInputCost` now decodes the **complete original raw field
+input**. It recognizes only the immediate terminal batch/typed/prime/field suffix;
+it never searches for an earlier matching label. Exact fixed typed/prime frames,
+the canonical full batch message, all query/value bytes, original preceding frames
+and stored context/root bytes are retained. The viewed parser equals
+`NativeGoldBatchFieldInputView.parse` on every input, and accepted fields
+reconstruct the original stream bytes with a positive challenge count. Its bound
+is `587*streamBytes + 6*labelBytes + 3410`. This includes full outer-frame decoding,
+reversal, exact suffix checks and complete batch payload decoding.
+
+`StoredGoldFieldSourceRecovery` now produces the source key from that parsed
+batch and recovers the field stream's original first-positive-read snapshot.
+The caller supplies raw stream bytes and mixed history, not a key, source log
+or source certificate. Its result view equals the original field parser followed
+by `ExecutableSourceSelection.recover`; parsing and all causal recovery/replay
+charges are included. Malformed field inputs or unexposed streams return none.
+
+`StoredGoldFieldExtraction` composes this raw-input parser/recovery with measured
+stored Gold Merkle/column/code extraction. The key/root comes from the original
+batch bytes, and extraction uses exactly the original recovered snapshot. Its
+value and cost theorems cover parse/recovery failures and the full successful
+extraction path. The trusted typed context, radius, dummy bytes and capacity
+witness still come from the preceding extractor interface; this structural
+composition does not establish application parameter validity or ownership.
+
+Ten regression groups and twenty-five theorem axiom guards cover exact integer
+width, zero/maximum-u64 counts, kind/label/modulus/count/trailing-byte rejection,
+full preceding-frame/raw-word retention, terminal-suffix ordering, malformed outer
+framing, root-only/noncanonical/trailing batch payloads, original raw-key recovery,
+unexposed fields and actual extraction compared with the independently supplied
+expected frozen byte log. Only `propext`, `Classical.choice` and `Quot.sound` occur
+in the audited theorems.
+`scripts/check` passed all 10,821 build jobs and its standard strict checks;
+the new stored-field smoke and axiom audit also passed with
+`warningAsError=true`.
+
+The next obligation is **application-derived trusted context and dimensions**:
+validate the original application instance/parameters, produce required runtime
+geometry/capacity witnesses and prove that its original first-complete registry
+owner supplies this parsed context/root, including earlier unused aliases. Full
+application/PBS soundness, actor/physical/compiler/native backend refinement,
+BabyBear and the final expected-physical-work theorem remain required.
+
 `CausalPrefixReadCost` now recovers the complete mixed-history prefix before a
 stream's first positive read using charged byte comparisons and list traversal.
 Starts, hashes and empty reads remain in the prefix; they do not count as
@@ -46,13 +98,11 @@ Only `propext`, `Classical.choice` and `Quot.sound` occur in the audited theorem
 the new causal stored-source smoke and axiom audit also passed with
 `warningAsError=true`.
 
-The next obligation is **measured original field-input parsing and trusted context
-production**: recover the stored batch/context/root and challenge count from the
-complete original field-stream bytes, validate the application parameters and
-produce required runtime dimension/capacity witnesses. Bind this extractor to
-the original application registry owner, including earlier unused aliases, and
-then discharge full application/PBS soundness, actor/physical/compiler/native
-backend refinement, BabyBear and the final expected-physical-work theorem.
+The measured original-field parsing milestone above supersedes that structural
+parser obligation. Application parameter validation, runtime context/dimension
+production, original registry ownership, full application/PBS soundness,
+actor/physical/compiler/native backend refinement, BabyBear and the final
+expected-physical-work theorem remain open.
 
 `StoredHashLogCost` now retains all ordered hash observations as stored bytes,
 including unrelated/off-path inputs and repeated entries. Its fixed-size measured
