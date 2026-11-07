@@ -7,6 +7,38 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Actual native carrier reads reach the first-original model owner
+
+The new `interop/aeneas/registry` gate extracts the actual
+`snarks::packed_oracle::CanonicalVerifierOracle`, Commitment and Digest512 types
+with four source wrappers using the pinned official tools. The wrappers return
+stored references with their original lifetimes. The source, target, exact
+snapshot and native dependency versions/checksums are checked; no experimental
+frontend or native source change is required.
+
+Eight theorems prove exact parameter/root reads, original slice length/index
+reads (including None outside the slice), and the actual 64-byte root length.
+Seven more prove an injective raw-root conversion and checked entry decoding
+through the retained Goldilocks parameter decoder. All source root bytes and
+parameter/code fields are preserved.
+
+Seven registry theorems preserve the complete original sequence, length and
+append order. A failed entry rejects the whole collection. No used-slot filter,
+deduplication or supplied registry-correspondence certificate is used. The model
+vector length bound derives from the actual source slice bound. For a successful
+modeled registry initialization, its first complete context-digest/root owner is
+read through the extracted native accessor at exactly the original source index,
+with the decoded original parameters/root. No earlier complete key matches;
+earlier unused aliases are retained and remain eligible.
+
+The fresh combined harness checks all 76 parameter/registry dependency closures;
+only the three permitted axioms occur. Six new guard groups bring the total to
+40. This transfers a modeled owner to actual source-carrier value reads. Native
+registry initialization/owner-body refinement, heap/reference/allocation
+provenance, actual constructors, Serde/bincode/hash updates, physical work and the
+full security theorem remain required. Equal hash digests are not treated as a
+proof of parameter equality.
+
 ## Complete decoded-source wire binding and suffix preservation
 
 `interop/aeneas/parameters/Binding.lean` now proves source-side uniqueness of the
