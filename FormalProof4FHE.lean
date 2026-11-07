@@ -494,3 +494,5 @@ import FormalProof4FHE.HasteBoots.CostedMerkleLeaf
 import FormalProof4FHE.HasteBoots.FixedByteReadCost
 import FormalProof4FHE.HasteBoots.CostedMerkleNode
 import FormalProof4FHE.HasteBoots.PreparedMerkleNodes
+import FormalProof4FHE.HasteBoots.StoredDigestView
+import FormalProof4FHE.HasteBoots.CostedMerkleTree
