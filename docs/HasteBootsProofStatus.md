@@ -83,13 +83,43 @@ use only `propext`, `Classical.choice` and `Quot.sound`. No proof limits or nati
 defaults changed. These small extraction fixtures do not assert a complete PBS
 execution.
 
-This still requires supplying the raw available word. Efficient public source
-reconstruction from byte histories, polynomial running-time and field-operation
-cost bounds, physical actor-cost separation and Rust arithmetic/decoder/NTT/
-scheduler refinement are not inferred from executable Lean code. BabyBear
-arithmetic executes in the generic extraction regression; native BabyBear
-verification and its complete work-security theorem remain open. No full PBS
-application-security theorem is claimed.
+`NativeMerkleRoleDecoders` now supplies executable leaf/node partial inverses
+with complete-input and canonical re-encoding checks. Their agreement with the
+classical role inverses holds on every input. `ExecutableMerkleAvailability`
+uses those parsers to build the prefix-only partial Merkle tree once and
+materialize every raw column, retaining empty-row fallback. It preserves the
+first matching node response even for malformed inputs, while leaf recovery
+skips malformed candidates exactly as the analysis resolver does. No extra
+hash role, hash query or future history is introduced.
+
+`NativeGoldPublicSource` materializes native source coordinates from the
+supplied frozen public hash log and then runs coefficient extraction. Its word,
+coefficient table and original-query falsity predicate are proved equal to the
+existing analysis/executable interfaces. The closed-machine executable witness
+now uses this public-log extractor directly; the same measurable lifetime and
+scaled expected-work theorems still hold. Raw lazy u64 spellings are retained
+until field interpretation.
+
+Validation for public-log source reconstruction: `scripts/check` passed all
+10,643 build jobs and its strict audit/smoke commands. The new smoke and audit,
+plus the existing executable-native audit, passed independently with warnings
+treated as errors. Nine executable regressions cover complete/partial trees,
+height-zero recovery, malformed first node versus leaf candidates, trailing and
+truncated input rejection, an enormous forged count with no payload, raw lazy
+u64 preservation, and reconstruction composed with Goldilocks coefficient
+extraction. Twelve new axiom guards permit only `propext`, `Classical.choice`
+and `Quot.sound`. No proof limits or native defaults changed.
+
+The extractor now takes a frozen public hash log instead of an arbitrary raw
+word. Executable selection of the correct original snapshot from the complete
+mixed history, including earlier unused aliases, remains open; the current
+failure event retains the existing `FirstFieldSource.recover` selection rule.
+Polynomial running-time and field-operation cost bounds, physical actor-cost
+separation and Rust arithmetic/decoder/NTT/scheduler refinement are not inferred
+from executable Lean code. BabyBear arithmetic executes in the generic
+extraction regression; native BabyBear verification and its complete work-
+security theorem remain open. No full PBS application-security theorem is
+claimed.
 
 Native batch-model accepted-false-analysis-claim coverage now uses the closed
 interpreter's actual instruction clock. `ClosedByteMachineLineage` supplies the
