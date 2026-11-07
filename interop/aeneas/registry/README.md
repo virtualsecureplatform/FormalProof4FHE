@@ -4,8 +4,9 @@
 from the unchanged native dependency. This carrier stores references to trusted
 parameters and a `pcs::matrix_weighted::Commitment`. The wrapper returns those
 stored references with their original lifetimes; it does not rebuild parameters
-or commitments. Its four functions read both fields, the registry length, an
-optional original slot, and the actual `Digest512` byte array.
+or commitments. Its five functions read both fields, the registry length, an
+optional original slot, the actual `Digest512` byte array, and invoke native
+`Digest512` equality.
 
 `Generated.lean` is the complete reviewed output of the pinned official
 Charon/Aeneas tools, with invariant checking enabled. No experimental compiler
@@ -152,3 +153,21 @@ by the supremum of the joint prefix charges for this same causal machine, with
 no per-receipt multiplier or lifetime cutoff. This is still an ideal-oracle
 association result: the complete native dispatcher, source decoder/heap,
 physical work and false-PBS/application coverage remain unproved.
+
+## Native digest comparison
+
+`roots_equal` invokes the unchanged native derived `Digest512::eq`; its body is
+included in the reviewed extraction snapshot and audited separately. It calls
+the backend's transparent byte-array comparison, not a supplied equality oracle.
+`Equality.lean` has five kernel lemmas for list comparison, exact digest equality,
+and equivalence with the model's full 64-byte root equality (both true and false
+results). The proof covers arbitrary digest bytes and derives matching list
+lengths from the actual fixed-array carriers. No hash-injectivity or collision
+resistance assumption is introduced.
+
+This discharges the digest comparison operation used by registry ownership;
+it does not extract or refine the private first-owner iterator loop. Parameter
+context computation, original representative selection, native initialization,
+serialization, heap and physical attacker work remain separate obligations.
+The manifest now hashes every Lean input, including lookup, causal lookup and
+equality proofs; a guard rejects unrecorded proof files.

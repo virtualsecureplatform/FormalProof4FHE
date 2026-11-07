@@ -7,6 +7,23 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Actual native digest comparison agrees with the model
+
+The registry fixture now extracts the unchanged derived native `Digest512::eq`
+through a `roots_equal` wrapper. `Equality.lean` proves that the comparison
+succeeds and returns exactly the equality decision for all 64 modeled bytes.
+Five kernel lemmas cover the byte-list algorithm, raw digest equality and both
+true/false model equivalences. This is a comparison refinement, not a claim
+about SHA512 collision resistance or the native first-owner iterator loop.
+
+Validation: fresh pinned extraction passed 107 dependency audits, including
+the native comparison body and five new lemmas. All seven registry guard tests
+passed. The comparison proofs use only the three permitted kernel axioms.
+
+The extraction manifest now records hashes for every Lean input, fixing omitted
+per-file hashes for lookup/causal lookup proofs; the combined checked-file hash
+was already recorded. A new guard enforces complete proof-file hash coverage.
+
 ## Causal decoded dispatcher removes supplied trace correspondence
 
 `interop/aeneas/registry/CausalLookup.lean` now decodes the actual original
