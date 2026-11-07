@@ -7,6 +7,49 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`ConcreteNTTInitializedSearch` now retains one constructed Div64 state through
+all root arithmetic and square-before-test search. The u64 argument casts are
+proved inert on the original word domains, and every complete search index/value
+pair agrees with the previous word model. Modular products/powers execute the
+proved limb programs against the retained reciprocal; it is not reconstructed
+between operations.
+
+`ConcreteNTTInitializedSquareRoot` now carries the same state through all
+Tonelli–Shanks powers, searches and updates. Under the derived q/s and word
+bounds, its **complete outcome** agrees with the proved word loop, including
+separate no-root and assertion-failure outcomes. The original decreasing m
+controls termination; no arbitrary iteration fuel or additional native gate is
+introduced.
+
+`ConcreteNTTInitializedRootConstruction` lifts that result through the ascending
+nonresidue scan and repeated square roots. Its public `newRoot` performs the
+literal word-formula Div64 initialization once and uses that same state for the
+entire root construction. Successful construction supplies canonical output and
+primitive order through the earlier word/field simulations; the Goldilocks
+specialization needs no caller reciprocal, arithmetic or primitive-root
+certificate. Zero/one divisors retain assertion failure and unsupported orders
+retain the original no-root behavior. This is root-construction semantics, not
+a replacement checked-root backend or the complete native plan constructor.
+
+Eight regression groups cover all small-field search/square-root outcomes,
+assertion/no-root/early-return branches, constructor rejection, supported and
+unsupported orders, all five established native-plan root literals (including
+Goldilocks N=1024), and noncanonical u64 inputs. Seventeen theorem axiom guards
+cover the retained-state arithmetic, simulations and closed construction.
+
+Validation: `scripts/check` passed all 10,877 build jobs and its strict audit
+and smoke checks. The eight new retained-state root regression groups and
+17-theorem audit also passed directly with `-DwarningAsError=true`. All five
+established native-plan root literals agree. Audited theorems use only
+`propext`, `Classical.choice` and `Quot.sound`.
+
+The retained-state word-root composition is now supplied. Native plan preflight,
+casts/root storage and cache concurrency must still connect this output to the
+actual retained code constructor. Actual Rust/Charon/Aeneas instruction/compiler,
+nonwrapping mul128 high results where needed, frame domains, all-original-claim/
+PBS/application soundness, actor-separated physical/SIMD/scheduler refinement,
+BabyBear and the final expected-work theorem remain open.
+
 `ConcreteNTTU256Division` now retains all four literal high-to-low division
 steps from locked `u256::div_rem_u256_u64`. Each concatenated intermediate fits
 u128; each quotient digit and remainder cast fits u64. Their exact recomposition
@@ -48,9 +91,9 @@ completed its existing 420 arithmetic cases and root assertions. Rust formatting
 passed. Audited theorems use only `propext`, `Classical.choice` and `Quot.sound`.
 
 These are exact bounded natural-word/limb semantics, not yet proofs of actual
-Rust machine division, casts, bit assembly or compiler execution. The remaining
-backend composition includes retained-state root construction, native plan guards/
-root storage and cache concurrency, then the actual retained code constructor.
+Rust machine division, casts, bit assembly or compiler execution. Retained-state root construction is now composed above. The remaining
+backend composition includes native plan guards/root storage and cache
+concurrency, then the actual retained code constructor.
 Nonwrapping mul128 high results where used, frame domains, all-original-claim/
 PBS/application soundness, actor-separated physical/compiler/SIMD/scheduler
 refinement, BabyBear and the final expected-work theorem remain open.

@@ -10,6 +10,7 @@ scripts/in-container lake env lean -DwarningAsError=true FormalProof4FHETest/Has
 scripts/in-container lake env lean -DwarningAsError=true FormalProof4FHETest/HasteBootsConcreteNTTWordRootSmoke.lean
 scripts/in-container lake env lean -DwarningAsError=true FormalProof4FHETest/HasteBootsConcreteNTTLimbSmoke.lean
 scripts/in-container lake env lean -DwarningAsError=true FormalProof4FHETest/HasteBootsConcreteNTTInitializationSmoke.lean
+scripts/in-container lake env lean -DwarningAsError=true FormalProof4FHETest/HasteBootsConcreteNTTInitializedRootSmoke.lean
 ```
 
 The Cargo dependency is pinned to the same `concrete-ntt` commit used by
@@ -77,3 +78,14 @@ actual word-formula constructor and preserves zero/one assertion failure.
 Its public new/remainder/product/power results need no supplied initialization
 or arithmetic certificate. Actual machine division/casts, bit assembly,
 compiler/Rust, native plan/cache and physical refinement remain open.
+
+`ConcreteNTTInitializedSearch`, `ConcreteNTTInitializedSquareRoot` and
+`ConcreteNTTInitializedRootConstruction` now retain the constructed Div64 state
+through the complete root algorithm. Their public `newRoot` performs one
+word-formula initialization, preserves assertion/no-root outcomes, and derives
+canonical successful roots and primitive order. Eight smoke groups compare the
+same five native root literals and exercise complete small-field search/square
+root behavior, invalid divisors, unsupported orders and noncanonical inputs.
+Native plan preflight/storage, cache provenance, machine/compiler and physical
+refinement remain open; these results do not substitute a different native
+backend or add root validation gates to HasteBoots.
