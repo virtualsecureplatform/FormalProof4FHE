@@ -1,4 +1,6 @@
 module
+import all FormalProof4FHE.HasteBoots.StoredDigestView
+import all FormalProof4FHE.HasteBoots.CostedMerkleTree
 import all FormalProof4FHE.HasteBoots.PreparedMerkleNodes
 import all FormalProof4FHE.HasteBoots.FixedByteReadCost
 import all FormalProof4FHE.HasteBoots.CostedMerkleNode
