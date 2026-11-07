@@ -110,16 +110,45 @@ u64 preservation, and reconstruction composed with Goldilocks coefficient
 extraction. Twelve new axiom guards permit only `propext`, `Classical.choice`
 and `Quot.sound`. No proof limits or native defaults changed.
 
-The extractor now takes a frozen public hash log instead of an arbitrary raw
-word. Executable selection of the correct original snapshot from the complete
-mixed history, including earlier unused aliases, remains open; the current
-failure event retains the existing `FirstFieldSource.recover` selection rule.
-Polynomial running-time and field-operation cost bounds, physical actor-cost
-separation and Rust arithmetic/decoder/NTT/scheduler refinement are not inferred
-from executable Lean code. BabyBear arithmetic executes in the generic
-extraction regression; native BabyBear verification and its complete work-
-security theorem remain open. No full PBS application-security theorem is
-claimed.
+The complete mixed-history entry point is now executable.
+`ExecutableParentInputView` checks precisely the 64 observed seed positions,
+retaining unknown positions and every compatible parent. `ExecutableParentLedger`
+preserves the native structural discovery, helper/root association, ordered
+source lists and first positive-read freeze rule. `ExecutableSourceHistory`
+replays starts, hashes and outputs into a state proved equal to the relevant
+projection of the complete analysis state. It retains repeated/off-path hashes,
+partial-byte caches and all 64 snapshots per newly frozen context/root pair,
+without computing the passive stability monitor.
+
+`ExecutableSourceSelection` is proved equal to both common-snapshot selection
+and `FirstFieldSource.recover` on arbitrary mixed histories. Earlier unused
+aliases retain their first snapshot; the same root under another complete
+context is a distinct key. Starts and empty reads do not freeze sources. The
+`NativeGoldPublicSource.tableFromHistory` entry point computes the original
+prefix and snapshot itself, reconstructs the word and returns the coefficient
+table, with explicit `none` before a first positive field read. Its complete
+output is proved equal to the analysis extractor. The existing native false-
+claim/work-security event now refers to this returned table directly and keeps
+the same measurable lifetime and scaled expected-work theorems.
+
+Validation for complete-history source selection: `scripts/check` passed all
+10,645 build jobs and its strict audit/smoke commands. Four focused strict
+checks passed: the new selection smoke/audit and the existing public-source and
+native work-security audits. Seven executable regressions cover earlier unused
+aliases, starts/empty reads, distinct complete context keys with one root,
+repeated hashes, partial-seed parent compatibility, recovery across nonzero-
+offset first reads and later cache reads, and explicit failure without a
+positive field read. Twenty-six new guards use only `propext`, `Classical.choice`
+and `Quot.sound`. No proof limits or native defaults changed.
+
+This is an executable reference replay, not yet a polynomial-cost extractor.
+The reference parent lists preserve duplicates; compacting that representation
+and proving its cost are still required. Application-level ownership by the
+first ORIGINAL registry entry, trusted-context/key linkage, physical actor-cost
+separation, and Rust arithmetic/decoder/NTT/scheduler refinement remain open.
+BabyBear arithmetic executes in the generic extraction regression; native
+BabyBear verification and its complete work-security theorem remain open.
+No full PBS application-security theorem is claimed.
 
 Native batch-model accepted-false-analysis-claim coverage now uses the closed
 interpreter's actual instruction clock. `ClosedByteMachineLineage` supplies the
