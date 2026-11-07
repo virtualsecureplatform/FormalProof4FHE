@@ -26,7 +26,11 @@ inputs = [(0, 0, 0, 0), (mask, mask, mask, mask), (1, 0, 0, 0),
           (mask - 1, mask, 1, mask)]
 rights = [0, 1, 2, 2**32 + 1, mask]
 wide_rights = [0, 1, mask, 2**64, 2**64 + 1, 2**128 - 1]
+plan_roots = {(97, 16): 51, (193, 16): 151, (193, 32): 94,
+              (18446744069414584321, 32): 549755813888,
+              (18446744069414584321, 1024): 455906449640507599}
 expected = {
+    'POWER': {(p, n, i) for p, n in plan_roots for i in range(2 * n)},
     'LIMB64': {(limbs, right) for limbs in inputs for right in rights},
     'LIMB128': {(limbs, right) for limbs in inputs for right in wide_rights},
     'LIMBADD': {(left, right) for left in inputs for right in inputs},
@@ -43,13 +47,21 @@ def digits(value):
     return [(value >> (64 * index)) & mask for index in range(4)]
 
 for line in run.stdout.splitlines():
-    if not (line.startswith('LIMB') or line.startswith('DIVINIT') or line.startswith('PRIME')):
+    if not (line.startswith('LIMB') or line.startswith('DIVINIT') or line.startswith('PRIME') or line.startswith('POWER')):
         continue
     label, *fields = line.split()
     assert label in expected, f'unknown native limb record: {label}'
     values = [int(value) for value in fields]
     assert all(value >= 0 for value in values), 'negative native word'
-    if label == 'PRIME':
+    if label == 'POWER':
+        assert len(values) == 4, f'malformed root-power record: {line}'
+        key = tuple(values[:3])
+        p, n, i = key
+        assert key in expected[label], f'unexpected root-power case: {key}'
+        assert 0 <= values[3] < p, 'noncanonical native root power'
+        reference = [pow(plan_roots[p, n], i, p)]
+        actual = values[3:]
+    elif label == 'PRIME':
         assert len(values) == 2 and values[1] in (0, 1), f'malformed prime record: {line}'
         key = values[0]
         if key < 200:
@@ -109,3 +121,4 @@ for label, cases in expected.items():
     assert seen[label] == cases, f'missing native limb cases: {label} {cases - seen[label]}'
 print('Native limb arithmetic matches Python integers: 35 mul64, 42 wrapping mul128, 49 additions, 49 divisions, 7 initializations')
 print('Native primality gate matches independent expectations: 205 inputs')
+print('Native stored root powers match Python modular exponentiation: 2240 entries across 5 plans')

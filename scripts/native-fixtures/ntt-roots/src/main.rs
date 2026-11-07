@@ -178,6 +178,10 @@ fn main() {
             .expect("fixture domain must be supported");
         assert_eq!(plan.root(), expected);
         println!("ROOT modulus={modulus} size={size} value={}", plan.root());
+        assert_eq!(plan.root_powers().len(), 2 * size);
+        for (index, value) in plan.root_powers().iter().enumerate() {
+            println!("POWER {modulus} {size} {index} {value}");
+        }
     }
     assert!(concrete_ntt::prime64::Plan::try_new(8, 97).is_none());
     assert!(concrete_ntt::prime64::Plan::try_new(16, 17).is_none());

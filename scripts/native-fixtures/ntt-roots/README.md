@@ -98,3 +98,12 @@ for the large composites. It does not use Miller–Rabin as its reference.
 The new Lean gate proves prime-input completeness and both native prime gates;
 it does not prove the converse for arbitrary u64 inputs. Native machine counter
 bounds, full Plan storage/cache and compiler/physical refinement remain open.
+
+The five actual plans now emit all 2,240 `root_powers()` entries. The checker
+requires every (modulus, size, index) exactly once, enforces canonical range and
+compares each value with independent Python `pow(root, index, modulus)` using
+the established native root literals. Lean's checked array-write model proves
+these exact powers and write safety; the Goldilocks constructor prefix derives
+its stored root/state and array contents internally. This still leaves the
+original twiddle arrays, constants, complete Plan allocation/storage, cache and
+machine/physical refinements open; no full Plan result is claimed.
