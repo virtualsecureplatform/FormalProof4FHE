@@ -7,6 +7,24 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`DensePolynomialStepCost` now implements measured shifted subtraction and a
+leading-term cancellation step on fixed-width coefficient vectors. The shifted
+subtraction is proved equal to `p - C(a) * (X^s * q)` whenever the shifted divisor
+fits the coefficient window; its abstract cost is at most `6*n+1`. Cancellation
+uses the two measured metadata scans and costs at most `22*n+15`. For nonzero
+`p` and `degree q ≤ degree p`, its result is proved equal to the standard
+long-division subtraction. If `q` is monic, the resulting polynomial degree is
+strictly smaller. The fit condition is derived from these degree hypotheses and
+the represented vector size, so cancellation does not truncate a leading term.
+Seven runtime regressions cover consecutive division steps, complete cancellation,
+a constant divisor, explicit nonmonic scaling, out-of-window shifts, zero scaling
+and empty vectors. Ten axiom guards cover all exported step theorems.
+This is a verified primitive for the forthcoming dense division loop; normalization,
+quotient accumulation, the complete iteration/cost proof and decoder integration
+remain open, as do preparation, physical refinement and application security.
+Validation: `scripts/check` passed all 10,678 build jobs and its strict checks.
+The new smoke and audit also passed independently with `warningAsError=true`.
+
 `PolynomialShapeCost` now supplies a measured dense-coefficient metadata scan
 for reconstruction work. Its effective length is one past the last nonzero
 coefficient, or zero for the zero polynomial. The scan proves all coefficients
