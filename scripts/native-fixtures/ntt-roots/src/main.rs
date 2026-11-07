@@ -47,7 +47,75 @@ fn arithmetic() {
     println!("ARITH rem-cases=35 mul-cases=175 power-cases=210");
 }
 
+fn limb_products() {
+    use concrete_ntt::fastdiv::Div64;
+    let max = u64::MAX;
+    let inputs = [
+        [0, 0, 0, 0],
+        [max, max, max, max],
+        [1, 0, 0, 0],
+        [0, 0, 0, 1],
+        [max, 0, max, 0],
+        [0, max, 0, max],
+        [max - 1, max, 1, max],
+    ];
+    for input in inputs {
+        // The backend exposes its otherwise unnamed u256 through Div64.
+        let mut word = Div64::new(2).double_reciprocal;
+        word.x0 = input[0];
+        word.x1 = input[1];
+        word.x2 = input[2];
+        word.x3 = input[3];
+        for right in [0, 1, 2, (1_u64 << 32) + 1, max] {
+            let (low, high) = word.mul_u256_u64(right);
+            println!(
+                "LIMB64 {} {} {} {} {} {} {} {} {} {}",
+                input[0], input[1], input[2], input[3], right, low.x0, low.x1, low.x2, low.x3, high
+            );
+        }
+        for right in [
+            0_u128,
+            1,
+            (1_u128 << 64) - 1,
+            1_u128 << 64,
+            (1_u128 << 64) + 1,
+            u128::MAX,
+        ] {
+            let low = word.wrapping_mul_u256_u128(right);
+            println!(
+                "LIMB128 {} {} {} {} {} {} {} {} {}",
+                input[0], input[1], input[2], input[3], right, low.x0, low.x1, low.x2, low.x3
+            );
+        }
+        for other in inputs {
+            let mut right = Div64::new(2).double_reciprocal;
+            right.x0 = other[0];
+            right.x1 = other[1];
+            right.x2 = other[2];
+            right.x3 = other[3];
+            let (low, carry) = word.overflowing_add(right);
+            println!(
+                "LIMBADD {} {} {} {} {} {} {} {} {} {} {} {} {}",
+                input[0],
+                input[1],
+                input[2],
+                input[3],
+                other[0],
+                other[1],
+                other[2],
+                other[3],
+                low.x0,
+                low.x1,
+                low.x2,
+                low.x3,
+                u8::from(carry)
+            );
+        }
+    }
+}
+
 fn main() {
+    limb_products();
     arithmetic();
     for (modulus, size, expected) in [
         (97_u64, 16_usize, 51),

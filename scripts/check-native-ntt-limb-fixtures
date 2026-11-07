@@ -1,0 +1,76 @@
+#!/usr/bin/env python3
+"""Check fresh locked-native u256 products with independent Python integers."""
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+if not __debug__:
+    raise SystemExit('Run fixture checks without Python optimization flags')
+
+root = Path(__file__).resolve().parent.parent
+environment = os.environ.copy()
+environment.setdefault('CARGO_TARGET_DIR', str(root / '.lake/native-fixtures/ntt-roots'))
+run = subprocess.run([
+    'cargo', 'run', '--locked', '--manifest-path',
+    str(root / 'scripts/native-fixtures/ntt-roots/Cargo.toml'),
+], capture_output=True, text=True, env=environment)
+if run.returncode:
+    sys.stderr.write(run.stdout)
+    sys.stderr.write(run.stderr)
+    raise SystemExit(run.returncode)
+
+mask = 2**64 - 1
+inputs = [(0, 0, 0, 0), (mask, mask, mask, mask), (1, 0, 0, 0),
+          (0, 0, 0, 1), (mask, 0, mask, 0), (0, mask, 0, mask),
+          (mask - 1, mask, 1, mask)]
+rights = [0, 1, 2, 2**32 + 1, mask]
+wide_rights = [0, 1, mask, 2**64, 2**64 + 1, 2**128 - 1]
+expected = {
+    'LIMB64': {(limbs, right) for limbs in inputs for right in rights},
+    'LIMB128': {(limbs, right) for limbs in inputs for right in wide_rights},
+    'LIMBADD': {(left, right) for left in inputs for right in inputs},
+}
+seen = {kind: set() for kind in expected}
+
+def integer(limbs):
+    return sum(limb << (64 * index) for index, limb in enumerate(limbs))
+
+def digits(value):
+    return [(value >> (64 * index)) & mask for index in range(4)]
+
+for line in run.stdout.splitlines():
+    if not line.startswith('LIMB'):
+        continue
+    label, *fields = line.split()
+    assert label in expected, f'unknown native limb record: {label}'
+    values = [int(value) for value in fields]
+    assert all(value >= 0 for value in values), 'negative native word'
+    if label == 'LIMB64':
+        assert len(values) == 10, f'malformed native record: {line}'
+        assert all(value <= mask for value in values), 'non-u64 native limb'
+        key = (tuple(values[:4]), values[4])
+        product = integer(key[0]) * key[1]
+        reference = digits(product) + [product >> 256]
+        actual = values[5:]
+    elif label == 'LIMB128':
+        assert len(values) == 9, f'malformed native record: {line}'
+        assert values[4] < 2**128, 'non-u128 native multiplier'
+        assert all(value <= mask for value in values[:4] + values[5:]), 'non-u64 native limb'
+        key = (tuple(values[:4]), values[4])
+        reference = digits(integer(key[0]) * key[1])
+        actual = values[5:]
+    else:
+        assert len(values) == 13, f'malformed native record: {line}'
+        assert all(value <= mask for value in values[:-1]), 'non-u64 native limb'
+        assert values[-1] in (0, 1), 'non-Boolean overflow flag'
+        key = (tuple(values[:4]), tuple(values[4:8]))
+        total = integer(key[0]) + integer(key[1])
+        reference = digits(total) + [total >> 256]
+        actual = values[8:]
+    assert key in expected[label] and key not in seen[label], f'unexpected/duplicate case: {label} {key}'
+    seen[label].add(key)
+    assert actual == reference, f'native limb arithmetic differs: {label} {key}'
+for label, cases in expected.items():
+    assert seen[label] == cases, f'missing native limb cases: {label} {cases - seen[label]}'
+print('Native limb arithmetic matches Python integers: 35 mul64, 42 wrapping mul128, 49 additions')

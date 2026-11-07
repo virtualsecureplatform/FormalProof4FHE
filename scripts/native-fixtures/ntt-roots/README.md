@@ -1,12 +1,14 @@
-# Locked native NTT root and arithmetic regression
+# Locked native NTT root, arithmetic and limb regression
 
 Run from the FormalProof4FHE repository:
 
 ```sh
 CARGO_TARGET_DIR=build/native-ntt-roots cargo run --locked --manifest-path scripts/native-fixtures/ntt-roots/Cargo.toml
+scripts/check-native-ntt-limb-fixtures
 scripts/in-container lake env lean -DwarningAsError=true FormalProof4FHETest/HasteBootsConcreteNTTRootSmoke.lean
 scripts/in-container lake env lean -DwarningAsError=true FormalProof4FHETest/HasteBootsConcreteNTTArithmeticSmoke.lean
 scripts/in-container lake env lean -DwarningAsError=true FormalProof4FHETest/HasteBootsConcreteNTTWordRootSmoke.lean
+scripts/in-container lake env lean -DwarningAsError=true FormalProof4FHETest/HasteBootsConcreteNTTLimbSmoke.lean
 ```
 
 The Cargo dependency is pinned to the same `concrete-ntt` commit used by
@@ -48,3 +50,18 @@ field semantics, preserve assertion failure distinctly from no-root rejection,
 and derive canonical successful roots and primitive order. Their eight smoke
 groups include the same five native-plan root literals. Actual limb/instruction,
 plan/cache and Rust refinement remains open.
+
+The native limb checker compares every emitted result with independent Python
+arbitrary-precision integers: 35 u256-by-u64 products (all 320 result bits),
+42 wrapping u256-by-u128 products, and 49 overflowing additions. It requires the
+complete expected input set, rejects duplicates or malformed/non-word records,
+and refuses to run with Python assertion optimization enabled.
+
+`ConcreteNTTLimbArithmetic` and `ConcreteNTTLimbAdd` model the literal bounded
+multiply/carry and two-overflow-flag add routines. `ConcreteNTTU256Mul64`,
+`ConcreteNTTU256Add` and `ConcreteNTTU256Mul128` prove their original ordered
+limb compositions, wrapping values, overflow flag and complete remainder
+formula. The final remainder theorem still requires the stored reciprocal to
+have its initialized value; the native u256 reciprocal-division/initialization
+routine is not proved here. The nonwrapping u256-by-u128 high-result routine,
+actual machine/compiler, native plan/cache and physical refinements remain open.
