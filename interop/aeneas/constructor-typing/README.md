@@ -73,3 +73,37 @@ extraction, the concrete Goldilocks constructor/cache path and its source-to-mod
 invariant, primitive call-site preconditions and ABI correspondence, compiler/
 heap/instruction/physical-work refinement, and the full unbounded causal security
 proof. BabyBear and the other protocol obligations remain required independently.
+
+## Captured closure lifetime reproducer
+
+`captured-option.rs` isolates the same lifetime failure as the concrete
+constructor: `Option<usize>::is_none_or` captures a shared `&usize` in its
+predicate. The generic extraction and `CapturedOptionProof.lean` establish exact
+none/some behavior for every input. The function and both lemmas pass three
+dependency audits without axioms. Only imports change in the emitted Lean.
+
+```sh
+scripts/check-hasteboots-captured-option-guards
+scripts/probe-hasteboots-captured-option \
+  --tools /tmp/hasteboots-aeneas-tools --backend /tmp/hasteboots-aeneas-m0 \
+  --build-receipt /path/printed/by/builder/manifest.json
+```
+
+The paired probe first runs a fresh constructor-typing fixture preflight to
+validate the exact tool/source/build/package/backend policy. It then extracts
+the same minimal Rust file both ways. Generic mode passes strict checking; mono
+mode must fail at the symbolic input invariant. The LLBC inspection resolves
+Charon's hash-consed types without editing them and checks precisely one
+`is_none_or` declaration, no region/type parameters, and a closure input with
+`regions = [Erased]`. The invariant requires non-erased symbolic input types.
+The mono failure is retained as a rejected route, never a constructor pass.
+Five guard groups cover signature identity, ambiguous/changed signatures,
+hash-consing, nonmutation, and proof audit coverage.
+
+The lifetime is already missing at the Charon/Aeneas boundary. Simply replacing
+all erased regions with one region, inventing independent lifetimes without
+checking output/alias relationships, or disabling Aeneas's invariant does not
+establish a correct specialization. A source-preserving solution still needs
+explicit binder and call-site correspondence. A diagnostic concrete generic
+route including pcs/algebra also emitted Charon errors and was rejected before
+it could qualify as an alternative extraction.

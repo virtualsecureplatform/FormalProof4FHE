@@ -7,6 +7,30 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Concrete closure lifetime failure reduced to a checked reproducer
+
+The monomorphized concrete constructor failure is now reduced to
+`Option<usize>::is_none_or` with a closure capturing `&usize`. The pinned Charon
+output has no lifetime parameters on the monomorphized function, but its closure
+input carries an `Erased` region. Aeneas rejects that symbolic input at its
+non-erased-region invariant; that invariant remains enabled.
+
+The same three-line Rust fixture in generic mode extracts successfully. The
+source function and exact none/some specifications pass three dependency audits
+without axioms. A reproducible paired probe checks the same tool/build/backend
+pins, confirms the precise erased closure signature, requires the known mono
+failure, and checks generic generated terms without changing them. Five guard
+groups check the diagnosis and proof audit coverage. This is a minimal compiler
+regression, not acceptance of the concrete constructor or a lifetime refinement.
+
+A separate diagnostic of the concrete Goldilocks wrapper without full
+monomorphization, including pcs/algebra and the relevant standard methods,
+reports Charon extraction errors (`has_errors = true`). It cannot be accepted
+as an alternative route. Correct lifetime-preserving specialization and the
+formatter-free constructor obligation remain open; arbitrary replacement of
+erased regions or disabling the interpreter invariant is not justified.
+See `interop/aeneas/constructor-typing/README.md` for the paired probe.
+
 ## Generic constructor typechecks; formatter admission still rejected
 
 The new isolated `constructor-typing` frontend profile fixes duplicate parent
