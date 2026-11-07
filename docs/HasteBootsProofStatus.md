@@ -7,6 +7,31 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`BytePrefixCost` now implements exact-width byte extraction and little-endian
+arithmetic with explicit abstract byte/list/access/control charges. Prefix
+extraction costs exactly `5*min(requestedWidth, suppliedLength)+1`; it stops at
+the end of supplied input even for an enormous attacker-declared width.
+`IntegerPrefixCost` composes these primitives into the structural bincode integer
+reader. It is proved equal to `NativeIntegerPrefix.read` on every input,
+including truncated/invalid headers and noncanonical wider spellings. Its
+charge is at most 97, or 101 with the usize range check. The native
+`NativePrefixCodec.usize` now uses this measured implementation and retains an
+all-input equality theorem to the previous reader. `IntegerPrefixProgress` proves
+that every successful integer or usize parse consumes between one and nine
+bytes, supporting row-loop resource bounds in supplied bytes. Strict Merkle role guards
+continue to enforce canonical complete encodings. The remaining vector/leaf
+parser work, canonical re-encoding/comparison, digest preparation, and physical
+backend costs remain open before full decoder/extractor cost composition.
+Nine runtime regressions cover all bincode integer-width boundaries through
+`2^64-1`, exact structural/usize charges, invalid/truncated tags, retained
+noncanonical structural inputs, exact prefix/suffix values and enormous widths
+with short supplied input. Fifteen axiom guards cover value preservation,
+charges, byte consumption and native codec integration. The new smoke/audit
+and affected public-source smoke/audit passed with `warningAsError=true`.
+`scripts/check` passed all 10,711 build jobs, including the broad HasteBoots
+smoke, and its standard strict checks. No new axioms or proof-limit increases
+were introduced.
+
 `PreparedMerklePayloads` now separates strict leaf decoding from payload
 lookup. `ExecutableMerkleAvailability.reconstruct` prepares the frozen log once
 and shares its stored digest bytes and optional decoded payloads across all leaf
