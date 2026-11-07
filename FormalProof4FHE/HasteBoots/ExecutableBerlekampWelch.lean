@@ -37,8 +37,9 @@ def decoder (e k : ℕ) (points received : Fin n → F) : Option (Polynomial F) 
     | some solution =>
       let locator := solutionToE e k solution
       let numerator := solutionToQ e k solution
-      if (ExecutablePolynomialDivision.remainder numerator locator).support = ∅ then
-        let candidate := ExecutablePolynomialDivision.divide numerator locator
+      let reconstruction := ExecutablePolynomialDivision.divMod numerator locator
+      if reconstruction.2.support = ∅ then
+        let candidate := reconstruction.1
         if candidate.natDegree < k ∧ Δ₀(received, fun i => ExecutablePolynomial.evaluate candidate (points i)) ≤ e then
           some candidate
         else none
@@ -101,7 +102,7 @@ theorem complete {e k : ℕ} {points received : Fin n → F} {message : Polynomi
     have quotient := Q'_div_E'_eq_p degree radius dimension nearby distinct
       (solutionToQ_ne_zero (not_le.mp sparse) (BerlekampWelchCondition_iff_Solution.mpr condition) distinct)
       nonzero condition
-    simp only [ExecutablePolynomialDivision.remainder_eq,ExecutablePolynomialDivision.divide_eq,
+    simp only [ExecutablePolynomialDivision.divMod_snd_eq,ExecutablePolynomialDivision.divMod_fst_eq,
       support_eq_empty,EuclideanDomain.mod_eq_zero.mpr quotient.1,ite_eq_left,quotient.2,
       ExecutablePolynomial.evaluate_eq]
     exact ite_eq_left ⟨degree,nearby⟩
