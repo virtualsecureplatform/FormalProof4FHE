@@ -1,3 +1,5 @@
+import FormalProof4FHE.HasteBoots.ClosedByteMachineExecutableSoundness
+import FormalProof4FHE.HasteBoots.ExecutableRectangularMatrixSoundness
 import FormalProof4FHE.HasteBoots.ExecutableSourceCoefficients
 import FormalProof4FHE.HasteBoots.FiniteMatrixSolver
 import FormalProof4FHE.HasteBoots.NativeGoldBatchLifetimeMeasurable
