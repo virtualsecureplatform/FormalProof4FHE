@@ -7,6 +7,29 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`DenseCommonSource` now composes the full matrix decoder on prepared
+position-major column vectors. It charges three nested loads plus storage for
+each scalar word entry, decodes every row/lane once, projects message coefficients
+directly from stored scalar vectors, and materializes the row/coefficient/lane
+table. No intermediate polynomial is constructed at runtime. The table then
+undergoes measured shared-power evaluation and whole-column distance checking;
+a rejected table is replaced by an explicitly charged zero table.
+For `S = DenseBerlekampWelch.operationBound n e m`, candidate construction is
+bounded by `C = r*(b*(S+4*n+3*m+5)+2) + r*(m*(4*b+2)+2) + 3`.
+The total matrix phase is bounded by
+`C + n*(5*m+r*(b*(6*m+8)+9)+18)+4 + r*(m*(b+2)+2)+1 + 5`.
+The default common-source decoder uses this execution; its completeness,
+zero-fallback and exact analysis-decoder equality remain proved. Public
+candidate/table cost interfaces and preparation/view equalities are available.
+Eight runtime regressions cover concentrated/split column errors, lane-word
+loads, empty row/lane/position/message dimensions and the public wrapper.
+Twenty-two axiom guards cover the new core and integration theorems. Initial
+raw/point function materialization, Merkle/history extraction, native field/backend
+and physical costs remain open, as does full application security.
+Validation: `scripts/check` passed all 10,695 build jobs and its strict checks.
+The new smoke/audit, common-source smoke, polynomial audit, rectangular extractor
+smoke and native/public-source audits also passed with `warningAsError=true`.
+
 `DenseBerlekampWelch` now composes the complete scalar decoder on prepared
 point/received vectors, returning an optional fixed-width coefficient vector.
 Its bound covers dimension rejection, the norm/zero shortcut, matrix construction
@@ -23,8 +46,8 @@ are proved. Nine runtime regressions cover correction, no-error decoding,
 dimension rejection, the sparse shortcut, inconsistent interpolation, far words,
 empty/single-point input and the public wrapper. Eight axiom guards cover the
 new composition and integration theorems. This is a complete abstract scalar
-phase bound after input preparation. Accepted-output polynomial conversion,
-raw/point preparation, matrix/extractor-wide cost composition and physical/native
+phase bound after input preparation. Legacy scalar-output polynomial conversion,
+raw/point preparation, remaining extractor-wide cost composition and physical/native
 refinement remain open, along with full application security.
 Validation: `scripts/check` passed all 10,692 build jobs and its strict checks.
 The new smoke/audit, polynomial smoke/audit, common-source smoke and native/public
@@ -43,7 +66,7 @@ failure-equivalence results remain proved for this implementation. Eight runtime
 regressions check acceptance, radius rejection, remainder/degree early rejection,
 zero/empty storage and the public vector-check wrapper. Five axiom guards cover
 all new check and integration theorems. Raw/point input preparation, accepted
-output conversion, complete scalar/extractor cost composition and physical/native
+legacy scalar-output conversion, remaining extractor-wide cost composition and physical/native
 refinement remain open, along with full application security.
 Validation: `scripts/check` passed all 10,689 build jobs and its strict checks.
 The new smoke/audit, polynomial smoke/audit, common-source smoke and native/public
