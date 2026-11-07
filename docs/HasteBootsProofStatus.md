@@ -7,6 +7,59 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`NativeGoldBlockCodeLayout` now separates the literal constructor preflight
+from all backend calls, preserving dimension, message-size, domain-size and
+codeword-stride rejection order and every stored dimension.
+`ConcreteNTTGoldCapturedAttempt` equates held-snapshot publication with the
+existing private-ticket RCU semantics and proves that concrete background cache
+moves preserve captured views and earlier retained-table reads.
+
+`NativeGoldBlockCodeProgram` executes explicit constructor phases: preflight,
+actual generated-and-discarded Plan, cache outer check, capture, inner callback,
+publication/retry, and actual retained table-root load. Even warm-cache creation
+executes generation first. Concrete cache captures, commits and root reads may
+interleave between phases. Stale retries retain their computed proposals as
+ghost receipts and recapture without a retry cap. Its from-empty invariant
+supplies the exact layout, constructor provenance, loaded table and stored raw
+NTT domain root for every completed code. No table-result Boolean, primitive
+root, plan-consistency or successful-builder callback is a constructor input.
+
+`NativeGoldBlockCodeBackend` maps those actual phase outcomes into the earlier
+observation interface; that interface is not used to execute initialization.
+Completed receipts derive primitive order, checked encoding, response existence,
+per-lane degree/code membership, code-shape under the ordinary parameter/message
+association, and complete serialized code bytes. A later reachable cached load
+for the same domain has the same constructed table/root, so encoder root reload
+consistency is derived too. Canonical-root conversion erases a proved bound and
+keeps the raw word; it adds no native normalization or validation gate. Existing
+code/context byte codecs remain unchanged and include that actual NTT domain root.
+
+Ten regression groups exercise preflight/error order, unsupported generation,
+call order, four complete code objects, stale proposals/retry, warm-cache reuse,
+receipt-derived encoding and a response, terminal stability and all native serde
+bytes. Thirty-one theorem guards allow only propext, Classical.choice and
+Quot.sound. The pinned actual HasteBoots fixture now additionally constructs four
+BlockReedSolomonCode objects and checks all six serialized fields, exact cached
+roots and full bytes against independent Python arithmetic/varint encoding.
+Eight native rejection cases cover invalid dimensions/blowup, all three overflow
+stages, and unsupported NTT generation before cache initialization.
+
+Validation: `scripts/check` passed all 10,908 build jobs and every strict
+repository audit/smoke check. The ten new regression groups and 31-theorem audit
+also passed directly with `-DwarningAsError=true`. The pinned native fixture
+passed all four complete code byte records and eight rejection cases in addition
+to the earlier cache identity, root and panic checks. HasteBoots tracked sources
+are unchanged.
+
+This closes the primitive-root/plan-result inputs at the **word-model code
+constructor and encoding** boundary. Actual original registry/parameter/code
+references and source-context initializer receipts still must be linked to these
+completions. Rust/Charon/Aeneas, ArcSwap/Mutex/pointer and instruction refinement,
+optimized kernels/SIMD, allocation, complete scheduling and actor-separated
+physical work remain mandatory. Ghost phase/retry receipts carry no physical fee;
+finite test prefixes impose no protocol trial cap. The full PBS/application,
+BabyBear and unbounded-lifetime expected-work goals remain open.
+
 `ConcreteNTTCacheLookup` now proves the literal first-match vector read,
 including the complete earlier-key-exclusion prefix, exact append behavior and
 preservation of prior reads. No uniqueness assumption, key merge or reordering
@@ -56,8 +109,9 @@ These are cache **value/provenance semantics**, not completed ArcSwap/Mutex or
 Rust refinement. Logical publication versions are not an assumed pointer/ABA
 proof; ghost receipts supply no physical work bound or successful-retry cap.
 Full Mutex scheduling, Arc lifetime/reclamation, actual retry instructions and
-orphan allocation/work charges remain mandatory. The next integration link is
-actual cache/code-initializer receipts and retained original code/context objects.
+orphan allocation/work charges remain mandatory. The constructor phases above now connect logical cache receipts to retained
+code fields and encoding meaning. Actual registry/parameter/code references and
+source-context initializer receipt integration remain open.
 Existing extraction/backend premises remain until that link and the strict
 Rust/Charon/Aeneas, optimized NTT/SIMD, scheduler and actor-separated physical
 refinements are supplied. Full PBS/application soundness, BabyBear and the final
