@@ -111,14 +111,20 @@ bound; actor attribution, physical attacker work and the final 128-bit theorem
 are not established here.
 
 `Lookup.lean` connects the modeled dispatcher's checked receipt to the extracted
-original Rust source read. Two theorems derive stored-vector decoding and field
+original Rust source read. Four theorems derive stored-vector decoding and field
 membership from `receipt_extracted`; callers supply neither a stored source
 vector nor a matching field key. The read index equals the receipt's first-owner
 slot, the decoded carrier equals its oracle, parameters equal the extraction
 context, and all root bytes agree. The enclosing-program theorem derives log
 truthfulness and returns either the existing joint bad event or that exact read.
 
-Framing validity/length bounds, receipt framing, registry decoding and lookup
+The strongest wrapper, `receipt_from_original_parent`, derives receipt framing,
+preflight frame validity and registry-packet message bounds from the original
+parent and existing body/helper/source/batch message domains. It takes no
+intermediate frame list, successful stored-packet decoder, field-key equality,
+or receipt-framing premise. `NativeGoldLookupFraming` proves the stage composition
+independently, including source aliases and earlier receipts before a later stop.
+Original-parent framing, stage message domains, registry decoding and lookup
 trace inclusion remain explicit premises. Connecting the modeled dispatcher and
 initializer to their native bodies, and proving parameter construction, heap,
 Serde/bincode/hash-update and physical-work refinement, remain required.

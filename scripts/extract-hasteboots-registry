@@ -34,7 +34,7 @@ ASSOCIATION_PROOFS = ['initialization_run', 'initialization_origin', 'prelude_ru
                       'lifetime_trace_misassociation_le_charge']
 
 
-LOOKUP_PROOFS = ['receipt_original_read', 'receipt_bad_or_original_read']
+LOOKUP_PROOFS = ['receipt_original_read', 'receipt_bad_or_original_read', 'receipt_from_parent_bad_or_original_read', 'receipt_from_original_parent']
 
 
 def digest(data):
@@ -141,7 +141,7 @@ def main():
         marker = 'import FormalProof4FHE.HasteBoots.NativeGoldParameterInitialization\n'
         if source.count(marker) != 1:
             raise RuntimeError('Unexpected parameter import surface')
-        source = source.replace(marker, marker + 'import FormalProof4FHE.HasteBoots.StoredGoldRegistryAssociation\nimport FormalProof4FHE.HasteBoots.StoredGoldLookupParameterAssociation\n', 1)
+        source = source.replace(marker, marker + 'import FormalProof4FHE.HasteBoots.StoredGoldRegistryAssociation\nimport FormalProof4FHE.HasteBoots.StoredGoldLookupParameterAssociation\nimport FormalProof4FHE.HasteBoots.NativeGoldLookupFraming\n', 1)
         names = list(manifest['dependency_audit'])
         names += [NAMESPACE + '.' + n for n in FUNCTIONS]
         source += '\n' + runtime
@@ -158,7 +158,8 @@ def main():
         source += ''.join('\n#print axioms ' + name + '\n' for name in new_names)
         checked = out / 'Checked.lean'; checked.write_text(source)
         record.update(generated_sha256=digest(raw.encode()), checked_sha256=digest(checked.read_bytes()))
-        run([ROOT / 'scripts/in-container', 'lake', 'build', 'FormalProof4FHE.HasteBoots.StoredGoldLookupParameterAssociation'], 'model-build.log')
+        run([ROOT / 'scripts/in-container', 'lake', 'build', 'FormalProof4FHE.HasteBoots.StoredGoldLookupParameterAssociation',
+             'FormalProof4FHE.HasteBoots.NativeGoldLookupFraming'], 'model-build.log')
         run([ROOT / 'scripts/in-container', 'bash', '-euc',
              'project_path=$(lake env printenv LEAN_PATH); cd -- "$1"; backend_path=$(lake env printenv LEAN_PATH); '
              'LEAN_PATH="$project_path:$backend_path" lean -DwarningAsError=true "$2"', '_',

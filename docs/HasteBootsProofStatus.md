@@ -7,10 +7,26 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Original parent framing reaches the extracted receipt source
+
+`NativeGoldLookupFraming` composes body, ordered helper, source-claim and deferred
+batch framing for the executed dispatcher. Three kernel theorems derive the
+helper parent, source parent and every retained receipt's framing from original
+parent framing and existing serialized-message domains. A later stopped batch
+retains the earlier receipt invariant.
+
+The extraction bridge now includes `receipt_from_original_parent`. It derives
+the preflight frame list, frame validity, registry packet size and receipt
+framing, then returns the joint bad event or an exact original native registry
+read. No intermediate framing or successful stored-packet decoder certificate
+is supplied by the caller. Original parent framing, stage message bounds,
+source-registry decoding and enclosing lookup inclusion remain explicit.
+Native serialization/allocation and physical-work refinement remain open.
+
 ## Dispatcher receipts reach extracted original Rust source reads
 
 `interop/aeneas/registry/Lookup.lean` composes receipt-derived stored-vector
-membership with the extracted original registry getter. Its two theorems require
+membership with the extracted original registry getter. Its four theorems require
 no caller field-key equality or successful stored-packet decoder certificate.
 Outside the existing persistent bad event, the exact receipt owner slot returns
 a carrier decoding to the receipt oracle and extraction parameters, with the
@@ -18,9 +34,10 @@ same raw root. The enclosing-program version derives history truthfulness.
 Framing, lookup inclusion and source-registry decoding remain explicit; native
 initializer/dispatcher, heap and physical-work refinement are still open.
 
-Validation: fresh pinned registry extraction passed all 90 dependency audits;
-the six registry guard tests and the 4658-job dependency build passed. Both new
-theorems use only `propext`, `Classical.choice` and `Quot.sound`.
+Validation: fresh pinned registry extraction passed all 92 dependency audits;
+the six registry guard tests and complete `scripts/check` passed, including
+the 10920-job build and standalone audits/smoke checks. All four
+receipt-read theorems use only `propext`, `Classical.choice` and `Quot.sound`.
 
 ## Matched source associations reduce to one persistent causal bad event
 
