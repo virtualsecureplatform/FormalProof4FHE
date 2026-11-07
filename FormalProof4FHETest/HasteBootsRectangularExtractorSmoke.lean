@@ -12,6 +12,7 @@ import all FormalProof4FHE.HasteBoots.ExecutableRectangularMatrixExtraction
 import all FormalProof4FHE.HasteBoots.CommonSourceReindex
 import all FormalProof4FHE.HasteBoots.ExecutableSourceCoefficients
 import all FormalProof4FHE.HasteBoots.ExecutableCommonSource
+import all FormalProof4FHE.HasteBoots.DenseCommonSource
 import all FormalProof4FHE.HasteBoots.ExecutableBerlekampWelch
 import all FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision
 import all FormalProof4FHE.HasteBoots.DensePolynomialDivision

@@ -10,6 +10,7 @@ import all FormalProof4FHE.HasteBoots.BlockEvaluationCost
 import all FormalProof4FHE.HasteBoots.ColumnDistanceCost
 import all FormalProof4FHE.HasteBoots.ExecutableSourceCoefficients
 import all FormalProof4FHE.HasteBoots.ExecutableCommonSource
+import all FormalProof4FHE.HasteBoots.DenseCommonSource
 import all FormalProof4FHE.HasteBoots.ExecutableBerlekampWelch
 import all FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision
 import all FormalProof4FHE.HasteBoots.DensePolynomialDivision
@@ -66,3 +67,9 @@ private def differentColumns (pos : Fin 5) (row lane : Fin 2) : ZMod 7 :=
 #guard_msgs in
 #eval let run := ExecutableCommonSource.checkWithCost 1 points differentColumns source
       !run.value && decide (run.cost = 634)
+
+/-- info: true -/
+#guard_msgs in
+#eval let run := (ExecutableCommonSource.decodeWithCost 1 points sameColumn :
+        SolverOperationCost.Run (ExecutableCommonSource.Table (ZMod 7) 2 2 2))
+      decide (run.value = source ∧ run.cost ≤ 13399)

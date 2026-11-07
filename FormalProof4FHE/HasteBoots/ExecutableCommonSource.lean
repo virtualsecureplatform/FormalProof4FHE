@@ -2,6 +2,7 @@ module
 public import FormalProof4FHE.HasteBoots.ExecutableBerlekampWelch
 public import FormalProof4FHE.HasteBoots.BlockEvaluationCost
 public import FormalProof4FHE.HasteBoots.ColumnDistanceCost
+public import FormalProof4FHE.HasteBoots.DenseCommonSource
 @[expose] public section
 
 /-! A materialized decoder for an entire matrix of block symbols.
@@ -35,11 +36,46 @@ theorem materializeWithCost_cost (points : Fin n → F) (table : Table F rows m 
     (materializeWithCost points table).cost = n*(5*m+rows*(b*(6*m+2)+2)+10)+1 :=
   BlockEvaluationCost.evaluate_cost _ _
 
+def prepareRaw (raw : Fin n → Fin rows → Fin b → F) : DenseCommonSource.Columns F n rows b :=
+  Vector.ofFn (fun pos => Vector.ofFn (fun row => Vector.ofFn (raw pos row)))
+
+omit [Field F] [DecidableEq F] in
+theorem prepareRaw_input (raw : Fin n → Fin rows → Fin b → F) (pos : Fin n) (row : Fin rows) (lane : Fin b) :
+    DenseCommonSource.input (prepareRaw raw) pos row lane = raw pos row lane := by
+  simp only [prepareRaw,DenseCommonSource.input,FiniteLinearSolver.get_ofFn]
+
+omit [Field F] [DecidableEq F] in
+theorem prepareRaw_word (raw : Fin n → Fin rows → Fin b → F) :
+    ColumnDistanceCost.word (prepareRaw raw) = raw := by
+  funext pos row lane
+  exact prepareRaw_input raw pos row lane
+
+omit [DecidableEq F] in
+theorem prepared_word (points : Fin n → F) (table : Table F rows m b) :
+    DenseCommonSource.word (Vector.ofFn points) table = word points table := by
+  funext pos row lane
+  simp only [DenseCommonSource.word,FiniteLinearSolver.get_ofFn,word]
+  rfl
+
+/-- Initial point/raw function evaluation and materialization are separate costs. -/
+def candidatesWithCost (e : ℕ) (points : Fin n → F) (raw : Fin n → Fin rows → Fin b → F) :
+    SolverOperationCost.Run (Table F rows m b) :=
+  DenseCommonSource.candidates e m (Vector.ofFn points) (prepareRaw raw)
+
 def candidates (e : ℕ) (points : Fin n → F) (raw : Fin n → Fin rows → Fin b → F) : Table F rows m b :=
-  let polynomials := Vector.ofFn (fun row : Fin rows => Vector.ofFn (fun lane : Fin b =>
-    (ExecutableBerlekampWelch.decoder e m points (fun pos => raw pos row lane)).getD ExecutablePolynomial.zero))
-  Vector.ofFn (fun row => Vector.ofFn (fun j => Vector.ofFn (fun lane =>
-    ((polynomials.get row).get lane).coeff j.val)))
+  (candidatesWithCost e points raw).value
+
+theorem candidates_get (e : ℕ) (points : Fin n → F) (raw : Fin n → Fin rows → Fin b → F)
+    (row : Fin rows) (j : Fin m) (lane : Fin b) :
+    (((candidates e points raw).get row).get j).get lane =
+      ((ExecutableBerlekampWelch.decoder e m points (fun pos => raw pos row lane)).getD ExecutablePolynomial.zero).coeff j.val := by
+  simpa only [candidates,candidatesWithCost,FiniteLinearSolver.get_ofFn,prepareRaw_input] using
+    DenseCommonSource.candidates_get e m (Vector.ofFn points) (prepareRaw raw) row j lane
+
+theorem candidatesWithCost_cost (e : ℕ) (points : Fin n → F) (raw : Fin n → Fin rows → Fin b → F) :
+    (candidatesWithCost e points raw : SolverOperationCost.Run (Table F rows m b)).cost ≤
+      DenseCommonSource.candidatesBound n rows m b e :=
+  DenseCommonSource.candidates_cost _ _ _ _
 
 def zeroTable : Table F rows m b :=
   Vector.ofFn (fun _ => Vector.ofFn (fun _ => Vector.ofFn (fun _ => 0)))
@@ -95,9 +131,39 @@ theorem checkWithCost_cost (e : ℕ) (points : Fin n → F) (raw : Fin n → Fin
   simp only [checkWithCost,materializeWithCost_cost,distanceWithCost_cost]
   ring
 
+/-- Full prepared-vector matrix phase. Initial function materialization and
+physical/backend refinement are separate obligations. -/
+def decodeWithCost (e : ℕ) (points : Fin n → F) (raw : Fin n → Fin rows → Fin b → F) :
+    SolverOperationCost.Run (Table F rows m b) :=
+  DenseCommonSource.decode e m (Vector.ofFn points) (prepareRaw raw)
+
 def decode (e : ℕ) (points : Fin n → F) (raw : Fin n → Fin rows → Fin b → F) : Table F rows m b :=
-  let table := candidates e points raw
-  if (checkWithCost e points raw table).value then table else zeroTable
+  (decodeWithCost e points raw).value
+
+theorem decodeWithCost_cost (e : ℕ) (points : Fin n → F) (raw : Fin n → Fin rows → Fin b → F) :
+    (decodeWithCost e points raw : SolverOperationCost.Run (Table F rows m b)).cost ≤
+      DenseCommonSource.operationBound n rows m b e := DenseCommonSource.decode_cost _ _ _ _
+
+omit [DecidableEq F] in
+private theorem dense_zeroTable_eq :
+    (DenseCommonSource.zeroTable : SolverOperationCost.Run (Table F rows m b)).value = zeroTable := by
+  apply Vector.ext
+  intro row rowBound
+  apply Vector.ext
+  intro j jBound
+  apply Vector.ext
+  intro lane laneBound
+  change (((DenseCommonSource.zeroTable : SolverOperationCost.Run (Table F rows m b)).value.get ⟨row,rowBound⟩).get ⟨j,jBound⟩).get ⟨lane,laneBound⟩ =
+    (((zeroTable : Table F rows m b).get ⟨row,rowBound⟩).get ⟨j,jBound⟩).get ⟨lane,laneBound⟩
+  simp only [DenseCommonSource.zeroTable_get,zeroTable,FiniteLinearSolver.get_ofFn]
+
+theorem decode_eq_checked (e : ℕ) (points : Fin n → F) (raw : Fin n → Fin rows → Fin b → F) :
+    (decode e points raw : Table F rows m b) =
+      if (checkWithCost e points raw (candidates e points raw : Table F rows m b)).value then candidates e points raw else zeroTable := by
+  unfold decode decodeWithCost
+  rw [DenseCommonSource.decode_value]
+  simp only [DenseCommonSource.check_value,prepareRaw_word,prepared_word,checkWithCost_value,
+    candidates,candidatesWithCost,dense_zeroTable_eq]
 
 omit [DecidableEq F] in
 @[simp] theorem zeroTable_input (row : Fin rows) (j : Fin m) (lane : Fin b) :
@@ -140,13 +206,14 @@ theorem candidates_complete [NeZero n] [NeZero m]
   intro lane hlane
   change input (candidates e points raw) ⟨row,hrow⟩ ⟨j,hj⟩ ⟨lane,hlane⟩ =
     input source ⟨row,hrow⟩ ⟨j,hj⟩ ⟨lane,hlane⟩
-  simp only [input,candidates,FiniteLinearSolver.get_ofFn,scalar,Option.getD_some,BlockEncoder.coeff_polynomial]
+  simp only [input,candidates_get,scalar,Option.getD_some]
+  exact BlockEncoder.coeff_polynomial (input source ⟨row,hrow⟩) ⟨lane,hlane⟩ ⟨j,hj⟩
 
 theorem decode_complete [NeZero n] [NeZero m]
     (e : ℕ) (points : Fin n ↪ F) (raw : Fin n → Fin rows → Fin b → F)
     (source : Table F rows m b) (radius : 2 * e < n - m + 1) (dimension : m ≤ n)
     (nearby : hammingDist raw (word points source) ≤ e) : decode e points raw = source := by
-  unfold decode
+  rw [decode_eq_checked]
   rw [candidates_complete e points raw source radius dimension nearby]
   simp only [checkWithCost_value,decide_eq_true_eq,ite_eq_left nearby]
 
@@ -167,7 +234,7 @@ theorem decode_fallback [NeZero b] (e : ℕ) (points : Fin n ↪ F)
     (raw : Fin n → Fin rows → Fin b → F)
     (far : ¬∃ source, CommonSource.RowsIn (BlockCode.code points m b) source ∧ hammingDist raw source ≤ e) :
     decode e points raw = (zeroTable : Table F rows m b) := by
-  unfold decode
+  rw [decode_eq_checked]
   simp only [checkWithCost_value,decide_eq_true_eq]
   apply ite_eq_right
   intro close

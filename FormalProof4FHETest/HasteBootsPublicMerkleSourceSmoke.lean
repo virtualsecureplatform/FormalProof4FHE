@@ -10,6 +10,7 @@ import all FormalProof4FHE.HasteBoots.BlockEvaluationCost
 import all FormalProof4FHE.HasteBoots.ColumnDistanceCost
 import all FormalProof4FHE.HasteBoots.ExecutableSourceCoefficients
 import all FormalProof4FHE.HasteBoots.ExecutableCommonSource
+import all FormalProof4FHE.HasteBoots.DenseCommonSource
 import all FormalProof4FHE.HasteBoots.ExecutableBerlekampWelch
 import all FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision
 import all FormalProof4FHE.HasteBoots.DensePolynomialDivision
