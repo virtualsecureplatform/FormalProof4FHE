@@ -5,6 +5,7 @@ public import FormalProof4FHE.HasteBoots.FiniteLinearSolver
 public import FormalProof4FHE.HasteBoots.PreparedMerklePayloads
 public import FormalProof4FHE.HasteBoots.PreparedMerkleNodes
 public import FormalProof4FHE.HasteBoots.CostedMerkleTree
+public import FormalProof4FHE.HasteBoots.CostedMerkleWord
 @[expose] public section
 
 /-! Reconstruct a materialized raw column word from a supplied frozen public
@@ -55,12 +56,8 @@ theorem measuredTree_eq (height : ℕ) (dummy : Vector InputIndexedOracle.Byte 6
 
 def reconstruct (height : ℕ) (dummy : Digest) (log : Log) (root : Digest) : Vector Row (2^height) :=
   let storedLog := log.map (fun entry => (entry.1,PreparedMerklePayloads.store entry.2))
-  let prepared := CostedMerkleTree.prepareTree height (Vector.ofFn dummy) storedLog
-    (PreparedMerklePayloads.store root)
-  let partialTree := prepared.value.1
-  let payloads := prepared.value.2
-  Vector.ofFn (fun position =>
-    (recoverLeaf (resolvePrepared payloads) partialTree (SkeletonLeafIndex.perfectEquiv height position)).getD NativeGoldRawAvailability.emptyRow)
+  (CostedMerkleWord.prepareWord height (Vector.ofFn dummy) storedLog
+    (PreparedMerklePayloads.store root)).value
 
 theorem view_eq_analysis (dummy : Digest) : view dummy = (MerkleOracle.model encoding dummy).view := by
   simp only [view,MerkleOracle.model,NativeMerkleRoleDecoders.node_eq_analysis]
@@ -75,10 +72,10 @@ theorem resolve_eq_analysis (log : Log) : resolve log = MerklePayload.resolve en
 theorem reconstruct_get (height : ℕ) (dummy : Digest) (log : Log) (root : Digest) (position : Fin (2^height)) :
     (reconstruct height dummy log root).get position =
       MerkleAvailability.word encoding dummy NativeGoldRawAvailability.emptyRow height log root position := by
-  have resolver : resolvePrepared (PreparedMerklePayloads.prepare log) = resolve log := rfl
-  simp only [reconstruct,CostedMerkleTree.prepareTree_value,measuredTree_eq,
+  have resolver : CostedMerkleLeafAccess.resolvePayload (PreparedMerklePayloads.prepare log) = resolve log := rfl
+  simp only [reconstruct,CostedMerkleWord.prepareWord_get,measuredTree_eq,
     PreparedMerklePayloads.prepareStoredWithCost_raw,cachedChildren_eq,
-    FiniteLinearSolver.get_ofFn,resolver,view_eq_analysis,resolve_eq_analysis,
+    resolver,view_eq_analysis,resolve_eq_analysis,
     MerkleAvailability.word,MerkleAvailability.payloadAt,MerkleAvailability.tree,
     MerkleTreeExtractor.tree,MerkleTreeExtractor.treeAt]
 end FormalProof4FHE.HasteBoots.ExecutableMerkleAvailability

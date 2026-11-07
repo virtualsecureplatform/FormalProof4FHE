@@ -1,4 +1,7 @@
 module
+import all FormalProof4FHE.HasteBoots.MerkleLeafIndexCost
+import all FormalProof4FHE.HasteBoots.CostedMerkleLeafAccess
+import all FormalProof4FHE.HasteBoots.CostedMerkleWord
 import all FormalProof4FHE.HasteBoots.StoredDigestView
 import all FormalProof4FHE.HasteBoots.CostedMerkleTree
 import all FormalProof4FHE.HasteBoots.PreparedMerkleNodes
