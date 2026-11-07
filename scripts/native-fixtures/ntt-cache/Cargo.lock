@@ -237,6 +237,7 @@ dependencies = [
  "bincode",
  "concrete-ntt",
  "pcs",
+ "sha2",
 ]
 
 [[package]]

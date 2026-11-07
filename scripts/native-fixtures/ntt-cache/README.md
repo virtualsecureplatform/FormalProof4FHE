@@ -38,3 +38,12 @@ domain generation in their original order. Lean's explicit constructor phases
 perform real word-model generation, RCU init/retry and table load; completed
 receipts supply encoding/root/codeword meaning without table-result callbacks.
 These remain value/source models, not Rust/heap/SIMD or physical-work refinement.
+
+The parameter fixtures call actual `Parameters::new_encoded` for three code
+objects. They compare retained fields and serialization, capture the complete
+context preimage, and compare the actual SHA-512 context digest. Python checks
+all varints, domain tags, modulus strings, code bytes and SHA-512 independently.
+Nine errors cover dimensions, code shape and all four allocation overflow classes.
+The Merkle overflow uses a fixture-only generic RowCode with a huge tree; it is
+not claimed reachable through BlockReedSolomonCode::new (that type derives
+Serialize, not Deserialize). This remains regression evidence, not source refinement.

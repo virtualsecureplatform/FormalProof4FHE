@@ -2,6 +2,7 @@
 """Check fresh pinned-native cache identity, roots and error behavior."""
 from pathlib import Path
 import subprocess
+import hashlib
 import sys
 import tomllib
 
@@ -38,6 +39,11 @@ block_seen = set()
 errors = {'zero-message', 'zero-block', 'small-blowup', 'nonpower-blowup',
           'message-overflow', 'domain-overflow', 'stride-overflow', 'unsupported-domain'}
 error_seen = set()
+parameter_cases = {(5,3,2,2,8,3,2), (6,4,2,3,16,4,4), (12,4,2,8,1024,4,4)}
+parameter_seen = set()
+parameter_errors = {'width-zero','left-too-large','variables-too-large','queries-zero','code-shape',
+                    'table-overflow','encoded-overflow','linear-overflow','merkle-overflow'}
+parameter_error_seen = set()
 def encode_u64(value):
     assert 0 <= value < 2**64
     if value < 251:
@@ -48,8 +54,31 @@ def encode_u64(value):
     raise AssertionError('unreachable u64 encoding')
 for line in run.stdout.splitlines():
     label, *fields = line.split()
-    assert label in (*seen, 'CACHE_ERROR', 'CACHE_OK', 'BLOCK', 'BLOCK_ERROR'), f'unknown cache record: {line}'
-    if label == 'BLOCK':
+    assert label in (*seen, 'CACHE_ERROR', 'CACHE_OK', 'BLOCK', 'BLOCK_ERROR', 'PARAM', 'PARAM_ERROR'), f'unknown cache record: {line}'
+    if label == 'PARAM':
+        assert len(fields) == 10
+        key = tuple(map(int, fields[:7]))
+        assert key in parameter_cases and key not in parameter_seen
+        parameter_seen.add(key)
+        num_vars, width, left, queries, message, block, blowup = key
+        assert message == 2**(num_vars-left)
+        padded = 1 << (((message+block-1)//block)-1).bit_length()
+        count = max(padded*blowup,32)
+        root_value = {32:549755813888,1024:455906449640507599}[count]
+        modulus = str(p).encode()
+        code = b''.join(encode_u64(v) for v in (message,block,padded,count))
+        code += encode_u64(len(modulus))+modulus+encode_u64(root_value)
+        domain = b'block-rs/negacyclic-ntt/v1'
+        context = b'HasteBoots/mw-parameters/v2'+encode_u64(len(modulus))+modulus
+        context += b''.join(encode_u64(v) for v in (num_vars,width,left,queries,block,count))
+        context += encode_u64(len(domain))+domain+code
+        assert bytes.fromhex(fields[7]) == code
+        assert bytes.fromhex(fields[8]) == context
+        assert fields[9] == hashlib.sha512(context).hexdigest()
+    elif label == 'PARAM_ERROR':
+        assert len(fields) == 1 and fields[0] in parameter_errors and fields[0] not in parameter_error_seen
+        parameter_error_seen.add(fields[0])
+    elif label == 'BLOCK':
         assert len(fields) == 7
         message, block, blowup, padded, count, root_value = map(int, fields[:6])
         key = (message, block, blowup)
@@ -80,7 +109,9 @@ for line in run.stdout.splitlines():
         markers.append(line)
 assert all(keys == set(expected) for keys in seen.values())
 assert block_seen == set(block_cases) and error_seen == errors
+assert parameter_seen == parameter_cases and parameter_error_seen == parameter_errors
 assert markers == ['CACHE_ERROR root-error=true init-panic=true retained-stable=true',
                    'CACHE_OK workers=8 logs=3 retained-handles=24']
 print('Native NTT caches passed: 3 exact roots, 24 shared Arc handles across 8 threads, retained roots and error/panic distinction')
 print('Native block code constructors passed: 4 complete serialized objects and 8 ordered rejection cases')
+print('Native encoded parameters passed: 3 retained codes and complete SHA-512 context inputs/digests, 9 ordered rejection cases')

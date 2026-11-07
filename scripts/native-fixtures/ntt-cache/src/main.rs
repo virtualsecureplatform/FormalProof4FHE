@@ -2,6 +2,160 @@
 use algebra::{Field, Goldilocks, NTTField, transformation::AbstractNTT};
 use std::sync::{Arc, Barrier};
 
+#[derive(Clone, Debug, Default)]
+struct ContextSpy {
+    bytes: Vec<u8>,
+}
+static CONTEXT_INPUTS: std::sync::Mutex<Vec<Vec<u8>>> = std::sync::Mutex::new(Vec::new());
+impl pcs::utils::hash::Hash for ContextSpy {
+    type Output = pcs::utils::hash::Digest512;
+    fn update_hash_value(&mut self, input: &[u8]) {
+        self.bytes.extend_from_slice(input);
+    }
+    fn output_reset(&mut self) -> Self::Output {
+        use pcs::utils::hash::Hash;
+        let input = std::mem::take(&mut self.bytes);
+        let mut hash = <sha2::Sha512 as Hash>::new();
+        hash.update_hash_value(&input);
+        let result = hash.output_reset();
+        CONTEXT_INPUTS.lock().unwrap().push(input);
+        result
+    }
+}
+fn hex(bytes: &[u8]) -> String {
+    bytes.iter().map(|byte| format!("{byte:02x}")).collect()
+}
+fn parameters() {
+    use pcs::{
+        matrix_weighted::Parameters,
+        utils::{code::BlockReedSolomonCode, hash::Digest512},
+    };
+    for (num_vars, width, left, queries, message, block, blowup) in [
+        (5, 3, 2, 2, 8, 3, 2),
+        (6, 4, 2, 3, 16, 4, 4),
+        (12, 4, 2, 8, 1024, 4, 4),
+    ] {
+        let code = BlockReedSolomonCode::<Goldilocks>::new(message, block, blowup).unwrap();
+        let original = bincode::serde::encode_to_vec(&code, bincode::config::standard()).unwrap();
+        let params =
+            Parameters::new_encoded::<Goldilocks>(num_vars, width, left, queries, code).unwrap();
+        assert_eq!(
+            (
+                params.num_vars(),
+                params.width(),
+                params.left_vars(),
+                params.queries()
+            ),
+            (num_vars, width, left, queries)
+        );
+        let retained =
+            bincode::serde::encode_to_vec(params.code(), bincode::config::standard()).unwrap();
+        assert_eq!(original, retained);
+        let Digest512(digest) = params.context_digest::<Goldilocks, ContextSpy>().unwrap();
+        assert_eq!(
+            Digest512(digest),
+            params.context_digest::<Goldilocks, sha2::Sha512>().unwrap()
+        );
+        let input = CONTEXT_INPUTS.lock().unwrap().pop().unwrap();
+        println!(
+            "PARAM {num_vars} {width} {left} {queries} {message} {block} {blowup} {} {} {}",
+            hex(&retained),
+            hex(&input),
+            hex(&digest)
+        );
+    }
+    for (name, num_vars, width, left, queries, expected) in [
+        (
+            "width-zero",
+            0,
+            0,
+            0,
+            1,
+            "invalid dimensions or query count",
+        ),
+        (
+            "left-too-large",
+            0,
+            1,
+            1,
+            1,
+            "invalid dimensions or query count",
+        ),
+        (
+            "variables-too-large",
+            64,
+            1,
+            0,
+            1,
+            "invalid dimensions or query count",
+        ),
+        (
+            "queries-zero",
+            0,
+            1,
+            0,
+            0,
+            "invalid dimensions or query count",
+        ),
+        (
+            "code-shape",
+            1,
+            1,
+            0,
+            1,
+            "code dimensions do not match table",
+        ),
+        ("table-overflow", 63, 2, 63, 1, "table size overflow"),
+        ("encoded-overflow", 63, 1, 63, 1, "encoded size overflow"),
+        (
+            "linear-overflow",
+            0,
+            1_usize << 32,
+            0,
+            1,
+            "linear-test matrix size overflow",
+        ),
+    ] {
+        let code = BlockReedSolomonCode::<Goldilocks>::new(1, 1, 2).unwrap();
+        let error = Parameters::new_encoded::<Goldilocks>(num_vars, width, left, queries, code)
+            .err()
+            .expect("must reject");
+        assert_eq!(error.0, expected);
+        println!("PARAM_ERROR {name}");
+    }
+    // Exercise the generic API's final guard without pretending this descriptor
+    // has BlockReedSolomonCode::new provenance (that type is not Deserialize).
+    struct HugeTree;
+    impl pcs::utils::code::RowCode<Goldilocks> for HugeTree {
+        fn message_len(&self) -> usize {
+            1
+        }
+        fn block_width(&self) -> usize {
+            1
+        }
+        fn codeword_blocks(&self) -> usize {
+            1_usize << 63
+        }
+        fn distance(&self) -> f64 {
+            0.0
+        }
+        fn proximity_gap(&self) -> f64 {
+            0.0
+        }
+        fn domain_separator(&self) -> &'static [u8] {
+            b"fixture-only-invalid-tree"
+        }
+        fn encode_row(&self, _: &[Goldilocks], _: &mut [Goldilocks]) {
+            panic!("must reject before encoding")
+        }
+    }
+    let error = Parameters::new_encoded::<Goldilocks>(0, 1, 0, 1, HugeTree)
+        .err()
+        .expect("Merkle size must reject");
+    assert_eq!(error.0, "Merkle tree size overflow");
+    println!("PARAM_ERROR merkle-overflow");
+}
+
 fn block_codes() {
     use pcs::utils::code::{BlockReedSolomonCode, RowCode};
     for (message, block, blowup) in [(1, 1, 2), (7, 3, 2), (1024, 4, 4), (4096, 4, 4)] {
@@ -163,4 +317,5 @@ fn main() {
     println!("CACHE_ERROR root-error=true init-panic=true retained-stable=true");
     println!("CACHE_OK workers=8 logs=3 retained-handles=24");
     block_codes();
+    parameters();
 }
