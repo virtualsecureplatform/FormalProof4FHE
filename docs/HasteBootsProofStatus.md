@@ -7,6 +7,57 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`ConcreteNTTBitReverse` models the original 64-bit usize expression: reverse
+all 64 bits, then shift by 64-nbits. Equivalence to nbits-wide reversal derives
+range, involution and injectivity. `ConcreteNTTTwiddleIndices` derives the exact
+forward and inverse write maps, including (n-k)%n and its zero case, without an
+index/permutation callback.
+
+`ConcreteNTTTwiddleArray` retains both allocated arrays, every original checked
+write, the special inverse zero-index branch, the original p-wk subtraction and
+all retained-state products, including the final loop product. Its invariant
+proves every slot written, no later overwrite, exact word contents, and complete
+field equations. Forward powers are canonical; inverse powers are canonical for
+the original nonzero prime-field root. Direct invalid zero-root behavior is
+preserved rather than replaced by a validation/normalization gate.
+
+`ConcreteNTTConstructedTwiddles` executes the original separate Div64/root
+construction for the non-Shoup initializer. A missing root at its unwrap remains
+assertion failure. An actual accepted Goldilocks root-power prefix determines
+the repeated state/root, so paired-array construction needs no caller arithmetic,
+root, array-builder or width certificate. Primitive order and the original size
+guard derive logSize>=4, a word-sized 2*n and a valid reversal shift domain.
+Its composed Goldilocks stage retains the original root-power arrays and both
+twiddle arrays; success supplies their lengths, canonical entries and exact
+forward/inverse field equations relative to that original stored root. No index
+failure can occur on this path. The temporary second state/root are discarded
+from the composed retained stage, as in the original initializer.
+
+Ten smoke groups cover literal/permutation/boundary indices, inverse indices,
+complete F17 arrays, both checked-write failures, empty loops, literal zero-root
+subtraction, initializer assertions, repeated state/root identity and every
+composed Goldilocks N=32/N=1024 root-power/twiddle entry. Thirty-four theorem
+axiom guards permit only propext, Classical.choice and Quot.sound. The fresh
+locked native fixture additionally checks four monomials at N=32 and N=1024:
+4,224 actual forward outputs match independent Python bit-string reversal and
+polynomial evaluation; 4,224 normalized inverse outputs recover those monomials.
+These regressions exercise native private twiddle arrays, not a proof of every
+native transform or compiler/SIMD path.
+
+Validation: `scripts/check` passed all 10,892 build jobs and every strict
+repository audit/smoke check. The ten new regression groups and 34-theorem audit
+also passed directly with `-DwarningAsError=true`. The locked native fixture
+passed all 8,448 transform outputs plus every earlier root-power, primality,
+limb, initialization, arithmetic, root and rejection regression.
+
+The next constructor obligations are the inverse/Barrett constants, reverse-index
+array and complete Plan field/allocation assembly, then retained table/cache
+provenance. Actual usize/u64 instruction/cast/overflow, Rust/Charon/Aeneas,
+optimized transform kernels, scheduler and actor-separated physical work remain
+open. These modules prove the original non-Shoup scalar constructor stages; they
+do not establish complete native Plan/cache or application security. BabyBear
+and the final unbounded-lifetime expected-work theorem remain required.
+
 `ConcreteNTTRootPowerArray` now retains the allocated array and proves the
 literal two initial writes plus every tail write of `root_powers`. Each product
 uses the same initialized Div64 state. Its loop invariant proves all write
@@ -39,9 +90,9 @@ fixture passed all 2,240 stored root-power comparisons and every existing
 primality, limb, initialization, arithmetic, root and rejection regression.
 
 This is a proved constructor **prefix**, not a complete Plan or Rust refinement.
-The next construction steps are the original twiddle initializer (including its
-separate Div64/root construction), bit-reversed writes, inverse/Barrett constants,
-and reverse-index storage, followed by complete retained table/cache provenance.
+The twiddle initializer and bit-reversed writes are now supplied above. The
+remaining construction steps are inverse/Barrett constants and reverse-index
+storage, followed by complete Plan assembly and retained table/cache provenance.
 Interleaved allocation effects, usize/u64 casts and overflow, machine/compiler,
 SIMD/scheduler and actor-separated physical work remain open. The full protocol
 and expected-work security target is unchanged and remains incomplete.
