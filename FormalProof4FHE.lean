@@ -503,3 +503,6 @@ import FormalProof4FHE.HasteBoots.RawGoldColumnCost
 import FormalProof4FHE.HasteBoots.StoredGoldPublicSource
 import FormalProof4FHE.HasteBoots.PublicSourceByteInputs
 import FormalProof4FHE.HasteBoots.PublicGoldByteExtraction
+import FormalProof4FHE.HasteBoots.StoredShakeByteCache
+import FormalProof4FHE.HasteBoots.StoredParentSeedCheck
+import FormalProof4FHE.HasteBoots.StoredShakeHistory

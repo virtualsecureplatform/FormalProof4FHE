@@ -7,6 +7,47 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`StoredShakeByteCache` now implements observed SHAKE-coordinate lookup and
+interval writes over stored entries. Complete input-byte comparison and offset
+comparison are charged. Writes shadow older coordinates without discarding any
+stored observation. For query input length `I` and `C` entries, lookup costs at
+most `(6*I+14)*C+1`; an interval of `B` supplied bytes costs exactly `8*B+1`
+to install. The cache view is proved equal to the original functional updates.
+Inputs are shared immutable lists already supplied by the caller; these are
+abstract access/list charges, not physical allocation or integer costs.
+
+`StoredParentSeedCheck` checks a supplied stored seed against all old observed
+coordinates, treating unknown bytes as wildcards and stopping on an exposed
+contradiction. It is proved equal to `ExecutableParentInputView.compatible` and
+its semantic proposition. Its bound is `64*((6*I+14)*C+5)+131`, including the
+fixed index-list construction. The measured parent filter visits every supplied
+candidate and preserves the original compatible records, order and duplicates.
+Its equality to the existing active-parent filter requires only that the supplied
+stored seed is the original parsed quote; parsing is still a separate obligation.
+For `P` candidates with total input byte length `S`, its bound is
+`64*(6*S+14*P)*C+454*P+1`.
+
+`StoredShakeHistory` replays the complete mixed history's SHAKE-byte projection
+without a cache callback or oracle-world argument. It visits starts and hashes,
+retains every output byte and preserves the old overwrite semantics even for
+arbitrary histories. The resulting cache view equals the byte cache of
+`CompactSourceHistory.reconstruct` for every history. With `B` supplied output
+bytes and `H` observations, replay stores exactly `B` entries and costs at most
+`8*B+5*H+1`. `parentCompatible` composes replay and stored-seed checking with a
+proved value equality and upper operation bound. These are upper extraction
+costs, not attacker-work credit or a complete history extractor bound.
+
+Nine regressions and twenty-six axiom guards cover overwrite/partial exposure,
+input separation, off-seed offsets, empty output, exact charges, short-circuit
+rejection, composition and preservation of all compatible parent records.
+`scripts/check` passed all 10,747 build jobs and its standard strict checks;
+the new stored-SHAKE smoke/audit also passed with `warningAsError=true`.
+Parent/child frame parsing, stored source/helper ledger replay, source snapshot
+selection and history-wide extraction composition remain open. Enclosing byte
+framing, runtime size production, actor/physical/compiler/native refinement,
+BabyBear and full application security also remain required. No new axioms or
+proof-limit increases were introduced.
+
 `StoredGoldPublicSource` now exposes a concrete stored-byte materializer and
 extractor. Functional digest views occur only in compatibility statements and
 analysis bounds, never in these executed entry points. Both value and declared
