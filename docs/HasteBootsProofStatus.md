@@ -7,6 +7,38 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Constructed parameters and original registry provenance
+
+`NativeGoldEncodedParameters` models the ordered `new_encoded` checks and the
+exact retained code/header fields. `NativeGoldParameterInitialization` connects
+successful constructor completion to those parameters, deriving message-length
+association, checked geometry, primitive roots and encoding availability.
+`NativeGoldParameterStore` records immutable logical allocations and collects
+borrowed references in original order, preserving duplicate and unused aliases.
+`NativeGoldConstructedRegistry` carries that provenance through initialization
+and extraction to the first original complete context/root owner. This route no
+longer asks the caller to certify code identity, message association or geometry.
+
+Validation: `scripts/check` passed all 10,914 build jobs and its strict audits
+and smoke sequence. Both new test modules also passed directly with
+`-DwarningAsError=true`; the pinned native cache/parameter checker passed.
+Coverage includes six executable Lean regression groups and 22 theorem axiom
+guards (only propext, Classical.choice and Quot.sound). Native fixtures check
+three retained codes, complete context preimages and SHA-512 digests, plus nine
+ordered parameter errors. The huge-tree rejection uses a generic Rust RowCode
+fixture; it is not a constructor-reachable BlockReedSolomonCode. The actual
+BlockReedSolomonCode supports Serialize, not Deserialize.
+
+The next source obligation is the automatic balanced layout selector and actual
+Rust allocation/borrow/heap refinement of this logical arena. Charon/Aeneas,
+NTT/SIMD/Div64 implementation binding, scheduler and actor-separated physical
+costs remain open. The global causal SHA-512/SHAKE history, unbounded-lifetime
+charging argument, BabyBear instantiation and final 128-bit expected-work theorem
+remain required. These results do not establish complete protocol security.
+
+The earlier milestones below record the progression; their registry-integration
+next steps are superseded only for this logical constructed-parameter route.
+
 `NativeGoldBlockCodeLayout` now separates the literal constructor preflight
 from all backend calls, preserving dimension, message-size, domain-size and
 codeword-stride rejection order and every stored dimension.
