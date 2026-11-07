@@ -1,6 +1,6 @@
 module
 public import FormalProof4FHE.HasteBoots.ExecutableMerkleAvailability
-public import FormalProof4FHE.HasteBoots.ExecutableSourceSelection
+public import FormalProof4FHE.HasteBoots.CompactSourceHistory
 public import FormalProof4FHE.HasteBoots.NativeGoldExecutableExtraction
 @[expose] public section
 
@@ -78,7 +78,7 @@ mixed history. No first positive field read means explicit extraction failure. -
 def tableFromHistory (dummy : Digest) (ctx : Context) (history : List NativeTranscript.Observation)
     (field : NativeGoldBatchFieldInputView.View) (radius : ℕ)
     (capacity : ctx.parameters.code.messageLength.val ≤ ctx.parameters.code.messageBlocks.val*ctx.parameters.code.blockWidth.val) :=
-  (ExecutableSourceSelection.recover history field).map (fun sourceLog =>
+  (CompactSourceHistory.recover history field).map (fun sourceLog =>
     table dummy field.data.root ctx sourceLog radius capacity)
 
 theorem tableFromHistory_eq_analysis (dummy : Digest) (ctx : Context) (history : List NativeTranscript.Observation)
@@ -93,7 +93,7 @@ theorem tableFromHistory_eq_analysis (dummy : Digest) (ctx : Context) (history :
         RectangularMatrixOpeningKernel.extract (NativeGoldBatchResponseMeaning.Domain ctx primitive) capacity radius
           (NativeGoldBatchSelectedWord.word dummy field.data.context field.data.root ctx sourceLog)) := by
   unfold tableFromHistory
-  rw [ExecutableSourceSelection.recover_eq dummy]
+  rw [CompactSourceHistory.recover_eq dummy]
   congr 1
   funext sourceLog left right channel
   exact extract_eq_analysis dummy field.data.context field.data.root ctx sourceLog tables message block blowup
@@ -104,7 +104,7 @@ theorem tableFromHistory_none_iff (dummy : Digest) (ctx : Context) (history : Li
     (capacity : ctx.parameters.code.messageLength.val ≤ ctx.parameters.code.messageBlocks.val*ctx.parameters.code.blockWidth.val) :
     tableFromHistory dummy ctx history field radius capacity = none ↔
       CausalStreamExposure.seen history (NativeGoldBatchFirstFieldSource.input field) = false := by
-  simp only [tableFromHistory,Option.map_eq_none_iff,ExecutableSourceSelection.recover_eq dummy,
+  simp only [tableFromHistory,Option.map_eq_none_iff,CompactSourceHistory.recover_eq dummy,
     NativeGoldBatchFirstFieldSource.recover_none]
 
 def FalseClaim (dummy : Digest) (ctx : Context) (work : NativeGoldBatchPcsProgram.Prepared)
@@ -124,7 +124,7 @@ theorem falseClaim_iff_executable (dummy : Digest) (ctx : Context) (work : Nativ
     FalseClaim dummy ctx work decoded history capacity radius ↔
       NativeGoldExecutableExtraction.FalseClaim dummy ctx work decoded history capacity radius := by
   unfold FalseClaim NativeGoldExecutableExtraction.FalseClaim
-  rw [← ExecutableSourceSelection.recover_eq dummy history decoded.field]
+  rw [← CompactSourceHistory.recover_eq dummy history decoded.field]
   constructor
   · intro falseClaim sourceLog found
     have extracted : tableFromHistory dummy ctx history decoded.field radius capacity =
