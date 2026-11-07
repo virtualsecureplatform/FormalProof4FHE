@@ -7,6 +7,23 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`NTTDomainCost` now generates a materialized evaluation-point table using a
+binary point tree with shared ratio squares. Its stored values are proved equal
+to `NTTButterfly.nodes` in the native bit-reversed odd-root order for every field
+and root value. Its exact abstract field/access charge is
+`cost + 5 = 2^n*(2*n+9)`, including concatenation loads/stores and structural
+operations. The native Goldilocks extractor consumes this table directly and
+adds its charge to the prepared rectangular extraction bound. Its output and
+analysis-equality theorems are preserved for all inputs. This closes domain-node
+generation in the abstract model; context/root conversion, raw byte/input
+materialization, Merkle/history reconstruction, physical backend refinement and
+full application security remain open.
+Validation: `scripts/check` passed all 10,701 build jobs and its strict checks.
+Ten runtime regressions cover point order, degenerate roots and exact charges;
+ten axiom guards cover generation, cost and native integration. The new
+smoke/audit and affected executable-native/public-source audits and public-source
+smoke also passed with `warningAsError=true`. No proof limits were increased.
+
 `DenseSourceExtraction` now prices source-padding removal and rectangular output
 assembly after matrix decoding. Padding removal uses the original row-major
 block/lane address and costs exactly `r*(7*s+2)+1` for `r` rows and original
@@ -20,8 +37,8 @@ and native Goldilocks extraction entry points now expose these charges and use
 the measured implementation; their analysis-equality theorems remain proved.
 Seven runtime regressions cover partial padding, independent widths, rectangular
 ordering, empty output dimensions and the public wrapper. Thirteen axiom guards
-cover the new projection and extraction theorems. Initial raw/point preparation,
-NTT domain-node generation, Merkle/history reconstruction and physical/backend
+cover the new projection and extraction theorems. Initial raw preparation,
+Merkle/history reconstruction and physical/backend
 refinement remain open, along with full application security.
 Validation: `scripts/check` passed all 10,698 build jobs and its strict checks.
 The new smoke/audit, rectangular and common-source smokes, polynomial audit
