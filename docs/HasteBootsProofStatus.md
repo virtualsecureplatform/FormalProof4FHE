@@ -7,6 +7,25 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+The default Berlekamp–Welch candidate check now operates entirely on prepared
+coefficient/input vectors. `DenseCandidateCheck` uses measured inspection for
+remainder-zero and candidate-degree checks, shared Horner evaluations, and a
+measured scalar distance scan. Its result is proved equivalent to zero remainder,
+bounded candidate degree and the original Hamming-radius predicate. The cost is
+at most `n*(7*w+12)+16*w+23` for coefficient width `w` and `n` evaluation points,
+including early rejection branches. No polynomial conversion or coefficient
+callback is evaluated inside this check; the scalar decoder constructs the
+output polynomial only after acceptance. Existing success, completeness and
+failure-equivalence results remain proved for this implementation. Eight runtime
+regressions check acceptance, radius rejection, remainder/degree early rejection,
+zero/empty storage and the public vector-check wrapper. Five axiom guards cover
+all new check and integration theorems. Raw/point input preparation, accepted
+output conversion, complete scalar/extractor cost composition and physical/native
+refinement remain open, along with full application security.
+Validation: `scripts/check` passed all 10,689 build jobs and its strict checks.
+The new smoke/audit, polynomial smoke/audit, common-source smoke and native/public
+source audits also passed independently with `warningAsError=true`.
+
 The default Berlekamp–Welch decoder now retains the solver's materialized
 solution vector and reconstructs directly from it. `BerlekampWelchReconstruction`
 loads locator and numerator coefficients into vectors of fixed width `e+k+1`.
@@ -110,8 +129,9 @@ Scalar distance and norm scans are now explicit measured executions on prepared
 vectors. `ScalarDistanceCost.distance` is proved equal to scalar Hamming distance
 and costs exactly `7*n+2`; `norm` is proved equal to Hamming norm and costs exactly
 `6*n+2`. The default Berlekamp–Welch decoder uses the measured norm for its sparse
-zero-message shortcut. Its final candidate check combines shared Horner
-evaluations, the scalar distance scan and the radius comparison, with exact cost
+zero-message shortcut. The legacy polynomial-valued candidate checker combines
+shared Horner evaluations, the scalar distance scan and the radius comparison,
+with exact cost
 `n*(7*(candidate.natDegree+1)+12)+4`. For degree below message dimension `k`, this
 is at most `n*(7*k+12)+4`. Degree discovery/checking, input-function and coefficient
 materialization, system construction/elimination and polynomial reconstruction
