@@ -87,6 +87,22 @@ fn limb_products() {
                 input[0], input[1], input[2], input[3], right, low.x0, low.x1, low.x2, low.x3
             );
         }
+        for divisor in [2_u64, 3, 17, 97, 65536, 18446744069414584321, max] {
+            let (quotient, remainder) = word.div_rem_u256_u64(divisor);
+            println!(
+                "LIMBDIV {} {} {} {} {} {} {} {} {} {}",
+                input[0],
+                input[1],
+                input[2],
+                input[3],
+                divisor,
+                quotient.x0,
+                quotient.x1,
+                quotient.x2,
+                quotient.x3,
+                remainder
+            );
+        }
         for other in inputs {
             let mut right = Div64::new(2).double_reciprocal;
             right.x0 = other[0];
@@ -114,8 +130,25 @@ fn limb_products() {
     }
 }
 
+fn reciprocal_states() {
+    for divisor in [2_u64, 3, 17, 97, 65536, 18446744069414584321, u64::MAX] {
+        let state = concrete_ntt::fastdiv::Div64::new(divisor);
+        let reciprocal = state.double_reciprocal;
+        println!(
+            "DIVINIT {} {} {} {} {} {}",
+            divisor,
+            reciprocal.x0,
+            reciprocal.x1,
+            reciprocal.x2,
+            reciprocal.x3,
+            state.single_reciprocal
+        );
+    }
+}
+
 fn main() {
     limb_products();
+    reciprocal_states();
     arithmetic();
     for (modulus, size, expected) in [
         (97_u64, 16_usize, 51),

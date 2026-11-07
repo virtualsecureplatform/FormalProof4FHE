@@ -30,6 +30,8 @@ expected = {
     'LIMB64': {(limbs, right) for limbs in inputs for right in rights},
     'LIMB128': {(limbs, right) for limbs in inputs for right in wide_rights},
     'LIMBADD': {(left, right) for left in inputs for right in inputs},
+    'LIMBDIV': {(limbs, divisor) for limbs in inputs for divisor in [2, 3, 17, 97, 65536, 18446744069414584321, mask]},
+    'DIVINIT': set([2, 3, 17, 97, 65536, 18446744069414584321, mask]),
 }
 seen = {kind: set() for kind in expected}
 
@@ -40,7 +42,7 @@ def digits(value):
     return [(value >> (64 * index)) & mask for index in range(4)]
 
 for line in run.stdout.splitlines():
-    if not line.startswith('LIMB'):
+    if not (line.startswith('LIMB') or line.startswith('DIVINIT')):
         continue
     label, *fields = line.split()
     assert label in expected, f'unknown native limb record: {label}'
@@ -60,6 +62,21 @@ for line in run.stdout.splitlines():
         key = (tuple(values[:4]), values[4])
         reference = digits(integer(key[0]) * key[1])
         actual = values[5:]
+    elif label == 'LIMBDIV':
+        assert len(values) == 10, f'malformed native record: {line}'
+        assert all(value <= mask for value in values), 'non-u64 native limb'
+        key = (tuple(values[:4]), values[4])
+        quotient, remainder = divmod(integer(key[0]), key[1])
+        reference = digits(quotient) + [remainder]
+        actual = values[5:]
+    elif label == 'DIVINIT':
+        assert len(values) == 6, f'malformed native record: {line}'
+        assert all(value <= mask for value in values[:5]), 'non-u64 native limb'
+        assert values[5] < 2**128, 'non-u128 single reciprocal'
+        key = values[0]
+        assert key > 1, 'native invalid divisor reached initialization output'
+        reference = digits((2**256 - 1) // key + 1) + [(2**128 - 1) // key + 1]
+        actual = values[1:]
     else:
         assert len(values) == 13, f'malformed native record: {line}'
         assert all(value <= mask for value in values[:-1]), 'non-u64 native limb'
@@ -73,4 +90,4 @@ for line in run.stdout.splitlines():
     assert actual == reference, f'native limb arithmetic differs: {label} {key}'
 for label, cases in expected.items():
     assert seen[label] == cases, f'missing native limb cases: {label} {cases - seen[label]}'
-print('Native limb arithmetic matches Python integers: 35 mul64, 42 wrapping mul128, 49 additions')
+print('Native limb arithmetic matches Python integers: 35 mul64, 42 wrapping mul128, 49 additions, 49 divisions, 7 initializations')

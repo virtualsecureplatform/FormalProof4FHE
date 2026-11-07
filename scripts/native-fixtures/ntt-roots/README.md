@@ -9,6 +9,7 @@ scripts/in-container lake env lean -DwarningAsError=true FormalProof4FHETest/Has
 scripts/in-container lake env lean -DwarningAsError=true FormalProof4FHETest/HasteBootsConcreteNTTArithmeticSmoke.lean
 scripts/in-container lake env lean -DwarningAsError=true FormalProof4FHETest/HasteBootsConcreteNTTWordRootSmoke.lean
 scripts/in-container lake env lean -DwarningAsError=true FormalProof4FHETest/HasteBootsConcreteNTTLimbSmoke.lean
+scripts/in-container lake env lean -DwarningAsError=true FormalProof4FHETest/HasteBootsConcreteNTTInitializationSmoke.lean
 ```
 
 The Cargo dependency is pinned to the same `concrete-ntt` commit used by
@@ -61,7 +62,18 @@ and refuses to run with Python assertion optimization enabled.
 multiply/carry and two-overflow-flag add routines. `ConcreteNTTU256Mul64`,
 `ConcreteNTTU256Add` and `ConcreteNTTU256Mul128` prove their original ordered
 limb compositions, wrapping values, overflow flag and complete remainder
-formula. The final remainder theorem still requires the stored reciprocal to
-have its initialized value; the native u256 reciprocal-division/initialization
-routine is not proved here. The nonwrapping u256-by-u128 high-result routine,
+formula. Its initialization relation is now derived by the literal limb
+reciprocal-division/initialization semantics described below; actual Rust machine
+refinement remains open. The nonwrapping u256-by-u128 high-result routine,
 actual machine/compiler, native plan/cache and physical refinements remain open.
+
+The checker additionally verifies 49 native `div_rem_u256_u64` outputs and seven
+`Div64::new` retained reciprocal states, for 182 native limb/initialization cases.
+All are compared with Python full-integer division and reciprocal formulas.
+`ConcreteNTTU256Division` proves the literal high-to-low steps and their cast
+bounds. `ConcreteNTTDiv64Initialization` derives both stored reciprocals from the
+actual word-formula constructor and preserves zero/one assertion failure.
+`ConcreteNTTInitializedPower` retains that one state across every modular product.
+Its public new/remainder/product/power results need no supplied initialization
+or arithmetic certificate. Actual machine division/casts, bit assembly,
+compiler/Rust, native plan/cache and physical refinement remain open.
