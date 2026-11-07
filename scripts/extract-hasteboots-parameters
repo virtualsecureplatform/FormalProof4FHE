@@ -32,6 +32,13 @@ DECODE_PROOFS = ['usize_fits64', 'pack_code_rep', 'decode_code_correct', 'decode
                  'decode_code_exists_iff', 'decode_parameters_exists_iff', 'retained_decode']
 
 
+BINDING_PROOFS = ['byte_list_data', 'utf8_values_injective', 'code_source_unique', 'parameters_source_unique',
+                  'decode_code_injective', 'decode_parameters_injective', 'code_wire_computed',
+                  'code_wire_success_injective', 'context_wire_computed', 'context_wire_success_injective',
+                  'code_wire_prefix', 'context_wire_prefix', 'code_wire_prefix_injective',
+                  'context_wire_prefix_injective']
+
+
 def digest(data):
     return hashlib.sha256(data).hexdigest()
 
@@ -222,11 +229,15 @@ def main():
             decoder = (ROOT / 'interop/aeneas/parameters/Decode.lean').read_text()
             validate_proof_source(decoder, DECODE_PROOFS)
             manifest['decoder_sha256'] = digest(decoder.encode())
-            proof += '\n' + bridge + '\n' + decoder
+            binding = (ROOT / 'interop/aeneas/parameters/Binding.lean').read_text()
+            validate_proof_source(binding, BINDING_PROOFS)
+            manifest['binding_sha256'] = digest(binding.encode())
+            proof += '\n' + bridge + '\n' + decoder + '\n' + binding
             names = [NAMESPACE + '.' + n for n in METHODS + ['header', 'retained_code']]
             names += ['HasteBootsExtractedParametersProof.' + n for n in PROOFS]
             names += ['HasteBootsExtractedParametersBridge.' + n for n in BRIDGE_PROOFS]
             names += ['HasteBootsExtractedParametersDecode.' + n for n in DECODE_PROOFS]
+            names += ['HasteBootsExtractedParametersBinding.' + n for n in BINDING_PROOFS]
             run([ROOT / 'scripts/in-container', 'lake', 'build',
                  'FormalProof4FHE.HasteBoots.NativeGoldParameterInitialization'], 'model-build.log')
             manifest['proof_sha256'] = digest(proof.encode())

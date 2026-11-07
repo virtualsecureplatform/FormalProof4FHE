@@ -75,6 +75,12 @@ class Guards(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             MODULE['validate_proof_source'](source, MODULE['DECODE_PROOFS'][:-1])
 
+    def test_binding_exact_audit_coverage(self):
+        source = (ROOT / 'interop/aeneas/parameters/Binding.lean').read_text()
+        MODULE['validate_proof_source'](source, MODULE['BINDING_PROOFS'])
+        with self.assertRaises(RuntimeError):
+            MODULE['validate_proof_source'](source, MODULE['BINDING_PROOFS'][:-1])
+
     def test_dependency_whitelist_and_complete_coverage(self):
         good = "'a' does not depend on any axioms\n'b' depends on axioms: [propext,\n Classical.choice, Quot.sound]\n"
         self.assertEqual(set(audit(good, ['a', 'b'])), {'a', 'b'})
