@@ -7,6 +7,39 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Extracted parameter reads connected to the word model
+
+`interop/aeneas/parameters/ModelBridge.lean` supplies nine source-read/model
+correspondence lemmas. `CodeRep` and `ParametersRep` compare exact raw integer
+values, every UTF-8 modulus byte, and all retained fields. Representation assigns
+unique model code and parameter records; extracted header and code reads preserve
+those records. Combining the representation relation with the existing explicit
+word-model constructor receipt derives primitive-root meaning, canonical raw root
+bounds and the closed Goldilocks modulus bytes for the source-read code.
+
+The representation relation remains an explicit, undischarged source-refinement
+invariant. The actual Rust constructor must establish it. These lemmas neither
+replace that proof nor introduce caller-provided root-validity certificates into
+any verifier flow. Direct native-crate extraction with promoted MIR, drop
+evaluation, forced MIR inlining and a generic wrapper all still encounter the
+Aeneas constructor-return failure. Original source and generated terms remain
+unchanged; the default constructor gate continues to fail closed.
+
+Validation: retained mode freshly extracted the reviewed source snapshot, built
+the imported root initialization module, and passed strict Lean checking and all
+22 dependency audits. The original 13 generated/accessor closures remain empty;
+the nine bridge closures use only the permitted propext, Classical.choice and
+Quot.sound. Eight guard tests pass, now including exact proof-source theorem
+coverage and refusal of proof-source admissions or proof-limit changes. The
+harness records the model-bridge hash and combines the prepared backend and root
+library paths without adding an Aeneas dependency to the root proof library.
+
+The full constructor translation, source initialization/representation invariant,
+Rust/heap/NTT/SIMD/Div64/scheduler refinement, global causal-history charging and
+final unbounded-lifetime 128-bit security theorem remain open. The earlier
+accessor-only milestone below is preserved; retained mode now checks the bridge
+as well as those original source-accessor proofs.
+
 ## Actual Rust retained-parameter extraction and constructor gate
 
 `scripts/extract-hasteboots-parameters` now compiles a wrapper against the
