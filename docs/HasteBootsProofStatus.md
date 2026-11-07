@@ -7,6 +7,49 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`NativeGoldLookupRegistryTrace` now includes the actual registered preparation
+and original registry initializer in the enclosing lookup execution log. The
+inclusion passes through `begin`, protocol, helpers and the lookup continuation,
+without a successful-completion requirement on later batches. A dispatched batch
+phase supplies the actual initializer result and its retained original metadata;
+no separate initializer log or recomputed context execution is supplied.
+
+`StoredGoldLookupParameterAssociation.receipt_original` composes that trace with
+the actual receipt packet/key bridge and complete context injectivity. In one
+truthful enclosing mixed history, outside `NativeRootFamilyLifetime.Bad`, accepted
+checked extraction identifies the exact original registry index used by the
+receipt, the measured complete-key owner result, the original oracle object,
+equality of the extraction parameters to that original object's complete
+parameters, and equality of its root to the recovered stored root. The owner is
+still computed from all original slots, including earlier unused aliases. The
+only collision exclusion comes from the same existing persistent source/hash bad
+event; no additional context-collision allowance is introduced.
+
+`receipt_extracted` additionally produces the stored registry vector by native
+packet completeness. Its caller supplies neither a stored source vector nor a
+successful-decoder certificate, field-key equality, registry-vector equality or
+initializer-log inclusion. It retains explicit native framing/allocation domains,
+the actual receipt membership/execution, acceptance of checked extraction and
+inclusion of the enclosing lookup trace in the same truthful history. These are
+semantic bridges using existing measured operations; they do not establish full
+application soundness, native initialization validity or physical work.
+
+Seven public theorem axiom guards cover these trace and parameter bridges. No
+executable algorithm changed in this milestone; existing decoder, owner and field
+regressions continue to cover the measured components.
+
+Validation: `scripts/check` passed all 10,846 build jobs and its strict audit
+and smoke checks. The new seven-theorem audit also passed directly with
+`-DwarningAsError=true`; its reports contain only `propext`, `Classical.choice`
+and `Quot.sound`.
+
+The next obligations are actual retained-code/NTT initialization provenance and
+validity (instead of independent constructor/primitive-root premises), discharging
+native frame allocation domains from the application, and composing actual source
+extraction with all original accepted claims and the PBS/application relation.
+Actor-separated physical work, strict Rust/Charon/Aeneas/backend/scheduler
+refinement, BabyBear and the final 128-bit expected-work theorem remain open.
+
 `StoredRegistryPacketCost` now strictly decodes the **terminal original
 registry packet from the actual initialized parent transcript**. It charges
 whole-stream framing, reversal, label comparison and complete source-vector
@@ -50,12 +93,11 @@ and smoke checks. The six new packet regression groups and 20-theorem audit also
 passed directly with `-DwarningAsError=true`. Only `propext`, `Classical.choice`
 and `Quot.sound` occur in the audited theorem reports.
 
-The next composition obligation is the actual enclosing initializer/preparation
-trace in the same causal history, then combining the receipt packet/key theorem
-with parameter identity outside the existing persistent bad event. Native frame
-allocation domains, code-root/initialization validity, PBS/application soundness,
-actor-separated physical work and compiler/backend/scheduler refinement, BabyBear
-and the final expected-work theorem still require completion.
+The enclosing initializer/preparation trace and its composition with receipt
+packet/key and parameter identity are now supplied by
+`NativeGoldLookupRegistryTrace` and `StoredGoldLookupParameterAssociation` above.
+The remaining native initialization, application and physical refinements remain
+explicit obligations.
 
 `NativeRegistryContextTrace` now proves that every original registry slot's
 native context execution is included in the successful initializer trace. This
