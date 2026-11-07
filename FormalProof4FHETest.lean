@@ -33,3 +33,5 @@ import FormalProof4FHETest.HasteBootsRootBudgetSmoke
 import FormalProof4FHETest.HasteBootsRootBudgetAudit
 import FormalProof4FHETest.HasteBootsRootWorkSmoke
 import FormalProof4FHETest.HasteBootsRootWorkAudit
+import FormalProof4FHETest.HasteBootsClosedNativeSmoke
+import FormalProof4FHETest.HasteBootsClosedNativeAudit

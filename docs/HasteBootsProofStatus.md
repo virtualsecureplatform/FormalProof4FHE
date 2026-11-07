@@ -7,6 +7,45 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+Native batch-model accepted-false-analysis-claim coverage now uses the closed
+interpreter's actual instruction clock. `ClosedByteMachineLineage` supplies the
+exact first positive-read packet and complete chronological log split, including
+all earlier prequeries and silent instructions. `ClosedByteMachineNativeCoverage`
+ports the native near/far accepted-run reduction onto those packets and derives
+the trusted quota/coefficient filter from native preparation. No first-read,
+freshness, source-log or eligibility certificate is added to verification.
+
+`ClosedByteMachineNativeSoundness` transports arbitrary accepted batch witnesses
+with varying roots, parents, responses and schedulers under the same public
+parameters/profile into the priced hazard union. Its failure event is measurable
+for arbitrary scheduler memory types, using replay of the actual native witness
+on complete attainable histories. The lifetime theorem gives
+`Pr[any native accepted false analysis claim] ≤ rate * expectedWork`; the
+calibrated form gives
+`2^128 * Pr[failure] ≤ (9/4096) * expectedWork` in declared interpreter units.
+The original-size Goldilocks role premises still require successful code
+construction, the primitive-root premise and compatible trusted parameters
+including `Q ≥ 544`.
+
+Validation: `scripts/check` passed all 10,612 build jobs and its strict
+audit/smoke commands. Six focused strict closed-native, root-work and earlier
+native-lifetime checks passed. Eight new guards use only `propext`,
+`Classical.choice` and `Quot.sound`. Regression checks cover the exact priced
+packet lineage across silent instructions, witness-event measurability,
+hazard coverage and the constructor-backed scaled lifetime interface. The
+numerical fixture does not assert a complete PBS run. Native defaults and
+proof limits are unchanged.
+
+The falsity predicate remains the common-source analysis extractor. The event
+retains actual Lean native-program acceptance/log inclusion, canonical parsed
+views and framing/capacity premises. Neither strict Rust execution refinement
+nor public PBS semantics is inferred from those premises. Remaining work includes
+independent public evaluation/efficient extraction, original registry/context
+ownership (including unused aliases and parent/seed hazards at that boundary),
+honest/verifier actor-cost and submission-cost separation, randomized setup,
+physical pricing, BabyBear execution and strict decoder/NTT/SIMD/Div64/scheduler
+refinement. A full modified-PBS application security theorem remains open.
+
 The global source/collision event now has an unbounded first-moment work
 bound for the closed byte interpreter. `NativeRootFamilyHashStep` combines the
 existing posterior checkpoint and cached-hash collision laws under the complete
@@ -40,9 +79,9 @@ a concrete truthful collision world with earlier instruction coverage, stopped
 zero charge, the numerical work split, and the combined constructor-backed
 Goldilocks event bound. Native defaults and proof limits are unchanged.
 
-The priced event union still needs application false-acceptance coverage on
-the closed instruction clock, together with independent public evaluation and
-efficient extraction. Honest/verifier actor costs, initialization and submission
+The priced union now covers native-model false analysis claims on the closed
+instruction clock as described above. Public PBS application coverage still
+requires independent public evaluation and efficient extraction. Honest/verifier actor costs, initialization and submission
 cost separation, randomized initialization, original registry/context ownership,
 physical-unit refinement, BabyBear execution and strict Rust/decoder/NTT/SIMD/
 Div64/scheduler refinement remain required. These interpreter-unit bounds do
