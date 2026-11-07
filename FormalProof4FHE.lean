@@ -575,3 +575,6 @@ import FormalProof4FHE.HasteBoots.NativeGoldLookupRegistryTrace
 import FormalProof4FHE.HasteBoots.StoredGoldLookupParameterAssociation
 import FormalProof4FHE.HasteBoots.ConcreteNTTSquareRoot
 import FormalProof4FHE.HasteBoots.ConcreteNTTRootConstruction
+import FormalProof4FHE.HasteBoots.ReciprocalRemainder
+import FormalProof4FHE.HasteBoots.ConcreteNTTDiv64
+import FormalProof4FHE.HasteBoots.ConcreteNTTModularPower

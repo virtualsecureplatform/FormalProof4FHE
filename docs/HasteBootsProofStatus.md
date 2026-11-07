@@ -7,6 +7,57 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`ReciprocalRemainder` now proves the mathematical reduction formula used by
+`concrete-ntt` fast reciprocal division. For reciprocal
+`r = floor((B-1)/d)+1`, it derives the reciprocal bounds and quotient identity,
+then proves `floor(((r*n mod B)*d)/B) = n mod d` under the strict reciprocal-error
+bound. The sufficient word-range condition `n*d <= B` supplies that bound. The
+proof does not assume a correct remainder callback.
+
+`ConcreteNTTDiv64` specializes that result to the **actual 256-bit reciprocal
+and u128-input formula** from locked `fastdiv.rs`. Reciprocal addition/wrapping,
+low-product wrapping and high-product extraction are explicit. For divisor
+`1<d<2^64` and input `n<2^128`, the result is exactly `n%d` and is below `d`.
+Two u64 inputs have a fitting full u128 product, and `mulMod` therefore computes
+the canonical modular product, including noncanonical input words. The field
+cast bridge is proved for ZMod without requiring primality.
+
+`ConcreteNTTModularPower` now retains the literal `prime::exp_mod64` control
+flow: exponent-zero returns one; otherwise each odd iteration multiplies the
+accumulator, every iteration squares and halves, and the final step multiplies.
+All products execute the proved reciprocal reducer, with no supplied modular
+multiplication callback. The state remains in the word range, every output is
+canonical, and the result equals `base^exponent % divisor`. The natural-word
+model permits arbitrary mathematical exponents; the actual u64 exponent range
+and shift/comparison instructions still need their machine refinement.
+
+Six Lean regression groups cover reciprocal bounds, 3,968 small-input remainder
+cases, and the same 35 wide remainders, 175 full-width products and 210 powers
+probed directly by the locked native fixture. The cases include maximal u128/u64
+words, noncanonical bases, zero/maximal exponents, power-of-two and composite
+divisors, and Goldilocks. Native power references use independent u128 remainder
+arithmetic, and Lean uses natural remainder/ZMod power. The existing five native
+root literals and two rejection cases remain checked. Eighteen theorem axiom
+guards cover the new mathematical and word-formula proofs.
+
+Validation: `scripts/check` passed all 10,855 build jobs and its strict audit
+and smoke checks. The six new arithmetic regression groups and 18-theorem audit
+also passed directly with `-DwarningAsError=true`. The locked native fixture
+passed all 420 arithmetic cases and the existing root/rejection assertions;
+`cargo fmt --check` passed. Audited theorems use only `propext`,
+`Classical.choice` and `Quot.sound`.
+
+These are natural-word formula and control-flow proofs, **not yet** proofs of
+the actual u256 limb routines or Rust/compiler execution. The native u256
+reciprocal division, multiplication/carry paths and high-word extraction still
+need limb refinement; no primitive machine operation or physical cost is claimed
+free by these results. The next composition step is the bounded natural-word
+Tonelli–Shanks/root loop and its simulation to the field semantics, with literal
+u64 comparisons/shifts and panic/error distinctions. Plan/cache provenance,
+actual code initialization, native frame domains, all-original-claim/PBS/
+application soundness, actor-separated physical/compiler/SIMD/scheduler
+refinement, BabyBear and the final expected-work theorem remain open.
+
 `ConcreteNTTSquareRoot` now models the field semantics of the actual
 `concrete-ntt` Tonelli–Shanks square-root loop at locked revision
 `cdeba793e46208320b30d78be19f7be78d49016a`. It retains square-before-test inner
@@ -51,12 +102,11 @@ directly with `-DwarningAsError=true`. The locked Cargo fixture passed all five
 root assertions and both rejection cases, and `cargo fmt --check` passed.
 Audited theorems use only `propext`, `Classical.choice` and `Quot.sound`.
 
-The next backend step is the literal `prime::exp_mod64` square-and-multiply loop
-and `mul_mod64`/`Div64::rem_u128` refinement, followed by root-loop integer bounds,
-plan/cache provenance and the actual code constructor. Frame allocation domains,
-all-original-claim/PBS/application soundness, actor-separated physical/compiler/
-SIMD/scheduler refinement, BabyBear and the final expected-work theorem remain
-open.
+The modular exponentiation control flow and reciprocal remainder formula are
+now proved above. Their actual u256/u64 instruction refinement and composition
+with bounded word-level root construction remain open, followed by plan/cache
+provenance and the actual code constructor; the other application/physical
+obligations are unchanged.
 
 `NativeGoldLookupRegistryTrace` now includes the actual registered preparation
 and original registry initializer in the enclosing lookup execution log. The
