@@ -7,6 +7,27 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+The public Goldilocks extractor now consumes its already materialized source
+columns directly through `NativeGoldExecutableExtraction.extractPreparedWithCost`.
+Previously it wrapped the stored table as a function and rematerialized the
+entire position/row/lane table before decoding. The prepared path eliminates
+that copy. A general stored-input round-trip lemma and native product-row
+reindexing proof establish equality of the full prepared and function-interface
+runs, including their abstract charges, for every input. The prepared cost bound
+includes domain generation, decoding, padding removal and rectangular assembly;
+it still starts after raw source reconstruction/materialization. Public
+extraction and complete-history analysis equalities remain proved. This is an
+extractor implementation improvement, not a full extractor-work or application
+security theorem. Public-log processing, source reconstruction/materialization,
+physical/backend refinement and application security remain required.
+Five runtime regressions cover independent packing/code widths, original-size
+padding removal, full-run equality, empty public-log fallback, rejection of an
+out-of-codeword source and zero packing/message size. Seven axiom guards cover
+the input round trip, prepared cost/equivalence and retained public-history
+analysis equalities. The focused smoke/audit and affected native/public-source
+audits passed with `warningAsError=true`. `scripts/check` passed all 10,703
+build jobs and its strict checks. No axioms or proof-limit increases were added.
+
 `NTTDomainCost` now generates a materialized evaluation-point table using a
 binary point tree with shared ratio squares. Its stored values are proved equal
 to `NTTButterfly.nodes` in the native bit-reversed odd-root order for every field
