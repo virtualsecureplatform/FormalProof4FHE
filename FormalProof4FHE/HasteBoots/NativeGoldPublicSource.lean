@@ -1,12 +1,13 @@
 module
 public import FormalProof4FHE.HasteBoots.ExecutableMerkleAvailability
+public import FormalProof4FHE.HasteBoots.ExecutableSourceSelection
 public import FormalProof4FHE.HasteBoots.NativeGoldExecutableExtraction
 @[expose] public section
 
 /-! Materialize the selected raw source from a frozen public hash log before
 running matrix extraction. No future work, secret key, oracle-world argument or
 hash callback is used. Selecting the correct original snapshot is a separate
-interface; arbitrary supplied snapshots still have exact analysis agreement. -/
+interface; the complete-history entry point below computes that selection. -/
 namespace FormalProof4FHE.HasteBoots.NativeGoldPublicSource
 open NativeRootMessage (Digest)
 open NativeGoldBatchPcsProgram (Context)
@@ -72,23 +73,70 @@ theorem extract_eq_analysis (dummy context root : Digest) (ctx : Context) (sourc
   rw [NativeGoldExecutableExtraction.extract_eq_analysis ctx tables message block blowup constructed primitive radius uniqueRadius]
   rw [word_eq_analysis dummy context root ctx sourceLog]
 
+/-- Recover the original source snapshot and extract from the complete public
+mixed history. No first positive field read means explicit extraction failure. -/
+def tableFromHistory (dummy : Digest) (ctx : Context) (history : List NativeTranscript.Observation)
+    (field : NativeGoldBatchFieldInputView.View) (radius : ℕ)
+    (capacity : ctx.parameters.code.messageLength.val ≤ ctx.parameters.code.messageBlocks.val*ctx.parameters.code.blockWidth.val) :=
+  (ExecutableSourceSelection.recover history field).map (fun sourceLog =>
+    table dummy field.data.root ctx sourceLog radius capacity)
+
+theorem tableFromHistory_eq_analysis (dummy : Digest) (ctx : Context) (history : List NativeTranscript.Observation)
+    (field : NativeGoldBatchFieldInputView.View)
+    (tables : NativeGoldBlockCode.Tables) (message block blowup : NativeUsizeMessage.Usize)
+    (constructed : NativeGoldBlockCode.build tables message block blowup = .ok ctx.parameters.code)
+    (primitive : IsPrimitiveRoot (goldValue ctx.parameters.code.domainRoot) (2^(logSize ctx.parameters.code+1)))
+    (radius : ℕ) (uniqueRadius : 2*radius < 2^(logSize ctx.parameters.code)-ctx.parameters.code.messageBlocks.val+1)
+    (capacity : ctx.parameters.code.messageLength.val ≤ ctx.parameters.code.messageBlocks.val*ctx.parameters.code.blockWidth.val) :
+    tableFromHistory dummy ctx history field radius capacity =
+      (NativeGoldBatchFirstFieldSource.recover dummy history field).map (fun sourceLog =>
+        RectangularMatrixOpeningKernel.extract (NativeGoldBatchResponseMeaning.Domain ctx primitive) capacity radius
+          (NativeGoldBatchSelectedWord.word dummy field.data.context field.data.root ctx sourceLog)) := by
+  unfold tableFromHistory
+  rw [ExecutableSourceSelection.recover_eq dummy]
+  congr 1
+  funext sourceLog left right channel
+  exact extract_eq_analysis dummy field.data.context field.data.root ctx sourceLog tables message block blowup
+    constructed primitive radius uniqueRadius capacity left right channel
+
+theorem tableFromHistory_none_iff (dummy : Digest) (ctx : Context) (history : List NativeTranscript.Observation)
+    (field : NativeGoldBatchFieldInputView.View) (radius : ℕ)
+    (capacity : ctx.parameters.code.messageLength.val ≤ ctx.parameters.code.messageBlocks.val*ctx.parameters.code.blockWidth.val) :
+    tableFromHistory dummy ctx history field radius capacity = none ↔
+      CausalStreamExposure.seen history (NativeGoldBatchFirstFieldSource.input field) = false := by
+  simp only [tableFromHistory,Option.map_eq_none_iff,ExecutableSourceSelection.recover_eq dummy,
+    NativeGoldBatchFirstFieldSource.recover_none]
+
 def FalseClaim (dummy : Digest) (ctx : Context) (work : NativeGoldBatchPcsProgram.Prepared)
-    (decoded : NativeGoldBatchChallengeLink.View) (log : List NativeTranscript.Observation)
+    (decoded : NativeGoldBatchChallengeLink.View) (history : List NativeTranscript.Observation)
     (capacity : ctx.parameters.code.messageLength.val ≤ ctx.parameters.code.messageBlocks.val*ctx.parameters.code.blockWidth.val)
     (radius : ℕ) : Prop :=
-  ∀ sourceLog, NativeGoldBatchFirstFieldSource.recover dummy log decoded.field = some sourceLog →
+  ∀ coefficients, tableFromHistory dummy ctx history decoded.field radius capacity = some coefficients →
     ∃ query : NativeGoldBatchRectangularData.Query work,
       (fun lane : Fin ctx.parameters.width.val => NativeGoldBatchFixedResponseData.claimed decoded.field.data.values query.val lane.val) ≠
         matrixEvaluation (NativeGoldBatchFixedResponseData.leftAt ctx.parameters decoded.field.data.queries query.val)
-          (NativeGoldBatchFixedResponseData.rightAt ctx.parameters decoded.field.data.queries query.val)
-          (table dummy decoded.field.data.root ctx sourceLog radius capacity)
+          (NativeGoldBatchFixedResponseData.rightAt ctx.parameters decoded.field.data.queries query.val) coefficients
 
 theorem falseClaim_iff_executable (dummy : Digest) (ctx : Context) (work : NativeGoldBatchPcsProgram.Prepared)
-    (decoded : NativeGoldBatchChallengeLink.View) (log : List NativeTranscript.Observation)
+    (decoded : NativeGoldBatchChallengeLink.View) (history : List NativeTranscript.Observation)
     (capacity : ctx.parameters.code.messageLength.val ≤ ctx.parameters.code.messageBlocks.val*ctx.parameters.code.blockWidth.val)
     (radius : ℕ) :
-    FalseClaim dummy ctx work decoded log capacity radius ↔
-      NativeGoldExecutableExtraction.FalseClaim dummy ctx work decoded log capacity radius := by
-  simp only [FalseClaim,NativeGoldExecutableExtraction.FalseClaim,NativeGoldBatchConcreteColumnFamily.source]
-  simp only [table_eq_executable dummy decoded.field.data.context decoded.field.data.root ctx]
+    FalseClaim dummy ctx work decoded history capacity radius ↔
+      NativeGoldExecutableExtraction.FalseClaim dummy ctx work decoded history capacity radius := by
+  unfold FalseClaim NativeGoldExecutableExtraction.FalseClaim
+  rw [← ExecutableSourceSelection.recover_eq dummy history decoded.field]
+  constructor
+  · intro falseClaim sourceLog found
+    have extracted : tableFromHistory dummy ctx history decoded.field radius capacity =
+        some (table dummy decoded.field.data.root ctx sourceLog radius capacity) := by
+      simp only [tableFromHistory,found,Option.map_some]
+    have claim := falseClaim _ extracted
+    rwa [table_eq_executable dummy decoded.field.data.context decoded.field.data.root ctx,
+      ← NativeGoldBatchConcreteColumnFamily.source] at claim
+  · intro falseClaim coefficients extracted
+    obtain ⟨sourceLog,found,equal⟩ := Option.map_eq_some_iff.mp extracted
+    subst coefficients
+    rw [table_eq_executable dummy decoded.field.data.context decoded.field.data.root ctx,
+      ← NativeGoldBatchConcreteColumnFamily.source]
+    exact falseClaim sourceLog found
 end FormalProof4FHE.HasteBoots.NativeGoldPublicSource
