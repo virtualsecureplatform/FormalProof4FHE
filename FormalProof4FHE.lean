@@ -465,3 +465,4 @@ import FormalProof4FHE.HasteBoots.NativeGoldBatchCalibration
 import FormalProof4FHE.HasteBoots.ClosedByteMachineRootLifetime
 import FormalProof4FHE.HasteBoots.ClosedByteMachineGoldRisk
 import FormalProof4FHE.HasteBoots.ClosedByteMachineReceiptWork
+import FormalProof4FHE.HasteBoots.ClosedByteMachineRootBudget
