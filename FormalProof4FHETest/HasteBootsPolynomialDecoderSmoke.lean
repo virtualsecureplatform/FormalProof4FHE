@@ -5,6 +5,7 @@ import all FormalProof4FHE.HasteBoots.BerlekampWelchSystem
 import all FormalProof4FHE.HasteBoots.ExecutableBerlekampWelch
 import all FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision
 import all FormalProof4FHE.HasteBoots.ExecutablePolynomial
+import all FormalProof4FHE.HasteBoots.PolynomialEvaluationCost
 import all FormalProof4FHE.HasteBoots.FiniteMatrixSolver
 import all FormalProof4FHE.HasteBoots.FiniteLinearSolver
 import all ArkLib.Data.CodingTheory.BerlekampWelch.Condition
@@ -82,3 +83,10 @@ private def divisor : Polynomial (ZMod 7) := ExecutablePolynomial.ofCoefficients
 #guard_msgs in
 #eval let result := ExecutablePolynomialDivision.divMod (ExecutablePolynomial.constant 3) divisor
       decide (result.1.support = ∅ ∧ result.2.coeff 0 = 3 ∧ result.2.natDegree = 0)
+
+-- Polynomial wrappers use the prepared coefficient vector and share it across points.
+/-- info: true -/
+#guard_msgs in
+#eval let one := ExecutablePolynomial.evaluateWithCost numerator 3
+      let many := ExecutablePolynomial.evaluateManyWithCost numerator (Vector.ofFn points)
+      decide (one.value = 3 ∧ one.cost = 24 ∧ many.value.toList = [1,2,5,3,3] ∧ many.cost = 131)

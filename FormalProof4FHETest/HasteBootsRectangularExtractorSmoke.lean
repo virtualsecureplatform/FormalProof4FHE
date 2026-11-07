@@ -11,6 +11,7 @@ import all FormalProof4FHE.HasteBoots.ExecutableCommonSource
 import all FormalProof4FHE.HasteBoots.ExecutableBerlekampWelch
 import all FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision
 import all FormalProof4FHE.HasteBoots.ExecutablePolynomial
+import all FormalProof4FHE.HasteBoots.PolynomialEvaluationCost
 import all FormalProof4FHE.HasteBoots.FiniteMatrixSolver
 import all FormalProof4FHE.HasteBoots.FiniteLinearSolver
 import all FormalProof4FHE.HasteBoots.RowLayout

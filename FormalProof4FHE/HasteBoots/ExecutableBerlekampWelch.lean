@@ -40,7 +40,8 @@ def decoder (e k : ℕ) (points received : Fin n → F) : Option (Polynomial F) 
       let reconstruction := ExecutablePolynomialDivision.divMod numerator locator
       if reconstruction.2.support = ∅ then
         let candidate := reconstruction.1
-        if candidate.natDegree < k ∧ Δ₀(received, fun i => ExecutablePolynomial.evaluate candidate (points i)) ≤ e then
+        let evaluations := ExecutablePolynomial.evaluateMany candidate points
+        if candidate.natDegree < k ∧ Δ₀(received, fun i => evaluations.get i) ≤ e then
           some candidate
         else none
       else none
@@ -67,7 +68,7 @@ theorem success {e k : ℕ} {points received : Fin n → F} {candidate : Polynom
       · dsimp only at accepted
         split_ifs at accepted with divisible close
         · cases accepted
-          simpa only [ExecutablePolynomial.evaluate_eq,Function.comp_def] using close
+          simpa only [ExecutablePolynomial.evaluateMany_get,Function.comp_def] using close
 
 theorem complete {e k : ℕ} {points received : Fin n → F} {message : Polynomial F}
     (radius : 2 * e < n - k + 1) (dimension : k ≤ n)
@@ -104,7 +105,7 @@ theorem complete {e k : ℕ} {points received : Fin n → F} {message : Polynomi
       nonzero condition
     simp only [ExecutablePolynomialDivision.divMod_snd_eq,ExecutablePolynomialDivision.divMod_fst_eq,
       support_eq_empty,EuclideanDomain.mod_eq_zero.mpr quotient.1,ite_eq_left,quotient.2,
-      ExecutablePolynomial.evaluate_eq]
+      ExecutablePolynomial.evaluateMany_get]
     exact ite_eq_left ⟨degree,nearby⟩
 theorem failure_iff {e k : ℕ} {points received : Fin n → F}
     (radius : 2 * e < n - k + 1) (dimension : k ≤ n)

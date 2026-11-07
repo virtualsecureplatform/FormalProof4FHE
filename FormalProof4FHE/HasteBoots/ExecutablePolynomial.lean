@@ -1,5 +1,6 @@
 module
 public import Mathlib.Algebra.Polynomial.FieldDivision
+public import FormalProof4FHE.HasteBoots.PolynomialEvaluationCost
 public import Mathlib.Tactic
 @[expose] public section
 
@@ -41,8 +42,17 @@ def mul (left right : F[X]) : F[X] :=
     (fun i => ∑ pair ∈ Finset.antidiagonal i, left.coeff pair.1 * right.coeff pair.2)
 def term (value : F) (exponent : ℕ) : F[X] :=
   ofCoefficients (exponent+1) (fun i => if i = exponent then value else 0)
-def evaluate (p : F[X]) (point : F) : F :=
-  ∑ i ∈ Finset.range (p.natDegree+1), p.coeff i * point ^ i
+/-- Evaluation charge starts from prepared coefficients. Discovering the degree
+and materializing the polynomial's coefficient function are separate costs. -/
+def evaluateWithCost (p : F[X]) (point : F) : SolverOperationCost.Run F :=
+  PolynomialEvaluationCost.evaluate (Vector.ofFn (fun i : Fin (p.natDegree+1) => p.coeff i.val)) point
+
+def evaluate (p : F[X]) (point : F) : F := (evaluateWithCost p point).value
+
+omit [DecidableEq F] in
+theorem evaluateWithCost_cost (p : F[X]) (point : F) :
+    (evaluateWithCost p point).cost = 7*(p.natDegree+1)+3 :=
+  PolynomialEvaluationCost.evaluate_cost _ _
 
 theorem zero_eq : (zero : F[X]) = 0 := by ext i; simp [zero]
 theorem constant_eq (value : F) : constant value = C value := by
@@ -90,5 +100,30 @@ theorem term_eq (value : F) (exponent : ℕ) : term value exponent = C value * X
 omit [DecidableEq F] in
 theorem evaluate_eq (p : F[X]) (point : F) : evaluate p point = p.eval point := by
   have expansion := congrArg (Polynomial.eval point) p.as_sum_range_C_mul_X_pow
-  simpa [evaluate,Polynomial.eval_finsetSum] using expansion.symm
+  simp only [evaluate,evaluateWithCost,PolynomialEvaluationCost.evaluate_value,FiniteLinearSolver.get_ofFn]
+  rw [Fin.sum_univ_eq_sum_range (fun i => p.coeff i * point^i)]
+  simpa only [Polynomial.eval_finsetSum,Polynomial.eval_mul,Polynomial.eval_C,
+    Polynomial.eval_pow,Polynomial.eval_X] using expansion.symm
+
+/-- Coefficients and point inputs are prepared once; their preparation is not
+included in the charge for the materialized Horner evaluations. -/
+def evaluateManyWithCost {n : ℕ} (p : F[X]) (points : Vector F n) : SolverOperationCost.Run (Vector F n) :=
+  PolynomialEvaluationCost.evaluateMany (Vector.ofFn (fun i : Fin (p.natDegree+1) => p.coeff i.val)) points
+
+def evaluateMany {n : ℕ} (p : F[X]) (points : Fin n → F) : Vector F n :=
+  (evaluateManyWithCost p (Vector.ofFn points)).value
+
+omit [DecidableEq F] in
+theorem evaluateMany_get {n : ℕ} (p : F[X]) (points : Fin n → F) (i : Fin n) :
+    (evaluateMany p points).get i = p.eval (points i) := by
+  simp only [evaluateMany,evaluateManyWithCost,PolynomialEvaluationCost.evaluateMany_get,
+    FiniteLinearSolver.get_ofFn]
+  have pointValue := evaluate_eq p (points i)
+  simpa only [evaluate,evaluateWithCost,PolynomialEvaluationCost.evaluate_value,
+    FiniteLinearSolver.get_ofFn] using pointValue
+
+omit [DecidableEq F] in
+theorem evaluateManyWithCost_cost {n : ℕ} (p : F[X]) (points : Vector F n) :
+    (evaluateManyWithCost p points).cost = n*(7*(p.natDegree+1)+5)+1 :=
+  PolynomialEvaluationCost.evaluateMany_cost _ _
 end FormalProof4FHE.HasteBoots.ExecutablePolynomial
