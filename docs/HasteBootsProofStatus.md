@@ -7,6 +7,28 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+The common-source decoder now uses an explicit measured whole-column distance
+scan and a combined measured final check. `ColumnDistanceCost` compares every
+row/lane entry from materialized columns and is proved equal to Hamming distance
+between column-valued functions. Multiple unequal cells in one column count once;
+disagreements in distinct columns remain distinct. For `n` positions, `r` rows
+and lane width `b`, scanning costs exactly `n * (r*(6*b+7)+8) + 2` abstract units.
+Including candidate-table evaluation with message width `m` and the final radius
+comparison, `ExecutableCommonSource.checkWithCost` costs exactly
+`n * (5*m + r*(b*(6*m+8)+9) + 18) + 4`.
+The cost includes index-list construction, all nested loads, cell comparisons,
+Boolean combinations, counting and evaluation. Raw/point input vector preparation,
+candidate decoding, field backend and physical execution remain excluded.
+The default decoder uses this check and retains its completeness, zero-fallback
+and analysis-decoder equality theorems. Six scan regressions cover identical
+columns, concentrated/split errors and empty dimensions; two integration tests
+check joint-radius acceptance/rejection and the combined charge. Eighteen axiom
+guards cover all new scan and integration theorems. This remains a phase-cost
+result, not the complete extractor bound or application-security theorem.
+Validation: `scripts/check` passed all 10,670 build jobs and its strict checks.
+The scan smoke/audit, common-source smoke and three existing integration audits
+also passed with `warningAsError=true` after dependencies finished rebuilding.
+
 The common-source decoder's final candidate-table evaluation now uses
 `BlockEvaluationCost`: consecutive powers are shared across all rows and lanes
 at each position. Its output is proved equal to `BlockEncoder.encode`, so the
