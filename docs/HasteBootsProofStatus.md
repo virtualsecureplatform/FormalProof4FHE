@@ -7,6 +7,59 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`ConcreteNTTPlanConstants` now retains the literal inverse exponentiation,
+u128 shifted words, quotient casts, bit-length and Barrett computation. The
+64-bit scaling intermediate and quotient bounds are proved; canonical inverse
+powers and the field inverse equation follow from the retained Div64 arithmetic.
+For Goldilocks the original branch has bits=64, big_q=64 and big_l=127, with
+p_barrett=9223372039002259455. The exact shifted-division formulas and their
+inert casts are derived, not supplied by a caller.
+
+`ConcreteNTTGoldPlan` assembles **all fourteen original stored Plan fields**
+from the proved constructor stages: root, root-power array, both twiddle arrays,
+the three empty Shoup arrays, modulus, original first Div64 state, inverse and
+Shoup inverse, big_q, Barrett constant and complete reverse-index array. The
+accepted root order derives n<p; no size/inverse/array-builder certificate is
+needed. Its success theorem supplies the original primitive root, exact arrays,
+canonical inverse, field normalization equation, Shoup/Barrett formulas and all
+reverse entries and bounds. The original initialization and canonical root are
+also derived directly from the complete constructed result. Ordinary rejection,
+assertion and index failure remain distinct; index failure is impossible.
+
+`ConcreteNTTGoldTable` now models the actual prime64::ConcreteTable::new wrapper.
+Goldilocks::new copies the raw u64, so this wrapper copies the exact stored Plan
+root and retains the complete Plan. Canonicality and primitive order are derived
+from construction, without an added normalization or root-validation gate. Plan
+None becomes the original table error; panic outcomes are kept separate.
+
+Eleven new smoke groups cover small-field inverse/scaling, word-boundary shift
+and quotient casts, all Goldilocks constants, original rejection, every stored
+Plan field/array/reverse entry, initialization identity, inverse normalization
+and the raw-root table wrapper. Twenty-four theorem axiom guards permit only
+propext, Classical.choice and Quot.sound. The locked native fixture additionally
+checks 4,224 direct monomial outputs against independent polynomial evaluation,
+exercising actual reverse-index/root-power lookup, and 1,056 normalization outputs
+against Python modular inverses. It also checks the actual Goldilocks root-power
+Shoup arrays are empty. These supplement the existing forward/inverse regressions;
+private Barrett/Shoup scalar fields are not directly exposed by the Rust API.
+
+Validation: `scripts/check` passed all 10,897 build jobs and every strict
+repository audit/smoke check. The eleven new regression groups and 24-theorem
+audit also passed directly with `-DwarningAsError=true`. The locked native
+fixture passed all 5,280 added monomial/normalization outputs, direct modulus,
+size and empty-Shoup assertions, and every earlier arithmetic, initialization,
+primality, root-power and forward/inverse regression.
+
+This completes the **stored-field word-formula model** of the Goldilocks Plan,
+not actual Rust/Charon/Aeneas or allocation/physical refinement. The next link is
+retained table/root-cache provenance, including original first-match reads and
+RCU publication behavior. Actual instruction/cast/shift/division/ilog2, unsafe
+field transmute, optimized NTT/SIMD, compiler, allocation, concurrency/scheduler
+and actor-separated physical work remain mandatory. Existing native code/source
+extraction premises remain until those links are supplied; complete original
+PBS/application soundness, BabyBear and the final lifetime expected-work theorem
+remain open.
+
 `ConcreteNTTBitReverse` models the original 64-bit usize expression: reverse
 all 64 bits, then shift by 64-nbits. Equivalence to nbits-wide reversal derives
 range, involution and injectivity. `ConcreteNTTTwiddleIndices` derives the exact
@@ -50,9 +103,9 @@ also passed directly with `-DwarningAsError=true`. The locked native fixture
 passed all 8,448 transform outputs plus every earlier root-power, primality,
 limb, initialization, arithmetic, root and rejection regression.
 
-The next constructor obligations are the inverse/Barrett constants, reverse-index
-array and complete Plan field/allocation assembly, then retained table/cache
-provenance. Actual usize/u64 instruction/cast/overflow, Rust/Charon/Aeneas,
+The inverse/Barrett constants, reverse-index array and complete stored-field
+word-formula assembly are now supplied above. Retained table/cache provenance
+and actual allocation/machine refinement remain open. Actual usize/u64 instruction/cast/overflow, Rust/Charon/Aeneas,
 optimized transform kernels, scheduler and actor-separated physical work remain
 open. These modules prove the original non-Shoup scalar constructor stages; they
 do not establish complete native Plan/cache or application security. BabyBear
