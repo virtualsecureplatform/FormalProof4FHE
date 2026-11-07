@@ -1,4 +1,6 @@
 module
+import all FormalProof4FHE.HasteBoots.FixedByteReadCost
+import all FormalProof4FHE.HasteBoots.CostedMerkleNode
 import all FormalProof4FHE.HasteBoots.BytePrefixMatchCost
 import all FormalProof4FHE.HasteBoots.IntegerEncodingCost
 import all FormalProof4FHE.HasteBoots.RowEncodingCost

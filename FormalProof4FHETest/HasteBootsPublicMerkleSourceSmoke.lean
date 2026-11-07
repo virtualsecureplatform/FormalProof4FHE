@@ -1,4 +1,7 @@
 module
+import all FormalProof4FHE.HasteBoots.PreparedMerkleNodes
+import all FormalProof4FHE.HasteBoots.FixedByteReadCost
+import all FormalProof4FHE.HasteBoots.CostedMerkleNode
 import all FormalProof4FHE.HasteBoots.BytePrefixMatchCost
 import all FormalProof4FHE.HasteBoots.IntegerEncodingCost
 import all FormalProof4FHE.HasteBoots.RowEncodingCost
@@ -119,3 +122,30 @@ private def fullLog : ExecutableMerkleAvailability.Log := node ++ leaves
       let table := ExecutableSourceCoefficients.extract (m := 1) (b := 2) (size := 2) 0
         (fun pos : Fin 2 => (pos.val : NativeFields.Goldilocks)) (by decide) raw
       decide ((table.get 0).get 0 = 1 ∧ (table.get 0).get 1 = 2)
+
+-- First-response fallback remains observable when the dummy label has a known
+-- leaf. A malformed earlier alias must neither be skipped nor treated absent.
+/-- info: true -/
+#guard_msgs in
+#eval let fallback : NativeLookupRequestWire.Row := ⟨[9],by decide⟩
+      let log := ⟨[99],digest 10⟩ :: (fullLog ++ [⟨leafInput fallback,digest 0⟩])
+      let result := ExecutableMerkleAvailability.reconstruct 1 (digest 0) log (digest 10)
+      decide (result.get 0 = fallback ∧ result.get 1 = fallback)
+
+-- Repeated dummy-label resolution is bounded by tree height, even when its
+-- first response is itself a leaf input and therefore malformed as a node.
+/-- info: true -/
+#guard_msgs in
+#eval let fallback : NativeLookupRequestWire.Row := ⟨[9],by decide⟩
+      let log := ⟨[99],digest 10⟩ :: (fullLog ++ [⟨leafInput fallback,digest 0⟩])
+      let result := ExecutableMerkleAvailability.reconstruct 2 (digest 0) log (digest 10)
+      result.toList.all (fun row => decide (row = fallback))
+
+-- A truly absent root response must not invent dummy children merely because
+-- the dummy leaf is present elsewhere in the complete frozen log.
+/-- info: true -/
+#guard_msgs in
+#eval let fallback : NativeLookupRequestWire.Row := ⟨[9],by decide⟩
+      let log := leaves ++ [⟨leafInput fallback,digest 0⟩]
+      let result := ExecutableMerkleAvailability.reconstruct 1 (digest 0) log (digest 10)
+      result.toList.all (fun row => decide (row = NativeGoldRawAvailability.emptyRow))

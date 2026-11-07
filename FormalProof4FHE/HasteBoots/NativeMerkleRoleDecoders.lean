@@ -1,6 +1,7 @@
 module
 public import FormalProof4FHE.HasteBoots.NativeGoldColumnAuthentication
 public import FormalProof4FHE.HasteBoots.CostedMerkleLeaf
+public import FormalProof4FHE.HasteBoots.CostedMerkleNode
 @[expose] public section
 
 /-! Executable, fail-closed partial inverses for actual Merkle hash inputs.
@@ -76,8 +77,18 @@ theorem parseNode_encode (pair : Digest × Digest) : parseNode (nodeInput pair.1
   rw [parsed]
   rfl
 
-def node : RoleDecoder (fun pair : Digest × Digest => nodeInput pair.1 pair.2) :=
-  guarded _ parseNode parseNode_encode
+def node : RoleDecoder (fun pair : Digest × Digest => nodeInput pair.1 pair.2) where
+  decode input := (CostedMerkleNode.decode input).value
+  decode_encode pair := by
+    rw [CostedMerkleNode.decode_value]
+    exact (guarded _ parseNode parseNode_encode).decode_encode pair
+  encode_decode input pair found := by
+    rw [CostedMerkleNode.decode_value] at found
+    exact (guarded _ parseNode parseNode_encode).encode_decode input pair found
+
+theorem node_decode_eq_reference (input : Input) :
+    node.decode input = (guarded _ parseNode parseNode_encode).decode input :=
+  CostedMerkleNode.decode_value input
 
 theorem leaf_eq_analysis : leaf.decode =
     (RoleDecoder.ofInjective leafInput (NativeGoldColumnAuthentication.encoding.leaf_injective ())).decode :=

@@ -3,6 +3,7 @@ public import FormalProof4FHE.HasteBoots.NativeMerkleRoleDecoders
 public import FormalProof4FHE.HasteBoots.NativeGoldRawAvailability
 public import FormalProof4FHE.HasteBoots.FiniteLinearSolver
 public import FormalProof4FHE.HasteBoots.PreparedMerklePayloads
+public import FormalProof4FHE.HasteBoots.PreparedMerkleNodes
 @[expose] public section
 
 /-! Reconstruct a materialized raw column word from a supplied frozen public
@@ -27,9 +28,31 @@ def resolvePrepared (payloads : List PreparedMerklePayloads.Entry) (label : Dige
 def resolve (log : Log) : Digest → Option Row :=
   resolvePrepared (PreparedMerklePayloads.prepare log)
 
+def cachedChildren (dummy : Vector InputIndexedOracle.Byte 64)
+    (nodes : List PreparedMerkleNodes.Entry) (root : Digest) : Option (Digest × Digest) :=
+  (PreparedMerkleNodes.resolve dummy nodes (PreparedMerklePayloads.store root)).value.map CostedMerkleNode.view
+
+theorem cachedChildren_eq (dummy : Digest) (log : Log) :
+    cachedChildren (Vector.ofFn dummy)
+      (PreparedMerkleNodes.prepare (log.map (fun entry => (entry.1,PreparedMerklePayloads.store entry.2)))).value =
+      children (view dummy) log () := by
+  funext root
+  have dummyEq : (Vector.ofFn dummy).get = dummy := by
+    funext i
+    exact FiniteLinearSolver.get_ofFn dummy i
+  rw [cachedChildren,PreparedMerkleNodes.resolve_raw,dummyEq]
+  change (log.find? (fun entry => decide (entry.2 = root))).map
+      (fun entry => (NativeMerkleRoleDecoders.node.decode entry.1).getD (dummy,dummy)) = _
+  simp only [children,view,beq_self_eq_true,Bool.true_and,Bool.beq_eq_decide_eq]
+  cases log.find? (fun entry => decide (entry.2 = root)) <;> rfl
+
 def reconstruct (height : ℕ) (dummy : Digest) (log : Log) (root : Digest) : Vector Row (2^height) :=
-  let payloads := PreparedMerklePayloads.prepare log
-  let partialTree := tree (view dummy) (Skeleton.perfect height) (fun _ => ()) log root
+  let storedLog := log.map (fun entry => (entry.1,PreparedMerklePayloads.store entry.2))
+  let payloads := (PreparedMerklePayloads.prepareStoredWithCost storedLog).value
+  let nodes := (PreparedMerkleNodes.prepare storedLog).value
+  let storedDummy := Vector.ofFn dummy
+  let partialTree := treeWith (fun _ label => cachedChildren storedDummy nodes label)
+    (Skeleton.perfect height) (fun _ => ()) root
   Vector.ofFn (fun position =>
     (recoverLeaf (resolvePrepared payloads) partialTree (SkeletonLeafIndex.perfectEquiv height position)).getD NativeGoldRawAvailability.emptyRow)
 
@@ -47,6 +70,8 @@ theorem reconstruct_get (height : ℕ) (dummy : Digest) (log : Log) (root : Dige
     (reconstruct height dummy log root).get position =
       MerkleAvailability.word encoding dummy NativeGoldRawAvailability.emptyRow height log root position := by
   have resolver : resolvePrepared (PreparedMerklePayloads.prepare log) = resolve log := rfl
-  simp only [reconstruct,FiniteLinearSolver.get_ofFn,resolver,view_eq_analysis,resolve_eq_analysis,
-    MerkleAvailability.word,MerkleAvailability.payloadAt,MerkleAvailability.tree]
+  simp only [reconstruct,PreparedMerklePayloads.prepareStoredWithCost_raw,cachedChildren_eq,
+    FiniteLinearSolver.get_ofFn,resolver,view_eq_analysis,resolve_eq_analysis,
+    MerkleAvailability.word,MerkleAvailability.payloadAt,MerkleAvailability.tree,
+    MerkleTreeExtractor.tree,MerkleTreeExtractor.treeAt]
 end FormalProof4FHE.HasteBoots.ExecutableMerkleAvailability
