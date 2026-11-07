@@ -548,3 +548,6 @@ import FormalProof4FHE.HasteBoots.StoredHashLogCost
 import FormalProof4FHE.HasteBoots.StoredSourceSnapshotHistory
 import FormalProof4FHE.HasteBoots.StoredSourceSnapshotBudget
 import FormalProof4FHE.HasteBoots.StoredSourceSnapshotSelection
+import FormalProof4FHE.HasteBoots.CausalPrefixReadCost
+import FormalProof4FHE.HasteBoots.CausalStoredSourceRecovery
+import FormalProof4FHE.HasteBoots.CausalStoredGoldExtraction

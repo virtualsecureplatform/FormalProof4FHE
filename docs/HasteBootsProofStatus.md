@@ -7,6 +7,53 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`CausalPrefixReadCost` now recovers the complete mixed-history prefix before a
+stream's first positive read using charged byte comparisons and list traversal.
+Starts, hashes and empty reads remain in the prefix; they do not count as
+exposure. Any offset counts, including far-offset and earlier partial reads.
+The output equals `CausalFirstStreamPrefix.recover` on every input/history.
+Recovery costs at most `(6*streamBytes+16)*P+1` and is stable under later history
+extensions once a boundary exists. No oracle or functional cache callback runs.
+
+`CausalStoredSourceRecovery` now composes that original boundary with stored
+snapshot replay and selection. Even missing-key fallback uses the current log of
+the **recovered prefix**, never the later full history. The viewed result equals
+the original executable source recovery when the supplied stream/key correspond
+to a native field view; source stability under appended observations is proved.
+The all-history entry point includes the complete recovery and replay charges,
+with a polynomial bound in actual history input/output bytes, observation count
+and target stream bytes. Prefix-size inequalities and budget monotonicity are
+derived, without a lifetime or seed-window cap.
+
+`CausalStoredGoldExtraction` now feeds the causally recovered stored log and
+stored root bytes directly into the measured Gold Merkle/column/code extractor.
+Its result equals the original public-source extractor on the original selected
+first-read-prefix source, including explicit rejection when the stream has never
+been read positively. The cost includes recovery, snapshot replay/selection,
+root materialization and the full existing Merkle/column/dense-code extraction
+bound. Dummy, root and hash data are stored bytes; no source-selection or digest
+callback is executed. The trusted typed context, radius and capacity proof are
+still supplied as in the preceding extractor interface; producing/validating them
+from the original application instance is not discharged by this composition.
+
+Nine regression groups and nineteen theorem axiom guards cover full stream-byte
+identity, positive reads at arbitrary offsets, earlier partial reads, empty/no
+exposure histories, preservation of preceding starts/hashes/empty reads, old
+frozen sources, first-prefix fallback, suffix stability, and actual integrated
+extraction compared with the byte adapter on a manually specified frozen log.
+Only `propext`, `Classical.choice` and `Quot.sound` occur in the audited theorems.
+`scripts/check` passed all 10,814 build jobs and its standard strict checks;
+the new causal stored-source smoke and axiom audit also passed with
+`warningAsError=true`.
+
+The next obligation is **measured original field-input parsing and trusted context
+production**: recover the stored batch/context/root and challenge count from the
+complete original field-stream bytes, validate the application parameters and
+produce required runtime dimension/capacity witnesses. Bind this extractor to
+the original application registry owner, including earlier unused aliases, and
+then discharge full application/PBS soundness, actor/physical/compiler/native
+backend refinement, BabyBear and the final expected-physical-work theorem.
+
 `StoredHashLogCost` now retains all ordered hash observations as stored bytes,
 including unrelated/off-path inputs and repeated entries. Its fixed-size measured
 decoder exactly matches `JointHashCache.decode` on arbitrary analysis histories:
@@ -52,10 +99,9 @@ no-freeze roles, empty histories and polynomial replay/lookup bounds. Only
 the new stored-snapshot smoke and axiom audit also passed with
 `warningAsError=true`.
 
-The next obligation is **original causal-boundary recovery and integrated stored
-public-source extraction**: recover the original first complete field input's
-history prefix, parse its stored context/root, select this exact snapshot and
-compose the measured extractor with runtime size production. Original application
+The causal-boundary/extraction milestone above supersedes the prior generic
+recovery and extractor-composition obligations. Parsing the original field input
+and producing its trusted context/runtime dimensions remain open. Original application
 registry ownership (including earlier unused aliases), full application/PBS
 binding, actor/physical/compiler/native backend refinement, BabyBear and the final
 expected-physical-work theorem remain required.
