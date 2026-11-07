@@ -1,0 +1,8 @@
+[package]
+name = "formalproof4fhe-native-ntt-root-fixture"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+concrete-ntt = { git = "https://github.com/pado-labs/concrete-ntt", rev = "cdeba793e46208320b30d78be19f7be78d49016a" }
