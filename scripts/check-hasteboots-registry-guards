@@ -58,7 +58,8 @@ class Guards(unittest.TestCase):
     def test_exact_proof_audits(self):
         for file, names in [('Proof.lean', MODULE['PROOFS']), ('Decode.lean', MODULE['DECODE_PROOFS']),
                             ('Registry.lean', MODULE['REGISTRY_PROOFS']),
-                            ('Association.lean', MODULE['ASSOCIATION_PROOFS'])]:
+                            ('Association.lean', MODULE['ASSOCIATION_PROOFS']),
+                            ('Lookup.lean', MODULE['LOOKUP_PROOFS'])]:
             text = (MODULE['DATA'] / file).read_text()
             MODULE['PARAMETERS']['validate_proof_source'](text, names)
             with self.assertRaises(RuntimeError):
