@@ -7,6 +7,30 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Generic constructor typechecks; formatter admission still rejected
+
+The new isolated `constructor-typing` frontend profile fixes duplicate parent
+trait fields and builtin effect analysis when Charon retains a Rust body.
+Parent fields keep all original clauses and distinct typed projections; builtin
+calls use their declared backend-model effects. This removes the spurious extra
+Result layer around `Result::branch`. The patch includes the previous string and
+usize fixes and leaves the official tools/backend/native source unchanged.
+
+A fresh Rust regression extracts repeated Copy parents and `?` propagation.
+The two source functions and three kernel theorems pass five dependency audits.
+Six new guard groups, together with the existing 21 groups, pass. The earlier
+static-string and usize profiles remain separately pinned and checked.
+
+The actual generic `Parameters::new_encoded` now typechecks, with generated terms
+preserved and only compatibility imports plus the transparent usize prelude.
+Its dependency audit still finds `core.fmt.Formatter`, an existing backend axiom
+reachable through inherited formatting dictionaries. The constructor probe
+therefore exits nonzero and records failure. No unused-clause removal or dummy
+formatter is used to bypass that obligation. The concrete constructor, complete
+source/model and machine/physical-work refinement, and final security theorem
+remain open. Reproduction and precise scope are documented in
+`interop/aeneas/constructor-typing/README.md`.
+
 ## Transparent usize intrinsic mapping and checked source calls
 
 The isolated `usize-ctlz` frontend profile now models the parameter constructor's

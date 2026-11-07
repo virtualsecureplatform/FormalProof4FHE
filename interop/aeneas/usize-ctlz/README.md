@@ -76,3 +76,8 @@ instruction/physical-cost refinements, and full protocol security remain open.
 The Charon target is checked as 64-bit; the runtime proof keeps the library's
 platform width explicit and does not itself establish that ABI correspondence.
 No original HasteBoots source or official tool is changed.
+
+A later, separate `constructor-typing` profile resolves the parent-field and
+Result effect errors. Its actual generic constructor typechecks, but remains
+rejected for the inherited `core.fmt.Formatter` backend axiom. See
+`../constructor-typing/README.md`; the `usize-ctlz` profile is unchanged.
