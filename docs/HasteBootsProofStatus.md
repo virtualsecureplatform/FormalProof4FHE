@@ -7,6 +7,58 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+A closed byte instruction interpreter now supplies explicit local execution
+steps. Its finite instruction syntax contains no evaluator or oracle
+continuation supplied by an adversary. Register/stack operations, branches,
+public-data copying, starts, hashes and reads execute through this interpreter.
+Reads may obtain their offset and length from earlier response bytes. Halt,
+reject, empty-pop failure and out-of-code abort pay for the executed instruction
+and then stutter without further work. Initialization charges finite owned code,
+private tapes and zeroed registers; immutable public setup is excluded and is
+charged when copied. This is a specified byte-work schedule, still requiring a
+physical implementation/refinement argument.
+
+`ClosedByteMachine` proves exact per-instruction accounting and its finite
+sum, prefix resumption, monotone work, terminal stuttering and replay.
+`ClosedByteMachineHistory` locates first exposure by the actual instruction
+clock and recovers the exact earlier full mixed history. Silent steps insert no
+fake observations. `ClosedByteMachineRequest` proves its generated next-request
+classifier agrees with each actual interpreter operation and derives the
+existing first-read selector at that instruction boundary. The classifier's
+`done next` for a local instruction is a single-instruction view, not termination
+of the interpreter.
+
+`ClosedByteMachineWork` proves measurability and equality between expected
+lifetime work and the supremum of prefix means, retaining incomplete and
+infinite tails. `ClosedByteMachineRootLifetime` transports the global
+root/source hazard bound to these instruction prefixes with the full causal
+prelude and shared caches. Its hazard charges are still explicit.
+`ClosedByteMachineGoldRisk` proves that compatible Goldilocks roles with
+`Q ≥ 544` have lifetime field/column exposure-event probability at most
+`(17 / 2^141) * expectedWork` for this closed interpreter. The proof sums actual
+instruction costs, makes stopped exposure charges zero, and uses the earlier
+native conditional field/column laws at the exact replayable packet. It has no
+runtime cap, observation-count cost proxy, completion conditioning or success
+floor.
+
+Validation: `scripts/check` passed all 10,591 build jobs and its strict
+audit/smoke commands. Six additional strict closed-machine, calibration and
+lifetime checks passed. All 48 new theorem guards use only `propext`,
+`Classical.choice` and `Quot.sound`. Regression cases cover silent work with
+an empty oracle log, byte wraparound, halt/reject/abort, public-copy cost,
+response-dependent offsets/counts, shared SHAKE/hash coordinates, empty reads
+and an exposure whose instruction index differs from its observation index.
+
+This event is only the field/column exposure component. Early receipts and
+root/source hazards still need work coupling. Actual application false
+acceptance must be reduced to the new closed-prefix events. Honest verifier
+work, submission costs and actor separation need explicit implementation and
+refinement; the interpreter is not yet a complete adversary/verifier experiment.
+Randomized adversary initialization, native physical-cost simulation, efficient
+public extraction, first-original registry binding, BabyBear execution and
+strict Rust/backend refinement also remain open. No 128-bit application theorem
+is claimed.
+
 Candidate native-role calibration is now kernel checked. For every role quota
 `Q ≥ 544`, the rectangular error is at most `17 / 2^141`; the sum over
 four roles is at most `17 / 2^139`. Multiplying that sum by the 64-shape
