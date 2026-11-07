@@ -7,6 +7,33 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Transparent usize intrinsic mapping and checked source calls
+
+The isolated `usize-ctlz` frontend profile now models the parameter constructor's
+missing `ctlz_nonzero` operation. Preprocessing checks every direct reference for
+the concrete usize instantiation and rejects other types; extraction calls the
+closed bit-vector implementation in `interop/aeneas/usize-ctlz/Runtime.lean`.
+Zero is an explicit undefined-input failure. Four runtime lemmas establish its
+defined behavior and exact natural leading-zero count without U32 truncation.
+The platform's 32/64-bit width remains explicit, with no new platform axiom.
+
+Actual raw and zero-guarded Rust calls are freshly extracted. Seven source-call
+lemmas include a total specification for every guarded input. Strict Lean
+checking passes all 13 dependency audits using only permitted axioms. Direct
+u32, generic and u32 function-item aliases are rejected by the frontend. The
+shared builder checks the exact combined four-file patch and existing package
+profile; its default static-string profile remains separate and also passes its
+15-audit regression. Six new guard tests plus the existing seven static-string
+and eight parameter-extraction guards pass.
+
+The ctlz admission is gone from emitted generic constructor Lean, but the whole
+constructor still fails strict checking on further trait/attribute/control-flow
+translation issues. A diagnostic unused-clause removal did not close that gate
+and is not used by the accepted probes. The source primitive precondition,
+source-to-model/ABI invariant, Rust/compiler/heap/instruction/physical work and
+final unbounded causal 128-bit security theorem remain required. Details and
+reproduction commands are in `interop/aeneas/usize-ctlz/README.md`.
+
 ## Static-string return failure isolated and repaired experimentally
 
 The constructor trace now identifies its bottom-value return precisely: an
