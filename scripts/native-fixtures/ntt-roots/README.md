@@ -119,3 +119,15 @@ writes, source-word index permutation and separately initialized root/state,
 composed with the earlier Goldilocks constructor prefix. Full Plan constants,
 reverse-index assembly, allocation, cache and machine/physical refinement remain
 open.
+
+Direct `fwd_coeff_one_monomial` now checks all 4,224 outputs for the same four
+Goldilocks monomials. Independent Python polynomial evaluation exercises the
+actual reverse-index/root-power lookup in addition to the existing butterfly
+path. Normalizing all-one vectors checks 1,056 inverse-scale values against
+Python modular inverses. Both actual Goldilocks root-power Shoup arrays must be
+empty. Private Barrett/Shoup scalar fields have no public Rust getter; they are
+not claimed as direct fixture observations. Lean now assembles all fourteen
+stored Plan fields and the raw-root ConcreteTable wrapper from proved word
+stages, with derived constants and array/root certificates. Native machine,
+allocation, transmute, cache/concurrency, compiler and physical refinements
+remain open.

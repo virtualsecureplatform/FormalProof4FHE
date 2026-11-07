@@ -176,10 +176,23 @@ fn main() {
     ] {
         let plan = concrete_ntt::prime64::Plan::try_new(size, modulus)
             .expect("fixture domain must be supported");
+        assert_eq!(plan.modulus(), modulus);
+        assert_eq!(plan.ntt_size(), size);
         assert_eq!(plan.root(), expected);
         println!("ROOT modulus={modulus} size={size} value={}", plan.root());
         if modulus == 18446744069414584321 {
+            assert!(plan.root_powers_shoup().is_empty());
+            let mut normalized = vec![1_u64; size];
+            plan.normalize(&mut normalized);
+            for (index, value) in normalized.iter().enumerate() {
+                println!("NORM {modulus} {size} {index} {value}");
+            }
             for degree in [0, 1, size / 2, size - 1] {
+                let mut monomial = vec![0_u64; size];
+                plan.fwd_coeff_one_monomial(degree, &mut monomial);
+                for (index, value) in monomial.iter().enumerate() {
+                    println!("MONOMIAL {modulus} {size} {degree} {index} {value}");
+                }
                 let mut values = vec![0_u64; size];
                 values[degree] = 1;
                 plan.fwd(&mut values);

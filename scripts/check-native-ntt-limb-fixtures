@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check fresh locked-native u256 products with independent Python integers."""
+"""Check locked-native limb, prime, root-power and transform regressions."""
 import os
 from pathlib import Path
 import subprocess
@@ -32,6 +32,8 @@ plan_roots = {(97, 16): 51, (193, 16): 151, (193, 32): 94,
 gold_ntt_cases = {(18446744069414584321, n, degree, i)
                   for n in [32, 1024] for degree in [0, 1, n // 2, n - 1] for i in range(n)}
 expected = {
+    'NORM': {(18446744069414584321, n, i) for n in [32, 1024] for i in range(n)},
+    'MONOMIAL': gold_ntt_cases,
     'NTTFWD': gold_ntt_cases,
     'NTTINV': gold_ntt_cases,
     'POWER': {(p, n, i) for p, n in plan_roots for i in range(2 * n)},
@@ -51,19 +53,27 @@ def digits(value):
     return [(value >> (64 * index)) & mask for index in range(4)]
 
 for line in run.stdout.splitlines():
-    if not (line.startswith('LIMB') or line.startswith('DIVINIT') or line.startswith('PRIME') or line.startswith('POWER') or line.startswith('NTT')):
+    if not line.startswith(('LIMB', 'DIVINIT', 'PRIME', 'POWER', 'NTT', 'NORM', 'MONOMIAL')):
         continue
     label, *fields = line.split()
-    assert label in expected, f'unknown native limb record: {label}'
+    assert label in expected, f'unknown native fixture record: {label}'
     values = [int(value) for value in fields]
     assert all(value >= 0 for value in values), 'negative native word'
-    if label in ('NTTFWD', 'NTTINV'):
+    if label == 'NORM':
+        assert len(values) == 4, f'malformed normalization record: {line}'
+        key = tuple(values[:3])
+        assert key in expected[label], f'unexpected normalization case: {key}'
+        p, n, i = key
+        assert 0 <= values[3] < p, 'noncanonical native inverse scale'
+        reference = [pow(n, -1, p)]
+        actual = values[3:]
+    elif label in ('NTTFWD', 'NTTINV', 'MONOMIAL'):
         assert len(values) == 5, f'malformed NTT record: {line}'
         key = tuple(values[:4])
         assert key in expected[label], f'unexpected NTT case: {key}'
         p, n, degree, i = key
         assert 0 <= values[4] < p, 'noncanonical Goldilocks NTT output'
-        if label == 'NTTFWD':
+        if label in ('NTTFWD', 'MONOMIAL'):
             # Independent bit-string reversal and polynomial evaluation.
             reverse = int(format(i, f'0{n.bit_length() - 1}b')[::-1], 2)
             reference = [pow(plan_roots[p, n], (2 * reverse + 1) * degree, p)]
@@ -133,10 +143,11 @@ for line in run.stdout.splitlines():
         actual = values[8:]
     assert key in expected[label] and key not in seen[label], f'unexpected/duplicate case: {label} {key}'
     seen[label].add(key)
-    assert actual == reference, f'native limb arithmetic differs: {label} {key}'
+    assert actual == reference, f'native fixture differs: {label} {key}'
 for label, cases in expected.items():
-    assert seen[label] == cases, f'missing native limb cases: {label} {cases - seen[label]}'
+    assert seen[label] == cases, f'missing native fixture cases: {label} {cases - seen[label]}'
 print('Native limb arithmetic matches Python integers: 35 mul64, 42 wrapping mul128, 49 additions, 49 divisions, 7 initializations')
 print('Native primality gate matches independent expectations: 205 inputs')
 print('Native stored root powers match Python modular exponentiation: 2240 entries across 5 plans')
 print('Native Goldilocks transforms match independent evaluations: 4224 forward and 4224 normalized inverse outputs')
+print('Native reverse-index lookup and inverse scale match independent references: 4224 monomial and 1056 normalization outputs')
