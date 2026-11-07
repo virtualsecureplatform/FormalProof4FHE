@@ -7,6 +7,26 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+Scalar distance and norm scans are now explicit measured executions on prepared
+vectors. `ScalarDistanceCost.distance` is proved equal to scalar Hamming distance
+and costs exactly `7*n+2`; `norm` is proved equal to Hamming norm and costs exactly
+`6*n+2`. The default Berlekamp–Welch decoder uses the measured norm for its sparse
+zero-message shortcut. Its final candidate check combines shared Horner
+evaluations, the scalar distance scan and the radius comparison, with exact cost
+`n*(7*(candidate.natDegree+1)+12)+4`. For degree below message dimension `k`, this
+is at most `n*(7*k+12)+4`. Degree discovery/checking, input-function and coefficient
+materialization, system construction/elimination and polynomial reconstruction
+remain separate phases; field-backend and physical costs are also excluded.
+The original scalar success, completeness and failure-equivalence theorems remain
+proved for this default implementation. Six direct regressions cover equal,
+partially/all-different, modularly equivalent and empty vectors; two integration
+regressions check acceptance/rejection, norm and exact combined charges.
+Eleven axiom guards cover all new scalar scan and integration theorems. The full
+extractor bound and application-security/native-refinement goals remain open.
+Validation: `scripts/check` passed all 10,676 build jobs and its strict checks.
+The new smoke/audit, polynomial smoke/audit, common-source smoke and native/public
+source audits also passed independently with `warningAsError=true`.
+
 Scalar polynomial evaluation now uses measured Horner evaluation over ascending
 materialized coefficient vectors, with exact abstract field/access cost
 `7*d + 3` for vector length `d`. `PolynomialEvaluationCost.evaluateMany` reuses
