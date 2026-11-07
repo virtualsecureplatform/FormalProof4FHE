@@ -7,6 +7,57 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`ConcreteNTTLimbArithmetic` now models the literal u64 multiply-with-carry
+primitive in locked `u256_impl.rs`. The full u128 intermediate is proved not to
+overflow, both output limbs fit u64, and their exact recomposition is proved.
+`ConcreteNTTU256Mul64` retains the original four ordered carry calls and proves
+all 320 bits of the product: the low word is the product modulo `2^256`, and the
+high carry is its quotient by `2^256`. A further bound proves that incrementing
+the final carry once still fits u64, as needed by the later native mul128 path.
+
+`ConcreteNTTLimbAdd` models the original two overflowing additions and Boolean
+OR carry. `ConcreteNTTU256Add` composes all four original adc calls, proving the
+full sum, wrapped low word and exact final overflow flag. No integer sum of
+carry flags is substituted for the native OR.
+
+`ConcreteNTTU256Mul128` now composes the actual **wrapping** u256-by-u128 path:
+two limb multiplications, the explicit one-limb shift/drop and wrapping addition.
+Its value is the low 256 bits of the full product. Combined with the proved
+u256-by-u64 high carry, its `remainder_formula` recovers the complete limb-level
+`Div64::rem_u128` formula. The final remainder theorem reduces it to `%` with
+the stored reciprocal initialization relation still explicit. That relation is
+the next native u256 division/initialization obligation, not a supplied modular
+multiplication/remainder callback or an assumed initialized backend.
+
+Eleven Lean regression groups cover 125 primitive multiply/carry cases, both
+carry-flag paths, full product recomposition, high-carry increment bounds,
+wrapping addition/shift/product, and the complete remainder composition using
+the mathematical reciprocal. The fresh locked-native fixture emits 35 mul64,
+42 wrapping mul128 and 49 addition cases. The new
+`scripts/check-native-ntt-limb-fixtures` checks every output against independent
+Python arbitrary-precision arithmetic, including all-ones limbs, carry chains,
+maximal multipliers and overflow. It checks record shapes, word bounds, exact
+expected input sets, duplicates and omissions. Existing native arithmetic/root
+assertions still execute in the same fixture. Twenty-three theorem axiom guards
+cover the new limb-formula and composition proofs.
+
+Validation: `scripts/check` passed all 10,867 build jobs and its strict audit
+and smoke checks. The 11 new limb regression groups and 23-theorem audit also
+passed directly with `-DwarningAsError=true`. The fresh native/Python checker
+passed all 126 limb cases; the existing 420 native arithmetic cases and root
+assertions also completed in that fixture. Rust formatting and Python syntax
+checks passed. Audited theorems use only `propext`, `Classical.choice` and
+`Quot.sound`.
+
+This refines the original ordered **limb arithmetic formulas**, not actual Rust
+instructions or compiler execution. The remaining arithmetic path includes the
+u256 reciprocal long division and initialization, nonwrapping mul128 high-result
+path where needed, and machine casts/shifts/overflow semantics. Native plan
+preflight/root storage, cache concurrency and retained code-constructor provenance
+must then connect to these results. Frame domains, all-original-claim/PBS/
+application soundness, actor-separated physical/compiler/SIMD/scheduler
+refinement, BabyBear and the final expected-work theorem remain open.
+
 `ConcreteNTTWordSearch` now executes the original square-before-test inner
 search with the proved reciprocal modular product. Canonical word comparisons
 are related to ZMod equality, and the complete selected index/value pair
@@ -47,8 +98,9 @@ also passed directly with `-DwarningAsError=true`. Audited theorems use only
 
 These results close the word-formula/root-field simulation step; they do not
 prove actual u256 limb routines, Rust instructions, plan construction, cache
-concurrency or physical work. The next backend obligations are literal limb/
-carry/division refinement, the native plan's guards/casts/root storage and cache
+concurrency or physical work. The literal multiplication/addition limb formulas are now refined above.
+The remaining backend obligations include reciprocal long division and actual
+machine semantics, the native plan's guards/casts/root storage and cache
 provenance, then associating the retained code constructor with this actual
 initialization path. Native frame domains, all-original-claim/PBS/application
 soundness, actor-separated physical/compiler/SIMD/scheduler refinement, BabyBear

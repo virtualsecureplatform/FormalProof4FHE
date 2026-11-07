@@ -581,3 +581,8 @@ import FormalProof4FHE.HasteBoots.ConcreteNTTModularPower
 import FormalProof4FHE.HasteBoots.ConcreteNTTWordSearch
 import FormalProof4FHE.HasteBoots.ConcreteNTTWordSquareRoot
 import FormalProof4FHE.HasteBoots.ConcreteNTTWordRootConstruction
+import FormalProof4FHE.HasteBoots.ConcreteNTTLimbArithmetic
+import FormalProof4FHE.HasteBoots.ConcreteNTTU256Mul64
+import FormalProof4FHE.HasteBoots.ConcreteNTTLimbAdd
+import FormalProof4FHE.HasteBoots.ConcreteNTTU256Add
+import FormalProof4FHE.HasteBoots.ConcreteNTTU256Mul128
