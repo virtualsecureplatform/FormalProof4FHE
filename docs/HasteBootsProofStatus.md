@@ -7,6 +7,53 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`ConcreteNTTWordSearch` now executes the original square-before-test inner
+search with the proved reciprocal modular product. Canonical word comparisons
+are related to ZMod equality, and the complete selected index/value pair
+simulates the earlier field search. Every search index is at most its limit and
+every retained value remains canonical.
+
+`ConcreteNTTWordSquareRoot` now executes the actual word-formula Tonelli–Shanks
+initialization and updates using the proved modular-power/remainder programs.
+It distinguishes `root`, `noRoot` and `assertionFailure`, preserving the native
+assertion's position after an exhausted inner search. No fixed iteration fuel is
+introduced: continuing updates strictly decrease the original `m`. Erasing the
+two failure outcomes simulates the field loop and proves every successful return
+squares to its input. Root results remain below the modulus; fitting initialization
+and shift-exponent conditions are also proved.
+
+`ConcreteNTTWordRootConstruction` lifts that simulation through the ascending
+nonresidue scan and all repeated square roots from `modulus-1`. Its native-order
+word-formula construction simulates the field construction, retains assertion
+failure distinctly until erasure, and derives primitive order for every successful
+return. Successful roots are canonical. The actual factor-of-two decomposition
+supplies `q+1<2^64` and `s<64` for `3<=modulus<2^64`, discharging the square-root
+initialization and continuing shift bounds. The Goldilocks specialization derives
+primitive order with neither a caller-selected root nor a primitive-root
+certificate. No replacement checked-root backend or native validation gate is
+introduced.
+
+Eight regression groups cover complete small-field search agreement, zero/one
+exits, distinct assertion/no-root outcomes, all small-field square-root results,
+public word bounds, supported/unsupported orders, all five locked-native root
+literals (including Goldilocks N=1024), and noncanonical u64 input reduction.
+Twenty-one public theorem axiom guards cover the word simulations, bounds and
+primitive-root construction.
+
+Validation: `scripts/check` passed all 10,860 build jobs and its strict audit
+and smoke checks. The eight new word-root regression groups and 21-theorem audit
+also passed directly with `-DwarningAsError=true`. Audited theorems use only
+`propext`, `Classical.choice` and `Quot.sound`.
+
+These results close the word-formula/root-field simulation step; they do not
+prove actual u256 limb routines, Rust instructions, plan construction, cache
+concurrency or physical work. The next backend obligations are literal limb/
+carry/division refinement, the native plan's guards/casts/root storage and cache
+provenance, then associating the retained code constructor with this actual
+initialization path. Native frame domains, all-original-claim/PBS/application
+soundness, actor-separated physical/compiler/SIMD/scheduler refinement, BabyBear
+and the final expected-work theorem remain open.
+
 `ReciprocalRemainder` now proves the mathematical reduction formula used by
 `concrete-ntt` fast reciprocal division. For reciprocal
 `r = floor((B-1)/d)+1`, it derives the reciprocal bounds and quotient identity,
@@ -51,9 +98,9 @@ These are natural-word formula and control-flow proofs, **not yet** proofs of
 the actual u256 limb routines or Rust/compiler execution. The native u256
 reciprocal division, multiplication/carry paths and high-word extraction still
 need limb refinement; no primitive machine operation or physical cost is claimed
-free by these results. The next composition step is the bounded natural-word
-Tonelli–Shanks/root loop and its simulation to the field semantics, with literal
-u64 comparisons/shifts and panic/error distinctions. Plan/cache provenance,
+free by these results. The bounded natural-word
+Tonelli–Shanks/root simulation and distinct failure outcomes are now supplied
+above; actual u64 comparison/shift instructions remain unrefined. Plan/cache provenance,
 actual code initialization, native frame domains, all-original-claim/PBS/
 application soundness, actor-separated physical/compiler/SIMD/scheduler
 refinement, BabyBear and the final expected-work theorem remain open.

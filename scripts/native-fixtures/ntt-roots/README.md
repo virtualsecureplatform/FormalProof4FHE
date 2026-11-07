@@ -6,6 +6,7 @@ Run from the FormalProof4FHE repository:
 CARGO_TARGET_DIR=build/native-ntt-roots cargo run --locked --manifest-path scripts/native-fixtures/ntt-roots/Cargo.toml
 scripts/in-container lake env lean -DwarningAsError=true FormalProof4FHETest/HasteBootsConcreteNTTRootSmoke.lean
 scripts/in-container lake env lean -DwarningAsError=true FormalProof4FHETest/HasteBootsConcreteNTTArithmeticSmoke.lean
+scripts/in-container lake env lean -DwarningAsError=true FormalProof4FHETest/HasteBootsConcreteNTTWordRootSmoke.lean
 ```
 
 The Cargo dependency is pinned to the same `concrete-ntt` commit used by
@@ -41,5 +42,9 @@ formula and proves it computes the canonical remainder on these word domains.
 `ConcreteNTTModularPower` retains the literal exponentiation control flow using
 that reducer and proves its canonical modular-power value. These results do not
 yet refine the actual u256 limb operations, division, wide multiplication,
-comparisons/shifts or Rust compilation. Connecting the word-level Tonelli-Shanks
-and root-construction loops to the earlier field semantics is also still open.
+comparisons/shifts or Rust compilation. `ConcreteNTTWordSearch`, `ConcreteNTTWordSquareRoot` and
+`ConcreteNTTWordRootConstruction` now connect those natural-word loops to the
+field semantics, preserve assertion failure distinctly from no-root rejection,
+and derive canonical successful roots and primitive order. Their eight smoke
+groups include the same five native-plan root literals. Actual limb/instruction,
+plan/cache and Rust refinement remains open.

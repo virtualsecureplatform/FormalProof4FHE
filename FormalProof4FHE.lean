@@ -578,3 +578,6 @@ import FormalProof4FHE.HasteBoots.ConcreteNTTRootConstruction
 import FormalProof4FHE.HasteBoots.ReciprocalRemainder
 import FormalProof4FHE.HasteBoots.ConcreteNTTDiv64
 import FormalProof4FHE.HasteBoots.ConcreteNTTModularPower
+import FormalProof4FHE.HasteBoots.ConcreteNTTWordSearch
+import FormalProof4FHE.HasteBoots.ConcreteNTTWordSquareRoot
+import FormalProof4FHE.HasteBoots.ConcreteNTTWordRootConstruction
