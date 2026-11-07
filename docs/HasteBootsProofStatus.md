@@ -7,6 +7,57 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`ConcreteNTTSquareRoot` now models the field semantics of the actual
+`concrete-ntt` Tonelli–Shanks square-root loop at locked revision
+`cdeba793e46208320b30d78be19f7be78d49016a`. It retains square-before-test inner
+search, zero/one early returns, failed-search rejection, and the original
+`m,c,t,r` updates. The inner index is at most `m`, so continuing updates strictly
+decrease `m`; no arbitrary iteration fuel is added. The invariant `r*r=n*t`,
+nonzero `c`, and `t=0 -> n=0` is initialized and preserved, proving every
+successful return squares to its input.
+
+`ConcreteNTTRootConstruction` now models the actual factor-of-two decomposition,
+ascending nonresidue scan and repeated square roots starting at -1. It proves
+the decomposition identity and odd quotient, nonzero selected nonresidue,
+the complete repeated-root power equation, and primitive order of every
+successful construction in odd characteristic. The Goldilocks specialization
+uses the actual modulus and derives the primitive-root condition from successful
+construction; no caller root certificate or replacement checked-root backend is
+introduced. This is successful-return soundness, not completeness for every
+supported native domain.
+
+Eight Lean regression groups cover public-modulus decomposition, the exact inner
+search indices, early returns/rejection, all square inputs of F17, unsupported
+order rejection, and five exact native-plan root literals. The new Cargo fixture
+in `scripts/native-fixtures/ntt-roots` pins the same backend revision as HasteBoots
+and calls `prime64::Plan::try_new` directly. Its five roots agree with the field
+semantics, including Goldilocks N=1024 root `455906449640507599`; native small-plan
+and unsupported-order rejection are also checked. Thirteen public theorem axiom
+guards cover the new field-semantic soundness results.
+
+This does **not** identify the field semantics with Rust machine execution or
+actual retained plan/cache state. Native `sqrt_mod_ex64` assertion failures are
+represented by rejection in the field semantics; distinguishing panic/error
+outcomes remains a refinement obligation. The plan's minimum-size gate and
+primality check are outside the `roots.rs` semantics. The existing constructor
+and extraction APIs still require their native backend provenance/primitive-root
+premises until modular integer/Div64 operations, casts/shifts, plan root storage,
+cache/concurrency and optimized kernels are connected. These new modules do not
+add validation gates to the native protocol or claim physical work bounds.
+
+Validation: `scripts/check` passed all 10,850 build jobs and its strict audit
+and smoke checks. The eight new root regressions and 13-theorem audit also passed
+directly with `-DwarningAsError=true`. The locked Cargo fixture passed all five
+root assertions and both rejection cases, and `cargo fmt --check` passed.
+Audited theorems use only `propext`, `Classical.choice` and `Quot.sound`.
+
+The next backend step is the literal `prime::exp_mod64` square-and-multiply loop
+and `mul_mod64`/`Div64::rem_u128` refinement, followed by root-loop integer bounds,
+plan/cache provenance and the actual code constructor. Frame allocation domains,
+all-original-claim/PBS/application soundness, actor-separated physical/compiler/
+SIMD/scheduler refinement, BabyBear and the final expected-work theorem remain
+open.
+
 `NativeGoldLookupRegistryTrace` now includes the actual registered preparation
 and original registry initializer in the enclosing lookup execution log. The
 inclusion passes through `begin`, protocol, helpers and the lookup continuation,
@@ -43,7 +94,8 @@ and smoke checks. The new seven-theorem audit also passed directly with
 `-DwarningAsError=true`; its reports contain only `propext`, `Classical.choice`
 and `Quot.sound`.
 
-The next obligations are actual retained-code/NTT initialization provenance and
+The field-semantic root-construction substep is now supplied above. Remaining
+obligations include actual retained-code/NTT initialization provenance and
 validity (instead of independent constructor/primitive-root premises), discharging
 native frame allocation domains from the application, and composing actual source
 extraction with all original accepted claims and the PBS/application relation.
