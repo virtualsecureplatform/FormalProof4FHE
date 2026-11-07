@@ -7,6 +7,27 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Causal decoded dispatcher removes supplied trace correspondence
+
+`interop/aeneas/registry/CausalLookup.lean` now decodes the actual original
+source slice and runs the modeled dispatcher with that decoded registry. A
+causal prequery program supplies only source/context/memory data. Decoder
+failure is retained as None; success retains both original setup and dispatcher
+outcome for arbitrary continuation prefixes.
+
+Eight kernel theorems derive source-registry correspondence, the dispatcher
+outcome and its trace inclusion from execution. Receipt association therefore
+takes neither a caller correspondence certificate nor a lookup-log inclusion
+premise. The remaining framing/message domains are unchanged. Misassociation
+of any receipt over all finite continuation prefixes reduces to the same
+persistent bad event and joint charge supremum, without a per-receipt loss.
+This does not yet prove actual physical work, native dispatcher/heap refinement,
+or complete false-PBS coverage.
+
+Validation: fresh pinned extraction passed all 100 dependency audits, including
+the eight new causal lookup theorems; the six registry guard tests passed.
+All new theorems use only `propext`, `Classical.choice` and `Quot.sound`.
+
 ## Original parent framing reaches the extracted receipt source
 
 `NativeGoldLookupFraming` composes body, ordered helper, source-claim and deferred

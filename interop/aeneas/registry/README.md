@@ -128,3 +128,27 @@ Original-parent framing, stage message domains, registry decoding and lookup
 trace inclusion remain explicit premises. Connecting the modeled dispatcher and
 initializer to their native bodies, and proving parameter construction, heap,
 Serde/bincode/hash-update and physical-work refinement, remain required.
+
+## Causal decoded lookup
+
+`CausalLookup.lean` executes the retained source decoder before the modeled
+lookup dispatcher. A causal prior program supplies source values, context data
+and local memory. Successful decoding replaces the context registry with the
+complete decoded original source vector; failure returns None. The dispatcher
+outcome and original setup are retained for an arbitrary causal continuation.
+No proof certificate is stored in the operational setup.
+
+Eight kernel theorems establish exact dispatch/prelude behavior, computed
+registry correspondence, original dispatcher outcome and inclusion of its
+actual trace in each complete continuation prefix. The receipt association
+result therefore needs no caller source-decoder correspondence or lookup trace
+inclusion premise. Original-parent framing and stage message domains remain
+explicit. Accepted extraction is checked against the same full history,
+including prequeries, lookup execution and continuation.
+
+The event that any retained receipt is misassociated at any finite continuation
+prefix reduces to the existing persistent bad event. Its probability is bounded
+by the supremum of the joint prefix charges for this same causal machine, with
+no per-receipt multiplier or lifetime cutoff. This is still an ideal-oracle
+association result: the complete native dispatcher, source decoder/heap,
+physical work and false-PBS/application coverage remain unproved.
