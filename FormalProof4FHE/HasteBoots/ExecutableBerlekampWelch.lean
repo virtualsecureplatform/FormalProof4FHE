@@ -1,6 +1,7 @@
 module
 public import FormalProof4FHE.HasteBoots.BerlekampWelchSystem
 public import FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision
+public import FormalProof4FHE.HasteBoots.ScalarDistanceCost
 public import ArkLib.Data.CodingTheory.BerlekampWelch.BerlekampWelch
 @[expose] public section
 
@@ -29,9 +30,54 @@ theorem solveSystem_cost (e k : ℕ) (points received : Fin n → F) :
     (solveSystem e k points received).cost ≤ n*(13*e+9*k+17)+8*(n+1)*(2*e+k+1)^2+3 :=
   BerlekampWelchSystem.solve_cost e k _ _
 
+/-- Input-function evaluation and vector preparation are separate costs. -/
+def normWithCost (received : Fin n → F) : SolverOperationCost.Run ℕ :=
+  ScalarDistanceCost.norm (Vector.ofFn received)
+
+omit [NeZero n] in
+theorem normWithCost_value (received : Fin n → F) : (normWithCost received).value = ‖received‖₀ := by
+  simp only [normWithCost,ScalarDistanceCost.norm_value,FiniteLinearSolver.get_ofFn]
+
+omit [NeZero n] in
+theorem normWithCost_cost (received : Fin n → F) : (normWithCost received).cost = 6*n+2 :=
+  ScalarDistanceCost.norm_cost _
+
+/-- Prepared-input phase charge for evaluations, scalar distance and radius
+comparison. Degree checking and reconstruction are separate costs. -/
+def candidateCheckWithCost (e : ℕ) (candidate : Polynomial F) (points received : Fin n → F) :
+    SolverOperationCost.Run Bool :=
+  let evaluations := ExecutablePolynomial.evaluateManyWithCost candidate (Vector.ofFn points)
+  let distance := ScalarDistanceCost.distance (Vector.ofFn received) evaluations.value
+  ⟨decide (distance.value ≤ e),evaluations.cost+distance.cost+1⟩
+
+omit [NeZero n] in
+theorem candidateCheckWithCost_value (e : ℕ) (candidate : Polynomial F) (points received : Fin n → F) :
+    (candidateCheckWithCost e candidate points received).value =
+      decide (Δ₀(received,candidate.eval ∘ points) ≤ e) := by
+  have evaluated : (fun i => ((ExecutablePolynomial.evaluateManyWithCost candidate (Vector.ofFn points)).value).get i) =
+      candidate.eval ∘ points := by
+    funext i
+    exact ExecutablePolynomial.evaluateMany_get candidate points i
+  simp only [candidateCheckWithCost,ScalarDistanceCost.distance_value,FiniteLinearSolver.get_ofFn,evaluated]
+
+omit [NeZero n] in
+theorem candidateCheckWithCost_cost (e : ℕ) (candidate : Polynomial F) (points received : Fin n → F) :
+    (candidateCheckWithCost e candidate points received).cost = n*(7*(candidate.natDegree+1)+12)+4 := by
+  simp only [candidateCheckWithCost,ExecutablePolynomial.evaluateManyWithCost_cost,ScalarDistanceCost.distance_cost]
+  ring
+
+omit [NeZero n] in
+theorem candidateCheckWithCost_cost_le_dimension (e k : ℕ) (candidate : Polynomial F)
+    (points received : Fin n → F) (degree : candidate.natDegree < k) :
+    (candidateCheckWithCost e candidate points received).cost ≤ n*(7*k+12)+4 := by
+  rw [candidateCheckWithCost_cost]
+  have bound : candidate.natDegree+1 ≤ k := by omega
+  exact Nat.add_le_add_right
+    (Nat.mul_le_mul_left n (Nat.add_le_add_right (Nat.mul_le_mul_left 7 bound) 12)) 4
+
 def decoder (e k : ℕ) (points received : Fin n → F) : Option (Polynomial F) :=
   if k = 0 then none
-  else if ‖received‖₀ ≤ e then some ExecutablePolynomial.zero
+  else if (normWithCost received).value ≤ e then some ExecutablePolynomial.zero
   else match (solveSystem e k points received).value with
     | none => none
     | some solution =>
@@ -40,8 +86,7 @@ def decoder (e k : ℕ) (points received : Fin n → F) : Option (Polynomial F) 
       let reconstruction := ExecutablePolynomialDivision.divMod numerator locator
       if reconstruction.2.support = ∅ then
         let candidate := reconstruction.1
-        let evaluations := ExecutablePolynomial.evaluateMany candidate points
-        if candidate.natDegree < k ∧ Δ₀(received, fun i => evaluations.get i) ≤ e then
+        if candidate.natDegree < k ∧ (candidateCheckWithCost e candidate points received).value then
           some candidate
         else none
       else none
@@ -51,6 +96,7 @@ theorem success {e k : ℕ} {points received : Fin n → F} {candidate : Polynom
     (accepted : decoder e k points received = some candidate) :
     candidate.natDegree < k ∧ Δ₀(received, candidate.eval ∘ points) ≤ e := by
   unfold decoder at accepted
+  simp only [normWithCost_value] at accepted
   by_cases hk : k = 0
   · simp only [hk,ite_eq_left] at accepted
     contradiction
@@ -65,10 +111,9 @@ theorem success {e k : ℕ} {points received : Fin n → F} {candidate : Polynom
     · rw [ite_eq_right sparse] at accepted
       split at accepted
       · contradiction
-      · dsimp only at accepted
-        split_ifs at accepted with divisible close
+      · split_ifs at accepted with divisible close
         · cases accepted
-          simpa only [ExecutablePolynomial.evaluateMany_get,Function.comp_def] using close
+          simpa only [candidateCheckWithCost_value,decide_eq_true_eq] using close
 
 theorem complete {e k : ℕ} {points received : Fin n → F} {message : Polynomial F}
     (radius : 2 * e < n - k + 1) (dimension : k ≤ n)
@@ -77,6 +122,7 @@ theorem complete {e k : ℕ} {points received : Fin n → F} {message : Polynomi
     decoder e k points received = some message := by
   have positive : k ≠ 0 := by omega
   unfold decoder
+  simp only [normWithCost_value]
   rw [ite_eq_right positive]
   by_cases sparse : ‖received‖₀ ≤ e
   · rw [ite_eq_left sparse,ExecutablePolynomial.zero_eq]
@@ -105,7 +151,7 @@ theorem complete {e k : ℕ} {points received : Fin n → F} {message : Polynomi
       nonzero condition
     simp only [ExecutablePolynomialDivision.divMod_snd_eq,ExecutablePolynomialDivision.divMod_fst_eq,
       support_eq_empty,EuclideanDomain.mod_eq_zero.mpr quotient.1,ite_eq_left,quotient.2,
-      ExecutablePolynomial.evaluateMany_get]
+      candidateCheckWithCost_value,decide_eq_true_eq]
     exact ite_eq_left ⟨degree,nearby⟩
 theorem failure_iff {e k : ℕ} {points received : Fin n → F}
     (radius : 2 * e < n - k + 1) (dimension : k ≤ n)

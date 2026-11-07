@@ -1,5 +1,7 @@
 module
 import all FormalProof4FHE.HasteBoots.SolverOperationCost
+import all FormalProof4FHE.HasteBoots.ScalarDistanceCost
+import all FormalProof4FHE.HasteBoots.ColumnDistanceCost
 import all FormalProof4FHE.HasteBoots.BerlekampWelchPowers
 import all FormalProof4FHE.HasteBoots.BerlekampWelchSystem
 import all FormalProof4FHE.HasteBoots.ExecutableBerlekampWelch
@@ -90,3 +92,17 @@ private def divisor : Polynomial (ZMod 7) := ExecutablePolynomial.ofCoefficients
 #eval let one := ExecutablePolynomial.evaluateWithCost numerator 3
       let many := ExecutablePolynomial.evaluateManyWithCost numerator (Vector.ofFn points)
       decide (one.value = 3 ∧ one.cost = 24 ∧ many.value.toList = [1,2,5,3,3] ∧ many.cost = 131)
+
+
+/-- info: true -/
+#guard_msgs in
+#eval let affine := ExecutablePolynomial.ofCoefficients 2 (fun i => if i = 0 then (2 : ZMod 7) else 3)
+      let run := ExecutableBerlekampWelch.candidateCheckWithCost 1 affine points corrupted
+      let norm := ExecutableBerlekampWelch.normWithCost corrupted
+      run.value && decide (run.cost = 134 ∧ norm.value = 3 ∧ norm.cost = 32)
+
+/-- info: true -/
+#guard_msgs in
+#eval let affine := ExecutablePolynomial.ofCoefficients 2 (fun i => if i = 0 then (2 : ZMod 7) else 3)
+      let run := ExecutableBerlekampWelch.candidateCheckWithCost 0 affine points corrupted
+      !run.value && decide (run.cost = 134)

@@ -3,6 +3,8 @@ import all FormalProof4FHE.HasteBoots.BerlekampWelchPowers
 import all FormalProof4FHE.HasteBoots.BerlekampWelchSystem
 import all FormalProof4FHE.HasteBoots.ExecutableBerlekampWelch
 import all FormalProof4FHE.HasteBoots.SolverOperationCost
+import all FormalProof4FHE.HasteBoots.ScalarDistanceCost
+import all FormalProof4FHE.HasteBoots.ColumnDistanceCost
 import all FormalProof4FHE.HasteBoots.FiniteLinearSolver
 import all FormalProof4FHE.HasteBoots.FiniteMatrixSolver
 import all FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision
