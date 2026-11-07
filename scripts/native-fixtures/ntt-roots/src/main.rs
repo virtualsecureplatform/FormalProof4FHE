@@ -146,7 +146,24 @@ fn reciprocal_states() {
     }
 }
 
+fn primality() {
+    for modulus in (0_u64..200).chain([
+        2013265921,
+        18446744069414584321,
+        u64::MAX,
+        341550071728321,
+        3825123056546413051,
+    ]) {
+        println!(
+            "PRIME {} {}",
+            modulus,
+            u8::from(concrete_ntt::prime::is_prime64(modulus))
+        );
+    }
+}
+
 fn main() {
+    primality();
     limb_products();
     reciprocal_states();
     arithmetic();

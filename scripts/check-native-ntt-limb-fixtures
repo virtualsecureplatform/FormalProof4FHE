@@ -31,6 +31,7 @@ expected = {
     'LIMB128': {(limbs, right) for limbs in inputs for right in wide_rights},
     'LIMBADD': {(left, right) for left in inputs for right in inputs},
     'LIMBDIV': {(limbs, divisor) for limbs in inputs for divisor in [2, 3, 17, 97, 65536, 18446744069414584321, mask]},
+    'PRIME': set(range(200)) | {2013265921, 18446744069414584321, mask, 341550071728321, 3825123056546413051},
     'DIVINIT': set([2, 3, 17, 97, 65536, 18446744069414584321, mask]),
 }
 seen = {kind: set() for kind in expected}
@@ -42,13 +43,29 @@ def digits(value):
     return [(value >> (64 * index)) & mask for index in range(4)]
 
 for line in run.stdout.splitlines():
-    if not (line.startswith('LIMB') or line.startswith('DIVINIT')):
+    if not (line.startswith('LIMB') or line.startswith('DIVINIT') or line.startswith('PRIME')):
         continue
     label, *fields = line.split()
     assert label in expected, f'unknown native limb record: {label}'
     values = [int(value) for value in fields]
     assert all(value >= 0 for value in values), 'negative native word'
-    if label == 'LIMB64':
+    if label == 'PRIME':
+        assert len(values) == 2 and values[1] in (0, 1), f'malformed prime record: {line}'
+        key = values[0]
+        if key < 200:
+            prime = key >= 2 and all(key % d for d in range(2, key))
+        elif key in (2013265921, 18446744069414584321):
+            # Independently kernel-proved primes in NativeFields.lean.
+            prime = True
+        else:
+            witnesses = {mask: 3, 341550071728321: 10670053,
+                         3825123056546413051: 149491}
+            divisor = witnesses[key]
+            assert 1 < divisor < key and key % divisor == 0
+            prime = False
+        reference = [int(prime)]
+        actual = values[1:]
+    elif label == 'LIMB64':
         assert len(values) == 10, f'malformed native record: {line}'
         assert all(value <= mask for value in values), 'non-u64 native limb'
         key = (tuple(values[:4]), values[4])
@@ -91,3 +108,4 @@ for line in run.stdout.splitlines():
 for label, cases in expected.items():
     assert seen[label] == cases, f'missing native limb cases: {label} {cases - seen[label]}'
 print('Native limb arithmetic matches Python integers: 35 mul64, 42 wrapping mul128, 49 additions, 49 divisions, 7 initializations')
+print('Native primality gate matches independent expectations: 205 inputs')

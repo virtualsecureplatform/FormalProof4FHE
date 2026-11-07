@@ -89,3 +89,12 @@ root behavior, invalid divisors, unsupported orders and noncanonical inputs.
 Native plan preflight/storage, cache provenance, machine/compiler and physical
 refinement remain open; these results do not substitute a different native
 backend or add root validation gates to HasteBoots.
+
+The fixture also emits the locked `prime::is_prime64` result for every input
+below 200, Goldilocks, BabyBear, u64::MAX, 341550071728321 and
+3825123056546413051 (205 cases). The checker uses independent small trial
+division, the kernel prime facts in NativeFields, and explicit proper divisors
+for the large composites. It does not use Miller–Rabin as its reference.
+The new Lean gate proves prime-input completeness and both native prime gates;
+it does not prove the converse for arbitrary u64 inputs. Native machine counter
+bounds, full Plan storage/cache and compiler/physical refinement remain open.
