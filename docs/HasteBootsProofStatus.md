@@ -7,6 +7,26 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`DenseSourceExtraction` now prices source-padding removal and rectangular output
+assembly after matrix decoding. Padding removal uses the original row-major
+block/lane address and costs exactly `r*(7*s+2)+1` for `r` rows and original
+message size `s`. Rectangular assembly preserves left-major/channel-minor order
+and costs exactly `l*(s*(5*p+2)+2)+1` for left size `l` and packing width `p`.
+Both are proved equal to the previous getters. The full prepared rectangular
+extraction bound is
+`DenseCommonSource.operationBound n (l*p) m b e + (l*p)*(7*s+2) + l*(s*(5*p+2)+2) + 4`.
+Packing width `p` and code width `b` remain independent. The flat, rectangular
+and native Goldilocks extraction entry points now expose these charges and use
+the measured implementation; their analysis-equality theorems remain proved.
+Seven runtime regressions cover partial padding, independent widths, rectangular
+ordering, empty output dimensions and the public wrapper. Thirteen axiom guards
+cover the new projection and extraction theorems. Initial raw/point preparation,
+NTT domain-node generation, Merkle/history reconstruction and physical/backend
+refinement remain open, along with full application security.
+Validation: `scripts/check` passed all 10,698 build jobs and its strict checks.
+The new smoke/audit, rectangular and common-source smokes, polynomial audit
+and native/public-source audits also passed with `warningAsError=true`.
+
 `DenseCommonSource` now composes the full matrix decoder on prepared
 position-major column vectors. It charges three nested loads plus storage for
 each scalar word entry, decodes every row/lane once, projects message coefficients
