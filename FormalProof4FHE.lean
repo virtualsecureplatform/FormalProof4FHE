@@ -1,3 +1,4 @@
+import FormalProof4FHE.HasteBoots.PolynomialShapeCost
 import FormalProof4FHE.HasteBoots.ClosedByteMachineExecutableSoundness
 import FormalProof4FHE.HasteBoots.ExecutableRectangularMatrixSoundness
 import FormalProof4FHE.HasteBoots.ExecutableSourceCoefficients
