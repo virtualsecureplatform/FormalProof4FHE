@@ -7,6 +7,26 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+Scalar polynomial evaluation now uses measured Horner evaluation over ascending
+materialized coefficient vectors, with exact abstract field/access cost
+`7*d + 3` for vector length `d`. `PolynomialEvaluationCost.evaluateMany` reuses
+one coefficient vector across all `n` prepared evaluation points and costs
+`n*(7*d+5)+1`. Both are proved equal to the coefficient/power sum. The public
+polynomial wrappers are proved equal to Mathlib evaluation, and the default
+Berlekamp–Welch decoder uses the shared multi-point vector for its final scalar
+distance test. Runtime evaluation no longer repeats exponentiation per term.
+These bounds start after coefficient/point preparation: degree discovery,
+coefficient-function evaluation and materialization, scalar distance scanning,
+polynomial reconstruction, field backend and physical costs remain separate.
+Six direct regressions cover coefficient order, cancellation, trailing zeros,
+multiple points and empty coefficients/points; a polynomial-wrapper regression
+checks values and exact charges. Nine axiom guards cover all new evaluation
+and integration theorems. Full extractor running time and application security
+remain open.
+Validation: `scripts/check` passed all 10,673 build jobs and its strict checks.
+The new smoke/audit, polynomial smoke/audit, common-source smoke and native/public
+source audits also passed independently with `warningAsError=true`.
+
 Executable polynomial reconstruction now exposes a shared `divMod` result.
 It normalizes the divisor once and invokes the recursive division once, returning
 both quotient and remainder. The Berlekamp–Welch decoder obtains its divisibility
