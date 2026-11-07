@@ -23,7 +23,7 @@ bridge; every generated declaration and term is preserved.
 `Generated.lean` records the complete reviewed output. Fresh extraction must
 match it; only the native checkout path in source-location comments may differ
 for comparison. The generated and checked files are never normalized.
-`Proof.lean`, `ModelBridge.lean` and `Decode.lean` are appended and checked with warnings
+`Proof.lean`, `ModelBridge.lean`, `Decode.lean` and `Binding.lean` are appended and checked with warnings
 treated as errors, using the prepared backend and root model libraries. The six
 proofs in `Proof.lean` establish exact header reads, exact generic and concrete retained code,
 all six returned code fields, header independence from the stored code, and
@@ -40,7 +40,7 @@ The actual source constructor must still establish this relation; it is an open
 simulation invariant, not an accepted verifier certificate.
 
 Retained mode now builds the imported root initialization module and checks all
-36 generated/accessor/bridge/decoder dependency closures against the permitted axiom
+50 generated/accessor/bridge/decoder/binding dependency closures against the permitted axiom
 whitelist. Only the original 13 closures are empty; bridge proofs use propext,
 Quot.sound and, for existing root/encoding results, Classical.choice.
 
@@ -73,7 +73,7 @@ checked against the exact pinned compatibility patches using an isolated Git
 index. Generated proof limits stay at 200,000 heartbeats and recursion depth
 1,000. Admissions, opaque declarations, unsafe code and native_decide are refused;
 dependency audits require exact coverage and only the three permitted axioms.
-Nine guard tests exercise truncation, missing declarations, admissions, proof
+Ten guard tests exercise truncation, missing declarations, admissions, proof
 limits, mode separation, snapshot integrity, proof-source theorem coverage and
 dependency audit coverage.
 
@@ -107,9 +107,40 @@ representation relation; it does not assume that relation. A result exists
 exactly when the stored modulus byte length fits. The actual extracted
 `retained_code` call followed by decoding returns that same code value.
 
-The fresh retained extraction audits all 36 declarations. The 14 decoder
+The fresh retained extraction audits all 50 declarations, including the binding
+proofs below. The 14 decoder
 closures use only propext and Quot.sound. This supplies a checked object-to-model
 boundary and replaces abstract representation premises at decoder-based read
 sites. Showing that the actual native constructor always produces a decodable
 object satisfying the modeled initializer, and proving its source/ABI/heap/work
 refinement, remain required.
+
+## Structural binding of successfully decoded source values
+
+`Binding.lean` proves the converse uniqueness direction missing from the original
+bridge: two source codes represented by the same model code are equal as stored
+values. The same holds for full parameters. The proof covers every usize field,
+the raw U64 root, and the complete modulus string. Its UTF-8 argument proves the
+byte-array-to-list loop preserves the array's contents, then uses exact byte and
+UTF-8 injectivity. No Unicode normalization or modular root normalization is
+introduced.
+
+`codeWire` and `contextWire` compose the checked source decoder with the existing
+model codecs. On successful results, equal complete bytes imply equal source
+stored values. The complete context retains all four header fields and all six
+code fields through `NativeGoldBlockCodeContext`. These are modeled wire inputs,
+not extracted implementations of Rust `Serialize` or `context_digest`.
+
+Both codecs have transferred structural prefix results: encoded objects can be
+followed by any suffix, and equal encoded prefixes with suffixes imply equality
+of both stored values and suffixes. The context prefix reader removes the known
+fixed domain of a successfully constructed context before reading its metadata.
+This does not claim validation of arbitrary adversarial bytes or collision
+resistance of SHA-512.
+
+All 14 new binding declarations are strictly kernel checked in the fresh
+retained-source harness and audited using only propext and Quot.sound. A separate
+guard checks their exact audit coverage. The statements concern source values,
+not equality of heap references, allocation identities or original registry
+positions. Native Serde/bincode/hash-update refinement, actual constructor
+correctness, source ABI/heap/work and full protocol security remain required.

@@ -7,6 +7,29 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Complete decoded-source wire binding and suffix preservation
+
+`interop/aeneas/parameters/Binding.lean` now proves source-side uniqueness of the
+retained-object representation. Equal represented model codes imply equality of
+all source code fields, including exact UTF-8 strings and raw U64 roots; the same
+holds for complete parameters. The UTF-8 proof includes a kernel induction
+showing that ByteArray.toList preserves the array's contents, beyond the
+existing library's length result.
+
+Checked decoding composed with the existing code/context codecs is injective
+on successful results. Equal complete modeled wire inputs imply equal retained
+source values. Prefix results preserve arbitrary following bytes: equality of
+encoded values plus suffixes implies equality of both source values and
+suffixes. The full context includes every header and retained code field; no
+canonicalization or normalization weakens the binding.
+
+The 14 new theorem closures use only propext and Quot.sound. Fresh retained
+extraction now audits all 50 generated/accessor/bridge/decoder/binding
+declarations; all 34 guard tests pass. These are structural modeled-byte results,
+not refinement of Rust Serde/bincode/context_digest, hash collision resistance,
+heap/reference identity, physical work, or the complete security theorem. Those
+obligations and the actual constructor correspondence remain open.
+
 ## Checked source-object decoder replaces representation premises at reads
 
 `interop/aeneas/parameters/Decode.lean` now constructs model code and parameters
