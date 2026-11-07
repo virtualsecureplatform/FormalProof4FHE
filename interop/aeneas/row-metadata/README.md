@@ -38,3 +38,19 @@ associated-type equality in the actual function signature. Dropping constraints,
 adding opaque Formatter/NTT axioms or disabling invariants cannot close this
 gate. Context formatting, Serde/bincode, hash updates, native owner selection,
 heap and physical-work refinement remain open.
+
+## Compare the static-slice experiment
+
+Pass `--build-receipt /path/to/static-slices/build/manifest.json` to the generic
+command above to run the reviewed experimental frontend on the exact same LLBC
+after the official attempt. The probe rechecks the profile, complete patch,
+builder policy, dependency profile and executable hash. Both sets of exit codes
+and failure classifications are recorded; the result remains rejected/unproved.
+The carrier type is retained explicitly, avoiding an opaque-carrier diagnostic.
+
+With the reviewed static-slices experiment, the generic native metadata call
+passes the earlier missing-borrow point and fails at the original
+`domain_separator` byte literal in `block.rs`. This is consistent with the
+separately rejected direct-literal fixture. The actual domain function is not
+replaced by a supplied constant, and its failure does not certify any native
+context bytes. The concrete associated-type gate remains open too.

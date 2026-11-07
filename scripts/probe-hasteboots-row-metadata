@@ -21,6 +21,9 @@ def classify_failure(log):
     if ('Internal error, please file an issue' in clean and
             'SymbolicToPureTypes.ml, line 1012' in clean and 'transformation/concrete.rs' in clean):
         return 'associated-type-constraint'
+    if ('There should be no bottoms in the value' in clean and
+            'interp/InterpExpressions.ml' in clean and 'pcs/src/utils/code/block.rs' in clean):
+        return 'native-domain-literal-bottom'
     return None
 
 
@@ -29,6 +32,7 @@ def main():
     parser.add_argument('--tools', type=Path, required=True)
     parser.add_argument('--backend', type=Path, required=True)
     parser.add_argument('--mode', choices=['generic', 'concrete'], required=True)
+    parser.add_argument('--build-receipt', type=Path, help='Optional reviewed static-slices experiment; still unproved')
     args = parser.parse_args()
     parent = ROOT / 'build/hasteboots-extraction'
     parent.mkdir(parents=True, exist_ok=True)
@@ -77,7 +81,8 @@ def main():
                    BASE['NAMESPACE'] + '::row_metadata']
         for method in ['block_width', 'codeword_blocks', 'domain_separator']:
             command += ['--include', 'pcs::utils::code::block::_::' + method]
-        command += ['--dest-file', llbc, '--', '--manifest-path', out / 'Cargo.toml', '--lib', '--locked']
+        command += ['--include', 'pcs::utils::code::block::BlockReedSolomonCode',
+                    '--dest-file', llbc, '--', '--manifest-path', out / 'Cargo.toml', '--lib', '--locked']
         env = dict(os.environ)
         env.setdefault('CARGO_TARGET_DIR', str(parent / 'cargo-registry-target'))
         if run(command, 'charon.log', env):
@@ -102,6 +107,31 @@ def main():
         check_native()
         record['aeneas_exit_code'] = code
         record['failure_kind'] = classify_failure((out / 'aeneas.log').read_text())
+        if args.build_receipt:
+            build = runpy.run_path(str(ROOT / 'scripts/build-hasteboots-static-frontend'))
+            receipt = json.loads(args.build_receipt.read_text())
+            if receipt.get('status') != 'passed' or receipt.get('profile') != 'static-slices':
+                raise RuntimeError('Wrong or failed experimental frontend receipt')
+            if receipt.get('script_sha256') != BASE['digest']((ROOT / 'scripts/build-hasteboots-static-frontend').read_bytes()):
+                raise RuntimeError('Stale frontend builder policy')
+            patch_hash = build['verify_source'](Path(receipt['source']), 'static-slices')
+            if receipt.get('patch_sha256') != patch_hash:
+                raise RuntimeError('Stale frontend patch receipt')
+            package_hash = BASE['digest']((build['DATA'] / 'opam-packages.json').read_bytes())
+            if receipt.get('package_profile_sha256') != package_hash:
+                raise RuntimeError('Stale frontend package profile')
+            frontend = Path(receipt['executable'])
+            if BASE['digest'](frontend.read_bytes()) != receipt.get('executable_sha256'):
+                raise RuntimeError('Experimental executable differs from receipt')
+            record['experimental_receipt_sha256'] = BASE['digest'](args.build_receipt.read_bytes())
+            record['experimental_frontend_sha256'] = receipt['executable_sha256']
+            experimental = run([frontend, '-backend', 'lean', '-checks', '-sequential',
+                '-max-heartbeats', '200000', '-max-recdepth', '1000', '-abort-on-error',
+                '-dest', out / 'experimental', llbc], 'experimental.log')
+            check_native()
+            record['experimental_exit_code'] = experimental
+            record['experimental_failure_kind'] = classify_failure((out / 'experimental.log').read_text())
+            raise RuntimeError('Experimental native metadata remains unproved: ' + str(record['experimental_failure_kind']))
         if code:
             raise RuntimeError('Aeneas rejected metadata: ' + str(record['failure_kind']))
         # Translation alone never promotes this diagnostic to an accepted proof.

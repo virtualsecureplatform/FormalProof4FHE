@@ -13,6 +13,11 @@ class Guards(unittest.TestCase):
         self.assertEqual(PROBE['classify_failure']('Could not find borrow b@1\ninterp/Invariants.ml'), 'borrow-invariant')
         self.assertEqual(PROBE['classify_failure']('Internal error, please file an issue\ntransformation/concrete.rs\nSymbolicToPureTypes.ml, line 1012'), 'associated-type-constraint')
 
+    def test_native_literal_failure(self):
+        log = 'There should be no bottoms in the value\ninterp/InterpExpressions.ml\npcs/src/utils/code/block.rs'
+        self.assertEqual(PROBE['classify_failure'](log), 'native-domain-literal-bottom')
+        self.assertIsNone(PROBE['classify_failure'](log.replace('pcs/src/utils/code/block.rs', 'unrelated.rs')))
+
     def test_unknown_failures_stay_unknown(self):
         for log in ['', 'success', 'Could not find borrow', 'Internal error, please file an issue', 'Formatter axiom']:
             self.assertIsNone(PROBE['classify_failure'](log))

@@ -7,6 +7,31 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Reduced static-slice trait calls have a checked frontend experiment
+
+The missing-borrow failure reduces to a trait method returning a shared static
+slice, without any NTT, field or literal implementation. The separate
+`static-slices` frontend profile gives explicitly static scalar-slice call results
+a persistent shared loan and consistently erases static regions from runtime
+types. Declared signatures keep their static regions. No Lean backend, official
+tool, native source, proof limit or invariant setting changes.
+
+Six generated functions and eight kernel regression theorems cover static result
+data, result copying, retaining data over another call, ordinary borrowed input,
+successful metadata fields and error propagation. The same probe rechecks the
+15 earlier static-string audits. Mutable static results, nested references and
+direct byte-slice literals remain rejected. The upstream traits regeneration and
+formatting were run. A fresh controlled run passed all 29 dependency audits and
+all three unsupported-case rejections. All 53 extraction/frontend guard tests
+passed. This advances a compiler regression gate; native row metadata and
+complete security/physical-work refinement remain unproved.
+
+The native metadata probe can compare the official and reviewed experimental
+frontends on the same complete LLBC. With its actual code carrier retained,
+the experiment passes the earlier generic missing-borrow point and reaches the
+original domain-separator byte literal, which remains rejected. No native domain
+function is replaced with a constant and no native-context proof is claimed.
+
 ## Native context metadata exposes two compiler blockers
 
 The row metadata used by native `Parameters::context_digest` is now isolated in
