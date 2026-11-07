@@ -1,4 +1,5 @@
 module
+import all FormalProof4FHE.HasteBoots.PreparedMerklePayloads
 import all FormalProof4FHE.HasteBoots.SolverOperationCost
 import all FormalProof4FHE.HasteBoots.ScalarDistanceCost
 import all FormalProof4FHE.HasteBoots.DenseCandidateCheck

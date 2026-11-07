@@ -7,6 +7,30 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`PreparedMerklePayloads` now separates strict leaf decoding from payload
+lookup. `ExecutableMerkleAvailability.reconstruct` prepares the frozen log once
+and shares its stored digest bytes and optional decoded payloads across all leaf
+lookups. The scan stops at the first valid matching payload and skips malformed
+matching entries. Its result is proved equal to the previous `filterMap`/`head?`
+resolver on every log, preserving reconstruction and public-source semantics.
+Byte comparison is executable over stored lists, with proved equality and cost
+bounds; the scan invokes no decoder or arbitrary callback. Its abstract byte,
+list/access and control charge is at most `394*L+1` for `L` prepared entries.
+A successful matching head costs exactly 389, and appending any entries after a
+successful prepared prefix preserves both result and scan charge. Log decoding,
+digest materialization, Merkle tree construction/traversal, field conversion and
+physical/backend execution still need their own cost proofs before this can be
+composed into a complete extractor-work theorem. Full application security
+remains open.
+Nine runtime regressions cover first-valid selection, malformed matching entries,
+conflicting later payloads, appended suffixes, the final digest byte, unrelated
+labels, empty logs and differing byte-list lengths. Eleven axiom guards cover
+byte equality, scan cost/semantics, append stability and retained reconstruction
+semantics. The new smoke/audit, public-source smoke/audit and prepared native
+extraction smoke passed with `warningAsError=true`. `scripts/check` passed all
+10,706 build jobs and its strict checks. No new axioms or proof-limit increases
+were introduced.
+
 The public Goldilocks extractor now consumes its already materialized source
 columns directly through `NativeGoldExecutableExtraction.extractPreparedWithCost`.
 Previously it wrapped the stored table as a function and rematerialized the
