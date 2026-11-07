@@ -27,3 +27,14 @@ replace ArcSwap/Mutex/pointer/ABA, Rust/Charon/Aeneas, memory, allocation, sched
 or actor-separated physical-work refinement. Ghost receipts supply no work fee.
 The existing `ntt-roots` fixture continues to check limb arithmetic, initialization,
 primality, stored root powers and transform/normalization values.
+
+The fixture also runs the actual `BlockReedSolomonCode::new` for four requests,
+including partial blocks, the minimum domain and N=1024/N=4096. It checks all six
+stored serde fields using a structural decoder and the actual cached/backend
+root. Python independently recomputes padded counts, domains, primitive powers
+and every bincode varint/String/raw-root byte. Eight rejected requests verify
+dimension/blowup checks, message/domain/stride overflow, and unsupported field
+domain generation in their original order. Lean's explicit constructor phases
+perform real word-model generation, RCU init/retry and table load; completed
+receipts supply encoding/root/codeword meaning without table-result callbacks.
+These remain value/source models, not Rust/heap/SIMD or physical-work refinement.

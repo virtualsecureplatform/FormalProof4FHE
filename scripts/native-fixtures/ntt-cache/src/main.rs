@@ -2,7 +2,107 @@
 use algebra::{Field, Goldilocks, NTTField, transformation::AbstractNTT};
 use std::sync::{Arc, Barrier};
 
+fn block_codes() {
+    use pcs::utils::code::{BlockReedSolomonCode, RowCode};
+    for (message, block, blowup) in [(1, 1, 2), (7, 3, 2), (1024, 4, 4), (4096, 4, 4)] {
+        let code = BlockReedSolomonCode::<Goldilocks>::new(message, block, blowup).unwrap();
+        let count = code.codeword_blocks();
+        let root = Goldilocks::get_ntt_table(count.ilog2())
+            .unwrap()
+            .root()
+            .value();
+        let bytes = bincode::serde::encode_to_vec(&code, bincode::config::standard()).unwrap();
+        let (decoded, used): ((usize, usize, usize, usize, String, u64), usize) =
+            bincode::serde::decode_from_slice(&bytes, bincode::config::standard()).unwrap();
+        assert_eq!(used, bytes.len());
+        assert_eq!(
+            decoded,
+            (
+                message,
+                block,
+                code.message_blocks(),
+                count,
+                Goldilocks::MODULUS_VALUE.to_string(),
+                root
+            )
+        );
+        let reference =
+            concrete_ntt::prime64::Plan::try_new(count, Goldilocks::MODULUS_VALUE).unwrap();
+        assert_eq!(root, reference.root());
+        let hex: String = bytes.iter().map(|byte| format!("{byte:02x}")).collect();
+        println!(
+            "BLOCK {message} {block} {blowup} {} {count} {root} {hex}",
+            code.message_blocks()
+        );
+    }
+    for (name, message, block, blowup, expected) in [
+        (
+            "zero-message",
+            0,
+            1,
+            2,
+            "invalid block RS dimensions or blowup",
+        ),
+        (
+            "zero-block",
+            1,
+            0,
+            2,
+            "invalid block RS dimensions or blowup",
+        ),
+        (
+            "small-blowup",
+            1,
+            1,
+            1,
+            "invalid block RS dimensions or blowup",
+        ),
+        (
+            "nonpower-blowup",
+            1,
+            1,
+            3,
+            "invalid block RS dimensions or blowup",
+        ),
+        (
+            "message-overflow",
+            usize::MAX,
+            1,
+            2,
+            "block RS message size overflow",
+        ),
+        (
+            "domain-overflow",
+            1_usize << 63,
+            1,
+            2,
+            "block RS domain overflow",
+        ),
+        (
+            "stride-overflow",
+            1,
+            usize::MAX,
+            2,
+            "block RS codeword size overflow",
+        ),
+        (
+            "unsupported-domain",
+            1_usize << 31,
+            1,
+            2,
+            "unsupported block RS NTT domain",
+        ),
+    ] {
+        let error = BlockReedSolomonCode::<Goldilocks>::new(message, block, blowup)
+            .err()
+            .expect("must reject");
+        assert_eq!(error, expected);
+        println!("BLOCK_ERROR {name}");
+    }
+}
+
 fn main() {
+    assert_eq!(usize::BITS, 64);
     const LOGS: [u32; 3] = [4, 5, 10];
     const WORKERS: usize = 8;
     let mut roots = Vec::new();
@@ -62,4 +162,5 @@ fn main() {
     assert_eq!(Goldilocks::get_ntt_root(5).unwrap().value(), roots[1]);
     println!("CACHE_ERROR root-error=true init-panic=true retained-stable=true");
     println!("CACHE_OK workers=8 logs=3 retained-handles=24");
+    block_codes();
 }

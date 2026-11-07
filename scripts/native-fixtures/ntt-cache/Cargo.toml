@@ -7,3 +7,5 @@ publish = false
 [dependencies]
 algebra = { path = "../../../../HasteBoots/algebra" }
 concrete-ntt = { git = "https://github.com/pado-labs/concrete-ntt", branch = "dev" }
+pcs = { path = "../../../../HasteBoots/pcs" }
+bincode = { version = "=2.0.1", features = ["serde"] }
