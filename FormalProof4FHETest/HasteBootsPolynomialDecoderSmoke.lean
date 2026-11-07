@@ -1,6 +1,7 @@
 module
 import all FormalProof4FHE.HasteBoots.SolverOperationCost
 import all FormalProof4FHE.HasteBoots.ScalarDistanceCost
+import all FormalProof4FHE.HasteBoots.DenseCandidateCheck
 import all FormalProof4FHE.HasteBoots.ColumnDistanceCost
 import all FormalProof4FHE.HasteBoots.BerlekampWelchPowers
 import all FormalProof4FHE.HasteBoots.BerlekampWelchSystem
@@ -116,3 +117,10 @@ private def divisor : Polynomial (ZMod 7) := ExecutablePolynomial.ofCoefficients
 #guard_msgs in
 #eval let run := ExecutablePolynomialDivision.divModWithCost numerator divisor
       decide (run.value.1.toList = [3,4,0] ∧ run.value.2.toList = [2,0,0] ∧ run.cost = 456 ∧ run.cost ≤ 861)
+
+/-- info: true -/
+#guard_msgs in
+#eval let candidate : Vector (ZMod 7) 4 := ⟨#[2,3,0,0],rfl⟩
+      let remainder : Vector (ZMod 7) 4 := ⟨#[0,0,0,0],rfl⟩
+      let run := ExecutableBerlekampWelch.denseCandidateCheckWithCost 1 2 candidate remainder points corrupted
+      run.value && decide (run.cost = 287)

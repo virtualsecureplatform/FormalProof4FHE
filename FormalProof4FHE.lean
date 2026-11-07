@@ -1,3 +1,4 @@
+import FormalProof4FHE.HasteBoots.DenseCandidateCheck
 import FormalProof4FHE.HasteBoots.BerlekampWelchReconstruction
 import FormalProof4FHE.HasteBoots.DensePolynomialDivision
 import FormalProof4FHE.HasteBoots.DenseMonicDivision

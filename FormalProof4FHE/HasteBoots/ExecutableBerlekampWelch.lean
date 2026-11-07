@@ -3,6 +3,7 @@ public import FormalProof4FHE.HasteBoots.BerlekampWelchSystem
 public import FormalProof4FHE.HasteBoots.BerlekampWelchReconstruction
 public import FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision
 public import FormalProof4FHE.HasteBoots.ScalarDistanceCost
+public import FormalProof4FHE.HasteBoots.DenseCandidateCheck
 public import ArkLib.Data.CodingTheory.BerlekampWelch.BerlekampWelch
 @[expose] public section
 
@@ -90,6 +91,28 @@ theorem candidateCheckWithCost_cost_le_dimension (e k : ℕ) (candidate : Polyno
   exact Nat.add_le_add_right
     (Nat.mul_le_mul_left n (Nat.add_le_add_right (Nat.mul_le_mul_left 7 bound) 12)) 4
 
+/-- Prepared-vector check; evaluating/materializing the point and raw input
+functions is a separate cost. Output polynomials are constructed after acceptance. -/
+def denseCandidateCheckWithCost {w : ℕ} (e k : ℕ) (candidate remainder : Vector F w)
+    (points received : Fin n → F) : SolverOperationCost.Run Bool :=
+  DenseCandidateCheck.check e k candidate remainder (Vector.ofFn points) (Vector.ofFn received)
+
+omit [NeZero n] in
+theorem denseCandidateCheckWithCost_value {w : ℕ} (e k : ℕ) (candidate remainder : Vector F w)
+    (points received : Fin n → F) :
+    (denseCandidateCheckWithCost e k candidate remainder points received).value =
+      decide (PolynomialShapeCost.polynomial remainder = 0 ∧
+        (PolynomialShapeCost.polynomial candidate).natDegree < k ∧
+        Δ₀(received,(PolynomialShapeCost.polynomial candidate).eval ∘ points) ≤ e) := by
+  simpa only [denseCandidateCheckWithCost,FiniteLinearSolver.get_ofFn,Function.comp_def] using
+    DenseCandidateCheck.check_value e k candidate remainder (Vector.ofFn points) (Vector.ofFn received)
+
+omit [NeZero n] in
+theorem denseCandidateCheckWithCost_cost {w : ℕ} (e k : ℕ) (candidate remainder : Vector F w)
+    (points received : Fin n → F) :
+    (denseCandidateCheckWithCost e k candidate remainder points received).cost ≤ n*(7*w+12)+16*w+23 :=
+  DenseCandidateCheck.check_cost _ _ _ _ _ _
+
 def decoder (e k : ℕ) (points received : Fin n → F) : Option (Polynomial F) :=
   if k = 0 then none
   else if (normWithCost received).value ≤ e then some ExecutablePolynomial.zero
@@ -97,11 +120,8 @@ def decoder (e k : ℕ) (points received : Fin n → F) : Option (Polynomial F) 
     | none => none
     | some solution =>
       let reconstruction := BerlekampWelchReconstruction.reconstruct e k solution
-      if (PolynomialShapeCost.polynomial reconstruction.value.2).support = ∅ then
-        let candidate := PolynomialShapeCost.polynomial reconstruction.value.1
-        if candidate.natDegree < k ∧ (candidateCheckWithCost e candidate points received).value then
-          some candidate
-        else none
+      if (denseCandidateCheckWithCost e k reconstruction.value.1 reconstruction.value.2 points received).value then
+        some (PolynomialShapeCost.polynomial reconstruction.value.1)
       else none
 
 omit [NeZero n] in
@@ -124,9 +144,10 @@ theorem success {e k : ℕ} {points received : Fin n → F} {candidate : Polynom
     · rw [ite_eq_right sparse] at accepted
       split at accepted
       · contradiction
-      · split_ifs at accepted with divisible close
+      · split_ifs at accepted with checked
         · cases accepted
-          simpa only [candidateCheckWithCost_value,decide_eq_true_eq] using close
+          rw [denseCandidateCheckWithCost_value,decide_eq_true_eq] at checked
+          exact checked.2
 
 theorem complete {e k : ℕ} {points received : Fin n → F} {message : Polynomial F}
     (radius : 2 * e < n - k + 1) (dimension : k ≤ n)
@@ -169,10 +190,10 @@ theorem complete {e k : ℕ} {points received : Fin n → F} {message : Polynomi
     have quotient := Q'_div_E'_eq_p degree radius dimension nearby distinct
       (solutionToQ_ne_zero (not_le.mp sparse) (BerlekampWelchCondition_iff_Solution.mpr condition) distinct)
       nonzero condition
-    simp only [BerlekampWelchReconstruction.reconstruct_snd,BerlekampWelchReconstruction.reconstruct_fst,
-      support_eq_empty,EuclideanDomain.mod_eq_zero.mpr quotient.1,ite_eq_left,quotient.2,
-      candidateCheckWithCost_value,decide_eq_true_eq]
-    exact ite_eq_left ⟨degree,nearby⟩
+    simp only [denseCandidateCheckWithCost_value,decide_eq_true_eq,
+      BerlekampWelchReconstruction.reconstruct_snd,BerlekampWelchReconstruction.reconstruct_fst,
+      EuclideanDomain.mod_eq_zero.mpr quotient.1,quotient.2]
+    exact ite_eq_left ⟨True.intro,degree,nearby⟩
 theorem failure_iff {e k : ℕ} {points received : Fin n → F}
     (radius : 2 * e < n - k + 1) (dimension : k ≤ n)
     (distinct : Function.Injective points) :
