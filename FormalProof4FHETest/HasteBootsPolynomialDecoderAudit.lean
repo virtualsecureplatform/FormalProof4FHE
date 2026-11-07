@@ -135,3 +135,34 @@ import FormalProof4FHE.HasteBoots.ExecutableSourceCoefficients
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.ExecutableSourceCoefficients.extract_eq_analysis
 
+
+/-- info: 'FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision.divMod_fst_eq' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision.divMod_fst_eq
+
+/-- info: 'FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision.divMod_snd_eq' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision.divMod_snd_eq
+
+/-- info: 'FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision.divMod_eq' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision.divMod_eq
+
+/-- info: 'FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision.divMod_reconstruct' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision.divMod_reconstruct
+
+/-- info: 'FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision.divMod_remainder_degree' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.ExecutablePolynomialDivision.divMod_remainder_degree
+

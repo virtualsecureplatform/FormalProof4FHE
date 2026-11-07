@@ -54,3 +54,31 @@ private def divisor : Polynomial (ZMod 7) := ExecutablePolynomial.ofCoefficients
       let q := ExecutablePolynomialDivision.divide numerator z
       let r := ExecutablePolynomialDivision.remainder numerator z
       decide (q.support = ∅ ∧ r.coeff 0 = 1 ∧ r.coeff 2 = 1)
+
+
+-- Direct pair extraction exercises the one-pass path used by Berlekamp-Welch.
+/-- info: true -/
+#guard_msgs in
+#eval let result := ExecutablePolynomialDivision.divMod numerator divisor
+      decide (result.1.coeff 0 = 3 ∧ result.1.coeff 1 = 4 ∧ result.2.coeff 0 = 2 ∧ result.2.natDegree = 0)
+
+/-- info: true -/
+#guard_msgs in
+#eval let monic := ExecutablePolynomial.ofCoefficients 2 (fun _ => (1 : ZMod 7))
+      let result := ExecutablePolynomialDivision.divMod numerator monic
+      decide (result.1.coeff 0 = 6 ∧ result.1.coeff 1 = 1 ∧ result.2.coeff 0 = 2)
+
+/-- info: true -/
+#guard_msgs in
+#eval let result := ExecutablePolynomialDivision.divMod numerator (ExecutablePolynomial.constant 2)
+      decide (result.1.coeff 0 = 4 ∧ result.1.coeff 2 = 4 ∧ result.2.support = ∅)
+
+/-- info: true -/
+#guard_msgs in
+#eval let result := ExecutablePolynomialDivision.divMod numerator ExecutablePolynomial.zero
+      decide (result.1.support = ∅ ∧ result.2 = numerator)
+
+/-- info: true -/
+#guard_msgs in
+#eval let result := ExecutablePolynomialDivision.divMod (ExecutablePolynomial.constant 3) divisor
+      decide (result.1.support = ∅ ∧ result.2.coeff 0 = 3 ∧ result.2.natDegree = 0)

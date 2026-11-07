@@ -7,6 +7,24 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+Executable polynomial reconstruction now exposes a shared `divMod` result.
+It normalizes the divisor once and invokes the recursive division once, returning
+both quotient and remainder. The Berlekamp–Welch decoder obtains its divisibility
+test and candidate polynomial from that same pair, rather than calling separate
+division and remainder entry points. Both projections are proved equal to
+Mathlib's operations for every divisor, including zero; decomposition and strict
+remainder-degree lemmas are also proved. Existing `divide` and `remainder` APIs
+remain projection wrappers with their original correctness theorems.
+Five direct runtime regressions cover nonmonic, monic, constant, zero and
+higher-degree divisors, alongside existing successful/rejected scalar decodes.
+Five new kernel axiom guards cover the pair theorems. This removes repeated
+reconstruction in the reference decoder; input preparation and a full polynomial
+operation/running-time bound, native refinement and application security remain
+open.
+Validation: `scripts/check` passed all 10,668 build jobs and its strict checks.
+The polynomial smoke/audit, common-source smoke and native/public-source audits
+also passed independently with `warningAsError=true`.
+
 The common-source decoder now uses an explicit measured whole-column distance
 scan and a combined measured final check. `ColumnDistanceCost` compares every
 row/lane entry from materialized columns and is proved equal to Hamming distance
