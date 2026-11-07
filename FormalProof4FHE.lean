@@ -482,3 +482,4 @@ import FormalProof4FHE.HasteBoots.ClosedByteMachineRootBudget
 import FormalProof4FHE.HasteBoots.ClosedByteMachineGoldAllRisk
 import FormalProof4FHE.HasteBoots.ClosedByteMachineNativeSoundness
 import FormalProof4FHE.HasteBoots.NTTDomainCost
+import FormalProof4FHE.HasteBoots.PreparedMerklePayloads
