@@ -1,0 +1,149 @@
+#!/usr/bin/env python3
+"""Isolate the concrete constructor's captured-closure lifetime failure; no constructor certificate."""
+import argparse
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+BASE = runpy.run_path(str(ROOT / 'scripts/probe-hasteboots-constructor-typing'))
+DATA = BASE['DATA']
+digest = BASE['digest']
+PROOFS = ['none_exact', 'some_exact']
+
+
+def erased_closure_signature(ir):
+    # Inspection only: never rewrite either LLBC or generated terms.
+    pool = {}
+    def collect(value):
+        if isinstance(value, dict):
+            if 'HashConsedValue' in value:
+                index, content = value['HashConsedValue']
+                pool[index] = content
+            for content in value.values():
+                collect(content)
+        elif isinstance(value, list):
+            for content in value:
+                collect(content)
+    collect(ir)
+    def resolve(value):
+        while isinstance(value, dict):
+            if 'Deduplicated' in value:
+                value = pool[value['Deduplicated']]
+            elif 'HashConsedValue' in value:
+                value = value['HashConsedValue'][1]
+            else:
+                break
+        return value
+    candidates = [f for f in ir['translated']['fun_decls'] if f and
+                  {'Ident': ['is_none_or', 0]} in f['item_meta']['name']]
+    if len(candidates) != 1:
+        raise RuntimeError('Unexpected is_none_or declaration count')
+    function = candidates[0]
+    inputs = function['signature']['inputs']
+    if len(inputs) != 2:
+        raise RuntimeError('Unexpected is_none_or input count')
+    closure = resolve(inputs[1])
+    if (function['generics']['regions'] or function['generics']['types'] or
+            closure.get('Adt', {}).get('generics', {}).get('regions') != ['Erased']):
+        raise RuntimeError('Monomorphized captured-lifetime baseline changed')
+    return {'function_id': function['def_id'], 'closure_input': closure,
+            'invariant': 'Aeneas symbolic inputs require non-erased region types'}
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--tools', type=Path, required=True)
+    parser.add_argument('--backend', type=Path, required=True)
+    parser.add_argument('--build-receipt', type=Path, required=True)
+    args = parser.parse_args()
+    tools, backend = args.tools.resolve(), args.backend.resolve()
+    out = Path(tempfile.mkdtemp(prefix='captured-option-', dir=ROOT / 'build/hasteboots-extraction'))
+    record = {'status': 'started', 'commands': [], 'script_sha256': digest(Path(__file__).read_bytes()),
+              'claim': 'generic closure semantics and rejected mono route only; constructor unproved'}
+    def save():
+        (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
+    def run(command, name, required=True):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out / name).open('w') as log:
+            result = subprocess.run([str(x) for x in command], cwd=ROOT, stdout=log, stderr=subprocess.STDOUT)
+        if required and result.returncode:
+            raise RuntimeError(f'{name} exited {result.returncode}')
+        return result.returncode
+    print('Probe artifacts: ' + str(out), flush=True); save()
+    try:
+        # This independently rechecks exact tools, frontend source/build/package
+        # policy and prepared backend; retain its fresh checked manifest.
+        run([ROOT / 'scripts/probe-hasteboots-constructor-typing', '--tools', tools,
+             '--backend', backend, '--build-receipt', args.build_receipt.resolve()], 'preflight.log')
+        paths = re.findall(r'^Probe artifacts: (.+)$', (out / 'preflight.log').read_text(), re.M)
+        if len(paths) != 1:
+            raise RuntimeError('Missing nested validation receipt')
+        preflight = Path(paths[0]) / 'manifest.json'
+        if json.loads(preflight.read_text()).get('status') != 'passed':
+            raise RuntimeError('Nested validation did not pass')
+        record['preflight_manifest_sha256'] = digest(preflight.read_bytes())
+        record['preflight_manifest'] = str(preflight)
+        receipt = json.loads(args.build_receipt.read_text())
+        frontend = Path(receipt['executable'])
+        record.update(frontend_sha256=digest(frontend.read_bytes()),
+                      fixture_sha256=digest((DATA / 'captured-option.rs').read_bytes()))
+        options = ['-backend', 'lean', '-checks', '-sequential', '-max-heartbeats', '200000',
+                   '-max-recdepth', '1000', '-abort-on-error']
+        for mode in ['generic', 'mono']:
+            llbc = out / (mode + '.llbc')
+            run([tools / 'charon', 'rustc', '--preset=aeneas', *(['--monomorphize'] if mode == 'mono' else []),
+                 '--include', 'core::option', '--dest-file', llbc, '--', '--crate-type', 'lib',
+                 '--edition=2024', '--crate-name', 'hasteboots_captured_option', DATA / 'captured-option.rs'], mode + '-charon.log')
+            ir = json.loads(llbc.read_text())
+            if ir.get('has_errors') is not False or ir['translated']['target_information'] != [
+                    {'key': 'x86_64-unknown-linux-gnu', 'value': {'target_pointer_size': 8, 'is_little_endian': True}}]:
+                raise RuntimeError('Incomplete or wrong-target extraction')
+            record[mode + '_llbc_sha256'] = digest(llbc.read_bytes())
+            status = run([frontend, *options, '-dest', out / mode, llbc], mode + '-aeneas.log', mode == 'generic')
+            if mode == 'generic':
+                log = BASE['BASE']['BASE']['clear_colors']((out / 'generic-aeneas.log').read_text())
+                if re.search(r'Uncaught exception|\[Error\]', log):
+                    raise RuntimeError('Generic frontend reported errors despite exit status')
+            if mode == 'mono':
+                record['mono_signature_failure'] = erased_closure_signature(ir)
+                log = BASE['BASE']['BASE']['clear_colors']((out / 'mono-aeneas.log').read_text())
+                if status == 0 or 'InterpUtils.ml, line 151' not in log or 'Internal error' not in log:
+                    raise RuntimeError('Mono failure does not match the erased symbolic-input invariant')
+                record['mono_status'] = 'rejected; constructor route remains open'
+        raw = (out / 'generic/Generic.lean').read_text()
+        if (raw.count('import Aeneas\n') != 1 or
+                not raw.rstrip().endswith('end hasteboots_captured_option') or
+                re.search(r'\b(axiom|opaque|constant|sorry|sorryAx|native_decide|unsafe)\b|decide\s*\+native', raw)):
+            raise RuntimeError('Incomplete or admitted generic extraction')
+        if re.findall(r'^set_option (maxHeartbeats|maxRecDepth) ([0-9]+)$', raw, re.M) != [
+                ('maxHeartbeats', '200000'), ('maxRecDepth', '1000')]:
+            raise RuntimeError('Unexpected proof limits')
+        runtime = raw.replace('import Aeneas\n', 'import Aeneas.Std\nimport Aeneas.Tactic.RustAttributes\n')
+        proof = (DATA / 'CapturedOptionProof.lean').read_text()
+        BASE['PARAMETERS']['validate_proof_source'](proof, PROOFS)
+        names = ['hasteboots_captured_option.captured_option'] + [
+            'HasteBootsCapturedOptionProof.' + n for n in PROOFS]
+        checked = out / 'Checked.lean'
+        checked.write_text(runtime + '\n' + proof + ''.join('\n#print axioms ' + n + '\n' for n in names))
+        record.update(generated_sha256=digest(raw.encode()), proof_sha256=digest(proof.encode()),
+                      checked_sha256=digest(checked.read_bytes()))
+        run([ROOT / 'scripts/in-container', 'bash', '-euc',
+             'cd -- "$1"; lake env lean -DwarningAsError=true "$2"', '_',
+             BASE['COMMON']['container_path'](backend / 'backends/lean'),
+             BASE['COMMON']['container_path'](checked)], 'lean.log')
+        record['dependency_audit'] = BASE['PARAMETERS']['audit_log']((out / 'lean.log').read_text(), names)
+        record['status'] = 'passed'
+        print('Generic captured option: 3 dependency audits; mono route rejected for erased captured lifetime')
+    except (Exception, SystemExit) as error:
+        record['status'] = 'failed'; record['error'] = str(error)
+        raise SystemExit(f'Captured option probe failed; inspect {out}: {error}') from error
+    finally:
+        record['logs'] = {p.name: digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__':
+    main()

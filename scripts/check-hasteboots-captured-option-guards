@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+"""Check the minimal monomorphized signature diagnosis without rewriting LLBC."""
+import copy
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+PROBE = runpy.run_path(str(ROOT / 'scripts/probe-hasteboots-captured-option'))
+inspect_signature = PROBE['erased_closure_signature']
+
+
+def surface():
+    return {'translated': {'fun_decls': [{
+        'def_id': 6, 'item_meta': {'name': [{'Ident': ['is_none_or', 0]}]},
+        'generics': {'regions': [], 'types': []},
+        'signature': {'inputs': [{}, {'Adt': {'generics': {'regions': ['Erased']}}}]}
+    }]}}
+
+
+class Guards(unittest.TestCase):
+    def test_precise_diagnosis_and_no_mutation(self):
+        ir = surface()
+        before = copy.deepcopy(ir)
+        result = inspect_signature(ir)
+        self.assertEqual(result['function_id'], 6)
+        self.assertEqual(result['closure_input']['Adt']['generics']['regions'], ['Erased'])
+        self.assertEqual(ir, before)
+
+    def test_resolves_charon_hash_consing(self):
+        ir = surface()
+        value = ir['translated']['fun_decls'][0]['signature']['inputs'][1]
+        ir['pool'] = {'HashConsedValue': [42, value]}
+        ir['translated']['fun_decls'][0]['signature']['inputs'][1] = {'Deduplicated': 42}
+        self.assertEqual(inspect_signature(ir)['closure_input'], value)
+
+    def test_missing_or_ambiguous_function_rejected(self):
+        for functions in [[], [None], surface()['translated']['fun_decls'] * 2]:
+            with self.assertRaises(RuntimeError):
+                inspect_signature({'translated': {'fun_decls': functions}})
+
+    def test_changed_signature_is_not_same_failure(self):
+        for kind in ['named_region', 'generic', 'argument_count']:
+            ir = surface()
+            function = ir['translated']['fun_decls'][0]
+            if kind == 'named_region':
+                function['signature']['inputs'][1]['Adt']['generics']['regions'] = ['Static']
+            elif kind == 'generic':
+                function['generics']['types'] = [0]
+            else:
+                function['signature']['inputs'].pop()
+            with self.subTest(kind=kind), self.assertRaises(RuntimeError):
+                inspect_signature(ir)
+
+    def test_exact_proof_audit_coverage(self):
+        PROBE['BASE']['PARAMETERS']['validate_proof_source'](
+            (PROBE['DATA'] / 'CapturedOptionProof.lean').read_text(), PROBE['PROOFS'])
+
+
+if __name__ == '__main__':
+    unittest.main()
