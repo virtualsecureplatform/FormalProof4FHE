@@ -7,6 +7,25 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`PolynomialShapeCost` now supplies a measured dense-coefficient metadata scan
+for reconstruction work. Its effective length is one past the last nonzero
+coefficient, or zero for the zero polynomial. The scan proves all coefficients
+at or above that length vanish and the preceding coefficient is nonzero when
+the length is positive. Effective length is bounded by the input vector length
+and is zero exactly when its represented polynomial is zero. The inspected
+natural degree and leading coefficient are proved equal to Mathlib's values,
+including empty vectors, constants and trailing-zero storage. Inspection costs
+exactly `8*n+6` abstract field/access units for a prepared vector of length `n`;
+this includes scanning, vector/list conversion and metadata extraction.
+Six runtime regressions and thirteen axiom guards cover these results.
+This primitive is exposed from the library root. Connecting it to a dense
+reconstruction representation and replacing the current decoder's degree and
+leading-coefficient queries remain open, along with coefficient preparation,
+complete polynomial arithmetic/division costs, physical refinement and the full
+application-security goal.
+Validation: `scripts/check` passed all 10,679 build jobs and its strict checks.
+The new smoke and audit also passed independently with `warningAsError=true`.
+
 Scalar distance and norm scans are now explicit measured executions on prepared
 vectors. `ScalarDistanceCost.distance` is proved equal to scalar Hamming distance
 and costs exactly `7*n+2`; `norm` is proved equal to Hamming norm and costs exactly
