@@ -11,7 +11,7 @@ validate = MODULE['validate_generated']
 
 def surface():
     return ('import Aeneas\nset_option maxHeartbeats 200000\nset_option maxRecDepth 1000\n' +
-            ''.join('def ' + n + ' := ()\n' for n in MODULE['FUNCTIONS'] + ['pcs.utils.hash.Digest512']) +
+            ''.join('def ' + n + ' := ()\n' for n in MODULE['FUNCTIONS'] + MODULE['NATIVE_FUNCTIONS'] + ['pcs.utils.hash.Digest512']) +
             'structure pcs.matrix_weighted.Commitment where\n  root : Unit\n' +
             'structure snarks.packed_oracle.CanonicalVerifierOracle where\n  value : Unit\n' +
             'end ' + MODULE['NAMESPACE'] + '\n')
@@ -25,7 +25,7 @@ class Guards(unittest.TestCase):
         for bad in [surface().rsplit('end ', 1)[0], surface() + surface()]:
             with self.assertRaises(RuntimeError):
                 validate(bad)
-        for name in MODULE['FUNCTIONS'] + ['pcs.utils.hash.Digest512', 'pcs.matrix_weighted.Commitment',
+        for name in MODULE['FUNCTIONS'] + MODULE['NATIVE_FUNCTIONS'] + ['pcs.utils.hash.Digest512', 'pcs.matrix_weighted.Commitment',
                                           'snarks.packed_oracle.CanonicalVerifierOracle']:
             with self.subTest(name=name), self.assertRaises(RuntimeError):
                 validate(surface().replace(name, 'missing'))
@@ -55,12 +55,18 @@ class Guards(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             MODULE['validate_lock'](native, native.replace('original', 'changed') + wrapper)
 
+    def test_all_proof_inputs_recorded(self):
+        files = {p.name for p in MODULE['DATA'].glob('*.lean')}
+        self.assertTrue(files <= set(MODULE['INPUT_FILES']))
+        self.assertEqual(len(MODULE['INPUT_FILES']), len(set(MODULE['INPUT_FILES'])))
+
     def test_exact_proof_audits(self):
         for file, names in [('Proof.lean', MODULE['PROOFS']), ('Decode.lean', MODULE['DECODE_PROOFS']),
                             ('Registry.lean', MODULE['REGISTRY_PROOFS']),
                             ('Association.lean', MODULE['ASSOCIATION_PROOFS']),
                             ('Lookup.lean', MODULE['LOOKUP_PROOFS']),
-                            ('CausalLookup.lean', MODULE['CAUSAL_LOOKUP_PROOFS'])]:
+                            ('CausalLookup.lean', MODULE['CAUSAL_LOOKUP_PROOFS']),
+                            ('Equality.lean', MODULE['EQUALITY_PROOFS'])]:
             text = (MODULE['DATA'] / file).read_text()
             MODULE['PARAMETERS']['validate_proof_source'](text, names)
             with self.assertRaises(RuntimeError):

@@ -29,6 +29,28 @@ structure pcs.matrix_weighted.Commitment (O : Type) where
 @[reducible, rust_type "pcs::utils::hash::Digest512"]
 def pcs.utils.hash.Digest512 := Array Std.U8 64#usize
 
+/-- [pcs::utils::hash::{impl core::cmp::PartialEq<pcs::utils::hash::Digest512> for pcs::utils::hash::Digest512}::eq]:
+    Source: '/home/work-bleaker/kmatsuoka/sources/VC-workspace/HasteBoots/pcs/src/utils/hash.rs', lines 12:29-12:38
+    Name pattern: [pcs::utils::hash::{core::cmp::PartialEq<pcs::utils::hash::Digest512, pcs::utils::hash::Digest512>}::eq]
+    Visibility: public -/
+@[rust_fun
+  "pcs::utils::hash::{core::cmp::PartialEq<pcs::utils::hash::Digest512, pcs::utils::hash::Digest512>}::eq"]
+def pcs.utils.hash.Digest512.Insts.CoreCmpPartialEqDigest512.eq
+  (self : pcs.utils.hash.Digest512) (other : pcs.utils.hash.Digest512) :
+  Result Bool
+  := do
+  core.array.equality.PartialEqArray.eq core.cmp.PartialEqU8 self other
+
+/-- Trait implementation: [pcs::utils::hash::{impl core::cmp::PartialEq<pcs::utils::hash::Digest512> for pcs::utils::hash::Digest512}]
+    Source: '/home/work-bleaker/kmatsuoka/sources/VC-workspace/HasteBoots/pcs/src/utils/hash.rs', lines 12:29-12:38
+    Name pattern: [core::cmp::PartialEq<pcs::utils::hash::Digest512, pcs::utils::hash::Digest512>] -/
+@[reducible, rust_trait_impl
+  "core::cmp::PartialEq<pcs::utils::hash::Digest512, pcs::utils::hash::Digest512>"]
+def pcs.utils.hash.Digest512.Insts.CoreCmpPartialEqDigest512 :
+  core.cmp.PartialEq pcs.utils.hash.Digest512 pcs.utils.hash.Digest512 := {
+  eq := pcs.utils.hash.Digest512.Insts.CoreCmpPartialEqDigest512.eq
+}
+
 /-- [snarks::packed_oracle::CanonicalVerifierOracle]
     Source: '/home/work-bleaker/kmatsuoka/sources/VC-workspace/HasteBoots/snarks/src/packed_oracle.rs', lines 22:0-22:44
     Name pattern: [snarks::packed_oracle::CanonicalVerifierOracle]
@@ -86,5 +108,14 @@ def root_bytes
   := do
   let a := oracle.commitment.root
   ok a
+
+/-- [formalproof4fhe_native_registry_fixture::roots_equal]:
+    Source: 'src/lib.rs', lines 20:0-22:1
+    Visibility: public -/
+def roots_equal
+  (first : pcs.utils.hash.Digest512) (second : pcs.utils.hash.Digest512) :
+  Result Bool
+  := do
+  pcs.utils.hash.Digest512.Insts.CoreCmpPartialEqDigest512.eq first second
 
 end formalproof4fhe_native_registry_fixture

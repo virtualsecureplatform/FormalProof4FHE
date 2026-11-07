@@ -16,3 +16,7 @@ pub fn registry_get<'a, O, P>(registry: &[CanonicalVerifierOracle<'a, O, P>], in
 pub fn root_bytes<'a, P>(oracle: &CanonicalVerifierOracle<'a, pcs::utils::hash::Digest512, P>) -> &'a [u8; 64] {
     &oracle.commitment.root.0
 }
+
+pub fn roots_equal(first: &pcs::utils::hash::Digest512, second: &pcs::utils::hash::Digest512) -> bool {
+    first == second
+}

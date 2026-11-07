@@ -16,7 +16,7 @@ PARAMETERS = runpy.run_path(str(ROOT / 'scripts/extract-hasteboots-parameters'))
 COMMON = PARAMETERS['COMMON']
 DATA = ROOT / 'interop/aeneas/registry'
 NAMESPACE = 'formalproof4fhe_native_registry_fixture'
-FUNCTIONS = ['fields', 'registry_len', 'registry_get', 'root_bytes']
+FUNCTIONS = ['fields', 'registry_len', 'registry_get', 'root_bytes', 'roots_equal']
 PROOFS = ['fields_exact', 'length_exact', 'length_value', 'get_exact', 'get_present', 'get_absent',
           'root_bytes_exact', 'root_length']
 DECODE_PROOFS = ['root_value', 'root_injective', 'decode_fields', 'decode_injective',
@@ -42,6 +42,13 @@ CAUSAL_LOOKUP_PROOFS = ['dispatch_run', 'dispatch_origin', 'prelude_run', 'prelu
                         'lifetime_misassociation_le_charge']
 
 
+EQUALITY_PROOFS = ['byte_pairs', 'roots_equal_exact', 'roots_equal_model', 'roots_equal_true', 'roots_equal_false']
+NATIVE_FUNCTIONS = ['pcs.utils.hash.Digest512.Insts.CoreCmpPartialEqDigest512.eq']
+INPUT_FILES = ['Cargo.toml', 'Cargo.lock', 'wrapper.rs', 'Generated.lean', 'Proof.lean',
+               'Decode.lean', 'Registry.lean', 'Association.lean', 'Lookup.lean',
+               'CausalLookup.lean', 'Equality.lean']
+
+
 def digest(data):
     return hashlib.sha256(data).hexdigest()
 
@@ -54,7 +61,7 @@ def validate_generated(raw):
     if re.findall(r'^set_option (maxHeartbeats|maxRecDepth) ([0-9]+)$', raw, re.M) != [
             ('maxHeartbeats', '200000'), ('maxRecDepth', '1000')]:
         raise RuntimeError('Unexpected proof limits')
-    for name in FUNCTIONS + ['pcs.utils.hash.Digest512']:
+    for name in FUNCTIONS + NATIVE_FUNCTIONS + ['pcs.utils.hash.Digest512']:
         if not re.search(r'^def ' + re.escape(name) + r'\s', raw, re.M):
             raise RuntimeError('Missing source definition: ' + name)
     for name in ['pcs.matrix_weighted.Commitment', 'snarks.packed_oracle.CanonicalVerifierOracle']:
@@ -113,14 +120,14 @@ def main():
         (out / 'src').mkdir()
         (out / 'src/lib.rs').write_bytes((DATA / 'wrapper.rs').read_bytes())
         record['inputs'] = {name: digest((DATA / name).read_bytes()) for name in
-                            ['Cargo.toml', 'Cargo.lock', 'wrapper.rs', 'Generated.lean', 'Proof.lean', 'Decode.lean', 'Registry.lean', 'Association.lean']}
+                            INPUT_FILES}
         record['native_sources'] = {name: digest((native / name).read_bytes()) for name in
                                     ['snarks/src/packed_oracle.rs', 'pcs/src/matrix_weighted.rs', 'pcs/src/utils/hash.rs', 'Cargo.lock']}
         llbc = out / 'registry.llbc'
         command = [tools / 'charon', 'cargo', '--preset=aeneas']
         for name in FUNCTIONS:
             command += ['--start-from', NAMESPACE + '::' + name]
-        command += ['--include', 'snarks::packed_oracle', '--dest-file', llbc, '--',
+        command += ['--include', 'snarks::packed_oracle', '--include', 'pcs::utils::hash', '--dest-file', llbc, '--',
                     '--manifest-path', out / 'Cargo.toml', '--lib', '--locked']
         env = dict(os.environ)
         env.setdefault('CARGO_TARGET_DIR', str(parent / 'cargo-registry-target'))
@@ -148,14 +155,15 @@ def main():
             raise RuntimeError('Unexpected parameter import surface')
         source = source.replace(marker, marker + 'import FormalProof4FHE.HasteBoots.StoredGoldRegistryAssociation\nimport FormalProof4FHE.HasteBoots.StoredGoldLookupParameterAssociation\nimport FormalProof4FHE.HasteBoots.NativeGoldLookupFraming\n', 1)
         names = list(manifest['dependency_audit'])
-        names += [NAMESPACE + '.' + n for n in FUNCTIONS]
+        names += [NAMESPACE + '.' + n for n in FUNCTIONS + NATIVE_FUNCTIONS]
         source += '\n' + runtime
         for file, namespace, proofs in [('Proof.lean', 'HasteBootsExtractedRegistryProof', PROOFS),
                                         ('Decode.lean', 'HasteBootsExtractedRegistryDecode', DECODE_PROOFS),
                                         ('Registry.lean', 'HasteBootsExtractedRegistry', REGISTRY_PROOFS),
                                         ('Association.lean', 'HasteBootsExtractedRegistryAssociation', ASSOCIATION_PROOFS),
                                         ('Lookup.lean', 'HasteBootsExtractedRegistryLookup', LOOKUP_PROOFS),
-                                        ('CausalLookup.lean', 'HasteBootsExtractedRegistryCausalLookup', CAUSAL_LOOKUP_PROOFS)]:
+                                        ('CausalLookup.lean', 'HasteBootsExtractedRegistryCausalLookup', CAUSAL_LOOKUP_PROOFS),
+                                        ('Equality.lean', 'HasteBootsExtractedRegistryEquality', EQUALITY_PROOFS)]:
             proof = (DATA / file).read_text()
             PARAMETERS['validate_proof_source'](proof, proofs)
             source += '\n' + proof
