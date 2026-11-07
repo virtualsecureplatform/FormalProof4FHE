@@ -7,6 +7,41 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Static-string return failure isolated and repaired experimentally
+
+The constructor trace now identifies its bottom-value return precisely: an
+`Err(Error(&'static str))` points to a frame-local string loan introduced by
+Aeneas preprocessing; frame cleanup invalidates the returned error. An isolated
+frontend patch preserves shared literal constants so the existing interpreter
+uses persistent dummy loans. A second fix erases static regions from runtime ADT
+field types, keeping the existing typing invariant enabled. Lean literal output
+also preserves UTF-8/control bytes and supplies explicit kernel size proofs,
+avoiding the string helper's native-proof default.
+
+`scripts/build-hasteboots-static-frontend` verifies the pinned source, exact
+three-file patch and 132-package OCaml build profile, and records a fresh build
+receipt. `scripts/probe-hasteboots-static-strings` checks that the unchanged
+official frontend fails on the same input while the rebuilt frontend succeeds
+with invariant checks enabled. Fresh generated terms are retained; only imports
+change before strict kernel checking. Six extracted functions and nine theorems
+pass all 15 dependency audits using only the permitted axioms, including exact
+UTF-8/control byte lists and borrowed-input identity. Seven new guard tests and
+the existing eight extraction guard tests pass. Compiler formatting was run and
+only the reviewed three source files differ from the pinned source.
+
+This is a validated compiler experiment, not a compiler correctness certificate.
+The generic actual parameter constructor now reaches emitted Lean with the
+experimental frontend, but its `ctlz_nonzero` intrinsic is still emitted as an
+admission and rejected. Monomorphized closure/naming issues, kernel checking of
+the full constructor and its source-to-model simulation invariant remain open.
+The official pinned tools and native HasteBoots source remain unchanged; the
+default official constructor gate still fails closed. Build/reproduction details
+are in `interop/aeneas/static-strings/README.md`.
+
+The complete source/heap/NTT/SIMD/Div64/scheduler refinement and causal unbounded
+128-bit attacker-work theorem remain required. The accessor and conditional model
+bridge results below remain valid, independently of this frontend experiment.
+
 ## Extracted parameter reads connected to the word model
 
 `interop/aeneas/parameters/ModelBridge.lean` supplies nine source-read/model
