@@ -513,3 +513,6 @@ import FormalProof4FHE.HasteBoots.StoredChildSeedQuote
 import FormalProof4FHE.HasteBoots.ParentSeedRequestCost
 import FormalProof4FHE.HasteBoots.ParentInputHistoryCost
 import FormalProof4FHE.HasteBoots.HistoryParentCandidatesCost
+import FormalProof4FHE.HasteBoots.StoredDigestVectorReadCost
+import FormalProof4FHE.HasteBoots.StoredDigestVectorCost
+import FormalProof4FHE.HasteBoots.StoredHelperRootsCost

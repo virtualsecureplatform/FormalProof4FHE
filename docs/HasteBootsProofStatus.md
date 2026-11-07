@@ -7,6 +7,45 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`StoredDigestVectorReadCost` now measures native digest-vector prefix reading
+into stored 64-byte vectors. A successful digest consumes exactly 64 supplied
+bytes; a forged count stops at the first truncated digest. The body bound is
+`457*(min(count,N/64)+1)`, and the full prefix-reader bound is
+`457*(N/64+1)+110`. Pure structural length proofs provide the bounded-vector
+witness independently of arithmetic resource bounds. Prefix value equality to
+the existing native codec holds for every input and preserves arbitrary suffixes.
+
+`StoredDigestVectorCost` adds charged serialization and strict complete canonical
+decoding. Body serialization costs exactly `327*R+1` for `R` stored roots; full
+serialization costs at most `330*R+93`. The strict decoder matches
+`NativeExactCodec.read (vector digest)` on every input, reconstructs the supplied
+bytes on success, and round-trips every canonical stored vector. Its bound is
+`787*(N/64+1)+6*N+1`. Alternate/noncanonical count spellings, truncation and
+trailing bytes reject. All raw digest bytes, root order and duplicates survive.
+No digest or serializer callback executes in these producers/readers.
+
+`StoredHelperRootsCost` measures helper-root recognition and collection from
+complete native framed inputs. Kind/label checks, vector decoding/canonicality,
+output-list copying and whole-stream parsing are charged. Invalid helper payloads
+contribute no roots; invalid outer framing rejects the whole stream. The result,
+viewed as digests, equals `ExecutableParentLedger.roots` for every raw input.
+With fixed helper-root label length `K`, the raw-input upper bound is
+`(1644+6*K)*N+5`. These are reference byte/list/access upper bounds, not physical
+runtime or attacker-work credit.
+
+Eleven regressions and twenty-nine axiom guards cover huge declared counts,
+prefix suffixes, order/duplicates, noncanonical count headers, raw byte fidelity,
+empty vectors, truncation/trailing data, strict helper labels, mixed valid/invalid
+payloads, whole-stream rejection and exact charges.
+`scripts/check` passed all 10,763 build jobs and its standard strict checks;
+the new stored-helper-root smoke/audit also passed with `warningAsError=true`.
+Helper context/binding and
+source-registry meaning, inherited stored metadata replay, snapshot selection and
+complete extraction composition remain open. Runtime size production,
+actor/physical/compiler/native refinement, BabyBear and full application security
+also remain required. No new axioms or proof-limit increases were introduced;
+existing codec encoding definitions and axiom dependencies remain unchanged.
+
 `ParentSeedRequestCost` now measures the original terminal parent seed-request
 recognizer. It parses the whole frame stream, reverses the stored frames and
 checks both terminal kinds, the exact request label and the exact raw little-
