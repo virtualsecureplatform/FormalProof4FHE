@@ -7,6 +7,29 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+`DenseBerlekampWelch` now composes the complete scalar decoder on prepared
+point/received vectors, returning an optional fixed-width coefficient vector.
+Its bound covers dimension rejection, the norm/zero shortcut, matrix construction
+and elimination, locator/numerator construction, division, candidate metadata,
+evaluation and radius validation, plus branch/control and zero-vector costs.
+The bound is
+`n*(20*e+16*k+42) + 8*(n+1)*(2*e+k+1)^2 + 50*(e+k+2)^2 + 38*(e+k+1) + 69`.
+It is proved first as the sum of all phase bounds, then as this polynomial.
+The public scalar decoder now maps that vector result to a polynomial; its
+result is proved equal to the previous program. `decodeWithCost` exposes the
+composed charge and retains dimension-zero rejection before preparing inputs.
+Vector-input agreement, vector-result soundness and unique-radius completeness
+are proved. Nine runtime regressions cover correction, no-error decoding,
+dimension rejection, the sparse shortcut, inconsistent interpolation, far words,
+empty/single-point input and the public wrapper. Eight axiom guards cover the
+new composition and integration theorems. This is a complete abstract scalar
+phase bound after input preparation. Accepted-output polynomial conversion,
+raw/point preparation, matrix/extractor-wide cost composition and physical/native
+refinement remain open, along with full application security.
+Validation: `scripts/check` passed all 10,692 build jobs and its strict checks.
+The new smoke/audit, polynomial smoke/audit, common-source smoke and native/public
+source audits also passed independently with `warningAsError=true`.
+
 The default Berlekamp–Welch candidate check now operates entirely on prepared
 coefficient/input vectors. `DenseCandidateCheck` uses measured inspection for
 remainder-zero and candidate-degree checks, shared Horner evaluations, and a
