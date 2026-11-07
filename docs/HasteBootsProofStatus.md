@@ -7,6 +7,40 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+Early receipt events now have a first-moment work bound on the same closed
+interpreter prefixes. `ClosedByteMachineLogWork` derives that actual observed
+receipt-prefix guesses are bounded by spent instruction work. This uses the
+already defined prices; it does not define work as log length. Hash keys and
+partial positive receipt reads contribute candidates; starts and empty reads
+do not. Duplicate guesses are retained in the log and deduplicated only in
+the target set used by the probability bound.
+
+`ClosedByteMachineReceiptWork` splits the analysis at an arbitrary positive
+work threshold `T`. Low-work prefix charges are bounded by
+`(T / 2^576 + 2^-512) * expectedWork`; Markov pays the whole large-work branch
+by `expectedWork / T`. The native execution has no threshold or lifetime cap,
+and both incomplete and infinite work tails remain included. The numerical
+choice `T = 2^256` certifies a total receipt coefficient at most `2^-255`.
+The combined field/column/receipt lifetime event has coefficient
+`17/2^141 + 2^-255`, under the earlier Goldilocks role/constructor premises.
+This is an event/work theorem in the declared interpreter units, without a
+finite-mean premise, completion normalization or success floor.
+
+Validation: `scripts/check` passed all 10,593 build jobs and its strict
+audit/smoke commands. Six focused strict checks passed, covering the new
+receipt-work proofs and the existing closed-machine and early-receipt suites.
+Fourteen new guards confirm only `propext`, `Classical.choice` and `Quot.sound`.
+Regression tests include partial and duplicate receipt guesses, hash-key
+candidates, starts/empty reads and the combined constructor-backed Goldilocks
+exposure bound. No native defaults, execution caps or proof limits changed.
+
+Root/source hazards still have an explicit global charge supremum and need
+work coupling. Application false-acceptance coverage must be connected to the
+closed instruction clock. Actor separation, honest verification and submission
+costs, randomized initialization, physical pricing, public extraction,
+registry/context binding, BabyBear execution and strict backend refinement
+remain required. No complete 128-bit application theorem is claimed.
+
 A closed byte instruction interpreter now supplies explicit local execution
 steps. Its finite instruction syntax contains no evaluator or oracle
 continuation supplied by an adversary. Register/stack operations, branches,
@@ -49,9 +83,10 @@ an empty oracle log, byte wraparound, halt/reject/abort, public-copy cost,
 response-dependent offsets/counts, shared SHAKE/hash coordinates, empty reads
 and an exposure whose instruction index differs from its observation index.
 
-This event is only the field/column exposure component. Early receipts and
-root/source hazards still need work coupling. Actual application false
-acceptance must be reduced to the new closed-prefix events. Honest verifier
+This earlier event is the field/column exposure component. The receipt
+component is now bounded above; root/source hazards still need work coupling.
+Actual application false acceptance must be reduced to the closed-prefix
+events. Honest verifier
 work, submission costs and actor separation need explicit implementation and
 refinement; the interpreter is not yet a complete adversary/verifier experiment.
 Randomized adversary initialization, native physical-cost simulation, efficient
