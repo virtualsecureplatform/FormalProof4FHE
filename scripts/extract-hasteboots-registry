@@ -27,6 +27,13 @@ REGISTRY_PROOFS = ['collect_correct', 'collect_length', 'collect_append', 'regis
                    'registry_length', 'registry_slot', 'original_owner_read']
 
 
+ASSOCIATION_PROOFS = ['initialization_run', 'initialization_origin', 'prelude_run', 'prelude_origin',
+                      'prelude_included', 'extraction_original', 'extraction_bad_or_original',
+                      'misassociation_bad', 'lifetime_misassociation_le_charge',
+                      'extraction_in_program_bad_or_original', 'trace_misassociation_bad',
+                      'lifetime_trace_misassociation_le_charge']
+
+
 def digest(data):
     return hashlib.sha256(data).hexdigest()
 
@@ -68,7 +75,7 @@ def main():
     parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
     out = Path(tempfile.mkdtemp(prefix='registry-extraction-', dir=parent))
     record = {'status': 'started', 'commands': [], 'script_sha256': digest(Path(__file__).read_bytes()),
-              'claim': 'native reads/decoded model owner bridge; native initialization, heap and security unproved'}
+              'claim': 'native reads/model owner/causal association; native initialization, heap and security unproved'}
     def save():
         (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
     def run(command, name, env=None):
@@ -98,7 +105,7 @@ def main():
         (out / 'src').mkdir()
         (out / 'src/lib.rs').write_bytes((DATA / 'wrapper.rs').read_bytes())
         record['inputs'] = {name: digest((DATA / name).read_bytes()) for name in
-                            ['Cargo.toml', 'Cargo.lock', 'wrapper.rs', 'Generated.lean', 'Proof.lean', 'Decode.lean', 'Registry.lean']}
+                            ['Cargo.toml', 'Cargo.lock', 'wrapper.rs', 'Generated.lean', 'Proof.lean', 'Decode.lean', 'Registry.lean', 'Association.lean']}
         record['native_sources'] = {name: digest((native / name).read_bytes()) for name in
                                     ['snarks/src/packed_oracle.rs', 'pcs/src/matrix_weighted.rs', 'pcs/src/utils/hash.rs', 'Cargo.lock']}
         llbc = out / 'registry.llbc'
@@ -131,13 +138,14 @@ def main():
         marker = 'import FormalProof4FHE.HasteBoots.NativeGoldParameterInitialization\n'
         if source.count(marker) != 1:
             raise RuntimeError('Unexpected parameter import surface')
-        source = source.replace(marker, marker + 'import FormalProof4FHE.HasteBoots.NativeSourceRegistry\n', 1)
+        source = source.replace(marker, marker + 'import FormalProof4FHE.HasteBoots.StoredGoldRegistryAssociation\n', 1)
         names = list(manifest['dependency_audit'])
         names += [NAMESPACE + '.' + n for n in FUNCTIONS]
         source += '\n' + runtime
         for file, namespace, proofs in [('Proof.lean', 'HasteBootsExtractedRegistryProof', PROOFS),
                                         ('Decode.lean', 'HasteBootsExtractedRegistryDecode', DECODE_PROOFS),
-                                        ('Registry.lean', 'HasteBootsExtractedRegistry', REGISTRY_PROOFS)]:
+                                        ('Registry.lean', 'HasteBootsExtractedRegistry', REGISTRY_PROOFS),
+                                        ('Association.lean', 'HasteBootsExtractedRegistryAssociation', ASSOCIATION_PROOFS)]:
             proof = (DATA / file).read_text()
             PARAMETERS['validate_proof_source'](proof, proofs)
             source += '\n' + proof
@@ -146,14 +154,14 @@ def main():
         source += ''.join('\n#print axioms ' + name + '\n' for name in new_names)
         checked = out / 'Checked.lean'; checked.write_text(source)
         record.update(generated_sha256=digest(raw.encode()), checked_sha256=digest(checked.read_bytes()))
-        run([ROOT / 'scripts/in-container', 'lake', 'build', 'FormalProof4FHE.HasteBoots.NativeSourceRegistry'], 'model-build.log')
+        run([ROOT / 'scripts/in-container', 'lake', 'build', 'FormalProof4FHE.HasteBoots.StoredGoldRegistryAssociation'], 'model-build.log')
         run([ROOT / 'scripts/in-container', 'bash', '-euc',
              'project_path=$(lake env printenv LEAN_PATH); cd -- "$1"; backend_path=$(lake env printenv LEAN_PATH); '
              'LEAN_PATH="$project_path:$backend_path" lean -DwarningAsError=true "$2"', '_',
              COMMON['container_path'](backend / 'backends/lean'), COMMON['container_path'](checked)], 'lean.log')
         record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), names)
         record['status'] = 'passed'
-        print(f'Registry reads/model-owner bridge passed: {len(names)} dependency audits; native initialization/heap/security refinement unproved')
+        print(f'Registry/causal association passed: {len(names)} dependency audits; native initialization/heap/security refinement unproved')
     except (Exception, SystemExit) as error:
         record['status'] = 'failed'; record['error'] = str(error)
         raise SystemExit(f'Registry extraction failed; inspect {out}: {error}') from error
