@@ -7,6 +7,24 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Allocator cleanup extraction remains a refinement boundary
+
+The experimental extractor now retains allocator parameters and methods with
+`--preserve-allocator` (schema 0.1.225), and the paired monomorphic frontend
+retains executable Allocator methods. This fixes a missing allocator declaration
+still referenced by RawVec cleanup. The native gate rejects missing function
+references and residual drops before frontend translation. Charon's full tests
+and Clippy pass; all 126 extraction guard tests pass.
+
+Expanding original String, Vec, RawVec and Global bodies reaches
+`alloc::alloc::__rust_dealloc`: 67 retained functions, zero residual drops and
+no missing regular function declarations. The complete generated module is
+still rejected because layout, pointer and allocator primitives remain axioms.
+No native constructor refinement or heap/work security theorem is accepted.
+The next obligation is faithful layout/pointer/ownership semantics linked to
+these original calls, followed by the constructor/model bridge and the remaining
+source/work/security plan. Production HasteBoots Rust remains unchanged.
+
 ## Inlining regression baseline is checked before compiler changes
 
 A new source fixture covers repeated calls, mutation, early errors, overflow

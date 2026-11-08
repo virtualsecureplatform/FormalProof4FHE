@@ -14,20 +14,27 @@ class Guards(unittest.TestCase):
         return {'has_errors': False, 'translated': {
             'target_information': [{'key': 'x86_64-unknown-linux-gnu', 'value': {
                 'target_pointer_size': 8, 'is_little_endian': True}}],
-            'options': {'precise_drops': True, 'desugar_drops': True},
-            'fun_decls': [{'body': {'Structured': {'Call': {}}}}]}}
+            'options': {'precise_drops': True, 'desugar_drops': True, 'preserve_allocator': True},
+            'fun_decls': [{'def_id': 0, 'body': {'Structured': {'Call': {}}}}]}}
 
     def test_precise_calls_accepted(self):
         GATE['validate_drop_ir'](self.fixture())
 
     def test_missing_flags_or_nested_drop_rejected(self):
         original = self.fixture()
-        for field in ['precise_drops', 'desugar_drops']:
+        for field in ['precise_drops', 'desugar_drops', 'preserve_allocator']:
             changed = copy.deepcopy(original); changed['translated']['options'][field] = False
             with self.assertRaises(RuntimeError): GATE['validate_drop_ir'](changed)
         changed = copy.deepcopy(original)
         changed['translated']['fun_decls'][0]['body']['Structured']['Call']['on_unwind'] = [{'Drop': {}}]
         with self.assertRaises(RuntimeError): GATE['validate_drop_ir'](changed)
+
+    def test_missing_function_reference_rejected(self):
+        ir = self.fixture()
+        ir['translated']['fun_decls'][0]['body']['Structured']['Call'] = {'kind': {'Fun': {'Regular': 7}}}
+        with self.assertRaises(RuntimeError): GATE['validate_drop_ir'](ir)
+        ir['translated']['fun_decls'].append({'def_id': 7, 'body': 'Opaque'})
+        GATE['validate_drop_ir'](ir)
 
 
 if __name__ == '__main__':

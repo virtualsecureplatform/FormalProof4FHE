@@ -208,3 +208,25 @@ byte-identical; `mono-ctlz-regression.json` records the comparison.
 Next work is explicit Vec/String heap cleanup and the constructor/model bridge,
 then native heap/work refinement and the complete security plan. No production
 Rust is modified by these fixtures or compiler patches.
+
+## Allocator cleanup diagnostics
+
+The coupled schema 0.1.225 profile preserves concrete allocator parameters and
+methods through Charon and the monomorphic frontend. The native diagnostic
+requires that option, precise/desugared/evaluated drops, and declarations for
+all regular function references. Three cleanup guard tests cover these checks.
+
+All 45 kernel dependency audits and six unsupported intrinsic runs passed again;
+all 126 extraction guard tests passed. Full upstream extraction completed the
+same 97 targets with the existing `dyn.rs` rejection, and all 128 regenerated
+files are byte-identical to the preceding profile. Charon's full tests and
+Clippy also passed.
+
+`allocator-cleanup-regression.json` records the paired tool hashes, upstream
+comparison and five original cleanup scopes. Retained function counts are
+35/36/38/62/67 for opaque/String/Vec/RawVec/Global expansion. Every scope has
+zero residual drops and no missing regular function declarations. Every complete
+module still rejects for extracted axioms. Global expansion reaches original
+`__rust_dealloc`, exposing layout and pointer primitives that require faithful
+heap semantics. These diagnostics accept no native constructor or security
+proof and introduce no replacement cleanup implementation.

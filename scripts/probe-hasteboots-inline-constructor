@@ -20,20 +20,27 @@ def validate_drop_ir(ir):
     options = ir['translated'].get('options', {})
     if options.get('precise_drops') is not True or options.get('desugar_drops') is not True:
         raise RuntimeError('Native constructor requires precise, desugared drops')
+    if options.get('preserve_allocator') is not True:
+        raise RuntimeError('Native constructor requires allocator preservation')
+    functions = {f['def_id'] for f in ir['translated']['fun_decls'] if isinstance(f, dict)}
     def visit(value):
         if isinstance(value, dict):
             if 'Drop' in value: raise RuntimeError('Residual drop would hide cleanup semantics')
+            if set(value) == {'Fun'} and isinstance(value['Fun'], dict) and set(value['Fun']) == {'Regular'}:
+                if value['Fun']['Regular'] not in functions: raise RuntimeError('Function reference has no declaration')
             for child in value.values(): visit(child)
         elif isinstance(value, list):
             for child in value: visit(child)
-    visit(ir['translated']['fun_decls'])
+    visit(ir['translated'])
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--build-receipt', type=Path, required=True)
     parser.add_argument('--backend', type=Path, required=True)
-    parser.add_argument('--expand-string-cleanup', action='store_true', help='Expose original String type and drop body')
+    cleanup = parser.add_mutually_exclusive_group()
+    cleanup.add_argument('--expand-string-cleanup', action='store_true', help='Expose original String type and drop body')
+    cleanup.add_argument('--cleanup-scope', choices=['opaque', 'string', 'vec', 'rawvec', 'global'], help='Follow original cleanup bodies to the selected boundary')
     parser.add_argument('--inline-ok-or', action='store_true', help='Also inline static-error option conversion')
     args = parser.parse_args()
     parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
@@ -71,8 +78,14 @@ def main():
         optional_inline = ['--inline-function', 'core::option::_::ok_or'] if args.inline_ok_or else []
         record['inline_ok_or'] = args.inline_ok_or
         record['expand_string_cleanup'] = args.expand_string_cleanup
-        cleanup_scope = ['--include', 'alloc::string::String', '--include', 'alloc::string::String::_::drop_glue'] if args.expand_string_cleanup else []
-        run([tools / 'charon', 'cargo', '--preset=aeneas', '--precise-drops', '--desugar-drops', '--monomorphize',
+        scope = args.cleanup_scope or ('string' if args.expand_string_cleanup else 'opaque')
+        record['cleanup_scope'] = scope
+        paths = [] if scope == 'opaque' else ['alloc::string::String']
+        if scope in ['vec', 'rawvec', 'global']: paths += ['alloc::vec::Vec', 'alloc::vec::Vec::_::drop_glue']
+        if scope in ['rawvec', 'global']: paths += ['alloc::vec', 'alloc::raw_vec']
+        if scope == 'global': paths += ['alloc::alloc']
+        cleanup_scope = [argument for path in paths for argument in ['--include', path]]
+        run([tools / 'charon', 'cargo', '--preset=aeneas', '--preserve-allocator', '--precise-drops', '--desugar-drops', '--monomorphize',
              '--inline-function', 'core::option::_::and_then', '--inline-function', 'core::option::_::is_none_or', *optional_inline,
              '--start-from', PARAMETERS['NAMESPACE'] + '::new_encoded', '--include', 'pcs', '--include', 'algebra::goldilocks::Goldilocks', *cleanup_scope, '--include', 'core::option',
              '--include', 'core::result', '--include', 'core::convert',
@@ -82,6 +95,7 @@ def main():
         record.update(charon_has_errors=ir.get('has_errors'), llbc_sha256=digest(llbc.read_bytes()))
         validate_drop_ir(ir)
         record['residual_drop_count'] = 0
+        record['missing_function_references'] = []
         record['constructor_bodies'] = BASE['validate_constructor_bodies'](ir, False)
         record['retained_functions'] = sum(isinstance(f, dict) for f in ir['translated']['fun_decls'])
         save()
