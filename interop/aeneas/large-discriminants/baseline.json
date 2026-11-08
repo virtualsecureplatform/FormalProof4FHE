@@ -1,0 +1,9 @@
+{
+  "claim": "baseline host integer overflow before arbitrary-precision discriminant fix",
+  "charon_exit_code": 0,
+  "aeneas_exit_code": 2,
+  "expected_error": "Z.Overflow",
+  "fixture_sha256": "7df280e21f827391c4ae1b5278f13ceb341b555d84df34c89636e0d87b87a1b5",
+  "ir_sha256": "5b91027157ed7b984f747f0b6d90764768aa3c10896a47cdc18512110df1715e",
+  "log_sha256": "50dfc1a77d5d7629a22eafb2c41a408c2f20208a49cd45159f080c1c3a05216e"
+}
