@@ -55,3 +55,8 @@ callee, the allocator trait implementation, `RawVec`/`Vec` destruction or the
 whole native constructor. Rust lifetime/compiler correspondence, native external
 allocator correctness, physical work and the final protocol security theorem
 remain open. Unit cleanup continues to be explicit ghost composition.
+
+The [Layout storage profile](../layout-storage/README.md) now bridges retained
+physical field descriptions and permission-checked resident bytes to these
+logical arguments, including the extracted source getters. Native calling
+convention/compiler/lifetime correspondence remains open.

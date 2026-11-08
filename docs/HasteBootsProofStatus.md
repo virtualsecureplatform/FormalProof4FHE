@@ -7,6 +7,37 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Resident Layout bytes now feed the original allocator caller
+
+`NativeLayoutBytes` uses the retained physical field order: alignment at byte 0,
+size at byte 8, total extent 16 and alignment 8. The metadata validator checks
+the transparent alignment wrapper, all 64 stored enum tags, discriminator width
+and invalid fallback. Thirteen model theorems prove codec/field laws, permission
+checked reads, exact read effects, reachability and retained failure prefixes.
+Twelve root regressions cover valid/malformed bytes, high bits and access rights.
+
+The [Layout storage profile](../interop/aeneas/layout-storage/README.md) composes
+an actual shared reference-machine read with the original allocator caller. It
+captures the complete data pointer before scratch-register insertion, derives
+alignment membership from decoded bytes and initializes the caller from those
+fields. Seven composition/metadata theorems and eight regressions check this
+bridge. Eight additional theorems connect the actual extracted source Layout
+getters to the same words, codec, field projections and caller entry; three
+regressions check concrete and full-width source values. No chosen callee result
+or caller-supplied alignment certificate is used by the executable adapter.
+
+This advances object-byte representation relative to exact retained compiler
+descriptions. It does not prove the native calling convention, compiler or Rust
+lifetime correspondence, and the adapter is not an extracted whole Rust function.
+Allocator trait/RawVec/Vec destruction, external allocator correctness, physical
+work and the final security theorem remain open.
+
+The combined gate passed 106 declaration audits and 43 rejecting controls. Its
+original caller parent passed 139 audits; the source getter parent passed 36
+audits and seven rejecting controls, all with the same frozen paired tools.
+The repository-wide `scripts/check` passed, including the 10,995-job build and
+all standard audit/smoke checks.
+
 ## The original finite allocator caller now reads nominal aggregate fields
 
 `NativeRecordValues` and `NativeRecordLLBC` add typed nominal aggregates, enum
