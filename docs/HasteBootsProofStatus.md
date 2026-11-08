@@ -7,6 +7,24 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Native capacity unwrapping now preserves exact scalar values
+
+The experimental frontend supports outward U32/Usize range-to-base conversions
+as `Subtype.val`. A checked prepass projects the field of a closed transparent
+single-field wrapper only with matching target, size, alignment, zero offset
+and no alignment modifier. Reverse casts, other scalar widths and unsupported
+wrappers remain rejected. Three extracted functions and six exact value/bounds
+proofs passed nine dependency audits. Eleven negative runs check unsupported
+cases and corrupted layout/target metadata. See
+`interop/aeneas/range-unwrapping/README.md` for the fixture gate and limitations.
+
+The original native `UsizeNoHighBit::as_inner` transmute now translates. The
+84-function layout trace still has no residual drops or missing declarations;
+it next rejects at Rust's `ub_checks<bool>` configuration query. Binding that
+query to actual compiler configuration, the large usize backend boundary and
+remaining source/layout/pointer/heap/work/security refinements remain open.
+No complete native constructor or full security theorem is accepted.
+
 ## Original large discriminants survive frontend translation
 
 The pure IR now retains arbitrary-precision discriminants instead of converting
