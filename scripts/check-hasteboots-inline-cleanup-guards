@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+"""Prevent native constructor probes from hiding residual or imprecise drops."""
+import copy
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+GATE = runpy.run_path(str(ROOT / 'scripts/probe-hasteboots-inline-constructor'))
+
+
+class Guards(unittest.TestCase):
+    def fixture(self):
+        return {'has_errors': False, 'translated': {
+            'target_information': [{'key': 'x86_64-unknown-linux-gnu', 'value': {
+                'target_pointer_size': 8, 'is_little_endian': True}}],
+            'options': {'precise_drops': True, 'desugar_drops': True},
+            'fun_decls': [{'body': {'Structured': {'Call': {}}}}]}}
+
+    def test_precise_calls_accepted(self):
+        GATE['validate_drop_ir'](self.fixture())
+
+    def test_missing_flags_or_nested_drop_rejected(self):
+        original = self.fixture()
+        for field in ['precise_drops', 'desugar_drops']:
+            changed = copy.deepcopy(original); changed['translated']['options'][field] = False
+            with self.assertRaises(RuntimeError): GATE['validate_drop_ir'](changed)
+        changed = copy.deepcopy(original)
+        changed['translated']['fun_decls'][0]['body']['Structured']['Call']['on_unwind'] = [{'Drop': {}}]
+        with self.assertRaises(RuntimeError): GATE['validate_drop_ir'](changed)
+
+
+if __name__ == '__main__':
+    unittest.main()

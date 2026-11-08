@@ -65,7 +65,7 @@ complete `twice` equivalence (including errors, overflow and divergence), and
 six theorems passed 17 exact dependency audits. Allowed axioms are only
 `propext`, `Classical.choice` and `Quot.sound`. Five rejection tests cover
 altered/truncated/admitted output, invalid IR, missing inverses/proofs,
-error logs and dependency reports. All 120 extraction guard tests passed.
+error logs and dependency reports. All 125 extraction guard tests passed.
 The patched Charon's full upstream suite and Clippy passed, including six
 selected-inlining UI cases. Aeneas array/trait outputs were regenerated and
 borrow-checking passed with the coupled tools and default feature flags.
@@ -86,14 +86,24 @@ Rust MIR inlining. Its receipt records IR, source/tool bindings and failed
 frontend logs. Any admitted constructor output or unapproved kernel dependency
 would also fail.
 
-The native static-reference borrowing failures are now repaired as described
-below. With `--inline-ok-or` the probe retains 22 functions, passes strict
-interpretation and emits a complete Lean module. It includes the original
-Goldilocks type, which extracts as its actual U64 representation. The module
-still fails admission checks on monomorphic `ctlz_nonzero` and owned String
-drop glue. The receipt records both extracted axioms and the complete module
-hash. No constructor module or refinement theorem is accepted yet. Rejection
-paths drop the code's owned `modulus: String`; that cleanup must be modeled.
+The native static-reference borrowing failures are repaired. The probe now
+explicitly requests precise drops and desugars them into calls before running
+Aeneas with `-eval-drops`. Missing drop flags or any residual Drop statement,
+including one in an unwind path, rejects before interpretation. This avoids
+the default destructor-as-no-op abstraction for the native heap boundary.
+
+With `--inline-ok-or` the current drop-preserving probe retains 34 functions,
+passes interpretation and emits a complete Lean module. Goldilocks retains its
+actual U64 representation and the usize intrinsic uses its closed model. The
+module still fails admission checks on owned String drop glue; its original
+rejection-path cleanup remains an explicit call. The receipt records the
+extracted axioms and module hash. No native constructor refinement is accepted.
+
+`--expand-string-cleanup` additionally exposes the original String type and
+drop body. Its valid IR has 35 functions and no residual drops. String cleanup
+then explicitly calls Vec<u8> cleanup; the Vec type and drop body remain opaque
+and the module is rejected. This is a diagnostic of the next heap boundary,
+not a trusted destructor implementation.
 
 ## Dead shared-loan cleanup regression
 
@@ -161,14 +171,40 @@ scripts/check-hasteboots-static-error-option --mode result \
 The original 17-audit inlining fixture and five-audit static-error option gate
 also passed with the repaired frontend. Three more rejection tests cover the
 new mode's complete source/proof coverage, error-label changes and invalid IR;
-the full guard suite has 120 passing tests. No proof limits are raised.
+the full guard suite has 125 passing tests. No proof limits are raised.
 
 Full upstream extraction again completed the same 97 targets and rejected only
 the existing `dyn.rs` erased-lifetime case. All 128 regenerated outputs remain
 byte-identical to the preceding profile. `static-input-regression.json` records
 the paired tools, source patches, logs and per-file comparison.
 
-Next work is the checked monomorphic intrinsic binding, then original String
-cleanup and the constructor/model bridge, followed by native heap/work
-refinement and the complete security plan. No production Rust is modified by
-these fixtures or compiler patches.
+## Monomorphic usize intrinsic
+
+`MonoCtlzCandidate.lean` freshly extracts the existing usize fixture in full
+monomorphic mode. The frontend matches the explicit `ctlz_nonzero<usize>`
+instantiation and validates its empty source/call binders and generics, exact
+usize-to-u32 signature, Rust ABI, unsafe marker and non-variadic shape. Other
+widths and generic references reject. The target remains the closed runtime
+and proof suite in `interop/aeneas/usize-ctlz/`:
+
+```sh
+scripts/check-hasteboots-monomorphic-ctlz \
+  --build-receipt build/hasteboots-extraction/inline-tools-build-RECEIPT/manifest.json \
+  --backend /tmp/hasteboots-aeneas-m0
+```
+
+Thirteen kernel audits cover zero rejection, defined inputs, the leading-zero
+value and the guarded total wrapper. Six negative runs reject a u32 call, u32
+function alias, generic reference and deliberately corrupted ABI/unsafe/variadic
+metadata. Only negative fault-injection artifacts are edited; accepted IR and
+generated terms are unchanged. Three guard tests reject altered output and
+incomplete runtime/proof coverage. The earlier 32 audits passed again, for 45
+fresh audits across the paired profile. All 125 extraction guard tests passed.
+
+Full upstream extraction again completed 97 targets with only the preexisting
+`dyn.rs` erased-lifetime rejection. All 128 regenerated outputs remain
+byte-identical; `mono-ctlz-regression.json` records the comparison.
+
+Next work is explicit Vec/String heap cleanup and the constructor/model bridge,
+then native heap/work refinement and the complete security plan. No production
+Rust is modified by these fixtures or compiler patches.

@@ -24,7 +24,7 @@ The coupled experimental Charon/Aeneas build now produces kernel-checked
 monomorphic fixture code. Six theorems prove complete public-function
 equivalence and two-sided result/state codec inverses, including mutation,
 errors, overflow and divergence. All 17 source/codec/theorem dependency audits
-use only the allowed Lean axioms; all 120 extraction guard tests passed.
+use only the allowed Lean axioms; all 125 extraction guard tests passed.
 Charon's full upstream suite and Clippy passed, and Aeneas array/trait outputs
 were regenerated and borrow-checked.
 
@@ -55,15 +55,25 @@ propagation (ten source/theorem audits). The original 17- and five-audit gates
 passed again. All 128 regenerated upstream outputs remain unchanged, with the
 same existing `dyn.rs` rejection; see `static-input-regression.json`.
 
-The original native Gold constructor now passes strict interpretation and
-emits a complete Lean module with 22 retained functions when `ok_or` is also
-inlined. Its Goldilocks field type is transparent and retains the actual U64
-representation. The admission gate still rejects monomorphic `ctlz_nonzero`
-and String drop glue, recording both extracted axioms. No native constructor
-refinement theorem is accepted. The next implementation step is the checked
-monomorphic intrinsic binding, then original String cleanup and the
-constructor/model bridge. General compiler correctness, native heap/work
-refinement and complete security remain unproved.
+The monomorphic usize intrinsic is now bound to the existing closed bit-vector
+runtime after validating its concrete instantiation, empty binders/generics,
+exact input/output types and ABI/safety shape. Thirteen additional kernel
+audits and six unsupported-reference/metadata rejection runs passed. The
+previous 32 audits passed again, giving 45 fresh audits and 125 guard tests.
+All 128 regenerated upstream files remain unchanged, with the same existing
+`dyn.rs` rejection; see `mono-ctlz-regression.json`.
+
+The native constructor probe now requires precise, desugared drops, rejects
+any residual Drop statement, and enables drop evaluation. This strengthens
+the earlier value-only interpretation boundary. Its 34-function native IR
+makes rejection-path String cleanup an explicit call, and its emitted module
+is rejected solely for String drop glue. Expanding original String cleanup
+produces valid 35-function IR and exposes the opaque Vec<u8> type/drop boundary;
+that module is rejected too. Goldilocks retains the actual U64 representation.
+No native constructor refinement is accepted. The next implementation step is
+explicit Vec/String heap cleanup and the constructor/model bridge. General
+compiler correctness, native heap/work refinement and complete security remain
+unproved.
 
 ## Scoped constructor IR is valid; recursive type constraints remain unsupported
 

@@ -15,10 +15,25 @@ BUILD = runpy.run_path(str(ROOT / 'scripts/build-hasteboots-inline-tools'))
 PARAMETERS, COMMON, digest = BASE['PARAMETERS'], BASE['COMMON'], BASE['digest']
 
 
+def validate_drop_ir(ir):
+    BASE['validate_ir'](ir)
+    options = ir['translated'].get('options', {})
+    if options.get('precise_drops') is not True or options.get('desugar_drops') is not True:
+        raise RuntimeError('Native constructor requires precise, desugared drops')
+    def visit(value):
+        if isinstance(value, dict):
+            if 'Drop' in value: raise RuntimeError('Residual drop would hide cleanup semantics')
+            for child in value.values(): visit(child)
+        elif isinstance(value, list):
+            for child in value: visit(child)
+    visit(ir['translated']['fun_decls'])
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--build-receipt', type=Path, required=True)
     parser.add_argument('--backend', type=Path, required=True)
+    parser.add_argument('--expand-string-cleanup', action='store_true', help='Expose original String type and drop body')
     parser.add_argument('--inline-ok-or', action='store_true', help='Also inline static-error option conversion')
     args = parser.parse_args()
     parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
@@ -55,19 +70,22 @@ def main():
         llbc = out / 'constructor.llbc'
         optional_inline = ['--inline-function', 'core::option::_::ok_or'] if args.inline_ok_or else []
         record['inline_ok_or'] = args.inline_ok_or
-        run([tools / 'charon', 'cargo', '--preset=aeneas', '--monomorphize',
+        record['expand_string_cleanup'] = args.expand_string_cleanup
+        cleanup_scope = ['--include', 'alloc::string::String', '--include', 'alloc::string::String::_::drop_glue'] if args.expand_string_cleanup else []
+        run([tools / 'charon', 'cargo', '--preset=aeneas', '--precise-drops', '--desugar-drops', '--monomorphize',
              '--inline-function', 'core::option::_::and_then', '--inline-function', 'core::option::_::is_none_or', *optional_inline,
-             '--start-from', PARAMETERS['NAMESPACE'] + '::new_encoded', '--include', 'pcs', '--include', 'algebra::goldilocks::Goldilocks', '--include', 'core::option',
+             '--start-from', PARAMETERS['NAMESPACE'] + '::new_encoded', '--include', 'pcs', '--include', 'algebra::goldilocks::Goldilocks', *cleanup_scope, '--include', 'core::option',
              '--include', 'core::result', '--include', 'core::convert',
              '--include', 'core::num::_::checked_next_power_of_two', '--include', 'core::num::_::one_less_than_next_power_of_two',
              '--dest-file', llbc, '--', '--manifest-path', out / 'Cargo.toml', '--lib', '--locked'], 'charon.log', env)
         ir = json.loads(llbc.read_text())
         record.update(charon_has_errors=ir.get('has_errors'), llbc_sha256=digest(llbc.read_bytes()))
-        BASE['validate_ir'](ir)
+        validate_drop_ir(ir)
+        record['residual_drop_count'] = 0
         record['constructor_bodies'] = BASE['validate_constructor_bodies'](ir, False)
         record['retained_functions'] = sum(isinstance(f, dict) for f in ir['translated']['fun_decls'])
         save()
-        run([tools / 'aeneas', '-backend', 'lean', '-checks', '-sequential', '-max-heartbeats', '200000', '-max-recdepth', '1000',
+        run([tools / 'aeneas', '-backend', 'lean', '-checks', '-sequential', '-eval-drops', '-max-heartbeats', '200000', '-max-recdepth', '1000',
              '-abort-on-error', '-no-external-name-patterns', '-disambiguate-instantiated-names', '-monomorphic-builtin-shapes',
              '-dest', out / 'lean', llbc], 'aeneas.log')
         plain = re.sub(r'\x1b\[[0-9;?]*[A-Za-z]', '', (out / 'aeneas.log').read_text())
@@ -84,8 +102,16 @@ def main():
                 ('maxHeartbeats', '200000'), ('maxRecDepth', '1000')]: raise RuntimeError('Unexpected proof limits')
         name = PARAMETERS['NAMESPACE'] + '.new_encoded'
         checked = out / 'Checked.lean'
-        checked.write_text(raw.replace('import Aeneas\n', 'import Aeneas.Std\nimport Aeneas.Tactic.RustAttributes\nimport Aeneas.Data.Discriminant\n')
-                           + '\n#print axioms ' + name + '\n')
+        runtime_path = ROOT / 'interop/aeneas/usize-ctlz/Runtime.lean'
+        support = runtime_path.read_text()
+        PARAMETERS['validate_proof_source'](support, ['zero_rejected', 'nonzero_result', 'nonzero_bits', 'leading_value'])
+        if support.count('import Aeneas.Std\n') != 1: raise RuntimeError('Unexpected intrinsic runtime imports')
+        record['intrinsic_runtime_sha256'] = digest(support.encode())
+        module = raw.replace('import Aeneas\n', 'import Aeneas.Std\nimport Aeneas.Tactic.RustAttributes\nimport Aeneas.Data.Discriminant\n')
+        marker = 'open Aeneas Aeneas.Std Result ControlFlow Error\n'
+        if module.count(marker) != 1: raise RuntimeError('Unexpected constructor prelude')
+        module = module.replace(marker, support.replace('import Aeneas.Std\n', '') + '\n' + marker, 1)
+        checked.write_text(module + '\n#print axioms ' + name + '\n')
         run([ROOT / 'scripts/in-container', 'bash', '-euc', 'cd -- "$1"; lake env lean -DwarningAsError=true "$2"', '_',
              COMMON['container_path'](args.backend.resolve() / 'backends/lean'), COMMON['container_path'](checked)], 'lean.log')
         record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), [name])
