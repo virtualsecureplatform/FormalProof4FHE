@@ -7,6 +7,25 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Extracted native reads share original indices with pointer provenance
+
+The registry extraction gate now includes three `Pointer.lean` composition
+proofs. Given that the native-value decoder and pointer-backed registry run
+produce the same complete model registry, each original native usize accessor
+read is linked to the same original borrow, heap cell, allocation identity and
+constructed arena entry. First-owner initialization and observed extraction
+retain this link, native parameter decoding and all raw root bytes. The following
+premises remain explicit: the shared-registry compatibility,
+modeled initializer execution, trace inclusion, replay truthfulness and
+no-bad-root event in the corresponding theorem signatures.
+Actual native heap/allocator and initializer simulation, context bytes,
+physical work and full protocol security remain open.
+
+Validation: a fresh pinned native extraction passed all 110 combined dependency
+audits, including these three composition proofs. All 102 extraction/frontend
+guard tests passed. The receipt was checked against current proof, model and
+native-source hashes. The native HasteBoots checkout remains unchanged.
+
 ## First-original extraction is linked to pointer-resolved storage
 
 `NativeGoldPointerAssociation` carries the operational pointer registry through

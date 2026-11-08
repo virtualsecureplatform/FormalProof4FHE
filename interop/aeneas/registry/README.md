@@ -58,7 +58,7 @@ updates, physical work and full protocol security remain open.
 Use the pinned official tools and prepared backend described in
 `../parameters/README.md`. The harness first freshly checks the 50 parameter
 source/accessor/decoder/binding audits, then extracts this native carrier and
-checks the combined artifact with all 88 dependency audits. Only propext,
+checks the combined artifact with all 110 dependency audits. Only propext,
 Classical.choice and Quot.sound are allowed; no admissions, native proofs or
 proof-limit increases are accepted.
 
@@ -75,7 +75,7 @@ build directory. The target must be x86_64 little-endian. Fresh generated terms
 must match the snapshot; only native checkout paths in source comments may
 differ for comparison. Compiled terms are not normalized. Compatibility changes
 only imports, and then append the checked proofs. Proof limits remain 200,000
-heartbeats and recursion depth 1,000. Six guard groups check output completeness,
+heartbeats and recursion depth 1,000. Seven guard groups check output completeness,
 imports, admissions/limits, dependency lock/checksum integrity and exact proof
 audit coverage.
 
@@ -171,3 +171,21 @@ context computation, original representative selection, native initialization,
 serialization, heap and physical attacker work remain separate obligations.
 The manifest now hashes every Lean input, including lookup, causal lookup and
 equality proofs; a guard rejects unrecorded proof files.
+
+## Pointer-backed constructor provenance
+
+`Pointer.lean` composes actual extracted slice/field reads with the operational
+pointer registry and constructed parameter arena. Both registry decoders must
+return the same complete model registry. This compatibility premise remains
+explicit and is not a proof that the native Rust heap realizes the arena.
+
+Three kernel theorems retain one original index throughout: the native usize
+read, the borrowed pointer, its matching address/allocation origin, the retained
+arena entry, and that entry's constructor provenance. The ownership theorem
+uses the computed first-original context/root owner, including earlier unused
+aliases, and retains context-trace inclusion. The extraction theorem decodes
+the actual native parameter object to the extraction context and identifies
+its raw root with the accepted field root. Replay, inclusion and no-bad-event
+premises remain explicit. No native verifier check or allocator model is
+changed. The receipt hashes all four imported pointer/arena model sources and
+rejects changes to them during extraction.

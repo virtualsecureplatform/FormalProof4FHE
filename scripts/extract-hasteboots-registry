@@ -43,10 +43,14 @@ CAUSAL_LOOKUP_PROOFS = ['dispatch_run', 'dispatch_origin', 'prelude_run', 'prelu
 
 
 EQUALITY_PROOFS = ['byte_pairs', 'roots_equal_exact', 'roots_equal_model', 'roots_equal_true', 'roots_equal_false']
+POINTER_PROOFS = ['slot', 'initialized_original', 'extraction_original']
 NATIVE_FUNCTIONS = ['pcs.utils.hash.Digest512.Insts.CoreCmpPartialEqDigest512.eq']
 INPUT_FILES = ['Cargo.toml', 'Cargo.lock', 'wrapper.rs', 'Generated.lean', 'Proof.lean',
                'Decode.lean', 'Registry.lean', 'Association.lean', 'Lookup.lean',
-               'CausalLookup.lean', 'Equality.lean']
+               'CausalLookup.lean', 'Equality.lean', 'Pointer.lean']
+
+MODEL_FILES = ['NativePointerStorage.lean', 'NativeGoldParameterStore.lean',
+               'NativeGoldPointerRegistry.lean', 'NativeGoldPointerAssociation.lean']
 
 
 def digest(data):
@@ -112,6 +116,8 @@ def main():
             raise RuntimeError('Parameter preflight did not pass')
         record['parameter_manifest'] = str(preflight / 'manifest.json')
         record['parameter_manifest_sha256'] = digest((preflight / 'manifest.json').read_bytes())
+        model_paths = [ROOT / 'FormalProof4FHE/HasteBoots' / name for name in MODEL_FILES]
+        record['model_sources'] = {str(path.relative_to(ROOT)): digest(path.read_bytes()) for path in model_paths}
         native = ROOT.parent / 'HasteBoots'
         lock = (DATA / 'Cargo.lock').read_text()
         validate_lock((native / 'Cargo.lock').read_text(), lock)
@@ -153,7 +159,7 @@ def main():
         marker = 'import FormalProof4FHE.HasteBoots.NativeGoldParameterInitialization\n'
         if source.count(marker) != 1:
             raise RuntimeError('Unexpected parameter import surface')
-        source = source.replace(marker, marker + 'import FormalProof4FHE.HasteBoots.StoredGoldRegistryAssociation\nimport FormalProof4FHE.HasteBoots.StoredGoldLookupParameterAssociation\nimport FormalProof4FHE.HasteBoots.NativeGoldLookupFraming\n', 1)
+        source = source.replace(marker, marker + 'import FormalProof4FHE.HasteBoots.StoredGoldRegistryAssociation\nimport FormalProof4FHE.HasteBoots.StoredGoldLookupParameterAssociation\nimport FormalProof4FHE.HasteBoots.NativeGoldLookupFraming\nimport FormalProof4FHE.HasteBoots.NativeGoldPointerAssociation\n', 1)
         names = list(manifest['dependency_audit'])
         names += [NAMESPACE + '.' + n for n in FUNCTIONS + NATIVE_FUNCTIONS]
         source += '\n' + runtime
@@ -163,7 +169,8 @@ def main():
                                         ('Association.lean', 'HasteBootsExtractedRegistryAssociation', ASSOCIATION_PROOFS),
                                         ('Lookup.lean', 'HasteBootsExtractedRegistryLookup', LOOKUP_PROOFS),
                                         ('CausalLookup.lean', 'HasteBootsExtractedRegistryCausalLookup', CAUSAL_LOOKUP_PROOFS),
-                                        ('Equality.lean', 'HasteBootsExtractedRegistryEquality', EQUALITY_PROOFS)]:
+                                        ('Equality.lean', 'HasteBootsExtractedRegistryEquality', EQUALITY_PROOFS),
+                                        ('Pointer.lean', 'HasteBootsExtractedRegistryPointer', POINTER_PROOFS)]:
             proof = (DATA / file).read_text()
             PARAMETERS['validate_proof_source'](proof, proofs)
             source += '\n' + proof
@@ -173,12 +180,15 @@ def main():
         checked = out / 'Checked.lean'; checked.write_text(source)
         record.update(generated_sha256=digest(raw.encode()), checked_sha256=digest(checked.read_bytes()))
         run([ROOT / 'scripts/in-container', 'lake', 'build', 'FormalProof4FHE.HasteBoots.StoredGoldLookupParameterAssociation',
-             'FormalProof4FHE.HasteBoots.NativeGoldLookupFraming'], 'model-build.log')
+             'FormalProof4FHE.HasteBoots.NativeGoldLookupFraming',
+             'FormalProof4FHE.HasteBoots.NativeGoldPointerAssociation'], 'model-build.log')
         run([ROOT / 'scripts/in-container', 'bash', '-euc',
              'project_path=$(lake env printenv LEAN_PATH); cd -- "$1"; backend_path=$(lake env printenv LEAN_PATH); '
              'LEAN_PATH="$project_path:$backend_path" lean -DwarningAsError=true "$2"', '_',
              COMMON['container_path'](backend / 'backends/lean'), COMMON['container_path'](checked)], 'lean.log')
         record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), names)
+        if record['model_sources'] != {str(path.relative_to(ROOT)): digest(path.read_bytes()) for path in model_paths}:
+            raise RuntimeError('Pointer model source changed during extraction')
         record['status'] = 'passed'
         print(f'Registry/causal association passed: {len(names)} dependency audits; native initialization/heap/security refinement unproved')
     except (Exception, SystemExit) as error:
