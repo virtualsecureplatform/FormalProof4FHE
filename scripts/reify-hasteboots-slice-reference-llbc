@@ -19,7 +19,14 @@ def digest(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
 
 
-def ty(raw, bound=None):
+def region_valid(region, bound=None, free=0):
+    return region in ['Static', 'Erased'] or (isinstance(region, dict) and (
+        (set(region) == {'Body'} and bound is not None and isinstance(region['Body'], int) and 0 <= region['Body'] < bound) or
+        (set(region) == {'Var'} and isinstance(region['Var'], dict) and set(region['Var']) == {'Free'} and
+         isinstance(region['Var']['Free'], int) and 0 <= region['Var']['Free'] < free)))
+
+
+def ty(raw, bound=None, free=0):
     require(set(raw) == {'Untagged'}, 'Expected expanded source type')
     t = raw['Untagged']
     if t == {'Literal': {'UInt': 'Usize'}}: return ('usize',)
@@ -39,7 +46,7 @@ def ty(raw, bound=None):
         return ('raw', mutable == 'Mut', kind)
     require(set(t) == {'Ref'}, 'Unsupported active type')
     region, pointee, mutable = t['Ref']
-    require(region in ['Static','Erased'] or (isinstance(region,dict) and set(region)=={'Body'} and bound is not None and 0 <= region['Body'] < bound), 'Unvalidated lifetime label')
+    require(region_valid(region, bound, free), 'Unvalidated lifetime label')
     require(pointee in [{'Untagged': {'Slice': {'Untagged': {'Literal': {'UInt': k}}}}} for k in ['U64','U8']] and mutable in ['Mut','Shared'], 'Only byte/word-slice references are supported')
     return ('reference', mutable == 'Mut', 'word' if pointee['Untagged']['Slice']['Untagged']['Literal']['UInt']=='U64' else 'byte')
 
@@ -62,7 +69,7 @@ class Reifier:
         require(not o['opaque'] and not o['exclude'] and not o['inline_functions'],'Hidden/rewritten source closure')
         require(c['target_information']==[{'key':'x86_64-unknown-linux-gnu','value':{'target_pointer_size':8,'is_little_endian':True}}],'Wrong target')
         self.functions={f['def_id']:f for f in c['fun_decls'] if f}
-        self.schemas={};self.cache={};self.active=set();self.retained={};self.records=[]
+        self.schemas={};self.regions={};self.cache={};self.active=set();self.retained={};self.records=[]
         self.globals=[g for g in c['global_decls'] if g]
         for g in self.globals:
             require(g['ty']=={'Untagged':{'Literal':{'UInt':'Usize'}}} and g['value']['ty']==g['ty'] and g['global_kind']=='NamedConst' and empty_generics(g['generics']),'Unsupported layout constant')
@@ -73,18 +80,20 @@ class Reifier:
         require(fid in self.functions,'Missing callee')
         f=self.functions[fid]
         require(isinstance(f['body'],dict) and set(f['body'])=={'Structured'} and f['item_meta']['opacity']=='Transparent','Unsupported active callee body')
-        require(empty_generics(f['generics']) and f['is_global_initializer'] is None,'Unclosed active declaration')
+        generics=f['generics'];regions=generics['regions']
+        require(all(set(r)=={'index','name','mutability'} and r['index']==i for i,r in enumerate(regions)) and
+                empty_generics({**generics,'regions':[]}) and f['is_global_initializer'] is None,'Unclosed active declaration')
+        self.regions[fid]=len(regions)
         b=f['body']['Structured'];require(set(b)=={'span','bound_body_regions','locals','body','comments'},'Unknown body fields')
         require([x['index']for x in b['locals']['locals']]==list(range(len(b['locals']['locals']))),'Noncanonical locals')
-        bound=b['bound_body_regions'];types=[ty(x['ty'],bound)for x in b['locals']['locals']];n=b['locals']['arg_count']
+        bound=b['bound_body_regions'];types=[ty(x['ty'],bound,len(regions))for x in b['locals']['locals']];n=b['locals']['arg_count']
         sg=f['signature'];require(sg['abi']=='Rust' and not sg['is_variadic'] and n==len(sg['inputs']),'Wrong signature')
-        require(types[1:n+1]==[ty(t)for t in sg['inputs']] and types[0]==ty(sg['output']),'Signature/local types differ')
-        require(all(t[0] in ['raw','usize']for t in types[1:n+1]),'Reference inputs need a separate lifetime refinement')
+        require(types[1:n+1]==[ty(t,free=len(regions))for t in sg['inputs']] and types[0]==ty(sg['output'],free=len(regions)),'Signature/local types differ')
         self.schemas[fid]=(types,n,bound);return self.schemas[fid]
 
     def place(self,p,fid):
         require(set(p)=={'kind','ty'} and set(p['kind'])=={'Local'},'Expected local place')
-        ts,_,bound=self.schema(fid);i=p['kind']['Local'];require(isinstance(i,int)and 0<=i<len(ts)and ty(p['ty'],bound)==ts[i],'Local type mismatch')
+        ts,_,bound=self.schema(fid);i=p['kind']['Local'];require(isinstance(i,int)and 0<=i<len(ts)and ty(p['ty'],bound,self.regions[fid])==ts[i],'Local type mismatch')
         return i,ts[i]
 
     def operand(self,o,fid):
@@ -96,12 +105,15 @@ class Reifier:
     def rvalue(self,r,fid):
         require(isinstance(r,dict)and len(r)==1,'Unsupported rvalue')
         if 'Use'in r:
-            operand,copy=r['Use'];v,t=self.operand(operand,fid)
-            require(copy==('No'if t[0]=='reference'and t[1]else'Yes'),'Wrong Copy classification')
-            return '(.use '+v+')',t
+            operand,retag=r['Use'];v,t=self.operand(operand,fid)
+            require(retag in ['No','Yes'],'Unknown WithRetag flag')
+            enabled=retag=='Yes'
+            element=t[2] if t[0]=='reference' else 'word'
+            suffix=(' '+str(enabled).lower()+' .'+element) if not enabled or element!='word' else ''
+            return '(.use '+v+suffix+')',t
         if 'UnaryOp'in r:
             op,operand=r['UnaryOp'];require(set(op)=={'Cast'}and set(op['Cast'])=={'RawPtr'},'Unsupported cast')
-            src,dst=[ty(x,self.schema(fid)[2])for x in op['Cast']['RawPtr']];v,t=self.operand(operand,fid)
+            src,dst=[ty(x,self.schema(fid)[2],self.regions[fid])for x in op['Cast']['RawPtr']];v,t=self.operand(operand,fid)
             require(t==src and src[0]==dst[0]=='raw' and src[2]not in['slice','sliceByte'] and dst[2]not in['slice','sliceByte'],'Only thin raw casts are supported')
             return '(.rawCast '+v+')',dst
         if 'Ref'in r:
@@ -164,8 +176,11 @@ class Reifier:
                         require(t==('raw',mutable,target)and len(args)==2 and args[0][1]==('raw',mutable,'word'if element=='U64'else'byte')and args[1][1]==('usize',),'Pointer-parts types mismatch')
                         result='(.parts '+str(dest)+' '+args[0][0]+' '+args[1][0]+' '+cleanup+' '+result+')'
                     else:
-                        require(set(fk['Fun'])=={'Regular'}and empty_generics(fun['generics']),'Unclosed call')
+                        require(set(fk['Fun'])=={'Regular'},'Unclosed call')
                         target=fk['Fun']['Regular'];ts,count,_=self.schema(target)
+                        generics=fun['generics'];regions=generics['regions']
+                        require(empty_generics({**generics,'regions':[]}) and len(regions)==self.regions[target] and
+                                all(region_valid(r,self.schema(fid)[2],self.regions[fid]) for r in regions),'Unbound region call arguments')
                         require(t==ts[0]and [a[1]for a in args]==ts[1:count+1],'Call types mismatch')
                         code=self.body(target)
                         result='(.call '+json.dumps(self.name(target))+' '+seq([lean_ty(x)for x in ts])+' '+str(count)+' '+str(dest)+' '+seq([a[0]for a in args])+' '+code+' '+cleanup+' '+result+')'
@@ -185,7 +200,10 @@ class Reifier:
         self.active.remove(fid);self.cache[fid]=code;return code
 
     def render(self,roots=(0,1,2,3)):
-        for root in roots:self.body(root)
+        for root in roots:
+            types,count,_=self.schema(root)
+            require(all(t[0] in ['raw','usize']for t in types[1:count+1]),'Reference root inputs require a checked caller decoder')
+            self.body(root)
         lines=['module','public import FormalProof4FHE.HasteBoots.NativeSliceLLBC','@[expose] public section','','namespace HasteBootsSliceReferenceBody','open FormalProof4FHE.HasteBoots.NativeSliceLLBC','']
         for g in self.globals:
             value=g['value']['kind']['Literal']['Scalar']['Unsigned'][1]

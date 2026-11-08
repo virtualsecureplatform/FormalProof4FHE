@@ -18,7 +18,7 @@ attribute [local simp] f0 f1 f2 f3  NativeSliceLLBC.invoke NativeSliceLLBC.decod
   NativeSliceLLBC.initial NativeSliceLLBC.eval NativeSliceLLBC.evalArgs NativeSliceLLBC.evalRvalue
   NativeSliceLLBC.evalOperand NativeSliceLLBC.storageLive NativeSliceLLBC.storageDead
   NativeSliceLLBC.writeLocal NativeSliceLLBC.readLocal NativeSliceLLBC.partsValue NativeSliceLLBC.evalParts
-  NativeSliceLLBC.fits finishIssue finishUnit
+  NativeSliceLLBC.fits NativeSliceLLBC.retagValue finishIssue finishUnit
 
 theorem shared_byte_body (world : State) (index : Nat) (length : Word) :
     invoke f2 world [.rawRegister index, .usize length] = match world.pointers.registers[index]? with

@@ -30,7 +30,7 @@ attribute [local simp] f0 f1 f2 f3 f4 f5 f6 f7 NativeSliceLLBC.invoke NativeSlic
   NativeSliceLLBC.initial NativeSliceLLBC.eval NativeSliceLLBC.evalArgs NativeSliceLLBC.evalRvalue
   NativeSliceLLBC.evalOperand NativeSliceLLBC.storageLive NativeSliceLLBC.storageDead
   NativeSliceLLBC.writeLocal NativeSliceLLBC.readLocal NativeSliceLLBC.partsValue NativeSliceLLBC.evalParts
-  NativeSliceLLBC.fits finishIssue relay relayByte
+  NativeSliceLLBC.fits NativeSliceLLBC.retagValue finishIssue relay relayByte
 
 theorem shared_body (world : State) (index : Nat) (length : Word) :
     invoke f4 world [.rawRegister index, .usize length] = match world.pointers.registers[index]? with

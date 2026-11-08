@@ -119,8 +119,8 @@ class Reifier:
     def rvalue(self, raw, fid):
         require(isinstance(raw, dict) and len(raw) == 1, 'Unsupported rvalue')
         if set(raw) == {'Use'}:
-            operand, use_copy = raw['Use']
-            require(use_copy == 'Yes', 'Non-Copy data is outside the profile')
+            operand, with_retag = raw['Use']
+            require(with_retag == 'Yes', 'This scalar profile retains only WithRetag.Yes uses')
             value, t = self.operand(operand, fid)
             return '(.use ' + value + ')', t
         if set(raw) == {'UnaryOp'}:

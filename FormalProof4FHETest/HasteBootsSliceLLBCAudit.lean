@@ -93,6 +93,10 @@ import all FormalProof4FHE.HasteBoots.NativeSliceLLBC
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeSliceLLBC.issue
 
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSliceLLBC.retagValue' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSliceLLBC.retagValue
+
 /-- info: 'FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalOperand' depends on axioms: [propext] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalOperand
@@ -156,6 +160,22 @@ import all FormalProof4FHE.HasteBoots.NativeSliceLLBC
 /-- info: 'FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalOperand_world' depends on axioms: [propext, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalOperand_world
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSliceLLBC.retagValue_projects' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSliceLLBC.retagValue_projects
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSliceLLBC.retagValue_disabled' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSliceLLBC.retagValue_disabled
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSliceLLBC.retagValue_reference' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSliceLLBC.retagValue_reference
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeSliceLLBC.retagValue_fresh' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeSliceLLBC.retagValue_fresh
 
 /-- info: 'FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalRvalue_projects' depends on axioms: [propext, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

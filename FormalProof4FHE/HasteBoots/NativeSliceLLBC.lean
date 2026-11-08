@@ -70,7 +70,7 @@ inductive Operand where
   deriving DecidableEq
 
 inductive Rvalue where
-  | use (value : Operand)
+  | use (value : Operand) (retag : Bool := true) (element : Element := .word)
   | rawCast (value : Operand)
   | borrow (mutable : Bool) (base : Nat) (element : Element := .word)
   | unit
@@ -157,6 +157,16 @@ def issue (world : State) (mutable : Bool) (input : Value) (element : Element :=
       else none)
   | _ => none
 
+/-- `Use` carries Charon's retag flag. Reference retags execute a checked
+reborrow; a no-retag transfer keeps the stable reference identity. Primitive
+and raw values contain no modeled references to retag. -/
+def retagValue (frame : Frame) (value : Value) (enabled : Bool) (element : Element) : Option (Value × Frame) :=
+  if enabled then match value with
+    | .reference mutable _ _ => (issue frame.world mutable value element).map
+        (fun (tagged, world) => (tagged, {frame with world}))
+    | _ => some (value, frame)
+  else some (value, frame)
+
 def evalOperand (frame : Frame) : Operand → Option (Value × Frame)
   | .copy index => (readLocal frame index).map (fun value => (value, frame))
   | .move index => (readLocal frame index).map (fun value =>
@@ -164,7 +174,7 @@ def evalOperand (frame : Frame) : Operand → Option (Value × Frame)
 
 def evalRvalue (frame : Frame) : Rvalue → Option (Value × Frame)
   | .unit => some (.unit, frame)
-  | .use value => evalOperand frame value
+  | .use value retag element => (evalOperand frame value).bind (fun (value, next) => retagValue next value retag element)
   | .rawCast value => (evalOperand frame value).bind (fun (value, next) =>
     match value with
     | .raw ⟨_, none⟩ => some (value, next)
@@ -346,11 +356,49 @@ theorem evalOperand_world (frame next : Frame) (operand : Operand) (value : Valu
   · obtain ⟨_, _, same⟩ := evaluated; cases same; rfl
   · obtain ⟨_, _, same⟩ := evaluated; cases same; rfl
 
+theorem retagValue_projects (frame next : Frame) (input output : Value) (enabled : Bool) (element : Element)
+    (tagged : retagValue frame input enabled element = some (output, next)) :
+    NativeReferenceMachine.Runs frame.world next.world := by
+  cases enabled with
+  | false => cases tagged; exact .refl _
+  | true =>
+    cases input with
+    | unit => cases tagged; exact .refl _
+    | usize word => cases tagged; exact .refl _
+    | raw pointer => cases tagged; exact .refl _
+    | reference mutable reference length =>
+      simp only [retagValue, ite_true, Option.map_eq_some_iff] at tagged
+      obtain ⟨⟨value, world⟩, actual, same⟩ := tagged
+      cases same
+      exact issue_projects _ _ _ _ _ actual
+
+theorem retagValue_disabled (frame : Frame) (value : Value) (element : Element) :
+    retagValue frame value false element = some (value, frame) := rfl
+
+theorem retagValue_reference (frame : Frame) (mutable : Bool) (reference : Reference) (length : Word) (element : Element) :
+    retagValue frame (.reference mutable reference length) true element =
+      (issue frame.world mutable (.reference mutable reference length) element).map
+        (fun (value, world) => (value, {frame with world})) := rfl
+
+theorem retagValue_fresh (frame next : Frame) (mutable : Bool) (reference : Reference) (length : Word)
+    (element : Element) (output : Value)
+    (tagged : retagValue frame (.reference mutable reference length) true element = some (output, next)) :
+    ∃ count, output = .reference mutable ⟨frame.world.nextTag⟩ count := by
+  rw [retagValue_reference] at tagged
+  obtain ⟨⟨value, world⟩, actual, same⟩ := Option.map_eq_some_iff.mp tagged
+  cases same
+  exact issue_returned_tag _ _ _ _ _ actual
+
 theorem evalRvalue_projects (frame next : Frame) (rvalue : Rvalue) (value : Value)
     (evaluated : evalRvalue frame rvalue = some (value, next)) : NativeReferenceMachine.Runs frame.world next.world := by
   cases rvalue with
   | unit => cases evaluated; exact .refl _
-  | use operand => rw [evalOperand_world frame next operand value evaluated]; exact .refl _
+  | use operand retag element =>
+    simp only [evalRvalue, Option.bind_eq_some_iff] at evaluated
+    obtain ⟨⟨input, middle⟩, selected, tagged⟩ := evaluated
+    have same := evalOperand_world frame middle operand input selected
+    rw [← same]
+    exact retagValue_projects middle next input value retag element tagged
   | rawCast operand =>
     simp only [evalRvalue, Option.bind_eq_some_iff] at evaluated
     obtain ⟨⟨input, changed⟩, first, actual⟩ := evaluated

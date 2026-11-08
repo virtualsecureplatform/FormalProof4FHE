@@ -87,9 +87,9 @@ def negatives(ir):
     run_case('indirect_call', lambda c: call(c)['call'].update(func={'Dynamic': None}))
     run_case('unwind_heap_effect', lambda c: call(c)['on_unwind']['statements'][0].update(kind={'Assign': None}))
     run_case('storage_out_of_range', lambda c: c['fun_decls'][5]['body']['Structured']['body']['statements'][0].update(kind={'StorageLive': 99}))
-    def noncopy(c):
+    def disabled_retag(c):
         c['fun_decls'][5]['body']['Structured']['body']['statements'][1]['kind']['Assign'][1]['Use'][1] = 'No'
-    run_case('noncopy_dereference', noncopy)
+    run_case('disabled_retag_outside_scalar_profile', disabled_retag)
     def reference_type(c):
         c['fun_decls'][0]['signature']['inputs'][0] = {'Untagged': {'Ref': []}}
     run_case('reference_type', reference_type)
