@@ -44,6 +44,19 @@ class Guards(unittest.TestCase):
         PROBE['PARAMETERS']['validate_proof_source'](proof, PROBE['PROOFS'])
         with self.assertRaises(RuntimeError):
             PROBE['PARAMETERS']['validate_proof_source'](proof, PROBE['PROOFS'][:-1])
+        phantom = (PROBE['DATA'] / 'PhantomProof.lean').read_text()
+        PROBE['PARAMETERS']['validate_proof_source'](phantom, PROBE['PHANTOM_PROOFS'])
+        with self.assertRaises(RuntimeError):
+            PROBE['PARAMETERS']['validate_proof_source'](phantom, PROBE['PHANTOM_PROOFS'][:-1])
+
+    def test_native_phantom_output(self):
+        raw = ('import Aeneas\nset_option maxHeartbeats 200000\nset_option maxRecDepth 1000\n' +
+               ''.join('def ' + name + ' := ()\n' for name in PROBE['PHANTOM_FUNCTIONS']) + 'end hasteboots_phantom\n')
+        self.assertEqual(PROBE['validate_phantom'](raw), raw.replace('import Aeneas\n', ''))
+        for bad in [raw.replace('def phantom_clone', 'axiom phantom_clone'),
+                    raw.replace('200000', '1000000'), raw.replace('1000\n', '2048\n'),
+                    raw.replace('end hasteboots_phantom', '')]:
+            with self.assertRaises(RuntimeError): PROBE['validate_phantom'](bad)
 
     def test_patch_keeps_full_read_checks(self):
         patch = (PROBE['DATA'] / 'frontend.patch').read_text()

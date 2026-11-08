@@ -14,6 +14,8 @@ PARAMETERS, COMMON, BUILD = BASE['PARAMETERS'], BASE['COMMON'], BASE['BUILD']
 DATA = ROOT / 'interop/aeneas/discriminants'
 NS = 'hasteboots_discriminants'
 PROOFS = ['process_exact', 'process_success', 'process_error']
+PHANTOM_FUNCTIONS = ['core.marker.PhantomData', 'core.marker.PhantomData.Insts.CoreCloneClone.clone', 'phantom_clone']
+PHANTOM_PROOFS = ['clone_exact', 'wrapper_exact', 'carrier_singleton']
 
 
 def validate_output(raw):
@@ -32,6 +34,20 @@ def validate_output(raw):
 
 def baseline_rejected(code, log):
     return code != 0 and 'There should be no bottoms in the value' in log and 'interp/InterpExpressions.ml' in log
+
+
+def validate_phantom(raw):
+    if raw.count('import Aeneas\n') != 1 or not raw.rstrip().endswith('end hasteboots_phantom'):
+        raise RuntimeError('Incomplete native PhantomData output')
+    if re.search(r'\b(axiom|opaque|constant|sorry|sorryAx|native_decide|unsafe)\b|decide\s*\+native', raw):
+        raise RuntimeError('Admitted native PhantomData declaration')
+    if re.findall(r'^set_option (maxHeartbeats|maxRecDepth) ([0-9]+)$', raw, re.M) != [
+            ('maxHeartbeats', '200000'), ('maxRecDepth', '1000')]:
+        raise RuntimeError('Unexpected PhantomData proof limits')
+    for name in PHANTOM_FUNCTIONS:
+        if not re.search(r'^def\s+' + re.escape(name) + r'\s', raw, re.M):
+            raise RuntimeError('Missing native PhantomData declaration: ' + name)
+    return raw.replace('import Aeneas\n', '')
 
 
 def main():
@@ -72,7 +88,8 @@ def main():
                       frontend_sha256=receipt['executable_sha256'])
         frontend = Path(receipt['executable'])
         record['inputs'] = {name: BASE['digest']((DATA / name).read_bytes()) for name in
-                            ['fixture.rs', 'Generated.lean', 'Proof.lean', 'frontend.patch']}
+                            ['fixture.rs', 'Generated.lean', 'Proof.lean', 'frontend.patch',
+                             'phantom.rs', 'PhantomGenerated.lean', 'PhantomProof.lean']}
         llbc = out / 'discriminants.llbc'
         run([tools / 'charon', 'rustc', '--preset=aeneas', '--mir', 'optimized', '--dest-file', llbc,
              '--', '--crate-type', 'lib', '--edition=2024', '--crate-name', NS,
@@ -99,11 +116,35 @@ def main():
         PARAMETERS['verify_snapshot'](raw, (DATA / 'Generated.lean').read_text())
         proof = (DATA / 'Proof.lean').read_text(); PARAMETERS['validate_proof_source'](proof, PROOFS)
         new_names = [NS + '.process'] + ['HasteBootsDiscriminantProof.' + n for n in PROOFS]
+        phantom_ir = out / 'phantom.llbc'
+        run([tools / 'charon', 'rustc', '--preset=aeneas', '--mir', 'optimized', '--include', 'core::marker',
+             '--dest-file', phantom_ir, '--', '--crate-type', 'lib', '--edition=2024',
+             '--crate-name', 'hasteboots_phantom', (DATA / 'phantom.rs').relative_to(ROOT)], 'phantom-charon.log')
+        phantom = json.loads(phantom_ir.read_text())
+        if phantom.get('has_errors') is not False or phantom['translated']['target_information'] != ir['translated']['target_information']:
+            raise RuntimeError('Incomplete or wrong-target PhantomData IR')
+        native_clones = [f for f in phantom['translated']['fun_decls'] if f and
+                        [n['Ident'][0] for n in f['item_meta']['name'] if 'Ident' in n] == ['core', 'marker', 'clone']]
+        if len(native_clones) != 1 or not isinstance(native_clones[0]['body'], dict) or 'Structured' not in native_clones[0]['body']:
+            raise RuntimeError('Native PhantomData clone body is missing or opaque')
+        run([frontend, *options, '-dest', out / 'phantom', phantom_ir], 'phantom-aeneas.log')
+        if re.search(r'Uncaught exception|\[Error\]', BASE['BASE']['BASE']['clear_colors']((out / 'phantom-aeneas.log').read_text())):
+            raise RuntimeError('PhantomData frontend reported errors despite exit status')
+        phantom_raw = (out / 'phantom/Phantom.lean').read_text()
+        phantom_runtime = validate_phantom(phantom_raw)
+        PARAMETERS['verify_snapshot'](phantom_raw, (DATA / 'PhantomGenerated.lean').read_text())
+        phantom_proof = (DATA / 'PhantomProof.lean').read_text()
+        PARAMETERS['validate_proof_source'](phantom_proof, PHANTOM_PROOFS)
+        new_names += ['hasteboots_phantom.' + name for name in PHANTOM_FUNCTIONS]
+        new_names += ['HasteBootsPhantomProof.' + name for name in PHANTOM_PROOFS]
         names = list(parent['dependency_audit']) + new_names
         checked = out / 'Checked.lean'
         checked.write_text((preflight / 'Checked.lean').read_text() + '\n' + runtime + '\n' + proof +
+                           '\n' + phantom_runtime + '\n' + phantom_proof +
                            ''.join('\n#print axioms ' + n + '\n' for n in new_names))
         record.update(generated_sha256=BASE['digest'](raw.encode()), checked_sha256=BASE['digest'](checked.read_bytes()))
+        record.update(phantom_llbc_sha256=BASE['digest'](phantom_ir.read_bytes()),
+                      phantom_generated_sha256=BASE['digest'](phantom_raw.encode()))
         run([ROOT / 'scripts/in-container', 'bash', '-euc', 'cd -- "$1"; lake env lean -DwarningAsError=true "$2"', '_',
              COMMON['container_path'](backend / 'backends/lean'), COMMON['container_path'](checked)], 'lean.log')
         record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), names)

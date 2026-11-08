@@ -21,9 +21,16 @@ match with the bottom-value error. The reviewed profile translates the same IR
 without rewriting it. `Generated.lean` is an exact reviewed snapshot.
 
 Three kernel theorems establish exact successful output, exact error payload
-and their combined case distinction. The gate first rechecks the five earlier
-trait/effect dependency audits on this frontend, then checks nine combined
-audits. Only propext, Classical.choice and Quot.sound are permitted. Source,
+and their combined case distinction. A second fixture retains the original
+`core::marker::PhantomData` clone body. Three further theorems establish exact
+native clone/wrapper results and the singleton carrier, for arbitrary element
+types. This removes the opaque clone callback from the native integer probe.
+
+The gate first rechecks the five earlier trait/effect dependency audits on this
+frontend, then checks fifteen combined audits: nine from cleanup handling plus
+the native PhantomData carrier, clone, wrapper and three theorems. Both complete
+generated snapshots are checked. Only propext, Classical.choice and Quot.sound
+are permitted. Source,
 package, executable, tool, prepared backend, input, output and proof hashes are
 checked or recorded. Proof limits remain 200000/1000.
 
@@ -46,9 +53,9 @@ Lean backend file or native HasteBoots source changes.
 
 This is a compiler regression gate. It does not prove compiler correctness,
 destructor effects or physical work. The separately reproducible `word` mode in
-`probe-hasteboots-code-serialization` now translates all 31 transparent native
-Bincode integer-encoding functions, but its generated output still contains
-external axioms for standard-library types and a PhantomData clone. That output
+`probe-hasteboots-code-serialization` now translates all 32 transparent native
+Bincode integer-encoding functions, including the retained clone. Its generated
+output still contains three external axioms for standard-library error types. That output
 is not an accepted byte refinement. Actual Serde's recursive
 interface, specialization lifetimes, constructor/NTT support, heap refinement
 and complete application security remain open.
