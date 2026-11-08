@@ -2576,3 +2576,147 @@ index 00000000..2f857bd3
 +//@ charon-args=--include alloc::vec --include alloc::raw_vec
 +// Keep the concrete allocator call when exposing byte-vector cleanup.
 +pub fn release(_buffer: Vec<u8>) {}
+diff --git a/charon/tests/ui/runtime-checks-off.out b/charon/tests/ui/runtime-checks-off.out
+new file mode 100644
+index 00000000..dd61d7b5
+--- /dev/null
++++ b/charon/tests/ui/runtime-checks-off.out
+@@ -0,0 +1,30 @@
++# Final LLBC before serialization:
++
++// Full name: test_crate::checks
++pub fn checks() -> (bool, bool)
++{
++    let _0: (bool, bool); // return
++    let _1: bool; // anonymous local
++    let _2: bool; // anonymous local
++    let _3: bool; // anonymous local
++    let _4: bool; // anonymous local
++
++    storage_live(_0)
++    storage_live(_1)
++    storage_live(_3)
++    _3 = ub_checks<bool>
++    _1 = move _3
++    storage_live(_2)
++    storage_live(_4)
++    _4 = overflow_checks<bool>
++    _2 = move _4
++    _0 = (move _1, move _2)
++    storage_dead(_2)
++    storage_dead(_1)
++    storage_dead(_4)
++    storage_dead(_3)
++    return
++}
++
++
++
+diff --git a/charon/tests/ui/runtime-checks-off.rs b/charon/tests/ui/runtime-checks-off.rs
+new file mode 100644
+index 00000000..e3f3a7e9
+--- /dev/null
++++ b/charon/tests/ui/runtime-checks-off.rs
+@@ -0,0 +1,6 @@
++//@ charon-args=--mir optimized
++//@ rustc-args=-C debug-assertions=no
++#![feature(core_intrinsics)]
++pub fn checks() -> (bool, bool) {
++    (core::intrinsics::ub_checks(), core::intrinsics::overflow_checks())
++}
+diff --git a/charon/tests/ui/runtime-checks-on.out b/charon/tests/ui/runtime-checks-on.out
+new file mode 100644
+index 00000000..dd61d7b5
+--- /dev/null
++++ b/charon/tests/ui/runtime-checks-on.out
+@@ -0,0 +1,30 @@
++# Final LLBC before serialization:
++
++// Full name: test_crate::checks
++pub fn checks() -> (bool, bool)
++{
++    let _0: (bool, bool); // return
++    let _1: bool; // anonymous local
++    let _2: bool; // anonymous local
++    let _3: bool; // anonymous local
++    let _4: bool; // anonymous local
++
++    storage_live(_0)
++    storage_live(_1)
++    storage_live(_3)
++    _3 = ub_checks<bool>
++    _1 = move _3
++    storage_live(_2)
++    storage_live(_4)
++    _4 = overflow_checks<bool>
++    _2 = move _4
++    _0 = (move _1, move _2)
++    storage_dead(_2)
++    storage_dead(_1)
++    storage_dead(_4)
++    storage_dead(_3)
++    return
++}
++
++
++
+diff --git a/charon/tests/ui/runtime-checks-on.rs b/charon/tests/ui/runtime-checks-on.rs
+new file mode 100644
+index 00000000..db210e92
+--- /dev/null
++++ b/charon/tests/ui/runtime-checks-on.rs
+@@ -0,0 +1,6 @@
++//@ charon-args=--mir optimized
++//@ rustc-args=-C debug-assertions=yes
++#![feature(core_intrinsics)]
++pub fn checks() -> (bool, bool) {
++    (core::intrinsics::ub_checks(), core::intrinsics::overflow_checks())
++}
+diff --git a/charon/tests/ui/runtime-checks-override.out b/charon/tests/ui/runtime-checks-override.out
+new file mode 100644
+index 00000000..dd61d7b5
+--- /dev/null
++++ b/charon/tests/ui/runtime-checks-override.out
+@@ -0,0 +1,30 @@
++# Final LLBC before serialization:
++
++// Full name: test_crate::checks
++pub fn checks() -> (bool, bool)
++{
++    let _0: (bool, bool); // return
++    let _1: bool; // anonymous local
++    let _2: bool; // anonymous local
++    let _3: bool; // anonymous local
++    let _4: bool; // anonymous local
++
++    storage_live(_0)
++    storage_live(_1)
++    storage_live(_3)
++    _3 = ub_checks<bool>
++    _1 = move _3
++    storage_live(_2)
++    storage_live(_4)
++    _4 = overflow_checks<bool>
++    _2 = move _4
++    _0 = (move _1, move _2)
++    storage_dead(_2)
++    storage_dead(_1)
++    storage_dead(_4)
++    storage_dead(_3)
++    return
++}
++
++
++
+diff --git a/charon/tests/ui/runtime-checks-override.rs b/charon/tests/ui/runtime-checks-override.rs
+new file mode 100644
+index 00000000..0aa67ea8
+--- /dev/null
++++ b/charon/tests/ui/runtime-checks-override.rs
+@@ -0,0 +1,6 @@
++//@ charon-args=--mir optimized
++//@ rustc-args=-C debug-assertions=yes -Z ub-checks=no -C overflow-checks=no -Z contract-checks=yes
++#![feature(core_intrinsics)]
++pub fn checks() -> (bool, bool) {
++    (core::intrinsics::ub_checks(), core::intrinsics::overflow_checks())
++}
