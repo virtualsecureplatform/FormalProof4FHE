@@ -7,45 +7,46 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
-## Non-null pointer patterns and original as_ptr now check
+## Original pointer-parts construction now checks
 
-The checked word64 `-provenance-pointers` profile represents `*const T is !null`
-and `*mut T is !null` as raw-pointer subtypes with a nonzero data address.
-Construction checks that address and rejects zero as undefined; outward conversion
-erases only the proof. Metadata does not substitute for the data address, and a
-nonzero address grants no heap, allocation, alignment or borrow permission.
+The checked word64 `-provenance-pointers` profile now translates the original
+`PtrFromParts` builtins used by stdlib `from_raw_parts`/`from_raw_parts_mut`.
+Construction preserves the data pointer's address/provenance and sets exactly
+unit or length metadata. Null, unaligned and empty-slice construction is allowed;
+this grants no heap, allocation, alignment, borrow or dereference permission.
 
-The original ordinary-sysroot `NonNull<u8>` declaration and `as_ptr` body now
-translate. The outward thin-carrier transmute requires a closed single-field
-wrapper and matching target layout, size/alignment, transparent representation,
-zero offset, inhabited variant, sole discriminator and absence of tags/alignment
-modifiers. All pointer fields survive the proof erasure and raw mutability cast.
-Eighteen source theorems and four runtime theorems cover exact all-input behavior,
-zero/nonzero cases, field preservation and roundtrip. The new gate passes 44
-dependency audits and rejects 18 unsupported target/profile/layout/operation cases.
-See `interop/aeneas/nonnull-pointers/README.md`.
+A compiler prepass checks the original one-pointee/two-operand call, erased region,
+destination pointee/mutability, thin data pointer and metadata kind. It elaborates
+concrete data/metadata types for the existing interpreter; extraction selects a
+concrete runtime operation. Unknown/inherited/vtable metadata remains unsupported.
+No replacement body, free callback or source heap certificate is introduced.
+Twenty-two source theorems cover six original stdlib bodies and seven callers,
+all-input field preservation, boundary values and closed-struct pointees. Eight
+runtime theorems include exact 64-bit length conversion and roundtrip. The new
+gate passes 57 dependency audits and rejects 16 incompatible cases.
+See `interop/aeneas/pointer-parts/README.md`.
 
-All earlier paired gates pass against the new frozen tool pair, for 336 source/model
-dependency audits. The separate 21-audit legacy boundary gate also passes. All 182
+All earlier paired gates pass against the frozen tool pair, for 393 source/model
+dependency audits. The separate 21-audit legacy boundary gate also passes. All 187
 guard tests pass; upstream regeneration completes 97 targets and retains all 128
-artifacts byte-for-byte, with only the known dyn.rs lifetime rejection.
+artifacts byte-for-byte, with the same known dyn.rs lifetime rejection.
 
-The shared Init-only address/provenance/metadata representation and its four
-logical-storage bridge laws remain intact. The earlier pointer gate still checks
-51 source/runtime/model audits and five storage audits. It now tests NonNull
-rejection without the provenance profile; slice-to-thin casts remain unsupported.
-These are logical storage laws, not Rust dereferences. The full repository check
-passed at the preceding milestone; this step changes no root Lean module,
-production Rust or Lean backend and adds no axiom or raised proof limit.
+The preceding shared address/provenance/metadata representation, four logical
+storage bridge laws and checked NonNull/as_ptr extraction remain intact.
+The full repository check passed at the earlier pointer milestone; this step
+changes no root Lean module, production Rust or Lean backend and adds no axiom
+or raised proof limit. These checks do not establish Rust pointer source encoding,
+actual memory layout, caller validity or compiler correctness.
 
 The native constructor retains 52 original functions and passes the former
-NonNull obstacle. It now stops at unsupported `PtrFromParts Mut`; there is still
-no accepted native constructor. Next work is faithful pointer-parts/metadata
-operations, then allocator/layout/deallocation and the residual naming collision.
+pointer-parts obstacle. It now rejects an actual raw-pointer dereference in
+stdlib `drop_in_place` reached by the original vector destructor. There is still
+no accepted native constructor. Next work must relate actual allocation,
+initialization, pointer validity/aliasing, reads/writes and deallocation to the
+model. A successful replacement callback or no-op drop would not close this gap.
 Production compiler/caller/heap and NTT/SIMD/scheduler refinement, causal lifetime
 oracle/owner accounting, BabyBear and the final 128-bit expected physical-work
-security theorem remain open. No pointer is replaced by a successful callback or
-counted as a physical work floor. The full objective remains unchanged.
+security theorem remain open. The full objective is unchanged.
 
 ## Ordinary residual conversion now handles structurally empty alternatives
 

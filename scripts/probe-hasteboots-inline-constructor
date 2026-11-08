@@ -196,6 +196,10 @@ def main():
             PARAMETERS['validate_proof_source'](nonnull_support, ['check_nonnull_valid', 'check_nonnull_zero', 'check_nonnull_ok_iff', 'check_nonnull_roundtrip'])
             record['nonnull_runtime_sha256'] = digest(nonnull_support.encode())
             support += '\n' + nonnull_support
+            parts_support = (ROOT / 'interop/aeneas/pointer-parts/Runtime.lean').read_text()
+            PARAMETERS['validate_proof_source'](parts_support, ['thin_const_storage', 'thin_mut_storage', 'slice_const_storage', 'slice_mut_storage', 'slice_const_metadata', 'slice_mut_metadata', 'length_address_value', 'length_roundtrip'])
+            record['pointer_parts_runtime_sha256'] = digest(parts_support.encode())
+            support += '\n' + parts_support
             module = module.replace('import Aeneas.Std\n', 'import Aeneas.Std\n' + core_import, 1)
             marker = 'open Aeneas Aeneas.Std Result ControlFlow Error\n'
             module = module.replace(marker, support.replace('import Aeneas.Std\n', '').replace(core_import, '') + '\n' + marker, 1)

@@ -42,7 +42,9 @@ scripts/check-hasteboots-nonnull-pointers \
 ```
 
 The original native constructor now passes this former NonNull obstacle and
-stops at the unsupported `PtrFromParts Mut` builtin. Its 52 retained functions,
+initially stopped at `PtrFromParts Mut`. The next milestone in
+`../pointer-parts/README.md` handles that operation and reaches a raw-pointer
+dereference. Its 52 retained functions,
 ordinary standard library, precise drop handling and original pointer carriers
 are preserved; it is still not an accepted native constructor. Pointer parts and
 metadata operations, allocator/layout/deallocation, source encoding/caller/heap,
