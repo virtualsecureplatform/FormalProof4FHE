@@ -7,6 +7,38 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## The original finite allocator caller now reads nominal aggregate fields
+
+`NativeRecordValues` and `NativeRecordLLBC` add typed nominal aggregates, enum
+values, checked field paths, partial moves and finite structured calls over the
+same byte/reference heap. Moved fields become holes; siblings remain readable
+and incomplete aggregates cannot be copied. Aggregate retags run in field order
+and preserve a failed machine prefix. Six value theorems and thirteen interpreter
+theorems establish selection/move laws, framing, machine-run projection and
+invocation reachability. Twenty model regressions exercise these operations.
+
+The [allocator caller profile](../interop/aeneas/allocator-caller/README.md)
+interprets every original statement of sysroot `alloc::alloc::dealloc`, including
+`Layout.size`/`align` projections, pointer conversion, retags, the retained guard,
+regular call, unwind and suffix. Ten source theorems establish decoding, entry,
+computed success/failure, invocation success and removal of one allocation for
+every normal caller return. Eight regressions exercise real successful invocation
+and rejected layouts, active loans, double frees and address-only pointers.
+The foreign precondition body remains unavailable and explicitly unsupported if
+selected; the external deallocation leaf remains a checked logical specification.
+
+Nominal aggregates here are logical locals. Native aggregate byte layout and ABI
+correspondence remain unproved. The allocator trait caller, `RawVec` and outer
+`Vec` destructor, lifetime/compiler correspondence, physical work and the final
+security theorem remain open. This profile does not accept the whole native
+constructor or supply an implementation of an unavailable foreign function.
+
+The caller gate passed 139 declaration audits and 31 rejecting controls, plus
+kernel checks for both a retag change and enabling the retained foreign guard.
+The same-tool deallocation parent passed its 77 audits and 19 rejecting controls.
+The repository-wide `scripts/check` passed, including the 10,992-job build and
+all standard audit/smoke checks.
+
 ## Typed deallocation now changes the actual modeled heap
 
 `NativeByteDeallocation` resolves the actual complete pointer from the pointer

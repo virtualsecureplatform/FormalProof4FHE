@@ -51,3 +51,8 @@ allocator caller bodies and their dynamic branches, the outer `Vec` destructor,
 Rust lifetimes, compiler correctness and physical work remain open. The native
 constructor and final protocol security/expected-work theorem are not accepted
 by this profile.
+
+The separate [allocator caller profile](../allocator-caller/README.md) now
+interprets the original public `alloc::alloc::dealloc` body over nominal logical
+aggregate locals. Its byte-layout/ABI correspondence and the allocator trait
+caller remain open.
