@@ -1,0 +1,97 @@
+#!/usr/bin/env python3
+"""Specify a checked deallocation boundary from a retained external declaration.
+
+This does not translate a Rust body or prove the external ABI/allocator contract.
+"""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import runpy
+
+ROOT = Path(__file__).resolve().parent.parent
+BASE = runpy.run_path(str(ROOT / 'scripts/reify-hasteboots-slice-reference-llbc'))
+require = BASE['require']
+empty = BASE['empty_generics']
+
+
+def digest(value): return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+def name(item): return '::'.join(x['Ident'][0] for x in item['item_meta']['name'] if 'Ident' in x)
+def adt(index): return {'Untagged': {'Adt': {'id': {'Adt': index}, 'generics': {'regions': [], 'types': [], 'const_generics': [], 'trait_refs': []}}}}
+USIZE = {'Untagged': {'Literal': {'UInt': 'Usize'}}}
+UNIT = {'Untagged': {'Adt': {'id': 'Tuple', 'generics': {'regions': [], 'types': [], 'const_generics': [], 'trait_refs': []}}}}
+
+
+class Boundary:
+    def __init__(self, ir):
+        source = BASE['Reifier'](ir)
+        self.crate = c = source.crate
+        functions = [f for f in c['fun_decls'] if f]
+        matches = [f for f in functions if name(f) == 'alloc::alloc::__rust_dealloc']
+        require(len(matches) == 1, 'Missing/duplicate original external declaration')
+        self.function = f = matches[0]
+        require(f['item_meta']['opacity'] == 'Opaque' and not f['item_meta']['is_local'] and
+                f['body'] == {'Extern': '__rust_dealloc'}, 'Changed external classification/linkage')
+        require(empty(f['generics']) and f['is_global_initializer'] is None, 'Unclosed external declaration')
+        types = {t['def_id']: t for t in c['type_decls'] if t}
+        sig = f['signature']
+        require(set(sig) == {'is_unsafe', 'abi', 'is_variadic', 'inputs', 'output'} and
+                sig['is_unsafe'] is True and sig['abi'] == 'Rust' and sig['is_variadic'] is False and
+                sig['output'] == UNIT and len(sig['inputs']) == 3 and sig['inputs'][1] == USIZE,
+                'Changed external signature')
+        def type_of(value, expected, classification="Transparent"):
+            index = value['Untagged']['Adt']['id']['Adt']
+            require(value == adt(index), 'Unclosed external argument type')
+            t = types[index]
+            require(name(t) == expected and empty(t['generics']) and t['item_meta']['opacity'] == classification,
+                    'Changed retained wrapper type')
+            return t
+        self.nonnull = n = type_of(sig['inputs'][0], 'core::ptr::non_null::NonNull')
+        fields = n['kind']['Struct']
+        require(len(fields) == 1 and fields[0]['name'] == 'pointer' and fields[0]['ty'] ==
+                {'Untagged': {'Pattern': [{'Untagged': {'RawPtr': [{'Untagged': {'Literal': {'UInt': 'U8'}}}, 'Shared']}}, 'NotNull']}},
+                'Changed nonnull byte-pointer wrapper')
+        self.alignment = a = type_of(sig['inputs'][2], 'core::mem::alignment::Alignment')
+        fields = a['kind']['Struct']
+        require(len(fields) == 1 and fields[0]['name'] == '_inner_repr_trick', 'Changed alignment wrapper')
+        self.enum = e = type_of(fields[0]['ty'], 'core::mem::alignment::AlignmentEnum', 'Foreign')
+        variants = e['kind']['Enum']
+        require(len(variants) == 64, 'Changed target alignment count')
+        self.alignments = []
+        for i, variant in enumerate(variants):
+            require(set(variant) == {'id', 'span', 'attr_info', 'name', 'fields', 'discriminant'} and
+                    variant['id'] == i and variant['name'] == '_Align1Shl' + str(i) and variant['fields'] == [] and
+                    variant['discriminant'] == {'Scalar': {'Unsigned': ['Usize', str(2 ** i)]}},
+                    'Changed original alignment discriminants')
+            self.alignments.append(2 ** i)
+
+    def retained(self):
+        return {'function': self.function, 'nonnull': self.nonnull, 'alignment': self.alignment, 'alignment_enum': self.enum,
+                'functions': [f for f in self.crate['fun_decls'] if f], 'types': [t for t in self.crate['type_decls'] if t],
+                'claim': 'retained external declaration and checked logical deallocation specification; ABI/allocator/native refinement unproved'}
+
+    def render(self):
+        return '\n'.join([
+            'module', 'public import FormalProof4FHE.HasteBoots.NativeByteDropCalls', '@[expose] public section', '',
+            '-- Checked logical boundary specification, not a translation of an external body.',
+            '-- Original external declaration SHA256 ' + digest(self.function),
+            'namespace HasteBootsByteDeallocationBoundary',
+            'open FormalProof4FHE.HasteBoots.NativeByteDropCalls', '',
+            'def sourceSymbol : String := "__rust_dealloc"',
+            'def sourceClass : Classification := .externalBody',
+            'def alignmentValues : List Nat := [' + ', '.join(map(str, self.alignments)) + ']',
+            'def boundary : Definition :=',
+            '  ⟨sourceSymbol, sourceClass, [.unit,.raw false,.usize,.usize], 3,',
+            '    .deallocate [.move 1,.move 2,.move 3]⟩', '',
+            'end HasteBootsByteDeallocationBoundary', ''])
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('llbc', type=Path); parser.add_argument('output', type=Path)
+    parser.add_argument('--retained', type=Path, required=True); args = parser.parse_args()
+    b = Boundary(json.loads(args.llbc.read_text()))
+    args.output.write_text(b.render()); args.retained.write_text(json.dumps(b.retained(), indent=2) + '\n')
+
+
+if __name__ == '__main__': main()

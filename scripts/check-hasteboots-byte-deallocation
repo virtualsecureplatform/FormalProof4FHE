@@ -1,0 +1,133 @@
+#!/usr/bin/env python3
+"""Check real heap deallocation and retain its original external declaration; ABI refinement open."""
+import argparse
+import copy
+import hashlib
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+DATA = ROOT / 'interop/aeneas/byte-deallocation'
+BUILD = runpy.run_path(str(ROOT / 'scripts/build-hasteboots-inline-tools'))
+PARAMETERS = runpy.run_path(str(ROOT / 'scripts/extract-hasteboots-parameters'))
+SPEC = runpy.run_path(str(ROOT / 'scripts/specify-hasteboots-deallocation-boundary'))
+PARENT = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-byte-drop-calls'))
+INCLUDES = ['alloc::alloc::dealloc', 'core::alloc::layout::Layout', 'core::ptr::non_null::NonNull',
+            'core::mem::alignment::Alignment', 'core::alloc::layout::from_size_align_unchecked']
+
+
+def digest(raw): return hashlib.sha256(raw).hexdigest()
+
+
+def negatives(ir):
+    records = {}
+    def check(name, mutate):
+        changed = copy.deepcopy(ir); mutate(changed['translated'])
+        try: SPEC['Boundary'](changed).render()
+        except (ValueError, KeyError, TypeError, IndexError) as error: records[name] = str(error)
+        else: raise RuntimeError('Negative accepted: ' + name)
+    def f(c): return next(f for f in c['fun_decls'] if f and SPEC['name'](f) == 'alloc::alloc::__rust_dealloc')
+    def t(c, name): return next(t for t in c['type_decls'] if t and SPEC['name'](t) == name)
+    def enum(c): return t(c, 'core::mem::alignment::AlignmentEnum')
+    def nonnull(c): return next(t for t in c['type_decls'] if t and SPEC['name'](t) == 'core::ptr::non_null::NonNull' and SPEC['empty'](t['generics']))
+    check('changed_external_symbol', lambda c: f(c).update(body={'Extern': 'other_dealloc'}))
+    check('changed_external_classification', lambda c: f(c)['item_meta'].update(opacity='Transparent'))
+    check('changed_external_abi', lambda c: f(c)['signature'].update(abi='C'))
+    check('variadic_external', lambda c: f(c)['signature'].update(is_variadic=True))
+    check('extra_external_argument', lambda c: f(c)['signature']['inputs'].append(copy.deepcopy(SPEC['USIZE'])))
+    check('wrong_size_type', lambda c: f(c)['signature']['inputs'].__setitem__(1, {'Untagged': {'Literal': {'UInt': 'U64'}}}))
+    check('unclosed_external_region', lambda c: f(c)['generics'].update(regions=[{'index': 0, 'name': None, 'mutability': None}]))
+    check('nullable_pointer_wrapper', lambda c: nonnull(c)['kind']['Struct'][0]['ty']['Untagged']['Pattern'].__setitem__(1, 'Any'))
+    check('extra_pointer_field', lambda c: nonnull(c)['kind']['Struct'].append(copy.deepcopy(nonnull(c)['kind']['Struct'][0])))
+    check('missing_alignment_wrapper', lambda c: t(c, 'core::mem::alignment::Alignment').update(kind='Opaque'))
+    check('changed_enum_classification', lambda c: enum(c)['item_meta'].update(opacity='Transparent'))
+    check('non_power_two_alignment', lambda c: enum(c)['kind']['Enum'][1].update(discriminant={'Scalar': {'Unsigned': ['Usize', '3']}}))
+    check('missing_alignment_variant', lambda c: enum(c)['kind']['Enum'].pop())
+    check('duplicate_alignment_variant', lambda c: enum(c)['kind']['Enum'][1].update(id=0))
+    check('alignment_variant_payload', lambda c: enum(c)['kind']['Enum'][0].update(fields=[{}]))
+    check('unknown_alignment_variant_effect', lambda c: enum(c)['kind']['Enum'][0].update(hidden_effect='Drop'))
+    check('allocator_erasure', lambda c: c['options'].update(preserve_allocator=False))
+    check('inline_rewrite', lambda c: c['options'].update(inline_functions=['alloc::alloc::__rust_dealloc']))
+    check('wrong_pointer_width', lambda c: c['target_information'][0]['value'].update(target_pointer_size=4))
+    return records
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--build-receipt', type=Path, required=True); args = parser.parse_args()
+    out = Path(tempfile.mkdtemp(prefix='byte-deallocation-', dir=ROOT / 'build/hasteboots-extraction'))
+    record = {'status': 'started', 'commands': [],
+              'claim': 'closed checked deallocation over real modeled bytes; original external declaration retained; ABI/allocator/native security refinement unproved',
+              'deallocation_removes_live_allocation': True, 'original_external_declaration_retained': True,
+              'external_boundary_specification': True, 'external_rust_body_translated': False,
+              'native_deallocation_refinement': False, 'allocator_wrapper_interpreted': False,
+              'native_constructor_accepted': False, 'physical_work_refinement': False}
+    def save(): (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
+    def run(command, log):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out / log).open('w') as stream:
+            result = subprocess.run([str(x) for x in command], cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT)
+        if result.returncode: raise RuntimeError('Command failed: ' + log)
+    print('Byte deallocation artifacts: ' + str(out), flush=True)
+    try:
+        _, tools, _ = BUILD['verify_receipt'](args.build_receipt)
+        record['build_receipt_sha256'] = digest(args.build_receipt.read_bytes())
+        files = [Path(__file__), ROOT / 'scripts/specify-hasteboots-deallocation-boundary',
+                 ROOT / 'scripts/reify-hasteboots-slice-reference-llbc', ROOT / 'scripts/reify-hasteboots-scalar-llbc',
+                 ROOT / 'scripts/check-hasteboots-byte-drop-calls', ROOT / 'lean-toolchain',
+                 ROOT / 'FormalProof4FHE/HasteBoots/NativeByteDeallocation.lean',
+                 ROOT / 'FormalProof4FHE/HasteBoots/NativeByteDropCalls.lean',
+                 ROOT / 'FormalProof4FHETest/HasteBootsByteDeallocationSmoke.lean',
+                 ROOT / 'FormalProof4FHETest/HasteBootsByteDeallocationAudit.lean',
+                 ROOT / 'FormalProof4FHETest/HasteBootsByteDropCallsAudit.lean',
+                 *[DATA / n for n in ['fixture.rs', 'Boundary.lean', 'Retained.json', 'Proof.lean', 'Smoke.lean']]]
+        record['inputs'] = {str(p.relative_to(ROOT)): digest(p.read_bytes()) for p in files}
+        run([ROOT / 'scripts/in-container', 'lake', 'build', 'FormalProof4FHETest.HasteBootsByteDeallocationSmoke',
+             'FormalProof4FHETest.HasteBootsByteDeallocationAudit'], 'root-build.log')
+        run([ROOT / 'scripts/check-hasteboots-byte-drop-calls', '--build-receipt', args.build_receipt], 'parent-byte-drop-calls.log')
+        parent_path = Path((out / 'parent-byte-drop-calls.log').read_text().splitlines()[0].split(': ', 1)[1]) / 'manifest.json'
+        parent = json.loads(parent_path.read_text())
+        if parent.get('status') != 'passed' or parent['build_receipt_sha256'] != record['build_receipt_sha256']:
+            raise RuntimeError('Parent did not pass with the same tools')
+        record['parent_byte_drop_calls'] = {'manifest': str(parent_path.relative_to(ROOT)),
+                                          'manifest_sha256': digest(parent_path.read_bytes()),
+                                          'dependency_audit_count': len(parent['dependency_audit'])}
+        llbc = out / 'source.llbc'
+        command = [tools / 'charon', 'rustc', '--preset=aeneas', '--sysroot', 'default', '--monomorphize', '--mir', 'optimized',
+                   '--consts', 'values', '--evaluate-runtime-checks', '--precise-drops', '--desugar-drops',
+                   '--preserve-allocator', '--no-dedup-serialized-ast']
+        for include in INCLUDES: command += ['--include', include]
+        command += ['--dest-file', llbc, '--', '--crate-type', 'lib', '--edition', '2024', '-Cdebug-assertions=no',
+                    '--crate-name', 'hasteboots_byte_deallocation', (DATA / 'fixture.rs').relative_to(ROOT)]
+        run(command, 'charon.log')
+        ir = json.loads(llbc.read_text()); b = SPEC['Boundary'](ir); generated = b.render()
+        if generated != (DATA / 'Boundary.lean').read_text() or b.retained() != json.loads((DATA / 'Retained.json').read_text()):
+            raise RuntimeError('Retained original external/type declarations or specification differ')
+        record['negative_controls'] = negatives(ir)
+        names = PARENT['inventory']() + ['HasteBootsByteDeallocationBoundary.' + n
+            for n in re.findall(r'^def (\w+)', generated, re.M)]
+        proof = (DATA / 'Proof.lean').read_text()
+        PARAMETERS['validate_proof_source'](proof, re.findall(r'^theorem (\w+)', proof, re.M))
+        names += ['HasteBootsByteDeallocationBoundary.' + n for n in re.findall(r'^(?:def|theorem) (\w+)', proof, re.M)]
+        checked = out / 'Checked.lean'
+        checked.write_text(generated + '\n' + proof + '\n' + (DATA / 'Smoke.lean').read_text() +
+                           ''.join('\n#print axioms ' + n + '\n' for n in names))
+        run([ROOT / 'scripts/in-container', 'lake', 'env', 'lean', '-DwarningAsError=true', checked.relative_to(ROOT)], 'lean.log')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), names)
+        record['llbc_sha256'] = digest(llbc.read_bytes()); record['checked_sha256'] = digest(checked.read_bytes())
+        if record['inputs'] != {str(p.relative_to(ROOT)): digest(p.read_bytes()) for p in files}:
+            raise RuntimeError('Inputs changed during validation')
+        BUILD['verify_receipt'](args.build_receipt); record['status'] = 'passed'
+        print('Byte deallocation passed: ' + str(len(names)) + ' audits; ' + str(len(record['negative_controls'])) +
+              ' rejecting controls; checked heap effect specified, native external refinement open')
+    except Exception as error:
+        record.update(status='failed', error=str(error)); raise SystemExit(str(error) + '; inspect ' + str(out)) from error
+    finally:
+        record['logs'] = {p.name: digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__': main()
