@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parent.parent
 PARAMETERS = runpy.run_path(str(ROOT / 'scripts/extract-hasteboots-parameters'))
 COMMON = PARAMETERS['COMMON']
 MODEL = ROOT / 'FormalProof4FHE/HasteBoots/NativePointerStorage.lean'
+REPRESENTATION = ROOT / 'FormalProof4FHE/HasteBoots/NativePointerRepresentation.lean'
 DATA = ROOT / 'interop/aeneas/pointer-storage'
 MODEL_PROOFS = ['readdress_provenance', 'readdress_original', 'pointer_fields', 'cell_nonnull', 'read_head',
                 'read_without_provenance', 'read_null', 'read_selected', 'read_nonnull', 'read_retired',
@@ -56,7 +57,7 @@ def main():
         run([ROOT / 'scripts/in-container', 'bash', '-euc', command, '_',
              COMMON['container_path'](backend / 'backends/lean'), COMMON['container_path'](checked)], 'lean.log')
         record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), names)
-        record['inputs'] = {str(path.relative_to(ROOT)): digest(path.read_bytes()) for path in [MODEL, DATA / 'Proof.lean',
+        record['inputs'] = {str(path.relative_to(ROOT)): digest(path.read_bytes()) for path in [MODEL, REPRESENTATION, DATA / 'Proof.lean',
                             ROOT / 'FormalProof4FHETest/HasteBootsPointerStorageSmoke.lean',
                             ROOT / 'FormalProof4FHETest/HasteBootsPointerStorageAudit.lean', ROOT / 'lean-toolchain']}
         record['backend_sources'] = {name: digest((backend / 'backends/lean/Aeneas/Std' / name).read_bytes())

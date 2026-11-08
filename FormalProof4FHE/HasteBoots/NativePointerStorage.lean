@@ -1,5 +1,6 @@
 module
 public import FormalProof4FHE.HasteBoots.NativeUsizeMessage
+public import FormalProof4FHE.HasteBoots.NativePointerRepresentation
 @[expose] public section
 
 /-! Thin pointer storage for the native 64-bit target. Addresses and allocation
@@ -8,18 +9,6 @@ This is an operational storage specification, not a Rust allocator, provenance,
 borrow, layout or physical-work refinement. In particular it does not replace
 the rejected NonNull pattern in the source extraction gate. -/
 namespace FormalProof4FHE.HasteBoots.NativePointerStorage
-
-abbrev Address := NativeUsizeMessage.Usize
-
-structure Origin where
-  allocation : ℕ
-  generation : ℕ
-  deriving DecidableEq
-
-structure Pointer where
-  address : Address
-  provenance : Option Origin
-  deriving DecidableEq
 
 def NonNull (pointer : Pointer) : Prop := pointer.address.val ≠ 0
 

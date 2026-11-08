@@ -1,11 +1,11 @@
 module
 import all FormalProof4FHE.HasteBoots.NativePointerStorage
 
-/-- info: 'FormalProof4FHE.HasteBoots.NativePointerStorage.readdress_provenance' depends on axioms: [propext] -/
+/-- info: 'FormalProof4FHE.HasteBoots.NativePointerStorage.readdress_provenance' does not depend on any axioms -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativePointerStorage.readdress_provenance
 
-/-- info: 'FormalProof4FHE.HasteBoots.NativePointerStorage.readdress_original' depends on axioms: [propext] -/
+/-- info: 'FormalProof4FHE.HasteBoots.NativePointerStorage.readdress_original' does not depend on any axioms -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativePointerStorage.readdress_original
 
@@ -13,7 +13,7 @@ import all FormalProof4FHE.HasteBoots.NativePointerStorage
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativePointerStorage.pointer_fields
 
-/-- info: 'FormalProof4FHE.HasteBoots.NativePointerStorage.cell_nonnull' depends on axioms: [propext] -/
+/-- info: 'FormalProof4FHE.HasteBoots.NativePointerStorage.cell_nonnull' does not depend on any axioms -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativePointerStorage.cell_nonnull
 
@@ -29,11 +29,11 @@ import all FormalProof4FHE.HasteBoots.NativePointerStorage
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativePointerStorage.read_null
 
-/-- info: 'FormalProof4FHE.HasteBoots.NativePointerStorage.read_selected' depends on axioms: [propext] -/
+/-- info: 'FormalProof4FHE.HasteBoots.NativePointerStorage.read_selected' does not depend on any axioms -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativePointerStorage.read_selected
 
-/-- info: 'FormalProof4FHE.HasteBoots.NativePointerStorage.read_nonnull' depends on axioms: [propext] -/
+/-- info: 'FormalProof4FHE.HasteBoots.NativePointerStorage.read_nonnull' does not depend on any axioms -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativePointerStorage.read_nonnull
 

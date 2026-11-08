@@ -1,7 +1,7 @@
 module
 import all FormalProof4FHE.HasteBoots.NativeGoldPointerRegistry
 
-/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldPointerRegistry.resolve_length' depends on axioms: [propext] -/
+/-- info: 'FormalProof4FHE.HasteBoots.NativeGoldPointerRegistry.resolve_length' does not depend on any axioms -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeGoldPointerRegistry.resolve_length
 
