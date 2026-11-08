@@ -1,0 +1,10 @@
+{
+  "claim": "baseline rejection before checked outward range unwrapping",
+  "charon_exit_code": 0,
+  "aeneas_exit_code": 2,
+  "mir": "optimized",
+  "expected_error": "Invalid input for unop: transmute",
+  "fixture_sha256": "bfa2ad2d5f0f2f91a9a7c95f7fc28d7f608f02932c1fc7426c45ed9fd4c2b051",
+  "ir_sha256": "0456abbe2aac97541a3fc1c1972db2e479348d70de531d44eaafbb5321af5fed",
+  "log_sha256": "ba70c68521dd789c2eb3a591073b4206aee060830ab6a0b4e4f8d0cb2add4922"
+}
