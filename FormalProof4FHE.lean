@@ -638,3 +638,4 @@ import FormalProof4FHE.HasteBoots.NativePointerByteMemory
 import FormalProof4FHE.HasteBoots.NativePointerMachine
 import FormalProof4FHE.HasteBoots.NativeReferenceMachine
 import FormalProof4FHE.HasteBoots.NativeScalarLLBC
+import FormalProof4FHE.HasteBoots.NativeSliceLLBC

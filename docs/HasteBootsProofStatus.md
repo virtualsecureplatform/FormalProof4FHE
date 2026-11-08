@@ -7,6 +7,51 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Original byte/word slice-reference bodies now execute the closed reference machine
+
+`NativeSliceLLBC` extends the finite original-body approach with fat raw slice
+parts, pointer-bound metadata, constant branches and shared/mutable reference
+creation. Its 18 theorems project every result, including failure prefixes, to
+an actual closed reference-machine run and preserve reachability and
+well-formedness. External arguments select existing raw registers; they cannot
+supply provenance or lease tags. All 98 explicit model declarations and
+constructors/fields have persistent dependency checks. Nine root regressions
+cover local/argument checks, slice bounds and failure-prefix retention.
+
+The separate `slice-reference-body` profile retains four monomorphic probe
+wrappers and the four original `core::slice` constructor bodies for `u8` and
+`u64`. Thirteen source theorems establish eight exact body/wrapper equations,
+two compiler layout equations and three generic constructor/lease results.
+Twenty source regressions cover both element widths, alignment, initialization,
+range checks, nested lease creation, access permissions and cleanup ordering.
+The source gate checks 131 model/source declarations, rejects 14 malformed source
+and target variants, and confirms that a supported syntax mutation changes the
+reified body. See its [profile documentation](../interop/aeneas/slice-reference-body/README.md)
+for reproduction and the persisted regression receipt. The repository-wide
+`scripts/check` passed with a 10,969-job build.
+
+This is a release profile with explicit `-Cdebug-assertions=no`. Original
+constant-false UB-check branches and their unsupported statements remain in
+the body as halting nodes with complete retained source JSON. A separately
+extracted debug-enabled profile is rejected because its unsupported checks are
+active. The probe wrappers' `'static` return types only force monomorphization;
+they do not establish Rust lifetime validity. Local storage death does not end
+leases. The shared wrapper creates two leases and the mutable wrapper four.
+
+The actual native extraction checkpoint creates a byte-slice reference inside
+retained `Vec<u8>::drop`. This work covers that operator form but does not yet
+compose the whole destructor, its drop-glue call, or the native constructor.
+Aeneas remains unchanged. Compiler correctness, source lifetime-ending and
+alias refinement, typed callers, heap-stored references, native execution/work
+refinement and the final cryptographic security theorem remain open.
+
+The next source milestone is to compose this checked byte-slice creation with
+its original slice drop-glue call and allocator effects, preserving cleanup
+prefixes. Returned reference ownership and actual source lifetime endings must
+be connected to the resident leases before whole-constructor acceptance is
+claimed. Subsequent native caller and execution-cost refinements are still
+needed to discharge the final accepted-false-PBS expected-work theorem.
+
 ## Original scalar pointer bodies now have a separate LLBC heap interpretation
 
 `NativeScalarLLBC` gives finite body semantics for Copy words, thin pointers and

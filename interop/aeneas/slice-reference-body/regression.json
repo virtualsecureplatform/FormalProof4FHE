@@ -1,0 +1,453 @@
+{
+  "profile": "original-release-byte-word-slice-reference-body-v1",
+  "gate_manifest": "build/hasteboots-extraction/slice-reference-body-jlzuq77s/manifest.json",
+  "gate_manifest_sha256": "bd05b3f5833b926605a1c97e8ff0d17f965d5fe547327b17541fc53f8698caa5",
+  "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
+  "status": "passed",
+  "claim": "release byte/word slice LLBC interpretation; compiler, Rust lifetimes, native constructor and security refinement remain unproved",
+  "commands": [
+    [
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/scripts/in-container",
+      "lake",
+      "build",
+      "FormalProof4FHE.HasteBoots.NativeSliceLLBC",
+      "FormalProof4FHETest.HasteBootsSliceLLBCSmoke",
+      "FormalProof4FHETest.HasteBootsSliceLLBCAudit"
+    ],
+    [
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/inline-tools-build-b6esls36/tools/charon",
+      "rustc",
+      "--preset=aeneas",
+      "--sysroot",
+      "default",
+      "--monomorphize",
+      "--mir",
+      "optimized",
+      "--consts",
+      "values",
+      "--evaluate-runtime-checks",
+      "--precise-drops",
+      "--desugar-drops",
+      "--preserve-allocator",
+      "--no-dedup-serialized-ast",
+      "--include",
+      "core::slice::raw::from_raw_parts",
+      "--include",
+      "core::slice::raw::from_raw_parts_mut",
+      "--include",
+      "core::ptr::metadata",
+      "--dest-file",
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/slice-reference-body-jlzuq77s/release.llbc",
+      "--",
+      "--crate-type",
+      "lib",
+      "--edition",
+      "2024",
+      "-Cdebug-assertions=no",
+      "--crate-name",
+      "hasteboots_slice_reference_body",
+      "interop/aeneas/slice-reference-body/fixture.rs"
+    ],
+    [
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/inline-tools-build-b6esls36/tools/charon",
+      "rustc",
+      "--preset=aeneas",
+      "--sysroot",
+      "default",
+      "--monomorphize",
+      "--mir",
+      "optimized",
+      "--consts",
+      "values",
+      "--evaluate-runtime-checks",
+      "--precise-drops",
+      "--desugar-drops",
+      "--preserve-allocator",
+      "--no-dedup-serialized-ast",
+      "--include",
+      "core::slice::raw::from_raw_parts",
+      "--include",
+      "core::slice::raw::from_raw_parts_mut",
+      "--include",
+      "core::ptr::metadata",
+      "--dest-file",
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/slice-reference-body-jlzuq77s/debug.llbc",
+      "--",
+      "--crate-type",
+      "lib",
+      "--edition",
+      "2024",
+      "-Cdebug-assertions=yes",
+      "--crate-name",
+      "hasteboots_slice_reference_body",
+      "interop/aeneas/slice-reference-body/fixture.rs"
+    ],
+    [
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/scripts/in-container",
+      "lake",
+      "env",
+      "lean",
+      "-DwarningAsError=true",
+      "build/hasteboots-extraction/slice-reference-body-jlzuq77s/Checked.lean"
+    ]
+  ],
+  "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
+  "inputs": {
+    "scripts/check-hasteboots-slice-reference-body": "6da21286b90c4daf82e78ed740a3ebd387197e492e88e5d2d166f4e8da02fa05",
+    "scripts/reify-hasteboots-slice-reference-llbc": "5f99239e34388cbfbd4a08e76a66a7102516d2f443de37d04dd8f8aadc8a321d",
+    "scripts/reify-hasteboots-scalar-llbc": "7998b2650710269d58d7036b0d060d239469911668e759f4b8a56efdd41f9809",
+    "FormalProof4FHE/HasteBoots/NativeSliceLLBC.lean": "37c3db8991f056855276a77d196ef8a11589c45724bbb394eeb026c9d343bdbb",
+    "FormalProof4FHETest/HasteBootsSliceLLBCSmoke.lean": "f97425ca39b78463af82ba8ea7ec440de85c8893457b725610b36230307821ea",
+    "FormalProof4FHETest/HasteBootsSliceLLBCAudit.lean": "9c5b4963b8d0fae491488cec046f3c553de530900a5bd64074b060a436dffa87",
+    "lean-toolchain": "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c",
+    "interop/aeneas/slice-reference-body/fixture.rs": "9b4764f9d12b5a4b1f8e5a1b93461567032776fb7028bdb7f3fd6ebbc4851c38",
+    "interop/aeneas/slice-reference-body/Generated.lean": "6ef5af6fafd7143c80c53fb28095f0d8c8902323e851837e9121f3129f8ff8b6",
+    "interop/aeneas/slice-reference-body/Retained.json": "4492df70472edc30b7c6641457f44f8fb847c77ad517fc78859d0b41e76da0df",
+    "interop/aeneas/slice-reference-body/Proof.lean": "4e48833112aecb848a6e0879590912ecabcda8838daf491a0d009e86c5788533",
+    "interop/aeneas/slice-reference-body/Smoke.lean": "3a7f85f4910f7ac3518c5ff649a0b01876ac60feb0b0a808a492d0085e458e6e"
+  },
+  "functions": [
+    {
+      "id": 0,
+      "name": "hasteboots_slice_reference_body::shared_words#0",
+      "span": {
+        "data": {
+          "file_id": 0,
+          "beg": {
+            "line": 1,
+            "col": 0
+          },
+          "end": {
+            "line": 3,
+            "col": 1
+          }
+        },
+        "generated_from_span": null
+      },
+      "original_body_sha256": "259442ee9a650af2fcdb5892caca751ee8676d823d11547bf0696d9769d872cb"
+    },
+    {
+      "id": 1,
+      "name": "hasteboots_slice_reference_body::mutable_words#1",
+      "span": {
+        "data": {
+          "file_id": 0,
+          "beg": {
+            "line": 4,
+            "col": 0
+          },
+          "end": {
+            "line": 6,
+            "col": 1
+          }
+        },
+        "generated_from_span": null
+      },
+      "original_body_sha256": "7113eeee21f8ec70610ccf02ba9949dd579db2a73d8a0d00a696a16163638187"
+    },
+    {
+      "id": 2,
+      "name": "hasteboots_slice_reference_body::shared_bytes#2",
+      "span": {
+        "data": {
+          "file_id": 0,
+          "beg": {
+            "line": 7,
+            "col": 0
+          },
+          "end": {
+            "line": 9,
+            "col": 1
+          }
+        },
+        "generated_from_span": null
+      },
+      "original_body_sha256": "6e1e2674df920e57084d375ea23961aa0112badd2640c546d96abaaddca97399"
+    },
+    {
+      "id": 3,
+      "name": "hasteboots_slice_reference_body::mutable_bytes#3",
+      "span": {
+        "data": {
+          "file_id": 0,
+          "beg": {
+            "line": 10,
+            "col": 0
+          },
+          "end": {
+            "line": 12,
+            "col": 1
+          }
+        },
+        "generated_from_span": null
+      },
+      "original_body_sha256": "fc0d50e4f2ba8367325851ac0aab80e81920c426b08b4204abc7519426282ecf"
+    },
+    {
+      "id": 4,
+      "name": "core::slice::raw::from_raw_parts#4",
+      "span": {
+        "data": {
+          "file_id": 1,
+          "beg": {
+            "line": 124,
+            "col": 0
+          },
+          "end": {
+            "line": 124,
+            "col": 80
+          }
+        },
+        "generated_from_span": null
+      },
+      "original_body_sha256": "e07a78e05f9749c8418b678005242b2c3bca1e3fb3119a9d217534a61f7f99c8"
+    },
+    {
+      "id": 5,
+      "name": "core::slice::raw::from_raw_parts_mut#5",
+      "span": {
+        "data": {
+          "file_id": 1,
+          "beg": {
+            "line": 179,
+            "col": 0
+          },
+          "end": {
+            "line": 179,
+            "col": 86
+          }
+        },
+        "generated_from_span": null
+      },
+      "original_body_sha256": "543071a74701c957feaddcd5589d435fb5d751c1dcf981c013b8dac37abce407"
+    },
+    {
+      "id": 6,
+      "name": "core::slice::raw::from_raw_parts#6",
+      "span": {
+        "data": {
+          "file_id": 1,
+          "beg": {
+            "line": 124,
+            "col": 0
+          },
+          "end": {
+            "line": 124,
+            "col": 80
+          }
+        },
+        "generated_from_span": null
+      },
+      "original_body_sha256": "7999649bdf50210de1f13c7559cc1597e56abced4da9723792a71c6645dc3c91"
+    },
+    {
+      "id": 7,
+      "name": "core::slice::raw::from_raw_parts_mut#7",
+      "span": {
+        "data": {
+          "file_id": 1,
+          "beg": {
+            "line": 179,
+            "col": 0
+          },
+          "end": {
+            "line": 179,
+            "col": 86
+          }
+        },
+        "generated_from_span": null
+      },
+      "original_body_sha256": "72c59acdbf066f62c8c5d09b2c6116abc994195baa7826bf2f7e81cd376ec085"
+    }
+  ],
+  "inactive_unsupported_count": 4,
+  "negative_controls": {
+    "wrong_target": "Wrong target",
+    "wrong_endian": "Wrong target",
+    "opaque_active_body": "Unsupported active callee body",
+    "hidden_active_declaration": "Unsupported active callee body",
+    "residual_drop": "Unsupported active statement: Drop",
+    "unknown_statement_field": "Unknown statement fields",
+    "bad_storage_index": "Bad storage index",
+    "active_unsupported_ub_check": "Expected local place",
+    "pointer_parts_mutability": "Pointer-parts types mismatch",
+    "wrong_metadata": "Metadata is not bound to the borrowed pointer",
+    "wrong_borrowed_element": "Wrong borrowed slice element",
+    "unsupported_layout": "Element layout changed",
+    "missing_runtime_policy": "Missing policy: precise_drops",
+    "source_rewrite_policy": "Hidden/rewritten source closure"
+  },
+  "debug_active_rejection": "Expected local place",
+  "supported_body_mutation_retained": true,
+  "dependency_audit": {
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Element": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Element.width": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Ty": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Raw": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Value": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Input": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.decodeInput": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.fits": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Slot": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Frame": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Operand": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Rvalue": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Body": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Function": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Flow": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Flow.world": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.readLocal": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.writeLocal": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.storageLive": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.storageDead": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.mode": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.layout": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.issue": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalOperand": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalRvalue": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalArgs": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.initial": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.partsValue": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalParts": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.eval": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.decodeArgs": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.invoke": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.issue_executes": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.issue_projects": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.issue_returned_tag": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.writeLocal_world": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.storageLive_world": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.storageDead_world": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalOperand_world": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalRvalue_projects": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalArgs_world": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalParts_world": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.initial_world": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.eval_projects": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.invoke_projects": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.reference_runs_wellFormed": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.invoke_wellFormed": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.issue_raw_selected": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.reference_runs_reachable": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.invoke_reachable": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Element.byte": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Element.word": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Ty.unit": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Ty.usize": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Ty.raw": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Ty.reference": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Raw.mk": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Raw.storage": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Raw.length": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Value.unit": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Value.usize": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Value.raw": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Value.reference": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Input.usize": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Input.rawRegister": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Slot.dead": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Slot.live": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Frame.mk": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Frame.types": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Frame.slots": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Frame.world": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Operand.copy": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Operand.move": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Rvalue.use": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Rvalue.rawCast": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Rvalue.borrow": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Rvalue.unit": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Body.done": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Body.ret": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Body.resume": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Body.abort": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Body.unsupported": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Body.storageLive": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Body.storageDead": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Body.assign": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Body.parts": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Body.constIf": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Body.call": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Function.mk": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Function.name": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Function.types": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Function.argCount": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Function.body": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Flow.continued": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Flow.returned": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Flow.unwind": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Flow.invalid": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Flow.unsupported": "does not depend on any axioms",
+    "HasteBootsSliceReferenceBody.f0": "does not depend on any axioms",
+    "HasteBootsSliceReferenceBody.f1": "does not depend on any axioms",
+    "HasteBootsSliceReferenceBody.f2": "does not depend on any axioms",
+    "HasteBootsSliceReferenceBody.f3": "does not depend on any axioms",
+    "HasteBootsSliceReferenceBody.f4": "does not depend on any axioms",
+    "HasteBootsSliceReferenceBody.f5": "does not depend on any axioms",
+    "HasteBootsSliceReferenceBody.f6": "does not depend on any axioms",
+    "HasteBootsSliceReferenceBody.f7": "does not depend on any axioms",
+    "HasteBootsSliceReferenceBody.g0": "depends on axioms: [propext]",
+    "HasteBootsSliceReferenceBody.g1": "depends on axioms: [propext]",
+    "HasteBootsSliceReferenceBody.g2": "depends on axioms: [propext]",
+    "HasteBootsSliceReferenceBody.g3": "depends on axioms: [propext]",
+    "HasteBootsSliceReferenceBody.g4": "depends on axioms: [propext]",
+    "HasteBootsSliceReferenceBody.g5": "depends on axioms: [propext]",
+    "HasteBootsSliceReferenceBody.g6": "depends on axioms: [propext]",
+    "HasteBootsSliceReferenceBody.g7": "depends on axioms: [propext]",
+    "HasteBootsSliceReferenceBody.finishIssue": "depends on axioms: [propext]",
+    "HasteBootsSliceReferenceBody.relay": "depends on axioms: [propext, Quot.sound]",
+    "HasteBootsSliceReferenceBody.relayByte": "depends on axioms: [propext, Quot.sound]",
+    "HasteBootsSliceReferenceBody.word_layout_exact": "depends on axioms: [propext]",
+    "HasteBootsSliceReferenceBody.byte_layout_exact": "depends on axioms: [propext]",
+    "HasteBootsSliceReferenceBody.shared_body": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "HasteBootsSliceReferenceBody.mutable_body": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "HasteBootsSliceReferenceBody.shared_wrapper": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "HasteBootsSliceReferenceBody.mutable_wrapper": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "HasteBootsSliceReferenceBody.shared_byte_body": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "HasteBootsSliceReferenceBody.mutable_byte_body": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "HasteBootsSliceReferenceBody.shared_byte_wrapper": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "HasteBootsSliceReferenceBody.mutable_byte_wrapper": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "HasteBootsSliceReferenceBody.constructor": "does not depend on any axioms",
+    "HasteBootsSliceReferenceBody.constructor_body": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "HasteBootsSliceReferenceBody.constructor_success": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "HasteBootsSliceReferenceBody.constructor_lease": "depends on axioms: [propext, Classical.choice, Quot.sound]"
+  },
+  "llbc_sha256": "3833a9622599e49f40e15d5709ce5e600e4dca31f5376e84814bb86ebeb0998e",
+  "checked_sha256": "3a350221a14afa00002bd5395a8c9f13c5b1e5ef4266a096fcd59a0d27607dbc",
+  "logs": {
+    "release-charon.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lean.log": "00222c19d4271b33d5215383b6504a95eda4be0f525eb962d12ca62a11e26036",
+    "root-build.log": "b2555a78a4d01f643fe672c3fb0b925af1989953797b6e3c89ad3a2fc73a5eb7",
+    "debug-charon.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "native_revision": "dff353006322693cab3dc6b654f82151f658f294",
+  "model_theorems": 18,
+  "source_theorems": 13,
+  "root_regressions": 9,
+  "source_regressions": 20,
+  "model_persistent_audits": 98,
+  "source_audits": 33,
+  "compiler_edits": false,
+  "aeneas_edits": false,
+  "native_constructor_accepted": false,
+  "rust_lifetime_refinement": false,
+  "final_security_theorem": false,
+  "native_boundary": {
+    "receipt": "build/hasteboots-extraction/inline-constructor-qml8715a/manifest.json",
+    "receipt_sha256": "29e18e11c6be96064ee53e585c5bd5e772d04046387e0845085b2e16284c7493",
+    "accepted": false,
+    "observation": "Retained alloc::vec::drop creates a mutable byte-slice reference before calling original slice drop glue; this separate release profile covers reference creation only."
+  },
+  "root_check": {
+    "command": "scripts/check",
+    "exit_code": 0,
+    "build_jobs": 10969,
+    "log": "/tmp/hasteboots-slice-full-check.log",
+    "log_sha256": "d9bcb0e7a76e54e4d9fa0c8d001840c2fe55c610aa395c49a47f7379628072e8"
+  },
+  "persistent_audit_build": {
+    "command": "scripts/in-container lake build FormalProof4FHETest.HasteBootsSliceLLBCAudit",
+    "exit_code": 0,
+    "log_sha256": "cbd623bf37d740c36670eb3bd08e1e8635f200e839ed1f104f9bda1e07b30f44"
+  }
+}
