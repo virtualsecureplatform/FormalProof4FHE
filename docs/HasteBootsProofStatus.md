@@ -7,6 +7,28 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## First-original extraction is linked to pointer-resolved storage
+
+`NativeGoldPointerAssociation` carries the operational pointer registry through
+first-original context/root ownership and observed Goldilocks extraction.
+Theorems recover the actual original borrow, matching address and allocation
+identity, heap cell, retained arena entry and constructor provenance from the
+successful registry run. The context trace remains included in the initializer
+trace. Extracted code inherits its primitive-root and geometry properties.
+No independently supplied logical registry or per-read certificate is needed.
+The existing replay, history-inclusion and no-bad-root-event hypotheses remain
+explicit; this does not prove their probability bounds or causal coverage.
+
+Whole-registry rejection theorems show that any unreadable original borrow,
+including an unused one, rejects resolution. Retiring an allocation and reusing
+its address with a different origin cannot make its stale borrow pass. Five
+exact dependency guards cover these results and the extraction composition.
+The Rust allocator, commitment-memory reads, object layout, source execution
+and physical-work obligations remain open.
+
+Validation: full `scripts/check` passed 10,928 build jobs and all standalone
+audits and smoke checks. All five new exact axiom guards passed.
+
 ## Pointer reads resolve into the constructed parameter registry
 
 `NativeGoldPointerRegistry` resolves generation-aware pointer reads to retained

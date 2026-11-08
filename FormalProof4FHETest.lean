@@ -164,3 +164,4 @@ import FormalProof4FHETest.HasteBootsNativeGoldBalancedSmoke
 import FormalProof4FHETest.HasteBootsNativeGoldBalancedAudit
 
 import FormalProof4FHETest.HasteBootsLookupFramingAudit
+import FormalProof4FHETest.HasteBootsPointerAssociationAudit
