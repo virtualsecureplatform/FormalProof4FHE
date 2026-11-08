@@ -1,0 +1,507 @@
+{
+  "claim": "byte range geometry/initialization and extracted pointer-data composition only; Rust references/aliasing/allocator/compiler/work/security unproved",
+  "gate_manifest_sha256": "71d2b1a0f8a359c756a13a1b4f3f50d7dd2b6ae4cb2556516a171f6fe525d174",
+  "build_receipt_sha256": "4fceaf7d52feb93953bdf0b1f4010779d01243e7130e5174b791dc3fc9d4c018",
+  "tools": {
+    "charon": "438c4565d48ffe763d9bca6fd4e0f63754611baaf90c2b0c4628d12c72020544",
+    "charon-driver": "e06210fc5229847480d1cdea642226999c2cb5ef90e45234cb44da9e9b4d4291",
+    "aeneas": "461b058ad0d6a745b91bb55fe0c269240aaee9961caceaacf2fb11931f295a68"
+  },
+  "frontend_patch_sha256": "90ee964c22f7e66550022c85724cda768ebe9b39369b73482fd8087da93f093c",
+  "gate": {
+    "status": "passed",
+    "claim": "byte range geometry/initialization and extracted pointer-data composition only; Rust references/aliasing/allocator/compiler/work/security unproved",
+    "script_sha256": "ba150906c59344ff79ddef5539ddad0c466a78ea05320e63a7b34201bc111191",
+    "build_receipt_sha256": "4fceaf7d52feb93953bdf0b1f4010779d01243e7130e5174b791dc3fc9d4c018",
+    "backend_patches": {
+      "lean435.patch": "137920b7c5df6abf1197cb915cad5d867651521c06ccb1600e9887779284d325",
+      "stdlib435.patch": "a6b70680b5eca8bcf305aeccd49e4da0a4d8b9a6f72b193056323be49b132a47"
+    },
+    "inputs": {
+      "FormalProof4FHE/HasteBoots/NativeByteRange.lean": "4a7a0951373350dba4f1cb182b2a6236a04e8192c0891c9ff25ae5ac0fbeed93",
+      "interop/aeneas/byte-range/Pointer.lean": "4cec52bbe763b93b01cc0b207c21f6d896100cf0b9ca8380e5f622b5c9ed883d",
+      "FormalProof4FHE/HasteBoots/NativeByteMemory.lean": "37aaaee9836aaf462e7d973ac0c8af5aac8027d556a3afc1a8a286f9d77e1dc8",
+      "interop/aeneas/pointer-parts/Runtime.lean": "21b02eb14e09671089530c28a5a423c56a16b544ae33e0db159d99fe8041f14d",
+      "interop/aeneas/pointer-parts/Generated.lean": "d14fcccb6877552ca197d682e45909ca06c42ec4d9be627ac2b897540664b466",
+      "interop/aeneas/pointer-storage/Runtime.lean": "d304a56d9cfec4d9300dcc9895e733d3972779cef331639e790891763b65484d",
+      "FormalProof4FHE/HasteBoots/NativePointerRepresentation.lean": "532c94c0ccc209cc350bd99dabdda21168069adb4225713a6ea2fb80a86a91ba",
+      "FormalProof4FHETest/HasteBootsByteRangeSmoke.lean": "43cdd19ad833ff691d82b1b3499eea4acfa6c10c6a75c43d324f6ee11dec50b0",
+      "FormalProof4FHETest/HasteBootsByteRangeAudit.lean": "488a33017cc0add8e6303af377f35d4f85aef649ca07009fe1a3a83c73b39412",
+      "FormalProof4FHE.lean": "8dacc045a458eabc6180a5279673db0d50685749aa158aeb9bf1f4982e6cfc81",
+      "FormalProof4FHETest.lean": "f0a97601c67da1b262cf8b06e35a68b3278ac468902cfead69cc308ab04e761b",
+      "lean-toolchain": "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c",
+      "lake-manifest.json": "62d53211e046810a4627f43d83d9db862d44a691e8b0e665508063656ded721f"
+    },
+    "parent_gates": {
+      "pointer-parts": {
+        "manifest_sha256": "389cd680a4e6e329377baa84d3db62e32f291e453cf0078e82bf7a1a3027e959",
+        "dependency_audit": {
+          "hasteboots_pointer_parts.Pair": "does not depend on any axioms",
+          "hasteboots_pointer_parts.core.ptr.metadata.from_raw_parts.mono_9d0463365bb2f74af857d38c1abbfaec": "does not depend on any axioms",
+          "hasteboots_pointer_parts.core.ptr.metadata.from_raw_parts.mono_e6501eb599e0382376ed88b3574f490f": "depends on axioms: [propext]",
+          "hasteboots_pointer_parts.core.ptr.metadata.from_raw_parts.mono_c981721880349b620e923f1ce62a5cc2": "does not depend on any axioms",
+          "hasteboots_pointer_parts.core.ptr.metadata.from_raw_parts.mono_422d76a278de43af91049b4bc99c6b4f": "depends on axioms: [propext]",
+          "hasteboots_pointer_parts.core.ptr.metadata.from_raw_parts_mut.mono_fefbca34f3928b7a21bda4668ad6a3cc": "does not depend on any axioms",
+          "hasteboots_pointer_parts.core.ptr.metadata.from_raw_parts_mut.mono_22ec1cc9473a101a472accb7192baec7": "depends on axioms: [propext]",
+          "hasteboots_pointer_parts.slice_const": "depends on axioms: [propext]",
+          "hasteboots_pointer_parts.slice_mut": "depends on axioms: [propext]",
+          "hasteboots_pointer_parts.slice_const_from_mut": "depends on axioms: [propext]",
+          "hasteboots_pointer_parts.thin_const": "does not depend on any axioms",
+          "hasteboots_pointer_parts.thin_mut": "does not depend on any axioms",
+          "hasteboots_pointer_parts.str_const": "depends on axioms: [propext]",
+          "hasteboots_pointer_parts.pair_const": "does not depend on any axioms",
+          "HasteBootsPointerPartsProof.original_slice_const_exact": "depends on axioms: [propext]",
+          "HasteBootsPointerPartsProof.original_slice_mut_exact": "depends on axioms: [propext]",
+          "HasteBootsPointerPartsProof.original_thin_const_exact": "does not depend on any axioms",
+          "HasteBootsPointerPartsProof.original_thin_mut_exact": "does not depend on any axioms",
+          "HasteBootsPointerPartsProof.original_str_exact": "depends on axioms: [propext]",
+          "HasteBootsPointerPartsProof.slice_const_exact": "depends on axioms: [propext]",
+          "HasteBootsPointerPartsProof.slice_mut_exact": "depends on axioms: [propext]",
+          "HasteBootsPointerPartsProof.slice_const_from_mut_exact": "depends on axioms: [propext]",
+          "HasteBootsPointerPartsProof.thin_const_exact": "does not depend on any axioms",
+          "HasteBootsPointerPartsProof.thin_mut_exact": "does not depend on any axioms",
+          "HasteBootsPointerPartsProof.str_const_exact": "depends on axioms: [propext]",
+          "HasteBootsPointerPartsProof.slice_address": "depends on axioms: [propext]",
+          "HasteBootsPointerPartsProof.slice_origin": "depends on axioms: [propext]",
+          "HasteBootsPointerPartsProof.slice_length": "depends on axioms: [propext]",
+          "HasteBootsPointerPartsProof.thin_metadata": "does not depend on any axioms",
+          "HasteBootsPointerPartsProof.zero_address_allowed": "depends on axioms: [propext]",
+          "HasteBootsPointerPartsProof.empty_slice_keeps_address": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+          "HasteBootsPointerPartsProof.maximum_length_kept": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+          "HasteBootsPointerPartsProof.new_metadata_replaces_old": "depends on axioms: [propext]",
+          "HasteBootsPointerPartsProof.thin_origin": "does not depend on any axioms",
+          "HasteBootsPointerPartsProof.original_pair_exact": "does not depend on any axioms",
+          "HasteBootsPointerPartsProof.pair_const_exact": "does not depend on any axioms",
+          "HasteBootsPointerPartsRuntime.from_thin_const": "does not depend on any axioms",
+          "HasteBootsPointerPartsRuntime.from_thin_mut": "does not depend on any axioms",
+          "HasteBootsPointerPartsRuntime.from_slice_const": "does not depend on any axioms",
+          "HasteBootsPointerPartsRuntime.from_slice_mut": "does not depend on any axioms",
+          "HasteBootsPointerPartsRuntime.thin_const_storage": "does not depend on any axioms",
+          "HasteBootsPointerPartsRuntime.thin_mut_storage": "does not depend on any axioms",
+          "HasteBootsPointerPartsRuntime.slice_const_storage": "does not depend on any axioms",
+          "HasteBootsPointerPartsRuntime.slice_mut_storage": "does not depend on any axioms",
+          "HasteBootsPointerPartsRuntime.slice_const_metadata": "does not depend on any axioms",
+          "HasteBootsPointerPartsRuntime.slice_mut_metadata": "does not depend on any axioms",
+          "HasteBootsPointerPartsRuntime.length_address_value": "does not depend on any axioms",
+          "HasteBootsPointerPartsRuntime.length_roundtrip": "does not depend on any axioms",
+          "HasteBootsPointerRuntime.RawPtr": "does not depend on any axioms",
+          "HasteBootsPointerRuntime.MutRawPtr": "does not depend on any axioms",
+          "HasteBootsPointerRuntime.ConstRawPtr": "does not depend on any axioms",
+          "HasteBootsPointerRuntime.mutableFlag": "does not depend on any axioms",
+          "HasteBootsPointerRuntime.cast_scalar": "does not depend on any axioms",
+          "HasteBootsPointerRuntime.cast_result": "does not depend on any axioms",
+          "HasteBootsPointerRuntime.cast_address": "does not depend on any axioms",
+          "HasteBootsPointerRuntime.cast_provenance": "does not depend on any axioms",
+          "HasteBootsPointerRuntime.cast_metadata": "does not depend on any axioms"
+        }
+      },
+      "byte-memory": {
+        "manifest_sha256": "0709e81cba8e1e63832fad511f9d944d22e126457ad5b24946b1abe7252e5d62",
+        "dependency_audit": {
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.Byte": "does not depend on any axioms",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.Layout": "does not depend on any axioms",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.Layout.Valid": "does not depend on any axioms",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.Block": "does not depend on any axioms",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.State": "does not depend on any axioms",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.empty": "does not depend on any axioms",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.Block.pointer": "does not depend on any axioms",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.Disjoint": "does not depend on any axioms",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.Block.Valid": "does not depend on any axioms",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.WellFormed": "does not depend on any axioms",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.freshBlock": "does not depend on any axioms",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.allocate": "depends on axioms: [propext, Quot.sound]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.Matches": "does not depend on any axioms",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.loadBlocks": "depends on axioms: [propext]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.loadByte": "depends on axioms: [propext]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.storeBlocks": "does not depend on any axioms",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.storeByte": "does not depend on any axioms",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.releaseBlocks": "does not depend on any axioms",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.deallocate": "does not depend on any axioms",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.shape": "does not depend on any axioms",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.Step": "depends on axioms: [propext, Quot.sound]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.Reachable": "depends on axioms: [propext, Quot.sound]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.empty_wellFormed": "depends on axioms: [propext, Quot.sound]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.disjoint_symm": "does not depend on any axioms",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.allocate_success": "depends on axioms: [propext, Quot.sound]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.allocate_wellFormed": "depends on axioms: [propext, Quot.sound]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.allocate_initialized_none": "does not depend on any axioms",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.load_without_origin": "depends on axioms: [propext]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.load_zero": "depends on axioms: [propext]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.store_blocks_length": "depends on axioms: [Quot.sound]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.store_then_load": "depends on axioms: [propext, Quot.sound]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.release_length": "depends on axioms: [propext, Quot.sound]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.release_sublist": "does not depend on any axioms",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.deallocate_changes_live_count": "depends on axioms: [propext, Quot.sound]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.release_selected": "does not depend on any axioms",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.deallocate_wellFormed": "does not depend on any axioms",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.shape_valid": "depends on axioms: [propext]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.wellFormed_shape": "depends on axioms: [propext, Quot.sound]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.store_preserves_shape": "depends on axioms: [propext, Quot.sound]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.store_wellFormed": "depends on axioms: [propext, Quot.sound]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.storeByte_then_loadByte": "depends on axioms: [propext, Quot.sound]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.load_without_matching_origin": "depends on axioms: [propext]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.release_origin_absent": "depends on axioms: [propext]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.deallocated_pointer_unreadable": "depends on axioms: [propext]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.allocate_uninitialized": "depends on axioms: [propext, Quot.sound]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.allocate_frame_load": "depends on axioms: [propext, Quot.sound]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.deallocate_selected": "does not depend on any axioms",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.deallocate_generation": "does not depend on any axioms",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.stale_after_reallocation": "depends on axioms: [propext, Quot.sound]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.layout_alignment": "depends on axioms: [propext, Quot.sound]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.layout_size_bound": "depends on axioms: [propext, Quot.sound]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.allocate_of_available": "depends on axioms: [propext, Quot.sound]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.store_at_matching_head": "depends on axioms: [propext, Quot.sound]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.deallocate_head": "depends on axioms: [propext]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.deallocated_alias_unreadable": "depends on axioms: [propext]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.uninitialized_bytes": "depends on axioms: [propext]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.fresh_block_uninitialized": "depends on axioms: [propext]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.load_selected": "depends on axioms: [propext]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.store_frame_other_origin": "depends on axioms: [propext, Quot.sound]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.step_wellFormed": "depends on axioms: [propext, Quot.sound]",
+          "FormalProof4FHE.HasteBoots.NativeByteMemory.reachable_wellFormed": "depends on axioms: [propext, Quot.sound]",
+          "HasteBootsByteMemoryLayout.SourceLayout": "does not depend on any axioms",
+          "HasteBootsByteMemoryLayout.Alignment": "does not depend on any axioms",
+          "HasteBootsByteMemoryLayout.Tag": "does not depend on any axioms",
+          "HasteBootsByteMemoryLayout.alignmentWord": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+          "HasteBootsByteMemoryLayout.decode": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+          "HasteBootsByteMemoryLayout.source_size": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+          "HasteBootsByteMemoryLayout.source_alignment": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+          "HasteBootsByteMemoryLayout.alignment_power": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+          "HasteBootsByteMemoryLayout.valid_iff_checked_size": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+          "HasteBootsByteMemoryLayout.allocated_source_layout": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+          "HasteBootsByteMemoryLayout.deallocation_source_layout": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+          "hasteboots_layout_word64.core.mem.alignment.AlignmentEnum": "does not depend on any axioms",
+          "hasteboots_layout_word64.core.mem.alignment.Alignment": "does not depend on any axioms",
+          "hasteboots_layout_word64.core.alloc.layout.Layout": "does not depend on any axioms",
+          "hasteboots_layout_word64.core.alloc.layout.Layout.impl.size": "does not depend on any axioms",
+          "hasteboots_layout_word64.core.num.niche_types.NonZeroUsizeInner": "does not depend on any axioms",
+          "hasteboots_layout_word64.core.num.nonzero.NonZero.mono_439f6875b903effd85999ee045214122": "does not depend on any axioms",
+          "hasteboots_layout_word64.core.num.nonzero.NonZero.get.mono_6ea7eeb1fde7c636edf0948371d0a50c": "does not depend on any axioms",
+          "hasteboots_layout_word64.core.mem.alignment.Alignment.as_nonzero_usize": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
+          "hasteboots_layout_word64.core.mem.alignment.Alignment.as_usize": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
+          "hasteboots_layout_word64.core.alloc.layout.Layout.impl.align": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
+          "hasteboots_layout_word64.core.num.Usize.MAX": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+          "hasteboots_layout_word64.core.num.Isize.MAX": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+          "hasteboots_layout_word64.core.num.Isize.MIN": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+          "hasteboots_layout_word64.core.num.Isize.overflowing_add": "depends on axioms: [propext]",
+          "hasteboots_layout_word64.core.num.Usize.overflowing_add": "does not depend on any axioms",
+          "hasteboots_layout_word64.preserve": "does not depend on any axioms",
+          "hasteboots_layout_word64.size": "does not depend on any axioms",
+          "hasteboots_layout_word64.align": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+          "hasteboots_layout_word64.word_max": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+          "hasteboots_layout_word64.signed_min": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+          "hasteboots_layout_word64.signed_identity": "does not depend on any axioms",
+          "hasteboots_layout_word64.overflowing_add_one": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+          "hasteboots_layout_word64.signed_overflowing_add_one": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+          "hasteboots_layout_word64.core.mem.alignment.AlignmentEnum.read_discriminant": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]"
+        }
+      }
+    },
+    "dependency_audit": {
+      "FormalProof4FHE.HasteBoots.NativeByteRange.Geometry": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.Covers": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.checkRange": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.readSpan": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.readBlocks": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.loadRange": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.loadSlice": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.pointerAt": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.readSpan_length": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.readSpan_selected": "depends on axioms: [propext]",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.readSpan_uninitialized": "depends on axioms: [propext]",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.readBlocks_selected": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.loadRange_geometry": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.loadRange_length": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.loadRange_positive_selected": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.loadRange_checked": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.empty_range": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.null_range": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.empty_check": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.positive_without_origin": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.positive_after_deallocation": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.positive_range_single_allocation": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.range_size_bound": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.range_no_wrap": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.slice_thin_rejected": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.slice_length": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.pointerAt_fields": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.loadBlocks_of_member": "depends on axioms: [propext]",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.range_agrees_with_byte_load": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.readBlocks_of_member": "depends on axioms: [propext]",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.loadRange_of_ready": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteRange.slice_vtable_rejected": "depends on axioms: [propext, Quot.sound]",
+      "HasteBootsByteRangePointer.decode": "depends on axioms: [propext]",
+      "HasteBootsByteRangePointer.decode_storage": "depends on axioms: [propext]",
+      "HasteBootsByteRangePointer.decode_metadata": "depends on axioms: [propext]",
+      "HasteBootsByteRangePointer.source_const_range": "depends on axioms: [propext, Quot.sound]",
+      "HasteBootsByteRangePointer.source_mut_range": "depends on axioms: [propext, Quot.sound]",
+      "HasteBootsByteRangePointer.source_cast_range": "depends on axioms: [propext, Quot.sound]",
+      "HasteBootsByteRangePointer.original_mut_range": "depends on axioms: [propext, Quot.sound]",
+      "HasteBootsByteRangePointer.original_const_range": "depends on axioms: [propext, Quot.sound]",
+      "HasteBootsByteRangePointer.source_mut_single_allocation": "depends on axioms: [propext, Quot.sound]",
+      "HasteBootsByteRangePointer.source_mut_exact_length": "depends on axioms: [propext, Quot.sound]",
+      "hasteboots_pointer_parts.Pair": "does not depend on any axioms",
+      "hasteboots_pointer_parts.core.ptr.metadata.from_raw_parts.mono_9d0463365bb2f74af857d38c1abbfaec": "does not depend on any axioms",
+      "hasteboots_pointer_parts.core.ptr.metadata.from_raw_parts.mono_e6501eb599e0382376ed88b3574f490f": "depends on axioms: [propext]",
+      "hasteboots_pointer_parts.core.ptr.metadata.from_raw_parts.mono_c981721880349b620e923f1ce62a5cc2": "does not depend on any axioms",
+      "hasteboots_pointer_parts.core.ptr.metadata.from_raw_parts.mono_422d76a278de43af91049b4bc99c6b4f": "depends on axioms: [propext]",
+      "hasteboots_pointer_parts.core.ptr.metadata.from_raw_parts_mut.mono_fefbca34f3928b7a21bda4668ad6a3cc": "does not depend on any axioms",
+      "hasteboots_pointer_parts.core.ptr.metadata.from_raw_parts_mut.mono_22ec1cc9473a101a472accb7192baec7": "depends on axioms: [propext]",
+      "hasteboots_pointer_parts.slice_const": "depends on axioms: [propext]",
+      "hasteboots_pointer_parts.slice_mut": "depends on axioms: [propext]",
+      "hasteboots_pointer_parts.slice_const_from_mut": "depends on axioms: [propext]",
+      "hasteboots_pointer_parts.thin_const": "does not depend on any axioms",
+      "hasteboots_pointer_parts.thin_mut": "does not depend on any axioms",
+      "hasteboots_pointer_parts.str_const": "depends on axioms: [propext]",
+      "hasteboots_pointer_parts.pair_const": "does not depend on any axioms",
+      "HasteBootsPointerPartsRuntime.from_thin_const": "does not depend on any axioms",
+      "HasteBootsPointerPartsRuntime.from_thin_mut": "does not depend on any axioms",
+      "HasteBootsPointerPartsRuntime.from_slice_const": "does not depend on any axioms",
+      "HasteBootsPointerPartsRuntime.from_slice_mut": "does not depend on any axioms",
+      "HasteBootsPointerPartsRuntime.thin_const_storage": "does not depend on any axioms",
+      "HasteBootsPointerPartsRuntime.thin_mut_storage": "does not depend on any axioms",
+      "HasteBootsPointerPartsRuntime.slice_const_storage": "does not depend on any axioms",
+      "HasteBootsPointerPartsRuntime.slice_mut_storage": "does not depend on any axioms",
+      "HasteBootsPointerPartsRuntime.slice_const_metadata": "does not depend on any axioms",
+      "HasteBootsPointerPartsRuntime.slice_mut_metadata": "does not depend on any axioms",
+      "HasteBootsPointerPartsRuntime.length_address_value": "does not depend on any axioms",
+      "HasteBootsPointerPartsRuntime.length_roundtrip": "does not depend on any axioms",
+      "HasteBootsPointerRuntime.RawPtr": "does not depend on any axioms",
+      "HasteBootsPointerRuntime.MutRawPtr": "does not depend on any axioms",
+      "HasteBootsPointerRuntime.ConstRawPtr": "does not depend on any axioms",
+      "HasteBootsPointerRuntime.mutableFlag": "does not depend on any axioms",
+      "HasteBootsPointerRuntime.cast_scalar": "does not depend on any axioms",
+      "HasteBootsPointerRuntime.cast_result": "does not depend on any axioms",
+      "HasteBootsPointerRuntime.cast_address": "does not depend on any axioms",
+      "HasteBootsPointerRuntime.cast_provenance": "does not depend on any axioms",
+      "HasteBootsPointerRuntime.cast_metadata": "does not depend on any axioms"
+    },
+    "checked_sha256": "7f27cbd7c93499d32ce5b48bea52949312f6ea786948c29b4c90980538233309"
+  },
+  "proof_inventory": {
+    "range_theorems": 24,
+    "pointer_data_composition_theorems": 9,
+    "guarded_range_declarations": 32,
+    "smoke_examples": 27
+  },
+  "guard_tests": [
+    {
+      "script": "scripts/check-hasteboots-byte-memory-guards",
+      "status": 0,
+      "tests": 5
+    },
+    {
+      "script": "scripts/check-hasteboots-byte-range-guards",
+      "status": 0,
+      "tests": 5
+    },
+    {
+      "script": "scripts/check-hasteboots-captured-option-guards",
+      "status": 0,
+      "tests": 5
+    },
+    {
+      "script": "scripts/check-hasteboots-code-serialization-guards",
+      "status": 0,
+      "tests": 11
+    },
+    {
+      "script": "scripts/check-hasteboots-constructor-typing-guards",
+      "status": 0,
+      "tests": 8
+    },
+    {
+      "script": "scripts/check-hasteboots-discriminant-guards",
+      "status": 0,
+      "tests": 7
+    },
+    {
+      "script": "scripts/check-hasteboots-enum-decoding-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-enum-nonzero-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-inline-baseline-guards",
+      "status": 0,
+      "tests": 5
+    },
+    {
+      "script": "scripts/check-hasteboots-inline-cleanup-guards",
+      "status": 0,
+      "tests": 6
+    },
+    {
+      "script": "scripts/check-hasteboots-inline-equivalence-guards",
+      "status": 0,
+      "tests": 11
+    },
+    {
+      "script": "scripts/check-hasteboots-large-discriminants-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-layout-word64-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-metadata-mono-guards",
+      "status": 0,
+      "tests": 9
+    },
+    {
+      "script": "scripts/check-hasteboots-monomorphic-ctlz-guards",
+      "status": 0,
+      "tests": 3
+    },
+    {
+      "script": "scripts/check-hasteboots-nonnull-pointers-guards",
+      "status": 0,
+      "tests": 5
+    },
+    {
+      "script": "scripts/check-hasteboots-overflowing-mul-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-parameter-extraction-guards",
+      "status": 0,
+      "tests": 10
+    },
+    {
+      "script": "scripts/check-hasteboots-pointer-extraction-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-pointer-parts-guards",
+      "status": 0,
+      "tests": 5
+    },
+    {
+      "script": "scripts/check-hasteboots-pointer-storage-guards",
+      "status": 0,
+      "tests": 5
+    },
+    {
+      "script": "scripts/check-hasteboots-range-unwrapping-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-registry-guards",
+      "status": 0,
+      "tests": 7
+    },
+    {
+      "script": "scripts/check-hasteboots-row-metadata-guards",
+      "status": 0,
+      "tests": 5
+    },
+    {
+      "script": "scripts/check-hasteboots-runtime-checks-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-static-byte-guards",
+      "status": 0,
+      "tests": 8
+    },
+    {
+      "script": "scripts/check-hasteboots-static-slice-guards",
+      "status": 0,
+      "tests": 8
+    },
+    {
+      "script": "scripts/check-hasteboots-static-string-guards",
+      "status": 0,
+      "tests": 7
+    },
+    {
+      "script": "scripts/check-hasteboots-stdlib-configuration-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-u32-range-guards",
+      "status": 0,
+      "tests": 8
+    },
+    {
+      "script": "scripts/check-hasteboots-uninhabited-variants-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-usize-ctlz-guards",
+      "status": 0,
+      "tests": 6
+    },
+    {
+      "script": "scripts/check-hasteboots-usize-ranges-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-word64-intrinsics-guards",
+      "status": 0,
+      "tests": 4
+    }
+  ],
+  "full_repository_check": {
+    "command": "scripts/check",
+    "exit_code": 0,
+    "build_jobs": 10935,
+    "log_sha256": "096575679f3c0cfb5aee230d22a5665cc54a4c72fe3fce00ac3637876b91d092"
+  },
+  "primary_rust_sources": {
+    "slice/raw.rs": "0914968067f7e2bc798680c1edd72bcb032a9fd44ebb2b6fbc082a3a2b16941f",
+    "ptr/metadata.rs": "90be519b27b46064f0bec607170ffce37aa9afb160a1edfab9c51641c8af15e2"
+  },
+  "unchanged_compiler_scope": "Translator/backend/production Rust were not edited. Pointer-parts and byte-memory/Layout parent gates were rerun; earlier full paired/upstream compiler evidence is retained as previous evidence.",
+  "native_constructor_diagnostic": {
+    "manifest_sha256": "77dd790f0c9123c5cf8d73eb38b4aadddbcc514c6131eb4d6184f68956acf412",
+    "frontend_boundary": "Original drop_in_place raw-pointer dereference remains unsupported",
+    "status": "failed",
+    "claim": "strict original constructor translation only; source/heap/work/security refinement unproved",
+    "script_sha256": "9649625f76d5a5fe6a19b9d4bd029a6494c176e506f5ad34a2833350235792ab",
+    "build_receipt_sha256": "4fceaf7d52feb93953bdf0b1f4010779d01243e7130e5174b791dc3fc9d4c018",
+    "backend_patches": {
+      "lean435.patch": "137920b7c5df6abf1197cb915cad5d867651521c06ccb1600e9887779284d325",
+      "stdlib435.patch": "a6b70680b5eca8bcf305aeccd49e4da0a4d8b9a6f72b193056323be49b132a47"
+    },
+    "native_revision": "dff353006322693cab3dc6b654f82151f658f294",
+    "wrapper_sha256": "8975f5a37001b681adb9f2e74e12ade288914e75c3bba637343be1dcb67732ca",
+    "lock_sha256": "37942c8f7834712b42bc3fe4965b90f1cbdae1ed869827c9c91dc8946d270011",
+    "sysroot": "default",
+    "cargo_target_directory": "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/cargo-constructor-partial-default",
+    "target_word64": true,
+    "provenance_pointers": true,
+    "const_values": false,
+    "expand_language_ub_checks": true,
+    "inline_ok_or": false,
+    "expand_string_cleanup": false,
+    "cleanup_scope": "pointers",
+    "charon_has_errors": false,
+    "llbc_sha256": "8478c26d9992ea4611f4651a2e5f640e1315e16ff3dc6a85be46f5d3548e7c9a",
+    "residual_drop_count": 0,
+    "missing_function_references": [],
+    "runtime_check_query_count": 0,
+    "constructor_bodies": {
+      "wrapper": 0,
+      "constructor": 1,
+      "opaque_encoder_count": 0,
+      "residual_constraint_functions": []
+    },
+    "retained_functions": 52,
+    "error": "Command '['/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/inline-tools-build-2qw3bpn2/tools/aeneas', '-backend', 'lean', '-checks', '-sequential', '-eval-drops', '-max-heartbeats', '200000', '-max-recdepth', '1000', '-abort-on-error', '-no-external-name-patterns', '-disambiguate-instantiated-names', '-monomorphic-builtin-shapes', '-target-word64', '-provenance-pointers', '-dest', '/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/inline-constructor-toltm1gz/lean', '/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/inline-constructor-toltm1gz/constructor.llbc']' returned non-zero exit status 2."
+  }
+}

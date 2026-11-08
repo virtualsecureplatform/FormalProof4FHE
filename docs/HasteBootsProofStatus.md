@@ -7,6 +7,44 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Initialized byte ranges now share source pointer data
+
+The byte-memory model now supports checked byte ranges and byte-slice views.
+Positive reads must stay inside one live allocation with matching origin, and
+every requested byte must be initialized. The result has the exact requested
+length. Addresses are nonnull/aligned and `address + size < 2^64` is checked with
+natural-number arithmetic before address conversion. Adjacent allocations cannot
+be joined into a slice. Empty ranges retain the nonnull/aligned requirement but
+do not require a live allocation; typed ZST multiplicity and Rust borrow validity
+remain separate obligations.
+
+Twenty-four model theorems establish coverage, initialization, exact lengths,
+nonwrapping arithmetic, empty cases, deallocated-alias rejection and agreement
+with single-byte loads. An initialized covering block in a well-formed state
+also derives successful range execution. Nine bridge theorems connect original
+constant/mutable/cast byte-slice pointer constructors to the same address,
+provenance and length used in these checks. This is pointer-data composition,
+not an accepted Rust dereference or a borrow permission.
+
+The combined gate passes 77 dependency audits. Fresh parent gates also pass:
+57 pointer-parts audits and 96 byte-memory/Layout bridge audits. All 197 guard
+tests pass. Full `scripts/check` passes after the 10,935-job build, including
+its subsequent root audits and smoke commands. The persistent root audit checks
+all 32 new range declarations; 27
+smoke examples cover both valid reads and boundary/rejection cases. No compiler,
+production Rust or Lean backend is changed, and no axiom or proof-limit increase
+is introduced. See `interop/aeneas/byte-range/README.md`.
+
+A fresh ordinary native probe still rejects raw-pointer dereference in original
+`drop_in_place`, with 52 retained functions and no residual drop/runtime-query or
+missing-reference shortcut. Source memory-state/allocator correspondence, typed
+value validity and layouts, aliasing/borrow lifetimes and destructor/deallocator
+composition remain open. No native constructor is accepted. Compiler/caller and
+NTT/SIMD/scheduler refinement, causal lifetime oracle/owner accounting, BabyBear
+and the final 128-bit expected physical-work security theorem remain open. No
+model memory operation replaces actual attacker work. The full objective is
+unchanged.
+
 ## Checked byte allocation lifecycle and source Layout bridge
 
 The shared pointer data now supports an explicit byte-memory model. Allocation

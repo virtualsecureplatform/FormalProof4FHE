@@ -58,3 +58,6 @@ operation. Destructor/deallocator composition, compiler/caller, NTT/SIMD/schedul
 causal oracle/owner history, BabyBear and expected physical-work security remain
 open. Model reads are not assigned a physical-work floor or substituted for
 actual adversary work. See `regression.json` for current evidence.
+
+Full `scripts/check` passes, including its 10,935-job build and subsequent root
+audits/smoke commands. All 197 extraction/model guard tests pass.

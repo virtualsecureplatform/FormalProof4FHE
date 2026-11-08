@@ -67,3 +67,7 @@ Full `scripts/check` passes, including the 10,932-job build and subsequent audit
 and smoke commands. All 192 extraction/model guard tests pass. The compiler and
 backend are unchanged; their previous paired/upstream receipts are retained as
 previous evidence, rather than described as fresh full compiler regressions.
+
+The following range milestone, `../byte-range/README.md`, adds initialized
+single-allocation byte views and empty-range checks over this state. Typed
+references, aliasing and the native dereference remain unproved.
