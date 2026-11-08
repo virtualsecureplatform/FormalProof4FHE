@@ -632,3 +632,5 @@ import FormalProof4FHE.HasteBoots.NativeByteRangeUpdate
 import FormalProof4FHE.HasteBoots.NativeByteReborrow
 import FormalProof4FHE.HasteBoots.NativeByteRangeWrite
 import FormalProof4FHE.HasteBoots.NativeWord64Memory
+import FormalProof4FHE.HasteBoots.NativeRawByteRange
+import FormalProof4FHE.HasteBoots.NativePointerShadow

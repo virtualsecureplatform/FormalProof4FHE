@@ -7,6 +7,53 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Untyped byte copies and finite allocation-origin metadata now check
+
+`NativeRawByteRange` snapshots and replaces actual heap cells, including
+uninitialized cells. Positive copies snapshot before writing, so overlapping
+copies retain the original source cells. A separate nonoverlapping operation
+rejects overlapping spans. Empty copies check alignment without dereferencing
+storage. Thirty-one theorems establish exact read-back, initialization-state
+preservation, agreement with initialized byte writes, outside-byte framing,
+well-formedness and derived availability from checked spans. These are model
+operations; native pointer-copy source correspondence and physical costs remain
+open. Rust's [copy_nonoverlapping documentation](https://doc.rust-lang.org/stable/core/ptr/fn.copy_nonoverlapping.html)
+specifies untyped copying that preserves initialization state, motivating the
+cell representation rather than an initialized-values-only copy.
+
+`NativePointerShadow` provides finite per-byte allocation-origin metadata keyed
+by the containing allocation's identity and byte address. Replacement and
+snapshot operations support relocation. Integer-byte writes can clear metadata
+even when address bits stay unchanged. Eleven theorems establish selected-cell
+membership, exact inside replacement, outside framing, snapshot length and
+uniform-span behavior. Mixed fragments are rejected by this model's policy;
+this does not establish the complete Rust provenance or aliasing rules. The
+metadata layer is not yet coupled to pointer load/store heap operations and does
+not authenticate caller-supplied pointers. No allocation origin is reconstructed
+by searching live allocations for matching address bits. Rust's
+[without_provenance documentation](https://doc.rust-lang.org/stable/core/ptr/fn.without_provenance.html)
+explains why numerical addresses alone cannot authorize nonzero memory access.
+
+All 61 new declarations, including the metadata record's constructor and
+projections, have persistent dependency audits limited to the three permitted
+Lean dependencies. Eighteen executable regressions cover uninitialized and
+overlapping copies, nonoverlap and extent rejection, stale allocation
+identities, zero-length alignment, partial metadata erasure, generation-separated
+storage and metadata relocation. Both modules and their tests are included in
+the root aggregates. Full `scripts/check` passes (10,954 build jobs plus all
+subsequent audit/smoke commands; log:
+`/tmp/hasteboots-raw-byte-shadow-full-check.log`). Production Rust and the
+compiler/backend are unchanged.
+
+Next, couple pointer-bit storage to this metadata and prove load/store/copy
+round trips and lifecycle behavior. Then close pointer-value construction under
+source operations so origin authenticity is derived rather than assumed.
+Borrow identity, native allocator/drop/deallocator and pointer dereference
+extraction, typed source correspondence, compiler/caller/NTT/SIMD/scheduler
+coverage, causal oracle-owner history, BabyBear and the final expected physical
+attacker-work inequality remain open. No native acceptance or end-to-end
+security theorem is claimed by these modules.
+
 ## Concrete range initialization and scalar word memory now check
 
 `NativeByteRangeWrite` performs checked byte-range replacement in one live
