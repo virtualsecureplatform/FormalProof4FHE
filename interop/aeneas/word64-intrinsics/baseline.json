@@ -1,0 +1,12 @@
+{
+  "claim": "word64 intrinsic bindings absent before checked whitelist",
+  "fixture_sha256": "e5328edd603909b57440beb5f9b7674e0c1af08596542b2af636812de822c379",
+  "llbc_sha256": "86b358090842ec69584787651d07ad09bf0f88c996230d8c6f89beac28c80e99",
+  "generated_sha256": "5df66a2fc2ae1a86f86c3fc7249e08f7f12b7ed6a33f5926e43ab35d8a82c619",
+  "build_receipt_sha256": "9d805596f16443e32d94086e09b012fea2b1c0343c7e46bbcfa5fc667c1c336d",
+  "frontend_exit_code": 0,
+  "unresolved_axioms": [
+    "core.intrinsics.ctpop.mono_bc4450490a9ebd58a1ba01d71bd1bffd",
+    "core.intrinsics.ctlz_nonzero.mono_9bcafadd5a6ec5229685449d8bca29b4"
+  ]
+}
