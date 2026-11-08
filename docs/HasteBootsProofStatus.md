@@ -7,6 +7,25 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Original large discriminants survive frontend translation
+
+The pure IR now retains arbitrary-precision discriminants instead of converting
+source values through OCaml `int`. The original alignment value `2^63` survives
+translation. The fixed-width u64/u128 regression has eight kernel theorems,
+three extracted functions and two generated readers (thirteen dependency
+audits), with exact values through `2^128 - 1`. The preceding 54 audits passed
+again. All 134 extraction guard tests pass; all 128 regenerated upstream files
+remain unchanged, with 97 completed targets and the existing `dyn.rs` failure.
+See `interop/aeneas/large-discriminants/README.md` and its evidence manifest.
+
+The complete large-usize fixture still rejects in Lean: the backend's usize
+literal notation uses a portable 32-bit bound. This rejection is required by
+the new gate and is not counted as a checked usize model. Native layout
+translation gets past the host-integer overflow and now rejects at the actual
+`UsizeNoHighBit::as_inner` transmute. Large usize representation, pattern and
+transparent-wrapper casts, native heap/work refinement and the complete
+security theorem remain open.
+
 ## Constrained usize storage preserves native capacity bounds
 
 The paired frontend carries U32/Usize scalar kinds and both inclusive bounds
