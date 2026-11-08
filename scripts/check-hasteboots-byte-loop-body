@@ -1,0 +1,118 @@
+#!/usr/bin/env python3
+"""Check typed original byte-loop interpretation and explicit scoped traversal simulation."""
+import argparse
+import copy
+import hashlib
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+DATA = ROOT / 'interop/aeneas/byte-loop-body'
+MODEL = ROOT / 'FormalProof4FHE/HasteBoots/NativeByteLoopLLBC.lean'
+BUILD = runpy.run_path(str(ROOT / 'scripts/build-hasteboots-inline-tools'))
+PARAMETERS = runpy.run_path(str(ROOT / 'scripts/extract-hasteboots-parameters'))
+REIFIER = runpy.run_path(str(ROOT / 'scripts/reify-hasteboots-byte-loop-llbc'))
+EXTRAS = {
+ 'Ty':['unit','usize','boolean','rawByte','sliceRef','byteRef'],
+ 'Value':['unit','usize','boolean','rawByte','sliceRef','byteRef'],
+ 'Slot':['dead','live'], 'Frame':['mk','types','slots','world'],
+ 'Operand':['copy','move','literal','metadata'], 'EvalResult':['value','invalid'],
+ 'Rvalue':['unit','use','eq','addWrap','borrowSlice','rawByte'], 'Binary':['eq','addWrap'],
+ 'IndexResult':['next','unwind','invalid'],
+ 'Code':['done','ret','resume','abort','breaking','continuing','storageLive','storageDead','assign','index','branch'],
+ 'Flow':['normal','returned','unwind','invalid','breaking','continuing'],
+ 'LoopRuns':['stop','next','normal','terminal'], 'Function':['mk','name','types','before','body','after'],
+ 'Executes':['start','early'], 'Invokes':['invalid','malformed','valid']}
+
+
+def digest(raw): return hashlib.sha256(raw).hexdigest()
+
+
+def inventory():
+    raw=MODEL.read_text();PARAMETERS['validate_proof_source'](raw,re.findall(r'^theorem (\w+)',raw,re.M))
+    names=re.findall(r'^(?:def|theorem|structure|inductive) ([\w.]+)',raw,re.M)
+    names += [p+'.'+n for p,ns in EXTRAS.items()for n in ns]
+    return ['FormalProof4FHE.HasteBoots.NativeByteLoopLLBC.'+n for n in names]
+
+
+def negatives(ir):
+    records=REIFIER['PROFILE']['negatives'](ir)
+    def check(name,mutate):
+        changed=copy.deepcopy(ir);mutate(changed['translated'])
+        try:REIFIER['Reifier'](changed).render()
+        except (ValueError,KeyError,TypeError,IndexError)as error:records[name]=str(error)
+        else:raise RuntimeError('Negative accepted: '+name)
+    def f(c):return c['fun_decls'][4]
+    def before(c):return f(c)['body']['Structured']['body']['statements']
+    def step(c):return before(c)[8]['kind']['Loop']['statements'][1]['kind']['Switch']['If'][2]['statements']
+    check('unknown_statement_effect',lambda c:before(c)[0].update(hidden_effect='Drop'))
+    check('unknown_outer_loop_field',lambda c:before(c)[8].update(hidden_effect='Drop'))
+    check('unknown_outer_loop_kind',lambda c:before(c)[8]['kind'].update(hidden_effect='Drop'))
+    check('wrong_boolean_local',lambda c:f(c)['body']['Structured']['locals']['locals'][5].update(ty={'Untagged':{'Literal':{'UInt':'Usize'}}}))
+    check('wrong_raw_metadata',lambda c:step(c)[4]['kind']['Assign'][1]['RawPtr'].update(ptr_metadata=None))
+    check('unknown_retag_flag',lambda c:before(c)[6]['kind']['Assign'][1]['Use'].__setitem__(1,'Unknown'))
+    check('unbound_signature_region',lambda c:f(c)['signature']['inputs'][0]['Untagged']['Ref'][0]['Var'].update(Free=999))
+    check('unbound_local_region',lambda c:f(c)['body']['Structured']['locals']['locals'][1]['ty']['Untagged']['Ref'].__setitem__(0,{'Body':999}))
+    check('bad_suffix_storage',lambda c:before(c)[9].update(kind={'StorageDead':99}))
+    return records
+
+
+def main():
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--build-receipt',type=Path,required=True);args=parser.parse_args()
+    out=Path(tempfile.mkdtemp(prefix='byte-loop-body-',dir=ROOT/'build/hasteboots-extraction'))
+    record={'status':'started','claim':'typed original slice-loop LLBC with explicit backedge cleanup and traversal simulation; Rust lifetime/compiler/native security refinement unproved',
+            'commands':[],'slice_body_interpreted':True,'loop_to_traversal_simulation':True,'whole_probe_interpreted':False,'rust_lifetime_refinement':False}
+    def save():(out/'manifest.json').write_text(json.dumps(record,indent=2)+'\n')
+    def run(command,log):
+        record['commands'].append([str(x)for x in command]);save()
+        with (out/log).open('w')as stream:result=subprocess.run([str(x)for x in command],cwd=ROOT,stdout=stream,stderr=subprocess.STDOUT)
+        if result.returncode:raise RuntimeError('Command failed: '+log)
+    print('Byte loop body artifacts: '+str(out),flush=True)
+    try:
+        _,tools,_=BUILD['verify_receipt'](args.build_receipt);record['build_receipt_sha256']=digest(args.build_receipt.read_bytes())
+        files=[Path(__file__),ROOT/'scripts/reify-hasteboots-byte-loop-llbc',ROOT/'scripts/check-hasteboots-byte-drop-primitives',
+               ROOT/'scripts/reify-hasteboots-slice-reference-llbc',ROOT/'scripts/reify-hasteboots-slice-scope-llbc',ROOT/'scripts/reify-hasteboots-scalar-llbc',MODEL,
+               ROOT/'FormalProof4FHETest/HasteBootsByteLoopLLBCSmoke.lean',ROOT/'FormalProof4FHETest/HasteBootsByteLoopLLBCAudit.lean',ROOT/'lean-toolchain',
+               ROOT/'interop/aeneas/byte-drop-loop/fixture.rs',*[DATA/name for name in['Generated.lean','Retained.json','Proof.lean','Smoke.lean']]]
+        record['inputs']={str(p.relative_to(ROOT)):digest(p.read_bytes())for p in files}
+        run([ROOT/'scripts/in-container','lake','build','FormalProof4FHETest.HasteBootsByteLoopLLBCSmoke','FormalProof4FHETest.HasteBootsByteLoopLLBCAudit'],'root-build.log')
+        run([ROOT/'scripts/check-hasteboots-byte-drop-primitives','--build-receipt',args.build_receipt],'parent-byte-primitives.log')
+        parent_path=Path((out/'parent-byte-primitives.log').read_text().splitlines()[0].split(': ',1)[1])/'manifest.json'
+        parent=json.loads(parent_path.read_text())
+        if parent.get('status')!='passed'or parent['build_receipt_sha256']!=record['build_receipt_sha256']:raise RuntimeError('Parent did not pass with the same tools')
+        record['parent_byte_primitives']={'manifest':str(parent_path.relative_to(ROOT)),'manifest_sha256':digest(parent_path.read_bytes()),'dependency_audit_count':len(parent['dependency_audit'])}
+        llbc=out/'source.llbc'
+        run([tools/'charon','rustc','--preset=aeneas','--sysroot','default','--monomorphize','--mir','optimized','--consts','values','--evaluate-runtime-checks','--precise-drops','--desugar-drops','--preserve-allocator','--no-dedup-serialized-ast',
+             '--include','core::ptr::drop_in_place','--include','core::ptr::slice_from_raw_parts_mut','--dest-file',llbc,'--','--crate-type','lib','--edition','2024','-Cdebug-assertions=no','--crate-name','hasteboots_byte_drop_loop',(ROOT/'interop/aeneas/byte-drop-loop/fixture.rs').relative_to(ROOT)],'charon.log')
+        ir=json.loads(llbc.read_text());r=REIFIER['Reifier'](ir);generated=r.render()
+        retained={'function':r.function,'original_body_sha256':REIFIER['digest'](r.function['body']),
+                  'claim':'typed original byte-loop LLBC plus explicit backedge cleanup; Rust lifetimes and compiler/native/security refinement unproved'}
+        if generated!=(DATA/'Generated.lean').read_text()or retained!=json.loads((DATA/'Retained.json').read_text()):raise RuntimeError('Original body snapshot differs')
+        record['negative_controls']=negatives(ir)
+        changed=copy.deepcopy(ir);changed['translated']['fun_decls'][4]['body']['Structured']['body']['statements'][6]['kind']['Assign'][1]['Use'][1]='Yes'
+        changed_generated=REIFIER['Reifier'](changed).render()
+        if changed_generated==generated:raise RuntimeError('Supported metadata-retag mutation ignored')
+        names=inventory()+['HasteBootsByteLoopBody.f4'];raw=(DATA/'Proof.lean').read_text()
+        PARAMETERS['validate_proof_source'](raw,re.findall(r'^theorem (\w+)',raw,re.M))
+        names += ['HasteBootsByteLoopBody.'+n for n in re.findall(r'^(?:def|theorem) (\w+)',raw,re.M)]
+        checked=out/'Checked.lean';checked.write_text(generated+'\n'+raw+'\n'+(DATA/'Smoke.lean').read_text()+''.join('\n#print axioms '+n+'\n'for n in names))
+        run([ROOT/'scripts/in-container','lake','env','lean','-DwarningAsError=true',checked.relative_to(ROOT)],'lean.log')
+        record['dependency_audit']=PARAMETERS['audit_log']((out/'lean.log').read_text(),names)
+        mutant=out/'MetadataRetag.lean';mutant.write_text(changed_generated+'\n'+raw+'\n'+(DATA/'Smoke.lean').read_text())
+        run([ROOT/'scripts/in-container','lake','env','lean','-DwarningAsError=true',mutant.relative_to(ROOT)],'metadata-retag-lean.log')
+        record['supported_metadata_retag_mutation']={'original':'No','mutated':'Yes','generated_changed':True,'source_proofs_and_regressions_passed':True}
+        record['llbc_sha256']=digest(llbc.read_bytes());record['checked_sha256']=digest(checked.read_bytes())
+        if record['inputs']!={str(p.relative_to(ROOT)):digest(p.read_bytes())for p in files}:raise RuntimeError('Inputs changed during validation')
+        BUILD['verify_receipt'](args.build_receipt);record['status']='passed'
+        print('Byte loop body passed: '+str(len(names))+' audits; '+str(len(record['negative_controls']))+' rejecting controls; original slice loop simulated with explicit backedge cleanup')
+    except Exception as error:
+        record.update(status='failed',error=str(error));raise SystemExit(str(error)+'; inspect '+str(out))from error
+    finally:
+        record['logs']={p.name:digest(p.read_bytes())for p in out.glob('*.log')};save()
+
+
+if __name__=='__main__':main()

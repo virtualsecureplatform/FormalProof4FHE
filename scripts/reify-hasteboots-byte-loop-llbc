@@ -1,0 +1,155 @@
+#!/usr/bin/env python3
+"""Reify the retained original mutable-byte single-loop body into typed LLBC code."""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import runpy
+
+ROOT = Path(__file__).resolve().parent.parent
+BASE = runpy.run_path(str(ROOT / 'scripts/reify-hasteboots-slice-reference-llbc'))
+PROFILE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-byte-drop-primitives'))
+require, empty_generics, region_valid = BASE['require'], BASE['empty_generics'], BASE['region_valid']
+
+
+def digest(value): return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+
+
+def ty(raw, body=None, free=0):
+    require(isinstance(raw,dict) and set(raw)=={'Untagged'},'Expected expanded source type')
+    value=raw['Untagged']
+    if value=={'Literal':{'UInt':'Usize'}}: return 'usize'
+    if value=={'Literal':'Bool'}: return 'boolean'
+    if set(value)=={'Adt'}:
+        require(value['Adt']['id']=='Tuple' and empty_generics(value['Adt']['generics']),'Unsupported source ADT')
+        return 'unit'
+    if value=={'RawPtr':[{'Untagged':{'Literal':{'UInt':'U8'}}},'Mut']}: return 'rawByte'
+    require(set(value)=={'Ref'},'Unsupported source type')
+    region,pointee,mode=value['Ref']
+    require(region_valid(region,body,free) and mode=='Mut','Unbound region or unsupported reference mode')
+    if pointee=={'Untagged':{'Literal':{'UInt':'U8'}}}: return 'byteRef'
+    require(pointee=={'Untagged':{'Slice':{'Untagged':{'Literal':{'UInt':'U8'}}}}},'Unsupported reference pointee')
+    return 'sliceRef'
+
+
+class Reifier:
+    def __init__(self,ir):
+        self.retained=PROFILE['validate'](ir)
+        self.function=ir['translated']['fun_decls'][4]
+        f=self.function;g=f['generics'];regions=g['regions']
+        require(all(set(r)=={'index','name','mutability'} and r['index']==i for i,r in enumerate(regions)) and empty_generics({**g,'regions':[]}), 'Unclosed source generics')
+        self.free=len(regions);b=f['body']['Structured']
+        require(set(b)=={'span','bound_body_regions','locals','body','comments'},'Unknown body fields')
+        self.bound=b['bound_body_regions'];locals_=b['locals']
+        require([v['index']for v in locals_['locals']]==list(range(len(locals_['locals']))),'Noncanonical local indices')
+        self.types=[ty(v['ty'],self.bound,self.free)for v in locals_['locals']]
+        signature=f['signature']
+        require(signature['abi']=='Rust' and not signature['is_variadic'] and locals_['arg_count']==1 and
+                [ty(t,free=self.free)for t in signature['inputs']]==['sliceRef'] and ty(signature['output'],free=self.free)=='unit' and
+                self.types[:2]==['unit','sliceRef'],'Unsupported source signature')
+        top=b['body'];require(set(top)=={'span','statements'},'Unknown outer block fields')
+        indices=[i for i,s in enumerate(top['statements'])if isinstance(s['kind'],dict)and'Loop'in s['kind']]
+        require(len(indices)==1,'Expected one original outer loop')
+        pos=indices[0]
+        loop_statement=top['statements'][pos]
+        require(set(loop_statement)=={'span','id','kind','comments_before'} and set(loop_statement['kind'])=={'Loop'},'Unknown outer-loop statement fields')
+        self.before={'span':top['span'],'statements':top['statements'][:pos]}
+        self.body=top['statements'][pos]['kind']['Loop']
+        self.after={'span':top['span'],'statements':top['statements'][pos+1:]}
+
+    def place(self,p):
+        require(set(p)=={'kind','ty'} and set(p['kind'])=={'Local'},'Expected local place')
+        index=p['kind']['Local']
+        require(type(index)is int and 0<=index<len(self.types) and ty(p['ty'],self.bound,self.free)==self.types[index],'Local type mismatch')
+        return index,self.types[index]
+
+    def operand(self,o):
+        require(isinstance(o,dict)and len(o)==1,'Unsupported operand')
+        if 'Const'in o:
+            c=o['Const'];require(set(c)=={'kind','ty'}and ty(c['ty'],self.bound,self.free)=='usize','Unsupported literal')
+            literal=c['kind'];require(set(literal)=={'Literal'}and set(literal['Literal'])=={'Scalar'}and set(literal['Literal']['Scalar'])=={'Unsigned'},'Nonliteral literal')
+            kind,value=literal['Literal']['Scalar']['Unsigned'];require(kind=='Usize'and str(int(value))==value and 0<=int(value)<2**64,'Invalid usize literal')
+            return '(.literal ⟨'+value+', by decide⟩)','usize'
+        require(set(o)in[{'Copy'},{'Move'}],'Unsupported operand kind')
+        kind=next(iter(o));p=o[kind]
+        if set(p['kind'])=={'Projection'}:
+            base,projection=p['kind']['Projection'];index,t=self.place(base)
+            require(kind=='Copy'and projection=='PtrMetadata'and t=='sliceRef'and ty(p['ty'],self.bound,self.free)=='usize','Unsupported metadata projection')
+            return '(.metadata '+str(index)+')','usize'
+        index,t=self.place(p)
+        require(kind!='Copy'or t not in['sliceRef','byteRef'],'Mutable references cannot be copied')
+        return '('+('.copy 'if kind=='Copy'else'.move ')+str(index)+')',t
+
+    def rvalue(self,r):
+        require(isinstance(r,dict)and len(r)==1,'Unsupported rvalue')
+        if 'Aggregate'in r:
+            require(r['Aggregate']==[{'Adt':[{'id':'Tuple','generics':{'regions':[],'types':[],'const_generics':[],'trait_refs':[]}},None,None]},[]],'Only the unit aggregate is supported')
+            return '.unit','unit'
+        if 'Use'in r:
+            operand,retag=r['Use'];value,t=self.operand(operand);require(retag in['Yes','No'],'Unknown WithRetag flag')
+            return '(.use '+value+' '+str(retag=='Yes').lower()+')',t
+        if 'BinaryOp'in r:
+            op,a,b=r['BinaryOp'];left,lt=self.operand(a);right,rt=self.operand(b)
+            require(lt==rt=='usize','Only usize binary operands are supported')
+            if op=='Eq': return '(.eq '+left+' '+right+')','boolean'
+            require(op=={'Add':'Wrap'},'Unsupported binary operation')
+            return '(.addWrap '+left+' '+right+')','usize'
+        if 'Ref'in r or 'RawPtr'in r:
+            kind='Ref'if'Ref'in r else'RawPtr';node=r[kind]
+            require(set(node)=={'place','kind','ptr_metadata'}and node['kind']=='Mut','Unsupported borrow fields/mode')
+            place=node['place'];require(set(place)=={'kind','ty'}and set(place['kind'])=={'Projection'},'Expected dereference borrow')
+            base,projection=place['kind']['Projection'];index,t=self.place(base);require(projection=='Deref','Unsupported borrow projection')
+            if kind=='Ref':
+                require(t=='sliceRef'and place['ty']=={'Untagged':{'Slice':{'Untagged':{'Literal':{'UInt':'U8'}}}}}and node['ptr_metadata']=={'Copy':{'kind':{'Projection':[base,'PtrMetadata']},'ty':{'Untagged':{'Literal':{'UInt':'Usize'}}}}},'Unbound slice borrow metadata')
+                return '(.borrowSlice '+str(index)+')','sliceRef'
+            require(t=='byteRef'and place['ty']=={'Untagged':{'Literal':{'UInt':'U8'}}}and node['ptr_metadata']=={'Const':{'kind':{'Adt':[None,[]]},'ty':{'Untagged':{'Adt':{'id':'Tuple','generics':{'regions':[],'types':[],'const_generics':[],'trait_refs':[]}}}}}},'Unbound raw-byte borrow metadata')
+            return '(.rawByte '+str(index)+')','rawByte'
+        raise ValueError('Unsupported active rvalue')
+
+    def block(self,block):
+        require(set(block)=={'span','statements'},'Unknown source block fields')
+        result='.done'
+        for statement in reversed(block['statements']):
+            require(set(statement)=={'span','id','kind','comments_before'},'Unknown statement fields')
+            kind=statement['kind']
+            if kind in['Return','UnwindResume']:
+                require(result=='.done','Statements after terminal');result='.ret'if kind=='Return'else'.resume';continue
+            require(isinstance(kind,dict)and len(kind)==1,'Unsupported statement')
+            name,payload=next(iter(kind.items()))
+            if name in['Break','Continue']:
+                require(payload==0 and result=='.done','Unsupported loop depth/continuation')
+                result='.breaking'if name=='Break'else'.continuing'
+            elif name=='Abort':
+                require(payload=='UndefinedBehavior'and result=='.done','Unsupported abort')
+                result='.abort'
+            elif name in['StorageLive','StorageDead']:
+                require(type(payload)is int and 0<=payload<len(self.types),'Bad storage index')
+                result='(.storage'+('Live'if name=='StorageLive'else'Dead')+' '+str(payload)+' '+result+')'
+            elif name=='Assign':
+                target,rv=payload;index,t=self.place(target);value,actual=self.rvalue(rv);require(t==actual,'Assignment types differ')
+                result='(.assign '+str(index)+' '+value+' '+result+')'
+            elif name=='Switch':
+                require(set(payload)=={'If'},'Unsupported switch')
+                cond,yes,no=payload['If'];value,t=self.operand(cond);require(t=='boolean','Nonboolean branch')
+                result='(.branch '+value+' '+self.block(yes)+' '+self.block(no)+' '+result+')'
+            elif name=='Call':
+                require(set(payload)=={'call','on_unwind'},'Unknown call fields');call=payload['call']
+                require(set(call)=={'func','args','dest'}and call['func']=={'Regular':{'kind':{'Fun':{'Builtin':{'Index':{'is_array':False,'mutability':'Mut','is_range':False}}}},'generics':{'regions':['Erased'],'types':[{'Untagged':{'Literal':{'UInt':'U8'}}}],'const_generics':[],'trait_refs':[]}}},'Only the original mutable byte Index intrinsic is supported')
+                require(len(call['args'])==2,'Wrong intrinsic arity');source,st=self.operand(call['args'][0]);offset,ot=self.operand(call['args'][1]);target,t=self.place(call['dest'])
+                require(st=='sliceRef'and ot=='usize'and t=='byteRef','Wrong intrinsic types')
+                result='(.index '+str(target)+' '+source+' '+offset+' '+self.block(payload['on_unwind'])+' '+result+')'
+            else: raise ValueError('Unsupported active statement: '+name)
+        return result
+
+    def render(self):
+        f=self.function;name='::'.join(x['Ident'][0]for x in f['item_meta']['name']if'Ident'in x)+'#4'
+        before,body,after=[self.block(b)for b in[self.before,self.body,self.after]]
+        return '\n'.join(['module','public import FormalProof4FHE.HasteBoots.NativeByteLoopLLBC','@[expose] public section','','namespace HasteBootsByteLoopBody','open FormalProof4FHE.HasteBoots.NativeByteLoopLLBC','','-- Original body SHA256 '+digest(f['body']),'def f4 : Function :=','  ⟨'+json.dumps(name)+', ['+', '.join('.'+t for t in self.types)+'],', '    '+before+',','    '+body+',','    '+after+'⟩','','end HasteBootsByteLoopBody',''])
+
+
+def main():
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('llbc',type=Path);parser.add_argument('output',type=Path);parser.add_argument('--retained',type=Path,required=True);args=parser.parse_args()
+    r=Reifier(json.loads(args.llbc.read_text()));args.output.write_text(r.render());args.retained.write_text(json.dumps({'function':r.function,'original_body_sha256':digest(r.function['body']),'claim':'typed original byte-loop LLBC plus explicit backedge cleanup; Rust lifetimes and compiler/native/security refinement unproved'},indent=2)+'\n')
+
+
+if __name__=='__main__': main()
