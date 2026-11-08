@@ -1,0 +1,36 @@
+#!/usr/bin/env python3
+"""Reject missing heap update/source bridge proofs and unsupported proof dependencies."""
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+GATE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-byte-reference-heap'))
+
+
+class Guards(unittest.TestCase):
+    def test_complete_sources(self):
+        GATE['validate_sources']()
+
+    def test_every_model_and_bridge_theorem_required(self):
+        for path, names in [(GATE['MODEL'], GATE['MODEL_PROOFS']), (GATE['DATA'] / 'Bridge.lean', GATE['BRIDGE_PROOFS'])]:
+            source = path.read_text()
+            for name in names:
+                with self.assertRaises(RuntimeError):
+                    GATE['PARAMETERS']['validate_proof_source'](source.replace('theorem ' + name, 'theorem missing'), names)
+
+    def test_admissions_and_extra_assumptions_rejected(self):
+        for path, names in [(GATE['MODEL'], GATE['MODEL_PROOFS']), (GATE['DATA'] / 'Bridge.lean', GATE['BRIDGE_PROOFS'])]:
+            for added in ['\naxiom heap_certificate : True\n', '\ntheorem assumed : True := by sorry\n',
+                          '\ntheorem assumed : True := by native_decide\n', '\nset_option maxHeartbeats 0\n']:
+                with self.assertRaises(RuntimeError): GATE['PARAMETERS']['validate_proof_source'](path.read_text() + added, names)
+
+    def test_root_audits_cover_entire_model(self):
+        audit = (ROOT / 'FormalProof4FHETest/HasteBootsByteRangeUpdateAudit.lean').read_text()
+        for name in GATE['MODEL_PROOFS']:
+            self.assertEqual(audit.count('#print axioms FormalProof4FHE.HasteBoots.NativeByteRangeUpdate.' + name + '\n'), 1)
+        self.assertEqual(audit.count('#print axioms '), len(GATE['MODEL_PROOFS']))
+
+
+if __name__ == '__main__':
+    unittest.main()

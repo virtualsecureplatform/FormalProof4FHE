@@ -1,0 +1,93 @@
+#!/usr/bin/env python3
+"""Check exact source byte-accessor agreement with current heap views and checked borrow writes."""
+import argparse
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+SOURCE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-byte-reference'))
+BUILD, PARAMETERS, COMMON, digest = [SOURCE[k] for k in ['BUILD', 'PARAMETERS', 'COMMON', 'digest']]
+DATA = ROOT / 'interop/aeneas/byte-reference-heap'
+MODEL = ROOT / 'FormalProof4FHE/HasteBoots/NativeByteRangeUpdate.lean'
+MODEL_PROOFS = ['readSpan_set', 'readSpan_drop_set', 'covered_offset_matches', 'storeBlocks_range', 'storeByte_range',
+                'borrowed_write_range', 'pointerAt_zero', 'borrowed_read_selected', 'storeBlocks_of_load',
+                'storeByte_of_range', 'borrowed_write_of_allowed']
+BRIDGE_PROOFS = ['decode_encode', 'encode_decode', 'encoded_values', 'observe_represents', 'observe_of_loaded',
+                 'represents_length', 'source_write_heap', 'source_read_heap', 'source_write_authorized']
+BRIDGE_VALUES = ['encodeByte', 'decodeByte', 'encodeBytes', 'Represents', 'observe']
+
+
+def validate_sources():
+    PARAMETERS['validate_proof_source'](MODEL.read_text(), MODEL_PROOFS)
+    PARAMETERS['validate_proof_source']((DATA / 'Bridge.lean').read_text(), BRIDGE_PROOFS)
+    if re.findall(r'^def ([^\s:(]+)', (DATA / 'Bridge.lean').read_text(), re.M) != BRIDGE_VALUES:
+        raise RuntimeError('Incomplete heap view definition inventory')
+    if re.search(r'^(def|structure|inductive) ', MODEL.read_text(), re.M):
+        raise RuntimeError('Heap update module must use existing executable memory operations')
+    PARAMETERS['validate_proof_source']((ROOT / 'FormalProof4FHETest/HasteBootsByteRangeUpdateSmoke.lean').read_text(), [])
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--build-receipt', type=Path, required=True)
+    parser.add_argument('--backend', type=Path, required=True)
+    args = parser.parse_args()
+    parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
+    out = Path(tempfile.mkdtemp(prefix='byte-reference-heap-', dir=parent))
+    record = {'status': 'started', 'claim': 'source logical byte accessor/current heap view agreement only; native references/tag ownership/alias/compiler/work/security unproved',
+              'script_sha256': digest(Path(__file__).read_bytes()), 'commands': []}
+    def save(): (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
+    def run(command, log):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out / log).open('w') as stream:
+            subprocess.run([str(x) for x in command], cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT, check=True)
+    print('Byte reference heap artifacts: ' + str(out), flush=True); save()
+    try:
+        BUILD['verify_receipt'](args.build_receipt)
+        record['build_receipt_sha256'] = digest(args.build_receipt.read_bytes())
+        record['backend_patches'] = PARAMETERS['verify_backend'](args.backend.resolve(), out)
+        validate_sources()
+        files = [MODEL, DATA / 'Bridge.lean', SOURCE['RUNTIME'], SOURCE['DATA'] / 'Generated.lean', SOURCE['DATA'] / 'Proof.lean',
+                 ROOT / 'FormalProof4FHETest/HasteBootsByteRangeUpdateSmoke.lean', ROOT / 'FormalProof4FHETest/HasteBootsByteRangeUpdateAudit.lean',
+                 ROOT / 'FormalProof4FHE.lean', ROOT / 'FormalProof4FHETest.lean', ROOT / 'lean-toolchain']
+        record['inputs'] = {str(p.relative_to(ROOT)): digest(p.read_bytes()) for p in files}
+        record['parent_gates'] = {}
+        for name in ['byte-reference', 'byte-borrow']:
+            run([ROOT / ('scripts/check-hasteboots-' + name), '--build-receipt', args.build_receipt, '--backend', args.backend], name + '.log')
+            path = Path((out / (name + '.log')).read_text().splitlines()[0].split(': ', 1)[1]) / 'manifest.json'
+            parent_record = json.loads(path.read_text())
+            if parent_record.get('status') != 'passed' or parent_record.get('build_receipt_sha256') != record['build_receipt_sha256']:
+                raise RuntimeError('Parent gate differs from paired tools: ' + name)
+            record['parent_gates'][name] = {'manifest_sha256': digest(path.read_bytes()), 'dependency_audit': parent_record['dependency_audit']}
+        run([ROOT / 'scripts/in-container', 'lake', 'build', 'FormalProof4FHE.HasteBoots.NativeByteRangeUpdate',
+             'FormalProof4FHETest.HasteBootsByteRangeUpdateSmoke', 'FormalProof4FHETest.HasteBootsByteRangeUpdateAudit'], 'root-build.log')
+        names = ['FormalProof4FHE.HasteBoots.NativeByteRangeUpdate.' + n for n in MODEL_PROOFS]
+        names += ['HasteBootsByteReferenceHeap.' + n for n in BRIDGE_VALUES + BRIDGE_PROOFS]
+        names += ['HasteBootsSlice64Runtime.' + n for n in SOURCE['VALUES'] + SOURCE['RUNTIME_PROOFS']]
+        names += [SOURCE['NAMESPACE'] + '.' + n for n in ['checked_read', 'checked_write'] + SOURCE['PROOFS']]
+        checked = out / 'Checked.lean'
+        checked.write_text('import FormalProof4FHE.HasteBoots.NativeByteRangeUpdate\n' + SOURCE['RUNTIME'].read_text() + '\n'
+                           + (SOURCE['DATA'] / 'Generated.lean').read_text().replace('import Aeneas\n', '') + '\n'
+                           + (SOURCE['DATA'] / 'Proof.lean').read_text() + '\n' + (DATA / 'Bridge.lean').read_text()
+                           + ''.join('\n#print axioms ' + name + '\n' for name in names))
+        command = ('project_path=$(lake env printenv LEAN_PATH); cd -- "$1"; backend_path=$(lake env printenv LEAN_PATH); '
+                   'LEAN_PATH="$project_path:$backend_path" lean -DwarningAsError=true "$2"')
+        run([ROOT / 'scripts/in-container', 'bash', '-euc', command, '_',
+             COMMON['container_path'](args.backend.resolve() / 'backends/lean'), COMMON['container_path'](checked)], 'lean.log')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), names)
+        record['checked_sha256'] = digest(checked.read_bytes())
+        if record['inputs'] != {str(p.relative_to(ROOT)): digest(p.read_bytes()) for p in files}: raise RuntimeError('Input changed during check')
+        BUILD['verify_receipt'](args.build_receipt); record['status'] = 'passed'
+        print('Byte reference heap passed: ' + str(len(names)) + ' dependency audits; 11 heap update and nine source/encoding theorems')
+    except (Exception, SystemExit) as error:
+        record.update(status='failed', error=str(error)); raise SystemExit('Byte reference heap failed; inspect ' + str(out) + ': ' + str(error)) from error
+    finally:
+        record['logs'] = {p.name: digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__':
+    main()
