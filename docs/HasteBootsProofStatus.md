@@ -7,6 +7,55 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Original scalar pointer bodies now have a separate LLBC heap interpretation
+
+`NativeScalarLLBC` gives finite body semantics for Copy words, thin pointers and
+unit values. It preserves local moves, storage-live/dead state, dereference
+assignments, resolved callee bodies, return and unwind flow. Normal, unwind and
+invalid outcomes retain the resulting heap, including writes performed before
+a later failure. Eleven theorems establish operand/local heap framing and heap
+well-formedness through every interpreted outcome. Ten root regressions check
+liveness, moved/dead-local rejection, type/arity checks and failure/unwind prefix
+effects. All 71 model declarations have persistent dependency audits.
+
+`scripts/reify-hasteboots-scalar-llbc` reifies retained original LLBC syntax;
+callee bodies are embedded from resolved declarations, without function-name
+semantic replacements or caller-supplied callees. The new
+`check-hasteboots-scalar-pointer-body` gate extracts five wrappers and all four
+original `core::ptr::{read,write}` word/pointer bodies with the frozen coupled
+tools. It checks ordinary sysroot, optimized monomorphic bodies, precise and
+desugared drops, preserved allocator policy, evaluated runtime checks and target
+layout. Four original compiler-evaluated constants prove both word and pointer
+size/alignment `(8,8)`. The nine source memory/body/wrapper theorems establish
+exact heap behavior, including replacement. Two additional bridge theorems bind
+original pointer source bodies to successful closed reference-machine raw
+operations and derive their permissions from executed checks.
+
+The body gate covers 97 dependency audits (71 model and 26 source/value/layout/
+bridge declarations), 17 rejecting source/target/schema controls and a supported
+syntax mutation that must alter the generated body. Eight concrete source
+examples check initialization, pointer-origin preservation/erasure, alignment,
+invalid provenance and replacement. The parent word-memory gate also checks
+with the same tools. This is a separate experimental Charon-to-Lean body
+profile; the unchanged Aeneas path still rejects original raw dereference.
+Production Rust, Charon, Aeneas and the backend are unchanged. Fresh final gate
+receipt: `build/hasteboots-extraction/scalar-pointer-body-ptig62az/manifest.json`;
+full `scripts/check` passes (10,966 build jobs plus all subsequent audit/smoke
+commands; log: `/tmp/hasteboots-scalar-llbc-full-check.log`). Persistent evidence
+is recorded in `interop/aeneas/scalar-pointer-body/regression.json`.
+
+The results concern the reified LLBC semantics. Charon and the reifier remain
+unverified translation components; this is not Rust/compiler correctness or
+native constructor acceptance. Non-Copy objects, references, non-unit layouts,
+loops, recursion, indirect/trait calls, residual runtime-check queries and drop
+effects are rejected rather than summarized. Next, extend source correspondence
+to original native reference/lifecycle and typed bodies, retaining the closed
+reference bindings and actual heap effects. Full native constructor extraction,
+compiler/caller/NTT/SIMD/scheduler coverage, Rust alias/multi-actor authority,
+heap-stored references, causal lifetime oracle-owner history, BabyBear and the
+final expected physical attacker-work inequality remain open. No cost or
+end-to-end security result is claimed.
+
 ## Register-bound references now use the provenance-aware heap
 
 `NativeReferenceMachine` binds reference operations to reference registers.
