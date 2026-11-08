@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+"""Reject dropped range predicates, admitted casts and incomplete range extraction."""
+from copy import deepcopy
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+PROBE = runpy.run_path(str(ROOT / 'scripts/probe-hasteboots-u32-ranges'))
+
+
+def ir():
+    u32 = {'Literal': {'UInt': 'U32'}}
+    bounds = [{'kind': {'Literal': {'Scalar': {'Unsigned': ['U32', n]}}}, 'ty': u32} for n in ['7', '19']]
+    return {'has_errors': False, 'translated': {'target_information': [
+        {'key': 'x86_64-unknown-linux-gnu', 'value': {'target_pointer_size': 8, 'is_little_endian': True}}]},
+        'field': {'Pattern': [u32, {'Range': bounds}]}}
+
+
+class Guards(unittest.TestCase):
+    def test_import_only(self):
+        for case, (_, namespace, names, _, _, _) in PROBE['CASES'].items():
+            raw = (PROBE['DATA'] / ('Generated.lean' if case == 'ranges' else 'TimeGenerated.lean')).read_text()
+            self.assertEqual(PROBE['validate_output'](raw, namespace, names), raw.replace('import Aeneas\n', ''))
+
+    def test_incomplete_output(self):
+        raw = 'import Aeneas\nset_option maxHeartbeats 200000\nset_option maxRecDepth 1000\ndef keep := ()\nend control\n'
+        PROBE['validate_output'](raw, 'control', ['keep'])
+        for bad in [raw.replace('def keep', 'def missing'), raw.replace('end control', ''), raw + raw]:
+            with self.assertRaises(RuntimeError): PROBE['validate_output'](bad, 'control', ['keep'])
+
+    def test_admissions_and_limits(self):
+        raw = 'import Aeneas\nset_option maxHeartbeats 200000\nset_option maxRecDepth 1000\ndef keep := ()\nend control\n'
+        for text in ['axiom bad : False', 'opaque bad : Type', 'constant bad : Type', 'def bad := sorry',
+                     'def bad := sorryAx', 'def bad := native_decide', 'def bad := by decide +native',
+                     'unsafe def bad := ()', 'set_option maxHeartbeats 1000000']:
+            with self.assertRaises(RuntimeError):
+                PROBE['validate_output'](raw.replace('end control', text + '\nend control'), 'control', ['keep'])
+        with self.assertRaises(RuntimeError): PROBE['validate_output'](raw.replace('1000\n', '2048\n'), 'control', ['keep'])
+
+    def test_complete_target_and_exact_ranges(self):
+        self.assertEqual(PROBE['inspect_patterns'](ir(), [(7, 19)]), [(7, 19)])
+        for mutate in [lambda x: x.update(has_errors=True), lambda x: x['translated'].update(target_information=[])]:
+            bad = ir(); mutate(bad)
+            with self.assertRaises(RuntimeError): PROBE['inspect_patterns'](bad, [(7, 19)])
+        with self.assertRaises(RuntimeError): PROBE['inspect_patterns'](ir(), [(0, 19)])
+
+    def test_dropped_widened_or_wrong_scalar_ranges(self):
+        for mutate in [lambda x: x.pop('field'),
+                       lambda x: x['field']['Pattern'][0].update(Literal={'UInt': 'U64'}),
+                       lambda x: x['field']['Pattern'][1]['Range'][0]['kind']['Literal']['Scalar']['Unsigned'].__setitem__(1, '0'),
+                       lambda x: x['field']['Pattern'][1]['Range'][1]['kind']['Literal']['Scalar']['Unsigned'].__setitem__(1, '4294967295')]:
+            bad = ir(); mutate(bad)
+            with self.assertRaises(RuntimeError): PROBE['inspect_patterns'](bad, [(7, 19)])
+
+    def test_hash_reference_validation(self):
+        data = ir(); data['pool'] = {'HashConsedValue': [9, deepcopy(data['field']['Pattern'][0])]}
+        data['field']['Pattern'][0] = {'Deduplicated': 9}
+        PROBE['inspect_patterns'](data, [(7, 19)])
+        for value in [{'Deduplicated': 99}, {'HashConsedValue': [9, {'Deduplicated': 9}]}]:
+            bad = ir(); bad['field']['Pattern'][0] = value
+            with self.assertRaises(RuntimeError): PROBE['inspect_patterns'](bad, [(7, 19)])
+
+    def test_zero_exit_admissions_errors_and_truncation(self):
+        check = PROBE['output_rejected']
+        self.assertFalse(check(0, '', 'end control', 'control'))
+        for code, log, raw in [(0, '', 'axiom transmute : False\nend control'),
+                               (0, '\x1b[31m[Error]\x1b[0m bad', 'end control'),
+                               (0, '', ''), (2, '', 'end control')]:
+            self.assertTrue(check(code, log, raw, 'control'))
+
+    def test_exact_proof_coverage(self):
+        for _, _, _, file, _, names in PROBE['CASES'].values():
+            proof = (PROBE['DATA'] / file).read_text()
+            PROBE['PARAMETERS']['validate_proof_source'](proof, names)
+            with self.assertRaises(RuntimeError): PROBE['PARAMETERS']['validate_proof_source'](proof, names[:-1])
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -60,7 +60,7 @@ class Guards(unittest.TestCase):
     def test_distinct_source_profiles(self):
         profiles = PROBE['BUILD']['PROFILES']
         patches = [(path / 'frontend.patch').read_bytes() for path in profiles.values()]
-        self.assertEqual(len(set(patches)), 7)
+        self.assertEqual(len(set(patches)), 8)
         patch = (profiles['constructor-typing'] / 'frontend.patch').read_text()
         self.assertIn('src/extract/Extract.ml', patch)
         self.assertIn('src/llbc/FunsAnalysis.ml', patch)

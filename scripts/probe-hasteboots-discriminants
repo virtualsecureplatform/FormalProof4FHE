@@ -72,7 +72,7 @@ def main():
     try:
         tools, backend = args.tools.resolve(), args.backend.resolve()
         receipt = json.loads(args.build_receipt.read_text())
-        if receipt.get('status') != 'passed' or receipt.get('profile') != 'discriminants':
+        if receipt.get('status') != 'passed' or receipt.get('profile') not in ['discriminants', 'u32-ranges']:
             raise RuntimeError('Wrong or failed discriminant frontend receipt')
         # This preflight verifies exact source/build/package/tool/backend pins
         # and kernel-checks the earlier trait/effect regression on this frontend.
@@ -148,7 +148,7 @@ def main():
         run([ROOT / 'scripts/in-container', 'bash', '-euc', 'cd -- "$1"; lake env lean -DwarningAsError=true "$2"', '_',
              COMMON['container_path'](backend / 'backends/lean'), COMMON['container_path'](checked)], 'lean.log')
         record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), names)
-        BUILD['verify_source'](Path(receipt['source']), 'discriminants')
+        BUILD['verify_source'](Path(receipt['source']), receipt['profile'])
         if BASE['digest'](frontend.read_bytes()) != receipt['executable_sha256']:
             raise RuntimeError('Frontend changed during regression')
         record['status'] = 'passed'; print('Discriminant regression passed: ' + str(len(names)) + ' dependency audits')
