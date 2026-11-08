@@ -51,6 +51,7 @@ def main():
     cleanup.add_argument('--expand-string-cleanup', action='store_true', help='Expose original String type and drop body')
     cleanup.add_argument('--cleanup-scope', choices=['opaque', 'string', 'vec', 'rawvec', 'global', 'layout', 'nonzero'], help='Follow original cleanup bodies to the selected boundary')
     parser.add_argument('--inline-ok-or', action='store_true', help='Also inline static-error option conversion')
+    parser.add_argument('--target-word64', action='store_true', help='Use checked 64-bit words and original source bindings')
     args = parser.parse_args()
     parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
     out = Path(tempfile.mkdtemp(prefix='inline-constructor-', dir=parent))
@@ -85,6 +86,7 @@ def main():
         env['CARGO_TARGET_DIR'] = str(parent / 'cargo-constructor-partial')
         llbc = out / 'constructor.llbc'
         optional_inline = ['--inline-function', 'core::option::_::ok_or'] if args.inline_ok_or else []
+        record['target_word64'] = args.target_word64
         record['inline_ok_or'] = args.inline_ok_or
         record['expand_string_cleanup'] = args.expand_string_cleanup
         scope = args.cleanup_scope or ('string' if args.expand_string_cleanup else 'opaque')
@@ -113,7 +115,7 @@ def main():
         save()
         run([tools / 'aeneas', '-backend', 'lean', '-checks', '-sequential', '-eval-drops', '-max-heartbeats', '200000', '-max-recdepth', '1000',
              '-abort-on-error', '-no-external-name-patterns', '-disambiguate-instantiated-names', '-monomorphic-builtin-shapes',
-             '-dest', out / 'lean', llbc], 'aeneas.log')
+             *(['-target-word64'] if args.target_word64 else []), '-dest', out / 'lean', llbc], 'aeneas.log')
         plain = re.sub(r'\x1b\[[0-9;?]*[A-Za-z]', '', (out / 'aeneas.log').read_text())
         if re.search(r'Uncaught exception|\[Error\]', plain): raise RuntimeError('Frontend reported an error despite exit status')
         raw = (out / 'lean/Constructor.lean').read_text()
@@ -128,15 +130,16 @@ def main():
                 ('maxHeartbeats', '200000'), ('maxRecDepth', '1000')]: raise RuntimeError('Unexpected proof limits')
         name = PARAMETERS['NAMESPACE'] + '.new_encoded'
         checked = out / 'Checked.lean'
-        runtime_path = ROOT / 'interop/aeneas/usize-ctlz/Runtime.lean'
-        support = runtime_path.read_text()
-        PARAMETERS['validate_proof_source'](support, ['zero_rejected', 'nonzero_result', 'nonzero_bits', 'leading_value'])
-        if support.count('import Aeneas.Std\n') != 1: raise RuntimeError('Unexpected intrinsic runtime imports')
-        record['intrinsic_runtime_sha256'] = digest(support.encode())
         module = raw.replace('import Aeneas\n', 'import Aeneas.Std\nimport Aeneas.Tactic.RustAttributes\nimport Aeneas.Data.Discriminant\n')
-        marker = 'open Aeneas Aeneas.Std Result ControlFlow Error\n'
-        if module.count(marker) != 1: raise RuntimeError('Unexpected constructor prelude')
-        module = module.replace(marker, support.replace('import Aeneas.Std\n', '') + '\n' + marker, 1)
+        if not args.target_word64:
+            runtime_path = ROOT / 'interop/aeneas/usize-ctlz/Runtime.lean'
+            support = runtime_path.read_text()
+            PARAMETERS['validate_proof_source'](support, ['zero_rejected', 'nonzero_result', 'nonzero_bits', 'leading_value'])
+            if support.count('import Aeneas.Std\n') != 1: raise RuntimeError('Unexpected intrinsic runtime imports')
+            record['intrinsic_runtime_sha256'] = digest(support.encode())
+            marker = 'open Aeneas Aeneas.Std Result ControlFlow Error\n'
+            if module.count(marker) != 1: raise RuntimeError('Unexpected constructor prelude')
+            module = module.replace(marker, support.replace('import Aeneas.Std\n', '') + '\n' + marker, 1)
         checked.write_text(module + '\n#print axioms ' + name + '\n')
         run([ROOT / 'scripts/in-container', 'bash', '-euc', 'cd -- "$1"; lake env lean -DwarningAsError=true "$2"', '_',
              COMMON['container_path'](args.backend.resolve() / 'backends/lean'), COMMON['container_path'](checked)], 'lean.log')

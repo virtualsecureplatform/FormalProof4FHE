@@ -7,6 +7,45 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Source Layout and explicit 64-bit words now kernel-check
+
+The experimental monomorphic Lean frontend now emits the actual source Layout,
+including the current memory-alignment carrier. Its opt-in `-target-word64` mode
+requires exactly one 64-bit little-endian target and consistently translates
+usize/isize literals, discriminants, patterns and carrier bounds to U64/I64.
+Assumed function/global/effect bindings are disabled in this mode; original
+source bodies and constants must be extracted. Signed and unsigned AddChecked
+now preserve the integer/overflow-Boolean pair through the existing closed
+backend definitions. No backend or production Rust change was made.
+
+Twelve theorems cover all alignment variants, source size/preservation, signed
+and unsigned endpoints and overflowing addition for every input, with boundary
+checks at 2^63, unsigned maximum and signed maximum. The complete original module
+and all computational definitions/globals/readers/proof aliases pass 36 new
+dependency audits. Seven unsupported cases reject, including actual checked_add's
+opaque cold_path intrinsic; no no-op admission is accepted. See
+`interop/aeneas/layout-word64/README.md` and its exact regression receipt.
+
+Fresh validation totals 157 dependency audits and 156 guard tests. All 128
+upstream generated artifacts are unchanged; 97 upstream targets complete, with
+only the pre-existing dyn.rs erased-lifetime rejection failing extraction.
+
+The strict word64 native constructor probe generates all 84 retained functions,
+with no residual drops/runtime queries or missing regular references, but still
+rejects 22 opaque declarations. Disabling assumed bindings exposes additional
+source arithmetic helpers/constants; this larger inventory is not a closed
+native proof. The earlier portable nonzero profile's fourteen-axiom inventory
+below remains historical evidence. Neither profile is accepted as a constructor
+refinement. Word64 mode does not inject the portable usize ctlz runtime.
+
+Next source obligations are original arithmetic helpers/constants and a checked
+64-bit ctlz binding, runtime/formatting termination, source default layout and
+pointer/deallocation semantics. Getter theorems do not establish Layout's rounded
+size invariant, unsafe-call preconditions, pointer provenance or heap behavior.
+Full native NTT/SIMD/scheduler refinement, causal lifetime oracle/owner accounting,
+BabyBear, and the final 128-bit expected physical-work security theorem remain
+open. The original full-security objective is unchanged.
+
 ## Full-width nonzero carriers now preserve all alignment bits
 
 The paired frontend has an explicit `-u64-range-patterns` mode and checked
