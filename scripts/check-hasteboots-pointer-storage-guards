@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+"""Keep pointer specification and backend boundary audits admission-free and complete."""
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+GATE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-pointer-storage'))
+
+
+class Guards(unittest.TestCase):
+    def test_exact_model_proofs(self):
+        text = GATE['MODEL'].read_text()
+        GATE['PARAMETERS']['validate_proof_source'](text, GATE['MODEL_PROOFS'])
+        with self.assertRaises(RuntimeError):
+            GATE['PARAMETERS']['validate_proof_source'](text, GATE['MODEL_PROOFS'][:-1])
+
+    def test_exact_boundary_proofs(self):
+        text = (GATE['DATA'] / 'Proof.lean').read_text()
+        GATE['PARAMETERS']['validate_proof_source'](text, GATE['PROOFS'])
+        with self.assertRaises(RuntimeError):
+            GATE['PARAMETERS']['validate_proof_source'](text, GATE['PROOFS'][:-1])
+
+    def test_admissions_and_limits(self):
+        proof = (GATE['DATA'] / 'Proof.lean').read_text()
+        for declaration in ['axiom bridge : False', 'opaque Pointer : Type', 'constant Pointer : Type',
+                            'def bad := sorry', 'def bad := native_decide', 'set_option maxHeartbeats 1000000',
+                            'set_option maxRecDepth 2048']:
+            with self.assertRaises(RuntimeError):
+                GATE['PARAMETERS']['validate_proof_source'](proof + '\n' + declaration, GATE['PROOFS'])
+
+    def test_extra_or_missing_dependency_audits(self):
+        check = GATE['PARAMETERS']['audit_log']
+        check("'bridge' depends on axioms: [propext]", ['bridge'])
+        for log in ['', "'wrong' depends on axioms: [propext]",
+                    "'bridge' depends on axioms: [propext]\n'bridge' depends on axioms: [propext]"]:
+            with self.assertRaises(RuntimeError): check(log, ['bridge'])
+
+    def test_external_heap_axioms_are_rejected(self):
+        check = GATE['PARAMETERS']['audit_log']
+        for dependency in ['sorryAx', 'NativeAllocator', 'std.io.error.Error', 'NativePointerProvenance']:
+            with self.assertRaises(RuntimeError):
+                check("'bridge' depends on axioms: [" + dependency + ']\n', ['bridge'])
+
+
+if __name__ == '__main__':
+    unittest.main()

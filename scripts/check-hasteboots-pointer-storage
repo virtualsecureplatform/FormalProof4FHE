@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+"""Check pointer storage and the existing backend representation boundary; no Rust heap certificate."""
+import argparse
+import json
+from pathlib import Path
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+PARAMETERS = runpy.run_path(str(ROOT / 'scripts/extract-hasteboots-parameters'))
+COMMON = PARAMETERS['COMMON']
+MODEL = ROOT / 'FormalProof4FHE/HasteBoots/NativePointerStorage.lean'
+DATA = ROOT / 'interop/aeneas/pointer-storage'
+MODEL_PROOFS = ['readdress_provenance', 'readdress_original', 'pointer_fields', 'cell_nonnull', 'read_head',
+                'read_without_provenance', 'read_null', 'read_selected', 'read_nonnull', 'read_retired',
+                'read_retire_other', 'reused_address_stale', 'reused_address_fresh']
+PROOFS = ['word_address_roundtrip', 'address_word_roundtrip', 'address_word_value', 'backend_unit_equal',
+          'no_null_classifier', 'no_nonnull_roundtrip']
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--tools', type=Path, required=True)
+    parser.add_argument('--backend', type=Path, required=True)
+    args = parser.parse_args()
+    parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
+    out = Path(tempfile.mkdtemp(prefix='pointer-storage-', dir=parent))
+    digest = PARAMETERS['digest']
+    record = {'status': 'started', 'commands': [], 'script_sha256': digest(Path(__file__).read_bytes()),
+              'claim': 'storage specification/word bijection/old-backend boundary only; Rust heap and native bytes unproved'}
+    def save(): (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
+    def run(command, log):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out / log).open('w') as stream:
+            subprocess.run([str(x) for x in command], cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT, check=True)
+    print('Pointer storage artifacts: ' + str(out), flush=True); save()
+    try:
+        tools, backend = args.tools.resolve(), args.backend.resolve()
+        for name, expected in PARAMETERS['TOOLS'].items():
+            if digest((tools / name).read_bytes()) != expected: raise RuntimeError('Official tool hash differs: ' + name)
+        record['backend_patches'] = PARAMETERS['verify_backend'](backend, out)
+        proof = (DATA / 'Proof.lean').read_text()
+        PARAMETERS['validate_proof_source'](proof, PROOFS)
+        PARAMETERS['validate_proof_source'](MODEL.read_text(), MODEL_PROOFS)
+        run([ROOT / 'scripts/in-container', 'lake', 'build', 'FormalProof4FHE.HasteBoots.NativePointerStorage',
+             'FormalProof4FHETest.HasteBootsPointerStorageSmoke', 'FormalProof4FHETest.HasteBootsPointerStorageAudit'], 'build.log')
+        names = ['FormalProof4FHE.HasteBoots.NativePointerStorage.' + n for n in MODEL_PROOFS]
+        names += ['HasteBootsPointerBoundary.' + n for n in ['wordAddress', 'addressWord'] + PROOFS]
+        checked = out / 'Checked.lean'
+        checked.write_text('import FormalProof4FHE.HasteBoots.NativePointerStorage\nimport Aeneas.Std\n' + proof +
+                           ''.join('\n#print axioms ' + n + '\n' for n in names))
+        command = ('project_path=$(lake env printenv LEAN_PATH); cd -- "$1"; '
+                   'backend_path=$(lake env printenv LEAN_PATH); '
+                   'LEAN_PATH="$project_path:$backend_path" lean -DwarningAsError=true "$2"')
+        run([ROOT / 'scripts/in-container', 'bash', '-euc', command, '_',
+             COMMON['container_path'](backend / 'backends/lean'), COMMON['container_path'](checked)], 'lean.log')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), names)
+        record['inputs'] = {str(path.relative_to(ROOT)): digest(path.read_bytes()) for path in [MODEL, DATA / 'Proof.lean',
+                            ROOT / 'FormalProof4FHETest/HasteBootsPointerStorageSmoke.lean',
+                            ROOT / 'FormalProof4FHETest/HasteBootsPointerStorageAudit.lean', ROOT / 'lean-toolchain']}
+        record['backend_sources'] = {name: digest((backend / 'backends/lean/Aeneas/Std' / name).read_bytes())
+                                     for name in ['RawPtr.lean', 'Scalar/Core.lean']}
+        record['checked_sha256'] = digest(checked.read_bytes())
+        PARAMETERS['verify_backend'](backend, out)
+        record['status'] = 'passed'; print('Pointer storage passed: ' + str(len(names)) + ' dependency audits')
+    except (Exception, SystemExit) as error:
+        record.update(status='failed', error=str(error)); save()
+        raise SystemExit('Pointer storage failed; inspect ' + str(out) + ': ' + str(error)) from error
+    finally:
+        record['logs'] = {p.name: digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__':
+    main()
