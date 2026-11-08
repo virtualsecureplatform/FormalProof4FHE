@@ -53,3 +53,7 @@ Pointer metadata projection, wide-carrier conversions, allocator/layout queries,
 caller/compiler/heap and NTT/SIMD/scheduler refinement, causal oracle/owner history,
 BabyBear and the final expected physical-work security theorem remain open.
 `regression.json` records the frozen tools, current checks and failed native run.
+
+The next memory milestone is documented in `../byte-memory/README.md`. It adds
+checked byte allocation/storage/release and a source Layout data bridge; the
+Aeneas dereference remains rejected until source memory/borrow refinement exists.

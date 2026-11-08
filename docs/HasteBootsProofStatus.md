@@ -7,6 +7,42 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Checked byte allocation lifecycle and source Layout bridge
+
+The shared pointer data now supports an explicit byte-memory model. Allocation
+checks layout, nonzero/aligned base, address-space extent and disjoint live
+ranges; it generates a fresh origin and uninitialized byte slots. Loads require
+an initialized byte in the matching live allocation. Stores update that byte.
+Deallocation requires the original base/origin and exact layout and removes the
+allocation and its bytes. Every successful release reduces the live-block count.
+Zero-size allocator calls are rejected; source ZST/empty paths remain separate.
+
+Thirty-nine theorems prove operation/heap invariants, read-after-write,
+initialized/in-bounds access witnesses, framing, deallocated-alias rejection and
+stale address-reuse behavior. Reachability derives well-formedness from the empty
+heap. The proof-only shape erasure does not replace any memory/destructor action.
+Six bridge theorems link the extracted stdlib Layout getters to model inputs,
+all alignment constructors and the checked allocation/deallocation conditions.
+The source Layout gate is rerun in its existing configuration; this does not
+establish configuration identity or a native source allocator simulation.
+
+The new combined gate passes 96 dependency audits (61 memory, eleven bridge,
+24 reused source declarations/readers), alongside the existing 36-audit source
+Layout gate. Full `scripts/check` passes, including the 10,932-job build and
+subsequent root audits/smoke commands. All 192 guard tests pass. The earlier frozen paired compiler
+receipts remain unchanged; no production Rust, translator or Lean backend is
+changed in this step. See `interop/aeneas/byte-memory/README.md`.
+
+This model does not enable the rejected raw-pointer dereference in the original
+native destructor. Aeneas still needs a checked source memory-state relation,
+allocator/initialization correspondence, ranges and zero-size accesses, typed
+value validity, aliasing/borrow lifetimes, and destructor/deallocator composition.
+No native constructor is accepted. The model allocates/writes/frees its own state;
+those operations are not claimed to be Rust source steps or physical work.
+Compiler/caller/heap and NTT/SIMD/scheduler refinement, causal lifetime oracle/owner
+accounting, BabyBear and the final 128-bit expected physical-work security theorem
+remain open. The full objective is unchanged.
+
 ## Original pointer-parts construction now checks
 
 The checked word64 `-provenance-pointers` profile now translates the original

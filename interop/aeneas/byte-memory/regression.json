@@ -1,0 +1,364 @@
+{
+  "claim": "byte memory model and extracted Layout data bridge only; Rust allocator/borrow/dereference/compiler/work/security refinement unproved",
+  "gate_manifest_sha256": "46a7b2c7a175c2e5893dea8c05f8f6d19aa999a573397d14701371ece61d5005",
+  "build_receipt_sha256": "4fceaf7d52feb93953bdf0b1f4010779d01243e7130e5174b791dc3fc9d4c018",
+  "tools": {
+    "charon": "438c4565d48ffe763d9bca6fd4e0f63754611baaf90c2b0c4628d12c72020544",
+    "charon-driver": "e06210fc5229847480d1cdea642226999c2cb5ef90e45234cb44da9e9b4d4291",
+    "aeneas": "461b058ad0d6a745b91bb55fe0c269240aaee9961caceaacf2fb11931f295a68"
+  },
+  "frontend_patch_sha256": "90ee964c22f7e66550022c85724cda768ebe9b39369b73482fd8087da93f093c",
+  "gate": {
+    "status": "passed",
+    "claim": "byte memory model and extracted Layout data bridge only; Rust allocator/borrow/dereference/compiler/work/security refinement unproved",
+    "script_sha256": "d7627fb6afee02e3c10d05887d181bc4a9da10936aba1506cf047e7f20ee16cb",
+    "build_receipt_sha256": "4fceaf7d52feb93953bdf0b1f4010779d01243e7130e5174b791dc3fc9d4c018",
+    "backend_patches": {
+      "lean435.patch": "137920b7c5df6abf1197cb915cad5d867651521c06ccb1600e9887779284d325",
+      "stdlib435.patch": "a6b70680b5eca8bcf305aeccd49e4da0a4d8b9a6f72b193056323be49b132a47"
+    },
+    "inputs": {
+      "FormalProof4FHE/HasteBoots/NativeByteMemory.lean": "37aaaee9836aaf462e7d973ac0c8af5aac8027d556a3afc1a8a286f9d77e1dc8",
+      "interop/aeneas/byte-memory/Layout.lean": "ff13bf59c04e233f458953c04dc0228cd393bc29a9898623f92fd23db9c1ce78",
+      "interop/aeneas/layout-word64/Generated.lean": "c4082226ce54056ddc3af3c8914680f542071c9a9fad50b226e8530661fe09fa",
+      "FormalProof4FHE/HasteBoots/NativePointerRepresentation.lean": "532c94c0ccc209cc350bd99dabdda21168069adb4225713a6ea2fb80a86a91ba",
+      "FormalProof4FHETest/HasteBootsByteMemorySmoke.lean": "1015a1ddf72d0864eaed04a582a985e467bc5068869fdf2bfc87e8403e280522",
+      "FormalProof4FHETest/HasteBootsByteMemoryAudit.lean": "6cabe33471a1e68e8b2066d5c5b878409b7ce6138bb5498eceace75c6b3b399a",
+      "FormalProof4FHE.lean": "69fc809f11dac0f96463b386473ce7d15633d4be716fdacc3f6cdc0ddc8ddf99",
+      "FormalProof4FHETest.lean": "272899b13ae981052a605489c3f35f8c239a84a751c42c5796b85457a5fa2ffe",
+      "lean-toolchain": "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c",
+      "lake-manifest.json": "62d53211e046810a4627f43d83d9db862d44a691e8b0e665508063656ded721f"
+    },
+    "source_layout_manifest_sha256": "62b871f43ca1627932032234ef9e1193a16870a5e824f01ff751b1f1a9e470b4",
+    "source_layout_dependency_audit": {
+      "hasteboots_layout_word64.core.alloc.layout.Layout.impl.size": "does not depend on any axioms",
+      "hasteboots_layout_word64.core.num.niche_types.NonZeroUsizeInner": "does not depend on any axioms",
+      "hasteboots_layout_word64.core.num.nonzero.NonZero.mono_439f6875b903effd85999ee045214122": "does not depend on any axioms",
+      "hasteboots_layout_word64.core.num.nonzero.NonZero.get.mono_6ea7eeb1fde7c636edf0948371d0a50c": "does not depend on any axioms",
+      "hasteboots_layout_word64.core.mem.alignment.Alignment.as_nonzero_usize": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
+      "hasteboots_layout_word64.core.mem.alignment.Alignment.as_usize": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
+      "hasteboots_layout_word64.core.alloc.layout.Layout.impl.align": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
+      "hasteboots_layout_word64.core.num.Usize.MAX": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "hasteboots_layout_word64.core.num.Isize.MAX": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "hasteboots_layout_word64.core.num.Isize.MIN": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "hasteboots_layout_word64.core.num.Isize.overflowing_add": "depends on axioms: [propext]",
+      "hasteboots_layout_word64.core.num.Usize.overflowing_add": "does not depend on any axioms",
+      "hasteboots_layout_word64.preserve": "does not depend on any axioms",
+      "hasteboots_layout_word64.size": "does not depend on any axioms",
+      "hasteboots_layout_word64.align": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "hasteboots_layout_word64.word_max": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "hasteboots_layout_word64.signed_min": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "hasteboots_layout_word64.signed_identity": "does not depend on any axioms",
+      "hasteboots_layout_word64.overflowing_add_one": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "hasteboots_layout_word64.signed_overflowing_add_one": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "hasteboots_layout_word64.core.mem.alignment.AlignmentEnum.read_discriminant": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
+      "HasteBootsLayoutWord64Proof.preserve_exact": "does not depend on any axioms",
+      "HasteBootsLayoutWord64Proof.size_exact": "does not depend on any axioms",
+      "HasteBootsLayoutWord64Proof.align_exact": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "HasteBootsLayoutWord64Proof.high_alignment": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "HasteBootsLayoutWord64Proof.word_max_exact": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "HasteBootsLayoutWord64Proof.signed_min_exact": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "HasteBootsLayoutWord64Proof.signed_identity_exact": "does not depend on any axioms",
+      "HasteBootsLayoutWord64Proof.overflowing_add_exact": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "HasteBootsLayoutWord64Proof.signed_overflowing_add_exact": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "HasteBootsLayoutWord64Proof.unsigned_overflow": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "HasteBootsLayoutWord64Proof.unsigned_high_add": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "HasteBootsLayoutWord64Proof.signed_overflow": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "HasteBootsLayoutWord64Proof.Layout": "does not depend on any axioms",
+      "HasteBootsLayoutWord64Proof.Alignment": "does not depend on any axioms",
+      "HasteBootsLayoutWord64Proof.Tag": "does not depend on any axioms"
+    },
+    "dependency_audit": {
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.Byte": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.Layout": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.Layout.Valid": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.Block": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.State": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.empty": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.Block.pointer": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.Disjoint": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.Block.Valid": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.WellFormed": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.freshBlock": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.allocate": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.Matches": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.loadBlocks": "depends on axioms: [propext]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.loadByte": "depends on axioms: [propext]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.storeBlocks": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.storeByte": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.releaseBlocks": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.deallocate": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.shape": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.Step": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.Reachable": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.empty_wellFormed": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.disjoint_symm": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.allocate_success": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.allocate_wellFormed": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.allocate_initialized_none": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.load_without_origin": "depends on axioms: [propext]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.load_zero": "depends on axioms: [propext]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.store_blocks_length": "depends on axioms: [Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.store_then_load": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.release_length": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.release_sublist": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.deallocate_changes_live_count": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.release_selected": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.deallocate_wellFormed": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.shape_valid": "depends on axioms: [propext]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.wellFormed_shape": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.store_preserves_shape": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.store_wellFormed": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.storeByte_then_loadByte": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.load_without_matching_origin": "depends on axioms: [propext]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.release_origin_absent": "depends on axioms: [propext]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.deallocated_pointer_unreadable": "depends on axioms: [propext]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.allocate_uninitialized": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.allocate_frame_load": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.deallocate_selected": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.deallocate_generation": "does not depend on any axioms",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.stale_after_reallocation": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.layout_alignment": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.layout_size_bound": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.allocate_of_available": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.store_at_matching_head": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.deallocate_head": "depends on axioms: [propext]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.deallocated_alias_unreadable": "depends on axioms: [propext]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.uninitialized_bytes": "depends on axioms: [propext]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.fresh_block_uninitialized": "depends on axioms: [propext]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.load_selected": "depends on axioms: [propext]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.store_frame_other_origin": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.step_wellFormed": "depends on axioms: [propext, Quot.sound]",
+      "FormalProof4FHE.HasteBoots.NativeByteMemory.reachable_wellFormed": "depends on axioms: [propext, Quot.sound]",
+      "HasteBootsByteMemoryLayout.SourceLayout": "does not depend on any axioms",
+      "HasteBootsByteMemoryLayout.Alignment": "does not depend on any axioms",
+      "HasteBootsByteMemoryLayout.Tag": "does not depend on any axioms",
+      "HasteBootsByteMemoryLayout.alignmentWord": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "HasteBootsByteMemoryLayout.decode": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "HasteBootsByteMemoryLayout.source_size": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "HasteBootsByteMemoryLayout.source_alignment": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "HasteBootsByteMemoryLayout.alignment_power": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "HasteBootsByteMemoryLayout.valid_iff_checked_size": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "HasteBootsByteMemoryLayout.allocated_source_layout": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "HasteBootsByteMemoryLayout.deallocation_source_layout": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "hasteboots_layout_word64.core.mem.alignment.AlignmentEnum": "does not depend on any axioms",
+      "hasteboots_layout_word64.core.mem.alignment.Alignment": "does not depend on any axioms",
+      "hasteboots_layout_word64.core.alloc.layout.Layout": "does not depend on any axioms",
+      "hasteboots_layout_word64.core.alloc.layout.Layout.impl.size": "does not depend on any axioms",
+      "hasteboots_layout_word64.core.num.niche_types.NonZeroUsizeInner": "does not depend on any axioms",
+      "hasteboots_layout_word64.core.num.nonzero.NonZero.mono_439f6875b903effd85999ee045214122": "does not depend on any axioms",
+      "hasteboots_layout_word64.core.num.nonzero.NonZero.get.mono_6ea7eeb1fde7c636edf0948371d0a50c": "does not depend on any axioms",
+      "hasteboots_layout_word64.core.mem.alignment.Alignment.as_nonzero_usize": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
+      "hasteboots_layout_word64.core.mem.alignment.Alignment.as_usize": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
+      "hasteboots_layout_word64.core.alloc.layout.Layout.impl.align": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
+      "hasteboots_layout_word64.core.num.Usize.MAX": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "hasteboots_layout_word64.core.num.Isize.MAX": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "hasteboots_layout_word64.core.num.Isize.MIN": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "hasteboots_layout_word64.core.num.Isize.overflowing_add": "depends on axioms: [propext]",
+      "hasteboots_layout_word64.core.num.Usize.overflowing_add": "does not depend on any axioms",
+      "hasteboots_layout_word64.preserve": "does not depend on any axioms",
+      "hasteboots_layout_word64.size": "does not depend on any axioms",
+      "hasteboots_layout_word64.align": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "hasteboots_layout_word64.word_max": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "hasteboots_layout_word64.signed_min": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "hasteboots_layout_word64.signed_identity": "does not depend on any axioms",
+      "hasteboots_layout_word64.overflowing_add_one": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "hasteboots_layout_word64.signed_overflowing_add_one": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+      "hasteboots_layout_word64.core.mem.alignment.AlignmentEnum.read_discriminant": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]"
+    },
+    "checked_sha256": "631ba0a1bc50d5cfd1dd656c70316b21d92bc8013af4156a17006ce197b12174"
+  },
+  "proof_inventory": {
+    "memory_theorems": 39,
+    "layout_bridge_theorems": 6,
+    "guarded_memory_declarations": 61,
+    "smoke_examples": 22
+  },
+  "guard_tests": [
+    {
+      "script": "scripts/check-hasteboots-byte-memory-guards",
+      "status": 0,
+      "tests": 5
+    },
+    {
+      "script": "scripts/check-hasteboots-captured-option-guards",
+      "status": 0,
+      "tests": 5
+    },
+    {
+      "script": "scripts/check-hasteboots-code-serialization-guards",
+      "status": 0,
+      "tests": 11
+    },
+    {
+      "script": "scripts/check-hasteboots-constructor-typing-guards",
+      "status": 0,
+      "tests": 8
+    },
+    {
+      "script": "scripts/check-hasteboots-discriminant-guards",
+      "status": 0,
+      "tests": 7
+    },
+    {
+      "script": "scripts/check-hasteboots-enum-decoding-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-enum-nonzero-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-inline-baseline-guards",
+      "status": 0,
+      "tests": 5
+    },
+    {
+      "script": "scripts/check-hasteboots-inline-cleanup-guards",
+      "status": 0,
+      "tests": 6
+    },
+    {
+      "script": "scripts/check-hasteboots-inline-equivalence-guards",
+      "status": 0,
+      "tests": 11
+    },
+    {
+      "script": "scripts/check-hasteboots-large-discriminants-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-layout-word64-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-metadata-mono-guards",
+      "status": 0,
+      "tests": 9
+    },
+    {
+      "script": "scripts/check-hasteboots-monomorphic-ctlz-guards",
+      "status": 0,
+      "tests": 3
+    },
+    {
+      "script": "scripts/check-hasteboots-nonnull-pointers-guards",
+      "status": 0,
+      "tests": 5
+    },
+    {
+      "script": "scripts/check-hasteboots-overflowing-mul-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-parameter-extraction-guards",
+      "status": 0,
+      "tests": 10
+    },
+    {
+      "script": "scripts/check-hasteboots-pointer-extraction-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-pointer-parts-guards",
+      "status": 0,
+      "tests": 5
+    },
+    {
+      "script": "scripts/check-hasteboots-pointer-storage-guards",
+      "status": 0,
+      "tests": 5
+    },
+    {
+      "script": "scripts/check-hasteboots-range-unwrapping-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-registry-guards",
+      "status": 0,
+      "tests": 7
+    },
+    {
+      "script": "scripts/check-hasteboots-row-metadata-guards",
+      "status": 0,
+      "tests": 5
+    },
+    {
+      "script": "scripts/check-hasteboots-runtime-checks-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-static-byte-guards",
+      "status": 0,
+      "tests": 8
+    },
+    {
+      "script": "scripts/check-hasteboots-static-slice-guards",
+      "status": 0,
+      "tests": 8
+    },
+    {
+      "script": "scripts/check-hasteboots-static-string-guards",
+      "status": 0,
+      "tests": 7
+    },
+    {
+      "script": "scripts/check-hasteboots-stdlib-configuration-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-u32-range-guards",
+      "status": 0,
+      "tests": 8
+    },
+    {
+      "script": "scripts/check-hasteboots-uninhabited-variants-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-usize-ctlz-guards",
+      "status": 0,
+      "tests": 6
+    },
+    {
+      "script": "scripts/check-hasteboots-usize-ranges-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-word64-intrinsics-guards",
+      "status": 0,
+      "tests": 4
+    }
+  ],
+  "full_repository_check": {
+    "command": "scripts/check",
+    "exit_code": 0,
+    "build_jobs": 10932,
+    "log_sha256": "b1b32a352758d5ef9098f606ead722c644a4062d8c7ba04f4c29d2c84e475f98"
+  },
+  "primary_rust_source": {
+    "core/src/alloc/layout.rs": "19119ede8a60d1a989f907118f9e7f36e24434b8e931875f66a379b856784124"
+  },
+  "unchanged_compiler_evidence": {
+    "prior_regression_sha256": "a2134cdb966954fb940c490dc34c0bb33262e62fdf99c82b4df4c4a66de5a8cf",
+    "paired_dependency_audit_count": 393,
+    "scope": "The compiler and backend were not edited; prior paired/upstream evidence is retained rather than represented as rerun. The source Layout gate was rerun here."
+  },
+  "native_constructor_boundary": {
+    "previous_manifest_sha256": "cc8556a32a6148c07faa0af1bf925835a28c78d480d7068ed5e31b607e2efe0c",
+    "status": "rejected",
+    "boundary": "Original drop_in_place raw-pointer dereference still unsupported",
+    "scope": "No translator change or replacement primitive was installed in this step. The memory model and Layout decoder do not discharge Rust heap/borrow/caller or physical-work refinement."
+  }
+}

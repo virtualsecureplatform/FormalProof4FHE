@@ -62,3 +62,8 @@ composition. Those must be implemented before enabling that dereference.
 NTT/SIMD/scheduler, causal oracle/owner history, BabyBear and expected physical
 attacker-work security remain open. No memory action is assigned a physical-work
 floor or counted as a completed source refinement here.
+
+Full `scripts/check` passes, including the 10,932-job build and subsequent audits
+and smoke commands. All 192 extraction/model guard tests pass. The compiler and
+backend are unchanged; their previous paired/upstream receipts are retained as
+previous evidence, rather than described as fresh full compiler regressions.
