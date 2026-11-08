@@ -52,7 +52,8 @@ proved behavior. The source still records the original flag in the main profile.
 The backedge cleanup remains an explicit ghost composition. Agreement between
 this scoped LLBC model and the traversal does not establish Rust aliasing,
 lifetime endings, region erasure, compiler correctness or physical work.
-The pointer/drop wrappers (functions 0–3), outer `Vec` destructor and allocator
-path remain outside this interpreter. In particular, the generated `Foreign`
-wrapper is neither reclassified nor replaced. Native constructor acceptance
+The pointer/drop wrappers (functions 0–3) remain outside this loop interpreter;
+the separate [body-call profile](../byte-drop-calls/README.md) now composes their
+retained bodies with this loop, preserving the generated `Foreign` classification.
+The outer `Vec` destructor and allocator path remain open. Native constructor acceptance
 and the final security/expected-work theorem remain open.

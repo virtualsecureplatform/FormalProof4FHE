@@ -7,6 +7,37 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## All five retained byte-drop bodies now compose through actual calls
+
+`NativeByteDropCalls` composes the original finite caller bodies with the typed
+slice loop. Calls evaluate source operands, preserve moves, initialize callee
+locals, execute retained code and resume the caller or its unwind block.
+Normal unit returns explicitly close leases created since call entry; invalid
+outcomes preserve executed prefixes. Six model theorems prove machine-run
+projection and reachability, with 48 explicit declaration/constructor/field
+audits. No callee callbacks or function-name replacements are introduced.
+
+The new [body-call profile](../interop/aeneas/byte-drop-calls/README.md) retains
+all five original declarations. Its five source theorems cover the original
+pointer-parts body, loop composition, classification and invocation projection.
+Eight model regressions exercise return/cleanup/failure/move behavior. Six source
+regressions construct complete empty and three-byte call chains and check input,
+argument-type and oversized-borrow rejection. The nonempty chain ends with tag
+counter 8, no active leases and the original heap.
+
+The generated wrapper keeps its original `Foreign` classification. This is an
+interpretation of its retained structured body, not a native foreign-call
+correctness theorem. Call-return and backedge cleanup remain explicit ghost
+composition. Next, connect these body semantics to the outer `Vec` destructor
+and allocator path while proving the lifetime/ABI/compiler correspondence;
+then close native constructor acceptance and physical-work refinement.
+The final protocol soundness and expected-work theorem remain open.
+
+The new gate passed 78 dependency audits, 31 rejecting controls and a supported
+caller-storage mutation. Its typed-loop parent passed 150 audits and 20 rejecting
+controls with the same frozen compiler tools. The repository-wide `scripts/check`
+also passed, including its 10,983-job build and all audit/smoke checks.
+
 ## The original slice-body loop now has a typed scoped interpretation
 
 `NativeByteLoopLLBC` interprets typed locals and the original finite blocks of a

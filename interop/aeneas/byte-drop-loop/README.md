@@ -51,9 +51,11 @@ scripts/check-hasteboots-byte-drop-primitives \
   --build-receipt build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json
 ```
 
-The typed loop profile supplies a scoped local/control simulation for the
-retained slice body. Rust lifetime/alias correspondence for its explicit
-backedge cleanup, region/ABI/caller refinement, the pointer/drop wrappers,
-whole `Vec` destructor and allocator path remain open. Compiler correctness,
+The [typed loop profile](../byte-loop-body/README.md) supplies a scoped
+local/control simulation for the retained slice body. The
+[body-call profile](../byte-drop-calls/README.md) composes the retained
+pointer/drop wrapper bodies with that loop, preserving their classifications.
+Rust lifetime/alias correspondence for explicit cleanup, region/ABI/native caller
+refinement, the whole `Vec` destructor and allocator path remain open. Compiler correctness,
 native execution costs and the final security theorem remain unproved. No
 physical-work law or cryptographic conclusion is supplied here.
