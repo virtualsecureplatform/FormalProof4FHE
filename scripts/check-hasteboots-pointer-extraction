@@ -1,0 +1,165 @@
+#!/usr/bin/env python3
+"""Check address/provenance/metadata preserving source pointer operations and storage linkage."""
+import argparse
+import copy
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+BASE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-inline-equivalence'))
+RANGES = runpy.run_path(str(ROOT / 'scripts/probe-hasteboots-u32-ranges'))
+BUILD, PARAMETERS, COMMON, digest = BASE['BUILD'], BASE['PARAMETERS'], BASE['COMMON'], BASE['digest']
+DATA = ROOT / 'interop/aeneas/pointer-storage'
+NAMESPACE = 'hasteboots_pointer_storage'
+PROOFS = ['mutable_identity_exact', 'constant_identity_exact', 'to_constant_exact', 'to_mutable_exact',
+          'to_word_exact', 'same_exact', 'different_exact', 'slice_same_exact', 'word_cast_address',
+          'word_cast_origin', 'word_cast_metadata', 'comparison_fields', 'comparison_ignores_origin',
+          'different_addresses', 'different_slice_lengths', 'null_cast', 'unaligned_word_cast']
+FUNCTIONS = ['mutable_identity', 'constant_identity', 'to_constant', 'to_mutable', 'to_word', 'same', 'different', 'slice_same']
+RUNTIME_PROOFS = ['cast_result', 'cast_address', 'cast_provenance', 'cast_metadata']
+CORE_PROOFS = ['equal_iff', 'cast_storage', 'cast_metadata', 'cast_identity', 'cast_compose', 'cast_injective']
+BRIDGE_PROOFS = ['cast_read', 'read_without_origin', 'read_zero', 'read_retired_origin']
+REPRESENTATION = ROOT / 'FormalProof4FHE/HasteBoots/NativePointerRepresentation.lean'
+BRIDGE = ROOT / 'FormalProof4FHE/HasteBoots/NativeRawPointerStorage.lean'
+
+
+def validate_output(raw):
+    PARAMETERS['verify_snapshot'](raw, (DATA / 'Generated.lean').read_text())
+    PARAMETERS['validate_proof_source']((DATA / 'ExtractionProof.lean').read_text(), PROOFS)
+    PARAMETERS['validate_proof_source']((DATA / 'Runtime.lean').read_text(), RUNTIME_PROOFS)
+    PARAMETERS['validate_proof_source'](REPRESENTATION.read_text(), CORE_PROOFS)
+    PARAMETERS['validate_proof_source'](BRIDGE.read_text(), BRIDGE_PROOFS)
+    if 'HasteBootsPointerRuntime.equal pointer other' not in raw or 'HasteBootsPointerRuntime.different pointer other' not in raw:
+        raise RuntimeError('Missing address/metadata comparisons')
+    return RANGES['validate_output'](raw, NAMESPACE, FUNCTIONS)
+
+
+def validate_ir(ir):
+    BASE['BASE']['BASE']['validate_ir'](ir)
+    crate = ir['translated']; options = crate.get('options', {})
+    if options.get('monomorphize') is not True or options.get('mir') != 'Optimized' or options.get('sysroot') != 'default':
+        raise RuntimeError('Expected monomorphic optimized ordinary-sysroot MIR')
+    funcs = [f for f in crate['fun_decls'] if isinstance(f, dict)]
+    if len(funcs) != 8 or any(set(f.get('body') or {}) != {'Structured'} for f in funcs):
+        raise RuntimeError('Incomplete original raw-pointer bodies')
+    names = [[x['Ident'][0] for x in f['item_meta']['name'] if 'Ident' in x] for f in funcs]
+    if any(names.count([NAMESPACE, name]) != 1 for name in FUNCTIONS):
+        raise RuntimeError('Missing raw-pointer source function')
+
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--build-receipt', type=Path, required=True)
+    parser.add_argument('--backend', type=Path, required=True)
+    args = parser.parse_args()
+    parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
+    out = Path(tempfile.mkdtemp(prefix='pointer-extraction-', dir=parent))
+    record = {'status': 'started', 'claim': 'pointer representation/cast/comparison and logical storage bridge only; Rust heap/caller/work/security unproved',
+              'script_sha256': digest(Path(__file__).read_bytes()), 'commands': []}
+    def save(): (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
+    def run(command, log, required=True):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out / log).open('w') as stream:
+            status = subprocess.run([str(x) for x in command], cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT).returncode
+        if required and status: raise RuntimeError(log + ' exited ' + str(status))
+        return status
+    print('Pointer extraction artifacts: ' + str(out), flush=True); save()
+    try:
+        _, tools, _ = BUILD['verify_receipt'](args.build_receipt)
+        record['build_receipt_sha256'] = digest(args.build_receipt.read_bytes())
+        record['backend_patches'] = PARAMETERS['verify_backend'](args.backend.resolve(), out)
+        files = ['fixture.rs', 'Generated.lean', 'Runtime.lean', 'ExtractionProof.lean', 'unsupported-nonnull.rs', 'unsupported-slice-cast.rs']
+        record['inputs'] = {name: digest((DATA / name).read_bytes()) for name in files}
+        record['root_inputs'] = {str(p.relative_to(ROOT)): digest(p.read_bytes()) for p in [REPRESENTATION, BRIDGE, ROOT / 'FormalProof4FHE/HasteBoots/NativePointerStorage.lean', ROOT / 'lean-toolchain']}
+        run([ROOT / 'scripts/in-container', 'lake', 'build', 'FormalProof4FHE.HasteBoots.NativeRawPointerStorage',
+             'FormalProof4FHE.HasteBoots.NativeGoldPointerRegistry', 'FormalProof4FHE.HasteBoots.NativeGoldPointerAssociation'], 'root-build.log')
+        llbc = out / 'positive.llbc'
+        run([tools / 'charon', 'rustc', '--preset=aeneas', '--sysroot', 'default', '--monomorphize', '--mir', 'optimized', '--dest-file', llbc, '--', '--crate-type', 'lib',
+             '--edition', '2024', '--crate-name', NAMESPACE, (DATA / 'fixture.rs').relative_to(ROOT)], 'charon.log')
+        options = ['-backend', 'lean', '-checks', '-sequential', '-max-heartbeats', '200000', '-max-recdepth', '1000',
+                   '-abort-on-error', '-no-external-name-patterns', '-disambiguate-instantiated-names']
+        def frontend(llbc, name, word=True, required=True, shapes=True, provenance=True):
+            return run([tools / 'aeneas', *options, *(['-monomorphic-builtin-shapes'] if shapes else []),
+                        *(['-target-word64'] if word else []), *(['-provenance-pointers'] if provenance else []), '-dest', out / name, llbc], name + '-frontend.log', required)
+        ir = json.loads(llbc.read_text()); validate_ir(ir)
+        frontend(llbc, 'positive')
+        BASE['BASE']['validate_frontend_log']((out / 'positive-frontend.log').read_text())
+        generated = list((out / 'positive').glob('*.lean'))
+        if len(generated) != 1: raise RuntimeError('Expected complete single generated module')
+        raw = generated[0].read_text(); runtime = validate_output(raw)
+        # Audit every emitted computational definition, all globals, the generated reader,
+        # every theorem and every proof alias; omission cannot hide an admitted dependency.
+        names = [NAMESPACE + '.' + n for n in re.findall(r'^(?:@\[[^\n]*\] )?def ([^\s:(]+)', raw, re.M)]
+        names += ['HasteBootsPointerStorageProof.' + n for n in PROOFS]
+        names += ['HasteBootsPointerRuntime.' + n for n in ['RawPtr', 'MutRawPtr', 'ConstRawPtr', 'equal', 'different', 'mutableFlag', 'cast_scalar'] + RUNTIME_PROOFS]
+        names += ['FormalProof4FHE.HasteBoots.NativePointerStorage.' + n for n in ['Address', 'Origin', 'Pointer']]
+        names += ['FormalProof4FHE.HasteBoots.NativeRawPointer.' + n for n in ['Metadata', 'RawPtr', 'metadataWord', 'equal', 'different', 'cast'] + CORE_PROOFS]
+        def kernel(raw, name, proof=''):
+            checked = out / (name + '.lean')
+            checked.write_text((DATA / 'Runtime.lean').read_text() + '\n' + raw.replace('import Aeneas\n', '') + '\n' + proof)
+            status = run([ROOT / 'scripts/in-container', 'bash', '-euc', 'cd -- "$1"; export LEAN_PATH="$3:${LEAN_PATH:-}"; lake env lean -DwarningAsError=true "$2"', '_',
+                          COMMON['container_path'](args.backend.resolve() / 'backends/lean'), COMMON['container_path'](checked), COMMON['container_path'](ROOT / '.lake/build/lib/lean')], name + '-lean.log', False)
+            return status, checked
+        status, checked = kernel(raw, 'Checked', (DATA / 'ExtractionProof.lean').read_text()
+                                  + ''.join('\n#print axioms ' + n + '\n' for n in names))
+        if status: raise RuntimeError('Complete pointer module/proofs rejected by kernel')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out / 'Checked-lean.log').read_text(), names)
+        record.update(llbc_sha256=digest(llbc.read_bytes()), checked_sha256=digest(checked.read_bytes()))
+        record['rejected'] = []
+        error = 'Target word64 requires monomorphic Lean and one 64-bit little-endian target'
+        def reject(path, name, shapes=True):
+            status = frontend(path, name, required=False, shapes=shapes)
+            if status == 0 or error not in (out / (name + '-frontend.log')).read_text():
+                raise RuntimeError('Unsupported target/profile accepted: ' + name)
+            record['rejected'].append(name)
+        reject(llbc, 'without-shapes', False)
+        for name in ['target32', 'big-endian', 'missing-target', 'multiple-targets']:
+            bad = copy.deepcopy(ir); targets = bad['translated']['target_information']
+            if name == 'target32': targets[0]['value']['target_pointer_size'] = 4
+            elif name == 'big-endian': targets[0]['value']['is_little_endian'] = False
+            elif name == 'missing-target': targets.clear()
+            else: targets.append(copy.deepcopy(targets[0]))
+            path = out / (name + '.llbc'); path.write_text(json.dumps(bad) + '\n')
+            reject(path, name)
+        status = frontend(llbc, 'without-word64', word=False, required=False)
+        if status == 0 or 'Provenance pointers require the checked target-word64 profile' not in (out / 'without-word64-frontend.log').read_text():
+            raise RuntimeError('Unchecked pointer word width accepted')
+        record['rejected'].append('without-word64')
+        for name, scopes, error in [
+            ('nonnull', ['core::ptr::non_null'], 'Unsupported scalar pattern type'),
+            ('slice-cast', [], 'Raw ptr casts are only supported between pointers to literal types')]:
+            path = out / (name + '.llbc')
+            run([tools / 'charon', 'rustc', '--preset=aeneas', '--sysroot', 'default', '--monomorphize', '--mir', 'optimized',
+                 *[arg for scope in scopes for arg in ['--include', scope]], '--dest-file', path,
+                 '--', '--crate-type', 'lib', '--edition', '2024', '--crate-name', 'bad_' + name.replace('-', '_'),
+                 DATA / ('unsupported-' + name + '.rs')], name + '-charon.log')
+            status = frontend(path, name, required=False)
+            if status == 0 or error not in (out / (name + '-frontend.log')).read_text():
+                raise RuntimeError('Unsupported pointer operation accepted: ' + name)
+            record['rejected'].append(name)
+        bridge_names = ['FormalProof4FHE.HasteBoots.NativeRawPointerStorage.' + n for n in ['read'] + BRIDGE_PROOFS]
+        bridge_check = out / 'StorageChecked.lean'
+        bridge_check.write_text('import FormalProof4FHE.HasteBoots.NativeRawPointerStorage\n'
+                               + ''.join('\n#print axioms ' + n + '\n' for n in bridge_names))
+        run([ROOT / 'scripts/in-container', 'lake', 'env', 'lean', '-DwarningAsError=true', COMMON['container_path'](bridge_check)], 'storage-lean.log')
+        record['storage_dependency_audit'] = PARAMETERS['audit_log']((out / 'storage-lean.log').read_text(), bridge_names)
+        if record['root_inputs'] != {name: digest((ROOT / name).read_bytes()) for name in record['root_inputs']}:
+            raise RuntimeError('Root pointer model changed during check')
+        if record['inputs'] != {name: digest((DATA / name).read_bytes()) for name in files}:
+            raise RuntimeError('Input changed during check')
+        BUILD['verify_receipt'](args.build_receipt)
+        record['status'] = 'passed'
+        print('Pointer extraction passed: ' + str(len(names)) + ' source/runtime audits plus five storage audits; eight unsupported cases rejected')
+    except (Exception, SystemExit) as error:
+        record.update(status='failed', error=str(error)); raise SystemExit('Pointer extraction check failed; inspect ' + str(out) + ': ' + str(error)) from error
+    finally:
+        record['logs'] = {p.name: digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__':
+    main()

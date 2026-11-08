@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+"""Reject erased pointer fields, wrong comparisons and incomplete storage/cast proofs."""
+import copy
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+GATE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-pointer-extraction'))
+
+
+def fixture():
+    return {'has_errors': False, 'translated': {
+        'target_information': [{'key': 'x86_64-unknown-linux-gnu', 'value': {
+            'target_pointer_size': 8, 'is_little_endian': True}}],
+        'options': {'monomorphize': True, 'mir': 'Optimized', 'sysroot': 'default'},
+        'fun_decls': [{'item_meta': {'name': [{'Ident': [GATE['NAMESPACE'], 0]}, {'Ident': [name, 0]}]},
+                       'body': {'Structured': {}}} for name in GATE['FUNCTIONS']]}}
+
+
+class Guards(unittest.TestCase):
+    def test_complete_model_source_and_proofs(self):
+        GATE['validate_ir'](fixture())
+        GATE['validate_output']((GATE['DATA'] / 'Generated.lean').read_text())
+
+    def test_wrong_profile_or_incomplete_body(self):
+        for mutate in [lambda x: x['translated']['options'].update(sysroot='miri'),
+                       lambda x: x['translated']['options'].update(monomorphize=False),
+                       lambda x: x['translated']['fun_decls'][0].update(body='Opaque'),
+                       lambda x: x['translated']['fun_decls'].pop(),
+                       lambda x: x['translated']['target_information'][0]['value'].update(target_pointer_size=4)]:
+            bad = copy.deepcopy(fixture()); mutate(bad)
+            with self.assertRaises(RuntimeError): GATE['validate_ir'](bad)
+
+    def test_pointee_surrogate_or_wrong_equality_rejected(self):
+        raw = (GATE['DATA'] / 'Generated.lean').read_text()
+        for bad in [raw.replace('HasteBootsPointerRuntime.MutRawPtr', 'MutRawPtr'),
+                    raw.replace('HasteBootsPointerRuntime.cast_scalar', 'RawPtr.cast_scalar'),
+                    raw.replace('HasteBootsPointerRuntime.equal pointer other', '(pointer = other)'),
+                    raw.replace('HasteBootsPointerRuntime.different pointer other', 'true'),
+                    raw.replace(':= do', ':= by sorry'), raw.replace('end ' + GATE['NAMESPACE'], '')]:
+            with self.assertRaises(RuntimeError): GATE['validate_output'](bad)
+
+    def test_missing_source_runtime_or_storage_obligation(self):
+        for path, names in [(GATE['DATA'] / 'ExtractionProof.lean', GATE['PROOFS']),
+                            (GATE['DATA'] / 'Runtime.lean', GATE['RUNTIME_PROOFS']),
+                            (GATE['REPRESENTATION'], GATE['CORE_PROOFS']), (GATE['BRIDGE'], GATE['BRIDGE_PROOFS'])]:
+            proof = path.read_text()
+            for name in names:
+                with self.assertRaises(RuntimeError):
+                    GATE['PARAMETERS']['validate_proof_source'](proof.replace('theorem ' + name, 'theorem missing'), names)
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -1,8 +1,8 @@
 diff --git a/src/Config.ml b/src/Config.ml
-index cb919aeb..e260983e 100644
+index cb919aeb..4dbdd1ec 100644
 --- a/src/Config.ml
 +++ b/src/Config.ml
-@@ -598,3 +598,13 @@ let max_recdepth = ref 2048
+@@ -598,3 +598,14 @@ let max_recdepth = ref 2048
  (** If [false], evaluate [drop(p)] as [p := bottom]. Otherwise, evaluate it as a
      no-op (which means that we do not borrow-check the drops). *)
  let drop_as_no_op = ref true
@@ -16,17 +16,21 @@ index cb919aeb..e260983e 100644
 +
 +let u64_range_patterns = ref false
 +let target_word64 = ref false
++let provenance_pointers = ref false
 diff --git a/src/Main.ml b/src/Main.ml
-index 8073dba6..ae599e1c 100644
+index 8073dba6..648c2a1a 100644
 --- a/src/Main.ml
 +++ b/src/Main.ml
-@@ -97,6 +97,23 @@ let () =
+@@ -97,6 +97,26 @@ let () =
          Arg.Symbol (backend_names, set_backend),
          " Specify the target backend (" ^ String.concat ", " backend_names ^ ")"
        );
 +      ( "-monomorphic-builtin-shapes",
 +        Arg.Set monomorphic_builtin_shapes,
 +        " Preserve monomorphic traits and recognize scalar option shapes" );
++      ( "-provenance-pointers",
++        Arg.Set provenance_pointers,
++        " Preserve raw-pointer address, allocation provenance and metadata" );
 +      ( "-target-word64",
 +        Arg.Set target_word64,
 +        " Use checked 64-bit target words and source function/global bindings"
@@ -44,7 +48,7 @@ index 8073dba6..ae599e1c 100644
        ( "-namespace",
          Arg.String set_namespace,
          " Set the namespace of the definitions in the pure model" );
-@@ -579,6 +596,28 @@ let () =
+@@ -579,6 +599,32 @@ let () =
           without the `--preset=aeneas` option. Please regenerate the crate by \
           calling Charon with `--preset=aeneas`.\n";
  
@@ -69,6 +73,10 @@ index 8073dba6..ae599e1c 100644
 +           | _ -> false)
 +        "Target word64 requires monomorphic Lean and one 64-bit little-endian \
 +         target";
++
++      check_no_doc
++        ((not !provenance_pointers) || !target_word64)
++        "Provenance pointers require the checked target-word64 profile";
 +
        (* We don't support mutually recursive definitions with decreases clauses in Lean *)
        if
@@ -1029,7 +1037,7 @@ index 8df1bc5f..f1e2b16f 100644
    in
  
 diff --git a/src/extract/Extract.ml b/src/extract/Extract.ml
-index 2dc4a57f..7a3fe8a3 100644
+index 2dc4a57f..22c13ea9 100644
 --- a/src/extract/Extract.ml
 +++ b/src/extract/Extract.ml
 @@ -398,6 +398,8 @@ let extract_cast_kind_hol4 (span : Meta.span)
@@ -1063,7 +1071,39 @@ index 2dc4a57f..7a3fe8a3 100644
    | CastLit (src, tgt) ->
        let integer_type_to_string (ty : integer_type) : string =
          if backend () = Lean then
-@@ -636,6 +653,22 @@ let extract_binop (span : Meta.span) (ctx : extraction_ctx)
+@@ -506,7 +523,10 @@ let extract_cast_kind_gen (span : Meta.span)
+         "Casts between raw pointers are only supported in the Lean backend";
+       if inside then F.pp_print_string fmt "(";
+       (* Print the name of the function *)
+-      F.pp_print_string fmt "RawPtr.cast_scalar";
++      F.pp_print_string fmt
++        (if !Config.provenance_pointers then
++           "HasteBootsPointerRuntime.cast_scalar"
++         else "RawPtr.cast_scalar");
+       (* Print the target type argument and mutability *)
+       let tgt_ty : integer_type =
+         match tgt_ty with
+@@ -588,6 +608,19 @@ let extract_binop (span : Meta.span) (ctx : extraction_ctx)
+   if inside then F.pp_print_string fmt "(";
+   (* Some binary operations have a special notation depending on the backend *)
+   (match (backend (), binop) with
++  | ( Lean,
++      (( Eq (TAdt (TBuiltin (TRawPtr _), _))
++       | Ne (TAdt (TBuiltin (TRawPtr _), _)) ) as operation) )
++    when !Config.provenance_pointers ->
++      F.pp_print_string fmt
++        (match operation with
++        | Eq _ -> "HasteBootsPointerRuntime.equal"
++        | Ne _ -> "HasteBootsPointerRuntime.different"
++        | _ -> [%internal_error] span);
++      F.pp_print_space fmt ();
++      extract_expr ~inside:true arg0;
++      F.pp_print_space fmt ();
++      extract_expr ~inside:true arg1
+   | HOL4, (Eq _ | Ne _)
+   | (FStar | Coq | Lean), (Eq _ | Lt _ | Le _ | Ne _ | Ge _ | Gt _)
+   | (FStar | Lean), (BoolAnd | BoolOr)
+@@ -636,6 +669,22 @@ let extract_binop (span : Meta.span) (ctx : extraction_ctx)
        F.pp_print_string fmt binop_str;
        F.pp_print_space fmt ();
        extract_expr ~inside:true arg1
@@ -1086,7 +1126,7 @@ index 2dc4a57f..7a3fe8a3 100644
    | ( Lean,
        ( Add (OWrap, _)
        | Sub (OWrap, _)
-@@ -2693,6 +2726,7 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
+@@ -2693,6 +2742,7 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
    let clause_names =
      match builtin_info with
      | None ->
@@ -1094,7 +1134,7 @@ index 2dc4a57f..7a3fe8a3 100644
          List.map
            (fun (c : trait_param) ->
              let name = ctx_compute_trait_parent_clause_name ctx trait_decl c in
-@@ -2701,6 +2735,14 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
+@@ -2701,6 +2751,14 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
                if !record_fields_short_names then name
                else ctx_compute_trait_decl_name ctx trait_decl ^ name
              in
@@ -1110,10 +1150,27 @@ index 2dc4a57f..7a3fe8a3 100644
            trait_decl.parent_clauses
      | Some info ->
 diff --git a/src/extract/ExtractBase.ml b/src/extract/ExtractBase.ml
-index 66bb1e48..7951a7f9 100644
+index 66bb1e48..406e27c8 100644
 --- a/src/extract/ExtractBase.ml
 +++ b/src/extract/ExtractBase.ml
-@@ -1604,7 +1604,18 @@ let ctx_compute_simple_name (meta : T.item_meta) (ctx : extraction_ctx)
+@@ -1223,8 +1223,14 @@ let builtin_adts () : (builtin_ty * string) list =
+         (TArray, "Array");
+         (TSlice, "Slice");
+         (TStr, "Str");
+-        (TRawPtr Mut, "MutRawPtr");
+-        (TRawPtr Const, "ConstRawPtr");
++        ( TRawPtr Mut,
++          if !Config.provenance_pointers then
++            "HasteBootsPointerRuntime.MutRawPtr"
++          else "MutRawPtr" );
++        ( TRawPtr Const,
++          if !Config.provenance_pointers then
++            "HasteBootsPointerRuntime.ConstRawPtr"
++          else "ConstRawPtr" );
+       ]
+   | Coq | FStar | HOL4 ->
+       [
+@@ -1604,7 +1610,18 @@ let ctx_compute_simple_name (meta : T.item_meta) (ctx : extraction_ctx)
      (name : llbc_name) : string list =
    (* Rmk.: initially we only filtered the disambiguators equal to 0 *)
    let name = opt_ctx_prepare_name meta ctx name in
@@ -1133,7 +1190,7 @@ index 66bb1e48..7951a7f9 100644
  
  (** Helper *)
  let ctx_compute_simple_type_name = ctx_compute_simple_name
-@@ -2113,6 +2124,7 @@ let ctx_compute_var_basename (span : Meta.span) (ctx : extraction_ctx)
+@@ -2113,6 +2130,7 @@ let ctx_compute_var_basename (span : Meta.span) (ctx : extraction_ctx)
            | TBuiltin TSlice -> "s"
            | TBuiltin TStr -> "s"
            | TBuiltin (TRawPtr _) -> "p"
@@ -1141,7 +1198,7 @@ index 66bb1e48..7951a7f9 100644
            | TAdtId adt_id ->
                let def =
                  TypeDeclId.Map.find adt_id ctx.trans_ctx.type_ctx.type_decls
-@@ -2122,7 +2134,10 @@ let ctx_compute_var_basename (span : Meta.span) (ctx : extraction_ctx)
+@@ -2122,7 +2140,10 @@ let ctx_compute_var_basename (span : Meta.span) (ctx : extraction_ctx)
                *)
                (* The name shouldn't be empty, and its last element (after we remove
                   the target architecture suffix) should be an ident *)
