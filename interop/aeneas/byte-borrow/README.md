@@ -61,3 +61,6 @@ The compiler, production Rust and Lean backend are unchanged. Destructor/free
 composition, NTT/SIMD/scheduler, causal oracle/owner history, BabyBear and the final
 expected physical-work security theorem remain open. Ghost ledger operations
 are not counted as actual adversary work. See `regression.json` for the evidence.
+
+Full `scripts/check` passes after its 10,938-job build, including subsequent
+root audits and smoke commands. All 202 extraction/model guard tests pass.

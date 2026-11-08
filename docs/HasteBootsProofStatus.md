@@ -7,6 +7,42 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Shared/exclusive byte access and reborrow lifetimes now check
+
+`NativeByteBorrow` routes accesses through a checked byte-borrow ledger.
+Acquisition checks initialized geometry and conflicts. Reborrows require a
+resident parent, contained span and unchanged origin, and cannot upgrade shared
+to exclusive access. Accesses through a tag may exempt real ancestors, while
+unrelated conflicts reject. Disjoint child ranges and parent accesses outside
+a child range are supported.
+
+Fifty-four model theorems establish checked access, actual byte writes and
+allocation removal, parent residency/bounds/modes, unique tags and preserved
+memory/ledger invariants. The ancestry checker is sound and complete for valid
+resident tags, and parent paths strictly decrease. Ending a parent waits for
+children; an ended tag never reappears under any future model transition.
+Seven composition theorems connect original byte-slice pointer constructors to
+the same checked pointer/origin/length and initialization conditions.
+
+The new gate audits 133 declarations, including all 81 ledger declarations and
+source/runtime compositions. The parent range/memory/source gates are rerun. Full `scripts/check` passes,
+including its 10,938-job build and subsequent root audits/smoke commands. All 202
+guard tests pass. Thirty-six smoke cases cover shared aliases, conflicting access/free, real
+writes, nested/disjoint reborrows, revocation and empty ranges. The compiler,
+production Rust and Lean backend are unchanged; no axiom or proof-limit increase
+is introduced. See `interop/aeneas/byte-borrow/README.md`.
+
+This is not a Rust aliasing/reference proof. Numeric ghost tags are not runtime
+secrets or an unforgeability/actor-ownership theorem. A source relation must bind
+them to actual reference values and justify source lifetime events. Typed value
+validity/strides, interior mutability, reference/compiler and allocator/heap
+correspondence remain open. A fresh native probe still rejects raw-pointer
+dereference in original `drop_in_place`; no native constructor is accepted.
+Destructor/deallocator, compiler/caller and NTT/SIMD/scheduler refinement, causal
+lifetime oracle/owner accounting, BabyBear and the final 128-bit expected physical
+attacker-work theorem remain open. No ghost ledger step is used as an actual
+work floor. The full objective remains unchanged.
+
 ## Initialized byte ranges now share source pointer data
 
 The byte-memory model now supports checked byte ranges and byte-slice views.

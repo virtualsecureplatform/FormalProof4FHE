@@ -61,3 +61,7 @@ actual adversary work. See `regression.json` for current evidence.
 
 Full `scripts/check` passes, including its 10,935-job build and subsequent root
 audits/smoke commands. All 197 extraction/model guard tests pass.
+
+The next ledger milestone in `../byte-borrow/README.md` adds checked shared and
+exclusive byte access, reborrows and lifetime ends over this memory. It remains
+an operational policy; native Rust reference/aliasing refinement is still open.
