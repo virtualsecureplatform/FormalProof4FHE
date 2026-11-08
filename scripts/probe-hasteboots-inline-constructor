@@ -135,7 +135,18 @@ def main():
         name = PARAMETERS['NAMESPACE'] + '.new_encoded'
         checked = out / 'Checked.lean'
         module = raw.replace('import Aeneas\n', 'import Aeneas.Std\nimport Aeneas.Tactic.RustAttributes\nimport Aeneas.Data.Discriminant\n')
-        if not args.target_word64:
+        if args.target_word64:
+            runtime_path = ROOT / 'interop/aeneas/word64-intrinsics/Runtime.lean'
+            support = runtime_path.read_text()
+            PARAMETERS['validate_proof_source'](support, ['leading_zero', 'leading_nonzero', 'leading_bits', 'leading_value',
+                                                         'leading_bound', 'population_value', 'population_bit_sum', 'population_bound',
+                                                         'population_zero', 'population_full', 'population_high'])
+            if support.count('import Aeneas.Std\n') != 1: raise RuntimeError('Unexpected word64 runtime imports')
+            record['intrinsic_runtime_sha256'] = digest(support.encode())
+            marker = 'open Aeneas Aeneas.Std Result ControlFlow Error\n'
+            if module.count(marker) != 1: raise RuntimeError('Unexpected constructor prelude')
+            module = module.replace(marker, support.replace('import Aeneas.Std\n', '') + '\n' + marker, 1)
+        else:
             runtime_path = ROOT / 'interop/aeneas/usize-ctlz/Runtime.lean'
             support = runtime_path.read_text()
             PARAMETERS['validate_proof_source'](support, ['zero_rejected', 'nonzero_result', 'nonzero_bits', 'leading_value'])

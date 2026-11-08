@@ -7,6 +7,43 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Checked 64-bit bit-count bindings reduce the native intrinsic obligations
+
+The word64 frontend now whitelists only ctlz_nonzero<usize> and ctpop<usize>.
+Every selected declaration/reference is checked for a closed monomorphic usize
+instantiation, usize input/u32 output, exact compiler intrinsic identity, Rust
+ABI, correct safety, no varargs and no remaining reference generic arguments.
+The effect table and extraction use the same whitelist. Other source functions
+and globals remain original bindings; portable profiles remain unchanged.
+
+Eleven runtime theorems give nonzero ctlz's logarithmic value/bound and rejection
+of zero, exact population-count conversion to u32, equality to the sum of all
+64 set-bit indicators, bounds and boundary cases. Twelve extracted-source
+theorems cover raw/guarded leading-zero calls, population value and the original
+power-of-two predicate. All definitions and theorems pass 31 new dependency
+audits. Twenty-three unsupported cases reject, including wrong-width source
+calls/aliases and corrupted ABI/safety/identity/instantiation/reference metadata.
+See `interop/aeneas/word64-intrinsics/README.md` and its regression receipt.
+
+Fresh validation totals 202 dependency audits and 164 guard tests. The earlier
+gates pass with the new compiler pair. All 128 upstream generated artifacts are
+unchanged; 97 targets complete, with the same known dyn.rs lifetime rejection.
+No production Rust or Lean backend was changed and no new axiom is accepted.
+
+The strict native arithmetic/word64 probe retains 88 functions with no residual
+drops/runtime queries or missing regular references. Its opaque inventory falls
+from seventeen to fifteen as the two bit-count primitives use checked closed
+semantics. Runtime/panic functions, cold_path, pointers, default layout and
+deallocation still reject. A complete native constructor is not accepted.
+
+Next obligations are the remaining runtime/panic behavior and original pointer,
+layout initialization and deallocation semantics. The checked intrinsic interface
+is not a Rust/LLVM compiler-correctness theorem. Unsafe-call validity, heap and
+native NTT/SIMD/scheduler refinement, causal lifetime oracle/owner accounting,
+BabyBear and the final 128-bit expected physical-work security theorem remain
+open. Logical bit operations provide no physical work floor. The full objective
+is unchanged.
+
 ## Original native arithmetic now passes checked multiplication extraction
 
 The expanded `arithmetic` cleanup scope retains the original word constants,
