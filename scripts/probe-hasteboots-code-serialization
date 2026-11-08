@@ -13,9 +13,13 @@ ROOT = Path(__file__).resolve().parent.parent
 BASE = runpy.run_path(str(ROOT / 'scripts/extract-hasteboots-registry'))
 BUILD = runpy.run_path(str(ROOT / 'scripts/build-hasteboots-static-frontend'))
 DATA = ROOT / 'interop/aeneas/code-serialization'
+ERROR_TYPES = ['std::io::error::Error', 'std::io::error::repr_bitpacked::Repr',
+               'core::ptr::non_null::NonNull', 'std::time::SystemTime', 'std::time::SystemTimeError',
+               'std::sys::time::unix::SystemTime', 'std::sys::pal::unix::time::Timespec',
+               'core::time::Duration', 'core::num::niche_types::Nanoseconds']
 
 
-def inspect_ir(ir, mode='code'):
+def inspect_ir(ir, mode='code', retain_error_types=False):
     if ir.get('has_errors') is not False or ir['translated']['target_information'] != [
             {'key': 'x86_64-unknown-linux-gnu', 'value': {'target_pointer_size': 8, 'is_little_endian': True}}]:
         raise RuntimeError('Incomplete or wrong-target serialization IR')
@@ -28,7 +32,8 @@ def inspect_ir(ir, mode='code'):
         required = [(['formalproof4fhe_native_registry_fixture', 'encode_word'], 'wrapper'),
                     (['bincode', 'features', 'impl_alloc', 'encode_to_vec'], 'bincode'),
                     (['bincode', 'enc', 'impls', 'encode'], 'integer'),
-                    (['bincode', 'varint', 'encode_unsigned', 'varint_encode_u64'], 'varint')]
+                    (['bincode', 'varint', 'encode_unsigned', 'varint_encode_u64'], 'varint'),
+                    (['core', 'marker', 'clone'], 'phantom-clone')]
     elif mode != 'code':
         raise RuntimeError('Unknown serialization surface')
     retained = {}
@@ -72,8 +77,42 @@ def inspect_ir(ir, mode='code'):
         if issues:
             failures.append({'function_id': function['def_id'], 'name': function['item_meta']['name'],
                              'regions': sorted(issues)})
-    return {'function_count': len(functions), 'retained_source_bodies': retained,
+    info = {'function_count': len(functions), 'retained_source_bodies': retained,
             'invalid_signature_regions': failures}
+    if retain_error_types:
+        carriers = {}
+        for name in ERROR_TYPES:
+            types = [t for t in ir['translated'].get('type_decls', []) if t and
+                     [n['Ident'][0] for n in t['item_meta']['name'] if 'Ident' in n] == name.split('::')]
+            if len(types) != 1 or not isinstance(types[0]['kind'], dict) or 'Struct' not in types[0]['kind']:
+                raise RuntimeError('Missing complete error carrier: ' + name)
+            carriers[name] = types[0]
+        def resolve(value, seen=frozenset()):
+            if isinstance(value, dict):
+                if 'HashConsedValue' in value:
+                    index, content = value['HashConsedValue']
+                    if index in seen: raise RuntimeError('Cyclic carrier type')
+                    return resolve(content, seen | {index})
+                if 'Deduplicated' in value:
+                    index = value['Deduplicated']
+                    if index in seen or index not in pool: raise RuntimeError('Invalid carrier type reference')
+                    return resolve(pool[index], seen | {index})
+            return value
+        fields = carriers['core::num::niche_types::Nanoseconds']['kind']['Struct']
+        if len(fields) != 1: raise RuntimeError('Nanoseconds field count changed')
+        pattern = resolve(fields[0]['ty']).get('Pattern')
+        if not isinstance(pattern, list) or len(pattern) != 2 or resolve(pattern[0]) != {'Literal': {'UInt': 'U32'}}:
+            raise RuntimeError('Nanoseconds pattern type changed')
+        bounds = pattern[1].get('Range')
+        if not isinstance(bounds, list) or len(bounds) != 2:
+            raise RuntimeError('Nanoseconds range is missing')
+        for bound, expected in zip(bounds, ['0', '999999999']):
+            if bound['kind'] != {'Literal': {'Scalar': {'Unsigned': ['U32', expected]}}} or resolve(bound['ty']) != resolve(pattern[0]):
+                raise RuntimeError('Nanoseconds range bound changed')
+        info['retained_error_carriers'] = list(carriers)
+        info['nanoseconds_range'] = [0, 999999999]
+        info['opaque_types'] = [t['item_meta']['name'] for t in ir['translated']['type_decls'] if t and t['kind'] == 'Opaque']
+    return info
 
 
 def classify_failure(log):
@@ -81,6 +120,9 @@ def classify_failure(log):
     if ('Detected groups of mixed mutually recursive definitions' in clean and
             'bincode::features::serde::ser' in clean and 'interp/Interp.ml' in clean):
         return 'serde-mixed-recursion'
+    if ('unsupported type:' in clean and 'Generated_Types.TPattern' in clean and
+            'core/src/num/niche_types.rs' in clean and 'llbc/TypesAnalysis.ml' in clean):
+        return 'nanoseconds-pattern-type'
     return None
 
 
@@ -90,10 +132,13 @@ def main():
     parser.add_argument('--backend', type=Path, required=True)
     parser.add_argument('--build-receipt', type=Path, required=True)
     parser.add_argument('--mode', choices=['generic', 'mono', 'word'], required=True)
+    parser.add_argument('--retain-error-types', action='store_true', help='Word mode only: retain error carriers and their exact nanosecond range')
     args = parser.parse_args()
+    if args.retain_error_types and args.mode != 'word':
+        parser.error('--retain-error-types requires --mode word')
     parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
     out = Path(tempfile.mkdtemp(prefix='code-serialization-' + args.mode + '-', dir=parent))
-    record = {'status': 'started', 'mode': args.mode, 'commands': [],
+    record = {'status': 'started', 'mode': args.mode, 'retain_error_types': args.retain_error_types, 'commands': [],
               'script_sha256': BASE['digest'](Path(__file__).read_bytes()),
               'claim': 'translation diagnostic only; actual serialization/context hashing/security remain unproved'}
     def save():
@@ -149,7 +194,8 @@ def main():
         command = [tools / 'charon', 'cargo', '--preset=aeneas']
         if args.mode == 'mono': command += ['--raw-consts', '--monomorphize']
         command += ['--start-from', BASE['NAMESPACE'] + ('::encode_word' if args.mode == 'word' else '::code_bytes')]
-        modules = ['bincode'] if args.mode == 'word' else ['bincode', 'serde', 'serde_core', 'pcs::utils::code::block', 'algebra::goldilocks']
+        modules = ['bincode', 'core::marker'] if args.mode == 'word' else ['bincode', 'serde', 'serde_core', 'pcs::utils::code::block', 'algebra::goldilocks']
+        if args.retain_error_types: modules += ERROR_TYPES
         for module in modules:
             command += ['--include', module]
         command += ['--dest-file', llbc, '--', '--manifest-path', out / 'Cargo.toml', '--lib', '--locked']
@@ -157,7 +203,7 @@ def main():
         if run(command, 'charon.log', env): raise RuntimeError('Charon rejected serialization')
         native_clean()
         record['llbc_sha256'] = BASE['digest'](llbc.read_bytes())
-        record['ir'] = inspect_ir(json.loads(llbc.read_text()), 'word' if args.mode == 'word' else 'code'); save()
+        record['ir'] = inspect_ir(json.loads(llbc.read_text()), 'word' if args.mode == 'word' else 'code', args.retain_error_types); save()
         if record['ir']['invalid_signature_regions']:
             record['failure_kind'] = 'signature-regions'
             raise RuntimeError('Signature lifetimes are missing; extraction stopped before symbolic execution')

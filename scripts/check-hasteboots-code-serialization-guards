@@ -75,13 +75,35 @@ class Guards(unittest.TestCase):
         names = [['formalproof4fhe_native_registry_fixture', 'encode_word'],
                  ['bincode', 'features', 'impl_alloc', 'encode_to_vec'],
                  ['bincode', 'enc', 'impls', '_', 'encode'],
-                 ['bincode', 'varint', 'encode_unsigned', 'varint_encode_u64']]
+                 ['bincode', 'varint', 'encode_unsigned', 'varint_encode_u64'], ['core', 'marker', 'clone']]
+        data['translated']['fun_decls'].append({'def_id': 4, 'item_meta': {}, 'body': {'Structured': {}}, 'signature': {}})
         for f, name in zip(data['translated']['fun_decls'], names):
             f['item_meta']['name'] = [{'Ident': [n, 0]} for n in name]
         self.assertEqual(set(MODULE['inspect_ir'](data, 'word')['retained_source_bodies']),
-                         {'wrapper', 'bincode', 'integer', 'varint'})
+                         {'wrapper', 'bincode', 'integer', 'varint', 'phantom-clone'})
         with self.assertRaises(RuntimeError): MODULE['inspect_ir'](data)
         with self.assertRaises(RuntimeError): MODULE['inspect_ir'](data, 'unknown')
+
+    def test_error_carrier_range_is_preserved(self):
+        data = ir()
+        data['translated']['type_decls'] = [
+            {'item_meta': {'name': [{'Ident': [p, 0]} for p in name.split('::')]}, 'kind': {'Struct': []}}
+            for name in MODULE['ERROR_TYPES']]
+        u32 = {'Literal': {'UInt': 'U32'}}
+        bounds = [{'kind': {'Literal': {'Scalar': {'Unsigned': ['U32', n]}}}, 'ty': u32} for n in ['0', '999999999']]
+        nano = data['translated']['type_decls'][-1]
+        nano['kind']['Struct'] = [{'ty': {'Pattern': [u32, {'Range': bounds}]}}]
+        info = MODULE['inspect_ir'](data, retain_error_types=True)
+        self.assertEqual(info['nanoseconds_range'], [0, 999999999])
+        bounds[1]['kind']['Literal']['Scalar']['Unsigned'][1] = '4294967295'
+        with self.assertRaises(RuntimeError): MODULE['inspect_ir'](data, retain_error_types=True)
+        nano['kind'] = 'Opaque'
+        with self.assertRaises(RuntimeError): MODULE['inspect_ir'](data, retain_error_types=True)
+
+    def test_pattern_failure_requires_source_evidence(self):
+        log = 'unsupported type: Generated_Types.TPattern\ncore/src/num/niche_types.rs\nllbc/TypesAnalysis.ml'
+        self.assertEqual(MODULE['classify_failure'](log), 'nanoseconds-pattern-type')
+        self.assertIsNone(MODULE['classify_failure'](log.replace('niche_types.rs', 'other.rs')))
 
 
 if __name__ == '__main__':

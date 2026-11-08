@@ -42,8 +42,9 @@ scripts/check-hasteboots-code-serialization-guards
 
 The primitive `word` mode calls the actual Bincode integer encoder with standard
 config. It requires a reviewed `discriminants` build receipt and uses ordinary
-constant lowering. The gate checks transparent entry-point, integer-Encode and
-varint bodies and all signature regions, after a fresh 107-audit preflight:
+constant lowering. The gate checks transparent entry-point, integer-Encode,
+varint and original PhantomData-clone bodies and all signature regions, after a
+fresh 107-audit preflight:
 
 ```
 scripts/probe-hasteboots-code-serialization \
@@ -51,18 +52,27 @@ scripts/probe-hasteboots-code-serialization \
   --build-receipt /path/to/discriminants/build/manifest.json --mode word
 ```
 
-All 31 transparent functions translate, but the complete generated output has
-four external axioms: PhantomData.clone, std::io::Error, std::time::SystemTime
-and std::time::SystemTimeError. The manifest records the generated file hash and
+All 32 transparent functions translate. The native PhantomData clone is now
+concrete and separately kernel-checked in the fifteen-audit discriminant gate.
+The complete generated output still has three external axioms: std::io::Error,
+std::time::SystemTime and std::time::SystemTimeError. The manifest records the generated file hash and
 axiom names, and the diagnostic returns `rejected-unproved`/`external-axioms`.
 This mode proves no byte theorem and supplies no serialization callback.
+
+Add `--retain-error-types` to retain nine original error/time/pointer carriers.
+The gate checks complete struct definitions and the exact original Nanoseconds
+field pattern `u32 is 0..=999999999`, including its underlying type and both
+bounds. It records remaining opaque carriers. The current frontend rejects
+that pattern type during type analysis; the diagnostic returns
+`rejected-unproved`/`nanoseconds-pattern-type`. Range predicates are not erased,
+and retaining these carriers does not certify pointer identity or heap layout.
 
 The native pin remains `dff353006322693cab3dc6b654f82151f658f294`.
 Manifests record the preflight receipt, frontend, wrapper, native files,
 Cargo inputs and full IR hashes, commands, retained body IDs and signature
-failures. Eight guard tests cover body completeness, target/translation errors,
+failures. Ten guard tests cover body completeness, target/translation errors,
 hash-consed signature references, missing lifetimes, primitive versus code
-surfaces and blocker classification.
+surfaces, exact nanosecond bounds and blocker classification.
 
 The next compiler work must address generic recursive serializer interfaces or
 preserve the lifetimes required by specialization. The separate discriminant

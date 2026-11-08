@@ -7,6 +7,32 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Original PhantomData clone is checked; error carriers retain exact bounds
+
+The discriminant extraction gate now retains the original standard-library
+PhantomData clone implementation. Three kernel theorems prove native clone and
+wrapper identity and the singleton carrier for every element type. Its exact
+reviewed output is combined with the earlier cleanup/trait checks in fifteen
+dependency audits. This removes one opaque callback from the native integer
+encoding path without supplying an assumed clone implementation.
+
+The native `word` diagnostic retains that clone body and translates all 32
+transparent functions. Three external error-type axioms still prevent a byte
+refinement. The optional `--retain-error-types` route retains nine original
+error/time/pointer carriers and checks the exact `u32 is 0..=999999999`
+Nanoseconds field, including both range bounds. Aeneas currently rejects that
+pattern type. Further opaque carriers remain recorded; no range, pointer/heap
+obligation or unsupported type is replaced with a weaker model.
+
+Validation: fifteen combined dependency audits and all 88 extraction/frontend
+guard tests passed. Both native diagnostic routes reproduced their explicit
+rejections after fresh 107-audit registry preflights. Rust formatting and diff
+checks passed; the native HasteBoots checkout remains unchanged.
+
+The complete serialization/context proof, native owner loop, implementation
+and heap refinement, physical-work security and full application theorem remain
+open. These subgates do not certify them.
+
 ## Optimized-MIR cleanup matches have a checked discriminant regression
 
 The isolated `discriminants` frontend profile handles an initialized enum tag
