@@ -39,13 +39,17 @@ def validate_drop_ir(ir):
     visit(ir['translated'])
 
 
+def extract_axiom_names(raw):
+    return re.findall(r'^axiom\s+([^\s:(]+)', raw, re.M)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--build-receipt', type=Path, required=True)
     parser.add_argument('--backend', type=Path, required=True)
     cleanup = parser.add_mutually_exclusive_group()
     cleanup.add_argument('--expand-string-cleanup', action='store_true', help='Expose original String type and drop body')
-    cleanup.add_argument('--cleanup-scope', choices=['opaque', 'string', 'vec', 'rawvec', 'global', 'layout'], help='Follow original cleanup bodies to the selected boundary')
+    cleanup.add_argument('--cleanup-scope', choices=['opaque', 'string', 'vec', 'rawvec', 'global', 'layout', 'nonzero'], help='Follow original cleanup bodies to the selected boundary')
     parser.add_argument('--inline-ok-or', action='store_true', help='Also inline static-error option conversion')
     args = parser.parse_args()
     parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
@@ -86,10 +90,11 @@ def main():
         scope = args.cleanup_scope or ('string' if args.expand_string_cleanup else 'opaque')
         record['cleanup_scope'] = scope
         paths = [] if scope == 'opaque' else ['alloc::string::String']
-        if scope in ['vec', 'rawvec', 'global', 'layout']: paths += ['alloc::vec::Vec', 'alloc::vec::Vec::_::drop_glue']
-        if scope in ['rawvec', 'global', 'layout']: paths += ['alloc::vec', 'alloc::raw_vec']
-        if scope in ['global', 'layout']: paths += ['alloc::alloc']
-        if scope == 'layout': paths += ['core::alloc::layout', 'core::mem::alignment', 'core::num::niche_types', 'core::num::_::unchecked_mul']
+        if scope in ['vec', 'rawvec', 'global', 'layout', 'nonzero']: paths += ['alloc::vec::Vec', 'alloc::vec::Vec::_::drop_glue']
+        if scope in ['rawvec', 'global', 'layout', 'nonzero']: paths += ['alloc::vec', 'alloc::raw_vec']
+        if scope in ['global', 'layout', 'nonzero']: paths += ['alloc::alloc']
+        if scope in ['layout', 'nonzero']: paths += ['core::alloc::layout', 'core::mem::alignment', 'core::num::niche_types', 'core::num::_::unchecked_mul']
+        if scope == 'nonzero': paths += ['core::num::nonzero']
         cleanup_scope = [argument for path in paths for argument in ['--include', path]]
         run([tools / 'charon', 'cargo', '--preset=aeneas', '--preserve-allocator', '--evaluate-runtime-checks', '--precise-drops', '--desugar-drops', '--monomorphize',
              '--inline-function', 'core::option::_::and_then', '--inline-function', 'core::option::_::is_none_or', *optional_inline,
@@ -113,7 +118,7 @@ def main():
         if re.search(r'Uncaught exception|\[Error\]', plain): raise RuntimeError('Frontend reported an error despite exit status')
         raw = (out / 'lean/Constructor.lean').read_text()
         record['generated_sha256'] = digest(raw.encode())
-        record['extracted_axioms'] = re.findall(r'^axiom ([^\s:(]+)', raw, re.M)
+        record['extracted_axioms'] = extract_axiom_names(raw)
         save()
         if raw.count('import Aeneas\n') != 1 or not raw.rstrip().endswith('end ' + PARAMETERS['NAMESPACE']):
             raise RuntimeError('Incomplete native constructor module')

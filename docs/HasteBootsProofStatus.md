@@ -7,6 +7,27 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Full-width nonzero carriers now preserve all alignment bits
+
+The paired frontend has an explicit `-u64-range-patterns` mode and checked
+literal range construction. It validates each transparent carrier and reuses
+the enum stored-tag/discriminator checks, requiring every tag within the target
+bounds. Symbolic scalar construction, zero-bearing enums, mismatched layouts
+and cyclic carrier chains reject. Original stdlib NonZeroU64/get bodies and
+all 64 alignment variants now have seven kernel theorems covering totality,
+exact bits, soundness, bounds and source round trips (thirteen dependency
+audits). Eleven negative runs cover unsupported or corrupted carriers. See
+`interop/aeneas/enum-nonzero/README.md`.
+
+The new native `nonzero` cleanup scope exposes both original target wrappers
+and reaches complete Lean module generation. Its 84 functions have no residual
+drops/runtime queries or missing declarations. It still rejects fourteen
+unresolved axioms; multiline declarations are now included in the diagnostic
+inventory. The native usize-width binding, old backend versus new source
+Alignment layout type, remaining runtime/pointer/deallocation definitions,
+caller safety and heap/work/security refinement are unproved. No complete
+native constructor or full security theorem is accepted.
+
 ## Inward enum decoding now checks representation validity
 
 The opt-in frontend decodes a fieldless explicitly represented unsigned enum,

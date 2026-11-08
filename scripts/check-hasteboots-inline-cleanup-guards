@@ -35,6 +35,10 @@ class Guards(unittest.TestCase):
             ir['translated']['fun_decls'][0]['body'] = {'NullaryOp': [query, 'bool']}
             with self.assertRaises(RuntimeError): GATE['validate_drop_ir'](ir)
 
+    def test_multiline_admission_frontier(self):
+        raw = 'axiom core.pointer : Type\naxiom\n  core.layout.default : Unit\n'
+        self.assertEqual(GATE['extract_axiom_names'](raw), ['core.pointer', 'core.layout.default'])
+
     def test_missing_function_reference_rejected(self):
         ir = self.fixture()
         ir['translated']['fun_decls'][0]['body']['Structured']['Call'] = {'kind': {'Fun': {'Regular': 7}}}
