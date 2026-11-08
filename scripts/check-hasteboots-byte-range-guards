@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+"""Reject omitted range proofs, hidden public operations and admitted source bridges."""
+from pathlib import Path
+import runpy
+import unittest
+from unittest.mock import patch
+
+ROOT = Path(__file__).resolve().parent.parent
+GATE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-byte-range'))
+
+
+class Guards(unittest.TestCase):
+    def test_complete_model_and_bridge(self):
+        GATE['validate_sources']()
+
+    def test_missing_memory_or_bridge_proof(self):
+        for path, names in [(GATE['MODEL'], GATE['MODEL_PROOFS']), (GATE['DATA'] / 'Pointer.lean', GATE['BRIDGE_PROOFS'])]:
+            source = path.read_text()
+            for name in names:
+                with self.assertRaises(RuntimeError):
+                    GATE['PARAMETERS']['validate_proof_source'](source.replace('theorem ' + name, 'theorem omitted'), names)
+
+    def test_admission_or_changed_limits(self):
+        source = GATE['MODEL'].read_text()
+        for addition in ['\naxiom bypass : False\n', '\nexample : True := by sorry\n',
+                         '\nexample : True := by native_decide\n', '\nset_option maxHeartbeats 900000\n',
+                         '\nset_option maxRecDepth 900000\n']:
+            with self.assertRaises(RuntimeError): GATE['PARAMETERS']['validate_proof_source'](source + addition, GATE['MODEL_PROOFS'])
+
+    def test_unreviewed_or_missing_public_operation(self):
+        source = GATE['MODEL'].read_text(); original = Path.read_text
+        for bad in [source + '\ndef extraOperation : Nat := 0\n', source.replace('def loadRange ', 'private def loadRange ')]:
+            def read(path, *args, **kwargs):
+                return bad if path == GATE['MODEL'] else original(path, *args, **kwargs)
+            with patch.object(Path, 'read_text', new=read):
+                with self.assertRaises(RuntimeError): GATE['validate_sources']()
+
+    def test_smoke_admission_rejected(self):
+        smoke = ROOT / 'FormalProof4FHETest/HasteBootsByteRangeSmoke.lean'; original = Path.read_text
+        def read(path, *args, **kwargs):
+            text = original(path, *args, **kwargs)
+            return text + '\nexample : True := by sorry\n' if path == smoke else text
+        with patch.object(Path, 'read_text', new=read):
+            with self.assertRaises(RuntimeError): GATE['validate_sources']()
+
+
+if __name__ == '__main__':
+    unittest.main()
