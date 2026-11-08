@@ -1,8 +1,8 @@
 diff --git a/src/Config.ml b/src/Config.ml
-index cb919aeb..f1c41f3e 100644
+index cb919aeb..e260983e 100644
 --- a/src/Config.ml
 +++ b/src/Config.ml
-@@ -598,3 +598,12 @@ let max_recdepth = ref 2048
+@@ -598,3 +598,13 @@ let max_recdepth = ref 2048
  (** If [false], evaluate [drop(p)] as [p := bottom]. Otherwise, evaluate it as a
      no-op (which means that we do not borrow-check the drops). *)
  let drop_as_no_op = ref true
@@ -15,17 +15,22 @@ index cb919aeb..f1c41f3e 100644
 +let monomorphic_builtin_shapes = ref false
 +
 +let u64_range_patterns = ref false
++let target_word64 = ref false
 diff --git a/src/Main.ml b/src/Main.ml
-index 8073dba6..ed063a4a 100644
+index 8073dba6..ae599e1c 100644
 --- a/src/Main.ml
 +++ b/src/Main.ml
-@@ -97,6 +97,19 @@ let () =
+@@ -97,6 +97,23 @@ let () =
          Arg.Symbol (backend_names, set_backend),
          " Specify the target backend (" ^ String.concat ", " backend_names ^ ")"
        );
 +      ( "-monomorphic-builtin-shapes",
 +        Arg.Set monomorphic_builtin_shapes,
 +        " Preserve monomorphic traits and recognize scalar option shapes" );
++      ( "-target-word64",
++        Arg.Set target_word64,
++        " Use checked 64-bit target words and source function/global bindings"
++      );
 +      ( "-u64-range-patterns",
 +        Arg.Set u64_range_patterns,
 +        " Preserve U64 scalar range patterns in monomorphic Lean extraction" );
@@ -39,7 +44,7 @@ index 8073dba6..ed063a4a 100644
        ( "-namespace",
          Arg.String set_namespace,
          " Set the namespace of the definitions in the pure model" );
-@@ -579,6 +592,16 @@ let () =
+@@ -579,6 +596,28 @@ let () =
           without the `--preset=aeneas` option. Please regenerate the crate by \
           calling Charon with `--preset=aeneas`.\n";
  
@@ -52,6 +57,18 @@ index 8073dba6..ed063a4a 100644
 +        ((not !u64_range_patterns)
 +        || (!monomorphic_builtin_shapes && !opt_backend = Some Lean))
 +        "U64 range patterns require monomorphic builtin shapes and Lean";
++
++      check_no_doc
++        ((not !target_word64)
++        || !monomorphic_builtin_shapes
++           && !opt_backend = Some Lean
++           &&
++           match m.target_information with
++           | [ (_, info) ] ->
++               info.target_pointer_size = 8 && info.is_little_endian
++           | _ -> false)
++        "Target word64 requires monomorphic Lean and one 64-bit little-endian \
++         target";
 +
        (* We don't support mutually recursive definitions with decreases clauses in Lean *)
        if
@@ -888,7 +905,7 @@ index 8df1bc5f..f1e2b16f 100644
    in
  
 diff --git a/src/extract/Extract.ml b/src/extract/Extract.ml
-index 2dc4a57f..51d3509d 100644
+index 2dc4a57f..be4888c5 100644
 --- a/src/extract/Extract.ml
 +++ b/src/extract/Extract.ml
 @@ -398,6 +398,8 @@ let extract_cast_kind_hol4 (span : Meta.span)
@@ -922,7 +939,23 @@ index 2dc4a57f..51d3509d 100644
    | CastLit (src, tgt) ->
        let integer_type_to_string (ty : integer_type) : string =
          if backend () = Lean then
-@@ -2693,6 +2710,7 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
+@@ -636,6 +653,15 @@ let extract_binop (span : Meta.span) (ctx : extraction_ctx)
+       F.pp_print_string fmt binop_str;
+       F.pp_print_space fmt ();
+       extract_expr ~inside:true arg1
++  | Lean, AddChecked ty ->
++      F.pp_print_string fmt
++        (match ty with
++        | Unsigned _ -> "Std.UScalar.overflowing_add"
++        | Signed _ -> "Std.IScalar.overflowing_add");
++      F.pp_print_space fmt ();
++      extract_expr ~inside:true arg0;
++      F.pp_print_space fmt ();
++      extract_expr ~inside:true arg1
+   | ( Lean,
+       ( Add (OWrap, _)
+       | Sub (OWrap, _)
+@@ -2693,6 +2719,7 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
    let clause_names =
      match builtin_info with
      | None ->
@@ -930,7 +963,7 @@ index 2dc4a57f..51d3509d 100644
          List.map
            (fun (c : trait_param) ->
              let name = ctx_compute_trait_parent_clause_name ctx trait_decl c in
-@@ -2701,6 +2719,14 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
+@@ -2701,6 +2728,14 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
                if !record_fields_short_names then name
                else ctx_compute_trait_decl_name ctx trait_decl ^ name
              in
@@ -990,10 +1023,46 @@ index 66bb1e48..7951a7f9 100644
                name_from_type_ident (TypesUtils.as_ident cl))
        | TVar _ -> (
 diff --git a/src/extract/ExtractBuiltin.ml b/src/extract/ExtractBuiltin.ml
-index 6e28b984..119843cd 100644
+index 6e28b984..577ea716 100644
 --- a/src/extract/ExtractBuiltin.ml
 +++ b/src/extract/ExtractBuiltin.ml
-@@ -332,7 +332,11 @@ let mk_builtin_trait_decls_map () =
+@@ -52,7 +52,11 @@ let mk_builtin_globals_map () : Pure.builtin_global_info NameMatcherMap.t =
+          (parse_pattern info.rust_name, info))
+        (builtin_globals ()))
+ 
+-let builtin_globals_map = mk_memoized mk_builtin_globals_map
++let cached_builtin_globals_map = mk_memoized mk_builtin_globals_map
++
++let builtin_globals_map () =
++  if !Config.target_word64 then NameMatcherMap.empty
++  else cached_builtin_globals_map ()
+ 
+ (** The assumed types.
+ 
+@@ -173,10 +177,21 @@ let builtin_types () : Pure.builtin_type_info list =
+   @ mk_lean_only lean_builtin_types
+ 
+ let mk_builtin_types_map () =
++  (* Expanded source Layout uses the current memory-alignment type, unlike
++     the legacy backend pointer-alignment carrier. Preserve its actual fields. *)
++  let types =
++    List.filter
++      (fun (info : Pure.builtin_type_info) ->
++        not
++          (!Config.monomorphic_builtin_shapes
++          && Config.backend () = Config.Lean
++          && info.rust_name = parse_pattern "core::alloc::layout::Layout"))
++      (builtin_types ())
++  in
+   NameMatcherMap.of_list
+     (List.map
+        (fun (info : Pure.builtin_type_info) -> (info.rust_name, info))
+-       (builtin_types ()))
++       types)
+ 
+ let builtin_types_map = mk_memoized mk_builtin_types_map
+ 
+@@ -332,7 +347,11 @@ let mk_builtin_trait_decls_map () =
         (fun (info : Pure.builtin_trait_decl_info) -> (info.rust_name, info))
         (builtin_trait_decls_info ()))
  
@@ -1006,7 +1075,7 @@ index 6e28b984..119843cd 100644
  
  let builtin_trait_impls_info () : (pattern * Pure.builtin_trait_impl_info) list
      =
-@@ -510,7 +514,11 @@ let mk_builtin_trait_impls_map () =
+@@ -510,7 +529,11 @@ let mk_builtin_trait_impls_map () =
    [%ltrace NameMatcherMap.to_string (fun _ -> "...") m];
    m
  
@@ -1019,7 +1088,7 @@ index 6e28b984..119843cd 100644
  
  (** The builtin functions.
  
-@@ -614,6 +622,22 @@ let mk_builtin_funs () : (pattern * Pure.builtin_fun_info) list =
+@@ -614,6 +637,22 @@ let mk_builtin_funs () : (pattern * Pure.builtin_fun_info) list =
                 ^ ".from"))
            ~can_fail:false ())
        int_and_smaller_list
@@ -1042,6 +1111,29 @@ index 6e28b984..119843cd 100644
    (* Leading zeros *)
    @ mk_scalar_fun
        (fun ty -> "core::num::{" ^ ty ^ "}::leading_zeros")
+@@ -926,7 +965,11 @@ let mk_builtin_funs_map () =
+   [%ltrace NameMatcherMap.to_string (fun _ -> "...") m];
+   m
+ 
+-let builtin_funs_map = mk_memoized mk_builtin_funs_map
++let cached_builtin_funs_map = mk_memoized mk_builtin_funs_map
++
++let builtin_funs_map () =
++  if !Config.target_word64 then NameMatcherMap.empty
++  else cached_builtin_funs_map ()
+ 
+ type effect_info = { can_fail : bool }
+ 
+@@ -942,4 +985,8 @@ let mk_builtin_fun_effects_map () =
+   [%ldebug "Builting the builtin funs effects map"];
+   name_matcher_map_of_list (if_backend mk_builtin_fun_effects [])
+ 
+-let builtin_fun_effects_map = mk_memoized mk_builtin_fun_effects_map
++let cached_builtin_fun_effects_map = mk_memoized mk_builtin_fun_effects_map
++
++let builtin_fun_effects_map () =
++  if !Config.target_word64 then NameMatcherMap.empty
++  else cached_builtin_fun_effects_map ()
 diff --git a/src/extract/ExtractTypes.ml b/src/extract/ExtractTypes.ml
 index 37171763..94317a33 100644
 --- a/src/extract/ExtractTypes.ml
@@ -1150,7 +1242,7 @@ index 52b94675..951b56d9 100644
      (* Update the synthesized program *)
      S.synthesize_symbolic_expansion_no_branching span original_sv
 diff --git a/src/interp/InterpExpressions.ml b/src/interp/InterpExpressions.ml
-index 2d32fc8e..74dea967 100644
+index 2d32fc8e..d50c4afd 100644
 --- a/src/interp/InterpExpressions.ml
 +++ b/src/interp/InterpExpressions.ml
 @@ -82,6 +82,26 @@ let access_rplace_reorganize_and_read (config : config) (span : Meta.span)
@@ -1206,6 +1298,23 @@ index 2d32fc8e..74dea967 100644
          | Cast (CastUnsize (ty0, ty1, _)), _ ->
              (* If the following function succeeds, then it means the cast is well-formed
             (otherwise it throws an exception) *)
+@@ -1149,7 +1188,15 @@ let eval_binary_op_symbolic (config : config) (span : Meta.span) (binop : binop)
+               [%sanity_check] span (int_ty1 = int_ty2);
+               TLiteral (TInt I8)
+           (* These return `(int, bool)` / a pointer which isn't a literal type *)
+-          | AddChecked | SubChecked | MulChecked | Offset ->
++          | AddChecked ->
++              [%sanity_check] span (int_ty1 = int_ty2);
++              TAdt
++                {
++                  id = TTuple;
++                  generics =
++                    mk_generic_args_from_types [ v1.ty; TLiteral TBool ];
++                }
++          | SubChecked | MulChecked | Offset ->
+               [%craise] span "Unimplemented binary operation"
+           | Shl _ | Shr _ ->
+               (* The number of bits can be of a different integer type
 diff --git a/src/interp/InterpExpressions.mli b/src/interp/InterpExpressions.mli
 index 75a12e90..c578fdc1 100644
 --- a/src/interp/InterpExpressions.mli
@@ -1487,10 +1596,10 @@ index e9a07a43..ddaead12 100644
               the array expressions are introduced as struct updates *)
            [%craise] span "Attempting to access the fields of an opaque type")
 diff --git a/src/symbolic/SymbolicToPureExpressions.ml b/src/symbolic/SymbolicToPureExpressions.ml
-index b83dc456..dc44375a 100644
+index b83dc456..d8288c6a 100644
 --- a/src/symbolic/SymbolicToPureExpressions.ml
 +++ b/src/symbolic/SymbolicToPureExpressions.ml
-@@ -584,6 +584,25 @@ and translate_function_call_aux (call : S.call) (e : S.expr) (ctx : bs_ctx) :
+@@ -584,6 +584,26 @@ and translate_function_call_aux (call : S.call) (e : S.expr) (ctx : bs_ctx) :
                (* We shouldn't get there: this case should have been detected before
                 and handled in [translate_cast_unsize] *)
                [%internal_error] ctx.span
@@ -1503,7 +1612,8 @@ index b83dc456..dc44375a 100644
 +              [%cassert] ctx.span
 +                (match args with
 +                | [ { e = Const (VScalar (UnsignedScalar (k, n))); _ } ] ->
-+                    k = kind && Z.leq lower n && Z.leq n upper
++                    k = translate_u_int_ty kind
++                    && Z.leq lower n && Z.leq n upper
 +                | _ -> false)
 +                "Range construction requires an in-bounds scalar literal";
 +              (CastRangeConst, false)
@@ -1516,14 +1626,33 @@ index b83dc456..dc44375a 100644
            | CastTransmute _ -> [%craise] ctx.span "Unsupported: transmute"
            | CastConcretize _ ->
                [%craise] ctx.span "Unsupported: `dyn Trait` concretization"
+@@ -1465,7 +1485,7 @@ and translate_expansion (p : S.mplace option) (sv : V.symbolic_value)
+         (* We don't need to update the context: we don't introduce any
+            new values/variables *)
+         let branch = translate_expr branch_e ctx in
+-        let pat = mk_tpat_from_literal (VScalar v) in
++        let pat = mk_tpat_from_literal (VScalar (translate_scalar_value v)) in
+         close_branch ctx.span pat branch
+       in
+       let branches = List.map translate_branch branches in
 diff --git a/src/symbolic/SymbolicToPureTypes.ml b/src/symbolic/SymbolicToPureTypes.ml
-index 5ea3e9be..277d5d47 100644
+index 5ea3e9be..ba9f3f80 100644
 --- a/src/symbolic/SymbolicToPureTypes.ml
 +++ b/src/symbolic/SymbolicToPureTypes.ml
-@@ -5,6 +5,15 @@ open FunsAnalysis
+@@ -5,6 +5,27 @@ open FunsAnalysis
  open TypesAnalysis
  open SymbolicToPureCore
  
++let translate_u_int_ty (kind : V.u_int_ty) =
++  if !Config.target_word64 && kind = V.Usize then V.U64 else kind
++
++let translate_int_ty (kind : V.int_ty) =
++  if !Config.target_word64 && kind = V.Isize then V.I64 else kind
++
++let translate_scalar_value = function
++  | V.UnsignedScalar (kind, n) -> V.UnsignedScalar (translate_u_int_ty kind, n)
++  | V.SignedScalar (kind, n) -> V.SignedScalar (translate_int_ty kind, n)
++
 +let translate_unsigned_range (span : Meta.span option) base pattern : ty =
 +  [%cassert_opt_span] span
 +    (Config.backend () = Config.Lean)
@@ -1531,12 +1660,34 @@ index 5ea3e9be..277d5d47 100644
 +  let kind, lower, upper =
 +    TypesAnalysis.unsigned_range_bounds span base pattern
 +  in
-+  TAdt (TBuiltin (TUnsignedRange (kind, lower, upper)), empty_generic_args)
++  TAdt
++    ( TBuiltin (TUnsignedRange (translate_u_int_ty kind, lower, upper)),
++      empty_generic_args )
 +
  (** The local logger *)
  let log = Logging.symbolic_to_pure_types_log
  
-@@ -164,6 +173,7 @@ let rec translate_sty (span : Meta.span option) (ty : T.ty) : ty =
+@@ -18,7 +39,7 @@ let translate_region_binder (translate_value : 'a -> 'b)
+ 
+ let translate_literal (l : V.literal) : literal =
+   match l with
+-  | V.VScalar x -> VScalar x
++  | V.VScalar x -> VScalar (translate_scalar_value x)
+   | V.VFloat x -> VFloat x
+   | V.VBool x -> VBool x
+   | V.VChar x -> VChar x
+@@ -34,8 +55,8 @@ let translate_constant_expr_kind (span : span option) :
+ 
+ let translate_literal_type (ty : V.literal_type) : literal_type =
+   match ty with
+-  | V.TInt x -> TInt x
+-  | V.TUInt x -> TUInt x
++  | V.TInt x -> TInt (translate_int_ty x)
++  | V.TUInt x -> TUInt (translate_u_int_ty x)
+   | V.TFloat x -> TFloat x
+   | V.TBool -> TBool
+   | V.TChar -> TChar
+@@ -164,6 +185,7 @@ let rec translate_sty (span : Meta.span option) (ty : T.ty) : ty =
        TVar var
        (* Note: the `de_bruijn_id`s are incorrect, see comment on `translate_region_binder` *)
    | TLiteral ty -> TLiteral (translate_literal_type ty)
@@ -1544,18 +1695,18 @@ index 5ea3e9be..277d5d47 100644
    | TNever -> TNever
    | TRef (_, rty, _) -> translate span rty
    | TRawPtr (ty, rkind) ->
-@@ -257,8 +267,8 @@ let translate_variant (span : Meta.span) (v : T.variant) : variant =
+@@ -257,8 +279,8 @@ let translate_variant (span : Meta.span) (v : T.variant) : variant =
    let variant_attr_info = v.attr_info in
    let discriminant, ty =
      match v.discriminant with
 -    | VScalar (SignedScalar (ty, v)) -> (Z.to_int v, TInt ty)
 -    | VScalar (UnsignedScalar (ty, v)) -> (Z.to_int v, TUInt ty)
-+    | VScalar (SignedScalar (ty, v)) -> (v, TInt ty)
-+    | VScalar (UnsignedScalar (ty, v)) -> (v, TUInt ty)
++    | VScalar (SignedScalar (ty, v)) -> (v, TInt (translate_int_ty ty))
++    | VScalar (UnsignedScalar (ty, v)) -> (v, TUInt (translate_u_int_ty ty))
      | _ ->
          [%craise] span
            "Internal error, please report an issue: found an enumeration \
-@@ -311,6 +321,40 @@ let translate_type_decl (ctx : Contexts.decls_ctx) (def : T.type_decl) :
+@@ -311,6 +333,40 @@ let translate_type_decl (ctx : Contexts.decls_ctx) (def : T.type_decl) :
      match_name_find_opt ctx def.item_meta.name
        (ExtractBuiltin.builtin_types_map ())
    in
@@ -1596,7 +1747,7 @@ index 5ea3e9be..277d5d47 100644
    {
      def_id;
      name;
-@@ -382,6 +426,7 @@ let rec translate_fwd_ty (span : Meta.span option) (decls_ctx : C.decls_ctx)
+@@ -382,6 +438,7 @@ let rec translate_fwd_ty (span : Meta.span option) (decls_ctx : C.decls_ctx)
    | TVar var -> TVar var
    | TNever -> TNever
    | TLiteral lty -> TLiteral (translate_literal_type lty)
@@ -1604,7 +1755,7 @@ index 5ea3e9be..277d5d47 100644
    | TRef (_, rty, _) -> translate rty
    | TRawPtr (ty, rkind) ->
        let mut =
-@@ -494,6 +539,9 @@ and compute_back_ty_num_levels (span : Meta.span option)
+@@ -494,6 +551,9 @@ and compute_back_ty_num_levels (span : Meta.span option)
                    "Unreachable: boxes receive exactly one type parameter")
          | TTuple -> List.iter (explore outer_regions) generics.types)
      | T.TArray (ty, _) | T.TSlice ty -> explore outer_regions ty
@@ -1614,7 +1765,7 @@ index 5ea3e9be..277d5d47 100644
      | TVar _ | TNever | TLiteral _ -> save_count outer_regions
      | TRef (r, rty, rkind) -> (
          match rkind with
-@@ -631,6 +679,9 @@ and translate_back_ty_aux (span : Meta.span option) (decls_ctx : C.decls_ctx)
+@@ -631,6 +691,9 @@ and translate_back_ty_aux (span : Meta.span option) (decls_ctx : C.decls_ctx)
          if keep_adt outer_regions ty then
            Some (translate_fwd_ty span decls_ctx ty)
          else None

@@ -1,0 +1,166 @@
+#!/usr/bin/env python3
+"""Check source Layout fields, explicit target words and original overflow bodies."""
+import argparse
+import copy
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+BASE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-inline-equivalence'))
+RANGES = runpy.run_path(str(ROOT / 'scripts/probe-hasteboots-u32-ranges'))
+BUILD, PARAMETERS, COMMON, digest = BASE['BUILD'], BASE['PARAMETERS'], BASE['COMMON'], BASE['digest']
+DATA = ROOT / 'interop/aeneas/layout-word64'
+NAMESPACE = 'hasteboots_layout_word64'
+PROOFS = ['preserve_exact', 'size_exact', 'align_exact', 'high_alignment', 'word_max_exact',
+          'signed_min_exact', 'signed_identity_exact', 'overflowing_add_exact',
+          'signed_overflowing_add_exact', 'unsigned_overflow', 'unsigned_high_add', 'signed_overflow']
+FUNCTIONS = ['preserve', 'size', 'align', 'word_max', 'signed_min', 'signed_identity',
+             'overflowing_add_one', 'signed_overflowing_add_one', 'core.alloc.layout.Layout',
+             'core.alloc.layout.Layout.impl.size', 'core.alloc.layout.Layout.impl.align',
+             'core.num.Isize.overflowing_add', 'core.num.Usize.overflowing_add']
+
+
+def validate_output(raw):
+    PARAMETERS['verify_snapshot'](raw, (DATA / 'Generated.lean').read_text())
+    PARAMETERS['validate_proof_source']((DATA / 'Proof.lean').read_text(), PROOFS)
+    if 'structure core.alloc.layout.Layout where\n  size : Std.U64\n  align : core.mem.alignment.Alignment' not in raw:
+        raise RuntimeError('Missing actual source Layout fields')
+    return RANGES['validate_output'](raw, NAMESPACE, FUNCTIONS)
+
+
+def validate_ir(ir):
+    BASE['BASE']['BASE']['validate_ir'](ir)
+    crate = ir['translated']; options = crate.get('options', {})
+    if options.get('monomorphize') is not True or options.get('mir') != 'Optimized':
+        raise RuntimeError('Expected monomorphic optimized MIR')
+    funcs = [f for f in crate['fun_decls'] if isinstance(f, dict)]
+    if len(funcs) != 18 or any(set(f.get('body') or {}) != {'Structured'} for f in funcs):
+        raise RuntimeError('Incomplete original source bodies')
+    names = [[x['Ident'][0] for x in f['item_meta']['name'] if 'Ident' in x] for f in funcs]
+    if any(names.count([NAMESPACE, name]) != 1 for name in FUNCTIONS[:8]):
+        raise RuntimeError('Missing fixture source body')
+    layout = [d for d in crate['type_decls'] if isinstance(d, dict) and
+              [x['Ident'][0] for x in d['item_meta']['name'] if 'Ident' in x] == ['core', 'alloc', 'layout', 'Layout']]
+    if len(layout) != 1 or [f['name'] for f in layout[0]['kind']['Struct']] != ['size', 'align']:
+        raise RuntimeError('Missing actual Layout structure')
+    info = layout[0]['layout']
+    if len(info) != 1 or info[0]['value']['size'] != 16 or info[0]['value']['align'] != 8 or info[0]['value']['variant_layouts'][0]['field_offsets'] != [8, 0]:
+        raise RuntimeError('Changed source Layout representation')
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--build-receipt', type=Path, required=True)
+    parser.add_argument('--backend', type=Path, required=True)
+    args = parser.parse_args()
+    parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
+    out = Path(tempfile.mkdtemp(prefix='layout-word64-', dir=parent))
+    record = {'status': 'started', 'claim': 'source Layout and 64-bit word/accessor regression only; native heap/work/security unproved',
+              'script_sha256': digest(Path(__file__).read_bytes()), 'commands': []}
+    def save(): (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
+    def run(command, log, required=True):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out / log).open('w') as stream:
+            status = subprocess.run([str(x) for x in command], cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT).returncode
+        if required and status: raise RuntimeError(log + ' exited ' + str(status))
+        return status
+    print('Layout word64 artifacts: ' + str(out), flush=True); save()
+    try:
+        _, tools, _ = BUILD['verify_receipt'](args.build_receipt)
+        record['build_receipt_sha256'] = digest(args.build_receipt.read_bytes())
+        record['backend_patches'] = PARAMETERS['verify_backend'](args.backend.resolve(), out)
+        files = ['fixture.rs', 'Generated.lean', 'Proof.lean', 'unsupported-checked-add.rs']
+        record['inputs'] = {name: digest((DATA / name).read_bytes()) for name in files}
+        def extract(source, name, checked=False):
+            llbc = out / (name + '.llbc')
+            scopes = ['core::alloc::layout', 'core::mem::alignment', 'core::num::nonzero',
+                      'core::num::niche_types', 'core::num::_::MIN', 'core::num::_::MAX',
+                      'core::num::_::checked_add' if checked else 'core::num::_::overflowing_add']
+            if checked: scopes += ['core::intrinsics::unlikely', 'core::intrinsics::cold_path']
+            run([tools / 'charon', 'rustc', '--preset=aeneas', '--monomorphize', '--mir', 'optimized',
+                 *[arg for scope in scopes for arg in ['--include', scope]], '--dest-file', llbc,
+                 '--', '--crate-type', 'lib', '--edition', '2024', '--crate-name', NAMESPACE,
+                 (DATA / source).relative_to(ROOT)], name + '-charon.log')
+            return llbc
+        options = ['-backend', 'lean', '-checks', '-sequential', '-max-heartbeats', '200000', '-max-recdepth', '1000',
+                   '-abort-on-error', '-no-external-name-patterns', '-disambiguate-instantiated-names']
+        def frontend(llbc, name, word=True, required=True, shapes=True):
+            return run([tools / 'aeneas', *options, *(['-monomorphic-builtin-shapes'] if shapes else []),
+                        *(['-target-word64'] if word else []), '-dest', out / name, llbc], name + '-frontend.log', required)
+        llbc = extract('fixture.rs', 'positive')
+        ir = json.loads(llbc.read_text()); validate_ir(ir)
+        frontend(llbc, 'positive')
+        BASE['BASE']['validate_frontend_log']((out / 'positive-frontend.log').read_text())
+        generated = list((out / 'positive').glob('*.lean'))
+        if len(generated) != 1: raise RuntimeError('Expected complete single generated module')
+        raw = generated[0].read_text(); runtime = validate_output(raw)
+        # Audit every emitted computational definition, all globals, the generated reader,
+        # every theorem and every proof alias; omission cannot hide an admitted dependency.
+        names = [NAMESPACE + '.' + n for n in re.findall(r'^(?:@\[[^\n]*\] )?def ([^\s:(]+)', raw, re.M)]
+        names += [NAMESPACE + '.core.mem.alignment.AlignmentEnum.read_discriminant']
+        names += ['HasteBootsLayoutWord64Proof.' + n for n in PROOFS + ['Layout', 'Alignment', 'Tag']]
+        def kernel(raw, name, proof=''):
+            checked = out / (name + '.lean')
+            checked.write_text('import Aeneas.Std\nimport Aeneas.Data.Discriminant\n' + raw.replace('import Aeneas\n', '') + '\n' + proof)
+            status = run([ROOT / 'scripts/in-container', 'bash', '-euc', 'cd -- "$1"; lake env lean -DwarningAsError=true "$2"', '_',
+                          COMMON['container_path'](args.backend.resolve() / 'backends/lean'), COMMON['container_path'](checked)], name + '-lean.log', False)
+            return status, checked
+        status, checked = kernel(raw, 'Checked', (DATA / 'Proof.lean').read_text()
+                                  + ''.join('\n#print axioms ' + n + '\n' for n in names))
+        if status: raise RuntimeError('Complete word64 module/proofs rejected by kernel')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out / 'Checked-lean.log').read_text(), names)
+        record.update(llbc_sha256=digest(llbc.read_bytes()), checked_sha256=digest(checked.read_bytes()))
+        record['rejected'] = []
+        error = 'Target word64 requires monomorphic Lean and one 64-bit little-endian target'
+        def reject(path, name, shapes=True):
+            status = frontend(path, name, required=False, shapes=shapes)
+            if status == 0 or error not in (out / (name + '-frontend.log')).read_text():
+                raise RuntimeError('Unsupported target/profile accepted: ' + name)
+            record['rejected'].append(name)
+        reject(llbc, 'without-shapes', False)
+        for name in ['target32', 'big-endian', 'missing-target', 'multiple-targets']:
+            bad = copy.deepcopy(ir); targets = bad['translated']['target_information']
+            if name == 'target32': targets[0]['value']['target_pointer_size'] = 4
+            elif name == 'big-endian': targets[0]['value']['is_little_endian'] = False
+            elif name == 'missing-target': targets.clear()
+            else: targets.append(copy.deepcopy(targets[0]))
+            path = out / (name + '.llbc'); path.write_text(json.dumps(bad) + '\n')
+            reject(path, name)
+        # The portable-word mode must continue to reject this complete source module
+        # at the conservative literal boundary; it must not silently assume 64-bit usize.
+        frontend(llbc, 'portable', word=False)
+        portable = list((out / 'portable').glob('*.lean'))
+        if len(portable) != 1: raise RuntimeError('Missing portable comparison')
+        status, _ = kernel(portable[0].read_text(), 'Portable')
+        log = (out / 'Portable-lean.log').read_text()
+        if status == 0 or any(token not in log for token in ['4294967296', 'UScalar.cMax', 'scalar_tac failed']): raise RuntimeError('Portable mode unexpectedly accepted 64-bit source literals')
+        record['rejected'].append('portable-kernel-word-bound')
+        # Record an actual unresolved source intrinsic instead of admitting a no-op.
+        unsupported = extract('unsupported-checked-add.rs', 'checked-add', checked=True)
+        frontend(unsupported, 'checked-add')
+        modules = list((out / 'checked-add').glob('*.lean'))
+        if len(modules) != 1: raise RuntimeError('Missing checked_add diagnostic')
+        axioms = re.findall(r'^axiom\s+([^\s:(]+)', modules[0].read_text(), re.M)
+        if axioms != ['core.intrinsics.cold_path']: raise RuntimeError('Unexpected checked_add blocker inventory: ' + str(axioms))
+        try: validate_output(modules[0].read_text())
+        except RuntimeError: pass
+        else: raise RuntimeError('Admitted source cold_path accepted')
+        record['checked_add_unresolved_axioms'] = axioms
+        record['rejected'].append('checked-add-opaque-cold-path')
+        if record['inputs'] != {name: digest((DATA / name).read_bytes()) for name in files}:
+            raise RuntimeError('Input changed during check')
+        BUILD['verify_receipt'](args.build_receipt)
+        record['status'] = 'passed'
+        print('Layout word64 passed: ' + str(len(names)) + ' dependency audits; seven unsupported cases rejected')
+    except (Exception, SystemExit) as error:
+        record.update(status='failed', error=str(error)); raise SystemExit('Layout word64 check failed; inspect ' + str(out) + ': ' + str(error)) from error
+    finally:
+        record['logs'] = {p.name: digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__':
+    main()
