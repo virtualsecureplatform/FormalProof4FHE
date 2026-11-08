@@ -1,0 +1,126 @@
+#!/usr/bin/env python3
+"""Check explicit original stdlib roots and ordinary/Miri configuration differences."""
+import argparse
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+BASE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-inline-equivalence'))
+RANGES = runpy.run_path(str(ROOT / 'scripts/probe-hasteboots-u32-ranges'))
+BUILD, PARAMETERS, COMMON, digest = BASE['BUILD'], BASE['PARAMETERS'], BASE['COMMON'], BASE['digest']
+DATA = ROOT / 'interop/aeneas/stdlib-configuration'
+CASES = {'default_on': ('default', ['-C', 'debug-assertions=yes']),
+         'default_off': ('default', ['-C', 'debug-assertions=no']),
+         'miri_on': ('miri', ['-C', 'debug-assertions=yes'])}
+PROOFS = ['default_on', 'default_off', 'miri_on', 'default_on_miri_differ', 'default_on_off_differ']
+HELPER = 'core.ub_checks.check_language_ub'
+
+
+def validate_output(raw, case):
+    PARAMETERS['verify_snapshot'](raw, (DATA / (case + '-Generated.lean')).read_text())
+    PARAMETERS['validate_proof_source']((DATA / 'Proof.lean').read_text(), PROOFS)
+    return RANGES['validate_output'](raw, 'hasteboots_stdlib_' + case,
+                                     [HELPER, *([HELPER + '.runtime'] if case == 'miri_on' else [])])
+
+
+def validate_ir(ir, case):
+    BASE['BASE']['BASE']['validate_ir'](ir)
+    crate = ir['translated']; options = crate.get('options', {})
+    if options.get('monomorphize') is not True or options.get('mir') != 'Optimized':
+        raise RuntimeError('Expected monomorphic optimized MIR')
+    if options.get('evaluate_runtime_checks') is not True or options.get('sysroot') != CASES[case][0]:
+        raise RuntimeError('Wrong stdlib or compiler-query policy')
+    if options.get('start_from') != ['core::ub_checks::check_language_ub']:
+        raise RuntimeError('Wrong explicit source root')
+    funcs = [f for f in crate['fun_decls'] if isinstance(f, dict)]
+    expected = 2 if case == 'miri_on' else 1
+    if len(funcs) != expected or any(f['item_meta']['is_local'] is not False or set(f.get('body') or {}) != {'Structured'} for f in funcs):
+        raise RuntimeError('Missing original external helper bodies')
+    names = [[x['Ident'][0] for x in f['item_meta']['name'] if 'Ident' in x] for f in funcs]
+    if names.count(['core', 'ub_checks', 'check_language_ub']) != 1:
+        raise RuntimeError('Missing original explicit root')
+    def visit(value):
+        if isinstance(value, dict):
+            op = value.get('NullaryOp')
+            if isinstance(op, list) and op and op[0] in ['UbChecks', 'OverflowChecks', 'ContractChecks']:
+                raise RuntimeError('Residual compiler query')
+            for child in value.values(): visit(child)
+        elif isinstance(value, list):
+            for child in value: visit(child)
+    visit(crate)
+
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--build-receipt', type=Path, required=True)
+    parser.add_argument('--backend', type=Path, required=True)
+    args = parser.parse_args()
+    parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
+    out = Path(tempfile.mkdtemp(prefix='stdlib-configuration-', dir=parent))
+    record = {'status': 'started', 'claim': 'original external-root/stdlib configuration regression only; production native heap/work/security unproved',
+              'script_sha256': digest(Path(__file__).read_bytes()), 'commands': []}
+    def save(): (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
+    def run(command, log, required=True):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out / log).open('w') as stream:
+            status = subprocess.run([str(x) for x in command], cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT).returncode
+        if required and status: raise RuntimeError(log + ' exited ' + str(status))
+        return status
+    print('Stdlib configuration artifacts: ' + str(out), flush=True); save()
+    try:
+        _, tools, _ = BUILD['verify_receipt'](args.build_receipt)
+        record['build_receipt_sha256'] = digest(args.build_receipt.read_bytes())
+        record['backend_patches'] = PARAMETERS['verify_backend'](args.backend.resolve(), out)
+        files = ['fixture.rs', 'Proof.lean', *[case + '-Generated.lean' for case in CASES]]
+        record['inputs'] = {name: digest((DATA / name).read_bytes()) for name in files}
+        options = ['-backend', 'lean', '-checks', '-sequential', '-max-heartbeats', '200000', '-max-recdepth', '1000',
+                   '-abort-on-error', '-no-external-name-patterns', '-disambiguate-instantiated-names', '-monomorphic-builtin-shapes', '-target-word64']
+        runtime = 'import Aeneas.Std\n'
+        names = []
+        record['cases'] = {}
+        def extract(case):
+            llbc = out / (case + '.llbc')
+            run([tools / 'charon', 'rustc', '--preset=aeneas', '--sysroot', CASES[case][0],
+                 '--monomorphize', '--mir', 'optimized', '--evaluate-runtime-checks',
+                 '--start-from', 'core::ub_checks::check_language_ub', '--include', 'core::ub_checks::check_language_ub',
+                 '--dest-file', llbc, '--', '--crate-type', 'lib', '--edition', '2024',
+                 '--crate-name', 'hasteboots_stdlib_configuration', *CASES[case][1],
+                 (DATA / 'fixture.rs').relative_to(ROOT)], case + '-charon.log')
+            validate_ir(json.loads(llbc.read_text()), case)
+            return llbc
+        for case in CASES:
+            llbc = extract(case); name = case
+            run([tools / 'aeneas', *options, '-namespace', 'hasteboots_stdlib_' + case, '-dest', out / name, llbc], name + '-frontend.log')
+            BASE['BASE']['validate_frontend_log']((out / (name + '-frontend.log')).read_text())
+            generated = list((out / name).glob('*.lean'))
+            if len(generated) != 1: raise RuntimeError('Expected complete runtime-query module')
+            raw = generated[0].read_text()
+            runtime += validate_output(raw, case) + '\n'
+            names += ['hasteboots_stdlib_' + case + '.' + n for n in [HELPER, *([HELPER + '.runtime'] if case == 'miri_on' else [])]]
+            record['cases'][case] = {'sysroot': CASES[case][0], 'rustc_flags': CASES[case][1], 'llbc_sha256': digest(llbc.read_bytes()),
+                                     'generated_sha256': digest(raw.encode()), 'residual_runtime_queries': []}
+        names += ['HasteBootsStdlibConfigurationProof.' + n for n in PROOFS]
+        checked = out / 'Checked.lean'
+        checked.write_text(runtime + '\n' + (DATA / 'Proof.lean').read_text()
+                           + ''.join('\n#print axioms ' + n + '\n' for n in names))
+        run([ROOT / 'scripts/in-container', 'bash', '-euc', 'cd -- "$1"; lake env lean -DwarningAsError=true "$2"', '_',
+             COMMON['container_path'](args.backend.resolve() / 'backends/lean'), COMMON['container_path'](checked)], 'lean.log')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), names)
+        record['checked_sha256'] = digest(checked.read_bytes())
+        if record['inputs'] != {name: digest((DATA / name).read_bytes()) for name in files}:
+            raise RuntimeError('Input changed during check')
+        BUILD['verify_receipt'](args.build_receipt)
+        record['status'] = 'passed'; print('Stdlib configuration passed: nine dependency audits; ordinary/Miri and debug-on/off differences proved')
+    except (Exception, SystemExit) as error:
+        record.update(status='failed', error=str(error)); raise SystemExit('Stdlib configuration check failed; inspect ' + str(out) + ': ' + str(error)) from error
+    finally:
+        record['logs'] = {p.name: digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__':
+    main()

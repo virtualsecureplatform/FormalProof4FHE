@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+"""Reject silent stdlib/root changes and incomplete configuration proofs."""
+import copy
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+GATE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-stdlib-configuration'))
+
+
+def fixture(case):
+    names = [['core', 'ub_checks', 'check_language_ub']]
+    if case == 'miri_on': names.append(names[0] + ['runtime'])
+    return {'has_errors': False, 'translated': {
+        'target_information': [{'key': 'x86_64-unknown-linux-gnu', 'value': {
+            'target_pointer_size': 8, 'is_little_endian': True}}],
+        'options': {'monomorphize': True, 'mir': 'Optimized', 'evaluate_runtime_checks': True,
+                    'sysroot': GATE['CASES'][case][0], 'start_from': ['core::ub_checks::check_language_ub']},
+        'fun_decls': [{'item_meta': {'name': [{'Ident': [n, 0]} for n in name], 'is_local': False},
+                       'body': {'Structured': {}}} for name in names]}}
+
+
+class Guards(unittest.TestCase):
+    def test_complete_original_roots(self):
+        for case in GATE['CASES']:
+            GATE['validate_ir'](fixture(case), case)
+            GATE['validate_output']((GATE['DATA'] / (case + '-Generated.lean')).read_text(), case)
+
+    def test_wrong_stdlib_root_metadata_or_policy(self):
+        for mutate in [lambda x: x['translated']['options'].update(sysroot='miri'),
+                       lambda x: x['translated']['options'].update(start_from=[]),
+                       lambda x: x['translated']['options'].update(evaluate_runtime_checks=False),
+                       lambda x: x['translated']['fun_decls'][0]['item_meta'].update(is_local=True),
+                       lambda x: x['translated']['fun_decls'][0].update(body='Opaque'),
+                       lambda x: x['translated']['fun_decls'].clear()]:
+            bad = copy.deepcopy(fixture('default_on')); mutate(bad)
+            with self.assertRaises(RuntimeError): GATE['validate_ir'](bad, 'default_on')
+
+    def test_lost_root_changed_boolean_or_admission(self):
+        raw = (GATE['DATA'] / 'default_on-Generated.lean').read_text()
+        for bad in [raw.replace('ok true', 'ok false'), raw.replace('def core.ub_checks.check_language_ub', 'def missing'),
+                    raw.replace(':= do', ':= by sorry'), raw.replace('end hasteboots_stdlib_default_on', '')]:
+            with self.assertRaises(RuntimeError): GATE['validate_output'](bad, 'default_on')
+
+    def test_missing_difference_proofs(self):
+        proof = (GATE['DATA'] / 'Proof.lean').read_text()
+        for name in GATE['PROOFS']:
+            with self.assertRaises(RuntimeError):
+                GATE['PARAMETERS']['validate_proof_source'](proof.replace('theorem ' + name, 'theorem missing'), GATE['PROOFS'])
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -74,7 +74,7 @@ index 8073dba6..ae599e1c 100644
        if
          !opt_backend = Some Lean && !extract_decreases_clauses
 diff --git a/src/PrePasses.ml b/src/PrePasses.ml
-index b613aba1..4620ec26 100644
+index b613aba1..a7653ed0 100644
 --- a/src/PrePasses.ml
 +++ b/src/PrePasses.ml
 @@ -87,6 +87,820 @@ let erase_body_regions (crate : crate) (f : fun_decl) : fun_decl =
@@ -952,7 +952,54 @@ index b613aba1..4620ec26 100644
                  | ( CLiteral (VStr str),
                      TRef
                        (_, (TAdt { id = TBuiltin TStr; _ } as str_ty), ref_kind)
-@@ -2271,8 +3097,13 @@ let apply_passes (crate : crate) : crate =
+@@ -2126,6 +2952,36 @@ let simplify_trait_calls (crate : crate) : crate =
+   let impls_to_explore = ref [] in
+   let used_funs = ref FunDeclId.Set.empty in
+ 
++  (* A named Charon entry point may be external. Keep its declaration even
++     when it has no local caller; pruning it would silently discard a requested
++     verification root. Do not relabel its source metadata as local. *)
++  let explicit_roots =
++    if !Config.monomorphic_builtin_shapes then
++      List.map
++        (fun pattern ->
++          try NameMatcher.parse_pattern pattern
++          with Failure _ ->
++            [%craise_opt_span] None
++              ("Unsupported explicit extraction root pattern: " ^ pattern))
++        (crate.options.start_from @ crate.options.start_from_if_exists)
++    else []
++  in
++  let root_ctx = NameMatcher.ctx_from_crate crate in
++  let matches_root name =
++    List.exists
++      (fun pattern ->
++        let matches =
++          NameMatcher.match_name root_ctx
++            {
++              map_vars_to_vars = true;
++              match_with_trait_decl_refs =
++                Config.match_patterns_with_trait_decl_refs;
++            }
++            pattern
++        in
++        matches name || matches (strip_target_or_instantiated_suffix name))
++      explicit_roots
++  in
+   (* First explore the transparent functions *)
+   let visitor =
+     object
+@@ -2142,7 +2998,8 @@ let simplify_trait_calls (crate : crate) : crate =
+   in
+   FunDeclId.Map.iter
+     (fun _ (f : fun_decl) ->
+-      if f.item_meta.is_local then visitor#visit_fun_decl_id () f.def_id;
++      if f.item_meta.is_local || matches_root f.item_meta.name then
++        visitor#visit_fun_decl_id () f.def_id;
+       match f.body with
+       | StructuredBody body -> visitor#visit_block () body.body
+       | _ -> ())
+@@ -2271,8 +3128,13 @@ let apply_passes (crate : crate) : crate =
    (* Passes that apply to individual function bodies *)
    let function_passes =
      [
