@@ -1,0 +1,19 @@
+{
+  "claim": "explicit foreign root silently pruned; stdlib configuration comparison baseline",
+  "build_receipt_sha256": "8e5aa8487dfccb3b3c937b78ae3c09181333ceaf4dba17271a7a0a5a0f1d2478",
+  "fixture_sha256": "46a20c843edc11d66d1b1bc88a1eb2880f803d47a8cf164dd67fffdf49993a01",
+  "default": {
+    "llbc_sha256": "91f5441a8c76f7b2f92cc52e2fed49e0e83950e4a997e3fc843536f29faa085c",
+    "generated_sha256": "eb484f8286d6a868335ae49d9d7bcc06ab4a1dd86c754cd44f6947eb487c4ef4",
+    "original_ir_functions": 1,
+    "emitted_root": false,
+    "frontend_exit_code": 0
+  },
+  "miri": {
+    "llbc_sha256": "36b87d89f5bd3a49cfe8c1b045d39ea0aee91a8f5d03206970d1a084524015a0",
+    "generated_sha256": "eba7780a7675eeadfe1299f9dd5e3f052c1eb96d45b8c76b6c9e99cbefe9df65",
+    "original_ir_functions": 2,
+    "emitted_root": false,
+    "frontend_exit_code": 0
+  }
+}
