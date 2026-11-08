@@ -1,0 +1,170 @@
+#!/usr/bin/env python3
+"""Check original raw pointer-parts bodies and their address/provenance/metadata laws."""
+import argparse
+import copy
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+POINTER = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-pointer-extraction'))
+BASE, BUILD, PARAMETERS, COMMON, digest = [POINTER[k] for k in ['BASE', 'BUILD', 'PARAMETERS', 'COMMON', 'digest']]
+DATA = ROOT / 'interop/aeneas/pointer-parts'
+NAMESPACE = 'hasteboots_pointer_parts'
+FUNCTIONS = ['slice_const', 'slice_mut', 'slice_const_from_mut', 'thin_const', 'thin_mut', 'str_const', 'pair_const']
+PROOFS = ['original_slice_const_exact', 'original_slice_mut_exact', 'original_thin_const_exact', 'original_thin_mut_exact',
+          'original_str_exact', 'slice_const_exact', 'slice_mut_exact', 'slice_const_from_mut_exact', 'thin_const_exact',
+          'thin_mut_exact', 'str_const_exact', 'slice_address', 'slice_origin', 'slice_length', 'thin_metadata',
+          'zero_address_allowed', 'empty_slice_keeps_address', 'maximum_length_kept', 'new_metadata_replaces_old',
+          'thin_origin', 'original_pair_exact', 'pair_const_exact']
+RUNTIME_PROOFS = ['thin_const_storage', 'thin_mut_storage', 'slice_const_storage', 'slice_mut_storage',
+                  'slice_const_metadata', 'slice_mut_metadata', 'length_address_value', 'length_roundtrip']
+
+
+def parts_calls(ir):
+    found = []
+    def walk(value):
+        if isinstance(value, dict):
+            if 'Call' in value:
+                call = value['Call'].get('call', {})
+                func = call.get('func', {}).get('Regular', {})
+                builtin = func.get('kind', {}).get('Fun', {}).get('Builtin', {})
+                if isinstance(builtin, dict) and 'PtrFromParts' in builtin: found.append(call)
+            for child in value.values(): walk(child)
+        elif isinstance(value, list):
+            for child in value: walk(child)
+    for f in ir['translated']['fun_decls']:
+        if f: walk(f.get('body'))
+    return found
+
+
+def pair_decl(ir):
+    ds = [d for d in ir['translated']['type_decls'] if d and d['item_meta']['name'] == [{'Ident': [NAMESPACE, 0]}, {'Ident': ['Pair', 0]}]]
+    if len(ds) != 1: raise RuntimeError('Expected original Pair pointee')
+    return ds[0]
+
+
+def validate_ir(ir):
+    BASE['BASE']['BASE']['validate_ir'](ir)
+    crate = ir['translated']; options = crate.get('options', {})
+    if options.get('monomorphize') is not True or options.get('mir') != 'Optimized' or options.get('sysroot') != 'default':
+        raise RuntimeError('Expected ordinary optimized monomorphic source')
+    funcs = [f for f in crate['fun_decls'] if f]
+    if len(funcs) != 13 or any(set(f.get('body') or {}) != {'Structured'} for f in funcs):
+        raise RuntimeError('Missing original pointer-parts bodies')
+    calls = parts_calls(ir)
+    if len(calls) != 6 or any(len(c['args']) != 2 or len(c['func']['Regular']['generics']['types']) != 1 for c in calls):
+        raise RuntimeError('Expected original two-operand pointer-parts calls')
+    if pair_decl(ir)['ptr_metadata'] != 'None': raise RuntimeError('Pair pointee must be thin')
+
+
+def validate_output(raw):
+    PARAMETERS['verify_snapshot'](raw, (DATA / 'Generated.lean').read_text())
+    PARAMETERS['validate_proof_source']((DATA / 'Proof.lean').read_text(), PROOFS)
+    PARAMETERS['validate_proof_source']((DATA / 'Runtime.lean').read_text(), RUNTIME_PROOFS)
+    for name in ['from_thin_const', 'from_thin_mut', 'from_slice_const', 'from_slice_mut']:
+        if 'HasteBootsPointerPartsRuntime.' + name not in raw: raise RuntimeError('Missing checked parts constructor')
+    return POINTER['RANGES']['validate_output'](raw, NAMESPACE, FUNCTIONS)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--build-receipt', type=Path, required=True)
+    parser.add_argument('--backend', type=Path, required=True)
+    args = parser.parse_args()
+    parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
+    out = Path(tempfile.mkdtemp(prefix='pointer-parts-', dir=parent))
+    record = {'status': 'started', 'claim': 'checked pointer construction from original data/metadata only; Rust heap/caller/compiler/work/security unproved',
+              'script_sha256': digest(Path(__file__).read_bytes()), 'commands': []}
+    def save(): (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
+    def run(command, log, required=True):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out / log).open('w') as stream:
+            status = subprocess.run([str(x) for x in command], cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT).returncode
+        if required and status: raise RuntimeError(log + ' exited ' + str(status))
+        return status
+    print('Pointer parts artifacts: ' + str(out), flush=True); save()
+    try:
+        _, tools, _ = BUILD['verify_receipt'](args.build_receipt)
+        record['build_receipt_sha256'] = digest(args.build_receipt.read_bytes())
+        record['backend_patches'] = PARAMETERS['verify_backend'](args.backend.resolve(), out)
+        files = [DATA / n for n in ['fixture.rs', 'Generated.lean', 'Runtime.lean', 'Proof.lean']]
+        files += [POINTER['DATA'] / 'Runtime.lean', POINTER['REPRESENTATION'], ROOT / 'lean-toolchain']
+        record['inputs'] = {str(p.relative_to(ROOT)): digest(p.read_bytes()) for p in files}
+        run([ROOT / 'scripts/in-container', 'lake', 'build', 'FormalProof4FHE.HasteBoots.NativePointerRepresentation'], 'root-build.log')
+        llbc = out / 'positive.llbc'
+        run([tools / 'charon', 'rustc', '--preset=aeneas', '--sysroot', 'default', '--monomorphize', '--mir', 'optimized',
+             '--include', 'core::ptr::metadata', '--dest-file', llbc, '--', '--crate-type', 'lib', '--edition', '2024',
+             '--crate-name', NAMESPACE, (DATA / 'fixture.rs').relative_to(ROOT)], 'charon.log')
+        options = ['-backend', 'lean', '-checks', '-sequential', '-max-heartbeats', '200000', '-max-recdepth', '1000',
+                   '-abort-on-error', '-no-external-name-patterns', '-disambiguate-instantiated-names']
+        def frontend(path, name, flags=None, required=True):
+            if flags is None: flags = ['-monomorphic-builtin-shapes', '-target-word64', '-provenance-pointers']
+            return run([tools / 'aeneas', *options, *flags, '-dest', out / name, path], name + '-frontend.log', required)
+        ir = json.loads(llbc.read_text()); validate_ir(ir)
+        frontend(llbc, 'positive'); BASE['BASE']['validate_frontend_log']((out / 'positive-frontend.log').read_text())
+        generated = list((out / 'positive').glob('*.lean'))
+        if len(generated) != 1: raise RuntimeError('Expected complete source module')
+        raw = generated[0].read_text(); validate_output(raw)
+        names = [NAMESPACE + '.' + n for n in re.findall(r'^(?:@\[[^\n]*\] )?(?:def|structure) ([^\s:(]+)', raw, re.M)]
+        names += ['HasteBootsPointerPartsProof.' + n for n in PROOFS]
+        names += ['HasteBootsPointerPartsRuntime.' + n for n in ['from_thin_const', 'from_thin_mut', 'from_slice_const', 'from_slice_mut'] + RUNTIME_PROOFS]
+        names += ['HasteBootsPointerRuntime.' + n for n in ['RawPtr', 'MutRawPtr', 'ConstRawPtr', 'mutableFlag', 'cast_scalar'] + POINTER['RUNTIME_PROOFS']]
+        checked = out / 'Checked.lean'
+        checked.write_text((POINTER['DATA'] / 'Runtime.lean').read_text() + '\n' + (DATA / 'Runtime.lean').read_text() + '\n'
+                           + raw.replace('import Aeneas\n', '') + '\n' + (DATA / 'Proof.lean').read_text()
+                           + ''.join('\n#print axioms ' + name + '\n' for name in names))
+        run([ROOT / 'scripts/in-container', 'bash', '-euc', 'cd -- "$1"; export LEAN_PATH="$3:${LEAN_PATH:-}"; lake env lean -DwarningAsError=true "$2"', '_',
+             COMMON['container_path'](args.backend.resolve() / 'backends/lean'), COMMON['container_path'](checked),
+             COMMON['container_path'](ROOT / '.lake/build/lib/lean')], 'lean.log')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), names)
+        record.update(llbc_sha256=digest(llbc.read_bytes()), checked_sha256=digest(checked.read_bytes()), rejected=[])
+        def reject(path, name, error, flags=None):
+            status = frontend(path, name, flags, False)
+            if status == 0 or error not in (out / (name + '-frontend.log')).read_text():
+                raise RuntimeError('Expected rejection missing: ' + name)
+            record['rejected'].append(name)
+        reject(llbc, 'without-provenance', 'Pointer-parts require provenance pointers', ['-monomorphic-builtin-shapes', '-target-word64'])
+        reject(llbc, 'without-word64', 'Provenance pointers require the checked target-word64 profile', ['-monomorphic-builtin-shapes', '-provenance-pointers'])
+        reject(llbc, 'without-shapes', 'Target word64 requires monomorphic Lean', ['-target-word64', '-provenance-pointers'])
+        for name in ['target32', 'big-endian', 'missing-target', 'multiple-targets']:
+            bad = copy.deepcopy(ir); targets = bad['translated']['target_information']
+            if name == 'target32': targets[0]['value']['target_pointer_size'] = 4
+            elif name == 'big-endian': targets[0]['value']['is_little_endian'] = False
+            elif name == 'missing-target': targets.clear()
+            else: targets.append(copy.deepcopy(targets[0]))
+            path = out / (name + '.llbc'); path.write_text(json.dumps(bad) + '\n')
+            reject(path, name, 'Target word64 requires monomorphic Lean')
+        for name in ['region', 'pointee-count', 'operand-count', 'destination', 'data-kind', 'data-fat', 'metadata-kind', 'adt-length', 'adt-unknown']:
+            bad = copy.deepcopy(ir); call = parts_calls(bad)[0]; func = call['func']['Regular']
+            # Pick a slice builder so its wide result differs from the data pointer.
+            if name in ['destination', 'data-kind', 'data-fat', 'metadata-kind']:
+                call = next(c for c in parts_calls(bad) if 'Copy' in c['args'][1]); func = call['func']['Regular']
+            def operand_type(op): return op['Copy']['ty'] if 'Copy' in op else op['Move']['ty'] if 'Move' in op else op['Constant']['ty']
+            def set_operand_type(op, ty):
+                key = next(k for k in ['Copy', 'Move', 'Constant'] if k in op); op[key]['ty'] = copy.deepcopy(ty)
+            error = 'Pointer-parts require the original builtin arguments'
+            if name == 'region': func['generics']['regions'].clear()
+            elif name == 'pointee-count': func['generics']['types'].append(copy.deepcopy(func['generics']['types'][0])); error = 'Pointer-parts require one original pointee'
+            elif name == 'operand-count': call['args'].pop(); error = 'Pointer-parts require data and metadata'
+            elif name == 'destination': call['dest']['ty'] = copy.deepcopy(operand_type(call['args'][0])); error = 'Pointer-parts destination disagrees'
+            elif name == 'data-kind': set_operand_type(call['args'][0], operand_type(call['args'][1])); error = 'Pointer-parts data must be a thin raw pointer'
+            elif name == 'data-fat': set_operand_type(call['args'][0], call['dest']['ty']); error = 'Pointer-parts data must be a thin raw pointer'
+            elif name == 'metadata-kind': set_operand_type(call['args'][1], operand_type(call['args'][0])); error = 'Pointer-parts metadata disagrees'
+            elif name == 'adt-length': pair_decl(bad)['ptr_metadata'] = 'Length'; error = 'Pointer-parts metadata disagrees'
+            elif name == 'adt-unknown': pair_decl(bad)['ptr_metadata'] = {'InheritFrom': {'HashConsedValue': [10000000, {'Literal': {'UInt': 'U8'}}]}}; error = 'Unsupported pointer-parts metadata kind'
+            path = out / (name + '.llbc'); path.write_text(json.dumps(bad) + '\n'); reject(path, name, error)
+        if record['inputs'] != {str(p.relative_to(ROOT)): digest(p.read_bytes()) for p in files}: raise RuntimeError('Input changed during check')
+        BUILD['verify_receipt'](args.build_receipt); record['status'] = 'passed'
+        print('Pointer parts passed: ' + str(len(names)) + ' dependency audits; ' + str(len(record['rejected'])) + ' unsupported cases rejected')
+    except (Exception, SystemExit) as error:
+        record.update(status='failed', error=str(error)); raise SystemExit('Pointer parts check failed; inspect ' + str(out) + ': ' + str(error)) from error
+    finally:
+        record['logs'] = {p.name: digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__':
+    main()

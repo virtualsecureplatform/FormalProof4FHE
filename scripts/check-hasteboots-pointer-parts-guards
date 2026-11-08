@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+"""Reject changed pointer-parts bodies, erased metadata and missing preservation proofs."""
+import copy
+from pathlib import Path
+import runpy
+import unittest
+ROOT = Path(__file__).resolve().parent.parent
+GATE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-pointer-parts'))
+
+
+def fixture():
+    calls = [{'kind': {'Call': {'call': {'func': {'Regular': {'kind': {'Fun': {'Builtin': {'PtrFromParts': 'Mut'}}},
+                 'generics': {'types': [{}]}}}, 'args': [{}, {}]}}}} for _ in range(6)]
+    return {'has_errors': False, 'translated': {
+        'target_information': [{'key': 'x86_64-unknown-linux-gnu', 'value': {'target_pointer_size': 8, 'is_little_endian': True}}],
+        'options': {'monomorphize': True, 'mir': 'Optimized', 'sysroot': 'default'},
+        'fun_decls': [{'body': {'Structured': {'statements': calls}}}] + [{'body': {'Structured': {}}} for _ in range(12)],
+        'type_decls': [{'item_meta': {'name': [{'Ident': [GATE['NAMESPACE'], 0]}, {'Ident': ['Pair', 0]}]}, 'ptr_metadata': 'None'}]}}
+
+
+class Guards(unittest.TestCase):
+    def test_complete_source_and_proofs(self):
+        GATE['validate_ir'](fixture())
+        GATE['validate_output']((GATE['DATA'] / 'Generated.lean').read_text())
+
+    def test_wrong_profile_or_missing_body(self):
+        for mutate in [lambda x: x['translated']['options'].update(sysroot='miri'),
+                       lambda x: x['translated']['options'].update(mir='Built'),
+                       lambda x: x['translated']['fun_decls'].pop(),
+                       lambda x: x['translated']['fun_decls'][0].update(body='Opaque'),
+                       lambda x: x['translated']['type_decls'].clear()]:
+            bad = fixture(); mutate(bad)
+            with self.assertRaises(RuntimeError): GATE['validate_ir'](bad)
+
+    def test_changed_call_or_metadata_kind(self):
+        for mutate in [lambda x: GATE['parts_calls'](x)[0]['args'].pop(),
+                       lambda x: GATE['parts_calls'](x)[0]['func']['Regular']['generics']['types'].append({}),
+                       lambda x: GATE['pair_decl'](x).update(ptr_metadata='Length')]:
+            bad = fixture(); mutate(bad)
+            with self.assertRaises(RuntimeError): GATE['validate_ir'](bad)
+
+    def test_erased_metadata_changed_operation_and_admission(self):
+        raw = (GATE['DATA'] / 'Generated.lean').read_text()
+        for bad in [raw.replace('HasteBootsPointerPartsRuntime.from_slice_mut', 'HasteBootsPointerPartsRuntime.from_thin_mut'),
+                    raw.replace('data_pointer metadata', 'data_pointer ()'),
+                    raw.replace('HasteBootsPointerRuntime.MutRawPtr', 'MutRawPtr'),
+                    raw.replace(':= do', ':= by sorry'), raw.replace('end ' + GATE['NAMESPACE'], '')]:
+            with self.assertRaises(RuntimeError): GATE['validate_output'](bad)
+
+    def test_missing_proof(self):
+        for filename, names in [('Proof.lean', GATE['PROOFS']), ('Runtime.lean', GATE['RUNTIME_PROOFS'])]:
+            source = (GATE['DATA'] / filename).read_text()
+            for name in names:
+                with self.assertRaises(RuntimeError):
+                    GATE['PARAMETERS']['validate_proof_source'](source.replace('theorem ' + name, 'theorem missing'), names)
+
+
+if __name__ == '__main__':
+    unittest.main()

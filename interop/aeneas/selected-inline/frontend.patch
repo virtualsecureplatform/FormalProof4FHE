@@ -82,10 +82,10 @@ index 8073dba6..648c2a1a 100644
        if
          !opt_backend = Some Lean && !extract_decreases_clauses
 diff --git a/src/PrePasses.ml b/src/PrePasses.ml
-index b613aba1..a275758b 100644
+index b613aba1..08424217 100644
 --- a/src/PrePasses.ml
 +++ b/src/PrePasses.ml
-@@ -87,6 +87,964 @@ let erase_body_regions (crate : crate) (f : fun_decl) : fun_decl =
+@@ -87,6 +87,1068 @@ let erase_body_regions (crate : crate) (f : fun_decl) : fun_decl =
      ^ Print.fun_decl_to_string env "" "  " f];
    f
  
@@ -255,6 +255,110 @@ index b613aba1..a275758b 100644
 +            StructuredBody { body with body = visitor#visit_block () body.body };
 +        }
 +    | _ -> f
++
++(** Check each original pointer-parts call, then elaborate its concrete data and
++    metadata types into the interpreter signature. No new source body or
++    callback is introduced. Unknown pointee metadata remains unsupported. *)
++let elaborate_pointer_parts (crate : crate) (f : fun_decl) : fun_decl =
++  let rec metadata_type span ty =
++    let from_kind = function
++      | NoMetadata -> mk_unit_ty
++      | Length -> TLiteral (TUInt Usize)
++      | VTable _ | InheritFrom _ ->
++          [%craise] span "Unsupported pointer-parts metadata kind"
++    in
++    match ty with
++    | TSlice _ | TAdt { id = TBuiltin TStr; _ } -> TLiteral (TUInt Usize)
++    | TLiteral _ | TRef _ | TRawPtr _ | TArray _ | TNever -> mk_unit_ty
++    | TAdt { id = TTuple; generics } -> (
++        match List.rev generics.types with
++        | [] -> mk_unit_ty
++        | last :: _ -> metadata_type span last)
++    | TAdt { id = TAdtId id; generics } ->
++        let decl = TypeDeclId.Map.find id crate.type_decls in
++        [%cassert] span
++          (generics = empty_generic_args && decl.generics = empty_generic_params)
++          "Pointer-parts require a closed pointee declaration";
++        from_kind decl.ptr_metadata
++    | _ -> [%craise] span "Unsupported pointer-parts pointee"
++  in
++  let visitor =
++    object
++      inherit [_] map_statement as super
++
++      method! visit_statement env st =
++        let st = super#visit_statement env st in
++        match st.kind with
++        | Call
++            ( ({
++                 func =
++                   FnOpRegular
++                     ({ kind = FunId (FBuiltin (PtrFromParts mut)); generics }
++                      as func);
++                 args;
++                 dest;
++               } as call),
++              unwind ) ->
++            [%cassert] st.span
++              !Config.provenance_pointers
++              "Pointer-parts require provenance pointers";
++            [%cassert] st.span
++              (generics.regions = [ RErased ]
++              && generics.const_generics = []
++              && generics.trait_refs = [])
++              "Pointer-parts require the original builtin arguments";
++            let target =
++              match generics.types with
++              | [ target ] -> target
++              | _ ->
++                  [%craise] st.span "Pointer-parts require one original pointee"
++            in
++            [%cassert] st.span
++              (dest.ty = TRawPtr (target, mut))
++              "Pointer-parts destination disagrees with pointee/mutability";
++            let operand_ty = function
++              | Move p | Copy p -> p.ty
++              | Constant c -> c.ty
++            in
++            let data, metadata =
++              match args with
++              | [ data; metadata ] -> (operand_ty data, operand_ty metadata)
++              | _ -> [%craise] st.span "Pointer-parts require data and metadata"
++            in
++            let data_target =
++              match data with
++              | TRawPtr (ty, _) -> ty
++              | _ ->
++                  [%craise] st.span
++                    "Pointer-parts data must be a thin raw pointer"
++            in
++            [%cassert] st.span
++              (metadata_type st.span data_target = mk_unit_ty)
++              "Pointer-parts data must be a thin raw pointer";
++            [%cassert] st.span
++              (metadata = metadata_type st.span target)
++              "Pointer-parts metadata disagrees with pointee";
++            let generics =
++              { empty_generic_args with types = [ target; data; metadata ] }
++            in
++            {
++              st with
++              kind =
++                Call
++                  ( { call with func = FnOpRegular { func with generics } },
++                    unwind );
++            }
++        | _ -> st
++    end
++  in
++  match f.body with
++  | StructuredBody body ->
++      {
++        f with
++        body =
++          StructuredBody { body with body = visitor#visit_block () body.body };
++      }
++  | _ -> f
 +
 +(** A transparent single-field scalar-pattern wrapper has exactly its field's
 +    representation. Decompose only the outward transmute, retaining the range
@@ -1050,7 +1154,7 @@ index b613aba1..a275758b 100644
  (** Replace the occurrences of [core::intrinsics::unreachable] with
      [Abort UndefinedBehavior]. This helps with the analyzes and the symbolic
      evaluation (in particular, we stop the evaluation when encountering an
-@@ -979,20 +1937,26 @@ let filter_marker_traits (crate : crate) : crate =
+@@ -979,20 +2041,26 @@ let filter_marker_traits (crate : crate) : crate =
    let mctx = NameMatcher.ctx_from_crate crate in
    let pats =
      List.map NameMatcher.parse_pattern
@@ -1091,7 +1195,7 @@ index b613aba1..a275758b 100644
    in
    let match_config =
      {
-@@ -1306,6 +2270,12 @@ let decompose_str_borrows (_ : crate) (f : fun_decl) : fun_decl =
+@@ -1306,6 +2374,12 @@ let decompose_str_borrows (_ : crate) (f : fun_decl) : fun_decl =
                *)
                method! visit_Constant env (cv : constant_expr) =
                  match (cv.kind, cv.ty) with
@@ -1104,7 +1208,7 @@ index b613aba1..a275758b 100644
                  | ( CLiteral (VStr str),
                      TRef
                        (_, (TAdt { id = TBuiltin TStr; _ } as str_ty), ref_kind)
-@@ -2126,6 +3096,36 @@ let simplify_trait_calls (crate : crate) : crate =
+@@ -2126,6 +3200,36 @@ let simplify_trait_calls (crate : crate) : crate =
    let impls_to_explore = ref [] in
    let used_funs = ref FunDeclId.Set.empty in
  
@@ -1141,7 +1245,7 @@ index b613aba1..a275758b 100644
    (* First explore the transparent functions *)
    let visitor =
      object
-@@ -2142,7 +3142,8 @@ let simplify_trait_calls (crate : crate) : crate =
+@@ -2142,7 +3246,8 @@ let simplify_trait_calls (crate : crate) : crate =
    in
    FunDeclId.Map.iter
      (fun _ (f : fun_decl) ->
@@ -1151,7 +1255,7 @@ index b613aba1..a275758b 100644
        match f.body with
        | StructuredBody body -> visitor#visit_block () body.body
        | _ -> ())
-@@ -2271,8 +3272,14 @@ let apply_passes (crate : crate) : crate =
+@@ -2271,8 +3376,15 @@ let apply_passes (crate : crate) : crate =
    (* Passes that apply to individual function bodies *)
    let function_passes =
      [
@@ -1160,6 +1264,7 @@ index b613aba1..a275758b 100644
 +      ("validate_ctlz_nonzero", validate_ctlz_nonzero);
        ("fix_closure_lifetimes", fix_closure_lifetimes);
        ("erase_body_regions", erase_body_regions);
++      ("elaborate_pointer_parts", elaborate_pointer_parts);
 +      ("decompose_range_transmutes", decompose_range_transmutes);
 +      ("decompose_nonnull_transmutes", decompose_nonnull_transmutes);
 +      ("decompose_enum_transmutes", decompose_enum_transmutes);
@@ -1182,7 +1287,7 @@ index 8df1bc5f..f1e2b16f 100644
    in
  
 diff --git a/src/extract/Extract.ml b/src/extract/Extract.ml
-index 2dc4a57f..44603333 100644
+index 2dc4a57f..f44bd96e 100644
 --- a/src/extract/Extract.ml
 +++ b/src/extract/Extract.ml
 @@ -398,6 +398,8 @@ let extract_cast_kind_hol4 (span : Meta.span)
@@ -1287,7 +1392,54 @@ index 2dc4a57f..44603333 100644
    | ( Lean,
        ( Add (OWrap, _)
        | Sub (OWrap, _)
-@@ -2693,6 +2758,7 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
+@@ -916,6 +981,46 @@ and extract_function_call (span : Meta.span) (ctx : extraction_ctx)
+       extract_binop span ctx
+         (extract_texpr span ctx fmt ~inside_do)
+         fmt ~inside binop arg0 arg1
++  | ( Fun (FromLlbc (FunId (FBuiltin (PtrFromParts mut)), None)),
++      [ data; metadata ] ) ->
++      [%cassert] span
++        (backend () = Lean && !Config.provenance_pointers)
++        "Pointer-parts require provenance pointers";
++      let target, data_ty, metadata_ty =
++        match generics.types with
++        | [ target; data_ty; metadata_ty ]
++          when generics.const_generics = [] && generics.trait_refs = [] ->
++            (target, data_ty, metadata_ty)
++        | _ -> [%craise] span "Invalid elaborated pointer-parts arguments"
++      in
++      [%sanity_check] span (data.ty = data_ty && metadata.ty = metadata_ty);
++      [%cassert] span
++        (match data_ty with
++        | TAdt (TBuiltin (TRawPtr _), _) -> true
++        | _ -> false)
++        "Pointer-parts data must be a raw pointer";
++      let kind =
++        match metadata_ty with
++        | TAdt (TTuple, args) when args = empty_generic_args -> "thin"
++        | TLiteral (TUInt U64) -> "slice"
++        | _ -> [%craise] span "Unsupported pointer-parts metadata type"
++      in
++      let mut =
++        match mut with
++        | RMut -> "mut"
++        | RShared -> "const"
++      in
++      if inside then F.pp_print_string fmt "(";
++      F.pp_print_string fmt
++        ("HasteBootsPointerPartsRuntime.from_" ^ kind ^ "_" ^ mut);
++      F.pp_print_space fmt ();
++      extract_ty span ctx fmt TypeDeclId.Set.empty ~inside:true target;
++      List.iter
++        (fun arg ->
++          F.pp_print_space fmt ();
++          extract_texpr span ctx fmt ~inside:true ~inside_do arg)
++        [ data; metadata ];
++      if inside then F.pp_print_string fmt ")"
+   | Fun fun_id, _ ->
+       let use_brackets = inside in
+       if use_brackets then F.pp_print_string fmt "(";
+@@ -2693,6 +2798,7 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
    let clause_names =
      match builtin_info with
      | None ->
@@ -1295,7 +1447,7 @@ index 2dc4a57f..44603333 100644
          List.map
            (fun (c : trait_param) ->
              let name = ctx_compute_trait_parent_clause_name ctx trait_decl c in
-@@ -2701,6 +2767,14 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
+@@ -2701,6 +2807,14 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
                if !record_fields_short_names then name
                else ctx_compute_trait_decl_name ctx trait_decl ^ name
              in
@@ -1311,7 +1463,7 @@ index 2dc4a57f..44603333 100644
            trait_decl.parent_clauses
      | Some info ->
 diff --git a/src/extract/ExtractBase.ml b/src/extract/ExtractBase.ml
-index 66bb1e48..4641a6ec 100644
+index 66bb1e48..3f483c1c 100644
 --- a/src/extract/ExtractBase.ml
 +++ b/src/extract/ExtractBase.ml
 @@ -1223,8 +1223,14 @@ let builtin_adts () : (builtin_ty * string) list =
@@ -1331,7 +1483,16 @@ index 66bb1e48..4641a6ec 100644
        ]
    | Coq | FStar | HOL4 ->
        [
-@@ -1604,7 +1610,18 @@ let ctx_compute_simple_name (meta : T.item_meta) (ctx : extraction_ctx)
+@@ -1308,6 +1314,8 @@ let builtin_llbc_functions () : (A.builtin_fun_id * string) list =
+       ]
+   | Lean ->
+       [
++        (PtrFromParts RShared, "HasteBootsPointerPartsRuntime.from_parts_const");
++        (PtrFromParts RMut, "HasteBootsPointerPartsRuntime.from_parts_mut");
+         (ArrayToSliceShared, "Array.to_slice");
+         (ArrayToSliceMut, "Array.to_slice_mut");
+         (ArrayRepeat, "Array.repeat");
+@@ -1604,7 +1612,18 @@ let ctx_compute_simple_name (meta : T.item_meta) (ctx : extraction_ctx)
      (name : llbc_name) : string list =
    (* Rmk.: initially we only filtered the disambiguators equal to 0 *)
    let name = opt_ctx_prepare_name meta ctx name in
@@ -1351,7 +1512,7 @@ index 66bb1e48..4641a6ec 100644
  
  (** Helper *)
  let ctx_compute_simple_type_name = ctx_compute_simple_name
-@@ -2113,6 +2130,8 @@ let ctx_compute_var_basename (span : Meta.span) (ctx : extraction_ctx)
+@@ -2113,6 +2132,8 @@ let ctx_compute_var_basename (span : Meta.span) (ctx : extraction_ctx)
            | TBuiltin TSlice -> "s"
            | TBuiltin TStr -> "s"
            | TBuiltin (TRawPtr _) -> "p"
@@ -1360,7 +1521,7 @@ index 66bb1e48..4641a6ec 100644
            | TAdtId adt_id ->
                let def =
                  TypeDeclId.Map.find adt_id ctx.trans_ctx.type_ctx.type_decls
-@@ -2122,7 +2141,10 @@ let ctx_compute_var_basename (span : Meta.span) (ctx : extraction_ctx)
+@@ -2122,7 +2143,10 @@ let ctx_compute_var_basename (span : Meta.span) (ctx : extraction_ctx)
                *)
                (* The name shouldn't be empty, and its last element (after we remove
                   the target architecture suffix) should be an ident *)
@@ -1832,6 +1993,44 @@ index cb9203a0..cdf69ceb 100644
        in
        let ctx0 = ctx in
        (* Match on the value *)
+diff --git a/src/llbc/Builtin.ml b/src/llbc/Builtin.ml
+index 9c031b9b..30491e8a 100644
+--- a/src/llbc/Builtin.ml
++++ b/src/llbc/Builtin.ml
+@@ -96,6 +96,24 @@ module Sig = struct
+         };
+     }
+ 
++  (** Checked pointer-parts calls elaborate the concrete data/metadata types.
++      The prepass verifies their relation to the original pointee before use. *)
++  let ptr_from_parts_sig mut : bound_fun_sig =
++    let data = TypeVarId.of_int 1 in
++    let metadata = TypeVarId.of_int 2 in
++    let generics =
++      mk_generic_params []
++        [
++          type_param_0;
++          { index = data; name = "Data" };
++          { index = metadata; name = "Metadata" };
++        ]
++        []
++    in
++    mk_sig generics
++      [ TVar (Free data); TVar (Free metadata) ]
++      (TRawPtr (tvar_0, mut))
++
+   (** [fn<T>(T) -> Box<T>] *)
+   let box_new_sig : bound_fun_sig =
+     let generics =
+@@ -243,6 +261,8 @@ let raw_builtin_fun_infos : raw_builtin_fun_info list =
+     (* TODO: the names are not correct ("Box" should be an impl elem for instance)
+        but it's not important) *)
+     (BoxNew, Sig.box_new_sig, false, Some [ true; false ]);
++    (PtrFromParts RShared, Sig.ptr_from_parts_sig RShared, false, None);
++    (PtrFromParts RMut, Sig.ptr_from_parts_sig RMut, false, None);
+     (* Array to slice*)
+     (ArrayToSliceShared, Sig.array_to_slice_sig false, false, None);
+     (ArrayToSliceMut, Sig.array_to_slice_sig true, false, None);
 diff --git a/src/llbc/FunsAnalysis.ml b/src/llbc/FunsAnalysis.ml
 index ab1fbdfe..100d186d 100644
 --- a/src/llbc/FunsAnalysis.ml
