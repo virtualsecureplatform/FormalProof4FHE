@@ -7,6 +7,44 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Thin pointer bytes and allocation origins now compose
+
+`NativePointerByteMemory` couples the concrete byte heap to finite per-byte
+allocation-origin metadata. Thin pointers occupy eight initialized little-endian
+bytes with alignment eight; the stored address comes from those bytes and the
+origin comes from a uniform metadata span. Null and dangling pointer values can
+be stored without dereferencing their targets. Mixed-origin spans are rejected
+by this explicit model policy. This is not a general Rust typed-layout or alias
+semantics theorem.
+
+Thirty-one theorems establish pointer store/load and copy/load round trips,
+checked store availability, heap well-formedness, exact metadata changes on
+allocation/free, and stale storage load/store rejection. Copies snapshot both
+bytes and metadata before writing, including overlap. Numerical word writes
+clear origins even when the stored address bits remain unchanged. Freeing an
+allocation removes metadata owned by its storage while retaining dangling
+pointer values in other allocations. Load origins must come from existing
+metadata cells; copies and numerical writes cannot introduce new origins, and
+pointer stores can introduce only the supplied value's origin.
+
+All 44 declarations have persistent dependency audits. Nineteen executable
+regressions cover uninitialized storage, actual address bytes, numeric origin
+erasure, partial fragments, alignment, overlapping relocation, uninitialized
+copies, null values, dangling values, address reuse and storage cleanup. The
+model and tests are included in the root aggregates. Full `scripts/check` passes
+(10,957 build jobs plus all subsequent audit/smoke commands; log:
+`/tmp/hasteboots-pointer-byte-memory-full-check.log`). Production Rust and the
+compiler/backend are unchanged.
+
+Next, restrict pointer-value construction to a closed register machine and prove
+that every observed origin came from an actual allocation in its history. The
+current low-level storage API accepts supplied pointer values and does not
+itself authenticate them. Connecting these operations to original native
+pointer accesses and lifecycle bodies, borrow identity, compiler/caller/NTT/
+SIMD/scheduler coverage, causal lifetime oracle-owner history, BabyBear and the
+final expected physical attacker-work inequality all remain open. This is not a
+native constructor acceptance or an end-to-end security result.
+
 ## Untyped byte copies and finite allocation-origin metadata now check
 
 `NativeRawByteRange` snapshots and replaces actual heap cells, including
@@ -28,8 +66,8 @@ even when address bits stay unchanged. Eleven theorems establish selected-cell
 membership, exact inside replacement, outside framing, snapshot length and
 uniform-span behavior. Mixed fragments are rejected by this model's policy;
 this does not establish the complete Rust provenance or aliasing rules. The
-metadata layer is not yet coupled to pointer load/store heap operations and does
-not authenticate caller-supplied pointers. No allocation origin is reconstructed
+standalone metadata layer does not authenticate caller-supplied pointers; the
+heap composition is described above. No allocation origin is reconstructed
 by searching live allocations for matching address bits. Rust's
 [without_provenance documentation](https://doc.rust-lang.org/stable/core/ptr/fn.without_provenance.html)
 explains why numerical addresses alone cannot authorize nonzero memory access.
@@ -45,9 +83,9 @@ subsequent audit/smoke commands; log:
 `/tmp/hasteboots-raw-byte-shadow-full-check.log`). Production Rust and the
 compiler/backend are unchanged.
 
-Next, couple pointer-bit storage to this metadata and prove load/store/copy
-round trips and lifecycle behavior. Then close pointer-value construction under
-source operations so origin authenticity is derived rather than assumed.
+The subsequent composition above supplies pointer load/store/copy round trips
+and lifecycle behavior. Closing pointer-value construction under source
+operations so origin authenticity is derived rather than assumed remains open.
 Borrow identity, native allocator/drop/deallocator and pointer dereference
 extraction, typed source correspondence, compiler/caller/NTT/SIMD/scheduler
 coverage, causal oracle-owner history, BabyBear and the final expected physical
