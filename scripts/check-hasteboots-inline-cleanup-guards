@@ -39,6 +39,16 @@ class Guards(unittest.TestCase):
         raw = 'axiom core.pointer : Type\naxiom\n  core.layout.default : Unit\n'
         self.assertEqual(GATE['extract_axiom_names'](raw), ['core.pointer', 'core.layout.default'])
 
+    def test_stdlib_and_constant_policy_cannot_silently_change(self):
+        ir = self.fixture()
+        ir['translated']['options'].update(sysroot='default')
+        GATE['validate_probe_options'](ir, 'default', False)
+        for root, values in [('miri', False), ('auto', False), ('default', True), ('unknown', False)]:
+            with self.assertRaises(RuntimeError): GATE['validate_probe_options'](ir, root, values)
+        ir['translated']['options'].update(consts='Values')
+        GATE['validate_probe_options'](ir, 'default', True)
+        with self.assertRaises(RuntimeError): GATE['validate_probe_options'](ir, 'default', False)
+
     def test_missing_function_reference_rejected(self):
         ir = self.fixture()
         ir['translated']['fun_decls'][0]['body']['Structured']['Call'] = {'kind': {'Fun': {'Regular': 7}}}

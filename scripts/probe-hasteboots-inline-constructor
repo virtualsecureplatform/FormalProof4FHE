@@ -39,6 +39,19 @@ def validate_drop_ir(ir):
     visit(ir['translated'])
 
 
+def validate_probe_options(ir, sysroot, const_values):
+    if sysroot not in ['default', 'miri', 'auto']:
+        raise RuntimeError('Unsupported stdlib/sysroot selection')
+    options = ir['translated'].get('options', {})
+    if options.get('sysroot') != (None if sysroot == 'auto' else sysroot):
+        raise RuntimeError('Requested stdlib/sysroot selection was not retained')
+    if const_values:
+        if options.get('consts') != 'Values':
+            raise RuntimeError('Requested compiler constant evaluation was not retained')
+    elif options.get('consts') not in [None, 'Initializers']:
+        raise RuntimeError('Unexpected compiler constant-evaluation policy')
+
+
 def extract_axiom_names(raw):
     return re.findall(r'^axiom\s+([^\s:(]+)', raw, re.M)
 
@@ -49,9 +62,13 @@ def main():
     parser.add_argument('--backend', type=Path, required=True)
     cleanup = parser.add_mutually_exclusive_group()
     cleanup.add_argument('--expand-string-cleanup', action='store_true', help='Expose original String type and drop body')
-    cleanup.add_argument('--cleanup-scope', choices=['opaque', 'string', 'vec', 'rawvec', 'global', 'layout', 'nonzero', 'arithmetic'], help='Follow original cleanup bodies to the selected boundary')
+    cleanup.add_argument('--cleanup-scope', choices=['opaque', 'string', 'vec', 'rawvec', 'global', 'layout', 'nonzero', 'arithmetic', 'layout-init'], help='Follow original cleanup bodies to the selected boundary')
     parser.add_argument('--inline-ok-or', action='store_true', help='Also inline static-error option conversion')
     parser.add_argument('--target-word64', action='store_true', help='Use checked 64-bit words and original source bindings')
+    parser.add_argument('--const-values', action='store_true', help='Use existing rustc constant evaluation for original constants')
+    parser.add_argument('--expand-language-ub-checks', action='store_true', help='Retain original language-UB-check helper body')
+    parser.add_argument('--sysroot', choices=['default', 'miri', 'auto'], default='default',
+                        help='Native diagnostics use the ordinary toolchain stdlib; Miri/auto are explicit comparisons')
     args = parser.parse_args()
     parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
     out = Path(tempfile.mkdtemp(prefix='inline-constructor-', dir=parent))
@@ -83,27 +100,35 @@ def main():
         (out / 'Cargo.toml').write_text((fixture / 'Cargo.toml').read_text().replace('../../../../HasteBoots', str(native)))
         (out / 'Cargo.lock').write_bytes((fixture / 'Cargo.lock').read_bytes())
         env = dict(os.environ)
-        env['CARGO_TARGET_DIR'] = str(parent / 'cargo-constructor-partial')
+        env['CARGO_TARGET_DIR'] = str(parent / ('cargo-constructor-partial' if args.sysroot == 'auto'
+                                                        else 'cargo-constructor-partial-' + args.sysroot))
         llbc = out / 'constructor.llbc'
         optional_inline = ['--inline-function', 'core::option::_::ok_or'] if args.inline_ok_or else []
+        record['sysroot'] = args.sysroot
+        record['cargo_target_directory'] = env['CARGO_TARGET_DIR']
         record['target_word64'] = args.target_word64
+        record['const_values'] = args.const_values
+        record['expand_language_ub_checks'] = args.expand_language_ub_checks
         record['inline_ok_or'] = args.inline_ok_or
         record['expand_string_cleanup'] = args.expand_string_cleanup
         scope = args.cleanup_scope or ('string' if args.expand_string_cleanup else 'opaque')
         record['cleanup_scope'] = scope
         paths = [] if scope == 'opaque' else ['alloc::string::String']
-        if scope in ['vec', 'rawvec', 'global', 'layout', 'nonzero', 'arithmetic']: paths += ['alloc::vec::Vec', 'alloc::vec::Vec::_::drop_glue']
-        if scope in ['rawvec', 'global', 'layout', 'nonzero', 'arithmetic']: paths += ['alloc::vec', 'alloc::raw_vec']
-        if scope in ['global', 'layout', 'nonzero', 'arithmetic']: paths += ['alloc::alloc']
-        if scope in ['layout', 'nonzero', 'arithmetic']: paths += ['core::alloc::layout', 'core::mem::alignment', 'core::num::niche_types', 'core::num::_::unchecked_mul']
-        if scope in ['nonzero', 'arithmetic']: paths += ['core::num::nonzero']
-        if scope == 'arithmetic': paths += ['core::num::_::MIN', 'core::num::_::MAX', 'core::num::_::BITS',
+        if scope in ['vec', 'rawvec', 'global', 'layout', 'nonzero', 'arithmetic', 'layout-init']: paths += ['alloc::vec::Vec', 'alloc::vec::Vec::_::drop_glue']
+        if scope in ['rawvec', 'global', 'layout', 'nonzero', 'arithmetic', 'layout-init']: paths += ['alloc::vec', 'alloc::raw_vec']
+        if scope in ['global', 'layout', 'nonzero', 'arithmetic', 'layout-init']: paths += ['alloc::alloc']
+        if scope in ['layout', 'nonzero', 'arithmetic', 'layout-init']: paths += ['core::alloc::layout', 'core::mem::alignment', 'core::num::niche_types', 'core::num::_::unchecked_mul']
+        if scope in ['nonzero', 'arithmetic', 'layout-init']: paths += ['core::num::nonzero']
+        if scope in ['arithmetic', 'layout-init']: paths += ['core::num::_::MIN', 'core::num::_::MAX', 'core::num::_::BITS',
                                              'core::num::_::is_power_of_two', 'core::num::_::count_ones', 'core::num::_::checked_add',
                                              'core::num::_::checked_mul', 'core::num::_::overflowing_mul',
                                              'core::intrinsics::unlikely', 'core::intrinsics::cold_path']
+        if scope == 'layout-init': paths += ['core::mem::SizedTypeProperties']
+        if args.expand_language_ub_checks: paths += ['core::ub_checks::check_language_ub']
         cleanup_scope = [argument for path in paths for argument in ['--include', path]]
-        run([tools / 'charon', 'cargo', '--preset=aeneas', '--preserve-allocator', '--evaluate-runtime-checks', '--precise-drops', '--desugar-drops', '--monomorphize',
-             '--inline-function', 'core::option::_::and_then', '--inline-function', 'core::option::_::is_none_or', *optional_inline,
+        run([tools / 'charon', 'cargo', '--preset=aeneas',
+             *(['--sysroot', args.sysroot] if args.sysroot != 'auto' else []), '--preserve-allocator', '--evaluate-runtime-checks', '--precise-drops', '--desugar-drops', '--monomorphize',
+             *(['--consts', 'values'] if args.const_values else []), '--inline-function', 'core::option::_::and_then', '--inline-function', 'core::option::_::is_none_or', *optional_inline,
              '--start-from', PARAMETERS['NAMESPACE'] + '::new_encoded', '--include', 'pcs', '--include', 'algebra::goldilocks::Goldilocks', *cleanup_scope, '--include', 'core::option',
              '--include', 'core::result', '--include', 'core::convert',
              '--include', 'core::num::_::checked_next_power_of_two', '--include', 'core::num::_::one_less_than_next_power_of_two',
@@ -111,6 +136,7 @@ def main():
         ir = json.loads(llbc.read_text())
         record.update(charon_has_errors=ir.get('has_errors'), llbc_sha256=digest(llbc.read_bytes()))
         validate_drop_ir(ir)
+        validate_probe_options(ir, args.sysroot, args.const_values)
         record['residual_drop_count'] = 0
         record['missing_function_references'] = []
         record['runtime_check_query_count'] = 0

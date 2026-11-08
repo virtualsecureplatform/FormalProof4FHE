@@ -1,0 +1,639 @@
+{
+  "claim": "explicit original external-root and stdlib configuration regression only; production native heap/work/security refinement unproved",
+  "build_receipt_sha256": "2f05f8e3f16424b72205f8323e43f30fc447c39ec428bb8ab09ea04c978f028a",
+  "tools": {
+    "charon": "438c4565d48ffe763d9bca6fd4e0f63754611baaf90c2b0c4628d12c72020544",
+    "charon-driver": "e06210fc5229847480d1cdea642226999c2cb5ef90e45234cb44da9e9b4d4291",
+    "aeneas": "7366730383e80df91a72ddc5e1a29681d455eb2f1d87898cfcb820fff2e2ef39"
+  },
+  "frontend_patch_sha256": "ac86377d925b5b59e500e69bb4322fe3bb7763bd29db49ed6593ad40f81f9a82",
+  "before_frontend_patch_sha256": "0fe2d4e181ac6583d83b7b38d7000a8a8c4889781074e688f367505157fe6ca3",
+  "gate_manifest_sha256": "eca2e9ad492eb76d091207b286201492752c5688e4b9a049f5911b84fda4a034",
+  "dependency_audit": {
+    "hasteboots_stdlib_default_on.core.ub_checks.check_language_ub": "does not depend on any axioms",
+    "hasteboots_stdlib_default_off.core.ub_checks.check_language_ub": "does not depend on any axioms",
+    "hasteboots_stdlib_miri_on.core.ub_checks.check_language_ub": "does not depend on any axioms",
+    "hasteboots_stdlib_miri_on.core.ub_checks.check_language_ub.runtime": "does not depend on any axioms",
+    "HasteBootsStdlibConfigurationProof.default_on": "does not depend on any axioms",
+    "HasteBootsStdlibConfigurationProof.default_off": "does not depend on any axioms",
+    "HasteBootsStdlibConfigurationProof.miri_on": "does not depend on any axioms",
+    "HasteBootsStdlibConfigurationProof.default_on_miri_differ": "does not depend on any axioms",
+    "HasteBootsStdlibConfigurationProof.default_on_off_differ": "does not depend on any axioms"
+  },
+  "cases": {
+    "default_on": {
+      "sysroot": "default",
+      "rustc_flags": [
+        "-C",
+        "debug-assertions=yes"
+      ],
+      "llbc_sha256": "02d288b54e4f91d184c687605cd2dc20770e5bbd386aa8be211080468efc48ec",
+      "generated_sha256": "76933908e4cb1d798702351f32ce54dd2d3cf7cd88a792d5be9f34d984884c9f",
+      "residual_runtime_queries": []
+    },
+    "default_off": {
+      "sysroot": "default",
+      "rustc_flags": [
+        "-C",
+        "debug-assertions=no"
+      ],
+      "llbc_sha256": "2f41ce02bfe4e091b2404af4f3a05d557b14dded2ceace6a5fc4f46ec181e6e8",
+      "generated_sha256": "f0c29e5112090fed12affc2349e65d3bc91021fb7360f54188d97f7cb0eee60c",
+      "residual_runtime_queries": []
+    },
+    "miri_on": {
+      "sysroot": "miri",
+      "rustc_flags": [
+        "-C",
+        "debug-assertions=yes"
+      ],
+      "llbc_sha256": "9d31753eccfa7cfaa77cdf4edec3700f8ac46eceb4c1831b8dde260832175571",
+      "generated_sha256": "4b16a1aa232fea1a05f9bee5fb8e60c39550d216bcf1d5a3ce5703de243d2354",
+      "residual_runtime_queries": []
+    }
+  },
+  "inputs": {
+    "fixture.rs": "46a20c843edc11d66d1b1bc88a1eb2880f803d47a8cf164dd67fffdf49993a01",
+    "Proof.lean": "6eebc6dae75b2152faf707800817b0f1e374283a5865241887f02ee69c04eaaf",
+    "default_on-Generated.lean": "76933908e4cb1d798702351f32ce54dd2d3cf7cd88a792d5be9f34d984884c9f",
+    "default_off-Generated.lean": "f0c29e5112090fed12affc2349e65d3bc91021fb7360f54188d97f7cb0eee60c",
+    "miri_on-Generated.lean": "4b16a1aa232fea1a05f9bee5fb8e60c39550d216bcf1d5a3ce5703de243d2354"
+  },
+  "checked_sha256": "d200d392652e06dd44e79aa178aaedcb2ab2c842ef90559bbe805ea95cc4e671",
+  "guard_tests": [
+    {
+      "script": "scripts/check-hasteboots-captured-option-guards",
+      "status": 0,
+      "tests": 5
+    },
+    {
+      "script": "scripts/check-hasteboots-code-serialization-guards",
+      "status": 0,
+      "tests": 11
+    },
+    {
+      "script": "scripts/check-hasteboots-constructor-typing-guards",
+      "status": 0,
+      "tests": 8
+    },
+    {
+      "script": "scripts/check-hasteboots-discriminant-guards",
+      "status": 0,
+      "tests": 7
+    },
+    {
+      "script": "scripts/check-hasteboots-enum-decoding-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-enum-nonzero-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-inline-baseline-guards",
+      "status": 0,
+      "tests": 5
+    },
+    {
+      "script": "scripts/check-hasteboots-inline-cleanup-guards",
+      "status": 0,
+      "tests": 6
+    },
+    {
+      "script": "scripts/check-hasteboots-inline-equivalence-guards",
+      "status": 0,
+      "tests": 11
+    },
+    {
+      "script": "scripts/check-hasteboots-large-discriminants-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-layout-word64-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-metadata-mono-guards",
+      "status": 0,
+      "tests": 9
+    },
+    {
+      "script": "scripts/check-hasteboots-monomorphic-ctlz-guards",
+      "status": 0,
+      "tests": 3
+    },
+    {
+      "script": "scripts/check-hasteboots-overflowing-mul-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-parameter-extraction-guards",
+      "status": 0,
+      "tests": 10
+    },
+    {
+      "script": "scripts/check-hasteboots-pointer-storage-guards",
+      "status": 0,
+      "tests": 5
+    },
+    {
+      "script": "scripts/check-hasteboots-range-unwrapping-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-registry-guards",
+      "status": 0,
+      "tests": 7
+    },
+    {
+      "script": "scripts/check-hasteboots-row-metadata-guards",
+      "status": 0,
+      "tests": 5
+    },
+    {
+      "script": "scripts/check-hasteboots-runtime-checks-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-static-byte-guards",
+      "status": 0,
+      "tests": 8
+    },
+    {
+      "script": "scripts/check-hasteboots-static-slice-guards",
+      "status": 0,
+      "tests": 8
+    },
+    {
+      "script": "scripts/check-hasteboots-static-string-guards",
+      "status": 0,
+      "tests": 7
+    },
+    {
+      "script": "scripts/check-hasteboots-stdlib-configuration-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-u32-range-guards",
+      "status": 0,
+      "tests": 8
+    },
+    {
+      "script": "scripts/check-hasteboots-usize-ctlz-guards",
+      "status": 0,
+      "tests": 6
+    },
+    {
+      "script": "scripts/check-hasteboots-usize-ranges-guards",
+      "status": 0,
+      "tests": 4
+    },
+    {
+      "script": "scripts/check-hasteboots-word64-intrinsics-guards",
+      "status": 0,
+      "tests": 4
+    }
+  ],
+  "prior_gate_audits": {
+    "enum-decoding": {
+      "manifest_sha256": "db3b033c0739eb54f01187b1968607aad92b497451e20a6da77d0dbbc758ebf4",
+      "dependency_audits": 20,
+      "portable_dependency_audits": 0
+    },
+    "enum-nonzero": {
+      "manifest_sha256": "7fdef251eff42926400d9c2f5930d79c7de4a15dae34978ca97474727ae0946d",
+      "dependency_audits": 13,
+      "portable_dependency_audits": 0
+    },
+    "inline-equivalence": {
+      "manifest_sha256": "b8b86d7e66679b217eef2f291eb19e1d25bee6362ea130c5b067a02bdc9ba2f8",
+      "dependency_audits": 17,
+      "portable_dependency_audits": 0
+    },
+    "large-discriminants": {
+      "manifest_sha256": "a1f991b05e7881278d52e8d493cc9e5aa560e7c9f88d90af8df41a1ce5aefb6c",
+      "dependency_audits": 13,
+      "portable_dependency_audits": 0
+    },
+    "layout-word64": {
+      "manifest_sha256": "fc6ecf325584b6d0c7713b9b0d2b6cacb8f93cc60195a6b7bf356446fae5ea08",
+      "dependency_audits": 36,
+      "portable_dependency_audits": 0
+    },
+    "monomorphic-ctlz": {
+      "manifest_sha256": "8a6e2f99d7e854884e5f32e36a9ccd4b2b834fe07b66deca7441e637e210b53b",
+      "dependency_audits": 13,
+      "portable_dependency_audits": 0
+    },
+    "overflowing-mul": {
+      "manifest_sha256": "22812ff1c74e05a17ba3b173991bf3ee7a8319e38600101d9a1b97087db0c2ff",
+      "dependency_audits": 12,
+      "portable_dependency_audits": 2
+    },
+    "range-unwrapping": {
+      "manifest_sha256": "a6095093ba73100de9d255eaa31d092af23b6dffe1f6548187c8e4b9088d6c8e",
+      "dependency_audits": 9,
+      "portable_dependency_audits": 0
+    },
+    "runtime-checks": {
+      "manifest_sha256": "284d483584103419a112bd34752ec2541a0e3533b158ce71d7dc091ccec8aa8e",
+      "dependency_audits": 12,
+      "portable_dependency_audits": 0
+    },
+    "static-error-option-option": {
+      "manifest_sha256": "adc494cd3e17e52c6417f2881bd45985abe35d2c7be3ff65519105b2294af03f",
+      "dependency_audits": 5,
+      "portable_dependency_audits": 0
+    },
+    "static-error-option-result": {
+      "manifest_sha256": "c83e55fd94096df91eb5a8f63e19c54a6445bb19b8a4cecff47a20be75833590",
+      "dependency_audits": 10,
+      "portable_dependency_audits": 0
+    },
+    "usize-ranges": {
+      "manifest_sha256": "060fe1439cb05b323a709947b8f07cf4393bfbfb10f837a240bdb874932d16fb",
+      "dependency_audits": 9,
+      "portable_dependency_audits": 0
+    },
+    "word64-intrinsics": {
+      "manifest_sha256": "ebad7097a0731ccf1bd240f1f53657addc7eea68053e55262222441659a02e8c",
+      "dependency_audits": 31,
+      "portable_dependency_audits": 0
+    }
+  },
+  "upstream": {
+    "completed_targets": [
+      "adt-borrows.rs",
+      "adt.rs",
+      "array_slice_index.rs",
+      "arrays.rs",
+      "arrays_defs.rs",
+      "as_mut.rs",
+      "assert-cfg.rs",
+      "avl",
+      "bitwise.rs",
+      "blanket_impl.rs",
+      "bool-cmp.rs",
+      "borrow-check-negative.rs",
+      "bst",
+      "builtin-auto.rs",
+      "builtin.rs",
+      "cast_signed.rs",
+      "chunks_exact.rs",
+      "closures.rs",
+      "const-shadow.rs",
+      "constants-lean.rs",
+      "constants.rs",
+      "curve25519.rs",
+      "default.rs",
+      "defaulted_method.rs",
+      "demo.rs",
+      "deref.rs",
+      "derive.rs",
+      "discriminant.rs",
+      "drop.rs",
+      "drop_bug.rs",
+      "dynamic_size.rs",
+      "from_to.rs",
+      "generic_unit_output.rs",
+      "hashmap.rs",
+      "higher_ranked_implied_bounds_borrow.rs",
+      "higher_ranked_implied_bounds_regions.rs",
+      "higher_ranked_implied_bounds_types.rs",
+      "higher_ranked_trait_bounds.rs",
+      "into.rs",
+      "issue-1044-opaque-tuple.rs",
+      "issue-1141-impl-fn-ref.rs",
+      "issue-134-loop-shared-borrows.rs",
+      "issue-194-recursive-struct-projector.rs",
+      "issue-270-loop-list.rs",
+      "issue-440-type-error.rs",
+      "issue-789-loop-ctx-match.rs",
+      "issue-801-hrtb.rs",
+      "issue-803-self-in-array.rs",
+      "issue-804-closure-return-ref.rs",
+      "issue-807-missing-symbolic-value.rs",
+      "issue-815-global-referencing-fallible-global.rs",
+      "issue-charon-1172.rs",
+      "iter_adapters.rs",
+      "iterators-array.rs",
+      "iterators-scalar.rs",
+      "iterators.rs",
+      "join-duplicate.rs",
+      "joins.rs",
+      "list-borrows.rs",
+      "loop-shared-borrow-proj.rs",
+      "loop_shared_loan_in_join.rs",
+      "loops-adts.rs",
+      "loops-borrow-check-negative.rs",
+      "loops-issues.rs",
+      "loops-nested-rec.rs",
+      "loops-nested.rs",
+      "loops-rec.rs",
+      "loops-sequences.rs",
+      "loops.rs",
+      "mini_tree.rs",
+      "multi-target.rs",
+      "mut-borrow-in-shared-borrow.rs",
+      "mutually-recursive-traits.rs",
+      "names.rs",
+      "nested-borrows.rs",
+      "nested-shared-borrows.rs",
+      "no_nested_borrows.rs",
+      "opaque-mut-region.rs",
+      "options.rs",
+      "order.rs",
+      "overflowing-ops.rs",
+      "paper.rs",
+      "polonius_list.rs",
+      "print.rs",
+      "range.rs",
+      "raw_pointers.rs",
+      "rename_attribute.rs",
+      "rust-borrow-check-issues.rs",
+      "scalars.rs",
+      "slices.rs",
+      "static.rs",
+      "step_by.rs",
+      "string-chars.rs",
+      "switch_test.rs",
+      "traits.rs",
+      "tutorial",
+      "vec.rs"
+    ],
+    "generated_files": {
+      "tests/lean/AdtBorrows.lean": "936d934574dffa0e7ca970919bc6301b43bd0596652141724da8f8737d6b4171",
+      "tests/lean/Adt.lean": "fe1b70a52d4546b0744ea3515e653a137fb66a90b0072a5b5e282c523c062228",
+      "tests/lean/ArraySliceIndex.lean": "bf063fb4bf9e216ba8dbffcfba10faf034bb6530b0ebc159ef729b16d2c796e6",
+      "tests/coq/arrays/Arrays.v": "7570340d10c05ab048660cbd495995fe55243b68aa7c40b87b5d3772b975688f",
+      "tests/lean/Arrays.lean": "ce5bc44fae2914b25c49e802686ed8c5895bae83bb7a2a421c84a6dccd5f7574",
+      "tests/fstar/arrays/Arrays.Types.fst": "d49dcb769c064a279bd4d510db2612574ee95478d9b79f00f615406d885f2eea",
+      "tests/fstar/arrays/Arrays.Clauses.Template.fst": "b2fa6391f023dc6d761a91d88c8ef183085ec82b5ac7dd4ab495da148c5942c8",
+      "tests/fstar/arrays/Arrays.Funs.fst": "d6f730409326974efaf4e5e3713b7263c1128eabdb2c98a7a37fd90c0304a06f",
+      "tests/lean/ArraysDefs.lean": "0afadb20e0c53d3f2ef0c0383728d66873d511ead5e2553c02e1cb9eca3186a2",
+      "tests/lean/AsMut.lean": "b73180ce80ee94d7ca3b6dcf7dfe2aecad015b040ed837485694d0a1e6f0535d",
+      "tests/lean/AssertCfg.lean": "965f7aa1bd47adbf74c876b5b58f21b599ca82a59d6f4712851b2a71f464d403",
+      "tests/lean/Avl/Types.lean": "f995933eb7490f14841cd90442f627fdd015a77b2e167aa80f2c23a6043e57bd",
+      "tests/lean/Avl/Funs.lean": "e280bfa786fad01b63d42fe3ab4325850548b745232c4cb3882175c2ba8f8a16",
+      "tests/coq/misc/Bitwise.v": "a71495de6cb98fb01692d70dea7d20f770cb28ee3f86293844408b834e50f28a",
+      "tests/lean/Bitwise.lean": "de3f42606670eab2d513932ffacad70b8ae9ea42f3bd8597d29b1ad01873f679",
+      "tests/fstar/misc/Bitwise.fst": "deb07a55b914c4c8cd69b45118d085f06cac888587db6657bba355e295fd0298",
+      "tests/coq/misc/BlanketImpl.v": "39f814a60bef584a1732d04d14427d5b6c3477a5baba5b0d583f81bbc99d098f",
+      "tests/lean/BlanketImpl.lean": "f7ed562cb927f3543dc94716ca9df1b2bb95fa3a511d8f3afdd3e41f1468588f",
+      "tests/fstar/misc/BlanketImpl.fst": "30791ad9694a94a8cbaa41f7c1257f044a9d8195f6a002ff79ce3bf9227496f5",
+      "tests/lean/BoolCmp.lean": "6d56932bb3d3dde233cc015c2732dc5641a0c25f3bbc23990740d0b8728321f6",
+      "tests/lean/Bst/Types.lean": "98dbeb0b57b89b4dc5c24efc6579495d5517afb4c1ac43746d2804256892fef3",
+      "tests/lean/Bst/Funs.lean": "c61cf96475ab4e9738111c2ed0d1464af911815e6a34482001d520d0d0a9f191",
+      "tests/lean/BuiltinAuto.lean": "a5cb4ba5a15a3f7c6eda6acd026cf36a4274fd536c0a8702d541d6842574f7e8",
+      "tests/lean/Builtin.lean": "cd6a5f191c42ffe32f3a375f25f779cdfbf1355acc2232416b80019c6373413c",
+      "tests/lean/CastSigned.lean": "4ee505950a4e4751021fe05d85b87b203cede2a52e8fd35295bfaa7e9ae3dc42",
+      "tests/lean/ChunksExact.lean": "7c9f9d19ed89a279f5494c8c22017c4488f94268afeb58fcef79840749c46e98",
+      "tests/lean/Closures.lean": "7af6cc635d631605700c058a80359478bd8f0b3e7c10a5888ef67ceed097584e",
+      "tests/lean/ConstShadow.lean": "a48c2efd7ed6938da222550891e1153f651c51a4e7cfe6693aec42d332a5604f",
+      "tests/lean/ConstantsLean.lean": "0a2d8b312d4af11d0f09a9144dbe6ea49dde97b8521a34c706c42ed6e1c09b2d",
+      "tests/coq/misc/Constants.v": "cb1495de9719d344fb063632dea8f604c642619f0d1e86d76bc92edcb269929c",
+      "tests/lean/Constants.lean": "d7370d06c85e7b809dc2614983b679e3dedae6a21596b2357b21b4fee904ff41",
+      "tests/fstar/misc/Constants.fst": "b316681bc55b9d2784529eddd3e5f1958962a7b099cfc7ee0fac702a6e7fec6b",
+      "tests/lean/Curve25519/Curve25519.lean": "079331b3d7af3aac6d6301b90540591b0050a6bd1cb51c4b79f50448e87777c1",
+      "tests/lean/Default.lean": "04725c82f0b545243012215b05c712d21cfb941568cad8c2b1c317eeefecb022",
+      "tests/coq/misc/DefaultedMethod.v": "47ca3006dfe79783a99b7d20eb634912c6e77673e95e2116147ac7d4e79534a7",
+      "tests/lean/DefaultedMethod.lean": "259583f17d46e94d491aaf97b53b64c2fd80e0eb894a4b6931e8f5c8b043eac6",
+      "tests/fstar/misc/DefaultedMethod.fst": "bbacefe7b7a8d22db8e2cda44f48660b29b23878a528d5d7d18c354cce69e119",
+      "tests/coq/demo/Demo.v": "cc07d0ca2a3496a77ea85aae361f2e9ffed8b7501137c9db7ec6fcd2e3110bfc",
+      "tests/lean/Demo/Demo.lean": "fd9b785aeecbdc7aa31c28ce03196a9e9d534b27302dbc33b527102ab2a15f0e",
+      "tests/fstar/demo/Demo.fst": "acc2658ef3c0c60fc28332ce44210ff78efb2857e5ce1abbdd2c22f15b88285f",
+      "tests/lean/Deref.lean": "892e8bccf6f60026356974e5612e77a78ddacb527547d82966f3dc4545d2d268",
+      "tests/lean/Derive.lean": "caa5c1377dbc9eb9e7379f554444a2e89cfe37c0b8ecf9ecc13406158b22a400",
+      "tests/lean/Discriminant.lean": "345f1a157929ac7173965de6816ab57e82b6d4e5142d5f7c69a20e0567d8924c",
+      "tests/lean/Drop.lean": "e7f8153dd68cdfdcd766e6ed0d79dd2e5c27b4b4b574a239e88e1bf355cbe19b",
+      "tests/lean/DropBug.lean": "841c0998169026dc0847b8f8efdecdd94a92896ad702fdcda480b1133a094d2f",
+      "tests/lean/DynamicSize.lean": "c244581f921fc257d649a86e3bb4d337e5037f99fdc7fb730035616be0e27ca4",
+      "tests/lean/FromTo.lean": "7c23290114923398900aa1f79c57efe63db6e70440373264f784535b7ecedcbb",
+      "tests/lean/GenericUnitOutput.lean": "08922edebb2ce6c57b7263eff9984837883ed26efacac49f114bbb68eb6b6bb1",
+      "tests/coq/hashmap/Hashmap_Types.v": "6648a5478bde349c5994b6ac67988cfc80d76b37d411c509c38b399044da6f40",
+      "tests/coq/hashmap/Hashmap_Funs.v": "dd722ce414b9f92ff08552eac807c350354c2e5e67a682c4545b00dd7cfc6dd2",
+      "tests/lean/Hashmap/Types.lean": "7a655716ebfa96a7e7e14a6070cd50b2033303c7d620540f0f074c0d75ea902d",
+      "tests/lean/Hashmap/Funs.lean": "59c947422895d3129c1b6bfa3ea09ef926f1798f737a03b995fd41dbb6cdd55f",
+      "tests/fstar/hashmap/Hashmap.Types.fst": "2d68746c0ac1cf07f2ffe68eff24bdae39b1b2a20c34d94f4847df42aba1382d",
+      "tests/fstar/hashmap/Hashmap.Clauses.Template.fst": "0afd800f181ca283be172ac4b6e52d6c5b797dd5b7e24dffa81f9c749e750d6d",
+      "tests/fstar/hashmap/Hashmap.Funs.fst": "c7ed8dbb6c5976a3f9acb97db29364df191b4f3e3909f00ff7c2fa4f8529d81b",
+      "tests/lean/HigherRankedTraitBounds.lean": "4a8d32592b65a03bd9ae0cbe65e995da9ada547bbff8e465e278671af4cfc15b",
+      "tests/lean/Into.lean": "3833a8bf3ce7d886a3573ffff694ef146d4a7594020b23b5e70de568dc240bf2",
+      "tests/lean/Issue1044OpaqueTuple.lean": "d8285b16b253283efda43e38870038090481bf84734c7c6cb11f6e07e8a06453",
+      "tests/lean/Issue1141ImplFnRef.lean": "0d5b952483f677b76e35763a4627e4bdcf5b1afd4bf56a27f56bcc65594c076e",
+      "tests/lean/Issue134LoopSharedBorrows.lean": "51ba25efdcb25f80cb86fb84f7086051c19ff80427c2da940f522b991278a1e8",
+      "tests/coq/misc/Issue194RecursiveStructProjector.v": "eca20f1b69521cbcc8c6e7174d8c8deee81f9da6e8cd24c3adc7a3fd67200f02",
+      "tests/lean/Issue194RecursiveStructProjector.lean": "5173af1cf002cabccb2c7c5b0a4374703f9ea1f3ac33dc7080071a26a73a17ff",
+      "tests/fstar/misc/Issue194RecursiveStructProjector.fst": "47f2299bb6bbcb7f6dba8d5d38b4bb6892d163ffbc6ecfa4755e5f3e6d89c829",
+      "tests/coq/misc/Issue270LoopList.v": "f5972092c763c694653a0e0423bff9a9c28e3b200182879c784e325659866721",
+      "tests/lean/Issue270LoopList.lean": "331efcfe1977d23c52cf287d179ce766a2cceb369b07d6a678e86b1ddfacf356",
+      "tests/fstar/misc/Issue270LoopList.fst": "12849fa22f0d132fdeb6e140d04f6a0a680b753528ba6c1dec8d23520d230804",
+      "tests/lean/Issue440TypeError.lean": "e31252f8cc1417106d7e213e84e5ac2bc060a7aa7233d905e63d04e3a144fc75",
+      "tests/lean/Issue789LoopCtxMatch.lean": "b1f524cf62fd62bfbacfbffc89b79a2bcf12bd4357cdaaafdbaab925bdf07fe5",
+      "tests/lean/Issue801Hrtb.lean": "c3421ff085032c51baf3b2d1493389474ce34aee24a83db9d1d7290ef22e82a1",
+      "tests/lean/Issue803SelfInArray.lean": "c57e5802cbc152f968d7aae41adb17499b8bcf669419a6d8e9cade13fb8477c5",
+      "tests/lean/Issue804ClosureReturnRef.lean": "1fca7059332332c3f7fa81c24e80962c01f697caebd796ce4b0f835c23df4781",
+      "tests/lean/Issue807MissingSymbolicValue.lean": "0aa574ae06f18268a88ae7e72239102f535924272748fc8d11f3f8314a0c1a68",
+      "tests/lean/Issue815GlobalReferencingFallibleGlobal.lean": "d0ddfbf7df015643dbba2525c262ceb520c5689b1838286367eec7369cf8108c",
+      "tests/lean/IssueCharon1172.lean": "6b7272f25f432db052df0da3d37f413ec9b160e850e769c202b5a4d994ba7406",
+      "tests/lean/IterAdapters.lean": "84e1ad2b5e41f7bdd0798dad8428b0175c169c6c7232eeb7125357f5819285bc",
+      "tests/lean/IteratorsArray.lean": "c406be37a8b3bdb9252f5f19d177c1f16f8d7f9416c66a83e00391f2d2a0c3f0",
+      "tests/lean/IteratorsScalar.lean": "b5523f40dfd3e7cdf19f441baa34e485df392b69ea9b8269363c02a427991d7b",
+      "tests/lean/Iterators.lean": "d738f0afa44f22f87887bbc24a6077ccf1d0d425723714b1e25e851e936e4d8c",
+      "tests/lean/JoinDuplicate.lean": "05f3a83fd8ce1952f5062ab2d5317f7adc14fc4a7a3d284c3158fa32b75fff37",
+      "tests/lean/Joins.lean": "d400bd3c042b420fea782bf7524876a85f65d602cc4df08dbb505f244df97cee",
+      "tests/lean/ListBorrows.lean": "7ccd9b235e8279dcafcba07a9ed774e414059596b91a2a3a879a19cfbd34f07c",
+      "tests/lean/LoopSharedBorrowProj.lean": "9553cbab21a7b5ef4d8b57556d131dd398175a973e08ed29711d28c0bfbf7c1d",
+      "tests/lean/LoopSharedLoanInJoin.lean": "43fcf4bccea10ba474b4d8aec38ceee7d273fbc3c218c74daaadb41fdc55f84d",
+      "tests/lean/LoopsAdts.lean": "dd60a8263c069c74a9957575c529f6870c915c8cf1773181cd0c49f08ab0a576",
+      "tests/lean/LoopsIssues.lean": "5c6a4d8cbc2be3884362c795fdefd7c3ffc82379c3d8cbf45f1c982d6530eed7",
+      "tests/lean/LoopsNestedRec.lean": "4f4b9f9b3a8a857a7f41c0310b8de66a3f29af36fa329ff31ed1d162734ef811",
+      "tests/lean/LoopsNested.lean": "f4ec6a9082b175250d098f16f24d50e28d62b6c26ca5429668379002abbf1256",
+      "tests/lean/LoopsRec.lean": "74ea009e38e8bea048a9370c6eeebd6a419eb63a5e6073126b902000e3f6fa11",
+      "tests/lean/LoopsSequences.lean": "f805d297ee49a12f5b19ab25c589a8c8c9961edfdebbc0abb75445e4ea11bde6",
+      "tests/lean/Loops.lean": "5ea72e16216224cb029b1a1af3cfa439b6c562976ba73abf28d8dba87a86f0c4",
+      "tests/lean/MiniTree.lean": "c9a822fb01cbfdfb464cbc7d167486e7566fc88694a02e21580410780369ccb3",
+      "tests/lean/MultiTarget.lean": "b572ea2d14ce1374f06859b35416f2571200c0b4e2009c790cc8509c18e8650d",
+      "tests/lean/MutBorrowInSharedBorrow.lean": "7b7da2b0b95674388542e6e9bf8b9c679d307a7325e09085597d794a5ea2125d",
+      "tests/lean/Names.lean": "a9c460a023b46fc1a65e0e626b0806ff3297f9d52a380502726c24c217355202",
+      "tests/lean/NestedBorrows.lean": "6fbdf63c33fe5fa0ae7b72c75db9dad3ddd65bd8d6f0afdd2925a5b0e0e3b281",
+      "tests/lean/NestedSharedBorrows.lean": "5933f5d0d58e82d59ffabfe75d51b7d6ac5b40d1f59115a6e2e2a555857f738d",
+      "tests/coq/misc/NoNestedBorrows.v": "6b5ec60bd2a2960438c9b2058dc790b2debb6ae2b44678a2183d6ba0ca9b42c9",
+      "tests/lean/NoNestedBorrows.lean": "9c61c2769f2e6149cd4c48acd25103a95f877ccd13305a3b740b7de9fb8179e2",
+      "tests/lean/OpaqueMutRegion.lean": "58f1387890a8ba25648527ad3959c23c298df4bd951909ccefa038345e407f94",
+      "tests/lean/Options.lean": "d7f17edb6337b92620db424e01a8e65fb9621bba0231317891e5301b8966691c",
+      "tests/lean/Order.lean": "a4f33451f0467e952492a59d0b5412a6e31f64e8c86d9a289f0ebcece9765d3c",
+      "tests/lean/OverflowingOps.lean": "93ba7a5b816176c88ece9dc7c7dadf5df8815e5bfac2b3750a7db6425fe1afa6",
+      "tests/coq/misc/Paper.v": "5d87f368479223ea709ba11bb45c45b52679b35a6f90885fa6def59d789295d7",
+      "tests/lean/Paper.lean": "8c73d4200922e16e381e21b52540706316123dcdf318f0d77e7c29f7a18d6d35",
+      "tests/fstar/misc/Paper.fst": "67f3c4cdd8de744073692813f0e477dc297b8acfcb471e812d35ffbcd2b4cabb",
+      "tests/coq/misc/PoloniusList.v": "3ad3cb42ef6db46ad9c4ead98946534d91269ec79fc7a9b11cd5f59d92690a59",
+      "tests/lean/PoloniusList.lean": "fc79dc2cd5be05f4aceb9e843176e1322fa0aace99c19eed5566923884971d1a",
+      "tests/fstar/misc/PoloniusList.fst": "43702589961935d20511bf3b392262d6bd5f4377310df1ea64cc2bbbe5c99468",
+      "tests/lean/Print.lean": "8668457fa279365e3e0bc38c76a1aa9dac94c3da3e783036ac960e4ef768eca7",
+      "tests/lean/Range.lean": "e3bbb73aeb3af5453c7385c7e6a681f88960dbcd1027d4e8a664d20423145626",
+      "tests/coq/misc/RenameAttribute.v": "26b7678b96c4dcb559bcfd5e2cb20b18c8a802e7fdfa9139bbfbf3752b62cc29",
+      "tests/lean/RenameAttribute.lean": "25f1c694f22b61be733cba09473ba697ee034fb6e50c3fb76bc52f50c72b370e",
+      "tests/fstar/misc/RenameAttribute.Types.fst": "f16d645bebda7ee7e4564d8b478ffd2e29a7857000f46463bb97329e0966a14a",
+      "tests/fstar/misc/RenameAttribute.Clauses.Template.fst": "5a843d224d5831009855f457ef9a9c6a608458e656ec319e823117fe9a9388e9",
+      "tests/fstar/misc/RenameAttribute.Funs.fst": "5b8b8f085f7bb14737820e2dec7d2c3bbcbfb5500ba437b28533bd9b328dd702",
+      "tests/lean/RustBorrowCheckIssues.lean": "1212a05a2efba651e05b290e6384ed1ec127f0146208c8b034a247699290ef16",
+      "tests/lean/Scalars.lean": "633f8fd43bc57acb2676a473b7073e9cc392f0d9e8efc76f9b6381c3a44df6f1",
+      "tests/lean/Slices.lean": "65b0b4d037b8524e95a9c015542919a022d44014cd054d447aaf9ed446b646af",
+      "tests/lean/Static.lean": "02460413f24ad4c9acb0ed6e7bc6a68598ab1bec68af87ed956ca6e2ba5e5992",
+      "tests/lean/StepBy.lean": "1f8dad232810c83a3df56f192476dfd043fff22497c2cf858699bda0d038bcd5",
+      "tests/lean/StringChars.lean": "acc95c73a66c50228a7d29f6274561888a4eafe7507b7d3d82d90f60a18a8933",
+      "tests/lean/SwitchTest.lean": "31bf3b2605bc641bf343f55763c0166a72d5f8cdeb6ab9cd5be54bba6894ddfa",
+      "tests/fstar/misc/SwitchTest.fst": "df8f40df1a0872b7d9dd6dcd8fdbf011b68273382b90195c0d97364cc36f54eb",
+      "tests/coq/misc/Traits.v": "67bf6ae4a2d33dd9273a58fc0b8361dea4cdc21aeefd3e5479accbf75a01cc7a",
+      "tests/lean/Traits.lean": "aa4773f3b8042f584de0912ddc69471474b61f4b1b4483ef41bb93b2fb9f6c4c",
+      "tests/fstar/misc/Traits.fst": "bf00f6102889bcee8cc050592cab945e71165798c937eefd10f3f32a2138a52f",
+      "tests/lean/Tutorial/Tutorial.lean": "d8e2956281411e0867c5f9a5d2759240b69895c2bec01510d23910869236ebc0",
+      "tests/lean/Vec.lean": "a281796ca7bd992616a9ff0c168f01aaf89950c529b45a802b0f958f27365b02"
+    },
+    "changed_files": [],
+    "log_sha256": "639c9d5ea2571a1bc902efd894498ed1fa3460dfa768564ea0ffea338f1a6902",
+    "exit_code": 2,
+    "known_failure": "dyn.rs erased-lifetime rejection"
+  },
+  "native_diagnostics": {
+    "ordinary": {
+      "manifest_sha256": "ad90467f0c0e248f50fd1564f3c97d4423a3b1f343c8a934bb7596194dc301b0",
+      "build_receipt_sha256": "2f05f8e3f16424b72205f8323e43f30fc447c39ec428bb8ab09ea04c978f028a",
+      "native_revision": "dff353006322693cab3dc6b654f82151f658f294",
+      "script_sha256": "e716c333646e3cffcff2419fcb28aa909e33b27b394561e3a589c214833ef378",
+      "cleanup_scope": "arithmetic",
+      "retained_functions": 52,
+      "llbc_sha256": "8c0a10ffb9097cef679d9be1b991e6e1c395a2259a5bb7470ca65d73240c2918",
+      "residual_drop_count": 0,
+      "runtime_check_query_count": 0,
+      "missing_function_references": [],
+      "status": "failed",
+      "error": "Command '['/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/inline-tools-build-fgdlkp3r/tools/aeneas', '-backend', 'lean', '-checks', '-sequential', '-eval-drops', '-max-heartbeats', '200000', '-max-recdepth', '1000', '-abort-on-error', '-no-external-name-patterns', '-disambiguate-instantiated-names', '-monomorphic-builtin-shapes', '-target-word64', '-dest', '/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/inline-constructor-267xnuzx/lean', '/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/inline-constructor-267xnuzx/constructor.llbc']' returned non-zero exit status 2.",
+      "serialized_sysroot": "default",
+      "consts": null,
+      "ir_body_kinds": {
+        "Structured": 46,
+        "Intrinsic": 3,
+        "Opaque": 2,
+        "Extern": 1
+      },
+      "complete_native_constructor_accepted": false,
+      "diagnostic": "Enum expansion failure in original Result::from_residual, core/src/result.rs:2194"
+    },
+    "miri": {
+      "manifest_sha256": "05d4739d7ab57fffce8676d691cfac6619546601c6966bff911ee0de4252ded0",
+      "build_receipt_sha256": "2f05f8e3f16424b72205f8323e43f30fc447c39ec428bb8ab09ea04c978f028a",
+      "native_revision": "dff353006322693cab3dc6b654f82151f658f294",
+      "script_sha256": "e716c333646e3cffcff2419fcb28aa909e33b27b394561e3a589c214833ef378",
+      "cleanup_scope": "arithmetic",
+      "retained_functions": 89,
+      "llbc_sha256": "65d50c38c75c5011720ebd84a825090b5617a7ddc0ab6c2596af49a569a3eba1",
+      "residual_drop_count": 0,
+      "runtime_check_query_count": 0,
+      "missing_function_references": [],
+      "status": "failed",
+      "error": "Admitted native constructor module",
+      "serialized_sysroot": "miri",
+      "consts": null,
+      "ir_body_kinds": {
+        "Structured": 74,
+        "Intrinsic": 3,
+        "Opaque": 11,
+        "Extern": 1
+      },
+      "complete_native_constructor_accepted": false,
+      "extracted_axioms": [
+        "core.fmt.Arguments.mono_ca58beb3d6197981362ff7bd689c5024",
+        "core.panicking.panic_nounwind_fmt",
+        "core.fmt.Arguments.from_str.mono_aa7150e6b9f54d6c9e880a831bddbd38",
+        "core.ptr.unique.Unique.mono_ea4f94e211753248fa8cc92ef0622efd",
+        "core.ptr.non_null.NonNull.mono_4b0391425e41366dde58d897537529df",
+        "core.ptr.non_null.NonNull.Insts.CoreConvertFromUnique.from",
+        "core.intrinsics.cold_path",
+        "core.mem.SizedTypeProperties.LAYOUT.default.mono_e11266414e50cc513d237ef67c6b025d",
+        "core.ptr.mut_ptr.RawPtrMutSliceU8.drop_in_place.mono_0a075a4cfea4a0aabb645bc6f90a71cf",
+        "core.ptr.mut_ptr.RawPtrMutU8.cast_slice.mono_6dab503c3a3d907f24b585ac1494ebbb",
+        "core.ptr.non_null.NonNull.as_ptr.mono_380a3e3da773d7c02fba2c70e5e78c23",
+        "core.ptr.unique.Unique.as_non_null_ptr.mono_f8f14b78f706ba6357eb6fae9dcef5ae",
+        "core.ptr.unique.Unique.cast.mono_fa3b78da91839d9456026408f1aadf07",
+        "alloc.alloc.__rust_dealloc"
+      ],
+      "generated_sha256": "2d0a3e06241b3ed2ac9f30c3a443dc197bc83cc6c1db395f833a8baf50be6244"
+    },
+    "layout-initializers-auto": {
+      "manifest_sha256": "5bdd518f64374af578a379b2cf16ce1880983dd76536645fec822913f3bddf4a",
+      "build_receipt_sha256": "8e5aa8487dfccb3b3c937b78ae3c09181333ceaf4dba17271a7a0a5a0f1d2478",
+      "native_revision": "dff353006322693cab3dc6b654f82151f658f294",
+      "script_sha256": "9fbff9ba542bdb079df20b069fdf0ad42d63ee5b223722476bf72465edac317a",
+      "cleanup_scope": "layout-init",
+      "retained_functions": 92,
+      "llbc_sha256": "3a4d9d73bb48e8c151725ea5ac807c202610df5b0d180547532a41f977a83ce6",
+      "residual_drop_count": 0,
+      "runtime_check_query_count": 0,
+      "missing_function_references": [],
+      "status": "failed",
+      "error": "Admitted native constructor module",
+      "serialized_sysroot": null,
+      "consts": null,
+      "ir_body_kinds": {
+        "Structured": 75,
+        "Intrinsic": 5,
+        "Opaque": 11,
+        "Extern": 1
+      },
+      "complete_native_constructor_accepted": false,
+      "extracted_axioms": [
+        "core.ub_checks.check_language_ub",
+        "core.fmt.Arguments.mono_ca58beb3d6197981362ff7bd689c5024",
+        "core.panicking.panic_nounwind_fmt",
+        "core.fmt.Arguments.from_str.mono_aa7150e6b9f54d6c9e880a831bddbd38",
+        "core.ptr.unique.Unique.mono_ea4f94e211753248fa8cc92ef0622efd",
+        "core.ptr.non_null.NonNull.mono_4b0391425e41366dde58d897537529df",
+        "core.ptr.non_null.NonNull.Insts.CoreConvertFromUnique.from",
+        "core.intrinsics.cold_path",
+        "core.intrinsics.size_of.mono_5f40b883a68f3390382c3de4a627c88b",
+        "core.intrinsics.align_of.mono_b4ce2f8a29e2be379a2a795421d76820",
+        "core.ptr.mut_ptr.RawPtrMutSliceU8.drop_in_place.mono_0a075a4cfea4a0aabb645bc6f90a71cf",
+        "core.ptr.mut_ptr.RawPtrMutU8.cast_slice.mono_6dab503c3a3d907f24b585ac1494ebbb",
+        "core.ptr.non_null.NonNull.as_ptr.mono_380a3e3da773d7c02fba2c70e5e78c23",
+        "core.ptr.unique.Unique.as_non_null_ptr.mono_f8f14b78f706ba6357eb6fae9dcef5ae",
+        "core.ptr.unique.Unique.cast.mono_fa3b78da91839d9456026408f1aadf07",
+        "alloc.alloc.__rust_dealloc"
+      ],
+      "generated_sha256": "e5f258c4530cdccab5413ff4dd2ffb92c84302c6c8db7d0e735cb9a2e7ade7c1"
+    },
+    "constant-values-auto": {
+      "manifest_sha256": "9ea4a37268e5c532e4df15c3b75b5de9cfa66e8ef87d9179f17ff899ba8e2c51",
+      "build_receipt_sha256": "8e5aa8487dfccb3b3c937b78ae3c09181333ceaf4dba17271a7a0a5a0f1d2478",
+      "native_revision": "dff353006322693cab3dc6b654f82151f658f294",
+      "script_sha256": "f22aac8c27ac523bcc69d8ca7ed935b3d5c270668d2543edd911d5a5bc9fd3bd",
+      "cleanup_scope": "layout-init",
+      "retained_functions": 84,
+      "llbc_sha256": "241df89e55c2d1b99711ba2e0269c736f0f666bcc39c584faa7dc7015052b9a1",
+      "residual_drop_count": 0,
+      "runtime_check_query_count": 0,
+      "missing_function_references": [],
+      "status": "failed",
+      "error": "Command '['/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/inline-tools-build-igc_q31o/tools/aeneas', '-backend', 'lean', '-checks', '-sequential', '-eval-drops', '-max-heartbeats', '200000', '-max-recdepth', '1000', '-abort-on-error', '-no-external-name-patterns', '-disambiguate-instantiated-names', '-monomorphic-builtin-shapes', '-target-word64', '-dest', '/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/inline-constructor-7w89xb03/lean', '/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/inline-constructor-7w89xb03/constructor.llbc']' returned non-zero exit status 2.",
+      "serialized_sysroot": null,
+      "consts": "Values",
+      "ir_body_kinds": {
+        "Structured": 69,
+        "Intrinsic": 3,
+        "Opaque": 11,
+        "Extern": 1
+      },
+      "complete_native_constructor_accepted": false,
+      "diagnostic": "Evaluated global lacks initializer function; Option.get failure in FunsAnalysis"
+    }
+  }
+}

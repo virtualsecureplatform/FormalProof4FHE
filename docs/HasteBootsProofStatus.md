@@ -7,6 +7,46 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Native diagnostics now distinguish ordinary and Miri standard libraries
+
+Charon's default sysroot selection uses a Miri-built standard library. The
+original language-UB helper returns false there because of cfg!(miri), whereas
+the ordinary toolchain helper returns true with checks enabled. Five kernel
+theorems and three complete source modules now establish both behaviors,
+debug-on/off behavior and their inequalities. Nine new dependency audits cover
+all source definitions/theorems. The frontend also preserves explicitly requested
+external roots in monomorphic mode; these were silently pruned before. Original
+source metadata remains external. See `interop/aeneas/stdlib-configuration/README.md`.
+
+The native probe now explicitly uses `--sysroot default` unless a diagnostic
+comparison is requested, separates Cargo artifacts by sysroot and validates the
+serialized choice. The ordinary arithmetic/word64 extraction retains 52 functions
+and currently fails enum expansion in original Result::from_residual. It does
+not reach a complete generated module. With the original UB helper expanded,
+the Miri comparison retains 89 functions and still rejects fourteen opaque
+declarations. These are distinct configurations; previous Miri counts below do
+not establish production readiness. Neither profile is an accepted constructor
+or native security refinement.
+
+The layout-init diagnostic exposes the source LAYOUT/SIZE/ALIGN initializers,
+revealing size_of/align_of queries. Existing rustc constant-value extraction is
+also tested diagnostically: Aeneas crashes on its assumption that every global
+has an initializer. No hardcoded layout, fallback constant, no-op or axiom is
+accepted to bypass these obligations.
+
+Fresh validation totals 211 dependency audits and 169 guard tests. All earlier
+gates pass, all 128 upstream generated artifacts are unchanged, and 97 upstream
+targets complete with the same known dyn.rs lifetime rejection. No production
+Rust or Lean backend was changed.
+
+Next direct work is ordinary-sysroot enum/source-library support and faithful
+layout queries/initializers, followed by remaining runtime/pointer/deallocation
+semantics. Production compiler/caller/heap refinement, native NTT/SIMD/scheduler
+refinement, causal lifetime oracle/owner accounting, BabyBear and the final
+128-bit expected physical-work security theorem remain open. The full objective
+is unchanged; Miri configuration behavior is not a substitute for production
+refinement or a physical work bound.
+
 ## Checked 64-bit bit-count bindings reduce the native intrinsic obligations
 
 The word64 frontend now whitelists only ctlz_nonzero<usize> and ctpop<usize>.
