@@ -60,3 +60,8 @@ The [Layout storage profile](../layout-storage/README.md) now bridges retained
 physical field descriptions and permission-checked resident bytes to these
 logical arguments, including the extracted source getters. Native calling
 convention/compiler/lifetime correspondence remains open.
+
+The [Global trait profile](../global-deallocation/README.md) now interprets the
+original allocator trait method, including its zero/nonzero dispatch. It uses
+checked shared zero-byte reference selection; native ABI/lifetime correspondence
+and RawVec/Vec destruction remain open.

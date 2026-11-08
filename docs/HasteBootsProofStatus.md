@@ -7,6 +7,37 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## The Global allocator trait now preserves its original size dispatch
+
+The [Global deallocation profile](../interop/aeneas/global-deallocation/README.md)
+interprets the original ordinary-sysroot trait method's usize switch, zero skip,
+nonzero external call, early return, unwind and suffix. Twelve source theorems
+prove decoding/entry, the exact zero result, computed nonzero success/rejection,
+decoded invocations and the normal-result split: unchanged world at zero, one
+allocation removed at nonzero. Ten regressions cover both branches and failures.
+The external leaf remains the earlier checked logical deallocation specification.
+
+`NativeZstReference` derives a shared Global argument from an existing zero-byte,
+alignment-one resident lease. No tag, origin or extent is accepted from the
+caller and no loan is minted. Three decoder theorems and seven regressions check
+registration, rejection and decoding. The record input language includes this
+selector. Original generic/signature/body regions are checked before logical
+type erasure, and the Global structure's empty zero-byte layout is validated.
+The public allocator caller's earlier generated code remains unchanged.
+
+The fixture's nightly allocator API feature exposes the original method only;
+production Rust, compiler and backend sources are unchanged. The shared reference
+and aggregates still need native ABI/calling-convention and lifetime/compiler
+correspondence. The wrapper's reference construction, RawVec/Vec destruction,
+external allocator correctness, physical work and final security theorem remain
+open. Native constructor acceptance is not supplied by this profile.
+
+The trait gate passed 165 dependency audits and 34 rejecting controls. Its
+updated public-caller parent passed 144 audits and 31 rejecting controls. Both
+a changed dispatch label and disabled inert retag were kernel checked.
+The repository-wide `scripts/check` passed, including its 10,998-job build and
+all standard audit/smoke checks.
+
 ## Resident Layout bytes now feed the original allocator caller
 
 `NativeLayoutBytes` uses the retained physical field order: alignment at byte 0,

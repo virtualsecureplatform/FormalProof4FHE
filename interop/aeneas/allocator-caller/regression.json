@@ -1,7 +1,7 @@
 {
   "profile": "original-finite-allocator-caller-over-nominal-aggregate-locals-v1",
-  "gate_manifest": "build/hasteboots-extraction/allocator-caller-kwdb59sz/manifest.json",
-  "gate_manifest_sha256": "f7b41c94f9dfc2b1edbf6e32f98a36916115c2f0e936ae30ce366109513dc685",
+  "gate_manifest": "build/hasteboots-extraction/allocator-caller-q6zndmtj/manifest.json",
+  "gate_manifest_sha256": "7a7b88054fb9c05752c9b89270f268fe65cc6ae8f906c7cd3ee841d0b7ef5bfd",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "status": "passed",
   "commands": [
@@ -9,6 +9,8 @@
       "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/scripts/in-container",
       "lake",
       "build",
+      "FormalProof4FHETest.HasteBootsZstReferenceSmoke",
+      "FormalProof4FHETest.HasteBootsZstReferenceAudit",
       "FormalProof4FHETest.HasteBootsRecordValuesSmoke",
       "FormalProof4FHETest.HasteBootsRecordValuesAudit",
       "FormalProof4FHETest.HasteBootsRecordLLBCSmoke",
@@ -25,7 +27,7 @@
       "env",
       "lean",
       "-DwarningAsError=true",
-      "build/hasteboots-extraction/allocator-caller-kwdb59sz/Checked.lean"
+      "build/hasteboots-extraction/allocator-caller-q6zndmtj/Checked.lean"
     ],
     [
       "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/scripts/in-container",
@@ -33,7 +35,7 @@
       "env",
       "lean",
       "-DwarningAsError=true",
-      "build/hasteboots-extraction/allocator-caller-kwdb59sz/RetagDisabled.lean"
+      "build/hasteboots-extraction/allocator-caller-q6zndmtj/RetagDisabled.lean"
     ],
     [
       "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/scripts/in-container",
@@ -41,7 +43,7 @@
       "env",
       "lean",
       "-DwarningAsError=true",
-      "build/hasteboots-extraction/allocator-caller-kwdb59sz/GuardEnabled.lean"
+      "build/hasteboots-extraction/allocator-caller-q6zndmtj/GuardEnabled.lean"
     ]
   ],
   "claim": "original finite allocator caller over nominal logical aggregates with checked deallocation; native aggregate/ABI/compiler/lifetime/security refinement unproved",
@@ -54,19 +56,22 @@
   "physical_work_refinement": false,
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "inputs": {
-    "scripts/check-hasteboots-allocator-caller": "1a3b0fa1c113a185bbd10830010ee7071a9d725fed676d5789c233dcf6953bc1",
-    "scripts/reify-hasteboots-allocator-caller": "b7fcecca8f40847a312a3c37830f8f61436da73c7ed41e0d76d6d7a6e4edc80f",
+    "scripts/check-hasteboots-allocator-caller": "37b95daf4627bfd2011d11027d76b3bc08084987e251c969751b0f5ff1e93e15",
+    "scripts/reify-hasteboots-allocator-caller": "de4180967196fd74585c085397620fb53ce388867be56f68731bf196ed783253",
     "scripts/specify-hasteboots-deallocation-boundary": "48abaf9e189486073c292cf915c5717f3ee9e5a69735fc6b09859b9a8a93774a",
     "scripts/check-hasteboots-byte-deallocation": "19fe28ad65b241176a06762c54a04089395d77cf57e5fff26a8cf360485c1da4",
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-scalar-llbc": "4e7a3c819b1f6b7c851ad0453ce125399bffa46bb7cea9193eaf065628b970df",
     "lean-toolchain": "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c",
+    "FormalProof4FHE/HasteBoots/NativeZstReference.lean": "50e76c82a429de71d2d067684d28a533f0a342752493c5206b59dc7c675a1d10",
     "FormalProof4FHE/HasteBoots/NativeRecordValues.lean": "ec04c06d094457427541a371d91c473abfcdd3942ad2cc341a6fb4d828fd7fa1",
-    "FormalProof4FHE/HasteBoots/NativeRecordLLBC.lean": "068474d53795d596fa085a23602785b59878a807be3b1cf7e08b491d769c1035",
+    "FormalProof4FHE/HasteBoots/NativeRecordLLBC.lean": "8ca756f752f802c7c9f6516d3dd3864bf6619fa20227295b365464ca6e865e29",
+    "FormalProof4FHETest/HasteBootsZstReferenceSmoke.lean": "951d4a5b4fb0fcbb049d397256e05179c2226a4ff77f55c7623a19ba09a6bc7b",
+    "FormalProof4FHETest/HasteBootsZstReferenceAudit.lean": "e606f0fd69b2500bfc9087932a400c7262156d88fb2f37127b45b1b45a32043f",
     "FormalProof4FHETest/HasteBootsRecordValuesSmoke.lean": "65120fc69a41df8d75da9d143023e2273131286440cc74f2c4c5a745e3631d65",
     "FormalProof4FHETest/HasteBootsRecordValuesAudit.lean": "f6b816027580b6efd84173072139e1e8f95aa91f3c63ddfc5328ef8beb73adc1",
     "FormalProof4FHETest/HasteBootsRecordLLBCSmoke.lean": "0af61c2b22b78d1431c9537eeb25ea64bcc121d33af70cf7164feeaecfd66640",
-    "FormalProof4FHETest/HasteBootsRecordLLBCAudit.lean": "9fa8904ea1ecb8c86bcf4db6021b1a7bf5af07e041a3d21a3ee7287de4a7e7aa",
+    "FormalProof4FHETest/HasteBootsRecordLLBCAudit.lean": "ac24486fb697386da52ebe5d773db4ead66fcf931c3a02cfb534c3df72962827",
     "interop/aeneas/allocator-caller/Generated.lean": "1e9b374bc431c20b45bca65950554e997920f8e4c25d9471186b0a9f465da328",
     "interop/aeneas/allocator-caller/Retained.json": "b9e59426ba621f69267f370f73380511e12b535f55c070813354a90d11ffeb03",
     "interop/aeneas/allocator-caller/Proof.lean": "98991bbc2a43cb5793e8264458b4e0cf43f46edde761d9dc9f61846d531eed32",
@@ -74,8 +79,8 @@
     "interop/aeneas/allocator-caller/GuardSmoke.lean": "6af7d1a2dbc730f88acc3303f590f4da3ae71aad0dfeae57b55bde8d876a7416"
   },
   "parent_byte_deallocation": {
-    "manifest": "build/hasteboots-extraction/byte-deallocation-f14688b2/manifest.json",
-    "manifest_sha256": "77812b41493f4edb23ecd2d4e285648b267b49b17b061102ca71bf846b72b38f",
+    "manifest": "build/hasteboots-extraction/byte-deallocation-fyx8gfgm/manifest.json",
+    "manifest_sha256": "9475f21ebd86a38fd56354c576d2a5a10ec7c14cb00a704b99851ca7ec950f85",
     "dependency_audit_count": 77
   },
   "negative_controls": {
@@ -112,6 +117,10 @@
     "recursive_caller": "Recursive caller closure"
   },
   "dependency_audit": {
+    "FormalProof4FHE.HasteBoots.NativeZstReference.decode": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeZstReference.decode_success": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeZstReference.decode_complete": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeZstReference.decode_registered": "depends on axioms: [propext, Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeRecordValues.Ty": "depends on axioms: [propext]",
     "FormalProof4FHE.HasteBoots.NativeRecordValues.Value": "depends on axioms: [propext]",
     "FormalProof4FHE.HasteBoots.NativeRecordValues.complete": "depends on axioms: [propext]",
@@ -195,6 +204,7 @@
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.Operand.move": "does not depend on any axioms",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.Operand.usize": "depends on axioms: [propext]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.Operand.unit": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeRecordLLBC.Input.zstSharedReference": "does not depend on any axioms",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.Input.unit": "does not depend on any axioms",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.Input.scalar": "depends on axioms: [propext]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.Input.pair": "does not depend on any axioms",
@@ -264,45 +274,33 @@
     "code_changed": true,
     "foreign_unsupported_before_free_checked": true
   },
-  "llbc_sha256": "86771d519d9ae9849f56202b7a24b938339d06cbbddc540821832154ae0140ae",
-  "checked_sha256": "195cfb9c9c7149fd5b1e8550164083bfb96a699fc86900382f0488b36ec80153",
+  "llbc_sha256": "96dcdf547113db3b45756e90053c16558789c0f3220b4966f13218bca5c7f6ca",
+  "checked_sha256": "7e80477707035db34015734e9340c4b90c5fa2f28d62a10354258c46a45725a3",
   "logs": {
-    "root-build.log": "c73863a51c7dbb477ccbe80bf70ce8f92d0ca0743dbf110a0e7b7d66d0e76f3d",
-    "retag-disabled-lean.log": "cb57e98c8b5365e217c1a9a709b94e15dc7a8c38e28dc9f85f0fc36c1f69804d",
+    "parent-byte-deallocation.log": "6632009abdbc34a71744636484064ff882e78f24feeff52b53203cfd2f84e460",
     "guard-enabled-lean.log": "cb57e98c8b5365e217c1a9a709b94e15dc7a8c38e28dc9f85f0fc36c1f69804d",
-    "lean.log": "a864a47362b0fa0023651c7b85c3136bc580158ac8879e1d2e333e404636dbd6",
-    "parent-byte-deallocation.log": "7592dd8ec28c668d668656007e4419b2a2c6fffdc8300bda72c774f38bbce2f6"
+    "retag-disabled-lean.log": "cb57e98c8b5365e217c1a9a709b94e15dc7a8c38e28dc9f85f0fc36c1f69804d",
+    "lean.log": "df1ac4a20905bfb070e229c6240d930f821db0a53c73e9f1eb3d63340fed7673",
+    "root-build.log": "07ce2f8449d9eaa3dad4642f4a56d626156f37ddd9aa945d14443317230a973f"
   },
-  "native_revision": "dff353006322693cab3dc6b654f82151f658f294",
-  "source_function_ids": [
-    2,
-    3,
-    4
-  ],
-  "source_classifications": [
-    "Transparent",
-    "Foreign",
-    "Opaque"
-  ],
-  "model_theorems": 19,
-  "model_persistent_audits": 120,
+  "model_theorems": 22,
+  "model_persistent_audits": 125,
   "source_theorems": 10,
   "source_audits": 19,
-  "root_regressions": 20,
+  "root_regressions": 27,
   "source_regressions": 8,
-  "guard_mutation_regressions": 1,
+  "native_revision": "dff353006322693cab3dc6b654f82151f658f294",
   "compiler_edits": false,
   "aeneas_edits": false,
   "rust_alias_refinement": false,
   "compiler_refinement": false,
-  "allocator_trait_caller_interpreted": false,
   "outer_destructor_interpreted": false,
   "final_security_theorem": false,
   "root_check": {
     "command": "scripts/check",
     "exit_code": 0,
-    "build_jobs": 10992,
-    "log": "/tmp/hasteboots-allocator-caller-full-check.log",
-    "log_sha256": "5db0fcbdade57635978539fdabbf9963ebbb356e8740ab28834991acb2a20682"
+    "build_jobs": 10998,
+    "log": "/tmp/hasteboots-global-deallocation-full-check.log",
+    "log_sha256": "8041f3c624263ee34ac0e5f8254ead39db4aa9b73a15c178200161d2ccfe1aaa"
   }
 }
