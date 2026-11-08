@@ -40,15 +40,33 @@ scripts/probe-hasteboots-code-serialization \
 scripts/check-hasteboots-code-serialization-guards
 ```
 
+The primitive `word` mode calls the actual Bincode integer encoder with standard
+config. It requires a reviewed `discriminants` build receipt and uses ordinary
+constant lowering. The gate checks transparent entry-point, integer-Encode and
+varint bodies and all signature regions, after a fresh 107-audit preflight:
+
+```
+scripts/probe-hasteboots-code-serialization \
+  --tools /tmp/hasteboots-aeneas-tools --backend /tmp/hasteboots-aeneas-m0 \
+  --build-receipt /path/to/discriminants/build/manifest.json --mode word
+```
+
+All 31 transparent functions translate, but the complete generated output has
+four external axioms: PhantomData.clone, std::io::Error, std::time::SystemTime
+and std::time::SystemTimeError. The manifest records the generated file hash and
+axiom names, and the diagnostic returns `rejected-unproved`/`external-axioms`.
+This mode proves no byte theorem and supplies no serialization callback.
+
 The native pin remains `dff353006322693cab3dc6b654f82151f658f294`.
 Manifests record the preflight receipt, frontend, wrapper, native files,
 Cargo inputs and full IR hashes, commands, retained body IDs and signature
-failures. Seven guard tests cover body completeness, target/translation errors,
-hash-consed signature references, missing lifetimes and blocker classification.
+failures. Eight guard tests cover body completeness, target/translation errors,
+hash-consed signature references, missing lifetimes, primitive versus code
+surfaces and blocker classification.
 
 The next compiler work must address generic recursive serializer interfaces or
-preserve the lifetimes required by specialization. Primitive integer encoder
-experiments also encounter a separate bottom-value failure at Result handling;
-they have not produced an accepted native byte theorem. Constructors, context
+preserve the lifetimes required by specialization. The separate discriminant
+profile resolves the primitive encoder's cleanup-match bottom-value failure;
+external axioms still prevent an accepted native byte theorem. Constructors, context
 hashing, native owner iteration, heap refinement, physical attacker work and
 the complete application security theorem remain open.

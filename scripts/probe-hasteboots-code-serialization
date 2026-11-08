@@ -15,7 +15,7 @@ BUILD = runpy.run_path(str(ROOT / 'scripts/build-hasteboots-static-frontend'))
 DATA = ROOT / 'interop/aeneas/code-serialization'
 
 
-def inspect_ir(ir):
+def inspect_ir(ir, mode='code'):
     if ir.get('has_errors') is not False or ir['translated']['target_information'] != [
             {'key': 'x86_64-unknown-linux-gnu', 'value': {'target_pointer_size': 8, 'is_little_endian': True}}]:
         raise RuntimeError('Incomplete or wrong-target serialization IR')
@@ -24,6 +24,13 @@ def inspect_ir(ir):
                 (['bincode', 'features', 'serde', 'ser', 'encode_to_vec'], 'bincode'),
                 (['pcs', 'utils', 'code', 'block', 'serialize'], 'code'),
                 (['algebra', 'goldilocks', 'serialize'], 'root')]
+    if mode == 'word':
+        required = [(['formalproof4fhe_native_registry_fixture', 'encode_word'], 'wrapper'),
+                    (['bincode', 'features', 'impl_alloc', 'encode_to_vec'], 'bincode'),
+                    (['bincode', 'enc', 'impls', 'encode'], 'integer'),
+                    (['bincode', 'varint', 'encode_unsigned', 'varint_encode_u64'], 'varint')]
+    elif mode != 'code':
+        raise RuntimeError('Unknown serialization surface')
     retained = {}
     for prefix, label in required:
         matches = [f for f in functions if
@@ -82,7 +89,7 @@ def main():
     parser.add_argument('--tools', type=Path, required=True)
     parser.add_argument('--backend', type=Path, required=True)
     parser.add_argument('--build-receipt', type=Path, required=True)
-    parser.add_argument('--mode', choices=['generic', 'mono'], required=True)
+    parser.add_argument('--mode', choices=['generic', 'mono', 'word'], required=True)
     args = parser.parse_args()
     parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
     out = Path(tempfile.mkdtemp(prefix='code-serialization-' + args.mode + '-', dir=parent))
@@ -100,11 +107,12 @@ def main():
     try:
         tools, backend = args.tools.resolve(), args.backend.resolve()
         receipt = json.loads(args.build_receipt.read_text())
-        if receipt.get('status') != 'passed' or receipt.get('profile') != 'metadata-mono':
+        profile = 'discriminants' if args.mode == 'word' else 'metadata-mono'
+        if receipt.get('status') != 'passed' or receipt.get('profile') != profile:
             raise RuntimeError('Wrong or failed frontend receipt')
         if receipt.get('script_sha256') != BASE['digest']((ROOT / 'scripts/build-hasteboots-static-frontend').read_bytes()):
             raise RuntimeError('Stale frontend builder policy')
-        patch_hash = BUILD['verify_source'](Path(receipt['source']), 'metadata-mono')
+        patch_hash = BUILD['verify_source'](Path(receipt['source']), profile)
         if receipt.get('patch_sha256') != patch_hash or receipt.get('package_profile_sha256') != BASE['digest']((BUILD['DATA'] / 'opam-packages.json').read_bytes()):
             raise RuntimeError('Stale frontend source or package receipt')
         frontend = Path(receipt['executable'])
@@ -131,31 +139,40 @@ def main():
             'name = "formalproof4fhe-native-registry-fixture"\nversion = "0.1.0"\ndependencies = [\n "algebra",\n "bincode",')
         BASE['validate_lock']((native / 'Cargo.lock').read_text(), lock)
         (out / 'Cargo.toml').write_text(cargo); (out / 'Cargo.lock').write_text(lock)
-        (out / 'src').mkdir(); (out / 'src/lib.rs').write_bytes((DATA / 'wrapper.rs').read_bytes())
+        wrapper = DATA / ('word.rs' if args.mode == 'word' else 'wrapper.rs')
+        (out / 'src').mkdir(); (out / 'src/lib.rs').write_bytes(wrapper.read_bytes())
         record.update(native_revision=BASE['PARAMETERS']['NATIVE_PIN'], cargo_sha256=BASE['digest'](cargo.encode()),
-                      lock_sha256=BASE['digest'](lock.encode()), wrapper_sha256=BASE['digest']((DATA / 'wrapper.rs').read_bytes()))
+                      lock_sha256=BASE['digest'](lock.encode()), wrapper_sha256=BASE['digest'](wrapper.read_bytes()))
         record['native_sources'] = {name: BASE['digest']((native / name).read_bytes()) for name in
                                     ['pcs/src/utils/code/block.rs', 'pcs/src/matrix_weighted.rs', 'algebra/src/goldilocks/mod.rs', 'Cargo.lock']}
         llbc = out / 'code_serialization.llbc'
         command = [tools / 'charon', 'cargo', '--preset=aeneas']
         if args.mode == 'mono': command += ['--raw-consts', '--monomorphize']
-        command += ['--start-from', BASE['NAMESPACE'] + '::code_bytes']
-        for module in ['bincode', 'serde', 'serde_core', 'pcs::utils::code::block', 'algebra::goldilocks']:
+        command += ['--start-from', BASE['NAMESPACE'] + ('::encode_word' if args.mode == 'word' else '::code_bytes')]
+        modules = ['bincode'] if args.mode == 'word' else ['bincode', 'serde', 'serde_core', 'pcs::utils::code::block', 'algebra::goldilocks']
+        for module in modules:
             command += ['--include', module]
         command += ['--dest-file', llbc, '--', '--manifest-path', out / 'Cargo.toml', '--lib', '--locked']
         env = dict(os.environ); env.setdefault('CARGO_TARGET_DIR', str(parent / 'cargo-registry-target'))
         if run(command, 'charon.log', env): raise RuntimeError('Charon rejected serialization')
         native_clean()
         record['llbc_sha256'] = BASE['digest'](llbc.read_bytes())
-        record['ir'] = inspect_ir(json.loads(llbc.read_text())); save()
+        record['ir'] = inspect_ir(json.loads(llbc.read_text()), 'word' if args.mode == 'word' else 'code'); save()
         if record['ir']['invalid_signature_regions']:
             record['failure_kind'] = 'signature-regions'
             raise RuntimeError('Signature lifetimes are missing; extraction stopped before symbolic execution')
         status = run([frontend, '-backend', 'lean', '-checks', '-sequential', '-max-heartbeats', '200000',
-                      '-max-recdepth', '1000', '-abort-on-error', '-no-external-name-patterns',
+                      '-max-recdepth', '1000', '-abort-on-error', *([] if args.mode == 'word' else ['-no-external-name-patterns']),
                       '-dest', out / 'lean', llbc], 'aeneas.log')
         record.update(aeneas_exit_code=status, failure_kind=classify_failure((out / 'aeneas.log').read_text()))
-        native_clean(); BUILD['verify_source'](Path(receipt['source']), 'metadata-mono')
+        generated = out / 'lean/CodeSerialization.lean'
+        if generated.exists():
+            raw = generated.read_text()
+            record['generated_sha256'] = BASE['digest'](generated.read_bytes())
+            record['generated_axioms'] = re.findall(r'^axiom\s+([^\s(]+)', raw, re.M)
+            if status == 0 and record['generated_axioms']:
+                record['failure_kind'] = 'external-axioms'
+        native_clean(); BUILD['verify_source'](Path(receipt['source']), profile)
         raise RuntimeError('Serialization remains unproved: ' + str(record['failure_kind']) + '; reviewed output and kernel proofs required')
     except (Exception, SystemExit) as error:
         record.update(status='rejected-unproved', error=str(error)); save()

@@ -7,6 +7,32 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Optimized-MIR cleanup matches have a checked discriminant regression
+
+The isolated `discriminants` frontend profile handles an initialized enum tag
+after its payload has moved. Rust's optimized MIR uses this operation during
+cleanup. The former full-value read incorrectly required the moved payload to
+remain initialized. A dedicated reader now prepares the same path/loans and
+reads the concrete variant ID. Symbolic expansion retains its full-read check;
+uninitialized tags and ordinary moved-payload reads remain rejected.
+
+The reducer reproduces the official frontend's bottom-value failure only at
+the optimized MIR stage used by dependencies. The reviewed frontend translates
+the same complete IR. Three kernel checks establish exact successful vector
+output and error payload propagation; the gate also rechecks the earlier
+trait/effect regression. The compiler patch leaves native source and the Lean
+backend unchanged. This is a regression gate, not compiler correctness or
+physical destructor/work refinement. Nine combined dependency audits, all 85
+extraction/frontend guard tests, formatting and upstream traits/arrays
+regeneration passed.
+
+The diagnostic's new `word` mode reproduces actual Bincode integer encoding
+after a fresh 107-audit registry preflight. All 31 transparent functions now
+translate. Its complete generated output still contains four external axioms
+(PhantomData.clone, std::io::Error and two time types); the gate records them
+and returns `rejected-unproved`/`external-axioms`.
+Actual Serde recursion and monomorphized signature lifetimes remain open.
+
 ## Actual retained-code serialization has a fail-closed source diagnostic
 
 `probe-hasteboots-code-serialization` calls the unchanged native code object's

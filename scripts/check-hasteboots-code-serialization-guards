@@ -70,6 +70,19 @@ class Guards(unittest.TestCase):
         for log in ['', 'success', 'end formalproof4fhe_native_registry_fixture', 'Uncaught exception']:
             self.assertIsNone(MODULE['classify_failure'](log))
 
+    def test_word_surface_and_unknown_modes(self):
+        data = ir()
+        names = [['formalproof4fhe_native_registry_fixture', 'encode_word'],
+                 ['bincode', 'features', 'impl_alloc', 'encode_to_vec'],
+                 ['bincode', 'enc', 'impls', '_', 'encode'],
+                 ['bincode', 'varint', 'encode_unsigned', 'varint_encode_u64']]
+        for f, name in zip(data['translated']['fun_decls'], names):
+            f['item_meta']['name'] = [{'Ident': [n, 0]} for n in name]
+        self.assertEqual(set(MODULE['inspect_ir'](data, 'word')['retained_source_bodies']),
+                         {'wrapper', 'bincode', 'integer', 'varint'})
+        with self.assertRaises(RuntimeError): MODULE['inspect_ir'](data)
+        with self.assertRaises(RuntimeError): MODULE['inspect_ir'](data, 'unknown')
+
 
 if __name__ == '__main__':
     unittest.main()
