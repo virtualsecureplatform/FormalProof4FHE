@@ -644,3 +644,4 @@ import FormalProof4FHE.HasteBoots.NativeByteSliceIndex
 import FormalProof4FHE.HasteBoots.NativeByteDropTraversal
 import FormalProof4FHE.HasteBoots.NativeByteLoopLLBC
 import FormalProof4FHE.HasteBoots.NativeByteDropCalls
+import FormalProof4FHE.HasteBoots.NativeByteDeallocation

@@ -1,5 +1,6 @@
 module
 public import FormalProof4FHE.HasteBoots.NativeByteLoopLLBC
+public import FormalProof4FHE.HasteBoots.NativeByteDeallocation
 @[expose] public section
 
 /-! Composition of retained finite bodies and typed slice-loop bodies.
@@ -14,10 +15,12 @@ open NativeByteSliceIndex (Slice)
 inductive Classification where
   | transparent
   | foreignBody
+  | externalBody
   deriving DecidableEq
 
 inductive Code where
   | done
+  | deallocate (args : List Operand)
   | native (body : NativeSliceLLBC.Body) (next : Code)
   | call (name : String) (classification : Classification) (types : List Ty) (argCount target : Nat)
       (args : List Operand) (callee unwind next : Code)
@@ -81,6 +84,8 @@ def fromLoop : NativeByteLoopLLBC.Flow → Flow
 
 inductive Runs : Code → Frame → Flow → Prop where
   | done (frame : Frame) : Runs .done frame (.continued frame)
+  | deallocate (frame : Frame) (args : List Operand) :
+      Runs (.deallocate args) frame (NativeByteDeallocation.eval frame args)
   | nativeNext (body : NativeSliceLLBC.Body) (next : Code) (frame changed : Frame) (flow : Flow)
       (evaluated : NativeSliceLLBC.eval body frame = .continued changed) (later : Runs next changed flow) :
       Runs (.native body next) frame flow
@@ -180,6 +185,7 @@ theorem runs_projects (code : Code) (frame : Frame) (flow : Flow) (ran : Runs co
     NativeReferenceMachine.Runs frame.world flow.world := by
   induction ran with
   | done frame => exact .refl _
+  | deallocate frame args => exact NativeByteDeallocation.eval_projects frame args
   | nativeNext body next frame changed flow evaluated later ih =>
     have first := NativeSliceLLBC.eval_projects body frame
     rw [evaluated] at first

@@ -18,11 +18,11 @@ PARAMETERS = runpy.run_path(str(ROOT / 'scripts/extract-hasteboots-parameters'))
 REIFIER = runpy.run_path(str(ROOT / 'scripts/reify-hasteboots-byte-drop-calls-llbc'))
 PARENT = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-byte-loop-body'))
 EXTRAS = {
-    'Classification': ['transparent', 'foreignBody'],
-    'Code': ['done', 'native', 'call', 'loop'],
+    'Classification': ['transparent', 'foreignBody', 'externalBody'],
+    'Code': ['done', 'deallocate', 'native', 'call', 'loop'],
     'Definition': ['mk', 'name', 'classification', 'types', 'argCount', 'code'],
     'Resume': ['next', 'unwind', 'invalid', 'unsupported'],
-    'Runs': ['done', 'nativeNext', 'nativeStop', 'callInvalid', 'callNext', 'callUnwind', 'callStopped',
+    'Runs': ['done', 'deallocate', 'nativeNext', 'nativeStop', 'callInvalid', 'callNext', 'callUnwind', 'callStopped',
              'callUnsupported', 'loopArgumentInvalid', 'loopInitialInvalid', 'loopRun'],
     'Invokes': ['argumentsInvalid', 'initialInvalid', 'run'],
 }
@@ -36,7 +36,11 @@ def inventory():
     PARAMETERS['validate_proof_source'](raw, re.findall(r'^theorem (\w+)', raw, re.M))
     names = re.findall(r'^(?:def|theorem|structure|inductive) ([\w.]+)', raw, re.M)
     names += [p + '.' + n for p, ns in EXTRAS.items() for n in ns]
-    return ['FormalProof4FHE.HasteBoots.NativeByteDropCalls.' + n for n in names]
+    names = ['FormalProof4FHE.HasteBoots.NativeByteDropCalls.' + n for n in names]
+    raw = (ROOT / 'FormalProof4FHE/HasteBoots/NativeByteDeallocation.lean').read_text()
+    PARAMETERS['validate_proof_source'](raw, re.findall(r'^theorem (\w+)', raw, re.M))
+    return names + ['FormalProof4FHE.HasteBoots.NativeByteDeallocation.' + n
+                    for n in re.findall(r'^(?:def|theorem) ([\w.]+)', raw, re.M)]
 
 
 def negatives(ir):
@@ -86,6 +90,7 @@ def main():
                  ROOT / 'scripts/check-hasteboots-byte-loop-body', ROOT / 'scripts/reify-hasteboots-byte-loop-llbc',
                  ROOT / 'scripts/check-hasteboots-byte-drop-primitives', ROOT / 'scripts/reify-hasteboots-slice-reference-llbc',
                  ROOT / 'scripts/reify-hasteboots-slice-scope-llbc', ROOT / 'scripts/reify-hasteboots-scalar-llbc', MODEL,
+                 ROOT / 'FormalProof4FHE/HasteBoots/NativeByteDeallocation.lean',
                  ROOT / 'FormalProof4FHETest/HasteBootsByteDropCallsSmoke.lean',
                  ROOT / 'FormalProof4FHETest/HasteBootsByteDropCallsAudit.lean', ROOT / 'lean-toolchain',
                  ROOT / 'interop/aeneas/byte-loop-body/Proof.lean', ROOT / 'interop/aeneas/byte-drop-loop/fixture.rs',

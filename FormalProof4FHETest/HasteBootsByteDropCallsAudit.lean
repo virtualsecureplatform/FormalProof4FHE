@@ -87,9 +87,17 @@ import all FormalProof4FHE.HasteBoots.NativeByteDropCalls
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeByteDropCalls.Classification.foreignBody
 
+/-- info: 'FormalProof4FHE.HasteBoots.NativeByteDropCalls.Classification.externalBody' does not depend on any axioms -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeByteDropCalls.Classification.externalBody
+
 /-- info: 'FormalProof4FHE.HasteBoots.NativeByteDropCalls.Code.done' does not depend on any axioms -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeByteDropCalls.Code.done
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeByteDropCalls.Code.deallocate' does not depend on any axioms -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeByteDropCalls.Code.deallocate
 
 /-- info: 'FormalProof4FHE.HasteBoots.NativeByteDropCalls.Code.native' does not depend on any axioms -/
 #guard_msgs (whitespace := lax) in
@@ -146,6 +154,10 @@ import all FormalProof4FHE.HasteBoots.NativeByteDropCalls
 /-- info: 'FormalProof4FHE.HasteBoots.NativeByteDropCalls.Runs.done' depends on axioms: [propext] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeByteDropCalls.Runs.done
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeByteDropCalls.Runs.deallocate' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeByteDropCalls.Runs.deallocate
 
 /-- info: 'FormalProof4FHE.HasteBoots.NativeByteDropCalls.Runs.nativeNext' depends on axioms: [propext, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
