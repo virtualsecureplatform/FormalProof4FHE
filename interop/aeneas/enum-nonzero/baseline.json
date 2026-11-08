@@ -1,0 +1,10 @@
+{
+  "claim": "baseline rejection before full-width nonzero carrier conversion",
+  "charon_exit_code": 0,
+  "aeneas_exit_code": 2,
+  "mir": "optimized",
+  "expected_error": "Unsupported scalar pattern type",
+  "fixture_sha256": "b6dc14a411ba0263c9387d0fe99ad7074e8578078635ec421a67a10d805d3d4a",
+  "ir_sha256": "6f4c1c52b3bd0c907bd90c8f0a538b7fb9529a9930cf75b89b728462bdcb34bc",
+  "log_sha256": "4021840280b9aa529415775cd120a3b9f4b0eb3508a59a3ede02632eab6ff9fd"
+}
