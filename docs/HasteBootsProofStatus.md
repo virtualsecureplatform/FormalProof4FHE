@@ -7,6 +7,52 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Original safe byte-slice accessor values now check
+
+The opt-in `-word64-slices` extraction profile now gives source slices an
+explicit list carrier with length below `2^64` and checked U64 indexing/update.
+It requires the existing checked monomorphic little-endian 64-bit profile.
+The standard-library byte `slice_len_fn` instance is bound only after validating
+its original identity, reference signature, Rust ABI and argument arities.
+This is a checked primitive interface, not a proof of its opaque Rust body or
+of compiler correctness. Arrays remain unsupported. Existing profiles keep
+their previous carriers when the flag is absent; the Lean backend is unchanged.
+
+Both original safe-reference fixture bodies and signature lifetimes are
+retained. Nine kernel-checked theorems prove their behavior for every input:
+reads return the selected optional byte, writes update precisely the selected
+byte and preserve length/other indices, and out-of-bounds writes return false
+with the unchanged slice. Eight runtime theorems establish the underlying
+primitive laws. The new gate checks all 25 declarations and rejects 13 altered
+or unsupported cases. No added axiom, proof placeholder or proof-limit increase
+is accepted. See `interop/aeneas/byte-reference/README.md` and its regression
+receipt for the exact validation scope.
+
+Validation with the rebuilt paired tools passes 551 declaration audits across
+the accessor, existing extraction and byte-borrow gates, plus the separate
+21-audit legacy pointer boundary. All 206 guard tests pass. Full upstream
+regeneration completes 97 targets and leaves all 128 compared artifacts
+unchanged; only the known `dyn.rs` lifetime baseline fails. A fresh native
+probe retains 52 functions with zero residual drops/runtime queries and no
+missing references, then rejects the original raw-pointer dereference.
+Root Lean modules/imports are unchanged in this milestone; applicable root
+checks run through the refreshed gates. The preceding full `scripts/check`
+result (10,938 build jobs) is retained, not reported as a new full run.
+
+These are logical slice values. The correspondence between those values and
+the byte-borrow ledger/current heap, actual Rust references and source lifetime
+events remains open. The representation must allow ghost observation of the
+whole slice while checking permissions only for the bytes actually accessed;
+a disjoint child reborrow must not incorrectly block an unrelated parent access.
+Next are selected-read and actual heap-write agreement, source lifetime/tag
+ownership, and original allocator/destructor/deallocator composition.
+
+The native constructor remains unaccepted at its original raw-pointer
+dereference. Compiler/caller and NTT/SIMD/scheduler refinement, causal lifetime
+oracle/owner coverage, BabyBear and the final 128-bit expected physical
+attacker-work theorem remain open. No slice-value operation or ghost ledger
+step is used as an actual attacker-work floor. The full objective is unchanged.
+
 ## Shared/exclusive byte access and reborrow lifetimes now check
 
 `NativeByteBorrow` routes accesses through a checked byte-borrow ledger.

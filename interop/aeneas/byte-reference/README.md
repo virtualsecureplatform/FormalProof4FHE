@@ -13,8 +13,8 @@ The profile requires the checked monomorphic, little-endian 64-bit target.
 It uses the explicit carrier in `../slice-word64/Runtime.lean`: a list with
 length strictly below `2^64`, a U64 length, and checked U64 indexing/update.
 The backend's legacy `Slice` uses platform-dependent `Usize`; mixing it with
-this profile's U64 indices fails type checking. No platform axiom or shorter
-slice restriction repairs that mismatch. Array conversion/index builtins reject
+this profile's U64 indices fails type checking. The explicit carrier supplies the full
+64-bit length domain without a platform-width axiom. Array conversion/index builtins reject
 until their carrier conversion is implemented. Only concrete byte-slice length
 is registered; other unknown operations are not supplied by this milestone.
 The existing profiles retain their old carriers when the new flag is absent.
