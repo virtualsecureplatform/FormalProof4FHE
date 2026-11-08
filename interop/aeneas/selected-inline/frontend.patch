@@ -74,10 +74,10 @@ index 8073dba6..ae599e1c 100644
        if
          !opt_backend = Some Lean && !extract_decreases_clauses
 diff --git a/src/PrePasses.ml b/src/PrePasses.ml
-index b613aba1..49289f18 100644
+index b613aba1..4620ec26 100644
 --- a/src/PrePasses.ml
 +++ b/src/PrePasses.ml
-@@ -87,6 +87,744 @@ let erase_body_regions (crate : crate) (f : fun_decl) : fun_decl =
+@@ -87,6 +87,820 @@ let erase_body_regions (crate : crate) (f : fun_decl) : fun_decl =
      ^ Print.fun_decl_to_string env "" "  " f];
    f
  
@@ -105,6 +105,82 @@ index b613aba1..49289f18 100644
 +    List.iter (visitor#visit_ty ()) f.signature.inputs;
 +    visitor#visit_ty () f.signature.output);
 +  f
++
++(* Word64 mappings are restricted to exact compiler intrinsic declarations,
++   including references stored in function-pointer constants. Other functions
++   and globals keep original source bindings in this mode. *)
++let validate_word64_intrinsics (crate : crate) (f : fun_decl) : fun_decl =
++  if not !Config.target_word64 then f
++  else
++    let mctx = NameMatcher.ctx_from_crate crate in
++    let selected decl =
++      List.find_opt
++        (fun name ->
++          NameMatcher.match_name mctx
++            {
++              map_vars_to_vars = true;
++              match_with_trait_decl_refs =
++                Config.match_patterns_with_trait_decl_refs;
++            }
++            (NameMatcher.parse_pattern ("core::intrinsics::" ^ name))
++            (strip_target_or_instantiated_suffix decl.item_meta.name))
++        [ "ctlz_nonzero"; "ctpop" ]
++    in
++    let validate decl =
++      match selected decl with
++      | None -> ()
++      | Some name ->
++          let valid =
++            match (List.rev decl.item_meta.name, decl.body) with
++            | PeInstantiated binder :: _, IntrinsicBody (actual, _) ->
++                actual = name
++                && !Config.monomorphic_builtin_shapes
++                && binder.binder_params = empty_generic_params
++                && binder.binder_value
++                   = {
++                       empty_generic_args with
++                       types = [ TLiteral (TUInt Usize) ];
++                     }
++                && decl.generics = empty_generic_params
++                && decl.signature.is_unsafe = (name = "ctlz_nonzero")
++                && decl.signature.abi = AbiRust
++                && (not decl.signature.is_variadic)
++                && decl.signature.inputs = [ TLiteral (TUInt Usize) ]
++                && decl.signature.output = TLiteral (TUInt U32)
++            | _ -> false
++          in
++          [%cassert] f.item_meta.span valid
++            "Word64 bit-count intrinsic requires an exact monomorphic \
++             usize-to-u32 compiler intrinsic and Rust ABI/safety"
++    in
++    validate f;
++    let visitor =
++      object
++        inherit [_] map_statement as super
++
++        method! visit_fn_ptr env ptr =
++          (match ptr.kind with
++          | FunId (FRegular id) -> (
++              match FunDeclId.Map.find_opt id crate.fun_decls with
++              | Some decl when selected decl <> None ->
++                  validate decl;
++                  [%cassert] f.item_meta.span
++                    (ptr.generics = empty_generic_args)
++                    "Word64 bit-count intrinsic reference must have no \
++                     remaining generic arguments"
++              | _ -> ())
++          | _ -> ());
++          super#visit_fn_ptr env ptr
++      end
++    in
++    match f.body with
++    | StructuredBody body ->
++        {
++          f with
++          body =
++            StructuredBody { body with body = visitor#visit_block () body.body };
++        }
++    | _ -> f
 +
 +(* The Lean ctlz_nonzero runtime currently models only usize. Validate every
 +   direct function reference, including function-pointer constants, before the
@@ -822,7 +898,7 @@ index b613aba1..49289f18 100644
  (** Replace the occurrences of [core::intrinsics::unreachable] with
      [Abort UndefinedBehavior]. This helps with the analyzes and the symbolic
      evaluation (in particular, we stop the evaluation when encountering an
-@@ -979,20 +1717,26 @@ let filter_marker_traits (crate : crate) : crate =
+@@ -979,20 +1793,26 @@ let filter_marker_traits (crate : crate) : crate =
    let mctx = NameMatcher.ctx_from_crate crate in
    let pats =
      List.map NameMatcher.parse_pattern
@@ -863,7 +939,7 @@ index b613aba1..49289f18 100644
    in
    let match_config =
      {
-@@ -1306,6 +2050,12 @@ let decompose_str_borrows (_ : crate) (f : fun_decl) : fun_decl =
+@@ -1306,6 +2126,12 @@ let decompose_str_borrows (_ : crate) (f : fun_decl) : fun_decl =
                *)
                method! visit_Constant env (cv : constant_expr) =
                  match (cv.kind, cv.ty) with
@@ -876,11 +952,12 @@ index b613aba1..49289f18 100644
                  | ( CLiteral (VStr str),
                      TRef
                        (_, (TAdt { id = TBuiltin TStr; _ } as str_ty), ref_kind)
-@@ -2271,8 +3021,12 @@ let apply_passes (crate : crate) : crate =
+@@ -2271,8 +3097,13 @@ let apply_passes (crate : crate) : crate =
    (* Passes that apply to individual function bodies *)
    let function_passes =
      [
 +      ("validate_signature_regions", validate_signature_regions);
++      ("validate_word64_intrinsics", validate_word64_intrinsics);
 +      ("validate_ctlz_nonzero", validate_ctlz_nonzero);
        ("fix_closure_lifetimes", fix_closure_lifetimes);
        ("erase_body_regions", erase_body_regions);
@@ -1030,7 +1107,7 @@ index 66bb1e48..7951a7f9 100644
                name_from_type_ident (TypesUtils.as_ident cl))
        | TVar _ -> (
 diff --git a/src/extract/ExtractBuiltin.ml b/src/extract/ExtractBuiltin.ml
-index 6e28b984..577ea716 100644
+index 6e28b984..d9c6970e 100644
 --- a/src/extract/ExtractBuiltin.ml
 +++ b/src/extract/ExtractBuiltin.ml
 @@ -52,7 +52,11 @@ let mk_builtin_globals_map () : Pure.builtin_global_info NameMatcherMap.t =
@@ -1095,7 +1172,7 @@ index 6e28b984..577ea716 100644
  
  (** The builtin functions.
  
-@@ -614,6 +637,22 @@ let mk_builtin_funs () : (pattern * Pure.builtin_fun_info) list =
+@@ -614,6 +637,34 @@ let mk_builtin_funs () : (pattern * Pure.builtin_fun_info) list =
                 ^ ".from"))
            ~can_fail:false ())
        int_and_smaller_list
@@ -1112,35 +1189,74 @@ index 6e28b984..577ea716 100644
 +         [
 +           mk_fun "core::intrinsics::ctlz_nonzero<usize>" ~keep_params:(Some [])
 +             ~keep_trait_clauses:(Some [])
-+             ~extract_name:(Some "HasteBootsUsizeCtlz.nonzero") ();
++             ~extract_name:
++               (Some
++                  (if !Config.target_word64 then
++                     "HasteBootsWord64Intrinsics.leading"
++                   else "HasteBootsUsizeCtlz.nonzero"))
++             ();
 +         ]
++     else [])
++  @ (if !Config.target_word64 then
++       [
++         mk_fun "core::intrinsics::ctpop<usize>" ~keep_params:(Some [])
++           ~keep_trait_clauses:(Some []) ~can_fail:false
++           ~extract_name:(Some "HasteBootsWord64Intrinsics.population") ();
++       ]
 +     else [])
    (* Leading zeros *)
    @ mk_scalar_fun
        (fun ty -> "core::num::{" ^ ty ^ "}::leading_zeros")
-@@ -926,7 +965,11 @@ let mk_builtin_funs_map () =
+@@ -917,21 +968,39 @@ let name_matcher_map_of_list (ls : (pattern * 'a) list) : 'a NameMatcherMap.t =
+       m)
+     NameMatcherMap.empty ls
+ 
++(* Target word64 admits only these checked primitive operations, never the
++   legacy target-dependent source function/global bindings. *)
++let selected_builtin_funs () =
++  let all = builtin_funs () in
++  if !Config.target_word64 then
++    let selected =
++      List.map parse_pattern
++        [
++          "core::intrinsics::ctlz_nonzero<usize>";
++          "core::intrinsics::ctpop<usize>";
++        ]
++    in
++    List.filter (fun (pattern, _) -> List.mem pattern selected) all
++  else all
++
+ let mk_builtin_funs_map () =
+   [%ldebug "Builting the builtin funs map"];
+   let m =
+     name_matcher_map_of_list
+-      (List.map (fun (name, info) -> (name, info)) (builtin_funs ()))
++      (List.map (fun (name, info) -> (name, info)) (selected_builtin_funs ()))
+   in
    [%ltrace NameMatcherMap.to_string (fun _ -> "...") m];
    m
  
 -let builtin_funs_map = mk_memoized mk_builtin_funs_map
 +let cached_builtin_funs_map = mk_memoized mk_builtin_funs_map
-+
-+let builtin_funs_map () =
-+  if !Config.target_word64 then NameMatcherMap.empty
-+  else cached_builtin_funs_map ()
++let builtin_funs_map () = cached_builtin_funs_map ()
  
  type effect_info = { can_fail : bool }
  
-@@ -942,4 +985,8 @@ let mk_builtin_fun_effects_map () =
+ let mk_builtin_fun_effects () : (pattern * effect_info) list =
+-  let builtin_funs : (pattern * Pure.builtin_fun_info) list = builtin_funs () in
++  let builtin_funs : (pattern * Pure.builtin_fun_info) list =
++    selected_builtin_funs ()
++  in
+   List.map
+     (fun ((pattern, info) : _ * Pure.builtin_fun_info) ->
+       let info = { can_fail = info.can_fail } in
+@@ -942,4 +1011,5 @@ let mk_builtin_fun_effects_map () =
    [%ldebug "Builting the builtin funs effects map"];
    name_matcher_map_of_list (if_backend mk_builtin_fun_effects [])
  
 -let builtin_fun_effects_map = mk_memoized mk_builtin_fun_effects_map
 +let cached_builtin_fun_effects_map = mk_memoized mk_builtin_fun_effects_map
-+
-+let builtin_fun_effects_map () =
-+  if !Config.target_word64 then NameMatcherMap.empty
-+  else cached_builtin_fun_effects_map ()
++let builtin_fun_effects_map () = cached_builtin_fun_effects_map ()
 diff --git a/src/extract/ExtractTypes.ml b/src/extract/ExtractTypes.ml
 index 37171763..94317a33 100644
 --- a/src/extract/ExtractTypes.ml

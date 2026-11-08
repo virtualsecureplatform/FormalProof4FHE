@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+"""Reject lost bit-count source bodies, changed bindings and incomplete proofs."""
+import copy
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+GATE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-word64-intrinsics'))
+
+
+def fixture():
+    funcs = [{'item_meta': {'name': [{'Ident': [GATE['NAMESPACE'], 0]}, {'Ident': [n, 0]}]},
+              'body': {'Structured': {}}} for n in GATE['FUNCTIONS'][:4]]
+    funcs += [{'item_meta': {'name': []}, 'body': {'Structured': {}}} for _ in range(2)]
+    funcs += [{'item_meta': {'name': [{'Ident': [n, 0]} for n in ['core', 'intrinsics', operation]]},
+               'body': {'Intrinsic': {'name': operation}}} for operation in ['ctpop', 'ctlz_nonzero']]
+    return {'has_errors': False, 'translated': {
+        'target_information': [{'key': 'x86_64-unknown-linux-gnu', 'value': {
+            'target_pointer_size': 8, 'is_little_endian': True}}],
+        'options': {'monomorphize': True, 'mir': 'Optimized'}, 'fun_decls': funcs}}
+
+
+class Guards(unittest.TestCase):
+    def test_complete_source_and_output(self):
+        GATE['validate_ir'](fixture())
+        GATE['validate_output']((GATE['DATA'] / 'Generated.lean').read_text())
+
+    def test_missing_source_intrinsic_identity_or_target(self):
+        for mutate in [lambda x: x['translated']['fun_decls'][4].update(body='Opaque'),
+                       lambda x: x['translated']['fun_decls'][6]['body']['Intrinsic'].update(name='ctlz'),
+                       lambda x: x['translated']['fun_decls'].pop(),
+                       lambda x: x['translated']['options'].update(monomorphize=False),
+                       lambda x: x['translated']['target_information'][0]['value'].update(target_pointer_size=4)]:
+            bad = copy.deepcopy(fixture()); mutate(bad)
+            with self.assertRaises(RuntimeError): GATE['validate_ir'](bad)
+
+    def test_changed_binding_zero_behavior_or_admission(self):
+        raw = (GATE['DATA'] / 'Generated.lean').read_text()
+        for bad in [raw.replace('HasteBootsWord64Intrinsics.population', 'HasteBootsWord64Intrinsics.leading'),
+                    raw.replace('ok none', 'ok (some 0#u32)'), raw.replace('Std.U64', 'Std.Usize'),
+                    raw.replace(':= do', ':= by sorry'), raw.replace('end ' + GATE['NAMESPACE'], '')]:
+            with self.assertRaises(RuntimeError): GATE['validate_output'](bad)
+
+    def test_missing_runtime_bound_or_source_proof(self):
+        for file, names in [('Runtime.lean', GATE['RUNTIME_PROOFS']), ('Proof.lean', GATE['PROOFS'])]:
+            proof = (GATE['DATA'] / file).read_text()
+            for name in names:
+                with self.assertRaises(RuntimeError):
+                    GATE['PARAMETERS']['validate_proof_source'](proof.replace('theorem ' + name, 'theorem missing'), names)
+            with self.assertRaises(RuntimeError):
+                GATE['PARAMETERS']['validate_proof_source'](proof + '\ntheorem admitted : True := by native_decide\n', names)
+
+
+if __name__ == '__main__':
+    unittest.main()
