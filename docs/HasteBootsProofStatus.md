@@ -7,6 +7,56 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Concrete range initialization and scalar word memory now check
+
+`NativeByteRangeWrite` performs checked byte-range replacement in one live
+allocation, including uninitialized buffers. Thirty-seven theorems establish
+exact initialization/read-back, outside-byte framing, unchanged allocation
+shape/generation/count, derived success from valid allocation checks and stale
+write rejection. The single-byte case agrees with the existing store primitive.
+Its permission wrappers check the whole span, and the transition extension
+includes all earlier byte-ledger steps while preserving well-formedness and
+revocation through arbitrary extended runs.
+
+`NativeWord64Memory` supplies exact eight-byte little-endian scalar encoding,
+aligned concrete loads/stores, and checked element extents/offsets using stride
+eight. Sixteen theorems cover both codec round trips, store/read behavior,
+framing, lifecycle and source-metadata byte extents. All 69 new model
+declarations have persistent root axiom audits. Twenty-four executable
+regressions exercise initialization, maximum words, endian bytes, alignment and
+extent failures, stale origins, overlap/disjoint access and element counts.
+
+Original standard-library u64 slice pointer constructor bodies and rustc's
+size/alignment constants are retained. Seven source and eight composition
+proofs connect their pointer data, actual (8,8) layout witnesses, scalar bits,
+checked extents and model accesses. The new opt-in literal-constant prepass
+preserves compiler-evaluated plain integer values in typed initializer bodies;
+it supplies no guessed layout value or opaque-body replacement. Generic signed,
+unsigned, zero and maximum-u128 fixtures check this independently of layout 8.
+See `interop/aeneas/literal-consts/README.md` and
+`interop/aeneas/word64-memory/README.md`.
+
+Validation passes 791 declaration audits across the recorded paired gates,
+including the new 116-audit memory gate and 12-audit literal gate. All fifteen
+literal-profile negative controls and all 222 guard tests pass. Full
+`scripts/check` passes its 10,949-job build and subsequent root audits/smokes.
+Frozen-tool upstream regeneration completes 97 targets and leaves all 128
+compared artifacts unchanged; only the known `dyn.rs` lifetime baseline fails.
+A fresh ordinary native probe retains 52 functions with zero residual drops,
+zero runtime queries and no missing references, then rejects the original
+`drop_in_place` raw-pointer dereference. The separate legacy pointer boundary
+passes 21 audits. No axiom, native decision proof or proof-limit increase is
+introduced. The regression receipts retain exact source/tool/check hashes.
+
+These scalar memory/pointer/layout results do not prove native dereference or
+reference validity. Arbitrary typed/Goldilocks-wrapper layout, pointer-provenance
+storage, native ownership/lifetimes/aliasing, allocator/destructor/deallocator
+and compiler/caller refinement remain open. NTT/SIMD/scheduler, causal lifetime
+oracle/owner coverage, BabyBear and the final 128-bit expected physical
+attacker-work theorem remain open. Policy transitions and range replacement
+are not native atomic instructions or an attacker-work floor. The full target
+and production Rust are unchanged.
+
 ## Local mutable reborrow call and checked scope restoration now check
 
 The original safe Rust fixture now takes a local mutable cell reborrow and
