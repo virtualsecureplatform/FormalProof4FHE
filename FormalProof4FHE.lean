@@ -629,3 +629,4 @@ import FormalProof4FHE.HasteBoots.NativeByteRange
 
 import FormalProof4FHE.HasteBoots.NativeByteBorrow
 import FormalProof4FHE.HasteBoots.NativeByteRangeUpdate
+import FormalProof4FHE.HasteBoots.NativeByteReborrow
