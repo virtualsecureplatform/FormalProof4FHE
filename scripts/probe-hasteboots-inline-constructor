@@ -22,10 +22,15 @@ def validate_drop_ir(ir):
         raise RuntimeError('Native constructor requires precise, desugared drops')
     if options.get('preserve_allocator') is not True:
         raise RuntimeError('Native constructor requires allocator preservation')
+    if options.get('evaluate_runtime_checks') is not True:
+        raise RuntimeError('Native constructor requires compiler-evaluated runtime checks')
     functions = {f['def_id'] for f in ir['translated']['fun_decls'] if isinstance(f, dict)}
     def visit(value):
         if isinstance(value, dict):
             if 'Drop' in value: raise RuntimeError('Residual drop would hide cleanup semantics')
+            nullary = value.get('NullaryOp')
+            if isinstance(nullary, list) and nullary and nullary[0] in ['UbChecks', 'OverflowChecks', 'ContractChecks']:
+                raise RuntimeError('Unevaluated compiler runtime-check query')
             if set(value) == {'Fun'} and isinstance(value['Fun'], dict) and set(value['Fun']) == {'Regular'}:
                 if value['Fun']['Regular'] not in functions: raise RuntimeError('Function reference has no declaration')
             for child in value.values(): visit(child)
@@ -86,7 +91,7 @@ def main():
         if scope in ['global', 'layout']: paths += ['alloc::alloc']
         if scope == 'layout': paths += ['core::alloc::layout', 'core::mem::alignment', 'core::num::niche_types', 'core::num::_::unchecked_mul']
         cleanup_scope = [argument for path in paths for argument in ['--include', path]]
-        run([tools / 'charon', 'cargo', '--preset=aeneas', '--preserve-allocator', '--precise-drops', '--desugar-drops', '--monomorphize',
+        run([tools / 'charon', 'cargo', '--preset=aeneas', '--preserve-allocator', '--evaluate-runtime-checks', '--precise-drops', '--desugar-drops', '--monomorphize',
              '--inline-function', 'core::option::_::and_then', '--inline-function', 'core::option::_::is_none_or', *optional_inline,
              '--start-from', PARAMETERS['NAMESPACE'] + '::new_encoded', '--include', 'pcs', '--include', 'algebra::goldilocks::Goldilocks', *cleanup_scope, '--include', 'core::option',
              '--include', 'core::result', '--include', 'core::convert',
@@ -97,6 +102,7 @@ def main():
         validate_drop_ir(ir)
         record['residual_drop_count'] = 0
         record['missing_function_references'] = []
+        record['runtime_check_query_count'] = 0
         record['constructor_bodies'] = BASE['validate_constructor_bodies'](ir, False)
         record['retained_functions'] = sum(isinstance(f, dict) for f in ir['translated']['fun_decls'])
         save()

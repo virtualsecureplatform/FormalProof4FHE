@@ -7,6 +7,23 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Runtime-check queries are bound to rustc configuration
+
+The experimental extractor's opt-in `--evaluate-runtime-checks` delegates to
+rustc's own `mir::RuntimeChecks::value` API, including explicit flag overrides.
+Schema 0.1.226 has regenerated OCaml readers. Six UI cases cover on/off/mixed
+settings and unchanged default policy; all Charon tests and Clippy pass. The
+fresh Lean gate checks twelve exact source/theorem dependency audits, including
+query-dependent branching, and requires default-policy rejection. See
+`interop/aeneas/runtime-checks/README.md`.
+
+The native diagnostic requires this option and rejects residual runtime queries
+anywhere in the IR. Original layout translation passes `ub_checks` and next
+rejects the inward `usize -> Alignment` transmute. Valid enum representation
+semantics, large usize literals and the remaining source/heap/work/security
+refinements remain necessary. No native constructor or full security theorem
+has been accepted.
+
 ## Native capacity unwrapping now preserves exact scalar values
 
 The experimental frontend supports outward U32/Usize range-to-base conversions
