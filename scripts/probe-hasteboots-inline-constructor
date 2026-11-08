@@ -57,7 +57,7 @@ def main():
         record['inline_ok_or'] = args.inline_ok_or
         run([tools / 'charon', 'cargo', '--preset=aeneas', '--monomorphize',
              '--inline-function', 'core::option::_::and_then', '--inline-function', 'core::option::_::is_none_or', *optional_inline,
-             '--start-from', PARAMETERS['NAMESPACE'] + '::new_encoded', '--include', 'pcs', '--include', 'core::option',
+             '--start-from', PARAMETERS['NAMESPACE'] + '::new_encoded', '--include', 'pcs', '--include', 'algebra::goldilocks::Goldilocks', '--include', 'core::option',
              '--include', 'core::result', '--include', 'core::convert',
              '--include', 'core::num::_::checked_next_power_of_two', '--include', 'core::num::_::one_less_than_next_power_of_two',
              '--dest-file', llbc, '--', '--manifest-path', out / 'Cargo.toml', '--lib', '--locked'], 'charon.log', env)
@@ -73,6 +73,9 @@ def main():
         plain = re.sub(r'\x1b\[[0-9;?]*[A-Za-z]', '', (out / 'aeneas.log').read_text())
         if re.search(r'Uncaught exception|\[Error\]', plain): raise RuntimeError('Frontend reported an error despite exit status')
         raw = (out / 'lean/Constructor.lean').read_text()
+        record['generated_sha256'] = digest(raw.encode())
+        record['extracted_axioms'] = re.findall(r'^axiom ([^\s:(]+)', raw, re.M)
+        save()
         if raw.count('import Aeneas\n') != 1 or not raw.rstrip().endswith('end ' + PARAMETERS['NAMESPACE']):
             raise RuntimeError('Incomplete native constructor module')
         if re.search(r'\b(axiom|opaque|constant|sorry|sorryAx|native_decide|unsafe)\b|decide\s*\+native', raw):

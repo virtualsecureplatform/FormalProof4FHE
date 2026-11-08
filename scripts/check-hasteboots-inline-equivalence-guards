@@ -94,6 +94,39 @@ class Guards(unittest.TestCase):
             if field == 'coverage': changed['translated']['fun_decls'].pop()
             with self.assertRaises(RuntimeError): STATIC['validate_ir'](changed)
 
+    def test_static_result_snapshot_and_coverage(self):
+        config = STATIC['PROFILES']['result']
+        raw = (STATIC['DATA'] / config['snapshot']).read_text()
+        STATIC['validate_output'](raw, 'result')
+        proof = (STATIC['DATA'] / config['proof']).read_text()
+        STATIC['PARAMETERS']['validate_proof_source'](proof, config['proofs'])
+        with self.assertRaises(RuntimeError):
+            STATIC['PARAMETERS']['validate_proof_source'](proof, config['proofs'][:-1])
+        with self.assertRaises(RuntimeError): STATIC['validate_output'](raw, 'unknown')
+
+    def test_static_result_output_rejections(self):
+        raw = (STATIC['DATA'] / STATIC['PROFILES']['result']['snapshot']).read_text()
+        for changed in [raw.rsplit('end ', 1)[0], raw.replace('def error_field', 'def missing_field'),
+                        raw.replace('table size overflow', 'wrong error'),
+                        raw.replace('maxHeartbeats 200000', 'maxHeartbeats 2000000'), raw + '\naxiom bad : False\n']:
+            with self.assertRaises(RuntimeError): STATIC['validate_output'](changed, 'result')
+
+    def test_static_result_ir_rejections(self):
+        config = STATIC['PROFILES']['result']
+        ir = {'has_errors': False, 'translated': {
+            'target_information': [{'key': 'x86_64-unknown-linux-gnu', 'value': {
+                'target_pointer_size': 8, 'is_little_endian': True}}],
+            'options': {'monomorphize': True, 'inline_functions': ['core::option::_::ok_or']},
+            'fun_decls': [{'item_meta': {'name': [{'Ident': [config['namespace'], 0]}, {'Ident': [name, 0]}]},
+                           'body': {'Structured': {}}} for name in config['roots']]}}
+        STATIC['validate_ir'](ir, 'result')
+        for field in ['errors', 'body', 'coverage']:
+            changed = copy.deepcopy(ir)
+            if field == 'errors': changed['has_errors'] = True
+            if field == 'body': changed['translated']['fun_decls'][0]['body'] = 'Opaque'
+            if field == 'coverage': changed['translated']['fun_decls'].pop()
+            with self.assertRaises(RuntimeError): STATIC['validate_ir'](changed, 'result')
+
 
 if __name__ == '__main__':
     unittest.main()

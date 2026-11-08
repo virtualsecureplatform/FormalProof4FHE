@@ -384,6 +384,31 @@ index 37171763..536e42c3 100644
          match generics with
          | None ->
              [
+diff --git a/src/interp/InterpExpansion.ml b/src/interp/InterpExpansion.ml
+index 52b94675..951b56d9 100644
+--- a/src/interp/InterpExpansion.ml
++++ b/src/interp/InterpExpansion.ml
+@@ -484,6 +484,20 @@ let expand_symbolic_value_shared_borrow (span : Meta.span)
+   (* Finally, replace the projectors on loans *)
+   let see = SeSharedRef (bid, shared_sv) in
+   let ctx = apply_symbolic_expansion_to_aevalues span original_sv see ctx in
++  let ctx =
++    match original_sv.sv_ty with
++    | TRef (RStatic, _, RShared) ->
++        (* Static regions have no ordinary region loan projector. As for
++           literal and trait-constant static references, retain the backing
++           shared loan in a dummy binding instead of leaving a dangling borrow.
++           The shared value is the existing symbolic expansion, not a fresh
++           unconstrained value. *)
++        [%cassert] span (not !Config.use_static) "Unimplemented";
++        let value = mk_tvalue_from_symbolic_value shared_sv in
++        let loan = { value with value = VLoan (VSharedLoan (bid, value)) } in
++        ctx_push_dummy_var ctx (ctx.fresh_dummy_var_id ()) loan
++    | _ -> ctx
++  in
+   ( ctx,
+     (* Update the synthesized program *)
+     S.synthesize_symbolic_expansion_no_branching span original_sv
 diff --git a/src/interp/InterpExpressions.ml b/src/interp/InterpExpressions.ml
 index 2d32fc8e..e80f5463 100644
 --- a/src/interp/InterpExpressions.ml
@@ -515,23 +540,27 @@ index aa1db67d..e178f90a 100644
          (* Add the constraints for r *)
          add_edges ~long:r ~shorts:outer;
 diff --git a/src/llbc/Substitute.ml b/src/llbc/Substitute.ml
-index fbd7f003..94d66db1 100644
+index fbd7f003..fdd35501 100644
 --- a/src/llbc/Substitute.ml
 +++ b/src/llbc/Substitute.ml
-@@ -7,6 +7,18 @@ open Types
+@@ -7,6 +7,22 @@ open Types
  open Values
  open LlbcAst
  
-+(* Aeneas runtime field types erase every lifetime, including 'static.
-+   Charon's generic substitution erases region variables but preserves 'static. *)
-+let type_decl_get_instantiated_field_etypes def opt_variant_id generics =
++(* Runtime value types erase every lifetime, including 'static. Symbolic
++   value types retain their regions. Charon's generic substitution erases only
++   region variables, so it is not the runtime erasure operation. *)
++let erase_regions (ty : ty) : ty =
 +  let erase =
 +    object
 +      inherit [_] map_ty
 +      method! visit_region _ _ = RErased
 +    end
 +  in
-+  List.map (erase#visit_ty ())
++  erase#visit_ty () ty
++
++let type_decl_get_instantiated_field_etypes def opt_variant_id generics =
++  List.map erase_regions
 +    (type_decl_get_instantiated_field_types def opt_variant_id generics)
 +
  (* Fails if the variable is bound *)

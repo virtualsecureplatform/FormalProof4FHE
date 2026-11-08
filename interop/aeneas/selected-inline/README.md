@@ -18,9 +18,10 @@ compatibility features for full monomorphic extraction:
   parameters and exact two-variant/field shape. Other types retain their
   extracted declarations. Export uses the same checked builtin information.
 
-Variable basenames also handle trailing instantiation metadata. There are no
-new lifetime substitutions, borrow-check bypasses, trait-constraint removals,
-post-hoc IR edits or rewritten generated terms in this profile. The eight
+Variable basenames also handle trailing instantiation metadata. Symbolic and signature lifetimes are preserved. Runtime value types consistently
+erase all lifetimes, including static lifetimes. There are no borrow-check
+bypasses, trait-constraint removals, post-hoc IR edits or rewritten generated
+terms in this profile. The eight
 existing frontend profiles and their builders are unchanged.
 
 The patches are compiler experiments, not verified compiler passes. Kernel
@@ -64,7 +65,7 @@ complete `twice` equivalence (including errors, overflow and divergence), and
 six theorems passed 17 exact dependency audits. Allowed axioms are only
 `propext`, `Classical.choice` and `Quot.sound`. Five rejection tests cover
 altered/truncated/admitted output, invalid IR, missing inverses/proofs,
-error logs and dependency reports. All 117 extraction guard tests passed.
+error logs and dependency reports. All 120 extraction guard tests passed.
 The patched Charon's full upstream suite and Clippy passed, including six
 selected-inlining UI cases. Aeneas array/trait outputs were regenerated and
 borrow-checking passed with the coupled tools and default feature flags.
@@ -85,14 +86,14 @@ Rust MIR inlining. Its receipt records IR, source/tool bindings and failed
 frontend logs. Any admitted constructor output or unapproved kernel dependency
 would also fail.
 
-The default native attempt has valid IR, 23 retained functions and no residual
-type constraints. Aeneas then rejects a borrow invariant at the subsequent call
-to `Option::ok_or` (core `option.rs` line 1335). With `--inline-ok-or`, it now
-has 22 retained functions and progresses to the corresponding static-error
-borrow failure in `Result::branch` (core `result.rs` line 2180). There is no
-accepted native constructor Lean module or refinement theorem. The code's
-owned `modulus: String` also has opaque drop glue in this IR; its rejection-path
-cleanup must be modeled, not discarded.
+The native static-reference borrowing failures are now repaired as described
+below. With `--inline-ok-or` the probe retains 22 functions, passes strict
+interpretation and emits a complete Lean module. It includes the original
+Goldilocks type, which extracts as its actual U64 representation. The module
+still fails admission checks on monomorphic `ctlz_nonzero` and owned String
+drop glue. The receipt records both extracted axioms and the complete module
+hash. No constructor module or refinement theorem is accepted yet. Rejection
+paths drop the code's owned `modulus: String`; that cleanup must be modeled.
 
 ## Dead shared-loan cleanup regression
 
@@ -135,15 +136,39 @@ This supports regression compatibility, not a proof of the compiler algorithm.
 The original fixture also passed its fresh 17-audit gate with the repaired
 frontend.
 
-Next work is the native static-error borrow handling in `Result::branch`, then
-original String cleanup and the constructor/model bridge, followed by native
-heap/work refinement and the complete security plan. No production Rust is
-modified by these fixtures or compiler patches.
+## Symbolic static-reference input regression
 
-`static-result-input.rs` isolates the next failure further: extracting only
-`hasteboots_static_result_input::error_field`, with monomorphization and no
-inline selections, fails the missing-borrow invariant when reading the static
-string field of an input `Error`. The same file includes result propagation
-and an explicit result match for subsequent regression checks. This establishes
-that the failure also concerns symbolic static-reference inputs, independently
-of the native constructor or a `Result::branch` call.
+`static-result-input.rs` isolates input borrowing independently of the native
+constructor. Before repair, reading `Error(&'static str).0` failed with a borrow
+that had no backing loan. Shared static-reference expansion now registers the
+backing loan using the same dummy-storage representation as static literals
+and trait constants. Its value is the existing expansion linked to the source
+symbol, rather than an unconstrained replacement. Runtime type erasure also
+handles static lifetimes consistently; symbolic types retain their lifetime
+information. All borrow and typing invariants remain enabled.
+
+`StaticResultCandidate.lean` is the complete extraction. Four theorems in
+`StaticResultProof.lean` prove field identity, preservation of arbitrary input
+result/error values, and exact successful/error propagation. Six source
+functions and four theorems passed ten dependency audits:
+
+```sh
+scripts/check-hasteboots-static-error-option --mode result \
+  --build-receipt build/hasteboots-extraction/inline-tools-build-RECEIPT/manifest.json \
+  --backend /tmp/hasteboots-aeneas-m0
+```
+
+The original 17-audit inlining fixture and five-audit static-error option gate
+also passed with the repaired frontend. Three more rejection tests cover the
+new mode's complete source/proof coverage, error-label changes and invalid IR;
+the full guard suite has 120 passing tests. No proof limits are raised.
+
+Full upstream extraction again completed the same 97 targets and rejected only
+the existing `dyn.rs` erased-lifetime case. All 128 regenerated outputs remain
+byte-identical to the preceding profile. `static-input-regression.json` records
+the paired tools, source patches, logs and per-file comparison.
+
+Next work is the checked monomorphic intrinsic binding, then original String
+cleanup and the constructor/model bridge, followed by native heap/work
+refinement and the complete security plan. No production Rust is modified by
+these fixtures or compiler patches.

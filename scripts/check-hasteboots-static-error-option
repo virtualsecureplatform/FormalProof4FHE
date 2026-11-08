@@ -15,23 +15,45 @@ DATA = ROOT / 'interop/aeneas/selected-inline'
 NAMESPACE = 'hasteboots_static_error_option'
 PROOFS = ['convert_equivalent', 'eager_equivalent']
 FUNCTIONS = ['convert', 'direct', 'eager_match']
+PROFILES = {
+    'option': {'namespace': NAMESPACE, 'source': 'static-error-option.rs',
+               'snapshot': 'StaticErrorCandidate.lean', 'proof': 'StaticErrorEquivalence.lean',
+               'proof_namespace': 'HasteBootsStaticErrorEquivalence', 'proofs': PROOFS,
+               'functions': FUNCTIONS, 'roots': FUNCTIONS},
+    'result': {'namespace': 'hasteboots_static_result_input', 'source': 'static-result-input.rs',
+               'snapshot': 'StaticResultCandidate.lean', 'proof': 'StaticResultProof.lean',
+               'proof_namespace': 'HasteBootsStaticResultProof',
+               'proofs': ['field_identity', 'choose_identity', 'propagate_some', 'propagate_none'],
+               'functions': ['Error.Insts.CoreConvertFromError.from',
+                  'core.result.Result.Insts.CoreOpsTry_traitTry.branch',
+                  'core.result.Result.Insts.CoreOpsTry_traitFromResidualResult.from_residual',
+                  'propagate', 'error_field', 'choose'],
+               'roots': ['propagate', 'error_field', 'choose']}}
 
 
-def validate_output(raw):
-    PARAMETERS['validate_proof_source']((DATA / 'StaticErrorEquivalence.lean').read_text(), PROOFS)
-    if raw.count('import Aeneas\n') != 1 or not raw.rstrip().endswith('end ' + NAMESPACE):
+def profile(mode):
+    if mode not in PROFILES: raise RuntimeError('Unknown static-error mode')
+    return PROFILES[mode]
+
+
+
+def validate_output(raw, mode='option'):
+    config = profile(mode)
+    PARAMETERS['validate_proof_source']((DATA / config['proof']).read_text(), config['proofs'])
+    if raw.count('import Aeneas\n') != 1 or not raw.rstrip().endswith('end ' + config['namespace']):
         raise RuntimeError('Incomplete static-error extraction')
-    PARAMETERS['verify_snapshot'](raw, (DATA / 'StaticErrorCandidate.lean').read_text())
+    PARAMETERS['verify_snapshot'](raw, (DATA / config['snapshot']).read_text())
     if re.search(r'\b(axiom|opaque|constant|sorry|sorryAx|native_decide|unsafe)\b|decide\s*\+native', raw):
         raise RuntimeError('Admitted static-error extraction')
     if re.findall(r'^set_option (maxHeartbeats|maxRecDepth) ([0-9]+)$', raw, re.M) != [
             ('maxHeartbeats', '200000'), ('maxRecDepth', '1000')]: raise RuntimeError('Unexpected proof limits')
-    for name in FUNCTIONS:
-        if not re.search(r'^def ' + name + r'\s', raw, re.M): raise RuntimeError('Missing source function: ' + name)
+    for name in config['functions']:
+        if not re.search(r'^def ' + re.escape(name) + r'\s', raw, re.M): raise RuntimeError('Missing source function: ' + name)
     return raw.replace('import Aeneas\n', 'import Aeneas.Std\nimport Aeneas.Data.Discriminant\n')
 
 
-def validate_ir(ir):
+def validate_ir(ir, mode='option'):
+    config = profile(mode)
     BASE['BASE']['BASE']['validate_ir'](ir)
     crate = ir['translated']
     if crate.get('options', {}).get('monomorphize') is not True or crate['options'].get('inline_functions') != ['core::option::_::ok_or']:
@@ -39,8 +61,8 @@ def validate_ir(ir):
     functions = [f for f in crate['fun_decls'] if isinstance(f, dict)]
     def names(f): return [x['Ident'][0] for x in f['item_meta']['name'] if 'Ident' in x]
     if any(names(f)[-1:] == ['ok_or'] for f in functions): raise RuntimeError('Option helper was not inlined')
-    for name in FUNCTIONS:
-        selected = [f for f in functions if names(f) == [NAMESPACE, name]]
+    for name in config['roots']:
+        selected = [f for f in functions if names(f) == [config['namespace'], name]]
         if len(selected) != 1 or not isinstance(selected[0].get('body'), dict) or set(selected[0]['body']) != {'Structured'}:
             raise RuntimeError('Missing original source body: ' + name)
 
@@ -49,11 +71,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--build-receipt', type=Path, required=True)
     parser.add_argument('--backend', type=Path, required=True)
+    parser.add_argument('--mode', choices=list(PROFILES), default='option')
     args = parser.parse_args()
+    config = profile(args.mode)
     parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
     out = Path(tempfile.mkdtemp(prefix='static-error-option-', dir=parent))
     record = {'status': 'started', 'claim': 'static-error regression equivalence only; compiler/native security refinement unproved',
-              'commands': [], 'script_sha256': digest(Path(__file__).read_bytes())}
+              'commands': [], 'mode': args.mode, 'script_sha256': digest(Path(__file__).read_bytes())}
     def save(): (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
     def run(command, log):
         record['commands'].append([str(x) for x in command]); save()
@@ -65,21 +89,21 @@ def main():
         record['build_receipt_sha256'] = digest(args.build_receipt.read_bytes())
         record['backend_patches'] = PARAMETERS['verify_backend'](args.backend.resolve(), out)
         record['inputs'] = {name: digest((DATA / name).read_bytes()) for name in [
-            'static-error-option.rs', 'StaticErrorCandidate.lean', 'StaticErrorEquivalence.lean']}
+            config['source'], config['snapshot'], config['proof']]}
         llbc = out / 'candidate.llbc'
         run([tools / 'charon', 'rustc', '--preset=aeneas', '--monomorphize', '--inline-function', 'core::option::_::ok_or',
-             '--include', 'core::option', '--include', 'core::result', '--dest-file', llbc, '--', '--crate-type', 'lib',
-             '--edition', '2024', '--crate-name', NAMESPACE, DATA / 'static-error-option.rs'], 'charon.log')
-        validate_ir(json.loads(llbc.read_text()))
+             '--include', 'core::option', '--include', 'core::result', '--include', 'core::convert', '--dest-file', llbc, '--', '--crate-type', 'lib',
+             '--edition', '2024', '--crate-name', config['namespace'], DATA / config['source']], 'charon.log')
+        validate_ir(json.loads(llbc.read_text()), args.mode)
         run([tools / 'aeneas', '-backend', 'lean', '-checks', '-sequential', '-max-heartbeats', '200000', '-max-recdepth', '1000',
              '-abort-on-error', '-no-external-name-patterns', '-disambiguate-instantiated-names', '-monomorphic-builtin-shapes',
              '-dest', out / 'lean', llbc], 'aeneas.log')
         BASE['BASE']['validate_frontend_log']((out / 'aeneas.log').read_text())
         raw = (out / 'lean/Candidate.lean').read_text()
-        runtime = validate_output(raw)
-        names = [NAMESPACE + '.' + name for name in FUNCTIONS] + ['HasteBootsStaticErrorEquivalence.' + name for name in PROOFS]
+        runtime = validate_output(raw, args.mode)
+        names = [config['namespace'] + '.' + name for name in config['functions']] + [config['proof_namespace'] + '.' + name for name in config['proofs']]
         checked = out / 'Checked.lean'
-        checked.write_text(runtime + '\n' + (DATA / 'StaticErrorEquivalence.lean').read_text()
+        checked.write_text(runtime + '\n' + (DATA / config['proof']).read_text()
                            + ''.join('\n#print axioms ' + name + '\n' for name in names))
         run([ROOT / 'scripts/in-container', 'bash', '-euc', 'cd -- "$1"; lake env lean -DwarningAsError=true "$2"', '_',
              COMMON['container_path'](args.backend.resolve() / 'backends/lean'), COMMON['container_path'](checked)], 'lean.log')

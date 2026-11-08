@@ -18,13 +18,13 @@ This establishes regression controls, not a proof of inlining or the native
 constructor. The source/heap/work and complete security obligations remain
 open.
 
-## Fixture inlining equivalence is checked; native borrow tracking remains open
+## Checked compiler regressions; native intrinsic and heap boundaries remain open
 
 The coupled experimental Charon/Aeneas build now produces kernel-checked
 monomorphic fixture code. Six theorems prove complete public-function
 equivalence and two-sided result/state codec inverses, including mutation,
 errors, overflow and divergence. All 17 source/codec/theorem dependency audits
-use only the allowed Lean axioms; all 117 extraction guard tests passed.
+use only the allowed Lean axioms; all 120 extraction guard tests passed.
 Charon's full upstream suite and Clippy passed, and Aeneas array/trait outputs
 were regenerated and borrow-checked.
 
@@ -46,15 +46,24 @@ before/after; both runs completed 97 targets and rejected only the existing
 `dyn.rs` erased-lifetime case. Evidence is recorded in
 `interop/aeneas/selected-inline/loan-regression.json`.
 
-On the original native Gold constructor, default inlining emits valid IR with
-23 functions and no residual type constraints, then fails a borrow invariant
-inside `Option::ok_or`. Adding `--inline-ok-or` emits valid IR with 22 functions
-and progresses to the corresponding static-error borrowing failure inside
-`Result::branch`. Owned String drop glue is still opaque and must be accounted
-for on rejected constructor inputs. Neither attempt admits partial output.
-The next implementation step is the Result/static-error borrow repair, then
-original String cleanup and the constructor/model bridge. General compiler
-correctness, native heap/work refinement and complete security remain unproved.
+The symbolic static-reference input failure is also repaired. Shared static
+reference expansion now retains its existing backing value in the established
+static loan storage, and runtime types consistently erase static lifetimes
+while symbolic types preserve them. Four additional kernel theorems prove
+input-field identity, arbitrary result/error preservation and exact option
+propagation (ten source/theorem audits). The original 17- and five-audit gates
+passed again. All 128 regenerated upstream outputs remain unchanged, with the
+same existing `dyn.rs` rejection; see `static-input-regression.json`.
+
+The original native Gold constructor now passes strict interpretation and
+emits a complete Lean module with 22 retained functions when `ok_or` is also
+inlined. Its Goldilocks field type is transparent and retains the actual U64
+representation. The admission gate still rejects monomorphic `ctlz_nonzero`
+and String drop glue, recording both extracted axioms. No native constructor
+refinement theorem is accepted. The next implementation step is the checked
+monomorphic intrinsic binding, then original String cleanup and the
+constructor/model bridge. General compiler correctness, native heap/work
+refinement and complete security remain unproved.
 
 ## Scoped constructor IR is valid; recursive type constraints remain unsupported
 
