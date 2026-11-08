@@ -7,45 +7,45 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
-## Raw-pointer extraction now preserves shared address/provenance data
+## Non-null pointer patterns and original as_ptr now check
 
-The experimental `-provenance-pointers` mode requires checked word64 Lean
-extraction. It uses the same address and allocation-generation records as the
-existing storage model, adding thin/slice/vtable metadata. Pointer casts preserve
-all fields; source equality compares address/metadata bits and ignores ghost
-provenance. No pointee value substitutes for an address. Ordinary structural
-model equality remains distinct from source pointer comparison.
+The checked word64 `-provenance-pointers` profile represents `*const T is !null`
+and `*mut T is !null` as raw-pointer subtypes with a nonzero data address.
+Construction checks that address and rejects zero as undefined; outward conversion
+erases only the proof. Metadata does not substitute for the data address, and a
+nonzero address grants no heap, allocation, alignment or borrow permission.
 
-A small Init-only representation module preserves the existing storage API.
-Four bridge theorems show casts preserve logical reads and do not bypass absent
-provenance, zero addresses or retired origins. These are registry/storage laws,
-not Rust dereferences. Seventeen extracted-source theorems cover eight original
-Rust functions, all-input cast/comparison behavior and boundary cases. The new
-gate passes 51 source/runtime/model audits and five storage audits. The earlier
-21-audit legacy boundary gate and its counterexamples remain intact and pass.
-Six root audit expectations strengthen to no axioms after dependency reduction.
-See `interop/aeneas/pointer-storage/ExtractionREADME.md`.
+The original ordinary-sysroot `NonNull<u8>` declaration and `as_ptr` body now
+translate. The outward thin-carrier transmute requires a closed single-field
+wrapper and matching target layout, size/alignment, transparent representation,
+zero offset, inhabited variant, sole discriminator and absence of tags/alignment
+modifiers. All pointer fields survive the proof erasure and raw mutability cast.
+Eighteen source theorems and four runtime theorems cover exact all-input behavior,
+zero/nonzero cases, field preservation and roundtrip. The new gate passes 44
+dependency audits and rejects 18 unsupported target/profile/layout/operation cases.
+See `interop/aeneas/nonnull-pointers/README.md`.
 
-All earlier paired gates pass, for 292 paired source/model dependency audits,
-plus the separate legacy boundary gate. All 177 guard tests pass; all 128 upstream
-artifacts remain unchanged, with 97 completed targets and the same known dyn.rs
-lifetime rejection. Full `scripts/check` also passes after the 10,929-job build,
-including the root audits and smoke commands. No production Rust or Lean backend
-edit, new axiom or raised proof limit is introduced.
+All earlier paired gates pass against the new frozen tool pair, for 336 source/model
+dependency audits. The separate 21-audit legacy boundary gate also passes. All 182
+guard tests pass; upstream regeneration completes 97 targets and retains all 128
+artifacts byte-for-byte, with only the known dyn.rs lifetime rejection.
 
-Expanding the original native pointer wrappers now reaches the actual NonNull
-pattern, `*const T is !null`, which still rejects. Slice-to-thin casts also remain
-rejected until their metadata-dropping semantics are modeled. There is no
-accepted native constructor. Relating metadata tags to Rust pointee types,
-object layouts, source encoding and heap/caller validity remains open; the raw
-descriptor is not a memory permission or a compiler-refinement certificate.
+The shared Init-only address/provenance/metadata representation and its four
+logical-storage bridge laws remain intact. The earlier pointer gate still checks
+51 source/runtime/model audits and five storage audits. It now tests NonNull
+rejection without the provenance profile; slice-to-thin casts remain unsupported.
+These are logical storage laws, not Rust dereferences. The full repository check
+passed at the preceding milestone; this step changes no root Lean module,
+production Rust or Lean backend and adds no axiom or raised proof limit.
 
-Next work is checked non-null pointer patterns and original pointer operations,
-then faithful allocator/layout/deallocation and the residual naming collision.
+The native constructor retains 52 original functions and passes the former
+NonNull obstacle. It now stops at unsupported `PtrFromParts Mut`; there is still
+no accepted native constructor. Next work is faithful pointer-parts/metadata
+operations, then allocator/layout/deallocation and the residual naming collision.
 Production compiler/caller/heap and NTT/SIMD/scheduler refinement, causal lifetime
 oracle/owner accounting, BabyBear and the final 128-bit expected physical-work
-security theorem remain open. No allocation, dereference or physical work floor
-is invented to close these obligations. The full objective is unchanged.
+security theorem remain open. No pointer is replaced by a successful callback or
+counted as a physical work floor. The full objective remains unchanged.
 
 ## Ordinary residual conversion now handles structurally empty alternatives
 

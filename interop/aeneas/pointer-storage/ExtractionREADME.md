@@ -40,7 +40,7 @@ scripts/check-hasteboots-pointer-extraction \
 ```
 
 Eight negative cases reject missing word/profile constraints, incompatible target
-metadata, the actual NonNull pointer pattern and a slice-to-thin cast that needs
+metadata, the NonNull pattern without the provenance profile and a slice-to-thin cast that needs
 metadata-dropping semantics. Existing profiles retain their original bindings.
 The compiler still rejects unsupported operations rather than applying the scalar
 cast model to them. The historical baseline kernel-checks that the old binding
@@ -48,8 +48,9 @@ models a safe raw-pointer cast as undefined; it does not assert a Rust failure.
 
 `probe-hasteboots-inline-constructor --cleanup-scope pointers --target-word64
 --expand-language-ub-checks --provenance-pointers` retains the original pointer
-wrappers and currently rejects `*const T is !null` during pattern translation.
-No native constructor is accepted. NonNull pattern support, source pointer/heap
+wrappers. The next milestone in `../nonnull-pointers/README.md` adds checked
+`*const T is !null` patterns and the original outward `as_ptr` conversion.
+No native constructor is accepted. Further source pointer/heap
 operations, allocator/deallocation, layout queries/initializers, naming collisions,
 Rust caller/compiler refinement, NTT/SIMD/scheduler refinement, causal oracle/owner
 accounting, BabyBear and the 128-bit expected physical-work security theorem
