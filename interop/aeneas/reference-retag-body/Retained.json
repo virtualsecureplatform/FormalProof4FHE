@@ -1,0 +1,953 @@
+{
+  "active_functions": [
+    {
+      "id": 0,
+      "name": "hasteboots_reference_retag_body::borrowed#0",
+      "span": {
+        "data": {
+          "file_id": 0,
+          "beg": {
+            "line": 5,
+            "col": 0
+          },
+          "end": {
+            "line": 5,
+            "col": 54
+          }
+        },
+        "generated_from_span": null
+      },
+      "original_body_sha256": "5314cd2f72551680a49b7826c7c0c4bbe0d0723234677dc913a5a2e2d9a98ad6",
+      "source_generics": {
+        "regions": [
+          {
+            "index": 0,
+            "name": "'a",
+            "mutability": "Unknown"
+          }
+        ],
+        "types": [],
+        "const_generics": [],
+        "trait_clauses": [],
+        "regions_outlive": [],
+        "types_outlive": [],
+        "trait_type_constraints": []
+      },
+      "source_signature": {
+        "is_unsafe": false,
+        "abi": "Rust",
+        "is_variadic": false,
+        "inputs": [
+          {
+            "Untagged": {
+              "Ref": [
+                {
+                  "Var": {
+                    "Free": 0
+                  }
+                },
+                {
+                  "Untagged": {
+                    "Slice": {
+                      "Untagged": {
+                        "Literal": {
+                          "UInt": "U8"
+                        }
+                      }
+                    }
+                  }
+                },
+                "Shared"
+              ]
+            }
+          }
+        ],
+        "output": {
+          "Untagged": {
+            "Ref": [
+              {
+                "Var": {
+                  "Free": 0
+                }
+              },
+              {
+                "Untagged": {
+                  "Slice": {
+                    "Untagged": {
+                      "Literal": {
+                        "UInt": "U8"
+                      }
+                    }
+                  }
+                }
+              },
+              "Shared"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 1,
+      "name": "hasteboots_reference_retag_body::shared_scope#1",
+      "span": {
+        "data": {
+          "file_id": 0,
+          "beg": {
+            "line": 7,
+            "col": 0
+          },
+          "end": {
+            "line": 10,
+            "col": 1
+          }
+        },
+        "generated_from_span": null
+      },
+      "original_body_sha256": "674d1217b1f53d0c78ec0377ef4250bd691eca28b6b35c5c44d5b3566c85266b",
+      "source_generics": {
+        "regions": [],
+        "types": [],
+        "const_generics": [],
+        "trait_clauses": [],
+        "regions_outlive": [],
+        "types_outlive": [],
+        "trait_type_constraints": []
+      },
+      "source_signature": {
+        "is_unsafe": true,
+        "abi": "Rust",
+        "is_variadic": false,
+        "inputs": [
+          {
+            "Untagged": {
+              "RawPtr": [
+                {
+                  "Untagged": {
+                    "Literal": {
+                      "UInt": "U8"
+                    }
+                  }
+                },
+                "Shared"
+              ]
+            }
+          },
+          {
+            "Untagged": {
+              "Literal": {
+                "UInt": "Usize"
+              }
+            }
+          }
+        ],
+        "output": {
+          "Untagged": {
+            "Adt": {
+              "id": "Tuple",
+              "generics": {
+                "regions": [],
+                "types": [],
+                "const_generics": [],
+                "trait_refs": []
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "name": "hasteboots_reference_retag_body::mutable_scope#2",
+      "span": {
+        "data": {
+          "file_id": 0,
+          "beg": {
+            "line": 11,
+            "col": 0
+          },
+          "end": {
+            "line": 14,
+            "col": 1
+          }
+        },
+        "generated_from_span": null
+      },
+      "original_body_sha256": "6b2901d624fcf87f4ae9f0469282ce47f5fa6ab786b136adb829b6bef90cdd63",
+      "source_generics": {
+        "regions": [],
+        "types": [],
+        "const_generics": [],
+        "trait_clauses": [],
+        "regions_outlive": [],
+        "types_outlive": [],
+        "trait_type_constraints": []
+      },
+      "source_signature": {
+        "is_unsafe": true,
+        "abi": "Rust",
+        "is_variadic": false,
+        "inputs": [
+          {
+            "Untagged": {
+              "RawPtr": [
+                {
+                  "Untagged": {
+                    "Literal": {
+                      "UInt": "U8"
+                    }
+                  }
+                },
+                "Mut"
+              ]
+            }
+          },
+          {
+            "Untagged": {
+              "Literal": {
+                "UInt": "Usize"
+              }
+            }
+          }
+        ],
+        "output": {
+          "Untagged": {
+            "Adt": {
+              "id": "Tuple",
+              "generics": {
+                "regions": [],
+                "types": [],
+                "const_generics": [],
+                "trait_refs": []
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "name": "core::slice::raw::from_raw_parts#3",
+      "span": {
+        "data": {
+          "file_id": 1,
+          "beg": {
+            "line": 124,
+            "col": 0
+          },
+          "end": {
+            "line": 124,
+            "col": 80
+          }
+        },
+        "generated_from_span": null
+      },
+      "original_body_sha256": "4376a4e16dbf1ad9f564de18816b33455d8d426e7cdea0a65d9dee9c6e86bf9b",
+      "source_generics": {
+        "regions": [],
+        "types": [],
+        "const_generics": [],
+        "trait_clauses": [],
+        "regions_outlive": [],
+        "types_outlive": [],
+        "trait_type_constraints": []
+      },
+      "source_signature": {
+        "is_unsafe": true,
+        "abi": "Rust",
+        "is_variadic": false,
+        "inputs": [
+          {
+            "Untagged": {
+              "RawPtr": [
+                {
+                  "Untagged": {
+                    "Literal": {
+                      "UInt": "U8"
+                    }
+                  }
+                },
+                "Shared"
+              ]
+            }
+          },
+          {
+            "Untagged": {
+              "Literal": {
+                "UInt": "Usize"
+              }
+            }
+          }
+        ],
+        "output": {
+          "Untagged": {
+            "Ref": [
+              "Erased",
+              {
+                "Untagged": {
+                  "Slice": {
+                    "Untagged": {
+                      "Literal": {
+                        "UInt": "U8"
+                      }
+                    }
+                  }
+                }
+              },
+              "Shared"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "name": "core::slice::raw::from_raw_parts_mut#4",
+      "span": {
+        "data": {
+          "file_id": 1,
+          "beg": {
+            "line": 179,
+            "col": 0
+          },
+          "end": {
+            "line": 179,
+            "col": 86
+          }
+        },
+        "generated_from_span": null
+      },
+      "original_body_sha256": "5198757c7779c054a7f1cf4bd0678cfad789e2a9cac4111870a7d40f2f5b6885",
+      "source_generics": {
+        "regions": [],
+        "types": [],
+        "const_generics": [],
+        "trait_clauses": [],
+        "regions_outlive": [],
+        "types_outlive": [],
+        "trait_type_constraints": []
+      },
+      "source_signature": {
+        "is_unsafe": true,
+        "abi": "Rust",
+        "is_variadic": false,
+        "inputs": [
+          {
+            "Untagged": {
+              "RawPtr": [
+                {
+                  "Untagged": {
+                    "Literal": {
+                      "UInt": "U8"
+                    }
+                  }
+                },
+                "Mut"
+              ]
+            }
+          },
+          {
+            "Untagged": {
+              "Literal": {
+                "UInt": "Usize"
+              }
+            }
+          }
+        ],
+        "output": {
+          "Untagged": {
+            "Ref": [
+              "Erased",
+              {
+                "Untagged": {
+                  "Slice": {
+                    "Untagged": {
+                      "Literal": {
+                        "UInt": "U8"
+                      }
+                    }
+                  }
+                }
+              },
+              "Mut"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 5,
+      "name": "hasteboots_reference_retag_body::identity#5",
+      "span": {
+        "data": {
+          "file_id": 0,
+          "beg": {
+            "line": 2,
+            "col": 0
+          },
+          "end": {
+            "line": 2,
+            "col": 39
+          }
+        },
+        "generated_from_span": null
+      },
+      "original_body_sha256": "bb149cd52ec2714cf4f8322330535e6e9a04e4ca37150e48224ae0c020fddfdf",
+      "source_generics": {
+        "regions": [],
+        "types": [],
+        "const_generics": [],
+        "trait_clauses": [],
+        "regions_outlive": [],
+        "types_outlive": [],
+        "trait_type_constraints": []
+      },
+      "source_signature": {
+        "is_unsafe": false,
+        "abi": "Rust",
+        "is_variadic": false,
+        "inputs": [
+          {
+            "Untagged": {
+              "Ref": [
+                "Erased",
+                {
+                  "Untagged": {
+                    "Slice": {
+                      "Untagged": {
+                        "Literal": {
+                          "UInt": "U8"
+                        }
+                      }
+                    }
+                  }
+                },
+                "Mut"
+              ]
+            }
+          }
+        ],
+        "output": {
+          "Untagged": {
+            "Ref": [
+              "Erased",
+              {
+                "Untagged": {
+                  "Slice": {
+                    "Untagged": {
+                      "Literal": {
+                        "UInt": "U8"
+                      }
+                    }
+                  }
+                }
+              },
+              "Mut"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "inactive_unsupported": {
+    "eb14dba53b94e1a16cbcfbf0e29dbf5f08d1fd4b0809b01d0d02d71c9eb471d3": {
+      "reason": "Expected local place",
+      "original_statement": {
+        "span": {
+          "data": {
+            "file_id": 4,
+            "beg": {
+              "line": 78,
+              "col": 16
+            },
+            "end": {
+              "line": 78,
+              "col": 45
+            }
+          },
+          "generated_from_span": null
+        },
+        "id": 69,
+        "kind": {
+          "Call": {
+            "call": {
+              "func": {
+                "Regular": {
+                  "kind": {
+                    "Fun": {
+                      "Regular": 6
+                    }
+                  },
+                  "generics": {
+                    "regions": [],
+                    "types": [],
+                    "const_generics": [],
+                    "trait_refs": []
+                  }
+                }
+              },
+              "args": [
+                {
+                  "Move": {
+                    "kind": {
+                      "Local": 4
+                    },
+                    "ty": {
+                      "Untagged": {
+                        "RawPtr": [
+                          {
+                            "Untagged": {
+                              "Adt": {
+                                "id": "Tuple",
+                                "generics": {
+                                  "regions": [],
+                                  "types": [],
+                                  "const_generics": [],
+                                  "trait_refs": []
+                                }
+                              }
+                            }
+                          },
+                          "Mut"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "Copy": {
+                    "kind": {
+                      "Global": {
+                        "id": 2,
+                        "generics": {
+                          "regions": [],
+                          "types": [],
+                          "const_generics": [],
+                          "trait_refs": []
+                        }
+                      }
+                    },
+                    "ty": {
+                      "Untagged": {
+                        "Literal": {
+                          "UInt": "Usize"
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "Copy": {
+                    "kind": {
+                      "Global": {
+                        "id": 3,
+                        "generics": {
+                          "regions": [],
+                          "types": [],
+                          "const_generics": [],
+                          "trait_refs": []
+                        }
+                      }
+                    },
+                    "ty": {
+                      "Untagged": {
+                        "Literal": {
+                          "UInt": "Usize"
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "Copy": {
+                    "kind": {
+                      "Local": 2
+                    },
+                    "ty": {
+                      "Untagged": {
+                        "Literal": {
+                          "UInt": "Usize"
+                        }
+                      }
+                    }
+                  }
+                }
+              ],
+              "dest": {
+                "kind": {
+                  "Local": 3
+                },
+                "ty": {
+                  "Untagged": {
+                    "Adt": {
+                      "id": "Tuple",
+                      "generics": {
+                        "regions": [],
+                        "types": [],
+                        "const_generics": [],
+                        "trait_refs": []
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "on_unwind": {
+              "span": {
+                "data": {
+                  "file_id": 4,
+                  "beg": {
+                    "line": 78,
+                    "col": 16
+                  },
+                  "end": {
+                    "line": 78,
+                    "col": 45
+                  }
+                },
+                "generated_from_span": null
+              },
+              "statements": [
+                {
+                  "span": {
+                    "data": {
+                      "file_id": 4,
+                      "beg": {
+                        "line": 78,
+                        "col": 16
+                      },
+                      "end": {
+                        "line": 78,
+                        "col": 45
+                      }
+                    },
+                    "generated_from_span": null
+                  },
+                  "id": 65,
+                  "kind": {
+                    "StorageDead": 3
+                  },
+                  "comments_before": []
+                },
+                {
+                  "span": {
+                    "data": {
+                      "file_id": 4,
+                      "beg": {
+                        "line": 78,
+                        "col": 16
+                      },
+                      "end": {
+                        "line": 78,
+                        "col": 45
+                      }
+                    },
+                    "generated_from_span": null
+                  },
+                  "id": 66,
+                  "kind": {
+                    "StorageDead": 2
+                  },
+                  "comments_before": []
+                },
+                {
+                  "span": {
+                    "data": {
+                      "file_id": 4,
+                      "beg": {
+                        "line": 78,
+                        "col": 16
+                      },
+                      "end": {
+                        "line": 78,
+                        "col": 45
+                      }
+                    },
+                    "generated_from_span": null
+                  },
+                  "id": 67,
+                  "kind": {
+                    "StorageDead": 1
+                  },
+                  "comments_before": []
+                },
+                {
+                  "span": {
+                    "data": {
+                      "file_id": 4,
+                      "beg": {
+                        "line": 78,
+                        "col": 16
+                      },
+                      "end": {
+                        "line": 78,
+                        "col": 45
+                      }
+                    },
+                    "generated_from_span": null
+                  },
+                  "id": 68,
+                  "kind": {
+                    "Abort": "UndefinedBehavior"
+                  },
+                  "comments_before": []
+                }
+              ]
+            }
+          }
+        },
+        "comments_before": []
+      }
+    },
+    "b1be6d4cf92b33c256707cb592b1e39708a5d6bfe5f5030000d3cd33d38c6374": {
+      "reason": "Expected local place",
+      "original_statement": {
+        "span": {
+          "data": {
+            "file_id": 4,
+            "beg": {
+              "line": 78,
+              "col": 16
+            },
+            "end": {
+              "line": 78,
+              "col": 45
+            }
+          },
+          "generated_from_span": null
+        },
+        "id": 90,
+        "kind": {
+          "Call": {
+            "call": {
+              "func": {
+                "Regular": {
+                  "kind": {
+                    "Fun": {
+                      "Regular": 7
+                    }
+                  },
+                  "generics": {
+                    "regions": [],
+                    "types": [],
+                    "const_generics": [],
+                    "trait_refs": []
+                  }
+                }
+              },
+              "args": [
+                {
+                  "Move": {
+                    "kind": {
+                      "Local": 4
+                    },
+                    "ty": {
+                      "Untagged": {
+                        "RawPtr": [
+                          {
+                            "Untagged": {
+                              "Adt": {
+                                "id": "Tuple",
+                                "generics": {
+                                  "regions": [],
+                                  "types": [],
+                                  "const_generics": [],
+                                  "trait_refs": []
+                                }
+                              }
+                            }
+                          },
+                          "Mut"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "Copy": {
+                    "kind": {
+                      "Global": {
+                        "id": 2,
+                        "generics": {
+                          "regions": [],
+                          "types": [],
+                          "const_generics": [],
+                          "trait_refs": []
+                        }
+                      }
+                    },
+                    "ty": {
+                      "Untagged": {
+                        "Literal": {
+                          "UInt": "Usize"
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "Copy": {
+                    "kind": {
+                      "Global": {
+                        "id": 3,
+                        "generics": {
+                          "regions": [],
+                          "types": [],
+                          "const_generics": [],
+                          "trait_refs": []
+                        }
+                      }
+                    },
+                    "ty": {
+                      "Untagged": {
+                        "Literal": {
+                          "UInt": "Usize"
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "Copy": {
+                    "kind": {
+                      "Local": 2
+                    },
+                    "ty": {
+                      "Untagged": {
+                        "Literal": {
+                          "UInt": "Usize"
+                        }
+                      }
+                    }
+                  }
+                }
+              ],
+              "dest": {
+                "kind": {
+                  "Local": 3
+                },
+                "ty": {
+                  "Untagged": {
+                    "Adt": {
+                      "id": "Tuple",
+                      "generics": {
+                        "regions": [],
+                        "types": [],
+                        "const_generics": [],
+                        "trait_refs": []
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "on_unwind": {
+              "span": {
+                "data": {
+                  "file_id": 4,
+                  "beg": {
+                    "line": 78,
+                    "col": 16
+                  },
+                  "end": {
+                    "line": 78,
+                    "col": 45
+                  }
+                },
+                "generated_from_span": null
+              },
+              "statements": [
+                {
+                  "span": {
+                    "data": {
+                      "file_id": 4,
+                      "beg": {
+                        "line": 78,
+                        "col": 16
+                      },
+                      "end": {
+                        "line": 78,
+                        "col": 45
+                      }
+                    },
+                    "generated_from_span": null
+                  },
+                  "id": 86,
+                  "kind": {
+                    "StorageDead": 3
+                  },
+                  "comments_before": []
+                },
+                {
+                  "span": {
+                    "data": {
+                      "file_id": 4,
+                      "beg": {
+                        "line": 78,
+                        "col": 16
+                      },
+                      "end": {
+                        "line": 78,
+                        "col": 45
+                      }
+                    },
+                    "generated_from_span": null
+                  },
+                  "id": 87,
+                  "kind": {
+                    "StorageDead": 2
+                  },
+                  "comments_before": []
+                },
+                {
+                  "span": {
+                    "data": {
+                      "file_id": 4,
+                      "beg": {
+                        "line": 78,
+                        "col": 16
+                      },
+                      "end": {
+                        "line": 78,
+                        "col": 45
+                      }
+                    },
+                    "generated_from_span": null
+                  },
+                  "id": 88,
+                  "kind": {
+                    "StorageDead": 1
+                  },
+                  "comments_before": []
+                },
+                {
+                  "span": {
+                    "data": {
+                      "file_id": 4,
+                      "beg": {
+                        "line": 78,
+                        "col": 16
+                      },
+                      "end": {
+                        "line": 78,
+                        "col": 45
+                      }
+                    },
+                    "generated_from_span": null
+                  },
+                  "id": 89,
+                  "kind": {
+                    "Abort": "UndefinedBehavior"
+                  },
+                  "comments_before": []
+                }
+              ]
+            }
+          }
+        },
+        "comments_before": []
+      }
+    }
+  },
+  "claim": "original reference Use retags and checked region-index erasure; Rust lifetimes and compiler/native/security refinement unproved"
+}
