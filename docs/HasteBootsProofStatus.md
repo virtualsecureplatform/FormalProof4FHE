@@ -7,6 +7,26 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Pointer reads resolve into the constructed parameter registry
+
+`NativeGoldPointerRegistry` resolves generation-aware pointer reads to retained
+arena handles before running the existing constructed-parameter registry.
+Successful runs preserve every original position and root, including duplicate
+aliases. The slot theorem derives the selected heap cell, address/provenance
+matches, arena entry and constructor provenance from the run; callers do not
+supply individual read certificates. `registry_resolves` exposes the same
+logical registry run consumed by `NativeGoldConstructedRegistry` ownership
+and observed-extraction theorems.
+
+Six exact axiom guards and six executable regressions cover resolution,
+duplicate aliases, missing provenance, stale references after address reuse,
+and rejection when a later original reference cannot resolve. This bridge
+specifies a heap of logical arena handles. Actual Rust allocation, object
+layout, lifetime validity and source execution still require refinement.
+
+Validation: full `scripts/check` passed 10,926 build jobs and all standalone
+audits and smoke checks, including the six new exact dependency guards.
+
 ## Pointer storage distinguishes allocation generations and address reuse
 
 `NativePointerStorage` gives an operational specification for immutable records

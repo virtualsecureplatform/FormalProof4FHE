@@ -620,3 +620,4 @@ import FormalProof4FHE.HasteBoots.NativeGoldBalancedInitialization
 
 import FormalProof4FHE.HasteBoots.NativeGoldLookupFraming
 import FormalProof4FHE.HasteBoots.NativePointerStorage
+import FormalProof4FHE.HasteBoots.NativeGoldPointerRegistry

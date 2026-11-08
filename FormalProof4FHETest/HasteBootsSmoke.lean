@@ -1,4 +1,6 @@
 module
+import all FormalProof4FHETest.HasteBootsPointerRegistrySmoke
+import all FormalProof4FHETest.HasteBootsPointerRegistryAudit
 import all FormalProof4FHETest.HasteBootsPointerStorageSmoke
 import all FormalProof4FHETest.HasteBootsPointerStorageAudit
 import all FormalProof4FHETest.HasteBootsParsedDrawsSmoke
