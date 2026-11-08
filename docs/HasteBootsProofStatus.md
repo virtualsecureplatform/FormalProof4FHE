@@ -7,6 +7,49 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Closed pointer programs now have causal allocation-origin authenticity
+
+`NativePointerMachine` restricts pointer construction to nine data-only
+operations: checked allocation, construction from numerical addresses, address
+replacement on a selected register, pointer load/store, byte writes, copying,
+nonoverlapping copying and free. Operands contain addresses, byte payloads,
+layouts and register indices, with no pointer records or allocation identities.
+Numerical construction supplies no origin; address replacement preserves the
+selected register's origin. The machine has no operation for importing a
+caller-supplied origin. Allocation records its checked base/layout and the
+allocator's actual generation.
+
+Thirty-five theorems establish heap well-formedness, register/stored-value
+origin authenticity and generation bounds through every operation and arbitrary
+finite executions. Every history entry has an actual successful allocator step
+and an execution suffix reaching the current state. The strongest program
+results start from the concrete empty state and expose the underlying successful
+byte-heap allocator result for each register or stored pointer origin, with that
+causal suffix. These do not assume the authenticity invariant as input.
+Allocation generations in reachable histories are pairwise distinct, and the
+next allocation generation has not already been issued. Historical origins
+remain authentic after free; storage checks still reject stale dereferences.
+
+Persistent dependency audits cover 71 declarations, including operation and
+execution constructors and record fields. Twenty-four executable regressions
+exercise all nine operations, numerical forgery attempts, origin-preserving
+address changes, wrong-allocation accesses, initialized/uninitialized copying,
+overlap policy, missing registers, overlapping allocation, exact free layouts,
+double free, stale access after address reuse and retained dangling values.
+The model and tests are included in the root aggregates. Full `scripts/check`
+passes (10,960 build jobs plus all subsequent audit/smoke commands; log:
+`/tmp/hasteboots-pointer-machine-full-check.log`). Production Rust and the
+compiler/backend are unchanged.
+
+This is allocation-origin authenticity for this closed memory machine. It does
+not establish Rust's complete provenance/alias rules, exposed-provenance casts,
+borrow-tag or actor authority, or original-source execution correspondence.
+Next, bind these operations and register values to the borrow/reference layer
+and original native pointer/lifecycle accesses. Original constructor extraction,
+typed/compiler/caller/NTT/SIMD/scheduler coverage, causal lifetime oracle-owner
+history, BabyBear and the final expected physical attacker-work inequality
+remain open. No work accounting or end-to-end security result is introduced.
+
 ## Thin pointer bytes and allocation origins now compose
 
 `NativePointerByteMemory` couples the concrete byte heap to finite per-byte
@@ -36,10 +79,9 @@ model and tests are included in the root aggregates. Full `scripts/check` passes
 `/tmp/hasteboots-pointer-byte-memory-full-check.log`). Production Rust and the
 compiler/backend are unchanged.
 
-Next, restrict pointer-value construction to a closed register machine and prove
-that every observed origin came from an actual allocation in its history. The
-current low-level storage API accepts supplied pointer values and does not
-itself authenticate them. Connecting these operations to original native
+The subsequent closed machine above proves allocation-origin authenticity
+for its register and stored pointer values. The low-level storage API still
+accepts supplied pointer values and does not itself authenticate them. Connecting these operations to original native
 pointer accesses and lifecycle bodies, borrow identity, compiler/caller/NTT/
 SIMD/scheduler coverage, causal lifetime oracle-owner history, BabyBear and the
 final expected physical attacker-work inequality all remain open. This is not a
