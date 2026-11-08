@@ -12,8 +12,9 @@ all original scalar values are preserved. A prepass decomposes a wrapper only
 when it is closed, transparent, inhabited, has one range field at offset zero,
 no alignment modifier, and matching size/alignment for the single 64-bit
 little-endian target. The original Copy/Move projection is retained. Other
-transmutes remain unsupported; in particular no scalar-to-range validity proof
-is inferred and no cross-width conversion is introduced.
+transmutes remain unsupported; arbitrary symbolic scalar-to-range validity is
+not inferred and no cross-width conversion is introduced. Later checked-literal
+construction is documented in `../enum-nonzero/README.md`.
 
 ```sh
 scripts/check-hasteboots-range-unwrapping-guards

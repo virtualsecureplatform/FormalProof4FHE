@@ -1,8 +1,8 @@
 diff --git a/src/Config.ml b/src/Config.ml
-index cb919aeb..87c7c3eb 100644
+index cb919aeb..f1c41f3e 100644
 --- a/src/Config.ml
 +++ b/src/Config.ml
-@@ -598,3 +598,10 @@ let max_recdepth = ref 2048
+@@ -598,3 +598,12 @@ let max_recdepth = ref 2048
  (** If [false], evaluate [drop(p)] as [p := bottom]. Otherwise, evaluate it as a
      no-op (which means that we do not borrow-check the drops). *)
  let drop_as_no_op = ref true
@@ -13,17 +13,22 @@ index cb919aeb..87c7c3eb 100644
 +
 +(** Preserve monomorphic trait shapes and recognize scalar option aliases. *)
 +let monomorphic_builtin_shapes = ref false
++
++let u64_range_patterns = ref false
 diff --git a/src/Main.ml b/src/Main.ml
-index 8073dba6..b205101f 100644
+index 8073dba6..ed063a4a 100644
 --- a/src/Main.ml
 +++ b/src/Main.ml
-@@ -97,6 +97,16 @@ let () =
+@@ -97,6 +97,19 @@ let () =
          Arg.Symbol (backend_names, set_backend),
          " Specify the target backend (" ^ String.concat ", " backend_names ^ ")"
        );
 +      ( "-monomorphic-builtin-shapes",
 +        Arg.Set monomorphic_builtin_shapes,
 +        " Preserve monomorphic traits and recognize scalar option shapes" );
++      ( "-u64-range-patterns",
++        Arg.Set u64_range_patterns,
++        " Preserve U64 scalar range patterns in monomorphic Lean extraction" );
 +      ( "-disambiguate-instantiated-names",
 +        Arg.Set disambiguate_instantiated_names,
 +        " Distinguish names with different monomorphic instantiations" );
@@ -34,7 +39,7 @@ index 8073dba6..b205101f 100644
        ( "-namespace",
          Arg.String set_namespace,
          " Set the namespace of the definitions in the pure model" );
-@@ -579,6 +589,11 @@ let () =
+@@ -579,6 +592,16 @@ let () =
           without the `--preset=aeneas` option. Please regenerate the crate by \
           calling Charon with `--preset=aeneas`.\n";
  
@@ -43,14 +48,19 @@ index 8073dba6..b205101f 100644
 +        || (m.options.monomorphize && !opt_backend = Some Lean))
 +        "Monomorphic builtin shapes require monomorphic Charon IR and Lean";
 +
++      check_no_doc
++        ((not !u64_range_patterns)
++        || (!monomorphic_builtin_shapes && !opt_backend = Some Lean))
++        "U64 range patterns require monomorphic builtin shapes and Lean";
++
        (* We don't support mutually recursive definitions with decreases clauses in Lean *)
        if
          !opt_backend = Some Lean && !extract_decreases_clauses
 diff --git a/src/PrePasses.ml b/src/PrePasses.ml
-index b613aba1..39f263c3 100644
+index b613aba1..49289f18 100644
 --- a/src/PrePasses.ml
 +++ b/src/PrePasses.ml
-@@ -87,6 +87,493 @@ let erase_body_regions (crate : crate) (f : fun_decl) : fun_decl =
+@@ -87,6 +87,744 @@ let erase_body_regions (crate : crate) (f : fun_decl) : fun_decl =
      ^ Print.fun_decl_to_string env "" "  " f];
    f
  
@@ -232,9 +242,10 @@ index b613aba1..39f263c3 100644
 +        }
 +    | _ -> f
 +
-+(** Decode only fieldless explicitly represented unsigned enums, optionally
-+    behind one transparent wrapper. Layout tags, source discriminants and the
-+    discriminator must agree. Invalid representations remain undefined. *)
++(** Convert checked fieldless unsigned enum and transparent range carriers.
++    Stored tags, source discriminants and the discriminator must agree; range
++    construction uses checked literals only. Invalid representations stay
++    undefined. *)
 +let decompose_enum_transmutes (crate : crate) (f : fun_decl) : fun_decl =
 +  if not !Config.monomorphic_builtin_shapes then f
 +  else
@@ -271,6 +282,136 @@ index b613aba1..39f263c3 100644
 +                 && layout.repr.align_modif = None -> layout
 +          | _ -> [%craise] span "Scalar enum transmute requires checked layout"
 +        in
++        let get_decl (reference : Types.type_decl_ref) =
++          match reference.id with
++          | TAdtId id -> TypeDeclId.Map.find_opt id crate.type_decls
++          | _ -> None
++        in
++        let checked_enum span scalar (decl : Types.type_decl) =
++          let layout = checked_layout span decl (bytes scalar) in
++          [%cassert] span layout.repr.explicit_discr_type
++            "Scalar enum transmute requires explicit representation";
++          let variants =
++            match decl.kind with
++            | Enum variants -> variants
++            | _ -> [%internal_error] span
++          in
++          [%cassert] span
++            (variants <> []
++            && List.length variants = List.length layout.variant_layouts)
++            "Scalar enum transmute requires complete variant layouts";
++          let value_of_variant (v : variant) =
++            match v.discriminant with
++            | VScalar (UnsignedScalar (kind, n))
++              when kind = scalar && v.fields = [] && Z.leq Z.zero n
++                   && Z.lt n (Z.shift_left Z.one (8 * bytes scalar)) -> n
++            | _ ->
++                [%craise] span
++                  "Scalar enum transmute requires fieldless matching unsigned \
++                   discriminants"
++          in
++          List.iteri
++            (fun i (v : Types.variant) ->
++              [%cassert] span
++                (v.id = VariantId.of_int i)
++                "Scalar enum transmute requires canonical variant identifiers")
++            variants;
++          let values = List.map value_of_variant variants in
++          [%cassert] span
++            (List.length (List.sort_uniq Z.compare values) = List.length values)
++            "Scalar enum transmute requires distinct discriminants";
++          (match layout.discriminator with
++          | Some (Branch (0, Unsigned tag_kind, children, Invalid))
++            when bytes tag_kind = bytes scalar
++                 && List.length children = List.length variants ->
++              List.iter2
++                (fun (v : variant) opt_layout ->
++                  let n = value_of_variant v in
++                  let tag = Values.UnsignedScalar (tag_kind, n) in
++                  [%cassert] span
++                    ((match opt_layout with
++                     | Some vl ->
++                         vl.field_offsets = [] && (not vl.uninhabited)
++                         && vl.tagger = [ (0, tag) ]
++                     | None -> false)
++                    && List.exists
++                         (fun ((lower, upper), discr) ->
++                           lower = tag && upper = tag && discr = Known v.id)
++                         children)
++                    "Scalar enum transmute requires agreeing tags and \
++                     discriminator")
++                variants layout.variant_layouts
++          | _ ->
++              [%craise] span
++                "Scalar enum transmute requires complete singleton \
++                 discriminator");
++          (variants, values)
++        in
++        let checked_wrapper span scalar (reference : Types.type_decl_ref)
++            (decl : Types.type_decl) =
++          [%cassert] span
++            (reference.generics = empty_generic_args)
++            "Range carrier requires closed references";
++          let layout = checked_layout span decl (bytes scalar) in
++          [%cassert] span
++            (layout.repr.transparent
++            && layout.discriminator = Some (Known VariantId.zero)
++            &&
++            match layout.variant_layouts with
++            | [ Some v ] ->
++                v.field_offsets = [ 0 ] && (not v.uninhabited) && v.tagger = []
++            | _ -> false)
++            "Range carrier requires a transparent zero-offset wrapper"
++        in
++        let rec range_chain span seen ty =
++          match ty with
++          | TPattern (base, pattern) ->
++              let scalar, lower, upper =
++                TypesAnalysis.unsigned_range_bounds (Some span) base pattern
++              in
++              [%cassert] span
++                (bytes scalar <> 0)
++                "Unsupported range carrier width";
++              Some (scalar, lower, upper, ty, [])
++          | TAdt reference -> (
++              match (reference.id, get_decl reference) with
++              | TAdtId id, Some decl -> (
++                  [%cassert] span
++                    (not (TypeDeclId.Set.mem id seen))
++                    "Range carrier requires an acyclic chain";
++                  match decl.kind with
++                  | Struct [ field ] -> (
++                      match
++                        range_chain span
++                          (TypeDeclId.Set.add id seen)
++                          field.field_ty
++                      with
++                      | None -> None
++                      | Some (scalar, lower, upper, leaf, chain) ->
++                          checked_wrapper span scalar reference decl;
++                          Some (scalar, lower, upper, leaf, reference :: chain))
++                  | _ -> None)
++              | _ -> None)
++          | _ -> None
++        in
++        let enum_view reference =
++          match get_decl reference with
++          | Some decl -> (
++              match decl.kind with
++              | Enum _ -> Some (reference, decl, None)
++              | Struct [ field ] -> (
++                  match field.field_ty with
++                  | TAdt inner -> (
++                      match get_decl inner with
++                      | Some decl -> (
++                          match decl.kind with
++                          | Enum _ -> Some (inner, decl, Some reference)
++                          | _ -> None)
++                      | None -> None)
++                  | _ -> None)
++              | _ -> None)
++          | None -> None
++        in
 +        let visitor =
 +          object
 +            inherit [_] map_statement as super
@@ -279,6 +420,204 @@ index b613aba1..39f263c3 100644
 +              let convert st =
 +                let st = super#visit_statement env st in
 +                match st.kind with
++                | Assign
++                    ( dest,
++                      UnaryOp
++                        ( Cast
++                            (CastTransmute
++                               ((TAdt source as src), TLiteral (TUInt scalar))),
++                          op ) ) -> (
++                    match range_chain st.span TypeDeclId.Set.empty src with
++                    | Some (kind, _, _, leaf, chain) when kind = scalar ->
++                        let saved = fresh_local src in
++                        let saved_id =
++                          match saved.kind with
++                          | PlaceLocal id -> id
++                          | _ -> [%internal_error] st.span
++                        in
++                        let place =
++                          List.fold_left
++                            (fun place (reference : Types.type_decl_ref) ->
++                              let id =
++                                match reference.id with
++                                | TAdtId id -> id
++                                | _ -> [%internal_error] st.span
++                              in
++                              let decl =
++                                TypeDeclId.Map.find id crate.type_decls
++                              in
++                              let ty =
++                                match decl.kind with
++                                | Struct [ field ] -> field.field_ty
++                                | _ -> [%internal_error] st.span
++                              in
++                              {
++                                kind =
++                                  PlaceProjection
++                                    ( place,
++                                      Field (ProjAdt (id, None), FieldId.zero)
++                                    );
++                                ty;
++                              })
++                            saved chain
++                        in
++                        let statement kind =
++                          {
++                            st with
++                            kind;
++                            statement_id = StatementId.zero;
++                            comments_before = [];
++                          }
++                        in
++                        [
++                          statement (StorageLive saved_id);
++                          statement (Assign (saved, Use (op, NoRetag)));
++                          statement
++                            (Assign
++                               ( dest,
++                                 UnaryOp
++                                   ( Cast
++                                       (CastTransmute
++                                          (leaf, TLiteral (TUInt scalar))),
++                                     Move place ) ));
++                          statement (StorageDead saved_id);
++                        ]
++                    | _ -> [ st ])
++                | Assign
++                    ( dest,
++                      UnaryOp
++                        (Cast (CastTransmute ((TAdt source as src), target)), op)
++                    ) -> (
++                    match
++                      ( range_chain st.span TypeDeclId.Set.empty target,
++                        enum_view source )
++                    with
++                    | ( Some (scalar, lower, upper, leaf, chain),
++                        Some (enum_ref, decl, wrapper) ) ->
++                        let span = st.span in
++                        [%cassert] span
++                          (source.generics = empty_generic_args
++                          && enum_ref.generics = empty_generic_args)
++                          "Enum range conversion requires closed references";
++                        (match wrapper with
++                        | None -> ()
++                        | Some reference ->
++                            checked_wrapper span scalar reference
++                              (Option.get (get_decl reference)));
++                        let variants, values = checked_enum span scalar decl in
++                        [%cassert] span
++                          (List.for_all
++                             (fun n -> Z.leq lower n && Z.leq n upper)
++                             values)
++                          "Enum range conversion requires every stored tag \
++                           within bounds";
++                        let saved = fresh_local src in
++                        let saved_id =
++                          match saved.kind with
++                          | PlaceLocal id -> id
++                          | _ -> [%internal_error] span
++                        in
++                        let input =
++                          match wrapper with
++                          | None -> saved
++                          | Some reference ->
++                              let id =
++                                match reference.id with
++                                | TAdtId id -> id
++                                | _ -> [%internal_error] span
++                              in
++                              {
++                                kind =
++                                  PlaceProjection
++                                    ( saved,
++                                      Field (ProjAdt (id, None), FieldId.zero)
++                                    );
++                                ty = TAdt enum_ref;
++                              }
++                        in
++                        let statement kind =
++                          {
++                            st with
++                            kind;
++                            statement_id = StatementId.zero;
++                            comments_before = [];
++                          }
++                        in
++                        let branches =
++                          List.map2
++                            (fun (v : variant) n ->
++                              let base = TLiteral (TUInt scalar) in
++                              let leaf_place = fresh_local leaf in
++                              let leaf_id =
++                                match leaf_place.kind with
++                                | PlaceLocal id -> id
++                                | _ -> [%internal_error] span
++                              in
++                              let init =
++                                [
++                                  statement (StorageLive leaf_id);
++                                  statement
++                                    (Assign
++                                       ( leaf_place,
++                                         UnaryOp
++                                           ( Cast (CastTransmute (base, leaf)),
++                                             Constant
++                                               {
++                                                 kind =
++                                                   CLiteral
++                                                     (VScalar
++                                                        (UnsignedScalar
++                                                           (scalar, n)));
++                                                 ty = base;
++                                               } ) ));
++                                ]
++                              in
++                              let statements, last, locals =
++                                List.fold_left
++                                  (fun (statements, previous, locals) reference
++                                     ->
++                                    let next = fresh_local (TAdt reference) in
++                                    let id =
++                                      match next.kind with
++                                      | PlaceLocal id -> id
++                                      | _ -> [%internal_error] span
++                                    in
++                                    ( statements
++                                      @ [
++                                          statement (StorageLive id);
++                                          statement
++                                            (Assign
++                                               ( next,
++                                                 Aggregate
++                                                   ( AggregatedAdt
++                                                       (reference, None, None),
++                                                     [ Move previous ] ) ));
++                                        ],
++                                      next,
++                                      id :: locals ))
++                                  (init, leaf_place, [ leaf_id ])
++                                  (List.rev chain)
++                              in
++                              let statements =
++                                statements
++                                @ [
++                                    statement
++                                      (Assign (dest, Use (Move last, NoRetag)));
++                                  ]
++                                @ List.map
++                                    (fun id -> statement (StorageDead id))
++                                    locals
++                              in
++                              ([ v.id ], { span; statements }))
++                            variants values
++                        in
++                        [
++                          statement (StorageLive saved_id);
++                          statement (Assign (saved, Use (op, NoRetag)));
++                          statement (Switch (Match (input, branches, None)));
++                          statement (StorageDead saved_id);
++                        ]
++                    | _ -> [ st ])
 +                | Assign
 +                    ( dest,
 +                      UnaryOp
@@ -294,11 +633,6 @@ index b613aba1..39f263c3 100644
 +                          op ) )
 +                  when bytes scalar <> 0 -> (
 +                    let span = st.span in
-+                    let get_decl (reference : Types.type_decl_ref) =
-+                      match reference.id with
-+                      | TAdtId id -> TypeDeclId.Map.find_opt id crate.type_decls
-+                      | _ -> None
-+                    in
 +                    match get_decl target with
 +                    | None -> [ st ]
 +                    | Some outer -> (
@@ -342,80 +676,7 @@ index b613aba1..39f263c3 100644
 +                                  | _ -> false)
 +                                  "Scalar enum transmute requires a \
 +                                   transparent zero-offset wrapper");
-+                            let layout =
-+                              checked_layout span decl (bytes scalar)
-+                            in
-+                            [%cassert] span layout.repr.explicit_discr_type
-+                              "Scalar enum transmute requires explicit \
-+                               representation";
-+                            let variants =
-+                              match decl.kind with
-+                              | Enum variants -> variants
-+                              | _ -> [%internal_error] span
-+                            in
-+                            [%cassert] span
-+                              (variants <> []
-+                              && List.length variants
-+                                 = List.length layout.variant_layouts)
-+                              "Scalar enum transmute requires complete variant \
-+                               layouts";
-+                            let value_of_variant (v : variant) =
-+                              match v.discriminant with
-+                              | VScalar (UnsignedScalar (kind, n))
-+                                when kind = scalar && v.fields = []
-+                                     && Z.leq Z.zero n
-+                                     && Z.lt n
-+                                          (Z.shift_left Z.one
-+                                             (8 * bytes scalar)) -> n
-+                              | _ ->
-+                                  [%craise] span
-+                                    "Scalar enum transmute requires fieldless \
-+                                     matching unsigned discriminants"
-+                            in
-+                            List.iteri
-+                              (fun i (v : Types.variant) ->
-+                                [%cassert] span
-+                                  (v.id = VariantId.of_int i)
-+                                  "Scalar enum transmute requires canonical \
-+                                   variant identifiers")
-+                              variants;
-+                            let values = List.map value_of_variant variants in
-+                            [%cassert] span
-+                              (List.length (List.sort_uniq Z.compare values)
-+                              = List.length values)
-+                              "Scalar enum transmute requires distinct \
-+                               discriminants";
-+                            (match layout.discriminator with
-+                            | Some
-+                                (Branch (0, Unsigned tag_kind, children, Invalid))
-+                              when bytes tag_kind = bytes scalar
-+                                   && List.length children
-+                                      = List.length variants ->
-+                                List.iter2
-+                                  (fun (v : variant) opt_layout ->
-+                                    let n = value_of_variant v in
-+                                    let tag =
-+                                      Values.UnsignedScalar (tag_kind, n)
-+                                    in
-+                                    [%cassert] span
-+                                      ((match opt_layout with
-+                                       | Some vl ->
-+                                           vl.field_offsets = []
-+                                           && (not vl.uninhabited)
-+                                           && vl.tagger = [ (0, tag) ]
-+                                       | None -> false)
-+                                      && List.exists
-+                                           (fun ((lower, upper), discr) ->
-+                                             lower = tag && upper = tag
-+                                             && discr = Known v.id)
-+                                           children)
-+                                      "Scalar enum transmute requires agreeing \
-+                                       tags and discriminator")
-+                                  variants layout.variant_layouts
-+                            | _ ->
-+                                [%craise] span
-+                                  "Scalar enum transmute requires complete \
-+                                   singleton discriminator");
++                            let variants, _ = checked_enum span scalar decl in
 +                            let temporary =
 +                              Option.map
 +                                (fun _ -> fresh_local (TAdt enum_ref))
@@ -544,7 +805,7 @@ index b613aba1..39f263c3 100644
  (** Replace the occurrences of [core::intrinsics::unreachable] with
      [Abort UndefinedBehavior]. This helps with the analyzes and the symbolic
      evaluation (in particular, we stop the evaluation when encountering an
-@@ -979,20 +1466,26 @@ let filter_marker_traits (crate : crate) : crate =
+@@ -979,20 +1717,26 @@ let filter_marker_traits (crate : crate) : crate =
    let mctx = NameMatcher.ctx_from_crate crate in
    let pats =
      List.map NameMatcher.parse_pattern
@@ -585,7 +846,7 @@ index b613aba1..39f263c3 100644
    in
    let match_config =
      {
-@@ -1306,6 +1799,12 @@ let decompose_str_borrows (_ : crate) (f : fun_decl) : fun_decl =
+@@ -1306,6 +2050,12 @@ let decompose_str_borrows (_ : crate) (f : fun_decl) : fun_decl =
                *)
                method! visit_Constant env (cv : constant_expr) =
                  match (cv.kind, cv.ty) with
@@ -598,7 +859,7 @@ index b613aba1..39f263c3 100644
                  | ( CLiteral (VStr str),
                      TRef
                        (_, (TAdt { id = TBuiltin TStr; _ } as str_ty), ref_kind)
-@@ -2271,8 +2770,12 @@ let apply_passes (crate : crate) : crate =
+@@ -2271,8 +3021,12 @@ let apply_passes (crate : crate) : crate =
    (* Passes that apply to individual function bodies *)
    let function_passes =
      [
@@ -627,21 +888,29 @@ index 8df1bc5f..f1e2b16f 100644
    in
  
 diff --git a/src/extract/Extract.ml b/src/extract/Extract.ml
-index 2dc4a57f..9914287d 100644
+index 2dc4a57f..51d3509d 100644
 --- a/src/extract/Extract.ml
 +++ b/src/extract/Extract.ml
-@@ -398,6 +398,7 @@ let extract_cast_kind_hol4 (span : Meta.span)
+@@ -398,6 +398,8 @@ let extract_cast_kind_hol4 (span : Meta.span)
      (extract_expr : inside:bool -> texpr -> unit) (fmt : F.formatter)
      ~(inside : bool) (kind : cast_kind) (arg : texpr) : unit =
    match kind with
-+  | CastRange -> [%craise] span "Range casts are only supported in Lean"
++  | CastRangeConst | CastRange ->
++      [%craise] span "Range casts are only supported in Lean"
    | CastLit (src, tgt) ->
        (* Casting, say, an u32 to an i32 would be done as follows:
           {[
-@@ -422,6 +423,14 @@ let extract_cast_kind_gen (span : Meta.span)
+@@ -422,6 +424,21 @@ let extract_cast_kind_gen (span : Meta.span)
      (extract_expr : inside:bool -> texpr -> unit) (fmt : F.formatter)
      ~(inside : bool) (kind : cast_kind) (arg : texpr) : unit =
    match kind with
++  | CastRangeConst ->
++      [%cassert] span
++        (backend () = Lean)
++        "Range casts are only supported in Lean";
++      F.pp_print_string fmt "(Subtype.mk ";
++      extract_expr ~inside:true arg;
++      F.pp_print_string fmt " (by decide))"
 +  | CastRange ->
 +      [%cassert] span
 +        (backend () = Lean)
@@ -653,7 +922,7 @@ index 2dc4a57f..9914287d 100644
    | CastLit (src, tgt) ->
        let integer_type_to_string (ty : integer_type) : string =
          if backend () = Lean then
-@@ -2693,6 +2702,7 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
+@@ -2693,6 +2710,7 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
    let clause_names =
      match builtin_info with
      | None ->
@@ -661,7 +930,7 @@ index 2dc4a57f..9914287d 100644
          List.map
            (fun (c : trait_param) ->
              let name = ctx_compute_trait_parent_clause_name ctx trait_decl c in
-@@ -2701,6 +2711,14 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
+@@ -2701,6 +2719,14 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
                if !record_fields_short_names then name
                else ctx_compute_trait_decl_name ctx trait_decl ^ name
              in
@@ -881,7 +1150,7 @@ index 52b94675..951b56d9 100644
      (* Update the synthesized program *)
      S.synthesize_symbolic_expansion_no_branching span original_sv
 diff --git a/src/interp/InterpExpressions.ml b/src/interp/InterpExpressions.ml
-index 2d32fc8e..e516de2e 100644
+index 2d32fc8e..74dea967 100644
 --- a/src/interp/InterpExpressions.ml
 +++ b/src/interp/InterpExpressions.ml
 @@ -82,6 +82,26 @@ let access_rplace_reorganize_and_read (config : config) (span : Meta.span)
@@ -911,10 +1180,23 @@ index 2d32fc8e..e516de2e 100644
  let access_rplace_reorganize (config : config) (span : Meta.span)
      (greedy_expand : bool) (access : access_kind) (p : place) : cm_fun =
   fun ctx ->
-@@ -956,6 +976,12 @@ let eval_unary_op_symbolic (config : config) (span : Meta.span) (unop : unop)
+@@ -956,6 +976,25 @@ let eval_unary_op_symbolic (config : config) (span : Meta.span) (unop : unop)
          | Neg OPanic, (TLiteral (TInt _) as lty) -> lty
          | Neg OPanic, (TLiteral (TUInt _) as lty) -> lty
          | Cast (CastScalar (_, tgt_ty)), _ -> TLiteral tgt_ty
++        | Cast (CastTransmute (base, (TPattern (actual, pattern) as dst))), _
++          when !Config.monomorphic_builtin_shapes
++               && v.ty = base && base = actual ->
++            let kind, lower, upper =
++              TypesAnalysis.unsigned_range_bounds (Some span) actual pattern
++            in
++            [%cassert] span
++              (match v.value with
++              | VLiteral (VScalar (UnsignedScalar (k, n))) ->
++                  k = kind && Z.leq lower n && Z.leq n upper
++              | _ -> false)
++              "Range construction requires an in-bounds scalar literal";
++            dst
 +        | Cast (CastTransmute ((TPattern (base, pattern) as src), dst)), _
 +          when !Config.monomorphic_builtin_shapes && v.ty = src && base = dst ->
 +            let _ =
@@ -1063,19 +1345,22 @@ index fbd7f003..fdd35501 100644
  let expect_free_var span (var : 'id de_bruijn_var) : 'id =
    match var with
 diff --git a/src/llbc/TypesAnalysis.ml b/src/llbc/TypesAnalysis.ml
-index 81711ebc..b4749c32 100644
+index 81711ebc..2bee4cf8 100644
 --- a/src/llbc/TypesAnalysis.ml
 +++ b/src/llbc/TypesAnalysis.ml
-@@ -4,6 +4,31 @@ open Substitute
+@@ -4,6 +4,34 @@ open Substitute
  open Charon.TypesUtils
  open SCC
  
-+(** Closed inclusive U32 ranges and opt-in Usize ranges retain their scalar kind
-+    and both bounds. Unsupported forms remain translation errors. *)
++(** Closed inclusive U32 ranges and opt-in Usize/U64 ranges retain their scalar
++    kind and both bounds. Unsupported forms remain translation errors. *)
 +let unsigned_range_bounds (span : Meta.span option) (base : ty)
 +    (pattern : type_pattern) =
 +  match (base, pattern) with
-+  | TLiteral (TUInt ((U32 | Usize) as kind)), Range (lower, upper) ->
++  | TLiteral (TUInt ((U32 | Usize | U64) as kind)), Range (lower, upper) ->
++      [%cassert_opt_span] span
++        (kind <> U64 || !Config.u64_range_patterns)
++        "Unsupported scalar pattern type";
 +      [%cassert_opt_span] span
 +        (kind = U32 || !Config.monomorphic_builtin_shapes)
 +        "Usize ranges require monomorphic builtin shapes";
@@ -1098,7 +1383,7 @@ index 81711ebc..b4749c32 100644
  let log = Logging.types_analysis_log
  
  type subtype_info = {
-@@ -355,6 +380,9 @@ let analyze_full_ty (span : Meta.span option) (updated : bool ref)
+@@ -355,6 +383,9 @@ let analyze_full_ty (span : Meta.span option) (updated : bool ref)
          in
          (* Continue exploring *)
          analyze span expl_info ty_info rty
@@ -1109,7 +1394,7 @@ index 81711ebc..b4749c32 100644
          (* TODO: not sure what to do here *)
          analyze span expl_info ty_info rty
 diff --git a/src/pure/PrintPure.ml b/src/pure/PrintPure.ml
-index 6f10d6ae..33028f55 100644
+index 6f10d6ae..09c0949c 100644
 --- a/src/pure/PrintPure.ml
 +++ b/src/pure/PrintPure.ml
 @@ -278,6 +278,9 @@ let builtin_ty_to_string (aty : builtin_ty) : string =
@@ -1149,16 +1434,17 @@ index 6f10d6ae..33028f55 100644
              (* This type is opaque: we can't get there *)
              [%craise_opt_span] span "Unreachable"
          | TResult ->
-@@ -885,6 +888,7 @@ let regular_fun_id_to_string (env : fmt_env) (fun_id : fun_id) : string =
+@@ -885,6 +888,8 @@ let regular_fun_id_to_string (env : fmt_env) (fun_id : fun_id) : string =
  let cast_kind_to_string (env : fmt_env) (kind : cast_kind) : string =
    let src, tgt =
      match kind with
 +    | CastRange -> ("range", "scalar")
++    | CastRangeConst -> ("constant", "range")
      | CastLit (src, tgt) ->
          (literal_type_to_string src, literal_type_to_string tgt)
      | CastRawPtr ((src, src_mut), (tgt, tgt_mut)) ->
 diff --git a/src/pure/Pure.ml b/src/pure/Pure.ml
-index c898d123..a3e0c0aa 100644
+index c898d123..8b8d461e 100644
 --- a/src/pure/Pure.ml
 +++ b/src/pure/Pure.ml
 @@ -88,6 +88,7 @@ type builtin_ty =
@@ -1178,11 +1464,12 @@ index c898d123..a3e0c0aa 100644
    ty : literal_type;
  }
  
-@@ -1211,6 +1212,7 @@ type unop =
+@@ -1211,6 +1212,8 @@ type unop =
    | ArrayToSlice
  
  and cast_kind =
 +  | CastRange
++  | CastRangeConst
    | CastLit of literal_type * literal_type
    | CastRawPtr of (literal_type * mutability) * (literal_type * mutability)
        (** When casting between raw pointers, we only support a subset of casts
@@ -1200,13 +1487,26 @@ index e9a07a43..ddaead12 100644
               the array expressions are introduced as struct updates *)
            [%craise] span "Attempting to access the fields of an opaque type")
 diff --git a/src/symbolic/SymbolicToPureExpressions.ml b/src/symbolic/SymbolicToPureExpressions.ml
-index b83dc456..a7fa38a5 100644
+index b83dc456..dc44375a 100644
 --- a/src/symbolic/SymbolicToPureExpressions.ml
 +++ b/src/symbolic/SymbolicToPureExpressions.ml
-@@ -584,6 +584,12 @@ and translate_function_call_aux (call : S.call) (e : S.expr) (ctx : bs_ctx) :
+@@ -584,6 +584,25 @@ and translate_function_call_aux (call : S.call) (e : S.expr) (ctx : bs_ctx) :
                (* We shouldn't get there: this case should have been detected before
                 and handled in [translate_cast_unsize] *)
                [%internal_error] ctx.span
++          | CastTransmute (base, TPattern (actual, pattern))
++            when !Config.monomorphic_builtin_shapes && base = actual ->
++              let kind, lower, upper =
++                TypesAnalysis.unsigned_range_bounds (Some ctx.span) actual
++                  pattern
++              in
++              [%cassert] ctx.span
++                (match args with
++                | [ { e = Const (VScalar (UnsignedScalar (k, n))); _ } ] ->
++                    k = kind && Z.leq lower n && Z.leq n upper
++                | _ -> false)
++                "Range construction requires an in-bounds scalar literal";
++              (CastRangeConst, false)
 +          | CastTransmute (TPattern (base, pattern), dst)
 +            when !Config.monomorphic_builtin_shapes && base = dst ->
 +              let _ =

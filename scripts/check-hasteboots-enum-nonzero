@@ -1,0 +1,162 @@
+#!/usr/bin/env python3
+"""Check full-width enum to nonzero carriers, stdlib get, and exact round trips."""
+import argparse
+import copy
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+BASE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-inline-equivalence'))
+RANGES = runpy.run_path(str(ROOT / 'scripts/probe-hasteboots-u32-ranges'))
+BUILD, PARAMETERS, COMMON, digest = BASE['BUILD'], BASE['PARAMETERS'], BASE['COMMON'], BASE['digest']
+DATA = ROOT / 'interop/aeneas/enum-nonzero'
+PROOFS = ['get_exact', 'nonzero_bits', 'nonzero_total', 'nonzero_sound', 'nonzero_bounds', 'roundtrip_exact', 'high_bit']
+STDLIB_GET = 'core.num.nonzero.NonZero.get.mono_d09c76fe70f670a1d45d9393838af79b'
+NAMESPACE = 'hasteboots_enum_nonzero'
+
+
+def validate_output(raw):
+    PARAMETERS['verify_snapshot'](raw, (DATA / 'Generated.lean').read_text())
+    PARAMETERS['validate_proof_source']((DATA / 'Proof.lean').read_text(), PROOFS)
+    return RANGES['validate_output'](raw, NAMESPACE, ['Align', 'nonzero', 'get', 'roundtrip', STDLIB_GET])
+
+
+def declaration(ir, name):
+    found = [d for d in ir['translated']['type_decls'] if isinstance(d, dict)
+             and [x['Ident'][0] for x in d['item_meta']['name'] if 'Ident' in x][-1:] == [name]]
+    if len(found) != 1: raise RuntimeError('Missing or duplicate carrier: ' + name)
+    return found[0]
+
+
+def validate_ir(ir):
+    BASE['BASE']['BASE']['validate_ir'](ir)
+    options = ir['translated'].get('options', {})
+    if options.get('monomorphize') is not True or options.get('mir') != 'Optimized':
+        raise RuntimeError('Expected monomorphic optimized MIR')
+    RANGES['inspect_patterns'](ir, [(1, 2**64-1)], 'U64')
+    enum = declaration(ir, 'Alignment64')
+    actual = [(v['name'], v['discriminant']) for v in enum['kind']['Enum']]
+    expected = [('A'+str(i), {'Scalar': {'Unsigned': ['U64', str(2**i)]}}) for i in range(64)]
+    if actual != expected: raise RuntimeError('Original alignment table differs')
+    for name in ['Align', 'NonZero', 'NonZeroU64Inner']:
+        decl = declaration(ir, name)
+        layout = decl.get('layout', [])
+        if len(layout) != 1 or len(decl.get('kind', {}).get('Struct', [])) != 1:
+            raise RuntimeError('Missing carrier structure/layout')
+        value = layout[0]['value']
+        if value['size'] != 8 or value['align'] != 8 or not value['repr']['transparent']:
+            raise RuntimeError('Wrong carrier representation')
+        if value['variant_layouts'][0]['field_offsets'] != [0]:
+            raise RuntimeError('Wrong carrier field offset')
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--build-receipt', type=Path, required=True)
+    parser.add_argument('--backend', type=Path, required=True)
+    args = parser.parse_args()
+    parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
+    out = Path(tempfile.mkdtemp(prefix='enum-nonzero-', dir=parent))
+    record = {'status': 'started', 'claim': 'full-width nonzero representation regression only; compiler/native heap/work/security unproved',
+              'script_sha256': digest(Path(__file__).read_bytes()), 'commands': []}
+    def save(): (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
+    def run(command, log, required=True):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out / log).open('w') as stream:
+            status = subprocess.run([str(x) for x in command], cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT).returncode
+        if required and status: raise RuntimeError(log + ' exited ' + str(status))
+        return status
+    print('Enum nonzero artifacts: ' + str(out), flush=True); save()
+    try:
+        _, tools, _ = BUILD['verify_receipt'](args.build_receipt)
+        record['build_receipt_sha256'] = digest(args.build_receipt.read_bytes())
+        record['backend_patches'] = PARAMETERS['verify_backend'](args.backend.resolve(), out)
+        files = ['fixture.rs', 'Generated.lean', 'Proof.lean', 'unsupported-zero.rs', 'unsupported-wrapper.rs', 'unsupported-symbolic.rs']
+        record['inputs'] = {name: digest((DATA / name).read_bytes()) for name in files}
+        def extract(source, name):
+            llbc = out / (name + '.llbc')
+            run([tools / 'charon', 'rustc', '--preset=aeneas', '--monomorphize', '--mir', 'optimized', '--include', 'core::num::nonzero', '--include', 'core::num::niche_types', '--dest-file', llbc,
+                 '--', '--crate-type', 'lib', '--edition', '2024', '--crate-name', NAMESPACE,
+                 (DATA / source).relative_to(ROOT)], name + '-charon.log')
+            return llbc
+        options = ['-backend', 'lean', '-checks', '-sequential', '-max-heartbeats', '200000', '-max-recdepth', '1000',
+                   '-abort-on-error', '-no-external-name-patterns', '-disambiguate-instantiated-names']
+        def frontend(llbc, name, enabled=True, required=True, shapes=True):
+            return run([tools / 'aeneas', *options, *(['-monomorphic-builtin-shapes'] if shapes else []), *(['-u64-range-patterns'] if enabled else []),
+                        '-dest', out / name, llbc], name + '-frontend.log', required)
+        llbc = extract('fixture.rs', 'positive')
+        ir = json.loads(llbc.read_text())
+        validate_ir(ir)
+        frontend(llbc, 'positive')
+        BASE['BASE']['validate_frontend_log']((out / 'positive-frontend.log').read_text())
+        generated = list((out / 'positive').glob('*.lean'))
+        if len(generated) != 1: raise RuntimeError('Expected complete single generated module')
+        raw = generated[0].read_text()
+        runtime = validate_output(raw)
+        names = [NAMESPACE + '.' + n for n in ['nonzero', 'get', 'roundtrip', STDLIB_GET]]
+        names += ['HasteBootsEnumNonzeroProof.' + n for n in PROOFS]
+        names += ['HasteBootsEnumNonzeroProof.NZ', NAMESPACE + '.Alignment64.read_discriminant']
+        checked = out / 'Checked.lean'
+        checked.write_text('import Aeneas.Std\nimport Aeneas.Data.Discriminant\n' + runtime + '\n'
+                           + (DATA / 'Proof.lean').read_text()
+                           + ''.join('\n#print axioms ' + n + '\n' for n in names))
+        run([ROOT / 'scripts/in-container', 'bash', '-euc', 'cd -- "$1"; lake env lean -DwarningAsError=true "$2"', '_',
+             COMMON['container_path'](args.backend.resolve() / 'backends/lean'), COMMON['container_path'](checked)], 'lean.log')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), names)
+        record.update(llbc_sha256=digest(llbc.read_bytes()), checked_sha256=digest(checked.read_bytes()))
+        record['rejected'] = []
+        def reject(bad, name, error, enabled=True, shapes=True):
+            status = frontend(bad, name, enabled, False, shapes)
+            log = (out / (name + '-frontend.log')).read_text()
+            if status == 0 or error not in log: raise RuntimeError('Unsupported carrier accepted: ' + name)
+            record['rejected'].append(name)
+        for case, error in [('zero', 'Enum range conversion requires every stored tag within bounds'),
+                            ('wrapper', 'Range carrier requires a transparent zero-offset wrapper'),
+                            ('symbolic', 'Range construction requires an in-bounds scalar literal')]:
+            reject(extract('unsupported-' + case + '.rs', case), case, error)
+        reject(llbc, 'disabled', 'Unsupported scalar pattern type', False)
+        reject(llbc, 'without-shapes', 'U64 range patterns require monomorphic builtin shapes and Lean', shapes=False)
+        for field in ['target-repr', 'inner-offset', 'source-repr', 'source-tag', 'tag-zero', 'bounds']:
+            # Explicit negative fault injection; accepted source/IR is untouched.
+            bad = copy.deepcopy(ir)
+            enum = declaration(bad, 'Alignment64')
+            if field == 'target-repr': declaration(bad, 'NonZero')['layout'][0]['value']['repr']['transparent'] = False
+            elif field == 'inner-offset': declaration(bad, 'NonZeroU64Inner')['layout'][0]['value']['variant_layouts'][0]['field_offsets'] = [4]
+            elif field == 'source-repr': declaration(bad, 'Align')['layout'][0]['value']['repr']['transparent'] = False
+            elif field in ['source-tag', 'tag-zero']:
+                layout = enum['layout'][0]['value']
+                layout['variant_layouts'][0]['tagger'][0][1]['Unsigned'][1] = '0'
+                if field == 'tag-zero':
+                    enum['kind']['Enum'][0]['discriminant']['Scalar']['Unsigned'][1] = '0'
+                    interval = layout['discriminator']['Branch']['children'][0][0]
+                    interval['start']['Unsigned'][1] = '0'; interval['end']['Unsigned'][1] = '0'
+            elif field == 'bounds':
+                def visit(value):
+                    if isinstance(value, dict):
+                        if 'Pattern' in value:
+                            value['Pattern'][1]['Range'][0]['kind']['Literal']['Scalar']['Unsigned'][1] = '2'
+                        for child in value.values(): visit(child)
+                    elif isinstance(value, list):
+                        for child in value: visit(child)
+                visit(bad)
+            path = out / ('invalid-' + field + '.llbc'); path.write_text(json.dumps(bad) + '\n')
+            error = ('Enum range conversion requires every stored tag within bounds' if field in ['tag-zero', 'bounds']
+                     else 'Scalar enum transmute requires agreeing tags and discriminator' if field == 'source-tag'
+                     else 'Range carrier requires a transparent zero-offset wrapper')
+            reject(path, 'invalid-' + field, error)
+        if record['inputs'] != {name: digest((DATA / name).read_bytes()) for name in files}:
+            raise RuntimeError('Input changed during check')
+        BUILD['verify_receipt'](args.build_receipt)
+        record['status'] = 'passed'; print('Enum nonzero passed: 13 dependency audits; eleven unsupported cases rejected')
+    except (Exception, SystemExit) as error:
+        record.update(status='failed', error=str(error)); raise SystemExit('Enum nonzero check failed; inspect ' + str(out) + ': ' + str(error)) from error
+    finally:
+        record['logs'] = {p.name: digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__':
+    main()

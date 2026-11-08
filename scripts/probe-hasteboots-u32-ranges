@@ -40,7 +40,7 @@ def validate_output(raw, namespace, names):
 
 
 def inspect_patterns(ir, expected, scalar='U32'):
-    if scalar not in ['U32', 'Usize']: raise RuntimeError('Unsupported range scalar')
+    if scalar not in ['U32', 'Usize', 'U64']: raise RuntimeError('Unsupported range scalar')
     if ir.get('has_errors') is not False or ir['translated']['target_information'] != [
             {'key': 'x86_64-unknown-linux-gnu', 'value': {'target_pointer_size': 8, 'is_little_endian': True}}]:
         raise RuntimeError('Incomplete or wrong-target scalar range IR')

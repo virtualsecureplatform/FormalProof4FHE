@@ -1,0 +1,57 @@
+#!/usr/bin/env python3
+"""Reject weakened nonzero carriers, changed values and missing conversion proofs."""
+import copy
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+GATE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-enum-nonzero'))
+
+
+def fixture():
+    scalar = {'Literal': {'UInt': 'U64'}}
+    bounds = [{'kind': {'Literal': {'Scalar': {'Unsigned': ['U64', n]}}}, 'ty': scalar}
+              for n in ['1', str(2**64-1)]]
+    decls = [{'item_meta': {'name': [{'Ident': ['Alignment64', 0]}]}, 'kind': {'Enum': [
+        {'name': 'A'+str(i), 'discriminant': {'Scalar': {'Unsigned': ['U64', str(2**i)]}}} for i in range(64)]}}]
+    for name in ['Align', 'NonZero', 'NonZeroU64Inner']:
+        decls.append({'item_meta': {'name': [{'Ident': [name, 0]}]},
+                      'kind': {'Struct': [{'ty': {'Pattern': [scalar, {'Range': bounds}]}}]},
+                      'layout': [{'value': {'size': 8, 'align': 8, 'repr': {'transparent': True},
+                                            'variant_layouts': [{'field_offsets': [0]}]}}]})
+    return {'has_errors': False, 'translated': {
+        'target_information': [{'key': 'x86_64-unknown-linux-gnu', 'value': {
+            'target_pointer_size': 8, 'is_little_endian': True}}],
+        'options': {'monomorphize': True, 'mir': 'Optimized'}, 'type_decls': decls}}
+
+
+class Guards(unittest.TestCase):
+    def test_complete_output_and_ir(self):
+        GATE['validate_output']((GATE['DATA'] / 'Generated.lean').read_text())
+        GATE['validate_ir'](fixture())
+
+    def test_changed_tag_range_or_wrapper(self):
+        for mutate in [lambda x: x['translated']['type_decls'][0]['kind']['Enum'][0]['discriminant']['Scalar']['Unsigned'].__setitem__(1, '0'),
+                       lambda x: x['translated']['type_decls'][1]['kind']['Struct'][0]['ty']['Pattern'][1]['Range'][0]['kind']['Literal']['Scalar']['Unsigned'].__setitem__(1, '0'),
+                       lambda x: x['translated']['type_decls'][2]['layout'][0]['value']['repr'].update(transparent=False),
+                       lambda x: x['translated']['type_decls'][3]['layout'][0]['value']['variant_layouts'][0].update(field_offsets=[4])]:
+            ir = copy.deepcopy(fixture()); mutate(ir)
+            with self.assertRaises(RuntimeError): GATE['validate_ir'](ir)
+
+    def test_changed_constructor_or_admission(self):
+        raw = (GATE['DATA'] / 'Generated.lean').read_text()
+        for bad in [raw.replace('Subtype.mk 1#u64', 'Subtype.mk 0#u64'),
+                    raw.replace('18446744073709551615', '9223372036854775807'),
+                    raw.replace('(by decide)', '(by exact sorry)'),
+                    raw.replace('end hasteboots_enum_nonzero', '')]:
+            with self.assertRaises(RuntimeError): GATE['validate_output'](bad)
+
+    def test_missing_soundness(self):
+        proof = (GATE['DATA'] / 'Proof.lean').read_text().replace('theorem nonzero_sound', 'theorem missing')
+        with self.assertRaises(RuntimeError):
+            GATE['PARAMETERS']['validate_proof_source'](proof, GATE['PROOFS'])
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -109,6 +109,7 @@ def main():
         for case in ['nontransparent', 'reverse', 'width', 'plain']:
             reject(extract('unsupported-' + case + '.rs', case), case,
                    error=('Range transmute requires a transparent zero-offset field' if case == 'nontransparent'
+                          else 'Range construction requires an in-bounds scalar literal' if case == 'reverse'
                           else 'Invalid input for unop: transmute'))
         reject(llbc, 'disabled', False, error='Usize ranges require monomorphic builtin shapes')
         for field in ['size', 'align', 'transparent', 'offset', 'missing-layout', 'target']:
