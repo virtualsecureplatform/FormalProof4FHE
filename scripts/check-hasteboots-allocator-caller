@@ -1,0 +1,141 @@
+#!/usr/bin/env python3
+"""Check original allocator caller bodies over nominal aggregate locals; native ABI refinement open."""
+import argparse
+import copy
+import hashlib
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+DATA = ROOT / 'interop/aeneas/allocator-caller'
+BUILD = runpy.run_path(str(ROOT / 'scripts/build-hasteboots-inline-tools'))
+PARAMETERS = runpy.run_path(str(ROOT / 'scripts/extract-hasteboots-parameters'))
+REIFIER = runpy.run_path(str(ROOT / 'scripts/reify-hasteboots-allocator-caller'))
+PARENT = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-byte-deallocation'))
+EXTRAS = {
+    'NativeRecordValues': {'Ty': ['scalar', 'nonnull', 'pair', 'record', 'enumeration'],
+        'Value': ['scalar', 'pair', 'record', 'enumeration', 'uninit'], 'Step': ['left', 'right', 'unwrap']},
+    'NativeRecordLLBC': {'Slot': ['dead', 'live'], 'Frame': ['mk', 'types', 'slots', 'world'],
+        'Operand': ['copy', 'move', 'usize', 'unit'], 'Input': ['unit', 'scalar', 'pair', 'record', 'enumeration'],
+        'Tagged': ['value', 'invalid'], 'Rvalue': ['unit', 'use', 'rawCast', 'wrapOne', 'pair'],
+        'Evaluated': ['value', 'invalid'], 'Flow': ['normal', 'returned', 'unwind', 'invalid', 'unsupported'],
+        'Body': ['done', 'ret', 'resume', 'abort', 'unsupported', 'live', 'dead', 'assign', 'constIf', 'switchUsize', 'deallocate', 'call'],
+        'Function': ['mk', 'name', 'classification', 'types', 'argCount', 'body']}}
+
+
+def digest(raw): return hashlib.sha256(raw).hexdigest()
+
+
+def inventory():
+    names = []
+    for module, extras in EXTRAS.items():
+        raw = (ROOT / 'FormalProof4FHE/HasteBoots' / (module + '.lean')).read_text()
+        PARAMETERS['validate_proof_source'](raw, re.findall(r'^theorem (\w+)', raw, re.M))
+        local = re.findall(r'^(?:def|theorem|structure|inductive|abbrev) ([\w.]+)', raw, re.M)
+        local += [p + '.' + n for p, ns in extras.items() for n in ns]
+        names += ['FormalProof4FHE.HasteBoots.' + module + '.' + n for n in local]
+    return names
+
+
+def negatives(ir):
+    records = PARENT['negatives'](ir)
+    def check(name, mutate):
+        changed = copy.deepcopy(ir); mutate(changed['translated'])
+        try: REIFIER['Reifier'](changed).render()
+        except (ValueError, KeyError, TypeError, IndexError) as error: records[name] = str(error)
+        else: raise RuntimeError('Negative accepted: ' + name)
+    def f(c): return c['fun_decls'][2]
+    def statements(c): return f(c)['body']['Structured']['body']['statements']
+    def use(c): return next(s['kind']['Assign'][1]['Use'] for s in statements(c) if isinstance(s['kind'], dict) and 'Assign' in s['kind'] and 'Use' in s['kind']['Assign'][1])
+    def regular(c): return next(s['kind']['Call']['call'] for s in statements(c) if isinstance(s['kind'], dict) and 'Call' in s['kind'])
+    check('unknown_caller_signature_effect', lambda c: f(c)['signature'].update(hidden_effect='Drop'))
+    check('unknown_caller_statement_effect', lambda c: statements(c)[0].update(hidden_effect='Drop'))
+    check('wrong_field_index', lambda c: use(c)[0]['Copy']['kind']['Projection'][1]['Field'].__setitem__(1, 99))
+    check('wrong_field_owner', lambda c: use(c)[0]['Copy']['kind']['Projection'][1]['Field'][0]['Adt'].__setitem__(0, 1))
+    check('unknown_caller_retag', lambda c: use(c).__setitem__(1, 'Unknown'))
+    check('caller_reclassified', lambda c: f(c)['item_meta'].update(opacity='Foreign'))
+    check('caller_missing_argument', lambda c: regular(c)['args'].pop())
+    check('caller_wrong_argument_type', lambda c: regular(c)['args'].__setitem__(1, copy.deepcopy(regular(c)['args'][2])))
+    check('caller_storage_out_of_bounds', lambda c: statements(c)[0].update(kind={'StorageLive': 99}))
+    check('caller_cast_forged_source_type', lambda c: next(s['kind']['Assign'][1]['UnaryOp'][0]['Cast']['Transmute'] for s in statements(c) if isinstance(s['kind'], dict) and 'Assign' in s['kind'] and 'UnaryOp' in s['kind']['Assign'][1]).__setitem__(0, copy.deepcopy(REIFIER['SPEC']['USIZE'])))
+    check('foreign_guard_body_reclassified', lambda c: c['fun_decls'][3]['item_meta'].update(opacity='Transparent'))
+    def recursive(c):
+        call = regular(c); call['func']['Regular']['kind']['Fun']['Regular'] = 2
+        call['args'] = [{'Copy': {'kind': {'Local': i}, 'ty': copy.deepcopy(f(c)['signature']['inputs'][i - 1])}} for i in [1, 2]]
+    check('recursive_caller', recursive)
+    return records
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__); parser.add_argument('--build-receipt', type=Path, required=True); args = parser.parse_args()
+    out = Path(tempfile.mkdtemp(prefix='allocator-caller-', dir=ROOT / 'build/hasteboots-extraction'))
+    record = {'status': 'started', 'commands': [],
+              'claim': 'original finite allocator caller over nominal logical aggregates with checked deallocation; native aggregate/ABI/compiler/lifetime/security refinement unproved',
+              'original_allocator_caller_interpreted': True, 'foreign_guard_retained': True,
+              'external_boundary_specification': True, 'native_aggregate_layout_refinement': False,
+              'native_allocator_refinement': False, 'native_constructor_accepted': False, 'physical_work_refinement': False}
+    def save(): (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
+    def run(command, log):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out / log).open('w') as stream:
+            result = subprocess.run([str(x) for x in command], cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT)
+        if result.returncode: raise RuntimeError('Command failed: ' + log)
+    print('Allocator caller artifacts: ' + str(out), flush=True)
+    try:
+        BUILD['verify_receipt'](args.build_receipt); record['build_receipt_sha256'] = digest(args.build_receipt.read_bytes())
+        files = [Path(__file__), ROOT / 'scripts/reify-hasteboots-allocator-caller', ROOT / 'scripts/specify-hasteboots-deallocation-boundary',
+                 ROOT / 'scripts/check-hasteboots-byte-deallocation', ROOT / 'scripts/reify-hasteboots-slice-reference-llbc',
+                 ROOT / 'scripts/reify-hasteboots-scalar-llbc', ROOT / 'lean-toolchain',
+                 *[ROOT / 'FormalProof4FHE/HasteBoots' / (module + '.lean') for module in EXTRAS],
+                 *[ROOT / 'FormalProof4FHETest' / ('HasteBoots' + module.removeprefix('Native') + suffix + '.lean') for module in EXTRAS for suffix in ['Smoke', 'Audit']],
+                 *[DATA / n for n in ['Generated.lean', 'Retained.json', 'Proof.lean', 'Smoke.lean', 'GuardSmoke.lean']]]
+        record['inputs'] = {str(p.relative_to(ROOT)): digest(p.read_bytes()) for p in files}
+        run([ROOT / 'scripts/in-container', 'lake', 'build', *['FormalProof4FHETest.HasteBoots' + m.removeprefix('Native') + s for m in EXTRAS for s in ['Smoke', 'Audit']]], 'root-build.log')
+        run([ROOT / 'scripts/check-hasteboots-byte-deallocation', '--build-receipt', args.build_receipt], 'parent-byte-deallocation.log')
+        parent_path = Path((out / 'parent-byte-deallocation.log').read_text().splitlines()[0].split(': ', 1)[1]) / 'manifest.json'
+        parent = json.loads(parent_path.read_text())
+        if parent.get('status') != 'passed' or parent['build_receipt_sha256'] != record['build_receipt_sha256']:
+            raise RuntimeError('Parent did not pass with the same tools')
+        record['parent_byte_deallocation'] = {'manifest': str(parent_path.relative_to(ROOT)), 'manifest_sha256': digest(parent_path.read_bytes()), 'dependency_audit_count': len(parent['dependency_audit'])}
+        llbc = parent_path.parent / 'source.llbc'
+        if digest(llbc.read_bytes()) != parent['llbc_sha256']: raise RuntimeError('Parent extraction hash differs')
+        ir = json.loads(llbc.read_text()); r = REIFIER['Reifier'](ir); generated = r.render()
+        if generated != (DATA / 'Generated.lean').read_text() or r.retained() != json.loads((DATA / 'Retained.json').read_text()): raise RuntimeError('Original caller/type snapshot differs')
+        record['negative_controls'] = negatives(ir)
+        names = inventory() + ['HasteBootsAllocatorCaller.' + n for n in re.findall(r'^def (\w+)', generated, re.M)]
+        proof = (DATA / 'Proof.lean').read_text(); PARAMETERS['validate_proof_source'](proof, re.findall(r'^theorem (\w+)', proof, re.M))
+        names += ['HasteBootsAllocatorCaller.' + n for n in re.findall(r'^(?:def|theorem) (\w+)', proof, re.M)]
+        smoke = (DATA / 'Smoke.lean').read_text(); checked = out / 'Checked.lean'
+        checked.write_text(generated + '\n' + proof + '\n' + smoke + ''.join('\n#print axioms ' + n + '\n' for n in names))
+        run([ROOT / 'scripts/in-container', 'lake', 'env', 'lean', '-DwarningAsError=true', checked.relative_to(ROOT)], 'lean.log')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), names)
+        changed = copy.deepcopy(ir); source = changed['translated']['fun_decls'][2]['body']['Structured']['body']['statements']
+        use = next(s['kind']['Assign'][1]['Use'] for s in source if isinstance(s['kind'], dict) and 'Assign' in s['kind'] and 'Use' in s['kind']['Assign'][1]); use[1] = 'No'
+        changed_generated = REIFIER['Reifier'](changed).render()
+        def code_only(text): return re.sub(r'^--.*$', '', text, flags=re.M)
+        if code_only(changed_generated) == code_only(generated): raise RuntimeError('Caller retag mutation did not change emitted code')
+        mutant = out / 'RetagDisabled.lean'; mutant.write_text(changed_generated + '\n' + proof + '\n' + smoke)
+        run([ROOT / 'scripts/in-container', 'lake', 'env', 'lean', '-DwarningAsError=true', mutant.relative_to(ROOT)], 'retag-disabled-lean.log')
+        record['supported_retag_mutation'] = {'original': 'Yes', 'mutated': 'No', 'code_changed': True, 'proofs_and_regressions_passed': True}
+        changed = copy.deepcopy(ir); source = changed['translated']['fun_decls'][2]['body']['Structured']['body']['statements']
+        guard = next(s['kind']['Switch']['If'][0] for s in source if isinstance(s['kind'], dict) and 'Switch' in s['kind']); guard['Const']['kind']['Literal']['Bool'] = True
+        changed_generated = REIFIER['Reifier'](changed).render()
+        if code_only(changed_generated) == code_only(generated): raise RuntimeError('True guard mutation did not change emitted code')
+        mutant = out / 'GuardEnabled.lean'; mutant.write_text(changed_generated + '\n' + (DATA / 'GuardSmoke.lean').read_text())
+        run([ROOT / 'scripts/in-container', 'lake', 'env', 'lean', '-DwarningAsError=true', mutant.relative_to(ROOT)], 'guard-enabled-lean.log')
+        record['supported_guard_mutation'] = {'original': False, 'mutated': True, 'code_changed': True, 'foreign_unsupported_before_free_checked': True}
+        record['llbc_sha256'] = digest(llbc.read_bytes()); record['checked_sha256'] = digest(checked.read_bytes())
+        if record['inputs'] != {str(p.relative_to(ROOT)): digest(p.read_bytes()) for p in files}: raise RuntimeError('Inputs changed during validation')
+        BUILD['verify_receipt'](args.build_receipt); record['status'] = 'passed'
+        print('Allocator caller passed: ' + str(len(names)) + ' audits; ' + str(len(record['negative_controls'])) + ' rejecting controls; original aggregate caller and checked free agree')
+    except Exception as error:
+        record.update(status='failed', error=str(error)); raise SystemExit(str(error) + '; inspect ' + str(out)) from error
+    finally:
+        record['logs'] = {p.name: digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__': main()

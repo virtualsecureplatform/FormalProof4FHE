@@ -1,0 +1,192 @@
+#!/usr/bin/env python3
+"""Retain the original allocator caller with nominal aggregate fields and an explicit external specification."""
+import argparse
+import json
+from pathlib import Path
+import runpy
+
+ROOT = Path(__file__).resolve().parent.parent
+SPEC = runpy.run_path(str(ROOT / 'scripts/specify-hasteboots-deallocation-boundary'))
+require = SPEC['require']; empty = SPEC['empty']; digest = SPEC['digest']; name = SPEC['name']
+
+
+def seq(xs): return '[' + ', '.join(xs) + ']'
+def word(n):
+    require(isinstance(n, int) and 0 <= n < 2 ** 64, 'Out-of-range source word')
+    return '⟨' + str(n) + ', by decide⟩'
+
+
+class Reifier:
+    def __init__(self, ir):
+        self.boundary = SPEC['Boundary'](ir)
+        self.crate = c = self.boundary.crate
+        self.functions = {f['def_id']: f for f in c['fun_decls'] if f}
+        self.types = {t['def_id']: t for t in c['type_decls'] if t}
+        roots = [f['def_id'] for f in self.functions.values() if name(f) == 'alloc::alloc::dealloc']
+        require(len(roots) == 1, 'Missing/duplicate original allocator caller')
+        self.root = roots[0]; self.schemas = {}; self.codes = {}; self.active = set(); self.type_active = set()
+        self.schema(self.root)
+
+    def ty(self, raw):
+        require(set(raw) == {'Untagged'}, 'Unexpanded source type')
+        t = raw['Untagged']
+        if t == {'Literal': {'UInt': 'Usize'}}: return '(.scalar .usize)'
+        if raw == SPEC['UNIT']: return '(.scalar .unit)'
+        if set(t) == {'RawPtr'}:
+            target, mutability = t['RawPtr']
+            require(mutability in ['Mut', 'Shared'] and target in [SPEC['UNIT'], {'Untagged': {'Literal': {'UInt': 'U8'}}}], 'Unsupported raw pointee')
+            return '(.scalar (.raw false))'
+        if set(t) == {'Pattern'}:
+            base, pattern = t['Pattern']
+            require(pattern == 'NotNull' and base == {'Untagged': {'RawPtr': [{'Untagged': {'Literal': {'UInt': 'U8'}}}, 'Shared']}}, 'Unsupported pointer pattern')
+            return '.nonnull'
+        require(set(t) == {'Adt'}, 'Unsupported aggregate type')
+        a = t['Adt']; require(a == SPEC['adt'](a['id']['Adt'])['Untagged']['Adt'], 'Unclosed aggregate')
+        tid = a['id']['Adt']; require(tid not in self.type_active, 'Recursive local aggregate')
+        source = self.types[tid]; require(empty(source['generics']), 'Generic local aggregate')
+        if tid == self.boundary.enum['def_id']: return '(.enumeration ' + str(tid) + ' alignmentDiscriminants)'
+        require(set(source['kind']) == {'Struct'} and source['item_meta']['opacity'] == 'Transparent', 'Unsupported aggregate declaration')
+        self.type_active.add(tid); fields = [self.ty(f['ty']) for f in source['kind']['Struct']]; self.type_active.remove(tid)
+        tree = '(.scalar .unit)'
+        for field in reversed(fields): tree = '(.pair ' + field + ' ' + tree + ')'
+        return '(.record ' + str(tid) + ' ' + tree + ')'
+
+    def schema(self, fid):
+        if fid in self.schemas: return self.schemas[fid]
+        f = self.functions[fid]; sig = f['signature']
+        require(set(sig) == {'is_unsafe', 'abi', 'is_variadic', 'inputs', 'output'} and isinstance(sig['is_unsafe'], bool) and empty(f['generics']) and f['is_global_initializer'] is None and sig['abi'] == 'Rust' and sig['is_variadic'] is False, 'Unclosed caller signature')
+        inputs = sig['inputs']; output = sig['output']
+        if isinstance(f['body'], dict) and set(f['body']) == {'Structured'}:
+            require(f['item_meta']['opacity'] == 'Transparent', 'Changed structured caller classification')
+            b = f['body']['Structured']; require(set(b) == {'span', 'bound_body_regions', 'locals', 'body', 'comments'}, 'Unknown caller body fields')
+            locals = b['locals']['locals']; count = b['locals']['arg_count']
+            require([v['index'] for v in locals] == list(range(len(locals))), 'Noncanonical caller locals')
+            types = [v['ty'] for v in locals]
+            require(count == len(inputs) and types[0] == output and types[1:count + 1] == inputs, 'Caller signature/local mismatch')
+        else:
+            require((f == self.boundary.function) or (f['item_meta']['opacity'] == 'Foreign' and f['body'] == 'Opaque'), 'Unsupported external/foreign declaration')
+            count = len(inputs); types = [output] + inputs
+        for t in types: self.ty(t)
+        self.schemas[fid] = types, count
+        return types, count
+
+    def classification(self, fid):
+        if self.functions[fid] == self.boundary.function: return '.externalBody'
+        return {'Transparent': '.transparent', 'Foreign': '.foreignBody'}[self.functions[fid]['item_meta']['opacity']]
+
+    def place(self, p, fid):
+        require(set(p) == {'kind', 'ty'}, 'Unknown place fields')
+        k = p['kind']; require(isinstance(k, dict) and len(k) == 1, 'Unknown place')
+        if 'Local' in k:
+            index = k['Local']; types, _ = self.schema(fid)
+            require(isinstance(index, int) and 0 <= index < len(types) and p['ty'] == types[index], 'Wrong local place type/index')
+            return index, [], p['ty']
+        require(set(k) == {'Projection'}, 'Unsupported place')
+        base, projection = k['Projection']; index, path, raw = self.place(base, fid)
+        require(isinstance(projection, dict) and set(projection) == {'Field'}, 'Unsupported field projection')
+        owner, field = projection['Field']; tid, variant = owner['Adt']
+        require(owner == {'Adt': [tid, None]} and variant is None and raw == SPEC['adt'](tid), 'Wrong nominal field owner')
+        source = self.types[tid]; fields = source['kind']['Struct']
+        require(isinstance(field, int) and 0 <= field < len(fields) and p['ty'] == fields[field]['ty'], 'Wrong source field type/index')
+        return index, path + ['(.unwrap ' + str(tid) + ')'] + ['.right'] * field + ['.left'], p['ty']
+
+    def operand(self, op, fid):
+        require(isinstance(op, dict) and len(op) == 1 and next(iter(op)) in ['Copy', 'Move'], 'Unsupported caller operand')
+        kind = next(iter(op)); index, path, raw = self.place(op[kind], fid)
+        return '(.' + kind.lower() + ' ' + str(index) + ' ' + seq(path) + ')', raw
+
+    def rvalue(self, rv, fid):
+        require(isinstance(rv, dict) and len(rv) == 1, 'Unknown rvalue')
+        if set(rv) == {'Aggregate'}:
+            require(rv['Aggregate'] == [{'Adt': [{'id': 'Tuple', 'generics': {'regions': [], 'types': [], 'const_generics': [], 'trait_refs': []}}, None, None]}, []], 'Unsupported source aggregate construction')
+            return '.unit', SPEC['UNIT']
+        if set(rv) == {'Use'}:
+            op, retag = rv['Use']; value, raw = self.operand(op, fid)
+            require(retag in ['Yes', 'No'], 'Unknown retag flag')
+            return '(.use ' + value + ' ' + str(retag == 'Yes').lower() + ' .byte)', raw
+        require(set(rv) == {'UnaryOp'}, 'Unsupported caller rvalue')
+        operator, op = rv['UnaryOp']; value, raw = self.operand(op, fid)
+        require(set(operator) == {'Cast'} and len(operator['Cast']) == 1, 'Unsupported unary operator')
+        kind, types = next(iter(operator['Cast'].items())); source, target = types
+        require(source == raw, 'Wrong source cast type')
+        if kind == 'RawPtr':
+            require('RawPtr' in source['Untagged'] and 'RawPtr' in target['Untagged'], 'Non-pointer raw cast')
+            self.ty(target)
+            return '(.rawCast ' + value + ')', target
+        require(kind == 'Transmute' and target == SPEC['adt'](self.boundary.nonnull['def_id']) and
+                raw == {'Untagged': {'RawPtr': [{'Untagged': {'Literal': {'UInt': 'U8'}}}, 'Mut']}}, 'Unsupported source transmute')
+        return '(.wrapOne ' + str(self.boundary.nonnull['def_id']) + ' ' + value + ')', target
+
+    def block(self, b, fid):
+        require(set(b) == {'span', 'statements'}, 'Unknown block fields')
+        result = '.done'
+        for s in reversed(b['statements']):
+            require(set(s) == {'span', 'id', 'kind', 'comments_before'}, 'Unknown statement fields')
+            kind = s['kind']
+            if isinstance(kind, str):
+                require(kind in ['Return', 'UnwindResume'] and result == '.done', 'Unsupported terminal/following statement')
+                result = '.ret' if kind == 'Return' else '.resume'; continue
+            require(isinstance(kind, dict) and len(kind) == 1, 'Unknown statement kind')
+            tag, v = next(iter(kind.items()))
+            if tag in ['StorageLive', 'StorageDead']:
+                require(isinstance(v, int) and 0 <= v < len(self.schema(fid)[0]), 'Bad storage local')
+                result = '(.' + ('live' if tag == 'StorageLive' else 'dead') + ' ' + str(v) + ' ' + result + ')'
+            elif tag == 'Assign':
+                index, path, raw = self.place(v[0], fid); value, actual = self.rvalue(v[1], fid)
+                require(not path and raw == actual, 'Assignment type/path mismatch')
+                result = '(.assign ' + str(index) + ' ' + value + ' ' + result + ')'
+            elif tag == 'Abort':
+                require(v == 'UndefinedBehavior' and result == '.done', 'Unsupported abort')
+                result = '.abort'
+            elif tag == 'Switch':
+                require(set(v) == {'If'}, 'Unsupported switch')
+                condition, yes, no = v['If']
+                require(set(condition) == {'Const'} and condition['Const']['ty'] == {'Untagged': {'Literal': 'Bool'}}, 'Nonliteral caller branch')
+                literal = condition['Const']['kind']; require(set(literal) == {'Literal'} and set(literal['Literal']) == {'Bool'} and isinstance(literal['Literal']['Bool'], bool), 'Unknown boolean literal')
+                result = '(.constIf ' + str(literal['Literal']['Bool']).lower() + ' ' + self.block(yes, fid) + ' ' + self.block(no, fid) + ' ' + result + ')'
+            elif tag == 'Call':
+                require(set(v) == {'call', 'on_unwind'}, 'Unknown call fields')
+                call = v['call']; require(set(call) == {'func', 'args', 'dest'} and set(call['func']) == {'Regular'}, 'Unknown call form')
+                fun = call['func']['Regular']; require(set(fun) == {'kind', 'generics'} and empty(fun['generics']) and set(fun['kind']) == {'Fun'} and set(fun['kind']['Fun']) == {'Regular'}, 'Unsupported callee')
+                target = fun['kind']['Fun']['Regular']; types, count = self.schema(target)
+                index, path, raw = self.place(call['dest'], fid); args = [self.operand(x, fid) for x in call['args']]
+                require(not path and raw == types[0] and [x[1] for x in args] == types[1:count + 1], 'Call signature mismatch')
+                result = '(.call ' + json.dumps(name(self.functions[target])) + ' ' + self.classification(target) + ' ' + seq([self.ty(t) for t in types]) + ' ' + str(count) + ' ' + str(index) + ' ' + seq([x[0] for x in args]) + ' ' + self.code(target) + ' ' + self.block(v['on_unwind'], fid) + ' ' + result + ')'
+            else: raise ValueError('Unsupported statement: ' + tag)
+        return result
+
+    def code(self, fid):
+        require(fid not in self.active, 'Recursive caller closure')
+        if fid in self.codes: return self.codes[fid]
+        self.schema(fid); self.active.add(fid); f = self.functions[fid]
+        if f == self.boundary.function:
+            result = '(.deallocate (.move 1 [(.unwrap ' + str(self.boundary.nonnull['def_id']) + '), .left]) (.move 2 []) (.move 3 [(.unwrap ' + str(self.boundary.alignment['def_id']) + '), .left]) ' + str(self.boundary.enum['def_id']) + ')'
+        elif f['body'] == 'Opaque': result = '(.unsupported ' + json.dumps(name(f)) + ')'
+        else: result = self.block(f['body']['Structured']['body'], fid)
+        self.active.remove(fid); self.codes[fid] = result; return result
+
+    def retained(self):
+        self.code(self.root)
+        return {'root': self.root, 'functions': [self.functions[i] for i in sorted(self.codes)],
+                'types': [self.types[i] for i in sorted(self.types)],
+                'claim': 'original finite allocator caller over nominal logical aggregates; external leaf specified; native layout/ABI/allocator/compiler/lifetime/security refinement unproved'}
+
+    def render(self):
+        self.code(self.root)
+        lines = ['module', 'public import FormalProof4FHE.HasteBoots.NativeRecordLLBC', '@[expose] public section', '',
+                 '-- Original finite allocator caller; the external leaf remains a logical specification.',
+                 'namespace HasteBootsAllocatorCaller', 'open FormalProof4FHE.HasteBoots.NativeRecordLLBC', '',
+                 'def alignmentDiscriminants : List FormalProof4FHE.HasteBoots.NativeWord64Memory.Word := ' + seq([word(n) for n in self.boundary.alignments]), '']
+        for fid in sorted(self.codes):
+            f = self.functions[fid]; types, count = self.schema(fid)
+            lines += ['-- Original declaration SHA256 ' + digest(f), 'def f' + str(fid) + ' : Function :=',
+                      '  ⟨' + json.dumps(name(f)) + ', ' + self.classification(fid) + ', ' + seq([self.ty(t) for t in types]) + ', ' + str(count) + ', ' + self.code(fid) + '⟩', '']
+        return '\n'.join(lines + ['end HasteBootsAllocatorCaller', ''])
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__); parser.add_argument('llbc', type=Path); parser.add_argument('output', type=Path); args = parser.parse_args()
+    args.output.write_text(Reifier(json.loads(args.llbc.read_text())).render())
+
+
+if __name__ == '__main__': main()
