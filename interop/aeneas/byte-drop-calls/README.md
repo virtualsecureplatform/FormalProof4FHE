@@ -32,7 +32,11 @@ correctness. Both call-return cleanup and backedge cleanup are explicit ghost
 composition. Rust lifetime/alias correspondence, region erasure, the Rust ABI,
 compiler correctness, the outer `Vec` destructor and allocator/deallocator path,
 physical-work refinement and the final security theorem remain open. No native
-constructor acceptance or allocator semantics are supplied by this profile.
+constructor acceptance is supplied by this profile. The separate
+[deallocation boundary profile](../byte-deallocation/README.md) now specifies a
+checked free over the same heap; its native ABI/allocator correspondence remains
+open. The generic call model includes this closed leaf and its external
+classification.
 
 Reproduce using the frozen compiler tools:
 

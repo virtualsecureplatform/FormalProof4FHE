@@ -1,7 +1,7 @@
 {
   "profile": "original-byte-drop-retained-call-graph-with-explicit-cleanup-v1",
-  "gate_manifest": "build/hasteboots-extraction/byte-drop-calls-a1pha2mt/manifest.json",
-  "gate_manifest_sha256": "50bb1d6304f457ea0f3e32d677cc20c054eca6585422f5dc6b8668bffdc5ffbf",
+  "gate_manifest": "build/hasteboots-extraction/byte-drop-calls-339sd4vx/manifest.json",
+  "gate_manifest_sha256": "4d96020449b5ea9e4fafe304478e4aa077b4144c52232b8e4a92feb4ad03b20d",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "status": "passed",
   "commands": [
@@ -38,7 +38,7 @@
       "--include",
       "core::ptr::slice_from_raw_parts_mut",
       "--dest-file",
-      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/byte-drop-calls-a1pha2mt/source.llbc",
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/byte-drop-calls-339sd4vx/source.llbc",
       "--",
       "--crate-type",
       "lib",
@@ -55,7 +55,7 @@
       "env",
       "lean",
       "-DwarningAsError=true",
-      "build/hasteboots-extraction/byte-drop-calls-a1pha2mt/Checked.lean"
+      "build/hasteboots-extraction/byte-drop-calls-339sd4vx/Checked.lean"
     ],
     [
       "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/scripts/in-container",
@@ -63,7 +63,7 @@
       "env",
       "lean",
       "-DwarningAsError=true",
-      "build/hasteboots-extraction/byte-drop-calls-a1pha2mt/CallerStorageOrder.lean"
+      "build/hasteboots-extraction/byte-drop-calls-339sd4vx/CallerStorageOrder.lean"
     ]
   ],
   "claim": "all five retained byte-drop bodies interpreted with explicit cleanup; Foreign preserved; native foreign-call/compiler/lifetime/security refinement unproved",
@@ -74,7 +74,7 @@
   "native_constructor_accepted": false,
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "inputs": {
-    "scripts/check-hasteboots-byte-drop-calls": "5054497bd0d69694525cef87ce4a5fd33e026bcd6b2df32b36ce32cb6d1053a1",
+    "scripts/check-hasteboots-byte-drop-calls": "b1dbcfe94f4988c005c11949a00f9b391305ec01746e450846eb4b92f50d9746",
     "scripts/reify-hasteboots-byte-drop-calls-llbc": "7ff8ed77537a89a49f8581574c725ad62d394e473bacdc3cf3b85d3f28a0be7d",
     "scripts/check-hasteboots-byte-loop-body": "eb9e0fa5f436eb0a70ad003bdf917228f8a81175540abff640c2623ace5a697f",
     "scripts/reify-hasteboots-byte-loop-llbc": "fb747e07b75bcf8847326b3e3c3c9ff62402f1a2b306fb2123f1377bacc24b85",
@@ -82,9 +82,10 @@
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
     "scripts/reify-hasteboots-scalar-llbc": "4e7a3c819b1f6b7c851ad0453ce125399bffa46bb7cea9193eaf065628b970df",
-    "FormalProof4FHE/HasteBoots/NativeByteDropCalls.lean": "9c1290836579152f6d74a2860e5dcb22a0b680c689c16aa2798df928e5b826b7",
+    "FormalProof4FHE/HasteBoots/NativeByteDropCalls.lean": "75089fcfad9e95e87b3100272319d51f1cf8f21ca37b3e1eaa1a096d909842dd",
+    "FormalProof4FHE/HasteBoots/NativeByteDeallocation.lean": "c49d921e62ff38c9ed4b8142cfea804bf69260820cd2265ce11731c4ffef8130",
     "FormalProof4FHETest/HasteBootsByteDropCallsSmoke.lean": "077a42d0f8b8ba7a1ed09a654ce11bd38f0acd2109a6e768dd8218f3fcba7400",
-    "FormalProof4FHETest/HasteBootsByteDropCallsAudit.lean": "e04e2934b21a2fd68e33455dacd9cdec55b3bc9124beb9fd72adeffcb5f231ab",
+    "FormalProof4FHETest/HasteBootsByteDropCallsAudit.lean": "4c2905becce2871cecc8eb7b7d0bcd058ae14ecf4c69d2aca71b8fb4217971f3",
     "lean-toolchain": "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c",
     "interop/aeneas/byte-loop-body/Proof.lean": "42ac66f25f63c7093cb3ee89aa9eef69996b6587f93581eda68aa0014b79e2c7",
     "interop/aeneas/byte-drop-loop/fixture.rs": "6dd41f60dd1f6d60777749803377c9981fa6782d7edbb1df95d4f1d53b8fe861",
@@ -94,8 +95,8 @@
     "interop/aeneas/byte-drop-calls/Smoke.lean": "29cdd769315f16b64a993e0a1857ea312947f0a1e3084191d1f72b8c8fc98bf2"
   },
   "parent_byte_loop": {
-    "manifest": "build/hasteboots-extraction/byte-loop-body-_h4ypl3j/manifest.json",
-    "manifest_sha256": "19815d32890e261e47d517b5d9c17384078b754403310a828e778cfd039f61c5",
+    "manifest": "build/hasteboots-extraction/byte-loop-body-0sy4f002/manifest.json",
+    "manifest_sha256": "60f61b68f14bea5b541a621d0d87418b4fff03b148b5238739c6ccc3c1e5a423",
     "dependency_audit_count": 150
   },
   "negative_controls": {
@@ -152,7 +153,9 @@
     "FormalProof4FHE.HasteBoots.NativeByteDropCalls.invokes_reachable": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeByteDropCalls.Classification.transparent": "does not depend on any axioms",
     "FormalProof4FHE.HasteBoots.NativeByteDropCalls.Classification.foreignBody": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeByteDropCalls.Classification.externalBody": "does not depend on any axioms",
     "FormalProof4FHE.HasteBoots.NativeByteDropCalls.Code.done": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeByteDropCalls.Code.deallocate": "does not depend on any axioms",
     "FormalProof4FHE.HasteBoots.NativeByteDropCalls.Code.native": "does not depend on any axioms",
     "FormalProof4FHE.HasteBoots.NativeByteDropCalls.Code.call": "does not depend on any axioms",
     "FormalProof4FHE.HasteBoots.NativeByteDropCalls.Code.loop": "depends on axioms: [propext]",
@@ -167,6 +170,7 @@
     "FormalProof4FHE.HasteBoots.NativeByteDropCalls.Resume.invalid": "does not depend on any axioms",
     "FormalProof4FHE.HasteBoots.NativeByteDropCalls.Resume.unsupported": "does not depend on any axioms",
     "FormalProof4FHE.HasteBoots.NativeByteDropCalls.Runs.done": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeByteDropCalls.Runs.deallocate": "depends on axioms: [propext, Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeByteDropCalls.Runs.nativeNext": "depends on axioms: [propext, Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeByteDropCalls.Runs.nativeStop": "depends on axioms: [propext, Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeByteDropCalls.Runs.callInvalid": "depends on axioms: [propext]",
@@ -180,6 +184,18 @@
     "FormalProof4FHE.HasteBoots.NativeByteDropCalls.Invokes.argumentsInvalid": "depends on axioms: [propext]",
     "FormalProof4FHE.HasteBoots.NativeByteDropCalls.Invokes.initialInvalid": "depends on axioms: [propext]",
     "FormalProof4FHE.HasteBoots.NativeByteDropCalls.Invokes.run": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeByteDeallocation.execute": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeByteDeallocation.eval": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeByteDeallocation.execute_success": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeByteDeallocation.execute_projects": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeByteDeallocation.execute_heap": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeByteDeallocation.execute_frees_one": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeByteDeallocation.execute_unreadable": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeByteDeallocation.execute_preserves_history": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeByteDeallocation.execute_no_overlap": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeByteDeallocation.eval_projects": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeByteDeallocation.eval_return_success": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeByteDeallocation.eval_return_frees_one": "depends on axioms: [propext, Quot.sound]",
     "HasteBootsByteLoopBody.f4": "depends on axioms: [propext]",
     "HasteBootsByteDropProbe.f0": "depends on axioms: [propext]",
     "HasteBootsByteDropProbe.f1": "depends on axioms: [propext]",
@@ -220,16 +236,21 @@
     "generated_changed": true,
     "source_proofs_and_regressions_passed": true
   },
-  "llbc_sha256": "93ee285b41814a73bd9d7eb3cb6242bab5f0f47f6dfa7275c7637a243288952b",
-  "checked_sha256": "f9442f75a9c0de81e2460ede74de9431a6a8dc81f119dff7b9b168c0b13076a5",
+  "llbc_sha256": "5914464c9805aac3cb1f5952aab53c33df2f0237109f20d64538e3fad2421868",
+  "checked_sha256": "5604242882dd928090cb4a247f8c7293dbf9ffa33e060abe258521e9adcfb3f8",
   "logs": {
+    "lean.log": "3061e3ae515619e3183860f3cca7b94cb7483426d234f686b7903fa4127ff945",
+    "root-build.log": "4bca3b8c6244ce7709b4f6adfe1b8e8f2a06f95816a445363ee2e690eb86d617",
+    "charon.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "caller-storage-order-lean.log": "cb57e98c8b5365e217c1a9a709b94e15dc7a8c38e28dc9f85f0fc36c1f69804d",
-    "root-build.log": "5aec0e990532256340d1a62e74836f0ed48d7ab988565a9cc519fb662cc9f875",
-    "lean.log": "fd953c2e4175cd7ed53ae8b318525dec6ed3aaf30e92f183c512fdf2ad1680b7",
-    "parent-byte-loop.log": "652cfd1c7f489eb7f22ea8327dbbece2f6b7ba8eae351271160e3afeccd388dd",
-    "charon.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    "parent-byte-loop.log": "415508c2c4ebc56a58e792f8f6893db5d63cf4ed80f93820938b54ce7837bd18"
   },
-  "native_revision": "dff353006322693cab3dc6b654f82151f658f294",
+  "model_theorems": 16,
+  "model_persistent_audits": 63,
+  "source_theorems": 5,
+  "source_audits": 30,
+  "root_regressions": 8,
+  "source_regressions": 6,
   "source_function_ids": [
     0,
     1,
@@ -244,12 +265,7 @@
     "Foreign",
     "Transparent"
   ],
-  "model_theorems": 6,
-  "model_persistent_audits": 48,
-  "source_theorems": 5,
-  "source_audits": 30,
-  "root_regressions": 8,
-  "source_regressions": 6,
+  "native_revision": "dff353006322693cab3dc6b654f82151f658f294",
   "compiler_edits": false,
   "aeneas_edits": false,
   "rust_alias_refinement": false,
@@ -261,8 +277,8 @@
   "root_check": {
     "command": "scripts/check",
     "exit_code": 0,
-    "build_jobs": 10983,
-    "log": "/tmp/hasteboots-byte-drop-calls-full-check.log",
-    "log_sha256": "9aa1d33acd3a5555416dc90a2af4720302abca64c6b96b3fea9e13b9dba0a82b"
+    "build_jobs": 10986,
+    "log": "/tmp/hasteboots-byte-deallocation-full-check.log",
+    "log_sha256": "614aa3e50d3238e2f637f09ba2215faa80027ff43c7de1c3bd1289075173c2a0"
   }
 }

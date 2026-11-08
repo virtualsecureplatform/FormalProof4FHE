@@ -7,6 +7,35 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Typed deallocation now changes the actual modeled heap
+
+`NativeByteDeallocation` resolves the actual complete pointer from the pointer
+registry, checks a thin non-null pointer and nonzero valid layout, and performs
+the existing permission-checked free. Ten model theorems prove exact heap
+change, removal of one allocation, freed-pointer unreadability, preservation of
+history/generations and exclusion of overlapping active loans. Normal returns
+require this real free. The caller VM now contains a closed deallocation leaf
+and an external classification; caller result-write failure retains an already
+executed free. Sixteen regressions cover heap/shadow effects, stale values,
+address reuse, wrong layouts, active leases and failures.
+
+The new [external boundary profile](../interop/aeneas/byte-deallocation/README.md)
+retains the original sysroot `__rust_dealloc` declaration, non-null pointer and
+alignment wrapper types, and all 64 alignment discriminants. Their original
+external/foreign classifications remain unchanged in the retained source.
+Nine boundary theorems and five regressions check the logical marshalled
+specification and its invocation. This specifies a checked external boundary;
+it does not prove the native wrapper representations or ABI, and there is no
+Rust external body to translate. Allocator caller bodies/dynamic branches,
+the outer destructor, lifetime/compiler correspondence, physical work and the
+final security theorem remain open.
+
+The boundary gate passed 77 declaration audits and 19 rejecting controls. Its
+retained-call parent passed 93 audits and 31 rejecting controls, including the
+new deallocation dependencies; the typed-loop parent still passed 150 audits.
+The repository-wide `scripts/check` passed, including the 10,986-job build and
+all standard audit/smoke checks.
+
 ## All five retained byte-drop bodies now compose through actual calls
 
 `NativeByteDropCalls` composes the original finite caller bodies with the typed
