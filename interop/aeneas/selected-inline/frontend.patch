@@ -47,10 +47,10 @@ index 8073dba6..b205101f 100644
        if
          !opt_backend = Some Lean && !extract_decreases_clauses
 diff --git a/src/PrePasses.ml b/src/PrePasses.ml
-index b613aba1..0dd3548c 100644
+index b613aba1..b5e86195 100644
 --- a/src/PrePasses.ml
 +++ b/src/PrePasses.ml
-@@ -87,6 +87,97 @@ let erase_body_regions (crate : crate) (f : fun_decl) : fun_decl =
+@@ -87,6 +87,184 @@ let erase_body_regions (crate : crate) (f : fun_decl) : fun_decl =
      ^ Print.fun_decl_to_string env "" "  " f];
    f
  
@@ -145,10 +145,97 @@ index b613aba1..0dd3548c 100644
 +        }
 +    | _ -> f
 +
++(** A transparent single-field scalar-pattern wrapper has exactly its field's
++    representation. Decompose only the outward transmute, retaining the range
++    type until the checked projection to its scalar base. *)
++let decompose_range_transmutes (crate : crate) (f : fun_decl) : fun_decl =
++  if not !Config.monomorphic_builtin_shapes then f
++  else
++    let visitor =
++      object
++        inherit [_] map_statement as super
++
++        method! visit_rvalue env rv =
++          match rv with
++          | UnaryOp
++              ( Cast
++                  (CastTransmute
++                     ((TAdt { id = TAdtId id; generics } as src), dst)),
++                op ) -> (
++              let decl = TypeDeclId.Map.find id crate.type_decls in
++              let field =
++                match decl.kind with
++                | Struct [ field ] -> Some field
++                | _ -> None
++              in
++              match field with
++              | Some field -> (
++                  match field.field_ty with
++                  | TPattern (base, pattern) when base = dst ->
++                      let scalar_kind, _, _ =
++                        TypesAnalysis.unsigned_range_bounds
++                          (Some f.item_meta.span) base pattern
++                      in
++                      [%cassert] f.item_meta.span
++                        (generics = empty_generic_args
++                        && decl.generics = empty_generic_params)
++                        "Range transmute requires a closed wrapper";
++                      [%cassert] f.item_meta.span
++                        (match (decl.layout, crate.target_information) with
++                        | [ (target, layout) ], [ (actual, info) ] -> (
++                            let bytes = if scalar_kind = U32 then 4 else 8 in
++                            target = actual
++                            && info.target_pointer_size = 8
++                            && info.is_little_endian && layout.size = Some bytes
++                            && layout.align = Some bytes
++                            && layout.repr.transparent
++                            && (not layout.uninhabited)
++                            && layout.repr.align_modif = None
++                            &&
++                            match layout.variant_layouts with
++                            | [ Some variant ] ->
++                                variant.field_offsets = [ 0 ]
++                                && not variant.uninhabited
++                            | _ -> false)
++                        | _ -> false)
++                        "Range transmute requires a transparent zero-offset \
++                         field";
++                      let project (place : place) =
++                        [%sanity_check] f.item_meta.span (place.ty = src);
++                        {
++                          kind =
++                            PlaceProjection
++                              (place, Field (ProjAdt (id, None), FieldId.zero));
++                          ty = field.field_ty;
++                        }
++                      in
++                      let op =
++                        match op with
++                        | Move place -> Move (project place)
++                        | Copy place -> Copy (project place)
++                        | Constant _ ->
++                            [%craise] f.item_meta.span
++                              "Constant wrapper transmute is unsupported"
++                      in
++                      UnaryOp (Cast (CastTransmute (field.field_ty, dst)), op)
++                  | _ -> super#visit_rvalue env rv)
++              | None -> super#visit_rvalue env rv)
++          | _ -> super#visit_rvalue env rv
++      end
++    in
++    match f.body with
++    | StructuredBody body ->
++        {
++          f with
++          body =
++            StructuredBody { body with body = visitor#visit_block () body.body };
++        }
++    | _ -> f
++
  (** Replace the occurrences of [core::intrinsics::unreachable] with
      [Abort UndefinedBehavior]. This helps with the analyzes and the symbolic
      evaluation (in particular, we stop the evaluation when encountering an
-@@ -979,20 +1070,26 @@ let filter_marker_traits (crate : crate) : crate =
+@@ -979,20 +1157,26 @@ let filter_marker_traits (crate : crate) : crate =
    let mctx = NameMatcher.ctx_from_crate crate in
    let pats =
      List.map NameMatcher.parse_pattern
@@ -189,7 +276,7 @@ index b613aba1..0dd3548c 100644
    in
    let match_config =
      {
-@@ -1306,6 +1403,12 @@ let decompose_str_borrows (_ : crate) (f : fun_decl) : fun_decl =
+@@ -1306,6 +1490,12 @@ let decompose_str_borrows (_ : crate) (f : fun_decl) : fun_decl =
                *)
                method! visit_Constant env (cv : constant_expr) =
                  match (cv.kind, cv.ty) with
@@ -202,7 +289,7 @@ index b613aba1..0dd3548c 100644
                  | ( CLiteral (VStr str),
                      TRef
                        (_, (TAdt { id = TBuiltin TStr; _ } as str_ty), ref_kind)
-@@ -2271,6 +2374,8 @@ let apply_passes (crate : crate) : crate =
+@@ -2271,8 +2461,11 @@ let apply_passes (crate : crate) : crate =
    (* Passes that apply to individual function bodies *)
    let function_passes =
      [
@@ -210,7 +297,10 @@ index b613aba1..0dd3548c 100644
 +      ("validate_ctlz_nonzero", validate_ctlz_nonzero);
        ("fix_closure_lifetimes", fix_closure_lifetimes);
        ("erase_body_regions", erase_body_regions);
++      ("decompose_range_transmutes", decompose_range_transmutes);
        ("remove_unreachable", remove_unreachable);
+       ("update_loop", update_loops);
+       ("remove_useless_joins", remove_useless_joins);
 diff --git a/src/Translate.ml b/src/Translate.ml
 index 8df1bc5f..f1e2b16f 100644
 --- a/src/Translate.ml
@@ -227,10 +317,33 @@ index 8df1bc5f..f1e2b16f 100644
    in
  
 diff --git a/src/extract/Extract.ml b/src/extract/Extract.ml
-index 2dc4a57f..85dd55c9 100644
+index 2dc4a57f..9914287d 100644
 --- a/src/extract/Extract.ml
 +++ b/src/extract/Extract.ml
-@@ -2693,6 +2693,7 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
+@@ -398,6 +398,7 @@ let extract_cast_kind_hol4 (span : Meta.span)
+     (extract_expr : inside:bool -> texpr -> unit) (fmt : F.formatter)
+     ~(inside : bool) (kind : cast_kind) (arg : texpr) : unit =
+   match kind with
++  | CastRange -> [%craise] span "Range casts are only supported in Lean"
+   | CastLit (src, tgt) ->
+       (* Casting, say, an u32 to an i32 would be done as follows:
+          {[
+@@ -422,6 +423,14 @@ let extract_cast_kind_gen (span : Meta.span)
+     (extract_expr : inside:bool -> texpr -> unit) (fmt : F.formatter)
+     ~(inside : bool) (kind : cast_kind) (arg : texpr) : unit =
+   match kind with
++  | CastRange ->
++      [%cassert] span
++        (backend () = Lean)
++        "Range casts are only supported in Lean";
++      if inside then F.pp_print_string fmt "(";
++      F.pp_print_string fmt "Subtype.val ";
++      extract_expr ~inside:true arg;
++      if inside then F.pp_print_string fmt ")"
+   | CastLit (src, tgt) ->
+       let integer_type_to_string (ty : integer_type) : string =
+         if backend () = Lean then
+@@ -2693,6 +2702,7 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
    let clause_names =
      match builtin_info with
      | None ->
@@ -238,7 +351,7 @@ index 2dc4a57f..85dd55c9 100644
          List.map
            (fun (c : trait_param) ->
              let name = ctx_compute_trait_parent_clause_name ctx trait_decl c in
-@@ -2701,6 +2702,14 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
+@@ -2701,6 +2711,14 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
                if !record_fields_short_names then name
                else ctx_compute_trait_decl_name ctx trait_decl ^ name
              in
@@ -458,7 +571,7 @@ index 52b94675..951b56d9 100644
      (* Update the synthesized program *)
      S.synthesize_symbolic_expansion_no_branching span original_sv
 diff --git a/src/interp/InterpExpressions.ml b/src/interp/InterpExpressions.ml
-index 2d32fc8e..e80f5463 100644
+index 2d32fc8e..e516de2e 100644
 --- a/src/interp/InterpExpressions.ml
 +++ b/src/interp/InterpExpressions.ml
 @@ -82,6 +82,26 @@ let access_rplace_reorganize_and_read (config : config) (span : Meta.span)
@@ -488,6 +601,19 @@ index 2d32fc8e..e80f5463 100644
  let access_rplace_reorganize (config : config) (span : Meta.span)
      (greedy_expand : bool) (access : access_kind) (p : place) : cm_fun =
   fun ctx ->
+@@ -956,6 +976,12 @@ let eval_unary_op_symbolic (config : config) (span : Meta.span) (unop : unop)
+         | Neg OPanic, (TLiteral (TInt _) as lty) -> lty
+         | Neg OPanic, (TLiteral (TUInt _) as lty) -> lty
+         | Cast (CastScalar (_, tgt_ty)), _ -> TLiteral tgt_ty
++        | Cast (CastTransmute ((TPattern (base, pattern) as src), dst)), _
++          when !Config.monomorphic_builtin_shapes && v.ty = src && base = dst ->
++            let _ =
++              TypesAnalysis.unsigned_range_bounds (Some span) base pattern
++            in
++            dst
+         | Cast (CastUnsize (ty0, ty1, _)), _ ->
+             (* If the following function succeeds, then it means the cast is well-formed
+            (otherwise it throws an exception) *)
 diff --git a/src/interp/InterpExpressions.mli b/src/interp/InterpExpressions.mli
 index 75a12e90..c578fdc1 100644
 --- a/src/interp/InterpExpressions.mli
@@ -661,7 +787,7 @@ index 81711ebc..b4749c32 100644
          (* TODO: not sure what to do here *)
          analyze span expl_info ty_info rty
 diff --git a/src/pure/PrintPure.ml b/src/pure/PrintPure.ml
-index 6f10d6ae..fb94bea8 100644
+index 6f10d6ae..33028f55 100644
 --- a/src/pure/PrintPure.ml
 +++ b/src/pure/PrintPure.ml
 @@ -278,6 +278,9 @@ let builtin_ty_to_string (aty : builtin_ty) : string =
@@ -701,8 +827,16 @@ index 6f10d6ae..fb94bea8 100644
              (* This type is opaque: we can't get there *)
              [%craise_opt_span] span "Unreachable"
          | TResult ->
+@@ -885,6 +888,7 @@ let regular_fun_id_to_string (env : fmt_env) (fun_id : fun_id) : string =
+ let cast_kind_to_string (env : fmt_env) (kind : cast_kind) : string =
+   let src, tgt =
+     match kind with
++    | CastRange -> ("range", "scalar")
+     | CastLit (src, tgt) ->
+         (literal_type_to_string src, literal_type_to_string tgt)
+     | CastRawPtr ((src, src_mut), (tgt, tgt_mut)) ->
 diff --git a/src/pure/Pure.ml b/src/pure/Pure.ml
-index c898d123..8ec1296b 100644
+index c898d123..a3e0c0aa 100644
 --- a/src/pure/Pure.ml
 +++ b/src/pure/Pure.ml
 @@ -88,6 +88,7 @@ type builtin_ty =
@@ -722,6 +856,14 @@ index c898d123..8ec1296b 100644
    ty : literal_type;
  }
  
+@@ -1211,6 +1212,7 @@ type unop =
+   | ArrayToSlice
+ 
+ and cast_kind =
++  | CastRange
+   | CastLit of literal_type * literal_type
+   | CastRawPtr of (literal_type * mutability) * (literal_type * mutability)
+       (** When casting between raw pointers, we only support a subset of casts
 diff --git a/src/pure/PureTypeCheck.ml b/src/pure/PureTypeCheck.ml
 index e9a07a43..ddaead12 100644
 --- a/src/pure/PureTypeCheck.ml
@@ -735,6 +877,23 @@ index e9a07a43..ddaead12 100644
            (* Array: when not symbolic values (for instance, because of aggregates),
               the array expressions are introduced as struct updates *)
            [%craise] span "Attempting to access the fields of an opaque type")
+diff --git a/src/symbolic/SymbolicToPureExpressions.ml b/src/symbolic/SymbolicToPureExpressions.ml
+index b83dc456..a7fa38a5 100644
+--- a/src/symbolic/SymbolicToPureExpressions.ml
++++ b/src/symbolic/SymbolicToPureExpressions.ml
+@@ -584,6 +584,12 @@ and translate_function_call_aux (call : S.call) (e : S.expr) (ctx : bs_ctx) :
+               (* We shouldn't get there: this case should have been detected before
+                and handled in [translate_cast_unsize] *)
+               [%internal_error] ctx.span
++          | CastTransmute (TPattern (base, pattern), dst)
++            when !Config.monomorphic_builtin_shapes && base = dst ->
++              let _ =
++                TypesAnalysis.unsigned_range_bounds (Some ctx.span) base pattern
++              in
++              (CastRange, false)
+           | CastTransmute _ -> [%craise] ctx.span "Unsupported: transmute"
+           | CastConcretize _ ->
+               [%craise] ctx.span "Unsupported: `dyn Trait` concretization"
 diff --git a/src/symbolic/SymbolicToPureTypes.ml b/src/symbolic/SymbolicToPureTypes.ml
 index 5ea3e9be..277d5d47 100644
 --- a/src/symbolic/SymbolicToPureTypes.ml

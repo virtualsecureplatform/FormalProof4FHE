@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+"""Reject changed unwrapping code, layout evidence and incomplete proofs."""
+import copy
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+GATE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-range-unwrapping'))
+
+
+def fixture():
+    return {'has_errors': False, 'translated': {
+        'target_information': [{'key': 'x86_64-unknown-linux-gnu', 'value': {
+            'target_pointer_size': 8, 'is_little_endian': True}}],
+        'options': {'monomorphize': True, 'mir': 'Optimized'},
+        'type_decls': [{'item_meta': {'name': [{'Ident': [GATE['NAMESPACE'], 0]}, {'Ident': [name, 0]}]},
+                        'layout': [{'key': 'x86_64-unknown-linux-gnu', 'value': {
+                            'size': size, 'align': size, 'repr': {'transparent': True},
+                            'variant_layouts': [{'field_offsets': [0]}]}}]}
+                       for name, size in [('Capacity', 8), ('Small', 4)]]}}
+
+
+class Guards(unittest.TestCase):
+    def test_complete_output_and_ir(self):
+        GATE['validate_output']((GATE['DATA'] / 'Generated.lean').read_text())
+        GATE['validate_ir'](fixture())
+
+    def test_changed_layout_or_mir(self):
+        for mutate in [lambda x: x['translated']['options'].update(mir='Built'),
+                       lambda x: x['translated']['type_decls'].pop(),
+                       lambda x: x['translated']['type_decls'][0].update(layout=[]),
+                       lambda x: x['translated']['type_decls'][0]['layout'][0]['value'].update(size=4),
+                       lambda x: x['translated']['type_decls'][0]['layout'][0]['value']['repr'].update(transparent=False),
+                       lambda x: x['translated']['type_decls'][0]['layout'][0]['value']['variant_layouts'][0].update(field_offsets=[4])]:
+            ir = copy.deepcopy(fixture()); mutate(ir)
+            with self.assertRaises(RuntimeError): GATE['validate_ir'](ir)
+
+    def test_altered_output_and_admission(self):
+        raw = (GATE['DATA'] / 'Generated.lean').read_text()
+        for bad in [raw.replace('Subtype.val value', 'value'),
+                    raw.replace('9223372036854775807', '18446744073709551615'),
+                    raw.replace('ok (Subtype.val value)', 'sorry'),
+                    raw.replace('end hasteboots_range_unwrapping', '')]:
+            with self.assertRaises(RuntimeError): GATE['validate_output'](bad)
+
+    def test_incomplete_proof_coverage(self):
+        proof = (GATE['DATA'] / 'Proof.lean').read_text().replace('theorem capacity_bounded', 'theorem missing')
+        with self.assertRaises(RuntimeError):
+            GATE['PARAMETERS']['validate_proof_source'](proof, GATE['PROOFS'])
+
+
+if __name__ == '__main__':
+    unittest.main()

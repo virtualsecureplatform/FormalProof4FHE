@@ -1,0 +1,137 @@
+#!/usr/bin/env python3
+"""Check outward pattern and transparent-wrapper unwrapping; native heap refinement remains open."""
+import argparse
+import copy
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+BASE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-inline-equivalence'))
+RANGES = runpy.run_path(str(ROOT / 'scripts/probe-hasteboots-u32-ranges'))
+BUILD, PARAMETERS, COMMON, digest = BASE['BUILD'], BASE['PARAMETERS'], BASE['COMMON'], BASE['digest']
+DATA = ROOT / 'interop/aeneas/range-unwrapping'
+PROOFS = ['capacity_exact', 'small_exact', 'direct_exact', 'capacity_value', 'capacity_bounded', 'small_bounded']
+NAMESPACE = 'hasteboots_range_unwrapping'
+
+
+def validate_output(raw):
+    PARAMETERS['verify_snapshot'](raw, (DATA / 'Generated.lean').read_text())
+    PARAMETERS['validate_proof_source']((DATA / 'Proof.lean').read_text(), PROOFS)
+    return RANGES['validate_output'](raw, NAMESPACE, ['Capacity', 'Small', 'capacity', 'small', 'direct'])
+
+
+def wrapper(ir, name):
+    found = [d for d in ir['translated']['type_decls'] if isinstance(d, dict)
+             and [x['Ident'][0] for x in d['item_meta']['name'] if 'Ident' in x] == [NAMESPACE, name]]
+    if len(found) != 1: raise RuntimeError('Missing or duplicate wrapper: ' + name)
+    return found[0]
+
+
+def validate_ir(ir):
+    BASE['BASE']['BASE']['validate_ir'](ir)
+    options = ir['translated'].get('options', {})
+    if options.get('monomorphize') is not True or options.get('mir') != 'Optimized':
+        raise RuntimeError('Expected monomorphic optimized MIR')
+    for name, size in [('Capacity', 8), ('Small', 4)]:
+        decl = wrapper(ir, name)
+        layouts = decl.get('layout', [])
+        if len(layouts) != 1: raise RuntimeError('Missing unique wrapper layout')
+        layout = layouts[0]['value']
+        if layout['size'] != size or layout['align'] != size or not layout['repr']['transparent']:
+            raise RuntimeError('Wrong wrapper representation')
+        if layout['variant_layouts'][0]['field_offsets'] != [0]:
+            raise RuntimeError('Nonzero wrapper field offset')
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--build-receipt', type=Path, required=True)
+    parser.add_argument('--backend', type=Path, required=True)
+    args = parser.parse_args()
+    parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
+    out = Path(tempfile.mkdtemp(prefix='range-unwrapping-', dir=parent))
+    record = {'status': 'started', 'claim': 'outward range unwrapping only; compiler/native heap/work/security unproved',
+              'script_sha256': digest(Path(__file__).read_bytes()), 'commands': []}
+    def save(): (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
+    def run(command, log, required=True):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out / log).open('w') as stream:
+            status = subprocess.run([str(x) for x in command], cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT).returncode
+        if required and status: raise RuntimeError(log + ' exited ' + str(status))
+        return status
+    print('Range unwrapping artifacts: ' + str(out), flush=True); save()
+    try:
+        _, tools, _ = BUILD['verify_receipt'](args.build_receipt)
+        record['build_receipt_sha256'] = digest(args.build_receipt.read_bytes())
+        record['backend_patches'] = PARAMETERS['verify_backend'](args.backend.resolve(), out)
+        files = ['fixture.rs', 'Generated.lean', 'Proof.lean', 'unsupported-nontransparent.rs', 'unsupported-reverse.rs', 'unsupported-width.rs', 'unsupported-plain.rs']
+        record['inputs'] = {name: digest((DATA / name).read_bytes()) for name in files}
+        def extract(source, name):
+            llbc = out / (name + '.llbc')
+            run([tools / 'charon', 'rustc', '--preset=aeneas', '--monomorphize', '--mir', 'optimized', '--dest-file', llbc,
+                 '--', '--crate-type', 'lib', '--edition', '2024', '--crate-name', NAMESPACE,
+                 (DATA / source).relative_to(ROOT)], name + '-charon.log')
+            return llbc
+        options = ['-backend', 'lean', '-checks', '-sequential', '-max-heartbeats', '200000', '-max-recdepth', '1000',
+                   '-abort-on-error', '-no-external-name-patterns', '-disambiguate-instantiated-names']
+        def frontend(llbc, name, enabled=True, required=True):
+            return run([tools / 'aeneas', *options, *(['-monomorphic-builtin-shapes'] if enabled else []),
+                        '-dest', out / name, llbc], name + '-frontend.log', required)
+        llbc = extract('fixture.rs', 'positive')
+        ir = json.loads(llbc.read_text())
+        validate_ir(ir)
+        frontend(llbc, 'positive')
+        BASE['BASE']['validate_frontend_log']((out / 'positive-frontend.log').read_text())
+        generated = list((out / 'positive').glob('*.lean'))
+        if len(generated) != 1: raise RuntimeError('Expected complete single generated module')
+        raw = generated[0].read_text()
+        runtime = validate_output(raw)
+        names = [NAMESPACE + '.' + n for n in ['capacity', 'small', 'direct']]
+        names += ['HasteBootsRangeUnwrappingProof.' + n for n in PROOFS]
+        checked = out / 'Checked.lean'
+        checked.write_text('import Aeneas.Std\n' + runtime + '\n'
+                           + (DATA / 'Proof.lean').read_text()
+                           + ''.join('\n#print axioms ' + n + '\n' for n in names))
+        run([ROOT / 'scripts/in-container', 'bash', '-euc', 'cd -- "$1"; lake env lean -DwarningAsError=true "$2"', '_',
+             COMMON['container_path'](args.backend.resolve() / 'backends/lean'), COMMON['container_path'](checked)], 'lean.log')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), names)
+        record.update(llbc_sha256=digest(llbc.read_bytes()), checked_sha256=digest(checked.read_bytes()))
+        record['rejected'] = []
+        def reject(bad, name, enabled=True, error='Invalid input for unop: transmute'):
+            status = frontend(bad, name, enabled, False)
+            log = (out / (name + '-frontend.log')).read_text()
+            if status == 0 or error not in log: raise RuntimeError('Unsupported transmute accepted: ' + name)
+            record['rejected'].append(name)
+        for case in ['nontransparent', 'reverse', 'width', 'plain']:
+            reject(extract('unsupported-' + case + '.rs', case), case,
+                   error=('Range transmute requires a transparent zero-offset field' if case == 'nontransparent'
+                          else 'Invalid input for unop: transmute'))
+        reject(llbc, 'disabled', False, error='Usize ranges require monomorphic builtin shapes')
+        for field in ['size', 'align', 'transparent', 'offset', 'missing-layout', 'target']:
+            # Explicit negative fault injection; accepted source/IR is untouched.
+            bad = copy.deepcopy(ir)
+            decl = wrapper(bad, 'Capacity')
+            layout = decl['layout'][0]['value']
+            if field in ['size', 'align']: layout[field] = 4
+            elif field == 'transparent': layout['repr']['transparent'] = False
+            elif field == 'offset': layout['variant_layouts'][0]['field_offsets'] = [4]
+            elif field == 'missing-layout': decl['layout'] = []
+            else: bad['translated']['target_information'][0]['value']['target_pointer_size'] = 4
+            path = out / ('invalid-' + field + '.llbc'); path.write_text(json.dumps(bad) + '\n')
+            reject(path, 'invalid-' + field, error='Range transmute requires a transparent zero-offset field')
+        if record['inputs'] != {name: digest((DATA / name).read_bytes()) for name in files}:
+            raise RuntimeError('Input changed during check')
+        BUILD['verify_receipt'](args.build_receipt)
+        record['status'] = 'passed'; print('Range unwrapping passed: nine dependency audits; eleven unsupported cases rejected')
+    except (Exception, SystemExit) as error:
+        record.update(status='failed', error=str(error)); raise SystemExit('Range unwrapping check failed; inspect ' + str(out) + ': ' + str(error)) from error
+    finally:
+        record['logs'] = {p.name: digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__':
+    main()
