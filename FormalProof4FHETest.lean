@@ -174,3 +174,5 @@ import FormalProof4FHETest.HasteBootsByteRangeAudit
 
 import FormalProof4FHETest.HasteBootsByteBorrowSmoke
 import FormalProof4FHETest.HasteBootsByteBorrowAudit
+import FormalProof4FHETest.HasteBootsByteRangeUpdateSmoke
+import FormalProof4FHETest.HasteBootsByteRangeUpdateAudit
