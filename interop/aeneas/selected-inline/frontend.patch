@@ -47,10 +47,10 @@ index 8073dba6..b205101f 100644
        if
          !opt_backend = Some Lean && !extract_decreases_clauses
 diff --git a/src/PrePasses.ml b/src/PrePasses.ml
-index b613aba1..700d3654 100644
+index b613aba1..6a8203ae 100644
 --- a/src/PrePasses.ml
 +++ b/src/PrePasses.ml
-@@ -87,6 +87,78 @@ let erase_body_regions (crate : crate) (f : fun_decl) : fun_decl =
+@@ -87,6 +87,97 @@ let erase_body_regions (crate : crate) (f : fun_decl) : fun_decl =
      ^ Print.fun_decl_to_string env "" "  " f];
    f
  
@@ -105,13 +105,32 @@ index b613aba1..700d3654 100644
 +          (match ptr.kind with
 +          | FunId (FRegular id) -> (
 +              match FunDeclId.Map.find_opt id crate.fun_decls with
-+              | Some decl when matches decl.item_meta.name -> (
-+                  match ptr.generics.types with
-+                  | [ TLiteral (TUInt Usize) ] -> ()
-+                  | _ ->
-+                      [%craise] f.item_meta.span
-+                        "ctlz_nonzero: only concrete usize instantiations are \
-+                         modeled")
++              | Some decl
++                when matches
++                       (strip_target_or_instantiated_suffix decl.item_meta.name)
++                ->
++                  let valid =
++                    match List.rev decl.item_meta.name with
++                    | PeInstantiated binder :: _ ->
++                        !Config.monomorphic_builtin_shapes
++                        && binder.binder_params = empty_generic_params
++                        && binder.binder_value
++                           = {
++                               empty_generic_args with
++                               types = [ TLiteral (TUInt Usize) ];
++                             }
++                        && decl.generics = empty_generic_params
++                        && ptr.generics = empty_generic_args
++                        && decl.signature.is_unsafe
++                        && decl.signature.abi = AbiRust
++                        && (not decl.signature.is_variadic)
++                        && decl.signature.inputs = [ TLiteral (TUInt Usize) ]
++                        && decl.signature.output = TLiteral (TUInt U32)
++                    | _ -> ptr.generics.types = [ TLiteral (TUInt Usize) ]
++                  in
++                  [%cassert] f.item_meta.span valid
++                    "ctlz_nonzero: only concrete usize instantiations are \
++                     modeled"
 +              | _ -> ())
 +          | _ -> ());
 +          super#visit_fn_ptr env ptr
@@ -129,7 +148,7 @@ index b613aba1..700d3654 100644
  (** Replace the occurrences of [core::intrinsics::unreachable] with
      [Abort UndefinedBehavior]. This helps with the analyzes and the symbolic
      evaluation (in particular, we stop the evaluation when encountering an
-@@ -979,20 +1051,24 @@ let filter_marker_traits (crate : crate) : crate =
+@@ -979,20 +1070,24 @@ let filter_marker_traits (crate : crate) : crate =
    let mctx = NameMatcher.ctx_from_crate crate in
    let pats =
      List.map NameMatcher.parse_pattern
@@ -168,7 +187,7 @@ index b613aba1..700d3654 100644
    in
    let match_config =
      {
-@@ -1306,6 +1382,12 @@ let decompose_str_borrows (_ : crate) (f : fun_decl) : fun_decl =
+@@ -1306,6 +1401,12 @@ let decompose_str_borrows (_ : crate) (f : fun_decl) : fun_decl =
                *)
                method! visit_Constant env (cv : constant_expr) =
                  match (cv.kind, cv.ty) with
@@ -181,7 +200,7 @@ index b613aba1..700d3654 100644
                  | ( CLiteral (VStr str),
                      TRef
                        (_, (TAdt { id = TBuiltin TStr; _ } as str_ty), ref_kind)
-@@ -2271,6 +2353,8 @@ let apply_passes (crate : crate) : crate =
+@@ -2271,6 +2372,8 @@ let apply_passes (crate : crate) : crate =
    (* Passes that apply to individual function bodies *)
    let function_passes =
      [
@@ -277,7 +296,7 @@ index 66bb1e48..40f653e7 100644
                name_from_type_ident (TypesUtils.as_ident cl))
        | TVar _ -> (
 diff --git a/src/extract/ExtractBuiltin.ml b/src/extract/ExtractBuiltin.ml
-index 6e28b984..908b60f9 100644
+index 6e28b984..119843cd 100644
 --- a/src/extract/ExtractBuiltin.ml
 +++ b/src/extract/ExtractBuiltin.ml
 @@ -332,7 +332,11 @@ let mk_builtin_trait_decls_map () =
@@ -306,7 +325,7 @@ index 6e28b984..908b60f9 100644
  
  (** The builtin functions.
  
-@@ -614,6 +622,14 @@ let mk_builtin_funs () : (pattern * Pure.builtin_fun_info) list =
+@@ -614,6 +622,22 @@ let mk_builtin_funs () : (pattern * Pure.builtin_fun_info) list =
                 ^ ".from"))
            ~can_fail:false ())
        int_and_smaller_list
@@ -318,6 +337,14 @@ index 6e28b984..908b60f9 100644
 +          ~keep_trait_clauses:(Some [ false ])
 +          ~extract_name:(Some "HasteBootsUsizeCtlz.nonzero") ();
 +      ]
++  @ (if !Config.monomorphic_builtin_shapes then
++       mk_lean_only
++         [
++           mk_fun "core::intrinsics::ctlz_nonzero<usize>" ~keep_params:(Some [])
++             ~keep_trait_clauses:(Some [])
++             ~extract_name:(Some "HasteBootsUsizeCtlz.nonzero") ();
++         ]
++     else [])
    (* Leading zeros *)
    @ mk_scalar_fun
        (fun ty -> "core::num::{" ^ ty ^ "}::leading_zeros")

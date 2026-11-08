@@ -1,0 +1,116 @@
+#!/usr/bin/env python3
+"""Check the exact monomorphic usize intrinsic binding and reject unsupported references."""
+import argparse
+import copy
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+BASE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-inline-equivalence'))
+LEGACY = runpy.run_path(str(ROOT / 'scripts/probe-hasteboots-usize-ctlz'))
+BUILD, PARAMETERS, COMMON, digest = BASE['BUILD'], BASE['PARAMETERS'], BASE['COMMON'], BASE['digest']
+DATA = ROOT / 'interop/aeneas/usize-ctlz'
+SNAPSHOT = ROOT / 'interop/aeneas/selected-inline/MonoCtlzCandidate.lean'
+
+
+def validate_output(raw):
+    runtime = LEGACY['validate_output'](raw)
+    PARAMETERS['verify_snapshot'](raw, SNAPSHOT.read_text())
+    PARAMETERS['validate_proof_source']((DATA / 'Runtime.lean').read_text(), LEGACY['RUNTIME_PROOFS'])
+    PARAMETERS['validate_proof_source']((DATA / 'Proof.lean').read_text(), LEGACY['PROOFS'])
+    return runtime
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--build-receipt', type=Path, required=True)
+    parser.add_argument('--backend', type=Path, required=True)
+    args = parser.parse_args()
+    parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
+    out = Path(tempfile.mkdtemp(prefix='monomorphic-ctlz-', dir=parent))
+    record = {'status': 'started', 'claim': 'usize intrinsic regression only; compiler/native security refinement unproved',
+              'commands': [], 'script_sha256': digest(Path(__file__).read_bytes())}
+    def save(): (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
+    def run(command, log, required=True):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out / log).open('w') as stream:
+            result = subprocess.run([str(x) for x in command], cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT)
+        if required and result.returncode: raise RuntimeError(log + ' exited ' + str(result.returncode))
+        return result.returncode
+    print('Monomorphic ctlz artifacts: ' + str(out), flush=True); save()
+    try:
+        receipt, tools, _ = BUILD['verify_receipt'](args.build_receipt)
+        record['build_receipt_sha256'] = digest(args.build_receipt.read_bytes())
+        record['backend_patches'] = PARAMETERS['verify_backend'](args.backend.resolve(), out)
+        files = ['fixture.rs', 'unsupported.rs', 'unsupported-generic.rs', 'unsupported-alias.rs', 'Runtime.lean', 'Proof.lean']
+        record['inputs'] = {name: digest((DATA / name).read_bytes()) for name in files}
+        record['snapshot_sha256'] = digest(SNAPSHOT.read_bytes())
+        def extract(file, crate, mono=True):
+            llbc = out / (crate + '.llbc')
+            run([tools / 'charon', 'rustc', '--preset=aeneas', *(['--monomorphize'] if mono else []), '--dest-file', llbc,
+                 '--', '--crate-type', 'lib', '--edition', '2024', '--crate-name', crate, DATA / file], crate + '-charon.log')
+            BASE['BASE']['BASE']['validate_ir'](json.loads(llbc.read_text()))
+            return llbc
+        options = ['-backend', 'lean', '-checks', '-sequential', '-max-heartbeats', '200000', '-max-recdepth', '1000',
+                   '-abort-on-error', '-no-external-name-patterns', '-disambiguate-instantiated-names']
+        def frontend(llbc, name, mono=True, required=True):
+            command = [tools / 'aeneas', *options, *(['-monomorphic-builtin-shapes'] if mono else []),
+                       '-dest', out / name, llbc]
+            return run(command, name + '-frontend.log', required)
+        llbc = extract('fixture.rs', 'hasteboots_usize_ctlz')
+        frontend(llbc, 'positive')
+        BASE['BASE']['validate_frontend_log']((out / 'positive-frontend.log').read_text())
+        raw = (out / 'positive/HastebootsUsizeCtlz.lean').read_text()
+        runtime = validate_output(raw)
+        support = (DATA / 'Runtime.lean').read_text()
+        if support.count('import Aeneas.Std\n') != 1: raise RuntimeError('Unexpected runtime imports')
+        support = support.replace('import Aeneas.Std\n', '')
+        marker = 'open Aeneas Aeneas.Std Result ControlFlow Error\n'
+        if runtime.count(marker) != 1: raise RuntimeError('Unexpected extraction prelude')
+        runtime = runtime.replace(marker, support + '\n' + marker, 1)
+        names = ['HasteBootsUsizeCtlz.' + name for name in LEGACY['RUNTIME_PROOFS']]
+        names += ['HasteBootsExtractedUsizeCtlzProof.' + name for name in LEGACY['PROOFS']]
+        names += ['hasteboots_usize_ctlz.raw_count', 'hasteboots_usize_ctlz.count']
+        checked = out / 'Checked.lean'
+        checked.write_text(runtime + '\n' + (DATA / 'Proof.lean').read_text()
+                           + ''.join('\n#print axioms ' + name + '\n' for name in names))
+        run([ROOT / 'scripts/in-container', 'bash', '-euc', 'cd -- "$1"; lake env lean -DwarningAsError=true "$2"', '_',
+             COMMON['container_path'](args.backend.resolve() / 'backends/lean'), COMMON['container_path'](checked)], 'lean.log')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), names)
+        record.update(llbc_sha256=digest(llbc.read_bytes()), checked_sha256=digest(checked.read_bytes()))
+        record['rejected'] = []
+        def reject(bad, name, mono=True):
+            status = frontend(bad, name, mono, False)
+            log = re.sub(r'\x1b\[[0-9;?]*[A-Za-z]', '', (out / (name + '-frontend.log')).read_text())
+            if status == 0 or 'only concrete usize instantiations are modeled' not in log:
+                raise RuntimeError('Unsupported intrinsic was not rejected: ' + name)
+            record['rejected'].append(name); save()
+        for file, name, mono in [('unsupported.rs', 'u32', True), ('unsupported-alias.rs', 'u32-alias', True),
+                                 ('unsupported-generic.rs', 'generic', False)]:
+            reject(extract(file, 'bad_' + name.replace('-', '_'), mono), name, mono)
+        original = json.loads(llbc.read_text())
+        for field, value in [('abi', 'C'), ('is_unsafe', False), ('is_variadic', True)]:
+            # Explicit negative fault injection; the accepted IR is never edited.
+            bad = copy.deepcopy(original)
+            decls = [f for f in bad['translated']['fun_decls'] if isinstance(f, dict)
+                     and 'ctlz_nonzero' in str(f['item_meta']['name'])]
+            if len(decls) != 1: raise RuntimeError('Unexpected intrinsic declaration count')
+            decls[0]['signature'][field] = value
+            path = out / ('invalid-' + field + '.llbc'); path.write_text(json.dumps(bad) + '\n')
+            reject(path, 'invalid-' + field)
+        if record['inputs'] != {name: digest((DATA / name).read_bytes()) for name in files} or record['snapshot_sha256'] != digest(SNAPSHOT.read_bytes()):
+            raise RuntimeError('Input changed during check')
+        BUILD['verify_receipt'](args.build_receipt)
+        record['status'] = 'passed'; print('Monomorphic ctlz passed: 13 dependency audits; six unsupported references rejected')
+    except (Exception, SystemExit) as error:
+        record.update(status='failed', error=str(error)); raise SystemExit('Monomorphic ctlz failed; inspect ' + str(out) + ': ' + str(error)) from error
+    finally:
+        record['logs'] = {p.name: digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,35 @@
+#!/usr/bin/env python3
+"""Reject changed/admitted monomorphic intrinsic models and incomplete proof coverage."""
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+GATE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-monomorphic-ctlz'))
+
+
+class Guards(unittest.TestCase):
+    def test_complete_snapshot(self):
+        raw = GATE['SNAPSHOT'].read_text()
+        self.assertIn('HasteBootsUsizeCtlz.nonzero input', GATE['validate_output'](raw))
+
+    def test_altered_or_admitted_output(self):
+        raw = GATE['SNAPSHOT'].read_text()
+        for changed in [raw.rsplit('end ', 1)[0], raw.replace('def count', 'def missing_count'),
+                        raw.replace('nonzero input', 'nonzero 0#usize'),
+                        raw.replace('maxHeartbeats 200000', 'maxHeartbeats 1000000'),
+                        raw + '\naxiom bad : False\n']:
+            with self.assertRaises(RuntimeError): GATE['validate_output'](changed)
+
+    def test_runtime_and_defined_input_proof_coverage(self):
+        check = GATE['PARAMETERS']['validate_proof_source']
+        for file, names in [('Runtime.lean', GATE['LEGACY']['RUNTIME_PROOFS']),
+                            ('Proof.lean', GATE['LEGACY']['PROOFS'])]:
+            source = (GATE['DATA'] / file).read_text()
+            check(source, names)
+            with self.assertRaises(RuntimeError): check(source, names[:-1])
+            with self.assertRaises(RuntimeError): check(source + '\naxiom bad : False\n', names)
+
+
+if __name__ == '__main__':
+    unittest.main()
