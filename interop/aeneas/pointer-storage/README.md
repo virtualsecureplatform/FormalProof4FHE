@@ -9,8 +9,9 @@ Generations are unbounded logical identities, without a lifetime counter cap.
 
 This is an operational storage specification. It does not implement a Rust
 allocator, pointer arithmetic, borrow permissions, object layout, overlapping
-allocation checks, memory accesses or their physical costs. It is not wired
-into the source translator, and does not replace its rejected NonNull pattern.
+allocation checks, memory accesses or their physical costs. The new opt-in raw-pointer extraction interface reuses its shared address and
+provenance data; see [ExtractionREADME.md](ExtractionREADME.md). This does not
+provide a Rust storage refinement or replace the rejected NonNull pattern.
 
 The boundary proof checks the existing pinned Aeneas backend directly. Its
 `ConstRawPtr Unit` contains only a Unit pointee value. All such model pointers

@@ -7,6 +7,46 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Raw-pointer extraction now preserves shared address/provenance data
+
+The experimental `-provenance-pointers` mode requires checked word64 Lean
+extraction. It uses the same address and allocation-generation records as the
+existing storage model, adding thin/slice/vtable metadata. Pointer casts preserve
+all fields; source equality compares address/metadata bits and ignores ghost
+provenance. No pointee value substitutes for an address. Ordinary structural
+model equality remains distinct from source pointer comparison.
+
+A small Init-only representation module preserves the existing storage API.
+Four bridge theorems show casts preserve logical reads and do not bypass absent
+provenance, zero addresses or retired origins. These are registry/storage laws,
+not Rust dereferences. Seventeen extracted-source theorems cover eight original
+Rust functions, all-input cast/comparison behavior and boundary cases. The new
+gate passes 51 source/runtime/model audits and five storage audits. The earlier
+21-audit legacy boundary gate and its counterexamples remain intact and pass.
+Six root audit expectations strengthen to no axioms after dependency reduction.
+See `interop/aeneas/pointer-storage/ExtractionREADME.md`.
+
+All earlier paired gates pass, for 292 paired source/model dependency audits,
+plus the separate legacy boundary gate. All 177 guard tests pass; all 128 upstream
+artifacts remain unchanged, with 97 completed targets and the same known dyn.rs
+lifetime rejection. Full `scripts/check` also passes after the 10,929-job build,
+including the root audits and smoke commands. No production Rust or Lean backend
+edit, new axiom or raised proof limit is introduced.
+
+Expanding the original native pointer wrappers now reaches the actual NonNull
+pattern, `*const T is !null`, which still rejects. Slice-to-thin casts also remain
+rejected until their metadata-dropping semantics are modeled. There is no
+accepted native constructor. Relating metadata tags to Rust pointee types,
+object layouts, source encoding and heap/caller validity remains open; the raw
+descriptor is not a memory permission or a compiler-refinement certificate.
+
+Next work is checked non-null pointer patterns and original pointer operations,
+then faithful allocator/layout/deallocation and the residual naming collision.
+Production compiler/caller/heap and NTT/SIMD/scheduler refinement, causal lifetime
+oracle/owner accounting, BabyBear and the final 128-bit expected physical-work
+security theorem remain open. No allocation, dereference or physical work floor
+is invented to close these obligations. The full objective is unchanged.
+
 ## Ordinary residual conversion now handles structurally empty alternatives
 
 The ordinary-sysroot Result<Infallible, E> failure is resolved in the experimental

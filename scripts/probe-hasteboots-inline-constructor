@@ -69,6 +69,7 @@ def main():
     parser.add_argument('--expand-language-ub-checks', action='store_true', help='Retain original language-UB-check helper body')
     parser.add_argument('--sysroot', choices=['default', 'miri', 'auto'], default='default',
                         help='Native diagnostics use the ordinary toolchain stdlib; Miri/auto are explicit comparisons')
+    parser.add_argument('--provenance-pointers', action='store_true', help='Use the checked address/provenance raw-pointer interface')
     args = parser.parse_args()
     parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
     out = Path(tempfile.mkdtemp(prefix='inline-constructor-', dir=parent))
@@ -107,6 +108,7 @@ def main():
         record['sysroot'] = args.sysroot
         record['cargo_target_directory'] = env['CARGO_TARGET_DIR']
         record['target_word64'] = args.target_word64
+        record['provenance_pointers'] = args.provenance_pointers
         record['const_values'] = args.const_values
         record['expand_language_ub_checks'] = args.expand_language_ub_checks
         record['inline_ok_or'] = args.inline_ok_or
@@ -146,7 +148,7 @@ def main():
         save()
         run([tools / 'aeneas', '-backend', 'lean', '-checks', '-sequential', '-eval-drops', '-max-heartbeats', '200000', '-max-recdepth', '1000',
              '-abort-on-error', '-no-external-name-patterns', '-disambiguate-instantiated-names', '-monomorphic-builtin-shapes',
-             *(['-target-word64'] if args.target_word64 else []), '-dest', out / 'lean', llbc], 'aeneas.log')
+             *(['-target-word64'] if args.target_word64 else []), *(['-provenance-pointers'] if args.provenance_pointers else []), '-dest', out / 'lean', llbc], 'aeneas.log')
         plain = re.sub(r'\x1b\[[0-9;?]*[A-Za-z]', '', (out / 'aeneas.log').read_text())
         if re.search(r'Uncaught exception|\[Error\]', plain): raise RuntimeError('Frontend reported an error despite exit status')
         raw = (out / 'lean/Constructor.lean').read_text()
@@ -182,9 +184,20 @@ def main():
             marker = 'open Aeneas Aeneas.Std Result ControlFlow Error\n'
             if module.count(marker) != 1: raise RuntimeError('Unexpected constructor prelude')
             module = module.replace(marker, support.replace('import Aeneas.Std\n', '') + '\n' + marker, 1)
+        if args.provenance_pointers:
+            pointer_runtime = ROOT / 'interop/aeneas/pointer-storage/Runtime.lean'
+            support = pointer_runtime.read_text()
+            PARAMETERS['validate_proof_source'](support, ['cast_result', 'cast_address', 'cast_provenance', 'cast_metadata'])
+            core_import = 'import FormalProof4FHE.HasteBoots.NativePointerRepresentation\n'
+            if support.count(core_import) != 1 or support.count('import Aeneas.Std\n') != 1:
+                raise RuntimeError('Unexpected pointer runtime imports')
+            record['pointer_runtime_sha256'] = digest(support.encode())
+            module = module.replace('import Aeneas.Std\n', 'import Aeneas.Std\n' + core_import, 1)
+            marker = 'open Aeneas Aeneas.Std Result ControlFlow Error\n'
+            module = module.replace(marker, support.replace('import Aeneas.Std\n', '').replace(core_import, '') + '\n' + marker, 1)
         checked.write_text(module + '\n#print axioms ' + name + '\n')
-        run([ROOT / 'scripts/in-container', 'bash', '-euc', 'cd -- "$1"; lake env lean -DwarningAsError=true "$2"', '_',
-             COMMON['container_path'](args.backend.resolve() / 'backends/lean'), COMMON['container_path'](checked)], 'lean.log')
+        run([ROOT / 'scripts/in-container', 'bash', '-euc', 'cd -- "$1"; export LEAN_PATH="$3:${LEAN_PATH:-}"; lake env lean -DwarningAsError=true "$2"', '_',
+             COMMON['container_path'](args.backend.resolve() / 'backends/lean'), COMMON['container_path'](checked), COMMON['container_path'](ROOT / '.lake/build/lib/lean')], 'lean.log')
         record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), [name])
         verify_native()
         BUILD['verify_receipt'](args.build_receipt)
