@@ -7,6 +7,43 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Temporary source leases now have checked scope cleanup
+
+`NativeReferenceCleanup` performs actual closed-machine `endBorrow` operations
+for resident leases minted since the entry state's tag counter. Its result
+records completed tags and an unprocessed suffix, retaining all successful
+cleanup effects if a later operation fails. Twenty-seven theorems establish
+execution projection, prefix partition, blocked-operation evidence, preservation
+of all state except leases, exact membership after cleanup, older-lease
+preservation, and well-formedness/reachability. Reachable leases are proved to be
+newest first and registered, which makes reverse-order scope cleanup complete.
+All 43 explicit model declarations and constructor/field definitions have
+persistent dependency audits. Thirteen root regressions cover nested cleanup,
+parent-first rejection, partial failure, stale references, older leases and
+actual allocator permission checks.
+
+A new `slice-scope-body` profile retains two original unit-returning Rust scope
+probes and the original byte-slice constructors they call. The shared scope
+creates one temporary lease; the mutable scope creates two. Four source body
+and scope equations, one exact byte-layout theorem, and two bridge theorems
+connect those retained bodies to explicit normal-unit cleanup. Ten source
+regressions check that source execution alone leaves the leases resident,
+cleanup revokes them without changing memory, later physical free succeeds,
+and older or conflicting leases still enforce the existing permissions.
+
+`invokeUnit` composes original finite-body execution with checked cleanup only
+on a normal unit return. Other source outcomes retain their actual prefixes.
+This is an explicit composed runner, not a proved translation of Rust lifetime
+ends. The [profile documentation](../interop/aeneas/slice-scope-body/README.md)
+records that boundary and reproduction commands. Its gate passed 60 dependency
+audits and 15 rejecting controls, and reran the parent 131-audit slice-reference
+profile with the same frozen compiler tools. The repository-wide `scripts/check`
+also passed, including its 10,972-job build. The native byte-slice drop
+glue is confirmed to contain a loop, wrapping counter arithmetic, indexing and
+temporary reference creation. Its iteration lifetimes/control flow and the
+following allocator path still require source correspondence; no native
+constructor or final cryptographic/work theorem is claimed.
+
 ## Original byte/word slice-reference bodies now execute the closed reference machine
 
 `NativeSliceLLBC` extends the finite original-body approach with fat raw slice

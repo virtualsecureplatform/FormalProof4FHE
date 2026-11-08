@@ -1,0 +1,334 @@
+{
+  "profile": "original-release-byte-slice-unit-scope-cleanup-v1",
+  "gate_manifest": "build/hasteboots-extraction/slice-scope-body-peqowzl5/manifest.json",
+  "gate_manifest_sha256": "1fb6d8ee32283a0460ec6876d76413d5399e77e63809ffc1e3635b2e0a998558",
+  "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
+  "status": "passed",
+  "claim": "unit slice LLBC interpretation and explicit checked scope cleanup; compiler, Rust lifetimes, native drop glue and security refinement remain unproved",
+  "commands": [
+    [
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/scripts/in-container",
+      "lake",
+      "build",
+      "FormalProof4FHE.HasteBoots.NativeReferenceCleanup",
+      "FormalProof4FHETest.HasteBootsReferenceCleanupSmoke",
+      "FormalProof4FHETest.HasteBootsReferenceCleanupAudit"
+    ],
+    [
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/scripts/check-hasteboots-slice-reference-body",
+      "--build-receipt",
+      "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json"
+    ],
+    [
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/inline-tools-build-b6esls36/tools/charon",
+      "rustc",
+      "--preset=aeneas",
+      "--sysroot",
+      "default",
+      "--monomorphize",
+      "--mir",
+      "optimized",
+      "--consts",
+      "values",
+      "--evaluate-runtime-checks",
+      "--precise-drops",
+      "--desugar-drops",
+      "--preserve-allocator",
+      "--no-dedup-serialized-ast",
+      "--include",
+      "core::slice::raw::from_raw_parts",
+      "--include",
+      "core::slice::raw::from_raw_parts_mut",
+      "--include",
+      "core::ptr::metadata",
+      "--dest-file",
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/slice-scope-body-peqowzl5/release.llbc",
+      "--",
+      "--crate-type",
+      "lib",
+      "--edition",
+      "2024",
+      "-Cdebug-assertions=no",
+      "--crate-name",
+      "hasteboots_slice_scope_body",
+      "interop/aeneas/slice-scope-body/fixture.rs"
+    ],
+    [
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/inline-tools-build-b6esls36/tools/charon",
+      "rustc",
+      "--preset=aeneas",
+      "--sysroot",
+      "default",
+      "--monomorphize",
+      "--mir",
+      "optimized",
+      "--consts",
+      "values",
+      "--evaluate-runtime-checks",
+      "--precise-drops",
+      "--desugar-drops",
+      "--preserve-allocator",
+      "--no-dedup-serialized-ast",
+      "--include",
+      "core::slice::raw::from_raw_parts",
+      "--include",
+      "core::slice::raw::from_raw_parts_mut",
+      "--include",
+      "core::ptr::metadata",
+      "--dest-file",
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/slice-scope-body-peqowzl5/debug.llbc",
+      "--",
+      "--crate-type",
+      "lib",
+      "--edition",
+      "2024",
+      "-Cdebug-assertions=yes",
+      "--crate-name",
+      "hasteboots_slice_scope_body",
+      "interop/aeneas/slice-scope-body/fixture.rs"
+    ],
+    [
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/scripts/in-container",
+      "lake",
+      "env",
+      "lean",
+      "-DwarningAsError=true",
+      "build/hasteboots-extraction/slice-scope-body-peqowzl5/Checked.lean"
+    ]
+  ],
+  "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
+  "inputs": {
+    "scripts/check-hasteboots-slice-scope-body": "41fcfafea31999ed5cabb94813e0cc50a20465023265b94d45d9a9770d4ccfd4",
+    "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
+    "scripts/reify-hasteboots-scalar-llbc": "7998b2650710269d58d7036b0d060d239469911668e759f4b8a56efdd41f9809",
+    "scripts/reify-hasteboots-slice-reference-llbc": "5f99239e34388cbfbd4a08e76a66a7102516d2f443de37d04dd8f8aadc8a321d",
+    "FormalProof4FHE/HasteBoots/NativeReferenceCleanup.lean": "0405ccb95660fa6c4d173b570fd80fa26bb2ab1bf4171dcc30b70af962b619d5",
+    "FormalProof4FHETest/HasteBootsReferenceCleanupSmoke.lean": "059b3b8a0ce9f6046fc9fc939757bc928b585eef43999c5787cc1a406428bf3f",
+    "FormalProof4FHETest/HasteBootsReferenceCleanupAudit.lean": "c6a5c0e102679750e166027846e1222152cbe2095c1d1c736272709fdf2d51a3",
+    "lean-toolchain": "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c",
+    "interop/aeneas/slice-scope-body/fixture.rs": "feb336719f0c6c575298cdd75538c87586508585659335df7b6d084e90715cf7",
+    "interop/aeneas/slice-scope-body/Generated.lean": "9fd84f71cb6d99c30b697cf7a7cb8c22746d13111b50d2e0364d07a4971d9cd8",
+    "interop/aeneas/slice-scope-body/Retained.json": "143f352043165b9daefeadb2fec15bb4cc794558380134128ddcb154e6c0b7dc",
+    "interop/aeneas/slice-scope-body/Proof.lean": "99bd78b6d8679aba3d33973aec104131ef4e1f66510e3b280e6dcbb2bd9fd6e0",
+    "interop/aeneas/slice-scope-body/Bridge.lean": "09671e241098c5320f56f8665c56790b762e72938ce046d74f0f7da0c8c00af6",
+    "interop/aeneas/slice-scope-body/Smoke.lean": "444f8de1fbb773f5395c42158eb3ed9402512726741dd54d33e90f80874f97ab"
+  },
+  "parent_slice_reference": {
+    "manifest": "build/hasteboots-extraction/slice-reference-body-i1y0lynk/manifest.json",
+    "manifest_sha256": "fd4de28c53e0337ff71abd71d33270ed01203d39e8fe82f8eb654dbdf7d13d2e",
+    "dependency_audit_count": 131
+  },
+  "functions": [
+    {
+      "id": 0,
+      "name": "hasteboots_slice_scope_body::shared_scope#0",
+      "span": {
+        "data": {
+          "file_id": 0,
+          "beg": {
+            "line": 1,
+            "col": 0
+          },
+          "end": {
+            "line": 3,
+            "col": 1
+          }
+        },
+        "generated_from_span": null
+      },
+      "original_body_sha256": "1a278ccf27d7769806afce5c38f25acbb491bea1e74ad93dd38c283b73d4cd11"
+    },
+    {
+      "id": 1,
+      "name": "hasteboots_slice_scope_body::mutable_scope#1",
+      "span": {
+        "data": {
+          "file_id": 0,
+          "beg": {
+            "line": 4,
+            "col": 0
+          },
+          "end": {
+            "line": 6,
+            "col": 1
+          }
+        },
+        "generated_from_span": null
+      },
+      "original_body_sha256": "8fb4d4a0a4b2be0a8c5ed2bd8e019b9bf1bd45efa7047e187ec1df9fe7693334"
+    },
+    {
+      "id": 2,
+      "name": "core::slice::raw::from_raw_parts#2",
+      "span": {
+        "data": {
+          "file_id": 1,
+          "beg": {
+            "line": 124,
+            "col": 0
+          },
+          "end": {
+            "line": 124,
+            "col": 80
+          }
+        },
+        "generated_from_span": null
+      },
+      "original_body_sha256": "168e93bf1526e323323d9e9b931fd7f902f08371d4ec0dde50f4c32feb54bdfd"
+    },
+    {
+      "id": 3,
+      "name": "core::slice::raw::from_raw_parts_mut#3",
+      "span": {
+        "data": {
+          "file_id": 1,
+          "beg": {
+            "line": 179,
+            "col": 0
+          },
+          "end": {
+            "line": 179,
+            "col": 86
+          }
+        },
+        "generated_from_span": null
+      },
+      "original_body_sha256": "207db0299c35f9e3efe6dfaed056c407d60652c289f832f3ffb2990fd7a43c75"
+    }
+  ],
+  "inactive_unsupported_count": 2,
+  "negative_controls": {
+    "wrong_target": "Wrong target",
+    "wrong_endian": "Wrong target",
+    "opaque_active_body": "Unsupported active callee body",
+    "hidden_active_declaration": "Unsupported active callee body",
+    "residual_drop": "Unsupported active statement: Drop",
+    "unknown_statement_field": "Unknown statement fields",
+    "bad_storage_index": "Bad storage index",
+    "active_unsupported_ub_check": "Expected local place",
+    "pointer_parts_mutability": "Pointer-parts types mismatch",
+    "nonempty_unit_aggregate": "Only the exact empty tuple aggregate is supported",
+    "wrong_metadata": "Metadata is not bound to the borrowed pointer",
+    "wrong_borrowed_element": "Wrong borrowed slice element",
+    "unsupported_layout": "Element layout changed",
+    "missing_runtime_policy": "Missing policy: precise_drops",
+    "source_rewrite_policy": "Hidden/rewritten source closure"
+  },
+  "debug_active_rejection": "Expected local place",
+  "supported_body_mutation_retained": true,
+  "dependency_audit": {
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.endTag": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.Result": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.release": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.scopeTags": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.closeScope": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.Ends": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.withoutLeases": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.endTag_executes": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.endTag_leases": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.endTag_frame": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.ends_projects": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.release_partition": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.release_ends": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.release_blocked": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.ends_frame": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.ends_membership": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.release_projects": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.release_frame": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.release_membership": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.closeScope_projects": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.closeScope_preserves_older": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.closeScope_complete": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.closeScope_wellFormed": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.closeScope_reachable": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.Ready": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.execute_ready": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.reachable_ready": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.end_newest": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.release_scope_complete": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.closeScope_reachable_complete": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.settleUnit": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.invokeUnit": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.settleUnit_projects": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.invokeUnit_projects": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.invokeUnit_wellFormed": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.invokeUnit_reachable": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.invokeUnit_success": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.Result.mk": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.Result.world": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.Result.ended": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.Result.pending": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.Ends.nil": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeReferenceCleanup.Ends.cons": "depends on axioms: [propext, Quot.sound]",
+    "HasteBootsSliceScopeBody.f0": "does not depend on any axioms",
+    "HasteBootsSliceScopeBody.f1": "does not depend on any axioms",
+    "HasteBootsSliceScopeBody.f2": "does not depend on any axioms",
+    "HasteBootsSliceScopeBody.f3": "does not depend on any axioms",
+    "HasteBootsSliceScopeBody.g0": "depends on axioms: [propext]",
+    "HasteBootsSliceScopeBody.g1": "depends on axioms: [propext]",
+    "HasteBootsSliceScopeBody.g2": "depends on axioms: [propext]",
+    "HasteBootsSliceScopeBody.g3": "depends on axioms: [propext]",
+    "HasteBootsSliceScopeBody.finishIssue": "depends on axioms: [propext]",
+    "HasteBootsSliceScopeBody.finishUnit": "depends on axioms: [propext]",
+    "HasteBootsSliceScopeBody.byte_layout_exact": "depends on axioms: [propext]",
+    "HasteBootsSliceScopeBody.shared_byte_body": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "HasteBootsSliceScopeBody.mutable_byte_body": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "HasteBootsSliceScopeBody.shared_scope": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "HasteBootsSliceScopeBody.mutable_scope": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "HasteBootsSliceScopeBody.shared_scope_closed": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "HasteBootsSliceScopeBody.mutable_scope_closed": "depends on axioms: [propext, Classical.choice, Quot.sound]"
+  },
+  "llbc_sha256": "b805917600e3770313f7ecdcabeded83acad3b7776400a2ad36db2680b78a8bf",
+  "checked_sha256": "02253dc4401d60805ab7461d136c55007c687ec1ca80ffccac89ed2f56a70849",
+  "logs": {
+    "parent-slice-reference.log": "80d4d55b44fefabf3ae08ee54aecd32d5353b087204862481e06efe353552aff",
+    "root-build.log": "e715072dc3b76413bae5c921a2dbec05fe00dc2da7a7ebe46075ad98b8f32c9d",
+    "debug-charon.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lean.log": "30dd0d6a89787c17a02cffed26187b37af0a6ae5c45d88dd2d5d58cad0a3d4ef",
+    "release-charon.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "native_revision": "dff353006322693cab3dc6b654f82151f658f294",
+  "model_theorems": 27,
+  "model_persistent_audits": 43,
+  "source_audits": 17,
+  "source_theorems": 7,
+  "root_regressions": 13,
+  "source_regressions": 10,
+  "compiler_edits": false,
+  "aeneas_edits": false,
+  "rust_lifetime_refinement": false,
+  "native_drop_loop_accepted": false,
+  "native_constructor_accepted": false,
+  "physical_work_refinement": false,
+  "final_security_theorem": false,
+  "native_drop_loop_observation": {
+    "receipt": "build/hasteboots-extraction/inline-constructor-qml8715a/manifest.json",
+    "llbc_sha256": "923291b7980f9370226fb74c14166afe6fa9d65ad4fafdb5796354909d3f76e7",
+    "function_id": 46,
+    "original_body_sha256": "06f2969a2079a131623d7fefad2daf34c77ecec8202988be72fca00cf15c9d4a",
+    "loop_statement_id": 2164,
+    "body_features": [
+      "slice pointer metadata",
+      "usize zero",
+      "equality branch and break",
+      "mutable whole-slice reborrow",
+      "mutable byte indexing",
+      "reference-to-raw-pointer conversion",
+      "wrapping counter increment",
+      "continue"
+    ],
+    "unproved": [
+      "structured loop/source semantics",
+      "iteration reference lifetime boundaries",
+      "whole slice drop-glue composition",
+      "following allocator path"
+    ]
+  },
+  "root_check": {
+    "command": "scripts/check",
+    "exit_code": 0,
+    "build_jobs": 10972,
+    "log": "/tmp/hasteboots-reference-cleanup-full-check.log",
+    "log_sha256": "58e58c8d4924e1c3140ba140d06bf7c9acf57d034e44ed2e5c86314f0f9e6a2c"
+  }
+}
