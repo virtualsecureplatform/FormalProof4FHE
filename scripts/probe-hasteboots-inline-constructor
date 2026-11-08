@@ -1,0 +1,98 @@
+#!/usr/bin/env python3
+"""Probe original Gold constructor with coupled inline tools; no refinement/security claim."""
+import argparse
+import json
+import os
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+BASE = runpy.run_path(str(ROOT / 'scripts/probe-hasteboots-constructor-typing'))
+BUILD = runpy.run_path(str(ROOT / 'scripts/build-hasteboots-inline-tools'))
+PARAMETERS, COMMON, digest = BASE['PARAMETERS'], BASE['COMMON'], BASE['digest']
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--build-receipt', type=Path, required=True)
+    parser.add_argument('--backend', type=Path, required=True)
+    args = parser.parse_args()
+    parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
+    out = Path(tempfile.mkdtemp(prefix='inline-constructor-', dir=parent))
+    record = {'status': 'started', 'claim': 'strict original constructor translation only; source/heap/work/security refinement unproved',
+              'commands': [], 'script_sha256': digest(Path(__file__).read_bytes())}
+    def save(): (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
+    def run(command, log, env=None):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out / log).open('w') as stream:
+            subprocess.run([str(x) for x in command], cwd=ROOT, env=env, stdout=stream, stderr=subprocess.STDOUT, check=True)
+    print('Inline constructor artifacts: ' + str(out), flush=True); save()
+    try:
+        receipt, tools, sources = BUILD['verify_receipt'](args.build_receipt)
+        native = ROOT.parent / 'HasteBoots'
+        def verify_native():
+            if PARAMETERS['checked'](['git', '-C', native, 'rev-parse', 'HEAD'], text=True).strip() != PARAMETERS['NATIVE_PIN']:
+                raise RuntimeError('Native source revision differs')
+            if PARAMETERS['checked'](['git', '-C', native, 'diff', 'HEAD', '--name-only'], text=True).strip():
+                raise RuntimeError('Native tracked source differs')
+        verify_native()
+        record['build_receipt_sha256'] = digest(args.build_receipt.read_bytes())
+        record['backend_patches'] = PARAMETERS['verify_backend'](args.backend.resolve(), out)
+        fixture = ROOT / 'scripts/native-fixtures/ntt-cache'
+        wrapper = ROOT / 'interop/aeneas/parameters/wrapper.rs'
+        record.update(native_revision=PARAMETERS['NATIVE_PIN'], wrapper_sha256=digest(wrapper.read_bytes()),
+                      lock_sha256=digest((fixture / 'Cargo.lock').read_bytes()))
+        (out / 'src').mkdir()
+        (out / 'src/lib.rs').write_bytes(wrapper.read_bytes())
+        (out / 'Cargo.toml').write_text((fixture / 'Cargo.toml').read_text().replace('../../../../HasteBoots', str(native)))
+        (out / 'Cargo.lock').write_bytes((fixture / 'Cargo.lock').read_bytes())
+        env = dict(os.environ)
+        env['CARGO_TARGET_DIR'] = str(parent / 'cargo-constructor-partial')
+        llbc = out / 'constructor.llbc'
+        run([tools / 'charon', 'cargo', '--preset=aeneas', '--monomorphize',
+             '--inline-function', 'core::option::_::and_then', '--inline-function', 'core::option::_::is_none_or',
+             '--start-from', PARAMETERS['NAMESPACE'] + '::new_encoded', '--include', 'pcs', '--include', 'core::option',
+             '--include', 'core::result', '--include', 'core::convert',
+             '--include', 'core::num::_::checked_next_power_of_two', '--include', 'core::num::_::one_less_than_next_power_of_two',
+             '--dest-file', llbc, '--', '--manifest-path', out / 'Cargo.toml', '--lib', '--locked'], 'charon.log', env)
+        ir = json.loads(llbc.read_text())
+        record.update(charon_has_errors=ir.get('has_errors'), llbc_sha256=digest(llbc.read_bytes()))
+        BASE['validate_ir'](ir)
+        record['constructor_bodies'] = BASE['validate_constructor_bodies'](ir, False)
+        record['retained_functions'] = sum(isinstance(f, dict) for f in ir['translated']['fun_decls'])
+        save()
+        run([tools / 'aeneas', '-backend', 'lean', '-checks', '-sequential', '-max-heartbeats', '200000', '-max-recdepth', '1000',
+             '-abort-on-error', '-no-external-name-patterns', '-disambiguate-instantiated-names', '-monomorphic-builtin-shapes',
+             '-dest', out / 'lean', llbc], 'aeneas.log')
+        plain = re.sub(r'\x1b\[[0-9;?]*[A-Za-z]', '', (out / 'aeneas.log').read_text())
+        if re.search(r'Uncaught exception|\[Error\]', plain): raise RuntimeError('Frontend reported an error despite exit status')
+        raw = (out / 'lean/Constructor.lean').read_text()
+        if raw.count('import Aeneas\n') != 1 or not raw.rstrip().endswith('end ' + PARAMETERS['NAMESPACE']):
+            raise RuntimeError('Incomplete native constructor module')
+        if re.search(r'\b(axiom|opaque|constant|sorry|sorryAx|native_decide|unsafe)\b|decide\s*\+native', raw):
+            raise RuntimeError('Admitted native constructor module')
+        if re.findall(r'^set_option (maxHeartbeats|maxRecDepth) ([0-9]+)$', raw, re.M) != [
+                ('maxHeartbeats', '200000'), ('maxRecDepth', '1000')]: raise RuntimeError('Unexpected proof limits')
+        name = PARAMETERS['NAMESPACE'] + '.new_encoded'
+        checked = out / 'Checked.lean'
+        checked.write_text(raw.replace('import Aeneas\n', 'import Aeneas.Std\nimport Aeneas.Tactic.RustAttributes\nimport Aeneas.Data.Discriminant\n')
+                           + '\n#print axioms ' + name + '\n')
+        run([ROOT / 'scripts/in-container', 'bash', '-euc', 'cd -- "$1"; lake env lean -DwarningAsError=true "$2"', '_',
+             COMMON['container_path'](args.backend.resolve() / 'backends/lean'), COMMON['container_path'](checked)], 'lean.log')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), [name])
+        verify_native()
+        BUILD['verify_receipt'](args.build_receipt)
+        if record['wrapper_sha256'] != digest(wrapper.read_bytes()) or record['lock_sha256'] != digest((fixture / 'Cargo.lock').read_bytes()):
+            raise RuntimeError('Native fixture changed during check')
+        record['status'] = 'passed'; print('Original constructor translation checked; refinement proof still required')
+    except (Exception, SystemExit) as error:
+        record.update(status='failed', error=str(error)); raise SystemExit('Inline constructor probe failed; inspect ' + str(out) + ': ' + str(error)) from error
+    finally:
+        record['logs'] = {p.name: digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__':
+    main()

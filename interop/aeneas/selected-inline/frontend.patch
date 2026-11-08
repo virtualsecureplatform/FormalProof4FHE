@@ -1,0 +1,728 @@
+diff --git a/src/Config.ml b/src/Config.ml
+index cb919aeb..87c7c3eb 100644
+--- a/src/Config.ml
++++ b/src/Config.ml
+@@ -598,3 +598,10 @@ let max_recdepth = ref 2048
+ (** If [false], evaluate [drop(p)] as [p := bottom]. Otherwise, evaluate it as a
+     no-op (which means that we do not borrow-check the drops). *)
+ let drop_as_no_op = ref true
++
++(** Add deterministic suffixes to instantiated names; collisions remain errors.
++*)
++let disambiguate_instantiated_names = ref false
++
++(** Preserve monomorphic trait shapes and recognize scalar option aliases. *)
++let monomorphic_builtin_shapes = ref false
+diff --git a/src/Main.ml b/src/Main.ml
+index 8073dba6..b205101f 100644
+--- a/src/Main.ml
++++ b/src/Main.ml
+@@ -97,6 +97,16 @@ let () =
+         Arg.Symbol (backend_names, set_backend),
+         " Specify the target backend (" ^ String.concat ", " backend_names ^ ")"
+       );
++      ( "-monomorphic-builtin-shapes",
++        Arg.Set monomorphic_builtin_shapes,
++        " Preserve monomorphic traits and recognize scalar option shapes" );
++      ( "-disambiguate-instantiated-names",
++        Arg.Set disambiguate_instantiated_names,
++        " Distinguish names with different monomorphic instantiations" );
++      ( "-no-external-name-patterns",
++        Arg.Clear extract_external_name_patterns,
++        " Omit optional external Rust-name pattern annotations; retain source \
++         names and spans" );
+       ( "-namespace",
+         Arg.String set_namespace,
+         " Set the namespace of the definitions in the pure model" );
+@@ -579,6 +589,11 @@ let () =
+          without the `--preset=aeneas` option. Please regenerate the crate by \
+          calling Charon with `--preset=aeneas`.\n";
+ 
++      check_no_doc
++        ((not !monomorphic_builtin_shapes)
++        || (m.options.monomorphize && !opt_backend = Some Lean))
++        "Monomorphic builtin shapes require monomorphic Charon IR and Lean";
++
+       (* We don't support mutually recursive definitions with decreases clauses in Lean *)
+       if
+         !opt_backend = Some Lean && !extract_decreases_clauses
+diff --git a/src/PrePasses.ml b/src/PrePasses.ml
+index b613aba1..700d3654 100644
+--- a/src/PrePasses.ml
++++ b/src/PrePasses.ml
+@@ -87,6 +87,78 @@ let erase_body_regions (crate : crate) (f : fun_decl) : fun_decl =
+     ^ Print.fun_decl_to_string env "" "  " f];
+   f
+ 
++(** Symbolic execution requires signature lifetimes to be named. In particular,
++    full monomorphization may leave erased regions embedded in closure types.
++    Reject that unsupported input before interpreting any branch; do not infer
++    lifetime or alias relationships from erased annotations. *)
++let validate_signature_regions (_crate : crate) (f : fun_decl) : fun_decl =
++  if Config.backend () = Config.Lean then (
++    let visitor =
++      object
++        inherit [_] iter_ty
++
++        method! visit_RErased _ =
++          [%craise] f.item_meta.span
++            "Signature regions: erased lifetimes require lifetime-preserving \
++             extraction"
++
++        method! visit_RBody _ _ =
++          [%craise] f.item_meta.span
++            "Signature regions: body lifetimes are not valid signature \
++             parameters"
++      end
++    in
++    List.iter (visitor#visit_ty ()) f.signature.inputs;
++    visitor#visit_ty () f.signature.output);
++  f
++
++(* The Lean ctlz_nonzero runtime currently models only usize. Validate every
++   direct function reference, including function-pointer constants, before the
++   generic intrinsic declaration is treated as a builtin. *)
++
++let validate_ctlz_nonzero (crate : crate) (f : fun_decl) : fun_decl =
++  if Config.backend () <> Config.Lean then f
++  else
++    let pat = NameMatcher.parse_pattern "core::intrinsics::ctlz_nonzero" in
++    let mctx = NameMatcher.ctx_from_crate crate in
++    let matches =
++      NameMatcher.match_name mctx
++        {
++          map_vars_to_vars = true;
++          match_with_trait_decl_refs =
++            Config.match_patterns_with_trait_decl_refs;
++        }
++        pat
++    in
++    let visitor =
++      object
++        inherit [_] map_statement as super
++
++        method! visit_fn_ptr env ptr =
++          (match ptr.kind with
++          | FunId (FRegular id) -> (
++              match FunDeclId.Map.find_opt id crate.fun_decls with
++              | Some decl when matches decl.item_meta.name -> (
++                  match ptr.generics.types with
++                  | [ TLiteral (TUInt Usize) ] -> ()
++                  | _ ->
++                      [%craise] f.item_meta.span
++                        "ctlz_nonzero: only concrete usize instantiations are \
++                         modeled")
++              | _ -> ())
++          | _ -> ());
++          super#visit_fn_ptr env ptr
++      end
++    in
++    match f.body with
++    | StructuredBody body ->
++        {
++          f with
++          body =
++            StructuredBody { body with body = visitor#visit_block () body.body };
++        }
++    | _ -> f
++
+ (** Replace the occurrences of [core::intrinsics::unreachable] with
+     [Abort UndefinedBehavior]. This helps with the analyzes and the symbolic
+     evaluation (in particular, we stop the evaluation when encountering an
+@@ -979,20 +1051,24 @@ let filter_marker_traits (crate : crate) : crate =
+   let mctx = NameMatcher.ctx_from_crate crate in
+   let pats =
+     List.map NameMatcher.parse_pattern
+-      [
+-        "core::marker::Sized";
+-        "core::marker::MetaSized";
+-        "core::marker::PointeeSized";
+-        "core::marker::Destruct";
+-        "core::ptr::metadata::Pointee";
+-        "core::ptr::metadata::Thin";
+-        "core::marker::Send";
+-        "core::marker::Sync";
+-        "core::marker::Unpin";
+-        "core::marker::Tuple";
+-        "core::clone::TrivialClone";
+-        "core::alloc::Allocator";
+-      ]
++      (List.filter
++         (fun name ->
++           (not !Config.monomorphic_builtin_shapes)
++           || name <> "core::marker::Destruct")
++         [
++           "core::marker::Sized";
++           "core::marker::MetaSized";
++           "core::marker::PointeeSized";
++           "core::marker::Destruct";
++           "core::ptr::metadata::Pointee";
++           "core::ptr::metadata::Thin";
++           "core::marker::Send";
++           "core::marker::Sync";
++           "core::marker::Unpin";
++           "core::marker::Tuple";
++           "core::clone::TrivialClone";
++           "core::alloc::Allocator";
++         ])
+   in
+   let match_config =
+     {
+@@ -1306,6 +1382,12 @@ let decompose_str_borrows (_ : crate) (f : fun_decl) : fun_decl =
+               *)
+               method! visit_Constant env (cv : constant_expr) =
+                 match (cv.kind, cv.ty) with
++                | ( CLiteral (VStr _),
++                    TRef (_, TAdt { id = TBuiltin TStr; _ }, RShared) ) ->
++                    (* String literals have static storage. Keep the constant so
++                       the interpreter places its shared loan in a persistent
++                       dummy binding, not a local that is invalidated on return. *)
++                    super#visit_Constant env cv
+                 | ( CLiteral (VStr str),
+                     TRef
+                       (_, (TAdt { id = TBuiltin TStr; _ } as str_ty), ref_kind)
+@@ -2271,6 +2353,8 @@ let apply_passes (crate : crate) : crate =
+   (* Passes that apply to individual function bodies *)
+   let function_passes =
+     [
++      ("validate_signature_regions", validate_signature_regions);
++      ("validate_ctlz_nonzero", validate_ctlz_nonzero);
+       ("fix_closure_lifetimes", fix_closure_lifetimes);
+       ("erase_body_regions", erase_body_regions);
+       ("remove_unreachable", remove_unreachable);
+diff --git a/src/Translate.ml b/src/Translate.ml
+index 8df1bc5f..f1e2b16f 100644
+--- a/src/Translate.ml
++++ b/src/Translate.ml
+@@ -750,7 +750,9 @@ let export_types_group (fmt : Format.formatter) (config : gen_config)
+     let types_map = builtin_types_map () in
+     List.map
+       (fun (def : Pure.type_decl) ->
+-        match_name_find_opt ctx.trans_ctx def.item_meta.name types_map <> None)
++        def.builtin_info <> None
++        || match_name_find_opt ctx.trans_ctx def.item_meta.name types_map
++           <> None)
+       defs
+   in
+ 
+diff --git a/src/extract/Extract.ml b/src/extract/Extract.ml
+index 2dc4a57f..85dd55c9 100644
+--- a/src/extract/Extract.ml
++++ b/src/extract/Extract.ml
+@@ -2693,6 +2693,7 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
+   let clause_names =
+     match builtin_info with
+     | None ->
++        let used = ref Collections.StringSet.empty in
+         List.map
+           (fun (c : trait_param) ->
+             let name = ctx_compute_trait_parent_clause_name ctx trait_decl c in
+@@ -2701,6 +2702,14 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
+               if !record_fields_short_names then name
+               else ctx_compute_trait_decl_name ctx trait_decl ^ name
+             in
++            (* Short field names may coincide across records, but each parent
++               projection in this record still needs its own identifier. *)
++            let name =
++              basename_to_unique_aux
++                (fun candidate -> Collections.StringSet.mem candidate !used)
++                name_append_index name
++            in
++            used := Collections.StringSet.add name !used;
+             (c.clause_id, name))
+           trait_decl.parent_clauses
+     | Some info ->
+diff --git a/src/extract/ExtractBase.ml b/src/extract/ExtractBase.ml
+index 66bb1e48..40f653e7 100644
+--- a/src/extract/ExtractBase.ml
++++ b/src/extract/ExtractBase.ml
+@@ -1604,7 +1604,18 @@ let ctx_compute_simple_name (meta : T.item_meta) (ctx : extraction_ctx)
+     (name : llbc_name) : string list =
+   (* Rmk.: initially we only filtered the disambiguators equal to 0 *)
+   let name = opt_ctx_prepare_name meta ctx name in
+-  name_to_simple_name ctx.trans_ctx name
++  let simple = name_to_simple_name ctx.trans_ctx name in
++  if
++    !Config.disambiguate_instantiated_names
++    && List.exists
++         (function
++           | T.PeInstantiated _ -> true
++           | _ -> false)
++         name
++  then
++    let suffix = "mono_" ^ Digest.to_hex (Digest.string (T.show_name name)) in
++    simple @ [ suffix ]
++  else simple
+ 
+ (** Helper *)
+ let ctx_compute_simple_type_name = ctx_compute_simple_name
+@@ -2113,6 +2124,7 @@ let ctx_compute_var_basename (span : Meta.span) (ctx : extraction_ctx)
+           | TBuiltin TSlice -> "s"
+           | TBuiltin TStr -> "s"
+           | TBuiltin (TRawPtr _) -> "p"
++          | TBuiltin (TU32Range _) -> "ranged"
+           | TAdtId adt_id ->
+               let def =
+                 TypeDeclId.Map.find adt_id ctx.trans_ctx.type_ctx.type_decls
+@@ -2122,7 +2134,10 @@ let ctx_compute_var_basename (span : Meta.span) (ctx : extraction_ctx)
+               *)
+               (* The name shouldn't be empty, and its last element (after we remove
+                  the target architecture suffix) should be an ident *)
+-              let name = LlbcAstUtils.strip_target_suffix def.item_meta.name in
++              let name =
++                LlbcAstUtils.strip_target_or_instantiated_suffix
++                  def.item_meta.name
++              in
+               let cl = Collections.List.last name in
+               name_from_type_ident (TypesUtils.as_ident cl))
+       | TVar _ -> (
+diff --git a/src/extract/ExtractBuiltin.ml b/src/extract/ExtractBuiltin.ml
+index 6e28b984..908b60f9 100644
+--- a/src/extract/ExtractBuiltin.ml
++++ b/src/extract/ExtractBuiltin.ml
+@@ -332,7 +332,11 @@ let mk_builtin_trait_decls_map () =
+        (fun (info : Pure.builtin_trait_decl_info) -> (info.rust_name, info))
+        (builtin_trait_decls_info ()))
+ 
+-let builtin_trait_decls_map = mk_memoized mk_builtin_trait_decls_map
++let cached_builtin_trait_decls_map = mk_memoized mk_builtin_trait_decls_map
++
++let builtin_trait_decls_map () =
++  if !Config.monomorphic_builtin_shapes then NameMatcherMap.empty
++  else cached_builtin_trait_decls_map ()
+ 
+ let builtin_trait_impls_info () : (pattern * Pure.builtin_trait_impl_info) list
+     =
+@@ -510,7 +514,11 @@ let mk_builtin_trait_impls_map () =
+   [%ltrace NameMatcherMap.to_string (fun _ -> "...") m];
+   m
+ 
+-let builtin_trait_impls_map = mk_memoized mk_builtin_trait_impls_map
++let cached_builtin_trait_impls_map = mk_memoized mk_builtin_trait_impls_map
++
++let builtin_trait_impls_map () =
++  if !Config.monomorphic_builtin_shapes then NameMatcherMap.empty
++  else cached_builtin_trait_impls_map ()
+ 
+ (** The builtin functions.
+ 
+@@ -614,6 +622,14 @@ let mk_builtin_funs () : (pattern * Pure.builtin_fun_info) list =
+                ^ ".from"))
+           ~can_fail:false ())
+       int_and_smaller_list
++  (* Calls are checked to have exactly the concrete usize instantiation by
++     validate_ctlz_nonzero before this generic builtin mapping is used. *)
++  @ mk_lean_only
++      [
++        mk_fun "core::intrinsics::ctlz_nonzero" ~keep_params:(Some [ false ])
++          ~keep_trait_clauses:(Some [ false ])
++          ~extract_name:(Some "HasteBootsUsizeCtlz.nonzero") ();
++      ]
+   (* Leading zeros *)
+   @ mk_scalar_fun
+       (fun ty -> "core::num::{" ^ ty ^ "}::leading_zeros")
+diff --git a/src/extract/ExtractTypes.ml b/src/extract/ExtractTypes.ml
+index 37171763..536e42c3 100644
+--- a/src/extract/ExtractTypes.ml
++++ b/src/extract/ExtractTypes.ml
+@@ -10,10 +10,22 @@ module T = Types
+ let extract_str (_span : Meta.span) (fmt : F.formatter) ~(inside : bool)
+     (s : string) : unit =
+   let chars = StringUtils.string_to_chars s in
+-  (* Using the OCaml escape conventions for now.
+-
+-     TODO: does this really work? *)
+-  let s = String.concat "" (List.map Char.escaped chars) in
++  (* Lean string literals contain UTF-8 directly. Escape ASCII syntax/control
++     bytes using Lean conventions; retain other backend conventions. *)
++  let escape c =
++    if backend () <> Lean then Char.escaped c
++    else
++      match c with
++      | '"' -> "\\\""
++      | '\\' -> "\\\\"
++      | '\n' -> "\\n"
++      | '\r' -> "\\r"
++      | '\t' -> "\\t"
++      | c when Char.code c < 32 || Char.code c = 127 ->
++          Printf.sprintf "\\u%04x" (Char.code c)
++      | c -> String.make 1 c
++  in
++  let s = String.concat "" (List.map escape chars) in
+   let s = "\"" ^ s ^ "\"" in
+ 
+   (* We need to convert the string to a str (the conversion inserts a static check
+@@ -22,6 +34,10 @@ let extract_str (_span : Meta.span) (fmt : F.formatter) ~(inside : bool)
+   F.pp_print_string fmt "toStr";
+   F.pp_print_space fmt ();
+   F.pp_print_string fmt s;
++  if backend () = Lean then
++    F.pp_print_string fmt
++      " (by simp only [U32.max, U32.numBits, UScalarTy.U32_numBits_eq]; decide \
++       +kernel)";
+   if inside then F.pp_print_string fmt ")"
+ 
+ (** Format a constant value.
+@@ -333,6 +349,11 @@ let rec extract_ty (span : Meta.span) (ctx : extraction_ctx) (fmt : F.formatter)
+   [%ldebug "ty: " ^ ty_to_string ctx ty];
+   let extract_rec = extract_ty span ctx fmt no_params_tys in
+   match ty with
++  | TAdt (TBuiltin (TU32Range (lower, upper)), generics) ->
++      [%sanity_check] span (generics = empty_generic_args);
++      [%cassert] span (backend () = Lean) "Unsupported scalar range backend";
++      F.fprintf fmt "{ value : Std.U32 // %s ≤ value.val ∧ value.val ≤ %s }"
++        (Z.to_string lower) (Z.to_string upper)
+   | TAdt (type_id, generics) -> (
+       [%ldebug "ADT case"];
+       let has_params = generics <> empty_generic_args in
+@@ -1263,7 +1284,7 @@ let extract_attributes (span : Meta.span) (ctx : extraction_ctx)
+     (rust_model_attr_options : string list) ~(is_external : bool) : unit =
+   if backend () = Lean then (
+     let name_pattern : string list list =
+-      if is_external then
++      if is_external && !Config.extract_external_name_patterns then
+         match generics with
+         | None ->
+             [
+diff --git a/src/interp/InterpExpressions.ml b/src/interp/InterpExpressions.ml
+index 2d32fc8e..e80f5463 100644
+--- a/src/interp/InterpExpressions.ml
++++ b/src/interp/InterpExpressions.ml
+@@ -82,6 +82,26 @@ let access_rplace_reorganize_and_read (config : config) (span : Meta.span)
+   (* Compose *)
+   (lid, value, ctx, cc)
+ 
++(** Read only an enumeration discriminant. Rust cleanup blocks may inspect an
++    initialized tag after moving its payload. No payload is read or copied by
++    this operation; ordinary reads retain their complete bottom/borrow checks.
++*)
++let access_discriminant_reorganize_and_read (config : config) (span : Meta.span)
++    (p : place) (ctx : eval_ctx) :
++    tvalue * eval_ctx * (SymbolicAst.expr -> SymbolicAst.expr) =
++  let ctx, cc = update_ctx_along_read_place config span Read p ctx in
++  let ctx, cc = comp cc (end_loans_at_place config span Read p ctx) in
++  let _, value = read_place span Read p ctx in
++  let value = value_strip_shared_loans value in
++  (match value.value with
++  | VAdt { variant_id = Some _; _ } -> ()
++  | VSymbolic _ ->
++      (* Symbolic expansion keeps the previous full-read safety precondition. *)
++      let _ = read_place_check span Read p ctx in
++      ()
++  | _ -> [%craise] span "Cannot read an uninitialized enumeration discriminant");
++  (value, ctx, cc)
++
+ let access_rplace_reorganize (config : config) (span : Meta.span)
+     (greedy_expand : bool) (access : access_kind) (p : place) : cm_fun =
+  fun ctx ->
+diff --git a/src/interp/InterpExpressions.mli b/src/interp/InterpExpressions.mli
+index 75a12e90..c578fdc1 100644
+--- a/src/interp/InterpExpressions.mli
++++ b/src/interp/InterpExpressions.mli
+@@ -28,6 +28,14 @@ val access_rplace_reorganize_and_read :
+   eval_ctx ->
+   loan_id option * tvalue * eval_ctx * (SymbolicAst.expr -> SymbolicAst.expr)
+ 
++(** Read an initialized enum tag without reading moved payload fields. *)
++val access_discriminant_reorganize_and_read :
++  config ->
++  Meta.span ->
++  place ->
++  eval_ctx ->
++  tvalue * eval_ctx * (SymbolicAst.expr -> SymbolicAst.expr)
++
+ (** Evaluate an operand.
+ 
+     Reorganize the context, then evaluate the operand.
+diff --git a/src/interp/InterpStatements.ml b/src/interp/InterpStatements.ml
+index cb9203a0..77f0abdd 100644
+--- a/src/interp/InterpStatements.ml
++++ b/src/interp/InterpStatements.ml
+@@ -1135,11 +1135,8 @@ and eval_switch_raw (config : config) (span : Meta.span) (switch : switch) :
+       (ctx_resl, cc_comp cf_eval_op cf_switch)
+   | Match (p, stgts, otherwise) ->
+       (* Access the place *)
+-      let access = Read in
+-      let expand_prim_copy = false in
+-      let _, p_v, ctx, cf_read_p =
+-        access_rplace_reorganize_and_read config span expand_prim_copy access p
+-          ctx
++      let p_v, ctx, cf_read_p =
++        access_discriminant_reorganize_and_read config span p ctx
+       in
+       let ctx0 = ctx in
+       (* Match on the value *)
+diff --git a/src/llbc/FunsAnalysis.ml b/src/llbc/FunsAnalysis.ml
+index ab1fbdfe..100d186d 100644
+--- a/src/llbc/FunsAnalysis.ml
++++ b/src/llbc/FunsAnalysis.ml
+@@ -213,9 +213,12 @@ let analyze_module (m : crate) (funs_map : fun_decl FunDeclId.Map.t) :
+       let builtin_info = get_builtin_info f in
+       let has_builtin_info = builtin_info <> None in
+       group_has_builtin_info := !group_has_builtin_info || has_builtin_info;
+-      match f.body with
+-      | StructuredBody body -> obj#visit_block body.body.span body.body
+-      | TargetDispatchBody targets ->
++      (* Extracted builtin calls use the backend model, even when Charon also
++         retained a Rust body. Its declared effects determine the model's type. *)
++      match (builtin_info, f.body) with
++      | Some info, _ -> obj#may_fail info.can_fail
++      | None, StructuredBody body -> obj#visit_block body.body.span body.body
++      | None, TargetDispatchBody targets ->
+           (* get_target can fail, and so can each target function *)
+           obj#may_fail true;
+           (* Also propagate effects from the target implementations *)
+@@ -223,13 +226,7 @@ let analyze_module (m : crate) (funs_map : fun_decl FunDeclId.Map.t) :
+             (fun ((_target_name : string), (fdr : Types.fun_decl_ref)) ->
+               obj#visit_fid f.item_meta.span fdr.id)
+             targets
+-      | _ ->
+-          let info_can_fail =
+-            match builtin_info with
+-            | None -> true
+-            | Some { can_fail } -> can_fail
+-          in
+-          obj#may_fail info_can_fail
++      | None, _ -> obj#may_fail true
+     in
+     List.iter visit_fun d;
+     (* We need to know if the declaration group contains a global - note that
+diff --git a/src/llbc/RegionsHierarchy.ml b/src/llbc/RegionsHierarchy.ml
+index aa1db67d..e178f90a 100644
+--- a/src/llbc/RegionsHierarchy.ml
++++ b/src/llbc/RegionsHierarchy.ml
+@@ -146,6 +146,9 @@ let compute_regions_hierarchy_for_sig (span : Meta.span option) (crate : crate)
+         explore_generics outer generics
+     | TArray _ | TSlice _ -> (* No clauses for those *) ()
+     | TVar _ | TLiteral _ | TNever -> ()
++    | TPattern (base, pattern) ->
++        let _ = TypesAnalysis.u32_range_bounds span base pattern in
++        ()
+     | TRef (r, ty, _) ->
+         (* Add the constraints for r *)
+         add_edges ~long:r ~shorts:outer;
+diff --git a/src/llbc/Substitute.ml b/src/llbc/Substitute.ml
+index fbd7f003..94d66db1 100644
+--- a/src/llbc/Substitute.ml
++++ b/src/llbc/Substitute.ml
+@@ -7,6 +7,18 @@ open Types
+ open Values
+ open LlbcAst
+ 
++(* Aeneas runtime field types erase every lifetime, including 'static.
++   Charon's generic substitution erases region variables but preserves 'static. *)
++let type_decl_get_instantiated_field_etypes def opt_variant_id generics =
++  let erase =
++    object
++      inherit [_] map_ty
++      method! visit_region _ _ = RErased
++    end
++  in
++  List.map (erase#visit_ty ())
++    (type_decl_get_instantiated_field_types def opt_variant_id generics)
++
+ (* Fails if the variable is bound *)
+ let expect_free_var span (var : 'id de_bruijn_var) : 'id =
+   match var with
+diff --git a/src/llbc/TypesAnalysis.ml b/src/llbc/TypesAnalysis.ml
+index 81711ebc..bfe455e0 100644
+--- a/src/llbc/TypesAnalysis.ml
++++ b/src/llbc/TypesAnalysis.ml
+@@ -4,6 +4,27 @@ open Substitute
+ open Charon.TypesUtils
+ open SCC
+ 
++(** Only closed inclusive U32 scalar ranges have a refined representation.
++    Unsupported pattern forms must retain a hard translation error. *)
++let u32_range_bounds (span : Meta.span option) (base : ty)
++    (pattern : type_pattern) : Z.t * Z.t =
++  match (base, pattern) with
++  | TLiteral (TUInt U32), Range (lower, upper) ->
++      let bound (value : constant_expr) =
++        match (value.kind, value.ty) with
++        | CLiteral (VScalar (UnsignedScalar (U32, n))), TLiteral (TUInt U32) ->
++            n
++        | _ -> [%craise_opt_span] span "Unsupported U32 range bound"
++      in
++      let lower = bound lower in
++      let upper = bound upper in
++      [%cassert_opt_span] span
++        (Z.leq Z.zero lower && Z.leq lower upper
++        && Z.leq upper (Z.of_string "4294967295"))
++        "Invalid U32 scalar range";
++      (lower, upper)
++  | _ -> [%craise_opt_span] span "Unsupported scalar pattern type"
++
+ let log = Logging.types_analysis_log
+ 
+ type subtype_info = {
+@@ -355,6 +376,9 @@ let analyze_full_ty (span : Meta.span option) (updated : bool ref)
+         in
+         (* Continue exploring *)
+         analyze span expl_info ty_info rty
++    | TPattern (base, pattern) ->
++        let _ = u32_range_bounds span base pattern in
++        ty_info
+     | TRawPtr (rty, _) ->
+         (* TODO: not sure what to do here *)
+         analyze span expl_info ty_info rty
+diff --git a/src/pure/PrintPure.ml b/src/pure/PrintPure.ml
+index 6f10d6ae..45f804ec 100644
+--- a/src/pure/PrintPure.ml
++++ b/src/pure/PrintPure.ml
+@@ -278,6 +278,8 @@ let builtin_ty_to_string (aty : builtin_ty) : string =
+   | TArray -> "Array"
+   | TSlice -> "Slice"
+   | TStr -> "Str"
++  | TU32Range (lower, upper) ->
++      "U32Range[" ^ Z.to_string lower ^ "," ^ Z.to_string upper ^ "]"
+   | TRawPtr Mut -> "MutRawPtr"
+   | TRawPtr Const -> "ConstRawPtr"
+ 
+@@ -508,7 +510,7 @@ let adt_variant_to_string ?(span = None) (env : fmt_env) (adt_id : type_id)
+   | TBuiltin aty -> (
+       (* Builtin type *)
+       match aty with
+-      | TArray | TSlice | TStr | TRawPtr _ ->
++      | TArray | TSlice | TStr | TU32Range _ | TRawPtr _ ->
+           (* Those types are opaque: we can't get there *)
+           [%craise_opt_span] span "Unreachable"
+       | TResult ->
+@@ -561,7 +563,7 @@ let adt_field_to_string ?(span = None) (env : fmt_env) (adt_id : type_id)
+   | TBuiltin aty -> (
+       (* Builtin type *)
+       match aty with
+-      | TFuel | TArray | TSlice | TStr ->
++      | TFuel | TArray | TSlice | TStr | TU32Range _ ->
+           (* Opaque types: we can't get there *)
+           [%craise_opt_span] span "Unreachable"
+       | TResult | TError | TSum | TLoopResult | TRawPtr _ ->
+@@ -634,7 +636,7 @@ and adt_pat_to_string_core (span : Meta.span option) (env : fmt_env)
+     | TAdt (TBuiltin aty, _) -> (
+         (* Builtin type *)
+         match aty with
+-        | TRawPtr _ ->
++        | TRawPtr _ | TU32Range _ ->
+             (* This type is opaque: we can't get there *)
+             [%craise_opt_span] span "Unreachable"
+         | TResult ->
+diff --git a/src/pure/Pure.ml b/src/pure/Pure.ml
+index c898d123..7d61db70 100644
+--- a/src/pure/Pure.ml
++++ b/src/pure/Pure.ml
+@@ -88,6 +88,7 @@ type builtin_ty =
+   | TArray
+   | TSlice
+   | TStr
++  | TU32Range of V.big_int * V.big_int
+   | TRawPtr of mutability
+       (** The bool Raw pointers don't make sense in the pure world, but we don't
+           know how to translate them yet and we have to handle some functions
+diff --git a/src/pure/PureTypeCheck.ml b/src/pure/PureTypeCheck.ml
+index e9a07a43..07fd8211 100644
+--- a/src/pure/PureTypeCheck.ml
++++ b/src/pure/PureTypeCheck.ml
+@@ -66,7 +66,7 @@ let get_adt_field_types (span : Meta.span)
+           if variant_id = fuel_zero_id then []
+           else if variant_id = fuel_succ_id then [ mk_fuel_ty ]
+           else [%craise] span "Unreachable: improper variant id for fuel type"
+-      | TArray | TSlice | TStr | TRawPtr _ ->
++      | TArray | TSlice | TStr | TU32Range _ | TRawPtr _ ->
+           (* Array: when not symbolic values (for instance, because of aggregates),
+              the array expressions are introduced as struct updates *)
+           [%craise] span "Attempting to access the fields of an opaque type")
+diff --git a/src/symbolic/SymbolicToPureTypes.ml b/src/symbolic/SymbolicToPureTypes.ml
+index 5ea3e9be..55f45dea 100644
+--- a/src/symbolic/SymbolicToPureTypes.ml
++++ b/src/symbolic/SymbolicToPureTypes.ml
+@@ -5,6 +5,13 @@ open FunsAnalysis
+ open TypesAnalysis
+ open SymbolicToPureCore
+ 
++let translate_u32_range (span : Meta.span option) base pattern : ty =
++  [%cassert_opt_span] span
++    (Config.backend () = Config.Lean)
++    "Scalar range extraction is supported only for Lean";
++  let lower, upper = TypesAnalysis.u32_range_bounds span base pattern in
++  TAdt (TBuiltin (TU32Range (lower, upper)), empty_generic_args)
++
+ (** The local logger *)
+ let log = Logging.symbolic_to_pure_types_log
+ 
+@@ -164,6 +171,7 @@ let rec translate_sty (span : Meta.span option) (ty : T.ty) : ty =
+       TVar var
+       (* Note: the `de_bruijn_id`s are incorrect, see comment on `translate_region_binder` *)
+   | TLiteral ty -> TLiteral (translate_literal_type ty)
++  | TPattern (base, pattern) -> translate_u32_range span base pattern
+   | TNever -> TNever
+   | TRef (_, rty, _) -> translate span rty
+   | TRawPtr (ty, rkind) ->
+@@ -311,6 +319,40 @@ let translate_type_decl (ctx : Contexts.decls_ctx) (def : T.type_decl) :
+     match_name_find_opt ctx def.item_meta.name
+       (ExtractBuiltin.builtin_types_map ())
+   in
++  let builtin_info =
++    if
++      !Config.monomorphic_builtin_shapes
++      && Config.backend () = Config.Lean
++      && def.generics = TypesUtils.empty_generic_params
++    then
++      match kind with
++      | Enum
++          [
++            { variant_name = "None"; fields = []; _ };
++            {
++              variant_name = "Some";
++              fields = [ { field_ty = TLiteral literal; _ } ];
++              _;
++            };
++          ] -> (
++          let original_name =
++            LlbcAstUtils.strip_target_or_instantiated_suffix def.item_meta.name
++          in
++          match
++            match_name_find_opt ctx original_name
++              (ExtractBuiltin.builtin_types_map ())
++          with
++          | Some info when info.extract_name = "Option" ->
++              Some
++                {
++                  info with
++                  extract_name =
++                    "(Option " ^ ExtractBase.scalar_name literal ^ ")";
++                }
++          | _ -> builtin_info)
++      | _ -> builtin_info
++    else builtin_info
++  in
+   {
+     def_id;
+     name;
+@@ -382,6 +424,7 @@ let rec translate_fwd_ty (span : Meta.span option) (decls_ctx : C.decls_ctx)
+   | TVar var -> TVar var
+   | TNever -> TNever
+   | TLiteral lty -> TLiteral (translate_literal_type lty)
++  | TPattern (base, pattern) -> translate_u32_range span base pattern
+   | TRef (_, rty, _) -> translate rty
+   | TRawPtr (ty, rkind) ->
+       let mut =
+@@ -494,6 +537,9 @@ and compute_back_ty_num_levels (span : Meta.span option)
+                   "Unreachable: boxes receive exactly one type parameter")
+         | TTuple -> List.iter (explore outer_regions) generics.types)
+     | T.TArray (ty, _) | T.TSlice ty -> explore outer_regions ty
++    | TPattern (base, pattern) ->
++        let _ = TypesAnalysis.u32_range_bounds span base pattern in
++        save_count outer_regions
+     | TVar _ | TNever | TLiteral _ -> save_count outer_regions
+     | TRef (r, rty, rkind) -> (
+         match rkind with
+@@ -631,6 +677,9 @@ and translate_back_ty_aux (span : Meta.span option) (decls_ctx : C.decls_ctx)
+         if keep_adt outer_regions ty then
+           Some (translate_fwd_ty span decls_ctx ty)
+         else None
++    | TPattern (base, pattern) ->
++        let _ = TypesAnalysis.u32_range_bounds span base pattern in
++        stop outer_regions ty
+     | TVar _ | TNever | TLiteral _ -> stop outer_regions ty
+     | TRef (r, rty, rkind) -> (
+         match rkind with

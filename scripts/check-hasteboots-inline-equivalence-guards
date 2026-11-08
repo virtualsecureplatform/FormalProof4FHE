@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+"""Reject altered inline outputs, invalid IR, incomplete proofs and admitted dependencies."""
+import copy
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+GATE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-inline-equivalence'))
+
+
+class Guards(unittest.TestCase):
+    def test_complete_candidate(self):
+        source = (GATE['DATA'] / 'Candidate.lean').read_text()
+        self.assertEqual(GATE['validate_output'](source), source.replace('import Aeneas\n', ''))
+
+    def test_changed_incomplete_or_admitted_candidate(self):
+        source = (GATE['DATA'] / 'Candidate.lean').read_text()
+        for changed in [source + source, source.rsplit('end ', 1)[0],
+                        source.replace('def twice', 'def lost_twice'),
+                        source.replace('maxHeartbeats 200000', 'maxHeartbeats 1000000'),
+                        source.replace('slot + left', 'slot + right'),
+                        source + '\naxiom bad : False\n']:
+            with self.assertRaises(RuntimeError): GATE['validate_output'](changed)
+
+    def test_invalid_ir_before_frontend(self):
+        valid = {'has_errors': False, 'translated': {
+            'target_information': [{'key': 'x86_64-unknown-linux-gnu', 'value': {
+                'target_pointer_size': 8, 'is_little_endian': True}}],
+            'options': {'monomorphize': True, 'inline_functions': [GATE['NAMESPACE'] + '::adjust', 'core::option::_::and_then']},
+            'fun_decls': [{'item_meta': {'name': [{'Ident': [GATE['NAMESPACE'], 0]}, {'Ident': [name, 0]}]},
+                           'body': {'Structured': {}}} for name in ['twice', 'capture']]}}
+        GATE['validate_ir'](valid)
+        invalid = []
+        for error in [True, None, 0]:
+            changed = copy.deepcopy(valid); changed['has_errors'] = error; invalid.append(changed)
+        changed = copy.deepcopy(valid); changed['translated']['target_information'] = []; invalid.append(changed)
+        changed = copy.deepcopy(valid); changed['translated']['options']['monomorphize'] = False; invalid.append(changed)
+        changed = copy.deepcopy(valid); changed['translated']['options']['inline_functions'] = []; invalid.append(changed)
+        changed = copy.deepcopy(valid); changed['translated']['fun_decls'][0]['body'] = 'Opaque'; invalid.append(changed)
+        changed = copy.deepcopy(valid); changed['translated']['fun_decls'].append({
+            'item_meta': {'name': [{'Ident': ['adjust', 0]}]}}); invalid.append(changed)
+        for changed in invalid:
+            with self.assertRaises(RuntimeError): GATE['validate_ir'](changed)
+
+    def test_lossless_conversion_and_equivalence_coverage(self):
+        check = GATE['PARAMETERS']['validate_proof_source']
+        source = (GATE['DATA'] / 'Equivalence.lean').read_text()
+        check(source, GATE['PROOFS'])
+        for changed, names in [(source, GATE['PROOFS'][:-1]),
+                               (source.replace('theorem encode_twice_decode', 'theorem missing_inverse'), GATE['PROOFS']),
+                               (source + '\nset_option maxRecDepth 10000\n', GATE['PROOFS']),
+                               (source + '\naxiom bad : False\n', GATE['PROOFS'])]:
+            with self.assertRaises(RuntimeError): check(changed, names)
+
+    def test_no_error_log_or_unapproved_dependency(self):
+        for log in ['Uncaught exception', '\x1b[31m[Error]\x1b[0m generated partial output']:
+            with self.assertRaises(RuntimeError): GATE['BASE']['validate_frontend_log'](log)
+        check = GATE['PARAMETERS']['audit_log']
+        check("'checked' depends on axioms: [propext, Classical.choice, Quot.sound]", ['checked'])
+        for log in ['', "'checked' depends on axioms: [sorryAx]", "'checked' depends on axioms: [core.fmt.Formatter]",
+                    "'checked' does not depend on any axioms\n'checked' does not depend on any axioms"]:
+            with self.assertRaises(RuntimeError): check(log, ['checked'])
+
+
+if __name__ == '__main__':
+    unittest.main()

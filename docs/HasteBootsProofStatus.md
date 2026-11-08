@@ -18,17 +18,33 @@ This establishes regression controls, not a proof of inlining or the native
 constructor. The source/heap/work and complete security obligations remain
 open.
 
-## Experimental selected-function extraction remains outside the proof boundary
+## Fixture inlining equivalence is checked; native borrow tracking remains open
 
-An opt-in Charon patch reuses the existing ULLBC inliner, rejects unsupported
-selections and regenerates versioned OCaml readers. Five new UI cases, the
-full upstream suite and Clippy passed. The fixture's monomorphic IR is valid
-and the matching Aeneas reader accepts it. Frontend call analysis still fails
-after preprocessing removes a drop-glue emission group while retaining its
-call; reordering alone does not repair that mismatch.
-No candidate Lean equivalence theorem, native constructor proof or accepted
-compiler profile follows from these tests. The patch and reproduction notes
-are saved under `interop/charon/inline-functions/`.
+The coupled experimental Charon/Aeneas build now produces kernel-checked
+monomorphic fixture code. Six theorems prove complete public-function
+equivalence and two-sided result/state codec inverses, including mutation,
+errors, overflow and divergence. All 17 source/codec/theorem dependency audits
+use only the allowed Lean axioms; all 114 extraction guard tests passed.
+Charon's full upstream suite and Clippy passed, and Aeneas array/trait outputs
+were regenerated and borrow-checked.
+
+Charon resolves concrete closure calls using existing Hax implementation
+information and omits drops only when rustc reports no drop is needed. The
+frontend preserves monomorphic trait shapes, retains executable Destruct
+methods, validates scalar option representations and distinguishes instantiated
+names. The exact paired patches, frozen executable build receipt and fresh
+extraction/equivalence gate are separate from the eight existing profiles.
+See `interop/aeneas/selected-inline/README.md`.
+
+On the original native Gold constructor, this path now emits valid monomorphic
+IR with 23 retained functions, both option helpers removed and no residual type
+constraints. Strict interpretation then fails a borrow invariant inside
+`Option::is_none_or`; opaque String drop glue is a subsequent unresolved
+obligation. The constructor diagnostic records this failure and accepts no
+partial proof. The next implementation step is a small borrow-tracking
+reproducer and a checked repair, followed by the original constructor/model
+bridge. General compiler correctness, native heap/work refinement and complete
+security remain unproved.
 
 ## Scoped constructor IR is valid; recursive type constraints remain unsupported
 

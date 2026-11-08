@@ -1,0 +1,129 @@
+#!/usr/bin/env python3
+"""Build exact experimental Charon/Aeneas sources; no compiler-correctness claim."""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import runpy
+import shutil
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+BASE = runpy.run_path(str(ROOT / 'scripts/build-hasteboots-static-frontend'))
+DATA = ROOT / 'interop/charon/inline-functions'
+FRONTEND = ROOT / 'interop/aeneas/selected-inline/frontend.patch'
+digest = BASE['digest']
+
+
+def output(command, **kwargs):
+    return subprocess.check_output([str(x) for x in command], **kwargs)
+
+
+def source_patch(source):
+    patch = output(['git', '-C', source, 'diff', 'HEAD', '--binary'])
+    for name in sorted(output(['git', '-C', source, 'ls-files', '--others', '--exclude-standard'], text=True).splitlines()):
+        result = subprocess.run(['git', 'diff', '--binary', '--no-index', '--', '/dev/null', name],
+                                cwd=source, stdout=subprocess.PIPE, check=False)
+        if result.returncode != 1:
+            raise RuntimeError('Cannot record untracked source: ' + name)
+        patch += result.stdout
+    return patch
+
+
+def verify_sources(charon, frontend):
+    for source, revision, patch in [(charon, BASE['CHARON_PIN'], DATA / 'charon.patch'),
+                                     (frontend, BASE['PIN'], FRONTEND)]:
+        if (source / '.hasteboots-probe').exists():
+            raise RuntimeError('Official prepared backend cannot be an experimental source')
+        if output(['git', '-C', source, 'rev-parse', 'HEAD'], text=True).strip() != revision:
+            raise RuntimeError('Source revision differs: ' + str(source))
+        if source_patch(source) != patch.read_bytes():
+            raise RuntimeError('Source patch differs: ' + str(source))
+    if (frontend / 'charon').resolve() != charon:
+        raise RuntimeError('Frontend is not linked to the reviewed Charon library')
+    toolchain = charon / 'charon/rust-toolchain'
+    if toolchain.read_bytes() != output(['git', '-C', charon, 'show', 'HEAD:charon/rust-toolchain']):
+        raise RuntimeError('Rust toolchain pin differs')
+    return {'charon_patch_sha256': digest((DATA / 'charon.patch').read_bytes()),
+            'frontend_patch_sha256': digest(FRONTEND.read_bytes()),
+            'rust_toolchain_sha256': digest(toolchain.read_bytes())}
+
+
+def verify_receipt(path):
+    receipt = json.loads(path.read_text())
+    if receipt.get('status') != 'passed' or receipt.get('script_sha256') != digest(Path(__file__).read_bytes()):
+        raise RuntimeError('Missing or stale coupled build receipt')
+    sources = verify_sources(Path(receipt['charon_source']), Path(receipt['frontend_source']))
+    if any(receipt.get(k) != v for k, v in sources.items()): raise RuntimeError('Source receipt differs')
+    package_file = BASE['DATA'] / 'opam-packages.json'
+    if receipt.get('package_profile_sha256') != digest(package_file.read_bytes()) or receipt.get('packages') != json.loads(package_file.read_text()):
+        raise RuntimeError('Package receipt differs')
+    if receipt.get('opam_sha512') != BASE['OPAM_SHA512']: raise RuntimeError('Opam receipt differs')
+    tools = Path(receipt['tools_directory'])
+    if set(receipt.get('tools', {})) != {'charon', 'charon-driver', 'aeneas'}:
+        raise RuntimeError('Incomplete tool receipt')
+    for name, expected in receipt['tools'].items():
+        if digest((tools / name).read_bytes()) != expected: raise RuntimeError('Tool differs: ' + name)
+    return receipt, tools, sources
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--charon', type=Path, required=True)
+    parser.add_argument('--frontend', type=Path, required=True)
+    parser.add_argument('--opam', type=Path, required=True)
+    parser.add_argument('--opam-root', type=Path, required=True)
+    parser.add_argument('--switch', required=True)
+    parser.add_argument('--jobs', type=int, default=8)
+    args = parser.parse_args()
+    if args.jobs < 1: parser.error('jobs must be positive')
+    charon, frontend, opam = args.charon.resolve(), args.frontend.resolve(), args.opam.resolve()
+    parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
+    out = Path(tempfile.mkdtemp(prefix='inline-tools-build-', dir=parent))
+    record = {'status': 'started', 'claim': 'experimental coupled build only; source refinement unproved',
+              'script_sha256': digest(Path(__file__).read_bytes()), 'charon_source': str(charon),
+              'frontend_source': str(frontend), 'commands': []}
+    def save(): (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
+    def run(command, cwd, log):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out / log).open('w') as stream:
+            subprocess.run([str(x) for x in command], cwd=cwd, stdout=stream, stderr=subprocess.STDOUT, check=True)
+    print('Inline tool build artifacts: ' + str(out), flush=True); save()
+    try:
+        record.update(verify_sources(charon, frontend))
+        if hashlib.sha512(opam.read_bytes()).hexdigest() != BASE['OPAM_SHA512']:
+            raise RuntimeError('Opam executable differs')
+        opam_args = ['--root=' + str(args.opam_root.resolve()), '--switch=' + args.switch]
+        versions = output([opam, 'list', *opam_args, '--installed', '--columns=name,version', '--short', '--color=never'], text=True)
+        rows = [line.split() for line in versions.splitlines() if line.strip()]
+        if any(len(row) != 2 for row in rows): raise RuntimeError('Invalid dependency version output')
+        packages = dict(rows)
+        package_file = BASE['DATA'] / 'opam-packages.json'
+        if packages != json.loads(package_file.read_text()): raise RuntimeError('OCaml dependencies differ')
+        record.update(packages=packages, package_profile_sha256=digest(package_file.read_bytes()),
+                      opam_sha512=BASE['OPAM_SHA512'])
+        record['rustc'] = output(['rustc', '--version', '--verbose'], cwd=charon / 'charon', text=True)
+        run(['cargo', 'build', '--locked', '--bins', '-j', str(args.jobs)], charon / 'charon', 'charon-build.log')
+        run([opam, 'exec', *opam_args, '--', 'dune', 'build', 'main.exe', '--profile', 'release', '-j', str(args.jobs)],
+            frontend / 'src', 'frontend-build.log')
+        if verify_sources(charon, frontend) != {k: record[k] for k in ['charon_patch_sha256', 'frontend_patch_sha256', 'rust_toolchain_sha256']}:
+            raise RuntimeError('Source changed during build')
+        tools = out / 'tools'; tools.mkdir()
+        sources = {'charon': charon / 'charon/target/debug/charon',
+                   'charon-driver': charon / 'charon/target/debug/charon-driver',
+                   'aeneas': frontend / 'src/_build/default/main.exe'}
+        record['tools'] = {}
+        for name, source in sources.items():
+            shutil.copy2(source, tools / name)
+            record['tools'][name] = digest((tools / name).read_bytes())
+        record['tools_directory'] = str(tools)
+        record['status'] = 'passed'; print('Inline tools built: ' + str(tools))
+    except (Exception, SystemExit) as error:
+        record.update(status='failed', error=str(error)); raise SystemExit('Inline tool build failed; inspect ' + str(out) + ': ' + str(error)) from error
+    finally:
+        record['logs'] = {p.name: digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__':
+    main()
