@@ -7,6 +7,48 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Local mutable reborrow call and checked scope restoration now check
+
+The original safe Rust fixture now takes a local mutable cell reborrow and
+passes it to a read/replace helper. Both original bodies, signature lifetimes,
+mutable index/helper call and the mutable/two-phase reference rvalues are
+retained. The complete generated continuation passes the helper's updated cell
+back to the parent slice. Four source theorems prove all-input behavior.
+
+`NativeByteReborrow.replaceAt` computes a closed local child scope using the
+existing checked ledger: resolve/bounds-check the parent, acquire the selected
+child, read/write its byte, then end it. Thirteen model theorems establish exact
+execution, heap updates, well-formedness, original caller lease restoration and
+permanent child revocation. A checked initial grant derives the child's read
+and write permissions and successful completion/release. No arbitrary callee
+callback, claimed old value or release certificate replaces these operations.
+Three source/heap bridge theorems connect the old byte, updated source slice and
+resulting current heap, including the unchanged out-of-bounds branch.
+
+Validation passes 62 combined declaration audits and a fresh 50-audit parent
+source/heap gate with its source/borrow/range/memory/pointer dependencies.
+All 214 guard tests pass. Twelve executable regressions and fourteen persistent
+root declaration audits pass. Full `scripts/check` passes its 10,944-job
+aggregate build and every subsequent audit/smoke command. Compiler, upstream
+and native rejection evidence is retained explicitly, not claimed as freshly
+rerun in this milestone. No extra axiom, native decision proof or raised proof
+limit is introduced. The regression receipt records the exact input/tool hashes.
+
+This is a local call-boundary simulation. It does not establish a verified
+translation of every MIR reference/lifetime event. Intermediate reference
+identities and two-phase reservation/activation remain present in the source
+but are not assigned separate model tags. Native actor ownership, complete
+source lifetime correspondence, Rust aliasing/UnsafeCell and original raw-pointer
+reference creation remain open. The native constructor is still unaccepted;
+compiler, backend and production Rust are unchanged. See
+`interop/aeneas/byte-reborrow/README.md` for evidence and exact limits.
+
+Typed values/strides, original allocator/destructor/deallocator, compiler/caller
+and NTT/SIMD/scheduler refinement, causal lifetime oracle/owner coverage,
+BabyBear and the final 128-bit expected physical attacker-work theorem remain
+open. The logical borrow/write/end transitions are not physical attacker work.
+The full objective is unchanged.
+
 ## Extracted byte accessors now agree with current checked heap views
 
 `NativeByteRangeUpdate` proves that actual byte stores update initialized range
