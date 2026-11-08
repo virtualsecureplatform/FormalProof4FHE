@@ -1,0 +1,140 @@
+#!/usr/bin/env python3
+"""Check the retained RawVec Option payload schema; no cleanup body/ABI theorem."""
+import argparse
+import copy
+import hashlib
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+DATA = ROOT/'interop/aeneas/rawvec-option'
+BUILD = runpy.run_path(str(ROOT/'scripts/build-hasteboots-inline-tools'))
+PARAMETERS = runpy.run_path(str(ROOT/'scripts/extract-hasteboots-parameters'))
+REIFIER = runpy.run_path(str(ROOT/'scripts/reify-hasteboots-rawvec-option'))
+INCLUDES = ['alloc::raw_vec','alloc::vec','alloc::alloc','core::alloc::layout',
+            'core::ptr::unique','core::ptr::non_null','core::mem::alignment','core::ptr::drop_in_place']
+
+
+def digest(raw): return hashlib.sha256(raw).hexdigest()
+
+
+def inventory():
+    names = []
+    for module in ['NativeRecordValues','NativeVariantValues']:
+        raw = (ROOT/('FormalProof4FHE/HasteBoots/'+module+'.lean')).read_text()
+        PARAMETERS['validate_proof_source'](raw, re.findall(r'^theorem (\w+)', raw, re.M))
+        names += ['FormalProof4FHE.HasteBoots.'+module+'.'+n for n in
+                  re.findall(r'^(?:structure|inductive|abbrev|def|theorem) (\w+)', raw, re.M)]
+    names += ['FormalProof4FHE.HasteBoots.NativeVariantValues.'+n for n in
+              ['Branch.mk','Branch.discriminant','Branch.fields','Schema.mk','Schema.tag','Schema.branches',
+               'Value.mk','Value.tag','Value.variant','Value.payload']]
+    for file in ['Generated.lean','Proof.lean']:
+        raw = (DATA/file).read_text()
+        PARAMETERS['validate_proof_source'](raw, re.findall(r'^theorem (\w+)', raw, re.M))
+        names += ['HasteBootsRawVecOption.'+n for n in re.findall(r'^(?:def|theorem) (\w+)', raw, re.M)]
+    return names
+
+
+def negatives(ir):
+    records = {}
+    def check(label, mutation):
+        changed = copy.deepcopy(ir); mutation(changed['translated'])
+        try: REIFIER['Reifier'](changed).render()
+        except (ValueError,KeyError,TypeError,IndexError) as error: records[label] = str(error)
+        else: raise RuntimeError('Negative accepted: '+label)
+    def option(c): return c['type_decls'][10]
+    def variants(c): return option(c)['kind']['Enum']
+    check('compiler_errors', lambda c: c['options'].update(mir='Built'))
+    check('missing_drop_policy', lambda c: c['options'].update(precise_drops=False))
+    check('wrong_target', lambda c: c['target_information'][0]['value'].update(target_pointer_size=4))
+    check('changed_function_class', lambda c: c['fun_decls'][8]['item_meta'].update(opacity='Foreign'))
+    check('changed_option_class', lambda c: option(c)['item_meta'].update(opacity='Transparent'))
+    check('changed_variant_identity', lambda c: variants(c)[1].update(id=0))
+    check('extra_variant', lambda c: variants(c).append(copy.deepcopy(variants(c)[1])))
+    check('duplicate_discriminant', lambda c: variants(c)[1].update(discriminant=copy.deepcopy(variants(c)[0]['discriminant'])))
+    check('unsigned_discriminant', lambda c: variants(c)[1].update(discriminant={'Scalar': {'Unsigned':['Usize','1']}}))
+    check('overflow_discriminant', lambda c: variants(c)[1]['discriminant']['Scalar']['Signed'].__setitem__(1,str(2**63)))
+    check('noncanonical_discriminant', lambda c: variants(c)[1]['discriminant']['Scalar']['Signed'].__setitem__(1,'01'))
+    check('inhabited_none', lambda c: variants(c)[0]['fields'].append(copy.deepcopy(variants(c)[1]['fields'][0])))
+    check('missing_some_payload', lambda c: variants(c)[1].update(fields=[]))
+    check('wrong_tuple_arity', lambda c: variants(c)[1]['fields'][0]['ty']['Untagged']['Adt']['generics']['types'].pop())
+    check('nullable_pointer_wrapper', lambda c: c['type_decls'][7]['kind']['Struct'][0]['ty']['Untagged']['Pattern'].__setitem__(1,'Unknown'))
+    check('wrong_layout_size_type', lambda c: c['type_decls'][9]['kind']['Struct'][0].update(ty={'Untagged':{'Literal':{'UInt':'U32'}}}))
+    check('wrong_alignment_value', lambda c: c['type_decls'][12]['kind']['Enum'][3]['discriminant']['Scalar']['Unsigned'].__setitem__(1,'9'))
+    check('wrong_enum_extent', lambda c: option(c)['layout'][0]['value'].update(size=16))
+    return records
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--build-receipt', type=Path, required=True); args = parser.parse_args()
+    out = Path(tempfile.mkdtemp(prefix='rawvec-option-', dir=ROOT/'build/hasteboots-extraction'))
+    record = {'status':'started','commands':[], 'body_interpreted':False,
+              'physical_niche_decoded':False, 'native_lifetime_refinement':False,
+              'physical_work_refinement':False, 'final_security_theorem':False}
+    def save(): (out/'manifest.json').write_text(json.dumps(record,indent=2)+'\n')
+    def run(command, log):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out/log).open('w') as stream:
+            result = subprocess.run([str(x) for x in command],cwd=ROOT,stdout=stream,stderr=subprocess.STDOUT)
+        if result.returncode: raise RuntimeError('Command failed: '+log)
+    print('RawVec Option artifacts: '+str(out), flush=True)
+    try:
+        _, tools, _ = BUILD['verify_receipt'](args.build_receipt)
+        record['build_receipt_sha256'] = digest(args.build_receipt.read_bytes())
+        files = [Path(__file__), ROOT/'scripts/reify-hasteboots-rawvec-option',
+                 ROOT/'scripts/reify-hasteboots-allocator-caller',ROOT/'scripts/specify-hasteboots-deallocation-boundary',
+                 ROOT/'scripts/extract-hasteboots-parameters',ROOT/'lean-toolchain',
+                 *[DATA/n for n in ['fixture.rs','Generated.lean','Retained.json','Proof.lean','Smoke.lean']],
+                 *[ROOT/('FormalProof4FHE/HasteBoots/'+n+'.lean') for n in ['NativeRecordValues','NativeVariantValues']],
+                 *[ROOT/('FormalProof4FHETest/HasteBootsVariantValues'+n+'.lean') for n in ['Smoke','Audit']]]
+        record['inputs'] = {str(p.relative_to(ROOT)):digest(p.read_bytes()) for p in files}
+        run([ROOT/'scripts/in-container','lake','build','FormalProof4FHETest.HasteBootsVariantValuesSmoke',
+             'FormalProof4FHETest.HasteBootsVariantValuesAudit'],'root-build.log')
+        llbc = out/'source.llbc'
+        command = [tools/'charon','rustc','--preset=aeneas','--sysroot','default','--monomorphize','--mir','optimized',
+                   '--consts','values','--evaluate-runtime-checks','--precise-drops','--desugar-drops','--preserve-allocator','--no-dedup-serialized-ast']
+        for include in INCLUDES: command += ['--include',include]
+        command += ['--dest-file',llbc,'--','--crate-type','lib','--edition','2024','-Cdebug-assertions=no',
+                    '--crate-name','hasteboots_rawvec_cleanup',(DATA/'fixture.rs').relative_to(ROOT)]
+        run(command,'charon.log'); ir = json.loads(llbc.read_text()); reifier = REIFIER['Reifier'](ir)
+        generated = reifier.render()
+        if generated != (DATA/'Generated.lean').read_text() or reifier.retained() != json.loads((DATA/'Retained.json').read_text()):
+            raise RuntimeError('Retained source schema/target metadata differs')
+        record['negative_controls'] = negatives(ir)
+        names = inventory()
+        checked = out/'Checked.lean'
+        checked.write_text(generated+'\n'+(DATA/'Proof.lean').read_text()+'\n'+(DATA/'Smoke.lean').read_text()+
+                           ''.join('\n#print axioms '+name+'\n' for name in names))
+        run([ROOT/'scripts/in-container','lake','env','lean','-DwarningAsError=true',checked.relative_to(ROOT)],'lean.log')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out/'lean.log').read_text(),names)
+        changed = copy.deepcopy(ir)
+        changed['translated']['type_decls'][10]['kind']['Enum'][1]['discriminant']['Scalar']['Signed'][1] = '-7'
+        mutant = REIFIER['Reifier'](changed)
+        if mutant.render() == generated: raise RuntimeError('Source discriminant mutation ignored')
+        test = out/'SignedDiscriminant.lean'
+        test.write_text(mutant.render()+'''\nopen FormalProof4FHE.HasteBoots.NativeVariantValues
+example : discriminant HasteBootsRawVecOption.schema ⟨10,1,.uninit⟩ = some (-7) := by decide
+example : discriminant HasteBootsRawVecOption.schema ⟨10,0,.scalar .unit⟩ = some 0 := by decide
+''')
+        run([ROOT/'scripts/in-container','lake','env','lean','-DwarningAsError=true',test.relative_to(ROOT)],'signed-discriminant.log')
+        record['supported_discriminant_mutation'] = {'original':1,'mutated':-7,'variant_index':1,'lean_checked':True}
+        changed = copy.deepcopy(ir)
+        changed['translated']['type_decls'][10]['layout'][0]['value']['discriminator']['Branch']['offset'] = 0
+        if REIFIER['Reifier'](changed).retained() == reifier.retained(): raise RuntimeError('Physical niche metadata ignored')
+        record['physical_metadata_snapshot_control'] = 'changed niche offset differs from retained snapshot; no decoder claimed'
+        record['llbc_sha256'] = digest(llbc.read_bytes()); record['checked_sha256'] = digest(checked.read_bytes())
+        if record['inputs'] != {str(p.relative_to(ROOT)):digest(p.read_bytes()) for p in files}: raise RuntimeError('Inputs changed during validation')
+        BUILD['verify_receipt'](args.build_receipt); record['status'] = 'passed'
+        print('RawVec Option passed: '+str(len(names))+' audits; '+str(len(record['negative_controls']))+' rejecting controls')
+    except Exception as error:
+        record.update(status='failed',error=str(error)); raise SystemExit(str(error)+'; inspect '+str(out)) from error
+    finally:
+        record['logs'] = {p.name:digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__': main()

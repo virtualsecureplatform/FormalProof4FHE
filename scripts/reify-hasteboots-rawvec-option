@@ -1,0 +1,128 @@
+#!/usr/bin/env python3
+"""Reify the logical payload schema returned by original RawVec current_memory.
+This does not translate its body or decode the physical niche representation.
+"""
+import argparse
+import json
+from pathlib import Path
+import runpy
+from types import SimpleNamespace
+
+ROOT = Path(__file__).resolve().parent.parent
+PARENT = runpy.run_path(str(ROOT/'scripts/reify-hasteboots-allocator-caller'))
+SPEC = PARENT['SPEC']
+require = SPEC['require']; name = SPEC['name']; empty = SPEC['empty']
+
+
+class Reifier:
+    def __init__(self, ir):
+        require(ir['charon_version'] == '0.1.226' and ir['has_errors'] is False, 'Wrong schema/compiler errors')
+        self.crate = c = ir['translated']; options = c['options']
+        require(options['monomorphize'] and options['mir'] == 'Optimized' and options['sysroot'] == 'default' and
+                options['consts'] == 'Values', 'Wrong extraction profile')
+        for key in ['evaluate_runtime_checks','precise_drops','desugar_drops','preserve_allocator','no_dedup_serialized_ast']:
+            require(options[key] is True, 'Missing policy: '+key)
+        require(not options['opaque'] and not options['exclude'] and not options['inline_functions'], 'Hidden/rewritten source')
+        require(c['target_information'] == [{'key': 'x86_64-unknown-linux-gnu',
+                'value': {'target_pointer_size': 8, 'is_little_endian': True}}], 'Wrong target')
+        types = {t['def_id']: t for t in c['type_decls'] if t}
+        matches = [f for f in c['fun_decls'] if f and name(f) == 'alloc::raw_vec::current_memory']
+        require(len(matches) == 1, 'Missing/duplicate RawVec current_memory')
+        self.function = f = matches[0]
+        require(f['item_meta']['opacity'] == 'Transparent' and set(f['body']) == {'Structured'},
+                'Changed current_memory classification')
+        output = f['signature']['output']; tid = output['Untagged']['Adt']['id']['Adt']
+        require(output == SPEC['adt'](tid), 'Unclosed current_memory result')
+        self.option = option = types[tid]
+        require(name(option) == 'core::option::Option' and empty(option['generics']) and
+                option['item_meta']['opacity'] == 'Foreign' and set(option['kind']) == {'Enum'},
+                'Changed result enum declaration')
+        variants = option['kind']['Enum']
+        require(len(variants) == 2, 'Changed Option variant count')
+        self.discriminants = []
+        for index, variant in enumerate(variants):
+            require(set(variant) == {'id','span','attr_info','name','fields','discriminant'} and
+                    type(variant['id']) is int and variant['id'] == index and
+                    variant['name'] == ['None','Some'][index], 'Changed Option variant identity')
+            raw = variant['discriminant']; number = raw['Scalar']['Signed'][1]
+            require(isinstance(number, str) and str(int(number)) == number and
+                    -(2**63) <= int(number) < 2**63 and
+                    raw == {'Scalar': {'Signed': ['Isize', number]}}, 'Changed signed source discriminant')
+            self.discriminants.append(int(number))
+        require(len(set(self.discriminants)) == 2, 'Duplicate source discriminants')
+        require(variants[0]['fields'] == [] and len(variants[1]['fields']) == 1,
+                'Changed Option payload arity')
+        payload = variants[1]['fields'][0]['ty']['Untagged']['Adt']
+        generics = payload['generics']
+        require(payload['id'] == 'Tuple' and set(payload) == {'id','generics'} and
+                generics == {'regions': [], 'types': generics['types'], 'const_generics': [], 'trait_refs': []} and
+                len(generics['types']) == 2, 'Changed Some tuple payload')
+        pointer_ty, layout_ty = generics['types']
+        def decl(raw, expected):
+            index = raw['Untagged']['Adt']['id']['Adt']
+            require(raw == SPEC['adt'](index), 'Unclosed payload nominal type')
+            result = types[index]
+            require(name(result) == expected and result['item_meta']['opacity'] == 'Transparent' and
+                    empty(result['generics']) and set(result['kind']) == {'Struct'}, 'Changed payload type')
+            return result
+        pointer = decl(pointer_ty, 'core::ptr::non_null::NonNull')
+        fields = pointer['kind']['Struct']
+        require(len(fields) == 1 and fields[0]['name'] == 'pointer' and fields[0]['ty'] ==
+                {'Untagged': {'Pattern': [{'Untagged': {'RawPtr': [{'Untagged': {'Literal': {'UInt': 'U8'}}}, 'Shared']}}, 'NotNull']}},
+                'Changed payload pointer wrapper')
+        layout = decl(layout_ty, 'core::alloc::layout::Layout'); fields = layout['kind']['Struct']
+        require(len(fields) == 2 and [v['name'] for v in fields] == ['size','align'] and
+                fields[0]['ty'] == SPEC['USIZE'], 'Changed payload Layout fields')
+        alignment = decl(fields[1]['ty'], 'core::mem::alignment::Alignment')
+        fields = alignment['kind']['Struct']
+        require(len(fields) == 1 and fields[0]['name'] == '_inner_repr_trick', 'Changed alignment wrapper')
+        enum_ty = fields[0]['ty']; enum_id = enum_ty['Untagged']['Adt']['id']['Adt']; enum = types[enum_id]
+        require(enum_ty == SPEC['adt'](enum_id) and name(enum) == 'core::mem::alignment::AlignmentEnum' and
+                empty(enum['generics']) and enum['item_meta']['opacity'] == 'Transparent' and
+                set(enum['kind']) == {'Enum'} and len(enum['kind']['Enum']) == 64, 'Changed payload alignment enum')
+        for index, variant in enumerate(enum['kind']['Enum']):
+            require(variant['id'] == index and variant['name'] == '_Align1Shl'+str(index) and
+                    variant['fields'] == [] and variant['discriminant'] ==
+                    {'Scalar': {'Unsigned': ['Usize', str(2**index)]}}, 'Changed payload alignment value')
+        # Reuse the checked aggregate field encoding, anchored to this Layout's
+        # enum declaration, rather than conflating monomorphized type identities.
+        record = object.__new__(PARENT['Reifier'])
+        record.types = types; record.type_active = set(); record.boundary = SimpleNamespace(enum=enum)
+        self.payload = '(.pair (.pair '+record.ty(pointer_ty)+' (.pair '+record.ty(layout_ty)+' (.scalar .unit))) (.scalar .unit))'
+        self.types = [pointer, layout, option, alignment, enum]
+        # Retain physical metadata as data, not as a logical discriminant decoder.
+        require(len(option['layout']) == 1 and option['layout'][0]['key'] == 'x86_64-unknown-linux-gnu',
+                'Missing target enum metadata')
+        self.layout = option['layout'][0]['value']
+        require(self.layout['size'] == 24 and self.layout['align'] == 8 and self.layout['uninhabited'] is False,
+                'Changed target Option extent')
+
+    def retained(self):
+        return {'function_id': self.function['def_id'], 'function_name': name(self.function),
+                'body_interpreted': False, 'physical_niche_decoded': False,
+                'types': [{'id': t['def_id'], 'name': name(t), 'kind': t['kind'], 'layout': t['layout'],
+                           'classification': t['item_meta']['opacity']} for t in self.types]}
+
+    def render(self):
+        return '\n'.join(['module', 'public import FormalProof4FHE.HasteBoots.NativeVariantValues',
+            '@[expose] public section', '', '-- Logical source schema; physical niche decoding and body translation remain open.',
+            'namespace HasteBootsRawVecOption',
+            'open FormalProof4FHE.HasteBoots', 'open NativeVariantValues',
+            'def alignmentDiscriminants : List NativeWord64Memory.Word := ['+
+                ', '.join(PARENT['word'](2**i) for i in range(64))+']',
+            'def schema : Schema := ⟨'+str(self.option['def_id'])+', [',
+            '  ⟨'+str(self.discriminants[0])+', .scalar .unit⟩,',
+            '  ⟨'+str(self.discriminants[1])+', '+self.payload+'⟩]⟩',
+            'end HasteBootsRawVecOption', ''])
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('llbc', type=Path); parser.add_argument('output', type=Path)
+    parser.add_argument('--retained', type=Path, required=True); args = parser.parse_args()
+    reifier = Reifier(json.loads(args.llbc.read_text()))
+    args.output.write_text(reifier.render())
+    args.retained.write_text(json.dumps(reifier.retained(), indent=2)+'\n')
+
+
+if __name__ == '__main__': main()

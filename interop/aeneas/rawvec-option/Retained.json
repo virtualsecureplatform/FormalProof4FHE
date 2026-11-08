@@ -1,0 +1,4819 @@
+{
+  "function_id": 8,
+  "function_name": "alloc::raw_vec::current_memory",
+  "body_interpreted": false,
+  "physical_niche_decoded": false,
+  "types": [
+    {
+      "id": 7,
+      "name": "core::ptr::non_null::NonNull",
+      "kind": {
+        "Struct": [
+          {
+            "span": {
+              "data": {
+                "file_id": 13,
+                "beg": {
+                  "line": 75,
+                  "col": 4
+                },
+                "end": {
+                  "line": 75,
+                  "col": 52
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "pointer",
+            "ty": {
+              "Untagged": {
+                "Pattern": [
+                  {
+                    "Untagged": {
+                      "RawPtr": [
+                        {
+                          "Untagged": {
+                            "Literal": {
+                              "UInt": "U8"
+                            }
+                          }
+                        },
+                        "Shared"
+                      ]
+                    }
+                  },
+                  "NotNull"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "layout": [
+        {
+          "key": "x86_64-unknown-linux-gnu",
+          "value": {
+            "size": 8,
+            "align": 8,
+            "discriminator": {
+              "Known": 0
+            },
+            "uninhabited": false,
+            "variant_layouts": [
+              {
+                "field_offsets": [
+                  0
+                ],
+                "uninhabited": false,
+                "tagger": []
+              }
+            ],
+            "repr": {
+              "repr_algo": "Rust",
+              "align_modif": null,
+              "transparent": true,
+              "explicit_discr_type": false
+            }
+          }
+        }
+      ],
+      "classification": "Transparent"
+    },
+    {
+      "id": 9,
+      "name": "core::alloc::layout::Layout",
+      "kind": {
+        "Struct": [
+          {
+            "span": {
+              "data": {
+                "file_id": 16,
+                "beg": {
+                  "line": 32,
+                  "col": 4
+                },
+                "end": {
+                  "line": 32,
+                  "col": 15
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "size",
+            "ty": {
+              "Untagged": {
+                "Literal": {
+                  "UInt": "Usize"
+                }
+              }
+            }
+          },
+          {
+            "span": {
+              "data": {
+                "file_id": 16,
+                "beg": {
+                  "line": 41,
+                  "col": 4
+                },
+                "end": {
+                  "line": 41,
+                  "col": 20
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "align",
+            "ty": {
+              "Untagged": {
+                "Adt": {
+                  "id": {
+                    "Adt": 11
+                  },
+                  "generics": {
+                    "regions": [],
+                    "types": [],
+                    "const_generics": [],
+                    "trait_refs": []
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "layout": [
+        {
+          "key": "x86_64-unknown-linux-gnu",
+          "value": {
+            "size": 16,
+            "align": 8,
+            "discriminator": {
+              "Known": 0
+            },
+            "uninhabited": false,
+            "variant_layouts": [
+              {
+                "field_offsets": [
+                  8,
+                  0
+                ],
+                "uninhabited": false,
+                "tagger": []
+              }
+            ],
+            "repr": {
+              "repr_algo": "Rust",
+              "align_modif": null,
+              "transparent": false,
+              "explicit_discr_type": false
+            }
+          }
+        }
+      ],
+      "classification": "Transparent"
+    },
+    {
+      "id": 10,
+      "name": "core::option::Option",
+      "kind": {
+        "Enum": [
+          {
+            "id": 0,
+            "span": {
+              "data": {
+                "file_id": 19,
+                "beg": {
+                  "line": 601,
+                  "col": 4
+                },
+                "end": {
+                  "line": 601,
+                  "col": 8
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [
+                {
+                  "DocComment": " No value."
+                }
+              ],
+              "inline": null,
+              "rename": null,
+              "public": true
+            },
+            "name": "None",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Signed": [
+                  "Isize",
+                  "0"
+                ]
+              }
+            }
+          },
+          {
+            "id": 1,
+            "span": {
+              "data": {
+                "file_id": 19,
+                "beg": {
+                  "line": 605,
+                  "col": 4
+                },
+                "end": {
+                  "line": 605,
+                  "col": 8
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [
+                {
+                  "DocComment": " Some value of type `T`."
+                }
+              ],
+              "inline": null,
+              "rename": null,
+              "public": true
+            },
+            "name": "Some",
+            "fields": [
+              {
+                "span": {
+                  "data": {
+                    "file_id": 19,
+                    "beg": {
+                      "line": 605,
+                      "col": 55
+                    },
+                    "end": {
+                      "line": 605,
+                      "col": 56
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "attr_info": {
+                  "attributes": [],
+                  "inline": null,
+                  "rename": null,
+                  "public": true
+                },
+                "name": null,
+                "ty": {
+                  "Untagged": {
+                    "Adt": {
+                      "id": "Tuple",
+                      "generics": {
+                        "regions": [],
+                        "types": [
+                          {
+                            "Untagged": {
+                              "Adt": {
+                                "id": {
+                                  "Adt": 7
+                                },
+                                "generics": {
+                                  "regions": [],
+                                  "types": [],
+                                  "const_generics": [],
+                                  "trait_refs": []
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "Untagged": {
+                              "Adt": {
+                                "id": {
+                                  "Adt": 9
+                                },
+                                "generics": {
+                                  "regions": [],
+                                  "types": [],
+                                  "const_generics": [],
+                                  "trait_refs": []
+                                }
+                              }
+                            }
+                          }
+                        ],
+                        "const_generics": [],
+                        "trait_refs": []
+                      }
+                    }
+                  }
+                }
+              }
+            ],
+            "discriminant": {
+              "Scalar": {
+                "Signed": [
+                  "Isize",
+                  "1"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "layout": [
+        {
+          "key": "x86_64-unknown-linux-gnu",
+          "value": {
+            "size": 24,
+            "align": 8,
+            "discriminator": {
+              "Branch": {
+                "offset": 8,
+                "int_ty": {
+                  "Unsigned": "U64"
+                },
+                "children": [
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "0"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "0"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 0
+                    }
+                  ]
+                ],
+                "fallback": {
+                  "Known": 1
+                }
+              }
+            },
+            "uninhabited": false,
+            "variant_layouts": [
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    8,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "0"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [
+                  0
+                ],
+                "uninhabited": false,
+                "tagger": []
+              }
+            ],
+            "repr": {
+              "repr_algo": "Rust",
+              "align_modif": null,
+              "transparent": false,
+              "explicit_discr_type": false
+            }
+          }
+        }
+      ],
+      "classification": "Foreign"
+    },
+    {
+      "id": 11,
+      "name": "core::mem::alignment::Alignment",
+      "kind": {
+        "Struct": [
+          {
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 21,
+                  "col": 4
+                },
+                "end": {
+                  "line": 21,
+                  "col": 36
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_inner_repr_trick",
+            "ty": {
+              "Untagged": {
+                "Adt": {
+                  "id": {
+                    "Adt": 12
+                  },
+                  "generics": {
+                    "regions": [],
+                    "types": [],
+                    "const_generics": [],
+                    "trait_refs": []
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "layout": [
+        {
+          "key": "x86_64-unknown-linux-gnu",
+          "value": {
+            "size": 8,
+            "align": 8,
+            "discriminator": {
+              "Known": 0
+            },
+            "uninhabited": false,
+            "variant_layouts": [
+              {
+                "field_offsets": [
+                  0
+                ],
+                "uninhabited": false,
+                "tagger": []
+              }
+            ],
+            "repr": {
+              "repr_algo": "Rust",
+              "align_modif": null,
+              "transparent": true,
+              "explicit_discr_type": false
+            }
+          }
+        }
+      ],
+      "classification": "Transparent"
+    },
+    {
+      "id": 12,
+      "name": "core::mem::alignment::AlignmentEnum",
+      "kind": {
+        "Enum": [
+          {
+            "id": 0,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 408,
+                  "col": 4
+                },
+                "end": {
+                  "line": 408,
+                  "col": 15
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl0",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "1"
+                ]
+              }
+            }
+          },
+          {
+            "id": 1,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 409,
+                  "col": 4
+                },
+                "end": {
+                  "line": 409,
+                  "col": 15
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl1",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "2"
+                ]
+              }
+            }
+          },
+          {
+            "id": 2,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 410,
+                  "col": 4
+                },
+                "end": {
+                  "line": 410,
+                  "col": 15
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl2",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "4"
+                ]
+              }
+            }
+          },
+          {
+            "id": 3,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 411,
+                  "col": 4
+                },
+                "end": {
+                  "line": 411,
+                  "col": 15
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl3",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "8"
+                ]
+              }
+            }
+          },
+          {
+            "id": 4,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 412,
+                  "col": 4
+                },
+                "end": {
+                  "line": 412,
+                  "col": 15
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl4",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "16"
+                ]
+              }
+            }
+          },
+          {
+            "id": 5,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 413,
+                  "col": 4
+                },
+                "end": {
+                  "line": 413,
+                  "col": 15
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl5",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "32"
+                ]
+              }
+            }
+          },
+          {
+            "id": 6,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 414,
+                  "col": 4
+                },
+                "end": {
+                  "line": 414,
+                  "col": 15
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl6",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "64"
+                ]
+              }
+            }
+          },
+          {
+            "id": 7,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 415,
+                  "col": 4
+                },
+                "end": {
+                  "line": 415,
+                  "col": 15
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl7",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "128"
+                ]
+              }
+            }
+          },
+          {
+            "id": 8,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 416,
+                  "col": 4
+                },
+                "end": {
+                  "line": 416,
+                  "col": 15
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl8",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "256"
+                ]
+              }
+            }
+          },
+          {
+            "id": 9,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 417,
+                  "col": 4
+                },
+                "end": {
+                  "line": 417,
+                  "col": 15
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl9",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "512"
+                ]
+              }
+            }
+          },
+          {
+            "id": 10,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 418,
+                  "col": 4
+                },
+                "end": {
+                  "line": 418,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl10",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "1024"
+                ]
+              }
+            }
+          },
+          {
+            "id": 11,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 419,
+                  "col": 4
+                },
+                "end": {
+                  "line": 419,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl11",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "2048"
+                ]
+              }
+            }
+          },
+          {
+            "id": 12,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 420,
+                  "col": 4
+                },
+                "end": {
+                  "line": 420,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl12",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "4096"
+                ]
+              }
+            }
+          },
+          {
+            "id": 13,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 421,
+                  "col": 4
+                },
+                "end": {
+                  "line": 421,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl13",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "8192"
+                ]
+              }
+            }
+          },
+          {
+            "id": 14,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 422,
+                  "col": 4
+                },
+                "end": {
+                  "line": 422,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl14",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "16384"
+                ]
+              }
+            }
+          },
+          {
+            "id": 15,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 423,
+                  "col": 4
+                },
+                "end": {
+                  "line": 423,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl15",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "32768"
+                ]
+              }
+            }
+          },
+          {
+            "id": 16,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 424,
+                  "col": 4
+                },
+                "end": {
+                  "line": 424,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl16",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "65536"
+                ]
+              }
+            }
+          },
+          {
+            "id": 17,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 425,
+                  "col": 4
+                },
+                "end": {
+                  "line": 425,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl17",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "131072"
+                ]
+              }
+            }
+          },
+          {
+            "id": 18,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 426,
+                  "col": 4
+                },
+                "end": {
+                  "line": 426,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl18",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "262144"
+                ]
+              }
+            }
+          },
+          {
+            "id": 19,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 427,
+                  "col": 4
+                },
+                "end": {
+                  "line": 427,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl19",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "524288"
+                ]
+              }
+            }
+          },
+          {
+            "id": 20,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 428,
+                  "col": 4
+                },
+                "end": {
+                  "line": 428,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl20",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "1048576"
+                ]
+              }
+            }
+          },
+          {
+            "id": 21,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 429,
+                  "col": 4
+                },
+                "end": {
+                  "line": 429,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl21",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "2097152"
+                ]
+              }
+            }
+          },
+          {
+            "id": 22,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 430,
+                  "col": 4
+                },
+                "end": {
+                  "line": 430,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl22",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "4194304"
+                ]
+              }
+            }
+          },
+          {
+            "id": 23,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 431,
+                  "col": 4
+                },
+                "end": {
+                  "line": 431,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl23",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "8388608"
+                ]
+              }
+            }
+          },
+          {
+            "id": 24,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 432,
+                  "col": 4
+                },
+                "end": {
+                  "line": 432,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl24",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "16777216"
+                ]
+              }
+            }
+          },
+          {
+            "id": 25,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 433,
+                  "col": 4
+                },
+                "end": {
+                  "line": 433,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl25",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "33554432"
+                ]
+              }
+            }
+          },
+          {
+            "id": 26,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 434,
+                  "col": 4
+                },
+                "end": {
+                  "line": 434,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl26",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "67108864"
+                ]
+              }
+            }
+          },
+          {
+            "id": 27,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 435,
+                  "col": 4
+                },
+                "end": {
+                  "line": 435,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl27",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "134217728"
+                ]
+              }
+            }
+          },
+          {
+            "id": 28,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 436,
+                  "col": 4
+                },
+                "end": {
+                  "line": 436,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl28",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "268435456"
+                ]
+              }
+            }
+          },
+          {
+            "id": 29,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 437,
+                  "col": 4
+                },
+                "end": {
+                  "line": 437,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl29",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "536870912"
+                ]
+              }
+            }
+          },
+          {
+            "id": 30,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 438,
+                  "col": 4
+                },
+                "end": {
+                  "line": 438,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl30",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "1073741824"
+                ]
+              }
+            }
+          },
+          {
+            "id": 31,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 439,
+                  "col": 4
+                },
+                "end": {
+                  "line": 439,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl31",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "2147483648"
+                ]
+              }
+            }
+          },
+          {
+            "id": 32,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 440,
+                  "col": 4
+                },
+                "end": {
+                  "line": 440,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl32",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "4294967296"
+                ]
+              }
+            }
+          },
+          {
+            "id": 33,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 441,
+                  "col": 4
+                },
+                "end": {
+                  "line": 441,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl33",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "8589934592"
+                ]
+              }
+            }
+          },
+          {
+            "id": 34,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 442,
+                  "col": 4
+                },
+                "end": {
+                  "line": 442,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl34",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "17179869184"
+                ]
+              }
+            }
+          },
+          {
+            "id": 35,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 443,
+                  "col": 4
+                },
+                "end": {
+                  "line": 443,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl35",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "34359738368"
+                ]
+              }
+            }
+          },
+          {
+            "id": 36,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 444,
+                  "col": 4
+                },
+                "end": {
+                  "line": 444,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl36",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "68719476736"
+                ]
+              }
+            }
+          },
+          {
+            "id": 37,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 445,
+                  "col": 4
+                },
+                "end": {
+                  "line": 445,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl37",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "137438953472"
+                ]
+              }
+            }
+          },
+          {
+            "id": 38,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 446,
+                  "col": 4
+                },
+                "end": {
+                  "line": 446,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl38",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "274877906944"
+                ]
+              }
+            }
+          },
+          {
+            "id": 39,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 447,
+                  "col": 4
+                },
+                "end": {
+                  "line": 447,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl39",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "549755813888"
+                ]
+              }
+            }
+          },
+          {
+            "id": 40,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 448,
+                  "col": 4
+                },
+                "end": {
+                  "line": 448,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl40",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "1099511627776"
+                ]
+              }
+            }
+          },
+          {
+            "id": 41,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 449,
+                  "col": 4
+                },
+                "end": {
+                  "line": 449,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl41",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "2199023255552"
+                ]
+              }
+            }
+          },
+          {
+            "id": 42,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 450,
+                  "col": 4
+                },
+                "end": {
+                  "line": 450,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl42",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "4398046511104"
+                ]
+              }
+            }
+          },
+          {
+            "id": 43,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 451,
+                  "col": 4
+                },
+                "end": {
+                  "line": 451,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl43",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "8796093022208"
+                ]
+              }
+            }
+          },
+          {
+            "id": 44,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 452,
+                  "col": 4
+                },
+                "end": {
+                  "line": 452,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl44",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "17592186044416"
+                ]
+              }
+            }
+          },
+          {
+            "id": 45,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 453,
+                  "col": 4
+                },
+                "end": {
+                  "line": 453,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl45",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "35184372088832"
+                ]
+              }
+            }
+          },
+          {
+            "id": 46,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 454,
+                  "col": 4
+                },
+                "end": {
+                  "line": 454,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl46",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "70368744177664"
+                ]
+              }
+            }
+          },
+          {
+            "id": 47,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 455,
+                  "col": 4
+                },
+                "end": {
+                  "line": 455,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl47",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "140737488355328"
+                ]
+              }
+            }
+          },
+          {
+            "id": 48,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 456,
+                  "col": 4
+                },
+                "end": {
+                  "line": 456,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl48",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "281474976710656"
+                ]
+              }
+            }
+          },
+          {
+            "id": 49,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 457,
+                  "col": 4
+                },
+                "end": {
+                  "line": 457,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl49",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "562949953421312"
+                ]
+              }
+            }
+          },
+          {
+            "id": 50,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 458,
+                  "col": 4
+                },
+                "end": {
+                  "line": 458,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl50",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "1125899906842624"
+                ]
+              }
+            }
+          },
+          {
+            "id": 51,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 459,
+                  "col": 4
+                },
+                "end": {
+                  "line": 459,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl51",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "2251799813685248"
+                ]
+              }
+            }
+          },
+          {
+            "id": 52,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 460,
+                  "col": 4
+                },
+                "end": {
+                  "line": 460,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl52",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "4503599627370496"
+                ]
+              }
+            }
+          },
+          {
+            "id": 53,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 461,
+                  "col": 4
+                },
+                "end": {
+                  "line": 461,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl53",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "9007199254740992"
+                ]
+              }
+            }
+          },
+          {
+            "id": 54,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 462,
+                  "col": 4
+                },
+                "end": {
+                  "line": 462,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl54",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "18014398509481984"
+                ]
+              }
+            }
+          },
+          {
+            "id": 55,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 463,
+                  "col": 4
+                },
+                "end": {
+                  "line": 463,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl55",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "36028797018963968"
+                ]
+              }
+            }
+          },
+          {
+            "id": 56,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 464,
+                  "col": 4
+                },
+                "end": {
+                  "line": 464,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl56",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "72057594037927936"
+                ]
+              }
+            }
+          },
+          {
+            "id": 57,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 465,
+                  "col": 4
+                },
+                "end": {
+                  "line": 465,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl57",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "144115188075855872"
+                ]
+              }
+            }
+          },
+          {
+            "id": 58,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 466,
+                  "col": 4
+                },
+                "end": {
+                  "line": 466,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl58",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "288230376151711744"
+                ]
+              }
+            }
+          },
+          {
+            "id": 59,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 467,
+                  "col": 4
+                },
+                "end": {
+                  "line": 467,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl59",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "576460752303423488"
+                ]
+              }
+            }
+          },
+          {
+            "id": 60,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 468,
+                  "col": 4
+                },
+                "end": {
+                  "line": 468,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl60",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "1152921504606846976"
+                ]
+              }
+            }
+          },
+          {
+            "id": 61,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 469,
+                  "col": 4
+                },
+                "end": {
+                  "line": 469,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl61",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "2305843009213693952"
+                ]
+              }
+            }
+          },
+          {
+            "id": 62,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 470,
+                  "col": 4
+                },
+                "end": {
+                  "line": 470,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl62",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "4611686018427387904"
+                ]
+              }
+            }
+          },
+          {
+            "id": 63,
+            "span": {
+              "data": {
+                "file_id": 20,
+                "beg": {
+                  "line": 471,
+                  "col": 4
+                },
+                "end": {
+                  "line": 471,
+                  "col": 16
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_Align1Shl63",
+            "fields": [],
+            "discriminant": {
+              "Scalar": {
+                "Unsigned": [
+                  "Usize",
+                  "9223372036854775808"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "layout": [
+        {
+          "key": "x86_64-unknown-linux-gnu",
+          "value": {
+            "size": 8,
+            "align": 8,
+            "discriminator": {
+              "Branch": {
+                "offset": 0,
+                "int_ty": {
+                  "Unsigned": "U64"
+                },
+                "children": [
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "1"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "1"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 0
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "2"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "2"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 1
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "4"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "4"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 2
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "8"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "8"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 3
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "16"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "16"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 4
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "32"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "32"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 5
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "64"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "64"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 6
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "128"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "128"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 7
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "256"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "256"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 8
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "512"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "512"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 9
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "1024"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "1024"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 10
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "2048"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "2048"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 11
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "4096"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "4096"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 12
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "8192"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "8192"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 13
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "16384"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "16384"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 14
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "32768"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "32768"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 15
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "65536"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "65536"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 16
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "131072"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "131072"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 17
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "262144"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "262144"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 18
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "524288"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "524288"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 19
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "1048576"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "1048576"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 20
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "2097152"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "2097152"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 21
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "4194304"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "4194304"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 22
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "8388608"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "8388608"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 23
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "16777216"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "16777216"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 24
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "33554432"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "33554432"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 25
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "67108864"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "67108864"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 26
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "134217728"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "134217728"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 27
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "268435456"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "268435456"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 28
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "536870912"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "536870912"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 29
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "1073741824"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "1073741824"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 30
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "2147483648"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "2147483648"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 31
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "4294967296"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "4294967296"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 32
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "8589934592"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "8589934592"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 33
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "17179869184"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "17179869184"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 34
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "34359738368"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "34359738368"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 35
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "68719476736"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "68719476736"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 36
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "137438953472"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "137438953472"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 37
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "274877906944"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "274877906944"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 38
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "549755813888"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "549755813888"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 39
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "1099511627776"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "1099511627776"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 40
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "2199023255552"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "2199023255552"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 41
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "4398046511104"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "4398046511104"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 42
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "8796093022208"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "8796093022208"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 43
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "17592186044416"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "17592186044416"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 44
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "35184372088832"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "35184372088832"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 45
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "70368744177664"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "70368744177664"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 46
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "140737488355328"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "140737488355328"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 47
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "281474976710656"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "281474976710656"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 48
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "562949953421312"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "562949953421312"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 49
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "1125899906842624"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "1125899906842624"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 50
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "2251799813685248"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "2251799813685248"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 51
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "4503599627370496"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "4503599627370496"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 52
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "9007199254740992"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "9007199254740992"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 53
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "18014398509481984"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "18014398509481984"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 54
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "36028797018963968"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "36028797018963968"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 55
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "72057594037927936"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "72057594037927936"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 56
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "144115188075855872"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "144115188075855872"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 57
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "288230376151711744"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "288230376151711744"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 58
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "576460752303423488"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "576460752303423488"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 59
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "1152921504606846976"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "1152921504606846976"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 60
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "2305843009213693952"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "2305843009213693952"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 61
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "4611686018427387904"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "4611686018427387904"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 62
+                    }
+                  ],
+                  [
+                    {
+                      "start": {
+                        "Unsigned": [
+                          "U64",
+                          "9223372036854775808"
+                        ]
+                      },
+                      "end": {
+                        "Unsigned": [
+                          "U64",
+                          "9223372036854775808"
+                        ]
+                      }
+                    },
+                    {
+                      "Known": 63
+                    }
+                  ]
+                ],
+                "fallback": "Invalid"
+              }
+            },
+            "uninhabited": false,
+            "variant_layouts": [
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "1"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "2"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "4"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "8"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "16"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "32"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "64"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "128"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "256"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "512"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "1024"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "2048"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "4096"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "8192"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "16384"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "32768"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "65536"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "131072"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "262144"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "524288"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "1048576"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "2097152"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "4194304"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "8388608"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "16777216"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "33554432"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "67108864"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "134217728"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "268435456"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "536870912"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "1073741824"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "2147483648"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "4294967296"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "8589934592"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "17179869184"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "34359738368"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "68719476736"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "137438953472"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "274877906944"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "549755813888"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "1099511627776"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "2199023255552"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "4398046511104"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "8796093022208"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "17592186044416"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "35184372088832"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "70368744177664"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "140737488355328"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "281474976710656"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "562949953421312"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "1125899906842624"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "2251799813685248"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "4503599627370496"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "9007199254740992"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "18014398509481984"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "36028797018963968"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "72057594037927936"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "144115188075855872"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "288230376151711744"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "576460752303423488"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "1152921504606846976"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "2305843009213693952"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "4611686018427387904"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": [
+                  [
+                    0,
+                    {
+                      "Unsigned": [
+                        "U64",
+                        "9223372036854775808"
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ],
+            "repr": {
+              "repr_algo": "Rust",
+              "align_modif": null,
+              "transparent": false,
+              "explicit_discr_type": true
+            }
+          }
+        }
+      ],
+      "classification": "Transparent"
+    }
+  ]
+}
