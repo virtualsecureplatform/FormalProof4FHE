@@ -1,0 +1,12 @@
+{
+  "claim": "legacy pointer model stores pointee values; safe raw-pointer cast is modeled as undefined",
+  "build_receipt_sha256": "d4a3cd671ccfbe340e26a92d458355e31d55758c41defb5288be0413e0dc1e2b",
+  "fixture_sha256": "63554e63ab09cf24e24ea43bd252fe9f55ba094f51d749606f65fd312dff2067",
+  "llbc_sha256": "74f49b9b540ea2a9470c804172e3205d9057846281f6e38646d69a3a07189c3a",
+  "generated_sha256": "632e9719fb07b497c8696457198ee6bed93c49e3a768c4a08cbe074d8e9bca39",
+  "frontend_exit_code": 0,
+  "kernel_exit_code": 0,
+  "checked_sha256": "32a5bbaa877c9761f019429481ffcb26b6be7ff7e0eba22739a4c9522cea89dc",
+  "kernel_theorem": "forall p, to_constant p = fail undef",
+  "native_pattern_diagnostic_manifest_sha256": "ef4a0127608b171a29533b437accc112885a1d3637b9ebb7fdcdc0a05edd66c6"
+}

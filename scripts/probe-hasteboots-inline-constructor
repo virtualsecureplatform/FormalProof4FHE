@@ -62,7 +62,7 @@ def main():
     parser.add_argument('--backend', type=Path, required=True)
     cleanup = parser.add_mutually_exclusive_group()
     cleanup.add_argument('--expand-string-cleanup', action='store_true', help='Expose original String type and drop body')
-    cleanup.add_argument('--cleanup-scope', choices=['opaque', 'string', 'vec', 'rawvec', 'global', 'layout', 'nonzero', 'arithmetic', 'layout-init'], help='Follow original cleanup bodies to the selected boundary')
+    cleanup.add_argument('--cleanup-scope', choices=['opaque', 'string', 'vec', 'rawvec', 'global', 'layout', 'nonzero', 'arithmetic', 'layout-init', 'pointers'], help='Follow original cleanup bodies to the selected boundary')
     parser.add_argument('--inline-ok-or', action='store_true', help='Also inline static-error option conversion')
     parser.add_argument('--target-word64', action='store_true', help='Use checked 64-bit words and original source bindings')
     parser.add_argument('--const-values', action='store_true', help='Use existing rustc constant evaluation for original constants')
@@ -114,15 +114,16 @@ def main():
         scope = args.cleanup_scope or ('string' if args.expand_string_cleanup else 'opaque')
         record['cleanup_scope'] = scope
         paths = [] if scope == 'opaque' else ['alloc::string::String']
-        if scope in ['vec', 'rawvec', 'global', 'layout', 'nonzero', 'arithmetic', 'layout-init']: paths += ['alloc::vec::Vec', 'alloc::vec::Vec::_::drop_glue']
-        if scope in ['rawvec', 'global', 'layout', 'nonzero', 'arithmetic', 'layout-init']: paths += ['alloc::vec', 'alloc::raw_vec']
-        if scope in ['global', 'layout', 'nonzero', 'arithmetic', 'layout-init']: paths += ['alloc::alloc']
-        if scope in ['layout', 'nonzero', 'arithmetic', 'layout-init']: paths += ['core::alloc::layout', 'core::mem::alignment', 'core::num::niche_types', 'core::num::_::unchecked_mul']
-        if scope in ['nonzero', 'arithmetic', 'layout-init']: paths += ['core::num::nonzero']
-        if scope in ['arithmetic', 'layout-init']: paths += ['core::num::_::MIN', 'core::num::_::MAX', 'core::num::_::BITS',
+        if scope in ['vec', 'rawvec', 'global', 'layout', 'nonzero', 'arithmetic', 'layout-init', 'pointers']: paths += ['alloc::vec::Vec', 'alloc::vec::Vec::_::drop_glue']
+        if scope in ['rawvec', 'global', 'layout', 'nonzero', 'arithmetic', 'layout-init', 'pointers']: paths += ['alloc::vec', 'alloc::raw_vec']
+        if scope in ['global', 'layout', 'nonzero', 'arithmetic', 'layout-init', 'pointers']: paths += ['alloc::alloc']
+        if scope in ['layout', 'nonzero', 'arithmetic', 'layout-init', 'pointers']: paths += ['core::alloc::layout', 'core::mem::alignment', 'core::num::niche_types', 'core::num::_::unchecked_mul']
+        if scope in ['nonzero', 'arithmetic', 'layout-init', 'pointers']: paths += ['core::num::nonzero']
+        if scope in ['arithmetic', 'layout-init', 'pointers']: paths += ['core::num::_::MIN', 'core::num::_::MAX', 'core::num::_::BITS',
                                              'core::num::_::is_power_of_two', 'core::num::_::count_ones', 'core::num::_::checked_add',
                                              'core::num::_::checked_mul', 'core::num::_::overflowing_mul',
                                              'core::intrinsics::unlikely', 'core::intrinsics::cold_path']
+        if scope == 'pointers': paths += ['core::ptr::unique', 'core::ptr::non_null']
         if scope == 'layout-init': paths += ['core::mem::SizedTypeProperties']
         if args.expand_language_ub_checks: paths += ['core::ub_checks::check_language_ub']
         cleanup_scope = [argument for path in paths for argument in ['--include', path]]
