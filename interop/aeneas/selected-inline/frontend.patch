@@ -47,10 +47,10 @@ index 8073dba6..b205101f 100644
        if
          !opt_backend = Some Lean && !extract_decreases_clauses
 diff --git a/src/PrePasses.ml b/src/PrePasses.ml
-index b613aba1..b5e86195 100644
+index b613aba1..39f263c3 100644
 --- a/src/PrePasses.ml
 +++ b/src/PrePasses.ml
-@@ -87,6 +87,184 @@ let erase_body_regions (crate : crate) (f : fun_decl) : fun_decl =
+@@ -87,6 +87,493 @@ let erase_body_regions (crate : crate) (f : fun_decl) : fun_decl =
      ^ Print.fun_decl_to_string env "" "  " f];
    f
  
@@ -232,10 +232,319 @@ index b613aba1..b5e86195 100644
 +        }
 +    | _ -> f
 +
++(** Decode only fieldless explicitly represented unsigned enums, optionally
++    behind one transparent wrapper. Layout tags, source discriminants and the
++    discriminator must agree. Invalid representations remain undefined. *)
++let decompose_enum_transmutes (crate : crate) (f : fun_decl) : fun_decl =
++  if not !Config.monomorphic_builtin_shapes then f
++  else
++    match f.body with
++    | StructuredBody body ->
++        let new_locals = ref [] in
++        let _, gen =
++          LocalId.mk_stateful_generator_starting_at_id
++            (LocalId.of_int (List.length body.locals.locals))
++        in
++        let fresh_local ty =
++          let index = gen () in
++          new_locals :=
++            { index; local_ty = ty; name = None; span = f.item_meta.span }
++            :: !new_locals;
++          { kind = PlaceLocal index; ty }
++        in
++        let bytes (kind : Values.u_int_ty) =
++          match kind with
++          | U32 -> 4
++          | U64 | Usize -> 8
++          | _ -> 0
++        in
++        let checked_layout span (decl : Types.type_decl) size =
++          [%cassert] span
++            (decl.generics = empty_generic_params)
++            "Scalar enum transmute requires a closed declaration";
++          match (decl.layout, crate.target_information) with
++          | [ (target, layout) ], [ (actual, info) ]
++            when target = actual
++                 && info.target_pointer_size = 8
++                 && info.is_little_endian && layout.size = Some size
++                 && layout.align = Some size && (not layout.uninhabited)
++                 && layout.repr.align_modif = None -> layout
++          | _ -> [%craise] span "Scalar enum transmute requires checked layout"
++        in
++        let visitor =
++          object
++            inherit [_] map_statement as super
++
++            method! visit_block env block =
++              let convert st =
++                let st = super#visit_statement env st in
++                match st.kind with
++                | Assign
++                    ( dest,
++                      UnaryOp
++                        ( Cast (CastTransmute ((TLiteral (TUInt _) as src), dst)),
++                          op ) )
++                  when src = dst ->
++                    [ { st with kind = Assign (dest, Use (op, NoRetag)) } ]
++                | Assign
++                    ( dest,
++                      UnaryOp
++                        ( Cast
++                            (CastTransmute (TLiteral (TUInt scalar), TAdt target)),
++                          op ) )
++                  when bytes scalar <> 0 -> (
++                    let span = st.span in
++                    let get_decl (reference : Types.type_decl_ref) =
++                      match reference.id with
++                      | TAdtId id -> TypeDeclId.Map.find_opt id crate.type_decls
++                      | _ -> None
++                    in
++                    match get_decl target with
++                    | None -> [ st ]
++                    | Some outer -> (
++                        let selected =
++                          match outer.kind with
++                          | Enum _ -> Some (target, outer, None)
++                          | Struct [ field ] -> (
++                              match field.field_ty with
++                              | TAdt inner -> (
++                                  match get_decl inner with
++                                  | Some decl -> (
++                                      match decl.kind with
++                                      | Enum _ -> Some (inner, decl, Some outer)
++                                      | _ -> None)
++                                  | None -> None)
++                              | _ -> None)
++                          | _ -> None
++                        in
++                        match selected with
++                        | None -> [ st ]
++                        | Some (enum_ref, decl, wrapper) ->
++                            [%cassert] span
++                              (target.generics = empty_generic_args
++                              && enum_ref.generics = empty_generic_args)
++                              "Scalar enum transmute requires closed references";
++                            (match wrapper with
++                            | None -> ()
++                            | Some outer ->
++                                let layout =
++                                  checked_layout span outer (bytes scalar)
++                                in
++                                [%cassert] span
++                                  (layout.repr.transparent
++                                  && layout.discriminator
++                                     = Some (Known VariantId.zero)
++                                  &&
++                                  match layout.variant_layouts with
++                                  | [ Some v ] ->
++                                      v.field_offsets = [ 0 ]
++                                      && (not v.uninhabited) && v.tagger = []
++                                  | _ -> false)
++                                  "Scalar enum transmute requires a \
++                                   transparent zero-offset wrapper");
++                            let layout =
++                              checked_layout span decl (bytes scalar)
++                            in
++                            [%cassert] span layout.repr.explicit_discr_type
++                              "Scalar enum transmute requires explicit \
++                               representation";
++                            let variants =
++                              match decl.kind with
++                              | Enum variants -> variants
++                              | _ -> [%internal_error] span
++                            in
++                            [%cassert] span
++                              (variants <> []
++                              && List.length variants
++                                 = List.length layout.variant_layouts)
++                              "Scalar enum transmute requires complete variant \
++                               layouts";
++                            let value_of_variant (v : variant) =
++                              match v.discriminant with
++                              | VScalar (UnsignedScalar (kind, n))
++                                when kind = scalar && v.fields = []
++                                     && Z.leq Z.zero n
++                                     && Z.lt n
++                                          (Z.shift_left Z.one
++                                             (8 * bytes scalar)) -> n
++                              | _ ->
++                                  [%craise] span
++                                    "Scalar enum transmute requires fieldless \
++                                     matching unsigned discriminants"
++                            in
++                            List.iteri
++                              (fun i (v : Types.variant) ->
++                                [%cassert] span
++                                  (v.id = VariantId.of_int i)
++                                  "Scalar enum transmute requires canonical \
++                                   variant identifiers")
++                              variants;
++                            let values = List.map value_of_variant variants in
++                            [%cassert] span
++                              (List.length (List.sort_uniq Z.compare values)
++                              = List.length values)
++                              "Scalar enum transmute requires distinct \
++                               discriminants";
++                            (match layout.discriminator with
++                            | Some
++                                (Branch (0, Unsigned tag_kind, children, Invalid))
++                              when bytes tag_kind = bytes scalar
++                                   && List.length children
++                                      = List.length variants ->
++                                List.iter2
++                                  (fun (v : variant) opt_layout ->
++                                    let n = value_of_variant v in
++                                    let tag =
++                                      Values.UnsignedScalar (tag_kind, n)
++                                    in
++                                    [%cassert] span
++                                      ((match opt_layout with
++                                       | Some vl ->
++                                           vl.field_offsets = []
++                                           && (not vl.uninhabited)
++                                           && vl.tagger = [ (0, tag) ]
++                                       | None -> false)
++                                      && List.exists
++                                           (fun ((lower, upper), discr) ->
++                                             lower = tag && upper = tag
++                                             && discr = Known v.id)
++                                           children)
++                                      "Scalar enum transmute requires agreeing \
++                                       tags and discriminator")
++                                  variants layout.variant_layouts
++                            | _ ->
++                                [%craise] span
++                                  "Scalar enum transmute requires complete \
++                                   singleton discriminator");
++                            let temporary =
++                              Option.map
++                                (fun _ -> fresh_local (TAdt enum_ref))
++                                wrapper
++                            in
++                            let statement kind =
++                              {
++                                st with
++                                kind;
++                                statement_id = StatementId.zero;
++                                comments_before = [];
++                              }
++                            in
++                            let branches =
++                              List.map
++                                (fun (v : variant) ->
++                                  let enum_value =
++                                    Aggregate
++                                      ( AggregatedAdt (enum_ref, Some v.id, None),
++                                        [] )
++                                  in
++                                  let statements =
++                                    match temporary with
++                                    | None ->
++                                        [
++                                          statement (Assign (dest, enum_value));
++                                        ]
++                                    | Some local ->
++                                        let id =
++                                          match local.kind with
++                                          | PlaceLocal id -> id
++                                          | _ -> [%internal_error] span
++                                        in
++                                        [
++                                          statement (StorageLive id);
++                                          statement (Assign (local, enum_value));
++                                          statement
++                                            (Assign
++                                               ( dest,
++                                                 Aggregate
++                                                   ( AggregatedAdt
++                                                       (target, None, None),
++                                                     [ Move local ] ) ));
++                                          statement (StorageDead id);
++                                        ]
++                                  in
++                                  ([ v.discriminant ], { span; statements }))
++                                variants
++                            in
++                            let invalid =
++                              {
++                                span;
++                                statements =
++                                  [ statement (Abort UndefinedBehavior) ];
++                              }
++                            in
++                            if List.length branches <= 8 then
++                              [
++                                {
++                                  st with
++                                  kind =
++                                    Switch
++                                      (SwitchInt
++                                         (op, TUInt scalar, branches, invalid));
++                                };
++                              ]
++                            else
++                              (* Keep match eliminators small, while consuming the source
++                               operand exactly once. The saved scalar carries no borrows. *)
++                              let saved =
++                                fresh_local (TLiteral (TUInt scalar))
++                              in
++                              let saved_id =
++                                match saved.kind with
++                                | PlaceLocal id -> id
++                                | _ -> [%internal_error] span
++                              in
++                              let rec chain entries =
++                                let front, rest =
++                                  Collections.List.split_at entries
++                                    (min 8 (List.length entries))
++                                in
++                                let otherwise =
++                                  if rest = [] then invalid
++                                  else
++                                    {
++                                      span;
++                                      statements =
++                                        [ statement (Switch (chain rest)) ];
++                                    }
++                                in
++                                SwitchInt
++                                  (Copy saved, TUInt scalar, front, otherwise)
++                              in
++                              [
++                                statement (StorageLive saved_id);
++                                statement (Assign (saved, Use (op, NoRetag)));
++                                statement (Switch (chain branches));
++                                statement (StorageDead saved_id);
++                              ]))
++                | _ -> [ st ]
++              in
++              {
++                block with
++                statements = List.concat_map convert block.statements;
++              }
++          end
++        in
++        let block = visitor#visit_block () body.body in
++        {
++          f with
++          body =
++            StructuredBody
++              {
++                body with
++                body = block;
++                locals =
++                  {
++                    body.locals with
++                    locals = body.locals.locals @ List.rev !new_locals;
++                  };
++              };
++        }
++    | _ -> f
++
  (** Replace the occurrences of [core::intrinsics::unreachable] with
      [Abort UndefinedBehavior]. This helps with the analyzes and the symbolic
      evaluation (in particular, we stop the evaluation when encountering an
-@@ -979,20 +1157,26 @@ let filter_marker_traits (crate : crate) : crate =
+@@ -979,20 +1466,26 @@ let filter_marker_traits (crate : crate) : crate =
    let mctx = NameMatcher.ctx_from_crate crate in
    let pats =
      List.map NameMatcher.parse_pattern
@@ -276,7 +585,7 @@ index b613aba1..b5e86195 100644
    in
    let match_config =
      {
-@@ -1306,6 +1490,12 @@ let decompose_str_borrows (_ : crate) (f : fun_decl) : fun_decl =
+@@ -1306,6 +1799,12 @@ let decompose_str_borrows (_ : crate) (f : fun_decl) : fun_decl =
                *)
                method! visit_Constant env (cv : constant_expr) =
                  match (cv.kind, cv.ty) with
@@ -289,7 +598,7 @@ index b613aba1..b5e86195 100644
                  | ( CLiteral (VStr str),
                      TRef
                        (_, (TAdt { id = TBuiltin TStr; _ } as str_ty), ref_kind)
-@@ -2271,8 +2461,11 @@ let apply_passes (crate : crate) : crate =
+@@ -2271,8 +2770,12 @@ let apply_passes (crate : crate) : crate =
    (* Passes that apply to individual function bodies *)
    let function_passes =
      [
@@ -298,6 +607,7 @@ index b613aba1..b5e86195 100644
        ("fix_closure_lifetimes", fix_closure_lifetimes);
        ("erase_body_regions", erase_body_regions);
 +      ("decompose_range_transmutes", decompose_range_transmutes);
++      ("decompose_enum_transmutes", decompose_enum_transmutes);
        ("remove_unreachable", remove_unreachable);
        ("update_loop", update_loops);
        ("remove_useless_joins", remove_useless_joins);
@@ -647,10 +957,22 @@ index 379bcd2d..b8a4c68c 100644
    let ctx = ctx_map_abs update_abs ctx in
  
 diff --git a/src/interp/InterpStatements.ml b/src/interp/InterpStatements.ml
-index cb9203a0..77f0abdd 100644
+index cb9203a0..cdf69ceb 100644
 --- a/src/interp/InterpStatements.ml
 +++ b/src/interp/InterpStatements.ml
-@@ -1135,11 +1135,8 @@ and eval_switch_raw (config : config) (span : Meta.span) (switch : switch) :
+@@ -824,6 +824,11 @@ and eval_statement_list (config : config) span (stmts : statement list) :
+             match res with
+             (* Evaluation successful: evaluate the second statement *)
+             | Unit -> eval_statement_list config span tl ctx
++            (* A concrete failure can arise while symbolically interpreting an
++               assertion or scalar operation. Terminate that branch, just as
++               for an explicit Abort, rather than joining a Panic result. *)
++            | Panic when config.mode = SymbolicMode ->
++                ([], cf_empty __FILE__ __LINE__ span SA.Panic)
+             (* Control-flow break: transmit. We enumerate the cases on purpose *)
+             | Panic | Break _ | Continue _ | Return ->
+                 ([ (ctx, res) ], cf_singleton __FILE__ __LINE__ span))
+@@ -1135,11 +1140,8 @@ and eval_switch_raw (config : config) (span : Meta.span) (switch : switch) :
        (ctx_resl, cc_comp cf_eval_op cf_switch)
    | Match (p, stgts, otherwise) ->
        (* Access the place *)

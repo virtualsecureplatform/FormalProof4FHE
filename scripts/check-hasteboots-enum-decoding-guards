@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+"""Reject altered enum tables, missing representations and incomplete decoding proofs."""
+import copy
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+GATE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-enum-decoding'))
+
+
+def fixture():
+    decls = []
+    for name, (kind, variants) in GATE['EXPECTED'].items():
+        size = 4 if kind == 'U32' else 8
+        decls.append({'item_meta': {'name': [{'Ident': [GATE['NAMESPACE'], 0]}, {'Ident': [name, 0]}]},
+                      'kind': {'Enum': [{'name': variant, 'discriminant': {'Scalar': {'Unsigned': [kind, str(value)]}}}
+                                        for variant, value in variants]},
+                      'layout': [{'value': {'size': size, 'align': size, 'repr': {}}}]})
+    for name, size in [('Wrapped', 4), ('Align', 8)]:
+        decls.append({'item_meta': {'name': [{'Ident': [GATE['NAMESPACE'], 0]}, {'Ident': [name, 0]}]},
+                      'kind': {'Struct': []},
+                      'layout': [{'value': {'size': size, 'align': size, 'repr': {'transparent': True}}}]})
+    return {'has_errors': False, 'translated': {
+        'target_information': [{'key': 'x86_64-unknown-linux-gnu', 'value': {
+            'target_pointer_size': 8, 'is_little_endian': True}}],
+        'options': {'monomorphize': True, 'mir': 'Optimized'}, 'type_decls': decls}}
+
+
+class Guards(unittest.TestCase):
+    def test_complete_snapshot_and_ir(self):
+        GATE['validate_output']((GATE['DATA'] / 'Generated.lean').read_text())
+        GATE['validate_ir'](fixture())
+
+    def test_changed_enum_or_wrapper(self):
+        for mutate in [lambda x: x['translated']['options'].update(mir='Built'),
+                       lambda x: x['translated']['type_decls'].pop(),
+                       lambda x: x['translated']['type_decls'][0]['kind']['Enum'][0]['discriminant']['Scalar']['Unsigned'].__setitem__(1, '2'),
+                       lambda x: x['translated']['type_decls'][1]['layout'][0]['value'].update(size=4),
+                       lambda x: x['translated']['type_decls'][2]['layout'][0]['value']['repr'].update(transparent=False)]:
+            ir = copy.deepcopy(fixture()); mutate(ir)
+            with self.assertRaises(RuntimeError): GATE['validate_ir'](ir)
+
+    def test_invalid_value_acceptance_or_admission(self):
+        raw = (GATE['DATA'] / 'Generated.lean').read_text()
+        for bad in [raw.replace('fail panic', 'ok Alignment64.A0'),
+                    raw.replace('9223372036854775808', '9223372036854775809'),
+                    raw.replace('fail panic', 'sorry'),
+                    raw.replace('end hasteboots_enum_decoding', '')]:
+            with self.assertRaises(RuntimeError): GATE['validate_output'](bad)
+
+    def test_missing_soundness_proof(self):
+        proof = (GATE['DATA'] / 'Proof.lean').read_text().replace('theorem alignment_sound', 'theorem missing')
+        with self.assertRaises(RuntimeError):
+            GATE['PARAMETERS']['validate_proof_source'](proof, GATE['PROOFS'])
+
+
+if __name__ == '__main__':
+    unittest.main()
