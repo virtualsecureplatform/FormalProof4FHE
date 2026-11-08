@@ -7,6 +7,45 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Charon Use retags now execute checked reborrows
+
+Inspection of the pinned Charon AST identified that `Rvalue::Use` carries
+`WithRetag`, not a Copy classification. The earlier reifier diagnostic was
+incorrect. `NativeSliceLLBC.Rvalue.use` now retains the retag flag and element
+layout. Reference uses with `Yes` execute checked reborrows; uses with `No`
+preserve reference identity. Copy/move behavior remains in the operand. Four
+new theorems establish retag projection, no-retag transfer, the reference-retag
+equation and fresh returned tags. The slice model now has 22 theorems and 103
+persistent declaration/constructor/field audits. Nine new root regressions
+cover shared copying, mutable moving, disabled flags, byte/word layout,
+revoked parents, parent/child ending and cleanup. Existing generated positive
+scalar, slice and scope bodies remain unchanged.
+
+A new original-source `reference-retag-body` profile includes a shared callee
+with a lifetime parameter and a monomorphic mutable-reference identity body.
+It validates region declaration/index bounds, call-region arity and caller
+scope, while retaining original generic/signature declarations. Reference
+inputs are accepted only for internal interpreted calls; public extraction
+roots still take raw-register and length operands. These checks erase region
+labels and do not prove Rust region substitution or lifetime validity.
+
+Seven layout/body/wrapper equations and two cleanup bridge theorems connect the
+original bodies to their checked behavior. The shared root creates three leases
+and the mutable root four. A kernel-checked source mutation changes the
+identity body's flag to `No`; the mutable root then creates three leases. This
+explicitly verifies that retagging affects execution. Ten source regressions
+cover the original paths and permissions. See the [profile documentation](../interop/aeneas/reference-retag-body/README.md)
+for reproduction and the retained semantic boundary. The gate passed 126
+dependency audits and 20 rejecting controls, plus the disabled-retag kernel
+control. Refreshed scalar (97 audits), slice-reference (136), scope (60), and
+byte-traversal (58) gates passed with the same frozen tools. The repository-wide
+`scripts/check` also passed, including its 10,977-job build.
+
+This corrects a prerequisite for the typed byte-loop simulation. The original
+loop's typed locals/control, repeated storage liveness, iteration lifetime ends,
+whole destructor/allocator composition, compiler/native-work refinements and
+final security theorem remain open.
+
 ## Byte indexing and a terminating checked drop traversal are modeled
 
 `NativeByteSliceIndex` implements mutable byte indexing by checking resident

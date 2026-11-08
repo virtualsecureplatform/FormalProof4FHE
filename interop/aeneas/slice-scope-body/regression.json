@@ -1,7 +1,7 @@
 {
   "profile": "original-release-byte-slice-unit-scope-cleanup-v1",
-  "gate_manifest": "build/hasteboots-extraction/slice-scope-body-peqowzl5/manifest.json",
-  "gate_manifest_sha256": "1fb6d8ee32283a0460ec6876d76413d5399e77e63809ffc1e3635b2e0a998558",
+  "gate_manifest": "build/hasteboots-extraction/slice-scope-body-ohlftima/manifest.json",
+  "gate_manifest_sha256": "434afc6e2bf35bc62f585bba643b29511213ddce5a11beae2978c80028735dcc",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "status": "passed",
   "claim": "unit slice LLBC interpretation and explicit checked scope cleanup; compiler, Rust lifetimes, native drop glue and security refinement remain unproved",
@@ -42,7 +42,7 @@
       "--include",
       "core::ptr::metadata",
       "--dest-file",
-      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/slice-scope-body-peqowzl5/release.llbc",
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/slice-scope-body-ohlftima/release.llbc",
       "--",
       "--crate-type",
       "lib",
@@ -76,7 +76,7 @@
       "--include",
       "core::ptr::metadata",
       "--dest-file",
-      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/slice-scope-body-peqowzl5/debug.llbc",
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/slice-scope-body-ohlftima/debug.llbc",
       "--",
       "--crate-type",
       "lib",
@@ -93,15 +93,15 @@
       "env",
       "lean",
       "-DwarningAsError=true",
-      "build/hasteboots-extraction/slice-scope-body-peqowzl5/Checked.lean"
+      "build/hasteboots-extraction/slice-scope-body-ohlftima/Checked.lean"
     ]
   ],
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "inputs": {
     "scripts/check-hasteboots-slice-scope-body": "41fcfafea31999ed5cabb94813e0cc50a20465023265b94d45d9a9770d4ccfd4",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
-    "scripts/reify-hasteboots-scalar-llbc": "7998b2650710269d58d7036b0d060d239469911668e759f4b8a56efdd41f9809",
-    "scripts/reify-hasteboots-slice-reference-llbc": "5f99239e34388cbfbd4a08e76a66a7102516d2f443de37d04dd8f8aadc8a321d",
+    "scripts/reify-hasteboots-scalar-llbc": "4e7a3c819b1f6b7c851ad0453ce125399bffa46bb7cea9193eaf065628b970df",
+    "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "FormalProof4FHE/HasteBoots/NativeReferenceCleanup.lean": "0405ccb95660fa6c4d173b570fd80fa26bb2ab1bf4171dcc30b70af962b619d5",
     "FormalProof4FHETest/HasteBootsReferenceCleanupSmoke.lean": "059b3b8a0ce9f6046fc9fc939757bc928b585eef43999c5787cc1a406428bf3f",
     "FormalProof4FHETest/HasteBootsReferenceCleanupAudit.lean": "c6a5c0e102679750e166027846e1222152cbe2095c1d1c736272709fdf2d51a3",
@@ -109,14 +109,14 @@
     "interop/aeneas/slice-scope-body/fixture.rs": "feb336719f0c6c575298cdd75538c87586508585659335df7b6d084e90715cf7",
     "interop/aeneas/slice-scope-body/Generated.lean": "9fd84f71cb6d99c30b697cf7a7cb8c22746d13111b50d2e0364d07a4971d9cd8",
     "interop/aeneas/slice-scope-body/Retained.json": "143f352043165b9daefeadb2fec15bb4cc794558380134128ddcb154e6c0b7dc",
-    "interop/aeneas/slice-scope-body/Proof.lean": "99bd78b6d8679aba3d33973aec104131ef4e1f66510e3b280e6dcbb2bd9fd6e0",
+    "interop/aeneas/slice-scope-body/Proof.lean": "c2e6599637107b69f52c0725ec31904c3896f2e33d0c6c485e8a3b2e63b8e1a5",
     "interop/aeneas/slice-scope-body/Bridge.lean": "09671e241098c5320f56f8665c56790b762e72938ce046d74f0f7da0c8c00af6",
     "interop/aeneas/slice-scope-body/Smoke.lean": "444f8de1fbb773f5395c42158eb3ed9402512726741dd54d33e90f80874f97ab"
   },
   "parent_slice_reference": {
-    "manifest": "build/hasteboots-extraction/slice-reference-body-i1y0lynk/manifest.json",
-    "manifest_sha256": "fd4de28c53e0337ff71abd71d33270ed01203d39e8fe82f8eb654dbdf7d13d2e",
-    "dependency_audit_count": 131
+    "manifest": "build/hasteboots-extraction/slice-reference-body-rqb3x_0a/manifest.json",
+    "manifest_sha256": "070a95442a756b0a95194ac6483f175daed85914eaac97a7672fdf5418006429",
+    "dependency_audit_count": 136
   },
   "functions": [
     {
@@ -278,14 +278,14 @@
     "HasteBootsSliceScopeBody.shared_scope_closed": "depends on axioms: [propext, Classical.choice, Quot.sound]",
     "HasteBootsSliceScopeBody.mutable_scope_closed": "depends on axioms: [propext, Classical.choice, Quot.sound]"
   },
-  "llbc_sha256": "b805917600e3770313f7ecdcabeded83acad3b7776400a2ad36db2680b78a8bf",
-  "checked_sha256": "02253dc4401d60805ab7461d136c55007c687ec1ca80ffccac89ed2f56a70849",
+  "llbc_sha256": "23c1316e4b2d37a37ce7c3464d6a934e3f2908ce8ebd0acf2d206b61c632b27f",
+  "checked_sha256": "99a71201942692fd5f08263f6cb0b69e5c451ff1eb164c1b6c9c3cdc1c6163e6",
   "logs": {
-    "parent-slice-reference.log": "80d4d55b44fefabf3ae08ee54aecd32d5353b087204862481e06efe353552aff",
-    "root-build.log": "e715072dc3b76413bae5c921a2dbec05fe00dc2da7a7ebe46075ad98b8f32c9d",
-    "debug-charon.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "lean.log": "30dd0d6a89787c17a02cffed26187b37af0a6ae5c45d88dd2d5d58cad0a3d4ef",
-    "release-charon.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    "release-charon.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "parent-slice-reference.log": "ecf0e6b2e8475019e9891057f569acde91e1df83ac7bd6753dec7f2aa009353b",
+    "root-build.log": "6a58c059645788907cd46cf9d092993d337aa8ac68075ce339459de060420ab1",
+    "debug-charon.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   },
   "native_revision": "dff353006322693cab3dc6b654f82151f658f294",
   "model_theorems": 27,
@@ -327,8 +327,8 @@
   "root_check": {
     "command": "scripts/check",
     "exit_code": 0,
-    "build_jobs": 10972,
-    "log": "/tmp/hasteboots-reference-cleanup-full-check.log",
-    "log_sha256": "58e58c8d4924e1c3140ba140d06bf7c9acf57d034e44ed2e5c86314f0f9e6a2c"
+    "build_jobs": 10977,
+    "log": "/tmp/hasteboots-retag-full-check.log",
+    "log_sha256": "1bbdfdcc81b7ef67b84faf9b25394c241b43d114410cb4e7e7fa8d02df0e8a35"
   }
 }

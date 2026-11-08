@@ -1,0 +1,799 @@
+{
+  "profile": "original-reference-use-retag-and-region-bound-callee-v1",
+  "gate_manifest": "build/hasteboots-extraction/reference-retag-body-ev8inxzk/manifest.json",
+  "gate_manifest_sha256": "ecfdb8a2c3d9e43886310925c560fc833e48b43dfac6428a2f259e17bd7c309e",
+  "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
+  "status": "passed",
+  "claim": "original reference Use retags and validated region-index erasure; compiler, Rust lifetimes, native constructor and security refinement remain unproved",
+  "commands": [
+    [
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/scripts/in-container",
+      "lake",
+      "build",
+      "FormalProof4FHE.HasteBoots.NativeSliceLLBC",
+      "FormalProof4FHETest.HasteBootsRetagSmoke",
+      "FormalProof4FHETest.HasteBootsSliceLLBCAudit"
+    ],
+    [
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/scripts/check-hasteboots-slice-scope-body",
+      "--build-receipt",
+      "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json"
+    ],
+    [
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/inline-tools-build-b6esls36/tools/charon",
+      "rustc",
+      "--preset=aeneas",
+      "--sysroot",
+      "default",
+      "--monomorphize",
+      "--mir",
+      "optimized",
+      "--consts",
+      "values",
+      "--evaluate-runtime-checks",
+      "--precise-drops",
+      "--desugar-drops",
+      "--preserve-allocator",
+      "--no-dedup-serialized-ast",
+      "--include",
+      "core::slice::raw::from_raw_parts",
+      "--include",
+      "core::slice::raw::from_raw_parts_mut",
+      "--include",
+      "core::ptr::metadata",
+      "--dest-file",
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/reference-retag-body-ev8inxzk/release.llbc",
+      "--",
+      "--crate-type",
+      "lib",
+      "--edition",
+      "2024",
+      "-Cdebug-assertions=no",
+      "--crate-name",
+      "hasteboots_reference_retag_body",
+      "interop/aeneas/reference-retag-body/fixture.rs"
+    ],
+    [
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/inline-tools-build-b6esls36/tools/charon",
+      "rustc",
+      "--preset=aeneas",
+      "--sysroot",
+      "default",
+      "--monomorphize",
+      "--mir",
+      "optimized",
+      "--consts",
+      "values",
+      "--evaluate-runtime-checks",
+      "--precise-drops",
+      "--desugar-drops",
+      "--preserve-allocator",
+      "--no-dedup-serialized-ast",
+      "--include",
+      "core::slice::raw::from_raw_parts",
+      "--include",
+      "core::slice::raw::from_raw_parts_mut",
+      "--include",
+      "core::ptr::metadata",
+      "--dest-file",
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/reference-retag-body-ev8inxzk/debug.llbc",
+      "--",
+      "--crate-type",
+      "lib",
+      "--edition",
+      "2024",
+      "-Cdebug-assertions=yes",
+      "--crate-name",
+      "hasteboots_reference_retag_body",
+      "interop/aeneas/reference-retag-body/fixture.rs"
+    ],
+    [
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/scripts/in-container",
+      "lake",
+      "env",
+      "lean",
+      "-DwarningAsError=true",
+      "build/hasteboots-extraction/reference-retag-body-ev8inxzk/RetagDisabled.lean"
+    ],
+    [
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/scripts/in-container",
+      "lake",
+      "env",
+      "lean",
+      "-DwarningAsError=true",
+      "build/hasteboots-extraction/reference-retag-body-ev8inxzk/Checked.lean"
+    ]
+  ],
+  "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
+  "inputs": {
+    "scripts/check-hasteboots-reference-retag-body": "31ae559a3c8bbd333cf6847e570fdad99ebf4b6892c0a33087a314f7ea386441",
+    "scripts/reify-hasteboots-reference-retag-llbc": "20fa3448c5479473bbf54fb506efe2625ae0a88fa0727f0ff23499a6ca786ea8",
+    "scripts/reify-hasteboots-scalar-llbc": "4e7a3c819b1f6b7c851ad0453ce125399bffa46bb7cea9193eaf065628b970df",
+    "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
+    "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
+    "FormalProof4FHE/HasteBoots/NativeSliceLLBC.lean": "be53372a7a3586d80cc38b6a992ac7f81787da8fdaa54e0f8dd78d85f2589e76",
+    "FormalProof4FHETest/HasteBootsRetagSmoke.lean": "def1d002a450245dac0d98de5002a15128f81a8ecd9cddb53c6b3a3b90817256",
+    "FormalProof4FHETest/HasteBootsSliceLLBCAudit.lean": "4b4a6f0075e3ca51d711d798f37da9948755f9a56494f203b55ed3c21645ea9b",
+    "lean-toolchain": "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c",
+    "interop/aeneas/reference-retag-body/fixture.rs": "41d5adb3b99261c22aea1eb1598041341bbd165c13c18397859d90bbaae29e9f",
+    "interop/aeneas/reference-retag-body/Generated.lean": "6c49e132a613986275e1a1fd3d72625d82b4bce1e709bfe32b5e73e9fa554921",
+    "interop/aeneas/reference-retag-body/Retained.json": "45a35171d9e66aa3837c4e67c04d409f548944349237b20d279309f57f6fab03",
+    "interop/aeneas/reference-retag-body/Proof.lean": "1ae41c1c13e324bfa331147ce574fffd3b56136d254dc0a043614dbaae857e07",
+    "interop/aeneas/reference-retag-body/Bridge.lean": "0c1363906efcc6606ef97e08104d995033465a687a97ccad9e7b72204463f1cc",
+    "interop/aeneas/reference-retag-body/Smoke.lean": "1fc98de79b604298ab3d119a4b881c5dba37ff55ac9822b620f71ebce928f759",
+    "interop/aeneas/reference-retag-body/RetagDisabledSmoke.lean": "ff3694469bd6988919d739fcaaa3aa4a6e069abbde8465c3360e8c4bab040156"
+  },
+  "parent_slice_scope": {
+    "manifest": "build/hasteboots-extraction/slice-scope-body-ohlftima/manifest.json",
+    "manifest_sha256": "434afc6e2bf35bc62f585bba643b29511213ddce5a11beae2978c80028735dcc",
+    "dependency_audit_count": 60
+  },
+  "functions": [
+    {
+      "id": 0,
+      "name": "hasteboots_reference_retag_body::borrowed#0",
+      "span": {
+        "data": {
+          "file_id": 0,
+          "beg": {
+            "line": 5,
+            "col": 0
+          },
+          "end": {
+            "line": 5,
+            "col": 54
+          }
+        },
+        "generated_from_span": null
+      },
+      "original_body_sha256": "5314cd2f72551680a49b7826c7c0c4bbe0d0723234677dc913a5a2e2d9a98ad6",
+      "source_generics": {
+        "regions": [
+          {
+            "index": 0,
+            "name": "'a",
+            "mutability": "Unknown"
+          }
+        ],
+        "types": [],
+        "const_generics": [],
+        "trait_clauses": [],
+        "regions_outlive": [],
+        "types_outlive": [],
+        "trait_type_constraints": []
+      },
+      "source_signature": {
+        "is_unsafe": false,
+        "abi": "Rust",
+        "is_variadic": false,
+        "inputs": [
+          {
+            "Untagged": {
+              "Ref": [
+                {
+                  "Var": {
+                    "Free": 0
+                  }
+                },
+                {
+                  "Untagged": {
+                    "Slice": {
+                      "Untagged": {
+                        "Literal": {
+                          "UInt": "U8"
+                        }
+                      }
+                    }
+                  }
+                },
+                "Shared"
+              ]
+            }
+          }
+        ],
+        "output": {
+          "Untagged": {
+            "Ref": [
+              {
+                "Var": {
+                  "Free": 0
+                }
+              },
+              {
+                "Untagged": {
+                  "Slice": {
+                    "Untagged": {
+                      "Literal": {
+                        "UInt": "U8"
+                      }
+                    }
+                  }
+                }
+              },
+              "Shared"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 1,
+      "name": "hasteboots_reference_retag_body::shared_scope#1",
+      "span": {
+        "data": {
+          "file_id": 0,
+          "beg": {
+            "line": 7,
+            "col": 0
+          },
+          "end": {
+            "line": 10,
+            "col": 1
+          }
+        },
+        "generated_from_span": null
+      },
+      "original_body_sha256": "674d1217b1f53d0c78ec0377ef4250bd691eca28b6b35c5c44d5b3566c85266b",
+      "source_generics": {
+        "regions": [],
+        "types": [],
+        "const_generics": [],
+        "trait_clauses": [],
+        "regions_outlive": [],
+        "types_outlive": [],
+        "trait_type_constraints": []
+      },
+      "source_signature": {
+        "is_unsafe": true,
+        "abi": "Rust",
+        "is_variadic": false,
+        "inputs": [
+          {
+            "Untagged": {
+              "RawPtr": [
+                {
+                  "Untagged": {
+                    "Literal": {
+                      "UInt": "U8"
+                    }
+                  }
+                },
+                "Shared"
+              ]
+            }
+          },
+          {
+            "Untagged": {
+              "Literal": {
+                "UInt": "Usize"
+              }
+            }
+          }
+        ],
+        "output": {
+          "Untagged": {
+            "Adt": {
+              "id": "Tuple",
+              "generics": {
+                "regions": [],
+                "types": [],
+                "const_generics": [],
+                "trait_refs": []
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "name": "hasteboots_reference_retag_body::mutable_scope#2",
+      "span": {
+        "data": {
+          "file_id": 0,
+          "beg": {
+            "line": 11,
+            "col": 0
+          },
+          "end": {
+            "line": 14,
+            "col": 1
+          }
+        },
+        "generated_from_span": null
+      },
+      "original_body_sha256": "6b2901d624fcf87f4ae9f0469282ce47f5fa6ab786b136adb829b6bef90cdd63",
+      "source_generics": {
+        "regions": [],
+        "types": [],
+        "const_generics": [],
+        "trait_clauses": [],
+        "regions_outlive": [],
+        "types_outlive": [],
+        "trait_type_constraints": []
+      },
+      "source_signature": {
+        "is_unsafe": true,
+        "abi": "Rust",
+        "is_variadic": false,
+        "inputs": [
+          {
+            "Untagged": {
+              "RawPtr": [
+                {
+                  "Untagged": {
+                    "Literal": {
+                      "UInt": "U8"
+                    }
+                  }
+                },
+                "Mut"
+              ]
+            }
+          },
+          {
+            "Untagged": {
+              "Literal": {
+                "UInt": "Usize"
+              }
+            }
+          }
+        ],
+        "output": {
+          "Untagged": {
+            "Adt": {
+              "id": "Tuple",
+              "generics": {
+                "regions": [],
+                "types": [],
+                "const_generics": [],
+                "trait_refs": []
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "name": "core::slice::raw::from_raw_parts#3",
+      "span": {
+        "data": {
+          "file_id": 1,
+          "beg": {
+            "line": 124,
+            "col": 0
+          },
+          "end": {
+            "line": 124,
+            "col": 80
+          }
+        },
+        "generated_from_span": null
+      },
+      "original_body_sha256": "4376a4e16dbf1ad9f564de18816b33455d8d426e7cdea0a65d9dee9c6e86bf9b",
+      "source_generics": {
+        "regions": [],
+        "types": [],
+        "const_generics": [],
+        "trait_clauses": [],
+        "regions_outlive": [],
+        "types_outlive": [],
+        "trait_type_constraints": []
+      },
+      "source_signature": {
+        "is_unsafe": true,
+        "abi": "Rust",
+        "is_variadic": false,
+        "inputs": [
+          {
+            "Untagged": {
+              "RawPtr": [
+                {
+                  "Untagged": {
+                    "Literal": {
+                      "UInt": "U8"
+                    }
+                  }
+                },
+                "Shared"
+              ]
+            }
+          },
+          {
+            "Untagged": {
+              "Literal": {
+                "UInt": "Usize"
+              }
+            }
+          }
+        ],
+        "output": {
+          "Untagged": {
+            "Ref": [
+              "Erased",
+              {
+                "Untagged": {
+                  "Slice": {
+                    "Untagged": {
+                      "Literal": {
+                        "UInt": "U8"
+                      }
+                    }
+                  }
+                }
+              },
+              "Shared"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "name": "core::slice::raw::from_raw_parts_mut#4",
+      "span": {
+        "data": {
+          "file_id": 1,
+          "beg": {
+            "line": 179,
+            "col": 0
+          },
+          "end": {
+            "line": 179,
+            "col": 86
+          }
+        },
+        "generated_from_span": null
+      },
+      "original_body_sha256": "5198757c7779c054a7f1cf4bd0678cfad789e2a9cac4111870a7d40f2f5b6885",
+      "source_generics": {
+        "regions": [],
+        "types": [],
+        "const_generics": [],
+        "trait_clauses": [],
+        "regions_outlive": [],
+        "types_outlive": [],
+        "trait_type_constraints": []
+      },
+      "source_signature": {
+        "is_unsafe": true,
+        "abi": "Rust",
+        "is_variadic": false,
+        "inputs": [
+          {
+            "Untagged": {
+              "RawPtr": [
+                {
+                  "Untagged": {
+                    "Literal": {
+                      "UInt": "U8"
+                    }
+                  }
+                },
+                "Mut"
+              ]
+            }
+          },
+          {
+            "Untagged": {
+              "Literal": {
+                "UInt": "Usize"
+              }
+            }
+          }
+        ],
+        "output": {
+          "Untagged": {
+            "Ref": [
+              "Erased",
+              {
+                "Untagged": {
+                  "Slice": {
+                    "Untagged": {
+                      "Literal": {
+                        "UInt": "U8"
+                      }
+                    }
+                  }
+                }
+              },
+              "Mut"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 5,
+      "name": "hasteboots_reference_retag_body::identity#5",
+      "span": {
+        "data": {
+          "file_id": 0,
+          "beg": {
+            "line": 2,
+            "col": 0
+          },
+          "end": {
+            "line": 2,
+            "col": 39
+          }
+        },
+        "generated_from_span": null
+      },
+      "original_body_sha256": "bb149cd52ec2714cf4f8322330535e6e9a04e4ca37150e48224ae0c020fddfdf",
+      "source_generics": {
+        "regions": [],
+        "types": [],
+        "const_generics": [],
+        "trait_clauses": [],
+        "regions_outlive": [],
+        "types_outlive": [],
+        "trait_type_constraints": []
+      },
+      "source_signature": {
+        "is_unsafe": false,
+        "abi": "Rust",
+        "is_variadic": false,
+        "inputs": [
+          {
+            "Untagged": {
+              "Ref": [
+                "Erased",
+                {
+                  "Untagged": {
+                    "Slice": {
+                      "Untagged": {
+                        "Literal": {
+                          "UInt": "U8"
+                        }
+                      }
+                    }
+                  }
+                },
+                "Mut"
+              ]
+            }
+          }
+        ],
+        "output": {
+          "Untagged": {
+            "Ref": [
+              "Erased",
+              {
+                "Untagged": {
+                  "Slice": {
+                    "Untagged": {
+                      "Literal": {
+                        "UInt": "U8"
+                      }
+                    }
+                  }
+                }
+              },
+              "Mut"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "inactive_unsupported_count": 2,
+  "negative_controls": {
+    "wrong_target": "Wrong target",
+    "wrong_endian": "Wrong target",
+    "opaque_active_body": "Unsupported active callee body",
+    "hidden_active_declaration": "Unsupported active callee body",
+    "residual_drop": "Unsupported active statement: Drop",
+    "unknown_statement_field": "Unknown statement fields",
+    "bad_storage_index": "Bad storage index",
+    "active_unsupported_ub_check": "Expected local place",
+    "pointer_parts_mutability": "Pointer-parts types mismatch",
+    "wrong_metadata": "Metadata is not bound to the borrowed pointer",
+    "wrong_borrowed_element": "Wrong borrowed slice element",
+    "unsupported_layout": "Element layout changed",
+    "missing_runtime_policy": "Missing policy: precise_drops",
+    "source_rewrite_policy": "Hidden/rewritten source closure",
+    "unknown_retag_flag": "Unknown WithRetag flag",
+    "copy_mutable_reference": "Mutable references cannot be copied",
+    "noncanonical_region_binder": "Unclosed active declaration",
+    "unbound_signature_region": "Unvalidated lifetime label",
+    "unbound_call_region": "Unbound region call arguments",
+    "missing_call_region": "Unbound region call arguments"
+  },
+  "debug_active_rejection": "Expected local place",
+  "supported_body_mutation_retained": true,
+  "retag_disabled_kernel_control": {
+    "original_mutable_leases": 4,
+    "disabled_mutable_leases": 3,
+    "original_flag": "Yes",
+    "mutated_flag": "No"
+  },
+  "dependency_audit": {
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Element": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Element.width": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Ty": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Raw": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Value": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Input": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.decodeInput": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.fits": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Slot": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Frame": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Operand": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Rvalue": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Body": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Function": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Flow": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Flow.world": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.readLocal": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.writeLocal": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.storageLive": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.storageDead": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.mode": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.layout": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.issue": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.retagValue": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalOperand": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalRvalue": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalArgs": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.initial": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.partsValue": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalParts": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.eval": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.decodeArgs": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.invoke": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.issue_executes": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.issue_projects": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.issue_returned_tag": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.writeLocal_world": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.storageLive_world": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.storageDead_world": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalOperand_world": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.retagValue_projects": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.retagValue_disabled": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.retagValue_reference": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.retagValue_fresh": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalRvalue_projects": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalArgs_world": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalParts_world": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.initial_world": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.eval_projects": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.invoke_projects": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.reference_runs_wellFormed": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.invoke_wellFormed": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.issue_raw_selected": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.reference_runs_reachable": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.invoke_reachable": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Element.byte": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Element.word": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Ty.unit": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Ty.usize": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Ty.raw": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Ty.reference": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Raw.mk": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Raw.storage": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Raw.length": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Value.unit": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Value.usize": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Value.raw": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Value.reference": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Input.usize": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Input.rawRegister": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Slot.dead": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Slot.live": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Frame.mk": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Frame.types": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Frame.slots": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Frame.world": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Operand.copy": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Operand.move": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Rvalue.use": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Rvalue.rawCast": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Rvalue.borrow": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Rvalue.unit": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Body.done": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Body.ret": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Body.resume": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Body.abort": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Body.unsupported": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Body.storageLive": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Body.storageDead": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Body.assign": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Body.parts": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Body.constIf": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Body.call": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Function.mk": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Function.name": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Function.types": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Function.argCount": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Function.body": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Flow.continued": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Flow.returned": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Flow.unwind": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Flow.invalid": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.Flow.unsupported": "does not depend on any axioms",
+    "HasteBootsReferenceRetagBody.f0": "does not depend on any axioms",
+    "HasteBootsReferenceRetagBody.f1": "does not depend on any axioms",
+    "HasteBootsReferenceRetagBody.f2": "does not depend on any axioms",
+    "HasteBootsReferenceRetagBody.f3": "does not depend on any axioms",
+    "HasteBootsReferenceRetagBody.f4": "does not depend on any axioms",
+    "HasteBootsReferenceRetagBody.f5": "does not depend on any axioms",
+    "HasteBootsReferenceRetagBody.g0": "depends on axioms: [propext]",
+    "HasteBootsReferenceRetagBody.g1": "depends on axioms: [propext]",
+    "HasteBootsReferenceRetagBody.g2": "depends on axioms: [propext]",
+    "HasteBootsReferenceRetagBody.g3": "depends on axioms: [propext]",
+    "HasteBootsReferenceRetagBody.finishIssue": "depends on axioms: [propext]",
+    "HasteBootsReferenceRetagBody.relayByte": "depends on axioms: [propext, Quot.sound]",
+    "HasteBootsReferenceRetagBody.finishUnit": "depends on axioms: [propext]",
+    "HasteBootsReferenceRetagBody.applyBody": "depends on axioms: [propext, Quot.sound]",
+    "HasteBootsReferenceRetagBody.byte_layout_exact": "depends on axioms: [propext]",
+    "HasteBootsReferenceRetagBody.shared_byte_body": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "HasteBootsReferenceRetagBody.mutable_byte_body": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "HasteBootsReferenceRetagBody.borrowed_body": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "HasteBootsReferenceRetagBody.identity_body": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "HasteBootsReferenceRetagBody.shared_scope": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "HasteBootsReferenceRetagBody.mutable_scope": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "HasteBootsReferenceRetagBody.shared_scope_closed": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "HasteBootsReferenceRetagBody.mutable_scope_closed": "depends on axioms: [propext, Classical.choice, Quot.sound]"
+  },
+  "llbc_sha256": "0fb32c8bdc3de2da68dd1180fa4c505f596c75d2f8a06706cbf653336feb69be",
+  "checked_sha256": "0c7a44a023c3a22e45487f60176f30a2280853b0fad0d923f6f6315f385852e8",
+  "logs": {
+    "lean.log": "4f90741042f1d9fb4cd1935ccacfa06315503575f2b96b37d5aabfb515a65f04",
+    "debug-charon.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "release-charon.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "retag-disabled-lean.log": "cb57e98c8b5365e217c1a9a709b94e15dc7a8c38e28dc9f85f0fc36c1f69804d",
+    "root-build.log": "fa2b89f09e50415b8d076de26f81ceee2bcd2e32ce76a164f97585bc519cefc7",
+    "parent-slice-scope.log": "865be932dd43559b333a1c962e2224da2a2688d2118409f06d1fd83b27c3d4eb"
+  },
+  "native_revision": "dff353006322693cab3dc6b654f82151f658f294",
+  "model_theorems": 22,
+  "model_persistent_audits": 103,
+  "source_audits": 23,
+  "source_theorems": 9,
+  "root_regressions": 9,
+  "source_regressions": 10,
+  "root_check": {
+    "command": "scripts/check",
+    "exit_code": 0,
+    "build_jobs": 10977,
+    "log": "/tmp/hasteboots-retag-full-check.log",
+    "log_sha256": "1bbdfdcc81b7ef67b84faf9b25394c241b43d114410cb4e7e7fa8d02df0e8a35"
+  },
+  "refreshed_parent_receipts": {
+    "scalar-pointer-body": {
+      "manifest": "build/hasteboots-extraction/scalar-pointer-body-inpbx8e_/manifest.json",
+      "manifest_sha256": "e3a66668fef1935af0847c1689c0e44e0be5fe97cf6c25d237d9f3257153496d"
+    },
+    "slice-reference-body": {
+      "manifest": "build/hasteboots-extraction/slice-reference-body-rqb3x_0a/manifest.json",
+      "manifest_sha256": "070a95442a756b0a95194ac6483f175daed85914eaac97a7672fdf5418006429"
+    },
+    "slice-scope-body": {
+      "manifest": "build/hasteboots-extraction/slice-scope-body-ohlftima/manifest.json",
+      "manifest_sha256": "434afc6e2bf35bc62f585bba643b29511213ddce5a11beae2978c80028735dcc"
+    },
+    "byte-drop-loop": {
+      "manifest": "build/hasteboots-extraction/byte-drop-primitives-ti68qfx0/manifest.json",
+      "manifest_sha256": "6ff0ea1640c1fcf8f295ec6c2418df32425d14cabfc5fa67fd21d330948e369d"
+    }
+  },
+  "compiler_edits": false,
+  "aeneas_edits": false,
+  "rust_lifetime_refinement": false,
+  "source_byte_loop_simulation": false,
+  "native_constructor_accepted": false,
+  "physical_work_refinement": false,
+  "final_security_theorem": false,
+  "use_flag_schema": {
+    "source": "charon/src/ast/expressions.rs",
+    "source_sha256": "7339c83c73fc0d3399d1da03aaae7f6190a9bc6bbfc8d6c6657e4a0690b6e3b5",
+    "enum": "WithRetag",
+    "variants": [
+      "No",
+      "Yes"
+    ],
+    "operand_copy_move_is_separate": true
+  }
+}

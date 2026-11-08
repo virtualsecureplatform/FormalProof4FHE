@@ -1,7 +1,7 @@
 {
   "profile": "original-release-byte-word-slice-reference-body-v1",
-  "gate_manifest": "build/hasteboots-extraction/slice-reference-body-jlzuq77s/manifest.json",
-  "gate_manifest_sha256": "bd05b3f5833b926605a1c97e8ff0d17f965d5fe547327b17541fc53f8698caa5",
+  "gate_manifest": "build/hasteboots-extraction/slice-reference-body-rqb3x_0a/manifest.json",
+  "gate_manifest_sha256": "070a95442a756b0a95194ac6483f175daed85914eaac97a7672fdf5418006429",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "status": "passed",
   "claim": "release byte/word slice LLBC interpretation; compiler, Rust lifetimes, native constructor and security refinement remain unproved",
@@ -37,7 +37,7 @@
       "--include",
       "core::ptr::metadata",
       "--dest-file",
-      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/slice-reference-body-jlzuq77s/release.llbc",
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/slice-reference-body-rqb3x_0a/release.llbc",
       "--",
       "--crate-type",
       "lib",
@@ -71,7 +71,7 @@
       "--include",
       "core::ptr::metadata",
       "--dest-file",
-      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/slice-reference-body-jlzuq77s/debug.llbc",
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/slice-reference-body-rqb3x_0a/debug.llbc",
       "--",
       "--crate-type",
       "lib",
@@ -88,22 +88,22 @@
       "env",
       "lean",
       "-DwarningAsError=true",
-      "build/hasteboots-extraction/slice-reference-body-jlzuq77s/Checked.lean"
+      "build/hasteboots-extraction/slice-reference-body-rqb3x_0a/Checked.lean"
     ]
   ],
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "inputs": {
     "scripts/check-hasteboots-slice-reference-body": "6da21286b90c4daf82e78ed740a3ebd387197e492e88e5d2d166f4e8da02fa05",
-    "scripts/reify-hasteboots-slice-reference-llbc": "5f99239e34388cbfbd4a08e76a66a7102516d2f443de37d04dd8f8aadc8a321d",
-    "scripts/reify-hasteboots-scalar-llbc": "7998b2650710269d58d7036b0d060d239469911668e759f4b8a56efdd41f9809",
-    "FormalProof4FHE/HasteBoots/NativeSliceLLBC.lean": "37c3db8991f056855276a77d196ef8a11589c45724bbb394eeb026c9d343bdbb",
+    "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
+    "scripts/reify-hasteboots-scalar-llbc": "4e7a3c819b1f6b7c851ad0453ce125399bffa46bb7cea9193eaf065628b970df",
+    "FormalProof4FHE/HasteBoots/NativeSliceLLBC.lean": "be53372a7a3586d80cc38b6a992ac7f81787da8fdaa54e0f8dd78d85f2589e76",
     "FormalProof4FHETest/HasteBootsSliceLLBCSmoke.lean": "f97425ca39b78463af82ba8ea7ec440de85c8893457b725610b36230307821ea",
-    "FormalProof4FHETest/HasteBootsSliceLLBCAudit.lean": "9c5b4963b8d0fae491488cec046f3c553de530900a5bd64074b060a436dffa87",
+    "FormalProof4FHETest/HasteBootsSliceLLBCAudit.lean": "4b4a6f0075e3ca51d711d798f37da9948755f9a56494f203b55ed3c21645ea9b",
     "lean-toolchain": "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c",
     "interop/aeneas/slice-reference-body/fixture.rs": "9b4764f9d12b5a4b1f8e5a1b93461567032776fb7028bdb7f3fd6ebbc4851c38",
     "interop/aeneas/slice-reference-body/Generated.lean": "6ef5af6fafd7143c80c53fb28095f0d8c8902323e851837e9121f3129f8ff8b6",
     "interop/aeneas/slice-reference-body/Retained.json": "4492df70472edc30b7c6641457f44f8fb847c77ad517fc78859d0b41e76da0df",
-    "interop/aeneas/slice-reference-body/Proof.lean": "4e48833112aecb848a6e0879590912ecabcda8838daf491a0d009e86c5788533",
+    "interop/aeneas/slice-reference-body/Proof.lean": "cd5ff4721de17cb719801c48dd5b6beb15908a427cae1ac75cd2b87ead0f0c50",
     "interop/aeneas/slice-reference-body/Smoke.lean": "3a7f85f4910f7ac3518c5ff649a0b01876ac60feb0b0a808a492d0085e458e6e"
   },
   "functions": [
@@ -303,6 +303,7 @@
     "FormalProof4FHE.HasteBoots.NativeSliceLLBC.mode": "does not depend on any axioms",
     "FormalProof4FHE.HasteBoots.NativeSliceLLBC.layout": "depends on axioms: [propext]",
     "FormalProof4FHE.HasteBoots.NativeSliceLLBC.issue": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.retagValue": "depends on axioms: [propext, Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalOperand": "depends on axioms: [propext]",
     "FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalRvalue": "depends on axioms: [propext, Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalArgs": "depends on axioms: [propext]",
@@ -319,6 +320,10 @@
     "FormalProof4FHE.HasteBoots.NativeSliceLLBC.storageLive_world": "depends on axioms: [propext]",
     "FormalProof4FHE.HasteBoots.NativeSliceLLBC.storageDead_world": "depends on axioms: [propext]",
     "FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalOperand_world": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.retagValue_projects": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.retagValue_disabled": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.retagValue_reference": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeSliceLLBC.retagValue_fresh": "depends on axioms: [propext, Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalRvalue_projects": "depends on axioms: [propext, Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalArgs_world": "depends on axioms: [propext, Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeSliceLLBC.evalParts_world": "depends on axioms: [propext, Quot.sound]",
@@ -412,20 +417,20 @@
     "HasteBootsSliceReferenceBody.constructor_success": "depends on axioms: [propext, Classical.choice, Quot.sound]",
     "HasteBootsSliceReferenceBody.constructor_lease": "depends on axioms: [propext, Classical.choice, Quot.sound]"
   },
-  "llbc_sha256": "3833a9622599e49f40e15d5709ce5e600e4dca31f5376e84814bb86ebeb0998e",
-  "checked_sha256": "3a350221a14afa00002bd5395a8c9f13c5b1e5ef4266a096fcd59a0d27607dbc",
+  "llbc_sha256": "d8bdaeb127dd79234542f8b1cba3a62a0fb40aeb9869b062ae5d6ca049e4a831",
+  "checked_sha256": "27f60f49d6146d8fc4356159fcdd38cf68a24a4f825622114bd9420b74bd41dd",
   "logs": {
+    "debug-charon.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "lean.log": "6cc85e3c6cec717b25a7cc70466517aed4a42e7484706c27d5a5596ff885f945",
     "release-charon.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "lean.log": "00222c19d4271b33d5215383b6504a95eda4be0f525eb962d12ca62a11e26036",
-    "root-build.log": "b2555a78a4d01f643fe672c3fb0b925af1989953797b6e3c89ad3a2fc73a5eb7",
-    "debug-charon.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    "root-build.log": "10287bef7bb85107521243f563a401ef70a1fb5ced6310a397854e0331ce96a4"
   },
   "native_revision": "dff353006322693cab3dc6b654f82151f658f294",
-  "model_theorems": 18,
+  "model_theorems": 22,
   "source_theorems": 13,
   "root_regressions": 9,
   "source_regressions": 20,
-  "model_persistent_audits": 98,
+  "model_persistent_audits": 103,
   "source_audits": 33,
   "compiler_edits": false,
   "aeneas_edits": false,
@@ -441,9 +446,9 @@
   "root_check": {
     "command": "scripts/check",
     "exit_code": 0,
-    "build_jobs": 10969,
-    "log": "/tmp/hasteboots-slice-full-check.log",
-    "log_sha256": "d9bcb0e7a76e54e4d9fa0c8d001840c2fe55c610aa395c49a47f7379628072e8"
+    "build_jobs": 10977,
+    "log": "/tmp/hasteboots-retag-full-check.log",
+    "log_sha256": "1bbdfdcc81b7ef67b84faf9b25394c241b43d114410cb4e7e7fa8d02df0e8a35"
   },
   "persistent_audit_build": {
     "command": "scripts/in-container lake build FormalProof4FHETest.HasteBootsSliceLLBCAudit",

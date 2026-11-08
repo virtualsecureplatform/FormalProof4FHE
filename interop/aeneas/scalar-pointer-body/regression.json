@@ -2,13 +2,13 @@
   "profile": "closed-copy-scalar-pointer-body-v1",
   "status": "passed",
   "claim": "original scalar/pointer LLBC body interpretation only; compiler/native constructor/alias/work/security refinement unproved",
-  "gate_manifest": "build/hasteboots-extraction/scalar-pointer-body-ptig62az/manifest.json",
-  "gate_manifest_sha256": "ac0c8abb4a7a73d68ca82b15fc8a377bec73477f421db4d20b3801408811bf3d",
+  "gate_manifest": "build/hasteboots-extraction/scalar-pointer-body-inpbx8e_/manifest.json",
+  "gate_manifest_sha256": "e3a66668fef1935af0847c1689c0e44e0be5fe97cf6c25d237d9f3257153496d",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "inputs": {
-    "scripts/check-hasteboots-scalar-pointer-body": "644c631692e11120981b065a21b0a5a47ad2024cad12efb8cb983145f1c55d3a",
-    "scripts/reify-hasteboots-scalar-llbc": "7998b2650710269d58d7036b0d060d239469911668e759f4b8a56efdd41f9809",
+    "scripts/check-hasteboots-scalar-pointer-body": "01b11087a49bf61c8a92cbf515e625c9922cb9c5466c506f30b119b1e22fc12e",
+    "scripts/reify-hasteboots-scalar-llbc": "4e7a3c819b1f6b7c851ad0453ce125399bffa46bb7cea9193eaf065628b970df",
     "FormalProof4FHE/HasteBoots/NativeScalarLLBC.lean": "43699e80b6b2be1804eb64378b4f26ff064a9ae4863dc04bf46a9d0adf675d20",
     "interop/aeneas/scalar-pointer-body/fixture.rs": "b7d1277f40bb25e2bdb9d27daeb3231d204ba4879182d947561052c04f86fdb4",
     "interop/aeneas/scalar-pointer-body/Generated.lean": "3ea62dd56c331d60dc1975642c96a5ae4d8e24b62a8d22ab6bd718f030480dc8",
@@ -287,13 +287,13 @@
     "indirect_call": "Indirect call is unsupported",
     "unwind_heap_effect": "Unsupported statement/unwind effect: Assign",
     "storage_out_of_range": "Storage index out of range",
-    "noncopy_dereference": "Non-Copy data is outside the profile",
+    "disabled_retag_outside_scalar_profile": "This scalar profile retains only WithRetag.Yes uses",
     "reference_type": "Unsupported original type: {'Ref': []}",
     "residual_runtime_query": "Unsupported rvalue form"
   },
   "supported_body_mutation_retained": true,
   "parent_word_memory": {
-    "manifest_sha256": "1d266c4582b901ab2272d2095e335382acba8f38d7141693b9ab922d93378a79",
+    "manifest_sha256": "f6fb68c4e6e5a13b4a18813e78aaba79cadb0c9e879b3a51ae59b47ada0b8058",
     "dependency_audit": {
       "FormalProof4FHE.HasteBoots.NativeByteRangeWrite.overwrite": "does not depend on any axioms",
       "FormalProof4FHE.HasteBoots.NativeByteRangeWrite.storeBlocks": "does not depend on any axioms",
@@ -413,7 +413,7 @@
       "HasteBootsPointerRuntime.cast_metadata": "does not depend on any axioms"
     }
   },
-  "llbc_sha256": "7fa2a97e146bf7231be865a9cabd0edceea36cdf439fe1e76cdc1eae05544e7f",
+  "llbc_sha256": "d1e8bc80c0d1f8d2831bb103bdc012eb7f64c11f7aba59de4dae2787630ef64f",
   "checked_sha256": "da02439b845402b11b7814629b2eeb2190d0fb21ac57a1296732cf05c48314b7",
   "counts": {
     "model_theorems": 11,
@@ -434,10 +434,89 @@
   "root_check": {
     "command": "scripts/check",
     "exit_code": 0,
-    "build_jobs": 10966,
-    "log": "/tmp/hasteboots-scalar-llbc-full-check.log",
-    "log_sha256": "a3d7910f232e1745ea39756216bb4bc9575a182b96d22b03bc9596de987eee13"
+    "build_jobs": 10977,
+    "log": "/tmp/hasteboots-retag-full-check.log",
+    "log_sha256": "1bbdfdcc81b7ef67b84faf9b25394c241b43d114410cb4e7e7fa8d02df0e8a35"
   },
   "native_source_pin": "dff353006322693cab3dc6b654f82151f658f294",
-  "compiler_backend_changes": false
+  "compiler_backend_changes": false,
+  "commands": [
+    [
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/scripts/check-hasteboots-word64-memory",
+      "--build-receipt",
+      "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
+      "--backend",
+      "/tmp/hasteboots-aeneas-m0"
+    ],
+    [
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/scripts/in-container",
+      "lake",
+      "build",
+      "FormalProof4FHE.HasteBoots.NativeScalarLLBC",
+      "FormalProof4FHETest.HasteBootsScalarLLBCSmoke"
+    ],
+    [
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/inline-tools-build-b6esls36/tools/charon",
+      "rustc",
+      "--preset=aeneas",
+      "--sysroot",
+      "default",
+      "--monomorphize",
+      "--mir",
+      "optimized",
+      "--consts",
+      "values",
+      "--evaluate-runtime-checks",
+      "--precise-drops",
+      "--desugar-drops",
+      "--preserve-allocator",
+      "--no-dedup-serialized-ast",
+      "--include",
+      "core::ptr::read",
+      "--include",
+      "core::ptr::write",
+      "--dest-file",
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/scalar-pointer-body-inpbx8e_/source.llbc",
+      "--",
+      "--crate-type",
+      "lib",
+      "--edition",
+      "2024",
+      "--crate-name",
+      "hasteboots_scalar_pointer_body",
+      "interop/aeneas/scalar-pointer-body/fixture.rs"
+    ],
+    [
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/inline-tools-build-b6esls36/tools/aeneas",
+      "-backend",
+      "lean",
+      "-checks",
+      "-sequential",
+      "-abort-on-error",
+      "-no-external-name-patterns",
+      "-disambiguate-instantiated-names",
+      "-monomorphic-builtin-shapes",
+      "-target-word64",
+      "-provenance-pointers",
+      "-literal-const-initializers",
+      "-dest",
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/scalar-pointer-body-inpbx8e_/aeneas-baseline",
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/scalar-pointer-body-inpbx8e_/source.llbc"
+    ],
+    [
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/scripts/in-container",
+      "lake",
+      "env",
+      "lean",
+      "-DwarningAsError=true",
+      "build/hasteboots-extraction/scalar-pointer-body-inpbx8e_/Checked.lean"
+    ]
+  ],
+  "logs": {
+    "root-build.log": "ba1a34218ebc78a387517d0ca6654f4eda83e44fcc0871ec51f97638609be187",
+    "parent-word-memory.log": "45f8c98296e59982f9efc4c12e870bf38cc75fdc94363a68b259532974185949",
+    "lean.log": "cc63533cf8481dc30354cca69523d69057749cd94ee012b5061102ef5ac3b3d3",
+    "charon.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "aeneas-baseline.log": "ee060490f0e426d714ab134b695b226cb79b64ea06295a1ceae8a0acb5a79605"
+  }
 }

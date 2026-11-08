@@ -1,7 +1,7 @@
 {
   "profile": "checked-byte-index-drop-traversal-and-original-source-retention-v1",
-  "gate_manifest": "build/hasteboots-extraction/byte-drop-primitives-ekva64ub/manifest.json",
-  "gate_manifest_sha256": "965c95a7591c080d48da984265e4fd6a348044649b13d4baded4abcc531a5557",
+  "gate_manifest": "build/hasteboots-extraction/byte-drop-primitives-ti68qfx0/manifest.json",
+  "gate_manifest_sha256": "6ff0ea1640c1fcf8f295ec6c2418df32425d14cabfc5fa67fd21d330948e369d",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "status": "passed",
   "claim": "checked operation models and original source retention only; original loop/lifetimes/compiler/native security refinement unproved",
@@ -34,7 +34,7 @@
       "--include",
       "core::ptr::slice_from_raw_parts_mut",
       "--dest-file",
-      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/byte-drop-primitives-ekva64ub/source.llbc",
+      "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/build/hasteboots-extraction/byte-drop-primitives-ti68qfx0/source.llbc",
       "--",
       "--crate-type",
       "lib",
@@ -51,7 +51,7 @@
       "env",
       "lean",
       "-DwarningAsError=true",
-      "build/hasteboots-extraction/byte-drop-primitives-ekva64ub/Audit.lean"
+      "build/hasteboots-extraction/byte-drop-primitives-ti68qfx0/Audit.lean"
     ]
   ],
   "whole_loop_interpreted": false,
@@ -59,8 +59,8 @@
   "inputs": {
     "scripts/check-hasteboots-byte-drop-primitives": "8f3b9aaa60d7d79b77972cc0be2777543b7c8a18545c600f1e818c5b0af4042b",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
-    "scripts/reify-hasteboots-slice-reference-llbc": "5f99239e34388cbfbd4a08e76a66a7102516d2f443de37d04dd8f8aadc8a321d",
-    "scripts/reify-hasteboots-scalar-llbc": "7998b2650710269d58d7036b0d060d239469911668e759f4b8a56efdd41f9809",
+    "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
+    "scripts/reify-hasteboots-scalar-llbc": "4e7a3c819b1f6b7c851ad0453ce125399bffa46bb7cea9193eaf065628b970df",
     "interop/aeneas/byte-drop-loop/fixture.rs": "6dd41f60dd1f6d60777749803377c9981fa6782d7edbb1df95d4f1d53b8fe861",
     "interop/aeneas/byte-drop-loop/Retained.json": "388dc3cd7efd28898135b38eb54f5beb6876884d7afe557094db7a7e14fa0901",
     "lean-toolchain": "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c",
@@ -82,7 +82,7 @@
     "checked_add": "Changed wrapping cursor increment",
     "changed_continue": "Changed iteration storage/control"
   },
-  "finite_source_profile_rejection": "Unclosed call",
+  "finite_source_profile_rejection": "Unsupported active callee body",
   "dependency_audit": {
     "FormalProof4FHE.HasteBoots.NativeByteSliceIndex.Slice": "depends on axioms: [propext]",
     "FormalProof4FHE.HasteBoots.NativeByteSliceIndex.Selection": "does not depend on any axioms",
@@ -143,11 +143,11 @@
     "FormalProof4FHE.HasteBoots.NativeByteDropTraversal.Executes.fail": "depends on axioms: [propext, Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeByteDropTraversal.Executes.next": "depends on axioms: [propext, Quot.sound]"
   },
-  "llbc_sha256": "6fcd22e6984f128c2f2cfebefffe93509425d2d1aa0134be11b7b74e0de0ea5c",
+  "llbc_sha256": "75f478c43813202e3676aa14cd495a36fc54e9095e4bbef6201e4a12754078e0",
   "logs": {
-    "charon.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "root-build.log": "e32dd371f88c0d37c7dc7ec85efa74d6ee199a197c897e0c89dc1761dae9a9bc",
-    "lean.log": "10d63ee8d628cf917392a00419d4cdc6909ac19cfed7e62ddb7e66e9560ac1ce"
+    "lean.log": "10d63ee8d628cf917392a00419d4cdc6909ac19cfed7e62ddb7e66e9560ac1ce",
+    "root-build.log": "e09b55125eafe02640268d4bd92c6306947ca1561d29d5fba56db063c66df497",
+    "charon.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   },
   "native_revision": "dff353006322693cab3dc6b654f82151f658f294",
   "index_theorems": 9,
@@ -166,8 +166,8 @@
   "root_check": {
     "command": "scripts/check",
     "exit_code": 0,
-    "build_jobs": 10976,
-    "log": "/tmp/hasteboots-byte-drop-full-check.log",
-    "log_sha256": "93de68c3ae83de08ab423f94eaa71e0051637d11667f79ffe25ace4d60df86e0"
+    "build_jobs": 10977,
+    "log": "/tmp/hasteboots-retag-full-check.log",
+    "log_sha256": "1bbdfdcc81b7ef67b84faf9b25394c241b43d114410cb4e7e7fa8d02df0e8a35"
   }
 }
