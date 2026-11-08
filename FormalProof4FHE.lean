@@ -636,3 +636,4 @@ import FormalProof4FHE.HasteBoots.NativeRawByteRange
 import FormalProof4FHE.HasteBoots.NativePointerShadow
 import FormalProof4FHE.HasteBoots.NativePointerByteMemory
 import FormalProof4FHE.HasteBoots.NativePointerMachine
+import FormalProof4FHE.HasteBoots.NativeReferenceMachine

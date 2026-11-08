@@ -7,6 +7,55 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Register-bound references now use the provenance-aware heap
+
+`NativeReferenceMachine` binds reference operations to reference registers.
+Operands select registers rather than supplying ledger tags or reference
+records. Checked root borrows and reborrows mint the reference values and record
+their birth leases. The ledger is a view of the existing pointer-machine heap,
+so byte memory is shared rather than duplicated. Raw pointer reads, writes,
+copies and frees check ledger permissions; allocation and pointer-value
+construction retain their existing checked semantics.
+
+Tagged accesses select a resident lease, check its mode and bounds, derive the
+access pointer with the lease's allocation origin, and check the ledger's
+through-access permissions. Byte reads/writes and pointer loads/stores use the
+concrete heap and origin metadata. Pointer stores retain data origins; numerical
+writes erase them. Scratch-register recovery selects an existing complete
+pointer value, never a provenance reconstructed from address bits. Every
+resident lease retains its original pointer in the registers, and recovery is
+proved available for that pointer.
+
+Forty-one theorems cover exact reference/lease/pointer binding, projection into
+the closed pointer machine, heap/ledger well-formedness, causal checked-borrow
+birth witnesses, unique minted tags, monotone counters, raw-free conflict
+exclusion and permanent revocation. After a reference ends, every later access
+selecting that old tag is rejected, even after new borrows. The strongest birth
+result starts from a successful program run on the concrete empty state and
+exposes the earlier actual checked borrow and an execution suffix reaching the
+current state. The pointer-machine projection preserves allocation-origin
+authenticity through reference operations.
+
+Persistent dependency audits cover 88 declarations, including record fields,
+operation constructors and execution/effect constructors. Thirty-six executable
+regressions exercise shared/exclusive access, parent/child overlap and disjoint
+access, byte framing, pointer round trips, metadata erasure, raw conflicts,
+layout/bounds/alignment checks, stale references, no tag reuse, and free blocked
+by overlapping borrows. The model and tests are included in the root
+aggregates. Full `scripts/check` passes (10,963 build jobs plus all subsequent
+audit/smoke commands; log: `/tmp/hasteboots-reference-machine-full-check.log`).
+Production Rust and the compiler/backend are unchanged.
+
+This is a closed reference-binding and ledger-policy result. Complete Rust
+alias/provenance semantics, multi-actor authority, references stored in heap
+fields and original-source lifetime instrumentation remain open. The scratch
+registers and ledger checks have no physical-cost interpretation here. Next,
+connect the checked pointer/reference operations to the original native
+pointer/lifecycle and typed source bodies. Native constructor extraction,
+compiler/caller/NTT/SIMD/scheduler coverage, causal lifetime oracle-owner history,
+BabyBear and the final expected physical attacker-work inequality remain open.
+No end-to-end security theorem is claimed.
+
 ## Closed pointer programs now have causal allocation-origin authenticity
 
 `NativePointerMachine` restricts pointer construction to nine data-only
@@ -44,8 +93,8 @@ compiler/backend are unchanged.
 This is allocation-origin authenticity for this closed memory machine. It does
 not establish Rust's complete provenance/alias rules, exposed-provenance casts,
 borrow-tag or actor authority, or original-source execution correspondence.
-Next, bind these operations and register values to the borrow/reference layer
-and original native pointer/lifecycle accesses. Original constructor extraction,
+The subsequent reference machine above supplies closed reference-value binding
+and ledger checks. Original native pointer/lifecycle correspondence remains open. Original constructor extraction,
 typed/compiler/caller/NTT/SIMD/scheduler coverage, causal lifetime oracle-owner
 history, BabyBear and the final expected physical attacker-work inequality
 remain open. No work accounting or end-to-end security result is introduced.
