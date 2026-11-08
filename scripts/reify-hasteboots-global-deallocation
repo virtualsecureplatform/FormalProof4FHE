@@ -1,0 +1,101 @@
+#!/usr/bin/env python3
+"""Retain the original Global allocator zero/nonzero dispatch with a checked zero-byte self reference."""
+import argparse
+import json
+from pathlib import Path
+import runpy
+
+ROOT = Path(__file__).resolve().parent.parent
+BASE = runpy.run_path(str(ROOT/'scripts/reify-hasteboots-allocator-caller'))
+require = BASE['require']; empty = BASE['empty']; name = BASE['name']; seq = BASE['seq']
+region_valid = BASE['SPEC']['BASE']['region_valid']
+
+
+def erase_regions(raw):
+    if isinstance(raw,list): return [erase_regions(v) for v in raw]
+    if isinstance(raw,dict):
+        if set(raw)=={'Ref'}:
+            _,target,kind=raw['Ref'];return {'Ref':['Erased',erase_regions(target),kind]}
+        return {k:erase_regions(v) for k,v in raw.items()}
+    return raw
+
+
+def validate_regions(raw,bound,free):
+    if isinstance(raw,dict):
+        if set(raw)=={'Ref'}:
+            region,_,kind=raw['Ref']
+            require(region_valid(region,bound,free) and kind=='Shared','Unbound/nonshared Global reference')
+        for v in raw.values():validate_regions(v,bound,free)
+    elif isinstance(raw,list):
+        for v in raw:validate_regions(v,bound,free)
+
+
+class Reifier(BASE['Reifier']):
+    def __init__(self,ir):
+        self.regions={};self.bounds={}
+        super().__init__(ir,root_name='alloc::alloc::deallocate')
+
+    def global_type(self,raw):
+        index=raw['Untagged']['Adt']['id']['Adt'];t=self.types[index]
+        require(raw==BASE['SPEC']['adt'](index) and name(t)=='alloc::alloc::Global' and empty(t['generics']) and
+                t['item_meta']['opacity']=='Transparent' and t['kind']=={'Struct':[]},'Wrong zero-sized Global type')
+        require(t['layout']==[{'key':'x86_64-unknown-linux-gnu','value':{'size':0,'align':1,'discriminator':{'Known':0},
+            'uninhabited':False,'variant_layouts':[{'field_offsets':[],'uninhabited':False,'tagger':[]}],
+            'repr':{'repr_algo':'Rust','align_modif':None,'transparent':False,'explicit_discr_type':False}}}],
+            'Wrong Global byte extent/alignment')
+        return t
+
+    def ty(self,raw):
+        if set(raw)=={'Untagged'} and set(raw['Untagged'])=={'Ref'}:
+            _,target,kind=raw['Untagged']['Ref'];require(kind=='Shared','Only shared Global self is supported')
+            self.global_type(target)
+            return '(.scalar (.reference false))'
+        return super().ty(raw)
+
+    def schema(self,fid):
+        if fid in self.schemas:return self.schemas[fid]
+        f=self.functions[fid];regions=f['generics']['regions']
+        if not regions:return super().schema(fid)
+        require(fid==self.root and len(regions)==1 and regions[0]=={'index':0,'name':None,'mutability':'Unknown'} and
+                empty({**f['generics'],'regions':[]}) and f['is_global_initializer'] is None,'Unclosed Global declaration')
+        sig=f['signature'];require(set(sig)=={'is_unsafe','abi','is_variadic','inputs','output'} and sig['is_unsafe'] is True and
+            sig['abi']=='Rust' and sig['is_variadic'] is False,'Wrong Global signature')
+        require(f['item_meta']['opacity']=='Transparent' and isinstance(f['body'],dict) and set(f['body'])=={'Structured'},'Missing original Global body')
+        body=f['body']['Structured'];require(set(body)=={'span','bound_body_regions','locals','body','comments'},'Unknown Global body fields')
+        bound=body['bound_body_regions'];require(isinstance(bound,int) and bound>=0,'Wrong bound region count')
+        for raw in sig['inputs']+[sig['output']]:validate_regions(raw,None,len(regions))
+        locals=body['locals']['locals'];count=body['locals']['arg_count'];types=[x['ty'] for x in locals]
+        require([x['index'] for x in locals]==list(range(len(locals))) and count==len(sig['inputs']) and
+                erase_regions(types[0])==erase_regions(sig['output']) and
+                erase_regions(types[1:count+1])==erase_regions(sig['inputs']),'Global signature/local mismatch')
+        for raw in types:validate_regions(raw,bound,len(regions));self.ty(raw)
+        self.regions[fid]=len(regions);self.bounds[fid]=bound
+        self.schemas[fid]=types,count
+        return types,count
+
+    def switch(self,value,fid,following):
+        if set(value)=={'If'}:return super().switch(value,fid,following)
+        require(set(value)=={'SwitchInt'},'Unsupported integer dispatch')
+        operand,kind,cases,other=value['SwitchInt'];actual,ty=self.operand(operand,fid)
+        require(kind=={'UInt':'Usize'} and ty==BASE['SPEC']['USIZE'] and len(cases)==1 and len(cases[0])==2 and
+                len(cases[0][0])==1,'Unsupported usize case shape')
+        literal=cases[0][0][0]
+        require(set(literal)=={'Scalar'} and set(literal['Scalar'])=={'Unsigned'} and literal['Scalar']['Unsigned'][0]=='Usize',
+                'Wrong switch label type')
+        raw=literal['Scalar']['Unsigned'][1];require(isinstance(raw,str) and raw.isdecimal() and str(int(raw))==raw,'Noncanonical switch literal')
+        return '(.switchUsize '+actual+' '+BASE['word'](int(raw))+' '+self.block(cases[0][1],fid)+' '+self.block(other,fid)+' '+following+')'
+
+    def retained(self):
+        value=super().retained();value['claim']='original Global allocator dispatch with checked zero-byte self selection; external leaf specified; native ABI/compiler/lifetime/security refinement unproved'
+        return value
+
+    def render(self):
+        return super().render().replace('HasteBootsAllocatorCaller','HasteBootsGlobalDeallocation')
+
+
+def main():
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('llbc',type=Path);parser.add_argument('output',type=Path);parser.add_argument('--retained',type=Path,required=True);args=parser.parse_args()
+    r=Reifier(json.loads(args.llbc.read_text()));args.output.write_text(r.render());args.retained.write_text(json.dumps(r.retained(),indent=2)+'\n')
+
+
+if __name__=='__main__':main()

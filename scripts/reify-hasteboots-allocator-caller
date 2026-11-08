@@ -17,12 +17,12 @@ def word(n):
 
 
 class Reifier:
-    def __init__(self, ir):
+    def __init__(self, ir, root_name="alloc::alloc::dealloc"):
         self.boundary = SPEC['Boundary'](ir)
         self.crate = c = self.boundary.crate
         self.functions = {f['def_id']: f for f in c['fun_decls'] if f}
         self.types = {t['def_id']: t for t in c['type_decls'] if t}
-        roots = [f['def_id'] for f in self.functions.values() if name(f) == 'alloc::alloc::dealloc']
+        roots = [f['def_id'] for f in self.functions.values() if name(f) == root_name]
         require(len(roots) == 1, 'Missing/duplicate original allocator caller')
         self.root = roots[0]; self.schemas = {}; self.codes = {}; self.active = set(); self.type_active = set()
         self.schema(self.root)
@@ -139,11 +139,7 @@ class Reifier:
                 require(v == 'UndefinedBehavior' and result == '.done', 'Unsupported abort')
                 result = '.abort'
             elif tag == 'Switch':
-                require(set(v) == {'If'}, 'Unsupported switch')
-                condition, yes, no = v['If']
-                require(set(condition) == {'Const'} and condition['Const']['ty'] == {'Untagged': {'Literal': 'Bool'}}, 'Nonliteral caller branch')
-                literal = condition['Const']['kind']; require(set(literal) == {'Literal'} and set(literal['Literal']) == {'Bool'} and isinstance(literal['Literal']['Bool'], bool), 'Unknown boolean literal')
-                result = '(.constIf ' + str(literal['Literal']['Bool']).lower() + ' ' + self.block(yes, fid) + ' ' + self.block(no, fid) + ' ' + result + ')'
+                result = self.switch(v, fid, result)
             elif tag == 'Call':
                 require(set(v) == {'call', 'on_unwind'}, 'Unknown call fields')
                 call = v['call']; require(set(call) == {'func', 'args', 'dest'} and set(call['func']) == {'Regular'}, 'Unknown call form')
@@ -154,6 +150,14 @@ class Reifier:
                 result = '(.call ' + json.dumps(name(self.functions[target])) + ' ' + self.classification(target) + ' ' + seq([self.ty(t) for t in types]) + ' ' + str(count) + ' ' + str(index) + ' ' + seq([x[0] for x in args]) + ' ' + self.code(target) + ' ' + self.block(v['on_unwind'], fid) + ' ' + result + ')'
             else: raise ValueError('Unsupported statement: ' + tag)
         return result
+
+    def switch(self, value, fid, following):
+        require(set(value) == {'If'}, 'Unsupported switch')
+        condition, yes, no = value['If']
+        require(set(condition) == {'Const'} and condition['Const']['ty'] == {'Untagged': {'Literal': 'Bool'}}, 'Nonliteral caller branch')
+        literal = condition['Const']['kind']
+        require(set(literal) == {'Literal'} and set(literal['Literal']) == {'Bool'} and isinstance(literal['Literal']['Bool'], bool), 'Unknown boolean literal')
+        return '(.constIf ' + str(literal['Literal']['Bool']).lower() + ' ' + self.block(yes, fid) + ' ' + self.block(no, fid) + ' ' + following + ')'
 
     def code(self, fid):
         require(fid not in self.active, 'Recursive caller closure')

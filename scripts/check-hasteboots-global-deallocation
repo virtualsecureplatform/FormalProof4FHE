@@ -1,0 +1,126 @@
+#!/usr/bin/env python3
+"""Check original allocator trait dispatch and registered shared zero-byte self selection."""
+import argparse
+import copy
+import hashlib
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT=Path(__file__).resolve().parent.parent
+DATA=ROOT/'interop/aeneas/global-deallocation'
+PARENT=runpy.run_path(str(ROOT/'scripts/check-hasteboots-allocator-caller'))
+BOUNDARY=runpy.run_path(str(ROOT/'scripts/check-hasteboots-byte-deallocation'))
+REIFIER=runpy.run_path(str(ROOT/'scripts/reify-hasteboots-global-deallocation'))
+BUILD=PARENT['BUILD'];PARAMETERS=PARENT['PARAMETERS']
+INCLUDES=['alloc::alloc','core::alloc::layout::Layout','core::ptr::non_null::NonNull','core::mem::alignment::Alignment']
+
+
+def digest(raw):return hashlib.sha256(raw).hexdigest()
+
+
+def negatives(ir):
+    records=BOUNDARY['negatives'](ir)
+    def check(name,mutate):
+        changed=copy.deepcopy(ir);mutate(changed['translated'])
+        try:REIFIER['Reifier'](changed).render()
+        except (ValueError,KeyError,TypeError,IndexError)as error:records[name]=str(error)
+        else:raise RuntimeError('Negative accepted: '+name)
+    def f(c):return c['fun_decls'][1]
+    def statements(c):return f(c)['body']['Structured']['body']['statements']
+    def switch(c):return statements(c)[4]['kind']['Switch']['SwitchInt']
+    check('unbound_signature_region',lambda c:f(c)['signature']['inputs'][0]['Untagged']['Ref'][0]['Var'].update(Free=99))
+    check('unbound_local_region',lambda c:f(c)['body']['Structured']['locals']['locals'][1]['ty']['Untagged']['Ref'].__setitem__(0,{'Body':99}))
+    check('mutable_global_self',lambda c:f(c)['signature']['inputs'][0]['Untagged']['Ref'].__setitem__(2,'Mut'))
+    check('generic_global_method',lambda c:f(c)['generics'].update(types=[{'index':0,'name':'T'}]))
+    check('nonzero_global_extent',lambda c:c['type_decls'][2]['layout'][0]['value'].update(size=1))
+    check('wrong_global_alignment',lambda c:c['type_decls'][2]['layout'][0]['value'].update(align=8))
+    check('inhabited_global_fields',lambda c:c['type_decls'][2]['kind']['Struct'].append({}))
+    check('unknown_statement_effect',lambda c:statements(c)[0].update(hidden_effect='Drop'))
+    check('unknown_switch_effect',lambda c:statements(c)[4]['kind']['Switch'].update(hidden_effect='Drop'))
+    check('wrong_switch_width',lambda c:switch(c).__setitem__(1,{'UInt':'U32'}))
+    check('missing_switch_label',lambda c:switch(c)[2][0][0].clear())
+    check('duplicate_switch_case',lambda c:switch(c)[2].append(copy.deepcopy(switch(c)[2][0])))
+    check('out_of_range_switch_label',lambda c:switch(c)[2][0][0][0]['Scalar']['Unsigned'].__setitem__(1,str(2**64)))
+    check('wrong_layout_field_owner',lambda c:statements(c)[3]['kind']['Assign'][1]['Use'][0]['Copy']['kind']['Projection'][1]['Field'][0]['Adt'].__setitem__(0,0))
+    check('bad_suffix_storage',lambda c:statements(c)[5].update(kind={'StorageDead':99}))
+    return records
+
+
+def strip(raw):return '\n'.join(line for line in raw.splitlines() if line!='module' and not line.startswith('public import ') and line!='@[expose] public section')+'\n'
+
+
+def checked_text(generated):
+    parent=ROOT/'interop/aeneas/allocator-caller'
+    return (parent/'Generated.lean').read_text()+'\n'+(parent/'Proof.lean').read_text()+'\n'+strip(generated)+'\n'+(DATA/'Proof.lean').read_text()+'\n'+(DATA/'Smoke.lean').read_text()
+
+
+def main():
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--build-receipt',type=Path,required=True);args=parser.parse_args()
+    out=Path(tempfile.mkdtemp(prefix='global-deallocation-',dir=ROOT/'build/hasteboots-extraction'))
+    record={'status':'started','commands':[],
+      'claim':'original Global allocator zero/nonzero dispatch with registered shared zero-byte self; external leaf specified; native ABI/compiler/lifetime/security refinement unproved',
+      'original_trait_method_interpreted':True,'original_zero_branch_retained':True,'self_reference_from_resident_lease':True,
+      'native_constructor_accepted':False,'native_calling_convention_refinement':False,'physical_work_refinement':False}
+    def save():(out/'manifest.json').write_text(json.dumps(record,indent=2)+'\n')
+    def run(command,log):
+        record['commands'].append([str(x)for x in command]);save()
+        with (out/log).open('w')as stream:result=subprocess.run([str(x)for x in command],cwd=ROOT,stdout=stream,stderr=subprocess.STDOUT)
+        if result.returncode:raise RuntimeError('Command failed: '+log)
+    print('Global deallocation artifacts: '+str(out),flush=True)
+    try:
+        _,tools,_=BUILD['verify_receipt'](args.build_receipt);record['build_receipt_sha256']=digest(args.build_receipt.read_bytes())
+        files=[Path(__file__),ROOT/'scripts/reify-hasteboots-global-deallocation',ROOT/'scripts/reify-hasteboots-allocator-caller',
+          ROOT/'scripts/specify-hasteboots-deallocation-boundary',ROOT/'scripts/check-hasteboots-allocator-caller',ROOT/'scripts/check-hasteboots-byte-deallocation',
+          ROOT/'FormalProof4FHE/HasteBoots/NativeZstReference.lean',ROOT/'FormalProof4FHE/HasteBoots/NativeRecordLLBC.lean',
+          ROOT/'FormalProof4FHETest/HasteBootsZstReferenceSmoke.lean',ROOT/'FormalProof4FHETest/HasteBootsZstReferenceAudit.lean',
+          ROOT/'FormalProof4FHETest/HasteBootsRecordLLBCAudit.lean',ROOT/'lean-toolchain',
+          ROOT/'interop/aeneas/allocator-caller/Generated.lean',ROOT/'interop/aeneas/allocator-caller/Proof.lean',
+          *[DATA/n for n in ['fixture.rs','Generated.lean','Retained.json','Proof.lean','Smoke.lean','DispatchSmoke.lean']]]
+        record['inputs']={str(p.relative_to(ROOT)):digest(p.read_bytes())for p in files}
+        run([ROOT/'scripts/in-container','lake','build','FormalProof4FHETest.HasteBootsZstReferenceSmoke','FormalProof4FHETest.HasteBootsZstReferenceAudit','FormalProof4FHETest.HasteBootsRecordLLBCAudit'],'root-build.log')
+        run([ROOT/'scripts/check-hasteboots-allocator-caller','--build-receipt',args.build_receipt],'parent-allocator-caller.log')
+        parent_path=Path((out/'parent-allocator-caller.log').read_text().splitlines()[0].split(': ',1)[1])/'manifest.json';parent=json.loads(parent_path.read_text())
+        if parent.get('status')!='passed'or parent['build_receipt_sha256']!=record['build_receipt_sha256']:raise RuntimeError('Parent did not pass with the same tools')
+        record['parent_allocator_caller']={'manifest':str(parent_path.relative_to(ROOT)),'manifest_sha256':digest(parent_path.read_bytes()),'dependency_audit_count':len(parent['dependency_audit'])}
+        llbc=out/'source.llbc'
+        command=[tools/'charon','rustc','--preset=aeneas','--sysroot','default','--monomorphize','--mir','optimized','--consts','values','--evaluate-runtime-checks','--precise-drops','--desugar-drops','--preserve-allocator','--no-dedup-serialized-ast']
+        for include in INCLUDES:command+=['--include',include]
+        command+=['--dest-file',llbc,'--','--crate-type','lib','--edition','2024','-Cdebug-assertions=no','--crate-name','hasteboots_global_deallocation',(DATA/'fixture.rs').relative_to(ROOT)]
+        run(command,'charon.log');ir=json.loads(llbc.read_text());r=REIFIER['Reifier'](ir);generated=r.render()
+        if generated!=(DATA/'Generated.lean').read_text()or r.retained()!=json.loads((DATA/'Retained.json').read_text()):raise RuntimeError('Original Global caller/type snapshot differs')
+        record['negative_controls']=negatives(ir)
+        names=PARENT['inventory']()
+        for namespace,raw in [('HasteBootsAllocatorCaller',(ROOT/'interop/aeneas/allocator-caller/Generated.lean').read_text()),('HasteBootsAllocatorCaller',(ROOT/'interop/aeneas/allocator-caller/Proof.lean').read_text()),('HasteBootsGlobalDeallocation',generated),('HasteBootsGlobalDeallocation',(DATA/'Proof.lean').read_text())]:
+            PARAMETERS['validate_proof_source'](raw,re.findall(r'^theorem (\w+)',raw,re.M))
+            names+=[namespace+'.'+n for n in re.findall(r'^(?:def|theorem) (\w+)',raw,re.M)]
+        checked=out/'Checked.lean';checked.write_text(checked_text(generated)+''.join('\n#print axioms '+n+'\n'for n in names))
+        run([ROOT/'scripts/in-container','lake','env','lean','-DwarningAsError=true',checked.relative_to(ROOT)],'lean.log')
+        record['dependency_audit']=PARAMETERS['audit_log']((out/'lean.log').read_text(),names)
+        changed=copy.deepcopy(ir);changed['translated']['fun_decls'][1]['body']['Structured']['body']['statements'][4]['kind']['Switch']['SwitchInt'][2][0][0][0]['Scalar']['Unsigned'][1]='1'
+        changed_generated=REIFIER['Reifier'](changed).render()
+        code_only=lambda s:re.sub(r'^--.*$','',s,flags=re.M)
+        if code_only(changed_generated)==code_only(generated):raise RuntimeError('Changed switch label ignored')
+        mutant=out/'DispatchOne.lean';mutant.write_text(changed_generated+'\n'+(DATA/'DispatchSmoke.lean').read_text())
+        run([ROOT/'scripts/in-container','lake','env','lean','-DwarningAsError=true',mutant.relative_to(ROOT)],'dispatch-one-lean.log')
+        record['supported_dispatch_mutation']={'original':0,'mutated':1,'code_changed':True,'one_byte_allocation_retained':True}
+        changed=copy.deepcopy(ir);branch=changed['translated']['fun_decls'][1]['body']['Structured']['body']['statements'][4]['kind']['Switch']['SwitchInt'][3]['statements'];branch[1]['kind']['Assign'][1]['Use'][1]='No'
+        changed_generated=REIFIER['Reifier'](changed).render()
+        if code_only(changed_generated)==code_only(generated):raise RuntimeError('Alignment retag mutation ignored')
+        mutant=out/'RetagDisabled.lean';mutant.write_text(checked_text(changed_generated))
+        run([ROOT/'scripts/in-container','lake','env','lean','-DwarningAsError=true',mutant.relative_to(ROOT)],'retag-disabled-lean.log')
+        record['supported_alignment_retag_mutation']={'original':'Yes','mutated':'No','code_changed':True,'proofs_and_regressions_passed':True}
+        record['llbc_sha256']=digest(llbc.read_bytes());record['checked_sha256']=digest(checked.read_bytes())
+        if record['inputs']!={str(p.relative_to(ROOT)):digest(p.read_bytes())for p in files}:raise RuntimeError('Inputs changed during validation')
+        BUILD['verify_receipt'](args.build_receipt);record['status']='passed'
+        print('Global deallocation passed: '+str(len(names))+' audits; '+str(len(record['negative_controls']))+' rejecting controls; original zero and nonzero branches checked')
+    except Exception as error:
+        record.update(status='failed',error=str(error));raise SystemExit(str(error)+'; inspect '+str(out))from error
+    finally:
+        record['logs']={p.name:digest(p.read_bytes())for p in out.glob('*.log')};save()
+
+
+if __name__=='__main__':main()
