@@ -1,5 +1,6 @@
 module
 public import FormalProof4FHE.HasteBoots.NativeRecordValues
+public import FormalProof4FHE.HasteBoots.NativeZstReference
 public import FormalProof4FHE.HasteBoots.NativeByteDropCalls
 @[expose] public section
 
@@ -31,6 +32,7 @@ inductive Operand where
   deriving DecidableEq
 
 inductive Input where
+  | zstSharedReference (index : Nat)
   | unit
   | scalar (value : NativeSliceLLBC.Input)
   | pair (left right : Input)
@@ -39,6 +41,7 @@ inductive Input where
   deriving DecidableEq
 
 def decode (world : State) : Input → Option Value
+  | .zstSharedReference index => (NativeZstReference.decode world index).map Value.scalar
   | .unit => some (.scalar .unit)
   | .scalar value => (NativeSliceLLBC.decodeInput world value).map Value.scalar
   | .pair left right => do return .pair (← decode world left) (← decode world right)

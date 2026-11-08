@@ -213,6 +213,10 @@ import all FormalProof4FHE.HasteBoots.NativeRecordLLBC
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeRecordLLBC.Operand.unit
 
+/-- info: 'FormalProof4FHE.HasteBoots.NativeRecordLLBC.Input.zstSharedReference' does not depend on any axioms -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeRecordLLBC.Input.zstSharedReference
+
 /-- info: 'FormalProof4FHE.HasteBoots.NativeRecordLLBC.Input.unit' does not depend on any axioms -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeRecordLLBC.Input.unit

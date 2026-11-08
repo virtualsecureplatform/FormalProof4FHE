@@ -648,3 +648,4 @@ import FormalProof4FHE.HasteBoots.NativeByteDeallocation
 import FormalProof4FHE.HasteBoots.NativeRecordValues
 import FormalProof4FHE.HasteBoots.NativeRecordLLBC
 import FormalProof4FHE.HasteBoots.NativeLayoutBytes
+import FormalProof4FHE.HasteBoots.NativeZstReference
