@@ -24,7 +24,7 @@ The coupled experimental Charon/Aeneas build now produces kernel-checked
 monomorphic fixture code. Six theorems prove complete public-function
 equivalence and two-sided result/state codec inverses, including mutation,
 errors, overflow and divergence. All 17 source/codec/theorem dependency audits
-use only the allowed Lean axioms; all 114 extraction guard tests passed.
+use only the allowed Lean axioms; all 117 extraction guard tests passed.
 Charon's full upstream suite and Clippy passed, and Aeneas array/trait outputs
 were regenerated and borrow-checked.
 
@@ -36,15 +36,25 @@ names. The exact paired patches, frozen executable build receipt and fresh
 extraction/equivalence gate are separate from the eight existing profiles.
 See `interop/aeneas/selected-inline/README.md`.
 
-On the original native Gold constructor, this path now emits valid monomorphic
-IR with 23 retained functions, both option helpers removed and no residual type
-constraints. Strict interpretation then fails a borrow invariant inside
-`Option::ok_or`; opaque String drop glue is a subsequent unresolved
-obligation. The constructor diagnostic records this failure and accepts no
-partial proof. The next implementation step is a small borrow-tracking
-reproducer and a checked repair, followed by the original constructor/model
-bridge. General compiler correctness, native heap/work refinement and complete
-security remain unproved.
+A small static-error regression exposed a reversed dead-loan cleanup guard:
+endable abstractions were skipped while frozen abstractions were selected.
+The repaired guard preserves frozen regions and retains all existing
+no-borrower/nested-borrow and invariant checks. The inlined `ok_or` now has two
+kernel-checked equivalences against ordinary match controls (five additional
+source/theorem audits). All 128 regenerated upstream files were byte-identical
+before/after; both runs completed 97 targets and rejected only the existing
+`dyn.rs` erased-lifetime case. Evidence is recorded in
+`interop/aeneas/selected-inline/loan-regression.json`.
+
+On the original native Gold constructor, default inlining emits valid IR with
+23 functions and no residual type constraints, then fails a borrow invariant
+inside `Option::ok_or`. Adding `--inline-ok-or` emits valid IR with 22 functions
+and progresses to the corresponding static-error borrowing failure inside
+`Result::branch`. Owned String drop glue is still opaque and must be accounted
+for on rejected constructor inputs. Neither attempt admits partial output.
+The next implementation step is the Result/static-error borrow repair, then
+original String cleanup and the constructor/model bridge. General compiler
+correctness, native heap/work refinement and complete security remain unproved.
 
 ## Scoped constructor IR is valid; recursive type constraints remain unsupported
 

@@ -64,7 +64,7 @@ complete `twice` equivalence (including errors, overflow and divergence), and
 six theorems passed 17 exact dependency audits. Allowed axioms are only
 `propext`, `Classical.choice` and `Quot.sound`. Five rejection tests cover
 altered/truncated/admitted output, invalid IR, missing inverses/proofs,
-error logs and dependency reports. All 114 extraction guard tests passed.
+error logs and dependency reports. All 117 extraction guard tests passed.
 The patched Charon's full upstream suite and Clippy passed, including six
 selected-inlining UI cases. Aeneas array/trait outputs were regenerated and
 borrow-checking passed with the coupled tools and default feature flags.
@@ -85,27 +85,57 @@ Rust MIR inlining. Its receipt records IR, source/tool bindings and failed
 frontend logs. Any admitted constructor output or unapproved kernel dependency
 would also fail.
 
-The current native attempt has valid IR, 23 retained functions and no residual
-type constraints. Aeneas then rejects a borrow invariant at the subsequent call to
-`Option::ok_or` (core `option.rs` line 1335). There is no accepted native
-constructor Lean module or refinement theorem. String drop glue also remains
-opaque in this IR and must be resolved before an admission-free module could
-pass. Next work should reproduce and repair borrow tracking without disabling
-invariants, then close the native constructor/heap correspondence and continue
-the full security plan.
+The default native attempt has valid IR, 23 retained functions and no residual
+type constraints. Aeneas then rejects a borrow invariant at the subsequent call
+to `Option::ok_or` (core `option.rs` line 1335). With `--inline-ok-or`, it now
+has 22 retained functions and progresses to the corresponding static-error
+borrow failure in `Result::branch` (core `result.rs` line 2180). There is no
+accepted native constructor Lean module or refinement theorem. The code's
+owned `modulus: String` also has opaque drop glue in this IR; its rejection-path
+cleanup must be modeled, not discarded.
 
-The small `static-error-option.rs` reproducer separates the inlined `ok_or`
-call from two ordinary `match` controls. `StaticErrorControls.lean` is the
-complete extraction of just `direct` and `eager_match`; `StaticErrorProof.lean`
-proves them equal for every input. Both functions and the theorem passed three
-kernel dependency audits. With `ok_or` inlined, the same source currently
-reproduces the marker invariant at `InterpReduceCollapse.ml:1137`.
+## Dead shared-loan cleanup regression
 
-For the controls, use Charon's `--start-from` twice with
-`hasteboots_static_error_option::direct` and
-`hasteboots_static_error_option::eager_match`, no inline selections, and crate
-name `hasteboots_static_error_option`. For the failing case, extract the whole
-crate with `--inline-function core::option::_::ok_or`. Both use
-`--preset=aeneas --monomorphize --include core::option --include core::result`
-and the same frontend options as the equivalence gate. The sources are
-regression fixtures; no production Rust is modified.
+`static-error-option.rs` separates the inlined `ok_or` call from two ordinary
+`match` controls. Before the cleanup repair, both controls translated and the
+inlined call failed the marker invariant at `InterpReduceCollapse.ml:1137`.
+`StaticErrorControls.lean` and `StaticErrorProof.lean` retain that checked
+control baseline (three dependency audits).
+
+The existing dead-loan cleanup checked that no corresponding shared borrower
+exists and that the shared value has no nested borrow/loan. Its abstraction
+guard nevertheless selected frozen (`can_end = false`) abstractions and skipped
+endable ones, contrary to its comment. The guard now selects `can_end = true`;
+frozen abstractions and all invariant checks remain protected. No predicate is
+weakened to accept a live borrower.
+
+The repaired extraction is `StaticErrorCandidate.lean`.
+`StaticErrorEquivalence.lean` proves the inlined call equal to the direct match
+for every input, including the exact static error string, and proves the eager
+match equal to the direct match. All three source functions and both theorems
+passed five exact allowed-axiom audits with unchanged proof limits:
+
+```sh
+scripts/check-hasteboots-static-error-option \
+  --build-receipt build/hasteboots-extraction/inline-tools-build-RECEIPT/manifest.json \
+  --backend /tmp/hasteboots-aeneas-m0
+```
+
+The gate freshly extracts the whole source with
+`--inline-function core::option::_::ok_or`, validates IR before interpretation,
+checks the complete retained snapshot and kernel-checks both equivalences.
+Three additional rejection tests cover changed outputs, error labels, missing
+source/proof coverage, opaque bodies and extraction options.
+
+Full before/after upstream extraction with `IN_CI=1` completed the same 97 test
+targets and rejected only `dyn.rs` for its existing erased signature lifetimes.
+All 128 actually regenerated output files are byte-identical before/after;
+`loan-regression.json` records the tool/patch/log hashes and per-file comparison.
+This supports regression compatibility, not a proof of the compiler algorithm.
+The original fixture also passed its fresh 17-audit gate with the repaired
+frontend.
+
+Next work is the native static-error borrow handling in `Result::branch`, then
+original String cleanup and the constructor/model bridge, followed by native
+heap/work refinement and the complete security plan. No production Rust is
+modified by these fixtures or compiler patches.

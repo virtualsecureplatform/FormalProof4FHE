@@ -1,0 +1,98 @@
+#!/usr/bin/env python3
+"""Check the inlined static-error option regression with all borrow invariants enabled."""
+import argparse
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+BASE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-inline-equivalence'))
+BUILD, PARAMETERS, COMMON, digest = BASE['BUILD'], BASE['PARAMETERS'], BASE['COMMON'], BASE['digest']
+DATA = ROOT / 'interop/aeneas/selected-inline'
+NAMESPACE = 'hasteboots_static_error_option'
+PROOFS = ['convert_equivalent', 'eager_equivalent']
+FUNCTIONS = ['convert', 'direct', 'eager_match']
+
+
+def validate_output(raw):
+    PARAMETERS['validate_proof_source']((DATA / 'StaticErrorEquivalence.lean').read_text(), PROOFS)
+    if raw.count('import Aeneas\n') != 1 or not raw.rstrip().endswith('end ' + NAMESPACE):
+        raise RuntimeError('Incomplete static-error extraction')
+    PARAMETERS['verify_snapshot'](raw, (DATA / 'StaticErrorCandidate.lean').read_text())
+    if re.search(r'\b(axiom|opaque|constant|sorry|sorryAx|native_decide|unsafe)\b|decide\s*\+native', raw):
+        raise RuntimeError('Admitted static-error extraction')
+    if re.findall(r'^set_option (maxHeartbeats|maxRecDepth) ([0-9]+)$', raw, re.M) != [
+            ('maxHeartbeats', '200000'), ('maxRecDepth', '1000')]: raise RuntimeError('Unexpected proof limits')
+    for name in FUNCTIONS:
+        if not re.search(r'^def ' + name + r'\s', raw, re.M): raise RuntimeError('Missing source function: ' + name)
+    return raw.replace('import Aeneas\n', 'import Aeneas.Std\nimport Aeneas.Data.Discriminant\n')
+
+
+def validate_ir(ir):
+    BASE['BASE']['BASE']['validate_ir'](ir)
+    crate = ir['translated']
+    if crate.get('options', {}).get('monomorphize') is not True or crate['options'].get('inline_functions') != ['core::option::_::ok_or']:
+        raise RuntimeError('Wrong static-error extraction options')
+    functions = [f for f in crate['fun_decls'] if isinstance(f, dict)]
+    def names(f): return [x['Ident'][0] for x in f['item_meta']['name'] if 'Ident' in x]
+    if any(names(f)[-1:] == ['ok_or'] for f in functions): raise RuntimeError('Option helper was not inlined')
+    for name in FUNCTIONS:
+        selected = [f for f in functions if names(f) == [NAMESPACE, name]]
+        if len(selected) != 1 or not isinstance(selected[0].get('body'), dict) or set(selected[0]['body']) != {'Structured'}:
+            raise RuntimeError('Missing original source body: ' + name)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--build-receipt', type=Path, required=True)
+    parser.add_argument('--backend', type=Path, required=True)
+    args = parser.parse_args()
+    parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
+    out = Path(tempfile.mkdtemp(prefix='static-error-option-', dir=parent))
+    record = {'status': 'started', 'claim': 'static-error regression equivalence only; compiler/native security refinement unproved',
+              'commands': [], 'script_sha256': digest(Path(__file__).read_bytes())}
+    def save(): (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
+    def run(command, log):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out / log).open('w') as stream:
+            subprocess.run([str(x) for x in command], cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT, check=True)
+    print('Static-error artifacts: ' + str(out), flush=True); save()
+    try:
+        receipt, tools, sources = BUILD['verify_receipt'](args.build_receipt)
+        record['build_receipt_sha256'] = digest(args.build_receipt.read_bytes())
+        record['backend_patches'] = PARAMETERS['verify_backend'](args.backend.resolve(), out)
+        record['inputs'] = {name: digest((DATA / name).read_bytes()) for name in [
+            'static-error-option.rs', 'StaticErrorCandidate.lean', 'StaticErrorEquivalence.lean']}
+        llbc = out / 'candidate.llbc'
+        run([tools / 'charon', 'rustc', '--preset=aeneas', '--monomorphize', '--inline-function', 'core::option::_::ok_or',
+             '--include', 'core::option', '--include', 'core::result', '--dest-file', llbc, '--', '--crate-type', 'lib',
+             '--edition', '2024', '--crate-name', NAMESPACE, DATA / 'static-error-option.rs'], 'charon.log')
+        validate_ir(json.loads(llbc.read_text()))
+        run([tools / 'aeneas', '-backend', 'lean', '-checks', '-sequential', '-max-heartbeats', '200000', '-max-recdepth', '1000',
+             '-abort-on-error', '-no-external-name-patterns', '-disambiguate-instantiated-names', '-monomorphic-builtin-shapes',
+             '-dest', out / 'lean', llbc], 'aeneas.log')
+        BASE['BASE']['validate_frontend_log']((out / 'aeneas.log').read_text())
+        raw = (out / 'lean/Candidate.lean').read_text()
+        runtime = validate_output(raw)
+        names = [NAMESPACE + '.' + name for name in FUNCTIONS] + ['HasteBootsStaticErrorEquivalence.' + name for name in PROOFS]
+        checked = out / 'Checked.lean'
+        checked.write_text(runtime + '\n' + (DATA / 'StaticErrorEquivalence.lean').read_text()
+                           + ''.join('\n#print axioms ' + name + '\n' for name in names))
+        run([ROOT / 'scripts/in-container', 'bash', '-euc', 'cd -- "$1"; lake env lean -DwarningAsError=true "$2"', '_',
+             COMMON['container_path'](args.backend.resolve() / 'backends/lean'), COMMON['container_path'](checked)], 'lean.log')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), names)
+        record.update(llbc_sha256=digest(llbc.read_bytes()), checked_sha256=digest(checked.read_bytes()))
+        if record['inputs'] != {name: digest((DATA / name).read_bytes()) for name in record['inputs']}: raise RuntimeError('Input changed during check')
+        BUILD['verify_receipt'](args.build_receipt)
+        record['status'] = 'passed'; print('Static-error equivalence passed: ' + str(len(names)) + ' dependency audits')
+    except (Exception, SystemExit) as error:
+        record.update(status='failed', error=str(error)); raise SystemExit('Static-error check failed; inspect ' + str(out) + ': ' + str(error)) from error
+    finally:
+        record['logs'] = {p.name: digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__':
+    main()

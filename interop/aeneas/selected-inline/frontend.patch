@@ -434,6 +434,19 @@ index 75a12e90..c578fdc1 100644
  (** Evaluate an operand.
  
      Reorganize the context, then evaluate the operand.
+diff --git a/src/interp/InterpReduceCollapse.ml b/src/interp/InterpReduceCollapse.ml
+index 379bcd2d..b8a4c68c 100644
+--- a/src/interp/InterpReduceCollapse.ml
++++ b/src/interp/InterpReduceCollapse.ml
+@@ -43,7 +43,7 @@ let eliminate_shared_loans (span : Meta.span) (ctx : eval_ctx) : eval_ctx =
+   in
+   let update_abs (abs : abs) : abs =
+     (* Only update the non-frozen abstractions *)
+-    if not abs.can_end then update_loans#visit_abs () abs else abs
++    if abs.can_end then update_loans#visit_abs () abs else abs
+   in
+   let ctx = ctx_map_abs update_abs ctx in
+ 
 diff --git a/src/interp/InterpStatements.ml b/src/interp/InterpStatements.ml
 index cb9203a0..77f0abdd 100644
 --- a/src/interp/InterpStatements.ml

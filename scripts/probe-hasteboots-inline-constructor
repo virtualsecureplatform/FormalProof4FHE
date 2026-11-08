@@ -19,6 +19,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--build-receipt', type=Path, required=True)
     parser.add_argument('--backend', type=Path, required=True)
+    parser.add_argument('--inline-ok-or', action='store_true', help='Also inline static-error option conversion')
     args = parser.parse_args()
     parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
     out = Path(tempfile.mkdtemp(prefix='inline-constructor-', dir=parent))
@@ -52,8 +53,10 @@ def main():
         env = dict(os.environ)
         env['CARGO_TARGET_DIR'] = str(parent / 'cargo-constructor-partial')
         llbc = out / 'constructor.llbc'
+        optional_inline = ['--inline-function', 'core::option::_::ok_or'] if args.inline_ok_or else []
+        record['inline_ok_or'] = args.inline_ok_or
         run([tools / 'charon', 'cargo', '--preset=aeneas', '--monomorphize',
-             '--inline-function', 'core::option::_::and_then', '--inline-function', 'core::option::_::is_none_or',
+             '--inline-function', 'core::option::_::and_then', '--inline-function', 'core::option::_::is_none_or', *optional_inline,
              '--start-from', PARAMETERS['NAMESPACE'] + '::new_encoded', '--include', 'pcs', '--include', 'core::option',
              '--include', 'core::result', '--include', 'core::convert',
              '--include', 'core::num::_::checked_next_power_of_two', '--include', 'core::num::_::one_less_than_next_power_of_two',

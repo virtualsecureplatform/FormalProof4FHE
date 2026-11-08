@@ -7,6 +7,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parent.parent
 GATE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-inline-equivalence'))
+STATIC = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-static-error-option'))
 
 
 class Guards(unittest.TestCase):
@@ -61,6 +62,37 @@ class Guards(unittest.TestCase):
         for log in ['', "'checked' depends on axioms: [sorryAx]", "'checked' depends on axioms: [core.fmt.Formatter]",
                     "'checked' does not depend on any axioms\n'checked' does not depend on any axioms"]:
             with self.assertRaises(RuntimeError): check(log, ['checked'])
+
+    def test_static_error_snapshot_and_proof_coverage(self):
+        raw = (STATIC['DATA'] / 'StaticErrorCandidate.lean').read_text()
+        STATIC['validate_output'](raw)
+        proof = (STATIC['DATA'] / 'StaticErrorEquivalence.lean').read_text()
+        check = STATIC['PARAMETERS']['validate_proof_source']
+        check(proof, STATIC['PROOFS'])
+        with self.assertRaises(RuntimeError): check(proof, STATIC['PROOFS'][:-1])
+
+    def test_static_error_output_rejections(self):
+        raw = (STATIC['DATA'] / 'StaticErrorCandidate.lean').read_text()
+        for changed in [raw.rsplit('end ', 1)[0], raw.replace('def convert', 'def lost_convert'),
+                        raw.replace('table size overflow', 'wrong error'),
+                        raw.replace('maxRecDepth 1000', 'maxRecDepth 2000'), raw + '\naxiom bad : False\n']:
+            with self.assertRaises(RuntimeError): STATIC['validate_output'](changed)
+
+    def test_static_error_ir_rejections(self):
+        ir = {'has_errors': False, 'translated': {
+            'target_information': [{'key': 'x86_64-unknown-linux-gnu', 'value': {
+                'target_pointer_size': 8, 'is_little_endian': True}}],
+            'options': {'monomorphize': True, 'inline_functions': ['core::option::_::ok_or']},
+            'fun_decls': [{'item_meta': {'name': [{'Ident': [STATIC['NAMESPACE'], 0]}, {'Ident': [name, 0]}]},
+                           'body': {'Structured': {}}} for name in STATIC['FUNCTIONS']]}}
+        STATIC['validate_ir'](ir)
+        for field in ['errors', 'monomorphization', 'body', 'coverage']:
+            changed = copy.deepcopy(ir)
+            if field == 'errors': changed['has_errors'] = True
+            if field == 'monomorphization': changed['translated']['options']['monomorphize'] = False
+            if field == 'body': changed['translated']['fun_decls'][0]['body'] = 'Opaque'
+            if field == 'coverage': changed['translated']['fun_decls'].pop()
+            with self.assertRaises(RuntimeError): STATIC['validate_ir'](changed)
 
 
 if __name__ == '__main__':
