@@ -89,12 +89,73 @@ theorem read_simulation (entries : List Entry) (actual : List (Cell Params)) (mo
       obtain ⟨handle,selected,found,atEntry,parametersDecoded⟩ := ih later
       exact ⟨handle,selected,by simpa only [NativePointerStorage.read,← origin,← address,matched,ite_false] using found,atEntry,parametersDecoded⟩
 
+theorem read_failure_iff (entries : List Entry) (actual : List (Cell Params)) (model : List (Cell ℕ))
+    (represented : HeapRep entries actual model) (pointer : Pointer) :
+    NativePointerStorage.read actual pointer = none ↔ NativePointerStorage.read model pointer = none := by
+  induction represented with
+  | nil => simp [NativePointerStorage.read]
+  | @cons actualCell modelCell actualTail modelTail related remaining ih =>
+    simp only [NativePointerStorage.read,← related.1,← related.2.1]
+    split <;> simp_all
+
 def materialize (heap : List (Cell Params)) : List Borrow → Option (List Source)
   | [] => some []
   | borrowed::tail =>
     match NativePointerStorage.read heap borrowed.pointer with
     | none => none
     | some parameters => (materialize heap tail).map (fun rest => ⟨parameters,borrowed.commitment⟩::rest)
+
+theorem materialize_failure_witness (actual : List (Cell Params)) (borrows : List Borrow) :
+    materialize actual borrows = none ↔
+      ∃ borrowed ∈ borrows, NativePointerStorage.read actual borrowed.pointer = none := by
+  induction borrows with
+  | nil => simp [materialize]
+  | cons borrowed tail ih =>
+    cases found : NativePointerStorage.read actual borrowed.pointer with
+    | none =>
+      constructor
+      · intro _
+        exact ⟨borrowed,List.mem_cons_self,found⟩
+      · intro _
+        simp only [materialize,found]
+    | some parameters =>
+      constructor
+      · intro failed
+        have restFailure : materialize actual tail = none := by
+          cases rest : materialize actual tail with
+          | none => rfl
+          | some output => simp only [materialize,found,rest,Option.map_some] at failed; cases failed
+        obtain ⟨selected,member,unreadable⟩ := ih.mp restFailure
+        exact ⟨selected,List.mem_cons_of_mem borrowed member,unreadable⟩
+      · rintro ⟨selected,member,unreadable⟩
+        rcases List.mem_cons.mp member with same | later
+        · subst selected
+          rw [found] at unreadable
+          cases unreadable
+        · have restFailure := ih.mpr ⟨selected,later,unreadable⟩
+          simp only [materialize,found,restFailure,Option.map_none]
+
+theorem materialize_failure_iff (entries : List Entry) (actual : List (Cell Params)) (model : List (Cell ℕ))
+    (represented : HeapRep entries actual model) (borrows : List Borrow) :
+    materialize actual borrows = none ↔
+      NativeGoldPointerRegistry.resolve model (borrows.map modelBorrow) = none := by
+  induction borrows with
+  | nil => simp only [materialize,List.map_nil,NativeGoldPointerRegistry.resolve,reduceCtorEq]
+  | cons borrowed tail ih =>
+    have same := read_failure_iff entries actual model represented borrowed.pointer
+    cases nativeRead : NativePointerStorage.read actual borrowed.pointer with
+    | none =>
+      have modelRead := same.mp nativeRead
+      simp only [materialize,nativeRead,List.map_cons,NativeGoldPointerRegistry.resolve,modelBorrow,modelRead]
+    | some parameters =>
+      cases modelRead : NativePointerStorage.read model borrowed.pointer with
+      | none =>
+        have impossible := same.mpr modelRead
+        rw [nativeRead] at impossible
+        cases impossible
+      | some handle =>
+        simp only [materialize,nativeRead,List.map_cons,NativeGoldPointerRegistry.resolve,modelBorrow,modelRead]
+        cases nativeRest : materialize actual tail <;> cases modelRest : NativeGoldPointerRegistry.resolve model (tail.map modelBorrow) <;> simp_all
 
 theorem collect_simulation (entries : List Entry) (actual : List (Cell Params)) (model : List (Cell ℕ))
     (represented : HeapRep entries actual model) (borrows : List Borrow) (sources : List Source)
@@ -146,6 +207,48 @@ theorem materialized_decodes (entries : List Entry) (actual : List (Cell Params)
 def modelBorrows (borrows : NativePrefixCodec.Vector Borrow) :
     NativePrefixCodec.Vector NativeGoldPointerRegistry.Borrow :=
   ⟨borrows.val.map modelBorrow,by simpa only [List.length_map] using borrows.property⟩
+
+theorem registry_failure_iff (entries : List Entry) (actual : List (Cell Params)) (model : List (Cell ℕ))
+    (represented : HeapRep entries actual model) (borrows : Vector Borrow) :
+    NativeGoldPointerRegistry.registry entries model (modelBorrows borrows) = none ↔
+      materialize actual borrows.val = none := by
+  constructor
+  · intro failed
+    cases native : materialize actual borrows.val with
+    | none => rfl
+    | some sources =>
+      obtain ⟨references,resolved,collected⟩ := collect_simulation entries actual model represented borrows.val sources native
+      obtain ⟨decodedValues,decodedCollection⟩ := materialized_decodes entries actual model represented borrows.val sources native
+      have projected : NativeGoldPointerRegistry.resolve model (modelBorrows borrows).val = some references := resolved
+      unfold NativeGoldPointerRegistry.registry at failed
+      cases retained : NativeGoldPointerRegistry.references model (modelBorrows borrows) with
+      | none =>
+        unfold NativeGoldPointerRegistry.references at retained
+        split at retained
+        · rename_i rejected
+          cases rejected.symm.trans projected
+        · cases retained
+      | some retainedReferences =>
+        have kept := NativeGoldPointerRegistry.references_values model (modelBorrows borrows) retainedReferences retained
+        have same : references = retainedReferences.val := Option.some.inj (projected.symm.trans kept.1)
+        have successfulCollect : NativeGoldParameterStore.collect entries retainedReferences.val = some decodedValues := by
+          simpa only [same] using collected.trans decodedCollection
+        simp only [retained,Option.bind_some] at failed
+        unfold NativeGoldParameterStore.registry at failed
+        split at failed
+        · rename_i rejected
+          cases rejected.symm.trans successfulCollect
+        · cases failed
+  · intro failed
+    cases executed : NativeGoldPointerRegistry.registry entries model (modelBorrows borrows) with
+    | none => rfl
+    | some output =>
+      obtain ⟨references,resolved,_⟩ := NativeGoldPointerRegistry.registry_resolves entries model (modelBorrows borrows) output executed
+      have accepted := (NativeGoldPointerRegistry.references_values model (modelBorrows borrows) references resolved).1
+      have rejected : NativeGoldPointerRegistry.resolve model (modelBorrows borrows).val = none :=
+        (materialize_failure_iff entries actual model represented borrows.val).mp failed
+      rw [rejected] at accepted
+      cases accepted
 
 theorem registry_simulation (entries : List Entry) (actual : List (Cell Params)) (model : List (Cell ℕ))
     (represented : HeapRep entries actual model) (borrows : NativePrefixCodec.Vector Borrow)

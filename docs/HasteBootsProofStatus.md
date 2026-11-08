@@ -7,6 +7,25 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Heap simulation preserves complete registry failure
+
+Four additional `Heap.lean` theorems establish agreement on read failure and
+on complete registry failure. Ordered materialization fails exactly when some
+original borrow is unreadable, including unused and duplicate references.
+Under the whole-heap representation, this agrees with resolution failure and
+with failure of the full pointer-backed registry; represented cells cannot
+resolve to invalid arena handles. This complements the existing successful
+materialization and extraction composition.
+
+These statements describe the operational model, not runtime invalid-reference
+detection in Rust. Establishing valid Rust references, allocator/source
+refinement, actual failure costs and the complete security theorem remains
+open. No native verifier checks were introduced.
+
+Validation: fresh pinned native extraction passed all 125 dependency audits,
+including fifteen heap theorems. All 102 extraction/frontend guard tests passed;
+the receipt matches current proof, model and unchanged native source hashes.
+
 ## Whole-heap simulation derives registry compatibility
 
 `Heap.lean` relates native parameter-value cells to retained arena handles over

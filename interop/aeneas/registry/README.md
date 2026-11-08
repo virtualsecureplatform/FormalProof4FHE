@@ -58,7 +58,7 @@ updates, physical work and full protocol security remain open.
 Use the pinned official tools and prepared backend described in
 `../parameters/README.md`. The harness first freshly checks the 50 parameter
 source/accessor/decoder/binding audits, then extracts this native carrier and
-checks the combined artifact with all 121 dependency audits. Only propext,
+checks the combined artifact with all 125 dependency audits. Only propext,
 Classical.choice and Quot.sound are allowed; no admissions, native proofs or
 proof-limit increases are accepted.
 
@@ -214,3 +214,18 @@ explicit. Establishing the heap invariant and materialization behavior from
 Rust allocation, borrowing and source execution is still required. The proofs
 do not establish allocation freshness, object layout or physical work. This
 operational materializer adds no native verifier code or runtime checks.
+
+## Failure preservation
+
+Four further heap theorems cover failure as well as success. Represented native
+parameter-value heaps and arena-handle heaps agree on read failure for every
+pointer. Ordered materialization fails exactly when an original borrow is
+unreadable, and exactly when the corresponding model resolution fails. Under
+the whole-heap invariant, this also characterizes failure of the complete
+pointer registry: successful reads cannot leave an invalid arena handle.
+The failure witness ranges over the complete original borrow list, including
+later unused entries and duplicate aliases.
+
+These are failure properties of the operational materializer and heap model.
+They do not claim that Rust detects invalid references or add native runtime
+checks. Rust reference validity and source/allocator refinement remain open.

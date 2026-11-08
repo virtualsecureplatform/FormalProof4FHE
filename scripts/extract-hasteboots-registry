@@ -45,7 +45,8 @@ CAUSAL_LOOKUP_PROOFS = ['dispatch_run', 'dispatch_origin', 'prelude_run', 'prelu
 EQUALITY_PROOFS = ['byte_pairs', 'roots_equal_exact', 'roots_equal_model', 'roots_equal_true', 'roots_equal_false']
 POINTER_PROOFS = ['slot', 'initialized_original', 'extraction_original']
 HEAP_PROOFS = ['heap_rep_empty', 'heap_rep_append', 'heap_rep_extend', 'heap_rep_retire',
-               'read_simulation', 'collect_simulation', 'materialized_decodes', 'registry_simulation',
+               'read_simulation', 'read_failure_iff', 'materialize_failure_witness', 'materialize_failure_iff',
+               'collect_simulation', 'materialized_decodes', 'registry_failure_iff', 'registry_simulation',
                'materialized_registries', 'initialized_original', 'extraction_original']
 NATIVE_FUNCTIONS = ['pcs.utils.hash.Digest512.Insts.CoreCmpPartialEqDigest512.eq']
 INPUT_FILES = ['Cargo.toml', 'Cargo.lock', 'wrapper.rs', 'Generated.lean', 'Proof.lean',
