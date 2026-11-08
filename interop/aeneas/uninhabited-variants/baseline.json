@@ -1,0 +1,9 @@
+{
+  "claim": "ordinary-sysroot empty-variant field projection rejection before structural emptiness support",
+  "build_receipt_sha256": "2f05f8e3f16424b72205f8323e43f30fc447c39ec428bb8ab09ea04c978f028a",
+  "fixture_sha256": "912416d068085f5824e6fde364145b1b7ce50887a8242790c9aa19e4ec0be7cf",
+  "llbc_sha256": "a460a02ec7cc845de8f780a37f282179b7e96c34f62f22d89d411b63f77fd15c",
+  "frontend_exit_code": 2,
+  "frontend_log_sha256": "eabb7900c748811deafe5ad8017257d521618c9838b85aa24cab3077e489361f",
+  "diagnostic": "Not allowed to expand enumerations with several variants"
+}
