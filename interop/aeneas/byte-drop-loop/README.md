@@ -1,5 +1,9 @@
 # Byte drop operation models and retained original loop
 
+The separate [typed loop profile](../byte-loop-body/README.md) now interprets
+the retained slice body with explicit backedge cleanup and proves its traversal
+simulation. This primitive/retention profile retains its narrower scope.
+
 This profile checks two Lean operation models and retains a fresh original
 byte-slice drop probe. It does **not** yet interpret the original loop or prove
 Rust lifetime or compiler correspondence. A successful gate establishes the
@@ -47,11 +51,9 @@ scripts/check-hasteboots-byte-drop-primitives \
   --build-receipt build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json
 ```
 
-The next source obligation is a typed simulation from the retained original
-loop to these operation/control semantics. This includes reference parameters
-and region substitution, local metadata and boolean state, repeated
-`StorageLive` at loop backedges, indexed scalar references and actual temporary
-lifetime endings. The explicit iteration cleanup is not evidence that Rust
-ends those lifetimes there. The outer `Vec` destructor, allocator path, compiler
-correctness, native execution costs and final security theorem remain open.
-No physical-work law or cryptographic conclusion is supplied here.
+The typed loop profile supplies a scoped local/control simulation for the
+retained slice body. Rust lifetime/alias correspondence for its explicit
+backedge cleanup, region/ABI/caller refinement, the pointer/drop wrappers,
+whole `Vec` destructor and allocator path remain open. Compiler correctness,
+native execution costs and the final security theorem remain unproved. No
+physical-work law or cryptographic conclusion is supplied here.

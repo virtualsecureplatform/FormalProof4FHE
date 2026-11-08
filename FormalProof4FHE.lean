@@ -642,3 +642,4 @@ import FormalProof4FHE.HasteBoots.NativeSliceLLBC
 import FormalProof4FHE.HasteBoots.NativeReferenceCleanup
 import FormalProof4FHE.HasteBoots.NativeByteSliceIndex
 import FormalProof4FHE.HasteBoots.NativeByteDropTraversal
+import FormalProof4FHE.HasteBoots.NativeByteLoopLLBC

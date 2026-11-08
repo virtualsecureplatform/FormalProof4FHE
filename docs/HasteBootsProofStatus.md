@@ -7,6 +7,42 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## The original slice-body loop now has a typed scoped interpretation
+
+`NativeByteLoopLLBC` interprets typed locals and the original finite blocks of a
+single outer loop. It includes metadata, booleans, equality, wrapping addition,
+copy/move, retag flags, reborrowing, byte indexing and raw recovery. Storage live
+and dead markers reset existing slots without ending leases. This handles both
+repeated backedges and the original zero-iteration suffix. Checked cleanup is
+composed explicitly at backedges. Machine-run projection covers finite blocks, loops, whole functions and decoded
+invocations; loop and function determinism are proved. The 24 model theorems
+and all 130 explicit declaration/constructor/field definitions are audited. The external
+reference-register decoder recovers its extent from an actual resident lease.
+
+The `byte-loop-body` reifier retains and interprets every statement of original
+slice-body function 4 from the five-body drop probe. Fourteen source theorems
+establish exact prefix/guard/suffix behavior, success and failed-iteration
+agreement, and whole-loop simulation. Every interpreted original invocation
+agrees with `NativeByteDropTraversal` on machine state and normal-unit success.
+The proof works for arbitrary finite extents, using the traversal's decreasing
+slice extent rather than an execution budget. Heap framing and successful unit
+return are derived. Thirteen root regressions check storage liveness, affine
+copies, metadata, wrapping arithmetic, index/unwind prefixes and decoding;
+seven source regressions exercise original execution, cleanup, empty traversal,
+several iterations and alias-conflict failure.
+
+See the [typed loop profile](../interop/aeneas/byte-loop-body/README.md) for
+reproduction and the semantic boundary. Backedge cleanup is still explicit ghost
+composition: Rust lifetime/alias correspondence, region erasure and compiler
+correctness remain unproved. Functions 0–3 of the probe, the outer destructor
+and allocator path are not interpreted by this profile. Native constructor
+acceptance, physical-work refinement and the final security theorem remain open.
+
+The source gate passed 150 dependency audits, 20 rejecting controls, and a
+kernel-checked supported metadata-retag mutation. The parent byte-operation
+profile passed its 58 audits with the same frozen tools. The repository-wide
+`scripts/check` passed, including its 10,980-job build.
+
 ## Charon Use retags now execute checked reborrows
 
 Inspection of the pinned Charon AST identified that `Rvalue::Use` carries
