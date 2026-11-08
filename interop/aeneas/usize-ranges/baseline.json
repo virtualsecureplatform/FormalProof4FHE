@@ -1,0 +1,9 @@
+{
+  "claim": "baseline rejection before adding usize range support",
+  "charon_exit_code": 0,
+  "aeneas_exit_code": 2,
+  "expected_error": "Unsupported scalar pattern type",
+  "fixture_sha256": "bef89381e4e96f3bc8a5dc68c14dbdd3c7d2853a2d52b7fe50e4dd4205f41227",
+  "ir_sha256": "12d480a30657b7078d9260c8a02636407e487f65d8db3ab386fb0ed81f78007f",
+  "log_sha256": "28e12016aeac0b4d8c1538f8515031f56723012e130ed4ea440b3299adab19fb"
+}
