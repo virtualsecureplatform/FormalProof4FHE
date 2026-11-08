@@ -7,6 +7,25 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Constrained usize storage preserves native capacity bounds
+
+The paired frontend carries U32/Usize scalar kinds and both inclusive bounds
+through read-only pattern-type storage. Usize is opt-in via monomorphic builtin
+shapes. Six source preservation/bounds proofs and three extracted functions
+passed nine exact Lean dependency audits. Three negative extractions reject
+u64, disjoint patterns and disabled mode. All 130 extraction guard tests pass.
+The upstream comparison again completed 97 targets, rejected the existing
+`dyn.rs` case and regenerated 128 byte-identical files. See
+`interop/aeneas/usize-ranges/README.md` and its evidence manifest.
+
+Original layout expansion now gets past the native `UsizeNoHighBit` range type.
+The 84-function trace has no residual drops or missing regular declarations.
+Its next failure is the original Alignment enum's `2^63` discriminant overflowing
+the frontend's OCaml integer representation. No complete native layout module,
+pattern-cast semantics, constructor refinement or full security theorem has
+been accepted. Arbitrary-precision discriminants are the next extraction fix;
+faithful pointer/heap/work refinement remains necessary afterwards.
+
 ## Allocator cleanup extraction remains a refinement boundary
 
 The experimental extractor now retains allocator parameters and methods with
