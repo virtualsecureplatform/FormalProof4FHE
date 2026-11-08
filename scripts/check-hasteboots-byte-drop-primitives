@@ -1,0 +1,154 @@
+#!/usr/bin/env python3
+"""Check byte-drop operation models and retain original source; no source refinement."""
+import argparse
+import copy
+import hashlib
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+DATA = ROOT / 'interop/aeneas/byte-drop-loop'
+BUILD = runpy.run_path(str(ROOT / 'scripts/build-hasteboots-inline-tools'))
+PARAMETERS = runpy.run_path(str(ROOT / 'scripts/extract-hasteboots-parameters'))
+SOURCE = runpy.run_path(str(ROOT / 'scripts/reify-hasteboots-slice-scope-llbc'))
+EXTRAS = {
+ 'NativeByteSliceIndex': ['Slice.mk', 'Slice.reference', 'Slice.length', 'Selection.mk', 'Selection.parent', 'Selection.raw', 'Selection.lease', 'Result.value', 'Result.invalid'],
+ 'NativeByteDropTraversal': ['Iteration.value', 'Iteration.invalid', 'Result.mk', 'Result.world', 'Result.cursor', 'Result.last', 'Result.complete', 'Executes.stop', 'Executes.fail', 'Executes.next']}
+
+
+def digest(raw): return hashlib.sha256(raw).hexdigest()
+
+
+def inventory():
+    names = []
+    for module, extras in EXTRAS.items():
+        raw = (ROOT / ('FormalProof4FHE/HasteBoots/' + module + '.lean')).read_text()
+        PARAMETERS['validate_proof_source'](raw, re.findall(r'^theorem (\w+)', raw, re.M))
+        names += ['FormalProof4FHE.HasteBoots.' + module + '.' + n for n in re.findall(r'^(?:def|theorem|structure|inductive) ([\w.]+)', raw, re.M) + extras]
+    return names
+
+
+def local(operand, kind, index):
+    return operand.get(kind, {}).get('kind') == {'Local': index}
+
+
+def validate(ir):
+    r = SOURCE['Reifier'](ir)  # Validate the unchanged ordinary-sysroot compiler profile.
+    c = ir['translated']
+    if len(r.functions) != 5 or len(r.globals) != 2: raise ValueError('Incomplete byte-drop closure')
+    for i in range(5):
+        f = r.functions[i]
+        if not isinstance(f['body'], dict) or set(f['body']) != {'Structured'} or f['item_meta']['opacity'] != ('Foreign' if i == 3 else 'Transparent'):
+            raise ValueError('Missing original body or changed source opacity')
+    for i, name in [(1, 'slice_from_raw_parts_mut'), (2, 'drop_in_place'), (3, 'drop_glue')]:
+        f = r.functions[i]
+        if f['item_meta']['is_local'] or f['item_meta']['name'][:3] != [{'Ident':['core',0]}, {'Ident':['ptr',0]}, {'Ident':[name,0]}]:
+            raise ValueError('Replaced original pointer/drop function')
+    files = [f for f in c['files'] if f and f['contents'] is not None]
+    if len(files) != 1 or files[0]['contents'] != (DATA / 'fixture.rs').read_text(): raise ValueError('Wrong original probe bytes')
+    for g in r.globals:
+        if g['value']['kind'] != {'Literal':{'Scalar':{'Unsigned':['Usize','1']}}}: raise ValueError('Wrong byte layout')
+    body = r.functions[4]['body']['Structured']['body']['statements']
+    loops = [s['kind']['Loop'] for s in body if isinstance(s['kind'],dict) and 'Loop' in s['kind']]
+    if len(loops) != 1: raise ValueError('Original loop missing or duplicated')
+    inside = loops[0]['statements']
+    if len(inside) != 2 or set(inside[0]['kind']) != {'Assign'} or set(inside[1]['kind']) != {'Switch'}: raise ValueError('Changed loop control')
+    dest, value = inside[0]['kind']['Assign']
+    if dest['kind'] != {'Local':5} or value.get('BinaryOp',[None])[0] != 'Eq' or not local(value['BinaryOp'][1],'Copy',3) or not local(value['BinaryOp'][2],'Copy',2):
+        raise ValueError('Changed cursor/extent equality')
+    cond, yes, no = inside[1]['kind']['Switch']['If']
+    if not local(cond,'Move',5) or [s['kind'] for s in yes['statements']] != [{'Break':0}]: raise ValueError('Changed break control')
+    step = no['statements']
+    if len(step) != 7 or [next(iter(s['kind'])) for s in step] != ['StorageLive','Assign','StorageLive','Call','Assign','Assign','Continue']:
+        raise ValueError('Changed iteration operator sequence')
+    if step[0]['kind'] != {'StorageLive':6} or step[2]['kind'] != {'StorageLive':7} or step[-1]['kind'] != {'Continue':0}:
+        raise ValueError('Changed iteration storage/control')
+    borrowed = step[1]['kind']['Assign'][1]['Ref']
+    base, projection = borrowed['place']['kind']['Projection']
+    if base['kind'] != {'Local':1} or projection != 'Deref' or borrowed['kind'] != 'Mut' or borrowed['ptr_metadata'] != {'Copy':{'kind':{'Projection':[base,'PtrMetadata']},'ty':{'Untagged':{'Literal':{'UInt':'Usize'}}}}}:
+        raise ValueError('Unbound whole-slice reborrow/metadata')
+    call = step[3]['kind']['Call']['call']; fun = call['func']['Regular']
+    if fun['kind'] != {'Fun':{'Builtin':{'Index':{'is_array':False,'mutability':'Mut','is_range':False}}}} or fun['generics'] != {'regions':['Erased'],'types':[{'Untagged':{'Literal':{'UInt':'U8'}}}],'const_generics':[],'trait_refs':[]}:
+        raise ValueError('Changed byte indexing intrinsic')
+    if len(call['args']) != 2 or not local(call['args'][0],'Move',6) or not local(call['args'][1],'Copy',3) or call['dest']['kind'] != {'Local':7}:
+        raise ValueError('Changed index dataflow')
+    raw = step[4]['kind']['Assign']; target = raw[1]['RawPtr']
+    if raw[0]['kind'] != {'Local':4} or target['kind'] != 'Mut' or target['place']['kind']['Projection'][0]['kind'] != {'Local':7} or target['place']['kind']['Projection'][1] != 'Deref':
+        raise ValueError('Changed raw borrow dataflow')
+    add = step[5]['kind']['Assign']; op = add[1]['BinaryOp']
+    if add[0]['kind'] != {'Local':3} or op[0] != {'Add':'Wrap'} or not local(op[1],'Move',3) or op[2] != {'Const':{'kind':{'Literal':{'Scalar':{'Unsigned':['Usize','1']}}},'ty':{'Untagged':{'Literal':{'UInt':'Usize'}}}}}:
+        raise ValueError('Changed wrapping cursor increment')
+    metadata = body[6]['kind']['Assign'][1]['Use'][0]['Copy']['kind']['Projection']
+    zero = body[7]['kind']['Assign'][1]['Use'][0]
+    if metadata[0]['kind'] != {'Local':1} or metadata[1] != 'PtrMetadata' or zero != {'Const':{'kind':{'Literal':{'Scalar':{'Unsigned':['Usize','0']}}},'ty':{'Untagged':{'Literal':{'UInt':'Usize'}}}}}:
+        raise ValueError('Changed initial extent/cursor')
+    return {'charon_version':ir['charon_version'], 'functions':list(r.functions.values()), 'globals':r.globals,
+            'type_decls':c['type_decls'], 'trait_decls':c['trait_decls'], 'trait_impls':c['trait_impls'], 'files':c['files'],
+            'claim':'original source retained only; checked operation traversal is not yet a source-loop/lifetime/compiler refinement'}
+
+
+def negatives(ir):
+    records = {}
+    def check(name, mutate):
+        changed = copy.deepcopy(ir); mutate(changed['translated'])
+        try: validate(changed)
+        except (ValueError,KeyError,TypeError,IndexError) as error: records[name] = str(error)
+        else: raise RuntimeError('Negative accepted: ' + name)
+    def step(c): return c['fun_decls'][4]['body']['Structured']['body']['statements'][8]['kind']['Loop']['statements'][1]['kind']['Switch']['If'][2]['statements']
+    check('wrong_target', lambda c: c['target_information'][0]['value'].update(target_pointer_size=4))
+    check('opaque_original_drop', lambda c: c['fun_decls'][3].update(body='Opaque'))
+    check('wrong_byte_layout', lambda c: c['global_decls'][0]['value']['kind']['Literal']['Scalar'].update(Unsigned=['Usize','8']))
+    check('missing_loop', lambda c: c['fun_decls'][4]['body']['Structured']['body']['statements'][8].update(kind={'Drop':None}))
+    check('wrong_metadata', lambda c: step(c)[1]['kind']['Assign'][1]['Ref'].update(ptr_metadata=None))
+    check('index_array', lambda c: step(c)[3]['kind']['Call']['call']['func']['Regular']['kind']['Fun']['Builtin']['Index'].update(is_array=True))
+    check('index_shared', lambda c: step(c)[3]['kind']['Call']['call']['func']['Regular']['kind']['Fun']['Builtin']['Index'].update(mutability='Shared'))
+    check('index_range', lambda c: step(c)[3]['kind']['Call']['call']['func']['Regular']['kind']['Fun']['Builtin']['Index'].update(is_range=True))
+    check('changed_step', lambda c: step(c)[5]['kind']['Assign'][1]['BinaryOp'][2]['Const']['kind']['Literal']['Scalar'].update(Unsigned=['Usize','2']))
+    check('checked_add', lambda c: step(c)[5]['kind']['Assign'][1]['BinaryOp'][0].update(Add='Checked'))
+    check('changed_continue', lambda c: step(c)[6].update(kind={'Continue':1}))
+    return records
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__); parser.add_argument('--build-receipt',type=Path,required=True);args=parser.parse_args()
+    out = Path(tempfile.mkdtemp(prefix='byte-drop-primitives-',dir=ROOT/'build/hasteboots-extraction'))
+    record = {'status':'started','claim':'checked operation models and original source retention only; original loop/lifetimes/compiler/native security refinement unproved','commands':[],'whole_loop_interpreted':False}
+    def save(): (out/'manifest.json').write_text(json.dumps(record,indent=2)+'\n')
+    def run(command,log):
+        record['commands'].append([str(x)for x in command]);save()
+        with (out/log).open('w') as stream: completed=subprocess.run([str(x)for x in command],cwd=ROOT,stdout=stream,stderr=subprocess.STDOUT)
+        if completed.returncode: raise RuntimeError('Command failed: '+log)
+    print('Byte drop primitive artifacts: '+str(out),flush=True)
+    try:
+        _,tools,_=BUILD['verify_receipt'](args.build_receipt)
+        record['build_receipt_sha256']=digest(args.build_receipt.read_bytes())
+        files=[Path(__file__),ROOT/'scripts/reify-hasteboots-slice-scope-llbc',ROOT/'scripts/reify-hasteboots-slice-reference-llbc',ROOT/'scripts/reify-hasteboots-scalar-llbc',DATA/'fixture.rs',DATA/'Retained.json',ROOT/'lean-toolchain',ROOT/'FormalProof4FHETest/HasteBootsByteDropTraversalSmoke.lean',ROOT/'FormalProof4FHETest/HasteBootsByteDropTraversalAudit.lean']
+        files += [ROOT/('FormalProof4FHE/HasteBoots/'+m+'.lean')for m in EXTRAS]
+        record['inputs']={str(p.relative_to(ROOT)):digest(p.read_bytes())for p in files}
+        run([ROOT/'scripts/in-container','lake','build','FormalProof4FHETest.HasteBootsByteDropTraversalSmoke','FormalProof4FHETest.HasteBootsByteDropTraversalAudit'],'root-build.log')
+        llbc=out/'source.llbc'
+        run([tools/'charon','rustc','--preset=aeneas','--sysroot','default','--monomorphize','--mir','optimized','--consts','values','--evaluate-runtime-checks','--precise-drops','--desugar-drops','--preserve-allocator','--no-dedup-serialized-ast','--include','core::ptr::drop_in_place','--include','core::ptr::slice_from_raw_parts_mut','--dest-file',llbc,'--','--crate-type','lib','--edition','2024','-Cdebug-assertions=no','--crate-name','hasteboots_byte_drop_loop',(DATA/'fixture.rs').relative_to(ROOT)],'charon.log')
+        ir=json.loads(llbc.read_text());retained=validate(ir)
+        if retained!=json.loads((DATA/'Retained.json').read_text()): raise RuntimeError('Original source snapshot differs')
+        record['negative_controls']=negatives(ir)
+        try: SOURCE['Reifier'](ir).render(roots=(0,))
+        except (ValueError,KeyError,TypeError,IndexError)as error: record['finite_source_profile_rejection']=str(error)
+        else: raise RuntimeError('Unexpected whole-loop acceptance by finite source profile')
+        names=inventory();checked=out/'Audit.lean';checked.write_text('module\nimport all FormalProof4FHE.HasteBoots.NativeByteDropTraversal\n'+''.join('\n#print axioms '+n+'\n'for n in names))
+        run([ROOT/'scripts/in-container','lake','env','lean','-DwarningAsError=true',checked.relative_to(ROOT)],'lean.log')
+        record['dependency_audit']=PARAMETERS['audit_log']((out/'lean.log').read_text(),names)
+        record['llbc_sha256']=digest(llbc.read_bytes())
+        if record['inputs']!={str(p.relative_to(ROOT)):digest(p.read_bytes())for p in files}: raise RuntimeError('Inputs changed during validation')
+        BUILD['verify_receipt'](args.build_receipt);record['status']='passed'
+        print('Byte drop primitives passed: '+str(len(names))+' audits; '+str(len(record['negative_controls']))+' rejecting controls; source loop refinement remains open')
+    except Exception as error:
+        record.update(status='failed',error=str(error));raise SystemExit(str(error)+'; inspect '+str(out))from error
+    finally:
+        record['logs']={p.name:digest(p.read_bytes())for p in out.glob('*.log')};save()
+
+
+if __name__=='__main__': main()
