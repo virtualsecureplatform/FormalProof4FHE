@@ -140,12 +140,19 @@ def classify_failure(log):
     return None
 
 
+def classify_charon_failure(log):
+    if ('Type error after transformations:' in log and 'Mismatched trait clause:' in log and
+            'SerdeEncoder' in log and 'serde_core' in log):
+        return 'partial-serde-trait-type-errors'
+    return None
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--tools', type=Path, required=True)
     parser.add_argument('--backend', type=Path, required=True)
     parser.add_argument('--build-receipt', type=Path, required=True)
-    parser.add_argument('--mode', choices=['generic', 'mono', 'word'], required=True)
+    parser.add_argument('--mode', choices=['generic', 'mono', 'partial', 'word'], required=True)
     parser.add_argument('--retain-error-types', action='store_true', help='Word mode only: retain error carriers and their exact nanosecond range')
     parser.add_argument('--retain-time-types', action='store_true', help='Word mode only: retain the six original bounded time carriers')
     args = parser.parse_args()
@@ -212,6 +219,7 @@ def main():
         llbc = out / 'code_serialization.llbc'
         command = [tools / 'charon', 'cargo', '--preset=aeneas']
         if args.mode == 'mono': command += ['--raw-consts', '--monomorphize']
+        if args.mode == 'partial': command += ['--monomorphize-mut']
         command += ['--start-from', BASE['NAMESPACE'] + ('::encode_word' if args.mode == 'word' else '::code_bytes')]
         modules = ['bincode', 'core::marker'] if args.mode == 'word' else ['bincode', 'serde', 'serde_core', 'pcs::utils::code::block', 'algebra::goldilocks']
         if args.retain_error_types: modules += ERROR_TYPES
@@ -220,10 +228,17 @@ def main():
             command += ['--include', module]
         command += ['--dest-file', llbc, '--', '--manifest-path', out / 'Cargo.toml', '--lib', '--locked']
         env = dict(os.environ); env.setdefault('CARGO_TARGET_DIR', str(parent / 'cargo-registry-target'))
-        if run(command, 'charon.log', env): raise RuntimeError('Charon rejected serialization')
+        charon_code = run(command, 'charon.log', env)
+        record['charon_exit_code'] = charon_code
+        if charon_code: raise RuntimeError('Charon rejected serialization')
         native_clean()
         record['llbc_sha256'] = BASE['digest'](llbc.read_bytes())
-        record['ir'] = inspect_ir(json.loads(llbc.read_text()), 'word' if args.mode == 'word' else 'code',
+        ir = json.loads(llbc.read_text())
+        record['charon_has_errors'] = ir.get('has_errors')
+        if ir.get('has_errors') is not False:
+            record['failure_kind'] = classify_charon_failure((out / 'charon.log').read_text())
+            raise RuntimeError('Charon reported translation errors; Aeneas was not invoked')
+        record['ir'] = inspect_ir(ir, 'word' if args.mode == 'word' else 'code',
                                   args.retain_error_types, args.retain_time_types); save()
         if record['ir']['invalid_signature_regions']:
             record['failure_kind'] = 'signature-regions'

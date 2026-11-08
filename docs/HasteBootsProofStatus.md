@@ -7,6 +7,40 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Pointer storage distinguishes allocation generations and address reuse
+
+`NativePointerStorage` gives an operational specification for immutable records
+addressed by a native 64-bit address plus allocation identity/generation. Reads
+compute both matches. Thirteen lemmas establish exact stored reads, null and
+missing-provenance rejection, successful-read origins, retirement and rejection
+of stale references after address reuse. Eight regressions cover those cases.
+This is not a Rust allocator, borrow, object-layout or physical-work refinement.
+
+The backend boundary proof checks exact word/address round trips and the
+existing `ConstRawPtr Unit` representation. Its singleton value cannot support
+null classification or a lossless address/provenance bridge, even for two
+nonzero pointers at one address with different generations. A separate
+simulation proof is needed for any coarser observational abstraction. The new
+storage specification does not replace that backend or unblock native I/O
+extraction by itself.
+
+The pinned partial-monomorphization route was also tested on actual native
+Serde. It exits zero but emits invalid IR with transformation trait-clause
+errors; the diagnostic rejects it before symbolic execution. General clause
+pruning and guessed replacement lifetimes remain unused.
+
+Validation: full `scripts/check` passed 10,923 build jobs and all subsequent
+standalone checks. Thirteen new root axiom guards, eight storage regressions,
+21 backend-boundary dependency audits and all 102 extraction/frontend guard
+tests passed. Two large existing fixture literals were split into typed rows
+to stay within the unchanged proof limits; all 805 hash-input bytes and 788
+stream bytes were checked identical. The partial native attempt reproduced
+exit zero plus invalid IR after a fresh 107-audit preflight, and Aeneas was
+not invoked on that IR. The native HasteBoots checkout remains unchanged.
+
+The native I/O, Serde/context-byte, source/heap/instruction, physical-work and
+complete application security obligations remain open.
+
 ## Bounded scalar storage and original time carriers are kernel-checked
 
 The isolated `u32-ranges` frontend profile represents a checked closed U32

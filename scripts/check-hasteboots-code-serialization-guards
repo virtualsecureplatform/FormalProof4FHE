@@ -116,6 +116,13 @@ class Guards(unittest.TestCase):
         self.assertEqual(MODULE['classify_failure'](pointer), 'nonnull-pointer-pattern')
         self.assertIsNone(MODULE['classify_failure'](pointer.replace('non_null.rs', 'other.rs')))
 
+    def test_partial_type_errors_require_source_evidence(self):
+        log = 'Type error after transformations:\nMismatched trait clause:\nSerdeEncoder\nserde_core'
+        self.assertEqual(MODULE['classify_charon_failure'](log), 'partial-serde-trait-type-errors')
+        self.assertIsNone(MODULE['classify_charon_failure'](log.replace('serde_core', 'unrelated')))
+        bad = ir(); bad['has_errors'] = True
+        with self.assertRaises(RuntimeError): MODULE['inspect_ir'](bad)
+
 
 if __name__ == '__main__':
     unittest.main()

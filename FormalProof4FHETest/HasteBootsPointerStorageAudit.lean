@@ -52,4 +52,3 @@ import all FormalProof4FHE.HasteBoots.NativePointerStorage
 /-- info: 'FormalProof4FHE.HasteBoots.NativePointerStorage.reused_address_fresh' depends on axioms: [propext] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativePointerStorage.reused_address_fresh
-

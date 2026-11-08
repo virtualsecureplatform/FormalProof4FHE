@@ -40,6 +40,14 @@ scripts/probe-hasteboots-code-serialization \
 scripts/check-hasteboots-code-serialization-guards
 ```
 
+The `partial` mode tests the pinned lifetime-preserving
+`--monomorphize-mut` route, without the general clause-pruning options. The
+native Serde attempt currently returns compiler exit code zero but sets
+`has_errors=true` and reports mismatched trait clauses after transformation.
+The diagnostic records the IR/log hashes and rejects it before Aeneas runs as
+`partial-serde-trait-type-errors`. Neither compiler errors nor invalid type
+substitutions are suppressed to work around the erased-lifetime failure.
+
 The primitive `word` mode calls the actual Bincode integer encoder with standard
 config. It requires a reviewed `discriminants` build receipt and uses ordinary
 constant lowering. The gate checks transparent entry-point, integer-Encode,
@@ -90,7 +98,7 @@ no pointer predicate or provenance obligation is erased.
 The native pin remains `dff353006322693cab3dc6b654f82151f658f294`.
 Manifests record the preflight receipt, frontend, wrapper, native files,
 Cargo inputs and full IR hashes, commands, retained body IDs and signature
-failures. Ten guard tests cover body completeness, target/translation errors,
+failures. Eleven guard tests cover body completeness, target/translation errors,
 hash-consed signature references, missing lifetimes, primitive versus code
 surfaces, exact nanosecond bounds and blocker classification.
 
