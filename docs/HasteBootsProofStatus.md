@@ -7,6 +7,44 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Byte indexing and a terminating checked drop traversal are modeled
+
+`NativeByteSliceIndex` implements mutable byte indexing by checking resident
+slice metadata, selecting actual reference/raw registers, checking the offset,
+executing raw pointer preparation and performing a checked one-byte reborrow.
+Its nine theorems identify the exact child lease and fresh tag, bind its address
+and provenance to the parent, preserve the byte heap and project every outcome
+to actual machine runs. A failed reborrow retains its successful raw preparation
+prefix. Raw conversion recovers an existing complete pointer.
+
+`NativeByteDropTraversal` composes whole-slice reborrow, byte indexing, raw
+conversion and explicit checked iteration cleanup. Sixteen theorems establish
+operational control/evaluator agreement and determinism, machine-run projection,
+heap framing, well-formedness/reachability and cursor bounds. Its recursive
+measure is the original slice extent minus cursor; there is no supplied step
+budget. The usize increment cannot wrap while the cursor is below the extent.
+All 58 explicit model declarations and constructor/field definitions have
+persistent dependency audits. Fifteen regressions cover bounds/metadata,
+shared-parent rejection, prepared-prefix retention, provenance, several
+iterations, empty traversal, parent-lease preservation and later checked free.
+
+A fresh five-body drop probe retains the original byte loop and all its
+surrounding pointer/drop declarations, with full source in `byte-drop-loop`.
+One generated wrapper has a retained structured body but Charon marks it
+`Foreign`; this classification is preserved. The primitive gate passed 58 dependency audits and 11 rejecting controls.
+The repository-wide `scripts/check` also passed, including its 10,976-job build.
+The source checker validates the
+actual loop guard, reborrow metadata, byte-index intrinsic, raw-pointer dataflow,
+wrapping increment and continue target. The existing finite reifier still
+rejects this whole-body profile. These source-retention checks and the Lean
+operation proofs are separate evidence: **the original loop has not yet been
+interpreted or proved equivalent to the traversal**.
+
+The [profile documentation](../interop/aeneas/byte-drop-loop/README.md) records
+reproduction and the remaining typed loop/lifetime simulation, repeated local
+storage behavior and region obligations. The outer destructor, allocator path,
+compiler/native-cost refinements and final security theorem remain open.
+
 ## Temporary source leases now have checked scope cleanup
 
 `NativeReferenceCleanup` performs actual closed-machine `endBorrow` operations
