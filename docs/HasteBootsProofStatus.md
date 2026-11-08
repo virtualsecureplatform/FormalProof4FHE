@@ -7,6 +7,45 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Ordinary residual conversion now handles structurally empty alternatives
+
+The ordinary-sysroot Result<Infallible, E> failure is resolved in the experimental
+monomorphic Lean profile. Non-branching expansion may select a sole variant only
+when the alternatives contain structurally empty values. Empty enums and by-value
+tuple/struct/enum fields establish that fact; opaque/reference/array/cyclic types
+remain unknown. Layout uninhabited flags and zero sizes are not logical witnesses.
+All original constructors remain exported. An actual match lets Lean check
+coverage and avoids a simplifier's fallback-value pattern-let transformation.
+
+Six theorems cover constructor cases and exact behavior for every valid input,
+including the original stdlib residual conversion with a static-string error
+wrapper matching the native error payload shape. The Static region is checked
+in IR; no fixture/native wrapper identity or Rust heap-safety theorem is claimed.
+Twenty-five new dependency audits cover all source definitions/types/readers,
+the closed imported empty type and all proof aliases/theorems. Nine unsupported
+cases reject, including altered empty witnesses and a source reproducer for a
+separate multiple-residual generated-name collision that remains unresolved.
+See `interop/aeneas/uninhabited-variants/README.md` and its regression receipt.
+
+Fresh validation totals 236 dependency audits and 173 guard tests. All earlier
+gates pass; all 128 upstream artifacts remain unchanged. Upstream extraction
+completes 97 targets with the same known dyn.rs lifetime rejection. No production
+Rust or Lean backend change, new axiom or raised proof limit is introduced.
+
+The ordinary native extraction still retains 52 functions with no residual
+drops/runtime queries or missing regular references. It gets past residual
+enum expansion and now fails when projecting the opaque Unique<u8> pointer
+carrier. A complete native constructor is still not accepted. Previous Miri
+inventories remain configuration-specific diagnostics, not production readiness.
+
+Next direct work is preserving original pointer wrappers/operations, resolving
+the residual naming collision and supporting faithful layout initialization.
+Production compiler/caller/heap and NTT/SIMD/scheduler refinement, causal lifetime
+oracle/owner accounting, BabyBear and the final 128-bit expected physical-work
+security theorem remain open. No pointer is replaced by a success callback or
+logical case split counted as a physical work floor. The full objective remains
+unchanged.
+
 ## Native diagnostics now distinguish ordinary and Miri standard libraries
 
 Charon's default sysroot selection uses a Miri-built standard library. The
