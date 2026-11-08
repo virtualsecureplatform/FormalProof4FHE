@@ -13,11 +13,22 @@ A new source fixture covers repeated calls, mutation, early errors, overflow
 aborts and a shared-reference `Option::and_then` capture. Its reviewed baseline
 is freshly extracted with official Charon and the reviewed frontend. Eight
 kernel behavior theorems and three source functions passed eleven exact
-dependency audits; all 109 extraction/frontend guard tests passed. The separate
-Charon fork is still at the pinned behavior when this baseline is recorded.
+dependency audits; all 109 extraction/frontend guard tests passed. The baseline was recorded before changing the separate Charon fork.
 This establishes regression controls, not a proof of inlining or the native
 constructor. The source/heap/work and complete security obligations remain
 open.
+
+## Experimental selected-function extraction remains outside the proof boundary
+
+An opt-in Charon patch reuses the existing ULLBC inliner, rejects unsupported
+selections and regenerates versioned OCaml readers. Five new UI cases, the
+full upstream suite and Clippy passed. The fixture's monomorphic IR is valid
+and the matching Aeneas reader accepts it. Frontend call analysis still fails
+after preprocessing removes a drop-glue emission group while retaining its
+call; reordering alone does not repair that mismatch.
+No candidate Lean equivalence theorem, native constructor proof or accepted
+compiler profile follows from these tests. The patch and reproduction notes
+are saved under `interop/charon/inline-functions/`.
 
 ## Scoped constructor IR is valid; recursive type constraints remain unsupported
 

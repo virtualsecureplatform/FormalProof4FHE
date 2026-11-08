@@ -1,0 +1,980 @@
+diff --git a/charon-ml/src/CharonVersion.ml b/charon-ml/src/CharonVersion.ml
+index 4eea2842..e7cd3758 100644
+--- a/charon-ml/src/CharonVersion.ml
++++ b/charon-ml/src/CharonVersion.ml
+@@ -1,3 +1,3 @@
+ (* This is an automatically generated file, generated from `charon/Cargo.toml`. *)
+ (* To re-generate this file, rune `make` in the root directory *)
+-let supported_charon_version = "0.1.223"
++let supported_charon_version = "0.1.224"
+diff --git a/charon-ml/src/generated/Generated_FullAst.ml b/charon-ml/src/generated/Generated_FullAst.ml
+index dbca68be..4a3a3bfb 100644
+--- a/charon-ml/src/generated/Generated_FullAst.ml
++++ b/charon-ml/src/generated/Generated_FullAst.ml
+@@ -166,6 +166,10 @@ and cli_options = {
+           normally created, including when indexing behind a raw pointer. *)
+   treat_box_as_builtin : bool;
+       (** Treat [Box<T>] as if it was a built-in type. *)
++  inline_functions : string list;
++      (** Inline transparent leaf functions selected by name pattern. Only
++          direct calls to top-level functions are supported; selected bodies
++          must not reference one another. *)
+   raw_consts : bool;  (** Do not inline or evaluate constants. *)
+   consts : const_handling option;
+       (** How to handle constants and statics: whether they should be
+diff --git a/charon-ml/src/generated/Generated_OfJson.ml b/charon-ml/src/generated/Generated_OfJson.ml
+index 3b3d9f22..2a2f1598 100644
+--- a/charon-ml/src/generated/Generated_OfJson.ml
++++ b/charon-ml/src/generated/Generated_OfJson.ml
+@@ -2080,6 +2080,7 @@ and cli_options_of_json (ctx : of_json_ctx) (js : json) :
+           ("ops_to_function_calls", ops_to_function_calls);
+           ("index_to_function_calls", index_to_function_calls);
+           ("treat_box_as_builtin", treat_box_as_builtin);
++          ("inline_functions", inline_functions);
+           ("raw_consts", raw_consts);
+           ("consts", consts);
+           ("unsized_strings", unsized_strings);
+@@ -2145,6 +2146,9 @@ and cli_options_of_json (ctx : of_json_ctx) (js : json) :
+           bool_of_json ctx index_to_function_calls
+         in
+         let* treat_box_as_builtin = bool_of_json ctx treat_box_as_builtin in
++        let* inline_functions =
++          list_of_json string_of_json ctx inline_functions
++        in
+         let* raw_consts = bool_of_json ctx raw_consts in
+         let* consts = option_of_json const_handling_of_json ctx consts in
+         let* unsized_strings = bool_of_json ctx unsized_strings in
+@@ -2203,6 +2207,7 @@ and cli_options_of_json (ctx : of_json_ctx) (js : json) :
+              ops_to_function_calls;
+              index_to_function_calls;
+              treat_box_as_builtin;
++             inline_functions;
+              raw_consts;
+              consts;
+              unsized_strings;
+diff --git a/charon-ml/src/generated/Generated_OfPostcard.ml b/charon-ml/src/generated/Generated_OfPostcard.ml
+index bde31e3a..4f6827e6 100644
+--- a/charon-ml/src/generated/Generated_OfPostcard.ml
++++ b/charon-ml/src/generated/Generated_OfPostcard.ml
+@@ -1817,6 +1817,7 @@ and cli_options_of_postcard (ctx : of_postcard_ctx) (st : postcard_state) :
+      let* ops_to_function_calls = bool_of_postcard ctx st in
+      let* index_to_function_calls = bool_of_postcard ctx st in
+      let* treat_box_as_builtin = bool_of_postcard ctx st in
++     let* inline_functions = list_of_postcard string_of_postcard ctx st in
+      let* raw_consts = bool_of_postcard ctx st in
+      let* consts = option_of_postcard const_handling_of_postcard ctx st in
+      let* unsized_strings = bool_of_postcard ctx st in
+@@ -1871,6 +1872,7 @@ and cli_options_of_postcard (ctx : of_postcard_ctx) (st : postcard_state) :
+           ops_to_function_calls;
+           index_to_function_calls;
+           treat_box_as_builtin;
++          inline_functions;
+           raw_consts;
+           consts;
+           unsized_strings;
+diff --git a/charon/Cargo.lock b/charon/Cargo.lock
+index b209a7e9..9ae7766f 100644
+--- a/charon/Cargo.lock
++++ b/charon/Cargo.lock
+@@ -252,7 +252,7 @@ checksum = "9555578bc9e57714c812a1f84e4fc5b4d21fcb063490c624de019f7464c91268"
+ 
+ [[package]]
+ name = "charon"
+-version = "0.1.223"
++version = "0.1.224"
+ dependencies = [
+  "annotate-snippets",
+  "anstream",
+diff --git a/charon/Cargo.toml b/charon/Cargo.toml
+index 891b732e..b7becbdc 100644
+--- a/charon/Cargo.toml
++++ b/charon/Cargo.toml
+@@ -25,7 +25,7 @@ tracing = { version = "0.1", features = ["max_level_trace"] }
+ 
+ [package]
+ name = "charon"
+-version = "0.1.223"
++version = "0.1.224"
+ authors.workspace = true
+ edition.workspace = true
+ license.workspace = true
+diff --git a/charon/src/options.rs b/charon/src/options.rs
+index 3c539c1d..9afc7a76 100644
+--- a/charon/src/options.rs
++++ b/charon/src/options.rs
+@@ -221,6 +221,11 @@ pub struct CliOpts {
+     #[clap(long)]
+     #[serde(default)]
+     pub treat_box_as_builtin: bool,
++    /// Inline transparent leaf functions selected by name pattern. Only direct calls to
++    /// top-level functions are supported; selected bodies must not reference one another.
++    #[clap(long = "inline-function")]
++    #[serde(default)]
++    pub inline_functions: Vec<String>,
+     /// Do not inline or evaluate constants.
+     #[clap(long)]
+     #[serde(default)]
+@@ -647,6 +652,8 @@ pub struct TranslateOptions {
+     pub print_built_llbc: bool,
+     /// Treat `Box<T>` as if it was a built-in type.
+     pub treat_box_as_builtin: bool,
++    /// Explicitly selected transparent leaf functions to inline.
++    pub inline_functions: Vec<NamePattern>,
+     /// Don't inline or evaluate constants.
+     pub raw_consts: bool,
+     /// Whether to evaluate the value of named constants and statics, or to keep a call
+@@ -795,6 +802,12 @@ impl TranslateOptions {
+             .filter_map(|s| parse_pattern(s).ok())
+             .collect();
+ 
++        let inline_functions = options
++            .inline_functions
++            .iter()
++            .filter_map(|s| parse_pattern(s).ok())
++            .collect();
++
+         TranslateOptions {
+             start_from,
+             mir_level,
+@@ -811,6 +824,7 @@ impl TranslateOptions {
+             print_built_llbc: options.print_built_llbc,
+             item_opacities,
+             treat_box_as_builtin: options.treat_box_as_builtin,
++            inline_functions,
+             raw_consts: options.raw_consts,
+             consts: options.consts.unwrap_or_default(),
+             unsized_strings: options.unsized_strings,
+diff --git a/charon/src/transform/simplify_output/inline_selected_functions.rs b/charon/src/transform/simplify_output/inline_selected_functions.rs
+index 8b60509f..c5d0e4e2 100644
+--- a/charon/src/transform/simplify_output/inline_selected_functions.rs
++++ b/charon/src/transform/simplify_output/inline_selected_functions.rs
+@@ -1,4 +1,7 @@
+-use std::{collections::HashMap, mem};
++use std::{
++    collections::{HashMap, HashSet},
++    mem,
++};
+ 
+ use crate::transform::CowBox;
+ use crate::transform::{TransformCtx, ctx::UllbcPass};
+@@ -13,6 +16,87 @@ impl Transform {
+         let panic_name = Name::from_path(builtins::EXPLICIT_PANIC_NAME);
+         let panic_terminator = TerminatorKind::Abort(AbortKind::Panic(Some(panic_name)));
+ 
++        // Explicit selections reuse the existing inliner, but only for direct-call leaves.
++        // Reject unsupported uses before removing any declarations. In particular, retaining
++        // an address-taken or nested selected function would leave dangling references.
++        let mut selected = HashSet::new();
++        let mut errors = Vec::new();
++        for pattern in &ctx.options.inline_functions {
++            let matches: Vec<_> = ctx
++                .translated
++                .fun_decls
++                .iter()
++                .filter(|decl| pattern.matches(&ctx.translated, &decl.item_meta.name))
++                .map(|decl| decl.def_id)
++                .collect();
++            if matches.is_empty() {
++                errors.push((
++                    Span::dummy(),
++                    format!("No function matched inline pattern {pattern:?}"),
++                ));
++            }
++            selected.extend(matches);
++        }
++        for id in &selected {
++            let decl = &ctx.translated.fun_decls[*id];
++            if !matches!(decl.src, ItemSource::TopLevel)
++                || decl.is_global_initializer.is_some()
++                || decl.body.as_unstructured().is_none()
++            {
++                errors.push((
++                    decl.item_meta.span,
++                    format!("Selected inline function {id} must have a transparent top-level body"),
++                ));
++            }
++            decl.body.dyn_visit(|ptr: &FnPtr| {
++                if let FnPtrKind::Fun(FunId::Regular(target)) = ptr.kind.as_ref()
++                    && selected.contains(target) {
++                    errors.push((decl.item_meta.span, format!("Selected inline function {id} references another selected function {target}")));
++                }
++            });
++        }
++        if !selected.is_empty() {
++            let mut references = HashMap::<FunDeclId, usize>::new();
++            let mut calls = HashMap::<FunDeclId, usize>::new();
++            ctx.translated.dyn_visit(|ptr: &FnPtr| {
++                if let FnPtrKind::Fun(FunId::Regular(id)) = ptr.kind.as_ref()
++                    && selected.contains(id)
++                {
++                    *references.entry(*id).or_default() += 1;
++                }
++            });
++            for decl in ctx.translated.fun_decls.iter() {
++                if let Some(body) = decl.body.as_unstructured() {
++                    for block in &body.body {
++                        if let TerminatorKind::Call { call, .. } = &block.terminator.kind
++                            && let FnOperand::Regular(ptr) = &call.func
++                            && let FnPtrKind::Fun(FunId::Regular(id)) = ptr.kind.as_ref()
++                            && selected.contains(id)
++                        {
++                            *calls.entry(*id).or_default() += 1;
++                        }
++                    }
++                }
++            }
++            for id in &selected {
++                let count = calls.get(id).copied().unwrap_or_default();
++                if count == 0 || references.get(id).copied().unwrap_or_default() != count {
++                    errors.push((
++                        ctx.translated.fun_decls[*id].item_meta.span,
++                        format!("Selected inline function {id} must be used only by direct calls"),
++                    ));
++                }
++            }
++        }
++        if !errors.is_empty() {
++            for (span, message) in errors {
++                crate::register_error!(ctx, span, "{message}");
++            }
++            return CowBox::Owned(Box::new(Transform {
++                to_inline: HashMap::new(),
++            }));
++        }
++
+         // Collect and remove the functions that we want to inline.
+         let to_inline = ctx
+             .translated
+@@ -33,7 +117,8 @@ impl Transform {
+                         .is_some_and(|gdecl| matches!(gdecl.global_kind, GlobalKind::AnonConst));
+                     let is_vec_construction_fn = decl.item_meta.lang_item.as_deref()
+                         == Some(builtins::BOX_ASSUME_INIT_INTO_VEC_UNSAFE);
+-                    is_local_panic_fn
++                    selected.contains(&decl.def_id)
++                        || is_local_panic_fn
+                         || (is_anon_const_initializer && !ctx.options.raw_consts)
+                         || (is_vec_construction_fn && ctx.options.treat_box_as_builtin)
+                 })
+diff --git a/charon/tests/help-output.txt b/charon/tests/help-output.txt
+index 6475e4d6..e410e352 100644
+--- a/charon/tests/help-output.txt
++++ b/charon/tests/help-output.txt
+@@ -126,6 +126,9 @@ Options:
+       --treat-box-as-builtin
+           Treat `Box<T>` as if it was a built-in type
+ 
++      --inline-function <INLINE_FUNCTIONS>
++          Inline transparent leaf functions selected by name pattern. Only direct calls to top-level functions are supported; selected bodies must not reference one another
++
+       --raw-consts
+           Do not inline or evaluate constants
+ 
+diff --git a/charon/tests/ui/inline-selected-functions.out b/charon/tests/ui/inline-selected-functions.out
+new file mode 100644
+index 00000000..7f16cf99
+--- /dev/null
++++ b/charon/tests/ui/inline-selected-functions.out
+@@ -0,0 +1,583 @@
++# Final LLBC before serialization:
++
++// Full name: core::marker::MetaSized
++#[lang_item("meta_sized")]
++pub trait MetaSized<Self>
++
++// Full name: core::marker::Sized
++#[lang_item("sized")]
++pub trait Sized<Self>
++{
++    proof ImpliedClause0: (Self: MetaSized)
++    non-dyn-compatible
++}
++
++// Full name: core::convert::From
++#[lang_item("From")]
++pub trait From<Self, T>
++{
++    proof ImpliedClause0: (Self: Sized)
++    proof ImpliedClause1: (T: Sized)
++    fn from;
++    non-dyn-compatible
++}
++
++// Full name: core::convert::{impl From<T> for T}::from
++pub fn from<T>(_1: T) -> T
++where
++    TraitClause0: (T: Sized),
++= <opaque>
++
++// Full name: core::convert::{impl From<T> for T}
++impl<T> "impl_From_for_T" From<T> for T
++where
++    TraitClause0: (T: Sized),
++{
++    proof ImpliedClause0: (T: Sized) = TraitClause0
++    proof ImpliedClause1: (T: Sized) = TraitClause0
++    fn from = from<T>[TraitClause0]
++    non-dyn-compatible
++}
++
++// Full name: core::convert::Infallible
++pub enum Infallible {
++}
++
++// Full name: core::marker::Destruct
++#[lang_item("destruct")]
++pub trait Destruct<Self>
++{
++    fn drop_glue<'_0_1>;
++    non-dyn-compatible
++}
++
++// Full name: core::marker::Tuple
++#[lang_item("tuple_trait")]
++pub trait Tuple<Self>
++{
++    proof ImpliedClause0: (Self: MetaSized)
++    non-dyn-compatible
++}
++
++// Full name: core::option::Option
++#[lang_item("Option")]
++pub enum Option<T>
++where
++    TraitClause0: (T: Sized),
++{
++  None,
++  Some(T),
++}
++
++// Full name: core::num::{usize}::checked_mul
++pub fn checked_mul(_1: usize, _2: usize) -> Option<usize>[{built_in impl Sized for usize}]
++= <opaque>
++
++// Full name: core::ops::control_flow::ControlFlow
++#[lang_item("ControlFlow")]
++pub enum ControlFlow<B, C>
++where
++    TraitClause0: (B: Sized),
++    TraitClause1: (C: Sized),
++{
++  Continue(C),
++  Break(B),
++}
++
++// Full name: core::ops::function::FnOnce
++#[lang_item("fn_once")]
++pub trait FnOnce<Self, Args>
++{
++    proof ImpliedClause0: (Self: MetaSized)
++    proof ImpliedClause1: (Args: Sized)
++    proof ImpliedClause2: (Args: Tuple)
++    proof ImpliedClause3: (Self::Output: Sized)
++    type Output
++    fn call_once;
++    vtable: core::ops::function::FnOnce::{vtable}<Args, Self::Output>
++}
++
++// Full name: core::result::Result
++#[lang_item("Result")]
++pub enum Result<T, E>
++where
++    TraitClause0: (T: Sized),
++    TraitClause1: (E: Sized),
++{
++  Ok(T),
++  Err(E),
++}
++
++// Full name: core::result::{impl Try for Result<T, E>[TraitClause0, TraitClause1]}::branch
++pub fn branch<T, E>(self: Result<T, E>[TraitClause0, TraitClause1]) -> ControlFlow<Result<Infallible, E>[{built_in impl Sized for Infallible}, TraitClause1], T>[{built_in impl Sized for Result<Infallible, E>[{built_in impl Sized for Infallible}, TraitClause1]}, TraitClause0]
++where
++    TraitClause0: (T: Sized),
++    TraitClause1: (E: Sized),
++{
++    let _0: ControlFlow<Result<Infallible, E>[{built_in impl Sized for Infallible}, TraitClause1], T>[{built_in impl Sized for Result<Infallible, E>[{built_in impl Sized for Infallible}, TraitClause1]}, TraitClause0]; // return
++    let self: Result<T, E>[TraitClause0, TraitClause1]; // arg #1
++    let v: T; // local
++    let _3: T; // anonymous local
++    let e: E; // local
++    let _5: Result<Infallible, E>[{built_in impl Sized for Infallible}, TraitClause1]; // anonymous local
++    let _6: E; // anonymous local
++
++    storage_live(_0)
++    match self {
++        Result::Ok => {
++        },
++        Result::Err => {
++            storage_live(e)
++            e = move (self as variant Result::Err).0
++            storage_live(_5)
++            storage_live(_6)
++            _6 = move e
++            _5 = Result::Err { 0: move _6 }
++            storage_dead(_6)
++            _0 = ControlFlow::Break { 0: move _5 }
++            storage_dead(_5)
++            storage_dead(e)
++            storage_dead(self)
++            return
++        },
++    }
++    storage_live(v)
++    v = move (self as variant Result::Ok).0
++    storage_live(_3)
++    _3 = move v
++    _0 = ControlFlow::Continue { 0: move _3 }
++    storage_dead(_3)
++    storage_dead(v)
++    storage_dead(self)
++    return
++}
++
++// Full name: core::result::{impl FromResidual<Result<Infallible, E>[{built_in impl Sized for Infallible}, TraitClause1]> for Result<T, F>[TraitClause0, TraitClause2]}::from_residual
++pub fn from_residual<T, E, F>(residual: Result<Infallible, E>[{built_in impl Sized for Infallible}, TraitClause1]) -> Result<T, F>[TraitClause0, TraitClause2]
++where
++    TraitClause0: (T: Sized),
++    TraitClause1: (E: Sized),
++    TraitClause2: (F: Sized),
++    TraitClause3: (F: From<E>),
++{
++    let _0: Result<T, F>[TraitClause0, TraitClause2]; // return
++    let residual: Result<Infallible, E>[{built_in impl Sized for Infallible}, TraitClause1]; // arg #1
++    let e: E; // local
++    let _3: F; // anonymous local
++    let _4: E; // anonymous local
++
++    storage_live(_0)
++    match residual {
++        Result::Err => {
++        },
++        _ => {
++            storage_dead(residual)
++            undefined_behavior
++        },
++    }
++    storage_live(e)
++    e = move (residual as variant Result::Err).0
++    storage_live(_3)
++    storage_live(_4)
++    _4 = move e
++    _3 = TraitClause3::from(move _4)
++    ↳⚡ storage_dead(residual)
++        unwind_continue
++    storage_dead(_4)
++    _0 = Result::Err { 0: move _3 }
++    storage_dead(_3)
++    storage_dead(e)
++    storage_dead(residual)
++    return
++}
++
++// Full name: test_crate::twice
++pub fn twice<'_0>(slot_1: &'_0 mut u32, left: u32, right: u32) -> Result<(u32, u32), ()>[{built_in impl Sized for (u32, u32)}, {built_in impl Sized for ()}]
++{
++    let _0: Result<(u32, u32), ()>[{built_in impl Sized for (u32, u32)}, {built_in impl Sized for ()}]; // return
++    let slot_1: &'1 mut u32; // arg #1
++    let left: u32; // arg #2
++    let right: u32; // arg #3
++    let first: u32; // local
++    let _5: ControlFlow<Result<Infallible, ()>[{built_in impl Sized for Infallible}, {built_in impl Sized for ()}], u32>[{built_in impl Sized for Result<Infallible, ()>[{built_in impl Sized for Infallible}, {built_in impl Sized for ()}]}, {built_in impl Sized for u32}]; // anonymous local
++    let _6: Result<u32, ()>[{built_in impl Sized for u32}, {built_in impl Sized for ()}]; // anonymous local
++    let _7: &'2 mut u32; // anonymous local
++    let _8: u32; // anonymous local
++    let residual_9: Result<Infallible, ()>[{built_in impl Sized for Infallible}, {built_in impl Sized for ()}]; // local
++    let _10: Result<Infallible, ()>[{built_in impl Sized for Infallible}, {built_in impl Sized for ()}]; // anonymous local
++    let val_11: u32; // local
++    let second: u32; // local
++    let _13: ControlFlow<Result<Infallible, ()>[{built_in impl Sized for Infallible}, {built_in impl Sized for ()}], u32>[{built_in impl Sized for Result<Infallible, ()>[{built_in impl Sized for Infallible}, {built_in impl Sized for ()}]}, {built_in impl Sized for u32}]; // anonymous local
++    let _14: Result<u32, ()>[{built_in impl Sized for u32}, {built_in impl Sized for ()}]; // anonymous local
++    let _15: &'3 mut u32; // anonymous local
++    let _16: u32; // anonymous local
++    let residual_17: Result<Infallible, ()>[{built_in impl Sized for Infallible}, {built_in impl Sized for ()}]; // local
++    let _18: Result<Infallible, ()>[{built_in impl Sized for Infallible}, {built_in impl Sized for ()}]; // anonymous local
++    let val_19: u32; // local
++    let _20: (u32, u32); // anonymous local
++    let _21: u32; // anonymous local
++    let _22: u32; // anonymous local
++    let _23: Result<u32, ()>[{built_in impl Sized for u32}, {built_in impl Sized for ()}]; // anonymous local
++    let slot_24: &'9 mut u32; // local
++    let increment_25: u32; // local
++    let _26: bool; // anonymous local
++    let _27: u32; // anonymous local
++    let _28: (); // anonymous local
++    let previous_29: u32; // local
++    let _30: u32; // anonymous local
++    let _31: u32; // anonymous local
++    let _32: u32; // anonymous local
++    let _33: u32; // anonymous local
++    let _34: Result<u32, ()>[{built_in impl Sized for u32}, {built_in impl Sized for ()}]; // anonymous local
++    let slot_35: &'11 mut u32; // local
++    let increment_36: u32; // local
++    let _37: bool; // anonymous local
++    let _38: u32; // anonymous local
++    let _39: (); // anonymous local
++    let previous_40: u32; // local
++    let _41: u32; // anonymous local
++    let _42: u32; // anonymous local
++    let _43: u32; // anonymous local
++    let _44: u32; // anonymous local
++
++    storage_live(_0)
++    storage_live(first)
++    storage_live(_5)
++    storage_live(_6)
++    storage_live(_7)
++    _7 = &two-phase-mut (*slot_1)
++    storage_live(_8)
++    _8 = copy left
++    storage_live(slot_24)
++    slot_24 = move _7
++    storage_live(increment_25)
++    increment_25 = move _8
++    storage_live(_23)
++    storage_live(_32)
++    storage_live(_26)
++    storage_live(_27)
++    _27 = copy increment_25
++    _26 = move _27 == const 0u32
++    if move _26 {
++        storage_dead(_27)
++        storage_live(_28)
++        _28 = ()
++        _23 = Result::Err { 0: move _28 }
++        storage_dead(_28)
++        storage_dead(_26)
++    } else {
++        storage_dead(_27)
++        storage_dead(_26)
++        storage_live(previous_29)
++        previous_29 = copy (*slot_24)
++        storage_live(_30)
++        _30 = copy previous_29
++        storage_live(_31)
++        _31 = copy increment_25
++        _32 = copy _30 panic.+ copy _31
++        (*slot_24) = move _32
++        storage_dead(_31)
++        storage_dead(_30)
++        storage_live(_33)
++        _33 = copy previous_29
++        _23 = Result::Ok { 0: move _33 }
++        storage_dead(_33)
++        storage_dead(previous_29)
++    }
++    storage_dead(_32)
++    storage_dead(increment_25)
++    storage_dead(slot_24)
++    _6 = move _23
++    storage_dead(_8)
++    storage_dead(_7)
++    _5 = branch<u32, ()>[{built_in impl Sized for u32}, {built_in impl Sized for ()}](move _6)
++    ↳⚡ storage_dead(right)
++        storage_dead(left)
++        storage_dead(slot_1)
++        unwind_continue
++    storage_dead(_6)
++    match _5 {
++        ControlFlow::Continue => {
++            storage_live(val_11)
++            val_11 = copy (_5 as variant ControlFlow::Continue).0
++            first = copy val_11
++            storage_dead(val_11)
++            storage_dead(_5)
++            storage_live(second)
++            storage_live(_13)
++            storage_live(_14)
++            storage_live(_15)
++            _15 = &two-phase-mut (*slot_1)
++            storage_live(_16)
++            _16 = copy right
++            storage_live(slot_35)
++            slot_35 = move _15
++            storage_live(increment_36)
++            increment_36 = move _16
++            storage_live(_34)
++            storage_live(_43)
++            storage_live(_37)
++            storage_live(_38)
++            _38 = copy increment_36
++            _37 = move _38 == const 0u32
++            if move _37 {
++                storage_dead(_38)
++                storage_live(_39)
++                _39 = ()
++                _34 = Result::Err { 0: move _39 }
++                storage_dead(_39)
++                storage_dead(_37)
++            } else {
++                storage_dead(_38)
++                storage_dead(_37)
++                storage_live(previous_40)
++                previous_40 = copy (*slot_35)
++                storage_live(_41)
++                _41 = copy previous_40
++                storage_live(_42)
++                _42 = copy increment_36
++                _43 = copy _41 panic.+ copy _42
++                (*slot_35) = move _43
++                storage_dead(_42)
++                storage_dead(_41)
++                storage_live(_44)
++                _44 = copy previous_40
++                _34 = Result::Ok { 0: move _44 }
++                storage_dead(_44)
++                storage_dead(previous_40)
++            }
++            storage_dead(_43)
++            storage_dead(increment_36)
++            storage_dead(slot_35)
++            _14 = move _34
++            storage_dead(_16)
++            storage_dead(_15)
++            _13 = branch<u32, ()>[{built_in impl Sized for u32}, {built_in impl Sized for ()}](move _14)
++            ↳⚡ storage_dead(right)
++                storage_dead(left)
++                storage_dead(slot_1)
++                unwind_continue
++            storage_dead(_14)
++            match _13 {
++                ControlFlow::Continue => {
++                    storage_live(val_19)
++                    val_19 = copy (_13 as variant ControlFlow::Continue).0
++                    second = copy val_19
++                    storage_dead(val_19)
++                    storage_dead(_13)
++                    storage_live(_20)
++                    storage_live(_21)
++                    _21 = copy first
++                    storage_live(_22)
++                    _22 = copy second
++                    _20 = (move _21, move _22)
++                    storage_dead(_22)
++                    storage_dead(_21)
++                    _0 = Result::Ok { 0: move _20 }
++                    storage_dead(_20)
++                    storage_dead(second)
++                    storage_dead(first)
++                    storage_dead(right)
++                    storage_dead(left)
++                    storage_dead(slot_1)
++                    storage_dead(_34)
++                    storage_dead(_23)
++                    return
++                },
++                ControlFlow::Break => {
++                    storage_live(residual_17)
++                    residual_17 = copy (_13 as variant ControlFlow::Break).0
++                    storage_live(_18)
++                    _18 = copy residual_17
++                    _0 = from_residual<(u32, u32), (), ()>[{built_in impl Sized for (u32, u32)}, {built_in impl Sized for ()}, {built_in impl Sized for ()}, impl_From_for_T<()>[{built_in impl Sized for ()}]](move _18)
++                    ↳⚡ storage_dead(right)
++                        storage_dead(left)
++                        storage_dead(slot_1)
++                        unwind_continue
++                    storage_dead(_18)
++                    storage_dead(residual_17)
++                    storage_dead(_13)
++                    storage_dead(second)
++                },
++            }
++        },
++        ControlFlow::Break => {
++            storage_live(residual_9)
++            residual_9 = copy (_5 as variant ControlFlow::Break).0
++            storage_live(_10)
++            _10 = copy residual_9
++            _0 = from_residual<(u32, u32), (), ()>[{built_in impl Sized for (u32, u32)}, {built_in impl Sized for ()}, {built_in impl Sized for ()}, impl_From_for_T<()>[{built_in impl Sized for ()}]](move _10)
++            ↳⚡ storage_dead(right)
++                storage_dead(left)
++                storage_dead(slot_1)
++                unwind_continue
++            storage_dead(_10)
++            storage_dead(residual_9)
++            storage_dead(_5)
++        },
++    }
++    storage_dead(first)
++    storage_dead(right)
++    storage_dead(left)
++    storage_dead(slot_1)
++    storage_dead(_34)
++    storage_dead(_23)
++    return
++}
++
++// Full name: test_crate::capture::closure
++struct closure<'_0> {
++  &'_0 usize,
++}
++
++// Full name: test_crate::capture::closure::{impl Destruct for closure<'_0>}::drop_glue
++unsafe fn drop_glue<'_0, '_1>(_1: &'_1 mut closure<'_0>)
++{
++    let _0: (); // return
++    let _1: &'1 mut closure<'_0>; // arg #1
++
++    storage_live(_0)
++    _0 = ()
++    storage_dead(_1)
++    return
++}
++
++// Full name: test_crate::capture::closure::{impl Destruct for closure<'_0>}
++impl<'_0> "impl_Destruct_for_closure" Destruct for closure<'_0> {
++    fn drop_glue<'_0_1> = drop_glue<'_0, '_0_1>
++    non-dyn-compatible
++}
++
++// Full name: test_crate::capture::{impl FnOnce<(usize,)> for closure<'_0>}::call_once
++fn call_once<'_0>(_1: closure<'_0>, tupled_args: (usize,)) -> Option<usize>[{built_in impl Sized for usize}]
++{
++    let _0: Option<usize>[{built_in impl Sized for usize}]; // return
++    let _1: closure<'_0>; // arg #1
++    let tupled_args: (usize,); // arg #2
++    let n: usize; // local
++    let _4: usize; // anonymous local
++    let _5: usize; // anonymous local
++
++    storage_live(_0)
++    storage_live(n)
++    n = move tupled_args.0
++    storage_live(_4)
++    _4 = copy n
++    storage_live(_5)
++    _5 = copy (*(_1).0)
++    _0 = checked_mul(move _4, move _5)
++    ↳⚡ storage_dead(n)
++        storage_dead(tupled_args)
++        storage_dead(_1)
++        unwind_continue
++    storage_dead(_5)
++    storage_dead(_4)
++    storage_dead(n)
++    storage_dead(tupled_args)
++    storage_dead(_1)
++    return
++}
++
++// Full name: test_crate::capture::{impl FnOnce<(usize,)> for closure<'_0>}
++impl<'_0> "impl_FnOnce_tuple_for_closure" FnOnce<(usize,)> for closure<'_0> {
++    proof ImpliedClause0: (closure<'_0>: MetaSized) = {built_in impl MetaSized for closure<'_0>}
++    proof ImpliedClause1: ((usize,): Sized) = {built_in impl Sized for (usize,)}
++    proof ImpliedClause2: ((usize,): Tuple) = {built_in impl Tuple for (usize,)}
++    proof ImpliedClause3: (Option<usize>[{built_in impl Sized for usize}]: Sized) = {built_in impl Sized for Option<usize>[{built_in impl Sized for usize}]}
++    type Output = Option<usize>[{built_in impl Sized for usize}]
++    fn call_once = call_once<'_0>
++    non-dyn-compatible
++}
++
++// Full name: test_crate::capture
++pub fn capture<'_0>(value: Option<usize>[{built_in impl Sized for usize}], factor: &'_0 usize) -> Option<usize>[{built_in impl Sized for usize}]
++{
++    let _0: Option<usize>[{built_in impl Sized for usize}]; // return
++    let value: Option<usize>[{built_in impl Sized for usize}]; // arg #1
++    let factor: &'1 usize; // arg #2
++    let _3: Option<usize>[{built_in impl Sized for usize}]; // anonymous local
++    let _4: closure<'3>; // anonymous local
++    let _5: &'4 usize; // anonymous local
++    let _6: Option<usize>[{built_in impl Sized for usize}]; // anonymous local
++    let self: Option<usize>[{built_in impl Sized for usize}]; // local
++    let f: closure<'7>; // local
++    let x: usize; // local
++    let _10: closure<'7>; // anonymous local
++    let _11: (usize,); // anonymous local
++    let _12: usize; // anonymous local
++    let _13: bool; // anonymous local
++    let drop_arg: &'_ mut closure<'7>; // local
++    let drop_ret: (); // local
++
++    storage_live(_0)
++    storage_live(_3)
++    _3 = copy value
++    storage_live(_4)
++    storage_live(_5)
++    _5 = &(*factor)
++    _4 = closure { 0: move _5 }
++    storage_dead(_5)
++    storage_live(self)
++    self = move _3
++    storage_live(f)
++    f = move _4
++    storage_live(_6)
++    storage_live(_13)
++    _13 = const false
++    _13 = const true
++    match self {
++        Option::None => {
++            _6 = Option::None {  }
++        },
++        Option::Some => {
++            storage_live(x)
++            x = move (self as variant Option::Some).0
++            storage_live(_10)
++            _13 = const false
++            _10 = move f
++            storage_live(_11)
++            storage_live(_12)
++            _12 = move x
++            _11 = (move _12,)
++            _6 = impl_FnOnce_tuple_for_closure<'7>::call_once(move _10, move _11)
++            ↳⚡ storage_dead(_13)
++                storage_dead(f)
++                storage_dead(self)
++                storage_dead(factor)
++                storage_dead(value)
++                unwind_continue
++            storage_dead(_12)
++            storage_dead(_11)
++            storage_dead(_10)
++            storage_dead(x)
++        },
++    }
++    if copy _13 {
++        storage_live(drop_arg)
++        drop_arg = &mut f
++        storage_live(drop_ret)
++        drop_ret = impl_Destruct_for_closure<'7>::drop_glue<'18>(move drop_arg)
++        ↳⚡ storage_dead(_13)
++            storage_dead(f)
++            storage_dead(self)
++            storage_dead(factor)
++            storage_dead(value)
++            unwind_continue
++    } else {
++    }
++    storage_dead(_13)
++    storage_dead(f)
++    storage_dead(self)
++    _0 = move _6
++    storage_dead(_4)
++    storage_dead(_3)
++    storage_dead(factor)
++    storage_dead(value)
++    storage_dead(drop_ret)
++    storage_dead(drop_arg)
++    storage_dead(_6)
++    return
++}
++
++
++
+diff --git a/charon/tests/ui/inline-selected-functions.rs b/charon/tests/ui/inline-selected-functions.rs
+new file mode 100644
+index 00000000..23b7b00d
+--- /dev/null
++++ b/charon/tests/ui/inline-selected-functions.rs
+@@ -0,0 +1,23 @@
++//@ charon-args=--inline-function crate::adjust --inline-function core::option::_::and_then
++//@ charon-args=--include core::option --include core::result
++// The selected helper must preserve mutation, early return and overflow abort.
++#[inline(never)]
++fn adjust(slot: &mut u32, increment: u32) -> Result<u32, ()> {
++    if increment == 0 {
++        return Err(());
++    }
++    let previous = *slot;
++    *slot = previous + increment;
++    Ok(previous)
++}
++
++pub fn twice(slot: &mut u32, left: u32, right: u32) -> Result<(u32, u32), ()> {
++    let first = adjust(slot, left)?;
++    let second = adjust(slot, right)?;
++    Ok((first, second))
++}
++
++// This is the hidden shared-region shape used by the constructor's closures.
++pub fn capture(value: Option<usize>, factor: &usize) -> Option<usize> {
++    value.and_then(|n| n.checked_mul(*factor))
++}
+diff --git a/charon/tests/ui/inline-selected-indirect.out b/charon/tests/ui/inline-selected-indirect.out
+new file mode 100644
+index 00000000..7c2f5e80
+--- /dev/null
++++ b/charon/tests/ui/inline-selected-indirect.out
+@@ -0,0 +1,7 @@
++error: Selected inline function 0 must be used only by direct calls
++ --> tests/ui/inline-selected-indirect.rs:3:1
++  |
++3 | fn selected(value: u32) -> u32 { value }
++  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++
++ERROR Charon failed to translate this code (1 errors)
+diff --git a/charon/tests/ui/inline-selected-indirect.rs b/charon/tests/ui/inline-selected-indirect.rs
+new file mode 100644
+index 00000000..a0bacd29
+--- /dev/null
++++ b/charon/tests/ui/inline-selected-indirect.rs
+@@ -0,0 +1,7 @@
++//@ known-failure
++//@ charon-args=--inline-function crate::selected
++fn selected(value: u32) -> u32 { value }
++pub fn call(value: u32) -> u32 {
++    let pointer: fn(u32) -> u32 = selected;
++    pointer(value)
++}
+diff --git a/charon/tests/ui/inline-selected-missing.out b/charon/tests/ui/inline-selected-missing.out
+new file mode 100644
+index 00000000..12d16760
+--- /dev/null
++++ b/charon/tests/ui/inline-selected-missing.out
+@@ -0,0 +1,7 @@
++error: No function matched inline pattern crate::missing
++ --> tests/ui/inline-selected-missing.rs:3:42
++  |
++3 | pub fn call(value: u32) -> u32 { value }
++  |                                         ^
++
++ERROR Charon failed to translate this code (1 errors)
+diff --git a/charon/tests/ui/inline-selected-missing.rs b/charon/tests/ui/inline-selected-missing.rs
+new file mode 100644
+index 00000000..81fc0176
+--- /dev/null
++++ b/charon/tests/ui/inline-selected-missing.rs
+@@ -0,0 +1,3 @@
++//@ known-failure
++//@ charon-args=--inline-function crate::missing
++pub fn call(value: u32) -> u32 { value }
+diff --git a/charon/tests/ui/inline-selected-nested.out b/charon/tests/ui/inline-selected-nested.out
+new file mode 100644
+index 00000000..8ddc7754
+--- /dev/null
++++ b/charon/tests/ui/inline-selected-nested.out
+@@ -0,0 +1,7 @@
++error: Selected inline function 1 references another selected function 0
++ --> tests/ui/inline-selected-nested.rs:4:1
++  |
++4 | fn outer(value: u32) -> u32 { inner(value) }
++  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++
++ERROR Charon failed to translate this code (1 errors)
+diff --git a/charon/tests/ui/inline-selected-nested.rs b/charon/tests/ui/inline-selected-nested.rs
+new file mode 100644
+index 00000000..8a55e9b5
+--- /dev/null
++++ b/charon/tests/ui/inline-selected-nested.rs
+@@ -0,0 +1,5 @@
++//@ known-failure
++//@ charon-args=--inline-function crate::outer --inline-function crate::inner
++fn inner(value: u32) -> u32 { value }
++fn outer(value: u32) -> u32 { inner(value) }
++pub fn call(value: u32) -> u32 { outer(value) }
+diff --git a/charon/tests/ui/inline-selected-opaque.out b/charon/tests/ui/inline-selected-opaque.out
+new file mode 100644
+index 00000000..2753d7bc
+--- /dev/null
++++ b/charon/tests/ui/inline-selected-opaque.out
+@@ -0,0 +1,4 @@
++error: Selected inline function 1 must have a transparent top-level body
++ --> /rustc/library/core/src/num/uint_macros.rs:1287:9
++
++ERROR Charon failed to translate this code (1 errors)
+diff --git a/charon/tests/ui/inline-selected-opaque.rs b/charon/tests/ui/inline-selected-opaque.rs
+new file mode 100644
+index 00000000..c586adfe
+--- /dev/null
++++ b/charon/tests/ui/inline-selected-opaque.rs
+@@ -0,0 +1,3 @@
++//@ known-failure
++//@ charon-args=--inline-function core::num::_::checked_mul
++pub fn call(value: u32) -> Option<u32> { value.checked_mul(2) }
