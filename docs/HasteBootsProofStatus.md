@@ -7,6 +7,28 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Native constructor specialization remains unproved and fails closed
+
+The strongest reviewed `u32-ranges` frontend still typechecks the actual generic
+constructor but fails the dependency audit on `core.fmt.Formatter`. A new
+`concrete-partial` diagnostic tests the original concrete Goldilocks constructor
+using official Charon partial specialization. Charon returns zero but marks its
+IR invalid because dynamic-trait types at `core::result::unwrap_failed` are
+unsupported; its constructor also remains generic. The diagnostic records the
+invalid-IR flag and rejects before invoking either frontend.
+
+All constructor-probe modes now validate IR error flags and target identity
+before translation, including the official fixture baseline. No native source,
+trait clauses, generated terms or backend representations were changed to
+bypass the constructor obligation. Source-level constructor-to-arena refinement,
+lifetime-preserving concrete specialization and the complete security theorem
+remain open.
+
+Validation: all 103 extraction/frontend guard tests passed. The fresh fixture
+passed five dependency audits; fresh generic and concrete-partial attempts
+reproduced the two stated rejections. Their receipts match the current harness
+and IR hashes, including no frontend invocation for invalid partial IR.
+
 ## Heap simulation preserves complete registry failure
 
 Four additional `Heap.lean` theorems establish agreement on read failure and

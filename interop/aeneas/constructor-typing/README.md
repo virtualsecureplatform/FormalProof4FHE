@@ -54,7 +54,7 @@ scripts/probe-hasteboots-constructor-typing \
 The probe checks exact tool/source/patch/package/build hashes, complete generated
 output, the 64-bit little-endian extraction target, fixed proof limits and all
 dependency audit entries. It preserves generated terms; fixture compatibility
-changes only imports. Six guard groups cover completeness, mode separation,
+changes only imports. Seven guard groups cover completeness, mode separation,
 admissions, proof limits, profile separation and dependency rejection. Fresh
 manifests retain commands, hashes, logs and terminal pass/failure status.
 
@@ -128,3 +128,36 @@ impl methods still failed context-collapse/dependency invariants. It is excluded
 from this patch. A successful repair must address lifetime relationships,
 concrete dispatch metadata, declaration dependencies and branch-join semantics
 together; the early rejection does not discharge that source-refinement task.
+
+## Concrete constructor with official partial specialization
+
+`--mode concrete-partial` calls the original Goldilocks `new_encoded` wrapper
+from `../parameters/wrapper.rs`, with the pinned official Charon option
+`--monomorphize-mut`. It preserves the original constructor and trait clauses;
+it neither rewrites native Rust nor freshens erased lifetimes. This option
+specializes mutable-reference shapes, rather than generally specializing every
+concrete type argument. The resulting constructor still has generic arguments.
+
+The current attempt exits zero from Charon but reports `has_errors = true`:
+partial specialization encounters unsupported dynamic-trait types at
+`core::result::unwrap_failed`. The harness records the LLBC hash, zero exit
+status, invalid-IR flag and `invalid-partial-constructor-ir` failure kind, then
+rejects **before either frontend is invoked**. It produces no accepted
+constructor result. All modes now validate the target and IR error flag before
+any official or patched Aeneas invocation, including the fixture baseline.
+Malformed/missing flags and incorrect targets are covered by the seventh guard.
+
+```sh
+scripts/probe-hasteboots-constructor-typing \
+  --tools /tmp/hasteboots-aeneas-tools --backend /tmp/hasteboots-aeneas-m0 \
+  --build-receipt build/hasteboots-extraction/static-frontend-build-kc2ncvv7/manifest.json \
+  --mode concrete-partial
+```
+
+Use a freshly verified reviewed frontend build receipt as described above.
+The concrete-partial command currently must exit nonzero. The generic
+`--mode constructor` still reaches Lean but rejects the Formatter dependency;
+the five-audit fixture is an independent accepted regression, not a substitute
+for native constructor refinement. Lifetime-preserving concrete specialization,
+actual constructor-to-arena correspondence and the full security goal remain
+open.

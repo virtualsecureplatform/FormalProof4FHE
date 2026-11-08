@@ -19,6 +19,8 @@ NAMESPACE = 'hasteboots_constructor_typing'
 
 
 def validate_output(raw, mode):
+    if mode not in ['fixture', 'constructor', 'concrete-partial']:
+        raise RuntimeError('Unknown constructor probe mode')
     namespace = NAMESPACE if mode == 'fixture' else PARAMETERS['NAMESPACE']
     if raw.count('import Aeneas\n') != 1 or not raw.rstrip().endswith('end ' + namespace):
         raise RuntimeError('Truncated or unexpected extraction')
@@ -28,14 +30,22 @@ def validate_output(raw, mode):
             ('maxHeartbeats', '200000'), ('maxRecDepth', '1000')]:
         raise RuntimeError('Unexpected proof limits')
     names = ['both', 'propagate'] if mode == 'fixture' else [
-        'generic_new_encoded', 'pcs.matrix_weighted.Parameters.new_encoded']
+        'new_encoded' if mode == 'concrete-partial' else 'generic_new_encoded',
+        'pcs.matrix_weighted.Parameters.new_encoded']
     for name in names:
         if not re.search(r'^def ' + re.escape(name) + r'\s', raw, re.M):
             raise RuntimeError('Missing source function: ' + name)
     imports = 'import Aeneas.Std\nimport Aeneas.Tactic.RustAttributes\n'
-    if mode == 'constructor':
+    if mode != 'fixture':
         imports += 'import Aeneas.Data.Discriminant\n'
     return raw.replace('import Aeneas\n', imports)
+
+
+def validate_ir(ir):
+    translated = ir.get('translated') if isinstance(ir, dict) else None
+    if not isinstance(translated, dict) or ir.get('has_errors') is not False or translated.get('target_information') != [
+            {'key': 'x86_64-unknown-linux-gnu', 'value': {'target_pointer_size': 8, 'is_little_endian': True}}]:
+        raise RuntimeError('Incomplete or wrong-target Charon extraction')
 
 
 def main():
@@ -43,7 +53,7 @@ def main():
     parser.add_argument('--tools', type=Path, required=True)
     parser.add_argument('--backend', type=Path, required=True)
     parser.add_argument('--build-receipt', type=Path, required=True)
-    parser.add_argument('--mode', choices=['fixture', 'constructor'], default='fixture')
+    parser.add_argument('--mode', choices=['fixture', 'constructor', 'concrete-partial'], default='fixture')
     args = parser.parse_args()
     tools, backend = args.tools.resolve(), args.backend.resolve()
     parent = ROOT / 'build/hasteboots-extraction'
@@ -51,7 +61,7 @@ def main():
     out = Path(tempfile.mkdtemp(prefix='constructor-typing-' + args.mode + '-', dir=parent))
     record = {'status': 'started', 'mode': args.mode, 'commands': [],
               'claim': 'translation regression subgate; source refinement and security unproved',
-              'script_sha256': digest(Path(__file__).read_bytes())}
+              'script_sha256': digest(Path(__file__).read_bytes()), 'aeneas_invoked': False}
     def save():
         (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
     def run(command, name, env=None):
@@ -86,11 +96,7 @@ def main():
             run([tools / 'charon', 'rustc', '--preset=aeneas', '--include', 'core::result',
                  '--dest-file', llbc, '--', '--crate-type', 'lib', '--edition=2024',
                  '--crate-name', NAMESPACE, DATA / 'fixture.rs'], 'charon.log')
-            run([tools / 'aeneas', *options, '-dest', out / 'official', llbc], 'official.log')
-            baseline = (out / 'official/Extracted.lean').read_text()
-            if baseline.count('  coremarkerCopyInst : core.marker.Copy ') != 2 or 'lift (core.result.Result.Insts.CoreOpsTry.branch value)' not in baseline:
-                raise RuntimeError('Official duplicate-parent/effect baseline changed')
-            record['official_status'] = 'duplicate_parent_and_double_result_rejected'
+
         else:
             native = ROOT.parent / 'HasteBoots'
             if PARAMETERS['checked'](['git', '-C', native, 'rev-parse', 'HEAD'], text=True).strip() != PARAMETERS['NATIVE_PIN']:
@@ -101,23 +107,33 @@ def main():
             (out / 'Cargo.toml').write_text((fixture / 'Cargo.toml').read_text().replace('../../../../HasteBoots', str(native)))
             (out / 'Cargo.lock').write_bytes((fixture / 'Cargo.lock').read_bytes())
             (out / 'src').mkdir()
-            wrapper = (DATA / 'wrapper.rs').read_bytes()
+            wrapper_path = ROOT / 'interop/aeneas/parameters/wrapper.rs' if args.mode == 'concrete-partial' else DATA / 'wrapper.rs'
+            wrapper = wrapper_path.read_bytes()
             (out / 'src/lib.rs').write_bytes(wrapper)
-            record.update(wrapper_sha256=digest(wrapper), lock_sha256=digest((out / 'Cargo.lock').read_bytes()),
+            record.update(wrapper_path=str(wrapper_path.relative_to(ROOT)), wrapper_sha256=digest(wrapper), lock_sha256=digest((out / 'Cargo.lock').read_bytes()),
                           native_revision=PARAMETERS['NATIVE_PIN'])
             env = dict(os.environ)
             env.setdefault('CARGO_TARGET_DIR', str(parent / 'cargo-constructor-typing'))
-            run([tools / 'charon', 'cargo', '--preset=aeneas', '--start-from',
-                 PARAMETERS['NAMESPACE'] + '::generic_new_encoded', '--include', 'pcs',
+            command = [tools / 'charon', 'cargo', '--preset=aeneas']
+            if args.mode == 'concrete-partial': command += ['--monomorphize-mut']
+            start = 'new_encoded' if args.mode == 'concrete-partial' else 'generic_new_encoded'
+            run([*command, '--start-from', PARAMETERS['NAMESPACE'] + '::' + start, '--include', 'pcs',
                  '--include', 'core::option', '--include', 'core::result',
                  '--include', 'core::num::_::checked_next_power_of_two',
                  '--include', 'core::num::_::one_less_than_next_power_of_two',
                  '--dest-file', llbc, '--', '--manifest-path', out / 'Cargo.toml', '--lib', '--locked'], 'charon.log', env)
         ir = json.loads(llbc.read_text())
-        if ir.get('has_errors') is not False or ir['translated']['target_information'] != [
-                {'key': 'x86_64-unknown-linux-gnu', 'value': {'target_pointer_size': 8, 'is_little_endian': True}}]:
-            raise RuntimeError('Incomplete or wrong-target Charon extraction')
-        record['llbc_sha256'] = digest(llbc.read_bytes())
+        record.update(charon_exit_code=0, charon_has_errors=ir.get('has_errors'), llbc_sha256=digest(llbc.read_bytes()))
+        if args.mode == 'concrete-partial' and ir.get('has_errors') is not False:
+            record['failure_kind'] = 'invalid-partial-constructor-ir'
+        validate_ir(ir)
+        record['aeneas_invoked'] = True
+        if args.mode == 'fixture':
+            run([tools / 'aeneas', *options, '-dest', out / 'official', llbc], 'official.log')
+            baseline = (out / 'official/Extracted.lean').read_text()
+            if baseline.count('  coremarkerCopyInst : core.marker.Copy ') != 2 or 'lift (core.result.Result.Insts.CoreOpsTry.branch value)' not in baseline:
+                raise RuntimeError('Official duplicate-parent/effect baseline changed')
+            record['official_status'] = 'duplicate_parent_and_double_result_rejected'
         run([frontend, *options, '-dest', out / 'patched', llbc], 'patched.log')
         if re.search(r'Uncaught exception|\[Error\]', BASE['BASE']['clear_colors']((out / 'patched.log').read_text())):
             raise RuntimeError('Frontend reported errors despite exit status')
@@ -140,7 +156,8 @@ def main():
             runtime = runtime.replace(marker, support.replace('import Aeneas.Std\n', '') + '\n' + marker, 1)
             record['runtime_sha256'] = digest(support.encode())
             names = [PARAMETERS['NAMESPACE'] + '.' + n for n in
-                     ['generic_new_encoded', 'pcs.matrix_weighted.Parameters.new_encoded']]
+                     ['new_encoded' if args.mode == 'concrete-partial' else 'generic_new_encoded',
+                      'pcs.matrix_weighted.Parameters.new_encoded']]
         checked = out / 'Checked.lean'
         checked.write_text(runtime + '\n' + proof + ''.join('\n#print axioms ' + n + '\n' for n in names))
         record.update(generated_sha256=digest(raw.encode()), proof_sha256=digest(proof.encode()),
