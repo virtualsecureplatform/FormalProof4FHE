@@ -1891,3 +1891,583 @@ index 00000000..c586adfe
 +//@ known-failure
 +//@ charon-args=--inline-function core::num::_::checked_mul
 +pub fn call(value: u32) -> Option<u32> { value.checked_mul(2) }
+diff --git a/charon/tests/ui/preserve-allocator-drop.out b/charon/tests/ui/preserve-allocator-drop.out
+new file mode 100644
+index 00000000..2ff85944
+--- /dev/null
++++ b/charon/tests/ui/preserve-allocator-drop.out
+@@ -0,0 +1,564 @@
++# Final LLBC before serialization:
++
++// Full name: core::alloc::layout::Layout
++#[lang_item("alloc_layout")]
++pub opaque type Layout
++
++// Full name: core::alloc::layout::{Layout}::from_size_align_unchecked
++pub unsafe fn from_size_align_unchecked(_1: usize, _2: usize) -> Layout
++= <opaque>
++
++// Full name: core::alloc::layout::{Layout}::size
++pub fn size<'_0>(_1: &'_0 Layout) -> usize
++= <opaque>
++
++// Full name: core::alloc::layout::{Layout}::align
++pub fn align<'_0>(_1: &'_0 Layout) -> usize
++= <opaque>
++
++// Full name: core::ptr::unique::Unique::<u8>
++pub opaque type Unique::<u8>
++
++// Full name: core::ptr::non_null::NonNull::<u8>
++#[lang_item("NonNull")]
++pub opaque type NonNull::<u8>
++
++// Full name: core::convert::{impl Into<NonNull::<u8>> for Unique::<u8>}::into::<Unique::<u8>, NonNull::<u8>>
++pub fn into::<Unique::<u8>, NonNull::<u8>>(_1: Unique::<u8>) -> NonNull::<u8>
++= <opaque>
++
++opaque type core::marker::MetaSized::{vtable}
++
++// Full name: core::marker::MetaSized
++#[lang_item("meta_sized")]
++pub trait MetaSized<Self>
++
++// Full name: core::marker::Sized
++#[lang_item("sized")]
++pub trait Sized<Self>
++{
++    proof ImpliedClause0: (Self: MetaSized)
++    non-dyn-compatible
++}
++
++// Full name: core::marker::PhantomData::<u8>
++#[lang_item("phantom_data")]
++pub struct PhantomData::<u8> {}
++
++// Full name: core::marker::Destruct
++#[lang_item("destruct")]
++pub trait Destruct<Self>
++{
++    fn drop_glue<'_0_1>;
++    non-dyn-compatible
++}
++
++// Full name: core::mem::SizedTypeProperties
++pub trait SizedTypeProperties<Self>
++{
++    proof ImpliedClause0: (Self: Sized)
++    proof ImpliedClause1: (Self: Destruct)
++    non-dyn-compatible
++}
++
++// Full name: core::mem::SizedTypeProperties::LAYOUT::<u8>
++pub fn LAYOUT::<u8>() -> Layout
++= <opaque>
++
++// Full name: core::mem::SizedTypeProperties::LAYOUT::<u8>
++pub const LAYOUT::<u8>: Layout = LAYOUT::<u8>()
++
++// Full name: core::num::niche_types::UsizeNoHighBit
++pub opaque type UsizeNoHighBit
++
++// Full name: core::num::niche_types::{UsizeNoHighBit}::as_inner
++pub fn as_inner(_1: UsizeNoHighBit) -> usize
++= <opaque>
++
++// Full name: core::num::{usize}::unchecked_mul
++pub unsafe fn unchecked_mul(_1: usize, _2: usize) -> usize
++= <opaque>
++
++// Full name: core::option::Option::<(NonNull::<u8>, Layout)>
++#[lang_item("Option")]
++pub enum Option::<(NonNull::<u8>, Layout)> {
++  None,
++  Some((NonNull::<u8>, Layout)),
++}
++
++// Full name: core::ptr::mut_ptr::{*mut [u8]}::drop_in_place::<[u8]>
++pub unsafe fn drop_in_place::<[u8]>(_1: *mut [u8])
++= <opaque>
++
++// Full name: core::ptr::mut_ptr::{*mut u8}::cast_slice::<u8>
++pub fn cast_slice::<u8>(_1: *mut u8, _2: usize) -> *mut [u8]
++= <opaque>
++
++// Full name: core::ptr::non_null::{NonNull::<u8>}::as_ptr::<u8>
++pub fn as_ptr::<u8>(_1: NonNull::<u8>) -> *mut u8
++= <opaque>
++
++// Full name: core::ptr::unique::{Unique::<u8>}::as_non_null_ptr::<u8>
++pub fn as_non_null_ptr::<u8>(_1: Unique::<u8>) -> NonNull::<u8>
++= <opaque>
++
++// Full name: core::ptr::unique::{Unique::<u8>}::cast::<u8, u8>
++pub fn cast::<u8, u8>(_1: Unique::<u8>) -> Unique::<u8>
++= <opaque>
++
++// Full name: alloc::alloc::Global
++#[lang_item("global_alloc_ty")]
++pub struct Global {}
++
++// Full name: alloc::raw_vec::RawVecInner::<Global>
++struct RawVecInner::<Global> {
++  ptr: Unique::<u8>,
++  cap: UsizeNoHighBit,
++  alloc: Global,
++}
++
++// Full name: alloc::raw_vec::RawVec::<u8, Global>
++struct RawVec::<u8, Global> {
++  inner: RawVecInner::<Global>,
++  _marker: PhantomData::<u8>,
++}
++
++// Full name: alloc::raw_vec::{RawVecInner::<Global>}::current_memory::<Global>
++unsafe fn current_memory::<Global><'_0>(self: &'_0 RawVecInner::<Global>, elem_layout: Layout) -> Option::<(NonNull::<u8>, Layout)>
++{
++    let _0: Option::<(NonNull::<u8>, Layout)>; // return
++    let self: &'1 RawVecInner::<Global>; // arg #1
++    let elem_layout: Layout; // arg #2
++    let _3: bool; // anonymous local
++    let _4: usize; // anonymous local
++    let _5: &'3 Layout; // anonymous local
++    let _6: bool; // anonymous local
++    let _7: usize; // anonymous local
++    let _8: UsizeNoHighBit; // anonymous local
++    let alloc_size: usize; // local
++    let _10: usize; // anonymous local
++    let _11: &'4 Layout; // anonymous local
++    let _12: usize; // anonymous local
++    let _13: UsizeNoHighBit; // anonymous local
++    let layout: Layout; // local
++    let _15: usize; // anonymous local
++    let _16: usize; // anonymous local
++    let _17: &'5 Layout; // anonymous local
++    let _18: (NonNull::<u8>, Layout); // anonymous local
++    let _19: NonNull::<u8>; // anonymous local
++    let _20: Unique::<u8>; // anonymous local
++    let _21: Layout; // anonymous local
++
++    storage_live(_0)
++    storage_live(_3)
++    storage_live(_4)
++    storage_live(_5)
++    _5 = &elem_layout
++    _4 = size<'7>(move _5)
++    ↳⚡ storage_dead(elem_layout)
++        storage_dead(self)
++        unwind_continue
++    storage_dead(_5)
++    _3 = move _4 == const 0usize
++    if move _3 {
++        storage_dead(_4)
++    } else {
++        storage_dead(_4)
++        storage_live(_6)
++        storage_live(_7)
++        storage_live(_8)
++        _8 = copy ((*self)).cap
++        _7 = as_inner(move _8)
++        ↳⚡ storage_dead(elem_layout)
++            storage_dead(self)
++            unwind_continue
++        storage_dead(_8)
++        _6 = move _7 == const 0usize
++        if move _6 {
++        } else {
++            storage_dead(_7)
++            storage_live(alloc_size)
++            storage_live(_10)
++            storage_live(_11)
++            _11 = &elem_layout
++            _10 = size<'9>(move _11)
++            ↳⚡ storage_dead(elem_layout)
++                storage_dead(self)
++                unwind_continue
++            storage_dead(_11)
++            storage_live(_12)
++            storage_live(_13)
++            _13 = copy ((*self)).cap
++            _12 = as_inner(move _13)
++            ↳⚡ storage_dead(elem_layout)
++                storage_dead(self)
++                unwind_continue
++            storage_dead(_13)
++            alloc_size = unchecked_mul(move _10, move _12)
++            ↳⚡ storage_dead(elem_layout)
++                storage_dead(self)
++                unwind_continue
++            storage_dead(_12)
++            storage_dead(_10)
++            storage_live(layout)
++            storage_live(_15)
++            _15 = copy alloc_size
++            storage_live(_16)
++            storage_live(_17)
++            _17 = &elem_layout
++            _16 = align<'11>(move _17)
++            ↳⚡ storage_dead(elem_layout)
++                storage_dead(self)
++                unwind_continue
++            storage_dead(_17)
++            layout = from_size_align_unchecked(move _15, move _16)
++            ↳⚡ storage_dead(elem_layout)
++                storage_dead(self)
++                unwind_continue
++            storage_dead(_16)
++            storage_dead(_15)
++            storage_live(_18)
++            storage_live(_19)
++            storage_live(_20)
++            _20 = copy ((*self)).ptr
++            _19 = into::<Unique::<u8>, NonNull::<u8>>(move _20)
++            ↳⚡ storage_dead(elem_layout)
++                storage_dead(self)
++                unwind_continue
++            storage_dead(_20)
++            storage_live(_21)
++            _21 = copy layout
++            _18 = (move _19, move _21)
++            storage_dead(_21)
++            storage_dead(_19)
++            _0 = Option::<(NonNull::<u8>, Layout)>::Some { 0: move _18 }
++            storage_dead(_18)
++            storage_dead(layout)
++            storage_dead(alloc_size)
++            storage_dead(_6)
++            storage_dead(_3)
++            storage_dead(elem_layout)
++            storage_dead(self)
++            return
++        }
++        storage_dead(_7)
++    }
++    _0 = Option::<(NonNull::<u8>, Layout)>::None {  }
++    storage_dead(_6)
++    storage_dead(_3)
++    storage_dead(elem_layout)
++    storage_dead(self)
++    return
++}
++
++unsafe fn alloc::raw_vec::{RawVecInner::<Global>}::deallocate::<Global><'_0>(self: &'_0 mut RawVecInner::<Global>, elem_layout: Layout)
++{
++    let _0: (); // return
++    let self: &'1 mut RawVecInner::<Global>; // arg #1
++    let elem_layout: Layout; // arg #2
++    let _3: Option::<(NonNull::<u8>, Layout)>; // anonymous local
++    let _4: &'3 RawVecInner::<Global>; // anonymous local
++    let _5: Layout; // anonymous local
++    let ptr: NonNull::<u8>; // local
++    let layout: Layout; // local
++    let _8: (); // anonymous local
++    let _9: &'5 Global; // anonymous local
++    let _10: NonNull::<u8>; // anonymous local
++    let _11: Layout; // anonymous local
++
++    storage_live(_0)
++    _0 = ()
++    storage_live(_3)
++    storage_live(_4)
++    _4 = &(*self)
++    storage_live(_5)
++    _5 = copy elem_layout
++    _3 = current_memory::<Global><'7>(move _4, move _5)
++    ↳⚡ storage_dead(elem_layout)
++        storage_dead(self)
++        unwind_continue
++    storage_dead(_5)
++    storage_dead(_4)
++    match _3 {
++        Option::<(NonNull::<u8>, Layout)>::Some => {
++        },
++        _ => {
++            storage_dead(_3)
++            _0 = ()
++            storage_dead(elem_layout)
++            storage_dead(self)
++            return
++        },
++    }
++    storage_live(ptr)
++    ptr = copy (_3 as variant Option::<(NonNull::<u8>, Layout)>::Some).0.0
++    storage_live(layout)
++    layout = copy (_3 as variant Option::<(NonNull::<u8>, Layout)>::Some).0.1
++    storage_live(_8)
++    storage_live(_9)
++    _9 = &((*self)).alloc
++    storage_live(_10)
++    _10 = copy ptr
++    storage_live(_11)
++    _11 = copy layout
++    _8 = impl_Allocator_for_Global::deallocate<'9>(move _9, move _10, move _11)
++    ↳⚡ storage_dead(elem_layout)
++        storage_dead(self)
++        unwind_continue
++    storage_dead(_11)
++    storage_dead(_10)
++    storage_dead(_9)
++    storage_dead(_8)
++    _0 = ()
++    storage_dead(layout)
++    storage_dead(ptr)
++    storage_dead(_3)
++    storage_dead(elem_layout)
++    storage_dead(self)
++    return
++}
++
++// Full name: alloc::raw_vec::{impl Drop for RawVec::<u8, Global>}::drop::<u8, Global>
++pub fn {impl Drop for RawVec::<u8, Global>}::drop::<u8, Global><'_0>(self: &'_0 mut RawVec::<u8, Global>)
++{
++    let _0: (); // return
++    let self: &'1 mut RawVec::<u8, Global>; // arg #1
++    let _2: &'3 mut RawVecInner::<Global>; // anonymous local
++
++    storage_live(_0)
++    _0 = ()
++    storage_live(_2)
++    _2 = &two-phase-mut ((*self)).inner
++    _0 = alloc::raw_vec::{RawVecInner::<Global>}::deallocate::<Global><'5>(move _2, copy LAYOUT::<u8>)
++    ↳⚡ storage_dead(self)
++        unwind_continue
++    storage_dead(_2)
++    storage_dead(self)
++    return
++}
++
++// Full name: alloc::raw_vec::RawVec::{impl Destruct for RawVec::<u8, Global>}::drop_glue::<u8, Global>
++unsafe fn {impl Destruct for RawVec::<u8, Global>}::drop_glue::<u8, Global><'_0>(_1: &'_0 mut RawVec::<u8, Global>)
++{
++    let _0: (); // return
++    let _1: &'1 mut RawVec::<u8, Global>; // arg #1
++    let _2: &'2 mut RawVec::<u8, Global>; // anonymous local
++    let _3: (); // anonymous local
++
++    storage_live(_0)
++    storage_live(_2)
++    storage_live(_3)
++    _0 = ()
++    _2 = &mut (*_1)
++    _3 = {impl Drop for RawVec::<u8, Global>}::drop::<u8, Global><'4>(move _2)
++    ↳⚡ storage_dead(_3)
++        storage_dead(_2)
++        storage_dead(_1)
++        unwind_continue
++    storage_dead(_3)
++    storage_dead(_2)
++    storage_dead(_1)
++    return
++}
++
++// Full name: alloc::raw_vec::{RawVecInner::<Global>}::non_null::<Global, u8>
++fn non_null::<Global, u8><'_0>(self: &'_0 RawVecInner::<Global>) -> NonNull::<u8>
++{
++    let _0: NonNull::<u8>; // return
++    let self: &'1 RawVecInner::<Global>; // arg #1
++    let _2: Unique::<u8>; // anonymous local
++    let _3: Unique::<u8>; // anonymous local
++
++    storage_live(_0)
++    storage_live(_2)
++    storage_live(_3)
++    _3 = copy ((*self)).ptr
++    _2 = cast::<u8, u8>(move _3)
++    ↳⚡ storage_dead(self)
++        unwind_continue
++    storage_dead(_3)
++    _0 = as_non_null_ptr::<u8>(move _2)
++    ↳⚡ storage_dead(self)
++        unwind_continue
++    storage_dead(_2)
++    storage_dead(self)
++    return
++}
++
++fn alloc::raw_vec::{RawVecInner::<Global>}::ptr::<Global, u8><'_0>(self: &'_0 RawVecInner::<Global>) -> *mut u8
++{
++    let _0: *mut u8; // return
++    let self: &'1 RawVecInner::<Global>; // arg #1
++    let _2: NonNull::<u8>; // anonymous local
++    let _3: &'2 RawVecInner::<Global>; // anonymous local
++
++    storage_live(_0)
++    storage_live(_2)
++    storage_live(_3)
++    _3 = &(*self)
++    _2 = non_null::<Global, u8><'4>(move _3)
++    ↳⚡ storage_dead(self)
++        unwind_continue
++    storage_dead(_3)
++    _0 = as_ptr::<u8>(move _2)
++    ↳⚡ storage_dead(self)
++        unwind_continue
++    storage_dead(_2)
++    storage_dead(self)
++    return
++}
++
++fn alloc::raw_vec::{RawVec::<u8, Global>}::ptr::<u8, Global><'_0>(self: &'_0 RawVec::<u8, Global>) -> *mut u8
++{
++    let _0: *mut u8; // return
++    let self: &'1 RawVec::<u8, Global>; // arg #1
++    let _2: &'3 RawVecInner::<Global>; // anonymous local
++
++    storage_live(_0)
++    storage_live(_2)
++    _2 = &((*self)).inner
++    _0 = alloc::raw_vec::{RawVecInner::<Global>}::ptr::<Global, u8><'5>(move _2)
++    ↳⚡ storage_dead(self)
++        unwind_continue
++    storage_dead(_2)
++    storage_dead(self)
++    return
++}
++
++// Full name: alloc::vec::Vec::<u8>
++#[lang_item("Vec")]
++pub struct Vec::<u8, Global> {
++  buf: RawVec::<u8, Global>,
++  len: usize,
++}
++
++// Full name: alloc::vec::{Vec::<u8, Global>}::as_mut_ptr::<u8, Global>
++pub fn as_mut_ptr::<u8, Global><'_0>(self: &'_0 mut Vec::<u8, Global>) -> *mut u8
++{
++    let _0: *mut u8; // return
++    let self: &'1 mut Vec::<u8, Global>; // arg #1
++    let _2: &'3 RawVec::<u8, Global>; // anonymous local
++
++    storage_live(_0)
++    storage_live(_2)
++    _2 = &((*self)).buf
++    _0 = alloc::raw_vec::{RawVec::<u8, Global>}::ptr::<u8, Global><'5>(move _2)
++    ↳⚡ storage_dead(self)
++        unwind_continue
++    storage_dead(_2)
++    storage_dead(self)
++    return
++}
++
++// Full name: alloc::vec::{impl Drop for Vec::<u8, Global>}::drop::<u8, Global>
++pub fn {impl Drop for Vec::<u8, Global>}::drop::<u8, Global><'_0>(self: &'_0 mut Vec::<u8, Global>)
++{
++    let _0: (); // return
++    let self: &'1 mut Vec::<u8, Global>; // arg #1
++    let _2: *mut [u8]; // anonymous local
++    let _3: *mut u8; // anonymous local
++    let _4: &'2 mut Vec::<u8, Global>; // anonymous local
++    let _5: usize; // anonymous local
++
++    storage_live(_0)
++    _0 = ()
++    storage_live(_2)
++    storage_live(_3)
++    storage_live(_4)
++    _4 = &two-phase-mut (*self)
++    _3 = as_mut_ptr::<u8, Global><'4>(move _4)
++    ↳⚡ storage_dead(self)
++        unwind_continue
++    storage_dead(_4)
++    storage_live(_5)
++    _5 = copy ((*self)).len
++    _2 = cast_slice::<u8>(move _3, move _5)
++    ↳⚡ storage_dead(self)
++        unwind_continue
++    storage_dead(_5)
++    storage_dead(_3)
++    _0 = drop_in_place::<[u8]>(move _2)
++    ↳⚡ storage_dead(self)
++        unwind_continue
++    storage_dead(_2)
++    storage_dead(self)
++    return
++}
++
++// Full name: alloc::vec::Vec::{impl Destruct for Vec::<u8, Global>}::drop_glue::<u8, Global>
++unsafe fn {impl Destruct for Vec::<u8, Global>}::drop_glue::<u8, Global><'_0>(_1: &'_0 mut Vec::<u8, Global>)
++{
++    let _0: (); // return
++    let _1: &'1 mut Vec::<u8, Global>; // arg #1
++    let _2: &'2 mut Vec::<u8, Global>; // anonymous local
++    let _3: (); // anonymous local
++    let drop_arg_4: &'_ mut RawVec::<u8, Global>; // local
++    let drop_ret_5: (); // local
++    let drop_arg_6: &'_ mut RawVec::<u8, Global>; // local
++    let drop_ret_7: (); // local
++
++    storage_live(_0)
++    storage_live(_2)
++    storage_live(_3)
++    _0 = ()
++    _2 = &mut (*_1)
++    _3 = {impl Drop for Vec::<u8, Global>}::drop::<u8, Global><'4>(move _2)
++    ↳⚡ storage_live(drop_arg_4)
++        drop_arg_4 = &mut ((*_1)).buf
++        storage_live(drop_ret_5)
++        drop_ret_5 = {impl Destruct for RawVec::<u8, Global>}::drop_glue::<u8, Global><'5>(move drop_arg_4)
++        ↳⚡ storage_dead(_3)
++            storage_dead(_2)
++            storage_dead(_1)
++            storage_dead(drop_ret_7)
++            storage_dead(drop_arg_6)
++            storage_dead(drop_ret_5)
++            storage_dead(drop_arg_4)
++            unwind_terminate
++        storage_dead(_3)
++        storage_dead(_2)
++        storage_dead(_1)
++        unwind_continue
++    storage_live(drop_arg_6)
++    drop_arg_6 = &mut ((*_1)).buf
++    storage_live(drop_ret_7)
++    drop_ret_7 = {impl Destruct for RawVec::<u8, Global>}::drop_glue::<u8, Global><'6>(move drop_arg_6)
++    ↳⚡ storage_dead(_3)
++        storage_dead(_2)
++        storage_dead(_1)
++        unwind_continue
++    storage_dead(_3)
++    storage_dead(_2)
++    storage_dead(_1)
++    storage_dead(drop_ret_7)
++    storage_dead(drop_arg_6)
++    storage_dead(drop_ret_5)
++    storage_dead(drop_arg_4)
++    return
++}
++
++// Full name: test_crate::release
++pub fn release(_buffer: Vec::<u8, Global>)
++{
++    let _0: (); // return
++    let _buffer: Vec::<u8, Global>; // arg #1
++    let drop_arg: &'_ mut Vec::<u8, Global>; // local
++    let drop_ret: (); // local
++
++    storage_live(_0)
++    _0 = ()
++    _0 = ()
++    storage_live(drop_arg)
++    drop_arg = &mut _buffer
++    storage_live(drop_ret)
++    drop_ret = {impl Destruct for Vec::<u8, Global>}::drop_glue::<u8, Global><'0>(move drop_arg)
++    ↳⚡ storage_dead(_buffer)
++        unwind_continue
++    storage_dead(_buffer)
++    storage_dead(drop_ret)
++    storage_dead(drop_arg)
++    return
++}
++
++
++
+diff --git a/charon/tests/ui/preserve-allocator-drop.rs b/charon/tests/ui/preserve-allocator-drop.rs
+new file mode 100644
+index 00000000..eaa98434
+--- /dev/null
++++ b/charon/tests/ui/preserve-allocator-drop.rs
+@@ -0,0 +1,4 @@
++//@ charon-args=--monomorphize --precise-drops --desugar-drops
++//@ charon-args=--include alloc::vec --include alloc::raw_vec
++// Keep the concrete allocator call when exposing byte-vector cleanup.
++pub fn release(_buffer: Vec<u8>) {}
