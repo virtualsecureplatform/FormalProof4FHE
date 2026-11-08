@@ -1,0 +1,97 @@
+#!/usr/bin/env python3
+"""Embed retained byte-drop caller bodies and the typed loop, preserving classification."""
+import argparse
+import json
+from pathlib import Path
+import runpy
+
+ROOT=Path(__file__).resolve().parent.parent
+BASE=runpy.run_path(str(ROOT/'scripts/reify-hasteboots-slice-scope-llbc'))
+LOOP=runpy.run_path(str(ROOT/'scripts/reify-hasteboots-byte-loop-llbc'))
+SLICE=BASE['BASE'];require=SLICE['require'];empty_generics=SLICE['empty_generics'];ty=SLICE['ty'];lean_ty=SLICE['lean_ty'];region_valid=SLICE['region_valid'];seq=SLICE['seq']
+
+
+class Reifier(BASE['Reifier']):
+    def __init__(self,ir):
+        super().__init__(ir)
+        self.loop=LOOP['Reifier'](ir)
+        self.codes={};self.code_active=set()
+
+    def schema(self,fid):
+        if fid in self.schemas:return self.schemas[fid]
+        require(fid in self.functions,'Missing retained callee')
+        f=self.functions[fid]
+        require(isinstance(f['body'],dict)and set(f['body'])=={'Structured'}and f['item_meta']['opacity']in['Transparent','Foreign'],'No retained structured body')
+        regions=f['generics']['regions']
+        require(all(set(r)=={'index','name','mutability'}and r['index']==i for i,r in enumerate(regions))and empty_generics({**f['generics'],'regions':[]})and f['is_global_initializer']is None,'Unclosed declaration')
+        self.regions[fid]=len(regions);b=f['body']['Structured'];signature=f['signature']
+        require(set(b)=={'span','bound_body_regions','locals','body','comments'}and signature['abi']=='Rust'and not signature['is_variadic'],'Unsupported body/signature')
+        inputs=[ty(t,free=len(regions))for t in signature['inputs']];output=ty(signature['output'],free=len(regions));count=b['locals']['arg_count'];bound=b['bound_body_regions']
+        require(count==len(inputs),'Signature/local argument count differs')
+        if fid==4:
+            # This is the marshalling signature, not a replacement local body:
+            # actual loop locals/statements live in the embedded typed function.
+            types=[output]+inputs
+        else:
+            require([x['index']for x in b['locals']['locals']]==list(range(len(b['locals']['locals']))),'Noncanonical local indices')
+            types=[ty(x['ty'],bound,len(regions))for x in b['locals']['locals']]
+            require(types[0]==output and types[1:count+1]==inputs,'Signature/local types differ')
+        self.schemas[fid]=(types,count,bound);return self.schemas[fid]
+
+    def classification(self,fid):
+        return '.foreignBody'if self.functions[fid]['item_meta']['opacity']=='Foreign'else'.transparent'
+
+    def code_block(self,block,fid):
+        require(set(block)=={'span','statements'},'Unknown source block fields')
+        statements=block['statements']
+        for s in statements:require(set(s)=={'span','id','kind','comments_before'},'Unknown statement fields')
+        for pos,statement in enumerate(statements):
+            kind=statement['kind']
+            if not isinstance(kind,dict)or'Call'not in kind:continue
+            require(set(kind)=={'Call'}and set(kind['Call'])=={'call','on_unwind'},'Unknown call fields')
+            node=kind['Call'];call=node['call'];require(set(call)=={'func','args','dest'}and set(call['func'])=={'Regular'},'Unsupported call form')
+            fun=call['func']['Regular'];require(set(fun)=={'kind','generics'}and set(fun['kind'])=={'Fun'},'Unsupported callee form')
+            target=fun['kind']['Fun']
+            if set(target)=={'Builtin'}:continue
+            require(set(target)=={'Regular'},'Unsupported callee kind')
+            target=target['Regular'];types,count,_=self.schema(target);dest,dest_ty=self.place(call['dest'],fid);args=[self.operand(a,fid)for a in call['args']]
+            generics=fun['generics'];regions=generics['regions']
+            require(empty_generics({**generics,'regions':[]})and len(regions)==self.regions[target]and all(region_valid(r,self.schema(fid)[2],self.regions[fid])for r in regions),'Unbound call regions')
+            require(dest_ty==types[0]and[a[1]for a in args]==types[1:count+1],'Call signature mismatch')
+            callee=self.code(target)
+            unwind=self.code_block(node['on_unwind'],fid)
+            following=self.code_block({'span':block['span'],'statements':statements[pos+1:]},fid)
+            result='(.call '+json.dumps(self.name(target))+' '+self.classification(target)+' '+seq([lean_ty(t)for t in types])+' '+str(count)+' '+str(dest)+' '+seq([a[0]for a in args])+' '+callee+' '+unwind+' '+following+')'
+            if pos:
+                original=super().block({'span':block['span'],'statements':statements[:pos]},fid)
+                result='(.native '+original+' '+result+')'
+            return result
+        if not statements:return '.done'
+        return '(.native '+super().block(block,fid)+' .done)'
+
+    def code(self,fid):
+        require(fid not in self.code_active,'Recursive retained call graph')
+        if fid in self.codes:return self.codes[fid]
+        self.schema(fid);self.code_active.add(fid)
+        if fid==4:result='(.loop '+self.classification(fid)+' HasteBootsByteLoopBody.f4)'
+        else:result=self.code_block(self.functions[fid]['body']['Structured']['body'],fid)
+        self.code_active.remove(fid);self.codes[fid]=result;return result
+
+    def render(self):
+        types,count,_=self.schema(0);require(all(t[0]in['raw','usize']for t in types[1:count+1]),'Root requires closed raw/length operands')
+        self.code(0)
+        native=self.loop.render().replace('public import FormalProof4FHE.HasteBoots.NativeByteLoopLLBC','public import FormalProof4FHE.HasteBoots.NativeByteDropCalls')
+        lines=[native,'namespace HasteBootsByteDropProbe','open FormalProof4FHE.HasteBoots.NativeByteDropCalls','']
+        for fid in range(4):
+            types,count,_=self.schema(fid);f=self.functions[fid]
+            lines+=['-- Retained original body SHA256 '+LOOP['digest'](f['body']),'def f'+str(fid)+' : Definition :=',
+                    '  ⟨'+json.dumps(self.name(fid))+', '+self.classification(fid)+', '+seq([lean_ty(t)for t in types])+', '+str(count)+',', '    '+self.code(fid)+'⟩','']
+        lines+=['end HasteBootsByteDropProbe',''];return '\n'.join(lines)
+
+
+def main():
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('llbc',type=Path);parser.add_argument('output',type=Path);parser.add_argument('--retained',type=Path,required=True);args=parser.parse_args()
+    r=Reifier(json.loads(args.llbc.read_text()));args.output.write_text(r.render());args.retained.write_text(json.dumps({'functions':[r.functions[i]for i in range(5)],'claim':'retained body-call interpretation with explicit cleanup; Foreign classification preserved; native foreign-call/compiler/lifetime/security refinement unproved'},indent=2)+'\n')
+
+
+if __name__=='__main__':main()

@@ -1,0 +1,5174 @@
+{
+  "functions": [
+    {
+      "def_id": 0,
+      "item_meta": {
+        "name": [
+          {
+            "Ident": [
+              "hasteboots_byte_drop_loop",
+              0
+            ]
+          },
+          {
+            "Ident": [
+              "drop_bytes",
+              0
+            ]
+          }
+        ],
+        "span": {
+          "data": {
+            "file_id": 0,
+            "beg": {
+              "line": 1,
+              "col": 0
+            },
+            "end": {
+              "line": 3,
+              "col": 1
+            }
+          },
+          "generated_from_span": null
+        },
+        "source_text": "pub unsafe fn drop_bytes(data: *mut u8, length: usize) {\n    unsafe { core::ptr::drop_in_place(core::ptr::slice_from_raw_parts_mut(data, length)) }\n}",
+        "attr_info": {
+          "attributes": [],
+          "inline": null,
+          "rename": null,
+          "public": true
+        },
+        "is_local": true,
+        "opacity": "Transparent",
+        "lang_item": null
+      },
+      "generics": {
+        "regions": [],
+        "types": [],
+        "const_generics": [],
+        "trait_clauses": [],
+        "regions_outlive": [],
+        "types_outlive": [],
+        "trait_type_constraints": []
+      },
+      "signature": {
+        "is_unsafe": true,
+        "abi": "Rust",
+        "is_variadic": false,
+        "inputs": [
+          {
+            "Untagged": {
+              "RawPtr": [
+                {
+                  "Untagged": {
+                    "Literal": {
+                      "UInt": "U8"
+                    }
+                  }
+                },
+                "Mut"
+              ]
+            }
+          },
+          {
+            "Untagged": {
+              "Literal": {
+                "UInt": "Usize"
+              }
+            }
+          }
+        ],
+        "output": {
+          "Untagged": {
+            "Adt": {
+              "id": "Tuple",
+              "generics": {
+                "regions": [],
+                "types": [],
+                "const_generics": [],
+                "trait_refs": []
+              }
+            }
+          }
+        }
+      },
+      "src": "TopLevel",
+      "is_global_initializer": null,
+      "body": {
+        "Structured": {
+          "span": {
+            "data": {
+              "file_id": 0,
+              "beg": {
+                "line": 1,
+                "col": 0
+              },
+              "end": {
+                "line": 3,
+                "col": 1
+              }
+            },
+            "generated_from_span": null
+          },
+          "bound_body_regions": 0,
+          "locals": {
+            "arg_count": 2,
+            "locals": [
+              {
+                "index": 0,
+                "name": null,
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 1,
+                      "col": 54
+                    },
+                    "end": {
+                      "line": 1,
+                      "col": 54
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "ty": {
+                  "Untagged": {
+                    "Adt": {
+                      "id": "Tuple",
+                      "generics": {
+                        "regions": [],
+                        "types": [],
+                        "const_generics": [],
+                        "trait_refs": []
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "index": 1,
+                "name": "data",
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 1,
+                      "col": 25
+                    },
+                    "end": {
+                      "line": 1,
+                      "col": 29
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "ty": {
+                  "Untagged": {
+                    "RawPtr": [
+                      {
+                        "Untagged": {
+                          "Literal": {
+                            "UInt": "U8"
+                          }
+                        }
+                      },
+                      "Mut"
+                    ]
+                  }
+                }
+              },
+              {
+                "index": 2,
+                "name": "length",
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 1,
+                      "col": 40
+                    },
+                    "end": {
+                      "line": 1,
+                      "col": 46
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "ty": {
+                  "Untagged": {
+                    "Literal": {
+                      "UInt": "Usize"
+                    }
+                  }
+                }
+              },
+              {
+                "index": 3,
+                "name": null,
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 2,
+                      "col": 38
+                    },
+                    "end": {
+                      "line": 2,
+                      "col": 87
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "ty": {
+                  "Untagged": {
+                    "RawPtr": [
+                      {
+                        "Untagged": {
+                          "Slice": {
+                            "Untagged": {
+                              "Literal": {
+                                "UInt": "U8"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "Mut"
+                    ]
+                  }
+                }
+              },
+              {
+                "index": 4,
+                "name": null,
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 2,
+                      "col": 74
+                    },
+                    "end": {
+                      "line": 2,
+                      "col": 78
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "ty": {
+                  "Untagged": {
+                    "RawPtr": [
+                      {
+                        "Untagged": {
+                          "Literal": {
+                            "UInt": "U8"
+                          }
+                        }
+                      },
+                      "Mut"
+                    ]
+                  }
+                }
+              },
+              {
+                "index": 5,
+                "name": null,
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 2,
+                      "col": 80
+                    },
+                    "end": {
+                      "line": 2,
+                      "col": 86
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "ty": {
+                  "Untagged": {
+                    "Literal": {
+                      "UInt": "Usize"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "body": {
+            "span": {
+              "data": {
+                "file_id": 0,
+                "beg": {
+                  "line": 0,
+                  "col": 0
+                },
+                "end": {
+                  "line": 3,
+                  "col": 1
+                }
+              },
+              "generated_from_span": null
+            },
+            "statements": [
+              {
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 0,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 0,
+                      "col": 0
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 0,
+                "kind": {
+                  "StorageLive": 0
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 0,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 0,
+                      "col": 0
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 1,
+                "kind": {
+                  "Assign": [
+                    {
+                      "kind": {
+                        "Local": 0
+                      },
+                      "ty": {
+                        "Untagged": {
+                          "Adt": {
+                            "id": "Tuple",
+                            "generics": {
+                              "regions": [],
+                              "types": [],
+                              "const_generics": [],
+                              "trait_refs": []
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Aggregate": [
+                        {
+                          "Adt": [
+                            {
+                              "id": "Tuple",
+                              "generics": {
+                                "regions": [],
+                                "types": [],
+                                "const_generics": [],
+                                "trait_refs": []
+                              }
+                            },
+                            null,
+                            null
+                          ]
+                        },
+                        []
+                      ]
+                    }
+                  ]
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 2,
+                      "col": 38
+                    },
+                    "end": {
+                      "line": 2,
+                      "col": 87
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 2,
+                "kind": {
+                  "StorageLive": 3
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 2,
+                      "col": 74
+                    },
+                    "end": {
+                      "line": 2,
+                      "col": 78
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 3,
+                "kind": {
+                  "StorageLive": 4
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 2,
+                      "col": 74
+                    },
+                    "end": {
+                      "line": 2,
+                      "col": 78
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 4,
+                "kind": {
+                  "Assign": [
+                    {
+                      "kind": {
+                        "Local": 4
+                      },
+                      "ty": {
+                        "Untagged": {
+                          "RawPtr": [
+                            {
+                              "Untagged": {
+                                "Literal": {
+                                  "UInt": "U8"
+                                }
+                              }
+                            },
+                            "Mut"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Use": [
+                        {
+                          "Copy": {
+                            "kind": {
+                              "Local": 1
+                            },
+                            "ty": {
+                              "Untagged": {
+                                "RawPtr": [
+                                  {
+                                    "Untagged": {
+                                      "Literal": {
+                                        "UInt": "U8"
+                                      }
+                                    }
+                                  },
+                                  "Mut"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        "Yes"
+                      ]
+                    }
+                  ]
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 2,
+                      "col": 80
+                    },
+                    "end": {
+                      "line": 2,
+                      "col": 86
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 5,
+                "kind": {
+                  "StorageLive": 5
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 2,
+                      "col": 80
+                    },
+                    "end": {
+                      "line": 2,
+                      "col": 86
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 6,
+                "kind": {
+                  "Assign": [
+                    {
+                      "kind": {
+                        "Local": 5
+                      },
+                      "ty": {
+                        "Untagged": {
+                          "Literal": {
+                            "UInt": "Usize"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Use": [
+                        {
+                          "Copy": {
+                            "kind": {
+                              "Local": 2
+                            },
+                            "ty": {
+                              "Untagged": {
+                                "Literal": {
+                                  "UInt": "Usize"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "Yes"
+                      ]
+                    }
+                  ]
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 2,
+                      "col": 38
+                    },
+                    "end": {
+                      "line": 2,
+                      "col": 87
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 10,
+                "kind": {
+                  "Call": {
+                    "call": {
+                      "func": {
+                        "Regular": {
+                          "kind": {
+                            "Fun": {
+                              "Regular": 1
+                            }
+                          },
+                          "generics": {
+                            "regions": [],
+                            "types": [],
+                            "const_generics": [],
+                            "trait_refs": []
+                          }
+                        }
+                      },
+                      "args": [
+                        {
+                          "Move": {
+                            "kind": {
+                              "Local": 4
+                            },
+                            "ty": {
+                              "Untagged": {
+                                "RawPtr": [
+                                  {
+                                    "Untagged": {
+                                      "Literal": {
+                                        "UInt": "U8"
+                                      }
+                                    }
+                                  },
+                                  "Mut"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "Move": {
+                            "kind": {
+                              "Local": 5
+                            },
+                            "ty": {
+                              "Untagged": {
+                                "Literal": {
+                                  "UInt": "Usize"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      ],
+                      "dest": {
+                        "kind": {
+                          "Local": 3
+                        },
+                        "ty": {
+                          "Untagged": {
+                            "RawPtr": [
+                              {
+                                "Untagged": {
+                                  "Slice": {
+                                    "Untagged": {
+                                      "Literal": {
+                                        "UInt": "U8"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "Mut"
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    "on_unwind": {
+                      "span": {
+                        "data": {
+                          "file_id": 0,
+                          "beg": {
+                            "line": 2,
+                            "col": 38
+                          },
+                          "end": {
+                            "line": 2,
+                            "col": 87
+                          }
+                        },
+                        "generated_from_span": null
+                      },
+                      "statements": [
+                        {
+                          "span": {
+                            "data": {
+                              "file_id": 0,
+                              "beg": {
+                                "line": 2,
+                                "col": 38
+                              },
+                              "end": {
+                                "line": 2,
+                                "col": 87
+                              }
+                            },
+                            "generated_from_span": null
+                          },
+                          "id": 7,
+                          "kind": {
+                            "StorageDead": 2
+                          },
+                          "comments_before": []
+                        },
+                        {
+                          "span": {
+                            "data": {
+                              "file_id": 0,
+                              "beg": {
+                                "line": 2,
+                                "col": 38
+                              },
+                              "end": {
+                                "line": 2,
+                                "col": 87
+                              }
+                            },
+                            "generated_from_span": null
+                          },
+                          "id": 8,
+                          "kind": {
+                            "StorageDead": 1
+                          },
+                          "comments_before": []
+                        },
+                        {
+                          "span": {
+                            "data": {
+                              "file_id": 0,
+                              "beg": {
+                                "line": 2,
+                                "col": 38
+                              },
+                              "end": {
+                                "line": 2,
+                                "col": 87
+                              }
+                            },
+                            "generated_from_span": null
+                          },
+                          "id": 9,
+                          "kind": "UnwindResume",
+                          "comments_before": []
+                        }
+                      ]
+                    }
+                  }
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 2,
+                      "col": 86
+                    },
+                    "end": {
+                      "line": 2,
+                      "col": 87
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 11,
+                "kind": {
+                  "StorageDead": 5
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 2,
+                      "col": 86
+                    },
+                    "end": {
+                      "line": 2,
+                      "col": 87
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 12,
+                "kind": {
+                  "StorageDead": 4
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 2,
+                      "col": 13
+                    },
+                    "end": {
+                      "line": 2,
+                      "col": 88
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 16,
+                "kind": {
+                  "Call": {
+                    "call": {
+                      "func": {
+                        "Regular": {
+                          "kind": {
+                            "Fun": {
+                              "Regular": 2
+                            }
+                          },
+                          "generics": {
+                            "regions": [],
+                            "types": [],
+                            "const_generics": [],
+                            "trait_refs": []
+                          }
+                        }
+                      },
+                      "args": [
+                        {
+                          "Move": {
+                            "kind": {
+                              "Local": 3
+                            },
+                            "ty": {
+                              "Untagged": {
+                                "RawPtr": [
+                                  {
+                                    "Untagged": {
+                                      "Slice": {
+                                        "Untagged": {
+                                          "Literal": {
+                                            "UInt": "U8"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "Mut"
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      ],
+                      "dest": {
+                        "kind": {
+                          "Local": 0
+                        },
+                        "ty": {
+                          "Untagged": {
+                            "Adt": {
+                              "id": "Tuple",
+                              "generics": {
+                                "regions": [],
+                                "types": [],
+                                "const_generics": [],
+                                "trait_refs": []
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "on_unwind": {
+                      "span": {
+                        "data": {
+                          "file_id": 0,
+                          "beg": {
+                            "line": 2,
+                            "col": 13
+                          },
+                          "end": {
+                            "line": 2,
+                            "col": 88
+                          }
+                        },
+                        "generated_from_span": null
+                      },
+                      "statements": [
+                        {
+                          "span": {
+                            "data": {
+                              "file_id": 0,
+                              "beg": {
+                                "line": 2,
+                                "col": 13
+                              },
+                              "end": {
+                                "line": 2,
+                                "col": 88
+                              }
+                            },
+                            "generated_from_span": null
+                          },
+                          "id": 13,
+                          "kind": {
+                            "StorageDead": 2
+                          },
+                          "comments_before": []
+                        },
+                        {
+                          "span": {
+                            "data": {
+                              "file_id": 0,
+                              "beg": {
+                                "line": 2,
+                                "col": 13
+                              },
+                              "end": {
+                                "line": 2,
+                                "col": 88
+                              }
+                            },
+                            "generated_from_span": null
+                          },
+                          "id": 14,
+                          "kind": {
+                            "StorageDead": 1
+                          },
+                          "comments_before": []
+                        },
+                        {
+                          "span": {
+                            "data": {
+                              "file_id": 0,
+                              "beg": {
+                                "line": 2,
+                                "col": 13
+                              },
+                              "end": {
+                                "line": 2,
+                                "col": 88
+                              }
+                            },
+                            "generated_from_span": null
+                          },
+                          "id": 15,
+                          "kind": "UnwindResume",
+                          "comments_before": []
+                        }
+                      ]
+                    }
+                  }
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 2,
+                      "col": 87
+                    },
+                    "end": {
+                      "line": 2,
+                      "col": 88
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 17,
+                "kind": {
+                  "StorageDead": 3
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 3,
+                      "col": 1
+                    },
+                    "end": {
+                      "line": 3,
+                      "col": 1
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 18,
+                "kind": {
+                  "StorageDead": 2
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 3,
+                      "col": 1
+                    },
+                    "end": {
+                      "line": 3,
+                      "col": 1
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 19,
+                "kind": {
+                  "StorageDead": 1
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 3,
+                      "col": 1
+                    },
+                    "end": {
+                      "line": 3,
+                      "col": 1
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 20,
+                "kind": "Return",
+                "comments_before": []
+              }
+            ]
+          },
+          "comments": []
+        }
+      }
+    },
+    {
+      "def_id": 1,
+      "item_meta": {
+        "name": [
+          {
+            "Ident": [
+              "core",
+              0
+            ]
+          },
+          {
+            "Ident": [
+              "ptr",
+              0
+            ]
+          },
+          {
+            "Ident": [
+              "slice_from_raw_parts_mut",
+              0
+            ]
+          },
+          {
+            "Instantiated": {
+              "params": {
+                "regions": [],
+                "types": [],
+                "const_generics": [],
+                "trait_clauses": [],
+                "regions_outlive": [],
+                "types_outlive": [],
+                "trait_type_constraints": []
+              },
+              "skip_binder": {
+                "regions": [],
+                "types": [
+                  {
+                    "Untagged": {
+                      "Literal": {
+                        "UInt": "U8"
+                      }
+                    }
+                  }
+                ],
+                "const_generics": [],
+                "trait_refs": []
+              },
+              "kind": "Other"
+            }
+          }
+        ],
+        "span": {
+          "data": {
+            "file_id": 1,
+            "beg": {
+              "line": 1237,
+              "col": 0
+            },
+            "end": {
+              "line": 1237,
+              "col": 78
+            }
+          },
+          "generated_from_span": null
+        },
+        "source_text": null,
+        "attr_info": {
+          "attributes": [
+            {
+              "DocComment": " Forms a raw mutable slice from a pointer and a length."
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " The `len` argument is the number of **elements**, not the number of bytes."
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " Performs the same functionality as [`slice_from_raw_parts`], except that a"
+            },
+            {
+              "DocComment": " raw mutable slice is returned, as opposed to a raw immutable slice."
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " This function is safe, but actually using the return value is unsafe."
+            },
+            {
+              "DocComment": " See the documentation of [`slice::from_raw_parts_mut`] for slice safety requirements."
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " [`slice::from_raw_parts_mut`]: crate::slice::from_raw_parts_mut"
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " # Examples"
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " ```rust"
+            },
+            {
+              "DocComment": " use std::ptr;"
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " let x = &mut [5, 6, 7];"
+            },
+            {
+              "DocComment": " let raw_pointer = x.as_mut_ptr();"
+            },
+            {
+              "DocComment": " let slice = ptr::slice_from_raw_parts_mut(raw_pointer, 3);"
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " unsafe {"
+            },
+            {
+              "DocComment": "     (*slice)[2] = 99; // assign a value at an index in the slice"
+            },
+            {
+              "DocComment": " };"
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " assert_eq!(unsafe { &*slice }[2], 99);"
+            },
+            {
+              "DocComment": " ```"
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " You must ensure that the pointer is valid and not null before dereferencing"
+            },
+            {
+              "DocComment": " the raw slice. A slice reference must never have a null pointer, even if it's empty."
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " ```rust,should_panic"
+            },
+            {
+              "DocComment": " use std::ptr;"
+            },
+            {
+              "DocComment": " let danger: *mut [u8] = ptr::slice_from_raw_parts_mut(ptr::null_mut(), 0);"
+            },
+            {
+              "DocComment": " unsafe {"
+            },
+            {
+              "DocComment": "     danger.as_mut().expect(\"references must not be null\");"
+            },
+            {
+              "DocComment": " }"
+            },
+            {
+              "DocComment": " ```"
+            }
+          ],
+          "inline": "Hint",
+          "rename": null,
+          "public": true
+        },
+        "is_local": false,
+        "opacity": "Transparent",
+        "lang_item": "ptr_slice_from_raw_parts_mut"
+      },
+      "generics": {
+        "regions": [],
+        "types": [],
+        "const_generics": [],
+        "trait_clauses": [],
+        "regions_outlive": [],
+        "types_outlive": [],
+        "trait_type_constraints": []
+      },
+      "signature": {
+        "is_unsafe": false,
+        "abi": "Rust",
+        "is_variadic": false,
+        "inputs": [
+          {
+            "Untagged": {
+              "RawPtr": [
+                {
+                  "Untagged": {
+                    "Literal": {
+                      "UInt": "U8"
+                    }
+                  }
+                },
+                "Mut"
+              ]
+            }
+          },
+          {
+            "Untagged": {
+              "Literal": {
+                "UInt": "Usize"
+              }
+            }
+          }
+        ],
+        "output": {
+          "Untagged": {
+            "RawPtr": [
+              {
+                "Untagged": {
+                  "Slice": {
+                    "Untagged": {
+                      "Literal": {
+                        "UInt": "U8"
+                      }
+                    }
+                  }
+                }
+              },
+              "Mut"
+            ]
+          }
+        }
+      },
+      "src": "TopLevel",
+      "is_global_initializer": null,
+      "body": {
+        "Structured": {
+          "span": {
+            "data": {
+              "file_id": 1,
+              "beg": {
+                "line": 1237,
+                "col": 0
+              },
+              "end": {
+                "line": 1239,
+                "col": 1
+              }
+            },
+            "generated_from_span": null
+          },
+          "bound_body_regions": 0,
+          "locals": {
+            "arg_count": 2,
+            "locals": [
+              {
+                "index": 0,
+                "name": null,
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 1237,
+                      "col": 70
+                    },
+                    "end": {
+                      "line": 1237,
+                      "col": 78
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "ty": {
+                  "Untagged": {
+                    "RawPtr": [
+                      {
+                        "Untagged": {
+                          "Slice": {
+                            "Untagged": {
+                              "Literal": {
+                                "UInt": "U8"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "Mut"
+                    ]
+                  }
+                }
+              },
+              {
+                "index": 1,
+                "name": "data",
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 1237,
+                      "col": 41
+                    },
+                    "end": {
+                      "line": 1237,
+                      "col": 45
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "ty": {
+                  "Untagged": {
+                    "RawPtr": [
+                      {
+                        "Untagged": {
+                          "Literal": {
+                            "UInt": "U8"
+                          }
+                        }
+                      },
+                      "Mut"
+                    ]
+                  }
+                }
+              },
+              {
+                "index": 2,
+                "name": "len",
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 1237,
+                      "col": 55
+                    },
+                    "end": {
+                      "line": 1237,
+                      "col": 58
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "ty": {
+                  "Untagged": {
+                    "Literal": {
+                      "UInt": "Usize"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "body": {
+            "span": {
+              "data": {
+                "file_id": 3,
+                "beg": {
+                  "line": 133,
+                  "col": 4
+                },
+                "end": {
+                  "line": 133,
+                  "col": 45
+                }
+              },
+              "generated_from_span": null
+            },
+            "statements": [
+              {
+                "span": {
+                  "data": {
+                    "file_id": 3,
+                    "beg": {
+                      "line": 133,
+                      "col": 4
+                    },
+                    "end": {
+                      "line": 133,
+                      "col": 45
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 21,
+                "kind": {
+                  "StorageLive": 0
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 3,
+                    "beg": {
+                      "line": 133,
+                      "col": 4
+                    },
+                    "end": {
+                      "line": 133,
+                      "col": 45
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 22,
+                "kind": {
+                  "Call": {
+                    "call": {
+                      "func": {
+                        "Regular": {
+                          "kind": {
+                            "Fun": {
+                              "Builtin": {
+                                "PtrFromParts": "Mut"
+                              }
+                            }
+                          },
+                          "generics": {
+                            "regions": [
+                              "Erased"
+                            ],
+                            "types": [
+                              {
+                                "Untagged": {
+                                  "Slice": {
+                                    "Untagged": {
+                                      "Literal": {
+                                        "UInt": "U8"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            ],
+                            "const_generics": [],
+                            "trait_refs": []
+                          }
+                        }
+                      },
+                      "args": [
+                        {
+                          "Copy": {
+                            "kind": {
+                              "Local": 1
+                            },
+                            "ty": {
+                              "Untagged": {
+                                "RawPtr": [
+                                  {
+                                    "Untagged": {
+                                      "Literal": {
+                                        "UInt": "U8"
+                                      }
+                                    }
+                                  },
+                                  "Mut"
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "Copy": {
+                            "kind": {
+                              "Local": 2
+                            },
+                            "ty": {
+                              "Untagged": {
+                                "Literal": {
+                                  "UInt": "Usize"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      ],
+                      "dest": {
+                        "kind": {
+                          "Local": 0
+                        },
+                        "ty": {
+                          "Untagged": {
+                            "RawPtr": [
+                              {
+                                "Untagged": {
+                                  "Slice": {
+                                    "Untagged": {
+                                      "Literal": {
+                                        "UInt": "U8"
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "Mut"
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    "on_unwind": {
+                      "span": {
+                        "data": {
+                          "file_id": 3,
+                          "beg": {
+                            "line": 133,
+                            "col": 4
+                          },
+                          "end": {
+                            "line": 133,
+                            "col": 45
+                          }
+                        },
+                        "generated_from_span": null
+                      },
+                      "statements": [
+                        {
+                          "span": {
+                            "data": {
+                              "file_id": 3,
+                              "beg": {
+                                "line": 133,
+                                "col": 4
+                              },
+                              "end": {
+                                "line": 133,
+                                "col": 45
+                              }
+                            },
+                            "generated_from_span": null
+                          },
+                          "id": 71,
+                          "kind": {
+                            "Abort": "UndefinedBehavior"
+                          },
+                          "comments_before": []
+                        }
+                      ]
+                    }
+                  }
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 1239,
+                      "col": 1
+                    },
+                    "end": {
+                      "line": 1239,
+                      "col": 1
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 23,
+                "kind": {
+                  "StorageDead": 2
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 1239,
+                      "col": 1
+                    },
+                    "end": {
+                      "line": 1239,
+                      "col": 1
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 24,
+                "kind": {
+                  "StorageDead": 1
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 1239,
+                      "col": 1
+                    },
+                    "end": {
+                      "line": 1239,
+                      "col": 1
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 25,
+                "kind": "Return",
+                "comments_before": []
+              }
+            ]
+          },
+          "comments": []
+        }
+      }
+    },
+    {
+      "def_id": 2,
+      "item_meta": {
+        "name": [
+          {
+            "Ident": [
+              "core",
+              0
+            ]
+          },
+          {
+            "Ident": [
+              "ptr",
+              0
+            ]
+          },
+          {
+            "Ident": [
+              "drop_in_place",
+              0
+            ]
+          },
+          {
+            "Instantiated": {
+              "params": {
+                "regions": [],
+                "types": [],
+                "const_generics": [],
+                "trait_clauses": [],
+                "regions_outlive": [],
+                "types_outlive": [],
+                "trait_type_constraints": []
+              },
+              "skip_binder": {
+                "regions": [],
+                "types": [
+                  {
+                    "Untagged": {
+                      "Slice": {
+                        "Untagged": {
+                          "Literal": {
+                            "UInt": "U8"
+                          }
+                        }
+                      }
+                    }
+                  }
+                ],
+                "const_generics": [],
+                "trait_refs": []
+              },
+              "kind": "Other"
+            }
+          }
+        ],
+        "span": {
+          "data": {
+            "file_id": 1,
+            "beg": {
+              "line": 808,
+              "col": 0
+            },
+            "end": {
+              "line": 810,
+              "col": 24
+            }
+          },
+          "generated_from_span": null
+        },
+        "source_text": null,
+        "attr_info": {
+          "attributes": [
+            {
+              "DocComment": " Executes the destructor (if any) of the pointed-to value."
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " This is almost the same as calling [`ptr::read`] and discarding"
+            },
+            {
+              "DocComment": " the result, but has the following advantages:"
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " * It is *required* to use `drop_in_place` to drop unsized types like"
+            },
+            {
+              "DocComment": "   trait objects, because they can't be read out onto the stack and"
+            },
+            {
+              "DocComment": "   dropped normally."
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " * It is friendlier to the optimizer to do this over [`ptr::read`] when"
+            },
+            {
+              "DocComment": "   dropping manually allocated memory (e.g., in the implementations of"
+            },
+            {
+              "DocComment": "   `Box`/`Rc`/`Vec`), as the compiler doesn't need to prove that it's"
+            },
+            {
+              "DocComment": "   sound to elide the copy."
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " * It can be used to drop [pinned] data when `T` is not `repr(packed)`"
+            },
+            {
+              "DocComment": "   (pinned data must not be moved before it is dropped)."
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " Unaligned values cannot be dropped in place, they must be copied to an aligned"
+            },
+            {
+              "DocComment": " location first using [`ptr::read_unaligned`]. For packed structs, this move is"
+            },
+            {
+              "DocComment": " done automatically by the compiler. This means the fields of packed structs"
+            },
+            {
+              "DocComment": " are not dropped in-place."
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " [`ptr::read`]: self::read"
+            },
+            {
+              "DocComment": " [`ptr::read_unaligned`]: self::read_unaligned"
+            },
+            {
+              "DocComment": " [pinned]: crate::pin"
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " # Safety"
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " Behavior is undefined if any of the following conditions are violated:"
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " * `to_drop` must be [valid] for both reads and writes."
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " * `to_drop` must be properly aligned, even if `T` has size 0."
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " * `to_drop` must be nonnull, even if `T` has size 0."
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " * The value `to_drop` points to must be valid for dropping, which may mean"
+            },
+            {
+              "DocComment": "   it must uphold additional invariants. These invariants depend on the type"
+            },
+            {
+              "DocComment": "   of the value being dropped. For instance, when dropping a Box, the box's"
+            },
+            {
+              "DocComment": "   pointer to the heap must be valid."
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " * While `drop_in_place` is executing, the only way to access parts of"
+            },
+            {
+              "DocComment": "   `to_drop` is through the `&mut self` references supplied to the"
+            },
+            {
+              "DocComment": "   `Drop::drop` methods that `drop_in_place` invokes."
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " Additionally, if `T` is not [`Copy`], using the pointed-to value after"
+            },
+            {
+              "DocComment": " calling `drop_in_place` can cause undefined behavior. Note that `*to_drop ="
+            },
+            {
+              "DocComment": " foo` counts as a use because it will cause the value to be dropped"
+            },
+            {
+              "DocComment": " again. [`write()`] can be used to overwrite data without causing it to be"
+            },
+            {
+              "DocComment": " dropped."
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " [valid]: self#safety"
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " # Examples"
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " Manually remove the last item from a vector:"
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " ```"
+            },
+            {
+              "DocComment": " use std::ptr;"
+            },
+            {
+              "DocComment": " use std::rc::Rc;"
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " let last = Rc::new(1);"
+            },
+            {
+              "DocComment": " let weak = Rc::downgrade(&last);"
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " let mut v = vec![Rc::new(0), last];"
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " unsafe {"
+            },
+            {
+              "DocComment": "     // Get a raw pointer to the last element in `v`."
+            },
+            {
+              "DocComment": "     let ptr = &mut v[1] as *mut _;"
+            },
+            {
+              "DocComment": "     // Shorten `v` to prevent the last item from being dropped. We do that first,"
+            },
+            {
+              "DocComment": "     // to prevent issues if the `drop_in_place` below panics."
+            },
+            {
+              "DocComment": "     v.set_len(1);"
+            },
+            {
+              "DocComment": "     // Without a call `drop_in_place`, the last item would never be dropped,"
+            },
+            {
+              "DocComment": "     // and the memory it manages would be leaked."
+            },
+            {
+              "DocComment": "     ptr::drop_in_place(ptr);"
+            },
+            {
+              "DocComment": " }"
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " assert_eq!(v, &[0.into()]);"
+            },
+            {
+              "DocComment": ""
+            },
+            {
+              "DocComment": " // Ensure that the last item was dropped."
+            },
+            {
+              "DocComment": " assert!(weak.upgrade().is_none());"
+            },
+            {
+              "DocComment": " ```"
+            }
+          ],
+          "inline": "Always",
+          "rename": null,
+          "public": true
+        },
+        "is_local": false,
+        "opacity": "Transparent",
+        "lang_item": "ptr_drop_in_place"
+      },
+      "generics": {
+        "regions": [],
+        "types": [],
+        "const_generics": [],
+        "trait_clauses": [],
+        "regions_outlive": [],
+        "types_outlive": [],
+        "trait_type_constraints": []
+      },
+      "signature": {
+        "is_unsafe": true,
+        "abi": "Rust",
+        "is_variadic": false,
+        "inputs": [
+          {
+            "Untagged": {
+              "RawPtr": [
+                {
+                  "Untagged": {
+                    "Slice": {
+                      "Untagged": {
+                        "Literal": {
+                          "UInt": "U8"
+                        }
+                      }
+                    }
+                  }
+                },
+                "Mut"
+              ]
+            }
+          }
+        ],
+        "output": {
+          "Untagged": {
+            "Adt": {
+              "id": "Tuple",
+              "generics": {
+                "regions": [],
+                "types": [],
+                "const_generics": [],
+                "trait_refs": []
+              }
+            }
+          }
+        }
+      },
+      "src": "TopLevel",
+      "is_global_initializer": null,
+      "body": {
+        "Structured": {
+          "span": {
+            "data": {
+              "file_id": 1,
+              "beg": {
+                "line": 808,
+                "col": 0
+              },
+              "end": {
+                "line": 821,
+                "col": 1
+              }
+            },
+            "generated_from_span": null
+          },
+          "bound_body_regions": 4,
+          "locals": {
+            "arg_count": 1,
+            "locals": [
+              {
+                "index": 0,
+                "name": null,
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 808,
+                      "col": 67
+                    },
+                    "end": {
+                      "line": 808,
+                      "col": 67
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "ty": {
+                  "Untagged": {
+                    "Adt": {
+                      "id": "Tuple",
+                      "generics": {
+                        "regions": [],
+                        "types": [],
+                        "const_generics": [],
+                        "trait_refs": []
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "index": 1,
+                "name": "to_drop",
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 808,
+                      "col": 51
+                    },
+                    "end": {
+                      "line": 808,
+                      "col": 58
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "ty": {
+                  "Untagged": {
+                    "RawPtr": [
+                      {
+                        "Untagged": {
+                          "Slice": {
+                            "Untagged": {
+                              "Literal": {
+                                "UInt": "U8"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "Mut"
+                    ]
+                  }
+                }
+              },
+              {
+                "index": 2,
+                "name": null,
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 820,
+                      "col": 23
+                    },
+                    "end": {
+                      "line": 820,
+                      "col": 36
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "ty": {
+                  "Untagged": {
+                    "Ref": [
+                      {
+                        "Body": 1
+                      },
+                      {
+                        "Untagged": {
+                          "Slice": {
+                            "Untagged": {
+                              "Literal": {
+                                "UInt": "U8"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "Mut"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "body": {
+            "span": {
+              "data": {
+                "file_id": 0,
+                "beg": {
+                  "line": 0,
+                  "col": 0
+                },
+                "end": {
+                  "line": 0,
+                  "col": 0
+                }
+              },
+              "generated_from_span": null
+            },
+            "statements": [
+              {
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 0,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 0,
+                      "col": 0
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 26,
+                "kind": {
+                  "StorageLive": 0
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 0,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 0,
+                      "col": 0
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 27,
+                "kind": {
+                  "Assign": [
+                    {
+                      "kind": {
+                        "Local": 0
+                      },
+                      "ty": {
+                        "Untagged": {
+                          "Adt": {
+                            "id": "Tuple",
+                            "generics": {
+                              "regions": [],
+                              "types": [],
+                              "const_generics": [],
+                              "trait_refs": []
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Aggregate": [
+                        {
+                          "Adt": [
+                            {
+                              "id": "Tuple",
+                              "generics": {
+                                "regions": [],
+                                "types": [],
+                                "const_generics": [],
+                                "trait_refs": []
+                              }
+                            },
+                            null,
+                            null
+                          ]
+                        },
+                        []
+                      ]
+                    }
+                  ]
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 820,
+                      "col": 23
+                    },
+                    "end": {
+                      "line": 820,
+                      "col": 36
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 28,
+                "kind": {
+                  "StorageLive": 2
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 820,
+                      "col": 23
+                    },
+                    "end": {
+                      "line": 820,
+                      "col": 36
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 29,
+                "kind": {
+                  "Assign": [
+                    {
+                      "kind": {
+                        "Local": 2
+                      },
+                      "ty": {
+                        "Untagged": {
+                          "Ref": [
+                            {
+                              "Body": 1
+                            },
+                            {
+                              "Untagged": {
+                                "Slice": {
+                                  "Untagged": {
+                                    "Literal": {
+                                      "UInt": "U8"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "Mut"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Ref": {
+                        "place": {
+                          "kind": {
+                            "Projection": [
+                              {
+                                "kind": {
+                                  "Local": 1
+                                },
+                                "ty": {
+                                  "Untagged": {
+                                    "RawPtr": [
+                                      {
+                                        "Untagged": {
+                                          "Slice": {
+                                            "Untagged": {
+                                              "Literal": {
+                                                "UInt": "U8"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "Mut"
+                                    ]
+                                  }
+                                }
+                              },
+                              "Deref"
+                            ]
+                          },
+                          "ty": {
+                            "Untagged": {
+                              "Slice": {
+                                "Untagged": {
+                                  "Literal": {
+                                    "UInt": "U8"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "kind": "Mut",
+                        "ptr_metadata": {
+                          "Copy": {
+                            "kind": {
+                              "Projection": [
+                                {
+                                  "kind": {
+                                    "Local": 1
+                                  },
+                                  "ty": {
+                                    "Untagged": {
+                                      "RawPtr": [
+                                        {
+                                          "Untagged": {
+                                            "Slice": {
+                                              "Untagged": {
+                                                "Literal": {
+                                                  "UInt": "U8"
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "Mut"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "PtrMetadata"
+                              ]
+                            },
+                            "ty": {
+                              "Untagged": {
+                                "Literal": {
+                                  "UInt": "Usize"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 820,
+                      "col": 13
+                    },
+                    "end": {
+                      "line": 820,
+                      "col": 37
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 32,
+                "kind": {
+                  "Call": {
+                    "call": {
+                      "func": {
+                        "Regular": {
+                          "kind": {
+                            "Fun": {
+                              "Regular": 3
+                            }
+                          },
+                          "generics": {
+                            "regions": [
+                              {
+                                "Body": 3
+                              }
+                            ],
+                            "types": [],
+                            "const_generics": [],
+                            "trait_refs": []
+                          }
+                        }
+                      },
+                      "args": [
+                        {
+                          "Move": {
+                            "kind": {
+                              "Local": 2
+                            },
+                            "ty": {
+                              "Untagged": {
+                                "Ref": [
+                                  {
+                                    "Body": 1
+                                  },
+                                  {
+                                    "Untagged": {
+                                      "Slice": {
+                                        "Untagged": {
+                                          "Literal": {
+                                            "UInt": "U8"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "Mut"
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      ],
+                      "dest": {
+                        "kind": {
+                          "Local": 0
+                        },
+                        "ty": {
+                          "Untagged": {
+                            "Adt": {
+                              "id": "Tuple",
+                              "generics": {
+                                "regions": [],
+                                "types": [],
+                                "const_generics": [],
+                                "trait_refs": []
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "on_unwind": {
+                      "span": {
+                        "data": {
+                          "file_id": 1,
+                          "beg": {
+                            "line": 820,
+                            "col": 13
+                          },
+                          "end": {
+                            "line": 820,
+                            "col": 37
+                          }
+                        },
+                        "generated_from_span": null
+                      },
+                      "statements": [
+                        {
+                          "span": {
+                            "data": {
+                              "file_id": 1,
+                              "beg": {
+                                "line": 820,
+                                "col": 13
+                              },
+                              "end": {
+                                "line": 820,
+                                "col": 37
+                              }
+                            },
+                            "generated_from_span": null
+                          },
+                          "id": 30,
+                          "kind": {
+                            "StorageDead": 1
+                          },
+                          "comments_before": []
+                        },
+                        {
+                          "span": {
+                            "data": {
+                              "file_id": 1,
+                              "beg": {
+                                "line": 820,
+                                "col": 13
+                              },
+                              "end": {
+                                "line": 820,
+                                "col": 37
+                              }
+                            },
+                            "generated_from_span": null
+                          },
+                          "id": 31,
+                          "kind": "UnwindResume",
+                          "comments_before": []
+                        }
+                      ]
+                    }
+                  }
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 820,
+                      "col": 36
+                    },
+                    "end": {
+                      "line": 820,
+                      "col": 37
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 33,
+                "kind": {
+                  "StorageDead": 2
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 821,
+                      "col": 1
+                    },
+                    "end": {
+                      "line": 821,
+                      "col": 1
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 34,
+                "kind": {
+                  "StorageDead": 1
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 821,
+                      "col": 1
+                    },
+                    "end": {
+                      "line": 821,
+                      "col": 1
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 35,
+                "kind": "Return",
+                "comments_before": []
+              }
+            ]
+          },
+          "comments": []
+        }
+      }
+    },
+    {
+      "def_id": 3,
+      "item_meta": {
+        "name": [
+          {
+            "Ident": [
+              "core",
+              0
+            ]
+          },
+          {
+            "Ident": [
+              "ptr",
+              0
+            ]
+          },
+          {
+            "Ident": [
+              "drop_glue",
+              0
+            ]
+          },
+          {
+            "Instantiated": {
+              "params": {
+                "regions": [],
+                "types": [],
+                "const_generics": [],
+                "trait_clauses": [],
+                "regions_outlive": [],
+                "types_outlive": [],
+                "trait_type_constraints": []
+              },
+              "skip_binder": {
+                "regions": [],
+                "types": [
+                  {
+                    "Untagged": {
+                      "Slice": {
+                        "Untagged": {
+                          "Literal": {
+                            "UInt": "U8"
+                          }
+                        }
+                      }
+                    }
+                  }
+                ],
+                "const_generics": [],
+                "trait_refs": []
+              },
+              "kind": "Other"
+            }
+          }
+        ],
+        "span": {
+          "data": {
+            "file_id": 1,
+            "beg": {
+              "line": 825,
+              "col": 0
+            },
+            "end": {
+              "line": 827,
+              "col": 24
+            }
+          },
+          "generated_from_span": null
+        },
+        "source_text": null,
+        "attr_info": {
+          "attributes": [],
+          "inline": null,
+          "rename": null,
+          "public": false
+        },
+        "is_local": false,
+        "opacity": "Foreign",
+        "lang_item": "drop_glue"
+      },
+      "generics": {
+        "regions": [
+          {
+            "index": 0,
+            "name": null,
+            "mutability": "Unknown"
+          }
+        ],
+        "types": [],
+        "const_generics": [],
+        "trait_clauses": [],
+        "regions_outlive": [],
+        "types_outlive": [],
+        "trait_type_constraints": []
+      },
+      "signature": {
+        "is_unsafe": true,
+        "abi": "Rust",
+        "is_variadic": false,
+        "inputs": [
+          {
+            "Untagged": {
+              "Ref": [
+                {
+                  "Var": {
+                    "Free": 0
+                  }
+                },
+                {
+                  "Untagged": {
+                    "Slice": {
+                      "Untagged": {
+                        "Literal": {
+                          "UInt": "U8"
+                        }
+                      }
+                    }
+                  }
+                },
+                "Mut"
+              ]
+            }
+          }
+        ],
+        "output": {
+          "Untagged": {
+            "Adt": {
+              "id": "Tuple",
+              "generics": {
+                "regions": [],
+                "types": [],
+                "const_generics": [],
+                "trait_refs": []
+              }
+            }
+          }
+        }
+      },
+      "src": "TopLevel",
+      "is_global_initializer": null,
+      "body": {
+        "Structured": {
+          "span": {
+            "data": {
+              "file_id": 1,
+              "beg": {
+                "line": 825,
+                "col": 0
+              },
+              "end": {
+                "line": 827,
+                "col": 24
+              }
+            },
+            "generated_from_span": null
+          },
+          "bound_body_regions": 1,
+          "locals": {
+            "arg_count": 1,
+            "locals": [
+              {
+                "index": 0,
+                "name": "ret",
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 0,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 0,
+                      "col": 0
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "ty": {
+                  "Untagged": {
+                    "Adt": {
+                      "id": "Tuple",
+                      "generics": {
+                        "regions": [],
+                        "types": [],
+                        "const_generics": [],
+                        "trait_refs": []
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "index": 1,
+                "name": null,
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 0,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 0,
+                      "col": 0
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "ty": {
+                  "Untagged": {
+                    "Ref": [
+                      {
+                        "Var": {
+                          "Free": 0
+                        }
+                      },
+                      {
+                        "Untagged": {
+                          "Slice": {
+                            "Untagged": {
+                              "Literal": {
+                                "UInt": "U8"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "Mut"
+                    ]
+                  }
+                }
+              },
+              {
+                "index": 2,
+                "name": "drop_arg",
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 0,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 0,
+                      "col": 0
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "ty": {
+                  "Untagged": {
+                    "Ref": [
+                      "Erased",
+                      {
+                        "Untagged": {
+                          "Slice": {
+                            "Untagged": {
+                              "Literal": {
+                                "UInt": "U8"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "Mut"
+                    ]
+                  }
+                }
+              },
+              {
+                "index": 3,
+                "name": "drop_ret",
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 0,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 0,
+                      "col": 0
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "ty": {
+                  "Untagged": {
+                    "Adt": {
+                      "id": "Tuple",
+                      "generics": {
+                        "regions": [],
+                        "types": [],
+                        "const_generics": [],
+                        "trait_refs": []
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "body": {
+            "span": {
+              "data": {
+                "file_id": 0,
+                "beg": {
+                  "line": 0,
+                  "col": 0
+                },
+                "end": {
+                  "line": 0,
+                  "col": 0
+                }
+              },
+              "generated_from_span": null
+            },
+            "statements": [
+              {
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 0,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 0,
+                      "col": 0
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 36,
+                "kind": {
+                  "StorageLive": 0
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 0,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 0,
+                      "col": 0
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 37,
+                "kind": {
+                  "Assign": [
+                    {
+                      "kind": {
+                        "Local": 0
+                      },
+                      "ty": {
+                        "Untagged": {
+                          "Adt": {
+                            "id": "Tuple",
+                            "generics": {
+                              "regions": [],
+                              "types": [],
+                              "const_generics": [],
+                              "trait_refs": []
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Aggregate": [
+                        {
+                          "Adt": [
+                            {
+                              "id": "Tuple",
+                              "generics": {
+                                "regions": [],
+                                "types": [],
+                                "const_generics": [],
+                                "trait_refs": []
+                              }
+                            },
+                            null,
+                            null
+                          ]
+                        },
+                        []
+                      ]
+                    }
+                  ]
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 825,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 827,
+                      "col": 24
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 38,
+                "kind": {
+                  "StorageLive": 2
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 825,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 827,
+                      "col": 24
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 39,
+                "kind": {
+                  "Assign": [
+                    {
+                      "kind": {
+                        "Local": 2
+                      },
+                      "ty": {
+                        "Untagged": {
+                          "Ref": [
+                            "Erased",
+                            {
+                              "Untagged": {
+                                "Slice": {
+                                  "Untagged": {
+                                    "Literal": {
+                                      "UInt": "U8"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "Mut"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Ref": {
+                        "place": {
+                          "kind": {
+                            "Projection": [
+                              {
+                                "kind": {
+                                  "Local": 1
+                                },
+                                "ty": {
+                                  "Untagged": {
+                                    "Ref": [
+                                      {
+                                        "Var": {
+                                          "Free": 0
+                                        }
+                                      },
+                                      {
+                                        "Untagged": {
+                                          "Slice": {
+                                            "Untagged": {
+                                              "Literal": {
+                                                "UInt": "U8"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "Mut"
+                                    ]
+                                  }
+                                }
+                              },
+                              "Deref"
+                            ]
+                          },
+                          "ty": {
+                            "Untagged": {
+                              "Slice": {
+                                "Untagged": {
+                                  "Literal": {
+                                    "UInt": "U8"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "kind": "Mut",
+                        "ptr_metadata": {
+                          "Copy": {
+                            "kind": {
+                              "Projection": [
+                                {
+                                  "kind": {
+                                    "Local": 1
+                                  },
+                                  "ty": {
+                                    "Untagged": {
+                                      "Ref": [
+                                        {
+                                          "Var": {
+                                            "Free": 0
+                                          }
+                                        },
+                                        {
+                                          "Untagged": {
+                                            "Slice": {
+                                              "Untagged": {
+                                                "Literal": {
+                                                  "UInt": "U8"
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "Mut"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "PtrMetadata"
+                              ]
+                            },
+                            "ty": {
+                              "Untagged": {
+                                "Literal": {
+                                  "UInt": "Usize"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 825,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 827,
+                      "col": 24
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 40,
+                "kind": {
+                  "StorageLive": 3
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 825,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 827,
+                      "col": 24
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 43,
+                "kind": {
+                  "Call": {
+                    "call": {
+                      "func": {
+                        "Regular": {
+                          "kind": {
+                            "Fun": {
+                              "Regular": 4
+                            }
+                          },
+                          "generics": {
+                            "regions": [
+                              {
+                                "Body": 0
+                              }
+                            ],
+                            "types": [],
+                            "const_generics": [],
+                            "trait_refs": []
+                          }
+                        }
+                      },
+                      "args": [
+                        {
+                          "Move": {
+                            "kind": {
+                              "Local": 2
+                            },
+                            "ty": {
+                              "Untagged": {
+                                "Ref": [
+                                  "Erased",
+                                  {
+                                    "Untagged": {
+                                      "Slice": {
+                                        "Untagged": {
+                                          "Literal": {
+                                            "UInt": "U8"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "Mut"
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      ],
+                      "dest": {
+                        "kind": {
+                          "Local": 3
+                        },
+                        "ty": {
+                          "Untagged": {
+                            "Adt": {
+                              "id": "Tuple",
+                              "generics": {
+                                "regions": [],
+                                "types": [],
+                                "const_generics": [],
+                                "trait_refs": []
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "on_unwind": {
+                      "span": {
+                        "data": {
+                          "file_id": 1,
+                          "beg": {
+                            "line": 825,
+                            "col": 0
+                          },
+                          "end": {
+                            "line": 827,
+                            "col": 24
+                          }
+                        },
+                        "generated_from_span": null
+                      },
+                      "statements": [
+                        {
+                          "span": {
+                            "data": {
+                              "file_id": 1,
+                              "beg": {
+                                "line": 825,
+                                "col": 0
+                              },
+                              "end": {
+                                "line": 827,
+                                "col": 24
+                              }
+                            },
+                            "generated_from_span": null
+                          },
+                          "id": 41,
+                          "kind": {
+                            "StorageDead": 1
+                          },
+                          "comments_before": []
+                        },
+                        {
+                          "span": {
+                            "data": {
+                              "file_id": 1,
+                              "beg": {
+                                "line": 825,
+                                "col": 0
+                              },
+                              "end": {
+                                "line": 827,
+                                "col": 24
+                              }
+                            },
+                            "generated_from_span": null
+                          },
+                          "id": 42,
+                          "kind": "UnwindResume",
+                          "comments_before": []
+                        }
+                      ]
+                    }
+                  }
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 825,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 827,
+                      "col": 24
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 44,
+                "kind": {
+                  "StorageDead": 1
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 825,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 827,
+                      "col": 24
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 77,
+                "kind": {
+                  "StorageDead": 3
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 825,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 827,
+                      "col": 24
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 78,
+                "kind": {
+                  "StorageDead": 2
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 825,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 827,
+                      "col": 24
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 45,
+                "kind": "Return",
+                "comments_before": []
+              }
+            ]
+          },
+          "comments": []
+        }
+      }
+    },
+    {
+      "def_id": 4,
+      "item_meta": {
+        "name": [
+          {
+            "Ident": [
+              "hasteboots_byte_drop_loop",
+              0
+            ]
+          },
+          {
+            "Ident": [
+              "<slice>",
+              0
+            ]
+          },
+          {
+            "Impl": {
+              "Trait": 0
+            }
+          },
+          {
+            "Ident": [
+              "drop_glue",
+              0
+            ]
+          },
+          {
+            "Instantiated": {
+              "params": {
+                "regions": [],
+                "types": [],
+                "const_generics": [],
+                "trait_clauses": [],
+                "regions_outlive": [],
+                "types_outlive": [],
+                "trait_type_constraints": []
+              },
+              "skip_binder": {
+                "regions": [],
+                "types": [
+                  {
+                    "Untagged": {
+                      "Literal": {
+                        "UInt": "U8"
+                      }
+                    }
+                  }
+                ],
+                "const_generics": [],
+                "trait_refs": []
+              },
+              "kind": "Other"
+            }
+          }
+        ],
+        "span": {
+          "data": {
+            "file_id": 0,
+            "beg": {
+              "line": 1,
+              "col": 0
+            },
+            "end": {
+              "line": 1,
+              "col": 0
+            }
+          },
+          "generated_from_span": null
+        },
+        "source_text": null,
+        "attr_info": {
+          "attributes": [],
+          "inline": null,
+          "rename": null,
+          "public": false
+        },
+        "is_local": false,
+        "opacity": "Transparent",
+        "lang_item": null
+      },
+      "generics": {
+        "regions": [
+          {
+            "index": 0,
+            "name": null,
+            "mutability": "Unknown"
+          }
+        ],
+        "types": [],
+        "const_generics": [],
+        "trait_clauses": [],
+        "regions_outlive": [],
+        "types_outlive": [],
+        "trait_type_constraints": []
+      },
+      "signature": {
+        "is_unsafe": true,
+        "abi": "Rust",
+        "is_variadic": false,
+        "inputs": [
+          {
+            "Untagged": {
+              "Ref": [
+                {
+                  "Var": {
+                    "Free": 0
+                  }
+                },
+                {
+                  "Untagged": {
+                    "Slice": {
+                      "Untagged": {
+                        "Literal": {
+                          "UInt": "U8"
+                        }
+                      }
+                    }
+                  }
+                },
+                "Mut"
+              ]
+            }
+          }
+        ],
+        "output": {
+          "Untagged": {
+            "Adt": {
+              "id": "Tuple",
+              "generics": {
+                "regions": [],
+                "types": [],
+                "const_generics": [],
+                "trait_refs": []
+              }
+            }
+          }
+        }
+      },
+      "src": {
+        "TraitImpl": {
+          "impl_ref": {
+            "id": 0,
+            "generics": {
+              "regions": [],
+              "types": [],
+              "const_generics": [],
+              "trait_refs": []
+            }
+          },
+          "trait_ref": {
+            "id": 0,
+            "generics": {
+              "regions": [],
+              "types": [
+                {
+                  "Untagged": {
+                    "Slice": {
+                      "Untagged": {
+                        "Literal": {
+                          "UInt": "U8"
+                        }
+                      }
+                    }
+                  }
+                }
+              ],
+              "const_generics": [],
+              "trait_refs": []
+            }
+          },
+          "item_id": {
+            "Method": 0
+          },
+          "reuses_default": false
+        }
+      },
+      "is_global_initializer": null,
+      "body": {
+        "Structured": {
+          "span": {
+            "data": {
+              "file_id": 1,
+              "beg": {
+                "line": 825,
+                "col": 0
+              },
+              "end": {
+                "line": 827,
+                "col": 24
+              }
+            },
+            "generated_from_span": null
+          },
+          "bound_body_regions": 4,
+          "locals": {
+            "arg_count": 1,
+            "locals": [
+              {
+                "index": 0,
+                "name": null,
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 825,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 827,
+                      "col": 24
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "ty": {
+                  "Untagged": {
+                    "Adt": {
+                      "id": "Tuple",
+                      "generics": {
+                        "regions": [],
+                        "types": [],
+                        "const_generics": [],
+                        "trait_refs": []
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "index": 1,
+                "name": null,
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 825,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 827,
+                      "col": 24
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "ty": {
+                  "Untagged": {
+                    "Ref": [
+                      {
+                        "Body": 1
+                      },
+                      {
+                        "Untagged": {
+                          "Slice": {
+                            "Untagged": {
+                              "Literal": {
+                                "UInt": "U8"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "Mut"
+                    ]
+                  }
+                }
+              },
+              {
+                "index": 2,
+                "name": null,
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 825,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 827,
+                      "col": 24
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "ty": {
+                  "Untagged": {
+                    "Literal": {
+                      "UInt": "Usize"
+                    }
+                  }
+                }
+              },
+              {
+                "index": 3,
+                "name": null,
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 825,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 827,
+                      "col": 24
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "ty": {
+                  "Untagged": {
+                    "Literal": {
+                      "UInt": "Usize"
+                    }
+                  }
+                }
+              },
+              {
+                "index": 4,
+                "name": null,
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 825,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 827,
+                      "col": 24
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "ty": {
+                  "Untagged": {
+                    "RawPtr": [
+                      {
+                        "Untagged": {
+                          "Literal": {
+                            "UInt": "U8"
+                          }
+                        }
+                      },
+                      "Mut"
+                    ]
+                  }
+                }
+              },
+              {
+                "index": 5,
+                "name": null,
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 825,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 827,
+                      "col": 24
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "ty": {
+                  "Untagged": {
+                    "Literal": "Bool"
+                  }
+                }
+              },
+              {
+                "index": 6,
+                "name": null,
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 0,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 0,
+                      "col": 0
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "ty": {
+                  "Untagged": {
+                    "Ref": [
+                      "Erased",
+                      {
+                        "Untagged": {
+                          "Slice": {
+                            "Untagged": {
+                              "Literal": {
+                                "UInt": "U8"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "Mut"
+                    ]
+                  }
+                }
+              },
+              {
+                "index": 7,
+                "name": null,
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 0,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 0,
+                      "col": 0
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "ty": {
+                  "Untagged": {
+                    "Ref": [
+                      "Erased",
+                      {
+                        "Untagged": {
+                          "Literal": {
+                            "UInt": "U8"
+                          }
+                        }
+                      },
+                      "Mut"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "body": {
+            "span": {
+              "data": {
+                "file_id": 0,
+                "beg": {
+                  "line": 0,
+                  "col": 0
+                },
+                "end": {
+                  "line": 0,
+                  "col": 0
+                }
+              },
+              "generated_from_span": null
+            },
+            "statements": [
+              {
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 0,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 0,
+                      "col": 0
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 46,
+                "kind": {
+                  "StorageLive": 0
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 0,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 0,
+                      "col": 0
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 47,
+                "kind": {
+                  "StorageLive": 2
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 0,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 0,
+                      "col": 0
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 48,
+                "kind": {
+                  "StorageLive": 3
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 0,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 0,
+                      "col": 0
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 51,
+                "kind": {
+                  "StorageLive": 4
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 0,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 0,
+                      "col": 0
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 52,
+                "kind": {
+                  "StorageLive": 5
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 0,
+                    "beg": {
+                      "line": 0,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 0,
+                      "col": 0
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 53,
+                "kind": {
+                  "Assign": [
+                    {
+                      "kind": {
+                        "Local": 0
+                      },
+                      "ty": {
+                        "Untagged": {
+                          "Adt": {
+                            "id": "Tuple",
+                            "generics": {
+                              "regions": [],
+                              "types": [],
+                              "const_generics": [],
+                              "trait_refs": []
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Aggregate": [
+                        {
+                          "Adt": [
+                            {
+                              "id": "Tuple",
+                              "generics": {
+                                "regions": [],
+                                "types": [],
+                                "const_generics": [],
+                                "trait_refs": []
+                              }
+                            },
+                            null,
+                            null
+                          ]
+                        },
+                        []
+                      ]
+                    }
+                  ]
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 825,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 827,
+                      "col": 24
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 54,
+                "kind": {
+                  "Assign": [
+                    {
+                      "kind": {
+                        "Local": 2
+                      },
+                      "ty": {
+                        "Untagged": {
+                          "Literal": {
+                            "UInt": "Usize"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Use": [
+                        {
+                          "Copy": {
+                            "kind": {
+                              "Projection": [
+                                {
+                                  "kind": {
+                                    "Local": 1
+                                  },
+                                  "ty": {
+                                    "Untagged": {
+                                      "Ref": [
+                                        {
+                                          "Body": 1
+                                        },
+                                        {
+                                          "Untagged": {
+                                            "Slice": {
+                                              "Untagged": {
+                                                "Literal": {
+                                                  "UInt": "U8"
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "Mut"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "PtrMetadata"
+                              ]
+                            },
+                            "ty": {
+                              "Untagged": {
+                                "Literal": {
+                                  "UInt": "Usize"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "No"
+                      ]
+                    }
+                  ]
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 825,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 827,
+                      "col": 24
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 55,
+                "kind": {
+                  "Assign": [
+                    {
+                      "kind": {
+                        "Local": 3
+                      },
+                      "ty": {
+                        "Untagged": {
+                          "Literal": {
+                            "UInt": "Usize"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Use": [
+                        {
+                          "Const": {
+                            "kind": {
+                              "Literal": {
+                                "Scalar": {
+                                  "Unsigned": [
+                                    "Usize",
+                                    "0"
+                                  ]
+                                }
+                              }
+                            },
+                            "ty": {
+                              "Untagged": {
+                                "Literal": {
+                                  "UInt": "Usize"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "Yes"
+                      ]
+                    }
+                  ]
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 825,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 827,
+                      "col": 24
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 62,
+                "kind": {
+                  "Loop": {
+                    "span": {
+                      "data": {
+                        "file_id": 1,
+                        "beg": {
+                          "line": 825,
+                          "col": 0
+                        },
+                        "end": {
+                          "line": 827,
+                          "col": 24
+                        }
+                      },
+                      "generated_from_span": null
+                    },
+                    "statements": [
+                      {
+                        "span": {
+                          "data": {
+                            "file_id": 1,
+                            "beg": {
+                              "line": 825,
+                              "col": 0
+                            },
+                            "end": {
+                              "line": 827,
+                              "col": 24
+                            }
+                          },
+                          "generated_from_span": null
+                        },
+                        "id": 56,
+                        "kind": {
+                          "Assign": [
+                            {
+                              "kind": {
+                                "Local": 5
+                              },
+                              "ty": {
+                                "Untagged": {
+                                  "Literal": "Bool"
+                                }
+                              }
+                            },
+                            {
+                              "BinaryOp": [
+                                "Eq",
+                                {
+                                  "Copy": {
+                                    "kind": {
+                                      "Local": 3
+                                    },
+                                    "ty": {
+                                      "Untagged": {
+                                        "Literal": {
+                                          "UInt": "Usize"
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                {
+                                  "Copy": {
+                                    "kind": {
+                                      "Local": 2
+                                    },
+                                    "ty": {
+                                      "Untagged": {
+                                        "Literal": {
+                                          "UInt": "Usize"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        "comments_before": []
+                      },
+                      {
+                        "span": {
+                          "data": {
+                            "file_id": 1,
+                            "beg": {
+                              "line": 825,
+                              "col": 0
+                            },
+                            "end": {
+                              "line": 827,
+                              "col": 24
+                            }
+                          },
+                          "generated_from_span": null
+                        },
+                        "id": 61,
+                        "kind": {
+                          "Switch": {
+                            "If": [
+                              {
+                                "Move": {
+                                  "kind": {
+                                    "Local": 5
+                                  },
+                                  "ty": {
+                                    "Untagged": {
+                                      "Literal": "Bool"
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "span": {
+                                  "data": {
+                                    "file_id": 1,
+                                    "beg": {
+                                      "line": 825,
+                                      "col": 0
+                                    },
+                                    "end": {
+                                      "line": 827,
+                                      "col": 24
+                                    }
+                                  },
+                                  "generated_from_span": null
+                                },
+                                "statements": [
+                                  {
+                                    "span": {
+                                      "data": {
+                                        "file_id": 1,
+                                        "beg": {
+                                          "line": 825,
+                                          "col": 0
+                                        },
+                                        "end": {
+                                          "line": 827,
+                                          "col": 24
+                                        }
+                                      },
+                                      "generated_from_span": null
+                                    },
+                                    "id": 57,
+                                    "kind": {
+                                      "Break": 0
+                                    },
+                                    "comments_before": []
+                                  }
+                                ]
+                              },
+                              {
+                                "span": {
+                                  "data": {
+                                    "file_id": 1,
+                                    "beg": {
+                                      "line": 825,
+                                      "col": 0
+                                    },
+                                    "end": {
+                                      "line": 827,
+                                      "col": 24
+                                    }
+                                  },
+                                  "generated_from_span": null
+                                },
+                                "statements": [
+                                  {
+                                    "span": {
+                                      "data": {
+                                        "file_id": 1,
+                                        "beg": {
+                                          "line": 825,
+                                          "col": 0
+                                        },
+                                        "end": {
+                                          "line": 827,
+                                          "col": 24
+                                        }
+                                      },
+                                      "generated_from_span": null
+                                    },
+                                    "id": 72,
+                                    "kind": {
+                                      "StorageLive": 6
+                                    },
+                                    "comments_before": []
+                                  },
+                                  {
+                                    "span": {
+                                      "data": {
+                                        "file_id": 1,
+                                        "beg": {
+                                          "line": 825,
+                                          "col": 0
+                                        },
+                                        "end": {
+                                          "line": 827,
+                                          "col": 24
+                                        }
+                                      },
+                                      "generated_from_span": null
+                                    },
+                                    "id": 73,
+                                    "kind": {
+                                      "Assign": [
+                                        {
+                                          "kind": {
+                                            "Local": 6
+                                          },
+                                          "ty": {
+                                            "Untagged": {
+                                              "Ref": [
+                                                "Erased",
+                                                {
+                                                  "Untagged": {
+                                                    "Slice": {
+                                                      "Untagged": {
+                                                        "Literal": {
+                                                          "UInt": "U8"
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "Mut"
+                                              ]
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "Ref": {
+                                            "place": {
+                                              "kind": {
+                                                "Projection": [
+                                                  {
+                                                    "kind": {
+                                                      "Local": 1
+                                                    },
+                                                    "ty": {
+                                                      "Untagged": {
+                                                        "Ref": [
+                                                          {
+                                                            "Body": 1
+                                                          },
+                                                          {
+                                                            "Untagged": {
+                                                              "Slice": {
+                                                                "Untagged": {
+                                                                  "Literal": {
+                                                                    "UInt": "U8"
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          "Mut"
+                                                        ]
+                                                      }
+                                                    }
+                                                  },
+                                                  "Deref"
+                                                ]
+                                              },
+                                              "ty": {
+                                                "Untagged": {
+                                                  "Slice": {
+                                                    "Untagged": {
+                                                      "Literal": {
+                                                        "UInt": "U8"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "kind": "Mut",
+                                            "ptr_metadata": {
+                                              "Copy": {
+                                                "kind": {
+                                                  "Projection": [
+                                                    {
+                                                      "kind": {
+                                                        "Local": 1
+                                                      },
+                                                      "ty": {
+                                                        "Untagged": {
+                                                          "Ref": [
+                                                            {
+                                                              "Body": 1
+                                                            },
+                                                            {
+                                                              "Untagged": {
+                                                                "Slice": {
+                                                                  "Untagged": {
+                                                                    "Literal": {
+                                                                      "UInt": "U8"
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            },
+                                                            "Mut"
+                                                          ]
+                                                        }
+                                                      }
+                                                    },
+                                                    "PtrMetadata"
+                                                  ]
+                                                },
+                                                "ty": {
+                                                  "Untagged": {
+                                                    "Literal": {
+                                                      "UInt": "Usize"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    "comments_before": []
+                                  },
+                                  {
+                                    "span": {
+                                      "data": {
+                                        "file_id": 1,
+                                        "beg": {
+                                          "line": 825,
+                                          "col": 0
+                                        },
+                                        "end": {
+                                          "line": 827,
+                                          "col": 24
+                                        }
+                                      },
+                                      "generated_from_span": null
+                                    },
+                                    "id": 74,
+                                    "kind": {
+                                      "StorageLive": 7
+                                    },
+                                    "comments_before": []
+                                  },
+                                  {
+                                    "span": {
+                                      "data": {
+                                        "file_id": 1,
+                                        "beg": {
+                                          "line": 825,
+                                          "col": 0
+                                        },
+                                        "end": {
+                                          "line": 827,
+                                          "col": 24
+                                        }
+                                      },
+                                      "generated_from_span": null
+                                    },
+                                    "id": 76,
+                                    "kind": {
+                                      "Call": {
+                                        "call": {
+                                          "func": {
+                                            "Regular": {
+                                              "kind": {
+                                                "Fun": {
+                                                  "Builtin": {
+                                                    "Index": {
+                                                      "is_array": false,
+                                                      "mutability": "Mut",
+                                                      "is_range": false
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "generics": {
+                                                "regions": [
+                                                  "Erased"
+                                                ],
+                                                "types": [
+                                                  {
+                                                    "Untagged": {
+                                                      "Literal": {
+                                                        "UInt": "U8"
+                                                      }
+                                                    }
+                                                  }
+                                                ],
+                                                "const_generics": [],
+                                                "trait_refs": []
+                                              }
+                                            }
+                                          },
+                                          "args": [
+                                            {
+                                              "Move": {
+                                                "kind": {
+                                                  "Local": 6
+                                                },
+                                                "ty": {
+                                                  "Untagged": {
+                                                    "Ref": [
+                                                      "Erased",
+                                                      {
+                                                        "Untagged": {
+                                                          "Slice": {
+                                                            "Untagged": {
+                                                              "Literal": {
+                                                                "UInt": "U8"
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "Mut"
+                                                    ]
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "Copy": {
+                                                "kind": {
+                                                  "Local": 3
+                                                },
+                                                "ty": {
+                                                  "Untagged": {
+                                                    "Literal": {
+                                                      "UInt": "Usize"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          ],
+                                          "dest": {
+                                            "kind": {
+                                              "Local": 7
+                                            },
+                                            "ty": {
+                                              "Untagged": {
+                                                "Ref": [
+                                                  "Erased",
+                                                  {
+                                                    "Untagged": {
+                                                      "Literal": {
+                                                        "UInt": "U8"
+                                                      }
+                                                    }
+                                                  },
+                                                  "Mut"
+                                                ]
+                                              }
+                                            }
+                                          }
+                                        },
+                                        "on_unwind": {
+                                          "span": {
+                                            "data": {
+                                              "file_id": 1,
+                                              "beg": {
+                                                "line": 825,
+                                                "col": 0
+                                              },
+                                              "end": {
+                                                "line": 827,
+                                                "col": 24
+                                              }
+                                            },
+                                            "generated_from_span": null
+                                          },
+                                          "statements": [
+                                            {
+                                              "span": {
+                                                "data": {
+                                                  "file_id": 1,
+                                                  "beg": {
+                                                    "line": 825,
+                                                    "col": 0
+                                                  },
+                                                  "end": {
+                                                    "line": 827,
+                                                    "col": 24
+                                                  }
+                                                },
+                                                "generated_from_span": null
+                                              },
+                                              "id": 79,
+                                              "kind": {
+                                                "StorageDead": 7
+                                              },
+                                              "comments_before": []
+                                            },
+                                            {
+                                              "span": {
+                                                "data": {
+                                                  "file_id": 1,
+                                                  "beg": {
+                                                    "line": 825,
+                                                    "col": 0
+                                                  },
+                                                  "end": {
+                                                    "line": 827,
+                                                    "col": 24
+                                                  }
+                                                },
+                                                "generated_from_span": null
+                                              },
+                                              "id": 80,
+                                              "kind": {
+                                                "StorageDead": 6
+                                              },
+                                              "comments_before": []
+                                            },
+                                            {
+                                              "span": {
+                                                "data": {
+                                                  "file_id": 1,
+                                                  "beg": {
+                                                    "line": 825,
+                                                    "col": 0
+                                                  },
+                                                  "end": {
+                                                    "line": 827,
+                                                    "col": 24
+                                                  }
+                                                },
+                                                "generated_from_span": null
+                                              },
+                                              "id": 75,
+                                              "kind": {
+                                                "Abort": "UndefinedBehavior"
+                                              },
+                                              "comments_before": []
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    "comments_before": []
+                                  },
+                                  {
+                                    "span": {
+                                      "data": {
+                                        "file_id": 1,
+                                        "beg": {
+                                          "line": 825,
+                                          "col": 0
+                                        },
+                                        "end": {
+                                          "line": 827,
+                                          "col": 24
+                                        }
+                                      },
+                                      "generated_from_span": null
+                                    },
+                                    "id": 58,
+                                    "kind": {
+                                      "Assign": [
+                                        {
+                                          "kind": {
+                                            "Local": 4
+                                          },
+                                          "ty": {
+                                            "Untagged": {
+                                              "RawPtr": [
+                                                {
+                                                  "Untagged": {
+                                                    "Literal": {
+                                                      "UInt": "U8"
+                                                    }
+                                                  }
+                                                },
+                                                "Mut"
+                                              ]
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "RawPtr": {
+                                            "place": {
+                                              "kind": {
+                                                "Projection": [
+                                                  {
+                                                    "kind": {
+                                                      "Local": 7
+                                                    },
+                                                    "ty": {
+                                                      "Untagged": {
+                                                        "Ref": [
+                                                          "Erased",
+                                                          {
+                                                            "Untagged": {
+                                                              "Literal": {
+                                                                "UInt": "U8"
+                                                              }
+                                                            }
+                                                          },
+                                                          "Mut"
+                                                        ]
+                                                      }
+                                                    }
+                                                  },
+                                                  "Deref"
+                                                ]
+                                              },
+                                              "ty": {
+                                                "Untagged": {
+                                                  "Literal": {
+                                                    "UInt": "U8"
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            "kind": "Mut",
+                                            "ptr_metadata": {
+                                              "Const": {
+                                                "kind": {
+                                                  "Adt": [
+                                                    null,
+                                                    []
+                                                  ]
+                                                },
+                                                "ty": {
+                                                  "Untagged": {
+                                                    "Adt": {
+                                                      "id": "Tuple",
+                                                      "generics": {
+                                                        "regions": [],
+                                                        "types": [],
+                                                        "const_generics": [],
+                                                        "trait_refs": []
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    "comments_before": []
+                                  },
+                                  {
+                                    "span": {
+                                      "data": {
+                                        "file_id": 1,
+                                        "beg": {
+                                          "line": 825,
+                                          "col": 0
+                                        },
+                                        "end": {
+                                          "line": 827,
+                                          "col": 24
+                                        }
+                                      },
+                                      "generated_from_span": null
+                                    },
+                                    "id": 59,
+                                    "kind": {
+                                      "Assign": [
+                                        {
+                                          "kind": {
+                                            "Local": 3
+                                          },
+                                          "ty": {
+                                            "Untagged": {
+                                              "Literal": {
+                                                "UInt": "Usize"
+                                              }
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "BinaryOp": [
+                                            {
+                                              "Add": "Wrap"
+                                            },
+                                            {
+                                              "Move": {
+                                                "kind": {
+                                                  "Local": 3
+                                                },
+                                                "ty": {
+                                                  "Untagged": {
+                                                    "Literal": {
+                                                      "UInt": "Usize"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "Const": {
+                                                "kind": {
+                                                  "Literal": {
+                                                    "Scalar": {
+                                                      "Unsigned": [
+                                                        "Usize",
+                                                        "1"
+                                                      ]
+                                                    }
+                                                  }
+                                                },
+                                                "ty": {
+                                                  "Untagged": {
+                                                    "Literal": {
+                                                      "UInt": "Usize"
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    "comments_before": []
+                                  },
+                                  {
+                                    "span": {
+                                      "data": {
+                                        "file_id": 1,
+                                        "beg": {
+                                          "line": 825,
+                                          "col": 0
+                                        },
+                                        "end": {
+                                          "line": 827,
+                                          "col": 24
+                                        }
+                                      },
+                                      "generated_from_span": null
+                                    },
+                                    "id": 60,
+                                    "kind": {
+                                      "Continue": 0
+                                    },
+                                    "comments_before": []
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        },
+                        "comments_before": []
+                      }
+                    ]
+                  }
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 825,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 827,
+                      "col": 24
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 63,
+                "kind": {
+                  "StorageDead": 5
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 825,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 827,
+                      "col": 24
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 64,
+                "kind": {
+                  "StorageDead": 4
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 825,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 827,
+                      "col": 24
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 67,
+                "kind": {
+                  "StorageDead": 3
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 825,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 827,
+                      "col": 24
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 68,
+                "kind": {
+                  "StorageDead": 2
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 825,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 827,
+                      "col": 24
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 69,
+                "kind": {
+                  "StorageDead": 1
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 825,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 827,
+                      "col": 24
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 81,
+                "kind": {
+                  "StorageDead": 7
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 825,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 827,
+                      "col": 24
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 82,
+                "kind": {
+                  "StorageDead": 6
+                },
+                "comments_before": []
+              },
+              {
+                "span": {
+                  "data": {
+                    "file_id": 1,
+                    "beg": {
+                      "line": 825,
+                      "col": 0
+                    },
+                    "end": {
+                      "line": 827,
+                      "col": 24
+                    }
+                  },
+                  "generated_from_span": null
+                },
+                "id": 70,
+                "kind": "Return",
+                "comments_before": []
+              }
+            ]
+          },
+          "comments": []
+        }
+      }
+    }
+  ],
+  "claim": "retained body-call interpretation with explicit cleanup; Foreign classification preserved; native foreign-call/compiler/lifetime/security refinement unproved"
+}
