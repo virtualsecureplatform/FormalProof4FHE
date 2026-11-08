@@ -57,13 +57,21 @@ IN_CI=1 make test
 make clippy
 ```
 
-The five included UI regressions check successful repeated calls/reference
-capture and rejection of indirect, nested, opaque and missing selections.
-The full upstream test suite and Clippy passed on the experimental checkout
-with nightly-2026-06-01. Documentation tests additionally require `odoc`.
-The fixture emits valid 64-bit little-endian monomorphic IR with selected
-functions removed. Its matching experimental Aeneas reader accepts the new
-schema, but call analysis still rejects a retained call to drop-glue function 9
-after preprocessing has removed its emission group. Reordering alone does
-not resolve this retention mismatch. There is no accepted generated Lean candidate or equivalence
-theorem yet. Keep the baseline gate on the reviewed original tools.
+Six included UI regressions check successful repeated calls/reference capture,
+monomorphic closure calls, retention of a destructor that writes through a
+reference, and rejection of indirect, nested, opaque and missing selections.
+The full upstream suite and Clippy passed with nightly-2026-06-01.
+Documentation tests additionally require `odoc`.
+
+Monomorphic closure calls are resolved during translation using Hax's builtin
+implementation evidence and the existing bound closure-reference translator.
+The patch retains the standard monomorphic trait representation. It does not
+restore discarded method tables or synthesize generic arguments. For explicit
+monomorphic inlining, a MIR drop becomes a jump only when rustc's `needs_drop`
+query reports that the instantiated type has no drop. The regression keeps a
+nontrivial destructor and its write in the output.
+
+These are extractor changes, not a general inlining or cost-preservation proof.
+The original baseline gate continues to use the reviewed original tools. The
+coupled frontend and fixture equivalence checks are documented in
+`interop/aeneas/selected-inline/README.md`.

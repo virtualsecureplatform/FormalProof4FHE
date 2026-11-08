@@ -98,6 +98,87 @@ index 891b732e..b7becbdc 100644
  authors.workspace = true
  edition.workspace = true
  license.workspace = true
+diff --git a/charon/src/bin/charon-driver/translate/translate_bodies.rs b/charon/src/bin/charon-driver/translate/translate_bodies.rs
+index 020f6217..4a318bdc 100644
+--- a/charon/src/bin/charon-driver/translate/translate_bodies.rs
++++ b/charon/src/bin/charon-driver/translate/translate_bodies.rs
+@@ -3,6 +3,7 @@
+ //! us to handle, and easier to maintain - rustc's representation can evolve
+ //! independently.
+ 
++use crate::hax::state::UnderOwnerState;
+ use itertools::Itertools;
+ use std::collections::HashMap;
+ use std::collections::VecDeque;
+@@ -1583,6 +1584,17 @@ impl<'tcx> BlockTransCtx<'tcx, '_, '_, '_> {
+         unwind: &mir::UnwindAction,
+     ) -> Result<TerminatorKind, Error> {
+         let place_ty = place.ty(self.local_decls, self.tcx).ty;
++        if self.monomorphize()
++            && !self.options.inline_functions.is_empty()
++            && !place_ty.needs_drop(self.tcx, self.hax_state_with_id().typing_env())
++        {
++            // Use rustc's drop query for the instantiated type. Borrowing a
++            // moved closure merely to invoke empty glue would introduce a read
++            // that is absent from the source semantics of a no-op drop.
++            return Ok(TerminatorKind::Goto {
++                target: self.translate_basic_block_id(*target),
++            });
++        }
+         let fn_ptr = self.translate_drop_glue_method_call(span, place_ty)?;
+         let place = self.translate_place(span, place)?;
+         let target = self.translate_basic_block_id(*target);
+diff --git a/charon/src/bin/charon-driver/translate/translate_closures.rs b/charon/src/bin/charon-driver/translate/translate_closures.rs
+index 76ced34f..5f74eaaf 100644
+--- a/charon/src/bin/charon-driver/translate/translate_closures.rs
++++ b/charon/src/bin/charon-driver/translate/translate_closures.rs
+@@ -103,7 +103,7 @@ impl<'tcx> ItemTransCtx<'tcx, '_> {
+     /// Translate a reference to a closure item that takes late-bound lifetimes and method
+     /// lifetimes. The binder binds the late-bound lifetimes of the `call`/`call_mut` method
+     /// (specified by `target_kind`).
+-    fn translate_closure_bound_ref_with_method_bound(
++    pub(crate) fn translate_closure_bound_ref_with_method_bound(
+         &mut self,
+         span: Span,
+         closure: &hax::ClosureArgs,
+diff --git a/charon/src/bin/charon-driver/translate/translate_crate.rs b/charon/src/bin/charon-driver/translate/translate_crate.rs
+index 4a575f3f..8c966a07 100644
+--- a/charon/src/bin/charon-driver/translate/translate_crate.rs
++++ b/charon/src/bin/charon-driver/translate/translate_crate.rs
+@@ -868,6 +868,33 @@ impl<'tcx, 'ctx> ItemTransCtx<'tcx, 'ctx> {
+         item: &hax::ItemRef,
+         kind: TransItemSourceKind,
+     ) -> Result<FnPtr, Error> {
++        // Monomorphic trait declarations omit method tables. Resolve concrete
++        // closure calls while Hax still supplies their implementation evidence.
++        if self.monomorphize()
++            && !self.options.inline_functions.is_empty()
++            && let Some(proof) = &item.in_trait
++            && let hax::TraitProofKind::Builtin { trait_data, .. } = &proof.kind
++            && let Some(hax::GenericArg::Type(closure_ty)) =
++                proof.pred.hax_skip_binder_ref().generic_args.first()
++            && let hax::TyKind::Closure(closure) = closure_ty.kind()
++        {
++            let trait_def = self.poly_hax_def(&proof.pred.hax_skip_binder_ref().def_id)?;
++            if let Some(closure_kind) = self
++                .recognize_builtin_impl(trait_data, &trait_def)
++                .and_then(|data| data.as_closure_kind())
++            {
++                let reference = self.translate_closure_bound_ref_with_method_bound(
++                    span,
++                    closure,
++                    TransItemSourceKind::ClosureMethod(closure_kind),
++                    closure_kind,
++                )?;
++                let reference: RegionBinder<FunDeclRef> =
++                    reference.map(|reference| reference.try_into().unwrap());
++                let reference = self.erase_region_binder(reference);
++                return Ok(FnPtr::new(reference.id.into(), reference.generics));
++            }
++        }
+         let fn_ptr = self.translate_bound_fn_ptr(span, item, kind)?;
+         let fn_ptr = self.erase_region_binder(fn_ptr);
+         Ok(fn_ptr)
 diff --git a/charon/src/options.rs b/charon/src/options.rs
 index 3c539c1d..9afc7a76 100644
 --- a/charon/src/options.rs
@@ -935,6 +1016,838 @@ index 00000000..81fc0176
 +//@ known-failure
 +//@ charon-args=--inline-function crate::missing
 +pub fn call(value: u32) -> u32 { value }
+diff --git a/charon/tests/ui/inline-selected-monomorphic.out b/charon/tests/ui/inline-selected-monomorphic.out
+new file mode 100644
+index 00000000..650272ad
+--- /dev/null
++++ b/charon/tests/ui/inline-selected-monomorphic.out
+@@ -0,0 +1,786 @@
++# Final LLBC before serialization:
++
++// Full name: core::convert::{impl From<()> for ()}::from::<()>
++pub fn from::<()>(_1: ())
++= <opaque>
++
++// Full name: core::convert::Infallible
++pub enum Infallible {
++}
++
++opaque type core::marker::MetaSized::{vtable}
++
++// Full name: core::marker::MetaSized
++#[lang_item("meta_sized")]
++pub trait MetaSized<Self>
++
++// Full name: core::marker::Sized
++#[lang_item("sized")]
++pub trait Sized<Self>
++{
++    proof ImpliedClause0: (Self: MetaSized)
++    non-dyn-compatible
++}
++
++// Full name: core::marker::Destruct
++#[lang_item("destruct")]
++pub trait Destruct<Self>
++{
++    fn drop_glue<'_0_1>;
++    non-dyn-compatible
++}
++
++// Full name: core::marker::Tuple
++#[lang_item("tuple_trait")]
++pub trait Tuple<Self>
++{
++    proof ImpliedClause0: (Self: MetaSized)
++    non-dyn-compatible
++}
++
++// Full name: core::option::Option::<usize>
++#[lang_item("Option")]
++pub enum Option::<usize> {
++  None,
++  Some(usize),
++}
++
++// Full name: core::num::{usize}::checked_mul
++pub fn checked_mul(_1: usize, _2: usize) -> Option::<usize>
++= <opaque>
++
++// Full name: core::result::Result::<Infallible, ()>
++#[lang_item("Result")]
++pub enum Result::<Infallible, ()> {
++  Ok(Infallible),
++  Err(()),
++}
++
++// Full name: core::ops::control_flow::ControlFlow::<Result::<Infallible, ()>, u32>
++#[lang_item("ControlFlow")]
++pub enum ControlFlow::<Result::<Infallible, ()>, u32> {
++  Continue(u32),
++  Break(Result::<Infallible, ()>),
++}
++
++opaque type core::ops::drop::Drop::{vtable}
++
++// Full name: core::ops::drop::Drop
++#[lang_item("drop")]
++pub trait Drop<Self>
++{
++    proof ImpliedClause0: (Self: MetaSized)
++    vtable: core::ops::drop::Drop::{vtable}
++}
++
++opaque type core::ops::function::FnOnce::{vtable}
++
++// Full name: core::ops::function::FnOnce
++#[lang_item("fn_once")]
++pub trait FnOnce<Self, Args>
++{
++    proof ImpliedClause0: (Self: MetaSized)
++    proof ImpliedClause1: (Args: Sized)
++    proof ImpliedClause2: (Args: Tuple)
++    vtable: core::ops::function::FnOnce::{vtable}
++}
++
++// Full name: core::option::Option::<u32>
++#[lang_item("Option")]
++pub enum Option::<u32> {
++  None,
++  Some(u32),
++}
++
++// Full name: core::result::Result::<(u32, u32), ()>
++#[lang_item("Result")]
++pub enum Result::<(u32, u32), ()> {
++  Ok((u32, u32)),
++  Err(()),
++}
++
++// Full name: core::result::Result::<u32, ()>
++#[lang_item("Result")]
++pub enum Result::<u32, ()> {
++  Ok(u32),
++  Err(()),
++}
++
++// Full name: core::result::{impl Try for Result::<u32, ()>}::branch::<u32, ()>
++pub fn branch::<u32, ()>(self: Result::<u32, ()>) -> ControlFlow::<Result::<Infallible, ()>, u32>
++{
++    let _0: ControlFlow::<Result::<Infallible, ()>, u32>; // return
++    let self: Result::<u32, ()>; // arg #1
++    let v: u32; // local
++    let _3: u32; // anonymous local
++    let e: (); // local
++    let _5: Result::<Infallible, ()>; // anonymous local
++    let _6: (); // anonymous local
++
++    storage_live(_0)
++    match self {
++        Result::<u32, ()>::Ok => {
++        },
++        Result::<u32, ()>::Err => {
++            storage_live(e)
++            e = move (self as variant Result::<u32, ()>::Err).0
++            storage_live(_5)
++            storage_live(_6)
++            _6 = ()
++            _5 = Result::<Infallible, ()>::Err { 0: move _6 }
++            storage_dead(_6)
++            _0 = ControlFlow::<Result::<Infallible, ()>, u32>::Break { 0: move _5 }
++            storage_dead(_5)
++            storage_dead(e)
++            storage_dead(self)
++            return
++        },
++    }
++    storage_live(v)
++    v = move (self as variant Result::<u32, ()>::Ok).0
++    storage_live(_3)
++    _3 = move v
++    _0 = ControlFlow::<Result::<Infallible, ()>, u32>::Continue { 0: move _3 }
++    storage_dead(_3)
++    storage_dead(v)
++    storage_dead(self)
++    return
++}
++
++// Full name: core::result::{impl FromResidual<Result::<Infallible, ()>> for Result::<(u32, u32), ()>}::from_residual::<(u32, u32), (), ()>
++pub fn from_residual::<(u32, u32), (), ()>(residual: Result::<Infallible, ()>) -> Result::<(u32, u32), ()>
++{
++    let _0: Result::<(u32, u32), ()>; // return
++    let residual: Result::<Infallible, ()>; // arg #1
++    let e: (); // local
++    let _3: (); // anonymous local
++    let _4: (); // anonymous local
++
++    storage_live(_0)
++    match residual {
++        Result::<Infallible, ()>::Err => {
++        },
++        _ => {
++            storage_dead(residual)
++            undefined_behavior
++        },
++    }
++    storage_live(e)
++    e = move (residual as variant Result::<Infallible, ()>::Err).0
++    storage_live(_3)
++    storage_live(_4)
++    _4 = ()
++    _3 = from::<()>(move _4)
++    ↳⚡ storage_dead(residual)
++        unwind_continue
++    storage_dead(_4)
++    _0 = Result::<(u32, u32), ()>::Err { 0: move _3 }
++    storage_dead(_3)
++    storage_dead(e)
++    storage_dead(residual)
++    return
++}
++
++// Full name: test_crate::twice
++pub fn twice<'_0>(slot_1: &'_0 mut u32, left: u32, right: u32) -> Result::<(u32, u32), ()>
++{
++    let _0: Result::<(u32, u32), ()>; // return
++    let slot_1: &'1 mut u32; // arg #1
++    let left: u32; // arg #2
++    let right: u32; // arg #3
++    let first: u32; // local
++    let _5: ControlFlow::<Result::<Infallible, ()>, u32>; // anonymous local
++    let _6: Result::<u32, ()>; // anonymous local
++    let _7: &'2 mut u32; // anonymous local
++    let _8: u32; // anonymous local
++    let residual_9: Result::<Infallible, ()>; // local
++    let _10: Result::<Infallible, ()>; // anonymous local
++    let val_11: u32; // local
++    let second: u32; // local
++    let _13: ControlFlow::<Result::<Infallible, ()>, u32>; // anonymous local
++    let _14: Result::<u32, ()>; // anonymous local
++    let _15: &'3 mut u32; // anonymous local
++    let _16: u32; // anonymous local
++    let residual_17: Result::<Infallible, ()>; // local
++    let _18: Result::<Infallible, ()>; // anonymous local
++    let val_19: u32; // local
++    let _20: (u32, u32); // anonymous local
++    let _21: u32; // anonymous local
++    let _22: u32; // anonymous local
++    let _23: Result::<u32, ()>; // anonymous local
++    let slot_24: &'9 mut u32; // local
++    let increment_25: u32; // local
++    let _26: bool; // anonymous local
++    let _27: u32; // anonymous local
++    let _28: (); // anonymous local
++    let previous_29: u32; // local
++    let _30: u32; // anonymous local
++    let _31: u32; // anonymous local
++    let _32: u32; // anonymous local
++    let _33: u32; // anonymous local
++    let _34: Result::<u32, ()>; // anonymous local
++    let slot_35: &'11 mut u32; // local
++    let increment_36: u32; // local
++    let _37: bool; // anonymous local
++    let _38: u32; // anonymous local
++    let _39: (); // anonymous local
++    let previous_40: u32; // local
++    let _41: u32; // anonymous local
++    let _42: u32; // anonymous local
++    let _43: u32; // anonymous local
++    let _44: u32; // anonymous local
++
++    storage_live(_0)
++    storage_live(first)
++    storage_live(_5)
++    storage_live(_6)
++    storage_live(_7)
++    _7 = &two-phase-mut (*slot_1)
++    storage_live(_8)
++    _8 = copy left
++    storage_live(slot_24)
++    slot_24 = move _7
++    storage_live(increment_25)
++    increment_25 = move _8
++    storage_live(_23)
++    storage_live(_32)
++    storage_live(_26)
++    storage_live(_27)
++    _27 = copy increment_25
++    _26 = move _27 == const 0u32
++    if move _26 {
++        storage_dead(_27)
++        storage_live(_28)
++        _28 = ()
++        _23 = Result::<u32, ()>::Err { 0: move _28 }
++        storage_dead(_28)
++        storage_dead(_26)
++    } else {
++        storage_dead(_27)
++        storage_dead(_26)
++        storage_live(previous_29)
++        previous_29 = copy (*slot_24)
++        storage_live(_30)
++        _30 = copy previous_29
++        storage_live(_31)
++        _31 = copy increment_25
++        _32 = copy _30 panic.+ copy _31
++        (*slot_24) = move _32
++        storage_dead(_31)
++        storage_dead(_30)
++        storage_live(_33)
++        _33 = copy previous_29
++        _23 = Result::<u32, ()>::Ok { 0: move _33 }
++        storage_dead(_33)
++        storage_dead(previous_29)
++    }
++    storage_dead(_32)
++    storage_dead(increment_25)
++    storage_dead(slot_24)
++    _6 = move _23
++    storage_dead(_8)
++    storage_dead(_7)
++    _5 = branch::<u32, ()>(move _6)
++    ↳⚡ storage_dead(right)
++        storage_dead(left)
++        storage_dead(slot_1)
++        unwind_continue
++    storage_dead(_6)
++    match _5 {
++        ControlFlow::<Result::<Infallible, ()>, u32>::Continue => {
++            storage_live(val_11)
++            val_11 = copy (_5 as variant ControlFlow::<Result::<Infallible, ()>, u32>::Continue).0
++            first = copy val_11
++            storage_dead(val_11)
++            storage_dead(_5)
++            storage_live(second)
++            storage_live(_13)
++            storage_live(_14)
++            storage_live(_15)
++            _15 = &two-phase-mut (*slot_1)
++            storage_live(_16)
++            _16 = copy right
++            storage_live(slot_35)
++            slot_35 = move _15
++            storage_live(increment_36)
++            increment_36 = move _16
++            storage_live(_34)
++            storage_live(_43)
++            storage_live(_37)
++            storage_live(_38)
++            _38 = copy increment_36
++            _37 = move _38 == const 0u32
++            if move _37 {
++                storage_dead(_38)
++                storage_live(_39)
++                _39 = ()
++                _34 = Result::<u32, ()>::Err { 0: move _39 }
++                storage_dead(_39)
++                storage_dead(_37)
++            } else {
++                storage_dead(_38)
++                storage_dead(_37)
++                storage_live(previous_40)
++                previous_40 = copy (*slot_35)
++                storage_live(_41)
++                _41 = copy previous_40
++                storage_live(_42)
++                _42 = copy increment_36
++                _43 = copy _41 panic.+ copy _42
++                (*slot_35) = move _43
++                storage_dead(_42)
++                storage_dead(_41)
++                storage_live(_44)
++                _44 = copy previous_40
++                _34 = Result::<u32, ()>::Ok { 0: move _44 }
++                storage_dead(_44)
++                storage_dead(previous_40)
++            }
++            storage_dead(_43)
++            storage_dead(increment_36)
++            storage_dead(slot_35)
++            _14 = move _34
++            storage_dead(_16)
++            storage_dead(_15)
++            _13 = branch::<u32, ()>(move _14)
++            ↳⚡ storage_dead(right)
++                storage_dead(left)
++                storage_dead(slot_1)
++                unwind_continue
++            storage_dead(_14)
++            match _13 {
++                ControlFlow::<Result::<Infallible, ()>, u32>::Continue => {
++                    storage_live(val_19)
++                    val_19 = copy (_13 as variant ControlFlow::<Result::<Infallible, ()>, u32>::Continue).0
++                    second = copy val_19
++                    storage_dead(val_19)
++                    storage_dead(_13)
++                    storage_live(_20)
++                    storage_live(_21)
++                    _21 = copy first
++                    storage_live(_22)
++                    _22 = copy second
++                    _20 = (move _21, move _22)
++                    storage_dead(_22)
++                    storage_dead(_21)
++                    _0 = Result::<(u32, u32), ()>::Ok { 0: move _20 }
++                    storage_dead(_20)
++                    storage_dead(second)
++                    storage_dead(first)
++                    storage_dead(right)
++                    storage_dead(left)
++                    storage_dead(slot_1)
++                    storage_dead(_34)
++                    storage_dead(_23)
++                    return
++                },
++                ControlFlow::<Result::<Infallible, ()>, u32>::Break => {
++                    storage_live(residual_17)
++                    residual_17 = copy (_13 as variant ControlFlow::<Result::<Infallible, ()>, u32>::Break).0
++                    storage_live(_18)
++                    _18 = copy residual_17
++                    _0 = from_residual::<(u32, u32), (), ()>(move _18)
++                    ↳⚡ storage_dead(right)
++                        storage_dead(left)
++                        storage_dead(slot_1)
++                        unwind_continue
++                    storage_dead(_18)
++                    storage_dead(residual_17)
++                    storage_dead(_13)
++                    storage_dead(second)
++                },
++            }
++        },
++        ControlFlow::<Result::<Infallible, ()>, u32>::Break => {
++            storage_live(residual_9)
++            residual_9 = copy (_5 as variant ControlFlow::<Result::<Infallible, ()>, u32>::Break).0
++            storage_live(_10)
++            _10 = copy residual_9
++            _0 = from_residual::<(u32, u32), (), ()>(move _10)
++            ↳⚡ storage_dead(right)
++                storage_dead(left)
++                storage_dead(slot_1)
++                unwind_continue
++            storage_dead(_10)
++            storage_dead(residual_9)
++            storage_dead(_5)
++        },
++    }
++    storage_dead(first)
++    storage_dead(right)
++    storage_dead(left)
++    storage_dead(slot_1)
++    storage_dead(_34)
++    storage_dead(_23)
++    return
++}
++
++struct test_crate::capture::closure<'_0> {
++  &'_0 usize,
++}
++
++// Full name: test_crate::capture::{impl FnOnce<(usize,)> for test_crate::capture::closure<'_0>}::call_once
++fn {impl FnOnce<(usize,)> for test_crate::capture::closure<'_0>}::call_once<'_0>(_1: test_crate::capture::closure<'_0>, tupled_args: (usize,)) -> Option::<usize>
++{
++    let _0: Option::<usize>; // return
++    let _1: test_crate::capture::closure<'_0>; // arg #1
++    let tupled_args: (usize,); // arg #2
++    let n: usize; // local
++    let _4: usize; // anonymous local
++    let _5: usize; // anonymous local
++
++    storage_live(_0)
++    storage_live(n)
++    n = move tupled_args.0
++    storage_live(_4)
++    _4 = copy n
++    storage_live(_5)
++    _5 = copy (*(_1).0)
++    _0 = checked_mul(move _4, move _5)
++    ↳⚡ storage_dead(n)
++        storage_dead(tupled_args)
++        storage_dead(_1)
++        unwind_continue
++    storage_dead(_5)
++    storage_dead(_4)
++    storage_dead(n)
++    storage_dead(tupled_args)
++    storage_dead(_1)
++    return
++}
++
++// Full name: test_crate::capture
++pub fn capture<'_0>(value: Option::<usize>, factor: &'_0 usize) -> Option::<usize>
++{
++    let _0: Option::<usize>; // return
++    let value: Option::<usize>; // arg #1
++    let factor: &'1 usize; // arg #2
++    let _3: Option::<usize>; // anonymous local
++    let _4: test_crate::capture::closure<'3>; // anonymous local
++    let _5: &'4 usize; // anonymous local
++    let _6: Option::<usize>; // anonymous local
++    let self: Option::<usize>; // local
++    let f: test_crate::capture::closure<'6>; // local
++    let x: usize; // local
++    let _10: test_crate::capture::closure<'7>; // anonymous local
++    let _11: (usize,); // anonymous local
++    let _12: usize; // anonymous local
++    let _13: bool; // anonymous local
++
++    storage_live(_0)
++    storage_live(_3)
++    _3 = copy value
++    storage_live(_4)
++    storage_live(_5)
++    _5 = &(*factor)
++    _4 = test_crate::capture::closure { 0: move _5 }
++    storage_dead(_5)
++    storage_live(self)
++    self = move _3
++    storage_live(f)
++    f = move _4
++    storage_live(_6)
++    storage_live(_13)
++    _13 = const false
++    _13 = const true
++    match self {
++        Option::<usize>::None => {
++            _6 = Option::<usize>::None {  }
++        },
++        Option::<usize>::Some => {
++            storage_live(x)
++            x = move (self as variant Option::<usize>::Some).0
++            storage_live(_10)
++            _13 = const false
++            _10 = move f
++            storage_live(_11)
++            storage_live(_12)
++            _12 = move x
++            _11 = (move _12,)
++            _6 = {impl FnOnce<(usize,)> for test_crate::capture::closure<'_0>}::call_once<'8>(move _10, move _11)
++            ↳⚡ storage_dead(_13)
++                storage_dead(f)
++                storage_dead(self)
++                storage_dead(factor)
++                storage_dead(value)
++                unwind_continue
++            storage_dead(_12)
++            storage_dead(_11)
++            storage_dead(_10)
++            storage_dead(x)
++        },
++    }
++    if copy _13 {
++    } else {
++    }
++    storage_dead(_13)
++    storage_dead(f)
++    storage_dead(self)
++    _0 = move _6
++    storage_dead(_4)
++    storage_dead(_3)
++    storage_dead(factor)
++    storage_dead(value)
++    storage_dead(_6)
++    return
++}
++
++// Full name: test_crate::capture::{impl FnOnce<(usize,)> for test_crate::capture::closure<'_0>}
++impl<'_0> FnOnce<(usize,)> for test_crate::capture::closure<'_0> {
++    proof ImpliedClause0: (test_crate::capture::closure<'_0>: MetaSized) = {built_in impl MetaSized for test_crate::capture::closure<'_0>}
++    proof ImpliedClause1: ((usize,): Sized) = {built_in impl Sized for (usize,)}
++    proof ImpliedClause2: ((usize,): Tuple) = {built_in impl Tuple for (usize,)}
++    non-dyn-compatible
++}
++
++// Full name: test_crate::Tracked::<'_>
++struct Tracked::<'_> {
++  &'_ mut u32,
++}
++
++// Full name: test_crate::{impl Drop for Tracked::<'_>}::drop::<'_>
++pub fn drop::<'_><'_0>(self: &'_0 mut Tracked::<'_>)
++{
++    let _0: (); // return
++    let self: &'1 mut Tracked::<'_>; // arg #1
++    let _2: u32; // anonymous local
++
++    storage_live(_0)
++    storage_live(_2)
++    _0 = ()
++    _2 = copy (*((*self)).0) panic.+ const 1u32
++    (*((*self)).0) = move _2
++    _0 = ()
++    storage_dead(_2)
++    storage_dead(self)
++    return
++}
++
++// Full name: test_crate::Tracked::{impl Destruct for Tracked::<'_>}::drop_glue::<'_>
++unsafe fn {impl Destruct for Tracked::<'_>}::drop_glue::<'_><'_0>(_1: &'_0 mut Tracked::<'_>)
++{
++    let _0: (); // return
++    let _1: &'1 mut Tracked::<'_>; // arg #1
++    let _2: &'2 mut Tracked::<'_>; // anonymous local
++    let _3: (); // anonymous local
++
++    storage_live(_0)
++    storage_live(_2)
++    storage_live(_3)
++    _0 = ()
++    _2 = &mut (*_1)
++    _3 = drop::<'_><'4>(move _2)
++    ↳⚡ storage_dead(_3)
++        storage_dead(_2)
++        storage_dead(_1)
++        unwind_continue
++    storage_dead(_3)
++    storage_dead(_2)
++    storage_dead(_1)
++    return
++}
++
++// Full name: test_crate::Tracked::{impl Destruct for Tracked::<'_>}
++impl Destruct for Tracked::<'_> {
++    fn drop_glue<'_0_1> = {impl Destruct for Tracked::<'_>}::drop_glue::<'_><'_0_1>
++    non-dyn-compatible
++}
++
++// Full name: test_crate::{impl Drop for Tracked::<'_>}
++impl Drop for Tracked::<'_> {
++    proof ImpliedClause0: (Tracked::<'_>: MetaSized) = {built_in impl MetaSized for Tracked::<'_>}
++    vtable: {impl Drop for Tracked::<'_>}::{vtable}::<'_>
++}
++
++struct test_crate::capture_destructor::closure {
++  Tracked::<'_>,
++}
++
++// Full name: test_crate::capture_destructor::closure::{impl Destruct for test_crate::capture_destructor::closure}::drop_glue
++unsafe fn impl_Destruct_for_closure::drop_glue<'_0>(_1: &'_0 mut test_crate::capture_destructor::closure)
++{
++    let _0: (); // return
++    let _1: &'1 mut test_crate::capture_destructor::closure; // arg #1
++
++    storage_live(_0)
++    _0 = ()
++    drop[{impl Destruct for Tracked::<'_>}::drop_glue::<'_><'2>] ((*_1)).0
++    ↳⚡ storage_dead(_1)
++        unwind_continue
++    storage_dead(_1)
++    return
++}
++
++// Full name: test_crate::capture_destructor::{impl FnOnce<(u32,)> for test_crate::capture_destructor::closure}::call_once
++fn {impl FnOnce<(u32,)> for test_crate::capture_destructor::closure}::call_once(_1: test_crate::capture_destructor::closure, tupled_args: (u32,)) -> Option::<u32>
++{
++    let _0: Option::<u32>; // return
++    let _1: test_crate::capture_destructor::closure; // arg #1
++    let tupled_args: (u32,); // arg #2
++    let n: u32; // local
++    let _borrow: &'1 Tracked::<'_>; // local
++    let _5: u32; // anonymous local
++
++    storage_live(_0)
++    storage_live(n)
++    n = move tupled_args.0
++    storage_live(_borrow)
++    _borrow = &(_1).0
++    storage_live(_5)
++    _5 = copy n
++    _0 = Option::<u32>::Some { 0: move _5 }
++    storage_dead(_5)
++    storage_dead(_borrow)
++    conditional_drop[impl_Destruct_for_closure::drop_glue<'2>] _1
++    ↳⚡ storage_dead(n)
++        storage_dead(tupled_args)
++        storage_dead(_1)
++        unwind_continue
++    storage_dead(n)
++    storage_dead(tupled_args)
++    storage_dead(_1)
++    return
++}
++
++// Full name: test_crate::capture_destructor
++pub fn capture_destructor<'_0>(value: Option::<u32>, counter: &'_0 mut u32) -> Option::<u32>
++{
++    let _0: Option::<u32>; // return
++    let value: Option::<u32>; // arg #1
++    let counter: &'1 mut u32; // arg #2
++    let tracked: Tracked::<'_>; // local
++    let _4: &'2 mut u32; // anonymous local
++    let _5: Option::<u32>; // anonymous local
++    let _6: test_crate::capture_destructor::closure; // anonymous local
++    let _7: Option::<u32>; // anonymous local
++    let self: Option::<u32>; // local
++    let f: test_crate::capture_destructor::closure; // local
++    let x: u32; // local
++    let _11: test_crate::capture_destructor::closure; // anonymous local
++    let _12: (u32,); // anonymous local
++    let _13: u32; // anonymous local
++    let _14: bool; // anonymous local
++    let drop_arg: &'_ mut test_crate::capture_destructor::closure; // local
++    let drop_ret: (); // local
++
++    storage_live(_0)
++    storage_live(tracked)
++    storage_live(_4)
++    _4 = &two-phase-mut (*counter)
++    tracked = Tracked::<'_> { 0: move _4 }
++    storage_dead(_4)
++    storage_live(_5)
++    _5 = copy value
++    storage_live(_6)
++    _6 = test_crate::capture_destructor::closure { 0: move tracked }
++    storage_live(self)
++    self = move _5
++    storage_live(f)
++    f = move _6
++    storage_live(_7)
++    storage_live(_14)
++    _14 = const false
++    _14 = const true
++    match self {
++        Option::<u32>::None => {
++            _7 = Option::<u32>::None {  }
++        },
++        Option::<u32>::Some => {
++            storage_live(x)
++            x = move (self as variant Option::<u32>::Some).0
++            storage_live(_11)
++            _14 = const false
++            _11 = move f
++            storage_live(_12)
++            storage_live(_13)
++            _13 = move x
++            _12 = (move _13,)
++            _7 = {impl FnOnce<(u32,)> for test_crate::capture_destructor::closure}::call_once(move _11, move _12)
++            ↳⚡ storage_dead(_14)
++                storage_dead(f)
++                storage_dead(self)
++                conditional_drop[impl_Destruct_for_closure::drop_glue<'3>] _6
++                ↳⚡ storage_dead(counter)
++                    storage_dead(value)
++                    storage_dead(drop_ret)
++                    storage_dead(drop_arg)
++                    storage_dead(_7)
++                    unwind_terminate
++                conditional_drop[{impl Destruct for Tracked::<'_>}::drop_glue::<'_><'5>] tracked
++                ↳⚡ storage_dead(counter)
++                    storage_dead(value)
++                    storage_dead(drop_ret)
++                    storage_dead(drop_arg)
++                    storage_dead(_7)
++                    unwind_terminate
++                storage_dead(counter)
++                storage_dead(value)
++                unwind_continue
++            storage_dead(_13)
++            storage_dead(_12)
++            storage_dead(_11)
++            storage_dead(x)
++        },
++    }
++    if copy _14 {
++        storage_live(drop_arg)
++        drop_arg = &mut f
++        storage_live(drop_ret)
++        drop_ret = impl_Destruct_for_closure::drop_glue<'6>(move drop_arg)
++        ↳⚡ storage_dead(_14)
++            storage_dead(f)
++            storage_dead(self)
++            conditional_drop[impl_Destruct_for_closure::drop_glue<'3>] _6
++            ↳⚡ storage_dead(counter)
++                storage_dead(value)
++                storage_dead(drop_ret)
++                storage_dead(drop_arg)
++                storage_dead(_7)
++                unwind_terminate
++            conditional_drop[{impl Destruct for Tracked::<'_>}::drop_glue::<'_><'5>] tracked
++            ↳⚡ storage_dead(counter)
++                storage_dead(value)
++                storage_dead(drop_ret)
++                storage_dead(drop_arg)
++                storage_dead(_7)
++                unwind_terminate
++            storage_dead(counter)
++            storage_dead(value)
++            unwind_continue
++    } else {
++    }
++    storage_dead(_14)
++    storage_dead(f)
++    storage_dead(self)
++    _0 = move _7
++    storage_dead(_6)
++    storage_dead(_5)
++    conditional_drop[{impl Destruct for Tracked::<'_>}::drop_glue::<'_><'4>] tracked
++    ↳⚡ storage_dead(counter)
++        storage_dead(value)
++        unwind_continue
++    storage_dead(tracked)
++    storage_dead(counter)
++    storage_dead(value)
++    storage_dead(drop_ret)
++    storage_dead(drop_arg)
++    storage_dead(_7)
++    return
++}
++
++// Full name: test_crate::capture_destructor::{impl FnOnce<(u32,)> for test_crate::capture_destructor::closure}
++impl FnOnce<(u32,)> for test_crate::capture_destructor::closure {
++    proof ImpliedClause0: (test_crate::capture_destructor::closure: MetaSized) = {built_in impl MetaSized for test_crate::capture_destructor::closure}
++    proof ImpliedClause1: ((u32,): Sized) = {built_in impl Sized for (u32,)}
++    proof ImpliedClause2: ((u32,): Tuple) = {built_in impl Tuple for (u32,)}
++    non-dyn-compatible
++}
++
++// Full name: test_crate::capture_destructor::closure::{impl Destruct for test_crate::capture_destructor::closure}
++impl "impl_Destruct_for_closure" Destruct for test_crate::capture_destructor::closure {
++    fn drop_glue<'_0_1> = impl_Destruct_for_closure::drop_glue<'_0_1>
++    non-dyn-compatible
++}
++
++
++
+diff --git a/charon/tests/ui/inline-selected-monomorphic.rs b/charon/tests/ui/inline-selected-monomorphic.rs
+new file mode 100644
+index 00000000..e2ada687
+--- /dev/null
++++ b/charon/tests/ui/inline-selected-monomorphic.rs
+@@ -0,0 +1,34 @@
++//@ charon-args=--monomorphize
++//@ charon-args=--inline-function crate::adjust --inline-function core::option::_::and_then
++//@ charon-args=--include core::option --include core::result
++// The selected helper must preserve mutation, early return and overflow abort.
++#[inline(never)]
++fn adjust(slot: &mut u32, increment: u32) -> Result<u32, ()> {
++    if increment == 0 {
++        return Err(());
++    }
++    let previous = *slot;
++    *slot = previous + increment;
++    Ok(previous)
++}
++
++pub fn twice(slot: &mut u32, left: u32, right: u32) -> Result<(u32, u32), ()> {
++    let first = adjust(slot, left)?;
++    let second = adjust(slot, right)?;
++    Ok((first, second))
++}
++
++// This is the hidden shared-region shape used by the constructor's closures.
++pub fn capture(value: Option<usize>, factor: &usize) -> Option<usize> {
++    value.and_then(|n| n.checked_mul(*factor))
++}
++
++// A no-op closure drop may disappear; a destructor with a write must remain.
++struct Tracked<'a>(&'a mut u32);
++impl Drop for Tracked<'_> {
++    fn drop(&mut self) { *self.0 += 1; }
++}
++pub fn capture_destructor(value: Option<u32>, counter: &mut u32) -> Option<u32> {
++    let tracked = Tracked(counter);
++    value.and_then(move |n| { let _borrow = &tracked; Some(n) })
++}
 diff --git a/charon/tests/ui/inline-selected-nested.out b/charon/tests/ui/inline-selected-nested.out
 new file mode 100644
 index 00000000..8ddc7754
