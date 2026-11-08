@@ -254,7 +254,7 @@ index 2dc4a57f..85dd55c9 100644
            trait_decl.parent_clauses
      | Some info ->
 diff --git a/src/extract/ExtractBase.ml b/src/extract/ExtractBase.ml
-index 66bb1e48..40f653e7 100644
+index 66bb1e48..7951a7f9 100644
 --- a/src/extract/ExtractBase.ml
 +++ b/src/extract/ExtractBase.ml
 @@ -1604,7 +1604,18 @@ let ctx_compute_simple_name (meta : T.item_meta) (ctx : extraction_ctx)
@@ -281,7 +281,7 @@ index 66bb1e48..40f653e7 100644
            | TBuiltin TSlice -> "s"
            | TBuiltin TStr -> "s"
            | TBuiltin (TRawPtr _) -> "p"
-+          | TBuiltin (TU32Range _) -> "ranged"
++          | TBuiltin (TUnsignedRange _) -> "ranged"
            | TAdtId adt_id ->
                let def =
                  TypeDeclId.Map.find adt_id ctx.trans_ctx.type_ctx.type_decls
@@ -351,7 +351,7 @@ index 6e28b984..119843cd 100644
    @ mk_scalar_fun
        (fun ty -> "core::num::{" ^ ty ^ "}::leading_zeros")
 diff --git a/src/extract/ExtractTypes.ml b/src/extract/ExtractTypes.ml
-index 37171763..536e42c3 100644
+index 37171763..cc16c469 100644
 --- a/src/extract/ExtractTypes.ml
 +++ b/src/extract/ExtractTypes.ml
 @@ -10,10 +10,22 @@ module T = Types
@@ -396,11 +396,11 @@ index 37171763..536e42c3 100644
    [%ldebug "ty: " ^ ty_to_string ctx ty];
    let extract_rec = extract_ty span ctx fmt no_params_tys in
    match ty with
-+  | TAdt (TBuiltin (TU32Range (lower, upper)), generics) ->
++  | TAdt (TBuiltin (TUnsignedRange (kind, lower, upper)), generics) ->
 +      [%sanity_check] span (generics = empty_generic_args);
 +      [%cassert] span (backend () = Lean) "Unsupported scalar range backend";
-+      F.fprintf fmt "{ value : Std.U32 // %s ≤ value.val ∧ value.val ≤ %s }"
-+        (Z.to_string lower) (Z.to_string upper)
++      F.fprintf fmt "{ value : Std.%s // %s ≤ value.val ∧ value.val ≤ %s }"
++        (int_name (Unsigned kind)) (Z.to_string lower) (Z.to_string upper)
    | TAdt (type_id, generics) -> (
        [%ldebug "ADT case"];
        let has_params = generics <> empty_generic_args in
@@ -555,7 +555,7 @@ index ab1fbdfe..100d186d 100644
      List.iter visit_fun d;
      (* We need to know if the declaration group contains a global - note that
 diff --git a/src/llbc/RegionsHierarchy.ml b/src/llbc/RegionsHierarchy.ml
-index aa1db67d..e178f90a 100644
+index aa1db67d..52c7db42 100644
 --- a/src/llbc/RegionsHierarchy.ml
 +++ b/src/llbc/RegionsHierarchy.ml
 @@ -146,6 +146,9 @@ let compute_regions_hierarchy_for_sig (span : Meta.span option) (crate : crate)
@@ -563,7 +563,7 @@ index aa1db67d..e178f90a 100644
      | TArray _ | TSlice _ -> (* No clauses for those *) ()
      | TVar _ | TLiteral _ | TNever -> ()
 +    | TPattern (base, pattern) ->
-+        let _ = TypesAnalysis.u32_range_bounds span base pattern in
++        let _ = TypesAnalysis.unsigned_range_bounds span base pattern in
 +        ()
      | TRef (r, ty, _) ->
          (* Add the constraints for r *)
@@ -596,101 +596,106 @@ index fbd7f003..fdd35501 100644
  let expect_free_var span (var : 'id de_bruijn_var) : 'id =
    match var with
 diff --git a/src/llbc/TypesAnalysis.ml b/src/llbc/TypesAnalysis.ml
-index 81711ebc..bfe455e0 100644
+index 81711ebc..b4749c32 100644
 --- a/src/llbc/TypesAnalysis.ml
 +++ b/src/llbc/TypesAnalysis.ml
-@@ -4,6 +4,27 @@ open Substitute
+@@ -4,6 +4,31 @@ open Substitute
  open Charon.TypesUtils
  open SCC
  
-+(** Only closed inclusive U32 scalar ranges have a refined representation.
-+    Unsupported pattern forms must retain a hard translation error. *)
-+let u32_range_bounds (span : Meta.span option) (base : ty)
-+    (pattern : type_pattern) : Z.t * Z.t =
++(** Closed inclusive U32 ranges and opt-in Usize ranges retain their scalar kind
++    and both bounds. Unsupported forms remain translation errors. *)
++let unsigned_range_bounds (span : Meta.span option) (base : ty)
++    (pattern : type_pattern) =
 +  match (base, pattern) with
-+  | TLiteral (TUInt U32), Range (lower, upper) ->
++  | TLiteral (TUInt ((U32 | Usize) as kind)), Range (lower, upper) ->
++      [%cassert_opt_span] span
++        (kind = U32 || !Config.monomorphic_builtin_shapes)
++        "Usize ranges require monomorphic builtin shapes";
 +      let bound (value : constant_expr) =
 +        match (value.kind, value.ty) with
-+        | CLiteral (VScalar (UnsignedScalar (U32, n))), TLiteral (TUInt U32) ->
-+            n
-+        | _ -> [%craise_opt_span] span "Unsupported U32 range bound"
++        | CLiteral (VScalar (UnsignedScalar (actual, n))), TLiteral (TUInt ty)
++          when actual = kind && ty = kind -> n
++        | _ -> [%craise_opt_span] span "Unsupported unsigned range bound"
 +      in
 +      let lower = bound lower in
 +      let upper = bound upper in
++      let bits = if kind = U32 then 32 else 64 in
 +      [%cassert_opt_span] span
 +        (Z.leq Z.zero lower && Z.leq lower upper
-+        && Z.leq upper (Z.of_string "4294967295"))
-+        "Invalid U32 scalar range";
-+      (lower, upper)
++        && Z.lt upper (Z.shift_left Z.one bits))
++        "Invalid unsigned scalar range";
++      (kind, lower, upper)
 +  | _ -> [%craise_opt_span] span "Unsupported scalar pattern type"
 +
  let log = Logging.types_analysis_log
  
  type subtype_info = {
-@@ -355,6 +376,9 @@ let analyze_full_ty (span : Meta.span option) (updated : bool ref)
+@@ -355,6 +380,9 @@ let analyze_full_ty (span : Meta.span option) (updated : bool ref)
          in
          (* Continue exploring *)
          analyze span expl_info ty_info rty
 +    | TPattern (base, pattern) ->
-+        let _ = u32_range_bounds span base pattern in
++        let _ = unsigned_range_bounds span base pattern in
 +        ty_info
      | TRawPtr (rty, _) ->
          (* TODO: not sure what to do here *)
          analyze span expl_info ty_info rty
 diff --git a/src/pure/PrintPure.ml b/src/pure/PrintPure.ml
-index 6f10d6ae..45f804ec 100644
+index 6f10d6ae..fb94bea8 100644
 --- a/src/pure/PrintPure.ml
 +++ b/src/pure/PrintPure.ml
-@@ -278,6 +278,8 @@ let builtin_ty_to_string (aty : builtin_ty) : string =
+@@ -278,6 +278,9 @@ let builtin_ty_to_string (aty : builtin_ty) : string =
    | TArray -> "Array"
    | TSlice -> "Slice"
    | TStr -> "Str"
-+  | TU32Range (lower, upper) ->
-+      "U32Range[" ^ Z.to_string lower ^ "," ^ Z.to_string upper ^ "]"
++  | TUnsignedRange (kind, lower, upper) ->
++      integer_type_to_string (Unsigned kind)
++      ^ "Range[" ^ Z.to_string lower ^ "," ^ Z.to_string upper ^ "]"
    | TRawPtr Mut -> "MutRawPtr"
    | TRawPtr Const -> "ConstRawPtr"
  
-@@ -508,7 +510,7 @@ let adt_variant_to_string ?(span = None) (env : fmt_env) (adt_id : type_id)
+@@ -508,7 +511,7 @@ let adt_variant_to_string ?(span = None) (env : fmt_env) (adt_id : type_id)
    | TBuiltin aty -> (
        (* Builtin type *)
        match aty with
 -      | TArray | TSlice | TStr | TRawPtr _ ->
-+      | TArray | TSlice | TStr | TU32Range _ | TRawPtr _ ->
++      | TArray | TSlice | TStr | TUnsignedRange _ | TRawPtr _ ->
            (* Those types are opaque: we can't get there *)
            [%craise_opt_span] span "Unreachable"
        | TResult ->
-@@ -561,7 +563,7 @@ let adt_field_to_string ?(span = None) (env : fmt_env) (adt_id : type_id)
+@@ -561,7 +564,7 @@ let adt_field_to_string ?(span = None) (env : fmt_env) (adt_id : type_id)
    | TBuiltin aty -> (
        (* Builtin type *)
        match aty with
 -      | TFuel | TArray | TSlice | TStr ->
-+      | TFuel | TArray | TSlice | TStr | TU32Range _ ->
++      | TFuel | TArray | TSlice | TStr | TUnsignedRange _ ->
            (* Opaque types: we can't get there *)
            [%craise_opt_span] span "Unreachable"
        | TResult | TError | TSum | TLoopResult | TRawPtr _ ->
-@@ -634,7 +636,7 @@ and adt_pat_to_string_core (span : Meta.span option) (env : fmt_env)
+@@ -634,7 +637,7 @@ and adt_pat_to_string_core (span : Meta.span option) (env : fmt_env)
      | TAdt (TBuiltin aty, _) -> (
          (* Builtin type *)
          match aty with
 -        | TRawPtr _ ->
-+        | TRawPtr _ | TU32Range _ ->
++        | TRawPtr _ | TUnsignedRange _ ->
              (* This type is opaque: we can't get there *)
              [%craise_opt_span] span "Unreachable"
          | TResult ->
 diff --git a/src/pure/Pure.ml b/src/pure/Pure.ml
-index c898d123..7d61db70 100644
+index c898d123..c8f8878c 100644
 --- a/src/pure/Pure.ml
 +++ b/src/pure/Pure.ml
 @@ -88,6 +88,7 @@ type builtin_ty =
    | TArray
    | TSlice
    | TStr
-+  | TU32Range of V.big_int * V.big_int
++  | TUnsignedRange of V.u_int_ty * V.big_int * V.big_int
    | TRawPtr of mutability
        (** The bool Raw pointers don't make sense in the pure world, but we don't
            know how to translate them yet and we have to handle some functions
 diff --git a/src/pure/PureTypeCheck.ml b/src/pure/PureTypeCheck.ml
-index e9a07a43..07fd8211 100644
+index e9a07a43..ddaead12 100644
 --- a/src/pure/PureTypeCheck.ml
 +++ b/src/pure/PureTypeCheck.ml
 @@ -66,7 +66,7 @@ let get_adt_field_types (span : Meta.span)
@@ -698,37 +703,39 @@ index e9a07a43..07fd8211 100644
            else if variant_id = fuel_succ_id then [ mk_fuel_ty ]
            else [%craise] span "Unreachable: improper variant id for fuel type"
 -      | TArray | TSlice | TStr | TRawPtr _ ->
-+      | TArray | TSlice | TStr | TU32Range _ | TRawPtr _ ->
++      | TArray | TSlice | TStr | TUnsignedRange _ | TRawPtr _ ->
            (* Array: when not symbolic values (for instance, because of aggregates),
               the array expressions are introduced as struct updates *)
            [%craise] span "Attempting to access the fields of an opaque type")
 diff --git a/src/symbolic/SymbolicToPureTypes.ml b/src/symbolic/SymbolicToPureTypes.ml
-index 5ea3e9be..55f45dea 100644
+index 5ea3e9be..3b135265 100644
 --- a/src/symbolic/SymbolicToPureTypes.ml
 +++ b/src/symbolic/SymbolicToPureTypes.ml
-@@ -5,6 +5,13 @@ open FunsAnalysis
+@@ -5,6 +5,15 @@ open FunsAnalysis
  open TypesAnalysis
  open SymbolicToPureCore
  
-+let translate_u32_range (span : Meta.span option) base pattern : ty =
++let translate_unsigned_range (span : Meta.span option) base pattern : ty =
 +  [%cassert_opt_span] span
 +    (Config.backend () = Config.Lean)
 +    "Scalar range extraction is supported only for Lean";
-+  let lower, upper = TypesAnalysis.u32_range_bounds span base pattern in
-+  TAdt (TBuiltin (TU32Range (lower, upper)), empty_generic_args)
++  let kind, lower, upper =
++    TypesAnalysis.unsigned_range_bounds span base pattern
++  in
++  TAdt (TBuiltin (TUnsignedRange (kind, lower, upper)), empty_generic_args)
 +
  (** The local logger *)
  let log = Logging.symbolic_to_pure_types_log
  
-@@ -164,6 +171,7 @@ let rec translate_sty (span : Meta.span option) (ty : T.ty) : ty =
+@@ -164,6 +173,7 @@ let rec translate_sty (span : Meta.span option) (ty : T.ty) : ty =
        TVar var
        (* Note: the `de_bruijn_id`s are incorrect, see comment on `translate_region_binder` *)
    | TLiteral ty -> TLiteral (translate_literal_type ty)
-+  | TPattern (base, pattern) -> translate_u32_range span base pattern
++  | TPattern (base, pattern) -> translate_unsigned_range span base pattern
    | TNever -> TNever
    | TRef (_, rty, _) -> translate span rty
    | TRawPtr (ty, rkind) ->
-@@ -311,6 +319,40 @@ let translate_type_decl (ctx : Contexts.decls_ctx) (def : T.type_decl) :
+@@ -311,6 +321,40 @@ let translate_type_decl (ctx : Contexts.decls_ctx) (def : T.type_decl) :
      match_name_find_opt ctx def.item_meta.name
        (ExtractBuiltin.builtin_types_map ())
    in
@@ -769,30 +776,30 @@ index 5ea3e9be..55f45dea 100644
    {
      def_id;
      name;
-@@ -382,6 +424,7 @@ let rec translate_fwd_ty (span : Meta.span option) (decls_ctx : C.decls_ctx)
+@@ -382,6 +426,7 @@ let rec translate_fwd_ty (span : Meta.span option) (decls_ctx : C.decls_ctx)
    | TVar var -> TVar var
    | TNever -> TNever
    | TLiteral lty -> TLiteral (translate_literal_type lty)
-+  | TPattern (base, pattern) -> translate_u32_range span base pattern
++  | TPattern (base, pattern) -> translate_unsigned_range span base pattern
    | TRef (_, rty, _) -> translate rty
    | TRawPtr (ty, rkind) ->
        let mut =
-@@ -494,6 +537,9 @@ and compute_back_ty_num_levels (span : Meta.span option)
+@@ -494,6 +539,9 @@ and compute_back_ty_num_levels (span : Meta.span option)
                    "Unreachable: boxes receive exactly one type parameter")
          | TTuple -> List.iter (explore outer_regions) generics.types)
      | T.TArray (ty, _) | T.TSlice ty -> explore outer_regions ty
 +    | TPattern (base, pattern) ->
-+        let _ = TypesAnalysis.u32_range_bounds span base pattern in
++        let _ = TypesAnalysis.unsigned_range_bounds span base pattern in
 +        save_count outer_regions
      | TVar _ | TNever | TLiteral _ -> save_count outer_regions
      | TRef (r, rty, rkind) -> (
          match rkind with
-@@ -631,6 +677,9 @@ and translate_back_ty_aux (span : Meta.span option) (decls_ctx : C.decls_ctx)
+@@ -631,6 +679,9 @@ and translate_back_ty_aux (span : Meta.span option) (decls_ctx : C.decls_ctx)
          if keep_adt outer_regions ty then
            Some (translate_fwd_ty span decls_ctx ty)
          else None
 +    | TPattern (base, pattern) ->
-+        let _ = TypesAnalysis.u32_range_bounds span base pattern in
++        let _ = TypesAnalysis.unsigned_range_bounds span base pattern in
 +        stop outer_regions ty
      | TVar _ | TNever | TLiteral _ -> stop outer_regions ty
      | TRef (r, rty, rkind) -> (

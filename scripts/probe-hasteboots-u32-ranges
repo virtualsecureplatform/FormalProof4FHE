@@ -39,7 +39,8 @@ def validate_output(raw, namespace, names):
     return raw.replace('import Aeneas\n', '')
 
 
-def inspect_patterns(ir, expected):
+def inspect_patterns(ir, expected, scalar='U32'):
+    if scalar not in ['U32', 'Usize']: raise RuntimeError('Unsupported range scalar')
     if ir.get('has_errors') is not False or ir['translated']['target_information'] != [
             {'key': 'x86_64-unknown-linux-gnu', 'value': {'target_pointer_size': 8, 'is_little_endian': True}}]:
         raise RuntimeError('Incomplete or wrong-target scalar range IR')
@@ -68,17 +69,17 @@ def inspect_patterns(ir, expected):
         return value
     found = set()
     for pattern in patterns:
-        if len(pattern) != 2 or resolve(pattern[0]) != {'Literal': {'UInt': 'U32'}}:
+        if len(pattern) != 2 or resolve(pattern[0]) != {'Literal': {'UInt': scalar}}:
             raise RuntimeError('Unsupported scalar pattern base')
         bounds = pattern[1].get('Range')
         if not isinstance(bounds, list) or len(bounds) != 2: raise RuntimeError('Non-range scalar pattern')
         values = []
         for bound in bounds:
             value = bound.get('kind', {}).get('Literal', {}).get('Scalar', {}).get('Unsigned')
-            if not isinstance(value, list) or len(value) != 2 or value[0] != 'U32' or resolve(bound['ty']) != resolve(pattern[0]):
+            if not isinstance(value, list) or len(value) != 2 or value[0] != scalar or resolve(bound['ty']) != resolve(pattern[0]):
                 raise RuntimeError('Unsupported scalar range bound')
             values.append(int(value[1]))
-        if not 0 <= values[0] <= values[1] < 2**32: raise RuntimeError('Invalid scalar range')
+        if not 0 <= values[0] <= values[1] < 2**(32 if scalar == 'U32' else 64): raise RuntimeError('Invalid scalar range')
         found.add(tuple(values))
     if found != set(expected): raise RuntimeError('Source scalar ranges differ from reviewed bounds')
     return sorted(found)
