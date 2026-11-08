@@ -86,10 +86,26 @@ frontend logs. Any admitted constructor output or unapproved kernel dependency
 would also fail.
 
 The current native attempt has valid IR, 23 retained functions and no residual
-type constraints. Aeneas then rejects a borrow invariant at the closure call in
-`Option::is_none_or` (core `option.rs` line 1335). There is no accepted native
+type constraints. Aeneas then rejects a borrow invariant at the subsequent call to
+`Option::ok_or` (core `option.rs` line 1335). There is no accepted native
 constructor Lean module or refinement theorem. String drop glue also remains
 opaque in this IR and must be resolved before an admission-free module could
 pass. Next work should reproduce and repair borrow tracking without disabling
 invariants, then close the native constructor/heap correspondence and continue
 the full security plan.
+
+The small `static-error-option.rs` reproducer separates the inlined `ok_or`
+call from two ordinary `match` controls. `StaticErrorControls.lean` is the
+complete extraction of just `direct` and `eager_match`; `StaticErrorProof.lean`
+proves them equal for every input. Both functions and the theorem passed three
+kernel dependency audits. With `ok_or` inlined, the same source currently
+reproduces the marker invariant at `InterpReduceCollapse.ml:1137`.
+
+For the controls, use Charon's `--start-from` twice with
+`hasteboots_static_error_option::direct` and
+`hasteboots_static_error_option::eager_match`, no inline selections, and crate
+name `hasteboots_static_error_option`. For the failing case, extract the whole
+crate with `--inline-function core::option::_::ok_or`. Both use
+`--preset=aeneas --monomorphize --include core::option --include core::result`
+and the same frontend options as the equivalence gate. The sources are
+regression fixtures; no production Rust is modified.

@@ -39,7 +39,7 @@ See `interop/aeneas/selected-inline/README.md`.
 On the original native Gold constructor, this path now emits valid monomorphic
 IR with 23 retained functions, both option helpers removed and no residual type
 constraints. Strict interpretation then fails a borrow invariant inside
-`Option::is_none_or`; opaque String drop glue is a subsequent unresolved
+`Option::ok_or`; opaque String drop glue is a subsequent unresolved
 obligation. The constructor diagnostic records this failure and accepts no
 partial proof. The next implementation step is a small borrow-tracking
 reproducer and a checked repair, followed by the original constructor/model
