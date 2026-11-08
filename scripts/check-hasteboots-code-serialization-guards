@@ -1,0 +1,75 @@
+#!/usr/bin/env python3
+"""Keep retained serializer diagnostics distinct from a proved wire encoding."""
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+MODULE = runpy.run_path(str(ROOT / 'scripts/probe-hasteboots-code-serialization'))
+
+
+def ir():
+    names = [['formalproof4fhe_native_registry_fixture', 'code_bytes'],
+             ['bincode', 'features', 'serde', 'ser', 'encode_to_vec'],
+             ['pcs', 'utils', 'code', 'block', '_', 'serialize'],
+             ['algebra', 'goldilocks', '_', 'serialize']]
+    return {'has_errors': False, 'translated': {'target_information': [
+        {'key': 'x86_64-unknown-linux-gnu', 'value': {'target_pointer_size': 8, 'is_little_endian': True}}],
+        'fun_decls': [{'def_id': i, 'item_meta': {'name': [{'Ident': [n, 0]} for n in name]},
+                       'body': {'Structured': {}}, 'signature': {'inputs': [], 'output': 'Unit'}}
+                      for i, name in enumerate(names)]}}
+
+
+class Guards(unittest.TestCase):
+    def test_transparent_native_bodies(self):
+        info = MODULE['inspect_ir'](ir())
+        self.assertEqual(info['retained_source_bodies'], {'wrapper': 0, 'bincode': 1, 'code': 2, 'root': 3})
+        self.assertEqual(info['invalid_signature_regions'], [])
+
+    def test_opaque_missing_duplicate_bodies(self):
+        for index in range(4):
+            for body in ['Opaque', None, {'Unstructured': {}}]:
+                bad = ir(); bad['translated']['fun_decls'][index]['body'] = body
+                with self.assertRaises(RuntimeError): MODULE['inspect_ir'](bad)
+            bad = ir(); bad['translated']['fun_decls'].pop(index)
+            with self.assertRaises(RuntimeError): MODULE['inspect_ir'](bad)
+            bad = ir(); bad['translated']['fun_decls'].append(bad['translated']['fun_decls'][index])
+            with self.assertRaises(RuntimeError): MODULE['inspect_ir'](bad)
+
+    def test_target_and_completeness(self):
+        for mutate in [lambda x: x.update(has_errors=True),
+                       lambda x: x['translated'].update(target_information=[])]:
+            bad = ir(); mutate(bad)
+            with self.assertRaises(RuntimeError): MODULE['inspect_ir'](bad)
+
+    def test_signature_regions_through_hash_references(self):
+        for region, expected in [('Erased', 'erased'), ({'Body': 2}, 'body')]:
+            bad = ir(); bad['pool'] = {'HashConsedValue': [5, {'Ref': [region, 'Unit', 'Shared']}]}
+            bad['translated']['fun_decls'][1]['signature'] = {'inputs': [{'Deduplicated': 5}]}
+            errors = MODULE['inspect_ir'](bad)['invalid_signature_regions']
+            self.assertEqual(len(errors), 1)
+            self.assertEqual(errors[0]['function_id'], 1)
+            self.assertEqual(errors[0]['regions'], [expected])
+
+    def test_invalid_hash_references(self):
+        for pool in [{}, {'HashConsedValue': [7, {'Deduplicated': 7}]}]:
+            bad = ir(); bad['pool'] = pool
+            bad['translated']['fun_decls'][0]['signature'] = {'Deduplicated': 7}
+            with self.assertRaises(RuntimeError): MODULE['inspect_ir'](bad)
+        bad = ir(); bad['pool'] = [{'HashConsedValue': [7, 'A']}, {'HashConsedValue': [7, 'B']}]
+        with self.assertRaises(RuntimeError): MODULE['inspect_ir'](bad)
+
+    def test_known_recursion_requires_source_evidence(self):
+        log = ('Detected groups of mixed mutually recursive definitions\n'
+               'bincode::features::serde::ser\ninterp/Interp.ml')
+        self.assertEqual(MODULE['classify_failure'](log), 'serde-mixed-recursion')
+        self.assertEqual(MODULE['classify_failure']('\x1b[31m' + log + '\x1b[0m'), 'serde-mixed-recursion')
+        self.assertIsNone(MODULE['classify_failure'](log.replace('bincode::features::serde::ser', 'other')))
+
+    def test_unknown_or_success_output_not_a_certificate(self):
+        for log in ['', 'success', 'end formalproof4fhe_native_registry_fixture', 'Uncaught exception']:
+            self.assertIsNone(MODULE['classify_failure'](log))
+
+
+if __name__ == '__main__':
+    unittest.main()

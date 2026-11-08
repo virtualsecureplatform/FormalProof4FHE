@@ -7,6 +7,28 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Actual retained-code serialization has a fail-closed source diagnostic
+
+`probe-hasteboots-code-serialization` calls the unchanged native code object's
+derived Serde implementation through pinned Bincode 2.0.1 and standard config.
+The gate requires transparent bodies for both native serializers and the
+Bincode entry point. Merely retaining the code carrier is insufficient: the
+macro-generated serializer can otherwise remain opaque.
+
+Generic extraction retains complete IR with 230 functions and no erased/body
+signature regions, then the reviewed frontend rejects the Bincode/Serde mixed
+recursive declaration group. The separate monomorphic route retains 65 functions
+and detects six signatures with erased regions before symbolic execution;
+no lifetime reconstruction, clause pruning or generated-term rewriting is used.
+Each route first reproduces the accepted 107-audit registry extraction.
+
+All outcomes remain nonzero and `rejected-unproved`, including translation
+progress without reviewed byte correspondence and kernel audits. Both fresh
+107-audit preflights and all 78 extraction/frontend guard tests passed. This is
+reproducible source evidence for the next compiler
+work, not an actual serialization or context-digest proof. Metadata's 130
+combined audits remain the latest accepted concrete value refinement.
+
 ## Concrete native row metadata now has a checked value bridge
 
 `extract-hasteboots-metadata-mono` resolves the concrete Goldilocks calls through

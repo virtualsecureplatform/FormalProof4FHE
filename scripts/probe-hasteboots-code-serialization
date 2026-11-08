@@ -1,0 +1,167 @@
+#!/usr/bin/env python3
+"""Retain actual native Serde/Bincode bodies and diagnose translation; never certify bytes."""
+import argparse
+import json
+import os
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+BASE = runpy.run_path(str(ROOT / 'scripts/extract-hasteboots-registry'))
+BUILD = runpy.run_path(str(ROOT / 'scripts/build-hasteboots-static-frontend'))
+DATA = ROOT / 'interop/aeneas/code-serialization'
+
+
+def inspect_ir(ir):
+    if ir.get('has_errors') is not False or ir['translated']['target_information'] != [
+            {'key': 'x86_64-unknown-linux-gnu', 'value': {'target_pointer_size': 8, 'is_little_endian': True}}]:
+        raise RuntimeError('Incomplete or wrong-target serialization IR')
+    functions = [f for f in ir['translated']['fun_decls'] if f]
+    required = [(['formalproof4fhe_native_registry_fixture', 'code_bytes'], 'wrapper'),
+                (['bincode', 'features', 'serde', 'ser', 'encode_to_vec'], 'bincode'),
+                (['pcs', 'utils', 'code', 'block', 'serialize'], 'code'),
+                (['algebra', 'goldilocks', 'serialize'], 'root')]
+    retained = {}
+    for prefix, label in required:
+        matches = [f for f in functions if
+                   [i['Ident'][0] for i in f['item_meta']['name'] if 'Ident' in i and i['Ident'][0] != '_'] == prefix]
+        if len(matches) != 1 or not isinstance(matches[0].get('body'), dict) or 'Structured' not in matches[0]['body']:
+            raise RuntimeError('Missing transparent source body: ' + label)
+        retained[label] = matches[0]['def_id']
+    pool = {}
+    def collect(value):
+        if isinstance(value, dict):
+            if 'HashConsedValue' in value:
+                index, content = value['HashConsedValue']
+                if index in pool and pool[index] != content:
+                    raise RuntimeError('Conflicting hash-consed type')
+                pool[index] = content
+            for child in value.values(): collect(child)
+        elif isinstance(value, list):
+            for child in value: collect(child)
+    collect(ir)
+    def regions(value, seen=frozenset()):
+        if value == 'Erased': return {'erased'}
+        if isinstance(value, dict):
+            if 'Body' in value: return {'body'}
+            if 'Deduplicated' in value:
+                index = value['Deduplicated']
+                if index in seen or index not in pool:
+                    raise RuntimeError('Invalid signature type reference')
+                return regions(pool[index], seen | {index})
+            if 'HashConsedValue' in value:
+                index, content = value['HashConsedValue']
+                return regions(content, seen | {index})
+            return set().union(*(regions(child, seen) for child in value.values()))
+        if isinstance(value, list):
+            return set().union(*(regions(child, seen) for child in value))
+        return set()
+    failures = []
+    for function in functions:
+        issues = regions(function['signature'])
+        if issues:
+            failures.append({'function_id': function['def_id'], 'name': function['item_meta']['name'],
+                             'regions': sorted(issues)})
+    return {'function_count': len(functions), 'retained_source_bodies': retained,
+            'invalid_signature_regions': failures}
+
+
+def classify_failure(log):
+    clean = re.sub(r'\x1b\[[0-9;?]*[A-Za-z]', '', log)
+    if ('Detected groups of mixed mutually recursive definitions' in clean and
+            'bincode::features::serde::ser' in clean and 'interp/Interp.ml' in clean):
+        return 'serde-mixed-recursion'
+    return None
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--tools', type=Path, required=True)
+    parser.add_argument('--backend', type=Path, required=True)
+    parser.add_argument('--build-receipt', type=Path, required=True)
+    parser.add_argument('--mode', choices=['generic', 'mono'], required=True)
+    args = parser.parse_args()
+    parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
+    out = Path(tempfile.mkdtemp(prefix='code-serialization-' + args.mode + '-', dir=parent))
+    record = {'status': 'started', 'mode': args.mode, 'commands': [],
+              'script_sha256': BASE['digest'](Path(__file__).read_bytes()),
+              'claim': 'translation diagnostic only; actual serialization/context hashing/security remain unproved'}
+    def save():
+        (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
+    def run(command, name, env=None):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out / name).open('w') as log:
+            return subprocess.run([str(x) for x in command], cwd=ROOT, env=env,
+                                  stdout=log, stderr=subprocess.STDOUT).returncode
+    print('Serialization artifacts: ' + str(out), flush=True); save()
+    try:
+        tools, backend = args.tools.resolve(), args.backend.resolve()
+        receipt = json.loads(args.build_receipt.read_text())
+        if receipt.get('status') != 'passed' or receipt.get('profile') != 'metadata-mono':
+            raise RuntimeError('Wrong or failed frontend receipt')
+        if receipt.get('script_sha256') != BASE['digest']((ROOT / 'scripts/build-hasteboots-static-frontend').read_bytes()):
+            raise RuntimeError('Stale frontend builder policy')
+        patch_hash = BUILD['verify_source'](Path(receipt['source']), 'metadata-mono')
+        if receipt.get('patch_sha256') != patch_hash or receipt.get('package_profile_sha256') != BASE['digest']((BUILD['DATA'] / 'opam-packages.json').read_bytes()):
+            raise RuntimeError('Stale frontend source or package receipt')
+        frontend = Path(receipt['executable'])
+        if BASE['digest'](frontend.read_bytes()) != receipt.get('executable_sha256'):
+            raise RuntimeError('Frontend executable differs')
+        record.update(frontend_sha256=receipt['executable_sha256'],
+                      build_receipt_sha256=BASE['digest'](args.build_receipt.read_bytes()))
+        if run([ROOT / 'scripts/extract-hasteboots-registry', '--tools', tools, '--backend', backend], 'registry.log'):
+            raise RuntimeError('Accepted registry preflight failed')
+        paths = re.findall(r'^Registry artifacts: (.+)$', (out / 'registry.log').read_text(), re.M)
+        if len(paths) != 1: raise RuntimeError('Missing registry preflight')
+        source = Path(paths[0]); manifest = source / 'manifest.json'
+        if json.loads(manifest.read_text()).get('status') != 'passed':
+            raise RuntimeError('Registry preflight not accepted')
+        record.update(preflight_manifest=str(manifest), preflight_manifest_sha256=BASE['digest'](manifest.read_bytes()))
+        native = ROOT.parent / 'HasteBoots'
+        def native_clean():
+            if BASE['PARAMETERS']['checked'](['git', '-C', native, 'rev-parse', 'HEAD'], text=True).strip() != BASE['PARAMETERS']['NATIVE_PIN'] or BASE['PARAMETERS']['checked'](['git', '-C', native, 'diff', 'HEAD', '--name-only'], text=True).strip():
+                raise RuntimeError('Native revision or tracked cleanliness changed')
+        native_clean()
+        cargo = (source / 'Cargo.toml').read_text() + 'algebra = { path = "' + str(native / 'algebra') + '" }\n' + 'bincode = { version = "=2.0.1", features = ["serde"] }\n'
+        lock = (source / 'Cargo.lock').read_text().replace(
+            'name = "formalproof4fhe-native-registry-fixture"\nversion = "0.1.0"\ndependencies = [',
+            'name = "formalproof4fhe-native-registry-fixture"\nversion = "0.1.0"\ndependencies = [\n "algebra",\n "bincode",')
+        BASE['validate_lock']((native / 'Cargo.lock').read_text(), lock)
+        (out / 'Cargo.toml').write_text(cargo); (out / 'Cargo.lock').write_text(lock)
+        (out / 'src').mkdir(); (out / 'src/lib.rs').write_bytes((DATA / 'wrapper.rs').read_bytes())
+        record.update(native_revision=BASE['PARAMETERS']['NATIVE_PIN'], cargo_sha256=BASE['digest'](cargo.encode()),
+                      lock_sha256=BASE['digest'](lock.encode()), wrapper_sha256=BASE['digest']((DATA / 'wrapper.rs').read_bytes()))
+        record['native_sources'] = {name: BASE['digest']((native / name).read_bytes()) for name in
+                                    ['pcs/src/utils/code/block.rs', 'pcs/src/matrix_weighted.rs', 'algebra/src/goldilocks/mod.rs', 'Cargo.lock']}
+        llbc = out / 'code_serialization.llbc'
+        command = [tools / 'charon', 'cargo', '--preset=aeneas']
+        if args.mode == 'mono': command += ['--raw-consts', '--monomorphize']
+        command += ['--start-from', BASE['NAMESPACE'] + '::code_bytes']
+        for module in ['bincode', 'serde', 'serde_core', 'pcs::utils::code::block', 'algebra::goldilocks']:
+            command += ['--include', module]
+        command += ['--dest-file', llbc, '--', '--manifest-path', out / 'Cargo.toml', '--lib', '--locked']
+        env = dict(os.environ); env.setdefault('CARGO_TARGET_DIR', str(parent / 'cargo-registry-target'))
+        if run(command, 'charon.log', env): raise RuntimeError('Charon rejected serialization')
+        native_clean()
+        record['llbc_sha256'] = BASE['digest'](llbc.read_bytes())
+        record['ir'] = inspect_ir(json.loads(llbc.read_text())); save()
+        if record['ir']['invalid_signature_regions']:
+            record['failure_kind'] = 'signature-regions'
+            raise RuntimeError('Signature lifetimes are missing; extraction stopped before symbolic execution')
+        status = run([frontend, '-backend', 'lean', '-checks', '-sequential', '-max-heartbeats', '200000',
+                      '-max-recdepth', '1000', '-abort-on-error', '-no-external-name-patterns',
+                      '-dest', out / 'lean', llbc], 'aeneas.log')
+        record.update(aeneas_exit_code=status, failure_kind=classify_failure((out / 'aeneas.log').read_text()))
+        native_clean(); BUILD['verify_source'](Path(receipt['source']), 'metadata-mono')
+        raise RuntimeError('Serialization remains unproved: ' + str(record['failure_kind']) + '; reviewed output and kernel proofs required')
+    except (Exception, SystemExit) as error:
+        record.update(status='rejected-unproved', error=str(error)); save()
+        print('Serialization remains unproved: ' + str(error), flush=True)
+        return 1
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())
