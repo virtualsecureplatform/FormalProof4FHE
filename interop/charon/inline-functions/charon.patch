@@ -1,17 +1,27 @@
 diff --git a/charon-ml/src/CharonVersion.ml b/charon-ml/src/CharonVersion.ml
-index 4eea2842..e7cd3758 100644
+index 4eea2842..eafd309e 100644
 --- a/charon-ml/src/CharonVersion.ml
 +++ b/charon-ml/src/CharonVersion.ml
 @@ -1,3 +1,3 @@
  (* This is an automatically generated file, generated from `charon/Cargo.toml`. *)
  (* To re-generate this file, rune `make` in the root directory *)
 -let supported_charon_version = "0.1.223"
-+let supported_charon_version = "0.1.224"
++let supported_charon_version = "0.1.225"
 diff --git a/charon-ml/src/generated/Generated_FullAst.ml b/charon-ml/src/generated/Generated_FullAst.ml
-index dbca68be..4a3a3bfb 100644
+index dbca68be..e1f4a9c4 100644
 --- a/charon-ml/src/generated/Generated_FullAst.ml
 +++ b/charon-ml/src/generated/Generated_FullAst.ml
-@@ -166,6 +166,10 @@ and cli_options = {
+@@ -140,6 +140,9 @@ and cli_options = {
+   hide_allocator : bool;
+       (** Hide the [A] type parameter on standard library containers ([Box],
+           [Vec], etc). *)
++  preserve_allocator : bool;
++      (** Retain allocator parameters and methods even when a preset hides them.
++      *)
+   remove_unused_clauses : bool;
+       (** Remove trait clauses that aren't ultimately used anywhere. This is
+           potentially incorrect as sometimes the mere presence of a trait clause
+@@ -166,6 +169,10 @@ and cli_options = {
            normally created, including when indexing behind a raw pointer. *)
    treat_box_as_builtin : bool;
        (** Treat [Box<T>] as if it was a built-in type. *)
@@ -23,10 +33,18 @@ index dbca68be..4a3a3bfb 100644
    consts : const_handling option;
        (** How to handle constants and statics: whether they should be
 diff --git a/charon-ml/src/generated/Generated_OfJson.ml b/charon-ml/src/generated/Generated_OfJson.ml
-index 3b3d9f22..2a2f1598 100644
+index 3b3d9f22..bf58264d 100644
 --- a/charon-ml/src/generated/Generated_OfJson.ml
 +++ b/charon-ml/src/generated/Generated_OfJson.ml
-@@ -2080,6 +2080,7 @@ and cli_options_of_json (ctx : of_json_ctx) (js : json) :
+@@ -2073,6 +2073,7 @@ and cli_options_of_json (ctx : of_json_ctx) (js : json) :
+           ("lift_associated_types", lift_associated_types);
+           ("hide_marker_traits", hide_marker_traits);
+           ("hide_allocator", hide_allocator);
++          ("preserve_allocator", preserve_allocator);
+           ("remove_unused_clauses", remove_unused_clauses);
+           ("remove_unused_self_clauses", remove_unused_self_clauses);
+           ("remove_adt_clauses", remove_adt_clauses);
+@@ -2080,6 +2081,7 @@ and cli_options_of_json (ctx : of_json_ctx) (js : json) :
            ("ops_to_function_calls", ops_to_function_calls);
            ("index_to_function_calls", index_to_function_calls);
            ("treat_box_as_builtin", treat_box_as_builtin);
@@ -34,7 +52,15 @@ index 3b3d9f22..2a2f1598 100644
            ("raw_consts", raw_consts);
            ("consts", consts);
            ("unsized_strings", unsized_strings);
-@@ -2145,6 +2146,9 @@ and cli_options_of_json (ctx : of_json_ctx) (js : json) :
+@@ -2134,6 +2136,7 @@ and cli_options_of_json (ctx : of_json_ctx) (js : json) :
+         in
+         let* hide_marker_traits = bool_of_json ctx hide_marker_traits in
+         let* hide_allocator = bool_of_json ctx hide_allocator in
++        let* preserve_allocator = bool_of_json ctx preserve_allocator in
+         let* remove_unused_clauses = bool_of_json ctx remove_unused_clauses in
+         let* remove_unused_self_clauses =
+           bool_of_json ctx remove_unused_self_clauses
+@@ -2145,6 +2148,9 @@ and cli_options_of_json (ctx : of_json_ctx) (js : json) :
            bool_of_json ctx index_to_function_calls
          in
          let* treat_box_as_builtin = bool_of_json ctx treat_box_as_builtin in
@@ -44,7 +70,15 @@ index 3b3d9f22..2a2f1598 100644
          let* raw_consts = bool_of_json ctx raw_consts in
          let* consts = option_of_json const_handling_of_json ctx consts in
          let* unsized_strings = bool_of_json ctx unsized_strings in
-@@ -2203,6 +2207,7 @@ and cli_options_of_json (ctx : of_json_ctx) (js : json) :
+@@ -2196,6 +2202,7 @@ and cli_options_of_json (ctx : of_json_ctx) (js : json) :
+              lift_associated_types;
+              hide_marker_traits;
+              hide_allocator;
++             preserve_allocator;
+              remove_unused_clauses;
+              remove_unused_self_clauses;
+              remove_adt_clauses;
+@@ -2203,6 +2210,7 @@ and cli_options_of_json (ctx : of_json_ctx) (js : json) :
               ops_to_function_calls;
               index_to_function_calls;
               treat_box_as_builtin;
@@ -53,10 +87,18 @@ index 3b3d9f22..2a2f1598 100644
               consts;
               unsized_strings;
 diff --git a/charon-ml/src/generated/Generated_OfPostcard.ml b/charon-ml/src/generated/Generated_OfPostcard.ml
-index bde31e3a..4f6827e6 100644
+index bde31e3a..db5b23b0 100644
 --- a/charon-ml/src/generated/Generated_OfPostcard.ml
 +++ b/charon-ml/src/generated/Generated_OfPostcard.ml
-@@ -1817,6 +1817,7 @@ and cli_options_of_postcard (ctx : of_postcard_ctx) (st : postcard_state) :
+@@ -1810,6 +1810,7 @@ and cli_options_of_postcard (ctx : of_postcard_ctx) (st : postcard_state) :
+      let* lift_associated_types = list_of_postcard string_of_postcard ctx st in
+      let* hide_marker_traits = bool_of_postcard ctx st in
+      let* hide_allocator = bool_of_postcard ctx st in
++     let* preserve_allocator = bool_of_postcard ctx st in
+      let* remove_unused_clauses = bool_of_postcard ctx st in
+      let* remove_unused_self_clauses = bool_of_postcard ctx st in
+      let* remove_adt_clauses = bool_of_postcard ctx st in
+@@ -1817,6 +1818,7 @@ and cli_options_of_postcard (ctx : of_postcard_ctx) (st : postcard_state) :
       let* ops_to_function_calls = bool_of_postcard ctx st in
       let* index_to_function_calls = bool_of_postcard ctx st in
       let* treat_box_as_builtin = bool_of_postcard ctx st in
@@ -64,7 +106,15 @@ index bde31e3a..4f6827e6 100644
       let* raw_consts = bool_of_postcard ctx st in
       let* consts = option_of_postcard const_handling_of_postcard ctx st in
       let* unsized_strings = bool_of_postcard ctx st in
-@@ -1871,6 +1872,7 @@ and cli_options_of_postcard (ctx : of_postcard_ctx) (st : postcard_state) :
+@@ -1864,6 +1866,7 @@ and cli_options_of_postcard (ctx : of_postcard_ctx) (st : postcard_state) :
+           lift_associated_types;
+           hide_marker_traits;
+           hide_allocator;
++          preserve_allocator;
+           remove_unused_clauses;
+           remove_unused_self_clauses;
+           remove_adt_clauses;
+@@ -1871,6 +1874,7 @@ and cli_options_of_postcard (ctx : of_postcard_ctx) (st : postcard_state) :
            ops_to_function_calls;
            index_to_function_calls;
            treat_box_as_builtin;
@@ -73,7 +123,7 @@ index bde31e3a..4f6827e6 100644
            consts;
            unsized_strings;
 diff --git a/charon/Cargo.lock b/charon/Cargo.lock
-index b209a7e9..9ae7766f 100644
+index b209a7e9..5f6152ce 100644
 --- a/charon/Cargo.lock
 +++ b/charon/Cargo.lock
 @@ -252,7 +252,7 @@ checksum = "9555578bc9e57714c812a1f84e4fc5b4d21fcb063490c624de019f7464c91268"
@@ -81,12 +131,12 @@ index b209a7e9..9ae7766f 100644
  [[package]]
  name = "charon"
 -version = "0.1.223"
-+version = "0.1.224"
++version = "0.1.225"
  dependencies = [
   "annotate-snippets",
   "anstream",
 diff --git a/charon/Cargo.toml b/charon/Cargo.toml
-index 891b732e..b7becbdc 100644
+index 891b732e..d901cd80 100644
 --- a/charon/Cargo.toml
 +++ b/charon/Cargo.toml
 @@ -25,7 +25,7 @@ tracing = { version = "0.1", features = ["max_level_trace"] }
@@ -94,7 +144,7 @@ index 891b732e..b7becbdc 100644
  [package]
  name = "charon"
 -version = "0.1.223"
-+version = "0.1.224"
++version = "0.1.225"
  authors.workspace = true
  edition.workspace = true
  license.workspace = true
@@ -180,10 +230,21 @@ index 4a575f3f..8c966a07 100644
          let fn_ptr = self.erase_region_binder(fn_ptr);
          Ok(fn_ptr)
 diff --git a/charon/src/options.rs b/charon/src/options.rs
-index 3c539c1d..9afc7a76 100644
+index 3c539c1d..b94576ab 100644
 --- a/charon/src/options.rs
 +++ b/charon/src/options.rs
-@@ -221,6 +221,11 @@ pub struct CliOpts {
+@@ -182,6 +182,10 @@ pub struct CliOpts {
+     #[clap(long)]
+     #[serde(default)]
+     pub hide_allocator: bool,
++    /// Retain allocator parameters and methods even when a preset hides them.
++    #[clap(long, conflicts_with = "hide_allocator")]
++    #[serde(default)]
++    pub preserve_allocator: bool,
+ 
+     /// Remove trait clauses that aren't ultimately used anywhere. This is potentially incorrect as
+     /// sometimes the mere presence of a trait clause is used to justify an operation, e.g. copying
+@@ -221,6 +225,11 @@ pub struct CliOpts {
      #[clap(long)]
      #[serde(default)]
      pub treat_box_as_builtin: bool,
@@ -195,7 +256,17 @@ index 3c539c1d..9afc7a76 100644
      /// Do not inline or evaluate constants.
      #[clap(long)]
      #[serde(default)]
-@@ -647,6 +652,8 @@ pub struct TranslateOptions {
+@@ -510,6 +519,9 @@ impl CliOpts {
+                 }
+             }
+         }
++        if self.preserve_allocator {
++            self.hide_allocator = false;
++        }
+     }
+ 
+     /// Check that the options are meaningful
+@@ -647,6 +659,8 @@ pub struct TranslateOptions {
      pub print_built_llbc: bool,
      /// Treat `Box<T>` as if it was a built-in type.
      pub treat_box_as_builtin: bool,
@@ -204,7 +275,7 @@ index 3c539c1d..9afc7a76 100644
      /// Don't inline or evaluate constants.
      pub raw_consts: bool,
      /// Whether to evaluate the value of named constants and statics, or to keep a call
-@@ -795,6 +802,12 @@ impl TranslateOptions {
+@@ -795,6 +809,12 @@ impl TranslateOptions {
              .filter_map(|s| parse_pattern(s).ok())
              .collect();
  
@@ -217,7 +288,7 @@ index 3c539c1d..9afc7a76 100644
          TranslateOptions {
              start_from,
              mir_level,
-@@ -811,6 +824,7 @@ impl TranslateOptions {
+@@ -811,6 +831,7 @@ impl TranslateOptions {
              print_built_llbc: options.print_built_llbc,
              item_opacities,
              treat_box_as_builtin: options.treat_box_as_builtin,
@@ -337,10 +408,20 @@ index 8b60509f..c5d0e4e2 100644
                          || (is_vec_construction_fn && ctx.options.treat_box_as_builtin)
                  })
 diff --git a/charon/tests/help-output.txt b/charon/tests/help-output.txt
-index 6475e4d6..e410e352 100644
+index 6475e4d6..862cc8b0 100644
 --- a/charon/tests/help-output.txt
 +++ b/charon/tests/help-output.txt
-@@ -126,6 +126,9 @@ Options:
+@@ -105,6 +105,9 @@ Options:
+       --hide-allocator
+           Hide the `A` type parameter on standard library containers (`Box`, `Vec`, etc)
+ 
++      --preserve-allocator
++          Retain allocator parameters and methods even when a preset hides them
++
+       --remove-unused-clauses
+           Remove trait clauses that aren't ultimately used anywhere. This is potentially incorrect as sometimes the mere presence of a trait clause is used to justify an operation, e.g. copying `Copy` data using `unsafe`
+ 
+@@ -126,6 +129,9 @@ Options:
        --treat-box-as-builtin
            Treat `Box<T>` as if it was a built-in type
  
@@ -1891,12 +1972,32 @@ index 00000000..c586adfe
 +//@ known-failure
 +//@ charon-args=--inline-function core::num::_::checked_mul
 +pub fn call(value: u32) -> Option<u32> { value.checked_mul(2) }
+diff --git a/charon/tests/ui/preserve-allocator-conflict.out b/charon/tests/ui/preserve-allocator-conflict.out
+new file mode 100644
+index 00000000..141c52ae
+--- /dev/null
++++ b/charon/tests/ui/preserve-allocator-conflict.out
+@@ -0,0 +1,5 @@
++error: the argument '--preserve-allocator' cannot be used with '--hide-allocator'
++
++Usage: charon rustc --print-llbc --preset <PRESET> --error-on-warnings --no-serialize --preserve-allocator -- <RUSTC>...
++
++For more information, try '--help'.
+diff --git a/charon/tests/ui/preserve-allocator-conflict.rs b/charon/tests/ui/preserve-allocator-conflict.rs
+new file mode 100644
+index 00000000..423588b3
+--- /dev/null
++++ b/charon/tests/ui/preserve-allocator-conflict.rs
+@@ -0,0 +1,3 @@
++//@ known-failure
++//@ charon-args=--preserve-allocator --hide-allocator
++pub fn marker() {}
 diff --git a/charon/tests/ui/preserve-allocator-drop.out b/charon/tests/ui/preserve-allocator-drop.out
 new file mode 100644
-index 00000000..2ff85944
+index 00000000..78e80c22
 --- /dev/null
 +++ b/charon/tests/ui/preserve-allocator-drop.out
-@@ -0,0 +1,564 @@
+@@ -0,0 +1,568 @@
 +# Final LLBC before serialization:
 +
 +// Full name: core::alloc::layout::Layout
@@ -2008,6 +2109,10 @@ index 00000000..2ff85944
 +// Full name: alloc::alloc::Global
 +#[lang_item("global_alloc_ty")]
 +pub struct Global {}
++
++// Full name: alloc::alloc::{impl Allocator for Global}::deallocate
++pub unsafe fn impl_Allocator_for_Global::deallocate<'_0>(_1: &'_0 Global, _2: NonNull::<u8>, _3: Layout)
++= <opaque>
 +
 +// Full name: alloc::raw_vec::RawVecInner::<Global>
 +struct RawVecInner::<Global> {
@@ -2324,7 +2429,7 @@ index 00000000..2ff85944
 +    return
 +}
 +
-+// Full name: alloc::vec::Vec::<u8>
++// Full name: alloc::vec::Vec::<u8, Global>
 +#[lang_item("Vec")]
 +pub struct Vec::<u8, Global> {
 +  buf: RawVec::<u8, Global>,
@@ -2463,11 +2568,11 @@ index 00000000..2ff85944
 +
 diff --git a/charon/tests/ui/preserve-allocator-drop.rs b/charon/tests/ui/preserve-allocator-drop.rs
 new file mode 100644
-index 00000000..eaa98434
+index 00000000..2f857bd3
 --- /dev/null
 +++ b/charon/tests/ui/preserve-allocator-drop.rs
 @@ -0,0 +1,4 @@
-+//@ charon-args=--monomorphize --precise-drops --desugar-drops
++//@ charon-args=--preserve-allocator --monomorphize --precise-drops --desugar-drops
 +//@ charon-args=--include alloc::vec --include alloc::raw_vec
 +// Keep the concrete allocator call when exposing byte-vector cleanup.
 +pub fn release(_buffer: Vec<u8>) {}

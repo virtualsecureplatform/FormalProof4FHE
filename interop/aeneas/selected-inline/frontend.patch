@@ -47,7 +47,7 @@ index 8073dba6..b205101f 100644
        if
          !opt_backend = Some Lean && !extract_decreases_clauses
 diff --git a/src/PrePasses.ml b/src/PrePasses.ml
-index b613aba1..6a8203ae 100644
+index b613aba1..0dd3548c 100644
 --- a/src/PrePasses.ml
 +++ b/src/PrePasses.ml
 @@ -87,6 +87,97 @@ let erase_body_regions (crate : crate) (f : fun_decl) : fun_decl =
@@ -148,7 +148,7 @@ index b613aba1..6a8203ae 100644
  (** Replace the occurrences of [core::intrinsics::unreachable] with
      [Abort UndefinedBehavior]. This helps with the analyzes and the symbolic
      evaluation (in particular, we stop the evaluation when encountering an
-@@ -979,20 +1070,24 @@ let filter_marker_traits (crate : crate) : crate =
+@@ -979,20 +1070,26 @@ let filter_marker_traits (crate : crate) : crate =
    let mctx = NameMatcher.ctx_from_crate crate in
    let pats =
      List.map NameMatcher.parse_pattern
@@ -169,7 +169,9 @@ index b613aba1..6a8203ae 100644
 +      (List.filter
 +         (fun name ->
 +           (not !Config.monomorphic_builtin_shapes)
-+           || name <> "core::marker::Destruct")
++           || not
++                (List.mem name
++                   [ "core::marker::Destruct"; "core::alloc::Allocator" ]))
 +         [
 +           "core::marker::Sized";
 +           "core::marker::MetaSized";
@@ -187,7 +189,7 @@ index b613aba1..6a8203ae 100644
    in
    let match_config =
      {
-@@ -1306,6 +1401,12 @@ let decompose_str_borrows (_ : crate) (f : fun_decl) : fun_decl =
+@@ -1306,6 +1403,12 @@ let decompose_str_borrows (_ : crate) (f : fun_decl) : fun_decl =
                *)
                method! visit_Constant env (cv : constant_expr) =
                  match (cv.kind, cv.ty) with
@@ -200,7 +202,7 @@ index b613aba1..6a8203ae 100644
                  | ( CLiteral (VStr str),
                      TRef
                        (_, (TAdt { id = TBuiltin TStr; _ } as str_ty), ref_kind)
-@@ -2271,6 +2372,8 @@ let apply_passes (crate : crate) : crate =
+@@ -2271,6 +2374,8 @@ let apply_passes (crate : crate) : crate =
    (* Passes that apply to individual function bodies *)
    let function_passes =
      [
