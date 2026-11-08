@@ -7,6 +7,28 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Inward enum decoding now checks representation validity
+
+The opt-in frontend decodes a fieldless explicitly represented unsigned enum,
+optionally under a closed transparent wrapper, only when source discriminants,
+stored tags and the layout discriminator agree. It retains all 64 alignment
+variants and rejects invalid representations in the generated partial model.
+Small nested matches preserve one source operand read and keep eliminators
+within the existing proof limits. The logical matches are not physical-work
+charges. A related fix terminates concretely failed assertions in symbolic
+execution before they reach state joins.
+
+Fifteen kernel theorems prove round trips for every variant, success soundness
+for all inputs/outputs, the exact accepted representation set and alignment
+power-of-two validity. Three source functions and two readers give twenty new
+dependency audits. Sixteen negative runs check unsupported representations and
+corrupted metadata. See `interop/aeneas/enum-decoding/README.md`.
+
+Native layout translation passes the inward `usize -> Alignment` conversion
+and next rejects `Alignment -> NonZero<usize>`. The large usize backend boundary
+and remaining source/layout/pointer/heap/work/security refinements are still
+open. No native constructor refinement or full security theorem is accepted.
+
 ## Runtime-check queries are bound to rustc configuration
 
 The experimental extractor's opt-in `--evaluate-runtime-checks` delegates to
