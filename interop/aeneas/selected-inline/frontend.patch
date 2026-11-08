@@ -905,7 +905,7 @@ index 8df1bc5f..f1e2b16f 100644
    in
  
 diff --git a/src/extract/Extract.ml b/src/extract/Extract.ml
-index 2dc4a57f..be4888c5 100644
+index 2dc4a57f..7a3fe8a3 100644
 --- a/src/extract/Extract.ml
 +++ b/src/extract/Extract.ml
 @@ -398,6 +398,8 @@ let extract_cast_kind_hol4 (span : Meta.span)
@@ -939,15 +939,22 @@ index 2dc4a57f..be4888c5 100644
    | CastLit (src, tgt) ->
        let integer_type_to_string (ty : integer_type) : string =
          if backend () = Lean then
-@@ -636,6 +653,15 @@ let extract_binop (span : Meta.span) (ctx : extraction_ctx)
+@@ -636,6 +653,22 @@ let extract_binop (span : Meta.span) (ctx : extraction_ctx)
        F.pp_print_string fmt binop_str;
        F.pp_print_space fmt ();
        extract_expr ~inside:true arg1
-+  | Lean, AddChecked ty ->
++  | Lean, ((AddChecked ty | MulChecked ty) as binop) ->
++      let operation =
++        match binop with
++        | AddChecked _ -> "overflowing_add"
++        | MulChecked _ -> "overflowing_mul"
++        | _ -> [%internal_error] span
++      in
 +      F.pp_print_string fmt
-+        (match ty with
-+        | Unsigned _ -> "Std.UScalar.overflowing_add"
-+        | Signed _ -> "Std.IScalar.overflowing_add");
++        ((match ty with
++         | Unsigned _ -> "Std.UScalar."
++         | Signed _ -> "Std.IScalar.")
++        ^ operation);
 +      F.pp_print_space fmt ();
 +      extract_expr ~inside:true arg0;
 +      F.pp_print_space fmt ();
@@ -955,7 +962,7 @@ index 2dc4a57f..be4888c5 100644
    | ( Lean,
        ( Add (OWrap, _)
        | Sub (OWrap, _)
-@@ -2693,6 +2719,7 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
+@@ -2693,6 +2726,7 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
    let clause_names =
      match builtin_info with
      | None ->
@@ -963,7 +970,7 @@ index 2dc4a57f..be4888c5 100644
          List.map
            (fun (c : trait_param) ->
              let name = ctx_compute_trait_parent_clause_name ctx trait_decl c in
-@@ -2701,6 +2728,14 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
+@@ -2701,6 +2735,14 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
                if !record_fields_short_names then name
                else ctx_compute_trait_decl_name ctx trait_decl ^ name
              in
@@ -1242,7 +1249,7 @@ index 52b94675..951b56d9 100644
      (* Update the synthesized program *)
      S.synthesize_symbolic_expansion_no_branching span original_sv
 diff --git a/src/interp/InterpExpressions.ml b/src/interp/InterpExpressions.ml
-index 2d32fc8e..d50c4afd 100644
+index 2d32fc8e..e17b31f1 100644
 --- a/src/interp/InterpExpressions.ml
 +++ b/src/interp/InterpExpressions.ml
 @@ -82,6 +82,26 @@ let access_rplace_reorganize_and_read (config : config) (span : Meta.span)
@@ -1303,7 +1310,7 @@ index 2d32fc8e..d50c4afd 100644
                TLiteral (TInt I8)
            (* These return `(int, bool)` / a pointer which isn't a literal type *)
 -          | AddChecked | SubChecked | MulChecked | Offset ->
-+          | AddChecked ->
++          | AddChecked | MulChecked ->
 +              [%sanity_check] span (int_ty1 = int_ty2);
 +              TAdt
 +                {
@@ -1311,7 +1318,7 @@ index 2d32fc8e..d50c4afd 100644
 +                  generics =
 +                    mk_generic_args_from_types [ v1.ty; TLiteral TBool ];
 +                }
-+          | SubChecked | MulChecked | Offset ->
++          | SubChecked | Offset ->
                [%craise] span "Unimplemented binary operation"
            | Shl _ | Shr _ ->
                (* The number of bits can be of a different integer type

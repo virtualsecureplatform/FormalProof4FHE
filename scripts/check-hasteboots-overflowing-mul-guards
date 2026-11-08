@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+"""Reject lost multiplication bodies/flags, changed widths and incomplete proofs."""
+import copy
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+GATE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-overflowing-mul'))
+
+
+def fixture():
+    funcs = [{'item_meta': {'name': [{'Ident': [GATE['NAMESPACE'], 0]}, {'Ident': [n, 0]}]},
+              'body': {'Structured': {}}} for n in ['unsigned', 'signed']]
+    funcs += [{'item_meta': {'name': []}, 'body': {'Structured': {'BinaryOp': ['MulChecked', {}, {}]}}} for _ in range(2)]
+    return {'has_errors': False, 'translated': {
+        'target_information': [{'key': 'x86_64-unknown-linux-gnu', 'value': {
+            'target_pointer_size': 8, 'is_little_endian': True}}],
+        'options': {'monomorphize': True, 'mir': 'Optimized'}, 'fun_decls': funcs}}
+
+
+class Guards(unittest.TestCase):
+    def test_complete_source_and_output(self):
+        GATE['validate_ir'](fixture())
+        GATE['validate_output']((GATE['DATA'] / 'Generated.lean').read_text())
+        GATE['validate_portable_output']((GATE['DATA'] / 'Portable.lean').read_text())
+
+    def test_lost_body_or_overflow_operation(self):
+        for mutate in [lambda x: x['translated']['fun_decls'][2].update(body='Opaque'),
+                       lambda x: x['translated']['fun_decls'][2]['body']['Structured']['BinaryOp'].__setitem__(0, 'AddChecked'),
+                       lambda x: x['translated']['fun_decls'].pop(),
+                       lambda x: x['translated']['options'].update(monomorphize=False),
+                       lambda x: x['translated']['target_information'][0]['value'].update(target_pointer_size=4)]:
+            bad = copy.deepcopy(fixture()); mutate(bad)
+            with self.assertRaises(RuntimeError): GATE['validate_ir'](bad)
+
+    def test_changed_arithmetic_or_admission(self):
+        raw = (GATE['DATA'] / 'Generated.lean').read_text()
+        for bad in [raw.replace('overflowing_mul i i1', 'overflowing_add i i1'),
+                    raw.replace('ok (i2, b)', 'ok (i2, false)'), raw.replace('Std.I64', 'Std.Isize'),
+                    raw.replace('Std.U64', 'Std.Usize'), raw.replace(':= do', ':= by sorry'),
+                    raw.replace('end ' + GATE['NAMESPACE'], '')]:
+            with self.assertRaises(RuntimeError): GATE['validate_output'](bad)
+
+        raw = (GATE['DATA'] / 'Portable.lean').read_text()
+        with self.assertRaises(RuntimeError): GATE['validate_portable_output'](raw.replace('Std.Usize', 'Std.U64'))
+
+    def test_missing_universal_or_boundary_proof(self):
+        proof = (GATE['DATA'] / 'Proof.lean').read_text()
+        for name in GATE['PROOFS']:
+            with self.assertRaises(RuntimeError):
+                GATE['PARAMETERS']['validate_proof_source'](proof.replace('theorem ' + name, 'theorem missing'), GATE['PROOFS'])
+
+
+if __name__ == '__main__':
+    unittest.main()
