@@ -60,6 +60,24 @@ class Guards(unittest.TestCase):
                         {'key': 'x86_64-unknown-linux-gnu', 'value': {'target_pointer_size': 8, 'is_little_endian': False}}]}}]:
             with self.assertRaises(RuntimeError): validate_ir(bad)
 
+    def test_scoped_constructor_keeps_real_bodies(self):
+        def declaration(parts, body, index):
+            return {'def_id': index, 'item_meta': {'name': [{'Ident': [name, 0]} for name in parts]}, 'body': body}
+        wrapper = declaration([PROBE['PARAMETERS']['NAMESPACE'], 'new_encoded'], {'Structured': {}}, 0)
+        constructor = declaration(['pcs', 'matrix_weighted', 'new_encoded'], {'Structured': {}}, 1)
+        encoder = declaration(['pcs', 'utils', 'code', 'block', 'encode_row'], 'Opaque', 2)
+        validate_bodies = PROBE['validate_constructor_bodies']
+        validate_bodies({'translated': {'fun_decls': [wrapper, constructor, encoder]}}, True)
+        for changed in [[], [wrapper, encoder], [constructor, encoder], [wrapper, constructor],
+                        [wrapper, constructor, constructor, encoder],
+                        [wrapper, {**constructor, 'body': 'Opaque'}, encoder],
+                        [wrapper, {**constructor, 'body': {'Unstructured': {}}}, encoder],
+                        [wrapper, constructor, encoder, encoder],
+                        [{**wrapper, 'body': 'Opaque'}, constructor, encoder],
+                        [wrapper, constructor, {**encoder, 'body': {'Structured': {}}}]]:
+            with self.assertRaises(RuntimeError):
+                validate_bodies({'translated': {'fun_decls': changed}}, True)
+
     def test_exact_proof_audit_list(self):
         PROBE['PARAMETERS']['validate_proof_source'](
             (PROBE['DATA'] / 'Proof.lean').read_text(), PROBE['PROOFS'])

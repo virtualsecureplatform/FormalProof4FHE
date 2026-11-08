@@ -48,20 +48,44 @@ def validate_ir(ir):
         raise RuntimeError('Incomplete or wrong-target Charon extraction')
 
 
+def validate_constructor_bodies(ir, opaque_encoder):
+    functions = [d for d in ir['translated']['fun_decls'] if isinstance(d, dict)]
+    def names(d):
+        return [part['Ident'][0] for part in d['item_meta']['name'] if 'Ident' in part]
+    wrapper = [d for d in functions if names(d) == [PARAMETERS['NAMESPACE'], 'new_encoded']]
+    constructor = [d for d in functions if names(d) == ['pcs', 'matrix_weighted', 'new_encoded']]
+    encoders = [d for d in functions if names(d) == ['pcs', 'utils', 'code', 'block', 'encode_row']]
+    for label, selected in [('wrapper', wrapper), ('constructor', constructor)]:
+        body = selected[0].get('body') if len(selected) == 1 else None
+        if not isinstance(body, dict) or set(body) != {'Structured'} or not isinstance(body['Structured'], dict):
+            raise RuntimeError('Missing or nontransparent native ' + label)
+    if opaque_encoder and (len(encoders) != 1 or encoders[0].get('body') != 'Opaque'):
+        raise RuntimeError('Unused encoder opacity differs from the selected scope')
+    return {'wrapper': wrapper[0]['def_id'], 'constructor': constructor[0]['def_id'],
+            'opaque_encoder_count': len(encoders) if opaque_encoder else 0,
+            'residual_constraint_functions': [d['def_id'] for d in functions
+                if d.get('generics', {}).get('trait_type_constraints')]}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--tools', type=Path, required=True)
     parser.add_argument('--backend', type=Path, required=True)
     parser.add_argument('--build-receipt', type=Path, required=True)
     parser.add_argument('--mode', choices=['fixture', 'constructor', 'concrete-partial'], default='fixture')
+    parser.add_argument('--opaque-encode-row', action='store_true',
+                        help='Keep the unused encoder body opaque in the concrete-partial diagnostic only')
     args = parser.parse_args()
+    if args.opaque_encode_row and args.mode != 'concrete-partial':
+        parser.error('--opaque-encode-row requires --mode concrete-partial')
     tools, backend = args.tools.resolve(), args.backend.resolve()
     parent = ROOT / 'build/hasteboots-extraction'
     parent.mkdir(parents=True, exist_ok=True)
     out = Path(tempfile.mkdtemp(prefix='constructor-typing-' + args.mode + '-', dir=parent))
     record = {'status': 'started', 'mode': args.mode, 'commands': [],
               'claim': 'translation regression subgate; source refinement and security unproved',
-              'script_sha256': digest(Path(__file__).read_bytes()), 'aeneas_invoked': False}
+              'script_sha256': digest(Path(__file__).read_bytes()), 'aeneas_invoked': False,
+              'opaque_encode_row': args.opaque_encode_row}
     def save():
         (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
     def run(command, name, env=None):
@@ -116,6 +140,7 @@ def main():
             env.setdefault('CARGO_TARGET_DIR', str(parent / 'cargo-constructor-typing'))
             command = [tools / 'charon', 'cargo', '--preset=aeneas']
             if args.mode == 'concrete-partial': command += ['--monomorphize-mut']
+            if args.opaque_encode_row: command += ['--opaque', 'pcs::utils::code::block::_::encode_row']
             start = 'new_encoded' if args.mode == 'concrete-partial' else 'generic_new_encoded'
             run([*command, '--start-from', PARAMETERS['NAMESPACE'] + '::' + start, '--include', 'pcs',
                  '--include', 'core::option', '--include', 'core::result',
@@ -127,6 +152,8 @@ def main():
         if args.mode == 'concrete-partial' and ir.get('has_errors') is not False:
             record['failure_kind'] = 'invalid-partial-constructor-ir'
         validate_ir(ir)
+        if args.mode == 'concrete-partial':
+            record['critical_bodies'] = validate_constructor_bodies(ir, args.opaque_encode_row)
         record['aeneas_invoked'] = True
         if args.mode == 'fixture':
             run([tools / 'aeneas', *options, '-dest', out / 'official', llbc], 'official.log')

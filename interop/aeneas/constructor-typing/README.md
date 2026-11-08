@@ -54,7 +54,7 @@ scripts/probe-hasteboots-constructor-typing \
 The probe checks exact tool/source/patch/package/build hashes, complete generated
 output, the 64-bit little-endian extraction target, fixed proof limits and all
 dependency audit entries. It preserves generated terms; fixture compatibility
-changes only imports. Seven guard groups cover completeness, mode separation,
+changes only imports. Eight guard groups cover completeness, mode separation,
 admissions, proof limits, profile separation and dependency rejection. Fresh
 manifests retain commands, hashes, logs and terminal pass/failure status.
 
@@ -161,3 +161,30 @@ the five-audit fixture is an independent accepted regression, not a substitute
 for native constructor refinement. Lifetime-preserving concrete specialization,
 actual constructor-to-arena correspondence and the full security goal remain
 open.
+
+## Scoped concrete constructor reproducer
+
+The optional `--opaque-encode-row` flag is restricted to `concrete-partial`.
+It keeps the unused `RowCode::encode_row` implementation body opaque while
+retaining the trait, all its method signatures and the original constructor
+body. Every dependency reachable from an eventual result still has to pass
+the same strict audit; this option does not accept an external encoder premise.
+
+This scope produces valid partial IR (`has_errors = false`, 307 retained function
+declarations in 430 table slots in the checked attempt) and avoids the unsupported encoding-loop
+and panic paths. Before Aeneas runs, the harness requires exactly one transparent
+structured wrapper and native constructor body, plus exactly one opaque selected
+encoder implementation. Missing, duplicate or opaque constructor bodies reject.
+The receipt records their IDs and functions with residual signature constraints.
+
+The reviewed frontend still rejects this valid IR at
+`SymbolicToPureTypes.translate_fun_sigs`: the signature of the native concrete
+NTT table's `root` method retains the associated-type equality
+`NTTField::Table = Self`. Charon deliberately retains recursive associated
+types that its lifting pass cannot replace. Dropping that constraint or the
+surrounding trait clauses has not been used to make the constructor pass.
+
+Append `--opaque-encode-row` to the concrete-partial command above to reproduce.
+This command must still fail; the scoped artifact is a source-level compiler
+reproducer, not a constructor/arena/security certificate. The five-audit fixture
+continues to pass independently.

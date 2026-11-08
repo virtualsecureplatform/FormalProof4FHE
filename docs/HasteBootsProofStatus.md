@@ -7,6 +7,27 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Scoped constructor IR is valid; recursive type constraints remain unsupported
+
+A checked `--opaque-encode-row` scope for the concrete-partial diagnostic keeps
+the unused encoding body opaque while retaining all original trait requirements
+and both constructor/wrapper bodies. Charon then emits valid partial IR and
+avoids the encoding/panic paths responsible for the previous invalid-IR flag.
+The harness checks critical body transparency and encoder scope before any
+frontend invocation and records functions with residual signature constraints.
+
+The reviewed frontend still rejects at the concrete NTT table's `root`
+signature, which retains the recursive `NTTField::Table = Self` equality.
+No trait clauses or type equalities were removed. This identifies a valid-IR
+reproducer for associated-type handling; it does not establish a native
+constructor result, heap/arena correspondence or complete security.
+
+Validation: all 104 extraction/frontend guard tests passed and the fresh
+constructor fixture passed five dependency audits. The scoped attempt contains
+307 retained function declarations, valid IR and the expected preserved root
+constraint; it rejects at the reviewed frontend. Both receipts match the
+current harness and IR hashes. Native sources remain unchanged.
+
 ## Native constructor specialization remains unproved and fails closed
 
 The strongest reviewed `u32-ranges` frontend still typechecks the actual generic
