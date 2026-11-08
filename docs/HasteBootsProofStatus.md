@@ -7,6 +7,37 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Bounded scalar storage and original time carriers are kernel-checked
+
+The isolated `u32-ranges` frontend profile represents a checked closed U32
+range as a Lean subtype carrying both original bounds. It retains the scalar
+type, lower and upper literal types, bound order and U32 maximum. Borrow and
+region analysis recognize only this validated scalar leaf; source signatures
+and constraints remain intact. Unsupported casts and pattern forms are not
+given a conversion or an assumed constructor proof.
+
+Six scalar-storage theorems check identity, field selection and both predicates
+for ranges 0..=999999999 and 7..=19. Five further theorems check the retained
+original Duration/SystemTime/SystemTimeError carriers, including exact stored
+values and nanosecond bounds. The gate passed thirty-nine combined dependency
+audits and four valid-Rust negative rejections. One negative exits zero but
+emits an opaque transmute axiom; the gate rejects it.
+
+The native integer diagnostic with `--retain-time-types` now retains the six
+original time carriers. One external type axiom, std::io::Error, still prevents
+a native byte proof. With all error carriers retained, the failure advances to
+the non-null pointer pattern. Its original `NotNull` predicate, shared pointer
+kind and generic referent are checked rather than erased.
+
+Validation: all 96 extraction/frontend guard tests passed, with formatting,
+clean patch application and upstream traits/arrays regeneration. Both native
+diagnostic routes reproduced their explicit rejections after fresh 107-audit
+registry preflights. The original HasteBoots checkout remains unchanged.
+
+This proves read-only value/storage properties. Native Serde/context byte
+correspondence, I/O pointer provenance, full heap/implementation refinement,
+physical-work security and the complete application theorem remain open.
+
 ## Original PhantomData clone is checked; error carriers retain exact bounds
 
 The discriminant extraction gate now retains the original standard-library

@@ -67,6 +67,26 @@ that pattern type during type analysis; the diagnostic returns
 `rejected-unproved`/`nanoseconds-pattern-type`. Range predicates are not erased,
 and retaining these carriers does not certify pointer identity or heap layout.
 
+The newer `u32-ranges` receipt is also accepted in word mode. With
+`--retain-time-types`, all six original time carriers are retained and their
+exact bounded scalar fields translate. The full generated integer encoder
+then has one external axiom, std::io::Error, and remains `rejected-unproved`.
+The separate range gate kernel-checks these time carriers in thirty-nine
+combined dependency audits; this does not certify full integer bytes.
+
+```
+scripts/probe-hasteboots-code-serialization \
+  --tools /tmp/hasteboots-aeneas-tools --backend /tmp/hasteboots-aeneas-m0 \
+  --build-receipt /path/to/u32-ranges/build/manifest.json \
+  --mode word --retain-time-types
+```
+
+With that same receipt and `--retain-error-types`, extraction progresses to
+the non-null pointer pattern and remains rejected as `nonnull-pointer-pattern`.
+The diagnostic checks that the original `NotNull` predicate, shared pointer
+kind and generic referent are intact. Remaining opaque carriers are recorded;
+no pointer predicate or provenance obligation is erased.
+
 The native pin remains `dff353006322693cab3dc6b654f82151f658f294`.
 Manifests record the preflight receipt, frontend, wrapper, native files,
 Cargo inputs and full IR hashes, commands, retained body IDs and signature

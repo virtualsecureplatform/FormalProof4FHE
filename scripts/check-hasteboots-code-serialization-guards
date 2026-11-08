@@ -93,8 +93,16 @@ class Guards(unittest.TestCase):
         bounds = [{'kind': {'Literal': {'Scalar': {'Unsigned': ['U32', n]}}}, 'ty': u32} for n in ['0', '999999999']]
         nano = data['translated']['type_decls'][-1]
         nano['kind']['Struct'] = [{'ty': {'Pattern': [u32, {'Range': bounds}]}}]
+        pointer = data['translated']['type_decls'][2]
+        pointer['kind']['Struct'] = [{'ty': {'Pattern': [{'RawPtr': [{'TypeVar': {'Free': 0}}, 'Shared']}, 'NotNull']}}]
         info = MODULE['inspect_ir'](data, retain_error_types=True)
         self.assertEqual(info['nanoseconds_range'], [0, 999999999])
+        self.assertEqual(info['nonnull_pointer']['predicate'], 'NotNull')
+        times = MODULE['inspect_ir'](data, retain_time_types=True)
+        self.assertEqual(times['retained_time_carriers'], MODULE['TIME_TYPES'])
+        pointer['kind']['Struct'][0]['ty']['Pattern'][1] = 'Erased'
+        with self.assertRaises(RuntimeError): MODULE['inspect_ir'](data, retain_error_types=True)
+        pointer['kind']['Struct'][0]['ty']['Pattern'][1] = 'NotNull'
         bounds[1]['kind']['Literal']['Scalar']['Unsigned'][1] = '4294967295'
         with self.assertRaises(RuntimeError): MODULE['inspect_ir'](data, retain_error_types=True)
         nano['kind'] = 'Opaque'
@@ -104,6 +112,9 @@ class Guards(unittest.TestCase):
         log = 'unsupported type: Generated_Types.TPattern\ncore/src/num/niche_types.rs\nllbc/TypesAnalysis.ml'
         self.assertEqual(MODULE['classify_failure'](log), 'nanoseconds-pattern-type')
         self.assertIsNone(MODULE['classify_failure'](log.replace('niche_types.rs', 'other.rs')))
+        pointer = 'Unsupported scalar pattern type\ncore/src/ptr/non_null.rs\nllbc/TypesAnalysis.ml'
+        self.assertEqual(MODULE['classify_failure'](pointer), 'nonnull-pointer-pattern')
+        self.assertIsNone(MODULE['classify_failure'](pointer.replace('non_null.rs', 'other.rs')))
 
 
 if __name__ == '__main__':
