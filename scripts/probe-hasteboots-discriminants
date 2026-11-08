@@ -1,0 +1,122 @@
+#!/usr/bin/env python3
+"""Kernel-check optimized-MIR cleanup tag reads; no native serialization certificate."""
+import argparse
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+BASE = runpy.run_path(str(ROOT / 'scripts/probe-hasteboots-constructor-typing'))
+PARAMETERS, COMMON, BUILD = BASE['PARAMETERS'], BASE['COMMON'], BASE['BUILD']
+DATA = ROOT / 'interop/aeneas/discriminants'
+NS = 'hasteboots_discriminants'
+PROOFS = ['process_exact', 'process_success', 'process_error']
+
+
+def validate_output(raw):
+    if raw.count('import Aeneas\n') != 1 or not raw.rstrip().endswith('end ' + NS):
+        raise RuntimeError('Incomplete discriminant output')
+    if re.search(r'\b(axiom|opaque|constant|sorry|sorryAx|native_decide|unsafe)\b|decide\s*\+native', raw):
+        raise RuntimeError('Admitted discriminant declaration')
+    if re.findall(r'^set_option (maxHeartbeats|maxRecDepth) ([0-9]+)$', raw, re.M) != [
+            ('maxHeartbeats', '200000'), ('maxRecDepth', '1000')]:
+        raise RuntimeError('Unexpected proof limits')
+    for kind, name in [('def', 'process'), ('structure', 'Own')]:
+        if not re.search('^' + kind + r'\s+' + name + r'\s', raw, re.M):
+            raise RuntimeError('Missing discriminant declaration: ' + name)
+    return raw.replace('import Aeneas\n', '')
+
+
+def baseline_rejected(code, log):
+    return code != 0 and 'There should be no bottoms in the value' in log and 'interp/InterpExpressions.ml' in log
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--tools', type=Path, required=True)
+    parser.add_argument('--backend', type=Path, required=True)
+    parser.add_argument('--build-receipt', type=Path, required=True)
+    args = parser.parse_args()
+    parent_dir = ROOT / 'build/hasteboots-extraction'; parent_dir.mkdir(parents=True, exist_ok=True)
+    out = Path(tempfile.mkdtemp(prefix='discriminants-', dir=parent_dir))
+    record = {'status': 'started', 'commands': [], 'claim': 'compiler regression only; native bytes/security unproved',
+              'script_sha256': BASE['digest'](Path(__file__).read_bytes())}
+    def save():
+        (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
+    def run(command, log, required=True):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out / log).open('w') as stream:
+            result = subprocess.run([str(x) for x in command], cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT)
+        if required and result.returncode: raise RuntimeError(log + ' exited ' + str(result.returncode))
+        return result.returncode
+    print('Discriminant artifacts: ' + str(out), flush=True); save()
+    try:
+        tools, backend = args.tools.resolve(), args.backend.resolve()
+        receipt = json.loads(args.build_receipt.read_text())
+        if receipt.get('status') != 'passed' or receipt.get('profile') != 'discriminants':
+            raise RuntimeError('Wrong or failed discriminant frontend receipt')
+        # This preflight verifies exact source/build/package/tool/backend pins
+        # and kernel-checks the earlier trait/effect regression on this frontend.
+        run([ROOT / 'scripts/probe-hasteboots-constructor-typing', '--mode', 'fixture', '--tools', tools,
+             '--backend', backend, '--build-receipt', args.build_receipt.resolve()], 'preflight.log')
+        paths = re.findall(r'^Probe artifacts: (.+)$', (out / 'preflight.log').read_text(), re.M)
+        if len(paths) != 1: raise RuntimeError('Missing constructor-typing regression preflight')
+        preflight = Path(paths[0]); manifest = preflight / 'manifest.json'
+        parent = json.loads(manifest.read_text())
+        if parent.get('status') != 'passed': raise RuntimeError('Failed typing preflight')
+        record.update(preflight_manifest=str(manifest), preflight_manifest_sha256=BASE['digest'](manifest.read_bytes()),
+                      build_receipt_sha256=BASE['digest'](args.build_receipt.read_bytes()),
+                      frontend_sha256=receipt['executable_sha256'])
+        frontend = Path(receipt['executable'])
+        record['inputs'] = {name: BASE['digest']((DATA / name).read_bytes()) for name in
+                            ['fixture.rs', 'Generated.lean', 'Proof.lean', 'frontend.patch']}
+        llbc = out / 'discriminants.llbc'
+        run([tools / 'charon', 'rustc', '--preset=aeneas', '--mir', 'optimized', '--dest-file', llbc,
+             '--', '--crate-type', 'lib', '--edition=2024', '--crate-name', NS,
+             (DATA / 'fixture.rs').relative_to(ROOT)], 'charon.log')
+        ir = json.loads(llbc.read_text())
+        if ir.get('has_errors') is not False or ir['translated']['target_information'] != [
+                {'key': 'x86_64-unknown-linux-gnu', 'value': {'target_pointer_size': 8, 'is_little_endian': True}}]:
+            raise RuntimeError('Incomplete or wrong-target IR')
+        functions = [f for f in ir['translated']['fun_decls'] if f and f['body'] != 'Opaque']
+        identifiers = [[part['Ident'][0] for part in f['item_meta']['name'] if 'Ident' in part] for f in functions]
+        if sorted(identifiers) != sorted([[NS, 'process'], [NS, 'Own', 'drop_glue']]):
+            raise RuntimeError('Unexpected regression function surface')
+        record['llbc_sha256'] = BASE['digest'](llbc.read_bytes())
+        options = ['-backend', 'lean', '-checks', '-sequential', '-max-heartbeats', '200000',
+                   '-max-recdepth', '1000', '-abort-on-error']
+        code = run([tools / 'aeneas', *options, '-dest', out / 'baseline', llbc], 'baseline.log', False)
+        if not baseline_rejected(code, (out / 'baseline.log').read_text()):
+            raise RuntimeError('Optimized cleanup-match failure baseline changed')
+        run([frontend, *options, '-dest', out / 'lean', llbc], 'aeneas.log')
+        if re.search(r'Uncaught exception|\[Error\]', BASE['BASE']['BASE']['clear_colors']((out / 'aeneas.log').read_text())):
+            raise RuntimeError('Frontend reported errors despite exit status')
+        raw = (out / 'lean/Discriminants.lean').read_text()
+        runtime = validate_output(raw)
+        PARAMETERS['verify_snapshot'](raw, (DATA / 'Generated.lean').read_text())
+        proof = (DATA / 'Proof.lean').read_text(); PARAMETERS['validate_proof_source'](proof, PROOFS)
+        new_names = [NS + '.process'] + ['HasteBootsDiscriminantProof.' + n for n in PROOFS]
+        names = list(parent['dependency_audit']) + new_names
+        checked = out / 'Checked.lean'
+        checked.write_text((preflight / 'Checked.lean').read_text() + '\n' + runtime + '\n' + proof +
+                           ''.join('\n#print axioms ' + n + '\n' for n in new_names))
+        record.update(generated_sha256=BASE['digest'](raw.encode()), checked_sha256=BASE['digest'](checked.read_bytes()))
+        run([ROOT / 'scripts/in-container', 'bash', '-euc', 'cd -- "$1"; lake env lean -DwarningAsError=true "$2"', '_',
+             COMMON['container_path'](backend / 'backends/lean'), COMMON['container_path'](checked)], 'lean.log')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), names)
+        BUILD['verify_source'](Path(receipt['source']), 'discriminants')
+        if BASE['digest'](frontend.read_bytes()) != receipt['executable_sha256']:
+            raise RuntimeError('Frontend changed during regression')
+        record['status'] = 'passed'; print('Discriminant regression passed: ' + str(len(names)) + ' dependency audits')
+    except (Exception, SystemExit) as error:
+        record.update(status='failed', error=str(error)); save()
+        raise SystemExit('Discriminant regression failed; inspect ' + str(out) + ': ' + str(error)) from error
+    finally:
+        record['logs'] = {p.name: BASE['digest'](p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__':
+    main()

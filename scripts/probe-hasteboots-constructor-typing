@@ -66,11 +66,11 @@ def main():
                 raise RuntimeError('Official tool hash differs: ' + name)
         record['backend_patches'] = PARAMETERS['verify_backend'](backend, out)
         receipt = json.loads(args.build_receipt.read_text())
-        if receipt.get('status') != 'passed' or receipt.get('profile') != 'constructor-typing':
+        if receipt.get('status') != 'passed' or receipt.get('profile') not in ['constructor-typing', 'discriminants']:
             raise RuntimeError('Missing passed constructor-typing build receipt')
         if receipt.get('script_sha256') != digest((ROOT / 'scripts/build-hasteboots-static-frontend').read_bytes()):
             raise RuntimeError('Stale builder policy')
-        patch = BUILD['verify_source'](Path(receipt['source']), 'constructor-typing')
+        patch = BUILD['verify_source'](Path(receipt['source']), receipt['profile'])
         if receipt['patch_sha256'] != patch or receipt['package_profile_sha256'] != digest((BUILD['DATA'] / 'opam-packages.json').read_bytes()):
             raise RuntimeError('Stale source/package profile')
         frontend = Path(receipt['executable'])

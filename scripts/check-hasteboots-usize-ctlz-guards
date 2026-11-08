@@ -37,7 +37,7 @@ class Guards(unittest.TestCase):
 
     def test_distinct_reviewed_profiles(self):
         profiles=PROBE['BUILD']['PROFILES']
-        self.assertEqual(set(profiles),{'static-strings','usize-ctlz','constructor-typing','static-slices','static-bytes','metadata-mono'})
+        self.assertEqual(set(profiles),{'static-strings','usize-ctlz','constructor-typing','static-slices','static-bytes','metadata-mono','discriminants'})
         self.assertNotEqual((profiles['static-strings']/'frontend.patch').read_bytes(),
                             (profiles['usize-ctlz']/'frontend.patch').read_bytes())
 

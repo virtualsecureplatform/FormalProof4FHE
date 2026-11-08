@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+"""Reject unreviewed, admitted or incomplete discriminant regression output."""
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+PROBE = runpy.run_path(str(ROOT / 'scripts/probe-hasteboots-discriminants'))
+
+
+def surface():
+    return ('import Aeneas\nset_option maxHeartbeats 200000\nset_option maxRecDepth 1000\n'
+            'structure Own (T : Type) where\n  value : T\ndef process := ()\nend hasteboots_discriminants\n')
+
+
+class Guards(unittest.TestCase):
+    def test_import_only(self):
+        self.assertEqual(PROBE['validate_output'](surface()), surface().replace('import Aeneas\n', ''))
+
+    def test_incomplete_output(self):
+        for bad in [surface().replace('def process', 'def missing'),
+                    surface().replace('structure Own', 'structure Missing'),
+                    surface().split('end hasteboots')[0], surface() + surface()]:
+            with self.assertRaises(RuntimeError): PROBE['validate_output'](bad)
+
+    def test_admissions_and_limits(self):
+        for text in ['axiom bad : False', 'opaque bad : Type', 'constant bad : Type',
+                     'def bad := sorry', 'def bad := sorryAx', 'def bad := native_decide',
+                     'def bad := by decide +native', 'unsafe def bad := ()',
+                     'set_option maxHeartbeats 1000000']:
+            with self.assertRaises(RuntimeError):
+                PROBE['validate_output'](surface().replace('end hasteboots', text + '\nend hasteboots'))
+        with self.assertRaises(RuntimeError): PROBE['validate_output'](surface().replace('1000\n', '2048\n'))
+
+    def test_failure_baseline_is_not_success_or_unknown(self):
+        check = PROBE['baseline_rejected']
+        log = 'There should be no bottoms in the value\ninterp/InterpExpressions.ml'
+        self.assertTrue(check(2, log))
+        for code, message in [(0, log), (2, ''), (2, 'other failure'), (2, log.split('\n')[0])]:
+            self.assertFalse(check(code, message))
+
+    def test_exact_proof_coverage(self):
+        proof = (PROBE['DATA'] / 'Proof.lean').read_text()
+        PROBE['PARAMETERS']['validate_proof_source'](proof, PROBE['PROOFS'])
+        with self.assertRaises(RuntimeError):
+            PROBE['PARAMETERS']['validate_proof_source'](proof, PROBE['PROOFS'][:-1])
+
+    def test_patch_keeps_full_read_checks(self):
+        patch = (PROBE['DATA'] / 'frontend.patch').read_text()
+        self.assertIn('access_discriminant_reorganize_and_read', patch)
+        self.assertIn('+  | VAdt { variant_id = Some _; _ } -> ()', patch)
+        self.assertIn('+      let _ = read_place_check span Read p ctx in', patch)
+        self.assertIn('Cannot read an uninitialized enumeration discriminant', patch)
+        for removed in ['-    (not (bottom_in_value', '-    (not (reserved_in_value']:
+            self.assertNotIn(removed, patch)
+
+
+if __name__ == '__main__':
+    unittest.main()

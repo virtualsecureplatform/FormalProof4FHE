@@ -1,0 +1,319 @@
+diff --git a/src/PrePasses.ml b/src/PrePasses.ml
+index b613aba1..a428cc4b 100644
+--- a/src/PrePasses.ml
++++ b/src/PrePasses.ml
+@@ -87,6 +87,78 @@ let erase_body_regions (crate : crate) (f : fun_decl) : fun_decl =
+     ^ Print.fun_decl_to_string env "" "  " f];
+   f
+ 
++(** Symbolic execution requires signature lifetimes to be named. In particular,
++    full monomorphization may leave erased regions embedded in closure types.
++    Reject that unsupported input before interpreting any branch; do not infer
++    lifetime or alias relationships from erased annotations. *)
++let validate_signature_regions (_crate : crate) (f : fun_decl) : fun_decl =
++  if Config.backend () = Config.Lean then (
++    let visitor =
++      object
++        inherit [_] iter_ty
++
++        method! visit_RErased _ =
++          [%craise] f.item_meta.span
++            "Signature regions: erased lifetimes require lifetime-preserving \
++             extraction"
++
++        method! visit_RBody _ _ =
++          [%craise] f.item_meta.span
++            "Signature regions: body lifetimes are not valid signature \
++             parameters"
++      end
++    in
++    List.iter (visitor#visit_ty ()) f.signature.inputs;
++    visitor#visit_ty () f.signature.output);
++  f
++
++(* The Lean ctlz_nonzero runtime currently models only usize. Validate every
++   direct function reference, including function-pointer constants, before the
++   generic intrinsic declaration is treated as a builtin. *)
++
++let validate_ctlz_nonzero (crate : crate) (f : fun_decl) : fun_decl =
++  if Config.backend () <> Config.Lean then f
++  else
++    let pat = NameMatcher.parse_pattern "core::intrinsics::ctlz_nonzero" in
++    let mctx = NameMatcher.ctx_from_crate crate in
++    let matches =
++      NameMatcher.match_name mctx
++        {
++          map_vars_to_vars = true;
++          match_with_trait_decl_refs =
++            Config.match_patterns_with_trait_decl_refs;
++        }
++        pat
++    in
++    let visitor =
++      object
++        inherit [_] map_statement as super
++
++        method! visit_fn_ptr env ptr =
++          (match ptr.kind with
++          | FunId (FRegular id) -> (
++              match FunDeclId.Map.find_opt id crate.fun_decls with
++              | Some decl when matches decl.item_meta.name -> (
++                  match ptr.generics.types with
++                  | [ TLiteral (TUInt Usize) ] -> ()
++                  | _ ->
++                      [%craise] f.item_meta.span
++                        "ctlz_nonzero: only concrete usize instantiations are \
++                         modeled")
++              | _ -> ())
++          | _ -> ());
++          super#visit_fn_ptr env ptr
++      end
++    in
++    match f.body with
++    | StructuredBody body ->
++        {
++          f with
++          body =
++            StructuredBody { body with body = visitor#visit_block () body.body };
++        }
++    | _ -> f
++
+ (** Replace the occurrences of [core::intrinsics::unreachable] with
+     [Abort UndefinedBehavior]. This helps with the analyzes and the symbolic
+     evaluation (in particular, we stop the evaluation when encountering an
+@@ -1306,6 +1378,12 @@ let decompose_str_borrows (_ : crate) (f : fun_decl) : fun_decl =
+               *)
+               method! visit_Constant env (cv : constant_expr) =
+                 match (cv.kind, cv.ty) with
++                | ( CLiteral (VStr _),
++                    TRef (_, TAdt { id = TBuiltin TStr; _ }, RShared) ) ->
++                    (* String literals have static storage. Keep the constant so
++                       the interpreter places its shared loan in a persistent
++                       dummy binding, not a local that is invalidated on return. *)
++                    super#visit_Constant env cv
+                 | ( CLiteral (VStr str),
+                     TRef
+                       (_, (TAdt { id = TBuiltin TStr; _ } as str_ty), ref_kind)
+@@ -2271,6 +2349,8 @@ let apply_passes (crate : crate) : crate =
+   (* Passes that apply to individual function bodies *)
+   let function_passes =
+     [
++      ("validate_signature_regions", validate_signature_regions);
++      ("validate_ctlz_nonzero", validate_ctlz_nonzero);
+       ("fix_closure_lifetimes", fix_closure_lifetimes);
+       ("erase_body_regions", erase_body_regions);
+       ("remove_unreachable", remove_unreachable);
+diff --git a/src/extract/Extract.ml b/src/extract/Extract.ml
+index 2dc4a57f..85dd55c9 100644
+--- a/src/extract/Extract.ml
++++ b/src/extract/Extract.ml
+@@ -2693,6 +2693,7 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
+   let clause_names =
+     match builtin_info with
+     | None ->
++        let used = ref Collections.StringSet.empty in
+         List.map
+           (fun (c : trait_param) ->
+             let name = ctx_compute_trait_parent_clause_name ctx trait_decl c in
+@@ -2701,6 +2702,14 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
+               if !record_fields_short_names then name
+               else ctx_compute_trait_decl_name ctx trait_decl ^ name
+             in
++            (* Short field names may coincide across records, but each parent
++               projection in this record still needs its own identifier. *)
++            let name =
++              basename_to_unique_aux
++                (fun candidate -> Collections.StringSet.mem candidate !used)
++                name_append_index name
++            in
++            used := Collections.StringSet.add name !used;
+             (c.clause_id, name))
+           trait_decl.parent_clauses
+     | Some info ->
+diff --git a/src/extract/ExtractBuiltin.ml b/src/extract/ExtractBuiltin.ml
+index 6e28b984..b90e45f5 100644
+--- a/src/extract/ExtractBuiltin.ml
++++ b/src/extract/ExtractBuiltin.ml
+@@ -614,6 +614,14 @@ let mk_builtin_funs () : (pattern * Pure.builtin_fun_info) list =
+                ^ ".from"))
+           ~can_fail:false ())
+       int_and_smaller_list
++  (* Calls are checked to have exactly the concrete usize instantiation by
++     validate_ctlz_nonzero before this generic builtin mapping is used. *)
++  @ mk_lean_only
++      [
++        mk_fun "core::intrinsics::ctlz_nonzero" ~keep_params:(Some [ false ])
++          ~keep_trait_clauses:(Some [ false ])
++          ~extract_name:(Some "HasteBootsUsizeCtlz.nonzero") ();
++      ]
+   (* Leading zeros *)
+   @ mk_scalar_fun
+       (fun ty -> "core::num::{" ^ ty ^ "}::leading_zeros")
+diff --git a/src/extract/ExtractTypes.ml b/src/extract/ExtractTypes.ml
+index 37171763..0624bebf 100644
+--- a/src/extract/ExtractTypes.ml
++++ b/src/extract/ExtractTypes.ml
+@@ -10,10 +10,22 @@ module T = Types
+ let extract_str (_span : Meta.span) (fmt : F.formatter) ~(inside : bool)
+     (s : string) : unit =
+   let chars = StringUtils.string_to_chars s in
+-  (* Using the OCaml escape conventions for now.
+-
+-     TODO: does this really work? *)
+-  let s = String.concat "" (List.map Char.escaped chars) in
++  (* Lean string literals contain UTF-8 directly. Escape ASCII syntax/control
++     bytes using Lean conventions; retain other backend conventions. *)
++  let escape c =
++    if backend () <> Lean then Char.escaped c
++    else
++      match c with
++      | '"' -> "\\\""
++      | '\\' -> "\\\\"
++      | '\n' -> "\\n"
++      | '\r' -> "\\r"
++      | '\t' -> "\\t"
++      | c when Char.code c < 32 || Char.code c = 127 ->
++          Printf.sprintf "\\u%04x" (Char.code c)
++      | c -> String.make 1 c
++  in
++  let s = String.concat "" (List.map escape chars) in
+   let s = "\"" ^ s ^ "\"" in
+ 
+   (* We need to convert the string to a str (the conversion inserts a static check
+@@ -22,6 +34,10 @@ let extract_str (_span : Meta.span) (fmt : F.formatter) ~(inside : bool)
+   F.pp_print_string fmt "toStr";
+   F.pp_print_space fmt ();
+   F.pp_print_string fmt s;
++  if backend () = Lean then
++    F.pp_print_string fmt
++      " (by simp only [U32.max, U32.numBits, UScalarTy.U32_numBits_eq]; decide \
++       +kernel)";
+   if inside then F.pp_print_string fmt ")"
+ 
+ (** Format a constant value.
+diff --git a/src/interp/InterpExpressions.ml b/src/interp/InterpExpressions.ml
+index 2d32fc8e..e80f5463 100644
+--- a/src/interp/InterpExpressions.ml
++++ b/src/interp/InterpExpressions.ml
+@@ -82,6 +82,26 @@ let access_rplace_reorganize_and_read (config : config) (span : Meta.span)
+   (* Compose *)
+   (lid, value, ctx, cc)
+ 
++(** Read only an enumeration discriminant. Rust cleanup blocks may inspect an
++    initialized tag after moving its payload. No payload is read or copied by
++    this operation; ordinary reads retain their complete bottom/borrow checks.
++*)
++let access_discriminant_reorganize_and_read (config : config) (span : Meta.span)
++    (p : place) (ctx : eval_ctx) :
++    tvalue * eval_ctx * (SymbolicAst.expr -> SymbolicAst.expr) =
++  let ctx, cc = update_ctx_along_read_place config span Read p ctx in
++  let ctx, cc = comp cc (end_loans_at_place config span Read p ctx) in
++  let _, value = read_place span Read p ctx in
++  let value = value_strip_shared_loans value in
++  (match value.value with
++  | VAdt { variant_id = Some _; _ } -> ()
++  | VSymbolic _ ->
++      (* Symbolic expansion keeps the previous full-read safety precondition. *)
++      let _ = read_place_check span Read p ctx in
++      ()
++  | _ -> [%craise] span "Cannot read an uninitialized enumeration discriminant");
++  (value, ctx, cc)
++
+ let access_rplace_reorganize (config : config) (span : Meta.span)
+     (greedy_expand : bool) (access : access_kind) (p : place) : cm_fun =
+  fun ctx ->
+diff --git a/src/interp/InterpExpressions.mli b/src/interp/InterpExpressions.mli
+index 75a12e90..c578fdc1 100644
+--- a/src/interp/InterpExpressions.mli
++++ b/src/interp/InterpExpressions.mli
+@@ -28,6 +28,14 @@ val access_rplace_reorganize_and_read :
+   eval_ctx ->
+   loan_id option * tvalue * eval_ctx * (SymbolicAst.expr -> SymbolicAst.expr)
+ 
++(** Read an initialized enum tag without reading moved payload fields. *)
++val access_discriminant_reorganize_and_read :
++  config ->
++  Meta.span ->
++  place ->
++  eval_ctx ->
++  tvalue * eval_ctx * (SymbolicAst.expr -> SymbolicAst.expr)
++
+ (** Evaluate an operand.
+ 
+     Reorganize the context, then evaluate the operand.
+diff --git a/src/interp/InterpStatements.ml b/src/interp/InterpStatements.ml
+index cb9203a0..77f0abdd 100644
+--- a/src/interp/InterpStatements.ml
++++ b/src/interp/InterpStatements.ml
+@@ -1135,11 +1135,8 @@ and eval_switch_raw (config : config) (span : Meta.span) (switch : switch) :
+       (ctx_resl, cc_comp cf_eval_op cf_switch)
+   | Match (p, stgts, otherwise) ->
+       (* Access the place *)
+-      let access = Read in
+-      let expand_prim_copy = false in
+-      let _, p_v, ctx, cf_read_p =
+-        access_rplace_reorganize_and_read config span expand_prim_copy access p
+-          ctx
++      let p_v, ctx, cf_read_p =
++        access_discriminant_reorganize_and_read config span p ctx
+       in
+       let ctx0 = ctx in
+       (* Match on the value *)
+diff --git a/src/llbc/FunsAnalysis.ml b/src/llbc/FunsAnalysis.ml
+index ab1fbdfe..100d186d 100644
+--- a/src/llbc/FunsAnalysis.ml
++++ b/src/llbc/FunsAnalysis.ml
+@@ -213,9 +213,12 @@ let analyze_module (m : crate) (funs_map : fun_decl FunDeclId.Map.t) :
+       let builtin_info = get_builtin_info f in
+       let has_builtin_info = builtin_info <> None in
+       group_has_builtin_info := !group_has_builtin_info || has_builtin_info;
+-      match f.body with
+-      | StructuredBody body -> obj#visit_block body.body.span body.body
+-      | TargetDispatchBody targets ->
++      (* Extracted builtin calls use the backend model, even when Charon also
++         retained a Rust body. Its declared effects determine the model's type. *)
++      match (builtin_info, f.body) with
++      | Some info, _ -> obj#may_fail info.can_fail
++      | None, StructuredBody body -> obj#visit_block body.body.span body.body
++      | None, TargetDispatchBody targets ->
+           (* get_target can fail, and so can each target function *)
+           obj#may_fail true;
+           (* Also propagate effects from the target implementations *)
+@@ -223,13 +226,7 @@ let analyze_module (m : crate) (funs_map : fun_decl FunDeclId.Map.t) :
+             (fun ((_target_name : string), (fdr : Types.fun_decl_ref)) ->
+               obj#visit_fid f.item_meta.span fdr.id)
+             targets
+-      | _ ->
+-          let info_can_fail =
+-            match builtin_info with
+-            | None -> true
+-            | Some { can_fail } -> can_fail
+-          in
+-          obj#may_fail info_can_fail
++      | None, _ -> obj#may_fail true
+     in
+     List.iter visit_fun d;
+     (* We need to know if the declaration group contains a global - note that
+diff --git a/src/llbc/Substitute.ml b/src/llbc/Substitute.ml
+index fbd7f003..94d66db1 100644
+--- a/src/llbc/Substitute.ml
++++ b/src/llbc/Substitute.ml
+@@ -7,6 +7,18 @@ open Types
+ open Values
+ open LlbcAst
+ 
++(* Aeneas runtime field types erase every lifetime, including 'static.
++   Charon's generic substitution erases region variables but preserves 'static. *)
++let type_decl_get_instantiated_field_etypes def opt_variant_id generics =
++  let erase =
++    object
++      inherit [_] map_ty
++      method! visit_region _ _ = RErased
++    end
++  in
++  List.map (erase#visit_ty ())
++    (type_decl_get_instantiated_field_types def opt_variant_id generics)
++
+ (* Fails if the variable is bound *)
+ let expect_free_var span (var : 'id de_bruijn_var) : 'id =
+   match var with
