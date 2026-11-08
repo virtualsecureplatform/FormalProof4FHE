@@ -1,0 +1,101 @@
+#!/usr/bin/env python3
+"""Kernel-check byte allocation lifecycle and its extracted Layout getter bridge."""
+import argparse
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+LAYOUT = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-layout-word64'))
+BUILD, PARAMETERS, COMMON, digest = [LAYOUT[k] for k in ['BUILD', 'PARAMETERS', 'COMMON', 'digest']]
+MODEL = ROOT / 'FormalProof4FHE/HasteBoots/NativeByteMemory.lean'
+DATA = ROOT / 'interop/aeneas/byte-memory'
+MODEL_PROOFS = ['empty_wellFormed', 'disjoint_symm', 'allocate_success', 'allocate_wellFormed', 'allocate_initialized_none',
+ 'load_without_origin', 'load_zero', 'store_blocks_length', 'store_then_load', 'release_length', 'release_sublist',
+ 'deallocate_changes_live_count', 'release_selected', 'deallocate_wellFormed', 'shape_valid', 'wellFormed_shape',
+ 'store_preserves_shape', 'store_wellFormed', 'storeByte_then_loadByte', 'load_without_matching_origin', 'release_origin_absent',
+ 'deallocated_pointer_unreadable', 'allocate_uninitialized', 'allocate_frame_load', 'deallocate_selected', 'deallocate_generation',
+ 'stale_after_reallocation', 'layout_alignment', 'layout_size_bound', 'allocate_of_available', 'store_at_matching_head',
+ 'deallocate_head', 'deallocated_alias_unreadable', 'uninitialized_bytes', 'fresh_block_uninitialized', 'load_selected',
+ 'store_frame_other_origin', 'step_wellFormed', 'reachable_wellFormed']
+MODEL_VALUES = ['Byte', 'Layout', 'Layout.Valid', 'Block', 'State', 'empty', 'Block.pointer', 'Disjoint', 'Block.Valid',
+ 'WellFormed', 'freshBlock', 'allocate', 'Matches', 'loadBlocks', 'loadByte', 'storeBlocks', 'storeByte', 'releaseBlocks',
+ 'deallocate', 'shape', 'Step', 'Reachable']
+BRIDGE_PROOFS = ['source_size', 'source_alignment', 'alignment_power', 'valid_iff_checked_size', 'allocated_source_layout',
+                 'deallocation_source_layout']
+
+
+def validate_sources():
+    PARAMETERS['validate_proof_source'](MODEL.read_text(), MODEL_PROOFS)
+    PARAMETERS['validate_proof_source']((DATA / 'Layout.lean').read_text(), BRIDGE_PROOFS)
+    names = re.findall(r'^(?:def|structure|inductive|abbrev) ([^\s:(]+)', MODEL.read_text(), re.M)
+    if len(names) != len(MODEL_VALUES) or set(names) != set(MODEL_VALUES): raise RuntimeError('Incomplete byte memory declaration audit')
+    PARAMETERS['validate_proof_source']((ROOT / 'FormalProof4FHETest/HasteBootsByteMemorySmoke.lean').read_text(), [])
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--build-receipt', type=Path, required=True)
+    parser.add_argument('--backend', type=Path, required=True)
+    args = parser.parse_args()
+    parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
+    out = Path(tempfile.mkdtemp(prefix='byte-memory-', dir=parent))
+    record = {'status': 'started', 'claim': 'byte memory model and extracted Layout data bridge only; Rust allocator/borrow/dereference/compiler/work/security refinement unproved',
+              'script_sha256': digest(Path(__file__).read_bytes()), 'commands': []}
+    def save(): (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
+    def run(command, log):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out / log).open('w') as stream:
+            subprocess.run([str(x) for x in command], cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT, check=True)
+    print('Byte memory artifacts: ' + str(out), flush=True); save()
+    try:
+        BUILD['verify_receipt'](args.build_receipt)
+        record['build_receipt_sha256'] = digest(args.build_receipt.read_bytes())
+        record['backend_patches'] = PARAMETERS['verify_backend'](args.backend.resolve(), out)
+        validate_sources()
+        files = [MODEL, DATA / 'Layout.lean', LAYOUT['DATA'] / 'Generated.lean',
+                 ROOT / 'FormalProof4FHE/HasteBoots/NativePointerRepresentation.lean',
+                 ROOT / 'FormalProof4FHETest/HasteBootsByteMemorySmoke.lean', ROOT / 'FormalProof4FHETest/HasteBootsByteMemoryAudit.lean',
+                 ROOT / 'FormalProof4FHE.lean', ROOT / 'FormalProof4FHETest.lean', ROOT / 'lean-toolchain', ROOT / 'lake-manifest.json']
+        record['inputs'] = {str(p.relative_to(ROOT)): digest(p.read_bytes()) for p in files}
+        run([ROOT / 'scripts/check-hasteboots-layout-word64', '--build-receipt', args.build_receipt,
+             '--backend', args.backend], 'source-layout.log')
+        source_dir = Path((out / 'source-layout.log').read_text().splitlines()[0].split(': ', 1)[1])
+        source_receipt = source_dir / 'manifest.json'; source = json.loads(source_receipt.read_text())
+        if source.get('status') != 'passed' or source.get('build_receipt_sha256') != record['build_receipt_sha256']:
+            raise RuntimeError('Layout source extraction does not match paired tools')
+        record['source_layout_manifest_sha256'] = digest(source_receipt.read_bytes())
+        record['source_layout_dependency_audit'] = source['dependency_audit']
+        run([ROOT / 'scripts/in-container', 'lake', 'build', 'FormalProof4FHE.HasteBoots.NativeByteMemory',
+             'FormalProof4FHETest.HasteBootsByteMemorySmoke', 'FormalProof4FHETest.HasteBootsByteMemoryAudit'], 'root-build.log')
+        raw = (LAYOUT['DATA'] / 'Generated.lean').read_text()
+        names = ['FormalProof4FHE.HasteBoots.NativeByteMemory.' + n for n in MODEL_VALUES + MODEL_PROOFS]
+        names += ['HasteBootsByteMemoryLayout.' + n for n in ['SourceLayout', 'Alignment', 'Tag', 'alignmentWord', 'decode'] + BRIDGE_PROOFS]
+        names += [LAYOUT['NAMESPACE'] + '.' + n for n in re.findall(r'^(?:@\[[^\n]*\] )?(?:def|structure|inductive) ([^\s:(]+)', raw, re.M)]
+        names += [LAYOUT['NAMESPACE'] + '.core.mem.alignment.AlignmentEnum.read_discriminant']
+        checked = out / 'Checked.lean'
+        checked.write_text('import FormalProof4FHE.HasteBoots.NativeByteMemory\nimport Aeneas.Std\nimport Aeneas.Data.Discriminant\n'
+                           + raw.replace('import Aeneas\n', '') + '\n' + (DATA / 'Layout.lean').read_text()
+                           + ''.join('\n#print axioms ' + name + '\n' for name in names))
+        command = ('project_path=$(lake env printenv LEAN_PATH); cd -- "$1"; '
+                   'backend_path=$(lake env printenv LEAN_PATH); '
+                   'LEAN_PATH="$project_path:$backend_path" lean -DwarningAsError=true "$2"')
+        run([ROOT / 'scripts/in-container', 'bash', '-euc', command, '_',
+             COMMON['container_path'](args.backend.resolve() / 'backends/lean'), COMMON['container_path'](checked)], 'lean.log')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), names)
+        record['checked_sha256'] = digest(checked.read_bytes())
+        if record['inputs'] != {str(p.relative_to(ROOT)): digest(p.read_bytes()) for p in files}: raise RuntimeError('Input changed during check')
+        BUILD['verify_receipt'](args.build_receipt)
+        record['status'] = 'passed'
+        print('Byte memory passed: ' + str(len(names)) + ' dependency audits; 39 memory theorems, six source Layout bridge theorems')
+    except (Exception, SystemExit) as error:
+        record.update(status='failed', error=str(error)); raise SystemExit('Byte memory check failed; inspect ' + str(out) + ': ' + str(error)) from error
+    finally:
+        record['logs'] = {p.name: digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__':
+    main()
