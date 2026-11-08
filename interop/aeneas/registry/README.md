@@ -58,7 +58,7 @@ updates, physical work and full protocol security remain open.
 Use the pinned official tools and prepared backend described in
 `../parameters/README.md`. The harness first freshly checks the 50 parameter
 source/accessor/decoder/binding audits, then extracts this native carrier and
-checks the combined artifact with all 110 dependency audits. Only propext,
+checks the combined artifact with all 121 dependency audits. Only propext,
 Classical.choice and Quot.sound are allowed; no admissions, native proofs or
 proof-limit increases are accepted.
 
@@ -189,3 +189,28 @@ its raw root with the accepted field root. Replay, inclusion and no-bad-event
 premises remain explicit. No native verifier check or allocator model is
 changed. The receipt hashes all four imported pointer/arena model sources and
 rejects changes to them during extraction.
+
+## Whole-heap representation and computed compatibility
+
+`Heap.lean` relates an immutable heap of actual extracted parameter values to a
+heap of retained arena handles. Corresponding cells have identical addresses
+and allocation origins; the native cell value decodes to the parameter entry
+at its retained handle. This relation covers the complete heap independently
+of the borrow list or registry. It is preserved by arena append, paired object
+retention and paired retirement, starting from empty heaps.
+
+Eleven kernel theorems establish these preservation properties and simulation
+of every successful pointer read. The operational `materialize` function reads
+native parameter cells and constructs the original carrier list in order,
+retaining commitment values and duplicate borrows. Successful materialization
+from represented heaps supplies both a successful native-value registry decode
+and the matching pointer-backed registry result. Registry compatibility is a
+conclusion here, rather than two independently supplied registry runs.
+
+The ownership and extraction wrappers derive the pointer-backed run and keep
+native first-original slice reads, parameter decoding and constructor provenance
+at one index. Their initializer/replay/history/no-bad-event premises remain
+explicit. Establishing the heap invariant and materialization behavior from
+Rust allocation, borrowing and source execution is still required. The proofs
+do not establish allocation freshness, object layout or physical work. This
+operational materializer adds no native verifier code or runtime checks.

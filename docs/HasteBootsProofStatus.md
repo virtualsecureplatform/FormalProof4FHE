@@ -7,6 +7,28 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Whole-heap simulation derives registry compatibility
+
+`Heap.lean` relates native parameter-value cells to retained arena handles over
+the entire heap, independently of registry borrows. The relation preserves
+address and allocation identity and decodes each native value to its arena
+entry. Empty heaps, arena extension, paired retention and paired retirement
+preserve it. Successful reads and ordered carrier materialization then derive
+both compatible registry results, including original roots and duplicate
+borrows. Ownership and observed-extraction wrappers use this derived pointer
+registry result instead of requesting an independent compatibility run.
+
+This is an immutable operational heap simulation. The global representation
+and native carrier materialization still need to be derived from actual Rust
+allocation/borrowing/source execution. Allocation freshness, object layout,
+context bytes, actor-separated physical work and complete security remain
+open; no native verifier checks or runtime proof certificates were added.
+
+Validation: fresh pinned native extraction passed 121 combined dependency
+audits, including all eleven new heap results. All 102 extraction/frontend
+guard tests passed. The receipt matches current proof, model and native source
+hashes. Native HasteBoots sources remain unchanged.
+
 ## Extracted native reads share original indices with pointer provenance
 
 The registry extraction gate now includes three `Pointer.lean` composition

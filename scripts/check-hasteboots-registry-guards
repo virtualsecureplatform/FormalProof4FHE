@@ -67,7 +67,8 @@ class Guards(unittest.TestCase):
                             ('Lookup.lean', MODULE['LOOKUP_PROOFS']),
                             ('CausalLookup.lean', MODULE['CAUSAL_LOOKUP_PROOFS']),
                             ('Equality.lean', MODULE['EQUALITY_PROOFS']),
-                            ('Pointer.lean', MODULE['POINTER_PROOFS'])]:
+                            ('Pointer.lean', MODULE['POINTER_PROOFS']),
+                            ('Heap.lean', MODULE['HEAP_PROOFS'])]:
             text = (MODULE['DATA'] / file).read_text()
             MODULE['PARAMETERS']['validate_proof_source'](text, names)
             with self.assertRaises(RuntimeError):
