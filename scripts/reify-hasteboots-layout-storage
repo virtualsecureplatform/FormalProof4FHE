@@ -1,0 +1,63 @@
+#!/usr/bin/env python3
+"""Retain the precise compiler Layout/Alignment byte descriptions used by the heap bridge."""
+import argparse
+import json
+from pathlib import Path
+import runpy
+
+ROOT = Path(__file__).resolve().parent.parent
+CALLER = runpy.run_path(str(ROOT / 'scripts/reify-hasteboots-allocator-caller'))
+require = CALLER['require']; digest = CALLER['digest']
+
+
+class Layout:
+    def __init__(self, ir):
+        self.caller = r = CALLER['Reifier'](ir)
+        r.render()
+        self.layout = r.types[r.functions[r.root]['signature']['inputs'][1]['Untagged']['Adt']['id']['Adt']]
+        self.alignment = r.boundary.alignment
+        self.enum = r.boundary.enum
+        def info(t):
+            require(isinstance(t['layout'], list) and len(t['layout']) == 1 and
+                    t['layout'][0]['key'] == 'x86_64-unknown-linux-gnu', 'Missing/ambiguous target layout')
+            return t['layout'][0]['value']
+        def struct(size, align, offsets, transparent):
+            return {'size': size, 'align': align, 'discriminator': {'Known': 0}, 'uninhabited': False,
+                    'variant_layouts': [{'field_offsets': offsets, 'uninhabited': False, 'tagger': []}],
+                    'repr': {'repr_algo': 'Rust', 'align_modif': None, 'transparent': transparent, 'explicit_discr_type': False}}
+        require(info(self.layout) == struct(16, 8, [8, 0], False), 'Changed Layout byte representation')
+        require(info(self.alignment) == struct(8, 8, [0], True), 'Changed Alignment byte representation')
+        variants = []; children = []
+        for i in range(64):
+            scalar = {'Unsigned': ['U64', str(2 ** i)]}
+            variants.append({'field_offsets': [], 'uninhabited': False, 'tagger': [[0, scalar]]})
+            children.append([{'start': scalar, 'end': scalar}, {'Known': i}])
+        expected = {'size': 8, 'align': 8, 'discriminator': {'Branch': {'offset': 0, 'int_ty': {'Unsigned': 'U64'}, 'children': children, 'fallback': 'Invalid'}},
+                    'uninhabited': False, 'variant_layouts': variants,
+                    'repr': {'repr_algo': 'Rust', 'align_modif': None, 'transparent': False, 'explicit_discr_type': True}}
+        require(info(self.enum) == expected, 'Changed AlignmentEnum stored tags/discriminator')
+
+    def retained(self):
+        return {'layout': self.layout, 'alignment': self.alignment, 'enum': self.enum,
+                'claim': 'retained precise target byte descriptions and checked heap decoder; Rust ABI/compiler/lifetime/security refinement unproved'}
+
+    def render(self):
+        return '\n'.join(['module', 'public import FormalProof4FHE.HasteBoots.NativeLayoutBytes', '@[expose] public section', '',
+            '-- Exact retained compiler descriptions; no native calling-convention claim.',
+            'namespace HasteBootsLayoutStorage',
+            '-- Layout declaration SHA256 ' + digest(self.layout),
+            'def layoutTag : Nat := ' + str(self.layout['def_id']),
+            'def alignmentTag : Nat := ' + str(self.alignment['def_id']),
+            'def enumTag : Nat := ' + str(self.enum['def_id']),
+            'def layoutSize : Nat := 16', 'def layoutAlignment : Nat := 8',
+            'def sizeOffset : Nat := 8', 'def alignmentOffset : Nat := 0',
+            'end HasteBootsLayoutStorage', ''])
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__); parser.add_argument('llbc', type=Path); parser.add_argument('output', type=Path); parser.add_argument('--retained', type=Path, required=True); args = parser.parse_args()
+    value = Layout(json.loads(args.llbc.read_text())); args.output.write_text(value.render())
+    args.retained.write_text(json.dumps(value.retained(), indent=2) + '\n')
+
+
+if __name__ == '__main__': main()

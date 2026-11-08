@@ -1,0 +1,148 @@
+#!/usr/bin/env python3
+"""Check retained Layout byte descriptions, source getters and resident descriptor-to-free composition."""
+import argparse
+import copy
+import hashlib
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+DATA = ROOT / 'interop/aeneas/layout-storage'
+MODEL = ROOT / 'FormalProof4FHE/HasteBoots/NativeLayoutBytes.lean'
+PARENT = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-allocator-caller'))
+LAYOUT = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-layout-word64'))
+BUILD = PARENT['BUILD']; PARAMETERS = PARENT['PARAMETERS']
+REIFIER = runpy.run_path(str(ROOT / 'scripts/reify-hasteboots-layout-storage'))
+
+
+def digest(raw): return hashlib.sha256(raw).hexdigest()
+
+
+def inventory():
+    raw = MODEL.read_text(); PARAMETERS['validate_proof_source'](raw, re.findall(r'^theorem (\w+)', raw, re.M))
+    names = re.findall(r'^(?:def|theorem|structure|inductive) ([\w.]+)', raw, re.M)
+    names += ['Words.mk', 'Words.size', 'Words.alignment', 'Result.value', 'Result.invalid']
+    return ['FormalProof4FHE.HasteBoots.NativeLayoutBytes.' + n for n in names]
+
+
+def negatives(ir):
+    records = PARENT['negatives'](ir)
+    def check(name, mutate):
+        changed = copy.deepcopy(ir); mutate(changed['translated'])
+        try: REIFIER['Layout'](changed).render()
+        except (ValueError, KeyError, TypeError, IndexError) as error: records[name] = str(error)
+        else: raise RuntimeError('Negative accepted: ' + name)
+    def layout(c): return c['type_decls'][0]['layout'][0]['value']
+    def align(c): return c['type_decls'][1]['layout'][0]['value']
+    def enum(c): return c['type_decls'][4]['layout'][0]['value']
+    check('layout_field_order', lambda c: layout(c)['variant_layouts'][0].update(field_offsets=[0,8]))
+    check('layout_extent', lambda c: layout(c).update(size=24))
+    check('layout_alignment', lambda c: layout(c).update(align=4))
+    check('layout_uninhabited', lambda c: layout(c).update(uninhabited=True))
+    check('alignment_payload_offset', lambda c: align(c)['variant_layouts'][0].update(field_offsets=[8]))
+    check('alignment_transparency', lambda c: align(c)['repr'].update(transparent=False))
+    check('enum_discriminator_offset', lambda c: enum(c)['discriminator']['Branch'].update(offset=1))
+    check('enum_discriminator_width', lambda c: enum(c)['discriminator']['Branch'].update(int_ty={'Unsigned':'U32'}))
+    check('enum_invalid_fallback', lambda c: enum(c)['discriminator']['Branch'].update(fallback={'Known':0}))
+    check('enum_stored_tag', lambda c: enum(c)['variant_layouts'][0].update(tagger=[[0,{'Unsigned':['U64','3']}]]))
+    check('enum_stored_tag_offset', lambda c: enum(c)['variant_layouts'][0].update(tagger=[[1,{'Unsigned':['U64','1']}]]))
+    check('ambiguous_layout_target', lambda c: c['type_decls'][0]['layout'].append(copy.deepcopy(c['type_decls'][0]['layout'][0])))
+    return records
+
+
+def strip_module(raw):
+    return '\n'.join(line for line in raw.splitlines() if line != 'module' and
+                     not line.startswith('public import ') and line != '@[expose] public section') + '\n'
+
+
+def assemble():
+    preamble = ('import FormalProof4FHE.HasteBoots.NativeLayoutBytes\n'
+                'import FormalProof4FHE.HasteBoots.NativeRecordLLBC\nimport Aeneas.Std\n'
+                'import Aeneas.Tactic.RustAttributes\nimport Aeneas.Data.Discriminant\n')
+    root = ROOT / 'interop/aeneas'
+    pieces = [(root/'layout-word64/Generated.lean').read_text().replace('import Aeneas\n', ''),
+              (root/'byte-memory/Layout.lean').read_text(), strip_module((root/'allocator-caller/Generated.lean').read_text()),
+              (root/'allocator-caller/Proof.lean').read_text(), strip_module((DATA/'Generated.lean').read_text()),
+              *[(DATA/n).read_text() for n in ['Proof.lean','Source.lean','Smoke.lean','SourceSmoke.lean']]]
+    return preamble + '\n'.join(pieces)
+
+
+def audit_names():
+    names = inventory()
+    groups = [('HasteBootsLayoutStorage', DATA/'Generated.lean'), ('HasteBootsLayoutStorage', DATA/'Proof.lean'),
+              ('HasteBootsLayoutStorage.Source', DATA/'Source.lean'),
+              ('HasteBootsAllocatorCaller', ROOT/'interop/aeneas/allocator-caller/Generated.lean'),
+              ('HasteBootsAllocatorCaller', ROOT/'interop/aeneas/allocator-caller/Proof.lean'),
+              ('HasteBootsByteMemoryLayout', ROOT/'interop/aeneas/byte-memory/Layout.lean')]
+    for namespace, path in groups:
+        raw = path.read_text(); PARAMETERS['validate_proof_source'](raw, re.findall(r'^theorem (\w+)', raw, re.M))
+        names += [namespace+'.'+n for n in re.findall(r'^(?:def|theorem|abbrev) ([\w.]+)', raw, re.M)]
+    raw = (ROOT/'interop/aeneas/layout-word64/Generated.lean').read_text()
+    names += [LAYOUT['NAMESPACE']+'.'+n for n in re.findall(r'^(?:@\[[^\n]*\] )?(?:def|structure|inductive) ([^\s:(]+)', raw, re.M)]
+    return names + [LAYOUT['NAMESPACE']+'.core.mem.alignment.AlignmentEnum.read_discriminant']
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__); parser.add_argument('--build-receipt', type=Path, required=True); parser.add_argument('--backend', type=Path, required=True); args = parser.parse_args()
+    out = Path(tempfile.mkdtemp(prefix='layout-storage-', dir=ROOT/'build/hasteboots-extraction'))
+    record = {'status':'started', 'commands':[],
+              'claim':'retained target Layout bytes, actual source getters and checked resident-read/caller composition; native calling-convention/compiler/lifetime/security refinement unproved',
+              'retained_field_offsets_checked':True, 'resident_permission_checked_read':True,
+              'original_source_getters_linked':True, 'native_calling_convention_refinement':False,
+              'native_constructor_accepted':False, 'physical_work_refinement':False}
+    def save(): (out/'manifest.json').write_text(json.dumps(record,indent=2)+'\n')
+    def run(command, log):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out/log).open('w') as stream:
+            result = subprocess.run([str(x) for x in command],cwd=ROOT,stdout=stream,stderr=subprocess.STDOUT)
+        if result.returncode: raise RuntimeError('Command failed: '+log)
+    def parent_manifest(log):
+        path = Path((out/log).read_text().splitlines()[0].split(': ',1)[1])/'manifest.json'; value = json.loads(path.read_text())
+        if value.get('status') != 'passed' or value['build_receipt_sha256'] != record['build_receipt_sha256']: raise RuntimeError('Parent did not pass with the same tools')
+        return path,value
+    print('Layout storage artifacts: '+str(out),flush=True)
+    try:
+        BUILD['verify_receipt'](args.build_receipt); record['build_receipt_sha256'] = digest(args.build_receipt.read_bytes())
+        record['backend_patches'] = PARAMETERS['verify_backend'](args.backend.resolve(),out)
+        files = [Path(__file__), ROOT/'scripts/reify-hasteboots-layout-storage', ROOT/'scripts/reify-hasteboots-allocator-caller',
+                 ROOT/'scripts/check-hasteboots-allocator-caller', ROOT/'scripts/check-hasteboots-layout-word64', MODEL,
+                 ROOT/'FormalProof4FHETest/HasteBootsLayoutBytesSmoke.lean', ROOT/'FormalProof4FHETest/HasteBootsLayoutBytesAudit.lean',
+                 ROOT/'interop/aeneas/allocator-caller/Generated.lean', ROOT/'interop/aeneas/allocator-caller/Proof.lean',
+                 ROOT/'interop/aeneas/byte-memory/Layout.lean', ROOT/'interop/aeneas/layout-word64/Generated.lean', ROOT/'lean-toolchain',
+                 *[DATA/n for n in ['Generated.lean','Retained.json','Proof.lean','Source.lean','Smoke.lean','SourceSmoke.lean']]]
+        record['inputs'] = {str(p.relative_to(ROOT)):digest(p.read_bytes()) for p in files}
+        run([ROOT/'scripts/in-container','lake','build','FormalProof4FHETest.HasteBootsLayoutBytesSmoke','FormalProof4FHETest.HasteBootsLayoutBytesAudit'],'root-build.log')
+        run([ROOT/'scripts/check-hasteboots-allocator-caller','--build-receipt',args.build_receipt],'parent-allocator-caller.log')
+        caller_path, caller = parent_manifest('parent-allocator-caller.log')
+        record['parent_allocator_caller'] = {'manifest':str(caller_path.relative_to(ROOT)),'manifest_sha256':digest(caller_path.read_bytes()),'dependency_audit_count':len(caller['dependency_audit'])}
+        # The caller manifest binds the fresh source hash; its deallocation parent
+        # retains the extraction itself. Resolve both receipts and verify the hash.
+        deallocation_path = ROOT/caller['parent_byte_deallocation']['manifest']
+        llbc = deallocation_path.parent/'source.llbc'
+        if digest(llbc.read_bytes()) != caller['llbc_sha256']: raise RuntimeError('Caller source hash differs')
+        ir = json.loads(llbc.read_text()); value = REIFIER['Layout'](ir)
+        if value.render() != (DATA/'Generated.lean').read_text() or value.retained() != json.loads((DATA/'Retained.json').read_text()): raise RuntimeError('Retained byte description differs')
+        record['negative_controls'] = negatives(ir)
+        run([ROOT/'scripts/check-hasteboots-layout-word64','--build-receipt',args.build_receipt,'--backend',args.backend],'parent-source-layout.log')
+        source_path, source = parent_manifest('parent-source-layout.log')
+        record['parent_source_layout'] = {'manifest':str(source_path.relative_to(ROOT)),'manifest_sha256':digest(source_path.read_bytes()),'dependency_audit_count':len(source['dependency_audit'])}
+        names = audit_names(); checked = out/'Checked.lean'; checked.write_text(assemble()+''.join('\n#print axioms '+n+'\n' for n in names))
+        command = ('project_path=$(lake env printenv LEAN_PATH); cd -- "$1"; backend_path=$(lake env printenv LEAN_PATH); '
+                   'LEAN_PATH="$project_path:$backend_path" lean -DwarningAsError=true "$2"')
+        run([ROOT/'scripts/in-container','bash','-euc',command,'_',LAYOUT['COMMON']['container_path'](args.backend.resolve()/'backends/lean'),LAYOUT['COMMON']['container_path'](checked)],'lean.log')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out/'lean.log').read_text(),names)
+        record['llbc_sha256'] = digest(llbc.read_bytes()); record['checked_sha256'] = digest(checked.read_bytes())
+        if record['inputs'] != {str(p.relative_to(ROOT)):digest(p.read_bytes()) for p in files}: raise RuntimeError('Inputs changed during validation')
+        BUILD['verify_receipt'](args.build_receipt); record['status'] = 'passed'
+        print('Layout storage passed: '+str(len(names))+' audits; '+str(len(record['negative_controls']))+' rejecting controls; checked bytes feed the original caller')
+    except Exception as error:
+        record.update(status='failed',error=str(error)); raise SystemExit(str(error)+'; inspect '+str(out)) from error
+    finally:
+        record['logs'] = {p.name:digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__': main()
