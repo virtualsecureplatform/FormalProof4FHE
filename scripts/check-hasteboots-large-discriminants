@@ -1,0 +1,144 @@
+#!/usr/bin/env python3
+"""Check arbitrary-precision enum values and the remaining large-usize backend rejection."""
+import argparse
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+BASE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-inline-equivalence'))
+RANGES = runpy.run_path(str(ROOT / 'scripts/probe-hasteboots-u32-ranges'))
+BUILD, PARAMETERS, COMMON, digest = BASE['BUILD'], BASE['PARAMETERS'], BASE['COMMON'], BASE['digest']
+DATA = ROOT / 'interop/aeneas/large-discriminants'
+PROOFS = ['preserve_exact', 'u64_zero', 'u64_high', 'u64_last', 'u128_zero', 'u128_last', 'u64_high_value', 'u128_last_value']
+NAMESPACE = 'hasteboots_wide_discriminants'
+
+
+def validate_output(raw):
+    PARAMETERS['verify_snapshot'](raw, (DATA / 'WideGenerated.lean').read_text())
+    PARAMETERS['validate_proof_source']((DATA / 'Proof.lean').read_text(), PROOFS)
+    return RANGES['validate_output'](raw, NAMESPACE, ['preserve', 'cast_u64', 'cast_u128'])
+
+
+WIDE_ENUMS = {
+    'Wide64': ('U64', [('Zero', 0), ('High', 2**63), ('Last', 2**64-1)]),
+    'Wide128': ('U128', [('Zero', 0), ('Last', 2**128-1)])}
+ORIGINAL_ENUMS = {
+    'AlignmentBoundary': ('Usize', [('One', 1), ('High', 2**63), ('Last', 2**64-1)]),
+    'Wide64': ('U64', [('Zero', 0), ('Last', 2**64-1)]),
+    'Wide128': WIDE_ENUMS['Wide128']}
+
+
+def inspect_enums(ir, expected):
+    BASE['BASE']['BASE']['validate_ir'](ir)
+    if ir['translated'].get('options', {}).get('monomorphize') is not True:
+        raise RuntimeError('Expected monomorphic discriminant IR')
+    found = {}
+    for decl in ir['translated']['type_decls']:
+        if not isinstance(decl, dict) or not isinstance(decl.get('kind'), dict): continue
+        variants = decl['kind'].get('Enum')
+        if variants is None: continue
+        names = [x['Ident'][0] for x in decl['item_meta']['name'] if 'Ident' in x]
+        name = names[-1]
+        if name not in expected or name in found: raise RuntimeError('Unexpected enum: ' + name)
+        kind, values = expected[name]
+        actual = []
+        for variant in variants:
+            value = variant.get('discriminant', {}).get('Scalar', {}).get('Unsigned')
+            if not isinstance(value, list) or len(value) != 2 or value[0] != kind:
+                raise RuntimeError('Wrong discriminant scalar')
+            actual.append((variant['name'], int(value[1])))
+        if actual != values: raise RuntimeError('Discriminant values differ')
+        found[name] = actual
+    if set(found) != set(expected): raise RuntimeError('Missing source enum')
+    return found
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--build-receipt', type=Path, required=True)
+    parser.add_argument('--backend', type=Path, required=True)
+    args = parser.parse_args()
+    parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
+    out = Path(tempfile.mkdtemp(prefix='large-discriminants-', dir=parent))
+    record = {'status': 'started', 'claim': 'wide enum discriminant regression; large usize backend/native heap/work/security unproved',
+              'script_sha256': digest(Path(__file__).read_bytes()), 'commands': []}
+    def save(): (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
+    def run(command, log, required=True):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out / log).open('w') as stream:
+            status = subprocess.run([str(x) for x in command], cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT).returncode
+        if required and status: raise RuntimeError(log + ' exited ' + str(status))
+        return status
+    print('Large discriminant artifacts: ' + str(out), flush=True); save()
+    try:
+        _, tools, _ = BUILD['verify_receipt'](args.build_receipt)
+        record['build_receipt_sha256'] = digest(args.build_receipt.read_bytes())
+        record['backend_patches'] = PARAMETERS['verify_backend'](args.backend.resolve(), out)
+        files = ['fixture.rs', 'wide.rs', 'Generated.lean', 'WideGenerated.lean', 'Proof.lean']
+        record['inputs'] = {name: digest((DATA / name).read_bytes()) for name in files}
+        def extract(source, name, namespace=NAMESPACE):
+            llbc = out / (name + '.llbc')
+            run([tools / 'charon', 'rustc', '--preset=aeneas', '--monomorphize', '--dest-file', llbc,
+                 '--', '--crate-type', 'lib', '--edition', '2024', '--crate-name', namespace,
+                 (DATA / source).relative_to(ROOT)], name + '-charon.log')
+            return llbc
+        options = ['-backend', 'lean', '-checks', '-sequential', '-max-heartbeats', '200000', '-max-recdepth', '1000',
+                   '-abort-on-error', '-no-external-name-patterns', '-disambiguate-instantiated-names']
+        def frontend(llbc, name, enabled=True, required=True):
+            return run([tools / 'aeneas', *options, *(['-monomorphic-builtin-shapes'] if enabled else []),
+                        '-dest', out / name, llbc], name + '-frontend.log', required)
+        llbc = extract('wide.rs', 'positive')
+        inspect_enums(json.loads(llbc.read_text()), WIDE_ENUMS)
+        frontend(llbc, 'positive')
+        BASE['BASE']['validate_frontend_log']((out / 'positive-frontend.log').read_text())
+        generated = list((out / 'positive').glob('*.lean'))
+        if len(generated) != 1: raise RuntimeError('Expected complete single generated module')
+        raw = generated[0].read_text()
+        runtime = validate_output(raw)
+        names = [NAMESPACE + '.' + n for n in ['preserve', 'cast_u64', 'cast_u128']]
+        names += ['HasteBootsLargeDiscriminantProof.' + n for n in PROOFS]
+        names += [NAMESPACE + '.' + n + '.read_discriminant' for n in ['Wide64', 'Wide128']]
+        checked = out / 'Checked.lean'
+        checked.write_text('import Aeneas.Std\nimport Aeneas.Data.Discriminant\n' + runtime + '\n'
+                           + (DATA / 'Proof.lean').read_text()
+                           + ''.join('\n#print axioms ' + n + '\n' for n in names))
+        run([ROOT / 'scripts/in-container', 'bash', '-euc', 'cd -- "$1"; lake env lean -DwarningAsError=true "$2"', '_',
+             COMMON['container_path'](args.backend.resolve() / 'backends/lean'), COMMON['container_path'](checked)], 'lean.log')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), names)
+        record.update(llbc_sha256=digest(llbc.read_bytes()), checked_sha256=digest(checked.read_bytes()))
+        # This original usize fixture now translates, but its complete Lean
+        # module must still reject at the portable usize literal boundary.
+        bad = extract('fixture.rs', 'usize', 'hasteboots_large_discriminants')
+        inspect_enums(json.loads(bad.read_text()), ORIGINAL_ENUMS)
+        frontend(bad, 'usize')
+        BASE['BASE']['validate_frontend_log']((out / 'usize-frontend.log').read_text())
+        generated = list((out / 'usize').glob('*.lean'))
+        if len(generated) != 1: raise RuntimeError('Incomplete usize enum module')
+        raw = generated[0].read_text()
+        PARAMETERS['verify_snapshot'](raw, (DATA / 'Generated.lean').read_text())
+        runtime = RANGES['validate_output'](raw, 'hasteboots_large_discriminants',
+                                          ['preserve', 'cast_usize', 'cast_u64', 'cast_u128'])
+        rejected = out / 'UsizeRejected.lean'
+        rejected.write_text('import Aeneas.Std\nimport Aeneas.Data.Discriminant\n' + runtime)
+        status = run([ROOT / 'scripts/in-container', 'bash', '-euc', 'cd -- "$1"; lake env lean -DwarningAsError=true "$2"', '_',
+                      COMMON['container_path'](args.backend.resolve() / 'backends/lean'), COMMON['container_path'](rejected)], 'usize-lean.log', False)
+        log = (out / 'usize-lean.log').read_text()
+        if status == 0 or 'scalar_tac failed' not in log or '9223372036854775808' not in log:
+            raise RuntimeError('Unexpected usize backend boundary')
+        record['rejected'] = ['large usize portable literal']
+        if record['inputs'] != {name: digest((DATA / name).read_bytes()) for name in files}:
+            raise RuntimeError('Input changed during check')
+        BUILD['verify_receipt'](args.build_receipt)
+        record['status'] = 'passed'; print('Large discriminants passed: 13 dependency audits; large usize backend rejection retained')
+    except (Exception, SystemExit) as error:
+        record.update(status='failed', error=str(error)); raise SystemExit('Large discriminant check failed; inspect ' + str(out) + ': ' + str(error)) from error
+    finally:
+        record['logs'] = {p.name: digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__':
+    main()

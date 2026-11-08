@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+"""Reject truncated enum values, changed snapshots and incomplete proofs."""
+import copy
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+GATE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-large-discriminants'))
+
+
+def fixture():
+    return {'has_errors': False, 'translated': {
+        'target_information': [{'key': 'x86_64-unknown-linux-gnu', 'value': {
+            'target_pointer_size': 8, 'is_little_endian': True}}],
+        'options': {'monomorphize': True},
+        'type_decls': [{'item_meta': {'name': [{'Ident': [name, 0]}]},
+                        'kind': {'Enum': [{'name': variant, 'discriminant': {
+                            'Scalar': {'Unsigned': [kind, str(value)]}}}
+                            for variant, value in variants]}}
+                       for name, (kind, variants) in GATE['WIDE_ENUMS'].items()]}}
+
+
+class Guards(unittest.TestCase):
+    def test_complete_snapshot_and_ir(self):
+        GATE['validate_output']((GATE['DATA'] / 'WideGenerated.lean').read_text())
+        GATE['inspect_enums'](fixture(), GATE['WIDE_ENUMS'])
+
+    def test_truncated_or_missing_discriminants(self):
+        for mutate in [lambda x: x['translated']['type_decls'].pop(),
+                       lambda x: x['translated']['options'].update(monomorphize=False),
+                       lambda x: x['translated']['type_decls'][0]['kind']['Enum'][1]['discriminant']['Scalar']['Unsigned'].__setitem__(1, '0'),
+                       lambda x: x['translated']['type_decls'][1]['kind']['Enum'][1]['discriminant']['Scalar']['Unsigned'].__setitem__(0, 'U64')]:
+            ir = copy.deepcopy(fixture()); mutate(ir)
+            with self.assertRaises(RuntimeError): GATE['inspect_enums'](ir, GATE['WIDE_ENUMS'])
+
+    def test_changed_output_or_admission(self):
+        raw = (GATE['DATA'] / 'WideGenerated.lean').read_text()
+        for bad in [raw.replace('340282366920938463463374607431768211455', '18446744073709551615'),
+                    raw.replace('9223372036854775808', '0'),
+                    raw.replace('ok value', 'sorry'), raw.replace('end hasteboots_wide_discriminants', '')]:
+            with self.assertRaises(RuntimeError): GATE['validate_output'](bad)
+
+    def test_missing_proof(self):
+        proof = (GATE['DATA'] / 'Proof.lean').read_text().replace('theorem u128_last_value', 'theorem missing')
+        with self.assertRaises(RuntimeError):
+            GATE['PARAMETERS']['validate_proof_source'](proof, GATE['PROOFS'])
+
+
+if __name__ == '__main__':
+    unittest.main()

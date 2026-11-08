@@ -351,7 +351,7 @@ index 6e28b984..119843cd 100644
    @ mk_scalar_fun
        (fun ty -> "core::num::{" ^ ty ^ "}::leading_zeros")
 diff --git a/src/extract/ExtractTypes.ml b/src/extract/ExtractTypes.ml
-index 37171763..cc16c469 100644
+index 37171763..94317a33 100644
 --- a/src/extract/ExtractTypes.ml
 +++ b/src/extract/ExtractTypes.ml
 @@ -10,10 +10,22 @@ module T = Types
@@ -413,6 +413,25 @@ index 37171763..cc16c469 100644
          match generics with
          | None ->
              [
+@@ -1554,14 +1575,16 @@ let extract_type_decl_gen (ctx : extraction_ctx) (fmt : F.formatter)
+          if
+            List.for_all
+              (fun b -> b)
+-             (List.mapi (fun i (v : variant) -> v.discriminant = i) variants)
++             (List.mapi
++                (fun i (v : variant) -> Z.equal v.discriminant (Z.of_int i))
++                variants)
+          then [ "discriminant " ^ discr_ty ]
+          else
+            [
+              "discriminant " ^ discr_ty ^ " ["
+              ^ String.concat ","
+                  (List.map
+-                    (fun (v : variant) -> string_of_int v.discriminant)
++                    (fun (v : variant) -> Z.to_string v.discriminant)
+                     variants)
+              ^ "]";
+            ]
 diff --git a/src/interp/InterpExpansion.ml b/src/interp/InterpExpansion.ml
 index 52b94675..951b56d9 100644
 --- a/src/interp/InterpExpansion.ml
@@ -683,7 +702,7 @@ index 6f10d6ae..fb94bea8 100644
              [%craise_opt_span] span "Unreachable"
          | TResult ->
 diff --git a/src/pure/Pure.ml b/src/pure/Pure.ml
-index c898d123..c8f8878c 100644
+index c898d123..8ec1296b 100644
 --- a/src/pure/Pure.ml
 +++ b/src/pure/Pure.ml
 @@ -88,6 +88,7 @@ type builtin_ty =
@@ -694,6 +713,15 @@ index c898d123..c8f8878c 100644
    | TRawPtr of mutability
        (** The bool Raw pointers don't make sense in the pure world, but we don't
            know how to translate them yet and we have to handle some functions
+@@ -807,7 +808,7 @@ and variant = {
+   variant_name : string;
+   fields : field list;
+   variant_attr_info : (attr_info[@opaque]);
+-  discriminant : int;
++  discriminant : V.big_int;
+   ty : literal_type;
+ }
+ 
 diff --git a/src/pure/PureTypeCheck.ml b/src/pure/PureTypeCheck.ml
 index e9a07a43..ddaead12 100644
 --- a/src/pure/PureTypeCheck.ml
@@ -708,7 +736,7 @@ index e9a07a43..ddaead12 100644
               the array expressions are introduced as struct updates *)
            [%craise] span "Attempting to access the fields of an opaque type")
 diff --git a/src/symbolic/SymbolicToPureTypes.ml b/src/symbolic/SymbolicToPureTypes.ml
-index 5ea3e9be..3b135265 100644
+index 5ea3e9be..277d5d47 100644
 --- a/src/symbolic/SymbolicToPureTypes.ml
 +++ b/src/symbolic/SymbolicToPureTypes.ml
 @@ -5,6 +5,15 @@ open FunsAnalysis
@@ -735,6 +763,17 @@ index 5ea3e9be..3b135265 100644
    | TNever -> TNever
    | TRef (_, rty, _) -> translate span rty
    | TRawPtr (ty, rkind) ->
+@@ -257,8 +267,8 @@ let translate_variant (span : Meta.span) (v : T.variant) : variant =
+   let variant_attr_info = v.attr_info in
+   let discriminant, ty =
+     match v.discriminant with
+-    | VScalar (SignedScalar (ty, v)) -> (Z.to_int v, TInt ty)
+-    | VScalar (UnsignedScalar (ty, v)) -> (Z.to_int v, TUInt ty)
++    | VScalar (SignedScalar (ty, v)) -> (v, TInt ty)
++    | VScalar (UnsignedScalar (ty, v)) -> (v, TUInt ty)
+     | _ ->
+         [%craise] span
+           "Internal error, please report an issue: found an enumeration \
 @@ -311,6 +321,40 @@ let translate_type_decl (ctx : Contexts.decls_ctx) (def : T.type_decl) :
      match_name_find_opt ctx def.item_meta.name
        (ExtractBuiltin.builtin_types_map ())
