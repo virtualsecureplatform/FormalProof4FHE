@@ -139,3 +139,11 @@ Next work is the native static-error borrow handling in `Result::branch`, then
 original String cleanup and the constructor/model bridge, followed by native
 heap/work refinement and the complete security plan. No production Rust is
 modified by these fixtures or compiler patches.
+
+`static-result-input.rs` isolates the next failure further: extracting only
+`hasteboots_static_result_input::error_field`, with monomorphization and no
+inline selections, fails the missing-borrow invariant when reading the static
+string field of an input `Error`. The same file includes result propagation
+and an explicit result match for subsequent regression checks. This establishes
+that the failure also concerns symbolic static-reference inputs, independently
+of the native constructor or a `Result::branch` call.
