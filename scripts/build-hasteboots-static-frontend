@@ -15,7 +15,8 @@ DATA = ROOT / 'interop/aeneas/static-strings'
 PROFILES = {'static-strings': DATA, 'usize-ctlz': ROOT / 'interop/aeneas/usize-ctlz',
             'constructor-typing': ROOT / 'interop/aeneas/constructor-typing',
             'static-slices': ROOT / 'interop/aeneas/static-slices',
-            'static-bytes': ROOT / 'interop/aeneas/static-bytes'}
+            'static-bytes': ROOT / 'interop/aeneas/static-bytes',
+            'metadata-mono': ROOT / 'interop/aeneas/metadata-mono'}
 
 
 def digest(data):

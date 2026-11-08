@@ -75,14 +75,14 @@ def main():
                 raise RuntimeError('Official tool hash differs: ' + name)
         manifest['backend_patches'] = PARAMETERS['verify_backend'](backend, artifacts)
         receipt = json.loads(args.build_receipt.read_text())
-        if receipt.get('profile') != 'static-bytes':
+        if receipt.get('profile') not in ['static-bytes', 'metadata-mono']:
             raise RuntimeError('Wrong frontend profile')
         if receipt.get('status') != 'passed':
             raise RuntimeError('Frontend build receipt did not pass')
         if receipt.get('script_sha256') != digest((ROOT / 'scripts/build-hasteboots-static-frontend').read_bytes()):
             raise RuntimeError('Stale frontend builder policy')
         source = Path(receipt['source'])
-        patch_hash = BUILD['verify_source'](source, 'static-bytes')
+        patch_hash = BUILD['verify_source'](source, receipt['profile'])
         if receipt.get('patch_sha256') != patch_hash:
             raise RuntimeError('Stale frontend patch receipt')
         profile_hash = digest((BUILD['DATA'] / 'opam-packages.json').read_bytes())
