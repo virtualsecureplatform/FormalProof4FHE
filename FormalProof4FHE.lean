@@ -622,3 +622,5 @@ import FormalProof4FHE.HasteBoots.NativeGoldLookupFraming
 import FormalProof4FHE.HasteBoots.NativePointerStorage
 import FormalProof4FHE.HasteBoots.NativeGoldPointerRegistry
 import FormalProof4FHE.HasteBoots.NativeGoldPointerAssociation
+
+import FormalProof4FHE.HasteBoots.NativeByteMemory
