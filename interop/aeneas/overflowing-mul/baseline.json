@@ -1,0 +1,12 @@
+{
+  "claim": "baseline original overflowing_mul extraction rejection before MulChecked support",
+  "fixture_sha256": "64816c42d9d8532896acdfa8b5dd2c210996fff21440d3a786f7f0e54e345d80",
+  "llbc_sha256": "ce5e864051e19074677f3de287ac5b69a774cefe992b8aeeb49e540d262a6132",
+  "build_receipt_sha256": "8c395a0e11430253688dd64e89ef6e4f410ad5d08812b982ff9fdae503bc171e",
+  "frontend_exit_code": 2,
+  "frontend_log_sha256": "74a0ef975b8d4253817e4999b993b2b68199f23a0056fc56da8e5bc630eab902",
+  "native_manifest_sha256": "9a991fa9b4fd39b13c06e82842246547024d9af5b7d9e008d1799993250a2893",
+  "native_llbc_sha256": "347b6ce79def6b00504474f435a7eb4ec90de582d0ef9e9f24387037b441e3ad",
+  "native_frontend_log_sha256": "a67436209bfdfdada831df9ae611ed574577bfa14b2368a216667eaa94684033",
+  "diagnostic": "Unimplemented binary operation; original uint_macros.rs:3178 overflowing_mul"
+}
