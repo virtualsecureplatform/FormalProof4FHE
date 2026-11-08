@@ -7,6 +7,36 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Concrete native row metadata now has a checked value bridge
+
+`extract-hasteboots-metadata-mono` resolves the concrete Goldilocks calls through
+pinned Charon monomorphization and raw constants. It preserves all obligations
+and rejects unresolved specialization clauses or erased/body signature regions.
+The actual native block-width, codeword-block and domain-separator methods are
+included, together with the complete code and Goldilocks carriers.
+
+The isolated frontend exposes an optional mode omitting external Rust-name
+pattern annotations, whose printer currently asserts on monomorphized names.
+Full instantiated source names/spans, LLBC and the reviewed generated snapshot
+remain available. Only annotations change; generated terms, types, constraints
+and interpreter checks do not. The default annotation mode is unchanged.
+
+Eleven kernel theorems prove exact metadata values, both representation round
+trips preserving all six stored fields, decoded-parameter correspondence, and
+metadata of the receipt-selected original native registry entry. Fresh extraction
+passed 130 combined dependency audits, plus the 43-audit frontend regression.
+Associated-type equality controls pass while two recursive interfaces remain
+rejected, including their misleading zero-exit/error-output case.
+
+This is concrete metadata value refinement. Generic NTT interfaces, constructors,
+heap/ABI identity, Serde/bincode, context hashing, the private native first-owner
+loop and the final physical-work/security theorem remain open.
+
+Validation: 71 guard tests passed, along with formatting, clean patch application
+and upstream traits/arrays regeneration. The final extraction artifacts link
+the 107-audit source preflight and 43-audit frontend regression manifests and
+record locked Cargo, source, generated-output and proof hashes.
+
 ## Raw constant references preserve the native domain-tag data
 
 The separate `static-bytes` frontend profile handles explicit shared constant
