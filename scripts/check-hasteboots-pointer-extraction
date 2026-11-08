@@ -131,14 +131,14 @@ def main():
             raise RuntimeError('Unchecked pointer word width accepted')
         record['rejected'].append('without-word64')
         for name, scopes, error in [
-            ('nonnull', ['core::ptr::non_null'], 'Unsupported scalar pattern type'),
+            ('nonnull', ['core::ptr::non_null'], 'Non-null pointer patterns require provenance pointers'),
             ('slice-cast', [], 'Raw ptr casts are only supported between pointers to literal types')]:
             path = out / (name + '.llbc')
             run([tools / 'charon', 'rustc', '--preset=aeneas', '--sysroot', 'default', '--monomorphize', '--mir', 'optimized',
                  *[arg for scope in scopes for arg in ['--include', scope]], '--dest-file', path,
                  '--', '--crate-type', 'lib', '--edition', '2024', '--crate-name', 'bad_' + name.replace('-', '_'),
                  DATA / ('unsupported-' + name + '.rs')], name + '-charon.log')
-            status = frontend(path, name, required=False)
+            status = frontend(path, name, required=False, provenance=name != 'nonnull')
             if status == 0 or error not in (out / (name + '-frontend.log')).read_text():
                 raise RuntimeError('Unsupported pointer operation accepted: ' + name)
             record['rejected'].append(name)

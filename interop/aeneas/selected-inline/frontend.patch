@@ -82,10 +82,10 @@ index 8073dba6..648c2a1a 100644
        if
          !opt_backend = Some Lean && !extract_decreases_clauses
 diff --git a/src/PrePasses.ml b/src/PrePasses.ml
-index b613aba1..a7653ed0 100644
+index b613aba1..a275758b 100644
 --- a/src/PrePasses.ml
 +++ b/src/PrePasses.ml
-@@ -87,6 +87,820 @@ let erase_body_regions (crate : crate) (f : fun_decl) : fun_decl =
+@@ -87,6 +87,964 @@ let erase_body_regions (crate : crate) (f : fun_decl) : fun_decl =
      ^ Print.fun_decl_to_string env "" "  " f];
    f
  
@@ -282,7 +282,10 @@ index b613aba1..a7653ed0 100644
 +              match field with
 +              | Some field -> (
 +                  match field.field_ty with
-+                  | TPattern (base, pattern) when base = dst ->
++                  | TPattern (base, pattern)
++                    when base = dst
++                         && not (TypesAnalysis.is_nonnull_pointer base pattern)
++                    ->
 +                      let scalar_kind, _, _ =
 +                        TypesAnalysis.unsigned_range_bounds
 +                          (Some f.item_meta.span) base pattern
@@ -340,6 +343,147 @@ index b613aba1..a7653ed0 100644
 +          f with
 +          body =
 +            StructuredBody { body with body = visitor#visit_block () body.body };
++        }
++    | _ -> f
++
++(** Decompose an outward transmute of a closed transparent non-null pointer
++    carrier only after checking its target layout. Keep the non-null field until
++    its proof-erasing projection; use the existing raw cast for mutability. *)
++let decompose_nonnull_transmutes (crate : crate) (f : fun_decl) : fun_decl =
++  if not !Config.provenance_pointers then f
++  else
++    match f.body with
++    | StructuredBody body ->
++        let new_locals = ref [] in
++        let _, gen =
++          LocalId.mk_stateful_generator_starting_at_id
++            (LocalId.of_int (List.length body.locals.locals))
++        in
++        let visitor =
++          object
++            inherit [_] map_statement as super
++
++            method! visit_block env block =
++              let convert st =
++                let st = super#visit_statement env st in
++                match st.kind with
++                | Assign
++                    ( dest,
++                      UnaryOp
++                        ( Cast
++                            (CastTransmute
++                               ( (TAdt { id = TAdtId id; generics } as src),
++                                 (TRawPtr (TLiteral _, _) as dst) )),
++                          op ) ) -> (
++                    let decl = TypeDeclId.Map.find id crate.type_decls in
++                    match decl.kind with
++                    | Struct
++                        [
++                          {
++                            field_ty =
++                              TPattern
++                                ((TRawPtr (TLiteral _, _) as base), NotNull) as
++                              field_ty;
++                            _;
++                          };
++                        ] ->
++                        [%cassert] st.span
++                          (generics = empty_generic_args
++                          && decl.generics = empty_generic_params)
++                          "Non-null carrier requires a closed declaration";
++                        [%cassert] st.span
++                          (match (decl.layout, crate.target_information) with
++                          | [ (target, layout) ], [ (actual, info) ] -> (
++                              target = actual
++                              && info.target_pointer_size = 8
++                              && info.is_little_endian && layout.size = Some 8
++                              && layout.align = Some 8
++                              && layout.repr.transparent
++                              && (not layout.uninhabited)
++                              && layout.repr.align_modif = None
++                              && layout.discriminator
++                                 = Some (Known VariantId.zero)
++                              &&
++                              match layout.variant_layouts with
++                              | [ Some variant ] ->
++                                  variant.field_offsets = [ 0 ]
++                                  && (not variant.uninhabited)
++                                  && variant.tagger = []
++                              | _ -> false)
++                          | _ -> false)
++                          "Non-null carrier requires a checked transparent \
++                           pointer layout";
++                        let project (place : place) =
++                          [%sanity_check] st.span (place.ty = src);
++                          {
++                            kind =
++                              PlaceProjection
++                                (place, Field (ProjAdt (id, None), FieldId.zero));
++                            ty = field_ty;
++                          }
++                        in
++                        let op =
++                          match op with
++                          | Move p -> Move (project p)
++                          | Copy p -> Copy (project p)
++                          | Constant _ ->
++                              [%craise] st.span
++                                "Constant non-null carrier is unsupported"
++                        in
++                        let index = gen () in
++                        new_locals :=
++                          {
++                            index;
++                            local_ty = base;
++                            name = None;
++                            span = st.span;
++                          }
++                          :: !new_locals;
++                        let temporary =
++                          { kind = PlaceLocal index; ty = base }
++                        in
++                        let statement kind = { st with kind } in
++                        [
++                          statement (StorageLive index);
++                          statement
++                            (Assign
++                               ( temporary,
++                                 UnaryOp
++                                   (Cast (CastTransmute (field_ty, base)), op)
++                               ));
++                          statement
++                            (Assign
++                               ( dest,
++                                 if base = dst then Use (Move temporary, NoRetag)
++                                 else
++                                   UnaryOp
++                                     ( Cast (CastRawPtr (base, dst)),
++                                       Move temporary ) ));
++                          statement (StorageDead index);
++                        ]
++                    | _ -> [ st ])
++                | _ -> [ st ]
++              in
++              {
++                block with
++                statements = List.concat_map convert block.statements;
++              }
++          end
++        in
++        let block = visitor#visit_block () body.body in
++        {
++          f with
++          body =
++            StructuredBody
++              {
++                body with
++                body = block;
++                locals =
++                  {
++                    body.locals with
++                    locals = body.locals.locals @ List.rev !new_locals;
++                  };
++              };
 +        }
 +    | _ -> f
 +
@@ -906,7 +1050,7 @@ index b613aba1..a7653ed0 100644
  (** Replace the occurrences of [core::intrinsics::unreachable] with
      [Abort UndefinedBehavior]. This helps with the analyzes and the symbolic
      evaluation (in particular, we stop the evaluation when encountering an
-@@ -979,20 +1793,26 @@ let filter_marker_traits (crate : crate) : crate =
+@@ -979,20 +1937,26 @@ let filter_marker_traits (crate : crate) : crate =
    let mctx = NameMatcher.ctx_from_crate crate in
    let pats =
      List.map NameMatcher.parse_pattern
@@ -947,7 +1091,7 @@ index b613aba1..a7653ed0 100644
    in
    let match_config =
      {
-@@ -1306,6 +2126,12 @@ let decompose_str_borrows (_ : crate) (f : fun_decl) : fun_decl =
+@@ -1306,6 +2270,12 @@ let decompose_str_borrows (_ : crate) (f : fun_decl) : fun_decl =
                *)
                method! visit_Constant env (cv : constant_expr) =
                  match (cv.kind, cv.ty) with
@@ -960,7 +1104,7 @@ index b613aba1..a7653ed0 100644
                  | ( CLiteral (VStr str),
                      TRef
                        (_, (TAdt { id = TBuiltin TStr; _ } as str_ty), ref_kind)
-@@ -2126,6 +2952,36 @@ let simplify_trait_calls (crate : crate) : crate =
+@@ -2126,6 +3096,36 @@ let simplify_trait_calls (crate : crate) : crate =
    let impls_to_explore = ref [] in
    let used_funs = ref FunDeclId.Set.empty in
  
@@ -997,7 +1141,7 @@ index b613aba1..a7653ed0 100644
    (* First explore the transparent functions *)
    let visitor =
      object
-@@ -2142,7 +2998,8 @@ let simplify_trait_calls (crate : crate) : crate =
+@@ -2142,7 +3142,8 @@ let simplify_trait_calls (crate : crate) : crate =
    in
    FunDeclId.Map.iter
      (fun _ (f : fun_decl) ->
@@ -1007,7 +1151,7 @@ index b613aba1..a7653ed0 100644
        match f.body with
        | StructuredBody body -> visitor#visit_block () body.body
        | _ -> ())
-@@ -2271,8 +3128,13 @@ let apply_passes (crate : crate) : crate =
+@@ -2271,8 +3272,14 @@ let apply_passes (crate : crate) : crate =
    (* Passes that apply to individual function bodies *)
    let function_passes =
      [
@@ -1017,6 +1161,7 @@ index b613aba1..a7653ed0 100644
        ("fix_closure_lifetimes", fix_closure_lifetimes);
        ("erase_body_regions", erase_body_regions);
 +      ("decompose_range_transmutes", decompose_range_transmutes);
++      ("decompose_nonnull_transmutes", decompose_nonnull_transmutes);
 +      ("decompose_enum_transmutes", decompose_enum_transmutes);
        ("remove_unreachable", remove_unreachable);
        ("update_loop", update_loops);
@@ -1037,22 +1182,38 @@ index 8df1bc5f..f1e2b16f 100644
    in
  
 diff --git a/src/extract/Extract.ml b/src/extract/Extract.ml
-index 2dc4a57f..22c13ea9 100644
+index 2dc4a57f..44603333 100644
 --- a/src/extract/Extract.ml
 +++ b/src/extract/Extract.ml
 @@ -398,6 +398,8 @@ let extract_cast_kind_hol4 (span : Meta.span)
      (extract_expr : inside:bool -> texpr -> unit) (fmt : F.formatter)
      ~(inside : bool) (kind : cast_kind) (arg : texpr) : unit =
    match kind with
-+  | CastRangeConst | CastRange ->
++  | CastNonNull | CastNonNullUnwrap | CastRangeConst | CastRange ->
 +      [%craise] span "Range casts are only supported in Lean"
    | CastLit (src, tgt) ->
        (* Casting, say, an u32 to an i32 would be done as follows:
           {[
-@@ -422,6 +424,21 @@ let extract_cast_kind_gen (span : Meta.span)
+@@ -422,6 +424,37 @@ let extract_cast_kind_gen (span : Meta.span)
      (extract_expr : inside:bool -> texpr -> unit) (fmt : F.formatter)
      ~(inside : bool) (kind : cast_kind) (arg : texpr) : unit =
    match kind with
++  | CastNonNull ->
++      [%cassert] span
++        (backend () = Lean && !Config.provenance_pointers)
++        "Non-null pointer casts require provenance pointers";
++      if inside then F.pp_print_string fmt "(";
++      F.pp_print_string fmt "HasteBootsPointerRuntime.check_nonnull ";
++      extract_expr ~inside:true arg;
++      if inside then F.pp_print_string fmt ")"
++  | CastNonNullUnwrap ->
++      [%cassert] span
++        (backend () = Lean && !Config.provenance_pointers)
++        "Non-null pointer casts require provenance pointers";
++      if inside then F.pp_print_string fmt "(";
++      F.pp_print_string fmt "Subtype.val ";
++      extract_expr ~inside:true arg;
++      if inside then F.pp_print_string fmt ")"
 +  | CastRangeConst ->
 +      [%cassert] span
 +        (backend () = Lean)
@@ -1071,7 +1232,7 @@ index 2dc4a57f..22c13ea9 100644
    | CastLit (src, tgt) ->
        let integer_type_to_string (ty : integer_type) : string =
          if backend () = Lean then
-@@ -506,7 +523,10 @@ let extract_cast_kind_gen (span : Meta.span)
+@@ -506,7 +539,10 @@ let extract_cast_kind_gen (span : Meta.span)
          "Casts between raw pointers are only supported in the Lean backend";
        if inside then F.pp_print_string fmt "(";
        (* Print the name of the function *)
@@ -1083,7 +1244,7 @@ index 2dc4a57f..22c13ea9 100644
        (* Print the target type argument and mutability *)
        let tgt_ty : integer_type =
          match tgt_ty with
-@@ -588,6 +608,19 @@ let extract_binop (span : Meta.span) (ctx : extraction_ctx)
+@@ -588,6 +624,19 @@ let extract_binop (span : Meta.span) (ctx : extraction_ctx)
    if inside then F.pp_print_string fmt "(";
    (* Some binary operations have a special notation depending on the backend *)
    (match (backend (), binop) with
@@ -1103,7 +1264,7 @@ index 2dc4a57f..22c13ea9 100644
    | HOL4, (Eq _ | Ne _)
    | (FStar | Coq | Lean), (Eq _ | Lt _ | Le _ | Ne _ | Ge _ | Gt _)
    | (FStar | Lean), (BoolAnd | BoolOr)
-@@ -636,6 +669,22 @@ let extract_binop (span : Meta.span) (ctx : extraction_ctx)
+@@ -636,6 +685,22 @@ let extract_binop (span : Meta.span) (ctx : extraction_ctx)
        F.pp_print_string fmt binop_str;
        F.pp_print_space fmt ();
        extract_expr ~inside:true arg1
@@ -1126,7 +1287,7 @@ index 2dc4a57f..22c13ea9 100644
    | ( Lean,
        ( Add (OWrap, _)
        | Sub (OWrap, _)
-@@ -2693,6 +2742,7 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
+@@ -2693,6 +2758,7 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
    let clause_names =
      match builtin_info with
      | None ->
@@ -1134,7 +1295,7 @@ index 2dc4a57f..22c13ea9 100644
          List.map
            (fun (c : trait_param) ->
              let name = ctx_compute_trait_parent_clause_name ctx trait_decl c in
-@@ -2701,6 +2751,14 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
+@@ -2701,6 +2767,14 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
                if !record_fields_short_names then name
                else ctx_compute_trait_decl_name ctx trait_decl ^ name
              in
@@ -1150,7 +1311,7 @@ index 2dc4a57f..22c13ea9 100644
            trait_decl.parent_clauses
      | Some info ->
 diff --git a/src/extract/ExtractBase.ml b/src/extract/ExtractBase.ml
-index 66bb1e48..406e27c8 100644
+index 66bb1e48..4641a6ec 100644
 --- a/src/extract/ExtractBase.ml
 +++ b/src/extract/ExtractBase.ml
 @@ -1223,8 +1223,14 @@ let builtin_adts () : (builtin_ty * string) list =
@@ -1190,15 +1351,16 @@ index 66bb1e48..406e27c8 100644
  
  (** Helper *)
  let ctx_compute_simple_type_name = ctx_compute_simple_name
-@@ -2113,6 +2130,7 @@ let ctx_compute_var_basename (span : Meta.span) (ctx : extraction_ctx)
+@@ -2113,6 +2130,8 @@ let ctx_compute_var_basename (span : Meta.span) (ctx : extraction_ctx)
            | TBuiltin TSlice -> "s"
            | TBuiltin TStr -> "s"
            | TBuiltin (TRawPtr _) -> "p"
++          | TBuiltin TNonNull -> "nonnull"
 +          | TBuiltin (TUnsignedRange _) -> "ranged"
            | TAdtId adt_id ->
                let def =
                  TypeDeclId.Map.find adt_id ctx.trans_ctx.type_ctx.type_decls
-@@ -2122,7 +2140,10 @@ let ctx_compute_var_basename (span : Meta.span) (ctx : extraction_ctx)
+@@ -2122,7 +2141,10 @@ let ctx_compute_var_basename (span : Meta.span) (ctx : extraction_ctx)
                *)
                (* The name shouldn't be empty, and its last element (after we remove
                   the target architecture suffix) should be an ident *)
@@ -1362,7 +1524,7 @@ index 6e28b984..d9c6970e 100644
 +let cached_builtin_fun_effects_map = mk_memoized mk_builtin_fun_effects_map
 +let builtin_fun_effects_map () = cached_builtin_fun_effects_map ()
 diff --git a/src/extract/ExtractTypes.ml b/src/extract/ExtractTypes.ml
-index 37171763..94317a33 100644
+index 37171763..9f0930c9 100644
 --- a/src/extract/ExtractTypes.ml
 +++ b/src/extract/ExtractTypes.ml
 @@ -10,10 +10,22 @@ module T = Types
@@ -1403,10 +1565,23 @@ index 37171763..94317a33 100644
    if inside then F.pp_print_string fmt ")"
  
  (** Format a constant value.
-@@ -333,6 +349,11 @@ let rec extract_ty (span : Meta.span) (ctx : extraction_ctx) (fmt : F.formatter)
+@@ -333,6 +349,24 @@ let rec extract_ty (span : Meta.span) (ctx : extraction_ctx) (fmt : F.formatter)
    [%ldebug "ty: " ^ ty_to_string ctx ty];
    let extract_rec = extract_ty span ctx fmt no_params_tys in
    match ty with
++  | TAdt (TBuiltin TNonNull, generics) ->
++      [%cassert] span
++        (backend () = Lean && !Config.provenance_pointers)
++        "Non-null pointer extraction requires provenance pointers";
++      let base =
++        match generics.types with
++        | [ base ] when generics.const_generics = [] && generics.trait_refs = []
++          -> base
++        | _ -> [%internal_error] span
++      in
++      F.pp_print_string fmt "{ pointer : ";
++      extract_rec ~inside:false base;
++      F.pp_print_string fmt " // pointer.storage.address ≠ 0 }"
 +  | TAdt (TBuiltin (TUnsignedRange (kind, lower, upper)), generics) ->
 +      [%sanity_check] span (generics = empty_generic_args);
 +      [%cassert] span (backend () = Lean) "Unsupported scalar range backend";
@@ -1415,7 +1590,7 @@ index 37171763..94317a33 100644
    | TAdt (type_id, generics) -> (
        [%ldebug "ADT case"];
        let has_params = generics <> empty_generic_args in
-@@ -1263,7 +1284,7 @@ let extract_attributes (span : Meta.span) (ctx : extraction_ctx)
+@@ -1263,7 +1297,7 @@ let extract_attributes (span : Meta.span) (ctx : extraction_ctx)
      (rust_model_attr_options : string list) ~(is_external : bool) : unit =
    if backend () = Lean then (
      let name_pattern : string list list =
@@ -1424,7 +1599,7 @@ index 37171763..94317a33 100644
          match generics with
          | None ->
              [
-@@ -1554,14 +1575,16 @@ let extract_type_decl_gen (ctx : extraction_ctx) (fmt : F.formatter)
+@@ -1554,14 +1588,16 @@ let extract_type_decl_gen (ctx : extraction_ctx) (fmt : F.formatter)
           if
             List.for_all
               (fun b -> b)
@@ -1514,7 +1689,7 @@ index 52b94675..929b7e38 100644
      (* Update the synthesized program *)
      S.synthesize_symbolic_expansion_no_branching span original_sv
 diff --git a/src/interp/InterpExpressions.ml b/src/interp/InterpExpressions.ml
-index 2d32fc8e..e17b31f1 100644
+index 2d32fc8e..77cf2678 100644
 --- a/src/interp/InterpExpressions.ml
 +++ b/src/interp/InterpExpressions.ml
 @@ -82,6 +82,26 @@ let access_rplace_reorganize_and_read (config : config) (span : Meta.span)
@@ -1544,10 +1719,18 @@ index 2d32fc8e..e17b31f1 100644
  let access_rplace_reorganize (config : config) (span : Meta.span)
      (greedy_expand : bool) (access : access_kind) (p : place) : cm_fun =
   fun ctx ->
-@@ -956,6 +976,25 @@ let eval_unary_op_symbolic (config : config) (span : Meta.span) (unop : unop)
+@@ -956,6 +976,33 @@ let eval_unary_op_symbolic (config : config) (span : Meta.span) (unop : unop)
          | Neg OPanic, (TLiteral (TInt _) as lty) -> lty
          | Neg OPanic, (TLiteral (TUInt _) as lty) -> lty
          | Cast (CastScalar (_, tgt_ty)), _ -> TLiteral tgt_ty
++        | Cast (CastTransmute (base, (TPattern (actual, pattern) as dst))), _
++          when !Config.provenance_pointers
++               && v.ty = base && base = actual
++               && TypesAnalysis.is_nonnull_pointer actual pattern -> dst
++        | Cast (CastTransmute ((TPattern (base, pattern) as src), dst)), _
++          when !Config.provenance_pointers
++               && v.ty = src && base = dst
++               && TypesAnalysis.is_nonnull_pointer base pattern -> dst
 +        | Cast (CastTransmute (base, (TPattern (actual, pattern) as dst))), _
 +          when !Config.monomorphic_builtin_shapes
 +               && v.ty = base && base = actual ->
@@ -1570,7 +1753,7 @@ index 2d32fc8e..e17b31f1 100644
          | Cast (CastUnsize (ty0, ty1, _)), _ ->
              (* If the following function succeeds, then it means the cast is well-formed
             (otherwise it throws an exception) *)
-@@ -1149,7 +1188,15 @@ let eval_binary_op_symbolic (config : config) (span : Meta.span) (binop : binop)
+@@ -1149,7 +1196,15 @@ let eval_binary_op_symbolic (config : config) (span : Meta.span) (binop : binop)
                [%sanity_check] span (int_ty1 = int_ty2);
                TLiteral (TInt I8)
            (* These return `(int, bool)` / a pointer which isn't a literal type *)
@@ -1685,7 +1868,7 @@ index ab1fbdfe..100d186d 100644
      List.iter visit_fun d;
      (* We need to know if the declaration group contains a global - note that
 diff --git a/src/llbc/RegionsHierarchy.ml b/src/llbc/RegionsHierarchy.ml
-index aa1db67d..52c7db42 100644
+index aa1db67d..6ea6ad13 100644
 --- a/src/llbc/RegionsHierarchy.ml
 +++ b/src/llbc/RegionsHierarchy.ml
 @@ -146,6 +146,9 @@ let compute_regions_hierarchy_for_sig (span : Meta.span option) (crate : crate)
@@ -1693,7 +1876,7 @@ index aa1db67d..52c7db42 100644
      | TArray _ | TSlice _ -> (* No clauses for those *) ()
      | TVar _ | TLiteral _ | TNever -> ()
 +    | TPattern (base, pattern) ->
-+        let _ = TypesAnalysis.unsigned_range_bounds span base pattern in
++        let () = TypesAnalysis.validate_type_pattern span base pattern in
 +        ()
      | TRef (r, ty, _) ->
          (* Add the constraints for r *)
@@ -1726,10 +1909,10 @@ index fbd7f003..fdd35501 100644
  let expect_free_var span (var : 'id de_bruijn_var) : 'id =
    match var with
 diff --git a/src/llbc/TypesAnalysis.ml b/src/llbc/TypesAnalysis.ml
-index 81711ebc..2bee4cf8 100644
+index 81711ebc..4ba350bb 100644
 --- a/src/llbc/TypesAnalysis.ml
 +++ b/src/llbc/TypesAnalysis.ml
-@@ -4,6 +4,34 @@ open Substitute
+@@ -4,6 +4,48 @@ open Substitute
  open Charon.TypesUtils
  open SCC
  
@@ -1761,82 +1944,102 @@ index 81711ebc..2bee4cf8 100644
 +      (kind, lower, upper)
 +  | _ -> [%craise_opt_span] span "Unsupported scalar pattern type"
 +
++(** Non-null raw-pointer patterns are address predicates, never scalar ranges.
++    Keep them behind the checked address/provenance profile. *)
++let is_nonnull_pointer base pattern =
++  match (base, pattern) with
++  | TRawPtr _, NotNull -> true
++  | _ -> false
++
++let validate_type_pattern span base pattern =
++  if is_nonnull_pointer base pattern then
++    [%cassert_opt_span] span
++      !Config.provenance_pointers
++      "Non-null pointer patterns require provenance pointers"
++  else ignore (unsigned_range_bounds span base pattern)
++
  let log = Logging.types_analysis_log
  
  type subtype_info = {
-@@ -355,6 +383,9 @@ let analyze_full_ty (span : Meta.span option) (updated : bool ref)
+@@ -355,6 +397,11 @@ let analyze_full_ty (span : Meta.span option) (updated : bool ref)
          in
          (* Continue exploring *)
          analyze span expl_info ty_info rty
 +    | TPattern (base, pattern) ->
-+        let _ = unsigned_range_bounds span base pattern in
-+        ty_info
++        validate_type_pattern span base pattern;
++        if is_nonnull_pointer base pattern then
++          analyze span expl_info ty_info base
++        else ty_info
      | TRawPtr (rty, _) ->
          (* TODO: not sure what to do here *)
          analyze span expl_info ty_info rty
 diff --git a/src/pure/PrintPure.ml b/src/pure/PrintPure.ml
-index 6f10d6ae..09c0949c 100644
+index 6f10d6ae..d921662e 100644
 --- a/src/pure/PrintPure.ml
 +++ b/src/pure/PrintPure.ml
-@@ -278,6 +278,9 @@ let builtin_ty_to_string (aty : builtin_ty) : string =
+@@ -278,6 +278,10 @@ let builtin_ty_to_string (aty : builtin_ty) : string =
    | TArray -> "Array"
    | TSlice -> "Slice"
    | TStr -> "Str"
++  | TNonNull -> "NonNullPointer"
 +  | TUnsignedRange (kind, lower, upper) ->
 +      integer_type_to_string (Unsigned kind)
 +      ^ "Range[" ^ Z.to_string lower ^ "," ^ Z.to_string upper ^ "]"
    | TRawPtr Mut -> "MutRawPtr"
    | TRawPtr Const -> "ConstRawPtr"
  
-@@ -508,7 +511,7 @@ let adt_variant_to_string ?(span = None) (env : fmt_env) (adt_id : type_id)
+@@ -508,7 +512,7 @@ let adt_variant_to_string ?(span = None) (env : fmt_env) (adt_id : type_id)
    | TBuiltin aty -> (
        (* Builtin type *)
        match aty with
 -      | TArray | TSlice | TStr | TRawPtr _ ->
-+      | TArray | TSlice | TStr | TUnsignedRange _ | TRawPtr _ ->
++      | TArray | TSlice | TStr | TUnsignedRange _ | TNonNull | TRawPtr _ ->
            (* Those types are opaque: we can't get there *)
            [%craise_opt_span] span "Unreachable"
        | TResult ->
-@@ -561,7 +564,7 @@ let adt_field_to_string ?(span = None) (env : fmt_env) (adt_id : type_id)
+@@ -561,7 +565,7 @@ let adt_field_to_string ?(span = None) (env : fmt_env) (adt_id : type_id)
    | TBuiltin aty -> (
        (* Builtin type *)
        match aty with
 -      | TFuel | TArray | TSlice | TStr ->
-+      | TFuel | TArray | TSlice | TStr | TUnsignedRange _ ->
++      | TFuel | TArray | TSlice | TStr | TUnsignedRange _ | TNonNull ->
            (* Opaque types: we can't get there *)
            [%craise_opt_span] span "Unreachable"
        | TResult | TError | TSum | TLoopResult | TRawPtr _ ->
-@@ -634,7 +637,7 @@ and adt_pat_to_string_core (span : Meta.span option) (env : fmt_env)
+@@ -634,7 +638,7 @@ and adt_pat_to_string_core (span : Meta.span option) (env : fmt_env)
      | TAdt (TBuiltin aty, _) -> (
          (* Builtin type *)
          match aty with
 -        | TRawPtr _ ->
-+        | TRawPtr _ | TUnsignedRange _ ->
++        | TRawPtr _ | TUnsignedRange _ | TNonNull ->
              (* This type is opaque: we can't get there *)
              [%craise_opt_span] span "Unreachable"
          | TResult ->
-@@ -885,6 +888,8 @@ let regular_fun_id_to_string (env : fmt_env) (fun_id : fun_id) : string =
+@@ -885,6 +889,10 @@ let regular_fun_id_to_string (env : fmt_env) (fun_id : fun_id) : string =
  let cast_kind_to_string (env : fmt_env) (kind : cast_kind) : string =
    let src, tgt =
      match kind with
++    | CastNonNull -> ("raw_pointer", "nonnull_pointer")
++    | CastNonNullUnwrap -> ("nonnull_pointer", "raw_pointer")
 +    | CastRange -> ("range", "scalar")
 +    | CastRangeConst -> ("constant", "range")
      | CastLit (src, tgt) ->
          (literal_type_to_string src, literal_type_to_string tgt)
      | CastRawPtr ((src, src_mut), (tgt, tgt_mut)) ->
 diff --git a/src/pure/Pure.ml b/src/pure/Pure.ml
-index c898d123..8b8d461e 100644
+index c898d123..fab92b9c 100644
 --- a/src/pure/Pure.ml
 +++ b/src/pure/Pure.ml
-@@ -88,6 +88,7 @@ type builtin_ty =
+@@ -88,6 +88,8 @@ type builtin_ty =
    | TArray
    | TSlice
    | TStr
++  | TNonNull
 +  | TUnsignedRange of V.u_int_ty * V.big_int * V.big_int
    | TRawPtr of mutability
        (** The bool Raw pointers don't make sense in the pure world, but we don't
            know how to translate them yet and we have to handle some functions
-@@ -807,7 +808,7 @@ and variant = {
+@@ -807,7 +809,7 @@ and variant = {
    variant_name : string;
    fields : field list;
    variant_attr_info : (attr_info[@opaque]);
@@ -1845,17 +2048,19 @@ index c898d123..8b8d461e 100644
    ty : literal_type;
  }
  
-@@ -1211,6 +1212,8 @@ type unop =
+@@ -1211,6 +1213,10 @@ type unop =
    | ArrayToSlice
  
  and cast_kind =
++  | CastNonNull
++  | CastNonNullUnwrap
 +  | CastRange
 +  | CastRangeConst
    | CastLit of literal_type * literal_type
    | CastRawPtr of (literal_type * mutability) * (literal_type * mutability)
        (** When casting between raw pointers, we only support a subset of casts
 diff --git a/src/pure/PureTypeCheck.ml b/src/pure/PureTypeCheck.ml
-index e9a07a43..ddaead12 100644
+index e9a07a43..8fc7ac88 100644
 --- a/src/pure/PureTypeCheck.ml
 +++ b/src/pure/PureTypeCheck.ml
 @@ -66,7 +66,7 @@ let get_adt_field_types (span : Meta.span)
@@ -1863,18 +2068,28 @@ index e9a07a43..ddaead12 100644
            else if variant_id = fuel_succ_id then [ mk_fuel_ty ]
            else [%craise] span "Unreachable: improper variant id for fuel type"
 -      | TArray | TSlice | TStr | TRawPtr _ ->
-+      | TArray | TSlice | TStr | TUnsignedRange _ | TRawPtr _ ->
++      | TArray | TSlice | TStr | TUnsignedRange _ | TNonNull | TRawPtr _ ->
            (* Array: when not symbolic values (for instance, because of aggregates),
               the array expressions are introduced as struct updates *)
            [%craise] span "Attempting to access the fields of an opaque type")
 diff --git a/src/symbolic/SymbolicToPureExpressions.ml b/src/symbolic/SymbolicToPureExpressions.ml
-index b83dc456..b9f61bd7 100644
+index b83dc456..7aae6fe7 100644
 --- a/src/symbolic/SymbolicToPureExpressions.ml
 +++ b/src/symbolic/SymbolicToPureExpressions.ml
-@@ -584,6 +584,26 @@ and translate_function_call_aux (call : S.call) (e : S.expr) (ctx : bs_ctx) :
+@@ -584,6 +584,36 @@ and translate_function_call_aux (call : S.call) (e : S.expr) (ctx : bs_ctx) :
                (* We shouldn't get there: this case should have been detected before
                 and handled in [translate_cast_unsize] *)
                [%internal_error] ctx.span
++          | CastTransmute (base, TPattern (actual, pattern))
++            when !Config.provenance_pointers
++                 && base = actual
++                 && TypesAnalysis.is_nonnull_pointer actual pattern ->
++              (CastNonNull, true)
++          | CastTransmute (TPattern (base, pattern), dst)
++            when !Config.provenance_pointers
++                 && base = dst
++                 && TypesAnalysis.is_nonnull_pointer base pattern ->
++              (CastNonNullUnwrap, false)
 +          | CastTransmute (base, TPattern (actual, pattern))
 +            when !Config.monomorphic_builtin_shapes && base = actual ->
 +              let kind, lower, upper =
@@ -1898,7 +2113,7 @@ index b83dc456..b9f61bd7 100644
            | CastTransmute _ -> [%craise] ctx.span "Unsupported: transmute"
            | CastConcretize _ ->
                [%craise] ctx.span "Unsupported: `dyn Trait` concretization"
-@@ -1465,7 +1485,7 @@ and translate_expansion (p : S.mplace option) (sv : V.symbolic_value)
+@@ -1465,7 +1495,7 @@ and translate_expansion (p : S.mplace option) (sv : V.symbolic_value)
          (* We don't need to update the context: we don't introduce any
             new values/variables *)
          let branch = translate_expr branch_e ctx in
@@ -1907,7 +2122,7 @@ index b83dc456..b9f61bd7 100644
          close_branch ctx.span pat branch
        in
        let branches = List.map translate_branch branches in
-@@ -1504,13 +1524,27 @@ and translate_ExpandAdt_one_branch (sv : V.symbolic_value) (scrutinee : texpr)
+@@ -1504,13 +1534,27 @@ and translate_ExpandAdt_one_branch (sv : V.symbolic_value) (scrutinee : texpr)
    let ctx, vars = fresh_vars_for_symbolic_values svl ctx in
    let branch = translate_expr branch ctx in
    match type_id with
@@ -1941,10 +2156,10 @@ index b83dc456..b9f61bd7 100644
        let vars = List.map (fun x -> mk_tpat_from_fvar None x) vars in
        let monadic = false in
 diff --git a/src/symbolic/SymbolicToPureTypes.ml b/src/symbolic/SymbolicToPureTypes.ml
-index 5ea3e9be..ba9f3f80 100644
+index 5ea3e9be..77b62ceb 100644
 --- a/src/symbolic/SymbolicToPureTypes.ml
 +++ b/src/symbolic/SymbolicToPureTypes.ml
-@@ -5,6 +5,27 @@ open FunsAnalysis
+@@ -5,6 +5,35 @@ open FunsAnalysis
  open TypesAnalysis
  open SymbolicToPureCore
  
@@ -1969,10 +2184,18 @@ index 5ea3e9be..ba9f3f80 100644
 +    ( TBuiltin (TUnsignedRange (translate_u_int_ty kind, lower, upper)),
 +      empty_generic_args )
 +
++let translate_type_pattern span translate base pattern =
++  TypesAnalysis.validate_type_pattern span base pattern;
++  if TypesAnalysis.is_nonnull_pointer base pattern then
++    TAdt
++      ( TBuiltin TNonNull,
++        { types = [ translate base ]; const_generics = []; trait_refs = [] } )
++  else translate_unsigned_range span base pattern
++
  (** The local logger *)
  let log = Logging.symbolic_to_pure_types_log
  
-@@ -18,7 +39,7 @@ let translate_region_binder (translate_value : 'a -> 'b)
+@@ -18,7 +47,7 @@ let translate_region_binder (translate_value : 'a -> 'b)
  
  let translate_literal (l : V.literal) : literal =
    match l with
@@ -1981,7 +2204,7 @@ index 5ea3e9be..ba9f3f80 100644
    | V.VFloat x -> VFloat x
    | V.VBool x -> VBool x
    | V.VChar x -> VChar x
-@@ -34,8 +55,8 @@ let translate_constant_expr_kind (span : span option) :
+@@ -34,8 +63,8 @@ let translate_constant_expr_kind (span : span option) :
  
  let translate_literal_type (ty : V.literal_type) : literal_type =
    match ty with
@@ -1992,15 +2215,16 @@ index 5ea3e9be..ba9f3f80 100644
    | V.TFloat x -> TFloat x
    | V.TBool -> TBool
    | V.TChar -> TChar
-@@ -164,6 +185,7 @@ let rec translate_sty (span : Meta.span option) (ty : T.ty) : ty =
+@@ -164,6 +193,8 @@ let rec translate_sty (span : Meta.span option) (ty : T.ty) : ty =
        TVar var
        (* Note: the `de_bruijn_id`s are incorrect, see comment on `translate_region_binder` *)
    | TLiteral ty -> TLiteral (translate_literal_type ty)
-+  | TPattern (base, pattern) -> translate_unsigned_range span base pattern
++  | TPattern (base, pattern) ->
++      translate_type_pattern span (translate span) base pattern
    | TNever -> TNever
    | TRef (_, rty, _) -> translate span rty
    | TRawPtr (ty, rkind) ->
-@@ -257,8 +279,8 @@ let translate_variant (span : Meta.span) (v : T.variant) : variant =
+@@ -257,8 +288,8 @@ let translate_variant (span : Meta.span) (v : T.variant) : variant =
    let variant_attr_info = v.attr_info in
    let discriminant, ty =
      match v.discriminant with
@@ -2011,7 +2235,7 @@ index 5ea3e9be..ba9f3f80 100644
      | _ ->
          [%craise] span
            "Internal error, please report an issue: found an enumeration \
-@@ -311,6 +333,40 @@ let translate_type_decl (ctx : Contexts.decls_ctx) (def : T.type_decl) :
+@@ -311,6 +342,40 @@ let translate_type_decl (ctx : Contexts.decls_ctx) (def : T.type_decl) :
      match_name_find_opt ctx def.item_meta.name
        (ExtractBuiltin.builtin_types_map ())
    in
@@ -2052,30 +2276,31 @@ index 5ea3e9be..ba9f3f80 100644
    {
      def_id;
      name;
-@@ -382,6 +438,7 @@ let rec translate_fwd_ty (span : Meta.span option) (decls_ctx : C.decls_ctx)
+@@ -382,6 +447,8 @@ let rec translate_fwd_ty (span : Meta.span option) (decls_ctx : C.decls_ctx)
    | TVar var -> TVar var
    | TNever -> TNever
    | TLiteral lty -> TLiteral (translate_literal_type lty)
-+  | TPattern (base, pattern) -> translate_unsigned_range span base pattern
++  | TPattern (base, pattern) ->
++      translate_type_pattern span translate base pattern
    | TRef (_, rty, _) -> translate rty
    | TRawPtr (ty, rkind) ->
        let mut =
-@@ -494,6 +551,9 @@ and compute_back_ty_num_levels (span : Meta.span option)
+@@ -494,6 +561,9 @@ and compute_back_ty_num_levels (span : Meta.span option)
                    "Unreachable: boxes receive exactly one type parameter")
          | TTuple -> List.iter (explore outer_regions) generics.types)
      | T.TArray (ty, _) | T.TSlice ty -> explore outer_regions ty
 +    | TPattern (base, pattern) ->
-+        let _ = TypesAnalysis.unsigned_range_bounds span base pattern in
++        let () = TypesAnalysis.validate_type_pattern span base pattern in
 +        save_count outer_regions
      | TVar _ | TNever | TLiteral _ -> save_count outer_regions
      | TRef (r, rty, rkind) -> (
          match rkind with
-@@ -631,6 +691,9 @@ and translate_back_ty_aux (span : Meta.span option) (decls_ctx : C.decls_ctx)
+@@ -631,6 +701,9 @@ and translate_back_ty_aux (span : Meta.span option) (decls_ctx : C.decls_ctx)
          if keep_adt outer_regions ty then
            Some (translate_fwd_ty span decls_ctx ty)
          else None
 +    | TPattern (base, pattern) ->
-+        let _ = TypesAnalysis.unsigned_range_bounds span base pattern in
++        let () = TypesAnalysis.validate_type_pattern span base pattern in
 +        stop outer_regions ty
      | TVar _ | TNever | TLiteral _ -> stop outer_regions ty
      | TRef (r, rty, rkind) -> (

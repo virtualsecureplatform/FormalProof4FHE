@@ -1,0 +1,64 @@
+#!/usr/bin/env python3
+"""Reject erased address predicates, unchecked carriers and incomplete source proofs."""
+import copy
+from pathlib import Path
+import runpy
+import unittest
+ROOT = Path(__file__).resolve().parent.parent
+GATE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-nonnull-pointers'))
+
+
+def fixture():
+    return {'has_errors': False, 'translated': {
+        'target_information': [{'key': 'x86_64-unknown-linux-gnu', 'value': {'target_pointer_size': 8, 'is_little_endian': True}}],
+        'options': {'monomorphize': True, 'mir': 'Optimized', 'sysroot': 'default'},
+        'fun_decls': [{'body': {'Structured': {}}} for _ in range(9)],
+        'type_decls': [{'item_meta': {'lang_item': 'NonNull'}, 'layout': [{'key': 'x86_64-unknown-linux-gnu', 'value': {
+            'size': 8, 'align': 8, 'uninhabited': False, 'discriminator': {'Known': 0},
+            'repr': {'transparent': True, 'align_modif': None},
+            'variant_layouts': [{'field_offsets': [0], 'uninhabited': False, 'tagger': []}]}}]}]}}
+
+
+class Guards(unittest.TestCase):
+    def test_complete_source_and_proofs(self):
+        GATE['validate_ir'](fixture())
+        GATE['validate_output']((GATE['DATA'] / 'Generated.lean').read_text())
+
+    def test_wrong_profile_or_missing_body(self):
+        for mutate in [lambda x: x['translated']['options'].update(sysroot='miri'),
+                       lambda x: x['translated']['options'].update(mir='Built'),
+                       lambda x: x['translated']['fun_decls'].pop(),
+                       lambda x: x['translated']['fun_decls'][0].update(body='Opaque'),
+                       lambda x: x['translated']['type_decls'].clear()]:
+            bad = copy.deepcopy(fixture()); mutate(bad)
+            with self.assertRaises(RuntimeError): GATE['validate_ir'](bad)
+
+    def test_wrong_layout(self):
+        for mutate in [lambda d: d.update(layout=[]),
+                       lambda d: d['layout'][0]['value'].update(size=4),
+                       lambda d: d['layout'][0]['value'].update(align=4),
+                       lambda d: d['layout'][0]['value'].update(uninhabited=True),
+                       lambda d: d['layout'][0]['value']['repr'].update(transparent=False),
+                       lambda d: d['layout'][0]['value']['variant_layouts'][0].update(field_offsets=[8]),
+                       lambda d: d['layout'][0]['value']['variant_layouts'][0].update(tagger=[[0, {}]])]:
+            bad = fixture(); mutate(GATE['carrier'](bad))
+            with self.assertRaises(RuntimeError): GATE['validate_ir'](bad)
+
+    def test_erased_predicate_changed_cast_and_admission(self):
+        raw = (GATE['DATA'] / 'Generated.lean').read_text()
+        for bad in [raw.replace('pointer.storage.address ≠ 0', 'True'),
+                    raw.replace('HasteBootsPointerRuntime.check_nonnull pointer', 'ok pointer'),
+                    raw.replace('Subtype.val self.pointer', 'self.pointer'),
+                    raw.replace(':= do', ':= by sorry'), raw.replace('end ' + GATE['NAMESPACE'], '')]:
+            with self.assertRaises(RuntimeError): GATE['validate_output'](bad)
+
+    def test_missing_proof(self):
+        for filename, names in [('Proof.lean', GATE['PROOFS']), ('Runtime.lean', GATE['RUNTIME_PROOFS'])]:
+            source = (GATE['DATA'] / filename).read_text()
+            for name in names:
+                with self.assertRaises(RuntimeError):
+                    GATE['PARAMETERS']['validate_proof_source'](source.replace('theorem ' + name, 'theorem missing'), names)
+
+
+if __name__ == '__main__':
+    unittest.main()
