@@ -7,6 +7,36 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## RawVec enum payload operations now have a checked source schema
+
+The [RawVec Option profile](../interop/aeneas/rawvec-option/README.md) reifies the
+original `current_memory` output declaration and its actual nominal pointer and
+Layout types. `NativeVariantValues` adds active-variant projection, typed payload
+construction and partial moves. Ten model lemmas and five source-schema theorems
+prove checked reads, pointer leaf preservation, consumed fields and unchanged
+discriminants after moves. Nineteen model and ten source regressions cover
+successful paths, rejection, repeated moves and surviving sibling fields.
+
+Source discriminants are signed integers, separate from variant indices and the
+physical niche encoding. The original Foreign Option classification is retained.
+Its 24-byte, alignment-eight physical layout, niche discriminator at offset eight,
+variant taggers and field metadata remain data in the source snapshot; this is
+not a physical enum decoder. The gate passed 56 dependency audits and 18 rejecting
+controls, a supported signed-discriminant mutation checked in Lean, and a control
+showing that changed niche metadata differs from the retained snapshot. The full
+`scripts/check` run passed, including the 11,001-job build and subsequent smoke
+checks; receipt hashes are recorded in the profile regression file.
+
+This is a logical payload-schema milestone. The source function body and outer
+RawVec/Vec cleanup are not interpreted by this profile. Next integrate enum
+construction, discriminant switches and variant projections into the interpreter,
+then implement checked resident-reference loads of RawVec capacity and pointer
+fields, preserving shadow provenance. The retained constrained-capacity carrier,
+unchecked product and original helper classifications also need checked handling.
+Compose those original bodies with the already checked Global dispatch. Native lifetime/compiler/ABI correspondence,
+external allocator correctness, physical work and the final security theorem
+remain open; the full protocol and expected-work target above is unchanged.
+
 ## The Global allocator trait now preserves its original size dispatch
 
 The [Global deallocation profile](../interop/aeneas/global-deallocation/README.md)
