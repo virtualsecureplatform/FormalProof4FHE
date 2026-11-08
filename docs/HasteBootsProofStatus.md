@@ -7,6 +7,45 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Extracted byte accessors now agree with current checked heap views
+
+`NativeByteRangeUpdate` proves that actual byte stores update initialized range
+views by exactly the corresponding list update. It handles interior ranges,
+arbitrary selected offsets and allocation list positions. Successful ledger
+reads agree with the same current view. A valid initialized range derives
+store execution, and checked exclusive mode/bounds/per-access permissions
+derive a successful ledger write. All eleven new memory theorems use the
+existing executable memory/ledger operations.
+
+Nine source/encoding theorems connect those laws to the unedited extracted
+byte-slice accessors. Byte conversion is bijective. The computed observation
+checks the length bound, which successful memory range execution derives.
+Authorized writes execute and produce exactly the updated source slice and
+current heap view; successful ledger reads return the source-selected byte.
+Whole-slice observation remains ghost state and adds no whole-slice permission
+requirement. In particular, a parent access outside a child's borrowed span
+continues to work. See `interop/aeneas/byte-reference-heap/README.md`.
+
+Validation passes all 50 combined model/encoding/source/runtime declaration
+audits, with fresh parent source and byte-borrow gates (25 and 133 audits,
+including their range/memory/pointer dependencies). All 210 guard tests pass.
+Nine executable smoke cases and all eleven persistent root theorem audits
+pass. Full `scripts/check` passes its 10,941-job aggregate build and all
+subsequent audit/smoke commands. The compiler/previous upstream and native
+rejection evidence are retained explicitly; they are not reported as newly
+rerun compiler/native experiments. No new axiom, native decision proof or
+proof-limit increase is introduced. See the regression receipt for hashes.
+
+The source value/current-model-heap relation is now explicit. Establishing
+that actual Rust references carry this relation and binding ghost tags to source
+ownership/lifetime events remain open, as do Rust aliasing/UnsafeCell, original
+allocation and allocator/destructor/deallocator composition. No native
+constructor is accepted at the original raw-pointer dereference. The compiler
+and Lean backend are unchanged in this milestone. NTT/SIMD/scheduler,
+causal lifetime oracle/owner coverage, BabyBear and the final 128-bit expected
+physical attacker-work theorem remain open. Ghost observation is not actual
+attacker work. The full objective is unchanged.
+
 ## Original safe byte-slice accessor values now check
 
 The opt-in `-word64-slices` extraction profile now gives source slices an
