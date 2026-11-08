@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+"""Reject wrong query policies, residual runtime queries and altered configuration output."""
+import copy
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+GATE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-runtime-checks'))
+
+
+def fixture(evaluated=True):
+    return {'has_errors': False, 'translated': {
+        'target_information': [{'key': 'x86_64-unknown-linux-gnu', 'value': {
+            'target_pointer_size': 8, 'is_little_endian': True}}],
+        'options': {'monomorphize': True, 'mir': 'Optimized', 'evaluate_runtime_checks': evaluated},
+        'body': [] if evaluated else [{'NullaryOp': [query, 'bool']} for query in ['UbChecks', 'OverflowChecks']]}}
+
+
+class Guards(unittest.TestCase):
+    def test_complete_snapshots_and_policies(self):
+        for case, (_, name) in GATE['CASES'].items():
+            GATE['validate_output']((GATE['DATA'] / name).read_text(), case)
+        self.assertEqual(GATE['validate_ir'](fixture(), True), [])
+        self.assertEqual(GATE['validate_ir'](fixture(False), False), ['UbChecks', 'OverflowChecks'])
+
+    def test_wrong_or_unevaluated_policy(self):
+        for mutate in [lambda x: x['translated']['options'].pop('evaluate_runtime_checks'),
+                       lambda x: x['translated']['options'].update(evaluate_runtime_checks=False),
+                       lambda x: x['translated']['options'].update(mir='Built'),
+                       lambda x: x['translated'].update(body=[{'NullaryOp': ['UbChecks', 'bool']}])]:
+            ir = copy.deepcopy(fixture()); mutate(ir)
+            with self.assertRaises(RuntimeError): GATE['validate_ir'](ir, True)
+        ir = fixture(False); ir['translated']['body'] = []
+        with self.assertRaises(RuntimeError): GATE['validate_ir'](ir, False)
+
+    def test_changed_boolean_branch_or_admission(self):
+        raw = (GATE['DATA'] / 'OnGenerated.lean').read_text()
+        for bad in [raw.replace('true', 'false'), raw.replace('17#u32', '18#u32'),
+                    raw.replace('ok (true, true)', 'sorry'),
+                    raw.replace('end hasteboots_runtime_checks_on', '')]:
+            with self.assertRaises(RuntimeError): GATE['validate_output'](bad, 'on')
+
+    def test_incomplete_proof_coverage(self):
+        proof = (GATE['DATA'] / 'Proof.lean').read_text().replace('theorem override_checks', 'theorem missing')
+        with self.assertRaises(RuntimeError):
+            GATE['PARAMETERS']['validate_proof_source'](proof, GATE['PROOFS'])
+
+
+if __name__ == '__main__':
+    unittest.main()
