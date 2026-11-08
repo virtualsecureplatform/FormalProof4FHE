@@ -1,0 +1,10 @@
+{
+  "claim": "baseline rejection before checked fieldless enum decoding",
+  "charon_exit_code": 0,
+  "aeneas_exit_code": 2,
+  "mir": "optimized",
+  "expected_error": "Invalid input for unop: transmute",
+  "fixture_sha256": "1ba898352cbfd674b735277a324cfd0ef547f82f6c1f1b5701a840dc42c0d468",
+  "ir_sha256": "4efcdce9bdbdd12d4ba9ce81a60c6f3f4cf11f593af2e0a762ea50e2ca43538b",
+  "log_sha256": "ff06408ec6e1bb3d6ab32ebfc947bd0435570c49f5a21525fdc967a3f77fb044"
+}
