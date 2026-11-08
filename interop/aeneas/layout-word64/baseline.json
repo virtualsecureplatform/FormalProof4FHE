@@ -1,0 +1,15 @@
+{
+  "claim": "baseline layout binding and portable usize rejection before target-word64 profile",
+  "charon_exit_code": 0,
+  "frontend_exit_code": 0,
+  "kernel_exit_code": 1,
+  "fixture_sha256": "6a3766f40ba5c198eff246a36938c116c3131356fc7bb3f3aa0c24bc7b6df9d5",
+  "llbc_sha256": "a369f0146bce684e36f644887b3ef43a1435c362aa0c207f88c3b00e0363d602",
+  "generated_sha256": "edccfa35073aa3d4b2456ed0491899973bbbdb3bd2158b01c3df8bcb0c29e795",
+  "kernel_log_sha256": "95e4dc2b0c0e1c2766418e5e7f6a6b950536d25dbd7584ca1be0fb32944ffde8",
+  "source_layout_emitted": false,
+  "observed_failures": [
+    "large usize conservative literal bound",
+    "Layout accessor argument uses legacy pointer-alignment carrier"
+  ]
+}
