@@ -1,0 +1,173 @@
+#!/usr/bin/env python3
+"""Check retained scalar/pointer LLBC bodies against the concrete heap interpreter."""
+import argparse
+import copy
+import hashlib
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+BUILD = runpy.run_path(str(ROOT / 'scripts/build-hasteboots-inline-tools'))
+PARAMETERS = runpy.run_path(str(ROOT / 'scripts/extract-hasteboots-parameters'))
+REIFIER = runpy.run_path(str(ROOT / 'scripts/reify-hasteboots-scalar-llbc'))
+DATA = ROOT / 'interop/aeneas/scalar-pointer-body'
+MODEL = ROOT / 'FormalProof4FHE/HasteBoots/NativeScalarLLBC.lean'
+EXTRAS = {'Ty': ['unit', 'word', 'ptr'], 'Value': ['unit', 'word', 'pointer'], 'Slot': ['dead', 'live'],
+          'Frame': ['mk', 'types', 'slots', 'heap'], 'Place': ['var', 'deref'], 'Operand': ['copy', 'move'],
+          'Rvalue': ['use', 'castMutToConst', 'unit'], 'Body': ['ret', 'resume', 'storageLive', 'storageDead', 'assign', 'call'],
+          'Function': ['mk', 'name', 'types', 'argCount', 'body'], 'Outcome': ['returned', 'unwind', 'invalid']}
+
+
+def digest(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+
+def inventory():
+    raw = MODEL.read_text()
+    proofs = re.findall(r'^theorem (\w+)', raw, re.M)
+    PARAMETERS['validate_proof_source'](raw, proofs)
+    names = ['FormalProof4FHE.HasteBoots.NativeScalarLLBC.' + n for n in re.findall(r'^(?:def|theorem|structure|inductive) ([\w.]+)', raw, re.M)]
+    for prefix, leaves in EXTRAS.items():
+        names += ['FormalProof4FHE.HasteBoots.NativeScalarLLBC.' + prefix + '.' + leaf for leaf in leaves]
+    return names
+
+
+def validate_source(ir):
+    reifier = REIFIER['Reifier'](ir)
+    crate = ir['translated']
+    if len(reifier.functions) != 9 or len(reifier.globals) != 4:
+        raise ValueError('Incomplete original body/layout closure')
+    expected = ['read_word', 'write_word', 'replace_word', 'read_pointer', 'write_pointer']
+    for fid, name in enumerate(expected):
+        if reifier.functions[fid]['item_meta']['name'] != [{'Ident': ['hasteboots_scalar_pointer_body', 0]}, {'Ident': [name, 0]}]:
+            raise ValueError('Wrong original wrapper identity')
+    for fid, name in [(5, 'read'), (6, 'write'), (7, 'read'), (8, 'write')]:
+        f = reifier.functions[fid]
+        if f['item_meta']['is_local'] or f['item_meta']['name'][:3] != [{'Ident': ['core', 0]}, {'Ident': ['ptr', 0]}, {'Ident': [name, 0]}]:
+            raise ValueError('Original standard-library body was replaced')
+    local_files = [f for f in crate['files'] if f and f['contents'] is not None]
+    if len(local_files) != 1 or local_files[0]['contents'] != (DATA / 'fixture.rs').read_text():
+        raise ValueError('Original fixture bytes differ')
+    for g, name in zip(reifier.globals, ['WORD_SIZE', 'WORD_ALIGN', 'PTR_SIZE', 'PTR_ALIGN']):
+        if g['item_meta']['name'][-1] != {'Ident': [name, 0]} or g['value']['kind']['Literal']['Scalar']['Unsigned'] != ['Usize', '8']:
+            raise ValueError('Original compiler layout value differs')
+    return reifier.render()
+
+
+def negatives(ir):
+    cases = {}
+    def run_case(name, mutate):
+        changed = copy.deepcopy(ir)
+        mutate(changed['translated'])
+        try:
+            REIFIER['Reifier'](changed).render()
+        except (ValueError, KeyError, TypeError, IndexError) as error:
+            cases[name] = str(error)
+        else:
+            raise RuntimeError('Negative accepted: ' + name)
+    run_case('wrong_endian', lambda c: c['target_information'][0]['value'].update(is_little_endian=False))
+    run_case('wrong_word_width', lambda c: c['target_information'][0]['value'].update(target_pointer_size=4))
+    run_case('missing_original_body', lambda c: c['fun_decls'][5].update(body='Opaque'))
+    run_case('opaque_original', lambda c: c['fun_decls'][5]['item_meta'].update(opacity='Opaque'))
+    def bad_type(c):
+        c['fun_decls'][0]['signature']['output'] = {'Untagged': {'Literal': {'UInt': 'U32'}}}
+    run_case('unsupported_u32', bad_type)
+    run_case('static_global', lambda c: c['global_decls'][0].update(global_kind='Static'))
+    run_case('out_of_range_global', lambda c: c['global_decls'][0]['value']['kind']['Literal']['Scalar'].update(Unsigned=['Usize', str(2**64)]))
+    run_case('residual_drop', lambda c: c['fun_decls'][5]['body']['Structured']['body']['statements'][0].update(kind={'Drop': None}))
+    run_case('unknown_terminal_effect', lambda c: c['fun_decls'][5]['body']['Structured']['body']['statements'][-1].update(hidden_effect='Drop'))
+    def call(c):
+        return next(s['kind']['Call'] for s in c['fun_decls'][0]['body']['Structured']['body']['statements'] if isinstance(s['kind'], dict) and 'Call' in s['kind'])
+    run_case('recursive_call', lambda c: call(c)['call']['func']['Regular']['kind']['Fun'].update(Regular=0))
+    run_case('missing_callee', lambda c: call(c)['call']['func']['Regular']['kind']['Fun'].update(Regular=99))
+    run_case('indirect_call', lambda c: call(c)['call'].update(func={'Dynamic': None}))
+    run_case('unwind_heap_effect', lambda c: call(c)['on_unwind']['statements'][0].update(kind={'Assign': None}))
+    run_case('storage_out_of_range', lambda c: c['fun_decls'][5]['body']['Structured']['body']['statements'][0].update(kind={'StorageLive': 99}))
+    def noncopy(c):
+        c['fun_decls'][5]['body']['Structured']['body']['statements'][1]['kind']['Assign'][1]['Use'][1] = 'No'
+    run_case('noncopy_dereference', noncopy)
+    def reference_type(c):
+        c['fun_decls'][0]['signature']['inputs'][0] = {'Untagged': {'Ref': []}}
+    run_case('reference_type', reference_type)
+    def residual_query(c):
+        c['fun_decls'][5]['body']['Structured']['body']['statements'][1]['kind']['Assign'][1] = {'NullaryOp': ['UbChecks', None]}
+    run_case('residual_runtime_query', residual_query)
+    return cases
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--build-receipt', type=Path, required=True)
+    parser.add_argument('--backend', type=Path, required=True)
+    args = parser.parse_args()
+    out = Path(tempfile.mkdtemp(prefix='scalar-pointer-body-', dir=ROOT / 'build/hasteboots-extraction'))
+    record = {'status': 'started', 'claim': 'original scalar/pointer LLBC body interpretation only; compiler/native constructor/alias/work/security refinement unproved', 'commands': []}
+    def save(): (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
+    def run(command, log, expected=0):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out / log).open('w') as stream:
+            completed = subprocess.run([str(x) for x in command], cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT)
+        if completed.returncode != expected:
+            raise RuntimeError('Command failed: ' + log + ' (' + str(completed.returncode) + ')')
+    print('Scalar pointer body artifacts: ' + str(out), flush=True)
+    try:
+        _, tools, _ = BUILD['verify_receipt'](args.build_receipt)
+        record['build_receipt_sha256'] = digest(args.build_receipt.read_bytes())
+        files = [Path(__file__), ROOT / 'scripts/reify-hasteboots-scalar-llbc', MODEL,
+                 *[DATA / name for name in ['fixture.rs', 'Generated.lean', 'Proof.lean', 'Bridge.lean', 'Smoke.lean']],
+                 ROOT / 'FormalProof4FHETest/HasteBootsScalarLLBCSmoke.lean', ROOT / 'lean-toolchain']
+        record['inputs'] = {str(p.relative_to(ROOT)): digest(p.read_bytes()) for p in files}
+        run([ROOT / 'scripts/check-hasteboots-word64-memory', '--build-receipt', args.build_receipt, '--backend', args.backend], 'parent-word-memory.log')
+        parent_path = Path((out / 'parent-word-memory.log').read_text().splitlines()[0].split(': ', 1)[1]) / 'manifest.json'
+        parent = json.loads(parent_path.read_text())
+        if parent.get('status') != 'passed' or parent['build_receipt_sha256'] != record['build_receipt_sha256']:
+            raise RuntimeError('Parent profile did not check with the same tools')
+        record['parent_word_memory'] = {'manifest_sha256': digest(parent_path.read_bytes()), 'dependency_audit': parent['dependency_audit']}
+        run([ROOT / 'scripts/in-container', 'lake', 'build', 'FormalProof4FHE.HasteBoots.NativeScalarLLBC', 'FormalProof4FHETest.HasteBootsScalarLLBCSmoke'], 'root-build.log')
+        llbc = out / 'source.llbc'
+        run([tools / 'charon', 'rustc', '--preset=aeneas', '--sysroot', 'default', '--monomorphize', '--mir', 'optimized', '--consts', 'values',
+             '--evaluate-runtime-checks', '--precise-drops', '--desugar-drops', '--preserve-allocator', '--no-dedup-serialized-ast',
+             '--include', 'core::ptr::read', '--include', 'core::ptr::write', '--dest-file', llbc, '--', '--crate-type', 'lib', '--edition', '2024',
+             '--crate-name', 'hasteboots_scalar_pointer_body', (DATA / 'fixture.rs').relative_to(ROOT)], 'charon.log')
+        ir = json.loads(llbc.read_text())
+        generated, functions = validate_source(ir)
+        if generated != (DATA / 'Generated.lean').read_text(): raise RuntimeError('Original body snapshot differs')
+        record['functions'] = functions
+        record['negative_controls'] = negatives(ir)
+        # Ensure a supported original syntax mutation changes the output, rather than being selected by function name.
+        changed = copy.deepcopy(ir)
+        statements = changed['translated']['fun_decls'][6]['body']['Structured']['body']['statements']
+        statements[-2], statements[-3] = statements[-3], statements[-2]
+        if REIFIER['Reifier'](changed).render()[0] == generated: raise RuntimeError('Source body mutation was ignored')
+        record['supported_body_mutation_retained'] = True
+        run([tools / 'aeneas', '-backend', 'lean', '-checks', '-sequential', '-abort-on-error', '-no-external-name-patterns',
+             '-disambiguate-instantiated-names', '-monomorphic-builtin-shapes', '-target-word64', '-provenance-pointers',
+             '-literal-const-initializers', '-dest', out / 'aeneas-baseline', llbc], 'aeneas-baseline.log', expected=2)
+        if 'does not yet support dereferencing raw pointers' not in (out / 'aeneas-baseline.log').read_text():
+            raise RuntimeError('Unexpected Aeneas baseline boundary')
+        names = inventory() + ['HasteBootsScalarPointerBody.f' + str(i) for i in range(9)] + ['HasteBootsScalarPointerBody.g' + str(i) for i in range(4)]
+        for file in ['Proof.lean', 'Bridge.lean']:
+            raw = (DATA / file).read_text(); proofs = re.findall(r'^theorem (\w+)', raw, re.M)
+            PARAMETERS['validate_proof_source'](raw, proofs)
+            names += ['HasteBootsScalarPointerBody.' + name for name in proofs]
+        checked = out / 'Checked.lean'
+        checked.write_text(generated + '\n' + '\n'.join((DATA / f).read_text() for f in ['Proof.lean', 'Bridge.lean', 'Smoke.lean'])
+                           + ''.join('\n#print axioms ' + name + '\n' for name in names))
+        run([ROOT / 'scripts/in-container', 'lake', 'env', 'lean', '-DwarningAsError=true', checked.relative_to(ROOT)], 'lean.log')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), names)
+        record['llbc_sha256'] = digest(llbc.read_bytes()); record['checked_sha256'] = digest(checked.read_bytes())
+        if record['inputs'] != {str(p.relative_to(ROOT)): digest(p.read_bytes()) for p in files}: raise RuntimeError('Inputs changed during check')
+        BUILD['verify_receipt'](args.build_receipt)
+        record['status'] = 'passed'
+        print('Scalar pointer body passed: ' + str(len(names)) + ' audits, ' + str(len(record['negative_controls'])) + ' rejecting controls; Aeneas raw dereference still rejected')
+    except Exception as error:
+        record.update(status='failed', error=str(error)); raise SystemExit('Scalar pointer body failed; inspect ' + str(out) + ': ' + str(error)) from error
+    finally:
+        record['logs'] = {p.name: digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__': main()

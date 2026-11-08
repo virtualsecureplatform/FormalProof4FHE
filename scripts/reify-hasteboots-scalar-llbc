@@ -1,0 +1,235 @@
+#!/usr/bin/env python3
+"""Reify closed scalar/pointer LLBC bodies, preserving calls and storage/unwind syntax.
+
+This is a separate experimental Charon-to-Lean body profile, not an Aeneas
+raw-dereference implementation or a compiler-correctness/security certificate.
+"""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+
+
+def require(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+
+def empty_generics(g):
+    return isinstance(g, dict) and set(g) <= {'regions', 'types', 'const_generics', 'trait_refs',
+        'trait_clauses', 'regions_outlive', 'types_outlive', 'trait_type_constraints'} and all(v == [] for v in g.values())
+
+
+def ty(raw):
+    require(isinstance(raw, dict) and set(raw) == {'Untagged'}, 'Expected expanded original type')
+    raw = raw['Untagged']
+    if raw == {'Literal': {'UInt': 'U64'}}:
+        return ('word',)
+    if set(raw) == {'RawPtr'}:
+        target, mutable = raw['RawPtr']
+        require(mutable in ['Shared', 'Mut'], 'Unknown pointer mutability')
+        target = ty(target)
+        require(target != ('unit',), 'Unit-pointee layout is outside this profile')
+        return ('ptr', mutable == 'Mut', target)
+    if set(raw) == {'Adt'}:
+        adt = raw['Adt']
+        require(set(adt) == {'id', 'generics'} and adt['id'] == 'Tuple' and empty_generics(adt['generics']), 'Only unit ADT is supported')
+        return ('unit',)
+    raise ValueError('Unsupported original type: ' + repr(raw))
+
+
+def lean_ty(t):
+    if t[0] != 'ptr':
+        return '.' + t[0]
+    return '(.ptr ' + str(t[1]).lower() + ' ' + lean_ty(t[2]) + ')'
+
+
+def seq(items):
+    return '[' + ', '.join(items) + ']'
+
+
+class Reifier:
+    def __init__(self, ir):
+        require(ir.get('charon_version') == '0.1.226' and ir.get('has_errors') is False, 'Wrong schema or Charon errors')
+        c = self.crate = ir['translated']
+        options = c['options']
+        for key in ['monomorphize', 'evaluate_runtime_checks', 'precise_drops', 'desugar_drops', 'preserve_allocator', 'no_dedup_serialized_ast']:
+            require(options.get(key) is True, 'Required extraction option: ' + key)
+        require(options.get('mir') == 'Optimized' and options.get('sysroot') == 'default', 'Expected original optimized ordinary sysroot')
+        require(not options.get('opaque') and not options.get('exclude') and not options.get('inline_functions'), 'Hidden or rewritten call bodies')
+        require(c['target_information'] == [{'key': 'x86_64-unknown-linux-gnu', 'value': {'target_pointer_size': 8, 'is_little_endian': True}}], 'Wrong target layout')
+        for key in ['type_decls', 'trait_decls', 'trait_impls']:
+            require(not any(c[key]), 'Unsupported declaration category: ' + key)
+        self.functions = {f['def_id']: f for f in c['fun_decls'] if f is not None}
+        require(len(self.functions) == len([f for f in c['fun_decls'] if f]), 'Duplicate function identity')
+        require(options.get('consts') == 'Values', 'Expected compiler-evaluated layout constants')
+        self.globals = [g for g in c['global_decls'] if g]
+        for g in self.globals:
+            expected = {'Untagged': {'Literal': {'UInt': 'Usize'}}}
+            require(g['src'] == 'TopLevel' and g['global_kind'] == 'NamedConst' and empty_generics(g['generics']), 'Unsupported global')
+            require(g['ty'] == expected and g['value']['ty'] == expected, 'Expected evaluated usize global')
+            kind = g['value']['kind']
+            require(set(kind) == {'Literal'} and set(kind['Literal']) == {'Scalar'} and set(kind['Literal']['Scalar']) == {'Unsigned'}, 'Nonliteral global')
+            scalar, value = kind['Literal']['Scalar']['Unsigned']
+            require(scalar == 'Usize' and isinstance(value, str) and value.isdecimal() and 0 <= int(value) < 2**64, 'Global scalar outside target range')
+        self.schemas, self.records = {}, []
+        for fid, f in self.functions.items():
+            require(empty_generics(f['generics']) and f['src'] == 'TopLevel' and f['is_global_initializer'] is None, 'Expected closed original function')
+            require(f['item_meta']['opacity'] == 'Transparent' and set(f['body']) == {'Structured'}, 'Missing original body')
+            sig = f['signature']
+            require(set(sig) == {'is_unsafe', 'abi', 'is_variadic', 'inputs', 'output'} and sig['abi'] == 'Rust' and not sig['is_variadic'], 'Unsupported function signature')
+            b = f['body']['Structured']
+            require(set(b) == {'span', 'bound_body_regions', 'locals', 'body', 'comments'}, 'Unknown function-body fields')
+            require(b['bound_body_regions'] == 0, 'References/lifetimes are outside the scalar profile')
+            locals_ = b['locals']['locals']
+            require([x['index'] for x in locals_] == list(range(len(locals_))), 'Noncanonical local identities')
+            require(all(set(x) == {'index', 'name', 'span', 'ty'} for x in locals_), 'Unknown local fields')
+            types = [ty(x['ty']) for x in locals_]
+            count = b['locals']['arg_count']
+            require(count == len(sig['inputs']) and count + 1 <= len(types), 'Argument count mismatch')
+            require(types[0] == ty(sig['output']) and types[1:count+1] == [ty(x) for x in sig['inputs']], 'Local/signature type mismatch')
+            self.schemas[fid] = (types, count)
+        self.active, self.rendered = set(), {}
+
+    def place(self, raw, fid, write=False):
+        require(set(raw) == {'kind', 'ty'}, 'Unknown place fields')
+        t = ty(raw['ty'])
+        kind = raw['kind']
+        if set(kind) == {'Local'}:
+            index = kind['Local']
+            require(isinstance(index, int) and 0 <= index < len(self.schemas[fid][0]) and self.schemas[fid][0][index] == t, 'Local type/index mismatch')
+            return '(.var ' + str(index) + ')', t
+        require(set(kind) == {'Projection'}, 'Unsupported place')
+        base, projection = kind['Projection']
+        require(projection == 'Deref' and set(base['kind']) == {'Local'}, 'Only one raw dereference is supported')
+        _, base_ty = self.place(base, fid)
+        require(base_ty[0] == 'ptr' and base_ty[2] == t, 'Deref pointee type mismatch')
+        require(not write or base_ty[1], 'Write through a const pointer')
+        return '(.deref ' + str(base['kind']['Local']) + ' ' + lean_ty(t) + ')', t
+
+    def operand(self, raw, fid):
+        require(isinstance(raw, dict) and len(raw) == 1, 'Unsupported operand')
+        if set(raw) == {'Copy'}:
+            p, t = self.place(raw['Copy'], fid)
+            return '(.copy ' + p + ')', t
+        require(set(raw) == {'Move'} and set(raw['Move']['kind']) == {'Local'}, 'Only local moves are supported')
+        _, t = self.place(raw['Move'], fid)
+        return '(.move ' + str(raw['Move']['kind']['Local']) + ')', t
+
+    def rvalue(self, raw, fid):
+        require(isinstance(raw, dict) and len(raw) == 1, 'Unsupported rvalue')
+        if set(raw) == {'Use'}:
+            operand, use_copy = raw['Use']
+            require(use_copy == 'Yes', 'Non-Copy data is outside the profile')
+            value, t = self.operand(operand, fid)
+            return '(.use ' + value + ')', t
+        if set(raw) == {'UnaryOp'}:
+            operation, operand = raw['UnaryOp']
+            require(set(operation) == {'Cast'} and set(operation['Cast']) == {'RawPtr'}, 'Unsupported unary operation')
+            src, dst = map(ty, operation['Cast']['RawPtr'])
+            value, actual = self.operand(operand, fid)
+            require(actual == src and src[0] == dst[0] == 'ptr' and src[1] and not dst[1] and src[2] == dst[2], 'Only original mut-to-const casts preserve this type')
+            return '(.castMutToConst ' + value + ')', dst
+        require(set(raw) == {'Aggregate'}, 'Unsupported rvalue form')
+        aggregate, operands = raw['Aggregate']
+        require(set(aggregate) == {'Adt'} and operands == [], 'Unsupported aggregate')
+        adt, variant, union = aggregate['Adt']
+        require(adt['id'] == 'Tuple' and empty_generics(adt['generics']) and variant is None and union is None, 'Expected original unit aggregate')
+        return '.unit', ('unit',)
+
+    def block(self, block, fid, unwind=False):
+        require(set(block) == {'span', 'statements'}, 'Unknown block fields')
+        statements = block['statements']
+        require(statements, 'Empty/unterminated block')
+        require(all(set(s) == {'span', 'id', 'kind', 'comments_before'} for s in statements), 'Unknown statement fields')
+        last = statements[-1]['kind']
+        require(last == ('UnwindResume' if unwind else 'Return'), 'Expected explicit return/resume')
+        result = '.resume' if unwind else '.ret'
+        for statement in reversed(statements[:-1]):
+            require(set(statement) == {'span', 'id', 'kind', 'comments_before'}, 'Unknown statement fields')
+            k = statement['kind']
+            require(isinstance(k, dict) and len(k) == 1, 'Unsupported control flow or statement')
+            name, payload = next(iter(k.items()))
+            if name in ['StorageLive', 'StorageDead']:
+                require(isinstance(payload, int) and 0 <= payload < len(self.schemas[fid][0]), 'Storage index out of range')
+                result = '(.storage' + ('Live' if name == 'StorageLive' else 'Dead') + ' ' + str(payload) + ' ' + result + ')'
+            elif name == 'Assign' and not unwind:
+                target, value = payload
+                p, target_ty = self.place(target, fid, write=True)
+                v, value_ty = self.rvalue(value, fid)
+                require(target_ty == value_ty, 'Assignment type mismatch')
+                result = '(.assign ' + p + ' ' + v + ' ' + result + ')'
+            elif name == 'Call' and not unwind:
+                require(set(payload) == {'call', 'on_unwind'}, 'Unknown call fields')
+                call = payload['call']
+                require(set(call) == {'func', 'args', 'dest'}, 'Unknown call form')
+                require(set(call['func']) == {'Regular'}, 'Indirect call is unsupported')
+                fun = call['func']['Regular']
+                require(set(fun) == {'kind', 'generics'} and empty_generics(fun['generics']), 'Unclosed call')
+                require(set(fun['kind']) == {'Fun'} and set(fun['kind']['Fun']) == {'Regular'}, 'Builtin/trait call without original body')
+                target_id = fun['kind']['Fun']['Regular']
+                require(target_id in self.functions, 'Missing callee body')
+                dest, dest_ty = self.place(call['dest'], fid, write=True)
+                operands = [self.operand(x, fid) for x in call['args']]
+                types, count = self.schemas[target_id]
+                require(len(operands) == count and [t for _, t in operands] == types[1:count+1] and dest_ty == types[0], 'Callee signature mismatch')
+                callee = self.body(target_id)
+                cleanup = self.block(payload['on_unwind'], fid, unwind=True)
+                result = '(.call ' + json.dumps(self.name(target_id), ensure_ascii=False) + ' ' + seq([lean_ty(t) for t in types]) + ' ' + str(count) + ' ' + dest + ' ' + seq([x for x, _ in operands]) + ' ' + callee + ' ' + cleanup + ' ' + result + ')'
+            else:
+                raise ValueError('Unsupported statement/unwind effect: ' + name)
+        return result
+
+    def name(self, fid):
+        return '::'.join(x['Ident'][0] for x in self.functions[fid]['item_meta']['name'] if 'Ident' in x) + '#' + str(fid)
+
+    def body(self, fid):
+        require(fid not in self.active, 'Recursive source call graph is unsupported')
+        if fid in self.rendered:
+            return self.rendered[fid]
+        self.active.add(fid)
+        result = self.block(self.functions[fid]['body']['Structured']['body'], fid)
+        self.active.remove(fid)
+        self.rendered[fid] = result
+        return result
+
+    def render(self):
+        lines = ['module', 'public import FormalProof4FHE.HasteBoots.NativeScalarLLBC', 'public import FormalProof4FHE.HasteBoots.NativeReferenceMachine', '@[expose] public section', '',
+                 '-- Generated from retained original LLBC bodies; no function-name semantic overrides.',
+                 'namespace HasteBootsScalarPointerBody', 'open FormalProof4FHE.HasteBoots.NativeScalarLLBC', '']
+        records = []
+        for g in self.globals:
+            value = g['value']['kind']['Literal']['Scalar']['Unsigned'][1]
+            lines += ['-- Original evaluated usize global ' + str(g['def_id']),
+                      'def g' + str(g['def_id']) + ' : Fin (2 ^ 64) := ⟨' + value + ', by decide⟩', '']
+        for fid in sorted(self.functions):
+            f = self.functions[fid]
+            body = self.body(fid)
+            types, count = self.schemas[fid]
+            span = f['item_meta']['span']['data']
+            digest = hashlib.sha256(json.dumps(f['body'], sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+            lines += ['-- Original function ' + self.name(fid) + '; body SHA256 ' + digest,
+                      'def f' + str(fid) + ' : Function :=',
+                      '  ⟨' + json.dumps(self.name(fid), ensure_ascii=False) + ', ' + seq([lean_ty(t) for t in types]) + ', ' + str(count) + ',', '    ' + body + '⟩', '']
+            records.append({'id': fid, 'name': self.name(fid), 'span': span, 'original_body_sha256': digest,
+                            'lean_body_sha256': hashlib.sha256(body.encode()).hexdigest()})
+        lines += ['end HasteBootsScalarPointerBody', '']
+        return '\n'.join(lines), records
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('llbc', type=Path)
+    parser.add_argument('output', type=Path)
+    parser.add_argument('--receipt', type=Path, required=True)
+    args = parser.parse_args()
+    raw = args.llbc.read_bytes()
+    generated, records = Reifier(json.loads(raw)).render()
+    args.output.write_text(generated)
+    args.receipt.write_text(json.dumps({'profile': 'closed-copy-scalar-pointer-body-v1', 'llbc_sha256': hashlib.sha256(raw).hexdigest(),
+        'generated_sha256': hashlib.sha256(generated.encode()).hexdigest(), 'functions': records,
+        'claim': 'reified original scalar/pointer LLBC bodies only; Charon/reifier/compiler correctness and native constructor/security unproved'}, indent=2) + '\n')
+
+
+if __name__ == '__main__':
+    main()
