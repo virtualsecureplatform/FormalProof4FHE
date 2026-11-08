@@ -230,3 +230,14 @@ module still rejects for extracted axioms. Global expansion reaches original
 `__rust_dealloc`, exposing layout and pointer primitives that require faithful
 heap semantics. These diagnostics accept no native constructor or security
 proof and introduce no replacement cleanup implementation.
+
+## Explicit word64 byte-slice values
+
+The opt-in `-word64-slices` profile requires `-target-word64` and uses
+`HasteBootsSlice64Runtime.Slice` with U64 length/index/update primitives.
+The concrete original byte `slice_len_fn` binding validates its safe shared
+reference signature, Rust ABI and argument arities. Arrays remain rejected.
+This does not install a native reference/heap model. See
+[`../byte-reference/README.md`](../byte-reference/README.md) for the original
+safe-reference fixture, all-input accessor proofs and remaining source obligations.
+Existing profiles are unchanged with the flag absent.

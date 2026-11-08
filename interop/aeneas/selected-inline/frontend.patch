@@ -1,8 +1,8 @@
 diff --git a/src/Config.ml b/src/Config.ml
-index cb919aeb..4dbdd1ec 100644
+index cb919aeb..453ebc6b 100644
 --- a/src/Config.ml
 +++ b/src/Config.ml
-@@ -598,3 +598,14 @@ let max_recdepth = ref 2048
+@@ -598,3 +598,15 @@ let max_recdepth = ref 2048
  (** If [false], evaluate [drop(p)] as [p := bottom]. Otherwise, evaluate it as a
      no-op (which means that we do not borrow-check the drops). *)
  let drop_as_no_op = ref true
@@ -17,17 +17,22 @@ index cb919aeb..4dbdd1ec 100644
 +let u64_range_patterns = ref false
 +let target_word64 = ref false
 +let provenance_pointers = ref false
++let word64_slices = ref false
 diff --git a/src/Main.ml b/src/Main.ml
-index 8073dba6..648c2a1a 100644
+index 8073dba6..9fadca2d 100644
 --- a/src/Main.ml
 +++ b/src/Main.ml
-@@ -97,6 +97,26 @@ let () =
+@@ -97,6 +97,30 @@ let () =
          Arg.Symbol (backend_names, set_backend),
          " Specify the target backend (" ^ String.concat ", " backend_names ^ ")"
        );
 +      ( "-monomorphic-builtin-shapes",
 +        Arg.Set monomorphic_builtin_shapes,
 +        " Preserve monomorphic traits and recognize scalar option shapes" );
++      ( "-word64-slices",
++        Arg.Set word64_slices,
++        " Use an explicit word64 slice carrier and checked primitive operations"
++      );
 +      ( "-provenance-pointers",
 +        Arg.Set provenance_pointers,
 +        " Preserve raw-pointer address, allocation provenance and metadata" );
@@ -48,7 +53,7 @@ index 8073dba6..648c2a1a 100644
        ( "-namespace",
          Arg.String set_namespace,
          " Set the namespace of the definitions in the pure model" );
-@@ -579,6 +599,32 @@ let () =
+@@ -579,6 +603,36 @@ let () =
           without the `--preset=aeneas` option. Please regenerate the crate by \
           calling Charon with `--preset=aeneas`.\n";
  
@@ -78,14 +83,18 @@ index 8073dba6..648c2a1a 100644
 +        ((not !provenance_pointers) || !target_word64)
 +        "Provenance pointers require the checked target-word64 profile";
 +
++      check_no_doc
++        ((not !word64_slices) || !target_word64)
++        "Word64 slices require the checked target-word64 profile";
++
        (* We don't support mutually recursive definitions with decreases clauses in Lean *)
        if
          !opt_backend = Some Lean && !extract_decreases_clauses
 diff --git a/src/PrePasses.ml b/src/PrePasses.ml
-index b613aba1..08424217 100644
+index b613aba1..18f91ef0 100644
 --- a/src/PrePasses.ml
 +++ b/src/PrePasses.ml
-@@ -87,6 +87,1068 @@ let erase_body_regions (crate : crate) (f : fun_decl) : fun_decl =
+@@ -87,6 +87,1141 @@ let erase_body_regions (crate : crate) (f : fun_decl) : fun_decl =
      ^ Print.fun_decl_to_string env "" "  " f];
    f
  
@@ -177,6 +186,79 @@ index b613aba1..08424217 100644
 +                    "Word64 bit-count intrinsic reference must have no \
 +                     remaining generic arguments"
 +              | _ -> ())
++          | _ -> ());
++          super#visit_fn_ptr env ptr
++      end
++    in
++    match f.body with
++    | StructuredBody body ->
++        {
++          f with
++          body =
++            StructuredBody { body with body = visitor#visit_block () body.body };
++        }
++    | _ -> f
++
++(** Slice word64 admits only the original monomorphic slice-length lang item;
++    typed array conversions and unsupported builtin ranges remain rejected. *)
++let validate_word64_slices (crate : crate) (f : fun_decl) : fun_decl =
++  if not !Config.word64_slices then f
++  else
++    let mctx = NameMatcher.ctx_from_crate crate in
++    let selected decl =
++      NameMatcher.match_name mctx
++        {
++          map_vars_to_vars = true;
++          match_with_trait_decl_refs =
++            Config.match_patterns_with_trait_decl_refs;
++        }
++        (NameMatcher.parse_pattern "core::slice::{[u8]}::len")
++        (strip_target_or_instantiated_suffix decl.item_meta.name)
++    in
++    let validate decl =
++      if selected decl then
++        [%cassert] decl.item_meta.span
++          (decl.item_meta.lang_item = Some "slice_len_fn"
++          && List.length decl.generics.regions = 1
++          && decl.generics.types = []
++          && decl.generics.const_generics = []
++          && decl.generics.trait_clauses = []
++          && (not decl.signature.is_unsafe)
++          && (not decl.signature.is_variadic)
++          && decl.signature.abi = AbiRust
++          && decl.signature.output = TLiteral (TUInt Usize)
++          &&
++          match decl.signature.inputs with
++          | [ TRef (_, TSlice (TLiteral (TUInt U8)), RShared) ] -> true
++          | _ -> false)
++          "Word64 slice length requires the original monomorphic slice_len_fn \
++           shared signature and Rust ABI"
++    in
++    validate f;
++    let visitor =
++      object
++        inherit [_] map_statement as super
++
++        method! visit_fn_ptr env ptr =
++          (match ptr.kind with
++          | FunId (FRegular id) -> (
++              match FunDeclId.Map.find_opt id crate.fun_decls with
++              | Some decl when selected decl ->
++                  validate decl;
++                  [%cassert] f.item_meta.span
++                    (List.length ptr.generics.regions = 1
++                    && ptr.generics.types = []
++                    && ptr.generics.const_generics = []
++                    && ptr.generics.trait_refs = [])
++                    "Word64 slice length reference must have no remaining \
++                     type/const/trait arguments"
++              | _ -> ())
++          | FunId
++              (FBuiltin
++                 ( ArrayToSliceShared | ArrayToSliceMut
++                 | Index { is_array = true; _ } )) ->
++              [%craise] f.item_meta.span
++                "Word64 slice profile does not support array builtins"
 +          | _ -> ());
 +          super#visit_fn_ptr env ptr
 +      end
@@ -1154,7 +1236,7 @@ index b613aba1..08424217 100644
  (** Replace the occurrences of [core::intrinsics::unreachable] with
      [Abort UndefinedBehavior]. This helps with the analyzes and the symbolic
      evaluation (in particular, we stop the evaluation when encountering an
-@@ -979,20 +2041,26 @@ let filter_marker_traits (crate : crate) : crate =
+@@ -979,20 +2114,26 @@ let filter_marker_traits (crate : crate) : crate =
    let mctx = NameMatcher.ctx_from_crate crate in
    let pats =
      List.map NameMatcher.parse_pattern
@@ -1195,7 +1277,7 @@ index b613aba1..08424217 100644
    in
    let match_config =
      {
-@@ -1306,6 +2374,12 @@ let decompose_str_borrows (_ : crate) (f : fun_decl) : fun_decl =
+@@ -1306,6 +2447,12 @@ let decompose_str_borrows (_ : crate) (f : fun_decl) : fun_decl =
                *)
                method! visit_Constant env (cv : constant_expr) =
                  match (cv.kind, cv.ty) with
@@ -1208,7 +1290,7 @@ index b613aba1..08424217 100644
                  | ( CLiteral (VStr str),
                      TRef
                        (_, (TAdt { id = TBuiltin TStr; _ } as str_ty), ref_kind)
-@@ -2126,6 +3200,36 @@ let simplify_trait_calls (crate : crate) : crate =
+@@ -2126,6 +3273,36 @@ let simplify_trait_calls (crate : crate) : crate =
    let impls_to_explore = ref [] in
    let used_funs = ref FunDeclId.Set.empty in
  
@@ -1245,7 +1327,7 @@ index b613aba1..08424217 100644
    (* First explore the transparent functions *)
    let visitor =
      object
-@@ -2142,7 +3246,8 @@ let simplify_trait_calls (crate : crate) : crate =
+@@ -2142,7 +3319,8 @@ let simplify_trait_calls (crate : crate) : crate =
    in
    FunDeclId.Map.iter
      (fun _ (f : fun_decl) ->
@@ -1255,12 +1337,13 @@ index b613aba1..08424217 100644
        match f.body with
        | StructuredBody body -> visitor#visit_block () body.body
        | _ -> ())
-@@ -2271,8 +3376,15 @@ let apply_passes (crate : crate) : crate =
+@@ -2271,8 +3449,16 @@ let apply_passes (crate : crate) : crate =
    (* Passes that apply to individual function bodies *)
    let function_passes =
      [
 +      ("validate_signature_regions", validate_signature_regions);
 +      ("validate_word64_intrinsics", validate_word64_intrinsics);
++      ("validate_word64_slices", validate_word64_slices);
 +      ("validate_ctlz_nonzero", validate_ctlz_nonzero);
        ("fix_closure_lifetimes", fix_closure_lifetimes);
        ("erase_body_regions", erase_body_regions);
@@ -1287,7 +1370,7 @@ index 8df1bc5f..f1e2b16f 100644
    in
  
 diff --git a/src/extract/Extract.ml b/src/extract/Extract.ml
-index 2dc4a57f..f44bd96e 100644
+index 2dc4a57f..583d613a 100644
 --- a/src/extract/Extract.ml
 +++ b/src/extract/Extract.ml
 @@ -398,6 +398,8 @@ let extract_cast_kind_hol4 (span : Meta.span)
@@ -1349,7 +1432,16 @@ index 2dc4a57f..f44bd96e 100644
        (* Print the target type argument and mutability *)
        let tgt_ty : integer_type =
          match tgt_ty with
-@@ -588,6 +624,19 @@ let extract_binop (span : Meta.span) (ctx : extraction_ctx)
+@@ -562,6 +598,8 @@ let extract_unop (span : Meta.span)
+     (extract_expr : inside:bool -> texpr -> unit) (fmt : F.formatter)
+     ~(inside : bool) (unop : unop) (arg : texpr) : unit =
+   match unop with
++  | ArrayToSlice when !Config.word64_slices ->
++      [%craise] span "Word64 slice profile does not support array conversions"
+   | Not _ | Neg _ | ArrayToSlice ->
+       let unop = unop_name unop in
+       if inside then F.pp_print_string fmt "(";
+@@ -588,6 +626,19 @@ let extract_binop (span : Meta.span) (ctx : extraction_ctx)
    if inside then F.pp_print_string fmt "(";
    (* Some binary operations have a special notation depending on the backend *)
    (match (backend (), binop) with
@@ -1369,7 +1461,7 @@ index 2dc4a57f..f44bd96e 100644
    | HOL4, (Eq _ | Ne _)
    | (FStar | Coq | Lean), (Eq _ | Lt _ | Le _ | Ne _ | Ge _ | Gt _)
    | (FStar | Lean), (BoolAnd | BoolOr)
-@@ -636,6 +685,22 @@ let extract_binop (span : Meta.span) (ctx : extraction_ctx)
+@@ -636,6 +687,22 @@ let extract_binop (span : Meta.span) (ctx : extraction_ctx)
        F.pp_print_string fmt binop_str;
        F.pp_print_space fmt ();
        extract_expr ~inside:true arg1
@@ -1392,7 +1484,7 @@ index 2dc4a57f..f44bd96e 100644
    | ( Lean,
        ( Add (OWrap, _)
        | Sub (OWrap, _)
-@@ -916,6 +981,46 @@ and extract_function_call (span : Meta.span) (ctx : extraction_ctx)
+@@ -916,6 +983,46 @@ and extract_function_call (span : Meta.span) (ctx : extraction_ctx)
        extract_binop span ctx
          (extract_texpr span ctx fmt ~inside_do)
          fmt ~inside binop arg0 arg1
@@ -1439,7 +1531,7 @@ index 2dc4a57f..f44bd96e 100644
    | Fun fun_id, _ ->
        let use_brackets = inside in
        if use_brackets then F.pp_print_string fmt "(";
-@@ -2693,6 +2798,7 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
+@@ -2693,6 +2800,7 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
    let clause_names =
      match builtin_info with
      | None ->
@@ -1447,7 +1539,7 @@ index 2dc4a57f..f44bd96e 100644
          List.map
            (fun (c : trait_param) ->
              let name = ctx_compute_trait_parent_clause_name ctx trait_decl c in
-@@ -2701,6 +2807,14 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
+@@ -2701,6 +2809,14 @@ let extract_trait_decl_register_parent_clause_names (ctx : extraction_ctx)
                if !record_fields_short_names then name
                else ctx_compute_trait_decl_name ctx trait_decl ^ name
              in
@@ -1463,12 +1555,17 @@ index 2dc4a57f..f44bd96e 100644
            trait_decl.parent_clauses
      | Some info ->
 diff --git a/src/extract/ExtractBase.ml b/src/extract/ExtractBase.ml
-index 66bb1e48..3f483c1c 100644
+index 66bb1e48..f4ba3e45 100644
 --- a/src/extract/ExtractBase.ml
 +++ b/src/extract/ExtractBase.ml
-@@ -1223,8 +1223,14 @@ let builtin_adts () : (builtin_ty * string) list =
+@@ -1221,10 +1221,18 @@ let builtin_adts () : (builtin_ty * string) list =
+         (TLoopResult, "ControlFlow");
+         (TFuel, "Nat");
          (TArray, "Array");
-         (TSlice, "Slice");
+-        (TSlice, "Slice");
++        ( TSlice,
++          if !Config.word64_slices then "HasteBootsSlice64Runtime.Slice"
++          else "Slice" );
          (TStr, "Str");
 -        (TRawPtr Mut, "MutRawPtr");
 -        (TRawPtr Const, "ConstRawPtr");
@@ -1483,7 +1580,7 @@ index 66bb1e48..3f483c1c 100644
        ]
    | Coq | FStar | HOL4 ->
        [
-@@ -1308,6 +1314,8 @@ let builtin_llbc_functions () : (A.builtin_fun_id * string) list =
+@@ -1308,6 +1316,8 @@ let builtin_llbc_functions () : (A.builtin_fun_id * string) list =
        ]
    | Lean ->
        [
@@ -1492,7 +1589,32 @@ index 66bb1e48..3f483c1c 100644
          (ArrayToSliceShared, "Array.to_slice");
          (ArrayToSliceMut, "Array.to_slice_mut");
          (ArrayRepeat, "Array.repeat");
-@@ -1604,7 +1612,18 @@ let ctx_compute_simple_name (meta : T.item_meta) (ctx : extraction_ctx)
+@@ -1316,9 +1326,11 @@ let builtin_llbc_functions () : (A.builtin_fun_id * string) list =
+         ( Index { is_array = true; mutability = RMut; is_range = false },
+           "Array.index_mut_usize" );
+         ( Index { is_array = false; mutability = RShared; is_range = false },
+-          "Slice.index_usize" );
++          if !Config.word64_slices then "HasteBootsSlice64Runtime.index"
++          else "Slice.index_usize" );
+         ( Index { is_array = false; mutability = RMut; is_range = false },
+-          "Slice.index_mut_usize" );
++          if !Config.word64_slices then "HasteBootsSlice64Runtime.index_mut"
++          else "Slice.index_mut_usize" );
+       ]
+ 
+ let builtin_pure_functions () : (pure_builtin_fun_id * string) list =
+@@ -1351,7 +1363,9 @@ let builtin_pure_functions () : (pure_builtin_fun_id * string) list =
+         (Fail, "fail_");
+         (Assert, "massert");
+         (Discriminant, "read_discriminant");
+-        (UpdateAtIndex Slice, "Slice.update");
++        ( UpdateAtIndex Slice,
++          if !Config.word64_slices then "HasteBootsSlice64Runtime.update"
++          else "Slice.update" );
+         (UpdateAtIndex Array, "Array.update");
+         (ToResult, "lift");
+         (ResultUnwrapMut, "core.result.Result.unwrap.mut");
+@@ -1604,7 +1618,18 @@ let ctx_compute_simple_name (meta : T.item_meta) (ctx : extraction_ctx)
      (name : llbc_name) : string list =
    (* Rmk.: initially we only filtered the disambiguators equal to 0 *)
    let name = opt_ctx_prepare_name meta ctx name in
@@ -1512,7 +1634,7 @@ index 66bb1e48..3f483c1c 100644
  
  (** Helper *)
  let ctx_compute_simple_type_name = ctx_compute_simple_name
-@@ -2113,6 +2132,8 @@ let ctx_compute_var_basename (span : Meta.span) (ctx : extraction_ctx)
+@@ -2113,6 +2138,8 @@ let ctx_compute_var_basename (span : Meta.span) (ctx : extraction_ctx)
            | TBuiltin TSlice -> "s"
            | TBuiltin TStr -> "s"
            | TBuiltin (TRawPtr _) -> "p"
@@ -1521,7 +1643,7 @@ index 66bb1e48..3f483c1c 100644
            | TAdtId adt_id ->
                let def =
                  TypeDeclId.Map.find adt_id ctx.trans_ctx.type_ctx.type_decls
-@@ -2122,7 +2143,10 @@ let ctx_compute_var_basename (span : Meta.span) (ctx : extraction_ctx)
+@@ -2122,7 +2149,10 @@ let ctx_compute_var_basename (span : Meta.span) (ctx : extraction_ctx)
                *)
                (* The name shouldn't be empty, and its last element (after we remove
                   the target architecture suffix) should be an ident *)
@@ -1534,7 +1656,7 @@ index 66bb1e48..3f483c1c 100644
                name_from_type_ident (TypesUtils.as_ident cl))
        | TVar _ -> (
 diff --git a/src/extract/ExtractBuiltin.ml b/src/extract/ExtractBuiltin.ml
-index 6e28b984..d9c6970e 100644
+index 6e28b984..959cb93d 100644
 --- a/src/extract/ExtractBuiltin.ml
 +++ b/src/extract/ExtractBuiltin.ml
 @@ -52,7 +52,11 @@ let mk_builtin_globals_map () : Pure.builtin_global_info NameMatcherMap.t =
@@ -1599,7 +1721,7 @@ index 6e28b984..d9c6970e 100644
  
  (** The builtin functions.
  
-@@ -614,6 +637,34 @@ let mk_builtin_funs () : (pattern * Pure.builtin_fun_info) list =
+@@ -614,6 +637,41 @@ let mk_builtin_funs () : (pattern * Pure.builtin_fun_info) list =
                 ^ ".from"))
            ~can_fail:false ())
        int_and_smaller_list
@@ -1631,10 +1753,17 @@ index 6e28b984..d9c6970e 100644
 +           ~extract_name:(Some "HasteBootsWord64Intrinsics.population") ();
 +       ]
 +     else [])
++  @ (if !Config.word64_slices then
++       [
++         mk_fun "core::slice::{[u8]}::len<u8>" ~keep_params:(Some [])
++           ~keep_trait_clauses:(Some []) ~can_fail:false ~lift:false
++           ~extract_name:(Some "HasteBootsSlice64Runtime.len") ();
++       ]
++     else [])
    (* Leading zeros *)
    @ mk_scalar_fun
        (fun ty -> "core::num::{" ^ ty ^ "}::leading_zeros")
-@@ -917,21 +968,39 @@ let name_matcher_map_of_list (ls : (pattern * 'a) list) : 'a NameMatcherMap.t =
+@@ -917,21 +975,52 @@ let name_matcher_map_of_list (ls : (pattern * 'a) list) : 'a NameMatcherMap.t =
        m)
      NameMatcherMap.empty ls
  
@@ -1650,7 +1779,20 @@ index 6e28b984..d9c6970e 100644
 +          "core::intrinsics::ctpop<usize>";
 +        ]
 +    in
-+    List.filter (fun (pattern, _) -> List.mem pattern selected) all
++    let slice_len = parse_pattern "core::slice::{[@T]}::len" in
++    List.filter_map
++      (fun (pattern, (info : Pure.builtin_fun_info)) ->
++        if
++          !Config.word64_slices
++          && (pattern = slice_len
++             || pattern = parse_pattern "core::slice::{[u8]}::len<u8>")
++        then
++          Some
++            ( pattern,
++              { info with extract_name = "HasteBootsSlice64Runtime.len" } )
++        else if List.mem pattern selected then Some (pattern, info)
++        else None)
++      all
 +  else all
 +
  let mk_builtin_funs_map () =
@@ -1677,7 +1819,7 @@ index 6e28b984..d9c6970e 100644
    List.map
      (fun ((pattern, info) : _ * Pure.builtin_fun_info) ->
        let info = { can_fail = info.can_fail } in
-@@ -942,4 +1011,5 @@ let mk_builtin_fun_effects_map () =
+@@ -942,4 +1031,5 @@ let mk_builtin_fun_effects_map () =
    [%ldebug "Builting the builtin funs effects map"];
    name_matcher_map_of_list (if_backend mk_builtin_fun_effects [])
  

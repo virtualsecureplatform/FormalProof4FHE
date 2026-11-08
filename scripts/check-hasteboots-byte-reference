@@ -1,0 +1,138 @@
+#!/usr/bin/env python3
+"""Check original safe byte-slice accessors under the explicit word64 value profile."""
+import argparse
+import copy
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+BASE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-word64-intrinsics'))
+BUILD, PARAMETERS, COMMON, digest = [BASE[k] for k in ['BUILD', 'PARAMETERS', 'COMMON', 'digest']]
+DATA = ROOT / 'interop/aeneas/byte-reference'
+RUNTIME = ROOT / 'interop/aeneas/slice-word64/Runtime.lean'
+NAMESPACE = 'hasteboots_byte_reference'
+PROOFS = ['checked_read_exact', 'checked_write_exact', 'checked_read_found', 'checked_read_missing',
+          'checked_write_inside', 'checked_write_outside', 'written_length', 'written_selected', 'written_other']
+RUNTIME_PROOFS = ['len_value', 'index_found', 'index_missing', 'set_values', 'set_length',
+                  'update_found', 'update_missing', 'index_mut_found']
+VALUES = ['Slice', 'len', 'index', 'set', 'index_mut', 'update']
+
+
+def length_decl(ir):
+    found = [f for f in ir['translated']['fun_decls'] if f and f['item_meta'].get('lang_item') == 'slice_len_fn']
+    if len(found) != 1: raise RuntimeError('Expected one original slice_len_fn')
+    return found[0]
+
+
+def validate_ir(ir):
+    BASE['BASE']['BASE']['BASE']['validate_ir'](ir)
+    crate = ir['translated']
+    options = crate.get('options', {})
+    if not options.get('monomorphize') or options.get('mir') != 'Optimized' or options.get('sysroot') != 'default':
+        raise RuntimeError('Expected ordinary optimized monomorphic MIR')
+    funcs = [f for f in crate['fun_decls'] if f]
+    primitive = length_decl(ir)
+    if len(funcs) != 3 or primitive['body'] != 'Opaque': raise RuntimeError('Unexpected source/primitive boundary')
+    for name in ['checked_read', 'checked_write']:
+        matches = [f for f in funcs if f['item_meta']['name'] == [{'Ident': [NAMESPACE, 0]}, {'Ident': [name, 0]}]]
+        if len(matches) != 1 or set(matches[0]['body']) != {'Structured'} or len(matches[0]['generics']['regions']) != 1:
+            raise RuntimeError('Missing original lifetime-preserving reference body: ' + name)
+
+
+def validate_output(raw):
+    PARAMETERS['verify_snapshot'](raw, (DATA / 'Generated.lean').read_text())
+    PARAMETERS['validate_proof_source']((DATA / 'Proof.lean').read_text(), PROOFS)
+    PARAMETERS['validate_proof_source'](RUNTIME.read_text(), RUNTIME_PROOFS)
+    if re.findall(r'^def ([^\s:(]+)', RUNTIME.read_text(), re.M) != VALUES:
+        raise RuntimeError('Incomplete word64 slice value inventory')
+    return BASE['RANGES']['validate_output'](raw, NAMESPACE, ['checked_read', 'checked_write'])
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--build-receipt', type=Path, required=True)
+    parser.add_argument('--backend', type=Path, required=True)
+    args = parser.parse_args()
+    parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
+    out = Path(tempfile.mkdtemp(prefix='byte-reference-', dir=parent))
+    record = {'status': 'started', 'claim': 'safe byte-slice value semantics only; primitive binding/compiler/heap/alias/work/security refinement unproved',
+              'script_sha256': digest(Path(__file__).read_bytes()), 'commands': []}
+    def save(): (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
+    def run(command, log, required=True):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out / log).open('w') as stream:
+            status = subprocess.run([str(x) for x in command], cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT).returncode
+        if required and status: raise RuntimeError(log + ' exited ' + str(status))
+        return status
+    print('Byte reference artifacts: ' + str(out), flush=True); save()
+    try:
+        _, tools, _ = BUILD['verify_receipt'](args.build_receipt)
+        record['build_receipt_sha256'] = digest(args.build_receipt.read_bytes())
+        record['backend_patches'] = PARAMETERS['verify_backend'](args.backend.resolve(), out)
+        files = [DATA / name for name in ['fixture.rs', 'Generated.lean', 'Proof.lean', 'unsupported-array.rs']] + [RUNTIME, ROOT / 'lean-toolchain']
+        record['inputs'] = {str(p.relative_to(ROOT)): digest(p.read_bytes()) for p in files}
+        llbc = out / 'positive.llbc'
+        def charon(source, dest):
+            run([tools / 'charon', 'rustc', '--preset=aeneas', '--sysroot', 'default', '--monomorphize', '--mir', 'optimized',
+                 '--dest-file', dest, '--', '--crate-type', 'lib', '--edition', '2024', '--crate-name', NAMESPACE, source.relative_to(ROOT)], dest.stem + '-charon.log')
+        charon(DATA / 'fixture.rs', llbc)
+        options = ['-backend', 'lean', '-checks', '-sequential', '-max-heartbeats', '200000', '-max-recdepth', '1000',
+                   '-abort-on-error', '-no-external-name-patterns', '-disambiguate-instantiated-names']
+        flags = ['-monomorphic-builtin-shapes', '-target-word64', '-word64-slices']
+        def frontend(path, name, profile=None, required=True):
+            return run([tools / 'aeneas', *options, *(flags if profile is None else profile), '-dest', out / name, path], name + '-frontend.log', required)
+        ir = json.loads(llbc.read_text()); validate_ir(ir)
+        frontend(llbc, 'positive')
+        BASE['BASE']['BASE']['validate_frontend_log']((out / 'positive-frontend.log').read_text())
+        generated = list((out / 'positive').glob('*.lean'))
+        if len(generated) != 1: raise RuntimeError('Expected complete source module')
+        raw = generated[0].read_text(); validate_output(raw)
+        names = ['HasteBootsSlice64Runtime.' + n for n in VALUES + RUNTIME_PROOFS]
+        names += [NAMESPACE + '.' + n for n in ['checked_read', 'checked_write'] + PROOFS]
+        checked = out / 'Checked.lean'
+        checked.write_text(RUNTIME.read_text() + '\n' + raw.replace('import Aeneas\n', '') + '\n' + (DATA / 'Proof.lean').read_text()
+                           + ''.join('\n#print axioms ' + name + '\n' for name in names))
+        run([ROOT / 'scripts/in-container', 'bash', '-euc', 'cd -- "$1"; lake env lean -DwarningAsError=true "$2"', '_',
+             COMMON['container_path'](args.backend.resolve() / 'backends/lean'), COMMON['container_path'](checked)], 'lean.log')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), names)
+        record['rejected'] = []
+        def reject(path, name, error, profile=None):
+            if frontend(path, name, profile, False) == 0 or error not in (out / (name + '-frontend.log')).read_text():
+                raise RuntimeError('Expected rejection missing: ' + name)
+            record['rejected'].append(name)
+        reject(llbc, 'without-word64', 'Word64 slices require the checked target-word64 profile', ['-monomorphic-builtin-shapes', '-word64-slices'])
+        reject(llbc, 'without-shapes', 'Target word64 requires monomorphic Lean', ['-target-word64', '-word64-slices'])
+        for name in ['target32', 'big-endian', 'missing-target', 'multiple-targets', 'lang-item', 'unsafe', 'variadic', 'abi', 'output', 'inputs']:
+            bad = copy.deepcopy(ir); targets = bad['translated']['target_information']; decl = length_decl(bad)
+            error = 'Target word64 requires monomorphic Lean'
+            if name == 'target32': targets[0]['value']['target_pointer_size'] = 4
+            elif name == 'big-endian': targets[0]['value']['is_little_endian'] = False
+            elif name == 'missing-target': targets.clear()
+            elif name == 'multiple-targets': targets.append(copy.deepcopy(targets[0]))
+            else:
+                error = 'Word64 slice length requires the original monomorphic slice_len_fn shared signature and Rust ABI'
+                if name == 'lang-item': decl['item_meta']['lang_item'] = None
+                elif name == 'unsafe': decl['signature']['is_unsafe'] = True
+                elif name == 'variadic': decl['signature']['is_variadic'] = True
+                elif name == 'abi': decl['signature']['abi'] = 'C'
+                elif name == 'output': decl['signature']['output'] = copy.deepcopy(decl['signature']['inputs'][0])
+                else: decl['signature']['inputs'].clear()
+            path = out / (name + '.llbc'); path.write_text(json.dumps(bad) + '\n'); reject(path, name, error)
+        array_ir = out / 'array.llbc'; charon(DATA / 'unsupported-array.rs', array_ir)
+        reject(array_ir, 'array', 'Word64 slice profile does not support array')
+        if record['inputs'] != {str(p.relative_to(ROOT)): digest(p.read_bytes()) for p in files}: raise RuntimeError('Input changed during check')
+        BUILD['verify_receipt'](args.build_receipt)
+        record.update(status='passed', llbc_sha256=digest(llbc.read_bytes()), checked_sha256=digest(checked.read_bytes()))
+        print('Byte reference passed: ' + str(len(names)) + ' dependency audits; ' + str(len(record['rejected'])) + ' unsupported cases rejected')
+    except (Exception, SystemExit) as error:
+        record.update(status='failed', error=str(error)); raise SystemExit('Byte reference check failed; inspect ' + str(out) + ': ' + str(error)) from error
+    finally:
+        record['logs'] = {p.name: digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__':
+    main()

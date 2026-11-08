@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+"""Reject missing reference bodies, changed slice bindings and incomplete accessor proofs."""
+import copy
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+GATE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-byte-reference'))
+
+
+def fixture():
+    funcs = [{'item_meta': {'name': [{'Ident': [GATE['NAMESPACE'], 0]}, {'Ident': [name, 0]}]},
+              'generics': {'regions': [{}]}, 'body': {'Structured': {}}} for name in ['checked_read', 'checked_write']]
+    funcs += [{'item_meta': {'name': [], 'lang_item': 'slice_len_fn'}, 'body': 'Opaque'}]
+    return {'has_errors': False, 'translated': {
+        'target_information': [{'key': 'x86_64-unknown-linux-gnu', 'value': {
+            'target_pointer_size': 8, 'is_little_endian': True}}],
+        'options': {'monomorphize': True, 'mir': 'Optimized', 'sysroot': 'default'}, 'fun_decls': funcs}}
+
+
+class Guards(unittest.TestCase):
+    def test_complete_source_and_output(self):
+        GATE['validate_ir'](fixture())
+        GATE['validate_output']((GATE['DATA'] / 'Generated.lean').read_text())
+
+    def test_missing_body_lifetime_primitive_or_target(self):
+        for mutate in [lambda x: x['translated']['fun_decls'][0].update(body='Opaque'),
+                       lambda x: x['translated']['fun_decls'][0]['generics'].update(regions=[]),
+                       lambda x: x['translated']['fun_decls'][2]['item_meta'].update(lang_item=None),
+                       lambda x: x['translated']['fun_decls'].pop(),
+                       lambda x: x['translated']['options'].update(sysroot='none'),
+                       lambda x: x['translated']['target_information'][0]['value'].update(target_pointer_size=4)]:
+            bad = copy.deepcopy(fixture()); mutate(bad)
+            with self.assertRaises(RuntimeError): GATE['validate_ir'](bad)
+
+    def test_changed_carrier_index_update_or_admission(self):
+        raw = (GATE['DATA'] / 'Generated.lean').read_text()
+        for bad in [raw.replace('HasteBootsSlice64Runtime.Slice', 'Slice'),
+                    raw.replace('HasteBootsSlice64Runtime.len', 'Slice.len'),
+                    raw.replace('HasteBootsSlice64Runtime.index', 'Slice.index_usize'),
+                    raw.replace('HasteBootsSlice64Runtime.update', 'Slice.update'),
+                    raw.replace('Std.U64', 'Std.Usize'), raw.replace('ok (false, bytes)', 'ok (true, bytes)'),
+                    raw.replace(':= do', ':= by sorry'), raw + '\naxiom unproved : True\n']:
+            with self.assertRaises(RuntimeError): GATE['validate_output'](bad)
+
+    def test_missing_runtime_or_source_proof(self):
+        for path, names in [(GATE['RUNTIME'], GATE['RUNTIME_PROOFS']), (GATE['DATA'] / 'Proof.lean', GATE['PROOFS'])]:
+            proof = path.read_text()
+            for name in names:
+                with self.assertRaises(RuntimeError):
+                    GATE['PARAMETERS']['validate_proof_source'](proof.replace('theorem ' + name, 'theorem missing'), names)
+            with self.assertRaises(RuntimeError):
+                GATE['PARAMETERS']['validate_proof_source'](proof + '\ntheorem admitted : True := by native_decide\n', names)
+
+
+if __name__ == '__main__':
+    unittest.main()
