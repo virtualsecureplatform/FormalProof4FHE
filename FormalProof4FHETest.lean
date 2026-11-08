@@ -168,3 +168,6 @@ import FormalProof4FHETest.HasteBootsPointerAssociationAudit
 
 import FormalProof4FHETest.HasteBootsByteMemorySmoke
 import FormalProof4FHETest.HasteBootsByteMemoryAudit
+
+import FormalProof4FHETest.HasteBootsByteRangeSmoke
+import FormalProof4FHETest.HasteBootsByteRangeAudit

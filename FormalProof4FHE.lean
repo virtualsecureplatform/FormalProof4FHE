@@ -624,3 +624,5 @@ import FormalProof4FHE.HasteBoots.NativeGoldPointerRegistry
 import FormalProof4FHE.HasteBoots.NativeGoldPointerAssociation
 
 import FormalProof4FHE.HasteBoots.NativeByteMemory
+
+import FormalProof4FHE.HasteBoots.NativeByteRange
