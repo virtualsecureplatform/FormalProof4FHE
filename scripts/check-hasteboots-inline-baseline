@@ -1,0 +1,103 @@
+#!/usr/bin/env python3
+"""Check source-level inlining controls before compiler changes; no native security claim."""
+import argparse
+import json
+import re
+from pathlib import Path
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+BASE = runpy.run_path(str(ROOT / 'scripts/probe-hasteboots-constructor-typing'))
+PARAMETERS, BUILD, COMMON = BASE['PARAMETERS'], BASE['BUILD'], BASE['COMMON']
+digest = BASE['digest']
+DATA = ROOT / 'interop/charon/inline-functions'
+NAMESPACE = 'hasteboots_inline_fixture'
+FUNCTIONS = ['adjust', 'twice', 'capture']
+PROOFS = ['adjust_zero', 'twice_left_zero', 'twice_right_zero', 'twice_success',
+          'twice_first_abort', 'twice_second_abort', 'capture_none', 'capture_some']
+
+
+def validate_output(raw):
+    PARAMETERS['validate_proof_source']((DATA / 'Proof.lean').read_text(), PROOFS)
+    if raw.count('import Aeneas\n') != 1 or not raw.rstrip().endswith('end ' + NAMESPACE):
+        raise RuntimeError('Incomplete inline baseline extraction')
+    PARAMETERS['verify_snapshot'](raw, (DATA / 'Baseline.lean').read_text())
+    if re.search(r'\b(axiom|opaque|constant|sorry|sorryAx|native_decide|unsafe)\b|decide\s*\+native', raw):
+        raise RuntimeError('Admitted inline baseline')
+    if re.findall(r'^set_option (maxHeartbeats|maxRecDepth) ([0-9]+)$', raw, re.M) != [
+            ('maxHeartbeats', '200000'), ('maxRecDepth', '1000')]:
+        raise RuntimeError('Unexpected proof limits')
+    for name in FUNCTIONS:
+        if not re.search(r'^def ' + re.escape(name) + r'\s', raw, re.M):
+            raise RuntimeError('Missing source function: ' + name)
+    return raw.replace('import Aeneas\n', 'import Aeneas.Std\nimport Aeneas.Tactic.RustAttributes\n')
+
+
+def validate_frontend_log(log):
+    plain = re.sub(r'\x1b\[[0-9;?]*[A-Za-z]', '', log)
+    if re.search(r'Uncaught exception|\[Error\]', plain):
+        raise RuntimeError('Frontend reported an error despite exit status')
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--tools', type=Path, required=True)
+    parser.add_argument('--backend', type=Path, required=True)
+    parser.add_argument('--build-receipt', type=Path, required=True)
+    args = parser.parse_args()
+    tools, backend = args.tools.resolve(), args.backend.resolve()
+    parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
+    out = Path(tempfile.mkdtemp(prefix='inline-baseline-', dir=parent))
+    record = {'status': 'started', 'commands': [], 'script_sha256': digest(Path(__file__).read_bytes()),
+              'claim': 'original source controls only; inliner/native constructor/security unproved'}
+    def save(): (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
+    def run(command, name):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out / name).open('w') as log:
+            subprocess.run([str(x) for x in command], cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, check=True)
+    print('Inline baseline artifacts: ' + str(out), flush=True); save()
+    try:
+        for name, expected in PARAMETERS['TOOLS'].items():
+            if digest((tools / name).read_bytes()) != expected: raise RuntimeError('Official tool hash differs: ' + name)
+        record['backend_patches'] = PARAMETERS['verify_backend'](backend, out)
+        receipt = json.loads(args.build_receipt.read_text())
+        if receipt.get('status') != 'passed' or receipt.get('profile') not in ['constructor-typing', 'discriminants', 'u32-ranges']:
+            raise RuntimeError('Missing reviewed frontend receipt')
+        if receipt['script_sha256'] != digest((ROOT / 'scripts/build-hasteboots-static-frontend').read_bytes()):
+            raise RuntimeError('Stale frontend builder')
+        patch = BUILD['verify_source'](Path(receipt['source']), receipt['profile'])
+        if patch != receipt['patch_sha256'] or receipt['package_profile_sha256'] != digest((BUILD['DATA'] / 'opam-packages.json').read_bytes()):
+            raise RuntimeError('Frontend source/package receipt differs')
+        frontend = Path(receipt['executable'])
+        if digest(frontend.read_bytes()) != receipt['executable_sha256']: raise RuntimeError('Frontend executable differs')
+        record.update(frontend_sha256=receipt['executable_sha256'], build_receipt_sha256=digest(args.build_receipt.read_bytes()))
+        record['inputs'] = {name: digest((DATA / name).read_bytes()) for name in ['fixture.rs', 'Baseline.lean', 'Proof.lean']}
+        llbc = out / 'baseline.llbc'
+        run([tools / 'charon', 'rustc', '--preset=aeneas', '--include', 'core::option', '--include', 'core::result',
+             '--dest-file', llbc, '--', '--crate-type', 'lib', '--edition', '2024', '--crate-name', NAMESPACE, DATA / 'fixture.rs'], 'charon.log')
+        BASE['validate_ir'](json.loads(llbc.read_text()))
+        run([frontend, '-backend', 'lean', '-checks', '-sequential', '-max-heartbeats', '200000', '-max-recdepth', '1000',
+             '-abort-on-error', '-dest', out / 'lean', llbc], 'aeneas.log')
+        validate_frontend_log((out / 'aeneas.log').read_text())
+        raw = (out / 'lean/Baseline.lean').read_text()
+        runtime = validate_output(raw)
+        names = [NAMESPACE + '.' + n for n in FUNCTIONS] + ['HasteBootsInlineProof.' + n for n in PROOFS]
+        checked = out / 'Checked.lean'
+        checked.write_text(runtime + '\n' + (DATA / 'Proof.lean').read_text() + ''.join('\n#print axioms ' + n + '\n' for n in names))
+        run([ROOT / 'scripts/in-container', 'bash', '-euc', 'cd -- "$1"; lake env lean -DwarningAsError=true "$2"', '_',
+             COMMON['container_path'](backend / 'backends/lean'), COMMON['container_path'](checked)], 'lean.log')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), names)
+        record.update(llbc_sha256=digest(llbc.read_bytes()), checked_sha256=digest(checked.read_bytes()))
+        if record['inputs'] != {name: digest((DATA / name).read_bytes()) for name in record['inputs']}:
+            raise RuntimeError('Source/proof changed during check')
+        record['status'] = 'passed'; print('Inline baseline passed: ' + str(len(names)) + ' dependency audits')
+    except (Exception, SystemExit) as error:
+        record.update(status='failed', error=str(error)); raise SystemExit('Inline baseline failed; inspect ' + str(out) + ': ' + str(error)) from error
+    finally:
+        record['logs'] = {p.name: digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__':
+    main()

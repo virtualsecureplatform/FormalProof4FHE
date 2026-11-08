@@ -7,6 +7,18 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Inlining regression baseline is checked before compiler changes
+
+A new source fixture covers repeated calls, mutation, early errors, overflow
+aborts and a shared-reference `Option::and_then` capture. Its reviewed baseline
+is freshly extracted with official Charon and the reviewed frontend. Eight
+kernel behavior theorems and three source functions passed eleven exact
+dependency audits; all 109 extraction/frontend guard tests passed. The separate
+Charon fork is still at the pinned behavior when this baseline is recorded.
+This establishes regression controls, not a proof of inlining or the native
+constructor. The source/heap/work and complete security obligations remain
+open.
+
 ## Scoped constructor IR is valid; recursive type constraints remain unsupported
 
 A checked `--opaque-encode-row` scope for the concrete-partial diagnostic keeps

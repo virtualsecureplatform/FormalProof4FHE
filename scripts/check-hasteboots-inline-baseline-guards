@@ -1,0 +1,46 @@
+#!/usr/bin/env python3
+"""Reject incomplete, altered or admitted inlining baselines and dependency audits."""
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+GATE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-inline-baseline'))
+
+
+class Guards(unittest.TestCase):
+    def test_original_snapshot(self):
+        raw = (GATE['DATA'] / 'Baseline.lean').read_text()
+        expected = raw.replace('import Aeneas\n', 'import Aeneas.Std\nimport Aeneas.Tactic.RustAttributes\n')
+        self.assertEqual(GATE['validate_output'](raw), expected)
+
+    def test_incomplete_or_changed_extraction(self):
+        raw = (GATE['DATA'] / 'Baseline.lean').read_text()
+        for changed in [raw + raw, raw.rsplit('end ', 1)[0], raw.replace('def twice', 'def altered'),
+                        raw.replace('maxHeartbeats 200000', 'maxHeartbeats 1000000'), raw + '\naxiom bad : False\n']:
+            with self.assertRaises(RuntimeError): GATE['validate_output'](changed)
+
+    def test_proof_coverage_and_admissions(self):
+        check = GATE['PARAMETERS']['validate_proof_source']
+        source = (GATE['DATA'] / 'Proof.lean').read_text()
+        check(source, GATE['PROOFS'])
+        for text, names in [(source, GATE['PROOFS'][:-1]), (source + '\naxiom bad : False\n', GATE['PROOFS']),
+                            (source + '\ndef bad := native_decide\n', GATE['PROOFS'])]:
+            with self.assertRaises(RuntimeError): check(text, names)
+
+    def test_error_logs_rejected_even_on_zero_exit(self):
+        check = GATE['validate_frontend_log']
+        check('Completed without errors')
+        for text in ['[Error] partial output', 'Uncaught exception', '\x1b[31m[Error]\x1b[0m failed']:
+            with self.assertRaises(RuntimeError): check(text)
+
+    def test_exact_allowed_dependencies(self):
+        check = GATE['PARAMETERS']['audit_log']
+        check("'control' depends on axioms: [propext, Classical.choice, Quot.sound]", ['control'])
+        for text in ['', "'control' depends on axioms: [sorryAx]", "'control' depends on axioms: [core.fmt.Formatter]",
+                     "'control' does not depend on any axioms\n'control' does not depend on any axioms"]:
+            with self.assertRaises(RuntimeError): check(text, ['control'])
+
+
+if __name__ == '__main__':
+    unittest.main()
