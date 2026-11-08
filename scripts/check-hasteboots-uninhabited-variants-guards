@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+"""Reject changed empty witnesses, missing constructors and weakened residual proofs."""
+import copy
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+GATE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-uninhabited-variants'))
+
+
+def fixture():
+    decls = [{'item_meta': {'name': [{'Ident': [name, 0]}]}, 'kind': {'Enum': []}}
+             for name in ['Never', 'Infallible']]
+    decls += [{'item_meta': {'name': [{'Ident': [name, 0]}]}, 'kind': {'Enum': [{'name': 'Impossible'}, {'name': 'Live'}]}}
+              for name in ['Only', 'NestedOnly']]
+    decls += [{'item_meta': {'name': [{'Ident': ['EmptyWrapper', 0]}]}, 'kind': {'Struct': [{}]}}]
+    decls += [{'item_meta': {'name': [{'Ident': ['Error', 0]}]}, 'kind': {'Struct': [{'ty': {'Ref': ['Static', {'Adt': {'id': {'Builtin': 'Str'}, 'generics': {'regions': [], 'types': [], 'const_generics': [], 'trait_refs': []}}}, 'Shared']}}]}}]
+    return {'has_errors': False, 'translated': {
+        'target_information': [{'key': 'x86_64-unknown-linux-gnu', 'value': {
+            'target_pointer_size': 8, 'is_little_endian': True}}],
+        'options': {'monomorphize': True, 'mir': 'Optimized', 'sysroot': 'default'},
+        'type_decls': decls, 'fun_decls': [{'body': {'Structured': {}}} for _ in range(5)]}}
+
+
+class Guards(unittest.TestCase):
+    def test_complete_source_and_module(self):
+        GATE['validate_ir'](fixture())
+        GATE['validate_output']((GATE['DATA'] / 'Generated.lean').read_text())
+
+    def test_lost_empty_witness_or_source_body(self):
+        for mutate in [lambda x: x['translated']['type_decls'][0].update(kind='Opaque'),
+                       lambda x: x['translated']['type_decls'][1]['kind']['Enum'].append({'name': 'Inhabited'}),
+                       lambda x: x['translated']['type_decls'][2]['kind']['Enum'].pop(),
+                       lambda x: x['translated']['fun_decls'][0].update(body='Opaque'),
+                       lambda x: x['translated']['options'].update(sysroot='miri'),
+                       lambda x: x['translated']['options'].update(monomorphize=False),
+                       lambda x: x['translated']['type_decls'][-1]['kind']['Struct'][0]['ty']['Ref'].__setitem__(0, 'Erased')]:
+            bad = copy.deepcopy(fixture()); mutate(bad)
+            with self.assertRaises(RuntimeError): GATE['validate_ir'](bad)
+
+    def test_dropped_constructor_fallback_or_admission(self):
+        raw = (GATE['DATA'] / 'Generated.lean').read_text()
+        for bad in [raw.replace('| Impossible : Never → Only\n', ''),
+                    raw.replace('inductive Never where', 'axiom Never : Type'),
+                    raw.replace('match residual1 with', 'match residual1 with\n  | _ => ok (.Err 0#u64)'),
+                    raw.replace(':= do', ':= by sorry'), raw.replace('end ' + GATE['NAMESPACE'], '')]:
+            with self.assertRaises(RuntimeError): GATE['validate_output'](bad)
+
+    def test_missing_all_input_proofs(self):
+        proof = (GATE['DATA'] / 'Proof.lean').read_text()
+        for name in GATE['PROOFS']:
+            with self.assertRaises(RuntimeError):
+                GATE['PARAMETERS']['validate_proof_source'](proof.replace('theorem ' + name, 'theorem missing'), GATE['PROOFS'])
+
+
+if __name__ == '__main__':
+    unittest.main()

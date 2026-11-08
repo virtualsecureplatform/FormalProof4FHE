@@ -1,0 +1,9 @@
+{
+  "claim": "replayed previous frozen frontend on current static-string error fixture; same original residual projection rejection",
+  "build_receipt_sha256": "2f05f8e3f16424b72205f8323e43f30fc447c39ec428bb8ab09ea04c978f028a",
+  "fixture_sha256": "23467fbc20973d9b84683aabbf8680c812ca5576b553dab0e82e329e9d5e6f5a",
+  "llbc_sha256": "95915f98cc6902003a7177c2e5e5bc6354d3b21820bc296ed82c9f6257504f52",
+  "frontend_exit_code": 2,
+  "frontend_log_sha256": "244dc6ef44d28b0ea71cfeb8eeb02442faa019c46cecac1859cf5e3e1980a97a",
+  "diagnostic": "Not allowed to expand enumerations with several variants"
+}

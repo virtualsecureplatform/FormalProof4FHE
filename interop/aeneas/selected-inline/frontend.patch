@@ -1387,10 +1387,55 @@ index 37171763..94317a33 100644
               ^ "]";
             ]
 diff --git a/src/interp/InterpExpansion.ml b/src/interp/InterpExpansion.ml
-index 52b94675..951b56d9 100644
+index 52b94675..929b7e38 100644
 --- a/src/interp/InterpExpansion.ml
 +++ b/src/interp/InterpExpansion.ml
-@@ -484,6 +484,20 @@ let expand_symbolic_value_shared_borrow (span : Meta.span)
+@@ -288,6 +288,44 @@ let compute_expanded_symbolic_non_builtin_adt_value (span : Meta.span)
+     Substitute.type_decl_get_instantiated_variants_fields_types span def
+       generics
+   in
++  (* Rust may project a variant without a discriminant test when every other
++     variant contains an empty type. Preserve every constructor in the exported
++     type; Lean checks the resulting irrefutable pattern. Layout flags alone
++     are not an emptiness proof. Cycles and opaque/reference/array types remain
++     unknown, rather than being assumed empty. *)
++  let variants_fields_types =
++    if !Config.monomorphic_builtin_shapes && not expand_enumerations then
++      let rec empty seen ty =
++        match ty with
++        | TAdt { id = TTuple; generics } ->
++            List.exists (empty seen) generics.types
++        | TAdt { id = TAdtId id; generics }
++          when not (TypeDeclId.Set.mem id seen) -> (
++            let decl = ctx_lookup_type_decl span ctx id in
++            match decl.kind with
++            | Struct _ | Enum _ ->
++                let seen = TypeDeclId.Set.add id seen in
++                let variants =
++                  Substitute.type_decl_get_instantiated_variants_fields_types
++                    span decl generics
++                in
++                List.for_all
++                  (fun (_, fields) -> List.exists (empty seen) fields)
++                  variants
++            | _ -> false)
++        | _ -> false
++      in
++      let possible =
++        List.filter
++          (fun (_, fields) ->
++            not (List.exists (empty TypeDeclId.Set.empty) fields))
++          variants_fields_types
++      in
++      match possible with
++      | [ _ ] -> possible
++      | _ -> variants_fields_types
++    else variants_fields_types
++  in
+   (* Check if there is strictly more than one variant *)
+   if List.length variants_fields_types > 1 && not expand_enumerations then
+     [%craise] span "Not allowed to expand enumerations with several variants";
+@@ -484,6 +522,20 @@ let expand_symbolic_value_shared_borrow (span : Meta.span)
    (* Finally, replace the projectors on loans *)
    let see = SeSharedRef (bid, shared_sv) in
    let ctx = apply_symbolic_expansion_to_aevalues span original_sv see ctx in
@@ -1766,7 +1811,7 @@ index e9a07a43..ddaead12 100644
               the array expressions are introduced as struct updates *)
            [%craise] span "Attempting to access the fields of an opaque type")
 diff --git a/src/symbolic/SymbolicToPureExpressions.ml b/src/symbolic/SymbolicToPureExpressions.ml
-index b83dc456..d8288c6a 100644
+index b83dc456..b9f61bd7 100644
 --- a/src/symbolic/SymbolicToPureExpressions.ml
 +++ b/src/symbolic/SymbolicToPureExpressions.ml
 @@ -584,6 +584,26 @@ and translate_function_call_aux (call : S.call) (e : S.expr) (ctx : bs_ctx) :
@@ -1805,6 +1850,39 @@ index b83dc456..d8288c6a 100644
          close_branch ctx.span pat branch
        in
        let branches = List.map translate_branch branches in
+@@ -1504,13 +1524,27 @@ and translate_ExpandAdt_one_branch (sv : V.symbolic_value) (scrutinee : texpr)
+   let ctx, vars = fresh_vars_for_symbolic_values svl ctx in
+   let branch = translate_expr branch ctx in
+   match type_id with
+-  | TAdtId _ ->
++  | TAdtId id ->
+       let lvars = List.map (fun v -> mk_tpat_from_fvar None v) vars in
+       let lv = mk_adt_pat scrutinee.ty variant_id lvars in
+-      let monadic = false in
+-      [%add_loc] mk_closed_checked_let ctx monadic lv
+-        (mk_opt_mplace_texpr scrutinee_mplace scrutinee)
+-        branch
++      let use_match =
++        !Config.monomorphic_builtin_shapes
++        &&
++        match (bs_ctx_lookup_type_decl id ctx).kind with
++        | Enum variants -> List.length variants > 1
++        | _ -> false
++      in
++      if use_match then
++        (* Other constructors are structurally empty. Keep an actual match,
++           not a fallback-bearing let decomposition; Lean checks coverage. *)
++        let scrutinee = mk_opt_mplace_texpr scrutinee_mplace scrutinee in
++        let branch = close_branch ctx.span lv branch in
++        { e = Switch (scrutinee, Match [ branch ]); ty = branch.branch.ty }
++      else
++        let monadic = false in
++        [%add_loc] mk_closed_checked_let ctx monadic lv
++          (mk_opt_mplace_texpr scrutinee_mplace scrutinee)
++          branch
+   | TTuple ->
+       let vars = List.map (fun x -> mk_tpat_from_fvar None x) vars in
+       let monadic = false in
 diff --git a/src/symbolic/SymbolicToPureTypes.ml b/src/symbolic/SymbolicToPureTypes.ml
 index 5ea3e9be..ba9f3f80 100644
 --- a/src/symbolic/SymbolicToPureTypes.ml
