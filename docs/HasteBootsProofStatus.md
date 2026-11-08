@@ -7,6 +7,39 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Original native arithmetic now passes checked multiplication extraction
+
+The expanded `arithmetic` cleanup scope retains the original word constants,
+is_power_of_two/count_ones, checked_add/checked_mul and overflowing_mul bodies.
+It exposed a reproducible MulChecked rejection in the stdlib. The interpreter
+now preserves its integer/overflow-Boolean pair; Lean extraction uses the existing
+closed signed/unsigned overflowing multiplication definitions. No backend,
+production Rust, compiler axiom or generated computational term was changed.
+
+Eight kernel theorems prove all-input signed/unsigned equivalence, unsigned
+mathematical wraparound/overflow behavior and signed/unsigned boundary cases.
+Twelve new source/proof dependency audits and two portable comparison audits
+pass. Five unsupported target/profile cases reject. All earlier interop gates
+also pass: totals are 171 dependency audits and 160 guard tests. All 128 upstream
+generated artifacts remain unchanged; 97 targets complete, with the same known
+dyn.rs erased-lifetime rejection. See `interop/aeneas/overflowing-mul/README.md`
+and its regression receipt.
+
+The strict native arithmetic/word64 probe now generates the complete module
+with 88 retained functions and no residual drops/runtime queries or missing
+regular declarations. It still rejects seventeen opaque declarations, down from
+twenty-two in the earlier word64 scope. Source arithmetic helpers/constants
+are now retained, while ctpop, ctlz_nonzero, cold_path, runtime/panic functions,
+pointer operations, default layout and deallocation remain unresolved. Original
+checked methods still depend on cold_path; no no-op is admitted. SubChecked
+remains unsupported. No complete native constructor refinement is accepted.
+
+The next direct obligations are checked 64-bit intrinsic bindings, followed by
+runtime/panic termination and source pointer/layout/deallocation semantics.
+Unsafe-call validity, full native NTT/SIMD/scheduler refinement, causal lifetime
+oracle/owner accounting, BabyBear, and the final 128-bit expected physical-work
+security theorem remain open. The full objective is unchanged.
+
 ## Source Layout and explicit 64-bit words now kernel-check
 
 The experimental monomorphic Lean frontend now emits the actual source Layout,

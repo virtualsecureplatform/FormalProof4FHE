@@ -98,7 +98,7 @@ def main():
         if scope in ['layout', 'nonzero', 'arithmetic']: paths += ['core::alloc::layout', 'core::mem::alignment', 'core::num::niche_types', 'core::num::_::unchecked_mul']
         if scope in ['nonzero', 'arithmetic']: paths += ['core::num::nonzero']
         if scope == 'arithmetic': paths += ['core::num::_::MIN', 'core::num::_::MAX', 'core::num::_::BITS',
-                                             'core::num::_::is_power_of_two', 'core::num::_::checked_add',
+                                             'core::num::_::is_power_of_two', 'core::num::_::count_ones', 'core::num::_::checked_add',
                                              'core::num::_::checked_mul', 'core::num::_::overflowing_mul',
                                              'core::intrinsics::unlikely', 'core::intrinsics::cold_path']
         cleanup_scope = [argument for path in paths for argument in ['--include', path]]
