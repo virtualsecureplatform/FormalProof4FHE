@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+"""Reject erased source reborrows, changed continuation values and incomplete local-scope proofs."""
+import copy
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+GATE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-byte-reborrow'))
+
+
+def fixture():
+    def call(kind): return {'Call': {'call': {'func': {'Regular': {'kind': {'Fun': kind}}}}}}
+    helper = {'def_id': 0, 'item_meta': {'name': [{'Ident': [GATE['NAMESPACE'], 0]}, {'Ident': ['replace_cell', 0]}]},
+              'generics': {'regions': [{}]}, 'body': {'Structured': ['Deref', 'Deref']}}
+    caller = {'def_id': 1, 'item_meta': {'name': [{'Ident': [GATE['NAMESPACE'], 0]}, {'Ident': ['replace_at', 0]}]},
+              'generics': {'regions': [{}]}, 'body': {'Structured': [{'Ref': {'kind': 'Mut'}}, {'Ref': {'kind': 'Mut'}},
+                  {'Ref': {'kind': 'TwoPhaseMut'}}, call({'Regular': 0}),
+                  call({'Builtin': {'Index': {'is_array': False, 'mutability': 'Mut', 'is_range': False}}})]}}
+    return {'has_errors': False, 'translated': {
+        'target_information': [{'key': 'x86_64-unknown-linux-gnu', 'value': {'target_pointer_size': 8, 'is_little_endian': True}}],
+        'options': {'monomorphize': True, 'mir': 'Optimized', 'sysroot': 'default'},
+        'fun_decls': [helper, caller, {'item_meta': {'name': [], 'lang_item': 'slice_len_fn'}, 'body': 'Opaque'}]}}
+
+
+class Guards(unittest.TestCase):
+    def test_complete_source_graph_and_proofs(self):
+        GATE['validate_ir'](fixture())
+        GATE['validate_output']((GATE['DATA'] / 'Generated.lean').read_text())
+
+    def test_missing_reference_call_body_or_lifetime(self):
+        for mutate in [lambda x: x['translated']['fun_decls'][0]['body']['Structured'].pop(),
+                       lambda x: x['translated']['fun_decls'][1]['body']['Structured'][0]['Ref'].update(kind='Shared'),
+                       lambda x: x['translated']['fun_decls'][1]['body']['Structured'].pop(),
+                       lambda x: x['translated']['fun_decls'][1]['generics'].update(regions=[]),
+                       lambda x: x['translated']['fun_decls'][1].update(body='Opaque'),
+                       lambda x: x['translated']['options'].update(sysroot='none')]:
+            bad = copy.deepcopy(fixture()); mutate(bad)
+            with self.assertRaises(RuntimeError): GATE['validate_ir'](bad)
+
+    def test_changed_source_return_or_backwards_value(self):
+        raw = (GATE['DATA'] / 'Generated.lean').read_text()
+        for bad in [raw.replace('index_mut_back cell1', 'index_mut_back cell'),
+                    raw.replace('ok (cell, value)', 'ok (value, cell)'),
+                    raw.replace('Std.U64', 'Std.Usize'), raw.replace('HasteBootsSlice64Runtime.index_mut', 'Slice.index_mut'),
+                    raw + '\naxiom scope_certificate : True\n']:
+            with self.assertRaises(RuntimeError): GATE['validate_output'](bad)
+
+    def test_every_model_source_and_bridge_proof_required(self):
+        for path, names in [(GATE['MODEL'], GATE['MODEL_PROOFS']), (GATE['DATA'] / 'Proof.lean', GATE['PROOFS']),
+                            (GATE['DATA'] / 'Bridge.lean', GATE['BRIDGE_PROOFS'])]:
+            for name in names:
+                with self.assertRaises(RuntimeError):
+                    GATE['PARAMETERS']['validate_proof_source'](path.read_text().replace('theorem ' + name, 'theorem removed_required_proof'), names)
+            with self.assertRaises(RuntimeError):
+                GATE['PARAMETERS']['validate_proof_source'](path.read_text() + '\ntheorem assumed : True := by native_decide\n', names)
+
+
+if __name__ == '__main__': unittest.main()
