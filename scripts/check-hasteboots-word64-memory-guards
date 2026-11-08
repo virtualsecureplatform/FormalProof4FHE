@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+"""Reject missing word layout/pointer bodies, changed stride witnesses and incomplete memory proofs."""
+import copy
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+GATE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-word64-memory'))
+
+
+def fixture():
+    funcs = [{'item_meta': {'name': [{'Ident': [GATE['NAMESPACE'], 0]}, {'Ident': [n, 0]}]}, 'body': {'Structured': {}}}
+             for n in ['shared_words', 'mutable_words', 'word_layout']]
+    funcs += [{'item_meta': {'name': []}, 'body': {'Structured': {'Call': {'call': {'func': {'Regular': {
+        'kind': {'Fun': {'Builtin': {'PtrFromParts': kind}}}}}}}}}} for kind in ['Shared', 'Mut']]
+    return {'has_errors': False, 'translated': {
+        'target_information': [{'key': 'x86_64-unknown-linux-gnu', 'value': {'target_pointer_size': 8, 'is_little_endian': True}}],
+        'options': {'monomorphize': True, 'mir': 'Optimized', 'sysroot': 'default', 'consts': 'Values'}, 'fun_decls': funcs,
+        'global_decls': [{'item_meta': {'name': [{'Ident': [GATE['NAMESPACE'], 0]}, {'Ident': [n, 0]}]},
+                         'value': {'kind': {'Literal': {'Scalar': {'Unsigned': ['Usize', '8']}}}}} for n in ['WORD_SIZE', 'WORD_ALIGN']]}}
+
+
+class Guards(unittest.TestCase):
+    def test_complete_memory_and_source(self):
+        GATE['validate_ir'](fixture()); GATE['validate_output']((GATE['DATA'] / 'Generated.lean').read_text())
+
+    def test_missing_or_wrong_layout_and_pointer_body(self):
+        for mutate in [lambda x: x['translated']['fun_decls'][3].update(body='Opaque'),
+                       lambda x: x['translated']['global_decls'][0]['value']['kind']['Literal']['Scalar']['Unsigned'].__setitem__(1, '4'),
+                       lambda x: x['translated']['global_decls'].pop(),
+                       lambda x: x['translated']['options'].update(consts='Initializers'),
+                       lambda x: x['translated']['fun_decls'][3]['body'].update(Structured={})]:
+            bad = copy.deepcopy(fixture()); mutate(bad)
+            with self.assertRaises(RuntimeError): GATE['validate_ir'](bad)
+
+    def test_changed_layout_or_metadata_source(self):
+        raw = (GATE['DATA'] / 'Generated.lean').read_text()
+        for bad in [raw.replace('8#u64', '4#u64'), raw.replace('data len)', 'data 8#u64)'),
+                    raw.replace('Std.U64', 'Std.Usize'), raw + '\naxiom memory_certificate : True\n']:
+            with self.assertRaises(RuntimeError): GATE['validate_output'](bad)
+
+    def test_all_memory_source_and_bridge_proofs_audited(self):
+        for path, names in [(GATE['RANGE_MODEL'], GATE['RANGE_PROOFS']), (GATE['WORD_MODEL'], GATE['WORD_PROOFS']),
+                            (GATE['DATA'] / 'Proof.lean', GATE['SOURCE_PROOFS']), (GATE['DATA'] / 'Pointer.lean', GATE['POINTER_PROOFS'])]:
+            for name in names:
+                with self.assertRaises(RuntimeError):
+                    GATE['PARAMETERS']['validate_proof_source'](path.read_text().replace('theorem ' + name, 'theorem removed_required'), names)
+            with self.assertRaises(RuntimeError):
+                GATE['PARAMETERS']['validate_proof_source'](path.read_text() + '\ntheorem assumed : True := by sorry\n', names)
+
+
+if __name__ == '__main__': unittest.main()

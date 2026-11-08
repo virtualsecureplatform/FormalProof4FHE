@@ -1,0 +1,145 @@
+#!/usr/bin/env python3
+"""Check initialized range stores, word64 memory and original word-slice pointer/layout witnesses."""
+import argparse
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+CONST = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-literal-consts'))
+PARTS = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-pointer-parts'))
+BUILD, PARAMETERS, COMMON, digest = [CONST[k] for k in ['BUILD', 'PARAMETERS', 'COMMON', 'digest']]
+DATA = ROOT / 'interop/aeneas/word64-memory'
+NAMESPACE = 'hasteboots_word64_memory'
+RANGE_MODEL = ROOT / 'FormalProof4FHE/HasteBoots/NativeByteRangeWrite.lean'
+WORD_MODEL = ROOT / 'FormalProof4FHE/HasteBoots/NativeWord64Memory.lean'
+SOURCE_VALUES = ['core.ptr.slice_from_raw_parts.mono_260b869b63d04e310fd2d7999d22ff55',
+                 'core.ptr.slice_from_raw_parts_mut.mono_a90570ea2daa7870227fd51b0cbe74b8',
+                 'shared_words', 'mutable_words', 'WORD_SIZE', 'WORD_ALIGN', 'word_layout']
+SOURCE_PROOFS = ['shared_words_exact', 'mutable_words_exact', 'original_shared_exact', 'original_mutable_exact',
+                 'word_size_exact', 'word_alignment_exact', 'word_layout_exact']
+POINTER_VALUES = ['decode', 'word']
+POINTER_PROOFS = ['decode_storage', 'decode_metadata', 'source_mutable_borrow', 'source_shared_borrow',
+                  'source_mutable_element', 'word_value', 'word_roundtrip', 'source_store_load']
+RANGE_VALUES = ['overwrite', 'storeBlocks', 'storeRange', 'rawWrite', 'write', 'Step', 'Reachable', 'Runs']
+RANGE_PROOFS = ['overwrite_length', 'overwrite_drop', 'readSpan_initialized', 'overwrite_initialized', 'overwrite_selected', 'overwrite_frame', 'storeBlocks_shape', 'storeBlocks_initialized', 'storeRange_success', 'storeRange_wellFormed', 'storeRange_then_load', 'storeBlocks_available', 'storeRange_of_checked', 'storeRange_empty', 'storeRange_invalid', 'storeBlocks_frame', 'storeRange_frame', 'storeBlocks_selected', 'storeRange_positive_selected', 'storeRange_without_origin', 'rawWrite_success', 'write_success', 'rawWrite_wellFormed', 'write_wellFormed', 'storeRange_checked', 'storeRange_defined_iff', 'storeRange_after_deallocation', 'step_wellFormed', 'reachable_wellFormed', 'step_counter', 'step_keeps_revoked', 'runs_keep_revoked', 'lift_byte_runs', 'overwrite_singleton', 'storeBlocks_singleton', 'storeRange_singleton', 'storeRange_allocation_count']
+WORD_VALUES = ['Word', 'encode', 'decode', 'load', 'store', 'rawWrite', 'element', 'borrowSlice']
+WORD_PROOFS = ['encode_length', 'decode_encode', 'encode_decode', 'decode_wrong_length', 'store_then_load', 'store_wellFormed', 'store_defined_iff', 'rawWrite_wellFormed', 'element_fields', 'element_exists', 'element_geometry', 'borrowSlice_exact', 'borrowed_byte_extent', 'store_frame', 'store_after_deallocation', 'load_iff_bytes']
+
+
+def validate_sources():
+    for path, proofs, values in [(RANGE_MODEL, RANGE_PROOFS, RANGE_VALUES), (WORD_MODEL, WORD_PROOFS, WORD_VALUES)]:
+        PARAMETERS['validate_proof_source'](path.read_text(), proofs)
+        if re.findall(r'^(?:def|abbrev|inductive) (\w+)', path.read_text(), re.M) != values:
+            raise RuntimeError('Incomplete memory declaration inventory')
+    PARAMETERS['validate_proof_source']((DATA / 'Proof.lean').read_text(), SOURCE_PROOFS)
+    PARAMETERS['validate_proof_source']((DATA / 'Pointer.lean').read_text(), POINTER_PROOFS)
+    if re.findall(r'^def (\w+)', (DATA / 'Pointer.lean').read_text(), re.M) != POINTER_VALUES:
+        raise RuntimeError('Incomplete source pointer bridge inventory')
+    PARAMETERS['validate_proof_source']((ROOT / 'FormalProof4FHETest/HasteBootsWord64MemorySmoke.lean').read_text(), [])
+
+
+def validate_ir(ir):
+    CONST['BASE']['BASE']['BASE']['BASE']['validate_ir'](ir)
+    crate = ir['translated']; options = crate.get('options', {})
+    if not options.get('monomorphize') or options.get('mir') != 'Optimized' or options.get('sysroot') != 'default' or options.get('consts') != 'Values':
+        raise RuntimeError('Expected original compiler-evaluated word layout')
+    funcs = [f for f in crate['fun_decls'] if f]
+    if len(funcs) != 5 or any(set(f.get('body') or {}) != {'Structured'} for f in funcs):
+        raise RuntimeError('Missing original word pointer/layout source bodies')
+    for name in ['shared_words', 'mutable_words', 'word_layout']:
+        if sum(f['item_meta']['name'] == [{'Ident': [NAMESPACE, 0]}, {'Ident': [name, 0]}] for f in funcs) != 1:
+            raise RuntimeError('Missing original source wrapper: ' + name)
+    globals = [g for g in crate['global_decls'] if g]
+    if len(globals) != 2: raise RuntimeError('Missing original Rust layout constants')
+    for name in ['WORD_SIZE', 'WORD_ALIGN']:
+        found = [g for g in globals if g['item_meta']['name'] == [{'Ident': [NAMESPACE, 0]}, {'Ident': [name, 0]}]]
+        if len(found) != 1 or found[0]['value']['kind'] != {'Literal': {'Scalar': {'Unsigned': ['Usize', '8']}}}:
+            raise RuntimeError('Unexpected Rust word layout: ' + name)
+    if len(PARTS['parts_calls'](ir)) != 2: raise RuntimeError('Missing original word pointer construction calls')
+
+
+def validate_output(raw):
+    PARAMETERS['verify_snapshot'](raw, (DATA / 'Generated.lean').read_text())
+    validate_sources()
+    return CONST['BASE']['RANGES']['validate_output'](raw, NAMESPACE, ['shared_words', 'mutable_words', 'word_layout'])
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--build-receipt', type=Path, required=True)
+    parser.add_argument('--backend', type=Path, required=True)
+    args = parser.parse_args()
+    parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
+    out = Path(tempfile.mkdtemp(prefix='word64-memory-', dir=parent))
+    record = {'status': 'started', 'claim': 'concrete byte range/word memory and source pointer/layout witnesses only; Rust typed/reference/allocator/compiler/atomicity/work/security refinement unproved',
+              'script_sha256': digest(Path(__file__).read_bytes()), 'commands': []}
+    def save(): (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
+    def run(command, log):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out / log).open('w') as stream:
+            subprocess.run([str(x) for x in command], cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT, check=True)
+    print('Word64 memory artifacts: ' + str(out), flush=True); save()
+    try:
+        _, tools, _ = BUILD['verify_receipt'](args.build_receipt)
+        record['build_receipt_sha256'] = digest(args.build_receipt.read_bytes())
+        record['backend_patches'] = PARAMETERS['verify_backend'](args.backend.resolve(), out)
+        validate_sources()
+        files = [RANGE_MODEL, WORD_MODEL, *[DATA / n for n in ['fixture.rs', 'Generated.lean', 'Proof.lean', 'Pointer.lean']],
+                 PARTS['DATA'] / 'Runtime.lean', PARTS['POINTER']['DATA'] / 'Runtime.lean',
+                 ROOT / 'FormalProof4FHETest/HasteBootsWord64MemorySmoke.lean', ROOT / 'FormalProof4FHETest/HasteBootsByteRangeWriteAudit.lean',
+                 ROOT / 'FormalProof4FHETest/HasteBootsWord64MemoryAudit.lean', ROOT / 'FormalProof4FHE.lean', ROOT / 'FormalProof4FHETest.lean', ROOT / 'lean-toolchain']
+        record['inputs'] = {str(p.relative_to(ROOT)): digest(p.read_bytes()) for p in files}
+        record['parent_gates'] = {}
+        for name in ['literal-consts', 'pointer-parts', 'byte-reborrow']:
+            run([ROOT / ('scripts/check-hasteboots-' + name), '--build-receipt', args.build_receipt, '--backend', args.backend], name + '.log')
+            path = Path((out / (name + '.log')).read_text().splitlines()[0].split(': ', 1)[1]) / 'manifest.json'
+            previous = json.loads(path.read_text())
+            if previous.get('status') != 'passed' or previous.get('build_receipt_sha256') != record['build_receipt_sha256']:
+                raise RuntimeError('Parent gate differs: ' + name)
+            record['parent_gates'][name] = {'manifest_sha256': digest(path.read_bytes()), 'dependency_audit': previous['dependency_audit']}
+        run([ROOT / 'scripts/in-container', 'lake', 'build', 'FormalProof4FHE.HasteBoots.NativeByteRangeWrite', 'FormalProof4FHE.HasteBoots.NativeWord64Memory',
+             'FormalProof4FHETest.HasteBootsByteRangeWriteAudit', 'FormalProof4FHETest.HasteBootsWord64MemoryAudit',
+             'FormalProof4FHETest.HasteBootsWord64MemorySmoke'], 'root-build.log')
+        llbc = out / 'positive.llbc'
+        run([tools / 'charon', 'rustc', '--preset=aeneas', '--sysroot', 'default', '--monomorphize', '--mir', 'optimized', '--consts', 'values',
+             '--include', 'core::ptr::metadata', '--include', 'core::ptr::slice_from_raw_parts', '--include', 'core::ptr::slice_from_raw_parts_mut',
+             '--dest-file', llbc, '--', '--crate-type', 'lib', '--edition', '2024', '--crate-name', NAMESPACE, (DATA / 'fixture.rs').relative_to(ROOT)], 'charon.log')
+        validate_ir(json.loads(llbc.read_text()))
+        run([tools / 'aeneas', '-backend', 'lean', '-checks', '-sequential', '-max-heartbeats', '200000', '-max-recdepth', '1000', '-abort-on-error',
+             '-no-external-name-patterns', '-disambiguate-instantiated-names', '-monomorphic-builtin-shapes', '-target-word64', '-provenance-pointers',
+             '-literal-const-initializers', '-dest', out / 'positive', llbc], 'frontend.log')
+        CONST['BASE']['BASE']['BASE']['validate_frontend_log']((out / 'frontend.log').read_text())
+        generated = list((out / 'positive').glob('*.lean'))
+        if len(generated) != 1: raise RuntimeError('Expected complete original source module')
+        raw = generated[0].read_text(); validate_output(raw)
+        names = ['FormalProof4FHE.HasteBoots.NativeByteRangeWrite.' + n for n in RANGE_VALUES + RANGE_PROOFS]
+        names += ['FormalProof4FHE.HasteBoots.NativeWord64Memory.' + n for n in WORD_VALUES + WORD_PROOFS]
+        names += [NAMESPACE + '.' + n for n in SOURCE_VALUES + SOURCE_PROOFS]
+        names += ['HasteBootsWord64MemoryPointer.' + n for n in POINTER_VALUES + POINTER_PROOFS]
+        names += ['HasteBootsPointerPartsRuntime.' + n for n in ['from_thin_const', 'from_thin_mut', 'from_slice_const', 'from_slice_mut'] + PARTS['RUNTIME_PROOFS']]
+        names += ['HasteBootsPointerRuntime.' + n for n in ['RawPtr', 'MutRawPtr', 'ConstRawPtr', 'equal', 'different', 'mutableFlag', 'cast_scalar'] + PARTS['POINTER']['RUNTIME_PROOFS']]
+        checked = out / 'Checked.lean'
+        checked.write_text('import FormalProof4FHE.HasteBoots.NativeWord64Memory\n' + (PARTS['POINTER']['DATA'] / 'Runtime.lean').read_text() + '\n'
+                           + (PARTS['DATA'] / 'Runtime.lean').read_text() + '\n' + raw.replace('import Aeneas\n', '') + '\n'
+                           + (DATA / 'Proof.lean').read_text() + '\n' + (DATA / 'Pointer.lean').read_text()
+                           + ''.join('\n#print axioms ' + n + '\n' for n in names))
+        command = ('project_path=$(lake env printenv LEAN_PATH); cd -- "$1"; backend_path=$(lake env printenv LEAN_PATH); '
+                   'LEAN_PATH="$project_path:$backend_path" lean -DwarningAsError=true "$2"')
+        run([ROOT / 'scripts/in-container', 'bash', '-euc', command, '_', COMMON['container_path'](args.backend.resolve() / 'backends/lean'),
+             COMMON['container_path'](checked)], 'lean.log')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), names)
+        record.update(llbc_sha256=digest(llbc.read_bytes()), checked_sha256=digest(checked.read_bytes()))
+        if record['inputs'] != {str(p.relative_to(ROOT)): digest(p.read_bytes()) for p in files}: raise RuntimeError('Input changed during check')
+        BUILD['verify_receipt'](args.build_receipt); record['status'] = 'passed'
+        print('Word64 memory passed: ' + str(len(names)) + ' dependency audits; initialized span/word memory and source layout/pointer composition')
+    except (Exception, SystemExit) as error:
+        record.update(status='failed', error=str(error)); raise SystemExit('Word64 memory failed; inspect ' + str(out) + ': ' + str(error)) from error
+    finally:
+        record['logs'] = {p.name: digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__': main()
