@@ -1,0 +1,94 @@
+#!/usr/bin/env python3
+"""Reject incomplete, admitted or lifetime-erased concrete metadata extraction."""
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+MODULE = runpy.run_path(str(ROOT / 'scripts/extract-hasteboots-metadata-mono'))
+
+
+def surface():
+    return ('import Aeneas\nset_option maxHeartbeats 200000\nset_option maxRecDepth 1000\n' +
+            ''.join('def\n  ' + n + ' := ()\n' for n in MODULE['FUNCTIONS'] + ['algebra.goldilocks.Goldilocks']) +
+            'structure pcs.utils.code.block.BlockReedSolomonCode where\n  field : Unit\nend ' + MODULE['NS'] + '\n')
+
+
+def ir():
+    return {'has_errors': False, 'translated': {'target_information': [
+        {'key': 'x86_64-unknown-linux-gnu', 'value': {'target_pointer_size': 8, 'is_little_endian': True}}],
+        'fun_decls': [{'item_meta': {'name': [{'Ident': [name, 0]}]},
+                       'generics': {'types': [], 'trait_clauses': [], 'trait_type_constraints': []},
+                       'signature': {'inputs': [{'Ref': [{'Var': {'Free': 0}}, {'Literal': {'UInt': 'U64'}}, 'Shared']}],
+                                     'output': {'Literal': {'UInt': 'Usize'}}}}
+                      for name in ['row_metadata', 'block_width', 'codeword_blocks', 'domain_separator']]}}
+
+
+class Guards(unittest.TestCase):
+    def test_import_only(self):
+        self.assertEqual(MODULE['validate_generated'](surface()), surface().replace('import Aeneas\n', ''))
+
+    def test_missing_or_truncated_definitions(self):
+        for name in MODULE['FUNCTIONS'] + ['algebra.goldilocks.Goldilocks', 'pcs.utils.code.block.BlockReedSolomonCode']:
+            with self.subTest(name=name), self.assertRaises(RuntimeError):
+                MODULE['validate_generated'](surface().replace(name, 'missing'))
+        with self.assertRaises(RuntimeError):
+            MODULE['validate_generated'](surface().split('end ')[0])
+
+    def test_admissions_and_limits(self):
+        for text in ['axiom bad : False', 'opaque bad : Type', 'constant bad : Type', 'def bad := sorryAx',
+                     'def bad := sorry', 'def bad := native_decide', 'def bad := by decide +native', 'unsafe def bad := ()',
+                     'set_option maxHeartbeats 1000000']:
+            with self.subTest(text=text), self.assertRaises(RuntimeError):
+                MODULE['validate_generated'](surface().replace('end ' + MODULE['NS'], text + '\nend ' + MODULE['NS']))
+        with self.assertRaises(RuntimeError):
+            MODULE['validate_generated'](surface().replace('1000\n', '2048\n'))
+
+    def test_complete_target(self):
+        MODULE['validate_ir'](ir())
+        for mutate in [lambda x: x.update(has_errors=True), lambda x: x['translated'].update(target_information=[])]:
+            bad = ir(); mutate(bad)
+            with self.assertRaises(RuntimeError): MODULE['validate_ir'](bad)
+
+    def test_erased_and_body_signature_regions(self):
+        for region in ['Erased', {'Body': 0}]:
+            bad = ir(); bad['translated']['fun_decls'][0]['signature']['inputs'][0]['Ref'][0] = region
+            with self.assertRaises(RuntimeError): MODULE['validate_ir'](bad)
+        bad = ir()
+        bad['pool'] = {'HashConsedValue': [99, {'Ref': ['Erased', {'Literal': {'UInt': 'U64'}}, 'Shared']}]}
+        bad['translated']['fun_decls'][0]['signature']['inputs'] = [{'Deduplicated': 99}]
+        with self.assertRaises(RuntimeError): MODULE['validate_ir'](bad)
+
+    def test_unresolved_specialization(self):
+        for field in ['types', 'trait_clauses', 'trait_type_constraints']:
+            bad = ir(); bad['translated']['fun_decls'][0]['generics'][field] = [{}]
+            with self.assertRaises(RuntimeError): MODULE['validate_ir'](bad)
+        bad = ir(); bad['translated']['fun_decls'].pop()
+        with self.assertRaises(RuntimeError): MODULE['validate_ir'](bad)
+
+    def test_zero_exit_errors_and_truncation_rejected(self):
+        rejected = MODULE['extraction_rejected']
+        self.assertFalse(rejected(0, '', 'end control', 'control'))
+        for code, log, raw in [(0, '\x1b[31m[Error]\x1b[0m Unexpected', 'end control'),
+                               (0, '', 'structure Partial'), (2, '', 'end control'),
+                               (0, 'Uncaught exception', 'end control')]:
+            self.assertTrue(rejected(code, log, raw, 'control'))
+
+    def test_control_limits_and_admissions(self):
+        raw = ('import Aeneas\nset_option maxHeartbeats 200000\nset_option maxRecDepth 1000\n' +
+               ''.join('def ' + n + ' := ()\n' for n in MODULE['CONTROL_FUNCTIONS']) +
+               'end hasteboots_associated_control\n')
+        MODULE['validate_control'](raw)
+        for bad in [raw.replace('200000', '1000000'), raw.replace('1000\n', '2048\n'),
+                    raw.replace('def chain', 'axiom chain'), raw.replace('end hasteboots_associated_control', '')]:
+            with self.assertRaises(RuntimeError): MODULE['validate_control'](bad)
+
+    def test_exact_proof_coverage(self):
+        for data, names in [(MODULE['DATA'], MODULE['PROOFS']), (MODULE['ASSOCIATED'], MODULE['CONTROL_PROOFS'])]:
+            proof = (data / 'Proof.lean').read_text()
+            MODULE['PARAMETERS']['validate_proof_source'](proof, names)
+            with self.assertRaises(RuntimeError): MODULE['PARAMETERS']['validate_proof_source'](proof, names[:-1])
+
+
+if __name__ == '__main__':
+    unittest.main()

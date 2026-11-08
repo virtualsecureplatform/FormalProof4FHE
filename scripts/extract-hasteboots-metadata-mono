@@ -1,0 +1,229 @@
+#!/usr/bin/env python3
+"""Extract actual concrete row metadata; construction/heap/context hashing remain unproved."""
+import argparse
+import json
+import os
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+BASE = runpy.run_path(str(ROOT / 'scripts/extract-hasteboots-registry'))
+PARAMETERS, COMMON = BASE['PARAMETERS'], BASE['COMMON']
+BUILD = runpy.run_path(str(ROOT / 'scripts/build-hasteboots-static-frontend'))
+DATA = ROOT / 'interop/aeneas/metadata-mono'
+ASSOCIATED = ROOT / 'interop/aeneas/associated-types'
+NS = BASE['NAMESPACE']
+METHOD = 'pcs.utils.code.block.BlockReedSolomonCode.Insts.PcsUtilsCodeBlockRowCodeGoldilocks.'
+FUNCTIONS = [METHOD + name for name in ['block_width', 'codeword_blocks', 'domain_separator']] + ['row_metadata']
+PROOFS = ['retain_specialize', 'specialize_retain', 'width_exact', 'blocks_exact', 'domain_model',
+          'metadata_exact', 'metadata_rep', 'metadata_decoded', 'metadata_specialized', 'parameter_metadata',
+          'original_read_metadata']
+CONTROL_FUNCTIONS = ['convert', 'constrained', 'chain']
+CONTROL_PROOFS = ['convert_exact', 'constrained_exact', 'chain_exact', 'chain_success', 'constrained_failure']
+
+
+def validate_generated(raw):
+    if raw.count('import Aeneas\n') != 1 or not raw.rstrip().endswith('end ' + NS):
+        raise RuntimeError('Incomplete concrete metadata output')
+    if re.search(r'\b(axiom|opaque|constant|sorry|sorryAx|native_decide|unsafe)\b|decide\s*\+native', raw):
+        raise RuntimeError('Admitted metadata declaration')
+    if re.findall(r'^set_option (maxHeartbeats|maxRecDepth) ([0-9]+)$', raw, re.M) != [
+            ('maxHeartbeats', '200000'), ('maxRecDepth', '1000')]:
+        raise RuntimeError('Unexpected proof limits')
+    for name in FUNCTIONS + ['algebra.goldilocks.Goldilocks']:
+        if not re.search(r'^def\s+' + re.escape(name) + r'\s', raw, re.M):
+            raise RuntimeError('Missing actual source definition: ' + name)
+    if not re.search(r'^structure pcs\.utils\.code\.block\.BlockReedSolomonCode\s', raw, re.M):
+        raise RuntimeError('Missing complete native code carrier')
+    return raw.replace('import Aeneas\n', '')
+
+
+def validate_control(raw):
+    namespace = 'hasteboots_associated_control'
+    if raw.count('import Aeneas\n') != 1 or not raw.rstrip().endswith('end ' + namespace):
+        raise RuntimeError('Incomplete equality control')
+    if re.search(r'\b(axiom|opaque|constant|sorry|sorryAx|native_decide|unsafe)\b|decide\s*\+native', raw):
+        raise RuntimeError('Admitted equality control')
+    if re.findall(r'^set_option (maxHeartbeats|maxRecDepth) ([0-9]+)$', raw, re.M) != [
+            ('maxHeartbeats', '200000'), ('maxRecDepth', '1000')]:
+        raise RuntimeError('Unexpected equality-control proof limits')
+    for name in CONTROL_FUNCTIONS:
+        if not re.search(r'^def\s+' + name + r'\s', raw, re.M):
+            raise RuntimeError('Missing equality control function')
+    return raw.replace('import Aeneas\n', '')
+
+
+def validate_ir(ir):
+    if ir.get('has_errors') is not False or ir['translated']['target_information'] != [
+            {'key': 'x86_64-unknown-linux-gnu', 'value': {'target_pointer_size': 8, 'is_little_endian': True}}]:
+        raise RuntimeError('Incomplete or wrong-target metadata IR')
+    pool = {}
+    def collect(value):
+        if isinstance(value, dict):
+            if 'HashConsedValue' in value:
+                index, content = value['HashConsedValue']; pool[index] = content
+            for child in value.values(): collect(child)
+        elif isinstance(value, list):
+            for child in value: collect(child)
+    collect(ir)
+    def check(value, seen=frozenset()):
+        if value == 'Erased':
+            raise RuntimeError('Erased signature region')
+        if isinstance(value, dict):
+            if 'Body' in value:
+                raise RuntimeError('Body region in signature')
+            if 'Deduplicated' in value:
+                index = value['Deduplicated']
+                if index in seen or index not in pool:
+                    raise RuntimeError('Invalid signature type reference')
+                check(pool[index], seen | {index})
+            elif 'HashConsedValue' in value:
+                index, content = value['HashConsedValue']; check(content, seen | {index})
+            else:
+                for child in value.values(): check(child, seen)
+        elif isinstance(value, list):
+            for child in value: check(child, seen)
+    functions = [f for f in ir['translated']['fun_decls'] if f]
+    names = {next(item['Ident'][0] for item in reversed(f['item_meta']['name']) if 'Ident' in item) for f in functions}
+    if len(functions) != 4 or names != {'row_metadata', 'block_width', 'codeword_blocks', 'domain_separator'}:
+        raise RuntimeError('Unexpected metadata function surface')
+    for function in functions:
+        params = function['generics']
+        if params['types'] or params['trait_clauses'] or params['trait_type_constraints']:
+            raise RuntimeError('Unresolved specialization obligations')
+        check(function['signature'])
+
+
+def extraction_rejected(code, log, raw, namespace):
+    clean = re.sub(r'\x1b\[[0-9;?]*[A-Za-z]', '', log)
+    return code != 0 or bool(re.search(r'Uncaught exception|\[Error\]', clean)) or not raw.rstrip().endswith('end ' + namespace)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--tools', type=Path, required=True)
+    parser.add_argument('--backend', type=Path, required=True)
+    parser.add_argument('--build-receipt', type=Path, required=True)
+    args = parser.parse_args()
+    parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
+    out = Path(tempfile.mkdtemp(prefix='metadata-mono-', dir=parent))
+    record = {'status': 'started', 'commands': [], 'script_sha256': BASE['digest'](Path(__file__).read_bytes()),
+              'claim': 'concrete native metadata value refinement only; construction/heap/context hashing/security unproved'}
+    def save():
+        (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
+    def run(command, name, env=None, required=True):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out / name).open('w') as log:
+            result = subprocess.run([str(x) for x in command], cwd=ROOT, env=env, stdout=log, stderr=subprocess.STDOUT)
+        if required and result.returncode:
+            raise RuntimeError(name + ' exited ' + str(result.returncode))
+        return result.returncode
+    print('Metadata artifacts: ' + str(out), flush=True); save()
+    try:
+        tools, backend = args.tools.resolve(), args.backend.resolve()
+        receipt = json.loads(args.build_receipt.read_text())
+        if receipt.get('status') != 'passed' or receipt.get('profile') != 'metadata-mono':
+            raise RuntimeError('Wrong or failed frontend receipt')
+        if receipt.get('script_sha256') != BASE['digest']((ROOT / 'scripts/build-hasteboots-static-frontend').read_bytes()):
+            raise RuntimeError('Stale frontend builder policy')
+        patch_hash = BUILD['verify_source'](Path(receipt['source']), 'metadata-mono')
+        if receipt.get('patch_sha256') != patch_hash or receipt.get('package_profile_sha256') != BASE['digest']((BUILD['DATA'] / 'opam-packages.json').read_bytes()):
+            raise RuntimeError('Stale frontend source/dependency receipt')
+        frontend = Path(receipt['executable'])
+        if BASE['digest'](frontend.read_bytes()) != receipt.get('executable_sha256'):
+            raise RuntimeError('Frontend executable differs')
+        record.update(frontend_sha256=receipt['executable_sha256'], build_receipt_sha256=BASE['digest'](args.build_receipt.read_bytes()))
+        run([ROOT / 'scripts/extract-hasteboots-registry', '--tools', tools, '--backend', backend], 'registry.log')
+        paths = re.findall(r'^Registry artifacts: (.+)$', (out / 'registry.log').read_text(), re.M)
+        if len(paths) != 1: raise RuntimeError('Missing accepted registry preflight')
+        preflight = Path(paths[0]); manifest = json.loads((preflight / 'manifest.json').read_text())
+        if manifest.get('status') != 'passed': raise RuntimeError('Registry preflight did not pass')
+        record['preflight_manifest'] = str(preflight / 'manifest.json')
+        record['preflight_manifest_sha256'] = BASE['digest']((preflight / 'manifest.json').read_bytes())
+        run([ROOT / 'scripts/probe-hasteboots-static-bytes', '--tools', tools, '--backend', backend,
+             '--build-receipt', args.build_receipt], 'frontend-regressions.log')
+        regressions = re.findall(r'^Probe artifacts: (.+)$', (out / 'frontend-regressions.log').read_text(), re.M)
+        if len(regressions) != 1: raise RuntimeError('Missing frontend regression manifest')
+        regression_manifest = Path(regressions[0]) / 'manifest.json'
+        if json.loads(regression_manifest.read_text()).get('status') != 'passed': raise RuntimeError('Frontend regressions not accepted')
+        record['frontend_regression_manifest'] = str(regression_manifest)
+        record['frontend_regression_manifest_sha256'] = BASE['digest'](regression_manifest.read_bytes())
+        native = ROOT.parent / 'HasteBoots'
+        cargo = (preflight / 'Cargo.toml').read_text() + 'algebra = { path = "' + str(native / 'algebra') + '" }\n'
+        lock = (preflight / 'Cargo.lock').read_text().replace(
+            'name = "formalproof4fhe-native-registry-fixture"\nversion = "0.1.0"\ndependencies = [',
+            'name = "formalproof4fhe-native-registry-fixture"\nversion = "0.1.0"\ndependencies = [\n "algebra",')
+        BASE['validate_lock']((native / 'Cargo.lock').read_text(), lock)
+        (out / 'Cargo.toml').write_text(cargo); (out / 'Cargo.lock').write_text(lock)
+        record.update(cargo_sha256=BASE['digest'](cargo.encode()), lock_sha256=BASE['digest'](lock.encode()), native_revision=PARAMETERS['NATIVE_PIN'])
+        (out / 'src').mkdir(); (out / 'src/lib.rs').write_bytes((DATA / 'wrapper.rs').read_bytes())
+        record['inputs'] = {name: BASE['digest']((DATA / name).read_bytes()) for name in ['wrapper.rs', 'Generated.lean', 'Proof.lean', 'frontend.patch']}
+        record['native_sources'] = {name: BASE['digest']((native / name).read_bytes()) for name in ['pcs/src/utils/code/block.rs', 'algebra/src/goldilocks/mod.rs', 'Cargo.lock']}
+        def native_clean():
+            if PARAMETERS['checked'](['git', '-C', native, 'rev-parse', 'HEAD'], text=True).strip() != PARAMETERS['NATIVE_PIN'] or PARAMETERS['checked'](['git', '-C', native, 'diff', 'HEAD', '--name-only'], text=True).strip():
+                raise RuntimeError('Native revision or tracked cleanliness changed')
+        native_clean()
+        llbc = out / 'metadata.llbc'
+        command = [tools / 'charon', 'cargo', '--preset=aeneas', '--raw-consts', '--monomorphize', '--start-from', NS + '::row_metadata']
+        for name in ['block_width', 'codeword_blocks', 'domain_separator']:
+            command += ['--include', 'pcs::utils::code::block::_::' + name]
+        command += ['--include', 'pcs::utils::code::block::BlockReedSolomonCode', '--include', 'algebra::goldilocks::Goldilocks',
+                    '--dest-file', llbc, '--', '--manifest-path', out / 'Cargo.toml', '--lib', '--locked']
+        env = dict(os.environ); env.setdefault('CARGO_TARGET_DIR', str(parent / 'cargo-registry-target'))
+        run(command, 'charon.log', env); native_clean()
+        ir = json.loads(llbc.read_text()); validate_ir(ir)
+        record['llbc_sha256'] = BASE['digest'](llbc.read_bytes())
+        options = ['-backend', 'lean', '-checks', '-sequential', '-max-heartbeats', '200000', '-max-recdepth', '1000', '-abort-on-error']
+        baseline = run([frontend, *options, '-dest', out / 'annotations', llbc], 'annotations.log', required=False)
+        if baseline == 0 or 'NameMatcher.ml' not in (out / 'annotations.log').read_text():
+            raise RuntimeError('Name-annotation failure baseline changed')
+        run([frontend, *options, '-no-external-name-patterns', '-dest', out / 'lean', llbc], 'aeneas.log')
+        raw = (out / 'lean/Metadata.lean').read_text()
+        runtime = validate_generated(raw)
+        if extraction_rejected(0, (out / 'aeneas.log').read_text(), raw, NS): raise RuntimeError('Aeneas reported incomplete output')
+        PARAMETERS['verify_snapshot'](raw, (DATA / 'Generated.lean').read_text())
+        source = (preflight / 'Checked.lean').read_text() + '\n' + runtime
+        proof = (DATA / 'Proof.lean').read_text(); PARAMETERS['validate_proof_source'](proof, PROOFS); source += '\n' + proof
+        names = list(manifest['dependency_audit']) + [NS + '.' + name for name in FUNCTIONS] + ['HasteBootsExtractedMetadataMono.' + name for name in PROOFS]
+        # Nonrecursive equality controls and two unsupported recursive interfaces.
+        for case in ['control', 'cycle', 'equality-cycle']:
+            fixture = out / (case + '.rs'); fixture.write_bytes((ASSOCIATED / (case + '.rs')).read_bytes())
+            namespace = 'hasteboots_associated_' + case.replace('-', '_')
+            irfile = out / (namespace + '.llbc')
+            run([tools / 'charon', 'rustc', '--preset=aeneas', '--dest-file', irfile, '--', '--crate-type', 'lib', '--edition=2024', '--crate-name', namespace, fixture], case + '-charon.log')
+            case_ir = json.loads(irfile.read_text())
+            if case_ir.get('has_errors') is not False or case_ir['translated']['target_information'] != ir['translated']['target_information']:
+                raise RuntimeError('Incomplete associated-type control')
+            code = run([frontend, *options, '-no-external-name-patterns', '-dest', out / case, irfile], case + '.log', required=False)
+            generated = out / case / (''.join(word.capitalize() for word in namespace.split('_')) + '.lean')
+            text = generated.read_text() if generated.exists() else ''
+            log = (out / (case + '.log')).read_text()
+            if case != 'control':
+                if not extraction_rejected(code, log, text, namespace): raise RuntimeError('Recursive interface unexpectedly accepted')
+                record[case] = {'status': 'rejected', 'exit_code': code, 'fixture_sha256': BASE['digest'](fixture.read_bytes()), 'llbc_sha256': BASE['digest'](irfile.read_bytes())}
+            else:
+                if extraction_rejected(code, log, text, namespace): raise RuntimeError('Invalid equality control output')
+                source += '\n' + validate_control(text)
+                control_proof = (ASSOCIATED / 'Proof.lean').read_text(); PARAMETERS['validate_proof_source'](control_proof, CONTROL_PROOFS); source += '\n' + control_proof
+                names += [namespace + '.' + name for name in CONTROL_FUNCTIONS] + ['HasteBootsAssociatedTypesProof.' + name for name in CONTROL_PROOFS]
+                record['control'] = {'fixture_sha256': BASE['digest'](fixture.read_bytes()), 'llbc_sha256': BASE['digest'](irfile.read_bytes()), 'proof_sha256': BASE['digest'](control_proof.encode()), 'generated_sha256': BASE['digest'](text.encode())}
+        source += ''.join('\n#print axioms ' + name + '\n' for name in names[len(manifest['dependency_audit']):])
+        checked = out / 'Checked.lean'; checked.write_text(source)
+        record.update(generated_sha256=BASE['digest'](raw.encode()), checked_sha256=BASE['digest'](checked.read_bytes()))
+        run([ROOT / 'scripts/in-container', 'bash', '-euc', 'project_path=$(lake env printenv LEAN_PATH); cd -- "$1"; backend_path=$(lake env printenv LEAN_PATH); LEAN_PATH="$project_path:$backend_path" lean -DwarningAsError=true "$2"', '_', COMMON['container_path'](backend / 'backends/lean'), COMMON['container_path'](checked)], 'lean.log')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), names)
+        native_clean(); BUILD['verify_source'](Path(receipt['source']), 'metadata-mono')
+        record['status'] = 'passed'
+        print('Concrete metadata passed: ' + str(len(names)) + ' dependency audits; generic cycles/constructors/heap/context hashing/security unproved')
+    except (Exception, SystemExit) as error:
+        record['status'] = 'failed'; record['error'] = str(error)
+        raise SystemExit('Metadata extraction failed; inspect ' + str(out) + ': ' + str(error)) from error
+    finally:
+        record['logs'] = {p.name: BASE['digest'](p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__':
+    main()
