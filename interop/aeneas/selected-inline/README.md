@@ -241,3 +241,13 @@ This does not install a native reference/heap model. See
 [`../byte-reference/README.md`](../byte-reference/README.md) for the original
 safe-reference fixture, all-input accessor proofs and remaining source obligations.
 Existing profiles are unchanged with the flag absent.
+
+## Evaluated plain integer constants
+
+`-literal-const-initializers` requires the checked word64 target and lowers
+rustc-evaluated plain integer constants from `--consts values` into exact typed
+literal initializer bodies. It validates monomorphic top-level named storage,
+matching integer types and bounds; other value/storage forms remain unsupported.
+Existing initializer calls and flag-off profiles are unchanged. See
+[`../literal-consts/README.md`](../literal-consts/README.md) and the word layout
+composition in [`../word64-memory/README.md`](../word64-memory/README.md).

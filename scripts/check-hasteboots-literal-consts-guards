@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+"""Reject lost evaluated constants, altered literal values and incomplete preservation proofs."""
+import copy
+from pathlib import Path
+import runpy
+import unittest
+
+ROOT = Path(__file__).resolve().parent.parent
+GATE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-literal-consts'))
+
+
+def fixture():
+    return {'has_errors': False, 'translated': {
+        'target_information': [{'key': 'x86_64-unknown-linux-gnu', 'value': {'target_pointer_size': 8, 'is_little_endian': True}}],
+        'options': {'monomorphize': True, 'mir': 'Optimized', 'sysroot': 'default', 'consts': 'Values'},
+        'fun_decls': [{'item_meta': {'name': [{'Ident': [GATE['NAMESPACE'], 0]}, {'Ident': ['values', 0]}]}, 'body': {'Structured': {}}}],
+        'global_decls': [{'item_meta': {'name': [{'Ident': [GATE['NAMESPACE'], 0]}, {'Ident': [name, 0]}]}, 'global_kind': 'NamedConst',
+                          'src': 'TopLevel', 'value': {'kind': {'Literal': {'Scalar': {sign: [ty, value]}}}}}
+                         for name, (sign, ty, value) in GATE['EXPECTED'].items()]}}
+
+
+class Guards(unittest.TestCase):
+    def test_complete_source_and_proofs(self):
+        GATE['validate_ir'](fixture()); GATE['validate_output']((GATE['DATA'] / 'Generated.lean').read_text())
+
+    def test_missing_evaluation_source_or_integer(self):
+        for mutate in [lambda x: x['translated']['options'].update(consts='Initializers'),
+                       lambda x: x['translated']['global_decls'].pop(),
+                       lambda x: x['translated']['global_decls'][0]['value']['kind']['Literal']['Scalar']['Unsigned'].__setitem__(1, '8'),
+                       lambda x: x['translated']['global_decls'][0].update(global_kind='Static'),
+                       lambda x: x['translated']['fun_decls'][0].update(body='Opaque')]:
+            bad = copy.deepcopy(fixture()); mutate(bad)
+            with self.assertRaises(RuntimeError): GATE['validate_ir'](bad)
+
+    def test_changed_signed_wide_or_plain_values(self):
+        raw = (GATE['DATA'] / 'Generated.lean').read_text()
+        for bad in [raw.replace('31#u64', '8#u64'), raw.replace('(-17)#i64', '17#i64'),
+                    raw.replace('340282366920938463463374607431768211455#u128', '8#u128'),
+                    raw + '\naxiom supplied_layout : True\n']:
+            with self.assertRaises(RuntimeError): GATE['validate_output'](bad)
+
+    def test_every_proof_and_admission_guard(self):
+        text = (GATE['DATA'] / 'Proof.lean').read_text()
+        for name in GATE['PROOFS']:
+            with self.assertRaises(RuntimeError): GATE['PARAMETERS']['validate_proof_source'](text.replace('theorem ' + name, 'theorem removed_required'), GATE['PROOFS'])
+        with self.assertRaises(RuntimeError): GATE['PARAMETERS']['validate_proof_source'](text + '\ntheorem assumed : True := by native_decide\n', GATE['PROOFS'])
+
+
+if __name__ == '__main__': unittest.main()

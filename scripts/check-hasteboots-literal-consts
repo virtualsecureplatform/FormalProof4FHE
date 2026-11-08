@@ -1,0 +1,124 @@
+#!/usr/bin/env python3
+"""Check lossless lowering of rustc-evaluated plain integer constants."""
+import argparse
+import copy
+import json
+from pathlib import Path
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+BASE = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-word64-intrinsics'))
+BUILD, PARAMETERS, COMMON, digest = [BASE[k] for k in ['BUILD', 'PARAMETERS', 'COMMON', 'digest']]
+DATA = ROOT / 'interop/aeneas/literal-consts'
+NAMESPACE = 'hasteboots_literal_consts'
+VALUES = ['WIDTH', 'MASK', 'ZERO', 'NEGATIVE', 'WIDE', 'values']
+PROOFS = ['width_exact', 'mask_exact', 'zero_exact', 'negative_exact', 'wide_exact', 'values_exact']
+EXPECTED = {'WIDTH': ('Unsigned', 'Usize', '31'), 'MASK': ('Unsigned', 'U64', '81985529216486895'),
+            'ZERO': ('Unsigned', 'U8', '0'), 'NEGATIVE': ('Signed', 'I64', '-17'),
+            'WIDE': ('Unsigned', 'U128', '340282366920938463463374607431768211455')}
+
+
+def validate_ir(ir):
+    BASE['BASE']['BASE']['BASE']['validate_ir'](ir)
+    crate = ir['translated']; options = crate.get('options', {})
+    if not options.get('monomorphize') or options.get('mir') != 'Optimized' or options.get('sysroot') != 'default' or options.get('consts') != 'Values':
+        raise RuntimeError('Expected original optimized compiler-evaluated constants')
+    funcs = [f for f in crate['fun_decls'] if f]
+    if len(funcs) != 1 or funcs[0]['item_meta']['name'] != [{'Ident': [NAMESPACE, 0]}, {'Ident': ['values', 0]}] or set(funcs[0]['body']) != {'Structured'}:
+        raise RuntimeError('Missing original values function')
+    globals = [g for g in crate['global_decls'] if g]
+    if len(globals) != 5: raise RuntimeError('Missing evaluated global constants')
+    for name, (sign, scalar, value) in EXPECTED.items():
+        found = [g for g in globals if g['item_meta']['name'] == [{'Ident': [NAMESPACE, 0]}, {'Ident': [name, 0]}]]
+        if len(found) != 1 or found[0]['global_kind'] != 'NamedConst' or found[0]['src'] != 'TopLevel' or found[0]['value']['kind'] != {'Literal': {'Scalar': {sign: [scalar, value]}}}:
+            raise RuntimeError('Lost original evaluated integer: ' + name)
+
+
+def validate_output(raw):
+    PARAMETERS['verify_snapshot'](raw, (DATA / 'Generated.lean').read_text())
+    PARAMETERS['validate_proof_source']((DATA / 'Proof.lean').read_text(), PROOFS)
+    return BASE['RANGES']['validate_output'](raw, NAMESPACE, ['values'])
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--build-receipt', type=Path, required=True)
+    parser.add_argument('--backend', type=Path, required=True)
+    args = parser.parse_args()
+    parent = ROOT / 'build/hasteboots-extraction'; parent.mkdir(parents=True, exist_ok=True)
+    out = Path(tempfile.mkdtemp(prefix='literal-consts-', dir=parent))
+    record = {'status': 'started', 'claim': 'literal integer constant preservation only; compiler/native memory/work/security refinement unproved',
+              'script_sha256': digest(Path(__file__).read_bytes()), 'commands': []}
+    def save(): (out / 'manifest.json').write_text(json.dumps(record, indent=2) + '\n')
+    def run(command, log, required=True):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out / log).open('w') as stream:
+            status = subprocess.run([str(x) for x in command], cwd=ROOT, stdout=stream, stderr=subprocess.STDOUT).returncode
+        if required and status: raise RuntimeError(log + ' exited ' + str(status))
+        return status
+    print('Literal const artifacts: ' + str(out), flush=True); save()
+    try:
+        _, tools, _ = BUILD['verify_receipt'](args.build_receipt)
+        record['build_receipt_sha256'] = digest(args.build_receipt.read_bytes())
+        record['backend_patches'] = PARAMETERS['verify_backend'](args.backend.resolve(), out)
+        files = [DATA / n for n in ['fixture.rs', 'Generated.lean', 'Proof.lean']]
+        record['inputs'] = {str(p.relative_to(ROOT)): digest(p.read_bytes()) for p in files}
+        llbc = out / 'positive.llbc'
+        run([tools / 'charon', 'rustc', '--preset=aeneas', '--sysroot', 'default', '--monomorphize', '--mir', 'optimized', '--consts', 'values',
+             '--dest-file', llbc, '--', '--crate-type', 'lib', '--edition', '2024', '--crate-name', NAMESPACE, (DATA / 'fixture.rs').relative_to(ROOT)], 'charon.log')
+        options = ['-backend', 'lean', '-checks', '-sequential', '-max-heartbeats', '200000', '-max-recdepth', '1000', '-abort-on-error',
+                   '-no-external-name-patterns', '-disambiguate-instantiated-names']
+        flags = ['-monomorphic-builtin-shapes', '-target-word64', '-literal-const-initializers']
+        def frontend(path, name, profile=None, required=True):
+            return run([tools / 'aeneas', *options, *(flags if profile is None else profile), '-dest', out / name, path], name + '-frontend.log', required)
+        ir = json.loads(llbc.read_text()); validate_ir(ir); frontend(llbc, 'positive')
+        BASE['BASE']['BASE']['validate_frontend_log']((out / 'positive-frontend.log').read_text())
+        generated = list((out / 'positive').glob('*.lean'))
+        if len(generated) != 1: raise RuntimeError('Expected complete original module')
+        raw = generated[0].read_text(); validate_output(raw)
+        names = [NAMESPACE + '.' + name for name in VALUES + PROOFS]
+        checked = out / 'Checked.lean'
+        checked.write_text('import Aeneas.Std\n' + raw.replace('import Aeneas\n', '') + '\n' + (DATA / 'Proof.lean').read_text() + ''.join('\n#print axioms ' + name + '\n' for name in names))
+        run([ROOT / 'scripts/in-container', 'bash', '-euc', 'cd -- "$1"; lake env lean -DwarningAsError=true "$2"', '_',
+             COMMON['container_path'](args.backend.resolve() / 'backends/lean'), COMMON['container_path'](checked)], 'lean.log')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out / 'lean.log').read_text(), names)
+        record['rejected'] = []
+        def reject(path, name, error, profile=None):
+            if frontend(path, name, profile, False) == 0 or error not in (out / (name + '-frontend.log')).read_text(): raise RuntimeError('Expected rejection missing: ' + name)
+            record['rejected'].append(name)
+        reject(llbc, 'without-word64', 'Literal const initializers require the checked target-word64 profile', ['-monomorphic-builtin-shapes', '-literal-const-initializers'])
+        reject(llbc, 'without-shapes', 'Target word64 requires monomorphic Lean', ['-target-word64', '-literal-const-initializers'])
+        reject(llbc, 'without-lowering', 'option is None', ['-monomorphic-builtin-shapes', '-target-word64'])
+        for name in ['static', 'anonymous', 'generic-region', 'value-type', 'integer-tag', 'overflow', 'negative-unsigned', 'noninteger',
+                     'target32', 'big-endian', 'missing-target', 'multiple-targets']:
+            bad = copy.deepcopy(ir); global0 = bad['translated']['global_decls'][0]; targets = bad['translated']['target_information']
+            error = 'Literal const initializer requires a plain monomorphic named constant'
+            if name == 'static': global0['global_kind'] = 'Static'
+            elif name == 'anonymous': global0['global_kind'] = 'AnonConst'
+            elif name == 'generic-region': global0['generics']['regions'] = [{'index': 0, 'name': None, 'mutability': 'Unknown'}]
+            elif name == 'value-type': global0['value']['ty'] = {'HashConsedValue': [10000000, {'Literal': {'UInt': 'U8'}}]}
+            elif name in ['integer-tag', 'overflow', 'negative-unsigned', 'noninteger']:
+                error = 'Literal const initializer requires a matching in-range integer value'
+                if name == 'integer-tag': global0['value']['kind']['Literal']['Scalar']['Unsigned'][0] = 'U32'
+                elif name == 'overflow': global0['value']['kind']['Literal']['Scalar']['Unsigned'][1] = str(2**64)
+                elif name == 'negative-unsigned': global0['value']['kind']['Literal']['Scalar']['Unsigned'][1] = '-1'
+                else: global0['value']['kind'] = {'Literal': {'Bool': True}}
+            else:
+                error = 'Target word64 requires monomorphic Lean'
+                if name == 'target32': targets[0]['value']['target_pointer_size'] = 4
+                elif name == 'big-endian': targets[0]['value']['is_little_endian'] = False
+                elif name == 'missing-target': targets.clear()
+                else: targets.append(copy.deepcopy(targets[0]))
+            path = out / (name + '.llbc'); path.write_text(json.dumps(bad) + '\n'); reject(path, name, error)
+        if record['inputs'] != {str(p.relative_to(ROOT)): digest(p.read_bytes()) for p in files}: raise RuntimeError('Input changed during check')
+        BUILD['verify_receipt'](args.build_receipt); record.update(status='passed', llbc_sha256=digest(llbc.read_bytes()), checked_sha256=digest(checked.read_bytes()))
+        print('Literal consts passed: ' + str(len(names)) + ' dependency audits; ' + str(len(record['rejected'])) + ' unsupported cases rejected')
+    except (Exception, SystemExit) as error:
+        record.update(status='failed', error=str(error)); raise SystemExit('Literal consts failed; inspect ' + str(out) + ': ' + str(error)) from error
+    finally:
+        record['logs'] = {p.name: digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__': main()

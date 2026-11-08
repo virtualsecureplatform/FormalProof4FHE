@@ -1,8 +1,8 @@
 diff --git a/src/Config.ml b/src/Config.ml
-index cb919aeb..453ebc6b 100644
+index cb919aeb..6551d48d 100644
 --- a/src/Config.ml
 +++ b/src/Config.ml
-@@ -598,3 +598,15 @@ let max_recdepth = ref 2048
+@@ -598,3 +598,16 @@ let max_recdepth = ref 2048
  (** If [false], evaluate [drop(p)] as [p := bottom]. Otherwise, evaluate it as a
      no-op (which means that we do not borrow-check the drops). *)
  let drop_as_no_op = ref true
@@ -18,17 +18,22 @@ index cb919aeb..453ebc6b 100644
 +let target_word64 = ref false
 +let provenance_pointers = ref false
 +let word64_slices = ref false
++let literal_const_initializers = ref false
 diff --git a/src/Main.ml b/src/Main.ml
-index 8073dba6..9fadca2d 100644
+index 8073dba6..1f3c2ae4 100644
 --- a/src/Main.ml
 +++ b/src/Main.ml
-@@ -97,6 +97,30 @@ let () =
+@@ -97,6 +97,34 @@ let () =
          Arg.Symbol (backend_names, set_backend),
          " Specify the target backend (" ^ String.concat ", " backend_names ^ ")"
        );
 +      ( "-monomorphic-builtin-shapes",
 +        Arg.Set monomorphic_builtin_shapes,
 +        " Preserve monomorphic traits and recognize scalar option shapes" );
++      ( "-literal-const-initializers",
++        Arg.Set literal_const_initializers,
++        " Lower evaluated plain integer constants to literal initializer bodies"
++      );
 +      ( "-word64-slices",
 +        Arg.Set word64_slices,
 +        " Use an explicit word64 slice carrier and checked primitive operations"
@@ -53,7 +58,7 @@ index 8073dba6..9fadca2d 100644
        ( "-namespace",
          Arg.String set_namespace,
          " Set the namespace of the definitions in the pure model" );
-@@ -579,6 +603,36 @@ let () =
+@@ -579,6 +607,40 @@ let () =
           without the `--preset=aeneas` option. Please regenerate the crate by \
           calling Charon with `--preset=aeneas`.\n";
  
@@ -87,11 +92,15 @@ index 8073dba6..9fadca2d 100644
 +        ((not !word64_slices) || !target_word64)
 +        "Word64 slices require the checked target-word64 profile";
 +
++      check_no_doc
++        ((not !literal_const_initializers) || !target_word64)
++        "Literal const initializers require the checked target-word64 profile";
++
        (* We don't support mutually recursive definitions with decreases clauses in Lean *)
        if
          !opt_backend = Some Lean && !extract_decreases_clauses
 diff --git a/src/PrePasses.ml b/src/PrePasses.ml
-index b613aba1..18f91ef0 100644
+index b613aba1..b704d005 100644
 --- a/src/PrePasses.ml
 +++ b/src/PrePasses.ml
 @@ -87,6 +87,1141 @@ let erase_body_regions (crate : crate) (f : fun_decl) : fun_decl =
@@ -1337,7 +1346,141 @@ index b613aba1..18f91ef0 100644
        match f.body with
        | StructuredBody body -> visitor#visit_block () body.body
        | _ -> ())
-@@ -2271,8 +3449,16 @@ let apply_passes (crate : crate) : crate =
+@@ -2265,14 +3443,150 @@ let fix_closure_lifetimes (crate : crate) (f : fun_decl) : fun_decl =
+           f
+       | _, _ -> f)
+ 
++(** Preserve rustc-evaluated integer constants by representing their literal
++    values with the initializer form expected by the existing pipeline. This
++    does not evaluate missing bodies or invent values for opaque globals. *)
++let lower_literal_const_initializers (crate : crate) : crate =
++  if not !Config.literal_const_initializers then crate
++  else
++    let functions = ref crate.fun_decls in
++    let added = ref [] in
++    let _, candidate = FunDeclId.fresh_stateful_generator () in
++    let rec fresh () =
++      let id = candidate () in
++      if FunDeclId.Map.mem id !functions then fresh () else id
++    in
++    let globals =
++      GlobalDeclId.Map.map
++        (fun (global : global_decl) ->
++          match Charon.GAstUtils.init_fun_id_of_global global with
++          | Some _ -> global
++          | None ->
++              let span = global.item_meta.span in
++              [%cassert] span
++                (global.global_kind = NamedConst
++                && global.src = TopLevelItem
++                && global.generics = empty_generic_params
++                && global.value.ty = global.ty)
++                "Literal const initializer requires a plain monomorphic named \
++                 constant";
++              let matched =
++                match (global.ty, global.value.kind) with
++                | ( TLiteral (TUInt expected),
++                    CLiteral (VScalar (UnsignedScalar (actual, _) as scalar)) )
++                  ->
++                    expected = actual
++                    && Scalars.check_scalar_value_in_range 8 scalar
++                | ( TLiteral (TInt expected),
++                    CLiteral (VScalar (SignedScalar (actual, _) as scalar)) ) ->
++                    expected = actual
++                    && Scalars.check_scalar_value_in_range 8 scalar
++                | _ -> false
++              in
++              [%cassert] span matched
++                "Literal const initializer requires a matching in-range \
++                 integer value";
++              let id = fresh () in
++              let statement kind =
++                {
++                  span;
++                  statement_id = StatementId.zero;
++                  kind;
++                  comments_before = [];
++                }
++              in
++              let output = { kind = PlaceLocal LocalId.zero; ty = global.ty } in
++              let body =
++                {
++                  span;
++                  bound_body_regions = 0;
++                  locals =
++                    {
++                      arg_count = 0;
++                      locals =
++                        [
++                          {
++                            index = LocalId.zero;
++                            name = None;
++                            span;
++                            local_ty = global.ty;
++                          };
++                        ];
++                    };
++                  body =
++                    {
++                      span;
++                      statements =
++                        [
++                          statement (StorageLive LocalId.zero);
++                          statement
++                            (Assign
++                               (output, Use (Constant global.value, NoRetag)));
++                          statement Return;
++                        ];
++                    };
++                }
++              in
++              let decl : fun_decl =
++                {
++                  def_id = id;
++                  item_meta = global.item_meta;
++                  generics = empty_generic_params;
++                  signature =
++                    {
++                      is_unsafe = false;
++                      abi = AbiRust;
++                      is_variadic = false;
++                      inputs = [];
++                      output = global.ty;
++                    };
++                  src = TopLevelItem;
++                  is_global_initializer = Some global.def_id;
++                  body = StructuredBody body;
++                }
++              in
++              functions := FunDeclId.Map.add id decl !functions;
++              added := FunGroup (NonRecGroup id) :: !added;
++              {
++                global with
++                value =
++                  {
++                    ty = global.ty;
++                    kind =
++                      CCall
++                        ( {
++                            kind = FunId (FRegular id);
++                            generics = empty_generic_args;
++                          },
++                          [] );
++                  };
++              })
++        crate.global_decls
++    in
++    {
++      crate with
++      fun_decls = !functions;
++      global_decls = globals;
++      declarations = List.rev !added @ crate.declarations;
++    }
++
+ let apply_passes (crate : crate) : crate =
+   (* Passes that apply to the whole crate *)
++  let crate = lower_literal_const_initializers crate in
+   let crate = update_array_default crate in
    (* Passes that apply to individual function bodies *)
    let function_passes =
      [
