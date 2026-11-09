@@ -294,3 +294,19 @@ Storage-loan validation: 868 dependency audits, 165 rejecting controls,
 125 source examples and 112 model examples. The fresh full project check
 passes with 11095 build jobs, and all four new modules pass direct
 warning-as-error checks.
+
+## Typed error-local snapshots
+
+`reservationErrorTags` is emitted from the validated wrapper/kind/Layout/
+alignment identities. `LocalProof.lean` connects original constructor error
+payloads to `NativeReservationErrorLocal`'s codec; allocation errors require the
+existing capacity bound. The core operation selects a complete typed local,
+executes modeled allocation/write/loan steps and returns a resident two-word
+operand. Its residency theorem ties the original logical value to the bytes of
+the selected lease, with failures preserving executed prefixes. Overflow padding
+is not written. This marshaling has not yet been connected to the source error
+handler or refined to native stack placement, typed borrowing and lifetime.
+
+Typed-local validation: 915 dependency audits, 165 rejecting controls,
+128 source examples and 134 model examples. The full project check passes
+with 11098 build jobs, alongside all three new-module warning-as-error checks.

@@ -7,6 +7,44 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Typed reservation-error locals marshal into resident storage
+
+`NativeReservationErrorLocal` reads a complete typed LLBC local, decodes its
+nominal wrapper/kind/Layout/alignment tags, checks allocation-layout validity,
+and marshals the value into modeled 16-byte storage. The actual operations are
+allocation, one byte write, and a checked shared storage loan. Overflow writes
+only the first eight bytes; allocation errors write alignment then size. The
+result is a checked two-word reference operand. Failed operations retain every
+machine step already executed.
+
+Twenty-three core theorems prove codec inversion/validity, execution traces,
+reachability and well-formedness, recovery of fields from actual byte writes,
+and a residency relation tying the returned loan to that same written pointer.
+A successful typed-local snapshot establishes that the original complete local
+equals the encoded kind and that the selected resident lease contains its fields.
+The generic subword proof derives the two aligned word loads from the full byte
+write; field equality is not supplied as an assumption.
+
+The reifier emits the descriptor using already validated source identities.
+Four source theorems connect both original constructor error payloads to the
+codec, including allocation failures for every capacity below `2^63`. Three
+source examples exercise overflow, ordinary allocation error and the upper
+accepted capacity. Twenty-two model examples cover local round trips, padding,
+type/tag/initialization rejection and a genuine executed-prefix failure at the
+modeled address boundary. Forty-two dependency guards cover the new module.
+All three new-module warning-as-error checks pass. A fresh full `scripts/check`
+passes with 11098 build jobs. The constructor gate passes 915 dependency audits,
+165 rejecting controls, 128 source examples and 134 model examples. Related
+gates pass too: Vec destruction 1044 audits/87 controls, allocator caller
+388/31 and empty constructor 395/17.
+
+This marshaling is a representation bridge, not execution of the original
+Rust borrow. The new local operation is not yet installed in the source error
+handler, and getter execution, read-completeness from residency, native stack
+placement/lifetime and storage reclamation remain open. Outer error/unwind
+propagation, native ABI/compiler correspondence, resident destruction, physical
+work and final security also remain open.
+
 ## Storage loans admit uninitialized padding
 
 `NativeByteBorrowStorage.borrow` checks the existing parent/raw permission rules

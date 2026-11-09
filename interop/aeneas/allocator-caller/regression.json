@@ -1,7 +1,7 @@
 {
-  "profile": "revalidated-with-storage-borrow-v16",
-  "gate_manifest": "build/hasteboots-extraction/allocator-caller-k1j4ntit/manifest.json",
-  "gate_manifest_sha256": "715470c8e9b90ea293364630e677bf521b5aadb9c40255e29b2785537ed97a51",
+  "profile": "revalidated-with-error-local-v17",
+  "gate_manifest": "build/hasteboots-extraction/allocator-caller-ww_85bdv/manifest.json",
+  "gate_manifest_sha256": "be35e52a1dc234a54771e04b92741ad4881b1a374ebc1baec3c03f1c8392ebe3",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "status": "passed",
   "commands": [
@@ -635,7 +635,7 @@
     "heap_and_incoming_reference_preservation_extended": true,
     "native_alignment_transmute_abi_refinement": false
   },
-  "validation_note": "Fresh source extraction gate and full project check passed, including separate storage-borrow audits. This profile retains its existing source theorem scope; native correspondence, physical work and final security remain open.",
+  "validation_note": "Fresh source extraction gate and full project check passed, including separate error-local snapshot audits. This profile retains its existing source theorem scope; native correspondence, physical work and final security remain open.",
   "prior_zst_local_borrow_baseline": {
     "profile": "original-finite-allocator-caller-revalidated-with-checked-enum-address-v3",
     "gate_manifest": "build/hasteboots-extraction/allocator-caller-97_hgb6y/manifest.json",
@@ -697,11 +697,11 @@
   "full_project_check": {
     "command": "scripts/check",
     "exit_code": 0,
-    "build_jobs": 11095,
-    "log": "/tmp/storage-borrow-full-check.log",
-    "log_sha256": "0535723705365132f410478b17618ecba7bc3a8dd5966909ec233155741ef98e",
-    "library_root_sha256": "848e6a574d9f3a064e1993ba38f33e2a2b99e9b7d7887a00d78d5494390f60f6",
-    "test_root_sha256": "ca0ddc577c72ef616a4c08bc70a7a9714a6c13be8387bf40ee261828c9941047"
+    "build_jobs": 11098,
+    "log": "/tmp/error-local-full-check.log",
+    "log_sha256": "acf1e399c25c1e209e949f74783be11506a493e5b72e57721b3694c53c3d6f98",
+    "library_root_sha256": "c7be2a57d0308fdd21d7b67fe6d987a1e7cf8f2569ed9706665708c0906ddebb",
+    "test_root_sha256": "215960acba9317f09697aad1cca29315a77764d339630b2a9d1e396ec5efedc8"
   },
   "prior_nonnull_runtime_baseline": {
     "profile": "original-finite-allocator-caller-revalidated-with-pointer-inspection-v6",
@@ -783,5 +783,13 @@
     "dependency_audit_count": 388,
     "negative_control_count": 31
   },
-  "revalidated_with_storage_borrow": true
+  "revalidated_with_storage_borrow": true,
+  "prior_error_local_baseline": {
+    "profile": "revalidated-with-storage-borrow-v16",
+    "gate_manifest": "build/hasteboots-extraction/allocator-caller-k1j4ntit/manifest.json",
+    "gate_manifest_sha256": "715470c8e9b90ea293364630e677bf521b5aadb9c40255e29b2785537ed97a51",
+    "dependency_audit_count": 388,
+    "negative_control_count": 31
+  },
+  "revalidated_with_error_local": true
 }
