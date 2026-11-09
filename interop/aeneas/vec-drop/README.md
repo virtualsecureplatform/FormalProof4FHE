@@ -1,5 +1,42 @@
 # Original resident Vec destruction
 
+## Complete outer Vec destruction under resident model conditions
+
+`VecDestructionProof.lean` composes the original outer destructor through the
+whole-Vec borrow, original-length byte traversal, RawVec field borrow, proved
+RawVec glue and final return. The first scope closes its temporary whole-Vec
+loan before the RawVec borrow. The original descriptor is then re-indexed using
+its retained reference and pointer identities; its fields and alias frontier
+follow from the unchanged heap and exactly restored loan list.
+
+`vec_glue_complete` proves normal unit return and reachability, with the original
+ordered incoming loans restored. Zero capacity preserves the complete heap;
+positive capacity frees exactly the original owned buffer and capacity layout.
+Canonical invocation, every-invocation and deterministic-executor corollaries
+retain those guarantees. Successful calls, cleanup results or a forced output
+are not hypotheses.
+
+The conditions are explicit: a descriptor bound to the stored fields, a reachable
+modeled state, initialized element bytes, full-capacity separation from active
+loans, an exclusive header frontier and ownership of the data allocation. The
+native constructor and implementation refinements needed to establish these
+conditions for actual Rust executions remain separate open obligations.
+
+The native support adds four theorems and one descriptor-transport definition;
+the source composition adds nine theorems and two checked definitions. All 16
+declarations have dependency audits. Four model regressions cover both borrow
+targets, descriptor re-indexing and preserved buffer separation. Four source
+regressions cover three-byte destruction, an empty dangling buffer, a completely
+uninitialized positive reservation with zero elements, and arbitrary operational
+invocations. Original-extent completion proofs are checked alongside the
+semantic guard that rejects replacing the element extent with zero.
+
+Sufficient conditions for successful complete Vec destruction are now proved in
+the checked model. Native construction/ownership acceptance, compiler/lifetime/
+ABI refinement, the external allocator implementation, native physical-work
+accounting and final application security remain open. The final 128-bit
+expected-work inequality is not established by this destructor result.
+
 ## The retained RawVec method and glue return normally
 
 `Ready.immediate_complete` derives a fresh exclusive RawVec operand with its
