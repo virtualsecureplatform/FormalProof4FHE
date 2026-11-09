@@ -7,6 +7,39 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Every retained Vec outcome now has a bounded heap effect
+
+The [Vec profile](../interop/aeneas/vec-drop/README.md) proves that every source
+invocation outcome either leaves the complete byte-and-shadow heap unchanged or
+has exactly one fewer live allocation. The original Vec byte-drop method
+preserves the full heap on every outcome. These are universal modeled-state/input
+statements, including rejected, unsupported and unwinding prefixes; no successful
+traversal or normal-return premise is supplied.
+
+A new framing layer covers actual reads, pointer loads, address derivation,
+borrows, retags and scope cleanup, including retained failure prefixes. Existing
+execution projections still supply machine runs; the new framing marker records
+heap equality only. Typed deallocation's successful-free theorem supplies the
+allocation-removal effect. Loss certificates require full heap identity when
+counts are equal, excluding hidden writes and free/reallocate cancellation.
+
+The finite-body budget conservatively sums source alternatives. Separate normal
+and terminal budgets for composed calls distinguish a completed unwind from the
+normal successor. The concrete Vec root has budget one and its byte-drop method
+has budget zero. These are heap effects, not physical attacker-work costs.
+Thirty framing and thirteen bound/composition theorems, 53 new declaration guards,
+eighteen model regressions and ten source heap theorems support this result.
+The final extraction gate passed 425 dependency audits and 69 rejection controls,
+including the slice-extent mutation. Full `scripts/check` passed its 11,029-job
+build and subsequent smoke checks. Receipts are in the profile's regression file.
+
+Next prove successful valid-Vec postconditions: identify the owned data allocation
+removed and the exact zero/nonzero behavior under checked resident invariants.
+Native construction/carrier/reference/stack/layout/ABI, compiler and lifetime
+refinement, helper/allocator correctness, physical work, the complete application
+reduction and final expected-work theorem remain open. The complete protocol
+target above is unchanged.
+
 ## The retained Vec destructor now has a total, unique model outcome
 
 The [Vec profile](../interop/aeneas/vec-drop/README.md) now includes a total

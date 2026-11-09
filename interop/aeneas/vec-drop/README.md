@@ -82,6 +82,36 @@ of simultaneous unit success and rejection with the same final heap. Two new
 model theorem guards cover determinism. The profile now has sixteen source
 regressions in total.
 
+`HeapProof.lean` now proves a universal heap-effect postcondition for every
+invocation outcome: either the complete byte-and-shadow heap is unchanged, or
+there is exactly one fewer live allocation. The original Vec byte-drop method
+preserves the full heap for every outcome. The facts apply to arbitrary modeled
+entry states and inputs, including rejected, unsupported and unwinding prefixes;
+they do not require a successful traversal or a normal unit return.
+
+The new framing layer proves that reads, pointer loads, address derivation,
+borrows, retags and explicit scope cleanup preserve the full heap. Its framing
+marker is an equality proposition; original execution-projection theorems still
+supply actual machine runs. Typed deallocation's existing successful-free theorem
+is the only nonzero allocation effect used here. Heap-loss certificates also
+require full heap identity whenever counts are equal. This prevents equal counts
+from concealing writes or free/reallocate cancellation.
+
+The finite-body bound conservatively sums alternatives. The composed-call bound
+tracks normal continuation and terminal paths separately: completed unwind
+cleanup cannot also execute the normal successor's free. The source root's
+resulting budget is proved to be one; the byte-drop method's budget is zero.
+These are allocation-effect bounds, not physical-work charges.
+
+Thirty heap-framing and thirteen bound/composition theorems, 53 declaration
+guards, eighteen model regressions and ten source heap theorems support this
+result. Regressions check excluded writes/frees/allocations, retained null-read
+prefixes, terminal versus continuing cleanup, two possible frees, byte changes,
+address reuse with equal counts, and allocation growth. The final gate passed
+425 dependency audits and 69 rejecting controls, including the extent mutation.
+Full `scripts/check` passed its 11,029-job build and subsequent smoke checks.
+Validation receipts are in `regression.json`.
+
 Run:
 
 ```sh
@@ -90,14 +120,15 @@ scripts/check-hasteboots-vec-drop \
 scripts/check
 ```
 
-The final executor gate passed 362 dependency audits and 69 rejecting controls. Changing
+The earlier executor gate passed 362 dependency audits and 69 rejecting controls. Changing
 the constructed byte-slice extent to zero changes generated code, retains the
 free, and removes six iteration loans from the three-byte example. The original
 RawVec drop and deallocation gates passed again with 290/294 audits and 44/24
 rejection controls. The full `scripts/check` passed its 11,023-job build and subsequent smoke checks;
 final receipts and hashes are recorded in `regression.json`.
 
-Next prove universal destructor outcomes and connect native construction,
+Next prove successful valid-Vec postconditions, including which owned allocation
+is freed and the exact zero/nonzero cases, and connect native construction,
 carrier/reference/stack/layout/ABI, compiler and lifetime refinement. Retained
 precondition helper bodies and the external allocator still require refinement.
 Physical attacker work, the complete application reduction and the final
