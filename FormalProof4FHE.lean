@@ -671,3 +671,4 @@ import FormalProof4FHE.HasteBoots.NativeResidentVecBorrow
 import FormalProof4FHE.HasteBoots.NativeRecordCallValues
 
 import FormalProof4FHE.HasteBoots.NativeIncomingReference
+import FormalProof4FHE.HasteBoots.NativeRecordIncomingReference
