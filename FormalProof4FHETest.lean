@@ -244,3 +244,6 @@ import FormalProof4FHETest.HasteBootsHeapReleaseAudit
 
 import FormalProof4FHETest.HasteBootsResidentVecSmoke
 import FormalProof4FHETest.HasteBootsResidentVecAudit
+
+import FormalProof4FHETest.HasteBootsResidentVecBorrowSmoke
+import FormalProof4FHETest.HasteBootsResidentVecBorrowAudit
