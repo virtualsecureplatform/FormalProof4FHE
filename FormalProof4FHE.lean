@@ -650,3 +650,4 @@ import FormalProof4FHE.HasteBoots.NativeRecordLLBC
 import FormalProof4FHE.HasteBoots.NativeLayoutBytes
 import FormalProof4FHE.HasteBoots.NativeZstReference
 import FormalProof4FHE.HasteBoots.NativeVariantValues
+import FormalProof4FHE.HasteBoots.NativeRawVecFields
