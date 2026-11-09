@@ -1,5 +1,31 @@
 # Original resident Vec destruction
 
+## The RawVec borrow prefix completes from stored fields
+
+`NativeRawVecBorrowCompleteness` proves actual Vec whole/subobject borrows,
+RawVec shared reservation, and exclusive activation from resident identities,
+initialized fields and the logical alias frontier. `loadRange_prefix` retains
+the original alignment, and `Descriptor.rawvec_initialized` derives the 16-byte
+RawVec read from the existing stored fields. No successful borrow result or
+permission boolean is a hypothesis.
+
+The composed Vec-to-RawVec activation result carries the original resident
+header and buffer, a fresh exclusive frontier, reachability and the unchanged
+complete heap. Its concrete regression checks two minted loans and the ordered
+lease tags; reservation itself adds no loan. The regression fixture keeps spare
+buffer capacity uninitialized.
+
+`rawvec_method_ready_prefix` connects these completion results to the retained
+RawVec method's reservation, activation, layout argument and deallocation call.
+The method reaches its real callee and caller continuation under the explicit
+conditions. The callee's normal return, owned-buffer release and successful
+method cleanup remain to be established; this prefix theorem does not assert
+them. Native construction, compiler/lifetime/ABI refinement, external allocator
+implementation, physical work and final security also remain open.
+
+This step adds seven model theorems, one checked model definition and one source
+theorem, with six model regressions and nine declaration audits.
+
 ## Stored fields establish initialized Vec header borrows
 
 `NativeByteRangeCompleteness` now composes adjacent initialized reads while
