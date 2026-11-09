@@ -156,12 +156,26 @@ class LayoutPrefix:
    t=self.types[tag];require(name(t)=='core::result::Result' and t['item_meta']['opacity']=='Foreign','Changed Result owner')
    vs=t['kind']['Enum'];require([(v['id'],v['name'],[f['ty'] for f in v['fields']],v['discriminant']) for v in vs]==[(0,'Ok',[adt(4)],{'Scalar':{'Signed':['Isize','0']}}),(1,'Err',[adt(error)],{'Scalar':{'Signed':['Isize','1']}})],'Changed Result variants')
   require(name(self.types[20])=='core::alloc::layout::LayoutError' and self.types[20]['kind']=={'Struct':[]},'Changed LayoutError')
+  expected_fields={1:[],5:[],6:[('pointer',adt(13)),('_marker',adt(5))],3:[('ptr',adt(6)),('cap',adt(7)),('alloc',adt(1))]}
+  for tag,fs in expected_fields.items():
+   require([(f['name'],f['ty']) for f in self.types[tag]['kind']['Struct']]==fs,'Changed zero-return fields')
+  rawptr={'Untagged':{'RawPtr':[literal({'UInt':'U8'}),'Shared']}}
+  require(name(self.types[13])=='core::ptr::non_null::NonNull' and [(f['name'],f['ty']) for f in self.types[13]['kind']['Struct']]==[('pointer',{'Untagged':{'Pattern':[rawptr,'NotNull']}})],'Changed NonNull representation')
+  require(name(self.types[7])=='core::num::niche_types::UsizeNoHighBit' and self.types[7]['kind']=='Opaque','Changed bounded capacity owner')
+  for tag,size,align,offsets,transparent in [(1,0,1,[],False),(5,0,1,[],False),(3,16,8,[8,0,16],False),(6,8,8,[0,8],True),(7,8,8,[0],True),(13,8,8,[0],True)]:
+   require(self.types[tag]['layout']==layout(size,align,offsets,transparent),'Changed zero-return physical layout')
+  variants=self.types[8]['kind']['Enum']
+  require(name(self.types[8])=='core::result::Result' and [(v['id'],v['name'],[f['ty'] for f in v['fields']],v['discriminant']) for v in variants]==[(0,'Ok',[adt(3)],{'Scalar':{'Signed':['Isize','0']}}),(1,'Err',[adt(9)],{'Scalar':{'Signed':['Isize','1']}})],'Changed RawVec Result')
+  zs=self.zero_size['statements'];require(zs[-1]['kind']=='Return','Missing zero-size return')
+  self.zero_code=self.code(zs[:-1],'.ret')
   self.accepted_code=self.code(self.accepted_prefix,'next')
   self.initial_code=self.code(self.initial,'next');self.check_code=self.code(self.check,'next')
   require(len(self.initial)==28 and len(self.check)==9,'Changed layout prefix extent')
  def operand(self,arg):
   require(len(arg)==1,'Unknown prefix operand');mode=next(iter(arg));v=arg[mode]
   if mode=='Const':
+   pattern={'Untagged':{'Pattern':[USIZE,{'Range':[{'kind':{'Literal':{'Scalar':{'Unsigned':['Usize','0']}}},'ty':USIZE},{'kind':{'Literal':{'Scalar':{'Unsigned':['Usize','9223372036854775807']}}},'ty':USIZE}]}]}}
+   if v=={'kind':{'Literal':{'Scalar':{'Unsigned':['Usize','0']}}},'ty':pattern}:return '(.usize 0)'
    require(v=={'kind':{'Literal':{'Bool':True}},'ty':BOOL},'Changed prefix Boolean literal');return '(.boolean true)'
   require(mode in ['Copy','Move'],'Unsupported prefix operand mode')
   def place(p):
@@ -185,6 +199,11 @@ class LayoutPrefix:
   if set(rv)=={'Aggregate'}:
    kind,args=rv['Aggregate'];require(set(kind)=={'Adt'},'Changed prefix aggregate');owner,variant,union=kind['Adt']
    tag=owner['id']['Adt'];require(owner==adt(tag)['Untagged']['Adt'] and union is None and output==adt(tag),'Changed aggregate nominal type')
+   zero_fields={1:[],5:[],6:[adt(13),adt(5)],7:[next(iter(args[0].values()))['ty']] if len(args)==1 else [],3:[adt(6),adt(7),adt(1)],8:[adt(3)]}
+   if tag in zero_fields:
+    require(variant==(0 if tag==8 else None) and [next(iter(a.values()))['ty'] for a in args]==zero_fields[tag],'Changed zero-return aggregate')
+    if tag==7:require(len(args)==1 and self.operand(args[0])=='(.usize 0)','Changed zero capacity')
+    return '(.aggregate (some '+str(tag)+') '+('(some false)' if tag==8 else 'none')+' ['+', '.join(self.operand(a) for a in args)+'])'
    require((tag==4 and variant is None and [next(iter(a.values()))['ty'] for a in args]==[USIZE,adt(11)]) or (tag in [14,19] and variant==0 and [next(iter(a.values()))['ty'] for a in args]==[adt(4)]),'Unsupported prefix aggregate variant')
    return '(.aggregate (some '+str(tag)+') '+('none' if variant is None else '(some false)')+' ['+', '.join(self.operand(a) for a in args)+'])'
   if set(rv)=={'BinaryOp'}:
@@ -193,6 +212,9 @@ class LayoutPrefix:
   require(set(rv)=={'UnaryOp'},'Unsupported prefix rvalue');op,arg=rv['UnaryOp']
   if op in [{'Cast':{'Scalar':[{'UInt':'Usize'},{'UInt':'U64'}]}},{'Cast':{'Scalar':[{'UInt':'U64'},{'UInt':'Usize'}]}}]:
    source,target=op['Cast']['Scalar'];require(set(arg)=={'Copy'} and arg['Copy']['ty']==literal(source) and output==literal(target),'Changed word-width cast');return '(.use '+self.operand(arg)+' false .byte)'
+  if output==adt(13):
+   require(op=={'Cast':{'Transmute':[adt(11),adt(13)]}} and arg=={'Copy':{'kind':{'Local':40},'ty':adt(11)}},'Changed dangling alignment conversion')
+   return '(.enumAddress (.copy 40 [(.unwrap 11),.left]) 12 13)'
   require(output==USIZE and op=={'Cast':{'Transmute':[adt(11),USIZE]}} and arg=={'Copy':{'kind':{'Local':40},'ty':adt(11)}},'Changed alignment transmute')
   return '(.enumWord (.copy 40 [(.unwrap 11),.left]) 12)'
  def code(self,statements,tail):
@@ -222,10 +244,18 @@ class LayoutPrefix:
    '  layoutInitialPrefix (.switchBoolean (.copy 24 []) overflow (layoutCheckPrefix (.switchBoolean (.move 30 []) accepted rejected .done)) next)']
   lines += ['def capacityLayout (capacity : NativeWord64Memory.Word) : NativeRecordValues.Value := .record 4 (.pair (.scalar (.usize capacity)) (.pair byteAlignment (.scalar .unit)))',
    'def acceptedLayoutPrefix (next : Body) : Body := '+self.accepted_code,
+   'def zeroSizeBody : Body := '+self.zero_code,
    'def capacityDispatch (zero positive next : Body) : Body := acceptedLayoutPrefix (.switchUsize (.copy 7 []) 0 zero positive next)']
   layout_error='(.record 20 (.scalar .unit))'
   success='(.pair '+layout+' (.scalar .unit))'
-  known={**{i:'(.scalar .usize)' for i in [1,39,28,26,27,23,32,33]},**{i:'.boolean' for i in [21,24,30]},
+  allocator='(.record 1 (.scalar .unit))';marker='(.record 5 (.scalar .unit))'
+  pointer='(.record 13 (.pair .nonnull (.scalar .unit)))';unique='(.record 6 (.pair '+pointer+' (.pair '+marker+' (.scalar .unit))))'
+  cap='(.record 7 (.pair (.scalar .usize) (.scalar .unit)))'
+  raw='(.record 3 (.pair '+unique+' (.pair '+cap+' (.pair '+allocator+' (.scalar .unit)))))'
+  lines += ['def allocatorValue : NativeRecordValues.Value := .record 1 (.scalar .unit)',
+    'def zeroRawValue : NativeRecordValues.Value := .record 3 (.pair (.record 6 (.pair (.record 13 (.pair (.scalar (.raw ⟨⟨1,none⟩,none⟩)) (.scalar .unit))) (.pair (.record 5 (.scalar .unit)) (.scalar .unit)))) (.pair (.record 7 (.pair (.scalar (.usize 0)) (.scalar .unit))) (.pair allocatorValue (.scalar .unit))))',
+    'def zeroResultValue : NativeRecordValues.Value := .record 8 (.choice false (.pair zeroRawValue (.scalar .unit)))']
+  known={0:'(.record 8 (.choice (.pair '+raw+' (.scalar .unit)) (ambient.types[0]?.getD (.scalar .unit))))',3:allocator,9:allocator,8:raw,35:unique,36:pointer,51:marker,52:cap,**{i:'(.scalar .usize)' for i in [1,39,28,26,27,23,32,33]},**{i:'.boolean' for i in [21,24,30]},
    25:'(.pair (.scalar .usize) (.pair .boolean (.scalar .unit)))',4:layout,40:align,31:layout,34:layout,6:layout,7:'(.scalar .usize)',22:'(.record 19 (.choice '+success+' (.pair '+layout_error+' (.scalar .unit))))',5:'(.record 14 (.choice '+success+' (ambient.types[5]?.getD (.scalar .unit))))'}
   lines+=['def layoutTypes (ambient : Frame) : List NativeRecordValues.Ty := ['+', '.join(known.get(i,'(ambient.types['+str(i)+']?.getD (.scalar .unit))') for i in range(self.count))+']']
   for label in ['layoutFrame','layoutProductFrame','layoutComparedFrame','layoutAfterFrame','layoutAcceptedFrame']:
