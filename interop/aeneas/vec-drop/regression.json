@@ -1,8 +1,8 @@
 {
-  "profile": "original-resident-vec-destruction-with-all-outcome-heap-bounds-v3",
+  "profile": "original-resident-vec-destruction-with-exact-release-v4",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-drop-7vjmbezp/manifest.json",
-  "gate_manifest_sha256": "ab30974bccff2f9c33b79bfaccc2e7531be553a431c56fba5c6a7360ac94eeba",
+  "gate_manifest": "build/hasteboots-extraction/vec-drop-els8xrnz/manifest.json",
+  "gate_manifest_sha256": "00c90a897e3f5449231ab2507498719b9c1b3dbc03a6d8b9d4f032b1e6e9d200",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -11,9 +11,11 @@
     "4203d0037dbd6262f6ef1aa21e2556cde077ffb7",
     "ac83c4176692f0d009a37ed5a872786c6e9cf30d",
     "4d9bf69358afc3fa98c519723ac8678ac57c5f34",
-    "78829b72f52a0ebf30aff83be16b704a8d109c12"
+    "78829b72f52a0ebf30aff83be16b704a8d109c12",
+    "02f17a15f1631f12adfe8bc6bb3b9db0bc6cd0ff",
+    "4a1130ea4444834d3a5c4f003b06fa1b37992496"
   ],
-  "dependency_audit_count": 425,
+  "dependency_audit_count": 455,
   "negative_control_count": 69,
   "negative_controls": {
     "wrong_profile": "Wrong extraction profile",
@@ -92,11 +94,11 @@
   "interpreter_helper_theorem_count": 3,
   "source_loop_theorem_count": 16,
   "source_composition_theorem_count": 17,
-  "new_declaration_audit_count": 106,
-  "model_regression_count": 46,
-  "source_regression_count": 16,
+  "new_declaration_audit_count": 128,
+  "model_regression_count": 58,
+  "source_regression_count": 20,
   "inputs": {
-    "scripts/check-hasteboots-vec-drop": "15b9068e6c5d4a0bffaf9ae9e4d05dd62afa0e30105894412989d7c7df8a85b7",
+    "scripts/check-hasteboots-vec-drop": "bf07e095f2694ce0450f656de99d8066b432b782dc26d4c15ae9951946fd34f6",
     "scripts/reify-hasteboots-vec-drop": "c4f04aa074f5bcf38fcb9b4a7137c2d3ef25253b045ef31e308d3c9c842e5bd8",
     "scripts/reify-hasteboots-rawvec-drop": "748d6a322c395db0244eec640359f5b4efd07d234b023a23aa23f9dfeee812aa",
     "scripts/check-hasteboots-rawvec-drop": "2774e9d2b0bf5817f876b4787101650118d905dbc954391743be2723518c1fb3",
@@ -121,12 +123,14 @@
     "interop/aeneas/vec-drop/Retained.json": "dda5b5bf5f588a48df0955d1ea5c11351b99e58904dc6d1f946f72615b1db064",
     "interop/aeneas/vec-drop/LoopProof.lean": "a479d3c1bf0fdef3090c4fe779bfce3668c518fec1fedb67dabf86870ae66288",
     "interop/aeneas/vec-drop/Execution.lean": "73a161abfeb81b1284761074a9a908da70dfaf09fa47a2de6b38954d36c2afd7",
-    "interop/aeneas/vec-drop/HeapProof.lean": "ca5272dfca493142f80ec54b6bad93aa2acbe14db4508be9cc51881c8bc267c9",
+    "interop/aeneas/vec-drop/HeapProof.lean": "c69d4e72d3782e7a38d4b198f3fc4b7160622a0971c5c6fbc61118e04e8d3dc1",
     "interop/aeneas/vec-drop/Proof.lean": "ed6262460778b3d76632aabe0fb3d5068b6fb292c8a4c17e45b0641acaf79ee0",
     "interop/aeneas/vec-drop/Smoke.lean": "e479c3ae32107fb4e678272a6b2c8513ce41ac0e4fa91456a69f281cc9a93829",
     "interop/aeneas/vec-drop/ExecutionSmoke.lean": "6dae342e7751b742f775689f1be6fd04f713fdd036c9a1a93ac1eaef26302e97",
+    "interop/aeneas/vec-drop/ReleaseSmoke.lean": "0cde4f04709f6285d9ea1ee6e99057edbcff8f4be815fa558961ec535c16ec02",
     "FormalProof4FHE/HasteBoots/NativeHeapFrame.lean": "e1c8d1062272a191f9bf3924c20b5c245c60753cf9bdf2af65fbe1e442460799",
-    "FormalProof4FHE/HasteBoots/NativeRecordHeapBounds.lean": "ca60ed7e9b6ef82f9e57c4644228caa8ff7ac8852f272d81b350f25475d55f91",
+    "FormalProof4FHE/HasteBoots/NativeHeapRelease.lean": "3f5a6ea3c2db24ff1c37dc6ad0def3ba90cba9801ae9297caaf81faca594709e",
+    "FormalProof4FHE/HasteBoots/NativeRecordHeapBounds.lean": "aee4efbce17802c995c85e7d40300da4069111f866fd31bfe549975b2be13608",
     "FormalProof4FHE/HasteBoots/NativeReferenceMachine.lean": "c211d50ac2059b95d520867a26c982326cd8ba0233d5e55953d5f28afd9b2409",
     "FormalProof4FHE/HasteBoots/NativePointerMachine.lean": "ceeb2562745ad91b91120b0694587b464348439704ae1076719c031e30a1c813",
     "FormalProof4FHE/HasteBoots/NativePointerByteMemory.lean": "f62c76f67ec3785661456afc0f694c61dd3323546840de8ef2d2adb95fda495d",
@@ -155,9 +159,11 @@
     "FormalProof4FHETest/HasteBootsHeapFrameSmoke.lean": "b2e704d24b49f8e4de6ef7b86a2c26f50b70fec96332338724a1c1505f9a94be",
     "FormalProof4FHETest/HasteBootsHeapFrameAudit.lean": "6df0ed43200a26f95aa7f487f0ace2e51bdd7f661900462a75864111cb3d0f3b",
     "FormalProof4FHETest/HasteBootsRecordHeapBoundsSmoke.lean": "d5a7186c3312f5b3fd861db4bc93d067c39d9adbc6e7d72efaa57c5e781e7a90",
-    "FormalProof4FHETest/HasteBootsRecordHeapBoundsAudit.lean": "6b7916a2257eb2b5ec1834211398115926a87126ee2e07f5173a387e4f33675f"
+    "FormalProof4FHETest/HasteBootsRecordHeapBoundsAudit.lean": "d84c6d3dcede7dccde1fc81b24be57ae727664e9192c916754993df11fdfc87b",
+    "FormalProof4FHETest/HasteBootsHeapReleaseSmoke.lean": "32c51028f40496201ee94c34c4d8675129e9424128c89d95f9f73b1c89bdad4d",
+    "FormalProof4FHETest/HasteBootsHeapReleaseAudit.lean": "966753fd7b823de553cd2fb233c10a7bec61327e7c06af02c13a7c7b10f45116"
   },
-  "source_llbc_sha256": "7d0cabcd1515c1a62f578dca81466f19e15120b00713294e5e8241cfbbf6f4e5",
+  "source_llbc_sha256": "a2822ce7b4324884b17e97dfc6de77684053806d88f7c66e190feffd354a6aa2",
   "outer_vec_drop_glue_interpreted": true,
   "outer_vec_drop_method_interpreted": true,
   "unbounded_original_byte_loop_interpreted": true,
@@ -173,9 +179,9 @@
   "full_project_check": {
     "command": "scripts/check",
     "exit_code": 0,
-    "build_jobs": 11029,
-    "log": "/tmp/hasteboots-vec-heap-full-check.log",
-    "log_sha256": "00c81b28d37611ab60be0c9a283abc1d930349475b3d9dd4bf3d896c4a8b5954"
+    "build_jobs": 11032,
+    "log": "/tmp/hasteboots-vec-release-full-check.log",
+    "log_sha256": "dd675bf36818a0b9f4d7a0c4c27e6b6f9c480d441492ce2ec70efd393d8b078a"
   },
   "prior_gate_manifest": {
     "path": "build/hasteboots-extraction/vec-drop-j6ky4k09/manifest.json",
@@ -210,12 +216,25 @@
     "dependency_audit_count": 362
   },
   "heap_framing_theorem_count": 30,
-  "heap_bound_theorem_count": 13,
-  "source_heap_theorem_count": 10,
+  "heap_bound_theorem_count": 15,
+  "source_heap_theorem_count": 18,
   "new_heap_declaration_audit_count": 53,
   "new_heap_regression_count": 18,
   "all_outcome_heap_loss_at_most_one": true,
   "unchanged_count_implies_heap_identity": true,
   "byte_method_heap_frame": true,
-  "owned_buffer_free_characterization": false
+  "owned_buffer_free_characterization": false,
+  "prior_release_baseline": {
+    "manifest": "build/hasteboots-extraction/vec-drop-7vjmbezp/manifest.json",
+    "manifest_sha256": "ab30974bccff2f9c33b79bfaccc2e7531be553a431c56fba5c6a7360ac94eeba",
+    "dependency_audit_count": 425
+  },
+  "heap_release_theorem_count": 15,
+  "new_release_declaration_audit_count": 22,
+  "new_release_model_regression_count": 12,
+  "new_release_source_regression_count": 4,
+  "exact_original_heap_deallocation": true,
+  "surviving_blocks_unchanged": true,
+  "shadow_owner_filter_preserved": true,
+  "generation_preserved": true
 }

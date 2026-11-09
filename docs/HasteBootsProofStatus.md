@@ -7,6 +7,32 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Exact release effects for every retained Vec outcome
+
+The retained Vec root now either preserves the full heap or performs exactly
+one positive, valid deallocation of a block from the original heap. Surviving
+block records, including their bytes, are unchanged. Pointer shadow metadata is
+filtered by the freed storage owner; pointers stored elsewhere retain their
+provenance even when they point into the freed allocation. Generation state is
+preserved. Under reachable-state invariants, loads through aliases of the freed
+origin reject. The total source executor has the same exact-effect guarantee.
+
+Release traces strengthen the general heap-loss certificates. Fifteen release
+theorems and two derived bound theorems support eight additional source
+theorems. Twelve model regressions cover surviving metadata, stale pointers,
+address reuse and exclusion of hidden writes. Four source regressions cover
+an empty Vec with an unallocated dangling data pointer and a zero-length Vec
+with reserved, uninitialized capacity.
+
+The fresh extraction gate passed 455 dependency audits and 69 rejection
+controls. Full `scripts/check` passed its 11,032-job build and subsequent smoke
+checks. Hashes and receipts are recorded in `interop/aeneas/vec-drop/regression.json`.
+
+The removed block is not yet universally identified with the initial Vec buffer.
+Next establish that binding and successful valid-Vec zero/nonzero postconditions.
+Native construction, compiler/lifetime/ABI refinement, physical attacker work
+and the final application security theorem remain open.
+
 ## Every retained Vec outcome now has a bounded heap effect
 
 The [Vec profile](../interop/aeneas/vec-drop/README.md) proves that every source
