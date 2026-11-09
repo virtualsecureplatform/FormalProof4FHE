@@ -2,6 +2,7 @@ module
 public import FormalProof4FHE.HasteBoots.NativeRecordValues
 public import FormalProof4FHE.HasteBoots.NativeZstReference
 public import FormalProof4FHE.HasteBoots.NativeRawVecReference
+public import FormalProof4FHE.HasteBoots.NativeRawVecBorrow
 public import FormalProof4FHE.HasteBoots.NativeByteDropCalls
 @[expose] public section
 
@@ -33,6 +34,7 @@ inductive Operand where
   deriving DecidableEq
 
 inductive Input where
+  | rawVecExclusiveReference (index : Nat)
   | vectorSharedReference (index : Nat)
   | rawVecSharedReference (index : Nat)
   | zstSharedReference (index : Nat)
@@ -45,6 +47,7 @@ inductive Input where
   deriving DecidableEq
 
 def decode (world : State) : Input → Option Value
+  | .rawVecExclusiveReference index => (NativeRawVecBorrow.decodeExclusive world index).map Value.scalar
   | .vectorSharedReference index => (NativeRawVecReference.decode world index .vector).map Value.scalar
   | .rawVecSharedReference index => (NativeRawVecReference.decode world index).map Value.scalar
   | .zstSharedReference index => (NativeZstReference.decode world index).map Value.scalar
@@ -141,6 +144,7 @@ def retag (world : State) : Value → Bool → Element → Tagged
 
 inductive Rvalue where
   | unit
+  | borrowRawVec (target : NativeRawVecBorrow.Target) (index : Nat) (path : Path := [])
   | recordResult (tag : Nat) (singleton : Bool) (inner : Rvalue)
   | mulUsizeUB (left right : Operand)
   | enumWord (value : Operand) (tag : Nat)
@@ -173,6 +177,16 @@ def evalRawVecField (frame : Frame) (operand : Operand) (action : NativeRawVecRe
         | .value tagged final => .value tagged {caller with world := final}
     | _ => .invalid caller.world
 
+/-- Borrowing a place reads its identity without copying exclusive ownership. -/
+def evalRawVecBorrow (frame : Frame) (index : Nat) (path : Path) (target : NativeRawVecBorrow.Target) : Evaluated :=
+  match read frame index path with
+  | none => .invalid frame.world
+  | some value => match value with
+    | .scalar value => match NativeRawVecBorrow.reborrow frame.world value target with
+      | .invalid next => .invalid next
+      | .value output next => .value (.scalar output) {frame with world := next}
+    | _ => .invalid frame.world
+
 def multiplyWords : List Value → Option Value
   | [.scalar (.usize left), .scalar (.usize right)] =>
     if bounded : left.val * right.val < 2^64 then some (.scalar (.usize ⟨left.val * right.val, bounded⟩)) else none
@@ -202,6 +216,7 @@ def recordResultValue (tag : Nat) (singleton : Bool) (value : Value) : Option Va
 
 def evalRvalue (frame : Frame) : Rvalue → Evaluated
   | .unit => .value (.scalar .unit) frame
+  | .borrowRawVec target index path => evalRawVecBorrow frame index path target
   | .recordResult tag singleton inner => match evalRvalue frame inner with
     | .invalid world => .invalid world
     | .value value caller => match recordResultValue tag singleton value with
@@ -504,6 +519,22 @@ theorem evalRawVecField_projects (frame : Frame) (operand : Operand) (action : N
     | enumeration tag value => simp only [evalRawVecField, selected, Evaluated.world]; rw [same]; exact .refl _
     | uninit => simp only [evalRawVecField, selected, Evaluated.world]; rw [same]; exact .refl _
 
+theorem evalRawVecBorrow_projects (frame : Frame) (index : Nat) (path : Path) (target : NativeRawVecBorrow.Target) :
+    NativeReferenceMachine.Runs frame.world (evalRawVecBorrow frame index path target).world := by
+  cases selected : read frame index path with
+  | none => simp only [evalRawVecBorrow, selected, Evaluated.world]; exact .refl _
+  | some value =>
+    cases value with
+    | scalar value =>
+      have first := NativeRawVecBorrow.reborrow_projects frame.world value target
+      cases actual : NativeRawVecBorrow.reborrow frame.world value target <;>
+        simpa only [evalRawVecBorrow, selected, actual, Evaluated.world, NativeRawVecFields.Result.world] using first
+    | choice side fields => simp only [evalRawVecBorrow, selected, Evaluated.world]; exact .refl _
+    | pair left right => simp only [evalRawVecBorrow, selected, Evaluated.world]; exact .refl _
+    | record tag fields => simp only [evalRawVecBorrow, selected, Evaluated.world]; exact .refl _
+    | enumeration tag value => simp only [evalRawVecBorrow, selected, Evaluated.world]; exact .refl _
+    | uninit => simp only [evalRawVecBorrow, selected, Evaluated.world]; exact .refl _
+
 theorem multiplyWords_no_wrap (left right result : Word)
     (computed : multiplyWords [.scalar (.usize left), .scalar (.usize right)] = some (.scalar (.usize result))) :
     result.val = left.val * right.val := by
@@ -542,6 +573,7 @@ theorem evalRvalue_projects (frame : Frame) (rvalue : Rvalue) :
     NativeReferenceMachine.Runs frame.world (evalRvalue frame rvalue).world := by
   induction rvalue with
   | unit => exact .refl _
+  | borrowRawVec target index path => exact evalRawVecBorrow_projects frame index path target
   | mulUsizeUB left right =>
     change NativeReferenceMachine.Runs frame.world (evalMultiply frame left right).world
     rw [evalMultiply_world]; exact .refl _

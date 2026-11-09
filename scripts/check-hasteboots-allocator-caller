@@ -18,13 +18,14 @@ REIFIER = runpy.run_path(str(ROOT / 'scripts/reify-hasteboots-allocator-caller')
 PARENT = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-byte-deallocation'))
 EXTRAS = {
     'NativeZstReference': {},
+    'NativeRawVecBorrow': {'Target':['whole','allocator']},
     'NativeRawVecFields': {'Result':['value','invalid']},
     'NativeRawVecReference': {'Object':['inner','vector'],'Action':['capacity','pointer','marker']},
     'NativeRecordValues': {'Ty': ['scalar', 'nonnull', 'pair', 'record', 'enumeration', 'choice'],
         'Value': ['scalar', 'pair', 'record', 'enumeration', 'uninit', 'choice'], 'Step': ['left', 'right', 'unwrap', 'active']},
     'NativeRecordLLBC': {'Slot': ['dead', 'live'], 'Frame': ['mk', 'types', 'slots', 'world'],
-        'Operand': ['copy', 'move', 'usize', 'unit'], 'Input': ['rawVecSharedReference', 'vectorSharedReference', 'zstSharedReference', 'unit', 'scalar', 'pair', 'record', 'enumeration', 'choice'],
-        'Tagged': ['value', 'invalid'], 'Rvalue': ['recordResult', 'mulUsizeUB', 'enumWord', 'rawVecField', 'unit', 'use', 'rawCast', 'wrapOne', 'pair', 'choice', 'aggregate'],
+        'Operand': ['copy', 'move', 'usize', 'unit'], 'Input': ['rawVecExclusiveReference', 'rawVecSharedReference', 'vectorSharedReference', 'zstSharedReference', 'unit', 'scalar', 'pair', 'record', 'enumeration', 'choice'],
+        'Tagged': ['value', 'invalid'], 'Rvalue': ['borrowRawVec', 'recordResult', 'mulUsizeUB', 'enumWord', 'rawVecField', 'unit', 'use', 'rawCast', 'wrapOne', 'pair', 'choice', 'aggregate'],
         'Evaluated': ['value', 'invalid'], 'Flow': ['normal', 'returned', 'unwind', 'invalid', 'unsupported'],
         'Body': ['done', 'ret', 'resume', 'abort', 'unsupported', 'live', 'dead', 'assign', 'constIf', 'switchUsize', 'deallocate', 'call', 'matchChoice'],
         'Function': ['mk', 'name', 'classification', 'types', 'argCount', 'body']}}
