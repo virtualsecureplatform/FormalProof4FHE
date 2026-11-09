@@ -11,6 +11,7 @@ public import FormalProof4FHE.HasteBoots.NativeRawVecSharedCompleteness
 public import FormalProof4FHE.HasteBoots.NativeRawVecDeallocationCompleteness
 public import FormalProof4FHE.HasteBoots.NativeVecDestructionCompleteness
 public import FormalProof4FHE.HasteBoots.NativeEmptyVecStorage
+public import FormalProof4FHE.HasteBoots.NativeReservedVecConstruction
 @[expose] public section
 
 namespace HasteBootsRawVecDrop
