@@ -203,6 +203,7 @@ inductive Rvalue where
   | unit
   | borrowRawVecMut (index : Nat) (path : Path := [])
   | borrowZstLocal (index tag : Nat) (address : Word)
+  | borrowZstMutLocal (index tag : Nat) (address : Word)
   | borrowRawVec (target : NativeRawVecBorrow.Target) (index : Nat) (path : Path := [])
   | recordResult (tag : Nat) (singleton : Bool) (inner : Rvalue)
   | mulUsizeUB (left right : Operand)
@@ -245,6 +246,14 @@ The source-to-native placement correspondence is a separate obligation. -/
 def evalZstBorrow (frame : Frame) (index tag : Nat) (address : Word) : Evaluated :=
   if read frame index [] = some (.record tag (.scalar .unit)) then
     match NativeZstBorrow.issue frame.world address with
+    | .invalid world => .invalid world
+    | .value value world => .value (.scalar value) {frame with world}
+  else .invalid frame.world
+
+/-- Borrowing a place reads its identity without copying exclusive ownership. -/
+def evalZstMutBorrow (frame : Frame) (index tag : Nat) (address : Word) : Evaluated :=
+  if read frame index [] = some (.record tag (.scalar .unit)) then
+    match NativeZstBorrow.issueExclusive frame.world address with
     | .invalid world => .invalid world
     | .value value world => .value (.scalar value) {frame with world}
   else .invalid frame.world
@@ -393,6 +402,7 @@ def evalRvalue (frame : Frame) : Rvalue → Evaluated
   | .unit => .value (.scalar .unit) frame
   | .borrowRawVecMut index path => evalRawVecMutBorrow frame index path
   | .borrowZstLocal index tag address => evalZstBorrow frame index tag address
+  | .borrowZstMutLocal index tag address => evalZstMutBorrow frame index tag address
   | .borrowRawVec target index path => evalRawVecBorrow frame index path target
   | .recordResult tag singleton inner => match evalRvalue frame inner with
     | .invalid world => .invalid world
@@ -455,6 +465,17 @@ def settle (entered : State) : Flow → Flow
     | .returned .unit changed => .returned (.scalar .unit) changed
     | flow => .invalid flow.world
   | flow => flow
+
+theorem settle_same_unit (world : State) (valid : NativeReferenceMachine.WellFormed world) :
+    settle world (.returned (.scalar .unit) world) = .returned (.scalar .unit) world := by
+  have filtered : world.leases.filter (fun lease => decide (world.nextTag ≤ lease.tag)) = [] := by
+    apply List.filter_eq_nil_iff.mpr
+    intro lease member
+    have older : lease.tag < world.nextTag := (valid.2.1.1 lease member).1
+    simp only [decide_eq_true_eq]
+    omega
+  simp [settle,NativeReferenceCleanup.settleUnit,NativeReferenceCleanup.closeScope,
+    NativeReferenceCleanup.scopeTags,filtered,NativeReferenceCleanup.release]
 
 /-- Logical marshalled external deallocation with an explicit enum identity. -/
 def deallocate (frame : Frame) (pointer size alignment : Operand) (enumTag : Nat) : Flow :=
@@ -919,6 +940,15 @@ theorem evalZstBorrow_projects (frame : Frame) (index tag : Nat) (address : Word
       simpa only [actual,Evaluated.world,NativeRawVecFields.Result.world] using first
   · exact .refl _
 
+theorem evalZstMutBorrow_projects (frame : Frame) (index tag : Nat) (address : Word) :
+    NativeReferenceMachine.Runs frame.world (evalZstMutBorrow frame index tag address).world := by
+  unfold evalZstMutBorrow
+  split
+  · have first := NativeZstBorrow.issue_exclusive_projects frame.world address
+    cases actual : NativeZstBorrow.issueExclusive frame.world address <;>
+      simpa only [actual,Evaluated.world,NativeRawVecFields.Result.world] using first
+  · exact .refl _
+
 theorem evalKnownDiscriminant_world (frame : Frame) (index : Nat) (descriptor : ZeroSizeEnum) :
     (evalKnownDiscriminant frame index descriptor).world = frame.world := by
   cases foundType : frame.types[index]? with
@@ -973,6 +1003,7 @@ theorem evalRvalue_projects (frame : Frame) (rvalue : Rvalue) :
   | unit => exact .refl _
   | borrowRawVecMut index path => exact evalRawVecMutBorrow_projects frame index path
   | borrowZstLocal index tag address => exact evalZstBorrow_projects frame index tag address
+  | borrowZstMutLocal index tag address => exact evalZstMutBorrow_projects frame index tag address
   | borrowRawVec target index path => exact evalRawVecBorrow_projects frame index path target
   | mulUsizeUB left right =>
     change NativeReferenceMachine.Runs frame.world (evalMultiply frame left right).world

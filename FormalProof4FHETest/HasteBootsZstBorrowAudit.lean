@@ -48,3 +48,31 @@ import FormalProof4FHE.HasteBoots.NativeRecordIncomingReference
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalZstBorrow_incoming_projects
 
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeZstBorrow.issue_exclusive_complete' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeZstBorrow.issue_exclusive_complete
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeZstBorrow.issue_exclusive_projects' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeZstBorrow.issue_exclusive_projects
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeZstBorrow.issue_exclusive_heap' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeZstBorrow.issue_exclusive_heap
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalZstMutBorrow_projects' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalZstMutBorrow_projects
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalZstMutBorrow_heap_projects' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalZstMutBorrow_heap_projects
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalZstMutBorrow_incoming_projects' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalZstMutBorrow_incoming_projects
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeRecordLLBC.settle_same_unit' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeRecordLLBC.settle_same_unit

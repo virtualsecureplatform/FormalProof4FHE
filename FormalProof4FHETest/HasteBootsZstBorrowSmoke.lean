@@ -51,4 +51,34 @@ example (frame : Frame) (index tag : Nat) (address : NativeWord64Memory.Word) :
 example (frame : Frame) (index tag : Nat) (address : NativeWord64Memory.Word) :
     NativeIncomingReference.Preserves frame.world (evalZstBorrow frame index tag address).world :=
   evalZstBorrow_incoming_projects frame index tag address
+example : NativeZstBorrow.issueExclusive NativeReferenceMachine.empty 64 =
+    .value (.reference true ⟨0⟩ 0) (NativeZstBorrow.grantedExclusive NativeReferenceMachine.empty 64) := by decide
+
+example (world : NativeReferenceMachine.State) : NativeZstBorrow.issueExclusive world 0 = .invalid (NativeZstBorrow.placed world 0) :=
+  NativeZstBorrow.issue_exclusive_null world
+
+example (world : NativeReferenceMachine.State) (address : NativeWord64Memory.Word) :
+    (NativeZstBorrow.issueExclusive world address).world.pointers.heap = world.pointers.heap := NativeZstBorrow.issue_exclusive_heap world address
+
+example (world : NativeReferenceMachine.State) (address : NativeWord64Memory.Word) (nonzero : address.val ≠ 0)
+    (reachable : NativeReferenceMachine.Reachable world) : NativeReferenceMachine.Reachable (NativeZstBorrow.grantedExclusive world address) :=
+  NativeZstBorrow.granted_exclusive_reachable world address nonzero reachable
+
+example (world : NativeReferenceMachine.State) :
+    evalZstMutBorrow ⟨[.record 1 (.scalar .unit)],[.live (some (.record 1 (.scalar .unit)))],world⟩ 0 1 1 =
+      .value (.scalar (.reference true ⟨world.nextTag⟩ 0))
+        ⟨[.record 1 (.scalar .unit)],[.live (some (.record 1 (.scalar .unit)))],NativeZstBorrow.grantedExclusive world 1⟩ := by
+  simp [evalZstMutBorrow,NativeRecordLLBC.read,NativeRecordValues.typeAt,NativeRecordValues.get,NativeRecordValues.fits,
+    NativeRecordValues.complete,NativeRecordValues.compatible,NativeSliceLLBC.fits,NativeZstBorrow.issue_exclusive_complete _ 1 (by decide)]
+
+example (world : NativeReferenceMachine.State) :
+    evalZstMutBorrow ⟨[.record 1 (.scalar .unit)],[.live none],world⟩ 0 1 1 = .invalid world := rfl
+
+example (frame : Frame) (index tag : Nat) (address : NativeWord64Memory.Word) :
+    NativeIncomingReference.Preserves frame.world (evalZstMutBorrow frame index tag address).world :=
+  evalZstMutBorrow_incoming_projects frame index tag address
+
+example (world : NativeReferenceMachine.State) (valid : NativeReferenceMachine.WellFormed world) :
+    settle world (.returned (.scalar .unit) world) = .returned (.scalar .unit) world := settle_same_unit world valid
+
 end FormalProof4FHETest.HasteBootsZstBorrowSmoke

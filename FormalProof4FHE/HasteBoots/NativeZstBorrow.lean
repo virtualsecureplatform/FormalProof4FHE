@@ -101,4 +101,81 @@ theorem issue_heap (world : State) (address : Word) :
     rw [issue_null]
     rfl
 
+def grantedExclusive (world : State) (address : Word) : State :=
+  {placed world address with
+    nextTag := world.nextTag + 1
+    leases := ⟨world.nextTag,none,⟨address,none⟩,⟨0,1⟩,.exclusive⟩ :: world.leases
+    references := ⟨world.nextTag⟩ :: world.references
+    births := ⟨world.nextTag,none,⟨address,none⟩,⟨0,1⟩,.exclusive⟩ :: world.births}
+
+def issueExclusive (world : State) (address : Word) : Result NativeSliceLLBC.Value :=
+  match NativeReferenceMachine.execute world (.raw (.fromAddress address)) with
+  | none => .invalid world
+  | some prepared => match NativeReferenceMachine.execute prepared (.borrow 0 .exclusive ⟨0,1⟩) with
+    | none => .invalid prepared
+    | some next => .value (.reference true ⟨prepared.nextTag⟩ 0) next
+
+theorem empty_exclusive_permission (world : State) (address : Word) :
+    NativeByteBorrow.parentAllowed (NativeReferenceMachine.ledger world) none .exclusive ⟨address,none⟩ ⟨0,1⟩ = true := by
+  simp [NativeByteBorrow.parentAllowed,NativeByteBorrow.rawAllowed,NativeByteBorrow.Compatible,NativeByteBorrow.Overlap]
+
+theorem grant_exclusive_step (world : State) (address : Word) (nonzero : address.val ≠ 0) :
+    NativeReferenceMachine.execute (placed world address) (.borrow 0 .exclusive ⟨0,1⟩) = some (grantedExclusive world address) := by
+  have permission := empty_exclusive_permission (placed world address) address
+  have loaded := NativeByteRange.empty_range (NativeReferenceMachine.ledger (placed world address)).memory ⟨address,none⟩ 1 (empty_geometry address nonzero)
+  change NativeReferenceMachine.grant (placed world address) none .exclusive ⟨address,none⟩ ⟨0,1⟩ = _
+  unfold NativeReferenceMachine.grant
+  rw [NativeByteBorrow.borrow,permission]
+  simp only [ite_true,loaded,Option.map_some]
+  rfl
+
+theorem issue_exclusive_complete (world : State) (address : Word) (nonzero : address.val ≠ 0) :
+    issueExclusive world address = .value (.reference true ⟨world.nextTag⟩ 0) (grantedExclusive world address) := by
+  simp only [issueExclusive,placement_step]
+  rw [grant_exclusive_step world address nonzero]
+  rfl
+
+theorem issue_exclusive_projects (world : State) (address : Word) :
+    NativeReferenceMachine.Runs world (issueExclusive world address).world := by
+  cases preparedEq : NativeReferenceMachine.execute world (.raw (.fromAddress address)) with
+  | none => simp only [issueExclusive,preparedEq,Result.world]; exact .refl _
+  | some prepared =>
+    have first := NativeReferenceMachine.Runs.step (.refl world) _ preparedEq
+    cases issued : NativeReferenceMachine.execute prepared (.borrow 0 .exclusive ⟨0,1⟩) with
+    | none => simpa only [issueExclusive,preparedEq,issued,Result.world] using first
+    | some next =>
+      have later := NativeReferenceMachine.Runs.step (.refl prepared) _ issued
+      simpa only [issueExclusive,preparedEq,issued,Result.world] using NativeReferenceMachine.runs_trans _ _ _ first later
+
+theorem granted_exclusive_heap (world : State) (address : Word) :
+    (grantedExclusive world address).pointers.heap = world.pointers.heap := rfl
+
+theorem issue_exclusive_null (world : State) : issueExclusive world 0 = .invalid (placed world 0) := by
+  have refused : NativeReferenceMachine.execute (placed world 0) (.borrow 0 .exclusive ⟨0,1⟩) = none := by
+    change NativeReferenceMachine.grant (placed world 0) none .exclusive ⟨0,none⟩ ⟨0,1⟩ = none
+    have loaded := NativeByteRange.null_range (NativeReferenceMachine.ledger (placed world 0)).memory ⟨0,none⟩ rfl ⟨0,1⟩
+    unfold NativeReferenceMachine.grant
+    rw [NativeByteBorrow.borrow,empty_exclusive_permission]
+    simp only [ite_true,loaded,Option.map_none]
+  simp only [issueExclusive,placement_step,refused]
+
+theorem granted_exclusive_reachable (world : State) (address : Word) (nonzero : address.val ≠ 0)
+    (reachable : NativeReferenceMachine.Reachable world) : NativeReferenceMachine.Reachable (grantedExclusive world address) :=
+  .step (.step reachable _ (placement_step world address)) _ (grant_exclusive_step world address nonzero)
+
+theorem granted_exclusive_wellFormed (world : State) (address : Word) (nonzero : address.val ≠ 0)
+    (valid : NativeReferenceMachine.WellFormed world) : NativeReferenceMachine.WellFormed (grantedExclusive world address) :=
+  NativeReferenceMachine.execute_wellFormed _ _
+    (NativeReferenceMachine.execute_wellFormed _ _ valid _ (placement_step world address)) _ (grant_exclusive_step world address nonzero)
+
+theorem issue_exclusive_heap (world : State) (address : Word) :
+    (issueExclusive world address).world.pointers.heap = world.pointers.heap := by
+  by_cases nonzero : address.val ≠ 0
+  · rw [issue_exclusive_complete world address nonzero]
+    rfl
+  · have zero : address = 0 := by apply Fin.ext; simpa using nonzero
+    subst address
+    rw [issue_exclusive_null]
+    rfl
+
 end FormalProof4FHE.HasteBoots.NativeZstBorrow

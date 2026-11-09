@@ -546,6 +546,16 @@ theorem evalZstBorrow_heap_projects (frame : Frame) (index tag : Nat) (address :
       simpa only [actual,Evaluated.world,NativeRawVecFields.Result.world] using first
   · exact .refl _
 
+theorem evalZstMutBorrow_heap_projects (frame : Frame) (index tag : Nat) (address : NativeWord64Memory.Word) :
+    NativeHeapFrame.Runs frame.world (evalZstMutBorrow frame index tag address).world := by
+  unfold evalZstMutBorrow
+  split
+  · have first : NativeHeapFrame.Runs frame.world (NativeZstBorrow.issueExclusive frame.world address).world :=
+      ⟨NativeZstBorrow.issue_exclusive_heap frame.world address⟩
+    cases actual : NativeZstBorrow.issueExclusive frame.world address <;>
+      simpa only [actual,Evaluated.world,NativeRawVecFields.Result.world] using first
+  · exact .refl _
+
 theorem evalRvalue_heap_projects (frame : Frame) (rvalue : Rvalue) :
     NativeHeapFrame.Runs frame.world (evalRvalue frame rvalue).world := by
   induction rvalue with
@@ -560,6 +570,7 @@ theorem evalRvalue_heap_projects (frame : Frame) (rvalue : Rvalue) :
   | unit => exact .refl _
   | borrowRawVecMut index path => exact evalRawVecMutBorrow_heap_projects frame index path
   | borrowZstLocal index tag address => exact evalZstBorrow_heap_projects frame index tag address
+  | borrowZstMutLocal index tag address => exact evalZstMutBorrow_heap_projects frame index tag address
   | borrowRawVec target index path => exact evalRawVecBorrow_heap_projects frame index path target
   | mulUsizeUB left right =>
     change NativeHeapFrame.Runs frame.world (evalMultiply frame left right).world

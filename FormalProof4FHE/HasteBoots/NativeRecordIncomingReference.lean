@@ -480,6 +480,24 @@ theorem evalZstBorrow_incoming_projects (frame : Frame) (index tag : Nat) (addre
       simpa only [actual,Evaluated.world,NativeRawVecFields.Result.world] using issued
   · exact .refl _
 
+theorem evalZstMutBorrow_incoming_projects (frame : Frame) (index tag : Nat) (address : NativeWord64Memory.Word) :
+    NativeIncomingReference.Preserves frame.world (evalZstMutBorrow frame index tag address).world := by
+  have issued : NativeIncomingReference.Preserves frame.world (NativeZstBorrow.issueExclusive frame.world address).world := by
+    cases preparedEq : NativeReferenceMachine.execute frame.world (.raw (.fromAddress address)) with
+    | none => simp only [NativeZstBorrow.issueExclusive,preparedEq,NativeRawVecFields.Result.world]; exact .refl _
+    | some prepared =>
+      have first := NativeIncomingReference.Preserves.step (.refl frame.world) _ preparedEq
+      cases actual : NativeReferenceMachine.execute prepared (.borrow 0 .exclusive ⟨0,1⟩) with
+      | none => simpa only [NativeZstBorrow.issueExclusive,preparedEq,actual,NativeRawVecFields.Result.world] using first
+      | some next =>
+        have later := NativeIncomingReference.Preserves.step (.refl prepared) _ actual
+        simpa only [NativeZstBorrow.issueExclusive,preparedEq,actual,NativeRawVecFields.Result.world] using first.trans later
+  unfold evalZstMutBorrow
+  split
+  · cases actual : NativeZstBorrow.issueExclusive frame.world address <;>
+      simpa only [actual,Evaluated.world,NativeRawVecFields.Result.world] using issued
+  · exact .refl _
+
 theorem evalRvalue_incoming_projects (frame : Frame) (rvalue : Rvalue) :
     NativeIncomingReference.Preserves frame.world (evalRvalue frame rvalue).world := by
   induction rvalue with
@@ -494,6 +512,7 @@ theorem evalRvalue_incoming_projects (frame : Frame) (rvalue : Rvalue) :
   | unit => exact .refl _
   | borrowRawVecMut index path => exact evalRawVecMutBorrow_incoming_projects frame index path
   | borrowZstLocal index tag address => exact evalZstBorrow_incoming_projects frame index tag address
+  | borrowZstMutLocal index tag address => exact evalZstMutBorrow_incoming_projects frame index tag address
   | borrowRawVec target index path => exact evalRawVecBorrow_incoming_projects frame index path target
   | mulUsizeUB left right =>
     change NativeIncomingReference.Preserves frame.world (evalMultiply frame left right).world
