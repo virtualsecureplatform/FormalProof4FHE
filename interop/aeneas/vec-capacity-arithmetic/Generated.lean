@@ -1,7 +1,7 @@
 module
 public import FormalProof4FHE.HasteBoots.NativeRecordCallValues
 public import FormalProof4FHE.HasteBoots.NativeAllocatorLLBC
-public import FormalProof4FHE.HasteBoots.NativeReservationErrorLocal
+public import FormalProof4FHE.HasteBoots.NativeReservationErrorRead
 @[expose] public section
 namespace HasteBootsVecCapacityArithmetic
 open FormalProof4FHE.HasteBoots
