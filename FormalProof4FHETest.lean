@@ -250,3 +250,6 @@ import FormalProof4FHETest.HasteBootsResidentVecBorrowAudit
 
 import FormalProof4FHETest.HasteBootsRecordCallValuesSmoke
 import FormalProof4FHETest.HasteBootsRecordCallValuesAudit
+
+import FormalProof4FHETest.HasteBootsIncomingReferenceSmoke
+import FormalProof4FHETest.HasteBootsIncomingReferenceAudit
