@@ -1,5 +1,5 @@
 module
-import FormalProof4FHE.HasteBoots.NativeRawVecBorrowCompleteness
+import FormalProof4FHE.HasteBoots.NativeRawVecSharedCompleteness
 namespace FormalProof4FHETest.HasteBootsByteRangeCompletenessSmoke
 open FormalProof4FHE.HasteBoots
 open NativeByteRangeCompleteness
@@ -112,4 +112,55 @@ example : (match NativeVecReference.reborrow ready (.reference true descriptor.r
       | .value _ next => some (next.nextTag,next.leases.map NativeByteBorrow.Lease.tag)) =
     some (3,[2,1,0]) := by decide
 example : NativeByteRange.loadRange ready.pointers.heap.memory ⟨66,some ⟨64,0⟩⟩ ⟨6,1⟩ = none := by decide
+private def rawOperations := operations.dropLast ++ [.borrow 2 .exclusive ⟨16,8⟩]
+private def rawWorld : NativeReferenceMachine.State :=
+  (NativeReferenceMachine.run NativeReferenceMachine.empty rawOperations).getD NativeReferenceMachine.empty
+private def rawLease : NativeByteBorrow.Lease := ⟨0,none,⟨128,some ⟨128,1⟩⟩,⟨16,8⟩,.exclusive⟩
+private def sharedWorld := (NativeRawVecBorrow.reborrow rawWorld (.reference true ⟨0⟩ 2) .whole).world
+private theorem rawReached : NativeReferenceMachine.Reachable rawWorld :=
+  NativeReferenceMachine.run_reachable _ _ .empty rawOperations (by decide)
+private theorem sharedReached : NativeReferenceMachine.Reachable sharedWorld :=
+  NativeRawVecBorrow.reborrow_reachable rawWorld (.reference true ⟨0⟩ 2) .whole rawReached
+private theorem rawFrontier : NativeBorrowFrontier.ExclusiveFrontier
+    (NativeReferenceMachine.ledger rawWorld) rawLease :=
+  NativeBorrowFrontier.singleton_frontier _ _ (by decide) rfl
+private def sharedHeader : NativeRawVecSharedCompleteness.Header sharedWorld ⟨1⟩ 8 2 pointer where
+  lease := ⟨1,some 0,⟨128,some ⟨128,1⟩⟩,⟨16,8⟩,.shared⟩
+  valid := (NativeReferenceMachine.reachable_wellFormed sharedWorld sharedReached).2.1
+  frontier := NativeRawVecSharedCompleteness.shared_borrow_frontier (NativeReferenceMachine.ledger rawWorld)
+    (NativeReferenceMachine.ledger sharedWorld)
+    (NativeReferenceMachine.reachable_wellFormed rawWorld rawReached).2.1 rawLease rawFrontier
+    rawLease.pointer ⟨16,8⟩ 1 (by decide)
+  tag := rfl
+  shape := rfl
+  referenceResident := by decide
+  pointerResident := by decide
+  fields := by constructor <;> decide
+example : ∃ next, NativeRawVecBorrow.reborrow rawWorld (.reference true ⟨0⟩ 2) .whole =
+    .value (.reference false ⟨rawWorld.nextTag⟩ 2) next ∧
+    Nonempty (NativeRawVecSharedCompleteness.Header next ⟨rawWorld.nextTag⟩ 8 2 pointer) ∧
+    NativeReferenceMachine.Reachable next := by
+  apply NativeRawVecSharedCompleteness.rawvec_header_complete rawWorld ⟨0⟩ rawLease 8 2 pointer
+    rawReached rawFrontier rfl rfl (by decide) (by decide) (by constructor <;> decide)
+    (NativeWord64Memory.encode 8 ++ NativeWord64Memory.encode 64) (by decide)
+example : NativeRawVecReference.eval sharedWorld (.reference false ⟨1⟩ 2) .capacity =
+    .value (.usize 8) (NativeRawVecSharedCompleteness.wordWorld sharedWorld sharedHeader.lease.pointer 8) :=
+  sharedHeader.capacity_eval
+example : NativeRawVecReference.eval
+    (NativeRawVecSharedCompleteness.wordWorld sharedWorld sharedHeader.lease.pointer 8) (.reference false ⟨1⟩ 2) .capacity =
+    .value (.usize 8) (NativeRawVecSharedCompleteness.wordWorld
+      (NativeRawVecSharedCompleteness.wordWorld sharedWorld sharedHeader.lease.pointer 8) sharedHeader.lease.pointer 8) :=
+  sharedHeader.after_capacity.capacity_eval
+example : ∃ next, NativeRawVecReference.eval sharedWorld (.reference false ⟨1⟩ 2) .pointer =
+    .value (.raw ⟨pointer,none⟩) next ∧
+    Nonempty (NativeRawVecSharedCompleteness.Header next ⟨1⟩ 8 2 pointer) ∧
+    next.leases = sharedWorld.leases ∧ next.pointers.heap = sharedWorld.pointers.heap := sharedHeader.pointer_eval
+example : ∃ next, NativeRawVecReference.eval sharedWorld (.reference false ⟨1⟩ 2) .marker =
+    .value .unit next ∧ next.leases = sharedWorld.leases ∧ next.pointers.heap = sharedWorld.pointers.heap :=
+  sharedHeader.marker_eval
+example : (NativeRawVecReference.eval sharedWorld (.reference false ⟨1⟩ 2) .marker).world.outputs[0]? = some [] := by decide
+private def conflictingShared : NativeReferenceMachine.State :=
+  {sharedWorld with nextTag := 3,leases := ⟨2,none,⟨128,some ⟨128,1⟩⟩,⟨1,1⟩,.exclusive⟩ :: sharedWorld.leases}
+example : NativeRawVecReference.eval conflictingShared (.reference false ⟨1⟩ 2) .capacity =
+    .invalid conflictingShared := by decide
 end FormalProof4FHETest.HasteBootsByteRangeCompletenessSmoke
