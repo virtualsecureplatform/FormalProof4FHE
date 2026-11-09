@@ -346,4 +346,24 @@ def unifiedConstructorFunction (ambient : Frame) (zeroed : Bool) (address : Nati
     .legacy (layoutInitialPrefix .done) (.switchBoolean (.copy 24 []) (.legacy (.unsupported "source byte multiplication overflow") .done)
       (.legacy (layoutCheckPrefix .done) (.switchBoolean (.move 30 []) (unifiedAcceptedBody ambient address outcome shim) (unifiedRejectedBody address) .done)) .done)⟩
 
+def unifiedRawCallerCall (ambient : Frame) (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim unwind next : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Body :=
+  let callee := unifiedConstructorFunction ambient false address outcome shim
+  .legacy (rawCallerPrefix .done) (.call callee.name callee.classification callee.types callee.argCount 4 rawCallerArgs callee.body unwind next)
+def unifiedRawCallerFunction (ambient : Frame) (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Function :=
+  ⟨"alloc::raw_vec::with_capacity_in",.transparent,rawCallerTypes (rawEntryAmbient ambient),3,
+    unifiedRawCallerCall (rawEntryAmbient ambient) address outcome shim (.legacy (.unsupported "source raw caller unwind") .done)
+      (.legacy (rawCallerTail (.unsupported "source reservation error arm") (.unsupported "source cold helper")) .done)⟩
+def unifiedVecCallerCall (ambient : Frame) (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim unwind next : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Body :=
+  let callee := unifiedRawCallerFunction ambient address outcome shim
+  .legacy (vecCallerPrefix .done) (.call callee.name callee.classification callee.types callee.argCount 3 vecCallerArgs callee.body unwind next)
+def unifiedVecCallerFunction (ambient : Frame) (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Function :=
+  ⟨"alloc::vec::with_capacity",.transparent,vecCallerTypes ambient,1,unifiedVecCallerCall ambient address outcome shim
+    (.legacy (.unsupported "source Vec caller unwind") .done) (.legacy vecCallerTail .done)⟩
+def unifiedCapacityRootCall (ambient : Frame) (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim unwind next : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Body :=
+  let callee := unifiedVecCallerFunction ambient address outcome shim
+  .legacy (capacityRootPrefix .done) (.call callee.name callee.classification callee.types callee.argCount 0 [(.move 2 [])] callee.body unwind next)
+def unifiedCapacityRoot (ambient : Frame) (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Function :=
+  ⟨"hasteboots_vec_capacity_arithmetic::capacity",.transparent,capacityRootTypes ambient,1,unifiedCapacityRootCall ambient address outcome shim
+    (.legacy (.unsupported "source root unwind") .done) (.legacy capacityRootTail .done)⟩
+
 end HasteBootsVecCapacityArithmetic

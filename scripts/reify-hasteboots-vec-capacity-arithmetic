@@ -118,7 +118,7 @@ class Reifier:
     else:slots.append('.dead')
    lines+=['def '+label+' (world : NativeReferenceMachine.State) (left right : NativeWord64Memory.Word) : Frame :=',
     '  ⟨['+', '.join(types)+'], ['+', '.join(slots)+'], world⟩']
-  lines+=[self.layout_prefix.render(),self.caller_preparation.render(),self.positive_preparation.render(),self.allocator_methods.render(),self.runtime_calls.render(),self.runtime_success.render(),self.runtime_null.render(),self.positive_construction.render(),self.positive_callers.render(),self.constructor_error.render(),self.rejected_layout.render(),self.constructor_unwind.render(),self.unified_constructor.render(),'end HasteBootsVecCapacityArithmetic',''];return '\n'.join(lines)
+  lines+=[self.layout_prefix.render(),self.caller_preparation.render(),self.positive_preparation.render(),self.allocator_methods.render(),self.runtime_calls.render(),self.runtime_success.render(),self.runtime_null.render(),self.positive_construction.render(),self.positive_callers.render(),self.constructor_error.render(),self.rejected_layout.render(),self.constructor_unwind.render(),self.unified_constructor.render(),self.positive_callers.render_unified(),'end HasteBootsVecCapacityArithmetic',''];return '\n'.join(lines)
 
 class LayoutPrefix:
  def __init__(self,parent):
@@ -776,6 +776,18 @@ class PositiveCallers:
    '  let base := positiveRawCallerCapacityFrame ambient capacity world pointer',
    '  {base with slots := (((base.slots.set 5 (.live (some (.boolean true)))).set 6 .dead).set 9 .dead).set 10 .dead}']
   return '\n'.join(lines)+'\n'
+
+ def render_unified(self):
+  # Reuse the validated outer source bodies, changing only the interpreted callee.
+  import re
+  names=['positiveRawCallerCall','positiveRawCallerFunction','positiveVecCallerCall','positiveVecCallerFunction','positiveCapacityRootCall','positiveCapacityRoot']
+  declarations=re.split(r'(?=^def )',self.render(),flags=re.M)
+  chosen=[d for d in declarations if any(d.startswith('def '+name+' ') for name in names)]
+  if len(chosen)!=len(names):raise ValueError('Incomplete shared constructor caller graph')
+  selected=''.join(chosen)
+  for name in ['positiveConstructorFunction',*sorted(names,key=len,reverse=True)]:
+   selected=selected.replace(name,name.replace('positive','unified',1))
+  return selected
 
 class ConstructorError(LayoutPrefix):
  def __init__(self,parent):
