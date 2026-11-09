@@ -1,8 +1,8 @@
 {
-  "profile": "revalidated-with-transparent-getter-body-v42",
+  "profile": "revalidated-with-source-wrapper-v43",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-drop-kc3fatca/manifest.json",
-  "gate_manifest_sha256": "6550c9b8f58df5513ea3676f323f60d008a279357fe6a47bbcadc34806e8b401",
+  "gate_manifest": "build/hasteboots-extraction/vec-drop-alcbxzd0/manifest.json",
+  "gate_manifest_sha256": "8e6a43ed5a98773a71d8ee2973d3630bda661e44de9ec648355701f39fad0a70",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -316,7 +316,7 @@
     "FormalProof4FHETest/HasteBootsRawVecDeallocationCompletenessAudit.lean": "85efbedcef271ce6dc69a0bebb5d25b0880091984899ae52e3c02bfe7bcb3a48",
     "FormalProof4FHETest/HasteBootsVecDestructionCompletenessAudit.lean": "b15ca27d45474cdbf6c85a2635a3969160d35fd7e658b00139d4ba8d394a3dbd"
   },
-  "source_llbc_sha256": "84654f6a031b25b937395c62a0b13fca7bc6b55d49e1bb1803e2ed05904546d3",
+  "source_llbc_sha256": "d3975415db763dcbb7b3e5dcf4fed159c3fd4d71ef8fa49e9c3cda9cec37e47f",
   "outer_vec_drop_glue_interpreted": true,
   "outer_vec_drop_method_interpreted": true,
   "unbounded_original_byte_loop_interpreted": true,
@@ -1035,7 +1035,7 @@
     "heap_and_incoming_reference_preservation_extended": true,
     "native_alignment_transmute_abi_refinement": false
   },
-  "validation_note": "Fresh source extraction gate passed alongside the new transparent getter body profile (577 audits/39 rejecting controls), whose equivalence theorem uses explicit checked reference materialization. This profile retains its existing source theorem scope. The unchanged library/root-test/toolchain/dependency/full-check inputs permit reuse of the prior 11101-job full check. Wrapper/caller integration, native correspondence, reclamation, physical work and final security remain open.",
+  "validation_note": "Fresh source extraction gate passed alongside the source wrapper profile (632 audits/55 rejecting controls), whose execution includes checked shared reborrowing, moved arguments, the source getter and explicit normal-return scope cleanup. Reference materialization remains explicit. This profile retains its existing source theorem scope. The unchanged library/root-test/toolchain/dependency/full-check inputs permit reuse of the prior 11101-job full check. Original constructor error-handler integration, native correspondence, physical reclamation, physical work and final security remain open.",
   "prior_zst_local_borrow_baseline": {
     "profile": "original-resident-vec-destruction-with-checked-enum-address-v26",
     "gate_manifest": "build/hasteboots-extraction/vec-drop-u8mfb0e8/manifest.json",
@@ -1200,9 +1200,17 @@
   },
   "revalidated_with_source_getter_body": true,
   "source_getter_body_profile": {
-    "manifest": "build/hasteboots-extraction/reservation-error-kind-x9b11738/manifest.json",
-    "manifest_sha256": "8cd12c44697b7661e5df54b873aba7b2d1e79c986c5561aa7cbf6b20e7042d6f",
-    "dependency_audit_count": 577,
-    "negative_control_count": 39
-  }
+    "manifest": "build/hasteboots-extraction/reservation-error-kind-hnew3nu4/manifest.json",
+    "manifest_sha256": "b2b4a895577c35ccf9e7bd0c48a40c7f5c317349bf862e992e0792f072641599",
+    "dependency_audit_count": 632,
+    "negative_control_count": 55
+  },
+  "prior_source_wrapper_baseline": {
+    "profile": "revalidated-with-transparent-getter-body-v42",
+    "gate_manifest": "build/hasteboots-extraction/vec-drop-kc3fatca/manifest.json",
+    "gate_manifest_sha256": "6550c9b8f58df5513ea3676f323f60d008a279357fe6a47bbcadc34806e8b401",
+    "dependency_audit_count": 1044,
+    "negative_control_count": 87
+  },
+  "revalidated_with_source_wrapper": true
 }

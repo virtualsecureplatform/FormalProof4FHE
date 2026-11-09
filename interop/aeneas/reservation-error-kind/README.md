@@ -21,9 +21,19 @@ It composes with the existing successful-snapshot theorem. The materialization
 boundary does not establish a native reference ABI, stack placement, lifetime,
 compiler or physical-work refinement.
 
-The fixture wrapper's own reborrow/call sequence is retained but not executed in
-this profile. Connecting that wrapper and the original constructor error handler
-remains open, as do reclamation, resident destruction and final security.
+The fixture wrapper's complete reborrow/call statement tree is now validated
+and executed. `WrapperProof`, `ReadyProof`, `CleanupProof`, `ProjectionProof` and
+`HeapProof` compose typed entry, checked child-loan issuance, the moved argument,
+source getter, copied result and explicit normal-return scope cleanup. The
+successful-snapshot theorem derives the reborrow and read success and restores
+the incoming lease list. Read effects, the advanced tag counter and historical
+reference/birth entries remain. Rejected/partial runs preserve executed prefixes.
+
+Scope cleanup is explicit ghost/model composition for this non-unit return; it
+does not establish native Rust lifetime correspondence or alter generic unit
+settlement. Connecting the original constructor error handler remains open, as
+do native reference/stack/compiler/lifetime refinement, physical reclamation,
+resident destruction, physical work and final security.
 
 Run:
 
@@ -32,6 +42,6 @@ scripts/check-hasteboots-reservation-error-kind \
   --build-receipt build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json
 ```
 
-Validation: 577 dependency audits, 39 rejecting controls and 10 examples pass.
+Validation: 632 dependency audits, 55 rejecting controls and 30 examples pass.
 The library, root tests, toolchain, dependencies and full-check scripts are
 unchanged; the prior successful 11101-job full project check is reused.

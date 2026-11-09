@@ -7,6 +7,40 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Source wrapper reborrow, call and normal-return cleanup
+
+The getter profile now validates the fixture wrapper's complete statement tree,
+including the shared reborrow's pointee/metadata, local scopes, moved argument,
+callee/region/destination, unwind continuation, normal cleanup and return.
+The generated wrapper executes typed initialization, prefix locals, an actual
+checked storage reborrow, the argument move, the previously proved source getter
+and its result write/return. No existing library/interpreter operation is changed.
+
+Thirty-eight additional source theorems cover wrapper execution and its explicit
+normal-return scope cleanup. Snapshot execution supplies both read permission and
+the complete live 16-byte extent. These derive reborrow success and getter success;
+the complete snapshot/wrapper theorem assumes neither as a separate premise.
+Cleanup ends exactly the fresh child loan and restores the incoming lease list.
+It retains the executed reads, advanced tag counter, reference-register history
+and birth record. Operational projection, reachability, well-formedness and heap
+preservation hold through the wrapper, including rejected/partial executions.
+
+Twenty additional examples exercise overflow padding, allocation errors, copied
+results, child revocation, parent usability, tag/birth history, invalid inputs and
+failed getter reads retaining their prefix. The source gate passes 632 dependency
+audits, 55 rejecting controls and 30 examples in total. Related gates pass:
+constructor 945 audits/165 controls, Vec destruction 1044/87, allocator caller
+388/31 and empty constructor 395/17. Shared library/root-test/
+toolchain/dependency/full-check inputs remain unchanged; the preceding successful
+11101-job full project check is reused.
+
+Normal-return cleanup is explicit model composition for this non-unit result;
+it is not a new native lifetime theorem or a change to generic unit settlement.
+The getter's reference-materialization boundary remains explicit. The original
+constructor error handler, native ABI/stack/type/compiler/lifetime correspondence,
+physical reclamation, resident destruction, physical work and final security
+remain open.
+
 ## Transparent source getter agrees after reference materialization
 
 The new `interop/aeneas/reservation-error-kind` profile includes
