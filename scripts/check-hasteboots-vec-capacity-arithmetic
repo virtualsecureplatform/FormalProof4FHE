@@ -62,13 +62,28 @@ def negatives(ir):
  check('unknown_statement_metadata',lambda c:row(c,'checkedMultiply').update(unmodeled_effect=True))
  check('changed_literal',lambda c:binary(c,'wrappingSubtract')[2]['Const']['kind']['Literal']['Scalar']['Unsigned'].__setitem__(1,'1'))
  check('unregistered_local',lambda c:mul(c)[1]['Move']['kind'].update(Local=99999))
+ def prefix(c):return c['fun_decls'][base.layout_prefix.function['def_id']]['body']['Structured']['body']['statements']
+ def outer(c):return prefix(c)[28]['kind']['Switch']['If']
+ def inner(c):return outer(c)[2]['statements'][-1]['kind']['Switch']['If']
+ def byte(c):return next(g for g in c['global_decls'] if g and REIFIER['name'](g)=='core::mem::SizedTypeProperties::LAYOUT')
+ check('overflow_move_instead_of_copy',lambda c:outer(c)[0].update(Move=outer(c)[0].pop('Copy')))
+ check('layout_copy_instead_of_move',lambda c:inner(c)[0].update(Copy=inner(c)[0].pop('Move')))
+ check('swapped_layout_suffixes',lambda c:inner(c).__setitem__(slice(1,3),inner(c)[1:3][::-1]))
+ check('changed_byte_layout_size',lambda c:byte(c)['value']['kind']['Adt'][1][0]['kind']['Literal']['Scalar']['Unsigned'].__setitem__(1,'2'))
+ check('changed_byte_alignment',lambda c:byte(c)['value']['kind']['Adt'][1][1]['kind']['Adt'][1][0]['kind']['Adt'].__setitem__(0,1))
+ check('changed_physical_layout',lambda c:c['type_decls'][4]['layout'][0]['value']['variant_layouts'][0]['field_offsets'].__setitem__(0,0))
+ check('changed_alignment_discriminant',lambda c:c['type_decls'][12]['kind']['Enum'][0]['discriminant']['Scalar']['Unsigned'].__setitem__(1,'2'))
+ check('changed_prefix_retag',lambda c:prefix(c)[6]['kind']['Assign'][1]['Use'].__setitem__(1,'No'))
+ check('changed_prefix_boolean',lambda c:prefix(c)[6]['kind']['Assign'][1]['Use'][0]['Const']['kind']['Literal'].__setitem__('Bool',False))
+ check('extra_prefix_statement',lambda c:prefix(c).insert(0,copy.deepcopy(prefix(c)[0])))
+ check('duplicate_byte_layout_global',lambda c:c['global_decls'].append(copy.deepcopy(byte(c))))
  return records
 
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--build-receipt',type=Path,required=True);a=p.parse_args()
  out=Path(tempfile.mkdtemp(prefix='vec-capacity-arithmetic-',dir=ROOT/'build/hasteboots-extraction'))
  r={'status':'started','commands':[],'isolated_original_arithmetic_assignments_reified':True,'original_checked_multiply_assignment_proved':True,
- 'byte_size_one_overflow_flag_false_proved':True,'source_move_consumption_proved':True,'whole_constructor_control_flow_proved':False,
+ 'byte_size_one_overflow_flag_false_proved':True,'source_move_consumption_proved':True,'source_layout_prefix_branch_selection_proved':True,'arbitrary_suffix_continuations_preserved':True,'layout_prefix_statement_counts':[28,9],'whole_constructor_control_flow_proved':False,
  'allocator_error_and_abort_paths_proved':False,'native_abi_refinement':False,'physical_work_refinement':False,'final_security_theorem':False}
  def save():(out/'manifest.json').write_text(json.dumps(r,indent=2)+'\n')
  def run(cmd,log):
@@ -81,7 +96,7 @@ def main():
   files=[Path(__file__),ROOT/'scripts/check-hasteboots-allocator-caller',ROOT/'scripts/build-hasteboots-inline-tools',ROOT/'scripts/extract-hasteboots-parameters',ROOT/'scripts/specify-hasteboots-deallocation-boundary',ROOT/'lean-toolchain',
    *sorted((ROOT/'scripts').glob('reify-hasteboots-*')),*sorted((ROOT/'FormalProof4FHE/HasteBoots').glob('Native*.lean')),
    ROOT/'FormalProof4FHETest/HasteBootsRecordArithmeticSmoke.lean',ROOT/'FormalProof4FHETest/HasteBootsRecordArithmeticAudit.lean',
-   *[DATA/n for n in ['fixture.rs','Generated.lean','Retained.json','Proof.lean','Smoke.lean']]]
+   *[DATA/n for n in ['fixture.rs','Generated.lean','Retained.json','Proof.lean','LayoutProof.lean','Smoke.lean','LayoutSmoke.lean']]]
   r['inputs']={str(f.relative_to(ROOT)):digest(f) for f in files}
   run([ROOT/'scripts/in-container','lake','build','FormalProof4FHE.HasteBoots.NativeRecordCallValues','FormalProof4FHETest.HasteBootsRecordArithmeticSmoke','FormalProof4FHETest.HasteBootsRecordArithmeticAudit'],'root-build.log')
   llbc=out/'source.llbc';cmd=[tools/'charon','rustc','--preset=aeneas','--sysroot','default','--monomorphize','--mir','optimized','--consts','values','--evaluate-runtime-checks','--precise-drops','--desugar-drops','--preserve-allocator','--no-dedup-serialized-ast']
@@ -90,10 +105,10 @@ def main():
   run(cmd,'charon.log');ir=json.loads(llbc.read_text());reifier=REIFIER['Reifier'](ir);generated=reifier.render()
   if generated!=(DATA/'Generated.lean').read_text() or reifier.retained()!=json.loads((DATA/'Retained.json').read_text()):raise RuntimeError('Original constructor assignments/declarations differ')
   r['negative_controls']=negatives(ir);names=PARENT['inventory']()
-  for file in ['Generated.lean','Proof.lean']:
+  for file in ['Generated.lean','Proof.lean','LayoutProof.lean']:
    raw=(DATA/file).read_text();PARAM['validate_proof_source'](raw,re.findall(r'^theorem (\w+)',raw,re.M))
    names+=['HasteBootsVecCapacityArithmetic.'+n for n in re.findall(r'^(?:def|theorem) (\w+)',raw,re.M)]
-  checked=out/'Checked.lean';checked.write_text(generated+'\n'+(DATA/'Proof.lean').read_text()+'\n'+(DATA/'Smoke.lean').read_text()+''.join('\n#print axioms '+n+'\n' for n in names))
+  checked=out/'Checked.lean';checked.write_text(generated+'\n'+'\n'.join((DATA/n).read_text() for n in ['Proof.lean','LayoutProof.lean','Smoke.lean','LayoutSmoke.lean'])+''.join('\n#print axioms '+n+'\n' for n in names))
   run([ROOT/'scripts/in-container','lake','env','lean','-DwarningAsError=true',checked.relative_to(ROOT)],'lean.log')
   r['dependency_audit']=PARAM['audit_log']((out/'lean.log').read_text(),names)
   if r['inputs']!={str(f.relative_to(ROOT)):digest(f) for f in files}:raise RuntimeError('Inputs changed during validation')
