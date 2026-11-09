@@ -678,3 +678,4 @@ import FormalProof4FHE.HasteBoots.NativeScopeRestoration
 import FormalProof4FHE.HasteBoots.NativeByteTraversalCompleteness
 import FormalProof4FHE.HasteBoots.NativeVecBytePrefix
 import FormalProof4FHE.HasteBoots.NativeRawVecBorrowCompleteness
+import FormalProof4FHE.HasteBoots.NativeRawVecSharedCompleteness
