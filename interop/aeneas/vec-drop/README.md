@@ -1,5 +1,34 @@
 # Original resident Vec destruction
 
+## The retained current-memory callee now returns normally
+
+`NativeRawVecSharedCompleteness` proves completion of the actual RawVec shared
+whole-object borrow and derives its read permissions. Its shared frontier retains
+overlapping ancestors and excludes other overlapping loans. The resulting
+`Header` binds capacity, length and the complete stored pointer to the original
+heap observations. Capacity reads preserve these conditions for repeated reads;
+pointer reads recover shadow provenance, and the allocator marker performs its
+actual checked zero-byte read at the header boundary.
+
+`current_memory_complete` follows the retained callee's original body. At zero
+capacity it returns `None`; at positive capacity it returns the original buffer
+and byte layout. Both cases return normally with the complete heap and incoming
+ordered loan list unchanged. Successful reads, permission booleans and a normal
+return are derived rather than supplied.
+
+The addition includes 14 model theorems, six model definitions, one model
+structure and one source theorem, with 23 declaration audits. Seven model
+regressions cover construction, repeated reads, provenance, marker behavior and
+an overlapping exclusive-loan rejection. Two source regressions instantiate the
+normal-return theorem for positive uninitialized spare capacity and an empty
+dangling buffer. Native construction, compiler/lifetime/ABI refinement, the
+external allocator implementation, physical attacker work and final application
+security remain open.
+
+Next compose this result into the deallocation callee: prove its allocator
+subobject borrow, owned-buffer release and cleanup complete, then carry normal
+return through RawVec and outer Vec destruction.
+
 ## The RawVec borrow prefix completes from stored fields
 
 `NativeRawVecBorrowCompleteness` proves actual Vec whole/subobject borrows,
