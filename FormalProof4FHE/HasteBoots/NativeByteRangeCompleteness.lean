@@ -60,6 +60,82 @@ theorem readSpan_subrange (bytes : List (Option Byte)) (size offset requested : 
     readSpan (bytes.drop offset) requested = some ((output.drop offset).take requested) :=
   readSpan_take _ (size - offset) requested _ (readSpan_drop bytes size offset output read (by omega)) (by omega)
 
+/-- Adjacent initialized spans compose without assuming their surrounding bytes. -/
+theorem readSpan_join (bytes : List (Option Byte)) (first second : Nat)
+    (left right : List Byte) (initial : readSpan bytes first = some left)
+    (following : readSpan (bytes.drop first) second = some right) :
+    readSpan bytes (first + second) = some (left ++ right) := by
+  induction first generalizing bytes left with
+  | zero =>
+    simp only [readSpan,Option.some.injEq] at initial
+    subst left
+    simpa only [Nat.zero_add,List.nil_append,List.drop_zero] using following
+  | succ first ih =>
+    cases bytes with
+    | nil => cases initial
+    | cons value tail =>
+      cases value with
+      | none => cases initial
+      | some byte =>
+        cases rest : readSpan tail first with
+        | none => simp only [readSpan,rest,Option.map_none] at initial; cases initial
+        | some output =>
+          simp only [readSpan,rest,Option.map_some,Option.some.injEq] at initial
+          subst left
+          simp only [List.drop_succ_cons] at following
+          simpa only [Nat.succ_add,readSpan,List.cons_append,Option.map_some] using
+            congrArg (Option.map (byte :: ·)) (ih tail output rest following)
+
+theorem block_origin_unique (blocks : List NativeByteMemory.Block)
+    (unique : blocks.Pairwise (fun left right => left.origin ≠ right.origin))
+    (left right : NativeByteMemory.Block) (leftMember : left ∈ blocks)
+    (rightMember : right ∈ blocks) (same : left.origin = right.origin) : left = right := by
+  induction blocks with
+  | nil => cases leftMember
+  | cons head tail ih =>
+    obtain ⟨separated,remaining⟩ := List.pairwise_cons.mp unique
+    rcases List.mem_cons.mp leftMember with rfl | laterLeft
+    · rcases List.mem_cons.mp rightMember with rfl | laterRight
+      · rfl
+      · exact False.elim (separated right laterRight same)
+    · rcases List.mem_cons.mp rightMember with rfl | laterRight
+      · exact False.elim (separated left laterLeft same.symm)
+      · exact ih remaining laterLeft laterRight
+
+/-- Joining positive adjacent reads requires the same complete origin and a
+well-formed heap; adjacent numerical addresses alone do not suffice. -/
+theorem loadRange_join (state : State) (valid : NativeByteMemory.WellFormed state)
+    (pointer shifted : Pointer) (first second alignment : Nat) (left right : List Byte)
+    (firstPositive : 0 < first) (secondPositive : 0 < second)
+    (atOffset : pointerAt pointer first = some shifted)
+    (geometry : Geometry pointer ⟨first + second,alignment⟩)
+    (initial : loadRange state pointer ⟨first,alignment⟩ = some left)
+    (following : loadRange state shifted ⟨second,alignment⟩ = some right) :
+    loadRange state pointer ⟨first + second,alignment⟩ = some (left ++ right) := by
+  obtain ⟨firstBlock,firstMember,firstCover,firstRead⟩ :=
+    loadRange_positive_selected state pointer _ firstPositive left initial
+  obtain ⟨secondBlock,secondMember,secondCover,secondRead⟩ :=
+    loadRange_positive_selected state shifted _ secondPositive right following
+  obtain ⟨address,origin⟩ := pointerAt_fields pointer first shifted atOffset
+  have same : firstBlock.origin = secondBlock.origin :=
+    Option.some.inj (firstCover.1.symm.trans (origin.symm.trans secondCover.1))
+  have blocksEqual := block_origin_unique state.blocks (valid.2.imp (fun pair => pair.2))
+    firstBlock secondBlock firstMember secondMember same
+  subst secondBlock
+  have delta : shifted.address.val - firstBlock.base.val =
+      (pointer.address.val - firstBlock.base.val) + first := by
+    have lower := firstCover.2.1
+    omega
+  rw [delta,← List.drop_drop] at secondRead
+  have joined := readSpan_join _ first second left right firstRead secondRead
+  have covered : Covers firstBlock pointer (first + second) := by
+    refine ⟨firstCover.1,firstCover.2.1,?_⟩
+    have upper : shifted.address.val + second ≤ firstBlock.base.val + firstBlock.layout.size := secondCover.2.2
+    change pointer.address.val + (first + second) ≤ firstBlock.base.val + firstBlock.layout.size
+    omega
+  exact loadRange_of_ready state valid pointer ⟨first + second,alignment⟩ geometry (by change 0 < first + second; omega)
+    firstBlock firstMember covered _ joined
+
 theorem byte_geometry_subrange (pointer shifted : Pointer) (size offset requested : Nat)
     (geometry : Geometry pointer ⟨size,1⟩) (bounded : offset + requested ≤ size)
     (atOffset : pointerAt pointer offset = some shifted) : Geometry shifted ⟨requested,1⟩ := by
@@ -113,6 +189,44 @@ end FormalProof4FHE.HasteBoots.NativeByteRangeCompleteness
 
 namespace FormalProof4FHE.HasteBoots.NativeResidentVec
 open NativePointerStorage (Pointer)
+
+/-- The stored fields initialize the whole header, including the pointer bytes.
+The complete pointer origin remains a separate shadow-memory observation. -/
+theorem Descriptor.header_initialized {world : NativeReferenceMachine.State} {index : Nat}
+    (descriptor : Descriptor world index)
+    (valid : NativeByteMemory.WellFormed world.pointers.heap.memory) :
+    ∃ bytes, NativeByteRange.loadRange world.pointers.heap.memory descriptor.lease.pointer
+      ⟨24,8⟩ = some bytes := by
+  have wordBytes (slot : Pointer) (word : NativeWord64Memory.Word)
+      (stored : NativeWord64Memory.load world.pointers.heap.memory slot = some word) :
+      ∃ bytes, NativeByteRange.loadRange world.pointers.heap.memory slot ⟨8,8⟩ = some bytes := by
+    simp only [NativeWord64Memory.load,Option.bind_eq_some_iff] at stored
+    obtain ⟨bytes,read,_⟩ := stored
+    exact ⟨bytes,read⟩
+  obtain ⟨capacityBytes,capacityRead⟩ := wordBytes _ _ descriptor.capacityStored
+  obtain ⟨_,_,pointerWord,_⟩ := NativePointerByteMemory.load_success _ _ _ descriptor.pointerStored
+  obtain ⟨pointerBytes,pointerRead⟩ := wordBytes _ _ pointerWord
+  obtain ⟨lengthBytes,lengthRead⟩ := wordBytes _ _ descriptor.lengthStored
+  have capacityEq : descriptor.capacitySlot = descriptor.lease.pointer := by
+    have atZero : NativeByteRange.pointerAt descriptor.lease.pointer 0 = some descriptor.lease.pointer := by
+      simp only [NativeByteRange.pointerAt,Nat.add_zero,descriptor.lease.pointer.address.isLt,↓reduceDIte]
+    exact Option.some.inj (descriptor.capacityAt.symm.trans atZero)
+  rw [capacityEq] at capacityRead
+  have capGeometry := NativeByteRange.loadRange_geometry _ _ _ _ capacityRead
+  have lenGeometry := NativeByteRange.loadRange_geometry _ _ _ _ lengthRead
+  have lengthAddress := (NativeByteRange.pointerAt_fields _ _ _ descriptor.lengthAt).1
+  have geometry (size : Nat) (bound : size ≤ 24) (layout : (NativeByteMemory.Layout.mk size 8).Valid) :
+      NativeByteRange.Geometry descriptor.lease.pointer ⟨size,8⟩ := by
+    refine ⟨layout,capGeometry.2.1,capGeometry.2.2.1,?_⟩
+    have endBound : descriptor.lengthSlot.address.val + 8 < 2^64 := lenGeometry.2.2.2
+    change descriptor.lease.pointer.address.val + size < 2^64
+    omega
+  have firstRead := NativeByteRangeCompleteness.loadRange_join _ valid _ _ 8 8 8
+    capacityBytes pointerBytes (by decide) (by decide) descriptor.pointerAt
+    (geometry 16 (by decide) (by decide)) capacityRead pointerRead
+  exact ⟨_,NativeByteRangeCompleteness.loadRange_join _ valid _ _ 16 8 8
+    _ lengthBytes (by decide) (by decide) descriptor.lengthAt
+    (geometry 24 (by decide) (by decide)) firstRead lengthRead⟩
 
 theorem InitializedElements.subrange {world : NativeReferenceMachine.State} {index : Nat}
     {descriptor : Descriptor world index} (initialized : InitializedElements descriptor)

@@ -111,6 +111,50 @@ theorem borrow_frontier (state next : State) (valid : LedgerValid state) (parent
       exact .trans other.tag parent.tag tag child childFound rfl path
     · exact Or.inr (Or.inr (disjoint_subrange parent other pointer layout ⟨origin,start,finish⟩ separate))
 
+/-- An initialized layout with the logical alias condition issues a real child
+reference. This also covers aligned record layouts, not only byte slices. -/
+theorem grant_initialized (world : NativeReferenceMachine.State)
+    (valid : NativeByteBorrow.WellFormed (NativeReferenceMachine.ledger world)) (lease : Lease)
+    (frontier : ExclusiveFrontier (NativeReferenceMachine.ledger world) lease)
+    (pointer : Pointer) (layout : Layout) (output : List NativeByteMemory.Byte)
+    (contained : Contained pointer layout lease)
+    (loaded : NativeByteRange.loadRange world.pointers.heap.memory pointer layout = some output) :
+    ∃ next, NativeReferenceMachine.grant world (some lease.tag) .exclusive pointer layout = some next ∧
+      ExclusiveFrontier (NativeReferenceMachine.ledger next)
+        ⟨world.nextTag,some lease.tag,pointer,layout,.exclusive⟩ := by
+  have allowed := parent_allowed (NativeReferenceMachine.ledger world) valid.2 lease frontier
+    .exclusive pointer layout contained
+  let ledgerNext : State := ⟨world.pointers.heap.memory,world.nextTag + 1,
+    ⟨world.nextTag,some lease.tag,pointer,layout,.exclusive⟩ :: world.leases⟩
+  have borrowed : NativeByteBorrow.borrow (NativeReferenceMachine.ledger world)
+      (some lease.tag) .exclusive pointer layout = some (world.nextTag,ledgerNext) := by
+    simp only [NativeByteBorrow.borrow,allowed,ite_true]
+    change (NativeByteRange.loadRange world.pointers.heap.memory pointer layout).map _ = _
+    simp only [loaded,Option.map_some]
+    rfl
+  let next : NativeReferenceMachine.State :=
+    ⟨world.pointers,ledgerNext.nextTag,ledgerNext.leases,⟨world.nextTag⟩ :: world.references,
+      ⟨world.nextTag,some lease.tag,pointer,layout,.exclusive⟩ :: world.births,world.outputs⟩
+  have issued : NativeReferenceMachine.grant world (some lease.tag) .exclusive pointer layout = some next := by
+    rw [NativeReferenceMachine.grant,borrowed]
+    rfl
+  exact ⟨next,issued,borrow_frontier (NativeReferenceMachine.ledger world) ledgerNext valid.2
+    lease frontier pointer layout world.nextTag borrowed⟩
+
+/-- Stored Vec fields suffice for the full aligned header reborrow. -/
+theorem vec_header_grant_complete (world : NativeReferenceMachine.State) (index : Nat)
+    (descriptor : NativeResidentVec.Descriptor world index)
+    (valid : NativeByteBorrow.WellFormed (NativeReferenceMachine.ledger world))
+    (frontier : ExclusiveFrontier (NativeReferenceMachine.ledger world) descriptor.lease) :
+    ∃ next, NativeReferenceMachine.grant world (some descriptor.lease.tag) .exclusive
+        descriptor.lease.pointer ⟨24,8⟩ = some next ∧
+      ExclusiveFrontier (NativeReferenceMachine.ledger next)
+        ⟨world.nextTag,some descriptor.lease.tag,descriptor.lease.pointer,⟨24,8⟩,.exclusive⟩ := by
+  obtain ⟨bytes,loaded⟩ := descriptor.header_initialized valid.1
+  apply grant_initialized world valid descriptor.lease frontier _ _ bytes _ loaded
+  rw [Contained,descriptor.extent]
+  exact ⟨rfl,Nat.le_refl _,Nat.le_refl _⟩
+
 /-- A bounded initialized subrange can actually be borrowed, and the fresh
 child retains the logical alias condition needed for subsequent indexing. -/
 theorem borrow_subrange (state : State) (valid : NativeByteBorrow.WellFormed state) (lease : Lease)
