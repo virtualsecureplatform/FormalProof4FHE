@@ -1,0 +1,107 @@
+#!/usr/bin/env python3
+"""Retain the transparent error-kind getter with an explicit dereference-materialization boundary."""
+import argparse
+import json
+from pathlib import Path
+import runpy
+ROOT=Path(__file__).resolve().parent.parent
+SPEC=runpy.run_path(str(ROOT/'scripts/specify-hasteboots-deallocation-boundary'))
+require=SPEC['require'];name=SPEC['name'];adt=SPEC['adt'];empty=SPEC['empty']
+layout=runpy.run_path(str(ROOT/'scripts/reify-hasteboots-rawvec-fields'))['layout']
+USIZE={'Untagged':{'Literal':{'UInt':'Usize'}}}
+UNIT={'Untagged':{'Adt':{'id':'Tuple','generics':{'regions':[],'types':[],'const_generics':[],'trait_refs':[]}}}}
+def ref(region,owner):return {'Untagged':{'Ref':[region,adt(owner),'Shared']}}
+def local(index,ty):return {'kind':{'Local':index},'ty':ty}
+def projection(place,step,ty):return {'kind':{'Projection':[place,step]},'ty':ty}
+def field(place,owner,variant,index,ty):return projection(place,{'Field':[{'Adt':[owner,variant]},index]},ty)
+def statement(kind):return {'kind':kind}
+def block(kinds):return {'statements':[statement(k) for k in kinds]}
+def aggregate(owner,variant,args):return {'Aggregate':[{'Adt':[adt(owner)['Untagged']['Adt'],variant,None]},args]}
+def clean(value):
+ if isinstance(value,dict):
+  removed={'span','comments_before'}|({'id'} if 'comments_before'in value else set())
+  return {k:clean(v) for k,v in value.items() if k not in removed}
+ if isinstance(value,list):return [clean(v) for v in value]
+ return value
+class Reifier:
+ def __init__(self,ir):
+  require(ir['charon_version']=='0.1.226' and ir['has_errors'] is False,'Wrong schema/compiler errors')
+  c=self.crate=ir['translated'];o=c['options']
+  require(o['monomorphize'] and o['mir']=='Optimized' and o['sysroot']=='default' and o['consts']=='Values','Wrong extraction profile')
+  for key in ['evaluate_runtime_checks','precise_drops','desugar_drops','preserve_allocator','no_dedup_serialized_ast']:require(o[key] is True,'Missing policy: '+key)
+  require(not o['opaque'] and not o['exclude'] and not o['inline_functions'],'Hidden/rewritten source')
+  require(c['target_information']==[{'key':'x86_64-unknown-linux-gnu','value':{'target_pointer_size':8,'is_little_endian':True}}],'Wrong target')
+  types=[t for t in c['type_decls'] if t];functions=[f for f in c['fun_decls'] if f]
+  require(len(types)==5 and len(functions)==2,'Changed getter declaration inventory')
+  def find(items,wanted):
+   found=[item for item in items if name(item)==wanted];require(len(found)==1,'Missing/duplicate declaration: '+wanted);return found[0]
+  names=['alloc::collections::TryReserveError','alloc::collections::TryReserveErrorKind','core::alloc::layout::Layout','core::mem::alignment::Alignment','core::mem::alignment::AlignmentEnum']
+  self.types=[find(types,n) for n in names];e,k,l,a,n=[t['def_id'] for t in self.types];self.tags=(e,k,l,a,n)
+  for t in self.types:require(empty(t['generics']) and t['item_meta']['opacity']=='Transparent','Changed type parameters/visibility')
+  def fields(t):return [(f['name'],f['ty']) for f in t['kind']['Struct']]
+  require(fields(self.types[0])==[('kind',adt(k))],'Changed error wrapper fields')
+  require(fields(self.types[2])==[('size',USIZE),('align',adt(a))],'Changed Layout fields')
+  require(fields(self.types[3])==[('_inner_repr_trick',adt(n))],'Changed alignment fields')
+  kinds=self.types[1]['kind']['Enum']
+  require([(v['id'],v['name'],[(f['name'],f['ty'])for f in v['fields']],v['discriminant'])for v in kinds]==[(0,'CapacityOverflow',[],{'Scalar':{'Signed':['Isize','0']}}),(1,'AllocError',[('layout',adt(l)),('non_exhaustive',UNIT)],{'Scalar':{'Signed':['Isize','1']}})],'Changed error variants')
+  variants=self.types[4]['kind']['Enum']
+  require(len(variants)==64 and all(v['id']==i and v['fields']==[] and v['name']=='_Align1Shl'+str(i) and v['discriminant']=={'Scalar':{'Unsigned':['Usize',str(2**i)]}}for i,v in enumerate(variants)),'Changed alignment variants')
+  require(self.types[0]['layout']==layout(16,8,[0]) and self.types[2]['layout']==layout(16,8,[8,0]) and self.types[3]['layout']==layout(8,8,[0],True),'Changed wrapper/Layout physical fields')
+  zero={'Unsigned':['U64','0']};expected=layout(16,8,[]);expected[0]['value']['discriminator']={'Branch':{'offset':0,'int_ty':{'Unsigned':'U64'},'children':[[{'start':zero,'end':zero},{'Known':0}]],'fallback':{'Known':1}}};expected[0]['value']['variant_layouts']=[{'field_offsets':[],'uninhabited':False,'tagger':[[0,zero]]},{'field_offsets':[0,16],'uninhabited':False,'tagger':[]}]
+  require(self.types[1]['layout']==expected,'Changed error niche layout')
+  enum=[{'key':'x86_64-unknown-linux-gnu','value':{'size':8,'align':8,'uninhabited':False,'repr':{'repr_algo':'Rust','align_modif':None,'transparent':False,'explicit_discr_type':True},'variant_layouts':[{'field_offsets':[],'uninhabited':False,'tagger':[[0,{'Unsigned':['U64',str(2**i)]}]]}for i in range(64)],'discriminator':{'Branch':{'offset':0,'int_ty':{'Unsigned':'U64'},'fallback':'Invalid','children':[[{'start':{'Unsigned':['U64',str(2**i)]},'end':{'Unsigned':['U64',str(2**i)]}},{'Known':i}]for i in range(64)]}}}}]
+  require(self.types[4]['layout']==enum,'Changed alignment physical tags')
+  self.root=find(functions,'hasteboots_reservation_error_kind::error_kind');self.getter=find(functions,'alloc::collections::kind')
+  method=self.getter['item_meta']['name']
+  require(len(method)==4 and method[0]=={'Ident':['alloc',0]} and method[1]=={'Ident':['collections',0]} and method[3]=={'Ident':['kind',0]},'Changed getter owner path')
+  owner=method[2]['Impl']['Ty']
+  require(owner['kind']=='InherentImplBlock' and owner['skip_binder']==adt(e) and empty(owner['params']),'Changed getter implementation owner')
+  generic={'regions':[{'index':0,'name':None,'mutability':'Unknown'}],'types':[],'const_generics':[],'trait_clauses':[],'regions_outlive':[],'types_outlive':[],'trait_type_constraints':[]}
+  require(self.getter['generics']==generic,'Changed getter generic parameters')
+  signature={'is_unsafe':False,'abi':'Rust','is_variadic':False,'inputs':[ref({'Var':{'Free':0}},e)],'output':adt(k)}
+  for f in [self.root,self.getter]:require(f['signature']==signature and f['item_meta']['opacity']=='Transparent','Changed getter/root signature or body visibility')
+  body=self.getter['body']['Structured'];require(body['bound_body_regions']==6 and body['locals']['arg_count']==1,'Changed getter regions/arguments')
+  require(set(body)=={'span','bound_body_regions','locals','body','comments'} and body['comments']==[] and set(body['locals'])=={'arg_count','locals'},'Unknown getter body metadata')
+  require([(x['index'],x['ty'])for x in body['locals']['locals']]==list(enumerate([adt(k),ref({'Body':1},e),adt(l),adt(k)])),'Changed getter local types')
+  deref=projection(local(1,ref({'Body':1},e)),'Deref',adt(e));kind=field(deref,e,None,0,adt(k));payload=field(kind,k,1,0,adt(l))
+  allocation=block([{'StorageLive':2},{'Assign':[local(2,adt(l)),{'Use':[{'Copy':payload},'Yes']}]},{'Assign':[local(0,adt(k)),aggregate(k,1,[{'Move':local(2,adt(l))},{'Const':{'kind':{'Adt':[None,[]]},'ty':UNIT}}])]},{'StorageDead':2},{'StorageDead':1},{'StorageDead':3},'Return'])
+  expected=block([{'StorageLive':0},{'Switch':{'Match':[kind,[[[0],block([])],[[1],allocation]],None]}},{'StorageLive':3},{'Assign':[local(3,adt(k)),aggregate(k,0,[])]},{'Assign':[local(0,adt(k)),{'Use':[{'Move':local(3,adt(k))},'Yes']}]},{'StorageDead':1},{'StorageDead':3},'Return'])
+  require(clean(body['body'])==expected,'Changed getter statements, dereference, operand modes or cleanup')
+  root=self.root['body']['Structured'];require(root['locals']['arg_count']==1,'Changed root argument count')
+  calls=[s['kind']['Call']for s in root['body']['statements'] if isinstance(s['kind'],dict) and 'Call'in s['kind']]
+  require(len(calls)==1 and calls[0]['call']['func']['Regular']['kind']=={'Fun':{'Regular':self.getter['def_id']}},'Changed root getter call')
+ def retained(self):return {'function':self.getter,'root':self.root,'types':self.types,'reference_materialization_explicit':True,'native_stack_abi_refinement':False}
+ def render(self):
+  e,k,l,a,n=self.tags;d=', '.join(str(2**i) for i in range(64))
+  return f'''module
+public import FormalProof4FHE.HasteBoots.NativeAllocatorLLBC
+public import FormalProof4FHE.HasteBoots.NativeReservationErrorRead
+@[expose] public section
+namespace HasteBootsReservationErrorKind
+open FormalProof4FHE.HasteBoots
+open NativeRecordLLBC
+open NativeReservationErrorFields (Kind)
+def tags : NativeReservationErrorLocal.Tags := ⟨{e},{k},{l},{a},{n}⟩
+def alignmentDiscriminants : List NativeWord64Memory.Word := [{d}]
+def alignmentType : NativeRecordValues.Ty := .record {a} (.pair (.enumeration {n} alignmentDiscriminants) (.scalar .unit))
+def layoutType : NativeRecordValues.Ty := .record {l} (.pair (.scalar .usize) (.pair alignmentType (.scalar .unit)))
+def kindType : NativeRecordValues.Ty := .record {k} (.choice (.scalar .unit) (.pair layoutType (.pair (.scalar .unit) (.scalar .unit))))
+def errorType : NativeRecordValues.Ty := .record {e} (.pair kindType (.scalar .unit))
+def allocationBody : Body := .live 2 (.assign 2 (.use (.copy 1 [(.unwrap {e}),.left,(.unwrap {k}),(.active true),.left]) true .byte)
+  (.assign 0 (.aggregate (some {k}) (some true) [(.move 2 []),.unit]) (.dead 2 (.dead 1 (.dead 3 .ret)))))
+def overflowBody : Body := .live 3 (.assign 3 (.aggregate (some {k}) (some false) [])
+  (.assign 0 (.use (.move 3 []) true .byte) (.dead 1 (.dead 3 .ret))))
+def getterBody : Body := .live 0 (.matchChoice 1 [(.unwrap {e}),.left] {k} .done allocationBody overflowBody)
+def materializedFrame (world : NativeReferenceMachine.State) (kind : Kind) : Frame :=
+  ⟨[kindType,errorType,layoutType,kindType],[.live none,.live (some (NativeReservationErrorLocal.encode tags kind)),.dead,.dead],world⟩
+def invoke (world : NativeReferenceMachine.State) (value : NativeRecordValues.Value) : Flow :=
+  match NativeReservationErrorRead.resolveOperand world value with
+  | none => .invalid world
+  | some index => match NativeReservationErrorFields.read world index with
+    | .invalid next => .invalid next
+    | .value kind next => eval getterBody (materializedFrame next kind)
+end HasteBootsReservationErrorKind
+'''
+def main():
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('llbc',type=Path);p.add_argument('output',type=Path);p.add_argument('--retained',type=Path,required=True);a=p.parse_args();r=Reifier(json.loads(a.llbc.read_text()));a.output.write_text(r.render());a.retained.write_text(json.dumps(r.retained(),indent=2)+'\n')
+if __name__=='__main__':main()
