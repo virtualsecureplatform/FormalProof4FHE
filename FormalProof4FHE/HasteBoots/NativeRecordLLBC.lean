@@ -180,6 +180,7 @@ inductive Rvalue where
   | rawVecField (action : NativeRawVecReference.Action) (reference : Operand) (enabled : Bool := false)
   | aggregate (tag : Option Nat) (side : Option Bool) (fields : List Operand)
   | use (value : Operand) (enabled : Bool) (element : Element := .byte)
+  | rawAddress (value : Operand)
   | rawCast (value : Operand)
   | choice (right : Bool) (value : Operand)
   | wrapOne (tag : Nat) (value : Operand)
@@ -281,6 +282,19 @@ def evalMultiply (frame : Frame) (left right : Operand) : Evaluated :=
     | none => .invalid caller.world
     | some value => .value value caller
 
+/-- Pointer-to-word inspection keeps the original pointer value available.
+This operation returns address bits without granting allocation authority. -/
+def rawAddressValue : Value → Option Value
+  | .scalar (.raw pointer) => if pointer.length.isNone then some (.scalar (.usize pointer.storage.address)) else none
+  | _ => none
+
+def evalRawAddress (frame : Frame) (operand : Operand) : Evaluated :=
+  match evalOperand frame operand with
+  | none => .invalid frame.world
+  | some (value,caller) => match rawAddressValue value with
+    | none => .invalid caller.world
+    | some address => .value address caller
+
 def enumWordValue (tag : Nat) : Value → Option Value
   | .enumeration actual value => if tag = actual then some (.scalar (.usize value)) else none
   | _ => none
@@ -348,6 +362,7 @@ def evalRvalue (frame : Frame) : Rvalue → Evaluated
     | some (value,caller) => match retag caller.world value enabled element with
       | .invalid world => .invalid world
       | .value changed world => .value changed {caller with world}
+  | .rawAddress operand => evalRawAddress frame operand
   | .rawCast operand => match evalOperand frame operand with
     | none => .invalid frame.world
     | some (value,caller) => match value with
@@ -850,6 +865,19 @@ theorem evalZstBorrow_projects (frame : Frame) (index tag : Nat) (address : Word
       simpa only [actual,Evaluated.world,NativeRawVecFields.Result.world] using first
   · exact .refl _
 
+theorem rawAddressValue_exact (pointer : NativePointerStorage.Pointer) :
+    rawAddressValue (.scalar (.raw ⟨pointer,none⟩)) = some (.scalar (.usize pointer.address)) := rfl
+
+theorem evalRawAddress_world (frame : Frame) (operand : Operand) :
+    (evalRawAddress frame operand).world = frame.world := by
+  cases selected : evalOperand frame operand with
+  | none => simp only [evalRawAddress,selected,Evaluated.world]
+  | some result =>
+    rcases result with ⟨value,caller⟩
+    have same := evalOperand_world frame caller operand value selected
+    cases actual : rawAddressValue value <;>
+      simpa only [evalRawAddress,selected,actual,Evaluated.world] using same
+
 theorem evalRvalue_projects (frame : Frame) (rvalue : Rvalue) :
     NativeReferenceMachine.Runs frame.world (evalRvalue frame rvalue).world := by
   induction rvalue with
@@ -921,6 +949,9 @@ theorem evalRvalue_projects (frame : Frame) (rvalue : Rvalue) :
       simp only [evalRvalue, selected, Evaluated.world]
       rw [evalOperand_world frame caller operand value selected]
       exact .refl _
+  | rawAddress operand =>
+    change NativeReferenceMachine.Runs frame.world (evalRawAddress frame operand).world
+    rw [evalRawAddress_world]; exact .refl _
   | rawCast operand =>
     cases selected : evalOperand frame operand with
     | none => simp only [evalRvalue, selected, Evaluated.world]; exact .refl _

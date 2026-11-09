@@ -124,6 +124,9 @@ theorem switch_usize_false {frame caller : Frame} {operand : Operand} {word : Na
     eval (.switchUsize operand expected yes no next) frame = continueWith next (eval no caller) := by
   simp only [eval,selected,ite_eq_right different,continueWith]
 
+theorem continue_done (flow : Flow) : continueWith .done flow = flow := by
+  cases flow <;> rfl
+
 theorem legacy_normal {frame changed : Frame} {body : NativeRecordLLBC.Body} (next : Body)
     (executed : NativeRecordLLBC.eval body frame = .normal changed) :
     eval (.legacy body next) frame = eval next changed := by

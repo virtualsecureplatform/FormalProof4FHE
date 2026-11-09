@@ -551,6 +551,9 @@ theorem evalRvalue_incoming_projects (frame : Frame) (rvalue : Rvalue) :
       simp only [evalRvalue, selected, Evaluated.world]
       rw [evalOperand_world frame caller operand value selected]
       exact .refl _
+  | rawAddress operand =>
+    change NativeIncomingReference.Preserves frame.world (evalRawAddress frame operand).world
+    rw [evalRawAddress_world]; exact .refl _
   | rawCast operand =>
     cases selected : evalOperand frame operand with
     | none => simp only [evalRvalue, selected, Evaluated.world]; exact .refl _

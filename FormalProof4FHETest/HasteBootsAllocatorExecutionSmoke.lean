@@ -67,4 +67,14 @@ example (function : NativeAllocatorLLBC.Function) (world : NativeReferenceMachin
     (reachable : NativeReferenceMachine.Reachable world) :
     NativeReferenceMachine.Reachable (NativeAllocatorLLBC.invoke function world args).world :=
   NativeAllocatorLLBC.invoke_reachable function world args reachable
+example (pointer : NativePointerStorage.Pointer) :
+    NativeRecordLLBC.rawAddressValue (.scalar (.raw ⟨pointer,none⟩)) = some (.scalar (.usize pointer.address)) := rfl
+
+example : NativeRecordLLBC.rawAddressValue (.scalar (.raw ⟨⟨0,none⟩,none⟩)) = some (.scalar (.usize 0)) := rfl
+
+example : NativeRecordLLBC.rawAddressValue (.scalar (.raw ⟨⟨8,some ⟨8,0⟩⟩,some 3⟩)) = none := rfl
+
+example (frame : NativeRecordLLBC.Frame) (operand : NativeRecordLLBC.Operand) :
+    (NativeRecordLLBC.evalRawAddress frame operand).world = frame.world := NativeRecordLLBC.evalRawAddress_world frame operand
+
 end FormalProof4FHETest.HasteBootsAllocatorExecutionSmoke
