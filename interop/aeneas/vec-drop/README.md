@@ -1,5 +1,35 @@
 # Original resident Vec destruction
 
+## The retained RawVec method and glue return normally
+
+`Ready.immediate_complete` derives a fresh exclusive RawVec operand with its
+resident fields, initialized header and alias frontier intact. The actual
+reservation/activation steps preserve full-capacity buffer separation and only
+prepend fresh loans. These facts feed the already proved deallocation callee.
+
+`rawvec_method_complete` and `rawvec_glue_complete` follow the retained method and
+glue bodies through their argument moves, calls, unit-result writes, successor
+bodies and final cleanup. At zero capacity they return unit with the complete
+heap unchanged. At positive capacity they return unit after freeing the original
+owned buffer and layout. Each wrapper restores its original ordered incoming
+loans and preserves reachability. Successful internal borrows, callee returns
+and cleanup results are derived from readiness, ownership and separation.
+
+The canonical invocation corollaries check the original input decoder. The
+operational glue theorem produces an actual `NativeRecordDropCalls.Invokes`
+execution, and determinism gives the same normal-return guarantees to every
+invocation under these sufficient conditions.
+
+This step adds three model theorems and nine source theorems, with 12 declaration
+audits, two model regressions and four source regressions. The regressions cover
+fresh readiness and loan identities, method and operational glue return for
+positive uninitialized spare capacity, and zero capacity with a dangling buffer.
+
+Next compose successful outer Vec destruction through its byte method, RawVec
+field borrow, glue call and scope cleanup. Native construction, compiler/lifetime/
+ABI refinement, the external allocator implementation, physical attacker work
+and final application security remain open.
+
 ## The retained deallocation callee returns and releases its buffer
 
 `NativeRawVecDeallocationCompleteness` proves the actual empty allocator-subobject
