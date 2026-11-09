@@ -47,6 +47,7 @@ class Reifier:
   self.runtime_success=RuntimeSuccess(self)
   self.runtime_null=RuntimeNull(self)
   self.positive_construction=PositiveConstruction(self)
+  self.positive_callers=PositiveCallers(self)
  def walk(self,f,node):
   if isinstance(node,dict):
    if 'statements' in node:
@@ -113,7 +114,7 @@ class Reifier:
     else:slots.append('.dead')
    lines+=['def '+label+' (world : NativeReferenceMachine.State) (left right : NativeWord64Memory.Word) : Frame :=',
     '  ⟨['+', '.join(types)+'], ['+', '.join(slots)+'], world⟩']
-  lines+=[self.layout_prefix.render(),self.caller_preparation.render(),self.positive_preparation.render(),self.allocator_methods.render(),self.runtime_calls.render(),self.runtime_success.render(),self.runtime_null.render(),self.positive_construction.render(),'end HasteBootsVecCapacityArithmetic',''];return '\n'.join(lines)
+  lines+=[self.layout_prefix.render(),self.caller_preparation.render(),self.positive_preparation.render(),self.allocator_methods.render(),self.runtime_calls.render(),self.runtime_success.render(),self.runtime_null.render(),self.positive_construction.render(),self.positive_callers.render(),'end HasteBootsVecCapacityArithmetic',''];return '\n'.join(lines)
 
 class LayoutPrefix:
  def __init__(self,parent):
@@ -323,8 +324,8 @@ class CallerPreparation:
   view=copy.copy(parent.layout_prefix);view.function=root;view.locals=root['body']['Structured']['locals']['locals'];view.count=len(view.locals)
   self.root_prefix=view.code(rb[:3],'next');self.root_tail=view.code(rb[4:-1],'.ret')
   self.raw_tail=self.tail_code(parent.functions[2]['body']['Structured']['body']['statements'][7:])
- def tail_code(self,statements):
-  code='.done';view=self.views[2]
+ def tail_code(self,statements,tail='.done'):
+  code=tail;view=self.views[2]
   for statement in reversed(statements):
    k=statement['kind']
    if k=='Return':require(code=='.done','Nonterminal caller return');code='.ret'
@@ -717,6 +718,56 @@ class PositiveConstruction(LayoutPrefix):
    '    .legacy (layoutPrefix (.unsupported "source constructor overflow") (capacityDispatch zeroSizeBody .done .done) (.unsupported "source constructor layout rejection") .done)',
    '      (positiveConstructorBody actual address outcome shim (.legacy (.unsupported "source runtime zero size") .done) runtimeNull',
    '        (.legacy (.unsupported "source allocation unwind cleanup") .done) (.legacy (.unsupported "source allocation error/drop path") .done))⟩']
+  return '\n'.join(lines)+'\n'
+
+class PositiveCallers:
+ def __init__(self,parent):
+  # CallerPreparation retains and validates the complete three outer source bodies.
+  self.preparation=parent.caller_preparation
+  ss=parent.functions[2]['body']['Structured']['body']['statements']
+  self.capacity=self.preparation.tail_code(ss[7:17],'next')
+  self.arithmetic=self.preparation.views[2].code(ss[17:23],'next')
+  self.returned=self.preparation.tail_code(ss[23:])
+ def render(self):
+  lines=['def positiveRawCallerCapacityPrefix (error next : Body) : Body := '+self.capacity,
+   'def positiveRawCallerArithmetic (next : Body) : Body := '+self.arithmetic,
+   'def positiveRawCallerReturn (cold : Body) : Body := '+self.returned,
+   'def positiveVecValue (pointer : NativePointerStorage.Pointer) (capacity : NativeWord64Memory.Word) : NativeRecordValues.Value :=',
+   '  .record 0 (.pair (.record 2 (.pair (positiveRawValue pointer capacity) (.pair (.record 5 (.scalar .unit)) (.scalar .unit)))) (.pair (.scalar (.usize 0)) (.scalar .unit)))',
+   'def positiveRawCallerCall (ambient : Frame) (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim unwind next : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Body :=',
+   '  let callee := positiveConstructorFunction ambient false address outcome shim',
+   '  .legacy (rawCallerPrefix .done) (.call callee.name callee.classification callee.types callee.argCount 4 rawCallerArgs callee.body unwind next)',
+   'def positiveRawCallerFunction (ambient : Frame) (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Function :=',
+   '  ⟨"alloc::raw_vec::with_capacity_in",.transparent,rawCallerTypes (rawEntryAmbient ambient),3,',
+   '    positiveRawCallerCall (rawEntryAmbient ambient) address outcome shim (.legacy (.unsupported "source raw caller unwind") .done)',
+   '      (.legacy (rawCallerTail (.unsupported "source reservation error arm") (.unsupported "source cold helper")) .done)⟩',
+   'def positiveVecCallerCall (ambient : Frame) (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim unwind next : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Body :=',
+   '  let callee := positiveRawCallerFunction ambient address outcome shim',
+   '  .legacy (vecCallerPrefix .done) (.call callee.name callee.classification callee.types callee.argCount 3 vecCallerArgs callee.body unwind next)',
+   'def positiveVecCallerFunction (ambient : Frame) (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Function :=',
+   '  ⟨"alloc::vec::with_capacity",.transparent,vecCallerTypes ambient,1,positiveVecCallerCall ambient address outcome shim',
+   '    (.legacy (.unsupported "source Vec caller unwind") .done) (.legacy vecCallerTail .done)⟩',
+   'def positiveCapacityRootCall (ambient : Frame) (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim unwind next : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Body :=',
+   '  let callee := positiveVecCallerFunction ambient address outcome shim',
+   '  .legacy (capacityRootPrefix .done) (.call callee.name callee.classification callee.types callee.argCount 0 [(.move 2 [])] callee.body unwind next)',
+   'def positiveCapacityRoot (ambient : Frame) (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Function :=',
+   '  ⟨"hasteboots_vec_capacity_arithmetic::capacity",.transparent,capacityRootTypes ambient,1,positiveCapacityRootCall ambient address outcome shim',
+   '    (.legacy (.unsupported "source root unwind") .done) (.legacy capacityRootTail .done)⟩',
+   'def positiveRawCallerReturned (ambient : Frame) (capacity : NativeWord64Memory.Word) (world : NativeReferenceMachine.State) (pointer : NativePointerStorage.Pointer) : Frame :=',
+   '  let base := rawCallerMoved ambient capacity',
+   '  {base with slots := base.slots.set 4 (.live (some (positiveResultValue pointer capacity))),world}',
+   'def positiveVecCallerReturned (ambient : Frame) (capacity : NativeWord64Memory.Word) (world : NativeReferenceMachine.State) (pointer : NativePointerStorage.Pointer) : Frame :=',
+   '  let base := vecCallerMoved ambient capacity',
+   '  {base with slots := base.slots.set 3 (.live (some (positiveRawValue pointer capacity))),world}',
+   'def positiveCapacityRootReturned (ambient : Frame) (capacity : NativeWord64Memory.Word) (world : NativeReferenceMachine.State) (pointer : NativePointerStorage.Pointer) : Frame :=',
+   '  let base := capacityRootMoved ambient capacity',
+   '  {base with slots := base.slots.set 0 (.live (some (positiveVecValue pointer capacity))),world}']
+  lines+=['def positiveRawCallerCapacityFrame (ambient : Frame) (capacity : NativeWord64Memory.Word) (world : NativeReferenceMachine.State) (pointer : NativePointerStorage.Pointer) : Frame :=',
+   '  let base := positiveRawCallerReturned ambient capacity world pointer',
+   '  {base with slots := ((((((((base.slots.set 0 (.live (some (positiveRawValue pointer capacity)))).set 4 (.live (some (.record 8 (.choice false (.pair .uninit (.scalar .unit))))))).set 5 (.live none)).set 6 (.live none)).set 9 (.live none)).set 10 (.live (some (.scalar (.usize capacity))))).set 11 .dead).set 12 .dead)}',
+   'def positiveRawCallerCheckedFrame (ambient : Frame) (capacity : NativeWord64Memory.Word) (world : NativeReferenceMachine.State) (pointer : NativePointerStorage.Pointer) : Frame :=',
+   '  let base := positiveRawCallerCapacityFrame ambient capacity world pointer',
+   '  {base with slots := (((base.slots.set 5 (.live (some (.boolean true)))).set 6 .dead).set 9 .dead).set 10 .dead}']
   return '\n'.join(lines)+'\n'
 
 def main():

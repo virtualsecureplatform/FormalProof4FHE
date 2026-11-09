@@ -240,4 +240,44 @@ def positiveConstructorFunction (ambient : Frame) (zeroed : Bool) (address : Nat
       (positiveConstructorBody actual address outcome shim (.legacy (.unsupported "source runtime zero size") .done) runtimeNull
         (.legacy (.unsupported "source allocation unwind cleanup") .done) (.legacy (.unsupported "source allocation error/drop path") .done))⟩
 
+def positiveRawCallerCapacityPrefix (error next : Body) : Body := (.matchChoice 4 [] 8 .done error (.assign 0 (.use (.move 4 [(.unwrap 8), (.active false), .left]) true .byte) (.live 5 (.live 6 (.live 9 (.live 10 (.live 11 (.assign 11 (.use (.copy 3 [(.unwrap 4), .left]) true .byte) (.switchUsize (.copy 11 []) 0 (.assign 10 (.use (.usize 18446744073709551615) true .byte) .done) (.live 12 (.assign 12 (.use (.copy 0 [(.unwrap 3), .right, .left]) true .byte) (.assign 10 (.use (.copy 12 [(.unwrap 7),.left]) false .byte) (.dead 12 .done)))) (.dead 11 next))))))))))
+def positiveRawCallerArithmetic (next : Body) : Body := (.assign 9 expr_wrappingSubtract (.dead 10 (.assign 6 expr_greater (.dead 9 (.assign 5 expr_logicalNot (.dead 6 next))))))
+def positiveRawCallerReturn (cold : Body) : Body := (.constIf false cold .done (.switchBoolean (.copy 5 []) (.dead 5 (.dead 4 (.dead 13 (.dead 8 (.dead 7 (.dead 3 (.dead 2 (.dead 1 (.dead 14 .ret))))))))) .abort .done))
+def positiveVecValue (pointer : NativePointerStorage.Pointer) (capacity : NativeWord64Memory.Word) : NativeRecordValues.Value :=
+  .record 0 (.pair (.record 2 (.pair (positiveRawValue pointer capacity) (.pair (.record 5 (.scalar .unit)) (.scalar .unit)))) (.pair (.scalar (.usize 0)) (.scalar .unit)))
+def positiveRawCallerCall (ambient : Frame) (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim unwind next : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Body :=
+  let callee := positiveConstructorFunction ambient false address outcome shim
+  .legacy (rawCallerPrefix .done) (.call callee.name callee.classification callee.types callee.argCount 4 rawCallerArgs callee.body unwind next)
+def positiveRawCallerFunction (ambient : Frame) (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Function :=
+  ⟨"alloc::raw_vec::with_capacity_in",.transparent,rawCallerTypes (rawEntryAmbient ambient),3,
+    positiveRawCallerCall (rawEntryAmbient ambient) address outcome shim (.legacy (.unsupported "source raw caller unwind") .done)
+      (.legacy (rawCallerTail (.unsupported "source reservation error arm") (.unsupported "source cold helper")) .done)⟩
+def positiveVecCallerCall (ambient : Frame) (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim unwind next : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Body :=
+  let callee := positiveRawCallerFunction ambient address outcome shim
+  .legacy (vecCallerPrefix .done) (.call callee.name callee.classification callee.types callee.argCount 3 vecCallerArgs callee.body unwind next)
+def positiveVecCallerFunction (ambient : Frame) (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Function :=
+  ⟨"alloc::vec::with_capacity",.transparent,vecCallerTypes ambient,1,positiveVecCallerCall ambient address outcome shim
+    (.legacy (.unsupported "source Vec caller unwind") .done) (.legacy vecCallerTail .done)⟩
+def positiveCapacityRootCall (ambient : Frame) (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim unwind next : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Body :=
+  let callee := positiveVecCallerFunction ambient address outcome shim
+  .legacy (capacityRootPrefix .done) (.call callee.name callee.classification callee.types callee.argCount 0 [(.move 2 [])] callee.body unwind next)
+def positiveCapacityRoot (ambient : Frame) (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Function :=
+  ⟨"hasteboots_vec_capacity_arithmetic::capacity",.transparent,capacityRootTypes ambient,1,positiveCapacityRootCall ambient address outcome shim
+    (.legacy (.unsupported "source root unwind") .done) (.legacy capacityRootTail .done)⟩
+def positiveRawCallerReturned (ambient : Frame) (capacity : NativeWord64Memory.Word) (world : NativeReferenceMachine.State) (pointer : NativePointerStorage.Pointer) : Frame :=
+  let base := rawCallerMoved ambient capacity
+  {base with slots := base.slots.set 4 (.live (some (positiveResultValue pointer capacity))),world}
+def positiveVecCallerReturned (ambient : Frame) (capacity : NativeWord64Memory.Word) (world : NativeReferenceMachine.State) (pointer : NativePointerStorage.Pointer) : Frame :=
+  let base := vecCallerMoved ambient capacity
+  {base with slots := base.slots.set 3 (.live (some (positiveRawValue pointer capacity))),world}
+def positiveCapacityRootReturned (ambient : Frame) (capacity : NativeWord64Memory.Word) (world : NativeReferenceMachine.State) (pointer : NativePointerStorage.Pointer) : Frame :=
+  let base := capacityRootMoved ambient capacity
+  {base with slots := base.slots.set 0 (.live (some (positiveVecValue pointer capacity))),world}
+def positiveRawCallerCapacityFrame (ambient : Frame) (capacity : NativeWord64Memory.Word) (world : NativeReferenceMachine.State) (pointer : NativePointerStorage.Pointer) : Frame :=
+  let base := positiveRawCallerReturned ambient capacity world pointer
+  {base with slots := ((((((((base.slots.set 0 (.live (some (positiveRawValue pointer capacity)))).set 4 (.live (some (.record 8 (.choice false (.pair .uninit (.scalar .unit))))))).set 5 (.live none)).set 6 (.live none)).set 9 (.live none)).set 10 (.live (some (.scalar (.usize capacity))))).set 11 .dead).set 12 .dead)}
+def positiveRawCallerCheckedFrame (ambient : Frame) (capacity : NativeWord64Memory.Word) (world : NativeReferenceMachine.State) (pointer : NativePointerStorage.Pointer) : Frame :=
+  let base := positiveRawCallerCapacityFrame ambient capacity world pointer
+  {base with slots := (((base.slots.set 5 (.live (some (.boolean true)))).set 6 .dead).set 9 .dead).set 10 .dead}
+
 end HasteBootsVecCapacityArithmetic
