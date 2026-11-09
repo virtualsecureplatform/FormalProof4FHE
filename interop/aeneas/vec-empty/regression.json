@@ -1,8 +1,8 @@
 {
-  "profile": "original-empty-byte-vec-revalidated-with-static-discriminant-v10",
+  "profile": "original-empty-byte-vec-revalidated-with-pointer-metadata-cast-v11",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-empty-gs0b9tms/manifest.json",
-  "gate_manifest_sha256": "86c0fdd3e69885027c56c8b5e84c1583357dd9e0c5e8bd60ef34ce03b5604073",
+  "gate_manifest": "build/hasteboots-extraction/vec-empty-yrr5bb4p/manifest.json",
+  "gate_manifest_sha256": "36dd284b7a9731f48e6289cad2bacfb9abc01edac50abd7b0112814b1a91fa72",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -31,7 +31,7 @@
     "4a9ee78a2f9c1be8878871aacc36e63234412c14",
     "68c847d7be7ccbca8150998b3471458c6086acc9"
   ],
-  "dependency_audit_count": 375,
+  "dependency_audit_count": 380,
   "source_definition_count": 8,
   "source_theorem_count": 7,
   "new_declaration_audit_count": 54,
@@ -61,7 +61,7 @@
   "inputs": {
     "scripts/check-hasteboots-vec-empty": "7efeddebd76273fde8f3a296a4c23157afa5a39a4d0656395091e2684d365208",
     "scripts/build-hasteboots-inline-tools": "efda9a152172fdebfb14919f4c29e920f12da0d2ad71ab45ee526a27d9713452",
-    "scripts/check-hasteboots-allocator-caller": "e960341d28107aa3d6e1536a6dd7b1d8654994a556c809d9939bc15eec9935c1",
+    "scripts/check-hasteboots-allocator-caller": "24b51574d92fee7dbb5bea1584b59e5d84ed8917b636517fa15b106d73c437e6",
     "scripts/extract-hasteboots-parameters": "9ab0b333e12a4dac0fea4e37bc8bee430bdf56cac7eb4bcb5fa999ceab140993",
     "scripts/specify-hasteboots-deallocation-boundary": "48abaf9e189486073c292cf915c5717f3ee9e5a69735fc6b09859b9a8a93774a",
     "lean-toolchain": "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c",
@@ -81,7 +81,7 @@
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
     "scripts/reify-hasteboots-variant-body": "2d0326329d538bb43685617133c2ecd96da497c81295cd221315807576383825",
-    "scripts/reify-hasteboots-vec-capacity-arithmetic": "cd6abf5c3e2c557153eb0bd4659b38624d89313f8bf1c85903ff64957f31cc65",
+    "scripts/reify-hasteboots-vec-capacity-arithmetic": "2e4b53d849115a0db2db39c3be370df063ca1913cc53e8ffd5779eba99de3e7c",
     "scripts/reify-hasteboots-vec-drop": "0ef983324e439064ea0969a4fc60d6a574137d5548a1feaee727f018b9b1eb8d",
     "scripts/reify-hasteboots-vec-empty": "00a7debb4c04056f86a5fe37ecead6b1f26a8a6fa45642c9b7b6fa76a3532ccd",
     "FormalProof4FHE/HasteBoots/NativeAllocatorExecution.lean": "2c3008e94760730cfbc65c7bee2707e107f23fabdb9df93f302c5848fc909a15",
@@ -348,7 +348,7 @@
     "FormalProof4FHE/HasteBoots/NativeGoldWeightLayout.lean": "7e748c9324d5605b917243c87a547e5c01a2b9de5f7b083aeb80c12295ea4e50",
     "FormalProof4FHE/HasteBoots/NativeHashOracleBridge.lean": "59a4bb2072c685d6645c53adc390e49ab5d5b8398c7ce046e943c82bb305aefc",
     "FormalProof4FHE/HasteBoots/NativeHashPrefix.lean": "9965105748bacce1e5d016bda664c083b97edc00fbf96606597982791c19b05a",
-    "FormalProof4FHE/HasteBoots/NativeHeapFrame.lean": "36719d49cd238c4ee5972215d9238268a0e71c30a046613dfccd543feb7ed7c9",
+    "FormalProof4FHE/HasteBoots/NativeHeapFrame.lean": "4266d6ab6b6e58ba979dc73c6a9077177197c90605f72a50d175e66eedde1339",
     "FormalProof4FHE/HasteBoots/NativeHeapRelease.lean": "3f5a6ea3c2db24ff1c37dc6ad0def3ba90cba9801ae9297caaf81faca594709e",
     "FormalProof4FHE/HasteBoots/NativeHelperPacking.lean": "ef6dade136bb70150cd939d5966609ce839c9265a05d40326a3b7dbd2b3b45e1",
     "FormalProof4FHE/HasteBoots/NativeIncomingReference.lean": "f5e52dc9c5055e99643cd552b9c488066c11143cfde9bde8e3d805599a917479",
@@ -435,8 +435,8 @@
     "FormalProof4FHE/HasteBoots/NativeRecordCallValues.lean": "6aa63875bf445f426e3484cbf425f58e378f83d31f93e8faab8b2f04eb272b56",
     "FormalProof4FHE/HasteBoots/NativeRecordDropCalls.lean": "a8d8f2103827f492542049d6c992a0cb4ea49d74e69717530b8bc5a7e79875bd",
     "FormalProof4FHE/HasteBoots/NativeRecordHeapBounds.lean": "8400afe5343501bd77ea8758e70a3e350840dafcc2eee2a2a6097f71d10c8f8d",
-    "FormalProof4FHE/HasteBoots/NativeRecordIncomingReference.lean": "e9bce5979a85092d8d16fdcd21a32bcb3b8345907abd2de7f97ed39fa5f3dd6e",
-    "FormalProof4FHE/HasteBoots/NativeRecordLLBC.lean": "e1e368bc6d66397dc1cad449d821093a22e909da23adbd646c23c661d6faf817",
+    "FormalProof4FHE/HasteBoots/NativeRecordIncomingReference.lean": "53972815b67a67a65778d108bdd0bcb7d42ca786dcc78887e736e9f1484e6b7f",
+    "FormalProof4FHE/HasteBoots/NativeRecordLLBC.lean": "a260ca92e3298b0fe6afe8639311460e10a44ef451ba71f0e103c92cfa84c155",
     "FormalProof4FHE/HasteBoots/NativeRecordValues.lean": "55d3f80a243da0b05bcd04c467aa70589b0504d586a80223f57c9d892f6d4d49",
     "FormalProof4FHE/HasteBoots/NativeReferenceCleanup.lean": "0405ccb95660fa6c4d173b570fd80fa26bb2ab1bf4171dcc30b70af962b619d5",
     "FormalProof4FHE/HasteBoots/NativeReferenceMachine.lean": "c211d50ac2059b95d520867a26c982326cd8ba0233d5e55953d5f28afd9b2409",
@@ -532,8 +532,8 @@
     "interop/aeneas/vec-empty/Proof.lean": "e49c37943109ddd3fac76fade3e940454dd06f0e18b8ab1bcc0ffbdbfcb6a2f6",
     "interop/aeneas/vec-empty/Smoke.lean": "5c0cba3dfda637c34c2d2b735f362f71b013f17b2408e98ece36450c366ac244"
   },
-  "source_llbc_sha256": "fb51d2a529768407b35cdeacb487ed20c002992794dd578ce4642a5ffae1654b",
-  "checked_sha256": "b15e6904a95076198ee53ea2642d1063b147bd71c5abeb11fae77c8605f7fe43",
+  "source_llbc_sha256": "439e77a8fab43e2028cc39e419f390b312499b88f42fe2df2f91ad2f35d204d9",
+  "checked_sha256": "464ecd1ad25334d66f2136e537a7515a4bafdbab19ea5bea94ba7ca60dc8204a",
   "original_constructor_and_direct_caller_interpreted": true,
   "exact_nominal_return_for_arbitrary_world_proved": true,
   "zero_capacity_and_length_proved": true,
@@ -553,8 +553,8 @@
     "command": "scripts/check",
     "exit_code": 0,
     "build_jobs": 11088,
-    "log": "/tmp/hasteboots-null-runtime-full-check.log",
-    "log_sha256": "cef8e04522870a2d6174223ef699b310f94d190dfded1dbb154803048762c954",
+    "log": "/tmp/hasteboots-positive-construction-full-check.log",
+    "log_sha256": "93d73b1761f2d8962f2823cdd91e6757bb6e65020c3abad5b00546d2684d7eb1",
     "library_root_sha256": "028c7c32f236b663f7d18dcc858576493801afbcd5da9d1a0a2b679c30adb579",
     "test_root_sha256": "de455dcd7f21235561a0aca4da280c3e9e9ac71defb92de05d46e04a6cdece30"
   },
@@ -727,5 +727,13 @@
     "dependency_audit_count": 361,
     "negative_control_count": 17
   },
-  "zero_size_discriminant_core_extension_revalidated": true
+  "zero_size_discriminant_core_extension_revalidated": true,
+  "prior_pointer_metadata_cast_baseline": {
+    "profile": "original-empty-byte-vec-revalidated-with-static-discriminant-v10",
+    "gate_manifest": "build/hasteboots-extraction/vec-empty-gs0b9tms/manifest.json",
+    "gate_manifest_sha256": "86c0fdd3e69885027c56c8b5e84c1583357dd9e0c5e8bd60ef34ce03b5604073",
+    "dependency_audit_count": 375,
+    "negative_control_count": 17
+  },
+  "pointer_metadata_cast_core_extension_revalidated": true
 }

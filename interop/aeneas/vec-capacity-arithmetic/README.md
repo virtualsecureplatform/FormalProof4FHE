@@ -163,3 +163,19 @@ discriminant place, equality assertion, move, error aggregates and cleanup.
 Native layout/compiler correspondence remains open. Failure invocation derives
 the allocator's null result for a valid positive layout and keeps the shim's
 modeled returned-unit behavior as a premise.
+
+## Positive constructor success
+
+`MethodResultProof.lean` composes the original allocation wrappers' successful and
+failed Result returns. `ConstructionProof.lean` proves the positive successful
+`try_allocate_in` invocation from its four typed source arguments, through layout
+checks, mode selection, Global borrowing, allocating call, Result dispatch and
+RawVec construction/return. The returned pointer origin and requested capacity
+are exact. Placement, shim behavior and the concrete allocator result remain
+explicit; capacity is positive and below `2^63`, and the pointer is non-null.
+
+The source checker retains and validates Result selection, casts, moves and
+cleanup. The fat-to-thin data-pointer cast has its own world-preserving model
+operation; the earlier thin-only cast retains its existing behavior. Error/drop,
+unwind, rejected layout/overflow branches and outer decoded callers remain open,
+as do native ABI/compiler/lifetime correspondence and physical work.

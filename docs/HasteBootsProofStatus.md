@@ -7,6 +7,41 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Positive RawVec constructor success
+
+The positive byte-capacity constructor now has a composed success theorem from
+its original four typed arguments through `try_allocate_in` invocation. It
+executes the checked layout prefix, actual source allocation-mode Match, Global
+shared borrow, moved/copy call arguments, allocation method and common runtime,
+source Result dispatch, slice-to-data pointer conversion, Unique/RawVec fields,
+Global move, cleanup and early Ok return. The exact returned RawVec retains the
+allocator pointer's allocation origin and the requested capacity.
+
+Three method-result theorems also compose both allocator wrappers through
+successful and failed Result returns. Ten constructor theorems establish the
+success path. The constructor theorem requires positive capacity below `2^63`,
+explicit nonzero placement of the Global local, a non-null allocator pointer,
+the shim's actual modeled returned-unit invocation, and the concrete allocator
+machine result. Ordinary and zeroed allocation regressions use actual modeled
+allocation after Global borrowing; the zeroed case loads the resulting bytes.
+
+A dedicated slice-to-data cast drops metadata while preserving the whole pointer
+storage, including allocation origin. Its world preservation and the shared
+heap/incoming-reference projections are proved. Four model regressions and three
+dependency guards cover the added operation.
+
+The fresh capacity gate passes 648 dependency audits, 127 rejecting controls
+and 84 source examples. The combined model suite has 66 examples. Destructor,
+allocator-caller and empty-constructor gates pass at 1027/87, 373/31 and 380/17
+audits/controls. A fresh `scripts/check` passes the 11088-job build and all
+subsequent standalone audits/smoke checks.
+
+The decoded capacity root and outer Vec callers still select the earlier
+zero-capacity interpreter. Porting those calls, constructor allocation-error/drop
+and unwind paths, rejected layout/overflow handling, and resident storage/
+destruction composition remain open. Native allocator/shim ABI, stack/type/
+compiler/lifetime correspondence, physical work and final security remain open.
+
 ## Null allocator failure and zero-sized discriminant
 
 The source null arm now executes through its failure Result and common runtime
