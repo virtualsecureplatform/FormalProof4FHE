@@ -43,4 +43,32 @@ example : glueBlocked = .invalid glueBlocked.world ∧ glueBlocked.world.nextTag
     glueBlocked.world.pointers.heap = reservedShared.2.pointers.heap := by decide
 private def endedRawvec := (NativeReferenceCleanup.closeScope reservedReady reservedRawVec.2).world
 example : invoke HasteBootsRawVecDrop.f4 endedRawvec [.rawVecExclusiveReference 0] = .invalid endedRawvec := by decide
+example : ∃ final, invoke HasteBootsRawVecDrop.f5 reservedRawVec.2 [.rawVecExclusiveReference 0] =
+    .returned (.scalar .unit) final ∧ final.leases = reservedRawVec.2.leases ∧ NativeReferenceMachine.Reachable final ∧
+    NativePointerByteMemory.deallocate reservedRawVec.2.pointers.heap ⟨64,some ⟨64,0⟩⟩ ⟨8,1⟩ = some final.pointers.heap := by
+  simpa only [show reservedRawVec.2.references.idxOf ⟨1⟩ = 0 by decide,
+    show (8 : NativeWord64Memory.Word) ≠ 0 by decide,show (8 : NativeWord64Memory.Word).val = 8 from rfl,ite_false] using
+    rawvec_method_invocation_complete reservedRawVec.2 ⟨1⟩ 8 0 ⟨64,some ⟨64,0⟩⟩ reservedRawVecReady
+      (fixture_buffer_available _ _ _ (by decide))
+      (Or.inr ⟨⟨⟨64,0⟩,64,⟨8,1⟩,List.replicate 8 none⟩,by decide,rfl,rfl⟩)
+example : ∃ final, invoke HasteBootsRawVecDrop.f5 emptyRawVec.2 [.rawVecExclusiveReference 0] =
+    .returned (.scalar .unit) final ∧ final.leases = emptyRawVec.2.leases ∧ NativeReferenceMachine.Reachable final ∧
+    final.pointers.heap = emptyRawVec.2.pointers.heap := by
+  simpa only [show emptyRawVec.2.references.idxOf ⟨1⟩ = 0 by decide,ite_true] using
+    rawvec_method_invocation_complete emptyRawVec.2 ⟨1⟩ 0 0 ⟨1,none⟩ emptyRawVecReady
+      (fixture_buffer_available _ _ _ (by decide)) (Or.inl rfl)
+example : ∃ final, NativeRecordDropCalls.Invokes f4 reservedRawVec.2 [.rawVecExclusiveReference 0]
+    (.returned (.scalar .unit) final) ∧ final.leases = reservedRawVec.2.leases ∧ NativeReferenceMachine.Reachable final ∧
+    NativePointerByteMemory.deallocate reservedRawVec.2.pointers.heap ⟨64,some ⟨64,0⟩⟩ ⟨8,1⟩ = some final.pointers.heap := by
+  simpa only [show reservedRawVec.2.references.idxOf ⟨1⟩ = 0 by decide,
+    show (8 : NativeWord64Memory.Word) ≠ 0 by decide,show (8 : NativeWord64Memory.Word).val = 8 from rfl,ite_false] using
+    rawvec_glue_invokes_complete reservedRawVec.2 ⟨1⟩ 8 0 ⟨64,some ⟨64,0⟩⟩ reservedRawVecReady
+      (fixture_buffer_available _ _ _ (by decide))
+      (Or.inr ⟨⟨⟨64,0⟩,64,⟨8,1⟩,List.replicate 8 none⟩,by decide,rfl,rfl⟩)
+example : ∃ final, NativeRecordDropCalls.Invokes f4 emptyRawVec.2 [.rawVecExclusiveReference 0]
+    (.returned (.scalar .unit) final) ∧ final.leases = emptyRawVec.2.leases ∧ NativeReferenceMachine.Reachable final ∧
+    final.pointers.heap = emptyRawVec.2.pointers.heap := by
+  simpa only [show emptyRawVec.2.references.idxOf ⟨1⟩ = 0 by decide,ite_true] using
+    rawvec_glue_invokes_complete emptyRawVec.2 ⟨1⟩ 0 0 ⟨1,none⟩ emptyRawVecReady
+      (fixture_buffer_available _ _ _ (by decide)) (Or.inl rfl)
 end HasteBootsVecDrop.Smoke

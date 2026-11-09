@@ -56,3 +56,15 @@ import FormalProof4FHE.HasteBoots.NativeRawVecDeallocationCompleteness
 /-- info: 'FormalProof4FHE.HasteBoots.NativeRawVecDeallocationCompleteness.Ready.mk' depends on axioms: [propext, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeRawVecDeallocationCompleteness.Ready.mk
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeRawVecDeallocationCompleteness.immediate_extends' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeRawVecDeallocationCompleteness.immediate_extends
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeRawVecDeallocationCompleteness.available_immediate' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeRawVecDeallocationCompleteness.available_immediate
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeRawVecDeallocationCompleteness.Ready.immediate_complete' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeRawVecDeallocationCompleteness.Ready.immediate_complete

@@ -204,4 +204,24 @@ example : NativeByteRange.loadRange
     pointer ⟨2,1⟩ = none := by decide
 example : (NativeRecordLLBC.settle rawWorld (.returned (.scalar .unit) allocatorWorld)).world.leases.map
     NativeByteBorrow.Lease.tag = [0] := by decide
+private def rawReady : NativeRawVecDeallocationCompleteness.Ready rawWorld ⟨0⟩ 8 2 pointer where
+  lease := rawLease
+  reachable := rawReached
+  frontier := rawFrontier
+  tag := rfl
+  shape := rfl
+  referenceResident := by decide
+  pointerResident := by decide
+  fields := by constructor <;> decide
+  initialized := ⟨NativeWord64Memory.encode 8 ++ NativeWord64Memory.encode 64,by decide⟩
+example : ∃ next, NativeRawVecMutBorrow.immediate rawWorld (.reference true ⟨0⟩ 2) =
+    .value (.reference true ⟨rawWorld.nextTag⟩ 2) next ∧
+    Nonempty (NativeRawVecDeallocationCompleteness.Ready next ⟨rawWorld.nextTag⟩ 8 2 pointer) ∧
+    next.pointers.heap = rawWorld.pointers.heap := rawReady.immediate_complete
+private def immediateWorld := (NativeRawVecMutBorrow.immediate rawWorld (.reference true ⟨0⟩ 2)).world
+example : immediateWorld.nextTag = 2 ∧ immediateWorld.leases.map NativeByteBorrow.Lease.tag = [1,0] ∧
+    NativeVecBytePrefix.Available immediateWorld pointer 8 := by
+  refine ⟨by decide,by decide,?_⟩
+  exact NativeRawVecDeallocationCompleteness.available_immediate rawWorld immediateWorld pointer 8
+    (.reference true ⟨0⟩ 2) (.reference true ⟨1⟩ 2) rawAvailable (by decide)
 end FormalProof4FHETest.HasteBootsByteRangeCompletenessSmoke
