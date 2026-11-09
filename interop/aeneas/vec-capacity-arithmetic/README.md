@@ -148,3 +148,18 @@ checker validates transparent NonNull fields, Option/Result/ControlFlow variants
 projections, disabled checks and the exact pointer-from-parts builtin.
 
 The null Result discriminant and native layout/ABI refinement remain open.
+
+## Null allocation failure
+
+`NullProof.lean` interprets the original null arm through early `AllocError`
+return and common runtime invocation. The retained zero-byte residual Result has
+only its Err variant inhabited and known discriminant 1. An explicit checked
+zero-size enum descriptor implements that read without reading an uninitialized
+payload. The operation requires matching nominal type and live storage; its
+world, heap and incoming-reference preservation are proved.
+
+The reifier validates the residual/never/error layouts and variants, actual
+discriminant place, equality assertion, move, error aggregates and cleanup.
+Native layout/compiler correspondence remains open. Failure invocation derives
+the allocator's null result for a valid positive layout and keeps the shim's
+modeled returned-unit behavior as a premise.

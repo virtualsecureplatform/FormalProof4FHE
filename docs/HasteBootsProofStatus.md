@@ -7,6 +7,36 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Null allocator failure and zero-sized discriminant
+
+The source null arm now executes through its failure Result and common runtime
+invocation. Seven theorems cover the original prefix, discriminant/equality
+assertion with its consumed Boolean, error aggregation, cleanup and early return.
+A null allocation outcome for a valid positive Layout returns `AllocError` in
+the shim-returned modeled world. The allocator-machine null result is derived
+from those layout conditions; the shim's returned-unit invocation stays explicit.
+
+`NativeRecordLLBC.ZeroSizeEnum` describes zero-byte enum layouts with at least
+one inhabited variant and a unique inhabited discriminant. The checked operation
+requires a live local with the matching nominal type, reads no payload, and
+preserves the whole modeled world. Invalid descriptors and dead/wrong-type locals
+are rejected. This does not make an uninitialized logical payload readable.
+The source reifier pins the retained `Result<Infallible, AllocError>` layout,
+its known discriminant 1, the uninhabited Ok field and zero-byte error layout.
+Native compiler/layout correspondence remains an explicit open obligation.
+
+The capacity gate passes 618 dependency audits, 119 rejecting controls and
+75 source examples. Eight new model regressions and five dependency guards
+cover the discriminant operation. Destructor, allocator-caller and empty gates
+pass at 1022/87, 368/31 and 375/17 audits/controls. A fresh `scripts/check`
+passes the 11088-job build and all subsequent standalone audits/smoke checks.
+
+Both post-allocation source Result arms are now interpreted under their stated
+shim/allocator premises. Next compose the allocation methods and positive
+constructor, then resident storage/destruction. Native ABI, stack/type/compiler/
+lifetime correspondence, physical work and the final security theorem remain
+open.
+
 ## Non-null allocator Result and runtime invocation
 
 The retained non-null runtime arm is now interpreted through its successful
