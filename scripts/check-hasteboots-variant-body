@@ -1,0 +1,148 @@
+#!/usr/bin/env python3
+"""Check the retained Variant body payload schema; no cleanup body/ABI theorem."""
+import argparse
+import copy
+import hashlib
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+DATA = ROOT/'interop/aeneas/variant-body'
+BUILD = runpy.run_path(str(ROOT/'scripts/build-hasteboots-inline-tools'))
+PARAMETERS = runpy.run_path(str(ROOT/'scripts/extract-hasteboots-parameters'))
+PARENT = runpy.run_path(str(ROOT/'scripts/check-hasteboots-allocator-caller'))
+REIFIER = runpy.run_path(str(ROOT/'scripts/reify-hasteboots-variant-body'))
+INCLUDES = ['alloc::raw_vec','alloc::vec','alloc::alloc','core::alloc::layout',
+            'core::ptr::unique','core::ptr::non_null','core::mem::alignment','core::ptr::drop_in_place']
+
+
+def digest(raw): return hashlib.sha256(raw).hexdigest()
+
+
+def inventory():
+    names = PARENT['inventory']()
+    raw = (ROOT/'FormalProof4FHE/HasteBoots/NativeVariantValues.lean').read_text()
+    PARAMETERS['validate_proof_source'](raw, re.findall(r'^theorem (\w+)',raw,re.M))
+    names += ['FormalProof4FHE.HasteBoots.NativeVariantValues.'+n for n in
+              re.findall(r'^(?:structure|def|theorem) (\w+)',raw,re.M)]
+    for file in ['Generated.lean','Proof.lean']:
+        raw = (DATA/file).read_text()
+        PARAMETERS['validate_proof_source'](raw,re.findall(r'^theorem (\w+)',raw,re.M))
+        names += ['HasteBootsVariantBody.'+n for n in re.findall(r'^(?:def|theorem) (\w+)',raw,re.M)]
+    return names
+
+
+def negatives(ir):
+    records = {}
+    def check(label, mutation):
+        changed = copy.deepcopy(ir); mutation(changed['translated'])
+        try: REIFIER['Reifier'](changed).render()
+        except (ValueError,KeyError,TypeError,IndexError) as error: records[label] = str(error)
+        else: raise RuntimeError('Negative accepted: '+label)
+    def statements(c, fid): return c['fun_decls'][fid]['body']['Structured']['body']['statements']
+    def match(c): return statements(c,3)[1]['kind']['Switch']['Match']
+    def constructor(c): return statements(c,1)[9]['kind']['Assign'][1]['Aggregate']
+    def projection(c): return match(c)[1][1][1]['statements'][1]['kind']['Assign'][1]['Use'][0]['Copy']
+    check('wrong_profile',lambda c:c['options'].update(mir='Built'))
+    check('changed_function_class',lambda c:c['fun_decls'][1]['item_meta'].update(opacity='Foreign'))
+    check('changed_option_class',lambda c:c['type_decls'][4]['item_meta'].update(opacity='Transparent'))
+    check('unknown_statement_effect',lambda c:statements(c,1)[0].update(hidden_effect='Drop'))
+    check('invalid_retag',lambda c:statements(c,1)[3]['kind']['Assign'][1]['Use'].__setitem__(1,'Unknown'))
+    check('unknown_constructor_variant',lambda c:constructor(c)[0]['Adt'].__setitem__(1,2))
+    check('wrong_constructor_arity',lambda c:constructor(c)[1].clear())
+    check('wrong_constructor_field',lambda c:constructor(c)[0]['Adt'].__setitem__(2,0))
+    check('nonexhaustive_match',lambda c:match(c)[1].pop())
+    check('duplicate_match_label',lambda c:match(c)[1][1][0].__setitem__(0,0))
+    check('unknown_match_label',lambda c:match(c)[1][1][0].__setitem__(0,2))
+    check('boolean_match_label',lambda c:match(c)[1][1][0].__setitem__(0,True))
+    check('unexpected_fallback',lambda c:match(c).__setitem__(2,copy.deepcopy(match(c)[1][0][1])))
+    check('wrong_tuple_projection_arity',lambda c:projection(c)['kind']['Projection'][1]['Field'][0].update(Tuple=3))
+    check('wrong_payload_variant_projection',lambda c:projection(c)['kind']['Projection'][0]['kind']['Projection'][1]['Field'][0]['Adt'].__setitem__(1,0))
+    check('wrong_storage_index',lambda c:statements(c,1)[0].update(kind={'StorageLive':999}))
+    check('signature_local_mismatch',lambda c:c['fun_decls'][1]['signature']['inputs'].reverse())
+    return records
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--build-receipt', type=Path, required=True); args = parser.parse_args()
+    out = Path(tempfile.mkdtemp(prefix='variant-body-', dir=ROOT/'build/hasteboots-extraction'))
+    record = {'status':'started','commands':[], 'probe_bodies_interpreted':True, 'rawvec_body_interpreted':False,
+              'physical_niche_decoded':False, 'native_lifetime_refinement':False,
+              'physical_work_refinement':False, 'final_security_theorem':False}
+    def save(): (out/'manifest.json').write_text(json.dumps(record,indent=2)+'\n')
+    def run(command, log):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out/log).open('w') as stream:
+            result = subprocess.run([str(x) for x in command],cwd=ROOT,stdout=stream,stderr=subprocess.STDOUT)
+        if result.returncode: raise RuntimeError('Command failed: '+log)
+    print('Variant body artifacts: '+str(out), flush=True)
+    try:
+        _, tools, _ = BUILD['verify_receipt'](args.build_receipt)
+        record['build_receipt_sha256'] = digest(args.build_receipt.read_bytes())
+        files = [Path(__file__), ROOT/'scripts/reify-hasteboots-variant-body',
+                 ROOT/'scripts/reify-hasteboots-allocator-caller', ROOT/'scripts/reify-hasteboots-rawvec-option',
+                 ROOT/'scripts/check-hasteboots-allocator-caller',ROOT/'scripts/specify-hasteboots-deallocation-boundary',
+                 ROOT/'scripts/extract-hasteboots-parameters',ROOT/'lean-toolchain',
+                 *[DATA/n for n in ['fixture.rs','Generated.lean','Retained.json','Proof.lean','Smoke.lean']],
+                 *[ROOT/('FormalProof4FHE/HasteBoots/'+n+'.lean') for n in ['NativeRecordValues','NativeVariantValues','NativeRecordLLBC']],
+                 *[ROOT/('FormalProof4FHETest/HasteBootsChoiceLLBC'+n+'.lean') for n in ['Smoke','Audit']]]
+        record['inputs'] = {str(p.relative_to(ROOT)):digest(p.read_bytes()) for p in files}
+        run([ROOT/'scripts/in-container','lake','build','FormalProof4FHETest.HasteBootsChoiceLLBCSmoke',
+             'FormalProof4FHETest.HasteBootsChoiceLLBCAudit'],'root-build.log')
+        llbc = out/'source.llbc'
+        command = [tools/'charon','rustc','--preset=aeneas','--sysroot','default','--monomorphize','--mir','optimized',
+                   '--consts','values','--evaluate-runtime-checks','--precise-drops','--desugar-drops','--preserve-allocator','--no-dedup-serialized-ast']
+        for include in INCLUDES: command += ['--include',include]
+        command += ['--dest-file',llbc,'--','--crate-type','lib','--edition','2024','-Cdebug-assertions=no',
+                    '--crate-name','hasteboots_variant_body',(DATA/'fixture.rs').relative_to(ROOT)]
+        run(command,'charon.log'); ir = json.loads(llbc.read_text()); reifier = REIFIER['Reifier'](ir)
+        generated = reifier.render()
+        if generated != (DATA/'Generated.lean').read_text() or reifier.retained() != json.loads((DATA/'Retained.json').read_text()):
+            raise RuntimeError('Retained source schema/target metadata differs')
+        record['negative_controls'] = negatives(ir)
+        names = inventory()
+        checked = out/'Checked.lean'
+        checked.write_text(generated.replace('module\n','module\nimport all FormalProof4FHE.HasteBoots.NativeVariantValues\n',1)+'\n'+(DATA/'Proof.lean').read_text()+'\n'+(DATA/'Smoke.lean').read_text()+
+                           ''.join('\n#print axioms '+name+'\n' for name in names))
+        run([ROOT/'scripts/in-container','lake','env','lean','-DwarningAsError=true',checked.relative_to(ROOT)],'lean.log')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out/'lean.log').read_text(),names)
+        changed = copy.deepcopy(ir)
+        branches = changed['translated']['fun_decls'][3]['body']['Structured']['body']['statements'][1]['kind']['Switch']['Match'][1]
+        branches[0][1], branches[1][1] = branches[1][1], branches[0][1]
+        generated_changed = REIFIER['Reifier'](changed).render()
+        code_only = lambda raw: re.sub(r'^--.*$','',raw,flags=re.M)
+        if code_only(generated_changed) == code_only(generated): raise RuntimeError('Changed match bodies ignored')
+        test = out/'SwappedMatch.lean'
+        test.write_text(generated_changed+"""
+open FormalProof4FHE.HasteBoots
+open NativeRecordLLBC
+example : invoke HasteBootsVariantBody.f3 NativeReferenceMachine.empty
+    [.record 4 (.choice false .unit), .record 3 (.pair (.scalar (.usize 16)) (.pair
+      (.record 6 (.pair (.enumeration 9 8) .unit)) .unit))] = .invalid NativeReferenceMachine.empty := by decide
+""")
+        run([ROOT/'scripts/in-container','lake','env','lean','-DwarningAsError=true',test.relative_to(ROOT)],'swapped-match.log')
+        record['supported_match_mutation'] = 'swapped branch bodies change generated code; None now rejects the Some projection in Lean'
+        changed = copy.deepcopy(ir)
+        changed['translated']['fun_decls'][1]['body']['Structured']['body']['statements'][3]['kind']['Assign'][1]['Use'][1] = 'No'
+        generated_changed = REIFIER['Reifier'](changed).render()
+        if code_only(generated_changed) == code_only(generated): raise RuntimeError('Retag mutation ignored')
+        test = out/'RetagDisabled.lean'
+        test.write_text(generated_changed+'\n'+(DATA/'Proof.lean').read_text()+'\n'+(DATA/'Smoke.lean').read_text())
+        run([ROOT/'scripts/in-container','lake','env','lean','-DwarningAsError=true',test.relative_to(ROOT)],'retag-disabled.log')
+        record['supported_retag_mutation'] = 'Yes to No changes generated code; whole-body proofs and regressions pass'
+        record['llbc_sha256'] = digest(llbc.read_bytes()); record['checked_sha256'] = digest(checked.read_bytes())
+        if record['inputs'] != {str(p.relative_to(ROOT)):digest(p.read_bytes()) for p in files}: raise RuntimeError('Inputs changed during validation')
+        BUILD['verify_receipt'](args.build_receipt); record['status'] = 'passed'
+        print('Variant body passed: '+str(len(names))+' audits; '+str(len(record['negative_controls']))+' rejecting controls')
+    except Exception as error:
+        record.update(status='failed',error=str(error)); raise SystemExit(str(error)+'; inspect '+str(out)) from error
+    finally:
+        record['logs'] = {p.name:digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__': main()

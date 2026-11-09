@@ -1,0 +1,126 @@
+#!/usr/bin/env python3
+"""Reify complete by-value Option bodies with checked construction and exhaustive matches."""
+import argparse
+import json
+from pathlib import Path
+import runpy
+from types import SimpleNamespace
+
+ROOT = Path(__file__).resolve().parent.parent
+PARENT = runpy.run_path(str(ROOT/'scripts/reify-hasteboots-allocator-caller'))
+PROFILE = runpy.run_path(str(ROOT/'scripts/reify-hasteboots-rawvec-option'))
+SPEC = PARENT['SPEC']; require = SPEC['require']; empty = SPEC['empty']; name = SPEC['name']; seq = PARENT['seq']
+
+
+class Reifier(PARENT['Reifier']):
+    def __init__(self, ir):
+        profile = PROFILE['Reifier'](ir)
+        self.crate = c = profile.crate
+        self.functions = {f['def_id']: f for f in c['fun_decls'] if f}
+        self.types = {t['def_id']: t for t in c['type_decls'] if t}
+        self.option = profile.option
+        self.boundary = SimpleNamespace(enum=profile.types[4], nonnull=profile.types[0],
+                                        function=None, alignments=[2**i for i in range(64)])
+        self.schemas = {}; self.codes = {}; self.active = set(); self.type_active = set()
+        self.roots = []
+        for root in ['present','absent','selected_layout']:
+            matches = [f['def_id'] for f in self.functions.values() if name(f) == 'hasteboots_variant_body::'+root]
+            require(len(matches) == 1, 'Missing/duplicate variant body root')
+            self.roots += matches
+        for root in self.roots: self.schema(root)
+
+    def tuple_types(self, raw):
+        a = raw['Untagged']['Adt']; g = a['generics']
+        require(a['id'] == 'Tuple' and g == {'regions':[], 'types':g['types'], 'const_generics':[], 'trait_refs':[]},
+                'Unclosed tuple type')
+        return g['types']
+
+    def field_tree(self, fields):
+        tree = '(.scalar .unit)'
+        for raw in reversed(fields): tree = '(.pair '+self.ty(raw)+' '+tree+')'
+        return tree
+
+    def ty(self, raw):
+        if raw == SPEC['adt'](self.option['def_id']):
+            branches = self.option['kind']['Enum']
+            return '(.record '+str(self.option['def_id'])+' (.choice '+self.field_tree([f['ty'] for f in branches[0]['fields']])+' '+self.field_tree([f['ty'] for f in branches[1]['fields']])+'))'
+        if raw.get('Untagged',{}).get('Adt',{}).get('id') == 'Tuple':
+            return self.field_tree(self.tuple_types(raw))
+        return super().ty(raw)
+
+    def place(self, raw, fid):
+        require(set(raw) == {'kind','ty'}, 'Unknown place fields')
+        kind = raw['kind']
+        if set(kind) == {'Projection'}:
+            base, projection = kind['Projection']
+            require(set(projection) == {'Field'}, 'Unsupported variant projection')
+            owner, index = projection['Field']
+            root, path, base_ty = self.place(base, fid)
+            if 'Tuple' in owner:
+                fields = self.tuple_types(base_ty)
+                require(owner == {'Tuple':len(fields)}, 'Wrong tuple projection arity')
+                prefix = []
+            elif set(owner) == {'Adt'} and owner['Adt'][0] == self.option['def_id']:
+                tid, variant = owner['Adt']
+                require(base_ty == SPEC['adt'](tid) and type(variant) is int and variant in [0,1], 'Wrong variant owner/index')
+                fields = [f['ty'] for f in self.option['kind']['Enum'][variant]['fields']]
+                prefix = ['(.unwrap '+str(tid)+')','(.active '+str(variant == 1).lower()+')']
+            else: return super().place(raw, fid)
+            require(type(index) is int and 0 <= index < len(fields) and raw['ty'] == fields[index], 'Wrong projected field type/index')
+            return root, path+prefix+['.right']*index+['.left'], raw['ty']
+        return super().place(raw, fid)
+
+    def rvalue(self, rv, fid):
+        if set(rv) != {'Aggregate'}: return super().rvalue(rv, fid)
+        aggregate, operands = rv['Aggregate']
+        require(set(aggregate) == {'Adt'}, 'Unsupported aggregate kind')
+        identity, variant, field = aggregate['Adt']
+        require(field is None and empty(identity['generics']), 'Unclosed aggregate constructor')
+        args = [self.operand(op,fid) for op in operands]
+        if identity['id'] == 'Tuple':
+            require(variant is None, 'Variant on tuple constructor')
+            raw = {'Untagged':{'Adt':{'id':'Tuple','generics':{'regions':[], 'types':[a[1] for a in args], 'const_generics':[], 'trait_refs':[]}}}}
+            return '(.aggregate none none '+seq([a[0] for a in args])+')', raw
+        require(identity['id'] == {'Adt':self.option['def_id']} and type(variant) is int and variant in [0,1], 'Unsupported enum constructor')
+        require([a[1] for a in args] == [f['ty'] for f in self.option['kind']['Enum'][variant]['fields']], 'Wrong enum constructor fields')
+        return '(.aggregate (some '+str(self.option['def_id'])+') (some '+str(variant == 1).lower()+') '+seq([a[0] for a in args])+')', SPEC['adt'](self.option['def_id'])
+
+    def switch(self, value, fid, following):
+        if set(value) != {'Match'}: return super().switch(value,fid,following)
+        place, branches, fallback = value['Match']
+        index, path, raw = self.place(place,fid)
+        require(raw == SPEC['adt'](self.option['def_id']) and fallback is None and len(branches) == 2, 'Unsupported enum match')
+        cases = {}
+        for labels, body in branches:
+            require(len(labels) == 1 and type(labels[0]) is int and labels[0] in [0,1] and labels[0] not in cases, 'Nonexhaustive/duplicate variant match')
+            cases[labels[0]] = self.block(body,fid)
+        require(set(cases) == {0,1}, 'Nonexhaustive enum match')
+        return '(.matchChoice '+str(index)+' '+seq(path)+' '+str(self.option['def_id'])+' '+cases[0]+' '+cases[1]+' '+following+')'
+
+    def retained(self):
+        for root in self.roots: self.code(root)
+        return {'roots':self.roots, 'functions':[self.functions[i] for i in sorted(self.codes)],
+                'types':[self.types[i] for i in sorted(self.types)],
+                'claim':'complete by-value enum probe bodies; RawVec resident field loads and native ABI/compiler/lifetime/work/security refinement unproved'}
+
+    def render(self):
+        for root in self.roots: self.code(root)
+        lines = ['module','public import FormalProof4FHE.HasteBoots.NativeRecordLLBC','@[expose] public section','',
+                 'namespace HasteBootsVariantBody','open FormalProof4FHE.HasteBoots.NativeRecordLLBC',
+                 'def alignmentDiscriminants : List FormalProof4FHE.HasteBoots.NativeWord64Memory.Word := '+seq([PARENT['word'](n) for n in self.boundary.alignments]),'']
+        for fid in sorted(self.codes):
+            f = self.functions[fid]; types, count = self.schema(fid)
+            lines += ['-- Original declaration SHA256 '+SPEC['digest'](f),'def f'+str(fid)+' : Function :=',
+                      '  ⟨'+json.dumps(name(f))+', '+self.classification(fid)+', '+seq([self.ty(t) for t in types])+', '+str(count)+', '+self.code(fid)+'⟩','']
+        return '\n'.join(lines+['end HasteBootsVariantBody',''])
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('llbc',type=Path); parser.add_argument('output',type=Path)
+    parser.add_argument('--retained',type=Path,required=True); args = parser.parse_args()
+    reifier = Reifier(json.loads(args.llbc.read_text()))
+    args.output.write_text(reifier.render()); args.retained.write_text(json.dumps(reifier.retained(),indent=2)+'\n')
+
+
+if __name__ == '__main__': main()
