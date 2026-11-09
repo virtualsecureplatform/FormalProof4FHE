@@ -1,8 +1,8 @@
 {
-  "profile": "revalidated-with-owned-error-handler-dispatch-v1",
+  "profile": "revalidated-with-source-root-owned-error-composition-v1",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-drop-b447sqin/manifest.json",
-  "gate_manifest_sha256": "170fc4a18be9bbaf055c2cddff9e9c53e70bf2cc9e8caef1600240df22039712",
+  "gate_manifest": "build/hasteboots-extraction/vec-drop-3yjk6p9v/manifest.json",
+  "gate_manifest_sha256": "75cd073f15d7db214f40be853c171bf9eb204422af74a3dd3b7746cf1f2cc0a8",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -318,7 +318,7 @@
     "FormalProof4FHETest/HasteBootsRawVecDeallocationCompletenessAudit.lean": "85efbedcef271ce6dc69a0bebb5d25b0880091984899ae52e3c02bfe7bcb3a48",
     "FormalProof4FHETest/HasteBootsVecDestructionCompletenessAudit.lean": "b15ca27d45474cdbf6c85a2635a3969160d35fd7e658b00139d4ba8d394a3dbd"
   },
-  "source_llbc_sha256": "4ac084afd0346a33be475224d743bb6fce9c1ab29db168f63854ac71295e6ac7",
+  "source_llbc_sha256": "bd8b1c8cb0c2df94655d36f9831e7eec3bd38756829d288f78524472c16d5631",
   "outer_vec_drop_glue_interpreted": true,
   "outer_vec_drop_method_interpreted": true,
   "unbounded_original_byte_loop_interpreted": true,
@@ -1037,7 +1037,7 @@
     "heap_and_incoming_reference_preservation_extended": true,
     "native_alignment_transmute_abi_refinement": false
   },
-  "validation_note": "Fresh extraction gates, warning-as-error Lean checks, allowed-axiom audits and mutation controls passed. The constructor gate independently extracts the getter and checks its method/signature/type-role/layout link. It proves owned-error handler dispatch after checked local marshaling, including both constructor payloads and complete execution projection. Terminal bodies remain explicit parameters. Outer constructor error-arm composition, terminal-helper native behavior, native ABI/stack/lifetime/compiler correspondence, physical destruction/reclamation/work and final security remain open. The prior 11101-job full check is reused because shared library, root tests, toolchain, dependencies and full-check scripts are unchanged.",
+  "validation_note": "Fresh extraction gates, warning-as-error Lean checks, allowed-axiom audits and mutation controls passed. The new handledRootInvoke source composition connects the validated outer Result::Err payload move and typed handler call, and executes all three outer caller unwind cleanups. Root theorems cover zero, successful allocation, rejected capacity and normal allocator failure. Execution projection, reachability and well-formedness cover every outcome. Checked local materialization remains explicit, and terminal bodies remain model parameters. Native ABI/stack/lifetime/compiler correspondence, terminal-helper behavior, physical destruction/reclamation/work and final security remain open. The earlier unifiedCapacityRoot retains its prior scope. The prior 11101-job full check is reused because library, root tests, toolchain, dependencies and full-check scripts are unchanged.",
   "prior_zst_local_borrow_baseline": {
     "profile": "original-resident-vec-destruction-with-checked-enum-address-v26",
     "gate_manifest": "build/hasteboots-extraction/vec-drop-u8mfb0e8/manifest.json",
@@ -1202,8 +1202,8 @@
   },
   "revalidated_with_source_getter_body": true,
   "source_getter_body_profile": {
-    "manifest": "build/hasteboots-extraction/reservation-error-kind-qm0ukvit/manifest.json",
-    "manifest_sha256": "5d3102b3124085224e5047613f5d3a0e71520e855f12d29fa239d2a50b0a00b4",
+    "manifest": "build/hasteboots-extraction/reservation-error-kind-wgv0186a/manifest.json",
+    "manifest_sha256": "5fda78033ac8538422cc52619cfdecc34da65da198a0a03ea7d5535246aab7c8",
     "dependency_audit_count": 652,
     "negative_control_count": 55
   },
@@ -1231,9 +1231,22 @@
     "negative_control_count": 87
   },
   "owned_error_handler_profile": {
-    "manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-mwaeoy_w/manifest.json",
-    "manifest_sha256": "895709e787906f6109d2f8424412e51aed8431f24035c898729f0b7714fb7b63",
-    "dependency_audit_count": 1027,
-    "negative_control_count": 194
+    "manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-76dekamd/manifest.json",
+    "manifest_sha256": "b86f60ef159ff53c9a819c5b0724dc0f780be92fb6b92592eaef1a6e98c392e6",
+    "dependency_audit_count": 1088,
+    "negative_control_count": 212
+  },
+  "prior_handled_root_baseline": {
+    "profile": "revalidated-with-owned-error-handler-dispatch-v1",
+    "gate_manifest": "build/hasteboots-extraction/vec-drop-b447sqin/manifest.json",
+    "gate_manifest_sha256": "170fc4a18be9bbaf055c2cddff9e9c53e70bf2cc9e8caef1600240df22039712",
+    "dependency_audit_count": 1044,
+    "negative_control_count": 87
+  },
+  "handled_root_profile": {
+    "manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-76dekamd/manifest.json",
+    "manifest_sha256": "b86f60ef159ff53c9a819c5b0724dc0f780be92fb6b92592eaef1a6e98c392e6",
+    "dependency_audit_count": 1088,
+    "negative_control_count": 212
   }
 }

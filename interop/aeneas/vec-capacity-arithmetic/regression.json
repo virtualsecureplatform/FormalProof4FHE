@@ -1,8 +1,8 @@
 {
-  "profile": "source-owned-error-handler-dispatch-v1",
+  "profile": "source-root-owned-error-composition-v1",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-mwaeoy_w/manifest.json",
-  "gate_manifest_sha256": "895709e787906f6109d2f8424412e51aed8431f24035c898729f0b7714fb7b63",
+  "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-76dekamd/manifest.json",
+  "gate_manifest_sha256": "b86f60ef159ff53c9a819c5b0724dc0f780be92fb6b92592eaef1a6e98c392e6",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -41,10 +41,11 @@
     "87cfe450b6295a5837480ac1029369bd5c795750",
     "4601203f907c5bb7fb83717a1fee51e4e500ed3b",
     "601d57a93ff1a8fa767bbb09f1c2b5ff0d303b8c",
-    "e95c395dbc254a1475e36e8d125f3b1cd2b3dda6"
+    "e95c395dbc254a1475e36e8d125f3b1cd2b3dda6",
+    "2798bd4b1a4eadd531afe8048cc644e1f578d5e8"
   ],
-  "dependency_audit_count": 1027,
-  "negative_control_count": 194,
+  "dependency_audit_count": 1088,
+  "negative_control_count": 212,
   "negative_controls": {
     "wrong_target": "Wrong target",
     "not_monomorphized": "Wrong extraction profile",
@@ -233,6 +234,24 @@
     "handler_overflow_abort": "Changed handler borrow, getter call, branch, argument modes or cleanup",
     "handler_getter_owner": "Changed handler getter method owner",
     "handler_terminal_signature": "Changed handler terminal declaration",
+    "outer_error_move_changed_to_copy": "Changed outer error payload move, handler call or cleanup",
+    "outer_error_payload_field": "Changed outer error payload move, handler call or cleanup",
+    "outer_error_payload_variant": "Changed outer error payload move, handler call or cleanup",
+    "outer_error_retag": "Changed outer error payload move, handler call or cleanup",
+    "outer_error_destination": "Changed outer error payload move, handler call or cleanup",
+    "outer_error_handler_target": "Changed outer error payload move, handler call or cleanup",
+    "outer_error_handler_argument_copy": "Changed outer error payload move, handler call or cleanup",
+    "outer_error_handler_result_type": "Changed outer error payload move, handler call or cleanup",
+    "outer_error_unwind_cleanup": "Changed outer error payload move, handler call or cleanup",
+    "outer_error_unwind_exit": "Changed outer error payload move, handler call or cleanup",
+    "outer_error_final_cleanup": "Changed outer error payload move, handler call or cleanup",
+    "outer_error_final_abort": "Changed outer error payload move, handler call or cleanup",
+    "outer_call_unwind_exit_0": "Changed outer constructor-call unwind cleanup",
+    "outer_call_unwind_local_0": "Changed outer constructor-call unwind cleanup",
+    "outer_call_unwind_exit_1": "Changed outer constructor-call unwind cleanup",
+    "outer_call_unwind_local_1": "Changed outer constructor-call unwind cleanup",
+    "outer_call_unwind_exit_2": "Changed outer constructor-call unwind cleanup",
+    "outer_call_unwind_local_2": "Changed outer constructor-call unwind cleanup",
     "getter_link_method_owner": "Getter link method identity differs",
     "getter_link_method_name": "Getter link method identity differs",
     "getter_link_signature": "Getter link signature differs",
@@ -242,7 +261,7 @@
     "getter_link_type_identity": "Getter link type identity/layout differs"
   },
   "inputs": {
-    "scripts/check-hasteboots-vec-capacity-arithmetic": "277d42915ece47457310876d412d9593d3de75c5337040c32f5bd3687b26558c",
+    "scripts/check-hasteboots-vec-capacity-arithmetic": "0af763efd0ffaa673df1d5bbff1310bcf2359bbfd666da4a709b5c61f331bbdd",
     "scripts/check-hasteboots-reservation-error-kind": "eaf7c3fddc367731f76266c3125a73609882bab90934f333fdb3243cd07ed363",
     "interop/aeneas/reservation-error-kind/fixture.rs": "bcb152c61f699329e5fb840c2d98abfadc639f5b7b3899c1a003f04d3f2c99b4",
     "interop/aeneas/reservation-error-kind/Retained.json": "22314f3125438e781e27db1907076a2b2151e25efa9572fa618c04a75276ffd3",
@@ -271,7 +290,7 @@
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
     "scripts/reify-hasteboots-variant-body": "2d0326329d538bb43685617133c2ecd96da497c81295cd221315807576383825",
-    "scripts/reify-hasteboots-vec-capacity-arithmetic": "f7a107b95741471499461dd38068783b2cb5d0aece1cf0697d2f801619c4d933",
+    "scripts/reify-hasteboots-vec-capacity-arithmetic": "5c6ba1d144c0af66b8dc16a0d4992d56c35d98b379f1b0141272f1b1dfd6ad9c",
     "scripts/reify-hasteboots-vec-drop": "0ef983324e439064ea0969a4fc60d6a574137d5548a1feaee727f018b9b1eb8d",
     "scripts/reify-hasteboots-vec-empty": "00a7debb4c04056f86a5fe37ecead6b1f26a8a6fa45642c9b7b6fa76a3532ccd",
     "FormalProof4FHE/HasteBoots/NativeAllocatorExecution.lean": "2c3008e94760730cfbc65c7bee2707e107f23fabdb9df93f302c5848fc909a15",
@@ -734,7 +753,7 @@
     "FormalProof4FHETest/HasteBootsReservationErrorReadSmoke.lean": "0036c6b9d2c45a7e65c6fb46a90c623c36e9ff62916432e69ceb8c5aebe84333",
     "FormalProof4FHETest/HasteBootsReservationErrorReadAudit.lean": "d51d3b9b9df5b2d1021ea291a56f90c44952f6ea57a422bf047be5b4d4b86f54",
     "interop/aeneas/vec-capacity-arithmetic/fixture.rs": "a1b4abdec2d161f72fd7e843f8d49e276aff4ce79b95cc0884807a084f620861",
-    "interop/aeneas/vec-capacity-arithmetic/Generated.lean": "32226cadc2a5119f43912128ec695338f1f0eea04dd86230031d4d48ffecb323",
+    "interop/aeneas/vec-capacity-arithmetic/Generated.lean": "7cc95632235449813643e422aecf8e64d6dee1896cc57ff7679a6f1d5bfb8978",
     "interop/aeneas/vec-capacity-arithmetic/Retained.json": "797c79f20dc245262170cfac7aaf0ba468d4bfbdd627c6141e469c2dddaead83",
     "interop/aeneas/vec-capacity-arithmetic/Proof.lean": "7a15b251f41be0ea0ca802b9cd68956aed7446968cb737607348477e323bf518",
     "interop/aeneas/vec-capacity-arithmetic/LayoutProof.lean": "31a80b3e5b8eb9a85bc9154abe0a5b573b2368ada8c09ba1d7929ebdb6edfe4b",
@@ -759,6 +778,8 @@
     "interop/aeneas/vec-capacity-arithmetic/ReadProof.lean": "79c74c7f0e6ebcacb520f23e967bba86ce75269f0027e83d9b149dff327eb6c8",
     "interop/aeneas/vec-capacity-arithmetic/HandlerProof.lean": "d542f5f0adb688efe574aa616644c3e15d1affea2a3f36ef9455045385fa4d5a",
     "interop/aeneas/vec-capacity-arithmetic/HandlerProjectionProof.lean": "bb622fb2e6f458d35cad77624dfaf1a7586e0833bc5a64a721fcbb0dbb6540e8",
+    "interop/aeneas/vec-capacity-arithmetic/OuterProof.lean": "5376e9e82c474866f815377daddba19b07ad57a516407cff57762a67baaa8cba",
+    "interop/aeneas/vec-capacity-arithmetic/OuterProjectionProof.lean": "5e5b508f2239d3e2ef27d82fac489e06720514d4e565faaf918ccc6e5ca852d1",
     "interop/aeneas/vec-capacity-arithmetic/Smoke.lean": "62710e1fb00e8db3b3f5a0232ea568dd616594e30171dbc10bb9f21a2f7fe08f",
     "interop/aeneas/vec-capacity-arithmetic/LayoutSmoke.lean": "5aed39dd3f94928d8ec11c49643504c8d5e553e5f62f9897cbeefa38c8c2a92c",
     "interop/aeneas/vec-capacity-arithmetic/AcceptedSmoke.lean": "cb8b53a45b6d27fd0636169b6321554ce79a6fd00a94b402399c7f028c236a09",
@@ -777,19 +798,20 @@
     "interop/aeneas/vec-capacity-arithmetic/UnifiedCallerSmoke.lean": "d79cc3cb200eb755d07420b59c6485efa99bd063e74dc14be22e62bddd8a5181",
     "interop/aeneas/vec-capacity-arithmetic/LocalSmoke.lean": "d2747a0e3a20591418fd9e828d0b1420fbfaa7718ab55e6874773591faa5ae32",
     "interop/aeneas/vec-capacity-arithmetic/ReadSmoke.lean": "6726af23fdfd9806e9bf7da055d771fe4d20bd73df6e9c4c0aefd01bae02992e",
-    "interop/aeneas/vec-capacity-arithmetic/HandlerSmoke.lean": "39464457d25edbbb1c254ea482a2984c587110bb9e9524fc856514289c78fc53"
+    "interop/aeneas/vec-capacity-arithmetic/HandlerSmoke.lean": "39464457d25edbbb1c254ea482a2984c587110bb9e9524fc856514289c78fc53",
+    "interop/aeneas/vec-capacity-arithmetic/OuterSmoke.lean": "6a49f0debf7c2838623997cff2d30bfdee0beba65aa4f25737537a9b379a23a8"
   },
-  "source_llbc_sha256": "41ca0cb14fe0760e3fd3cca1a8610065843f61f44b37235248bb9ceb8fbbefcd",
-  "checked_sha256": "b188ace241049be0d9500e45e334a0285fa9a2423e521097977eca9afbf33a44",
-  "source_definition_count": 225,
-  "source_theorem_count": 194,
-  "source_declaration_audit_count": 419,
+  "source_llbc_sha256": "d5901292a5c50721575c49e469b3b3581da1d68209bd9975efdc342a711fa355",
+  "checked_sha256": "94489f7bdc1ba36a814b942fb6361b062bfd16e88a51e43c9505cff4de54460c",
+  "source_definition_count": 245,
+  "source_theorem_count": 235,
+  "source_declaration_audit_count": 480,
   "core_extension_declaration_audit_count": 278,
-  "new_declaration_audit_count": 751,
+  "new_declaration_audit_count": 812,
   "retained_function_count": 21,
   "retained_type_count": 31,
   "isolated_assignment_count": 9,
-  "source_regression_count": 142,
+  "source_regression_count": 155,
   "model_regression_count": 151,
   "arithmetic_extension": {
     "module": "FormalProof4FHE/HasteBoots/NativeRecordArithmetic.lean",
@@ -830,31 +852,31 @@
   },
   "revalidated_profiles": {
     "vec": {
-      "manifest": "build/hasteboots-extraction/vec-drop-b447sqin/manifest.json",
-      "manifest_sha256": "170fc4a18be9bbaf055c2cddff9e9c53e70bf2cc9e8caef1600240df22039712",
+      "manifest": "build/hasteboots-extraction/vec-drop-3yjk6p9v/manifest.json",
+      "manifest_sha256": "75cd073f15d7db214f40be853c171bf9eb204422af74a3dd3b7746cf1f2cc0a8",
       "dependency_audit_count": 1044,
       "negative_control_count": 87
     },
     "allocator": {
-      "manifest": "build/hasteboots-extraction/allocator-caller-dv94x4eo/manifest.json",
-      "manifest_sha256": "a0038785855c0b5cb5360a52a6d86ee0b435d3f73621aadeafe888fb87559eb8",
+      "manifest": "build/hasteboots-extraction/allocator-caller-ke0gj7wv/manifest.json",
+      "manifest_sha256": "5f4d8fc45957d38c02819489f35fb41df26aa743692b3ea73b27f22fc971e5cd",
       "dependency_audit_count": 388,
       "negative_control_count": 31
     },
     "empty": {
-      "manifest": "build/hasteboots-extraction/vec-empty-axcfcc9q/manifest.json",
-      "manifest_sha256": "e7394bcb93a19c998e5cb071f85c8df20a4a143347c90c4b8e0de7e706c483fe",
+      "manifest": "build/hasteboots-extraction/vec-empty-2binmbwh/manifest.json",
+      "manifest_sha256": "c6e63760a5c04ab85f67c968c27e5394b78730466d8446a34cfa684d407815e0",
       "dependency_audit_count": 395,
       "negative_control_count": 17
     },
     "getter": {
-      "manifest": "build/hasteboots-extraction/reservation-error-kind-qm0ukvit/manifest.json",
-      "manifest_sha256": "5d3102b3124085224e5047613f5d3a0e71520e855f12d29fa239d2a50b0a00b4",
+      "manifest": "build/hasteboots-extraction/reservation-error-kind-wgv0186a/manifest.json",
+      "manifest_sha256": "5fda78033ac8538422cc52619cfdecc34da65da198a0a03ea7d5535246aab7c8",
       "dependency_audit_count": 652,
       "negative_control_count": 55
     }
   },
-  "validation_note": "Fresh extraction gates, warning-as-error Lean checks, allowed-axiom audits and mutation controls passed. The constructor gate independently extracts the getter and checks its method/signature/type-role/layout link. It proves owned-error handler dispatch after checked local marshaling, including both constructor payloads and complete execution projection. Terminal bodies remain explicit parameters. Outer constructor error-arm composition, terminal-helper native behavior, native ABI/stack/lifetime/compiler correspondence, physical destruction/reclamation/work and final security remain open. The prior 11101-job full check is reused because shared library, root tests, toolchain, dependencies and full-check scripts are unchanged.",
+  "validation_note": "Fresh extraction gates, warning-as-error Lean checks, allowed-axiom audits and mutation controls passed. The new handledRootInvoke source composition connects the validated outer Result::Err payload move and typed handler call, and executes all three outer caller unwind cleanups. Root theorems cover zero, successful allocation, rejected capacity and normal allocator failure. Execution projection, reachability and well-formedness cover every outcome. Checked local materialization remains explicit, and terminal bodies remain model parameters. Native ABI/stack/lifetime/compiler correspondence, terminal-helper behavior, physical destruction/reclamation/work and final security remain open. The earlier unifiedCapacityRoot retains its prior scope. The prior 11101-job full check is reused because library, root tests, toolchain, dependencies and full-check scripts are unchanged.",
   "prior_isolated_assignment_baseline": {
     "profile": "retained-with-capacity-scalar-assignments-and-typed-boolean-arithmetic-v1",
     "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-hmaelxmc/manifest.json",
@@ -1580,7 +1602,8 @@
       }
     },
     "extracted_getter_equivalence_after_materialization": true,
-    "extracted_getter_composed_in_owned_error_handler_after_snapshot": true
+    "extracted_getter_composed_in_owned_error_handler_after_snapshot": true,
+    "handled_root_error_path_composition": true
   },
   "prior_source_getter_body_baseline": {
     "profile": "complete-snapshot-reads-and-checked-kind-getter-v20",
@@ -1591,8 +1614,8 @@
   },
   "revalidated_with_source_getter_body": true,
   "source_getter_body_profile": {
-    "manifest": "build/hasteboots-extraction/reservation-error-kind-qm0ukvit/manifest.json",
-    "manifest_sha256": "5d3102b3124085224e5047613f5d3a0e71520e855f12d29fa239d2a50b0a00b4",
+    "manifest": "build/hasteboots-extraction/reservation-error-kind-wgv0186a/manifest.json",
+    "manifest_sha256": "5fda78033ac8538422cc52619cfdecc34da65da198a0a03ea7d5535246aab7c8",
     "dependency_audit_count": 652,
     "negative_control_count": 55
   },
@@ -1620,10 +1643,10 @@
     "negative_control_count": 165
   },
   "owned_error_handler_profile": {
-    "manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-mwaeoy_w/manifest.json",
-    "manifest_sha256": "895709e787906f6109d2f8424412e51aed8431f24035c898729f0b7714fb7b63",
-    "dependency_audit_count": 1027,
-    "negative_control_count": 194
+    "manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-76dekamd/manifest.json",
+    "manifest_sha256": "b86f60ef159ff53c9a819c5b0724dc0f780be92fb6b92592eaef1a6e98c392e6",
+    "dependency_audit_count": 1088,
+    "negative_control_count": 212
   },
   "linked_getter_source_definition_count": 32,
   "linked_getter_source_theorem_count": 22,
@@ -1649,7 +1672,7 @@
       "caller_wrapper_opaque_source_wrapper_transparent": true,
       "native_abi_refinement": false
     },
-    "getter_source_llbc_sha256": "c6530a8181f6f52c11bd996bab94c4c9bbb648ebc9f8851cbc753e37662d8fa4",
+    "getter_source_llbc_sha256": "c5346bcbd3cda1771753ef86d9a8d995fccfa1982c069b5c2a366cd4acc7998e",
     "source_definition_count": 14,
     "source_theorem_count": 14,
     "source_regression_count": 12,
@@ -1659,9 +1682,44 @@
     "uninhabited_logical_return_type_proved": true,
     "terminal_bodies_explicit_parameters": true,
     "local_materialization_boundary_explicit": true,
-    "outer_constructor_error_arm_installed": false,
+    "outer_constructor_error_arm_installed": true,
     "native_terminal_behavior_refinement": false,
     "native_stack_abi_lifetime_refinement": false,
+    "physical_work_refinement": false,
+    "final_security_theorem": false
+  },
+  "prior_handled_root_baseline": {
+    "profile": "source-owned-error-handler-dispatch-v1",
+    "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-mwaeoy_w/manifest.json",
+    "gate_manifest_sha256": "895709e787906f6109d2f8424412e51aed8431f24035c898729f0b7714fb7b63",
+    "dependency_audit_count": 1027,
+    "negative_control_count": 194
+  },
+  "handled_root_profile": {
+    "manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-76dekamd/manifest.json",
+    "manifest_sha256": "b86f60ef159ff53c9a819c5b0724dc0f780be92fb6b92592eaef1a6e98c392e6",
+    "dependency_audit_count": 1088,
+    "negative_control_count": 212
+  },
+  "shared_constructor_outer_error_propagation_proved": true,
+  "handled_root": {
+    "entry_point": "handledRootInvoke",
+    "source_definition_count": 20,
+    "source_theorem_count": 41,
+    "source_regression_count": 13,
+    "outer_error_payload_move_call_and_cleanup_validated": true,
+    "all_three_outer_call_unwind_successors_validated": true,
+    "typed_call_legacy_equivalence_proved": true,
+    "root_zero_capacity_proved": true,
+    "root_success_proved": true,
+    "root_rejected_capacity_to_handler_proved": true,
+    "root_allocator_failure_to_handler_proved": true,
+    "every_outcome_execution_projection_proved": true,
+    "reachable_and_well_formed_results_proved": true,
+    "local_materialization_boundary_explicit": true,
+    "terminal_bodies_explicit_parameters": true,
+    "native_stack_abi_lifetime_refinement": false,
+    "native_terminal_behavior_refinement": false,
     "physical_work_refinement": false,
     "final_security_theorem": false
   }
