@@ -272,4 +272,17 @@ theorem pointerAccess_projects (world : State) (index : Nat) :
       simp only [pointerAccess, actual, found]
       split <;> exact first
 
+/-- The source zero-byte marker still executes the checked reference operation. -/
+def markerAccess (world : State) (index : Nat) : Result Unit :=
+  match NativeReferenceMachine.execute world (.access index 16 (.read 0 1)) with
+  | none => .invalid world
+  | some next => .value () next
+
+theorem markerAccess_projects (world : State) (index : Nat) :
+    NativeReferenceMachine.Runs world (markerAccess world index).world := by
+  cases actual : NativeReferenceMachine.execute world (.access index 16 (.read 0 1)) with
+  | none => simp only [markerAccess, actual, Result.world]; exact .refl _
+  | some next =>
+    simpa only [markerAccess, actual, Result.world] using NativeReferenceMachine.Runs.step (.refl world) _ actual
+
 end FormalProof4FHE.HasteBoots.NativeRawVecFields

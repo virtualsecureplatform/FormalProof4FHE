@@ -141,6 +141,9 @@ def retag (world : State) : Value → Bool → Element → Tagged
 
 inductive Rvalue where
   | unit
+  | recordResult (tag : Nat) (singleton : Bool) (inner : Rvalue)
+  | mulUsizeUB (left right : Operand)
+  | enumWord (value : Operand) (tag : Nat)
   | rawVecField (action : NativeRawVecReference.Action) (reference : Operand) (enabled : Bool := false)
   | aggregate (tag : Option Nat) (side : Option Bool) (fields : List Operand)
   | use (value : Operand) (enabled : Bool) (element : Element := .byte)
@@ -170,8 +173,42 @@ def evalRawVecField (frame : Frame) (operand : Operand) (action : NativeRawVecRe
         | .value tagged final => .value tagged {caller with world := final}
     | _ => .invalid caller.world
 
+def multiplyWords : List Value → Option Value
+  | [.scalar (.usize left), .scalar (.usize right)] =>
+    if bounded : left.val * right.val < 2^64 then some (.scalar (.usize ⟨left.val * right.val, bounded⟩)) else none
+  | _ => none
+
+def evalMultiply (frame : Frame) (left right : Operand) : Evaluated :=
+  match evalArgs frame [left,right] with
+  | none => .invalid frame.world
+  | some (values,caller) => match multiplyWords values with
+    | none => .invalid caller.world
+    | some value => .value value caller
+
+def enumWordValue (tag : Nat) : Value → Option Value
+  | .enumeration actual value => if tag = actual then some (.scalar (.usize value)) else none
+  | _ => none
+
+def evalEnumWord (frame : Frame) (operand : Operand) (tag : Nat) : Evaluated :=
+  match evalOperand frame operand with
+  | none => .invalid frame.world
+  | some (value,caller) => match enumWordValue tag value with
+    | none => .invalid caller.world
+    | some value => .value value caller
+
+def recordResultValue (tag : Nat) (singleton : Bool) (value : Value) : Option Value :=
+  if singleton then some (.record tag (.pair value (.scalar .unit))) else
+    match value with | .scalar .unit => some (.record tag (.scalar .unit)) | _ => none
+
 def evalRvalue (frame : Frame) : Rvalue → Evaluated
   | .unit => .value (.scalar .unit) frame
+  | .recordResult tag singleton inner => match evalRvalue frame inner with
+    | .invalid world => .invalid world
+    | .value value caller => match recordResultValue tag singleton value with
+      | none => .invalid caller.world
+      | some output => .value output caller
+  | .mulUsizeUB left right => evalMultiply frame left right
+  | .enumWord operand tag => evalEnumWord frame operand tag
   | .rawVecField action operand enabled => evalRawVecField frame operand action enabled
   | .aggregate tag side fields => match evalArgs frame fields with
     | none => .invalid frame.world
@@ -467,10 +504,56 @@ theorem evalRawVecField_projects (frame : Frame) (operand : Operand) (action : N
     | enumeration tag value => simp only [evalRawVecField, selected, Evaluated.world]; rw [same]; exact .refl _
     | uninit => simp only [evalRawVecField, selected, Evaluated.world]; rw [same]; exact .refl _
 
+theorem multiplyWords_no_wrap (left right result : Word)
+    (computed : multiplyWords [.scalar (.usize left), .scalar (.usize right)] = some (.scalar (.usize result))) :
+    result.val = left.val * right.val := by
+  simp only [multiplyWords] at computed
+  split at computed
+  next bounded => cases computed; rfl
+  next => cases computed
+
+theorem multiplyWords_overflow (left right : Word) (overflow : ¬ left.val * right.val < 2^64) :
+    multiplyWords [.scalar (.usize left), .scalar (.usize right)] = none := by
+  simp only [multiplyWords, overflow, dite_false]
+
+theorem enumWordValue_exact (tag : Nat) (value : Word) :
+    enumWordValue tag (.enumeration tag value) = some (.scalar (.usize value)) := by
+  simp only [enumWordValue, ite_true]
+
+theorem evalMultiply_world (frame : Frame) (left right : Operand) :
+    (evalMultiply frame left right).world = frame.world := by
+  cases selected : evalArgs frame [left,right] with
+  | none => simp only [evalMultiply, selected, Evaluated.world]
+  | some result =>
+    rcases result with ⟨values,caller⟩
+    have same := evalArgs_world frame caller [left,right] values selected
+    cases actual : multiplyWords values <;> simpa only [evalMultiply, selected, actual, Evaluated.world] using same
+
+theorem evalEnumWord_world (frame : Frame) (operand : Operand) (tag : Nat) :
+    (evalEnumWord frame operand tag).world = frame.world := by
+  cases selected : evalOperand frame operand with
+  | none => simp only [evalEnumWord, selected, Evaluated.world]
+  | some result =>
+    rcases result with ⟨value,caller⟩
+    have same := evalOperand_world frame caller operand value selected
+    cases actual : enumWordValue tag value <;> simpa only [evalEnumWord, selected, actual, Evaluated.world] using same
+
 theorem evalRvalue_projects (frame : Frame) (rvalue : Rvalue) :
     NativeReferenceMachine.Runs frame.world (evalRvalue frame rvalue).world := by
-  cases rvalue with
+  induction rvalue with
   | unit => exact .refl _
+  | mulUsizeUB left right =>
+    change NativeReferenceMachine.Runs frame.world (evalMultiply frame left right).world
+    rw [evalMultiply_world]; exact .refl _
+  | enumWord operand tag =>
+    change NativeReferenceMachine.Runs frame.world (evalEnumWord frame operand tag).world
+    rw [evalEnumWord_world]; exact .refl _
+  | recordResult tag singleton inner ih =>
+    cases selected : evalRvalue frame inner with
+    | invalid world => simpa only [evalRvalue, selected, Evaluated.world] using ih
+    | value value caller =>
+      cases actual : recordResultValue tag singleton value <;>
+        simpa only [evalRvalue, selected, actual, Evaluated.world] using ih
   | rawVecField action operand enabled => exact evalRawVecField_projects frame operand action enabled
   | aggregate tag side fields =>
     cases selected : evalArgs frame fields with

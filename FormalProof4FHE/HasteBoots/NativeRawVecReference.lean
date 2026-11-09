@@ -44,6 +44,7 @@ def objectOfCount (count : NativeWord64Memory.Word) : Option Object :=
 inductive Action where
   | capacity
   | pointer
+  | marker
   deriving DecidableEq
 
 /-- A complete shared-object operand is checked again against the live ledger. -/
@@ -58,6 +59,9 @@ def eval (world : State) (value : Value) (action : Action) : Result Value :=
         | .capacity => match NativeRawVecFields.capacityAccess world index with
           | .invalid next => .invalid next
           | .value value next => .value (.usize value) next
+        | .marker => match NativeRawVecFields.markerAccess world index with
+          | .invalid next => .invalid next
+          | .value _ next => .value .unit next
         | .pointer => match NativeRawVecFields.pointerAccess world index with
           | .invalid next => .invalid next
           | .value value next => .value (.raw ⟨value,none⟩) next
@@ -136,6 +140,9 @@ theorem eval_projects (world : State) (value : Value) (action : Action) :
           | capacity =>
             have first := NativeRawVecFields.capacityAccess_projects world index
             cases loaded : NativeRawVecFields.capacityAccess world index <;> simpa only [loaded, Result.world] using first
+          | marker =>
+            have first := NativeRawVecFields.markerAccess_projects world index
+            cases loaded : NativeRawVecFields.markerAccess world index <;> simpa only [loaded, Result.world] using first
           | pointer =>
             have first := NativeRawVecFields.pointerAccess_projects world index
             cases loaded : NativeRawVecFields.pointerAccess world index <;> simpa only [loaded, Result.world] using first
