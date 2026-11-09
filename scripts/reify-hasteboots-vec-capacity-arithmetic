@@ -145,6 +145,18 @@ class LayoutPrefix:
     {'kind':{'Adt':[None,[{'kind':{'Adt':[0,[]]},'ty':adt(12)}]]},'ty':adt(11)}]]},'ty':adt(4)}
   require(self.global_layout['ty']==adt(4) and self.global_layout['value']==expected and
    self.global_layout['src']['TraitDecl']['trait_ref']['generics']=={'regions':[],'types':[literal({'UInt':'U8'})],'const_generics':[],'trait_refs':[]},'Changed evaluated byte layout')
+  accepted=self.accepted['statements'];require(len(accepted)==17,'Changed accepted prefix extent')
+  self.accepted_prefix=accepted[:-1]
+  require(set(accepted[-1]['kind'])=={'Switch'} and set(accepted[-1]['kind']['Switch'])=={'SwitchInt'},'Changed size dispatch')
+  test,width,cases,otherwise=accepted[-1]['kind']['Switch']['SwitchInt']
+  require(test=={'Copy':{'kind':{'Local':7},'ty':USIZE}} and width=={'UInt':'Usize'} and len(cases)==1 and cases[0][0]==[{'Scalar':{'Unsigned':['Usize','0']}}] and otherwise is not None,'Changed zero-size dispatch')
+  self.zero_size=cases[0][1];self.positive_size=otherwise
+  require(self.zero_size['statements'][0]['kind']=={'StorageDead':7} and self.positive_size['statements'][0]['kind']=={'StorageDead':7},'Changed size dispatch arms')
+  for tag,error in [(14,9),(19,20)]:
+   t=self.types[tag];require(name(t)=='core::result::Result' and t['item_meta']['opacity']=='Foreign','Changed Result owner')
+   vs=t['kind']['Enum'];require([(v['id'],v['name'],[f['ty'] for f in v['fields']],v['discriminant']) for v in vs]==[(0,'Ok',[adt(4)],{'Scalar':{'Signed':['Isize','0']}}),(1,'Err',[adt(error)],{'Scalar':{'Signed':['Isize','1']}})],'Changed Result variants')
+  require(name(self.types[20])=='core::alloc::layout::LayoutError' and self.types[20]['kind']=={'Struct':[]},'Changed LayoutError')
+  self.accepted_code=self.code(self.accepted_prefix,'next')
   self.initial_code=self.code(self.initial,'next');self.check_code=self.code(self.check,'next')
   require(len(self.initial)==28 and len(self.check)==9,'Changed layout prefix extent')
  def operand(self,arg):
@@ -161,12 +173,20 @@ class LayoutPrefix:
    if owner=={'Tuple':2}:
     require(raw==TUPLE and index in [0,1] and ty==[U64,BOOL][index],'Changed checked result projection')
     return idx,path+(['.left'] if index==0 else ['.right','.left']),ty
+   if owner in [{'Adt':[14,0]},{'Adt':[19,0]}]:
+    tag=owner['Adt'][0];require(raw==adt(tag) and index==0 and ty==adt(4),'Changed Result success projection')
+    return idx,path+['(.unwrap '+str(tag)+')','(.active false)','.left'],ty
    require(owner=={'Adt':[4,None]} and raw==adt(4) and index in [0,1] and ty==[USIZE,adt(11)][index],'Changed layout field projection')
    return idx,path+['(.unwrap 4)']+(['.left'] if index==0 else ['.right','.left']),ty
   idx,path,_=place(v);return '(.'+mode.lower()+' '+str(idx)+' ['+', '.join(path)+'])'
  def rvalue(self,statement,rv,output):
   if set(rv)=={'Use'}:
    arg,retag=rv['Use'];require(retag=='Yes','Changed prefix retag');require(next(iter(arg.values()))['ty']==output,'Changed prefix use type');return '(.use '+self.operand(arg)+' true .byte)'
+  if set(rv)=={'Aggregate'}:
+   kind,args=rv['Aggregate'];require(set(kind)=={'Adt'},'Changed prefix aggregate');owner,variant,union=kind['Adt']
+   tag=owner['id']['Adt'];require(owner==adt(tag)['Untagged']['Adt'] and union is None and output==adt(tag),'Changed aggregate nominal type')
+   require((tag==4 and variant is None and [next(iter(a.values()))['ty'] for a in args]==[USIZE,adt(11)]) or (tag in [14,19] and variant==0 and [next(iter(a.values()))['ty'] for a in args]==[adt(4)]),'Unsupported prefix aggregate variant')
+   return '(.aggregate (some '+str(tag)+') '+('none' if variant is None else '(some false)')+' ['+', '.join(self.operand(a) for a in args)+'])'
   if set(rv)=={'BinaryOp'}:
    row=next((r for r in self.parent.rows if r['function']==self.function['def_id'] and r['statement']['id']==statement['id']),None)
    require(row is not None,'Missing prefix arithmetic assignment');return 'expr_'+row['operation']
@@ -188,7 +208,7 @@ class LayoutPrefix:
     code='(.assign '+str(idx)+' '+self.rvalue(s,rv,dest['ty'])+' '+code+')'
   return code
  def retained(self):return {'function':self.function['def_id'],'initial':self.initial,'overflow_branch':self.outer,'layout_else_prefix':self.check,
-  'layout_branch':self.inner,'following':self.following,'byte_layout_global':self.global_layout,
+  'layout_branch':self.inner,'accepted_prefix':self.accepted_prefix,'zero_size_branch':self.zero_size,'positive_size_branch':self.positive_size,'following':self.following,'byte_layout_global':self.global_layout,
   'claim':'original contiguous scalar prefix with arbitrary overflow, accepted, rejected and following continuations; suffixes and whole constructor execution remain open'}
  def render(self):
   enumty='(.enumeration 12 alignmentDiscriminants)';align='(.record 11 (.pair '+enumty+' (.scalar .unit)))'
@@ -200,18 +220,26 @@ class LayoutPrefix:
    'def layoutCheckPrefix (next : Body) : Body := '+self.check_code,
    'def layoutPrefix (overflow accepted rejected next : Body) : Body :=',
    '  layoutInitialPrefix (.switchBoolean (.copy 24 []) overflow (layoutCheckPrefix (.switchBoolean (.move 30 []) accepted rejected .done)) next)']
+  lines += ['def capacityLayout (capacity : NativeWord64Memory.Word) : NativeRecordValues.Value := .record 4 (.pair (.scalar (.usize capacity)) (.pair byteAlignment (.scalar .unit)))',
+   'def acceptedLayoutPrefix (next : Body) : Body := '+self.accepted_code,
+   'def capacityDispatch (zero positive next : Body) : Body := acceptedLayoutPrefix (.switchUsize (.copy 7 []) 0 zero positive next)']
+  layout_error='(.record 20 (.scalar .unit))'
+  success='(.pair '+layout+' (.scalar .unit))'
   known={**{i:'(.scalar .usize)' for i in [1,39,28,26,27,23,32,33]},**{i:'.boolean' for i in [21,24,30]},
-   25:'(.pair (.scalar .usize) (.pair .boolean (.scalar .unit)))',4:layout,40:align}
+   25:'(.pair (.scalar .usize) (.pair .boolean (.scalar .unit)))',4:layout,40:align,31:layout,34:layout,6:layout,7:'(.scalar .usize)',22:'(.record 19 (.choice '+success+' (.pair '+layout_error+' (.scalar .unit))))',5:'(.record 14 (.choice '+success+' (ambient.types[5]?.getD (.scalar .unit))))'}
   lines+=['def layoutTypes (ambient : Frame) : List NativeRecordValues.Ty := ['+', '.join(known.get(i,'(ambient.types['+str(i)+']?.getD (.scalar .unit))') for i in range(self.count))+']']
-  for label in ['layoutFrame','layoutProductFrame','layoutComparedFrame','layoutAfterFrame']:
+  for label in ['layoutFrame','layoutProductFrame','layoutComparedFrame','layoutAfterFrame','layoutAcceptedFrame']:
    values={1:'(.live (some (.scalar (.usize capacity))))',4:'(.live (some byteLayout))'}
    if label!='layoutFrame':
     values.update({i:'(.live none)' for i in [0,6,13,29,5,22]})
     values.update({21:'(.live (some (.boolean true)))',39:'(.live (some (.scalar (.usize 1))))',40:'(.live (some byteAlignment))',28:'(.live (some (.scalar (.usize capacity))))',24:'(.live (some (.boolean false)))'})
     values.update({i:'.dead' for i in [27,26,25,23]})
-   if label in ['layoutComparedFrame','layoutAfterFrame']:
+   if label in ['layoutComparedFrame','layoutAfterFrame','layoutAcceptedFrame']:
     values.update({i:'.dead' for i in [24,33,32]})
     values[30]='(.live (some (.boolean (decide (capacity.val < 2^63)))))' if label=='layoutComparedFrame' else '(.live (some .uninit))'
+   if label=='layoutAcceptedFrame':
+    values.update({i:'.dead' for i in [31,30,34,22,28,39,5]})
+    values.update({6:'(.live (some (capacityLayout capacity)))',7:'(.live (some (.scalar (.usize capacity))))'})
    lines+=['def '+label+' (ambient : Frame) (capacity : NativeWord64Memory.Word) : Frame :=',
     '  ⟨layoutTypes ambient,['+', '.join(values.get(i,'(ambient.slots['+str(i)+']?.getD .dead)') for i in range(self.count))+'],ambient.world⟩']
   return '\n'.join(lines)+'\n'
