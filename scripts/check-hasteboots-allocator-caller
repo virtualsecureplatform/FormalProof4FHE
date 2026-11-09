@@ -19,6 +19,9 @@ PARENT = runpy.run_path(str(ROOT / 'scripts/check-hasteboots-byte-deallocation')
 EXTRAS = {
     'NativeZstReference': {},
     'NativeZstBorrow': {},
+    'NativeAllocatorExecution': {'Symbol':['allocate','zeroed']},
+    'NativeAllocatorLLBC': {'Body':['done','legacy','call','switchBoolean','switchUsize','matchChoice','allocate'],
+        'Function':['mk','name','classification','types','argCount','body']},
     'NativeVecReference': {'Target':['whole','rawVec'],'Action':['pointer','length'],'Operation':['borrow','field']},
     'NativeRawVecMutBorrow': {'Reservation':['mk','parent','pointer']},
     'NativeRawVecBorrow': {'Target':['whole','allocator']},
@@ -38,9 +41,10 @@ EXTRAS = {
 def digest(raw): return hashlib.sha256(raw).hexdigest()
 
 
-def inventory():
+def inventory(include_allocator=False):
     names = []
     for module, extras in EXTRAS.items():
+        if module in ['NativeAllocatorExecution','NativeAllocatorLLBC'] and not include_allocator: continue
         raw = (ROOT / 'FormalProof4FHE/HasteBoots' / (module + '.lean')).read_text()
         PARAMETERS['validate_proof_source'](raw, re.findall(r'^theorem (\w+)', raw, re.M))
         local = re.findall(r'^(?:def|theorem|structure|inductive|abbrev) ([\w.]+)', raw, re.M)
