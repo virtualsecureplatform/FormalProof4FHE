@@ -10,6 +10,7 @@ open NativeWord64Memory (Word)
 inductive Ty where
   | scalar (type : NativeSliceLLBC.Ty)
   | nonnull
+  | choice (left right : Ty)
   | pair (left right : Ty)
   | record (tag : Nat) (fields : Ty)
   | enumeration (tag : Nat) (discriminants : List Word)
@@ -17,6 +18,7 @@ inductive Ty where
 
 inductive Value where
   | scalar (value : NativeSliceLLBC.Value)
+  | choice (right : Bool) (fields : Value)
   | pair (left right : Value)
   | record (tag : Nat) (fields : Value)
   | enumeration (tag : Nat) (discriminant : Word)
@@ -26,7 +28,7 @@ inductive Value where
 def complete : Value → Bool
   | .scalar _ | .enumeration _ _ => true
   | .pair left right => complete left && complete right
-  | .record _ fields => complete fields
+  | .record _ fields | .choice _ fields => complete fields
   | .uninit => false
 
 /-- Compatibility permits holes in storage; reading requires completeness. -/
@@ -34,6 +36,7 @@ def compatible : Ty → Value → Bool
   | _, .uninit => true
   | .scalar type, .scalar value => NativeSliceLLBC.fits type value
   | .nonnull, .scalar (.raw pointer) => pointer.length.isNone && pointer.storage.address.val != 0
+  | .choice left right, .choice side fields => compatible (if side then right else left) fields
   | .pair left right, .pair first second => compatible left first && compatible right second
   | .record tag fields, .record actual values => tag == actual && compatible fields values
   | .enumeration tag variants, .enumeration actual value => tag == actual && variants.contains value
@@ -44,6 +47,7 @@ def fits (type : Ty) (value : Value) : Bool := complete value && compatible type
 inductive Step where
   | left
   | right
+  | active (right : Bool)
   | unwrap (tag : Nat)
   deriving DecidableEq
 
@@ -53,13 +57,16 @@ def typeAt (type : Ty) : Path → Option Ty
   | [] => some type
   | .left :: tail => match type with | .pair left _ => typeAt left tail | _ => none
   | .right :: tail => match type with | .pair _ right => typeAt right tail | _ => none
+  | .active side :: tail => match type with
+    | .choice left right => typeAt (if side then right else left) tail
+    | _ => none
   | .unwrap tag :: tail => match type with
     | .record actual fields => if tag = actual then typeAt fields tail else none
     | _ => none
 
 def copyable : Ty → Bool
   | .scalar (.reference true) => false
-  | .pair left right => copyable left && copyable right
+  | .pair left right | .choice left right => copyable left && copyable right
   | .record _ fields => copyable fields
   | _ => true
 
@@ -67,6 +74,9 @@ def get (value : Value) : Path → Option Value
   | [] => if complete value then some value else none
   | .left :: tail => match value with | .pair left _ => get left tail | _ => none
   | .right :: tail => match value with | .pair _ right => get right tail | _ => none
+  | .active side :: tail => match value with
+    | .choice actual fields => if side = actual then get fields tail else none
+    | _ => none
   | .unwrap tag :: tail => match value with
     | .record actual fields => if tag = actual then get fields tail else none
     | _ => none
@@ -79,8 +89,26 @@ def replace (value : Value) : Path → Value → Option Value
   | .right :: tail, replacement => match value with
     | .pair left right => (replace right tail replacement).map (fun changed => .pair left changed)
     | _ => none
+  | .active side :: tail, replacement => match value with
+    | .choice actual fields => if side = actual then (replace fields tail replacement).map (.choice actual) else none
+    | _ => none
   | .unwrap tag :: tail, replacement => match value with
     | .record actual fields => if tag = actual then (replace fields tail replacement).map (.record actual) else none
+    | _ => none
+
+/-- Read an enum's active variant without reading its possibly moved fields. -/
+def sideAt (value : Value) (path : Path) (tag : Nat) : Option Bool :=
+  match path with
+  | [] => match value with
+    | .record actual (.choice side _) => if tag = actual then some side else none
+    | _ => none
+  | .left :: tail => match value with | .pair left _ => sideAt left tail tag | _ => none
+  | .right :: tail => match value with | .pair _ right => sideAt right tail tag | _ => none
+  | .unwrap wanted :: tail => match value with
+    | .record actual fields => if wanted = actual then sideAt fields tail tag else none
+    | _ => none
+  | .active wanted :: tail => match value with
+    | .choice actual fields => if wanted = actual then sideAt fields tail tag else none
     | _ => none
 
 def take (value : Value) (path : Path) : Option (Value × Value) := do
@@ -91,7 +119,7 @@ def take (value : Value) (path : Path) : Option (Value × Value) := do
 def leaves : Value → List NativeSliceLLBC.Value
   | .scalar value => [value]
   | .pair left right => leaves left ++ leaves right
-  | .record _ fields => leaves fields
+  | .record _ fields | .choice _ fields => leaves fields
   | .enumeration _ _ | .uninit => []
 
 theorem get_complete (value selected : Value) (path : Path) (read : get value path = some selected) :
@@ -108,6 +136,11 @@ theorem get_complete (value selected : Value) (path : Path) (read : get value pa
       cases value <;> simp only [get] at read <;> first | cases read | exact ih _ read
     | right =>
       cases value <;> simp only [get] at read <;> first | cases read | exact ih _ read
+    | active side =>
+      cases value <;> simp only [get] at read <;> try cases read
+      split at read
+      · exact ih _ read
+      · cases read
     | unwrap tag =>
       cases value <;> simp only [get] at read <;> try cases read
       split at read
@@ -132,6 +165,13 @@ theorem get_leaves (value selected : Value) (path : Path) (read : get value path
       cases value <;> simp only [get] at read <;> first
         | cases read
         | exact List.mem_append_right _ (ih _ read)
+    | active side =>
+      cases value <;> simp only [get] at read <;> try cases read
+      rename_i actual fields
+      change leaf ∈ leaves fields
+      split at read
+      · exact ih fields read
+      · cases read
     | unwrap tag =>
       cases value <;> simp only [get] at read <;> try cases read
       rename_i actual fields
@@ -160,6 +200,14 @@ theorem get_replace (value replacement changed : Value) (path : Path)
       obtain ⟨middle, actual, same⟩ := Option.map_eq_some_iff.mp written
       cases same
       exact ih _ _ actual
+    | active side =>
+      cases value <;> simp only [replace] at written <;> try cases written
+      split at written
+      · rename_i sameTag
+        obtain ⟨middle, actual, same⟩ := Option.map_eq_some_iff.mp written
+        cases same
+        simpa only [get, sameTag, ite_true] using ih _ _ actual
+      · cases written
     | unwrap tag =>
       cases value <;> simp only [replace] at written <;> try cases written
       split at written

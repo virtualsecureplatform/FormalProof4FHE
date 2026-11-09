@@ -124,4 +124,29 @@ theorem take_discriminant (schema : Schema) (value : Value) (variant : Nat) (pat
   obtain ⟨_, _, tag, index⟩ := take_spec schema value variant path field changed moved
   simp only [discriminant, branch, tag, index]
 
+/-- Binary enum representation used by the aggregate interpreter. -/
+def binaryType (tag : Nat) (left right : Ty) : Ty := .record tag (.choice left right)
+
+def binaryValue (tag : Nat) (side : Bool) (payload : NativeRecordValues.Value) : NativeRecordValues.Value :=
+  .record tag (.choice side payload)
+
+theorem binary_fits (tag : Nat) (left right : Ty) (side : Bool) (payload : NativeRecordValues.Value) :
+    fits (binaryType tag left right) (binaryValue tag side payload) =
+      fits (if side then right else left) payload := by
+  cases side <;> simp [binaryType, binaryValue, fits, complete, compatible]
+
+theorem binary_get (tag : Nat) (side : Bool) (payload : NativeRecordValues.Value) (path : Path) :
+    get (binaryValue tag side payload) ([.unwrap tag, .active side] ++ path) = get payload path := by
+  simp [binaryValue, NativeRecordValues.get]
+
+theorem binary_replace (tag : Nat) (side : Bool) (payload replacement : NativeRecordValues.Value) (path : Path) :
+    replace (binaryValue tag side payload) ([.unwrap tag, .active side] ++ path) replacement =
+      (replace payload path replacement).map (binaryValue tag side) := by
+  simp only [binaryValue, replace, List.cons_append, List.nil_append, ite_true, Option.map_map]
+  rfl
+
+theorem binary_side (tag : Nat) (side : Bool) (payload : NativeRecordValues.Value) :
+    sideAt (binaryValue tag side payload) [] tag = some side := by
+  simp [binaryValue, sideAt]
+
 end FormalProof4FHE.HasteBoots.NativeVariantValues

@@ -35,6 +35,7 @@ inductive Input where
   | zstSharedReference (index : Nat)
   | unit
   | scalar (value : NativeSliceLLBC.Input)
+  | choice (right : Bool) (fields : Input)
   | pair (left right : Input)
   | record (tag : Nat) (fields : Input)
   | enumeration (tag : Nat) (value : Word)
@@ -46,6 +47,7 @@ def decode (world : State) : Input → Option Value
   | .scalar value => (NativeSliceLLBC.decodeInput world value).map Value.scalar
   | .pair left right => do return .pair (← decode world left) (← decode world right)
   | .record tag fields => (decode world fields).map (.record tag)
+  | .choice side fields => (decode world fields).map (.choice side)
   | .enumeration tag value => some (.enumeration tag value)
 
 def read (frame : Frame) (index : Nat) (path : Path) : Option Value := do
@@ -54,6 +56,13 @@ def read (frame : Frame) (index : Nat) (path : Path) : Option Value := do
   let .live (some value) ← frame.slots[index]? | none
   let selected ← NativeRecordValues.get value path
   if NativeRecordValues.fits selectedType selected then some selected else none
+
+def selectChoice (frame : Frame) (index : Nat) (path : Path) (tag : Nat) : Option Bool := do
+  let type ← frame.types[index]?
+  let .record actual (.choice _ _) ← NativeRecordValues.typeAt type path | none
+  if actual ≠ tag then none else do
+    let .live (some value) ← frame.slots[index]? | none
+    NativeRecordValues.sideAt value path tag
 
 def write (frame : Frame) (index : Nat) (value : Value) : Option Frame :=
   frame.types[index]?.bind (fun type =>
@@ -116,6 +125,9 @@ def retag (world : State) : Value → Bool → Element → Tagged
     | .value first middle => match retag middle right true element with
       | .invalid world => .invalid world
       | .value second final => .value (.pair first second) final
+  | .choice side fields, true, element => match retag world fields true element with
+    | .invalid world => .invalid world
+    | .value changed final => .value (.choice side changed) final
   | .record tag fields, true, element => match retag world fields true element with
     | .invalid world => .invalid world
     | .value changed final => .value (.record tag changed) final
@@ -124,8 +136,10 @@ def retag (world : State) : Value → Bool → Element → Tagged
 
 inductive Rvalue where
   | unit
+  | aggregate (tag : Option Nat) (side : Option Bool) (fields : List Operand)
   | use (value : Operand) (enabled : Bool) (element : Element := .byte)
   | rawCast (value : Operand)
+  | choice (right : Bool) (value : Operand)
   | wrapOne (tag : Nat) (value : Operand)
   | pair (left right : Operand)
   deriving DecidableEq
@@ -141,6 +155,12 @@ def Evaluated.world : Evaluated → State
 
 def evalRvalue (frame : Frame) : Rvalue → Evaluated
   | .unit => .value (.scalar .unit) frame
+  | .aggregate tag side fields => match evalArgs frame fields with
+    | none => .invalid frame.world
+    | some (values,caller) =>
+      let tree := values.foldr Value.pair (.scalar .unit)
+      let payload := match side with | none => tree | some side => .choice side tree
+      .value (match tag with | none => payload | some tag => .record tag payload) caller
   | .use operand enabled element => match evalOperand frame operand with
     | none => .invalid frame.world
     | some (value,caller) => match retag caller.world value enabled element with
@@ -152,6 +172,9 @@ def evalRvalue (frame : Frame) : Rvalue → Evaluated
       | .scalar (.raw pointer) =>
         if pointer.length = none then .value (.scalar (.raw pointer)) caller else .invalid caller.world
       | _ => .invalid caller.world
+  | .choice side operand => match evalOperand frame operand with
+    | none => .invalid frame.world
+    | some (value,caller) => .value (.choice side value) caller
   | .wrapOne tag operand => match evalOperand frame operand with
     | none => .invalid frame.world
     | some (value,caller) => .value (.record tag (.pair value (.scalar .unit))) caller
@@ -204,6 +227,7 @@ inductive Body where
   | dead (index : Nat) (next : Body)
   | assign (index : Nat) (value : Rvalue) (next : Body)
   | constIf (condition : Bool) (yes no next : Body)
+  | matchChoice (index : Nat) (path : Path) (tag : Nat) (left right next : Body)
   | switchUsize (test : Operand) (value : Word) (yes no next : Body)
   | deallocate (pointer size alignment : Operand) (enumTag : Nat)
   | call (name : String) (classification : Classification) (types : List Ty) (argCount target : Nat)
@@ -235,6 +259,11 @@ def eval : Body → Frame → Flow
   | .constIf condition yes no next, frame =>
     let branch := if condition then eval yes frame else eval no frame
     match branch with | .normal changed => eval next changed | flow => flow
+  | .matchChoice index path tag left right next, frame => match selectChoice frame index path tag with
+    | none => .invalid frame.world
+    | some side =>
+      let branch := if side then eval right frame else eval left frame
+      match branch with | .normal changed => eval next changed | flow => flow
   | .switchUsize operand value yes no next, frame => match evalOperand frame operand with
     | some (.scalar (.usize word),caller) =>
       let branch := if word = value then eval yes caller else eval no caller
@@ -366,6 +395,14 @@ theorem retag_projects (world : State) (value : Value) (enabled : Bool) (element
           rw [secondEq] at second
           simp only [retag, firstEq, secondEq, Tagged.world]
           exact NativeReferenceMachine.runs_trans _ _ _ first second
+  | choice side fields ih =>
+    cases enabled with
+    | false => exact .refl _
+    | true =>
+      have first := ih world
+      cases actual : retag world fields true element with
+      | invalid rejected => simpa only [retag, actual, Tagged.world] using first
+      | value output final => simpa only [retag, actual, Tagged.world] using first
   | record tag fields ih =>
     cases enabled with
     | false => exact .refl _
@@ -381,6 +418,14 @@ theorem evalRvalue_projects (frame : Frame) (rvalue : Rvalue) :
     NativeReferenceMachine.Runs frame.world (evalRvalue frame rvalue).world := by
   cases rvalue with
   | unit => exact .refl _
+  | aggregate tag side fields =>
+    cases selected : evalArgs frame fields with
+    | none => simp only [evalRvalue, selected, Evaluated.world]; exact .refl _
+    | some result =>
+      rcases result with ⟨values,caller⟩
+      simp only [evalRvalue, selected, Evaluated.world]
+      rw [evalArgs_world frame caller fields values selected]
+      exact .refl _
   | use operand enabled element =>
     cases selected : evalOperand frame operand with
     | none => simp only [evalRvalue, selected, Evaluated.world]; exact .refl _
@@ -397,6 +442,14 @@ theorem evalRvalue_projects (frame : Frame) (rvalue : Rvalue) :
         rw [actual] at first
         simp only [evalRvalue, selected, actual, Evaluated.world]
         simpa only [same, Tagged.world] using first
+  | choice side operand =>
+    cases selected : evalOperand frame operand with
+    | none => simp only [evalRvalue, selected, Evaluated.world]; exact .refl _
+    | some result =>
+      rcases result with ⟨value,caller⟩
+      simp only [evalRvalue, selected, Evaluated.world]
+      rw [evalOperand_world frame caller operand value selected]
+      exact .refl _
   | wrapOne tag operand =>
     cases selected : evalOperand frame operand with
     | none => simp only [evalRvalue, selected, Evaluated.world]; exact .refl _
@@ -424,6 +477,7 @@ theorem evalRvalue_projects (frame : Frame) (rvalue : Rvalue) :
         | usize word => simp only [evalRvalue, selected, Evaluated.world]; rw [same]; exact .refl _
         | reference mutable reference length => simp only [evalRvalue, selected, Evaluated.world]; rw [same]; exact .refl _
       | pair left right => simp only [evalRvalue, selected, Evaluated.world]; rw [same]; exact .refl _
+      | choice side fields => simp only [evalRvalue, selected, Evaluated.world]; rw [same]; exact .refl _
       | record tag fields => simp only [evalRvalue, selected, Evaluated.world]; rw [same]; exact .refl _
       | enumeration tag value => simp only [evalRvalue, selected, Evaluated.world]; rw [same]; exact .refl _
       | uninit => simp only [evalRvalue, selected, Evaluated.world]; rw [same]; exact .refl _
@@ -451,6 +505,7 @@ theorem settle_projects (entered : State) (flow : Flow) :
   | returned value world =>
     cases value with
     | pair left right => exact .refl _
+    | choice side fields => exact .refl _
     | record tag fields => exact .refl _
     | enumeration tag value => exact .refl _
     | uninit => exact .refl _
@@ -539,6 +594,23 @@ theorem eval_projects (body : Body) (frame : Frame) :
     | unwind world => exact first
     | invalid world => exact first
     | unsupported source world => exact first
+  | matchChoice index path tag left right next leftIH rightIH nextIH =>
+    cases selected : selectChoice frame index path tag with
+    | none => simp only [eval, selected, Flow.world]; exact .refl _
+    | some side =>
+      have first : NativeReferenceMachine.Runs frame.world
+          (if side then eval right frame else eval left frame).world := by
+        cases side
+        · exact leftIH frame
+        · exact rightIH frame
+      simp only [eval, selected]
+      generalize chosen : (if side then eval right frame else eval left frame) = branch at first ⊢
+      cases branch with
+      | normal changed => exact NativeReferenceMachine.runs_trans _ _ _ first (nextIH changed)
+      | returned value world => exact first
+      | unwind world => exact first
+      | invalid world => exact first
+      | unsupported source world => exact first
   | switchUsize operand expected yes no next yesIH noIH nextIH =>
     cases selected : evalOperand frame operand with
     | none => simp only [eval, selected, Flow.world]; exact .refl _
@@ -547,6 +619,7 @@ theorem eval_projects (body : Body) (frame : Frame) :
       have same := evalOperand_world frame caller operand value selected
       cases value with
       | pair left right => simp only [eval, selected, Flow.world]; exact .refl _
+      | choice side fields => simp only [eval, selected, Flow.world]; exact .refl _
       | record tag fields => simp only [eval, selected, Flow.world]; exact .refl _
       | enumeration tag value => simp only [eval, selected, Flow.world]; exact .refl _
       | uninit => simp only [eval, selected, Flow.world]; exact .refl _
