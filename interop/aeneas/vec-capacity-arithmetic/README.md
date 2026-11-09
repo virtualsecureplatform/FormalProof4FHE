@@ -485,3 +485,46 @@ effects, failed placement, successful allocation, zero capacity and conditional
 well-formedness. The 151 shared-model examples retain their prior scope. The
 unchanged library, root tests, toolchain, dependencies and full-check scripts
 permit reuse of the successful 11101-job full project check.
+
+## Allocation coverage and returned-vector provenance
+
+`AllocationCoverageProof` classifies every supplied allocator address:
+the checked primitive either rejects it, retaining its incoming state, or
+produces the fresh non-null pointer and allocated heap. Its exact-success lemma
+identifies the fresh block and generation, resulting state and validated block
+geometry. Invalid allocator results now propagate through the runtime,
+implementation, method, constructor and all root callers, preserving the actual
+failed prefix. Generic terminal constructor outcomes also propagate through the
+root callers.
+
+`terminal_root_normal_allocation` covers every allocator outcome after the
+actual modeled shim returns unit. It computes `NativeAllocatorExecution.run`
+instead of assuming a successful allocation result: normalized null reaches the
+error handler, a rejected address remains invalid, and a successful checked
+allocation returns its vector. The original shim result and starting-state
+conditions remain explicit. Native allocator ABI correspondence remains open.
+
+`ReturnExclusionProof` shows that rejected capacities and normalized null
+allocation cannot return a vector, without a snapshot-success premise or
+formatter/panic execution contracts. Any returned vector therefore has capacity
+below the signed layout limit. For positive capacity and a normal shim return,
+`terminal_root_return_fresh_allocation` identifies its actual checked allocation,
+returned vector pointer/capacity, fresh block and generation, validated geometry
+and final allocator state. Zero capacity retains its separate allocation-free
+result. These are source-model return/ownership facts; connecting returned setup
+to native PBS acceptance and the physical attacker-work inequality remains open.
+
+The ten new regressions include a symbolic allocator-outcome theorem, zero and
+overflowing addresses, overlap rejection, a successful second allocation with a
+new generation, malformed snapshot placement, error-return exclusion for
+arbitrary formatter/panic callbacks, and the zero-capacity case. The four related
+extraction profiles are reused only after verifying that every recorded input
+hash remains current. Their source/proof inputs are unchanged by this extension.
+
+Allocation-coverage validation: 1,226 dependency audits and 247 rejecting
+controls pass, covering 618 constructor/helper/composition declarations and 54
+linked getter declarations. All 196 source examples pass, including ten new
+coverage regressions. The four related profiles retain valid input/log/manifest
+hashes and their existing proof scope; their gates are reused. The unchanged
+library, root tests, toolchain, dependencies and full-check scripts permit reuse
+of the successful 11101-job full project check.
