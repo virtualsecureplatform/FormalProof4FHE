@@ -95,8 +95,9 @@ class Reifier:
    'assignments':[{k:v for k,v in r.items() if k!='rendered'} for r in self.rows],
    'claim':'original scalar assignments, continuous layout prefix and decoded zero-capacity source call path; positive construction, unprocessed error/unwind branches, ABI and physical work remain open'}
  def render(self):
-  lines=['module','public import FormalProof4FHE.HasteBoots.NativeRecordCallValues','public import FormalProof4FHE.HasteBoots.NativeAllocatorLLBC','public import FormalProof4FHE.HasteBoots.NativeStorageBorrowMachine','@[expose] public section',
-   'namespace HasteBootsVecCapacityArithmetic','open FormalProof4FHE.HasteBoots','open NativeRecordLLBC']
+  lines=['module','public import FormalProof4FHE.HasteBoots.NativeRecordCallValues','public import FormalProof4FHE.HasteBoots.NativeAllocatorLLBC','public import FormalProof4FHE.HasteBoots.NativeReservationErrorLocal','@[expose] public section',
+   'namespace HasteBootsVecCapacityArithmetic','open FormalProof4FHE.HasteBoots','open NativeRecordLLBC',
+   'def reservationErrorTags : NativeReservationErrorLocal.Tags := ⟨9,18,4,11,12⟩']
   for r in self.rows:
    lines+=['-- Original assignment SHA256 '+digest(r['statement']),
     'def expr_'+r['operation']+' : Rvalue := .arithmetic .'+r['operation']+' ['+', '.join(r['rendered'])+']',

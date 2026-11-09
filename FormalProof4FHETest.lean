@@ -285,3 +285,6 @@ import FormalProof4FHETest.HasteBootsReservationErrorFieldsAudit
 
 import FormalProof4FHETest.HasteBootsStorageBorrowSmoke
 import FormalProof4FHETest.HasteBootsStorageBorrowAudit
+
+import FormalProof4FHETest.HasteBootsReservationErrorLocalSmoke
+import FormalProof4FHETest.HasteBootsReservationErrorLocalAudit

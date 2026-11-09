@@ -1,11 +1,12 @@
 module
 public import FormalProof4FHE.HasteBoots.NativeRecordCallValues
 public import FormalProof4FHE.HasteBoots.NativeAllocatorLLBC
-public import FormalProof4FHE.HasteBoots.NativeStorageBorrowMachine
+public import FormalProof4FHE.HasteBoots.NativeReservationErrorLocal
 @[expose] public section
 namespace HasteBootsVecCapacityArithmetic
 open FormalProof4FHE.HasteBoots
 open NativeRecordLLBC
+def reservationErrorTags : NativeReservationErrorLocal.Tags := ⟨9,18,4,11,12⟩
 -- Original assignment SHA256 37d92bed7ddb159eb68017984a9a93765fd066ce5fef61b9864dbb0f9dee4d14
 def expr_wrappingSubtract : Rvalue := .arithmetic .wrappingSubtract [(.copy 10 []), (.usize 0)]
 def step_wrappingSubtract : Body := .assign 9 expr_wrappingSubtract .done
