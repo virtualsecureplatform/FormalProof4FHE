@@ -1,7 +1,7 @@
 {
-  "profile": "revalidated-with-error-read-v18",
-  "gate_manifest": "build/hasteboots-extraction/allocator-caller-z3kzyp_d/manifest.json",
-  "gate_manifest_sha256": "5fe042ff56f46f3f75de45af5980d05dd9a0d1b89da83302bc491e6c0ae7b885",
+  "profile": "revalidated-with-transparent-getter-body-v19",
+  "gate_manifest": "build/hasteboots-extraction/allocator-caller-ha_5x09m/manifest.json",
+  "gate_manifest_sha256": "1836d7df43a5b6861b16b91fe0ec788d69360549ea40b3cd67c32735c3ad1415",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "status": "passed",
   "commands": [
@@ -635,7 +635,7 @@
     "heap_and_incoming_reference_preservation_extended": true,
     "native_alignment_transmute_abi_refinement": false
   },
-  "validation_note": "Fresh source extraction gate and full project check passed, including separate complete error-read and getter audits. This profile retains its existing source theorem scope; native correspondence, physical work and final security remain open.",
+  "validation_note": "Fresh source extraction gate passed alongside the new transparent getter body profile (577 audits/39 rejecting controls), whose equivalence theorem uses explicit checked reference materialization. This profile retains its existing source theorem scope. The unchanged library/root-test/toolchain/dependency/full-check inputs permit reuse of the prior 11101-job full check. Wrapper/caller integration, native correspondence, reclamation, physical work and final security remain open.",
   "prior_zst_local_borrow_baseline": {
     "profile": "original-finite-allocator-caller-revalidated-with-checked-enum-address-v3",
     "gate_manifest": "build/hasteboots-extraction/allocator-caller-97_hgb6y/manifest.json",
@@ -775,7 +775,7 @@
     "negative_control_count": 31
   },
   "revalidated_with_reservation_error_fields": true,
-  "root_full_check_reused_without_library_or_root_test_changes": false,
+  "root_full_check_reused_without_library_or_root_test_changes": true,
   "prior_storage_borrow_baseline": {
     "profile": "revalidated-with-reservation-error-fields-v15",
     "gate_manifest": "build/hasteboots-extraction/allocator-caller-d6wo5oxv/manifest.json",
@@ -799,5 +799,19 @@
     "dependency_audit_count": 388,
     "negative_control_count": 31
   },
-  "revalidated_with_error_read": true
+  "revalidated_with_error_read": true,
+  "prior_source_getter_body_baseline": {
+    "profile": "revalidated-with-error-read-v18",
+    "gate_manifest": "build/hasteboots-extraction/allocator-caller-z3kzyp_d/manifest.json",
+    "gate_manifest_sha256": "5fe042ff56f46f3f75de45af5980d05dd9a0d1b89da83302bc491e6c0ae7b885",
+    "dependency_audit_count": 388,
+    "negative_control_count": 31
+  },
+  "revalidated_with_source_getter_body": true,
+  "source_getter_body_profile": {
+    "manifest": "build/hasteboots-extraction/reservation-error-kind-x9b11738/manifest.json",
+    "manifest_sha256": "8cd12c44697b7661e5df54b873aba7b2d1e79c986c5561aa7cbf6b20e7042d6f",
+    "dependency_audit_count": 577,
+    "negative_control_count": 39
+  }
 }

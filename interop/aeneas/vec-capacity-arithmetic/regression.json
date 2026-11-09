@@ -1,8 +1,8 @@
 {
-  "profile": "complete-snapshot-reads-and-checked-kind-getter-v20",
+  "profile": "revalidated-with-transparent-getter-body-v21",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-l46qm1_q/manifest.json",
-  "gate_manifest_sha256": "4e2aa512ac8200ae0391c017293235aafd709c3cfd00685a6a9c99b15c18ac14",
+  "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-fwz82yu9/manifest.json",
+  "gate_manifest_sha256": "c14bdaede8c55c4f42fba1b1dae01bf41a35630526b04cd99a835aaa4611846b",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -37,7 +37,8 @@
     "fce484af8ea8ff98a0745a4174c81bc104868ba2",
     "1f4ca89922e7ea922e3fc2f639fda1fc870e9af9",
     "211654f302bbaa55aa51e6937f03c0478c5809e0",
-    "3e3768854a1512ceb4281df578f24d6eca11b56b"
+    "3e3768854a1512ceb4281df578f24d6eca11b56b",
+    "87cfe450b6295a5837480ac1029369bd5c795750"
   ],
   "dependency_audit_count": 945,
   "negative_control_count": 165,
@@ -227,6 +228,7 @@
     "scripts/reify-hasteboots-rawvec-option": "18ef4ea5a9cfe3e016a4ce805557b60a2e098c8523a90afb6498142ae6a7bdfc",
     "scripts/reify-hasteboots-rawvec-reference": "a23873af71f590f44d8ce00bbfc2461f44c385c81158b8f420658cb6f2930243",
     "scripts/reify-hasteboots-reference-retag-llbc": "20fa3448c5479473bbf54fb506efe2625ae0a88fa0727f0ff23499a6ca786ea8",
+    "scripts/reify-hasteboots-reservation-error-kind": "1b3299ce019d9cf1ffd650908c8173651ea47c0696fcaf2926193e976afec95f",
     "scripts/reify-hasteboots-scalar-llbc": "4e7a3c819b1f6b7c851ad0453ce125399bffa46bb7cea9193eaf065628b970df",
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
@@ -736,7 +738,7 @@
     "interop/aeneas/vec-capacity-arithmetic/LocalSmoke.lean": "d2747a0e3a20591418fd9e828d0b1420fbfaa7718ab55e6874773591faa5ae32",
     "interop/aeneas/vec-capacity-arithmetic/ReadSmoke.lean": "6726af23fdfd9806e9bf7da055d771fe4d20bd73df6e9c4c0aefd01bae02992e"
   },
-  "source_llbc_sha256": "cd79c04c8c606bca09c3d102de35f82d33a9280bf7da7af881c61d223fc4d8b1",
+  "source_llbc_sha256": "b891a68f784dbca7e4d3a71d181490a627355e8a6c41819dfdb6ec5e2d5b10bf",
   "checked_sha256": "2168b0c5d23914c285491b652d9399e20f1e0f8b1a203e256d7182b83ddeac69",
   "source_definition_count": 211,
   "source_theorem_count": 180,
@@ -787,25 +789,31 @@
   },
   "revalidated_profiles": {
     "vec": {
-      "manifest": "build/hasteboots-extraction/vec-drop-xj8t6pe5/manifest.json",
-      "manifest_sha256": "ce77f0fe8897df97a96fa76a8f9b812697632c21c76ef29ece16cc221b75db56",
+      "manifest": "build/hasteboots-extraction/vec-drop-kc3fatca/manifest.json",
+      "manifest_sha256": "6550c9b8f58df5513ea3676f323f60d008a279357fe6a47bbcadc34806e8b401",
       "dependency_audit_count": 1044,
       "negative_control_count": 87
     },
     "allocator": {
-      "manifest": "build/hasteboots-extraction/allocator-caller-z3kzyp_d/manifest.json",
-      "manifest_sha256": "5fe042ff56f46f3f75de45af5980d05dd9a0d1b89da83302bc491e6c0ae7b885",
+      "manifest": "build/hasteboots-extraction/allocator-caller-ha_5x09m/manifest.json",
+      "manifest_sha256": "1836d7df43a5b6861b16b91fe0ec788d69360549ea40b3cd67c32735c3ad1415",
       "dependency_audit_count": 388,
       "negative_control_count": 31
     },
     "empty": {
-      "manifest": "build/hasteboots-extraction/vec-empty-9r_fa0e4/manifest.json",
-      "manifest_sha256": "f4523958966a7eff186dacff2a1f83aa31c1746815cbc788260213f588fde491",
+      "manifest": "build/hasteboots-extraction/vec-empty-ph950fvj/manifest.json",
+      "manifest_sha256": "bf05f36bb62541c89b1a3c393ae653c42716393a84aa0bdc497713c6d22c50e4",
       "dependency_audit_count": 395,
       "negative_control_count": 17
+    },
+    "getter": {
+      "manifest": "build/hasteboots-extraction/reservation-error-kind-x9b11738/manifest.json",
+      "manifest_sha256": "8cd12c44697b7661e5df54b873aba7b2d1e79c986c5561aa7cbf6b20e7042d6f",
+      "dependency_audit_count": 577,
+      "negative_control_count": 39
     }
   },
-  "validation_note": "Fresh full scripts/check and direct warning-as-error checks passed. The capacity extraction gate passed 945 dependency audits, 165 rejecting controls, 130 source examples and 151 model examples. Read permission and residency derived from actual grants prove complete field reads and a checked kind-getter round trip after successful snapshots, with no assumed read success. Equivalence to the extracted Rust getter body, source caller installation, native stack/type/lifetime/compiler correspondence, reclamation, resident destruction, physical work and final security remain open.",
+  "validation_note": "Fresh source extraction gate passed alongside the new transparent getter body profile (577 audits/39 rejecting controls), whose equivalence theorem uses explicit checked reference materialization. This profile retains its existing source theorem scope. The unchanged library/root-test/toolchain/dependency/full-check inputs permit reuse of the prior 11101-job full check. Wrapper/caller integration, native correspondence, reclamation, physical work and final security remain open.",
   "prior_isolated_assignment_baseline": {
     "profile": "retained-with-capacity-scalar-assignments-and-typed-boolean-arithmetic-v1",
     "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-hmaelxmc/manifest.json",
@@ -1211,7 +1219,7 @@
     "outer_error_propagation_proved": false,
     "native_abi_compiler_lifetime_work_refinement": false
   },
-  "root_full_check_reused_without_library_or_root_test_changes": false,
+  "root_full_check_reused_without_library_or_root_test_changes": true,
   "prior_unified_constructor_baseline": {
     "profile": "rejected-byte-layout-and-generic-global-drop-v14",
     "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-ufslqsap/manifest.json",
@@ -1529,6 +1537,21 @@
         "log": "/tmp/error-read-strict-HasteBootsReservationErrorReadAudit.lean.log",
         "log_sha256": "cb57e98c8b5365e217c1a9a709b94e15dc7a8c38e28dc9f85f0fc36c1f69804d"
       }
-    }
+    },
+    "extracted_getter_equivalence_after_materialization": true
+  },
+  "prior_source_getter_body_baseline": {
+    "profile": "complete-snapshot-reads-and-checked-kind-getter-v20",
+    "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-l46qm1_q/manifest.json",
+    "gate_manifest_sha256": "4e2aa512ac8200ae0391c017293235aafd709c3cfd00685a6a9c99b15c18ac14",
+    "dependency_audit_count": 945,
+    "negative_control_count": 165
+  },
+  "revalidated_with_source_getter_body": true,
+  "source_getter_body_profile": {
+    "manifest": "build/hasteboots-extraction/reservation-error-kind-x9b11738/manifest.json",
+    "manifest_sha256": "8cd12c44697b7661e5df54b873aba7b2d1e79c986c5561aa7cbf6b20e7042d6f",
+    "dependency_audit_count": 577,
+    "negative_control_count": 39
   }
 }

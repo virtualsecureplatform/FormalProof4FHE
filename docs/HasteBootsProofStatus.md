@@ -7,6 +7,36 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Transparent source getter agrees after reference materialization
+
+The new `interop/aeneas/reservation-error-kind` profile includes
+`alloc::collections` and retains the transparent original getter, its safe
+fixture wrapper and five relevant types. The reifier resolves declarations by
+identity and validates the complete getter body: shared dereferences, variant
+match/fallthrough, Layout copy, temporary moves, retags, aggregate construction,
+cleanup and returns. Source type IDs are local to this extraction and are not
+silently identified with the constructor profile's IDs.
+
+The emitted getter body executes in the existing aggregate interpreter after an
+explicit checked reference-materialization step. Eleven source theorems cover
+all valid alignment discriminants, both original branches, their common result,
+heap-derived kind validity, equality with the checked getter operation, heap
+framing, operational projection, snapshot composition and reachability. No final
+getter-result premise is assumed. Ten examples include overflow padding, ordinary
+and boundary layouts, actual snapshot/getter runs and rejected operands.
+
+The new source gate passes 577 dependency audits and 39 rejecting controls. Related
+gates pass: constructor 945 audits/165 controls, Vec destruction 1044/87,
+allocator caller 388/31 and empty constructor 395/17. The
+shared library, root tests, toolchain/dependencies and full-check scripts are
+unchanged, so the preceding successful 11101-job full check remains applicable.
+
+Equivalence is established at the explicit materialized-reference boundary.
+The fixture wrapper's reborrow/call sequence is retained but not executed, and
+the original constructor error handler is not yet connected. Native reference
+ABI, stack placement, lifetime/compiler correspondence, reclamation, resident
+destruction, physical work and final security remain open.
+
 ## Snapshot reads and checked kind getter are complete
 
 `NativeReservationErrorRead` separates byte residency from alias permission.

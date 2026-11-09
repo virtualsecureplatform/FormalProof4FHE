@@ -1,8 +1,8 @@
 {
-  "profile": "revalidated-with-error-read-v41",
+  "profile": "revalidated-with-transparent-getter-body-v42",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-drop-xj8t6pe5/manifest.json",
-  "gate_manifest_sha256": "ce77f0fe8897df97a96fa76a8f9b812697632c21c76ef29ece16cc221b75db56",
+  "gate_manifest": "build/hasteboots-extraction/vec-drop-kc3fatca/manifest.json",
+  "gate_manifest_sha256": "6550c9b8f58df5513ea3676f323f60d008a279357fe6a47bbcadc34806e8b401",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -316,7 +316,7 @@
     "FormalProof4FHETest/HasteBootsRawVecDeallocationCompletenessAudit.lean": "85efbedcef271ce6dc69a0bebb5d25b0880091984899ae52e3c02bfe7bcb3a48",
     "FormalProof4FHETest/HasteBootsVecDestructionCompletenessAudit.lean": "b15ca27d45474cdbf6c85a2635a3969160d35fd7e658b00139d4ba8d394a3dbd"
   },
-  "source_llbc_sha256": "b246c6749c648e3236a0c5ce8881bc56f9685563f59e9c7bc8c90e2a6adb66bb",
+  "source_llbc_sha256": "84654f6a031b25b937395c62a0b13fca7bc6b55d49e1bb1803e2ed05904546d3",
   "outer_vec_drop_glue_interpreted": true,
   "outer_vec_drop_method_interpreted": true,
   "unbounded_original_byte_loop_interpreted": true,
@@ -1035,7 +1035,7 @@
     "heap_and_incoming_reference_preservation_extended": true,
     "native_alignment_transmute_abi_refinement": false
   },
-  "validation_note": "Fresh source extraction gate and full project check passed, including separate complete error-read and getter audits. This profile retains its existing source theorem scope; native correspondence, physical work and final security remain open.",
+  "validation_note": "Fresh source extraction gate passed alongside the new transparent getter body profile (577 audits/39 rejecting controls), whose equivalence theorem uses explicit checked reference materialization. This profile retains its existing source theorem scope. The unchanged library/root-test/toolchain/dependency/full-check inputs permit reuse of the prior 11101-job full check. Wrapper/caller integration, native correspondence, reclamation, physical work and final security remain open.",
   "prior_zst_local_borrow_baseline": {
     "profile": "original-resident-vec-destruction-with-checked-enum-address-v26",
     "gate_manifest": "build/hasteboots-extraction/vec-drop-u8mfb0e8/manifest.json",
@@ -1166,7 +1166,7 @@
     "negative_control_count": 87
   },
   "revalidated_with_reservation_error_fields": true,
-  "root_full_check_reused_without_library_or_root_test_changes": false,
+  "root_full_check_reused_without_library_or_root_test_changes": true,
   "prior_storage_borrow_baseline": {
     "profile": "revalidated-with-reservation-error-fields-v38",
     "gate_manifest": "build/hasteboots-extraction/vec-drop-lwie0djj/manifest.json",
@@ -1190,5 +1190,19 @@
     "dependency_audit_count": 1044,
     "negative_control_count": 87
   },
-  "revalidated_with_error_read": true
+  "revalidated_with_error_read": true,
+  "prior_source_getter_body_baseline": {
+    "profile": "revalidated-with-error-read-v41",
+    "gate_manifest": "build/hasteboots-extraction/vec-drop-xj8t6pe5/manifest.json",
+    "gate_manifest_sha256": "ce77f0fe8897df97a96fa76a8f9b812697632c21c76ef29ece16cc221b75db56",
+    "dependency_audit_count": 1044,
+    "negative_control_count": 87
+  },
+  "revalidated_with_source_getter_body": true,
+  "source_getter_body_profile": {
+    "manifest": "build/hasteboots-extraction/reservation-error-kind-x9b11738/manifest.json",
+    "manifest_sha256": "8cd12c44697b7661e5df54b873aba7b2d1e79c986c5561aa7cbf6b20e7042d6f",
+    "dependency_audit_count": 577,
+    "negative_control_count": 39
+  }
 }

@@ -1,8 +1,8 @@
 {
-  "profile": "revalidated-with-error-read-v20",
+  "profile": "revalidated-with-transparent-getter-body-v21",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-empty-9r_fa0e4/manifest.json",
-  "gate_manifest_sha256": "f4523958966a7eff186dacff2a1f83aa31c1746815cbc788260213f588fde491",
+  "gate_manifest": "build/hasteboots-extraction/vec-empty-ph950fvj/manifest.json",
+  "gate_manifest_sha256": "bf05f36bb62541c89b1a3c393ae653c42716393a84aa0bdc497713c6d22c50e4",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -77,6 +77,7 @@
     "scripts/reify-hasteboots-rawvec-option": "18ef4ea5a9cfe3e016a4ce805557b60a2e098c8523a90afb6498142ae6a7bdfc",
     "scripts/reify-hasteboots-rawvec-reference": "a23873af71f590f44d8ce00bbfc2461f44c385c81158b8f420658cb6f2930243",
     "scripts/reify-hasteboots-reference-retag-llbc": "20fa3448c5479473bbf54fb506efe2625ae0a88fa0727f0ff23499a6ca786ea8",
+    "scripts/reify-hasteboots-reservation-error-kind": "1b3299ce019d9cf1ffd650908c8173651ea47c0696fcaf2926193e976afec95f",
     "scripts/reify-hasteboots-scalar-llbc": "4e7a3c819b1f6b7c851ad0453ce125399bffa46bb7cea9193eaf065628b970df",
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
@@ -537,7 +538,7 @@
     "interop/aeneas/vec-empty/Proof.lean": "e49c37943109ddd3fac76fade3e940454dd06f0e18b8ab1bcc0ffbdbfcb6a2f6",
     "interop/aeneas/vec-empty/Smoke.lean": "5c0cba3dfda637c34c2d2b735f362f71b013f17b2408e98ece36450c366ac244"
   },
-  "source_llbc_sha256": "369a24e5a153d546121d4100ea1c6928a524a6babbfd8e68f0b8f87807c63dd7",
+  "source_llbc_sha256": "52b7c322313b6dd78121e6ca444f9480d232a6739607ba9014baac23ba59edee",
   "checked_sha256": "751f619066943dc4773abed0b4ee7f3ad63e22f2b70705160a7b0d018177f3d1",
   "original_constructor_and_direct_caller_interpreted": true,
   "exact_nominal_return_for_arbitrary_world_proved": true,
@@ -569,7 +570,7 @@
     "dependency_audit_count": 977,
     "negative_control_count": 87
   },
-  "validation_note": "Fresh source extraction gate and full project check passed, including separate complete error-read and getter audits. This profile retains its existing source theorem scope; native correspondence, physical work and final security remain open.",
+  "validation_note": "Fresh source extraction gate passed alongside the new transparent getter body profile (577 audits/39 rejecting controls), whose equivalence theorem uses explicit checked reference materialization. This profile retains its existing source theorem scope. The unchanged library/root-test/toolchain/dependency/full-check inputs permit reuse of the prior 11101-job full check. Wrapper/caller integration, native correspondence, reclamation, physical work and final security remain open.",
   "prior_storage_bridge_baseline": {
     "manifest": "build/hasteboots-extraction/vec-empty-e010m81k/manifest.json",
     "sha256": "3d2248477bca4fce9445e4cbc4bb66e001323c05beae90deed8b7ecefcf5d5bf",
@@ -789,7 +790,7 @@
     "negative_control_count": 17
   },
   "revalidated_with_reservation_error_fields": true,
-  "root_full_check_reused_without_library_or_root_test_changes": false,
+  "root_full_check_reused_without_library_or_root_test_changes": true,
   "prior_storage_borrow_baseline": {
     "profile": "revalidated-with-reservation-error-fields-v17",
     "gate_manifest": "build/hasteboots-extraction/vec-empty-4xe4bz0l/manifest.json",
@@ -813,5 +814,19 @@
     "dependency_audit_count": 395,
     "negative_control_count": 17
   },
-  "revalidated_with_error_read": true
+  "revalidated_with_error_read": true,
+  "prior_source_getter_body_baseline": {
+    "profile": "revalidated-with-error-read-v20",
+    "gate_manifest": "build/hasteboots-extraction/vec-empty-9r_fa0e4/manifest.json",
+    "gate_manifest_sha256": "f4523958966a7eff186dacff2a1f83aa31c1746815cbc788260213f588fde491",
+    "dependency_audit_count": 395,
+    "negative_control_count": 17
+  },
+  "revalidated_with_source_getter_body": true,
+  "source_getter_body_profile": {
+    "manifest": "build/hasteboots-extraction/reservation-error-kind-x9b11738/manifest.json",
+    "manifest_sha256": "8cd12c44697b7661e5df54b873aba7b2d1e79c986c5561aa7cbf6b20e7042d6f",
+    "dependency_audit_count": 577,
+    "negative_control_count": 39
+  }
 }
