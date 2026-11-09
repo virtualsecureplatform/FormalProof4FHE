@@ -7,6 +7,43 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Initialized prefixes and logical alias conditions give checked index success
+
+`NativeByteRangeCompleteness` proves that every bounded subrange of an
+initialized byte prefix is readable with exactly the corresponding bytes.
+It derives geometry and address bounds, preserves complete pointer provenance,
+and includes empty ranges at the end. Resident Vec initialized-element proofs
+now supply every bounded byte read. Unused capacity remains independent of the
+initialized prefix.
+
+`NativeBorrowFrontier` states a logical alias condition: the selected exclusive
+lease may overlap its ancestors, while every other active lease must be
+physically disjoint. Under a valid ledger, this condition gives the checked
+permission for shared or exclusive subrange access. An actual exclusive borrow
+preserves the condition for its fresh child. Combining this with initialized
+subranges proves actual ledger borrowing, closed-machine reference grants and
+byte indexing, including address preparation. These theorems derive successful
+operations rather than accepting success booleans as premises.
+
+This step adds 17 theorems, two definitions, 19 declaration guards and 20
+regressions. Tests cover exact byte selection, dangling empty ranges,
+uninitialized spare capacity, lost provenance, nested overlapping ancestors,
+blocking descendants and unrelated overlaps, and actual reference/birth
+register issuance. The prerequisites remain explicit: initialized elements,
+well-formed modeled memory/ledger, resident registers and the logical alias
+condition. They do not establish native Rust lifetimes or construction validity.
+
+Fresh extraction passed 727 dependency audits and 69 rejecting controls.
+Full `scripts/check` passed its 11,053-job build and all subsequent smoke checks.
+Retained Rust function bodies and type declarations are unchanged; input and
+validation hashes are recorded in the profile's `regression.json`.
+
+Next carry these sufficient conditions through slice issuance and iteration
+cleanup, prove completion of the unbounded traversal, and lift that completion
+through the original Vec source calls. The sufficient conditions for successful
+whole-Vec return and exact release, native refinement, physical attacker work
+and the final application security theorem remain open.
+
 ## Outer Vec glue identifies the original buffer on every outcome
 
 `OuterVecProof.lean` now connects the original Vec entry to the existing RawVec

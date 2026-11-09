@@ -1,8 +1,8 @@
 {
-  "profile": "original-resident-vec-destruction-with-outer-original-buffer-identification-v11",
+  "profile": "original-resident-vec-destruction-with-checked-byte-borrow-completeness-v12",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-drop-tpj6wifj/manifest.json",
-  "gate_manifest_sha256": "5bea8a9f35c4337383c22d9abba9fa77b721a9b3c789ab7654d66ebf4c05dd4d",
+  "gate_manifest": "build/hasteboots-extraction/vec-drop-y49bqpk2/manifest.json",
+  "gate_manifest_sha256": "a6406bb0104f5b0dc3e73d1c447a691bae282f0acffc805dacc8bc432397a241",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -27,9 +27,11 @@
     "117ac51b476e364a18f90fd57458d0f81255b409",
     "5bf7ef962412c5c668501b318843b0387896ba83",
     "f41aec8db64706db38601c8a2d350d16b0ccd21c",
-    "58aca43ae597dbe1cd09a8239c55d786348d22bf"
+    "58aca43ae597dbe1cd09a8239c55d786348d22bf",
+    "1a4bd54c0536d04ac3cf071d9bee1cdfa2c066c8",
+    "09ba85f8de975e2f8b3418c482c31deb6e0575d2"
   ],
-  "dependency_audit_count": 708,
+  "dependency_audit_count": 727,
   "negative_control_count": 69,
   "negative_controls": {
     "wrong_profile": "Wrong extraction profile",
@@ -108,12 +110,12 @@
   "interpreter_helper_theorem_count": 3,
   "source_loop_theorem_count": 16,
   "source_composition_theorem_count": 17,
-  "new_declaration_audit_count": 298,
-  "model_regression_count": 126,
+  "new_declaration_audit_count": 317,
+  "model_regression_count": 146,
   "source_regression_count": 63,
   "inputs": {
-    "scripts/check-hasteboots-vec-drop": "e96ba14638d7f6a470fe027995408a40628b3760c4251de96005eb62272422c4",
-    "scripts/reify-hasteboots-vec-drop": "25c09489afc174b2176715d06e4875bb1280eacb7508962c3943265489da4865",
+    "scripts/check-hasteboots-vec-drop": "5578726b053b764fc14ce55d64ea86039341b142bcb7c4235fc54251406cd5d0",
+    "scripts/reify-hasteboots-vec-drop": "dd1ef1e573232bdeff8dbc5dc4432bc8d32e6bad241138c857dc0aac9b193b65",
     "scripts/reify-hasteboots-rawvec-drop": "748d6a322c395db0244eec640359f5b4efd07d234b023a23aa23f9dfeee812aa",
     "scripts/check-hasteboots-rawvec-drop": "2774e9d2b0bf5817f876b4787101650118d905dbc954391743be2723518c1fb3",
     "scripts/reify-hasteboots-byte-loop-llbc": "fb747e07b75bcf8847326b3e3c3c9ff62402f1a2b306fb2123f1377bacc24b85",
@@ -133,7 +135,7 @@
     "scripts/extract-hasteboots-parameters": "9ab0b333e12a4dac0fea4e37bc8bee430bdf56cac7eb4bcb5fa999ceab140993",
     "lean-toolchain": "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c",
     "interop/aeneas/vec-drop/fixture.rs": "a9759ee4f6ff994cfeddd3783fadb15b3a9d754fce1d0c8d8f5b6d0b9da0529f",
-    "interop/aeneas/vec-drop/Generated.lean": "12766d0310e8a31acdfe25f0707d2a112ca091c738ca2700dd8f2f2f0d24a4f7",
+    "interop/aeneas/vec-drop/Generated.lean": "aae90e979dcbc3a943feb34ddf2e8e69d26f2babc40c074ad07d68ade5a37085",
     "interop/aeneas/vec-drop/Retained.json": "dda5b5bf5f588a48df0955d1ea5c11351b99e58904dc6d1f946f72615b1db064",
     "interop/aeneas/vec-drop/LoopProof.lean": "a479d3c1bf0fdef3090c4fe779bfce3668c518fec1fedb67dabf86870ae66288",
     "interop/aeneas/vec-drop/Execution.lean": "73a161abfeb81b1284761074a9a908da70dfaf09fa47a2de6b38954d36c2afd7",
@@ -160,6 +162,8 @@
     "FormalProof4FHE/HasteBoots/NativeRecordCallValues.lean": "6aa63875bf445f426e3484cbf425f58e378f83d31f93e8faab8b2f04eb272b56",
     "FormalProof4FHE/HasteBoots/NativeIncomingReference.lean": "f5e52dc9c5055e99643cd552b9c488066c11143cfde9bde8e3d805599a917479",
     "FormalProof4FHE/HasteBoots/NativeRecordIncomingReference.lean": "36daf682bbbd383eff81a297b63f3a86b3d6054d6837b753c3db22fee7c28ac9",
+    "FormalProof4FHE/HasteBoots/NativeByteRangeCompleteness.lean": "1aca2332957ff9e41b2bc19b41c22b31f54a88dc35e342c0a299a5aee3389ddc",
+    "FormalProof4FHE/HasteBoots/NativeBorrowFrontier.lean": "95b14ee0164bbc197577a84314277b749fa39fd1b4ef9eb7d974296880e59980",
     "FormalProof4FHE/HasteBoots/NativeReferenceMachine.lean": "c211d50ac2059b95d520867a26c982326cd8ba0233d5e55953d5f28afd9b2409",
     "FormalProof4FHE/HasteBoots/NativePointerMachine.lean": "ceeb2562745ad91b91120b0694587b464348439704ae1076719c031e30a1c813",
     "FormalProof4FHE/HasteBoots/NativePointerByteMemory.lean": "f62c76f67ec3785661456afc0f694c61dd3323546840de8ef2d2adb95fda495d",
@@ -200,9 +204,13 @@
     "FormalProof4FHETest/HasteBootsIncomingReferenceSmoke.lean": "1f5a071f5f2b98c3f0bb14e81e318cf32e461dd4206221137ada40fc3aa2416c",
     "FormalProof4FHETest/HasteBootsIncomingReferenceAudit.lean": "e4c2dfe30dfbef8dc37e4d6295a8f015b7bb288138e2459f5b9ece23a5874f20",
     "FormalProof4FHETest/HasteBootsRecordIncomingReferenceSmoke.lean": "38193b3fd4712174c3e504822d7819666cc3c1ca8080920917671da012dbf3ec",
-    "FormalProof4FHETest/HasteBootsRecordIncomingReferenceAudit.lean": "47c56a5f6d4aa39a2284cd4ef8e53aafba7e7d360acd2128cbbd79aa1a789763"
+    "FormalProof4FHETest/HasteBootsRecordIncomingReferenceAudit.lean": "47c56a5f6d4aa39a2284cd4ef8e53aafba7e7d360acd2128cbbd79aa1a789763",
+    "FormalProof4FHETest/HasteBootsByteRangeCompletenessSmoke.lean": "23da327972cfcd5e447d0c2f332371dd6354558b27bc3fc67fe58e12386efb4e",
+    "FormalProof4FHETest/HasteBootsByteRangeCompletenessAudit.lean": "8d19199963fdc9aa10e8eddf242e6d88632aa799c65dfcaa321381ab68c00075",
+    "FormalProof4FHETest/HasteBootsBorrowFrontierSmoke.lean": "4d88408411533a407e13c239ea4d484396b983f15201b88f53c584cd35fa79d3",
+    "FormalProof4FHETest/HasteBootsBorrowFrontierAudit.lean": "cd73e7b5d16ae7cc3327d6c8723b899544434049ba64a601a2607f90dbafa01c"
   },
-  "source_llbc_sha256": "f59dfc9eeec8b28e249deae8872e25df18330ec66fdbb67257990d8b12351a9e",
+  "source_llbc_sha256": "33c90309b58235e33312bc9a0c11112cbb088210a6b8bcd72cf21ffc498cf8ef",
   "outer_vec_drop_glue_interpreted": true,
   "outer_vec_drop_method_interpreted": true,
   "unbounded_original_byte_loop_interpreted": true,
@@ -218,9 +226,9 @@
   "full_project_check": {
     "command": "scripts/check",
     "exit_code": 0,
-    "build_jobs": 11047,
-    "log": "/tmp/hasteboots-outer-vec-full-check.log",
-    "log_sha256": "158786e8a17d9044c2299806dad5c9f84244fed7f261b2e554e80214bd7b3997"
+    "build_jobs": 11053,
+    "log": "/tmp/hasteboots-borrow-completeness-full-check.log",
+    "log_sha256": "ecaddf3883a0671a2d6bb8a8e2a178bd91cc18b6163439f6aeb21d1f3b69f7e8"
   },
   "prior_gate_manifest": {
     "path": "build/hasteboots-extraction/vec-drop-j6ky4k09/manifest.json",
@@ -454,6 +462,37 @@
     "successful_internal_borrow_or_call_premise": false,
     "sufficient_conditions_for_successful_return_proved": false,
     "native_constructor_acceptance": false,
+    "retained_function_bodies_and_type_declarations_unchanged": true
+  },
+  "prior_borrow_completeness_baseline": {
+    "manifest": "build/hasteboots-extraction/vec-drop-tpj6wifj/manifest.json",
+    "manifest_sha256": "5bea8a9f35c4337383c22d9abba9fa77b721a9b3c789ab7654d66ebf4c05dd4d",
+    "dependency_audit_count": 708
+  },
+  "byte_borrow_completeness": {
+    "range_module": "FormalProof4FHE/HasteBoots/NativeByteRangeCompleteness.lean",
+    "frontier_module": "FormalProof4FHE/HasteBoots/NativeBorrowFrontier.lean",
+    "range_theorem_count": 7,
+    "frontier_theorem_count": 10,
+    "frontier_definition_count": 2,
+    "declaration_guard_count": 19,
+    "model_regression_count": 20,
+    "initialized_subrange_exact_bytes": true,
+    "bounded_empty_subranges_included": true,
+    "spare_capacity_initialization_required": false,
+    "resident_vec_initialized_byte_existence": true,
+    "logical_alias_condition_explicit": true,
+    "ancestors_may_overlap": true,
+    "descendant_and_unrelated_overlap_blocked": true,
+    "shared_and_exclusive_access_permissions_derived": true,
+    "fresh_exclusive_child_condition_preserved": true,
+    "closed_machine_reference_grant_completeness": true,
+    "closed_machine_byte_index_completeness": true,
+    "supplied_success_boolean_premises": false,
+    "memory_and_ledger_validity_premises_explicit": true,
+    "complete_iteration_and_unbounded_traversal_success_proved": false,
+    "sufficient_whole_vec_success_conditions_proved": false,
+    "native_lifetime_refinement": false,
     "retained_function_bodies_and_type_declarations_unchanged": true
   }
 }
