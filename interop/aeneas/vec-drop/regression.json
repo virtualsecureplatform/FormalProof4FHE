@@ -1,8 +1,8 @@
 {
-  "profile": "original-resident-vec-destruction-revalidated-with-pointer-metadata-cast-v32",
+  "profile": "original-resident-vec-destruction-revalidated-with-allocating-callers-v33",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-drop-y8g13wmq/manifest.json",
-  "gate_manifest_sha256": "dd04d4cdee3db412941ca2a042af831ad00d389bbb92c5ea0c1d90d0a7ee54f5",
+  "gate_manifest": "build/hasteboots-extraction/vec-drop-4wzx5nff/manifest.json",
+  "gate_manifest_sha256": "eab2fe0010e6d6d96855e134766c2578245861fe3db8583db60f4bda4a28359d",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -316,7 +316,7 @@
     "FormalProof4FHETest/HasteBootsRawVecDeallocationCompletenessAudit.lean": "85efbedcef271ce6dc69a0bebb5d25b0880091984899ae52e3c02bfe7bcb3a48",
     "FormalProof4FHETest/HasteBootsVecDestructionCompletenessAudit.lean": "b15ca27d45474cdbf6c85a2635a3969160d35fd7e658b00139d4ba8d394a3dbd"
   },
-  "source_llbc_sha256": "7c0e91b3061dbe2ad21e499265d9e2dcf56d4246d8a424d193204d8e7ee13816",
+  "source_llbc_sha256": "13fe18ca3e8e0224a9467c76317316cd6a766e20a5337f81f73b0483cb31ebac",
   "outer_vec_drop_glue_interpreted": true,
   "outer_vec_drop_method_interpreted": true,
   "unbounded_original_byte_loop_interpreted": true,
@@ -1117,5 +1117,13 @@
     "dependency_audit_count": 1022,
     "negative_control_count": 87
   },
-  "pointer_metadata_cast_core_extension_revalidated": true
+  "pointer_metadata_cast_core_extension_revalidated": true,
+  "prior_allocating_callers_baseline": {
+    "profile": "original-resident-vec-destruction-revalidated-with-pointer-metadata-cast-v32",
+    "gate_manifest": "build/hasteboots-extraction/vec-drop-y8g13wmq/manifest.json",
+    "gate_manifest_sha256": "dd04d4cdee3db412941ca2a042af831ad00d389bbb92c5ea0c1d90d0a7ee54f5",
+    "dependency_audit_count": 1027,
+    "negative_control_count": 87
+  },
+  "allocating_outer_callers_source_extension_revalidated": true
 }

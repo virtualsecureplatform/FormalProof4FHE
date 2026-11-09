@@ -179,3 +179,19 @@ cleanup. The fat-to-thin data-pointer cast has its own world-preserving model
 operation; the earlier thin-only cast retains its existing behavior. Error/drop,
 unwind, rejected layout/overflow branches and outer decoded callers remain open,
 as do native ABI/compiler/lifetime correspondence and physical work.
+
+## Allocating outer callers and decoded root
+
+`PositiveCallerProof.lean` composes the allocating constructor through the
+original RawVec/Vec callers and decoded capacity root. Returned Vec fields retain
+the allocator pointer's origin and requested capacity; length is zero. Callers
+resume in the actual returned world. The caller capacity-check proof is split
+at original source statement boundaries without changing proof limits.
+
+The decoded theorem requires positive capacity below `2^63`, nonzero explicit
+Global placement, a non-null pointer, the modeled shim return and allocator-machine
+result. Reachability of a returned state follows from the shared interpreter.
+Eight regressions cover exact fields, moved capacity, decoded invocation and
+uninitialized reserved bytes. The gate checks 680 declarations and 131 rejecting
+controls. Error/drop/unwind and invalid layout branches, resident storage and
+native ABI/compiler/lifetime/work correspondence remain open.

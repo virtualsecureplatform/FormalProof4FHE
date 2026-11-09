@@ -1,7 +1,7 @@
 {
-  "profile": "original-finite-allocator-caller-revalidated-with-pointer-metadata-cast-v9",
-  "gate_manifest": "build/hasteboots-extraction/allocator-caller-0knzsho5/manifest.json",
-  "gate_manifest_sha256": "e545e531107331f4709379ecdc33b7318d4c687cc8e21f79724198e0c82d8325",
+  "profile": "original-finite-allocator-caller-revalidated-with-allocating-callers-v10",
+  "gate_manifest": "build/hasteboots-extraction/allocator-caller-yiv4jcfb/manifest.json",
+  "gate_manifest_sha256": "e0230f150a2a4393afe4a5fd7bcb2c2c540819f880164af19d6a5fe5989be2ac",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "status": "passed",
   "commands": [
@@ -711,5 +711,13 @@
     "dependency_audit_count": 368,
     "negative_control_count": 31
   },
-  "pointer_metadata_cast_core_extension_revalidated": true
+  "pointer_metadata_cast_core_extension_revalidated": true,
+  "prior_allocating_callers_baseline": {
+    "profile": "original-finite-allocator-caller-revalidated-with-pointer-metadata-cast-v9",
+    "gate_manifest": "build/hasteboots-extraction/allocator-caller-0knzsho5/manifest.json",
+    "gate_manifest_sha256": "e545e531107331f4709379ecdc33b7318d4c687cc8e21f79724198e0c82d8325",
+    "dependency_audit_count": 373,
+    "negative_control_count": 31
+  },
+  "allocating_outer_callers_source_extension_revalidated": true
 }

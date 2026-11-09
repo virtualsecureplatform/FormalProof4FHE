@@ -7,6 +7,35 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Allocating outer callers and decoded positive-capacity root
+
+`positive_capacity_decoded` now composes the original decoded capacity argument
+through source functions 0, 1, 2 and 3, allocator method 7 and common runtime 13.
+The exact returned Vec has length zero, the requested capacity and the allocator
+pointer's original address/origin. Every caller resumes in the actual returned
+heap world. The RawVec caller's post-allocation capacity assertion is proved by
+extracting the returned capacity, evaluating its arithmetic/check flag and
+executing cleanup. The decoded result also preserves modeled reachability.
+
+Seventeen source theorems cover caller argument moves, typed initial states,
+call resumption, capacity-check stages, Vec assembly, all outer invocations,
+decoding and returned-state reachability. The theorem is for positive capacity
+below `2^63`, with explicit nonzero Global placement, non-null pointer, the actual
+modeled shim return and concrete allocator-machine result. It does not assert
+native shim behavior. Eight regressions cover pointer origin, capacity, zero
+length, moved input, decoded construction and uninitialized reserved bytes.
+
+The source gate passes 680 dependency audits, 131 rejecting controls and 92
+source examples. Destructor, allocator-caller and empty-constructor gates pass
+again at 1027/87, 373/31 and 380/17 audits/controls respectively.
+Shared library/root-test inputs are unchanged; the preceding
+full project check remains applicable. The earlier zero-capacity interpreter
+and its allocation-free proof remain available separately.
+
+Constructor allocation-error/drop and unwind paths, rejected layout/overflow
+handling, resident storage/destruction composition, native ABI/stack/type/
+compiler/lifetime correspondence, physical work and final security remain open.
+
 ## Positive RawVec constructor success
 
 The positive byte-capacity constructor now has a composed success theorem from

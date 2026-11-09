@@ -1,8 +1,8 @@
 {
-  "profile": "conditional-positive-rawvec-constructor-success-v11",
+  "profile": "conditional-allocating-call-chain-and-decoded-positive-root-v12",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-dhnnna04/manifest.json",
-  "gate_manifest_sha256": "e920e9381826308e2a620781a30d4fe937a471fad9677dc28a426aa6e75f8ea6",
+  "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-ew34ixz2/manifest.json",
+  "gate_manifest_sha256": "978489c1f7da0f5d5737955ba154fe456f648c0a20a378478aa16d367ad8b623",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -27,10 +27,11 @@
     "a8fc9b340764676abc3601ac2ba06a91c30b7f63",
     "4ae3b4b1bd0a1e4c45fc0fa10f2d6540c4bbe626",
     "4f7b388132779de85fc300fdfb618c2b1bb25a76",
-    "d7c17152d52f38dfe6a5bdbd338f23644d7014a4"
+    "d7c17152d52f38dfe6a5bdbd338f23644d7014a4",
+    "9f47bb1b561aa95b80955d73ac02a1acd9f1270f"
   ],
-  "dependency_audit_count": 648,
-  "negative_control_count": 127,
+  "dependency_audit_count": 680,
+  "negative_control_count": 131,
   "negative_controls": {
     "wrong_target": "Wrong target",
     "not_monomorphized": "Wrong extraction profile",
@@ -158,10 +159,14 @@
     "changed_constructor_thin_cast_source": "Changed constructor pointer/capacity cast",
     "changed_constructor_capacity_source": "Changed constructor pointer/capacity cast",
     "changed_constructor_global_field_type": "Changed prefix use type",
-    "missing_constructor_return": "Unknown prefix statement"
+    "missing_constructor_return": "Unknown prefix statement",
+    "changed_positive_raw_result_projection": "Changed layout field projection",
+    "changed_positive_capacity_projection": "Changed RawVec capacity projection",
+    "changed_positive_vec_initial_length": "Changed prefix Boolean literal",
+    "copied_positive_root_capacity": "Changed root call"
   },
   "inputs": {
-    "scripts/check-hasteboots-vec-capacity-arithmetic": "f3a18d9cb5225080ed5d20d5d2127df24b45c73f29002c54ddb6e54064b3114f",
+    "scripts/check-hasteboots-vec-capacity-arithmetic": "1799671cfd69714b56c68b2955214a30403ca5a0a56dc42276a7226f17f57eca",
     "scripts/check-hasteboots-allocator-caller": "24b51574d92fee7dbb5bea1584b59e5d84ed8917b636517fa15b106d73c437e6",
     "scripts/build-hasteboots-inline-tools": "efda9a152172fdebfb14919f4c29e920f12da0d2ad71ab45ee526a27d9713452",
     "scripts/extract-hasteboots-parameters": "9ab0b333e12a4dac0fea4e37bc8bee430bdf56cac7eb4bcb5fa999ceab140993",
@@ -183,7 +188,7 @@
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
     "scripts/reify-hasteboots-variant-body": "2d0326329d538bb43685617133c2ecd96da497c81295cd221315807576383825",
-    "scripts/reify-hasteboots-vec-capacity-arithmetic": "2e4b53d849115a0db2db39c3be370df063ca1913cc53e8ffd5779eba99de3e7c",
+    "scripts/reify-hasteboots-vec-capacity-arithmetic": "869301273f123fd6f1508520d4a9082eb02edbe0fe05a0b9bf3f4b1fbf3246f1",
     "scripts/reify-hasteboots-vec-drop": "0ef983324e439064ea0969a4fc60d6a574137d5548a1feaee727f018b9b1eb8d",
     "scripts/reify-hasteboots-vec-empty": "00a7debb4c04056f86a5fe37ecead6b1f26a8a6fa45642c9b7b6fa76a3532ccd",
     "FormalProof4FHE/HasteBoots/NativeAllocatorExecution.lean": "2c3008e94760730cfbc65c7bee2707e107f23fabdb9df93f302c5848fc909a15",
@@ -633,7 +638,7 @@
     "FormalProof4FHETest/HasteBootsAllocatorExecutionSmoke.lean": "f35784d6b0c1935a62c375091630087ea91f73519032421c0ff865e11819be3f",
     "FormalProof4FHETest/HasteBootsAllocatorExecutionAudit.lean": "e3a812462caa6295d23425b1ba4b6bf5f933a1efc822430d3abbd819ff5b70a8",
     "interop/aeneas/vec-capacity-arithmetic/fixture.rs": "a1b4abdec2d161f72fd7e843f8d49e276aff4ce79b95cc0884807a084f620861",
-    "interop/aeneas/vec-capacity-arithmetic/Generated.lean": "4386440e1acb123786800aa75042b5055839d4f507ce72520eb98ee9fbc1f478",
+    "interop/aeneas/vec-capacity-arithmetic/Generated.lean": "69bfb87fdbbc3cd5aa88207d87ef4f5acb49bf9775d83dbc41eec490ed31da68",
     "interop/aeneas/vec-capacity-arithmetic/Retained.json": "797c79f20dc245262170cfac7aaf0ba468d4bfbdd627c6141e469c2dddaead83",
     "interop/aeneas/vec-capacity-arithmetic/Proof.lean": "7a15b251f41be0ea0ca802b9cd68956aed7446968cb737607348477e323bf518",
     "interop/aeneas/vec-capacity-arithmetic/LayoutProof.lean": "31a80b3e5b8eb9a85bc9154abe0a5b573b2368ada8c09ba1d7929ebdb6edfe4b",
@@ -647,6 +652,7 @@
     "interop/aeneas/vec-capacity-arithmetic/NullProof.lean": "dd5b2ede7d4c6ce1cab6c366a72f554928d347938cbba14624989ad9067c29ac",
     "interop/aeneas/vec-capacity-arithmetic/MethodResultProof.lean": "42b6c6a8c7491bdadf07eb2d3c28de1eb6323c0e0219ce0116f69e259a183951",
     "interop/aeneas/vec-capacity-arithmetic/ConstructionProof.lean": "9cea464f5d2d9a70f36bd08f610c87e021c5196ecfd06dcc7e8d7682797ec0cc",
+    "interop/aeneas/vec-capacity-arithmetic/PositiveCallerProof.lean": "cbf7d6d29d925b12234ba706588a45b842901c1f5ba030aeed63c0799c0a6133",
     "interop/aeneas/vec-capacity-arithmetic/Smoke.lean": "62710e1fb00e8db3b3f5a0232ea568dd616594e30171dbc10bb9f21a2f7fe08f",
     "interop/aeneas/vec-capacity-arithmetic/LayoutSmoke.lean": "5aed39dd3f94928d8ec11c49643504c8d5e553e5f62f9897cbeefa38c8c2a92c",
     "interop/aeneas/vec-capacity-arithmetic/AcceptedSmoke.lean": "cb8b53a45b6d27fd0636169b6321554ce79a6fd00a94b402399c7f028c236a09",
@@ -657,19 +663,20 @@
     "interop/aeneas/vec-capacity-arithmetic/RuntimeSmoke.lean": "4d2e78cc37dd572dfb8b4240323242904617b644ddd85484980eda967fcc06f3",
     "interop/aeneas/vec-capacity-arithmetic/SuccessSmoke.lean": "e75ad6a5b1d99241f336bf09e72ac7d2804fbf489c80071451f64fa85d6c4435",
     "interop/aeneas/vec-capacity-arithmetic/NullSmoke.lean": "52c120089ceccc6c62fa5b15a1363e569e878efdacb9018734588fddd8716515",
-    "interop/aeneas/vec-capacity-arithmetic/ConstructionSmoke.lean": "c0c21ac6dbb8d42070f8b7d6ebd6c495d3d8c1bd72bcd9578d377dfed190f119"
+    "interop/aeneas/vec-capacity-arithmetic/ConstructionSmoke.lean": "c0c21ac6dbb8d42070f8b7d6ebd6c495d3d8c1bd72bcd9578d377dfed190f119",
+    "interop/aeneas/vec-capacity-arithmetic/PositiveCallerSmoke.lean": "d16c87d7e28e2b368027380b79bf633bcf0b7ccdb4f88fdc0e3b20b5291562ed"
   },
   "source_llbc_sha256": "d301cc3898da0acdbda28f1364d0e65a2fa7d5b08822ec997d14a2030ac213ec",
-  "checked_sha256": "12cef11e52033c30208274ca65dcc9d385d51c8d43ae21d96a5ebcf2aa281d16",
+  "checked_sha256": "6ce664a98975bdf5e509b4e5aab389831d9a1b12c88ac604db633b6d37917345",
   "source_definition_count": 100,
   "source_theorem_count": 55,
-  "source_declaration_audit_count": 243,
+  "source_declaration_audit_count": 275,
   "core_extension_declaration_audit_count": 129,
-  "new_declaration_audit_count": 372,
+  "new_declaration_audit_count": 404,
   "retained_function_count": 21,
   "retained_type_count": 31,
   "isolated_assignment_count": 9,
-  "source_regression_count": 84,
+  "source_regression_count": 92,
   "model_regression_count": 66,
   "arithmetic_extension": {
     "module": "FormalProof4FHE/HasteBoots/NativeRecordArithmetic.lean",
@@ -710,20 +717,20 @@
   },
   "revalidated_profiles": {
     "vec": {
-      "manifest": "build/hasteboots-extraction/vec-drop-y8g13wmq/manifest.json",
-      "manifest_sha256": "dd04d4cdee3db412941ca2a042af831ad00d389bbb92c5ea0c1d90d0a7ee54f5",
+      "manifest": "build/hasteboots-extraction/vec-drop-4wzx5nff/manifest.json",
+      "manifest_sha256": "eab2fe0010e6d6d96855e134766c2578245861fe3db8583db60f4bda4a28359d",
       "dependency_audit_count": 1027,
       "negative_control_count": 87
     },
     "empty": {
-      "manifest": "build/hasteboots-extraction/vec-empty-yrr5bb4p/manifest.json",
-      "manifest_sha256": "36dd284b7a9731f48e6289cad2bacfb9abc01edac50abd7b0112814b1a91fa72",
+      "manifest": "build/hasteboots-extraction/vec-empty-qr256792/manifest.json",
+      "manifest_sha256": "1f65e3d4b2d5e071f03280569a3677b688dea54a5ca1ede774c7c2ad3a3d132a",
       "dependency_audit_count": 380,
       "negative_control_count": 17
     },
     "allocator": {
-      "manifest": "build/hasteboots-extraction/allocator-caller-0knzsho5/manifest.json",
-      "manifest_sha256": "e545e531107331f4709379ecdc33b7318d4c687cc8e21f79724198e0c82d8325",
+      "manifest": "build/hasteboots-extraction/allocator-caller-yiv4jcfb/manifest.json",
+      "manifest_sha256": "e0230f150a2a4393afe4a5fd7bcb2c2c540819f880164af19d6a5fe5989be2ac",
       "dependency_audit_count": 373,
       "negative_control_count": 31
     }
@@ -1005,8 +1012,45 @@
     "ordinary_and_zeroed_model_allocation_regressions": true,
     "zeroed_bytes_loaded_regression": true,
     "error_drop_unwind_and_rejected_layout_paths_proved": false,
-    "outer_decoded_capacity_root_proved": false,
+    "outer_decoded_capacity_root_proved": true,
     "resident_storage_composition_proved": false,
     "native_abi_compiler_lifetime_refinement": false
-  }
+  },
+  "prior_positive_callers_baseline": {
+    "profile": "conditional-positive-rawvec-constructor-success-v11",
+    "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-dhnnna04/manifest.json",
+    "gate_manifest_sha256": "e920e9381826308e2a620781a30d4fe937a471fad9677dc28a426aa6e75f8ea6",
+    "dependency_audit_count": 648,
+    "negative_control_count": 127
+  },
+  "positive_decoded_root": {
+    "source_theorem_count": 17,
+    "source_regression_count": 8,
+    "source_functions": [
+      0,
+      1,
+      2,
+      3,
+      7,
+      13
+    ],
+    "source_shim_and_allocator_declarations": [
+      17,
+      19
+    ],
+    "allocation_capable_nested_calls": true,
+    "source_capacity_assumption_arithmetic_and_cleanup_proved": true,
+    "source_argument_moves_and_initial_type_checks_proved": true,
+    "exact_pointer_origin_capacity_and_zero_length": true,
+    "actual_callee_returned_world_preserved": true,
+    "decoded_public_capacity_argument": true,
+    "actual_model_return_reachability": true,
+    "reserved_bytes_remain_uninitialized_regression": true,
+    "positive_capacity_bound_placement_shim_and_allocation_premises_explicit": true,
+    "zero_capacity_source_interpreter_available_separately": true,
+    "error_drop_unwind_and_invalid_layout_paths_proved": false,
+    "resident_storage_composition_proved": false,
+    "native_abi_compiler_lifetime_work_refinement": false
+  },
+  "root_full_check_reused_without_library_or_root_test_changes": true
 }
