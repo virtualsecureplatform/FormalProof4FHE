@@ -1,8 +1,8 @@
 {
-  "profile": "revalidated-with-source-wrapper-v22",
+  "profile": "revalidated-with-nominal-getter-relabeling-v1",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-empty-fkfrvhg5/manifest.json",
-  "gate_manifest_sha256": "818cebd2c667dd3dff7212a288f225a4587963097e22a0015f8dbbbc2f7a80b5",
+  "gate_manifest": "build/hasteboots-extraction/vec-empty-yyz5xvsf/manifest.json",
+  "gate_manifest_sha256": "f521ea94fe4f0a53253e164a4506fc38749c216fc5a567986b64f00bdf69abf8",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -29,7 +29,8 @@
     "8acddae597cce1bf3deb0f8e9a39c202212ad881",
     "4969bd829bcdbac9678c147240fd7e31886c2f36",
     "4a9ee78a2f9c1be8878871aacc36e63234412c14",
-    "68c847d7be7ccbca8150998b3471458c6086acc9"
+    "68c847d7be7ccbca8150998b3471458c6086acc9",
+    "601d57a93ff1a8fa767bbb09f1c2b5ff0d303b8c"
   ],
   "dependency_audit_count": 395,
   "source_definition_count": 8,
@@ -77,7 +78,7 @@
     "scripts/reify-hasteboots-rawvec-option": "18ef4ea5a9cfe3e016a4ce805557b60a2e098c8523a90afb6498142ae6a7bdfc",
     "scripts/reify-hasteboots-rawvec-reference": "a23873af71f590f44d8ce00bbfc2461f44c385c81158b8f420658cb6f2930243",
     "scripts/reify-hasteboots-reference-retag-llbc": "20fa3448c5479473bbf54fb506efe2625ae0a88fa0727f0ff23499a6ca786ea8",
-    "scripts/reify-hasteboots-reservation-error-kind": "8f9e3ac5fb78c66ee2c67d9737346649d29b8ddec82df22d25d8852d877c83eb",
+    "scripts/reify-hasteboots-reservation-error-kind": "c80ceacfcb151e3801a9f60d0c6b8c8ce934375df86758c2303605608ee9bc51",
     "scripts/reify-hasteboots-scalar-llbc": "4e7a3c819b1f6b7c851ad0453ce125399bffa46bb7cea9193eaf065628b970df",
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
@@ -538,7 +539,7 @@
     "interop/aeneas/vec-empty/Proof.lean": "e49c37943109ddd3fac76fade3e940454dd06f0e18b8ab1bcc0ffbdbfcb6a2f6",
     "interop/aeneas/vec-empty/Smoke.lean": "5c0cba3dfda637c34c2d2b735f362f71b013f17b2408e98ece36450c366ac244"
   },
-  "source_llbc_sha256": "ff5d73f29c7492e0ff0a2d5823f50a31ba74c208f616bd9323e7f4a435d9ed27",
+  "source_llbc_sha256": "18596fa99b229424eee98998f1a8d056d61e3a0ab8c068a07c199f1d6e3a56ce",
   "checked_sha256": "751f619066943dc4773abed0b4ee7f3ad63e22f2b70705160a7b0d018177f3d1",
   "original_constructor_and_direct_caller_interpreted": true,
   "exact_nominal_return_for_arbitrary_world_proved": true,
@@ -570,7 +571,7 @@
     "dependency_audit_count": 977,
     "negative_control_count": 87
   },
-  "validation_note": "Fresh source extraction gate passed alongside the source wrapper profile (632 audits/55 rejecting controls), whose execution includes checked shared reborrowing, moved arguments, the source getter and explicit normal-return scope cleanup. Reference materialization remains explicit. This profile retains its existing source theorem scope. The unchanged library/root-test/toolchain/dependency/full-check inputs permit reuse of the prior 11101-job full check. Original constructor error-handler integration, native correspondence, physical reclamation, physical work and final security remain open.",
+  "validation_note": "Fresh extraction, warning-as-error Lean compilation, allowed-axiom audit and mutation controls passed. The getter is now proved for explicit nominal type descriptors, with definitional specialization to the original body, snapshot composition, operational projection and heap framing. Constructor-profile tag regressions pass. Source handler call linkage/dispatch, native ABI/stack/lifetime/compiler correspondence, physical reclamation/work and final security remain open. The prior 11101-job full check is reused: shared library, root tests, toolchain, dependencies and full-check scripts are unchanged.",
   "prior_storage_bridge_baseline": {
     "manifest": "build/hasteboots-extraction/vec-empty-e010m81k/manifest.json",
     "sha256": "3d2248477bca4fce9445e4cbc4bb66e001323c05beae90deed8b7ecefcf5d5bf",
@@ -824,9 +825,9 @@
   },
   "revalidated_with_source_getter_body": true,
   "source_getter_body_profile": {
-    "manifest": "build/hasteboots-extraction/reservation-error-kind-hnew3nu4/manifest.json",
-    "manifest_sha256": "b2b4a895577c35ccf9e7bd0c48a40c7f5c317349bf862e992e0792f072641599",
-    "dependency_audit_count": 632,
+    "manifest": "build/hasteboots-extraction/reservation-error-kind-cr5o5lgl/manifest.json",
+    "manifest_sha256": "e52e5de1c487e3da0db617e70170e3b13b46edaa074eceacece5a97669ad56d4",
+    "dependency_audit_count": 652,
     "negative_control_count": 55
   },
   "prior_source_wrapper_baseline": {
@@ -836,5 +837,13 @@
     "dependency_audit_count": 395,
     "negative_control_count": 17
   },
-  "revalidated_with_source_wrapper": true
+  "revalidated_with_source_wrapper": true,
+  "prior_nominal_relabeling_baseline": {
+    "profile": "revalidated-with-source-wrapper-v22",
+    "gate_manifest": "build/hasteboots-extraction/vec-empty-fkfrvhg5/manifest.json",
+    "gate_manifest_sha256": "818cebd2c667dd3dff7212a288f225a4587963097e22a0015f8dbbbc2f7a80b5",
+    "dependency_audit_count": 395,
+    "negative_control_count": 17
+  },
+  "revalidated_with_nominal_getter_relabeling": true
 }

@@ -1,7 +1,7 @@
 {
-  "profile": "revalidated-with-source-wrapper-v20",
-  "gate_manifest": "build/hasteboots-extraction/allocator-caller-mruzi_oe/manifest.json",
-  "gate_manifest_sha256": "482f4e03269deea5dd347f0e484b27ab7231db3572571de37bd7e85c2b129d05",
+  "profile": "revalidated-with-nominal-getter-relabeling-v1",
+  "gate_manifest": "build/hasteboots-extraction/allocator-caller-uu7zab3o/manifest.json",
+  "gate_manifest_sha256": "2eecf311b962f2da82859b6390bbaafe2f7d09f92277b6ef392a9ec944b842f0",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "status": "passed",
   "commands": [
@@ -617,7 +617,8 @@
     "8acddae597cce1bf3deb0f8e9a39c202212ad881",
     "4969bd829bcdbac9678c147240fd7e31886c2f36",
     "4a9ee78a2f9c1be8878871aacc36e63234412c14",
-    "68c847d7be7ccbca8150998b3471458c6086acc9"
+    "68c847d7be7ccbca8150998b3471458c6086acc9",
+    "601d57a93ff1a8fa767bbb09f1c2b5ff0d303b8c"
   ],
   "prior_enum_address_baseline": {
     "profile": "original-finite-allocator-caller-revalidated-with-typed-boolean-arithmetic-v2",
@@ -635,7 +636,7 @@
     "heap_and_incoming_reference_preservation_extended": true,
     "native_alignment_transmute_abi_refinement": false
   },
-  "validation_note": "Fresh source extraction gate passed alongside the source wrapper profile (632 audits/55 rejecting controls), whose execution includes checked shared reborrowing, moved arguments, the source getter and explicit normal-return scope cleanup. Reference materialization remains explicit. This profile retains its existing source theorem scope. The unchanged library/root-test/toolchain/dependency/full-check inputs permit reuse of the prior 11101-job full check. Original constructor error-handler integration, native correspondence, physical reclamation, physical work and final security remain open.",
+  "validation_note": "Fresh extraction, warning-as-error Lean compilation, allowed-axiom audit and mutation controls passed. The getter is now proved for explicit nominal type descriptors, with definitional specialization to the original body, snapshot composition, operational projection and heap framing. Constructor-profile tag regressions pass. Source handler call linkage/dispatch, native ABI/stack/lifetime/compiler correspondence, physical reclamation/work and final security remain open. The prior 11101-job full check is reused: shared library, root tests, toolchain, dependencies and full-check scripts are unchanged.",
   "prior_zst_local_borrow_baseline": {
     "profile": "original-finite-allocator-caller-revalidated-with-checked-enum-address-v3",
     "gate_manifest": "build/hasteboots-extraction/allocator-caller-97_hgb6y/manifest.json",
@@ -809,9 +810,9 @@
   },
   "revalidated_with_source_getter_body": true,
   "source_getter_body_profile": {
-    "manifest": "build/hasteboots-extraction/reservation-error-kind-hnew3nu4/manifest.json",
-    "manifest_sha256": "b2b4a895577c35ccf9e7bd0c48a40c7f5c317349bf862e992e0792f072641599",
-    "dependency_audit_count": 632,
+    "manifest": "build/hasteboots-extraction/reservation-error-kind-cr5o5lgl/manifest.json",
+    "manifest_sha256": "e52e5de1c487e3da0db617e70170e3b13b46edaa074eceacece5a97669ad56d4",
+    "dependency_audit_count": 652,
     "negative_control_count": 55
   },
   "prior_source_wrapper_baseline": {
@@ -821,5 +822,13 @@
     "dependency_audit_count": 388,
     "negative_control_count": 31
   },
-  "revalidated_with_source_wrapper": true
+  "revalidated_with_source_wrapper": true,
+  "prior_nominal_relabeling_baseline": {
+    "profile": "revalidated-with-source-wrapper-v20",
+    "gate_manifest": "build/hasteboots-extraction/allocator-caller-mruzi_oe/manifest.json",
+    "gate_manifest_sha256": "482f4e03269deea5dd347f0e484b27ab7231db3572571de37bd7e85c2b129d05",
+    "dependency_audit_count": 388,
+    "negative_control_count": 31
+  },
+  "revalidated_with_nominal_getter_relabeling": true
 }
