@@ -368,4 +368,67 @@ def unifiedCapacityRoot (ambient : Frame) (address : NativeWord64Memory.Word) (o
   ⟨"hasteboots_vec_capacity_arithmetic::capacity",.transparent,capacityRootTypes ambient,1,unifiedCapacityRootCall ambient address outcome shim
     (.legacy (.unsupported "source root unwind") .done) (.legacy capacityRootTail .done)⟩
 
+
+-- The empty enumeration represents the uninhabited logical return type (!).
+def handlerNeverType : NativeRecordValues.Ty := .enumeration 0 []
+def handlerTypes : List NativeRecordValues.Ty := [handlerNeverType,
+  HasteBootsReservationErrorKind.errorTypeFor reservationErrorTags,
+  HasteBootsReservationErrorKind.kindTypeFor reservationErrorTags,.scalar (.reference false),
+  HasteBootsReservationErrorKind.layoutTypeFor reservationErrorTags,
+  HasteBootsReservationErrorKind.layoutTypeFor reservationErrorTags]
+def handlerFrame (world : NativeReferenceMachine.State) (kind : NativeReservationErrorFields.Kind) : Frame :=
+  ⟨handlerTypes,[.dead,.live (some (NativeReservationErrorLocal.encode reservationErrorTags kind)),.dead,.dead,.dead,.dead],world⟩
+def handlerReadyFrame (world : NativeReferenceMachine.State) (kind : NativeReservationErrorFields.Kind) : Frame :=
+  ⟨handlerTypes,[.live none,.live (some (NativeReservationErrorLocal.encode reservationErrorTags kind)),
+    .live (some (NativeReservationErrorLocal.kindValue reservationErrorTags kind)),.live (some .uninit),.dead,.dead],world⟩
+def handlerDispatchFrame (world : NativeReferenceMachine.State) (kind : NativeReservationErrorFields.Kind) : Frame :=
+  let ready := handlerReadyFrame world kind
+  match kind with
+  | .capacityOverflow => {ready with slots := ready.slots.set 3 .dead}
+  | .allocationError size alignment =>
+    let layout := NativeReservationErrorLocal.layoutValue reservationErrorTags size alignment
+    {ready with slots := ((ready.slots.set 3 .dead).set 4 (.live (some layout))).set 5 (.live (some layout))}
+def handlerPrefix : Body := .live 0 (.live 2 (.live 3 .done))
+def handlerCleanup (next : Body) : Body := .dead 5 (.dead 4 (.dead 2 (.dead 1 next)))
+def handlerOverflowCall (overflow : Body) : Body :=
+  .call "alloc::raw_vec::capacity_overflow" .transparent [handlerNeverType] 0 0 [] overflow
+    (handlerCleanup .resume) (handlerCleanup .abort)
+def handlerAllocationCall (allocation : Body) : Body :=
+  .call "alloc::alloc::handle_alloc_error" .transparent
+    [handlerNeverType,HasteBootsReservationErrorKind.layoutTypeFor reservationErrorTags] 1 0 [(.move 5 [])]
+    allocation (handlerCleanup .resume) (handlerCleanup .abort)
+def handlerAllocationPrefix (next : Body) : Body := .live 4
+  (.assign 4 (.use (.copy 2 [(.unwrap 18),(.active true),.left]) true .byte)
+    (.live 5 (.assign 5 (.use (.copy 4 []) true .byte) next)))
+def handlerTail (overflow allocation : Body) : Body := .dead 3
+  (.matchChoice 2 [] 18 .done (handlerAllocationPrefix (handlerAllocationCall allocation))
+    (handlerOverflowCall overflow))
+def handlerResume (overflow allocation : Body) (caller : Frame) : Flow → Flow
+  | .returned value world => match write {caller with world} 2 value with
+    | none => .invalid world
+    | some changed => eval (handlerTail overflow allocation) changed
+  | .unwind world => eval (handlerCleanup .resume) {caller with world}
+  | .normal changed => .invalid changed.world
+  | .invalid world => .invalid world
+  | .unsupported source world => .unsupported source world
+-- Snapshot marshaling implements the source local borrow at an explicit model
+-- boundary; its heap allocation is not claimed to be native stack execution.
+def handlerEval (base : NativePointerStorage.Address) (overflow allocation : Body) (frame : Frame) : Flow :=
+  match eval handlerPrefix frame with
+  | .normal prepared => match NativeReservationErrorLocal.snapshotLocal reservationErrorTags prepared 1 base with
+    | .invalid world => .invalid world
+    | .value reference world => match write {prepared with world} 3 reference with
+      | none => .invalid world
+      | some borrowed => match evalArgs borrowed [(.move 3 [])] with
+        | none => .invalid borrowed.world
+        | some ([argument],caller) => handlerResume overflow allocation caller
+            (HasteBootsReservationErrorKind.invokeFor reservationErrorTags caller.world argument)
+        | some (_,caller) => .invalid caller.world
+  | flow => flow
+def handlerInvoke (world : NativeReferenceMachine.State) (base : NativePointerStorage.Address)
+    (overflow allocation : Body) (value : NativeRecordValues.Value) : Flow :=
+  match initial handlerTypes 1 [value] world with
+  | none => .invalid world
+  | some frame => handlerEval base overflow allocation frame
+
 end HasteBootsVecCapacityArithmetic

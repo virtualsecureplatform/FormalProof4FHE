@@ -52,6 +52,7 @@ class Reifier:
   self.rejected_layout=RejectedLayout(self)
   self.constructor_unwind=ConstructorUnwind(self)
   self.unified_constructor=UnifiedConstructor(self)
+  self.error_handler=ErrorHandler(self)
  def walk(self,f,node):
   if isinstance(node,dict):
    if 'statements' in node:
@@ -119,7 +120,7 @@ class Reifier:
     else:slots.append('.dead')
    lines+=['def '+label+' (world : NativeReferenceMachine.State) (left right : NativeWord64Memory.Word) : Frame :=',
     '  ⟨['+', '.join(types)+'], ['+', '.join(slots)+'], world⟩']
-  lines+=[self.layout_prefix.render(),self.caller_preparation.render(),self.positive_preparation.render(),self.allocator_methods.render(),self.runtime_calls.render(),self.runtime_success.render(),self.runtime_null.render(),self.positive_construction.render(),self.positive_callers.render(),self.constructor_error.render(),self.rejected_layout.render(),self.constructor_unwind.render(),self.unified_constructor.render(),self.positive_callers.render_unified(),'end HasteBootsVecCapacityArithmetic',''];return '\n'.join(lines)
+  lines+=[self.layout_prefix.render(),self.caller_preparation.render(),self.positive_preparation.render(),self.allocator_methods.render(),self.runtime_calls.render(),self.runtime_success.render(),self.runtime_null.render(),self.positive_construction.render(),self.positive_callers.render(),self.constructor_error.render(),self.rejected_layout.render(),self.constructor_unwind.render(),self.unified_constructor.render(),self.positive_callers.render_unified(),self.error_handler.render(),'end HasteBootsVecCapacityArithmetic',''];return '\n'.join(lines)
 
 class LayoutPrefix:
  def __init__(self,parent):
@@ -933,4 +934,116 @@ class UnifiedConstructor:
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('llbc',type=Path);p.add_argument('output',type=Path);p.add_argument('--retained',type=Path,required=True);a=p.parse_args()
  r=Reifier(json.loads(a.llbc.read_text()));a.output.write_text(r.render());a.retained.write_text(json.dumps(r.retained(),indent=2)+'\n')
+
+
+class ErrorHandler:
+ """Validate the complete owned-error handler; terminal routines remain parameters."""
+ def __init__(self,parent):
+  self.parent=parent;f=parent.functions[4]
+  G=runpy.run_path(str(ROOT/'scripts/reify-hasteboots-reservation-error-kind'))
+  local=G['local'];ref=G['ref'];block=G['block'];field=G['field'];clean=G['clean'];unit=G['UNIT'];never={'Untagged':'Never'}
+  def signature(inputs,output):return {'is_unsafe':False,'abi':'Rust','is_variadic':False,'inputs':inputs,'output':output}
+  require(name(f)=='alloc::raw_vec::handle_error' and f['item_meta']['opacity']=='Transparent' and empty(f['generics']) and f['signature']==signature([adt(9)],never),'Changed owned-error handler declaration')
+  b=f['body']['Structured'];require(set(b)=={'span','bound_body_regions','locals','body','comments'} and b['comments']==[] and b['bound_body_regions']==4 and set(b['locals'])=={'arg_count','locals'} and b['locals']['arg_count']==1,'Changed handler body metadata')
+  require([(x['index'],x['ty']) for x in b['locals']['locals']]==list(enumerate([never,adt(9),adt(18),ref({'Body':1},9),adt(4),adt(4)])),'Changed handler local types')
+  cleanup=[{'StorageDead':i} for i in [5,4,2,1]]
+  def call(index,args,target,ty,regions=[]):return {'Call':{'call':{'func':{'Regular':{'kind':{'Fun':{'Regular':index}},'generics':{'regions':regions,'types':[],'const_generics':[],'trait_refs':[]}}},'args':args,'dest':local(target,ty)},'on_unwind':block(cleanup+['UnwindResume'])}}
+  allocation=block([{'StorageLive':4},{'Assign':[local(4,adt(4)),{'Use':[{'Copy':field(local(2,adt(18)),18,1,0,adt(4))},'Yes']}]},{'StorageLive':5},{'Assign':[local(5,adt(4)),{'Use':[{'Copy':local(4,adt(4))},'Yes']}]},call(11,[{'Move':local(5,adt(4))}],0,never)]+cleanup+[{'Abort':'UndefinedBehavior'}])
+  expected=block([{'StorageLive':0},{'StorageLive':2},{'StorageLive':3},{'Assign':[local(3,ref({'Body':1},9)),{'Ref':{'place':local(1,adt(9)),'kind':'Shared','ptr_metadata':{'Const':{'kind':{'Adt':[None,[]]},'ty':unit}}}}]},call(9,[{'Move':local(3,ref({'Body':1},9))}],2,adt(18),[{'Body':3}]),{'StorageDead':3},{'Switch':{'Match':[local(2,adt(18)),[[[0],block([])],[[1],allocation]],None]}},call(10,[],0,never)]+cleanup+[{'Abort':'UndefinedBehavior'}])
+  require(clean(b['body'])==expected,'Changed handler borrow, getter call, branch, argument modes or cleanup')
+  for index,wanted,inputs in [(10,'alloc::raw_vec::capacity_overflow',[]),(11,'alloc::alloc::handle_alloc_error',[adt(4)])]:
+   t=parent.functions[index];require(name(t)==wanted and t['item_meta']['opacity']=='Transparent' and empty(t['generics']) and t['signature']==signature(inputs,never),'Changed handler terminal declaration')
+  getter=parent.functions[9]
+  require(name(getter)=='alloc::collections::kind' and getter['item_meta']['opacity']=='Foreign' and getter['body']=='Opaque' and getter['signature']==signature([ref({'Var':{'Free':0}},9)],adt(18)),'Changed handler getter declaration')
+  method=getter['item_meta']['name'];require(len(method)==4 and method[:2]==[{'Ident':['alloc',0]},{'Ident':['collections',0]}] and method[3]=={'Ident':['kind',0]},'Changed handler getter method path')
+  owner=method[2]['Impl']['Ty'];require(owner['kind']=='InherentImplBlock' and owner['skip_binder']==adt(9) and empty(owner['params']),'Changed handler getter method owner')
+  require(getter['generics']=={'regions':[{'index':0,'name':None,'mutability':'Unknown'}],'types':[],'const_generics':[],'trait_clauses':[],'regions_outlive':[],'types_outlive':[],'trait_type_constraints':[]},'Changed handler getter generics')
+ def link_getter(self,getter):
+  # Compare independently extracted method identities, signatures and physical
+  # type-role layouts after mapping only nominal ADT identities.
+  ids=dict(zip(getter.tags,[9,18,4,11,12]))
+  def relabel(value):
+   if isinstance(value,list):return [relabel(x) for x in value]
+   if isinstance(value,dict):
+    if set(value)=={'Adt'} and isinstance(value['Adt'],int):return {'Adt':ids[value['Adt']]}
+    return {k:relabel(v) for k,v in value.items()}
+   return value
+  source=getter.getter;target=self.parent.functions[9]
+  for key in ['signature','generics']:require(relabel(source[key])==target[key],'Getter link '+key+' differs')
+  require(relabel(source['item_meta']['name'])==target['item_meta']['name'],'Getter link method identity differs')
+  for t,index in zip(getter.types,[9,18,4,11,12]):
+   other=self.parent.layout_prefix.types[index]
+   require(name(t)==name(other) and t['layout']==other['layout'] and empty(other['generics']),'Getter link type identity/layout differs')
+   if index!=9:
+    def shape(kind):
+     if 'Struct' in kind:return {'Struct':[(f['name'],relabel(f['ty'])) for f in kind['Struct']]}
+     return {'Enum':[(v['id'],v['name'],v['discriminant'],[(f['name'],relabel(f['ty'])) for f in v['fields']]) for v in kind['Enum']]}
+    # Target identities already use the constructor descriptor.
+    sourceShape=shape(t['kind']);saved=ids;ids={i:i for i in [9,18,4,11,12]};targetShape=shape(other['kind']);ids=saved
+    require(sourceShape==targetShape,'Getter link type fields/variants differ')
+  return {'source_type_tags':list(getter.tags),'caller_type_tags':[9,18,4,11,12],'method_identity_signature_and_layouts_checked':True,'caller_wrapper_opaque_source_wrapper_transparent':True,'native_abi_refinement':False}
+ def render(self):return """
+-- The empty enumeration represents the uninhabited logical return type (!).
+def handlerNeverType : NativeRecordValues.Ty := .enumeration 0 []
+def handlerTypes : List NativeRecordValues.Ty := [handlerNeverType,
+  HasteBootsReservationErrorKind.errorTypeFor reservationErrorTags,
+  HasteBootsReservationErrorKind.kindTypeFor reservationErrorTags,.scalar (.reference false),
+  HasteBootsReservationErrorKind.layoutTypeFor reservationErrorTags,
+  HasteBootsReservationErrorKind.layoutTypeFor reservationErrorTags]
+def handlerFrame (world : NativeReferenceMachine.State) (kind : NativeReservationErrorFields.Kind) : Frame :=
+  ⟨handlerTypes,[.dead,.live (some (NativeReservationErrorLocal.encode reservationErrorTags kind)),.dead,.dead,.dead,.dead],world⟩
+def handlerReadyFrame (world : NativeReferenceMachine.State) (kind : NativeReservationErrorFields.Kind) : Frame :=
+  ⟨handlerTypes,[.live none,.live (some (NativeReservationErrorLocal.encode reservationErrorTags kind)),
+    .live (some (NativeReservationErrorLocal.kindValue reservationErrorTags kind)),.live (some .uninit),.dead,.dead],world⟩
+def handlerDispatchFrame (world : NativeReferenceMachine.State) (kind : NativeReservationErrorFields.Kind) : Frame :=
+  let ready := handlerReadyFrame world kind
+  match kind with
+  | .capacityOverflow => {ready with slots := ready.slots.set 3 .dead}
+  | .allocationError size alignment =>
+    let layout := NativeReservationErrorLocal.layoutValue reservationErrorTags size alignment
+    {ready with slots := ((ready.slots.set 3 .dead).set 4 (.live (some layout))).set 5 (.live (some layout))}
+def handlerPrefix : Body := .live 0 (.live 2 (.live 3 .done))
+def handlerCleanup (next : Body) : Body := .dead 5 (.dead 4 (.dead 2 (.dead 1 next)))
+def handlerOverflowCall (overflow : Body) : Body :=
+  .call "alloc::raw_vec::capacity_overflow" .transparent [handlerNeverType] 0 0 [] overflow
+    (handlerCleanup .resume) (handlerCleanup .abort)
+def handlerAllocationCall (allocation : Body) : Body :=
+  .call "alloc::alloc::handle_alloc_error" .transparent
+    [handlerNeverType,HasteBootsReservationErrorKind.layoutTypeFor reservationErrorTags] 1 0 [(.move 5 [])]
+    allocation (handlerCleanup .resume) (handlerCleanup .abort)
+def handlerAllocationPrefix (next : Body) : Body := .live 4
+  (.assign 4 (.use (.copy 2 [(.unwrap 18),(.active true),.left]) true .byte)
+    (.live 5 (.assign 5 (.use (.copy 4 []) true .byte) next)))
+def handlerTail (overflow allocation : Body) : Body := .dead 3
+  (.matchChoice 2 [] 18 .done (handlerAllocationPrefix (handlerAllocationCall allocation))
+    (handlerOverflowCall overflow))
+def handlerResume (overflow allocation : Body) (caller : Frame) : Flow → Flow
+  | .returned value world => match write {caller with world} 2 value with
+    | none => .invalid world
+    | some changed => eval (handlerTail overflow allocation) changed
+  | .unwind world => eval (handlerCleanup .resume) {caller with world}
+  | .normal changed => .invalid changed.world
+  | .invalid world => .invalid world
+  | .unsupported source world => .unsupported source world
+-- Snapshot marshaling implements the source local borrow at an explicit model
+-- boundary; its heap allocation is not claimed to be native stack execution.
+def handlerEval (base : NativePointerStorage.Address) (overflow allocation : Body) (frame : Frame) : Flow :=
+  match eval handlerPrefix frame with
+  | .normal prepared => match NativeReservationErrorLocal.snapshotLocal reservationErrorTags prepared 1 base with
+    | .invalid world => .invalid world
+    | .value reference world => match write {prepared with world} 3 reference with
+      | none => .invalid world
+      | some borrowed => match evalArgs borrowed [(.move 3 [])] with
+        | none => .invalid borrowed.world
+        | some ([argument],caller) => handlerResume overflow allocation caller
+            (HasteBootsReservationErrorKind.invokeFor reservationErrorTags caller.world argument)
+        | some (_,caller) => .invalid caller.world
+  | flow => flow
+def handlerInvoke (world : NativeReferenceMachine.State) (base : NativePointerStorage.Address)
+    (overflow allocation : Body) (value : NativeRecordValues.Value) : Flow :=
+  match initial handlerTypes 1 [value] world with
+  | none => .invalid world
+  | some frame => handlerEval base overflow allocation frame
+"""
+
 if __name__=='__main__':main()

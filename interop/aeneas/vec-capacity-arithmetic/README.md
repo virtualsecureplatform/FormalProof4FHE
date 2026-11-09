@@ -304,8 +304,8 @@ existing capacity bound. The core operation selects a complete typed local,
 executes modeled allocation/write/loan steps and returns a resident two-word
 operand. Its residency theorem ties the original logical value to the bytes of
 the selected lease, with failures preserving executed prefixes. Overflow padding
-is not written. This marshaling has not yet been connected to the source error
-handler or refined to native stack placement, typed borrowing and lifetime.
+is not written. The handler composition below uses this marshaling. Native stack placement,
+typed borrowing and lifetime refinement remain open.
 
 Typed-local validation: 915 dependency audits, 165 rejecting controls,
 128 source examples and 134 model examples. The full project check passes
@@ -318,10 +318,44 @@ actual snapshot execution, proves complete field reads, and supplies a checked
 kind getter using stable reference-tag resolution. Successful snapshots require
 no additional read-success premise. `ReadProof.lean` connects both constructor
 error payloads to this modeled operation; `ReadSmoke.lean` runs the complete
-payload/snapshot/getter pipeline. The operation has not yet been proved equivalent
-to the extracted Rust getter body or installed in its source caller. Native
-stack/type/lifetime refinement, reclamation and physical work remain open.
+payload/snapshot/getter pipeline. The handler composition below links the extracted Rust getter body to this
+operation and its source caller. Native stack/type/lifetime refinement,
+reclamation and physical work remain open.
 
 Read/getter validation: 945 dependency audits, 165 rejecting controls,
 130 source examples and 151 model examples. The full project check passes
 with 11101 build jobs, alongside all three new-module warning-as-error checks.
+
+## Owned-error handler dispatch through the extracted getter
+
+The gate now freshly extracts both the constructor and the getter fixture using
+the same frozen tool receipt. It checks the getter method owner, signature and
+generics, the five nominal type roles, physical layouts and transparent type
+fields/variants under the correspondence `(0,1,2,3,4) → (9,18,4,11,12)`.
+The constructor extraction's error wrapper remains abstract; the independent
+getter extraction supplies its validated field definition. This is an explicit
+modular source link and logical representation boundary, not a native ABI proof.
+
+The reifier checks the complete original `alloc::raw_vec::handle_error` body:
+local shared borrow, moved getter argument, returned-kind match, copied layout,
+terminal argument move, storage cleanup, unwind and unreachable continuations.
+`handlerEval` marshals the owned logical local into checked modeled storage,
+then executes the linked `invokeFor` getter and source tail. `HandlerProof`
+derives getter success from a successful snapshot and proves exact dispatch for
+both original constructor error payloads. The overflow branch calls
+`capacity_overflow()`; the allocation branch calls `handle_alloc_error(layout)`.
+`HandlerProjectionProof` preserves the complete modeled execution trace,
+reachability and well-formedness, including failures and partial executions.
+
+The two terminal bodies remain explicit parameters. Their input contexts follow
+the validated signatures; an empty enumeration represents the uninhabited
+logical `!` result, and no logical value can inhabit it. These proofs do not
+assert native panic/abort behavior or native stack allocation. The original
+outer constructor error arm still needs composition with this handler, followed
+by terminal-helper refinement, destruction/reclamation, native ABI/compiler/
+lifetime correspondence, physical-work accounting and the final security bound.
+
+Twelve handler regressions cover both dispatches, the forwarded allocation size,
+untouched overflow padding, retained loans, invalid inputs and placement,
+unwind cleanup and rejected normal terminal returns. Source mutation controls
+also reject handler changes and broken links between the two extractions.
