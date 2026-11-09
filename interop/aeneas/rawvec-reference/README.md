@@ -64,10 +64,10 @@ with 223 audits and 34 rejection controls; the storage gate passed again with
 11,009-job build and all subsequent smoke checks. Receipts and log hashes are
 in `regression.json`.
 
-Next reuse the reference operands for the original RawVec `current_memory`
-body, including pointer wrapper reconstruction, its zero branches and unchecked
-product. Compose the original deallocation and Vec destruction calls with Global
-dispatch. Native reference construction, carrier validity, stack/layout/ABI and
+The [current-memory profile](../rawvec-current-memory/README.md) now reifies that
+original root, including pointer wrappers, zero branches and the unchecked
+product. Next compose the original deallocation and Vec destruction calls with
+Global dispatch. Native reference construction, carrier validity, stack/layout/ABI and
 lifetime/compiler correspondence, allocator correctness, physical work and the
 final expected-work security theorem remain open. No constructor-acceptance
 claim, successful helper stub or caller work certificate is supplied here.

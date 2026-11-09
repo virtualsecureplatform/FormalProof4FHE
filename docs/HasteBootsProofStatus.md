@@ -7,6 +7,40 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## The original RawVec current_memory root is now reified
+
+The [current-memory profile](../interop/aeneas/rawvec-current-memory/README.md)
+reifies the complete original root over checked byte/shadow operations: zero
+branches, repeated capacity reads, an overflow-checked unsigned product,
+alignment-word extraction, Layout/pointer/marker wrappers, Option construction,
+early return, calls, unwind and suffix. Six new model theorems and sixteen new
+declaration audits support multiplication, enum conversion, wrapper evaluation
+and the actual zero-byte marker operation. Sixteen model regressions cover their
+success, rejection, overflow and retained prefix behavior.
+
+Four source theorems prove body/invocation projection and both exact zero paths.
+Fourteen regressions cover nonzero reconstruction, arithmetic, failed prefixes,
+issued pointer provenance and old generations surviving address reuse. The gate
+passed 211 dependency audits and twenty-three rejection controls. Source mutations
+activate a helper guard and disable a pointer retag flag, with changed code checked
+in Lean. Global deallocation passed again with 239 audits and 34 controls, and
+Vec capacity with 204 audits and twenty-five controls. The full `scripts/check`
+run passed the 11,011-job build and all subsequent smoke checks; receipts and log
+hashes are stored in the profile regression file.
+
+Both precondition declarations retain their original classifications and bodies
+as data. Their bodies are untranslated and reject with `unsupported` on entry;
+the original literal-false guards are preserved. The guarded word representation
+still needs native carrier validity/bitcast and reference/stack/layout/ABI,
+lifetime/compiler correspondence. This milestone supplies neither native
+constructor acceptance nor an allocator/physical-work/final-security theorem.
+
+Next interpret the original RawVec deallocation caller: mutable receiver entry,
+shared whole-object and zero-byte Global-field reborrows, the actual Option match
+and allocator call. Compose original RawVec/Vec destruction, then discharge native
+refinement and physical-work obligations. The complete protocol and expected-work
+target above is unchanged.
+
 ## Stable reference operands now drive the original Vec capacity body
 
 The [resident-reference profile](../interop/aeneas/rawvec-reference/README.md)
@@ -37,10 +71,9 @@ carrier validity/bitcast correspondence and Rust compiler/lifetime refinement
 remain open. The original capacity body is interpreted over checked words; this
 is not a native constructor-acceptance or compiler-correctness claim.
 
-Next interpret the original RawVec `current_memory` body with these operands,
-reconstruct its pointer wrappers, handle the unchecked product and preserve its
-lazy zero branches. Compose original deallocation/destruction calls with Global
-dispatch. Native construction, carrier validity, allocator correctness, physical
+The original `current_memory` root is now reified as described above. Next
+compose original deallocation/destruction calls, preserving mutable/shared
+reborrows and complete pointer identity through Global dispatch. Native construction, carrier validity, allocator correctness, physical
 work and the final complete security theorem remain open. The target above is
 unchanged.
 
