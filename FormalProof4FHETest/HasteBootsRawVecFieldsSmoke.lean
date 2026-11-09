@@ -62,9 +62,14 @@ private def nullStored : NativeReferenceMachine.State :=
 example : (match pointer nullStored 0 with
     | .invalid next => (next.pointers.registers.length,next.outputs.length,next.pointers.heap == nullStored.pointers.heap)
     | _ => (99,99,false)) = (6,0,true) := by decide
+-- Deliberately alter initialized storage while retaining the resident lease.
 private def uninitialized : NativeReferenceMachine.State :=
-  (NativeReferenceMachine.run NativeReferenceMachine.empty
-    [.raw (.allocate 128 ⟨16,8⟩), .borrow 0 .shared ⟨16,8⟩]).getD NativeReferenceMachine.empty
+  let original := ready 8
+  let heap := original.pointers.heap
+  let memory := {heap.memory with blocks := heap.memory.blocks.map (fun block =>
+    if block.base.val = 128 then {block with bytes := List.replicate 16 none} else block)}
+  {original with pointers := {original.pointers with heap := {heap with memory}}}
+example : select uninitialized 0 = some ⟨0⟩ := by decide
 example : capacity uninitialized 0 = .invalid uninitialized := by decide
 example : pointer uninitialized 0 = .invalid uninitialized := by decide
 private def reused : NativeReferenceMachine.State :=
