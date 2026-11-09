@@ -46,6 +46,7 @@ class Reifier:
   self.runtime_calls=RuntimeCalls(self)
   self.runtime_success=RuntimeSuccess(self)
   self.runtime_null=RuntimeNull(self)
+  self.positive_construction=PositiveConstruction(self)
  def walk(self,f,node):
   if isinstance(node,dict):
    if 'statements' in node:
@@ -112,7 +113,7 @@ class Reifier:
     else:slots.append('.dead')
    lines+=['def '+label+' (world : NativeReferenceMachine.State) (left right : NativeWord64Memory.Word) : Frame :=',
     '  ⟨['+', '.join(types)+'], ['+', '.join(slots)+'], world⟩']
-  lines+=[self.layout_prefix.render(),self.caller_preparation.render(),self.positive_preparation.render(),self.allocator_methods.render(),self.runtime_calls.render(),self.runtime_success.render(),self.runtime_null.render(),'end HasteBootsVecCapacityArithmetic',''];return '\n'.join(lines)
+  lines+=[self.layout_prefix.render(),self.caller_preparation.render(),self.positive_preparation.render(),self.allocator_methods.render(),self.runtime_calls.render(),self.runtime_success.render(),self.runtime_null.render(),self.positive_construction.render(),'end HasteBootsVecCapacityArithmetic',''];return '\n'.join(lines)
 
 class LayoutPrefix:
  def __init__(self,parent):
@@ -419,7 +420,7 @@ class PositivePreparation:
  def render(self):
   lines=['def allocationModeValue (zeroed : Bool) : NativeRecordValues.Value := .record 10 (.choice zeroed (.scalar .unit))',
    'def positiveAmbient (ambient : Frame) (zeroed : Bool) : Frame :=',
-   '  ⟨['+', '.join('allocationInitType' if i==2 else '(.scalar (.reference false))' if i in [11,12] else '(ambient.types['+str(i)+']?.getD (.scalar .unit))' for i in range(54))+'],[.dead,.dead,.live (some (allocationModeValue zeroed)),.live (some allocatorValue)] ++ List.replicate 50 .dead,ambient.world⟩',
+   '  ⟨['+', '.join({2:'allocationInitType',10:'(.record 15 (.choice (.pair (.record 16 (.pair (.scalar (.raw true)) (.scalar .unit))) (.scalar .unit)) (.pair (.record 17 (.scalar .unit)) (.scalar .unit))))',11:'(.scalar (.reference false))',12:'(.scalar (.reference false))',13:'(.record 16 (.pair (.scalar (.raw true)) (.scalar .unit)))',16:'((layoutTypes ambient)[8]?.getD (.scalar .unit))',17:'((layoutTypes ambient)[35]?.getD (.scalar .unit))',18:'((layoutTypes ambient)[36]?.getD (.scalar .unit))',19:'((layoutTypes ambient)[52]?.getD (.scalar .unit))',20:'(.record 1 (.scalar .unit))',37:'(.scalar (.raw false))',38:'(.scalar (.raw true))',53:'(.record 5 (.scalar .unit))'}.get(i,'(ambient.types['+str(i)+']?.getD (.scalar .unit))') for i in range(54))+'],[.dead,.dead,.live (some (allocationModeValue zeroed)),.live (some allocatorValue)] ++ List.replicate 50 .dead,ambient.world⟩',
    'def positiveBorrowPrefix (zeroed : Bool) (address : NativeWord64Memory.Word) (next : Body) : Body :=',
    '  if zeroed then .live 12 (.assign 12 (.borrowZstLocal 3 1 address) next) else .live 11 (.assign 11 (.borrowZstLocal 3 1 address) next)',
    'def positiveModePrefix (address : NativeWord64Memory.Word) (uninitialized zeroed next : Body) : Body :=',
@@ -657,6 +658,66 @@ class RuntimeNull(RuntimeSuccess):
    'def runtimeNullChecked (ambient : Frame) (capacity : NativeWord64Memory.Word) (zeroed : Bool) (world : NativeReferenceMachine.State) : Frame :=',
    '  let base := runtimeNullPrepared ambient capacity zeroed world',
    '  {base with slots := (base.slots.set 32 (.live (some (.scalar (.usize 1))))).set 33 (.live (some .uninit))}'])+'\n'
+
+class PositiveConstruction(LayoutPrefix):
+ def __init__(self,parent):
+  self.parent=parent;self.function=parent.functions[3];self.locals=self.function['body']['Structured']['locals']['locals'];self.count=len(self.locals)
+  result=parent.layout_prefix.positive_size['statements'][3]['kind'];require(set(result)=={'Switch'} and set(result['Switch'])=={'Match'},'Changed positive allocation Result dispatch')
+  test,arms,otherwise=result['Switch']['Match']
+  require(test=={'kind':{'Local':10},'ty':adt(15)} and [a[0] for a in arms]==[[0],[1]] and otherwise is None,'Changed allocation Result variants or local')
+  ss=arms[0][1]['statements'];require([x['id'] for x in ss]==list(range(320,350))+list(range(352,357))+list(range(877,890))+[357],'Changed positive constructor success sequence')
+  self.pointer=self.code(ss[:11],'next');self.raw=self.code(ss[11:23],'next');self.result=self.code(ss[23:],'.done')
+ def operand(self,arg):
+  if arg=={'Copy':{'kind':{'Projection':[{'kind':{'Local':10},'ty':adt(15)},{'Field':[{'Adt':[15,0]},0]}]},'ty':adt(16)}}:
+   return '(.copy 10 [(.unwrap 15),(.active false),.left])'
+  return super().operand(arg)
+ def rvalue(self,statement,rv,output):
+  if set(rv)=={'UnaryOp'}:
+   op,arg=rv['UnaryOp'];thin={'Untagged':{'RawPtr':[literal({'UInt':'U8'}),'Mut']}};fat={'Untagged':{'RawPtr':[{'Untagged':{'Slice':literal({'UInt':'U8'})}},'Mut']}}
+   for kind,source,target,local,code in [('Transmute',adt(16),fat,13,'(.use (.copy 13 [(.unwrap 16),.left]) false .byte)'),('RawPtr',fat,thin,38,'(.rawThin (.copy 38 []))'),('Transmute',thin,adt(13),37,'(.wrapOne 13 (.copy 37 []))'),('Transmute',USIZE,adt(7),1,'(.wrapOne 7 (.copy 1 []))')]:
+    if op=={'Cast':{kind:[source,target]}}:
+     require(output==target and arg=={'Copy':{'kind':{'Local':local},'ty':source}},'Changed constructor pointer/capacity cast');return code
+  return super().rvalue(statement,rv,output)
+ def code(self,statements,tail):
+  code=tail
+  for statement in reversed(statements):
+   if statement['kind']=='Return':require(code=='.done','Nonterminal positive constructor return');code='.ret'
+   else:code=super().code([statement],code)
+  return code
+ def render(self):
+  def changed(base,updates):
+   value='base.slots'
+   for index,slot in updates:value='('+value+'.set '+str(index)+' '+slot+')'
+   return '  let base := '+base+'\n  {base with slots := '+value+'}'
+  lines=['def positiveResultPointerPrefix (next : Body) : Body := '+self.pointer,
+   'def positiveResultRawPrefix (next : Body) : Body := '+self.raw,
+   'def positiveResultReturn : Body := '+self.result,
+   'def positiveResultSuccess : NativeAllocatorLLBC.Body := .legacy (positiveResultPointerPrefix (positiveResultRawPrefix positiveResultReturn)) .done',
+   'def positiveRawValue (pointer : NativePointerStorage.Pointer) (capacity : NativeWord64Memory.Word) : NativeRecordValues.Value :=',
+   '  .record 3 (.pair (.record 6 (.pair (runtimeThinValue pointer) (.pair (.record 5 (.scalar .unit)) (.scalar .unit)))) (.pair (.record 7 (.pair (.scalar (.usize capacity)) (.scalar .unit))) (.pair allocatorValue (.scalar .unit))))',
+   'def positiveResultValue (pointer : NativePointerStorage.Pointer) (capacity : NativeWord64Memory.Word) : NativeRecordValues.Value := .record 8 (.choice false (.pair (positiveRawValue pointer capacity) (.scalar .unit)))',
+   'def positiveMethodCall (ambient : Frame) (zeroed : Bool) (outcome : Option NativePointerStorage.Address) (shim zero null unwind : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Body :=',
+   '  let callee := allocationMethod ambient zeroed zero (runtimePositive outcome shim null runtimeSuccess)',
+   '  .call callee.name callee.classification callee.types callee.argCount 10 (positiveCallArgs zeroed) callee.body unwind (.legacy (.dead (if zeroed then 12 else 11) .done) .done)',
+   'def positiveConstructorBody (ambient : Frame) (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim zero null unwind failure : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Body :=',
+   '  .legacy (.dead 7 (.live 10 .done)) (.matchChoice 2 [] 10',
+   '    (.legacy (positiveBorrowPrefix false address .done) (positiveMethodCall ambient false outcome shim zero null unwind))',
+   '    (.legacy (positiveBorrowPrefix true address .done) (positiveMethodCall ambient true outcome shim zero null unwind))',
+   '    (.matchChoice 10 [] 15 positiveResultSuccess failure .done))',
+   'def positiveReturnedFrame (ambient : Frame) (capacity : NativeWord64Memory.Word) (zeroed : Bool) (address : NativeWord64Memory.Word) (world : NativeReferenceMachine.State) (pointer : NativePointerStorage.Pointer) : Frame :=',
+   '  let base := positiveMovedFrame ambient capacity zeroed address',
+   '  {base with slots := (base.slots.set 10 (.live (some (runtimeSuccessValue pointer capacity)))).set (if zeroed then 12 else 11) .dead,world}',
+   'def positivePointerFrame (ambient : Frame) (capacity : NativeWord64Memory.Word) (zeroed : Bool) (address : NativeWord64Memory.Word) (world : NativeReferenceMachine.State) (pointer : NativePointerStorage.Pointer) : Frame :=',
+   changed('positiveReturnedFrame ambient capacity zeroed address world pointer',[(13,'(.live (some (.record 16 (.pair (.scalar (.raw ⟨pointer,some capacity⟩)) (.scalar .unit)))))'),(16,'(.live none)'),(17,'(.live none)'),(18,'(.live (some (runtimeThinValue pointer)))'),(37,'.dead'),(38,'.dead')]),
+   'def positiveRawFrame (ambient : Frame) (capacity : NativeWord64Memory.Word) (zeroed : Bool) (address : NativeWord64Memory.Word) (world : NativeReferenceMachine.State) (pointer : NativePointerStorage.Pointer) : Frame :=',
+   changed('positivePointerFrame ambient capacity zeroed address world pointer',[(3,'(.live (some .uninit))'),(16,'(.live (some (positiveRawValue pointer capacity)))'),(17,'.dead'),(18,'.dead'),(19,'.dead'),(20,'.dead'),(53,'(.live (some .uninit))')]),
+   'def positiveConstructorFunction (ambient : Frame) (zeroed : Bool) (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Function :=',
+   '  let actual := {ambient with world := NativeZstBorrow.granted ambient.world address}',
+   '  ⟨"alloc::raw_vec::try_allocate_in",.transparent,layoutTypes (positiveAmbient ambient zeroed),4,',
+   '    .legacy (layoutPrefix (.unsupported "source constructor overflow") (capacityDispatch zeroSizeBody .done .done) (.unsupported "source constructor layout rejection") .done)',
+   '      (positiveConstructorBody actual address outcome shim (.legacy (.unsupported "source runtime zero size") .done) runtimeNull',
+   '        (.legacy (.unsupported "source allocation unwind cleanup") .done) (.legacy (.unsupported "source allocation error/drop path") .done))⟩']
+  return '\n'.join(lines)+'\n'
 
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('llbc',type=Path);p.add_argument('output',type=Path);p.add_argument('--retained',type=Path,required=True);a=p.parse_args()
