@@ -44,6 +44,7 @@ class Reifier:
   self.positive_preparation=PositivePreparation(self)
   self.allocator_methods=AllocatorMethods(self)
   self.runtime_calls=RuntimeCalls(self)
+  self.runtime_success=RuntimeSuccess(self)
  def walk(self,f,node):
   if isinstance(node,dict):
    if 'statements' in node:
@@ -110,7 +111,7 @@ class Reifier:
     else:slots.append('.dead')
    lines+=['def '+label+' (world : NativeReferenceMachine.State) (left right : NativeWord64Memory.Word) : Frame :=',
     '  ⟨['+', '.join(types)+'], ['+', '.join(slots)+'], world⟩']
-  lines+=[self.layout_prefix.render(),self.caller_preparation.render(),self.positive_preparation.render(),self.allocator_methods.render(),self.runtime_calls.render(),'end HasteBootsVecCapacityArithmetic',''];return '\n'.join(lines)
+  lines+=[self.layout_prefix.render(),self.caller_preparation.render(),self.positive_preparation.render(),self.allocator_methods.render(),self.runtime_calls.render(),self.runtime_success.render(),'end HasteBootsVecCapacityArithmetic',''];return '\n'.join(lines)
 
 class LayoutPrefix:
  def __init__(self,parent):
@@ -471,10 +472,15 @@ class AllocatorMethods:
   require([(v['id'],v['name'],[f['ty'] for f in v['fields']]) for v in variants]==[(0,'Ok',[adt(16)]),(1,'Err',[adt(17)])] and parent.layout_prefix.types[17]['kind']=={'Struct':[]},'Changed allocator Result fields')
  def render(self):
   layout='((layoutTypes (calleeEntryAmbient ambient))[4]?.getD (.scalar .unit))'
-  lines=['def allocationResultType : NativeRecordValues.Ty := .record 15 (.choice (.pair (.record 16 (.pair (.scalar (.raw true)) (.scalar .unit))) (.scalar .unit)) (.pair (.record 17 (.scalar .unit)) (.scalar .unit)))',
+  lines=['def runtimeThinPointerType : NativeRecordValues.Ty := .record 13 (.pair (.scalar (.raw false)) (.scalar .unit))',
+   'def runtimeErrorType : NativeRecordValues.Ty := .record 17 (.scalar .unit)',
+   'def runtimePointerResultType : NativeRecordValues.Ty := .record 26 (.choice (.pair runtimeThinPointerType (.scalar .unit)) (.pair runtimeErrorType (.scalar .unit)))',
+   'def runtimePointerOptionType : NativeRecordValues.Ty := .record 27 (.choice (.scalar .unit) (.pair runtimeThinPointerType (.scalar .unit)))',
+   'def runtimeControlType (unreachable : NativeRecordValues.Ty) : NativeRecordValues.Ty := .record 23 (.choice (.pair runtimeThinPointerType (.scalar .unit)) (.pair unreachable (.scalar .unit)))',
+   'def allocationResultType : NativeRecordValues.Ty := .record 15 (.choice (.pair (.record 16 (.pair (.scalar (.raw true)) (.scalar .unit))) (.scalar .unit)) (.pair (.record 17 (.scalar .unit)) (.scalar .unit)))',
    'def implementationPrefix (next : Body) : Body := '+self.prefix,
    'def implementationTail : Body := '+self.tail,
-   'def implementationTypes (ambient : Frame) : List NativeRecordValues.Ty := ['+', '.join({0:'allocationResultType',1:layout,2:'.boolean',3:'(.scalar .usize)',6:'(.scalar (.raw false))',18:'(.scalar .unit)',20:'(.scalar .unit)',19:'((layoutTypes (calleeEntryAmbient ambient))[40]?.getD (.scalar .unit))',21:'((layoutTypes (calleeEntryAmbient ambient))[40]?.getD (.scalar .unit))',23:'(.scalar .usize)'}.get(i,'(ambient.types['+str(i)+']?.getD (.scalar .unit))') for i in range(39))+']']
+   'def implementationTypes (ambient : Frame) : List NativeRecordValues.Ty := ['+', '.join({0:'allocationResultType',1:layout,2:'.boolean',3:'(.scalar .usize)',6:'(.scalar (.raw false))',7:'(runtimeControlType (ambient.types[10]?.getD (.scalar .unit)))',8:'runtimePointerResultType',9:'runtimePointerOptionType',11:'runtimeThinPointerType',12:'(.record 16 (.pair (.scalar (.raw true)) (.scalar .unit)))',22:'runtimeThinPointerType',26:'runtimeThinPointerType',27:'runtimeThinPointerType',28:'(.scalar (.raw true))',29:'(.scalar (.raw false))',18:'(.scalar .unit)',20:'(.scalar .unit)',19:'((layoutTypes (calleeEntryAmbient ambient))[40]?.getD (.scalar .unit))',21:'((layoutTypes (calleeEntryAmbient ambient))[40]?.getD (.scalar .unit))',23:'(.scalar .usize)'}.get(i,'(ambient.types['+str(i)+']?.getD (.scalar .unit))') for i in range(39))+']']
   for label in ['implementationFrame','implementationPrepared']:
    slots={1:'(.live (some (capacityLayout capacity)))',2:'(.live (some (.boolean zeroed)))'}
    if label=='implementationPrepared':slots.update({i:'(.live none)' for i in [0,6,10,11,13,16,18,20,24,30]});slots[3]='(.live (some (.scalar (.usize capacity))))'
@@ -539,6 +545,70 @@ class RuntimeCalls:
    'def runtimePositive (outcome : Option NativePointerStorage.Address) (shim null nonnull : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Body :=',
    '  .switchBoolean (.copy 2 []) (runtimeCallBranch true outcome shim) (runtimeCallBranch false outcome shim) (runtimePointerDispatch null nonnull)']
   return '\n'.join(lines)+'\n'
+
+class RuntimeSuccess(LayoutPrefix):
+ def __init__(self,parent):
+  self.parent=parent;self.function=parent.functions[13];self.locals=self.function['body']['Structured']['locals']['locals'];self.count=len(self.locals)
+  ss=parent.allocator_methods.positive['statements'][6]['kind']['Switch']['SwitchInt'][3]['statements']
+  require([s['id'] for s in ss]==[672,673,692,693,694,695,696,697,698,699,700,701,702,703,704,705,706,707,708,709,710,711,712,713,732,733,734,735,736],'Changed nonnull runtime sequence')
+  types=parent.layout_prefix.types
+  for tag,label,variants in [(27,'core::option::Option',[(0,'None',[]),(1,'Some',[adt(13)])]),(26,'core::result::Result',[(0,'Ok',[adt(13)]),(1,'Err',[adt(17)])]),(23,'core::ops::control_flow::ControlFlow',[(0,'Continue',[adt(13)]),(1,'Break',[adt(24)])])]:
+   t=types[tag];require(name(t)==label and [(v['id'],v['name'],[f['ty'] for f in v['fields']]) for v in t['kind']['Enum']]==variants,'Changed nonnull wrapper variants')
+  for tag,pointee in [(13,literal({'UInt':'U8'})),(16,{'Untagged':{'Slice':literal({'UInt':'U8'})}})]:
+   t=types[tag];require(len(t['kind']['Struct'])==1 and t['kind']['Struct'][0]['ty']=={'Untagged':{'Pattern':[{'Untagged':{'RawPtr':[pointee,'Shared']}},'NotNull']}},'Changed nonnull pointer field')
+   layout=t['layout'][0]['value'];require(layout['repr']['transparent'] and layout['variant_layouts']==[{'field_offsets':[0],'uninhabited':False,'tagger':[]}] and layout['size']==(8 if tag==13 else 16) and layout['align']==8,'Changed nonnull pointer representation')
+  self.thin=self.code(ss[:18],'next');self.slice=self.code(ss[18:24],'next');self.result=self.code(ss[24:],'next')
+ def operand(self,arg):
+  if len(arg)==1 and next(iter(arg)) in ['Copy','Move']:
+   mode=next(iter(arg));v=arg[mode]
+   for local,tag,variant in [(9,27,1),(8,26,0),(7,23,0)]:
+    if v=={'kind':{'Projection':[{'kind':{'Local':local},'ty':adt(tag)},{'Field':[{'Adt':[tag,variant]},0]}]},'ty':adt(13)}:
+     return '(.'+mode.lower()+' '+str(local)+' [(.unwrap '+str(tag)+'),(.active '+str(bool(variant)).lower()+'),.left])'
+  return super().operand(arg)
+ def rvalue(self,statement,rv,output):
+  if set(rv)=={'Aggregate'}:
+   kind,args=rv['Aggregate'];require(set(kind)=={'Adt'},'Changed success aggregate');owner,variant,union=kind['Adt'];tag=owner['id']['Adt']
+   require(owner==adt(tag)['Untagged']['Adt'] and union is None and output==adt(tag),'Changed success nominal aggregate')
+   require((tag,variant)==(27,1) or (tag,variant) in [(26,0),(23,0),(15,0)],'Changed success aggregate variant')
+   require(len(args)==1 and next(iter(args[0].values()))['ty']==adt(16 if tag==15 else 13),'Changed success aggregate field')
+   return '(.aggregate (some '+str(tag)+') (some '+str(bool(variant)).lower()+') ['+self.operand(args[0])+'])'
+  if set(rv)=={'UnaryOp'}:
+   op,arg=rv['UnaryOp'];raw={'Untagged':{'RawPtr':[literal({'UInt':'U8'}),'Mut']}};fat={'Untagged':{'RawPtr':[{'Untagged':{'Slice':literal({'UInt':'U8'})}},'Mut']}}
+   for source,target,local,code in [(raw,adt(13),6,'(.wrapOne 13 (.copy 6 []))'),(adt(13),raw,11,'(.use (.copy 11 [(.unwrap 13),.left]) false .byte)'),(fat,adt(16),28,'(.wrapOne 16 (.copy 28 []))')]:
+    if op=={'Cast':{'Transmute':[source,target]}}:
+     require(output==target and arg=={'Copy':{'kind':{'Local':local},'ty':source}},'Changed success pointer transmute');return code
+  return super().rvalue(statement,rv,output)
+ def code(self,statements,tail):
+  code=tail
+  for statement in reversed(statements):
+   k=statement['kind']
+   if isinstance(k,dict) and set(k)=={'Switch'}:
+    require(set(k['Switch'])=={'If'},'Changed success precondition dispatch');test,yes,no=k['Switch']['If']
+    require(test=={'Const':{'kind':{'Literal':{'Bool':False}},'ty':BOOL}} and no['statements']==[],'Changed success disabled precondition')
+    code='(.constIf false (.unsupported "source.nonnull.disabled_precondition") .done '+code+')'
+   elif isinstance(k,dict) and set(k)=={'Call'}:
+    c=k['Call'];require(set(c)=={'call','on_unwind'},'Unknown slice builtin effects');raw={'Untagged':{'RawPtr':[literal({'UInt':'U8'}),'Mut']}};slice={'Untagged':{'Slice':literal({'UInt':'U8'})}}
+    require(c['call']=={'func':{'Regular':{'kind':{'Fun':{'Builtin':{'PtrFromParts':'Mut'}}},'generics':{'regions':['Erased'],'types':[slice],'const_generics':[],'trait_refs':[]}}},'args':[{'Copy':{'kind':{'Local':29},'ty':raw}},{'Copy':{'kind':{'Local':3},'ty':USIZE}}],'dest':{'kind':{'Local':28},'ty':{'Untagged':{'RawPtr':[slice,'Mut']}}}},'Changed source slice-parts builtin')
+    require(c['on_unwind']['statements'][-1]['kind']=={'Abort':'UndefinedBehavior'},'Changed slice builtin unwind exit')
+    code='(.assign 28 (.parts (.copy 29 []) (.copy 3 [])) '+code+')'
+   else:code=super().code([statement],code)
+  return code
+ def render(self):
+  return '\n'.join(['def runtimeSuccessThin (next : Body) : Body := '+self.thin,
+   'def runtimeSuccessSlice (next : Body) : Body := '+self.slice,
+   'def runtimeSuccessResult (next : Body) : Body := '+self.result,
+   'def runtimeSuccess : NativeAllocatorLLBC.Body := .legacy (runtimeSuccessThin (runtimeSuccessSlice (runtimeSuccessResult .done))) .done',
+   'def runtimeThinValue (pointer : NativePointerStorage.Pointer) : NativeRecordValues.Value := .record 13 (.pair (.scalar (.raw ⟨pointer,none⟩)) (.scalar .unit))',
+   'def runtimeSuccessValue (pointer : NativePointerStorage.Pointer) (capacity : NativeWord64Memory.Word) : NativeRecordValues.Value := .record 15 (.choice false (.pair (.record 16 (.pair (.scalar (.raw ⟨pointer,some capacity⟩)) (.scalar .unit))) (.scalar .unit)))',
+   'def runtimeThinFrame (ambient : Frame) (capacity : NativeWord64Memory.Word) (zeroed : Bool) (world : NativeReferenceMachine.State) (pointer : NativePointerStorage.Pointer) : Frame :=',
+   '  let base := runtimeInspectedFrame ambient capacity zeroed world pointer',
+   '  {base with slots := ((((((base.slots.set 7 .dead).set 8 .dead).set 9 .dead).set 11 (.live (some (runtimeThinValue pointer)))).set 22 .dead).set 23 .dead).set 27 .dead}',
+   'def runtimeSliceFrame (ambient : Frame) (capacity : NativeWord64Memory.Word) (zeroed : Bool) (world : NativeReferenceMachine.State) (pointer : NativePointerStorage.Pointer) : Frame :=',
+   '  let base := runtimeThinFrame ambient capacity zeroed world pointer',
+   '  {base with slots := (base.slots.set 12 (.live none)).set 28 (.live (some (.scalar (.raw ⟨pointer,some capacity⟩))))}',
+   'def runtimeSuccessFrame (ambient : Frame) (capacity : NativeWord64Memory.Word) (zeroed : Bool) (world : NativeReferenceMachine.State) (pointer : NativePointerStorage.Pointer) : Frame :=',
+   '  let base := runtimeSliceFrame ambient capacity zeroed world pointer',
+   '  {base with slots := ((base.slots.set 0 (.live (some (runtimeSuccessValue pointer capacity)))).set 12 .dead).set 28 .dead}'])+'\n'
 
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('llbc',type=Path);p.add_argument('output',type=Path);p.add_argument('--retained',type=Path,required=True);a=p.parse_args()
