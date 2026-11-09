@@ -676,3 +676,4 @@ import FormalProof4FHE.HasteBoots.NativeByteRangeCompleteness
 import FormalProof4FHE.HasteBoots.NativeBorrowFrontier
 import FormalProof4FHE.HasteBoots.NativeScopeRestoration
 import FormalProof4FHE.HasteBoots.NativeByteTraversalCompleteness
+import FormalProof4FHE.HasteBoots.NativeVecBytePrefix
