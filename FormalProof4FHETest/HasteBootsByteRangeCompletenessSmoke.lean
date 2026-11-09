@@ -1,5 +1,5 @@
 module
-import FormalProof4FHE.HasteBoots.NativeRawVecDeallocationCompleteness
+import FormalProof4FHE.HasteBoots.NativeVecDestructionCompleteness
 namespace FormalProof4FHETest.HasteBootsByteRangeCompletenessSmoke
 open FormalProof4FHE.HasteBoots
 open NativeByteRangeCompleteness
@@ -224,4 +224,34 @@ example : immediateWorld.nextTag = 2 ∧ immediateWorld.leases.map NativeByteBor
   refine ⟨by decide,by decide,?_⟩
   exact NativeRawVecDeallocationCompleteness.available_immediate rawWorld immediateWorld pointer 8
     (.reference true ⟨0⟩ 2) (.reference true ⟨1⟩ 2) rawAvailable (by decide)
+example : ∃ next, ∃ after : NativeResidentVec.Descriptor next (next.references.idxOf ⟨ready.nextTag⟩),
+    NativeVecReference.reborrow ready (.reference true descriptor.reference 3) .whole =
+      .value (.reference true after.reference 3) next ∧
+    after.capacity = descriptor.capacity ∧ after.length = descriptor.length ∧ after.buffer = descriptor.buffer ∧
+    NativeReferenceMachine.Reachable next ∧ NativeBorrowFrontier.ExclusiveFrontier (NativeReferenceMachine.ledger next) after.lease ∧
+    next.pointers.heap = ready.pointers.heap :=
+  NativeVecDestructionCompleteness.whole_descriptor_complete descriptor readyReachable readyFrontier
+example : ∃ next, NativeVecReference.reborrow ready (.reference true descriptor.reference 3) .rawVec =
+    .value (.reference true ⟨ready.nextTag⟩ 2) next ∧
+    Nonempty (NativeRawVecDeallocationCompleteness.Ready next ⟨ready.nextTag⟩ 8 2 pointer) ∧
+    next.pointers.heap = ready.pointers.heap :=
+  NativeVecDestructionCompleteness.rawvec_ready_complete descriptor readyReachable readyFrontier
+private def wholeWorld := (NativeVecReference.reborrow ready (.reference true ⟨0⟩ 3) .whole).world
+private def cleanedWhole := (NativeReferenceCleanup.closeScope ready wholeWorld).world
+private def reframedDescriptor := NativeVecDestructionCompleteness.reframe descriptor cleanedWhole
+  (by decide) (by decide) (by decide) (by decide)
+example : cleanedWhole.references.idxOf descriptor.reference = 1 ∧
+    NativeVecReference.decodeExclusive cleanedWhole (cleanedWhole.references.idxOf reframedDescriptor.reference) =
+      some (.reference true ⟨0⟩ 3) := by decide
+private theorem vecAvailable : NativeVecBytePrefix.Available ready pointer 8 := by
+  intro lease member
+  have only : ready.leases = [descriptor.lease] := by decide
+  rw [only] at member
+  have same := List.mem_singleton.mp member
+  subst lease
+  decide
+example : wholeWorld.nextTag = 2 ∧ NativeVecBytePrefix.Available wholeWorld pointer 8 := by
+  refine ⟨by decide,?_⟩
+  exact NativeVecDestructionCompleteness.available_reborrow ready wholeWorld pointer 8
+    (.reference true ⟨0⟩ 3) (.reference true ⟨1⟩ 3) .whole vecAvailable (by decide)
 end FormalProof4FHETest.HasteBootsByteRangeCompletenessSmoke
