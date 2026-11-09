@@ -92,3 +92,16 @@ The gate now passes 433 dependency audits, 66 rejecting controls and 37 source
 regressions. `CallerSmoke.lean` checks malformed arguments, moved operands, exact
 vector fields, zero-root execution over arbitrary worlds and an explicitly
 unsupported positive-size callee. Production interpreter/root imports are unchanged.
+
+
+`PositiveProof.lean` now handles the accepted positive-size prefix through
+allocation-mode selection, shared Global reference issuance and exact moved
+reference/copied Layout arguments. The Global placement address is explicit and
+must be nonzero; native stack correspondence remains open. The operation executes
+real model-machine address and borrow steps, keeps the heap and incoming authority,
+and preserves reachability. Null placement retains the executed address prefix.
+The source allocation calls and subsequent cleanup/result handling remain open.
+
+Six source theorems and seven regressions extend the gate to 464 dependency
+audits, 77 rejecting controls and 44 source examples. Eleven new model regressions
+and ten persistent dependency guards cover the checked ZST-local borrow.

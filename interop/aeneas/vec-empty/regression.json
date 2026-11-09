@@ -1,8 +1,8 @@
 {
-  "profile": "original-empty-byte-vec-revalidated-with-checked-enum-address-v5",
+  "profile": "original-empty-byte-vec-revalidated-with-zst-local-borrow-v6",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-empty-3qlifhiz/manifest.json",
-  "gate_manifest_sha256": "5dffbce1814eb12dfda9063d9e1cec958a9dc5f112417b2c7c8bb61ba446bea7",
+  "gate_manifest": "build/hasteboots-extraction/vec-empty-i2esxxsv/manifest.json",
+  "gate_manifest_sha256": "f36af1583a3769e99a7d7373ebdc518bf0d5e33ad24a32a1e11acf96f84cd216",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -25,9 +25,11 @@
     "d720135badb2c1003008b7614a53175dbf6405df",
     "b4e826eec33ffa2ecdb6b54a082e521f831d3072",
     "156600e9a96c31f4214e1ce555989f712d70221b",
-    "17b14f953d835c4ff99212195017d4713729b8c4"
+    "17b14f953d835c4ff99212195017d4713729b8c4",
+    "8acddae597cce1bf3deb0f8e9a39c202212ad881",
+    "4969bd829bcdbac9678c147240fd7e31886c2f36"
   ],
-  "dependency_audit_count": 339,
+  "dependency_audit_count": 356,
   "source_definition_count": 8,
   "source_theorem_count": 7,
   "new_declaration_audit_count": 54,
@@ -57,7 +59,7 @@
   "inputs": {
     "scripts/check-hasteboots-vec-empty": "7efeddebd76273fde8f3a296a4c23157afa5a39a4d0656395091e2684d365208",
     "scripts/build-hasteboots-inline-tools": "efda9a152172fdebfb14919f4c29e920f12da0d2ad71ab45ee526a27d9713452",
-    "scripts/check-hasteboots-allocator-caller": "9a6a379f86a2e72e311e0391573e6513ed370a87ae09c7a41c3f1feccd798098",
+    "scripts/check-hasteboots-allocator-caller": "b211f4ba0821323b0020144ee5a9d24b09f8c441938b676a4ae3c98df3e1af1f",
     "scripts/extract-hasteboots-parameters": "9ab0b333e12a4dac0fea4e37bc8bee430bdf56cac7eb4bcb5fa999ceab140993",
     "scripts/specify-hasteboots-deallocation-boundary": "48abaf9e189486073c292cf915c5717f3ee9e5a69735fc6b09859b9a8a93774a",
     "lean-toolchain": "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c",
@@ -77,7 +79,7 @@
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
     "scripts/reify-hasteboots-variant-body": "2d0326329d538bb43685617133c2ecd96da497c81295cd221315807576383825",
-    "scripts/reify-hasteboots-vec-capacity-arithmetic": "3bc398c13d7029c313cd8dfacb21f87a9624d44c282b205caa3bbd4a33ed60ab",
+    "scripts/reify-hasteboots-vec-capacity-arithmetic": "1e195177506001f32b826ff482b311dee235702261dca6e18a9c0491eff2233c",
     "scripts/reify-hasteboots-vec-drop": "0ef983324e439064ea0969a4fc60d6a574137d5548a1feaee727f018b9b1eb8d",
     "scripts/reify-hasteboots-vec-empty": "00a7debb4c04056f86a5fe37ecead6b1f26a8a6fa45642c9b7b6fa76a3532ccd",
     "FormalProof4FHE/HasteBoots/NativeAtomicIndexLaw.lean": "05162b4db7430d055e1a0cddd1a789836ea00740c6fcee9e552fb8a27dec576d",
@@ -342,7 +344,7 @@
     "FormalProof4FHE/HasteBoots/NativeGoldWeightLayout.lean": "7e748c9324d5605b917243c87a547e5c01a2b9de5f7b083aeb80c12295ea4e50",
     "FormalProof4FHE/HasteBoots/NativeHashOracleBridge.lean": "59a4bb2072c685d6645c53adc390e49ab5d5b8398c7ce046e943c82bb305aefc",
     "FormalProof4FHE/HasteBoots/NativeHashPrefix.lean": "9965105748bacce1e5d016bda664c083b97edc00fbf96606597982791c19b05a",
-    "FormalProof4FHE/HasteBoots/NativeHeapFrame.lean": "d162f04be73e7c0a9671814fbed0b7362f529c54f67019a1a870911d67ae7ba4",
+    "FormalProof4FHE/HasteBoots/NativeHeapFrame.lean": "18a6d3002f31f2d7ae7e5f0aac61ba41a77afda3bfbf3615bafdec1ef70b83b4",
     "FormalProof4FHE/HasteBoots/NativeHeapRelease.lean": "3f5a6ea3c2db24ff1c37dc6ad0def3ba90cba9801ae9297caaf81faca594709e",
     "FormalProof4FHE/HasteBoots/NativeHelperPacking.lean": "ef6dade136bb70150cd939d5966609ce839c9265a05d40326a3b7dbd2b3b45e1",
     "FormalProof4FHE/HasteBoots/NativeIncomingReference.lean": "f5e52dc9c5055e99643cd552b9c488066c11143cfde9bde8e3d805599a917479",
@@ -429,8 +431,8 @@
     "FormalProof4FHE/HasteBoots/NativeRecordCallValues.lean": "6aa63875bf445f426e3484cbf425f58e378f83d31f93e8faab8b2f04eb272b56",
     "FormalProof4FHE/HasteBoots/NativeRecordDropCalls.lean": "a8d8f2103827f492542049d6c992a0cb4ea49d74e69717530b8bc5a7e79875bd",
     "FormalProof4FHE/HasteBoots/NativeRecordHeapBounds.lean": "8400afe5343501bd77ea8758e70a3e350840dafcc2eee2a2a6097f71d10c8f8d",
-    "FormalProof4FHE/HasteBoots/NativeRecordIncomingReference.lean": "56d7e8c25160a95623dd2c25df80293fa5d63929f4d1d6d52e6532736118efce",
-    "FormalProof4FHE/HasteBoots/NativeRecordLLBC.lean": "34a4690d398057269e4a884d7a1a13a7cbf1dd3ff96e2202f0a0734d7c8a9276",
+    "FormalProof4FHE/HasteBoots/NativeRecordIncomingReference.lean": "d87b9edc33246dc94e56592b2398f3d5d095fef77f4a16b63937bbeade267295",
+    "FormalProof4FHE/HasteBoots/NativeRecordLLBC.lean": "7b46c40a6195fbcde469db1f40f30a600c751158e6205c4417d44a1b739a02c7",
     "FormalProof4FHE/HasteBoots/NativeRecordValues.lean": "55d3f80a243da0b05bcd04c467aa70589b0504d586a80223f57c9d892f6d4d49",
     "FormalProof4FHE/HasteBoots/NativeReferenceCleanup.lean": "0405ccb95660fa6c4d173b570fd80fa26bb2ab1bf4171dcc30b70af962b619d5",
     "FormalProof4FHE/HasteBoots/NativeReferenceMachine.lean": "c211d50ac2059b95d520867a26c982326cd8ba0233d5e55953d5f28afd9b2409",
@@ -516,6 +518,7 @@
     "FormalProof4FHE/HasteBoots/NativeVecDestructionCompleteness.lean": "0d90eeaad636808952b6707e29c743f729bac303a6330fa77166a52340ae376a",
     "FormalProof4FHE/HasteBoots/NativeVecReference.lean": "eee6f66374ddf70ea6e5d5662c1a56bba9cc61dec1c448d59cd68e4b6714ff0f",
     "FormalProof4FHE/HasteBoots/NativeWord64Memory.lean": "92f9146c77189dd7418f1274dc6910c607e3ef53f77bb17fb2589df10261d43f",
+    "FormalProof4FHE/HasteBoots/NativeZstBorrow.lean": "abfc2d9475e4bef8a34094934ce743c89620ef305b5a1fd15c2273cafb8f02fb",
     "FormalProof4FHE/HasteBoots/NativeZstReference.lean": "50e76c82a429de71d2d067684d28a533f0a342752493c5206b59dc7c675a1d10",
     "FormalProof4FHETest/HasteBootsEmptyVecStorageSmoke.lean": "0955900a24ac5f4b82d1483b03f36759b21c497d29dfac424ab81730d66bd269",
     "FormalProof4FHETest/HasteBootsEmptyVecStorageAudit.lean": "52e88b1c067afb14da66be14036ec11362f57bf3ea85b92700f56641338324d5",
@@ -525,8 +528,8 @@
     "interop/aeneas/vec-empty/Proof.lean": "e49c37943109ddd3fac76fade3e940454dd06f0e18b8ab1bcc0ffbdbfcb6a2f6",
     "interop/aeneas/vec-empty/Smoke.lean": "5c0cba3dfda637c34c2d2b735f362f71b013f17b2408e98ece36450c366ac244"
   },
-  "source_llbc_sha256": "0008c1417eec19470bdbb350523ce151022a0b7f51f1e9a973b35bd94d2299e3",
-  "checked_sha256": "e8854c26bd78507e0f95b7ef67de8135b42d036d0bc0a70d07579b12ce24ffe9",
+  "source_llbc_sha256": "5fb67ff807be29df376b0e00a56b0bd1c2e03e6243805d4dd13349f32051a504",
+  "checked_sha256": "9577a9f7b07730bf46a69ca90b25e0404ee78589a64cfc38702aa0771a41ef81",
   "original_constructor_and_direct_caller_interpreted": true,
   "exact_nominal_return_for_arbitrary_world_proved": true,
   "zero_capacity_and_length_proved": true,
@@ -545,11 +548,11 @@
   "full_project_check": {
     "command": "scripts/check",
     "exit_code": 0,
-    "build_jobs": 11081,
-    "log": "/tmp/hasteboots-zero-size-full-check.log",
-    "log_sha256": "cfc69aef40d23b35c581fd495a53a629cd3035b1efcdac7dc6062ad58a5f3398",
-    "library_root_sha256": "55eb5395a40bc9d580960f415ee5c5f757d4a5080832030d787ae01294e1de86",
-    "test_root_sha256": "35c935e0fcda0f86a82280798ba47a452a183e19e0a95a5e74a7e7deda3acfee"
+    "build_jobs": 11084,
+    "log": "/tmp/hasteboots-positive-mode-full-check.log",
+    "log_sha256": "ebe497e857bbd1c982d07a2520d59e6c61d72c26a9222a1cfbdadd4c652ddc14",
+    "library_root_sha256": "a3d86340eecdc5e9f583366d8767937bb0db614dc6402d33263785cfe8f980c5",
+    "test_root_sha256": "4f802de11bfc981c34b3399ea6fa61cc19f12300f53966e21fa57b26bd7752f2"
   },
   "revalidated_vec_destruction": {
     "manifest": "build/hasteboots-extraction/vec-drop-6vkj6__f/manifest.json",
@@ -557,7 +560,7 @@
     "dependency_audit_count": 977,
     "negative_control_count": 87
   },
-  "validation_note": "Revalidated with 339 audits and 17 rejecting controls after the capacity reifier gained the decoded zero-capacity call chain. Empty-source proofs and production modules are unchanged; the recorded full project check remains applicable.",
+  "validation_note": "Fresh coupled-tool source/proof gates, dependency audits and rejecting controls passed after adding shared ZST-local loan issuance and positive allocation-mode/reference preparation. The full project check passed. Global placement is explicit; allocator method bodies, temporary-reference cleanup, native stack/type/ABI/compiler/lifetime correspondence, complete positive construction, physical work and final security remain open.",
   "prior_storage_bridge_baseline": {
     "manifest": "build/hasteboots-extraction/vec-empty-e010m81k/manifest.json",
     "sha256": "3d2248477bca4fce9445e4cbc4bb66e001323c05beae90deed8b7ecefcf5d5bf",
@@ -646,5 +649,26 @@
   "prior_decoded_zero_root_revalidation_baseline": {
     "gate_manifest": "build/hasteboots-extraction/vec-empty-a5bqmm4d/manifest.json",
     "gate_manifest_sha256": "116f03ba090cecfd5a32aab1e72b8b6f8324f7f138c2c9be26ca8475557509b8"
+  },
+  "prior_zst_local_borrow_baseline": {
+    "profile": "original-empty-byte-vec-revalidated-with-checked-enum-address-v5",
+    "gate_manifest": "build/hasteboots-extraction/vec-empty-3qlifhiz/manifest.json",
+    "gate_manifest_sha256": "5dffbce1814eb12dfda9063d9e1cec958a9dc5f112417b2c7c8bb61ba446bea7",
+    "dependency_audit_count": 339,
+    "negative_control_count": 17
+  },
+  "zst_local_borrow": {
+    "module": "FormalProof4FHE/HasteBoots/NativeZstBorrow.lean",
+    "new_declaration_audit_count": 19,
+    "model_regression_count": 11,
+    "persistent_dependency_guard_count": 10,
+    "explicit_nonzero_placement_address": true,
+    "actual_address_and_borrow_machine_steps": true,
+    "null_failure_retains_address_step": true,
+    "heap_and_incoming_reference_preservation": true,
+    "issued_state_reachability": true,
+    "reference_decoder_acceptance": true,
+    "native_stack_placement_refinement": false,
+    "native_lifetime_refinement": false
   }
 }

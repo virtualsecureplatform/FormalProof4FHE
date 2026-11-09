@@ -1,8 +1,8 @@
 {
-  "profile": "original-resident-vec-destruction-with-checked-enum-address-v26",
+  "profile": "original-resident-vec-destruction-with-zst-local-borrow-v27",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-drop-u8mfb0e8/manifest.json",
-  "gate_manifest_sha256": "dffa3e842fc7d131c2d06ce108d998bfc38bdde16fb497ccdc1e1aeede4fd075",
+  "gate_manifest": "build/hasteboots-extraction/vec-drop-7l_o69fp/manifest.json",
+  "gate_manifest_sha256": "25f4fa981852afed0c5e7ceba77dc5cdf09642fa48a25cb6461628cf48cfe492",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -66,9 +66,11 @@
     "8db02890bded3b18a259c769a8c7c953c57781ca",
     "814a24a5ae283b13af3251b376db1d3fbde7835d",
     "d720135badb2c1003008b7614a53175dbf6405df",
-    "b4e826eec33ffa2ecdb6b54a082e521f831d3072"
+    "b4e826eec33ffa2ecdb6b54a082e521f831d3072",
+    "8acddae597cce1bf3deb0f8e9a39c202212ad881",
+    "4969bd829bcdbac9678c147240fd7e31886c2f36"
   ],
-  "dependency_audit_count": 984,
+  "dependency_audit_count": 1003,
   "negative_control_count": 87,
   "negative_controls": {
     "wrong_profile": "Wrong extraction profile",
@@ -165,8 +167,8 @@
   "interpreter_helper_theorem_count": 3,
   "source_loop_theorem_count": 16,
   "source_composition_theorem_count": 17,
-  "new_declaration_audit_count": 574,
-  "model_regression_count": 248,
+  "new_declaration_audit_count": 593,
+  "model_regression_count": 259,
   "source_regression_count": 97,
   "inputs": {
     "scripts/check-hasteboots-vec-drop": "28bef0413815f2cae2aab7218f953108947331a33cd0398ccca9d156b2bbb99d",
@@ -185,7 +187,7 @@
     "scripts/reify-hasteboots-rawvec-option": "18ef4ea5a9cfe3e016a4ce805557b60a2e098c8523a90afb6498142ae6a7bdfc",
     "scripts/reify-hasteboots-global-deallocation": "e97864487e595ad6fcb031271dcf334cb745371b5cae294ac29e3a82857bbc25",
     "scripts/reify-hasteboots-rawvec-fields": "fd3abf7ed31234ed5c63d754e529400203cbfb9d52f0914f428ff8932ced92ca",
-    "scripts/check-hasteboots-allocator-caller": "9a6a379f86a2e72e311e0391573e6513ed370a87ae09c7a41c3f1feccd798098",
+    "scripts/check-hasteboots-allocator-caller": "b211f4ba0821323b0020144ee5a9d24b09f8c441938b676a4ae3c98df3e1af1f",
     "scripts/specify-hasteboots-deallocation-boundary": "48abaf9e189486073c292cf915c5717f3ee9e5a69735fc6b09859b9a8a93774a",
     "scripts/extract-hasteboots-parameters": "9ab0b333e12a4dac0fea4e37bc8bee430bdf56cac7eb4bcb5fa999ceab140993",
     "lean-toolchain": "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c",
@@ -217,14 +219,14 @@
     "interop/aeneas/vec-drop/ByteMethodPrefixSmoke.lean": "8ace5f1cbea23a679a81ad467fb7934d40b1a8e4a5da659506cc9035cc06a0ab",
     "interop/aeneas/vec-drop/ByteMethodReturnSmoke.lean": "6ca8a555fc7fd436d43121e5e473646a19aeb2fe0b55ce6fff25979758f202a7",
     "interop/aeneas/vec-drop/VecDestructionSmoke.lean": "e7cbf44d378de2f71880ad63582fb26d81c4bd03327fcb6ee3258ba656745a46",
-    "FormalProof4FHE/HasteBoots/NativeHeapFrame.lean": "d162f04be73e7c0a9671814fbed0b7362f529c54f67019a1a870911d67ae7ba4",
+    "FormalProof4FHE/HasteBoots/NativeHeapFrame.lean": "18a6d3002f31f2d7ae7e5f0aac61ba41a77afda3bfbf3615bafdec1ef70b83b4",
     "FormalProof4FHE/HasteBoots/NativeHeapRelease.lean": "3f5a6ea3c2db24ff1c37dc6ad0def3ba90cba9801ae9297caaf81faca594709e",
     "FormalProof4FHE/HasteBoots/NativeRecordHeapBounds.lean": "8400afe5343501bd77ea8758e70a3e350840dafcc2eee2a2a6097f71d10c8f8d",
     "FormalProof4FHE/HasteBoots/NativeResidentVec.lean": "70de16d97021f328d1dfd610c9d7263435add478bda06dae88ec33faa561dd9a",
     "FormalProof4FHE/HasteBoots/NativeResidentVecBorrow.lean": "2dc04d719e60494d45a3521de39df8630e0980d1d7cf9735793d58665074e2a6",
     "FormalProof4FHE/HasteBoots/NativeRecordCallValues.lean": "6aa63875bf445f426e3484cbf425f58e378f83d31f93e8faab8b2f04eb272b56",
     "FormalProof4FHE/HasteBoots/NativeIncomingReference.lean": "f5e52dc9c5055e99643cd552b9c488066c11143cfde9bde8e3d805599a917479",
-    "FormalProof4FHE/HasteBoots/NativeRecordIncomingReference.lean": "56d7e8c25160a95623dd2c25df80293fa5d63929f4d1d6d52e6532736118efce",
+    "FormalProof4FHE/HasteBoots/NativeRecordIncomingReference.lean": "d87b9edc33246dc94e56592b2398f3d5d095fef77f4a16b63937bbeade267295",
     "FormalProof4FHE/HasteBoots/NativeByteRangeCompleteness.lean": "791af9fdbc1f300a135908da854084e60b8c276559d7f5b099edfbf92a8aaea9",
     "FormalProof4FHE/HasteBoots/NativeBorrowFrontier.lean": "3801d9cf6f405ec296aa7df340893ef4bf50d144b315280b1d165b21cee4073f",
     "FormalProof4FHE/HasteBoots/NativeScopeRestoration.lean": "0347d3276180625f8d05b4be9d6cb4ac3689848814c61260b5b91905d9edb20d",
@@ -249,7 +251,7 @@
     "FormalProof4FHE/HasteBoots/NativeRawVecReference.lean": "3faa865ab90ca84ef7c3b0b678d7f550017970070b6c793b8583e899e1610d54",
     "FormalProof4FHE/HasteBoots/NativeRawVecBorrow.lean": "146fbd1e4c7b432dde1b1b12d7e36a09b31a07512a834716d775069d0fb515b8",
     "FormalProof4FHE/HasteBoots/NativeRawVecMutBorrow.lean": "f512b90f6848b5f4c118c3bdf1b8a63e1c9bf23de8e5692f2f23d55c8cd7f9cd",
-    "FormalProof4FHE/HasteBoots/NativeRecordLLBC.lean": "34a4690d398057269e4a884d7a1a13a7cbf1dd3ff96e2202f0a0734d7c8a9276",
+    "FormalProof4FHE/HasteBoots/NativeRecordLLBC.lean": "7b46c40a6195fbcde469db1f40f30a600c751158e6205c4417d44a1b739a02c7",
     "FormalProof4FHE/HasteBoots/NativeRecordValues.lean": "55d3f80a243da0b05bcd04c467aa70589b0504d586a80223f57c9d892f6d4d49",
     "FormalProof4FHETest/HasteBootsRawVecBorrowSmoke.lean": "69e78e9d30c22c5071eea3f974072b5b67b6801a83011323ad6f9caf74df3668",
     "FormalProof4FHETest/HasteBootsRawVecBorrowAudit.lean": "8002278c2d698ed9ca8eee6ac7fc5d8c722b3f2b55ebe228d622d67f451d3fce",
@@ -312,7 +314,7 @@
     "FormalProof4FHETest/HasteBootsRawVecDeallocationCompletenessAudit.lean": "85efbedcef271ce6dc69a0bebb5d25b0880091984899ae52e3c02bfe7bcb3a48",
     "FormalProof4FHETest/HasteBootsVecDestructionCompletenessAudit.lean": "b15ca27d45474cdbf6c85a2635a3969160d35fd7e658b00139d4ba8d394a3dbd"
   },
-  "source_llbc_sha256": "f5fb45139a2db654e34672bee7351c693ad9e1d974504f5051f85a3e802b5597",
+  "source_llbc_sha256": "89c042e2a03e59c2faf60ecf75e0287697cecb8188016eec119e4c2f9b462544",
   "outer_vec_drop_glue_interpreted": true,
   "outer_vec_drop_method_interpreted": true,
   "unbounded_original_byte_loop_interpreted": true,
@@ -328,11 +330,11 @@
   "full_project_check": {
     "command": "scripts/check",
     "exit_code": 0,
-    "build_jobs": 11081,
-    "log": "/tmp/hasteboots-zero-size-full-check.log",
-    "log_sha256": "cfc69aef40d23b35c581fd495a53a629cd3035b1efcdac7dc6062ad58a5f3398",
-    "library_root_sha256": "55eb5395a40bc9d580960f415ee5c5f757d4a5080832030d787ae01294e1de86",
-    "test_root_sha256": "35c935e0fcda0f86a82280798ba47a452a183e19e0a95a5e74a7e7deda3acfee"
+    "build_jobs": 11084,
+    "log": "/tmp/hasteboots-positive-mode-full-check.log",
+    "log_sha256": "ebe497e857bbd1c982d07a2520d59e6c61d72c26a9222a1cfbdadd4c652ddc14",
+    "library_root_sha256": "a3d86340eecdc5e9f583366d8767937bb0db614dc6402d33263785cfe8f980c5",
+    "test_root_sha256": "4f802de11bfc981c34b3399ea6fa61cc19f12300f53966e21fa57b26bd7752f2"
   },
   "prior_gate_manifest": {
     "path": "build/hasteboots-extraction/vec-drop-j6ky4k09/manifest.json",
@@ -1021,7 +1023,7 @@
     "dependency_audit_count": 977,
     "negative_control_count": 87
   },
-  "checked_sha256": "45858e5a7c3610195519d03f22dd6a39ae14f0f853dd842b3c93134930ef772b",
+  "checked_sha256": "a0deb68f9c8d12b73eece27a59ef6b7402cbc56e5518d9f6b69c7f61e672286b",
   "checked_enum_address": {
     "new_declaration_audit_count": 7,
     "model_regression_count": 8,
@@ -1031,5 +1033,26 @@
     "heap_and_incoming_reference_preservation_extended": true,
     "native_alignment_transmute_abi_refinement": false
   },
-  "validation_note": "Fresh coupled-tool extraction, source proof checks, dependency audits and rejecting controls passed after adding checked enum-derived addresses. The full project check passed. The zero-capacity source arm is proved with an initialized Global premise; positive allocation, complete caller/constructor argument refinement, native ABI, physical work and final security remain open."
+  "validation_note": "Fresh coupled-tool source/proof gates, dependency audits and rejecting controls passed after adding shared ZST-local loan issuance and positive allocation-mode/reference preparation. The full project check passed. Global placement is explicit; allocator method bodies, temporary-reference cleanup, native stack/type/ABI/compiler/lifetime correspondence, complete positive construction, physical work and final security remain open.",
+  "prior_zst_local_borrow_baseline": {
+    "profile": "original-resident-vec-destruction-with-checked-enum-address-v26",
+    "gate_manifest": "build/hasteboots-extraction/vec-drop-u8mfb0e8/manifest.json",
+    "gate_manifest_sha256": "dffa3e842fc7d131c2d06ce108d998bfc38bdde16fb497ccdc1e1aeede4fd075",
+    "dependency_audit_count": 984,
+    "negative_control_count": 87
+  },
+  "zst_local_borrow": {
+    "module": "FormalProof4FHE/HasteBoots/NativeZstBorrow.lean",
+    "new_declaration_audit_count": 19,
+    "model_regression_count": 11,
+    "persistent_dependency_guard_count": 10,
+    "explicit_nonzero_placement_address": true,
+    "actual_address_and_borrow_machine_steps": true,
+    "null_failure_retains_address_step": true,
+    "heap_and_incoming_reference_preservation": true,
+    "issued_state_reachability": true,
+    "reference_decoder_acceptance": true,
+    "native_stack_placement_refinement": false,
+    "native_lifetime_refinement": false
+  }
 }

@@ -7,6 +7,41 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Positive allocation mode and Global reference preparation
+
+`positive_layout_entry` now composes the original layout prefix with positive-size
+allocation-mode dispatch and source Global borrow preparation. For every byte
+capacity strictly between zero and `2^63`, both Uninitialized and Zeroed arms
+select the correct source continuation and prepare exactly the moved shared
+reference plus copied capacity Layout arguments. The source reifier validates
+both borrow forms, reference regions/metadata, allocation method owners,
+signatures, ordered arguments and temporary-reference scopes.
+
+The borrow uses an explicit nonzero placement address for the empty Global
+local. `NativeZstBorrow` executes actual reference-machine address exposure and
+shared zero-byte loan issuance, producing a registered fresh-counter reference
+without an allocation origin. Heap contents are unchanged, older incoming
+authority is preserved, and reachable inputs yield reachable issued states.
+A null address is rejected after retaining the executed address step; a missing
+or incorrectly typed nominal local is rejected before issuing a loan. Native
+Rust stack placement and lifetime correspondence are not established by this
+address parameter.
+
+Six new source theorems prove mode execution, argument preparation, composition
+with the layout prefix, decoder acceptance, heap identity and reachability.
+Seven source regressions include both modes, the largest accepted size, consumed
+reference locals, failure propagation and the null placement prefix. Eleven
+model examples and ten persistent dependency guards cover the shared operation.
+The fresh capacity gate passes 464 dependency audits, 77 rejecting controls and
+44 source regressions.
+
+The allocation methods themselves and their following cleanup/Result dispatch
+remain unprocessed source continuations. Next, interpret `allocate` and
+`allocate_zeroed`, their actual allocation/initialization and failure outcomes,
+then connect success to resident storage and destruction. The decoded positive
+constructor, native type/ABI/compiler/stack/lifetime refinement, physical work
+and final HasteBoots security theorem remain open.
+
 ## Decoded zero-capacity constructor call chain
 
 `capacity_zero_root` now proves the decoded fixture root at capacity zero through

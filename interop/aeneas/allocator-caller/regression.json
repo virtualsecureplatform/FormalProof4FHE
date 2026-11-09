@@ -1,7 +1,7 @@
 {
-  "profile": "original-finite-allocator-caller-revalidated-with-checked-enum-address-v3",
-  "gate_manifest": "build/hasteboots-extraction/allocator-caller-97_hgb6y/manifest.json",
-  "gate_manifest_sha256": "b2f05d81080d86935da5a4e0bc35dd1aca9685a201f9d869ef7f2e30cfb55d16",
+  "profile": "original-finite-allocator-caller-revalidated-with-zst-local-borrow-v4",
+  "gate_manifest": "build/hasteboots-extraction/allocator-caller-0nzhlkx_/manifest.json",
+  "gate_manifest_sha256": "2e182c7bfd5020e27dc7e55af67f232069c208f6d2eda0a0f1b877b760edf8f8",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "status": "passed",
   "commands": [
@@ -11,6 +11,8 @@
       "build",
       "FormalProof4FHETest.HasteBootsZstReferenceSmoke",
       "FormalProof4FHETest.HasteBootsZstReferenceAudit",
+      "FormalProof4FHETest.HasteBootsZstBorrowSmoke",
+      "FormalProof4FHETest.HasteBootsZstBorrowAudit",
       "FormalProof4FHETest.HasteBootsVecReferenceSmoke",
       "FormalProof4FHETest.HasteBootsVecReferenceAudit",
       "FormalProof4FHETest.HasteBootsRawVecMutBorrowSmoke",
@@ -39,7 +41,7 @@
       "env",
       "lean",
       "-DwarningAsError=true",
-      "build/hasteboots-extraction/allocator-caller-97_hgb6y/Checked.lean"
+      "build/hasteboots-extraction/allocator-caller-0nzhlkx_/Checked.lean"
     ],
     [
       "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/scripts/in-container",
@@ -47,7 +49,7 @@
       "env",
       "lean",
       "-DwarningAsError=true",
-      "build/hasteboots-extraction/allocator-caller-97_hgb6y/RetagDisabled.lean"
+      "build/hasteboots-extraction/allocator-caller-0nzhlkx_/RetagDisabled.lean"
     ],
     [
       "/home/work-bleaker/kmatsuoka/sources/VC-workspace/FormalProof4FHE/scripts/in-container",
@@ -55,7 +57,7 @@
       "env",
       "lean",
       "-DwarningAsError=true",
-      "build/hasteboots-extraction/allocator-caller-97_hgb6y/GuardEnabled.lean"
+      "build/hasteboots-extraction/allocator-caller-0nzhlkx_/GuardEnabled.lean"
     ]
   ],
   "claim": "original finite allocator caller over nominal logical aggregates with checked deallocation; native aggregate/ABI/compiler/lifetime/security refinement unproved",
@@ -68,7 +70,7 @@
   "physical_work_refinement": false,
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "inputs": {
-    "scripts/check-hasteboots-allocator-caller": "9a6a379f86a2e72e311e0391573e6513ed370a87ae09c7a41c3f1feccd798098",
+    "scripts/check-hasteboots-allocator-caller": "b211f4ba0821323b0020144ee5a9d24b09f8c441938b676a4ae3c98df3e1af1f",
     "scripts/reify-hasteboots-allocator-caller": "77a5bfd17d3871e60fe99b81fa4ac1019a6ab5d3028cabcaa9628d1e3d0226ca",
     "scripts/specify-hasteboots-deallocation-boundary": "48abaf9e189486073c292cf915c5717f3ee9e5a69735fc6b09859b9a8a93774a",
     "scripts/check-hasteboots-byte-deallocation": "19fe28ad65b241176a06762c54a04089395d77cf57e5fff26a8cf360485c1da4",
@@ -76,6 +78,7 @@
     "scripts/reify-hasteboots-scalar-llbc": "4e7a3c819b1f6b7c851ad0453ce125399bffa46bb7cea9193eaf065628b970df",
     "lean-toolchain": "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c",
     "FormalProof4FHE/HasteBoots/NativeZstReference.lean": "50e76c82a429de71d2d067684d28a533f0a342752493c5206b59dc7c675a1d10",
+    "FormalProof4FHE/HasteBoots/NativeZstBorrow.lean": "abfc2d9475e4bef8a34094934ce743c89620ef305b5a1fd15c2273cafb8f02fb",
     "FormalProof4FHE/HasteBoots/NativeVecReference.lean": "eee6f66374ddf70ea6e5d5662c1a56bba9cc61dec1c448d59cd68e4b6714ff0f",
     "FormalProof4FHE/HasteBoots/NativeRawVecMutBorrow.lean": "f512b90f6848b5f4c118c3bdf1b8a63e1c9bf23de8e5692f2f23d55c8cd7f9cd",
     "FormalProof4FHE/HasteBoots/NativeRawVecBorrow.lean": "146fbd1e4c7b432dde1b1b12d7e36a09b31a07512a834716d775069d0fb515b8",
@@ -83,9 +86,11 @@
     "FormalProof4FHE/HasteBoots/NativeRawVecReference.lean": "3faa865ab90ca84ef7c3b0b678d7f550017970070b6c793b8583e899e1610d54",
     "FormalProof4FHE/HasteBoots/NativeRecordArithmetic.lean": "68f77d47868bb0ce3d3fe9deffb481864c25410beae71fda57c3c1dc4dd559fd",
     "FormalProof4FHE/HasteBoots/NativeRecordValues.lean": "55d3f80a243da0b05bcd04c467aa70589b0504d586a80223f57c9d892f6d4d49",
-    "FormalProof4FHE/HasteBoots/NativeRecordLLBC.lean": "34a4690d398057269e4a884d7a1a13a7cbf1dd3ff96e2202f0a0734d7c8a9276",
+    "FormalProof4FHE/HasteBoots/NativeRecordLLBC.lean": "7b46c40a6195fbcde469db1f40f30a600c751158e6205c4417d44a1b739a02c7",
     "FormalProof4FHETest/HasteBootsZstReferenceSmoke.lean": "951d4a5b4fb0fcbb049d397256e05179c2226a4ff77f55c7623a19ba09a6bc7b",
     "FormalProof4FHETest/HasteBootsZstReferenceAudit.lean": "e606f0fd69b2500bfc9087932a400c7262156d88fb2f37127b45b1b45a32043f",
+    "FormalProof4FHETest/HasteBootsZstBorrowSmoke.lean": "6e752139577e3e06ed11e00861645210835b67f553c8f41e3437ccd76422a97a",
+    "FormalProof4FHETest/HasteBootsZstBorrowAudit.lean": "6e8053b65e3f11bae882169c5fbc4855122df9814a9164017debf6414b585f57",
     "FormalProof4FHETest/HasteBootsVecReferenceSmoke.lean": "26d06f5ed81bb1f70ed307411b198a8474fec7151db7743349b225ba48d6b8f6",
     "FormalProof4FHETest/HasteBootsVecReferenceAudit.lean": "a3c262c21318241fbbed53da12f59cb9bd29f11606bd599a8a575eac573e210a",
     "FormalProof4FHETest/HasteBootsRawVecMutBorrowSmoke.lean": "e42d9b0ae015491441818a05536b3129c18de3856cae0ae8238dc1f1c5e7b162",
@@ -109,8 +114,8 @@
     "interop/aeneas/allocator-caller/GuardSmoke.lean": "6af7d1a2dbc730f88acc3303f590f4da3ae71aad0dfeae57b55bde8d876a7416"
   },
   "parent_byte_deallocation": {
-    "manifest": "build/hasteboots-extraction/byte-deallocation-30cep1dn/manifest.json",
-    "manifest_sha256": "a6eebaff1c84c4a17b42fac41e83988338461ffd5c2eb97e887145d090494980",
+    "manifest": "build/hasteboots-extraction/byte-deallocation-wu1piz22/manifest.json",
+    "manifest_sha256": "53c607ff6fa305875b68980dc99db02b08117d3addc0d654d697498f47b8867c",
     "dependency_audit_count": 77
   },
   "negative_controls": {
@@ -151,6 +156,20 @@
     "FormalProof4FHE.HasteBoots.NativeZstReference.decode_success": "depends on axioms: [propext, Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeZstReference.decode_complete": "depends on axioms: [propext, Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeZstReference.decode_registered": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeZstBorrow.placed": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeZstBorrow.granted": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeZstBorrow.issue": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeZstBorrow.placement_step": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeZstBorrow.empty_permission": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeZstBorrow.empty_geometry": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeZstBorrow.grant_step": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeZstBorrow.issue_complete": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeZstBorrow.issue_projects": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeZstBorrow.granted_heap": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeZstBorrow.issue_null": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeZstBorrow.granted_decoded": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeZstBorrow.granted_reachable": "depends on axioms: [propext, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeZstBorrow.issue_heap": "depends on axioms: [propext, Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeVecReference.Target": "does not depend on any axioms",
     "FormalProof4FHE.HasteBoots.NativeVecReference.Target.offset": "does not depend on any axioms",
     "FormalProof4FHE.HasteBoots.NativeVecReference.Target.layout": "does not depend on any axioms",
@@ -329,6 +348,7 @@
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.Evaluated": "depends on axioms: [propext]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.Evaluated.world": "depends on axioms: [propext]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalRawVecField": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalZstBorrow": "depends on axioms: [propext, Classical.choice, Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalRawVecBorrow": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.reserveRawVec": "depends on axioms: [propext, Classical.choice, Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalRawVecMutBorrow": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
@@ -381,6 +401,7 @@
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.enumAddressValue_wrong_tag": "depends on axioms: [propext]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalEnumAddress_world": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalArithmetic_world": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalZstBorrow_projects": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalRvalue_projects": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.settle_projects": "depends on axioms: [propext, Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.deallocate_projects": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
@@ -419,6 +440,7 @@
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.Rvalue.borrowSlice": "does not depend on any axioms",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.Rvalue.parts": "depends on axioms: [propext]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.Rvalue.borrowRawVecMut": "does not depend on any axioms",
+    "FormalProof4FHE.HasteBoots.NativeRecordLLBC.Rvalue.borrowZstLocal": "depends on axioms: [propext]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.Rvalue.borrowRawVec": "does not depend on any axioms",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.Rvalue.recordResult": "does not depend on any axioms",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.Rvalue.mulUsizeUB": "depends on axioms: [propext]",
@@ -492,14 +514,14 @@
     "code_changed": true,
     "foreign_unsupported_before_free_checked": true
   },
-  "llbc_sha256": "13faa6c3c62a4b45dc376a1a8799a791e79122dedf2edd2d6b4ac6cf99f301f1",
-  "checked_sha256": "273c9f29cb296173be561b7903714a8ea0ae44569b3b59f138a198b78586aba5",
+  "llbc_sha256": "b2433cdc827fac47c826f31729f02d1508dc1a7caf293f2e1c1dcedf89b9e8cd",
+  "checked_sha256": "55d079b3268fa92ae895108241768d7e24aaaa09fad7af30fbdb5560ce57630b",
   "logs": {
-    "parent-byte-deallocation.log": "88a9319603b78a240677225e7159f1a871905d25c89d6c9a0bc11b410fd4e7d9",
-    "root-build.log": "1f025dac0e244a20d861719df6987f4711f4c7aa97dc3d67061b34d6740e433a",
+    "parent-byte-deallocation.log": "cce00b7bbafb28a9b9260a036763016c7821955a19a3ac09792e09de13216b70",
+    "lean.log": "73855f27c85cc795cb44baa14bf1502729ee689273052c33c1dd0a01d024e16e",
     "retag-disabled-lean.log": "cb57e98c8b5365e217c1a9a709b94e15dc7a8c38e28dc9f85f0fc36c1f69804d",
     "guard-enabled-lean.log": "cb57e98c8b5365e217c1a9a709b94e15dc7a8c38e28dc9f85f0fc36c1f69804d",
-    "lean.log": "7ca7a96b20c29610bec1ebaf9666287196a90453bfcbbd06b60208244520a082"
+    "root-build.log": "7f35c04483b81e53b893ab5fc8a6de7a609c8c7685702c01eaaf63b40d25c12b"
   },
   "model_theorems": 86,
   "model_persistent_audits": 271,
@@ -517,18 +539,18 @@
   "root_check": {
     "command": "scripts/check",
     "exit_code": 0,
-    "build_jobs": 11081,
-    "log": "/tmp/hasteboots-zero-size-full-check.log",
-    "log_sha256": "cfc69aef40d23b35c581fd495a53a629cd3035b1efcdac7dc6062ad58a5f3398",
-    "library_root_sha256": "55eb5395a40bc9d580960f415ee5c5f757d4a5080832030d787ae01294e1de86",
-    "test_root_sha256": "35c935e0fcda0f86a82280798ba47a452a183e19e0a95a5e74a7e7deda3acfee"
+    "build_jobs": 11084,
+    "log": "/tmp/hasteboots-positive-mode-full-check.log",
+    "log_sha256": "ebe497e857bbd1c982d07a2520d59e6c61d72c26a9222a1cfbdadd4c652ddc14",
+    "library_root_sha256": "a3d86340eecdc5e9f583366d8767937bb0db614dc6402d33263785cfe8f980c5",
+    "test_root_sha256": "4f802de11bfc981c34b3399ea6fa61cc19f12300f53966e21fa57b26bd7752f2"
   },
   "prior_arithmetic_extension_baseline": {
     "manifest": "build/hasteboots-extraction/allocator-caller-q6zndmtj/manifest.json",
     "sha256": "7a7b88054fb9c05752c9b89270f268fe65cc6ae8f906c7cd3ee841d0b7ef5bfd",
     "dependency_audit_count": 144
   },
-  "dependency_audit_count": 332,
+  "dependency_audit_count": 349,
   "negative_control_count": 31,
   "arithmetic_extension": {
     "module": "FormalProof4FHE/HasteBoots/NativeRecordArithmetic.lean",
@@ -552,7 +574,9 @@
     "8db02890bded3b18a259c769a8c7c953c57781ca",
     "814a24a5ae283b13af3251b376db1d3fbde7835d",
     "d720135badb2c1003008b7614a53175dbf6405df",
-    "b4e826eec33ffa2ecdb6b54a082e521f831d3072"
+    "b4e826eec33ffa2ecdb6b54a082e521f831d3072",
+    "8acddae597cce1bf3deb0f8e9a39c202212ad881",
+    "4969bd829bcdbac9678c147240fd7e31886c2f36"
   ],
   "prior_enum_address_baseline": {
     "profile": "original-finite-allocator-caller-revalidated-with-typed-boolean-arithmetic-v2",
@@ -570,5 +594,26 @@
     "heap_and_incoming_reference_preservation_extended": true,
     "native_alignment_transmute_abi_refinement": false
   },
-  "validation_note": "Fresh coupled-tool extraction, source proof checks, dependency audits and rejecting controls passed after adding checked enum-derived addresses. The full project check passed. The zero-capacity source arm is proved with an initialized Global premise; positive allocation, complete caller/constructor argument refinement, native ABI, physical work and final security remain open."
+  "validation_note": "Fresh coupled-tool source/proof gates, dependency audits and rejecting controls passed after adding shared ZST-local loan issuance and positive allocation-mode/reference preparation. The full project check passed. Global placement is explicit; allocator method bodies, temporary-reference cleanup, native stack/type/ABI/compiler/lifetime correspondence, complete positive construction, physical work and final security remain open.",
+  "prior_zst_local_borrow_baseline": {
+    "profile": "original-finite-allocator-caller-revalidated-with-checked-enum-address-v3",
+    "gate_manifest": "build/hasteboots-extraction/allocator-caller-97_hgb6y/manifest.json",
+    "gate_manifest_sha256": "b2f05d81080d86935da5a4e0bc35dd1aca9685a201f9d869ef7f2e30cfb55d16",
+    "dependency_audit_count": 332,
+    "negative_control_count": 31
+  },
+  "zst_local_borrow": {
+    "module": "FormalProof4FHE/HasteBoots/NativeZstBorrow.lean",
+    "new_declaration_audit_count": 19,
+    "model_regression_count": 11,
+    "persistent_dependency_guard_count": 10,
+    "explicit_nonzero_placement_address": true,
+    "actual_address_and_borrow_machine_steps": true,
+    "null_failure_retains_address_step": true,
+    "heap_and_incoming_reference_preservation": true,
+    "issued_state_reachability": true,
+    "reference_decoder_acceptance": true,
+    "native_stack_placement_refinement": false,
+    "native_lifetime_refinement": false
+  }
 }
