@@ -350,10 +350,10 @@ reachability and well-formedness, including failures and partial executions.
 The two terminal bodies remain explicit parameters. Their input contexts follow
 the validated signatures; an empty enumeration represents the uninhabited
 logical `!` result, and no logical value can inhabit it. These proofs do not
-assert native panic/abort behavior or native stack allocation. The original
-outer constructor error arm still needs composition with this handler, followed
-by terminal-helper refinement, destruction/reclamation, native ABI/compiler/
-lifetime correspondence, physical-work accounting and the final security bound.
+assert native panic/abort behavior or native stack allocation. The root composition below connects the outer constructor error arm.
+Terminal-helper refinement, destruction/reclamation, native ABI/compiler/
+lifetime correspondence, physical-work accounting and the final security bound
+remain open.
 
 Twelve handler regressions cover both dispatches, the forwarded allocation size,
 untouched overflow padding, retained loans, invalid inputs and placement,
@@ -364,5 +364,45 @@ Handler validation: 1,027 dependency audits and 194 rejecting controls pass,
 covering 419 constructor declarations and 54 linked getter declarations. The
 constructor profile now has 142 source examples; the 151 shared-model examples
 retain their prior scope. All four related source gates pass. The unchanged
+library, root tests, toolchain, dependencies and full-check scripts permit reuse
+of the successful 11101-job full project check.
+
+## Root construction with owned-error handling
+
+`handledRootInvoke` connects the original root, Vec and RawVec caller bodies to
+the shared constructor and checked error handler. The reifier now validates the
+complete outer error arm: moving the error out of `Result::Err`, retagging it,
+moving it into `handle_error`, storing its uninhabited result, and the exact
+normal/unwind storage cleanup. It also checks the previously unprocessed unwind
+successors of the three outer constructor calls.
+
+Typed continuation composition supplies the checked local-materialization effect
+while reusing the existing evaluators. `handled_call_legacy` proves that ordinary
+calls retain exactly their previous interpreter semantics. `handledAmbient`
+instantiates the nominal error and uninhabited-return types for the error locals.
+The earlier `unifiedCapacityRoot` retains its prior baseline scope;
+`handledRootInvoke` is the entry point with the connected error path.
+
+`OuterProof` proves complete root execution for zero capacity and successful
+allocation, and connects rejected capacities and normal allocation failure to
+`outerErrorEval`. The latter's payload move and typed handler invocation are
+proved independently, and compose with the prior handler snapshot/dispatch
+results. Successful snapshot execution is still the explicit storage-
+materialization boundary. Terminal routines remain model parameters. Unwind
+cleanup is executed through each caller, and failure retains every completed
+modeled operation.
+
+`OuterProjectionProof` establishes execution projection, reachability and
+well-formedness for the entire new entry point and every outcome. This extends
+the storage-loan reachability relation. Native stack/compiler/ABI/lifetime
+correspondence, terminal-helper behavior, destruction/reclamation, physical
+attacker-work accounting and the final security inequality remain open.
+
+Root-composition validation: 1,088 dependency audits and 212 rejecting controls
+pass, covering 480 constructor declarations and 54 linked getter declarations.
+The 155 source examples include 13 new full-root regressions for both error
+variants, dynamic allocation-size forwarding, successful allocation, zero
+capacity, moved payload locals, retained execution effects and unwind
+propagation. All four related extraction gates pass. The unchanged shared
 library, root tests, toolchain, dependencies and full-check scripts permit reuse
 of the successful 11101-job full project check.

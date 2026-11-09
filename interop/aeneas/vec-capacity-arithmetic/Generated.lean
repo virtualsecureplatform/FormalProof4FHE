@@ -431,4 +431,98 @@ def handlerInvoke (world : NativeReferenceMachine.State) (base : NativePointerSt
   | none => .invalid world
   | some frame => handlerEval base overflow allocation frame
 
+
+-- Typed continuation composition extends the existing source evaluators with
+-- the checked local-materialization handler. Native calling conventions and
+-- lifetime correspondence remain separate obligations.
+def handledContinue (next : Frame → Flow) : Flow → Flow
+  | .normal frame => next frame
+  | flow => flow
+def handledResume (caller : Frame) (target : Nat) (unwind next : Frame → Flow) : Flow → Flow
+  | .returned value world => match write {caller with world} target value with
+    | none => .invalid world
+    | some changed => next changed
+  | .unwind world => unwind {caller with world}
+  | .invalid world => .invalid world
+  | .unsupported source world => .unsupported source world
+  | .normal changed => .invalid changed.world
+def handledCall (types : List NativeRecordValues.Ty) (argCount target : Nat) (args : List Operand)
+    (callee unwind next : Frame → Flow) (frame : Frame) : Flow :=
+  match evalArgs frame args with
+  | none => .invalid frame.world
+  | some (values,caller) => match initial types argCount values caller.world with
+    | none => .invalid caller.world
+    | some entered => handledResume caller target unwind next (settle entered.world (callee entered))
+def handledAmbient (world : NativeReferenceMachine.State) : Frame :=
+  let error := HasteBootsReservationErrorKind.errorTypeFor reservationErrorTags
+  ⟨(((List.replicate 54 (.scalar .unit)).set 0 (.pair error (.scalar .unit))).set 7 error).set 8 handlerNeverType,
+    List.replicate 54 .dead,world⟩
+def handledErrorValue (kind : NativeReservationErrorFields.Kind) : NativeRecordValues.Value :=
+  .record 8 (.choice true (.pair (NativeReservationErrorLocal.encode reservationErrorTags kind) (.scalar .unit)))
+def handledRawErrorFrame (start : NativeReferenceMachine.State) (capacity : NativeWord64Memory.Word)
+    (world : NativeReferenceMachine.State) (kind : NativeReservationErrorFields.Kind) : Frame :=
+  let moved := rawCallerMoved (rawEntryAmbient (handledAmbient start)) capacity
+  {moved with slots := moved.slots.set 4 (.live (some (handledErrorValue kind))),world}
+def handledRawErrorPrepared (start : NativeReferenceMachine.State) (capacity : NativeWord64Memory.Word)
+    (world : NativeReferenceMachine.State) (kind : NativeReservationErrorFields.Kind) : Frame :=
+  let returned := handledRawErrorFrame start capacity world kind
+  let remainingValue := NativeRecordValues.Value.record 8 (.choice true (.pair .uninit (.scalar .unit)))
+  let slots := returned.slots.set 4 (.live (some remainingValue))
+  {returned with slots := slots.set 7 (.live (some (NativeReservationErrorLocal.encode reservationErrorTags kind)))}
+def handledRawErrorMoved (start : NativeReferenceMachine.State) (capacity : NativeWord64Memory.Word)
+    (world : NativeReferenceMachine.State) (kind : NativeReservationErrorFields.Kind) : Frame :=
+  let returned := handledRawErrorFrame start capacity world kind
+  let remainingValue := NativeRecordValues.Value.record 8 (.choice true (.pair .uninit (.scalar .unit)))
+  let slots := returned.slots.set 4 (.live (some remainingValue))
+  {returned with slots := slots.set 7 (.live (some .uninit))}
+def outerErrorPrefix : Body := .live 7
+  (.assign 7 (.use (.move 4 [(.unwrap 8),(.active true),.left]) true .byte) .done)
+def outerErrorCleanup (next : Body) : Body := .dead 13 (.dead 8 (.dead 7 (.dead 3 (.dead 2 (.dead 1 next)))))
+def outerErrorEval (base : NativePointerStorage.Address) (overflow allocation : Body) (frame : Frame) : Flow :=
+  handledContinue (handledCall handlerTypes 1 8 [(.move 7 [])] (handlerEval base overflow allocation)
+    (eval (outerErrorCleanup .resume)) (eval (outerErrorCleanup (.dead 14 .abort))))
+    (eval outerErrorPrefix frame)
+def rawSuccessTail (cold : Body) : Body := (.assign 0 (.use (.move 4 [(.unwrap 8), (.active false), .left]) true .byte) (.live 5 (.live 6 (.live 9 (.live 10 (.live 11 (.assign 11 (.use (.copy 3 [(.unwrap 4), .left]) true .byte) (.switchUsize (.copy 11 []) 0 (.assign 10 (.use (.usize 18446744073709551615) true .byte) .done) (.live 12 (.assign 12 (.use (.copy 0 [(.unwrap 3), .right, .left]) true .byte) (.assign 10 (.use (.copy 12 [(.unwrap 7),.left]) false .byte) (.dead 12 .done)))) (.dead 11 (.assign 9 expr_wrappingSubtract (.dead 10 (.assign 6 expr_greater (.dead 9 (.assign 5 expr_logicalNot (.dead 6 (.constIf false cold .done (.switchBoolean (.copy 5 []) (.dead 5 (.dead 4 (.dead 13 (.dead 8 (.dead 7 (.dead 3 (.dead 2 (.dead 1 (.dead 14 .ret))))))))) .abort .done)))))))))))))))))
+def handledRawTail (base : NativePointerStorage.Address) (overflow allocation cold : Body) (frame : Frame) : Flow :=
+  match selectChoice frame 4 [] 8 with
+  | none => .invalid frame.world
+  | some side => handledContinue (eval (rawSuccessTail cold))
+      (if side then outerErrorEval base overflow allocation frame else .normal frame)
+def handledRawEval (ambient : Frame) (base : NativePointerStorage.Address) (address : NativeWord64Memory.Word)
+    (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body)
+    (overflow allocation : Body) (frame : Frame) : Flow :=
+  handledContinue (handledRawTail base overflow allocation (.unsupported "source cold helper"))
+    (NativeAllocatorLLBC.eval (unifiedRawCallerCall ambient address outcome shim
+      (.legacy (outerErrorCleanup .resume) .done) .done) frame)
+def handledInvoke (types : List NativeRecordValues.Ty) (argCount : Nat) (body : Frame → Flow)
+    (world : NativeReferenceMachine.State) (values : List NativeRecordValues.Value) : Flow :=
+  match initial types argCount values world with
+  | none => .invalid world
+  | some entered => settle entered.world (body entered)
+def handledRawInvoke (world : NativeReferenceMachine.State) (base : NativePointerStorage.Address)
+    (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body)
+    (overflow allocation : Body) (capacity : NativeWord64Memory.Word) : Flow :=
+  let ambient := rawEntryAmbient (handledAmbient world)
+  handledInvoke (rawCallerTypes ambient) 3 (handledRawEval ambient base address outcome shim overflow allocation)
+    world [.scalar (.usize capacity),allocatorValue,byteLayout]
+def handledVecEval (ambient : Frame) (base : NativePointerStorage.Address) (address : NativeWord64Memory.Word)
+    (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body)
+    (overflow allocation : Body) (frame : Frame) : Flow :=
+  let raw := rawEntryAmbient ambient
+  handledContinue (handledCall (rawCallerTypes raw) 3 3 vecCallerArgs
+    (handledRawEval raw base address outcome shim overflow allocation) (eval (.dead 1 .resume)) (eval vecCallerTail))
+    (eval (vecCallerPrefix .done) frame)
+def handledRootEval (ambient : Frame) (base : NativePointerStorage.Address) (address : NativeWord64Memory.Word)
+    (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body)
+    (overflow allocation : Body) (frame : Frame) : Flow :=
+  handledContinue (handledCall (vecCallerTypes ambient) 1 0 [(.move 2 [])]
+    (handledVecEval ambient base address outcome shim overflow allocation) (eval (.dead 1 .resume)) (eval capacityRootTail))
+    (eval (capacityRootPrefix .done) frame)
+def handledRootInvoke (world : NativeReferenceMachine.State) (base : NativePointerStorage.Address)
+    (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body)
+    (overflow allocation : Body) (capacity : NativeWord64Memory.Word) : Flow :=
+  let ambient := handledAmbient world
+  handledInvoke (capacityRootTypes ambient) 1 (handledRootEval ambient base address outcome shim overflow allocation)
+    world [.scalar (.usize capacity)]
+
 end HasteBootsVecCapacityArithmetic

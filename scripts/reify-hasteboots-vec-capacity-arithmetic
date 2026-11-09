@@ -53,6 +53,7 @@ class Reifier:
   self.constructor_unwind=ConstructorUnwind(self)
   self.unified_constructor=UnifiedConstructor(self)
   self.error_handler=ErrorHandler(self)
+  self.outer_error=OuterError(self)
  def walk(self,f,node):
   if isinstance(node,dict):
    if 'statements' in node:
@@ -120,7 +121,7 @@ class Reifier:
     else:slots.append('.dead')
    lines+=['def '+label+' (world : NativeReferenceMachine.State) (left right : NativeWord64Memory.Word) : Frame :=',
     '  ⟨['+', '.join(types)+'], ['+', '.join(slots)+'], world⟩']
-  lines+=[self.layout_prefix.render(),self.caller_preparation.render(),self.positive_preparation.render(),self.allocator_methods.render(),self.runtime_calls.render(),self.runtime_success.render(),self.runtime_null.render(),self.positive_construction.render(),self.positive_callers.render(),self.constructor_error.render(),self.rejected_layout.render(),self.constructor_unwind.render(),self.unified_constructor.render(),self.positive_callers.render_unified(),self.error_handler.render(),'end HasteBootsVecCapacityArithmetic',''];return '\n'.join(lines)
+  lines+=[self.layout_prefix.render(),self.caller_preparation.render(),self.positive_preparation.render(),self.allocator_methods.render(),self.runtime_calls.render(),self.runtime_success.render(),self.runtime_null.render(),self.positive_construction.render(),self.positive_callers.render(),self.constructor_error.render(),self.rejected_layout.render(),self.constructor_unwind.render(),self.unified_constructor.render(),self.positive_callers.render_unified(),self.error_handler.render(),self.outer_error.render(),'end HasteBootsVecCapacityArithmetic',''];return '\n'.join(lines)
 
 class LayoutPrefix:
  def __init__(self,parent):
@@ -1044,6 +1045,118 @@ def handlerInvoke (world : NativeReferenceMachine.State) (base : NativePointerSt
   match initial handlerTypes 1 [value] world with
   | none => .invalid world
   | some frame => handlerEval base overflow allocation frame
+"""
+
+
+
+class OuterError:
+ def __init__(self,parent):
+  G=runpy.run_path(str(ROOT/'scripts/reify-hasteboots-reservation-error-kind'))
+  block=G['block'];local=G['local'];field=G['field'];clean=G['clean'];never={'Untagged':'Never'}
+  raw=parent.functions[2]['body']['Structured'];ss=raw['body']['statements']
+  require([(x['index'],x['ty']) for x in raw['locals']['locals'][7:9]]==[(7,adt(9)),(8,never)],'Changed raw caller error locals')
+  cleanup=[{'StorageDead':i} for i in [13,8,7,3,2,1]]
+  expected=block([{'StorageLive':7},{'Assign':[local(7,adt(9)),{'Use':[{'Move':field(local(4,adt(8)),8,1,0,adt(9))},'Yes']}]},
+   {'Call':{'call':{'func':{'Regular':{'kind':{'Fun':{'Regular':4}},'generics':{'regions':[],'types':[],'const_generics':[],'trait_refs':[]}}},'args':[{'Move':local(7,adt(9))}],'dest':local(8,never)},'on_unwind':block(cleanup+['UnwindResume'])}}]+cleanup+[{'StorageDead':14},{'Abort':'UndefinedBehavior'}])
+  match=ss[7]['kind']['Switch']['Match']
+  require(clean(match[1][1][1])==expected,'Changed outer error payload move, handler call or cleanup')
+  for fid,index,dead in [(0,3,[1]),(1,5,[1]),(2,6,[13,8,7,3,2,1])]:
+   call=parent.functions[fid]['body']['Structured']['body']['statements'][index]['kind']['Call']
+   require(clean(call['on_unwind'])==block([{'StorageDead':i} for i in dead]+['UnwindResume']),'Changed outer constructor-call unwind cleanup')
+  self.success=parent.caller_preparation.tail_code(ss[8:])
+ def render(self):return """
+-- Typed continuation composition extends the existing source evaluators with
+-- the checked local-materialization handler. Native calling conventions and
+-- lifetime correspondence remain separate obligations.
+def handledContinue (next : Frame → Flow) : Flow → Flow
+  | .normal frame => next frame
+  | flow => flow
+def handledResume (caller : Frame) (target : Nat) (unwind next : Frame → Flow) : Flow → Flow
+  | .returned value world => match write {caller with world} target value with
+    | none => .invalid world
+    | some changed => next changed
+  | .unwind world => unwind {caller with world}
+  | .invalid world => .invalid world
+  | .unsupported source world => .unsupported source world
+  | .normal changed => .invalid changed.world
+def handledCall (types : List NativeRecordValues.Ty) (argCount target : Nat) (args : List Operand)
+    (callee unwind next : Frame → Flow) (frame : Frame) : Flow :=
+  match evalArgs frame args with
+  | none => .invalid frame.world
+  | some (values,caller) => match initial types argCount values caller.world with
+    | none => .invalid caller.world
+    | some entered => handledResume caller target unwind next (settle entered.world (callee entered))
+def handledAmbient (world : NativeReferenceMachine.State) : Frame :=
+  let error := HasteBootsReservationErrorKind.errorTypeFor reservationErrorTags
+  ⟨(((List.replicate 54 (.scalar .unit)).set 0 (.pair error (.scalar .unit))).set 7 error).set 8 handlerNeverType,
+    List.replicate 54 .dead,world⟩
+def handledErrorValue (kind : NativeReservationErrorFields.Kind) : NativeRecordValues.Value :=
+  .record 8 (.choice true (.pair (NativeReservationErrorLocal.encode reservationErrorTags kind) (.scalar .unit)))
+def handledRawErrorFrame (start : NativeReferenceMachine.State) (capacity : NativeWord64Memory.Word)
+    (world : NativeReferenceMachine.State) (kind : NativeReservationErrorFields.Kind) : Frame :=
+  let moved := rawCallerMoved (rawEntryAmbient (handledAmbient start)) capacity
+  {moved with slots := moved.slots.set 4 (.live (some (handledErrorValue kind))),world}
+def handledRawErrorPrepared (start : NativeReferenceMachine.State) (capacity : NativeWord64Memory.Word)
+    (world : NativeReferenceMachine.State) (kind : NativeReservationErrorFields.Kind) : Frame :=
+  let returned := handledRawErrorFrame start capacity world kind
+  let remainingValue := NativeRecordValues.Value.record 8 (.choice true (.pair .uninit (.scalar .unit)))
+  let slots := returned.slots.set 4 (.live (some remainingValue))
+  {returned with slots := slots.set 7 (.live (some (NativeReservationErrorLocal.encode reservationErrorTags kind)))}
+def handledRawErrorMoved (start : NativeReferenceMachine.State) (capacity : NativeWord64Memory.Word)
+    (world : NativeReferenceMachine.State) (kind : NativeReservationErrorFields.Kind) : Frame :=
+  let returned := handledRawErrorFrame start capacity world kind
+  let remainingValue := NativeRecordValues.Value.record 8 (.choice true (.pair .uninit (.scalar .unit)))
+  let slots := returned.slots.set 4 (.live (some remainingValue))
+  {returned with slots := slots.set 7 (.live (some .uninit))}
+def outerErrorPrefix : Body := .live 7
+  (.assign 7 (.use (.move 4 [(.unwrap 8),(.active true),.left]) true .byte) .done)
+def outerErrorCleanup (next : Body) : Body := .dead 13 (.dead 8 (.dead 7 (.dead 3 (.dead 2 (.dead 1 next)))))
+def outerErrorEval (base : NativePointerStorage.Address) (overflow allocation : Body) (frame : Frame) : Flow :=
+  handledContinue (handledCall handlerTypes 1 8 [(.move 7 [])] (handlerEval base overflow allocation)
+    (eval (outerErrorCleanup .resume)) (eval (outerErrorCleanup (.dead 14 .abort))))
+    (eval outerErrorPrefix frame)
+def rawSuccessTail (cold : Body) : Body := """+self.success+"""
+def handledRawTail (base : NativePointerStorage.Address) (overflow allocation cold : Body) (frame : Frame) : Flow :=
+  match selectChoice frame 4 [] 8 with
+  | none => .invalid frame.world
+  | some side => handledContinue (eval (rawSuccessTail cold))
+      (if side then outerErrorEval base overflow allocation frame else .normal frame)
+def handledRawEval (ambient : Frame) (base : NativePointerStorage.Address) (address : NativeWord64Memory.Word)
+    (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body)
+    (overflow allocation : Body) (frame : Frame) : Flow :=
+  handledContinue (handledRawTail base overflow allocation (.unsupported "source cold helper"))
+    (NativeAllocatorLLBC.eval (unifiedRawCallerCall ambient address outcome shim
+      (.legacy (outerErrorCleanup .resume) .done) .done) frame)
+def handledInvoke (types : List NativeRecordValues.Ty) (argCount : Nat) (body : Frame → Flow)
+    (world : NativeReferenceMachine.State) (values : List NativeRecordValues.Value) : Flow :=
+  match initial types argCount values world with
+  | none => .invalid world
+  | some entered => settle entered.world (body entered)
+def handledRawInvoke (world : NativeReferenceMachine.State) (base : NativePointerStorage.Address)
+    (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body)
+    (overflow allocation : Body) (capacity : NativeWord64Memory.Word) : Flow :=
+  let ambient := rawEntryAmbient (handledAmbient world)
+  handledInvoke (rawCallerTypes ambient) 3 (handledRawEval ambient base address outcome shim overflow allocation)
+    world [.scalar (.usize capacity),allocatorValue,byteLayout]
+def handledVecEval (ambient : Frame) (base : NativePointerStorage.Address) (address : NativeWord64Memory.Word)
+    (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body)
+    (overflow allocation : Body) (frame : Frame) : Flow :=
+  let raw := rawEntryAmbient ambient
+  handledContinue (handledCall (rawCallerTypes raw) 3 3 vecCallerArgs
+    (handledRawEval raw base address outcome shim overflow allocation) (eval (.dead 1 .resume)) (eval vecCallerTail))
+    (eval (vecCallerPrefix .done) frame)
+def handledRootEval (ambient : Frame) (base : NativePointerStorage.Address) (address : NativeWord64Memory.Word)
+    (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body)
+    (overflow allocation : Body) (frame : Frame) : Flow :=
+  handledContinue (handledCall (vecCallerTypes ambient) 1 0 [(.move 2 [])]
+    (handledVecEval ambient base address outcome shim overflow allocation) (eval (.dead 1 .resume)) (eval capacityRootTail))
+    (eval (capacityRootPrefix .done) frame)
+def handledRootInvoke (world : NativeReferenceMachine.State) (base : NativePointerStorage.Address)
+    (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body)
+    (overflow allocation : Body) (capacity : NativeWord64Memory.Word) : Flow :=
+  let ambient := handledAmbient world
+  handledInvoke (capacityRootTypes ambient) 1 (handledRootEval ambient base address outcome shim overflow allocation)
+    world [.scalar (.usize capacity)]
 """
 
 if __name__=='__main__':main()
