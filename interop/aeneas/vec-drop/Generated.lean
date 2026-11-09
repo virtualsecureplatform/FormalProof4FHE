@@ -2,6 +2,7 @@ module
 public import FormalProof4FHE.HasteBoots.NativeRecordHeapBounds
 public import FormalProof4FHE.HasteBoots.NativeResidentVecBorrow
 public import FormalProof4FHE.HasteBoots.NativeRecordCallValues
+public import FormalProof4FHE.HasteBoots.NativeIncomingReference
 @[expose] public section
 
 namespace HasteBootsRawVecDrop

@@ -196,7 +196,7 @@ class Reifier(PARENT['Reifier']):
             lines+=['-- Original declaration SHA256 '+SPEC['digest'](self.functions[fid]),'def f'+str(fid)+' : Definition :=',
                     '  ⟨'+json.dumps(name(self.functions[fid]))+', '+self.classification(fid)+', '+seq([self.ty(t) for t in types])+', '+str(count)+', '+self.composed_code(fid)+'⟩']
         # Each composed callee is embedded, so declarations are audit handles.
-        return '\n'.join(lines+['end HasteBootsVecDrop','']).replace('public import FormalProof4FHE.HasteBoots.NativeRecordLLBC','public import FormalProof4FHE.HasteBoots.NativeRecordHeapBounds\npublic import FormalProof4FHE.HasteBoots.NativeResidentVecBorrow\npublic import FormalProof4FHE.HasteBoots.NativeRecordCallValues')
+        return '\n'.join(lines+['end HasteBootsVecDrop','']).replace('public import FormalProof4FHE.HasteBoots.NativeRecordLLBC','public import FormalProof4FHE.HasteBoots.NativeRecordHeapBounds\npublic import FormalProof4FHE.HasteBoots.NativeResidentVecBorrow\npublic import FormalProof4FHE.HasteBoots.NativeRecordCallValues\npublic import FormalProof4FHE.HasteBoots.NativeIncomingReference')
 
     def retained(self):
         value=super().retained();value['vec_entry']=self.entry;value['composed_functions']=[self.functions[i] for i in sorted(self.composed)]
