@@ -1,8 +1,8 @@
 {
-  "profile": "original-resident-vec-destruction-with-modeled-fresh-reservations-v24",
+  "profile": "original-resident-vec-destruction-with-typed-boolean-arithmetic-v25",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-drop-e3zmwgln/manifest.json",
-  "gate_manifest_sha256": "cbc750fb95a8159fe1f93723f30e58cd5683f3210641b826a6ac5776dc996de1",
+  "gate_manifest": "build/hasteboots-extraction/vec-drop-6vkj6__f/manifest.json",
+  "gate_manifest_sha256": "2fe05cd8a882be99b7ca7d9910abd69ef27be08c44b1da093e3d4458aa525a76",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -61,9 +61,12 @@
     "eb20d76d3f7f09eec5c53010ec80c11ead5f27ad",
     "29c8af8a0987d586b34a55228890cbbc18cae28a",
     "efd61cf98ca733870440eaaf22c145e2720515a6",
-    "4010168482922b41f22e110abbdbcbc4fb7eceb3"
+    "4010168482922b41f22e110abbdbcbc4fb7eceb3",
+    "59d2b832b3158d7ef08c3b3d377872553b5282ef",
+    "8db02890bded3b18a259c769a8c7c953c57781ca",
+    "814a24a5ae283b13af3251b376db1d3fbde7835d"
   ],
-  "dependency_audit_count": 949,
+  "dependency_audit_count": 977,
   "negative_control_count": 87,
   "negative_controls": {
     "wrong_profile": "Wrong extraction profile",
@@ -160,11 +163,11 @@
   "interpreter_helper_theorem_count": 3,
   "source_loop_theorem_count": 16,
   "source_composition_theorem_count": 17,
-  "new_declaration_audit_count": 539,
-  "model_regression_count": 223,
+  "new_declaration_audit_count": 567,
+  "model_regression_count": 240,
   "source_regression_count": 97,
   "inputs": {
-    "scripts/check-hasteboots-vec-drop": "b70415c69ae052603d82dbb89d3ddcd50b73cd1deaf430ee83416a36632cec3c",
+    "scripts/check-hasteboots-vec-drop": "28bef0413815f2cae2aab7218f953108947331a33cd0398ccca9d156b2bbb99d",
     "scripts/reify-hasteboots-vec-drop": "0ef983324e439064ea0969a4fc60d6a574137d5548a1feaee727f018b9b1eb8d",
     "scripts/reify-hasteboots-rawvec-drop": "748d6a322c395db0244eec640359f5b4efd07d234b023a23aa23f9dfeee812aa",
     "scripts/check-hasteboots-rawvec-drop": "2774e9d2b0bf5817f876b4787101650118d905dbc954391743be2723518c1fb3",
@@ -180,7 +183,7 @@
     "scripts/reify-hasteboots-rawvec-option": "18ef4ea5a9cfe3e016a4ce805557b60a2e098c8523a90afb6498142ae6a7bdfc",
     "scripts/reify-hasteboots-global-deallocation": "e97864487e595ad6fcb031271dcf334cb745371b5cae294ac29e3a82857bbc25",
     "scripts/reify-hasteboots-rawvec-fields": "fd3abf7ed31234ed5c63d754e529400203cbfb9d52f0914f428ff8932ced92ca",
-    "scripts/check-hasteboots-allocator-caller": "4f3ed3112dbac563ed10e105a0178f69a732bbdc4edb33b9827c2f6b7c68c573",
+    "scripts/check-hasteboots-allocator-caller": "b51f70a0aa8db041c98995874afbe92cfed358380b111785a6258792dd953405",
     "scripts/specify-hasteboots-deallocation-boundary": "48abaf9e189486073c292cf915c5717f3ee9e5a69735fc6b09859b9a8a93774a",
     "scripts/extract-hasteboots-parameters": "9ab0b333e12a4dac0fea4e37bc8bee430bdf56cac7eb4bcb5fa999ceab140993",
     "lean-toolchain": "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c",
@@ -195,7 +198,7 @@
     "interop/aeneas/vec-drop/ByteMethodReturnProof.lean": "8d1334a3ed3e3e1b804a5183bfe37e3853d64d154a16684101d2ee1e9777407f",
     "interop/aeneas/vec-drop/HeapProof.lean": "ba5306d3d646602d82f65d0c968d81908f5c3c4e9514c739d4ee37227ea5d5dd",
     "interop/aeneas/vec-drop/CapacityProof.lean": "02789e1cb65c53487e586ee824f3f4d5f579d26a6043f87d460e609089416b55",
-    "interop/aeneas/vec-drop/DeallocationProof.lean": "51e6a31dc493a63199918bdff18483ae39ca9439ef874c9c90f3f1b9e3160e18",
+    "interop/aeneas/vec-drop/DeallocationProof.lean": "3f9562a2b494058546a69c624374d2c3bd811bedc0be3eb46a5ebf50fd48003a",
     "interop/aeneas/vec-drop/RawVecDestructorProof.lean": "836167f7d371a705734ef4cc82235328f311b4da8353621466ac96ade6a5b64a",
     "interop/aeneas/vec-drop/OuterVecProof.lean": "7e421a8eea0c78193dd251dc86edb7110eabedfcb81e9915922f9cd58f91e195",
     "interop/aeneas/vec-drop/VecDestructionProof.lean": "3253584cd79b8b38b40b21d432d2cdb13757473fd0cfe72a1700684147830e2e",
@@ -212,14 +215,14 @@
     "interop/aeneas/vec-drop/ByteMethodPrefixSmoke.lean": "8ace5f1cbea23a679a81ad467fb7934d40b1a8e4a5da659506cc9035cc06a0ab",
     "interop/aeneas/vec-drop/ByteMethodReturnSmoke.lean": "6ca8a555fc7fd436d43121e5e473646a19aeb2fe0b55ce6fff25979758f202a7",
     "interop/aeneas/vec-drop/VecDestructionSmoke.lean": "e7cbf44d378de2f71880ad63582fb26d81c4bd03327fcb6ee3258ba656745a46",
-    "FormalProof4FHE/HasteBoots/NativeHeapFrame.lean": "e1c8d1062272a191f9bf3924c20b5c245c60753cf9bdf2af65fbe1e442460799",
+    "FormalProof4FHE/HasteBoots/NativeHeapFrame.lean": "82bcbbb1e7db3eeca6f20ab5310e9da30665abad20a5cc9e5cc1b93134c583b6",
     "FormalProof4FHE/HasteBoots/NativeHeapRelease.lean": "3f5a6ea3c2db24ff1c37dc6ad0def3ba90cba9801ae9297caaf81faca594709e",
-    "FormalProof4FHE/HasteBoots/NativeRecordHeapBounds.lean": "aee4efbce17802c995c85e7d40300da4069111f866fd31bfe549975b2be13608",
+    "FormalProof4FHE/HasteBoots/NativeRecordHeapBounds.lean": "8400afe5343501bd77ea8758e70a3e350840dafcc2eee2a2a6097f71d10c8f8d",
     "FormalProof4FHE/HasteBoots/NativeResidentVec.lean": "70de16d97021f328d1dfd610c9d7263435add478bda06dae88ec33faa561dd9a",
     "FormalProof4FHE/HasteBoots/NativeResidentVecBorrow.lean": "2dc04d719e60494d45a3521de39df8630e0980d1d7cf9735793d58665074e2a6",
     "FormalProof4FHE/HasteBoots/NativeRecordCallValues.lean": "6aa63875bf445f426e3484cbf425f58e378f83d31f93e8faab8b2f04eb272b56",
     "FormalProof4FHE/HasteBoots/NativeIncomingReference.lean": "f5e52dc9c5055e99643cd552b9c488066c11143cfde9bde8e3d805599a917479",
-    "FormalProof4FHE/HasteBoots/NativeRecordIncomingReference.lean": "36daf682bbbd383eff81a297b63f3a86b3d6054d6837b753c3db22fee7c28ac9",
+    "FormalProof4FHE/HasteBoots/NativeRecordIncomingReference.lean": "ffe3206cb5eb5ffe4442cd039a12c2156a65f28f3761781694bd9732e44cf22d",
     "FormalProof4FHE/HasteBoots/NativeByteRangeCompleteness.lean": "791af9fdbc1f300a135908da854084e60b8c276559d7f5b099edfbf92a8aaea9",
     "FormalProof4FHE/HasteBoots/NativeBorrowFrontier.lean": "3801d9cf6f405ec296aa7df340893ef4bf50d144b315280b1d165b21cee4073f",
     "FormalProof4FHE/HasteBoots/NativeScopeRestoration.lean": "0347d3276180625f8d05b4be9d6cb4ac3689848814c61260b5b91905d9edb20d",
@@ -244,8 +247,8 @@
     "FormalProof4FHE/HasteBoots/NativeRawVecReference.lean": "3faa865ab90ca84ef7c3b0b678d7f550017970070b6c793b8583e899e1610d54",
     "FormalProof4FHE/HasteBoots/NativeRawVecBorrow.lean": "146fbd1e4c7b432dde1b1b12d7e36a09b31a07512a834716d775069d0fb515b8",
     "FormalProof4FHE/HasteBoots/NativeRawVecMutBorrow.lean": "f512b90f6848b5f4c118c3bdf1b8a63e1c9bf23de8e5692f2f23d55c8cd7f9cd",
-    "FormalProof4FHE/HasteBoots/NativeRecordLLBC.lean": "1ada69ad40499a6cd39d64cd96ce622c3232515343b7dda5a5653febffc7d000",
-    "FormalProof4FHE/HasteBoots/NativeRecordValues.lean": "31d80448069358e44b298685733534f90e7136b0c6a7f774179a1553e4651484",
+    "FormalProof4FHE/HasteBoots/NativeRecordLLBC.lean": "092a1d6e80d24ba85b66277c97faed82c5a4ddfbc8d5cee4f8eaa54942a95cd6",
+    "FormalProof4FHE/HasteBoots/NativeRecordValues.lean": "55d3f80a243da0b05bcd04c467aa70589b0504d586a80223f57c9d892f6d4d49",
     "FormalProof4FHETest/HasteBootsRawVecBorrowSmoke.lean": "69e78e9d30c22c5071eea3f974072b5b67b6801a83011323ad6f9caf74df3668",
     "FormalProof4FHETest/HasteBootsRawVecBorrowAudit.lean": "8002278c2d698ed9ca8eee6ac7fc5d8c722b3f2b55ebe228d622d67f451d3fce",
     "FormalProof4FHETest/HasteBootsRawVecMutBorrowSmoke.lean": "e42d9b0ae015491441818a05536b3129c18de3856cae0ae8238dc1f1c5e7b162",
@@ -280,6 +283,9 @@
     "FormalProof4FHETest/HasteBootsTraversalCompletenessAudit.lean": "ff00b3c770ad800429c1a120cca7be7f952ecc5b7524c083f2e897cb018c7f44",
     "FormalProof4FHETest/HasteBootsVecBytePrefixSmoke.lean": "eb3539e646e35e4bc952a829119cc4b028a45d0900bbd1e74f12552e99173d22",
     "FormalProof4FHETest/HasteBootsVecBytePrefixAudit.lean": "bf1bf11e7db9c2ca65cd57665591cdaa219bb6dfbd903ffbb8f35b1367f09457",
+    "FormalProof4FHE/HasteBoots/NativeRecordArithmetic.lean": "68f77d47868bb0ce3d3fe9deffb481864c25410beae71fda57c3c1dc4dd559fd",
+    "FormalProof4FHETest/HasteBootsRecordArithmeticSmoke.lean": "c1ee6cd9a7d929326ba2d1dc9998f26ded001e2cd19bc3142834f3efeb341807",
+    "FormalProof4FHETest/HasteBootsRecordArithmeticAudit.lean": "e02ccd12113415f36008ec5fcd252b76587698d8392c2620e0477452d61985d9",
     "FormalProof4FHE/HasteBoots/NativePointerRestore.lean": "fda334897fa18d9c5b69942205182819d4375e6e6bad70a85170aaed6037e2a0",
     "FormalProof4FHE/HasteBoots/NativeReservedVecStorage.lean": "41d7b82c9b92ccf037d54b6174a799a5a8e5fa2029f75567a68f515e1db7db60",
     "FormalProof4FHE/HasteBoots/NativeReservedVecConstruction.lean": "f348614a1cbe30f73a345dce40dbb7b4c7889ba1089492e554992d63c2647c95",
@@ -304,7 +310,7 @@
     "FormalProof4FHETest/HasteBootsRawVecDeallocationCompletenessAudit.lean": "85efbedcef271ce6dc69a0bebb5d25b0880091984899ae52e3c02bfe7bcb3a48",
     "FormalProof4FHETest/HasteBootsVecDestructionCompletenessAudit.lean": "b15ca27d45474cdbf6c85a2635a3969160d35fd7e658b00139d4ba8d394a3dbd"
   },
-  "source_llbc_sha256": "0153659b9eb6e2a2d2cea3685efaf82b351bac547ad9d48d8aeac6a85f247cdb",
+  "source_llbc_sha256": "14bfacad20ac8bc42267d042eee2f6333264b2c23f9ba267160fdb3b4effc53e",
   "outer_vec_drop_glue_interpreted": true,
   "outer_vec_drop_method_interpreted": true,
   "unbounded_original_byte_loop_interpreted": true,
@@ -320,11 +326,11 @@
   "full_project_check": {
     "command": "scripts/check",
     "exit_code": 0,
-    "build_jobs": 11078,
-    "log": "/tmp/hasteboots-reserved-construction-full-check.log",
-    "log_sha256": "871fca03410a0754d954ff9e31fdbd069de8497ff3ce782abee3234556cae15a",
-    "library_root_sha256": "d44360b48a5dd41aef868a27147478db27fab3425bec3315689317904fab3fd9",
-    "test_root_sha256": "8a56aed1a5f6ca773a017a97315023f44bf07e92ca33089c3aa08aab018657e1"
+    "build_jobs": 11081,
+    "log": "/tmp/hasteboots-constructor-arithmetic-full-check.log",
+    "log_sha256": "bcc41233edbd1b1d4ff08fc27064ec8f98d19e84f947cd72c581a4f24f26f52c",
+    "library_root_sha256": "55eb5395a40bc9d580960f415ee5c5f757d4a5080832030d787ae01294e1de86",
+    "test_root_sha256": "35c935e0fcda0f86a82280798ba47a452a183e19e0a95a5e74a7e7deda3acfee"
   },
   "prior_gate_manifest": {
     "path": "build/hasteboots-extraction/vec-drop-j6ky4k09/manifest.json",
@@ -887,7 +893,7 @@
     "sha256": "23fa010e7985571731a11e530d4875404bb607e4130a85d9118c32cab37e0448",
     "dependency_audit_count": 897
   },
-  "empty_source_llbc_sha256": "0c6af53027b6bc12efbf282bc26b39bbd59fe2a44444eb5e2c1b53ecc88c888c",
+  "empty_source_llbc_sha256": "9327506d19e1d48f065ae43ab2b7631116b29cf000623620922b486f2b511a69",
   "empty_constructor_storage_bridge": {
     "module": "FormalProof4FHE/HasteBoots/NativeEmptyVecStorage.lean",
     "model_theorem_count": 7,
@@ -983,5 +989,27 @@
     "failure_trace_physical_work_accounted": false,
     "final_security_theorem": false
   },
-  "rust_with_capacity_refinement_proved": false
+  "rust_with_capacity_refinement_proved": false,
+  "prior_arithmetic_extension_baseline": {
+    "manifest": "build/hasteboots-extraction/vec-drop-e3zmwgln/manifest.json",
+    "sha256": "cbc750fb95a8159fe1f93723f30e58cd5683f3210641b826a6ac5776dc996de1",
+    "dependency_audit_count": 949
+  },
+  "arithmetic_extension": {
+    "module": "FormalProof4FHE/HasteBoots/NativeRecordArithmetic.lean",
+    "core_declaration_audit_count": 28,
+    "operation_count": 9,
+    "arithmetic_theorem_count": 5,
+    "world_preservation_helper_theorem_count": 2,
+    "stable_enum_dispatch_equation_count": 1,
+    "model_regression_count": 17,
+    "distinct_primitive_boolean_types_and_values": true,
+    "dynamic_boolean_branching_and_condition_moves": true,
+    "checked_multiply_overflow_tuple": true,
+    "wrapping_and_precondition_rejecting_subtraction_distinguished": true,
+    "kind_and_arity_errors_rejected": true,
+    "heap_incoming_reference_and_deallocation_budget_preservation_extended": true,
+    "generated_match_choice_equation_number_dependency_removed": true,
+    "native_scalar_tuple_abi_refinement": false
+  }
 }

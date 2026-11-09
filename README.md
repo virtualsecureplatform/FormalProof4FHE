@@ -173,6 +173,11 @@ buffer provenance through storage, and composes exact-capacity release with the
 retained destructor. The Rust allocation-backed constructor, native ABI/lifetime
 refinement and physical-work proof remain open.
 
+Typed Boolean branches and fixed-width constructor arithmetic now have checked
+interpreter semantics. A fresh `with_capacity` profile retains nine original
+assignments and proves the checked byte multiplication step with its move effects;
+whole constructor control flow remains open.
+
 See `docs/HasteBootsProofStatus.md` for the source mapping and remaining obligations.
 These components do not yet establish complete PBS or transcript security.
 

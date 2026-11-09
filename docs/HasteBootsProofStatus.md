@@ -7,6 +7,42 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Retained allocation arithmetic and typed Boolean branches
+
+The record interpreter now represents primitive Booleans separately from word
+values. It evaluates checked multiplication with a result/overflow tuple, unsigned
+comparisons, bit equality, wrapping and precondition-checked subtraction, wrapping
+shift, bitwise OR and logical negation. Dynamic Boolean branches preserve the
+actual operand move, execute only the selected branch and retain the following
+continuation. Heap, incoming-reference and deallocation-budget proofs cover the
+new cases. Wrong kinds and violated subtraction preconditions halt explicitly.
+
+`interop/aeneas/vec-capacity-arithmetic` freshly extracts `Vec::<u8>::with_capacity`
+and retains all 21 function declarations, 31 type declarations and globals. Nine
+original arithmetic assignments are emitted with their exact destination/local
+indices, declared primitive widths, operand modes and source statement hashes.
+The checked multiplication assignment is proved for every 64-bit word pair and
+modeled world, including the original two source moves. For byte element size one,
+the unsigned multiplication result is exactly the requested capacity and its
+overflow flag is false, even at the largest unsigned word. The later allocation
+layout bound remains a separate check.
+
+The profile proves isolated assignments, not whole constructor execution. Its
+partial scalar contexts leave unused locals dead. The complete retained Rust
+control flow and calls are available for the next translation step; their success,
+overflow/error handling, abort paths and native layout/ABI correspondence remain
+unproved. No uninterpreted allocator success or error callback is introduced.
+
+The extension adds 28 audited core declarations, five arithmetic theorems and two
+world-preservation helper theorems. Enum dispatch now uses a stable named equation
+in the destructor proofs. Seventeen model regressions cover overflow,
+wrapping, rejected preconditions, kind/arity errors, genuine Boolean typing,
+selected versus unsupported branches and consumption of a Boolean condition.
+The new profile has 23 definitions, four source theorems and four source
+regressions. Its gate checks 333 dependencies and 21 rejecting extraction controls
+using the existing frozen toolchain. Full application security and physical-work
+accounting remain open.
+
 ## Modeled fresh reservations retain buffer provenance through destruction
 
 `NativePointerRestore` proves that writing back loaded initialized bytes preserves
