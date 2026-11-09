@@ -1,0 +1,177 @@
+#!/usr/bin/env python3
+"""Check original current_memory control flow; native ABI/compiler and helper refinement remain open."""
+import argparse
+import copy
+import hashlib
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+DATA = ROOT/'interop/aeneas/rawvec-current-memory'
+BUILD = runpy.run_path(str(ROOT/'scripts/build-hasteboots-inline-tools'))
+PARAMETERS = runpy.run_path(str(ROOT/'scripts/extract-hasteboots-parameters'))
+PARENT = runpy.run_path(str(ROOT/'scripts/check-hasteboots-allocator-caller'))
+REIFIER = runpy.run_path(str(ROOT/'scripts/reify-hasteboots-rawvec-current-memory'))
+INCLUDES = ['alloc::raw_vec','alloc::vec','alloc::alloc','core::alloc::layout',
+            'core::ptr::unique','core::ptr::non_null','core::mem::alignment','core::ptr::drop_in_place']
+
+
+def digest(raw): return hashlib.sha256(raw).hexdigest()
+
+
+def inventory():
+    names = PARENT['inventory']()
+    for file in ['Generated.lean','Proof.lean']:
+        raw=(DATA/file).read_text()
+        PARAMETERS['validate_proof_source'](raw,re.findall(r'^theorem (\w+)',raw,re.M))
+        names += ['HasteBootsRawVecCurrentMemory.'+n for n in re.findall(r'^(?:def|theorem) (\w+)',raw,re.M)]
+    return names
+
+
+def negatives(ir):
+    r=REIFIER['Reifier'](ir);root=r.root;records={}
+    def assignments(c):
+        result=[]
+        def collect(x):
+            if isinstance(x,dict):
+                if 'kind' in x and isinstance(x['kind'],dict) and 'Assign' in x['kind']:result.append(x['kind']['Assign'])
+                for v in x.values():collect(v)
+            elif isinstance(x,list):
+                for v in x:collect(v)
+        collect(c['fun_decls'][root]['body']['Structured']['body']);return result
+    def assignment(c,index):return next(a for a in assignments(c) if a[0]['kind']=={'Local':index})
+    def f(c):return c['fun_decls'][root]
+    def check(label,mutation):
+        changed=copy.deepcopy(ir);mutation(changed['translated'])
+        try:REIFIER['Reifier'](changed).render()
+        except (ValueError,KeyError,TypeError,IndexError) as error:records[label]=str(error)
+        else:raise RuntimeError('Negative accepted: '+label)
+    check('wrong_profile',lambda c:c['options'].update(mir='Built'))
+    check('wrong_signature_safety',lambda c:f(c)['signature'].update(is_unsafe=False))
+    check('wrong_signature_region',lambda c:f(c)['signature']['inputs'][0]['Untagged']['Ref'].__setitem__(0,{'Var':{'Free':99}}))
+    check('wrong_body_region',lambda c:f(c)['body']['Structured']['locals']['locals'][1]['ty']['Untagged']['Ref'].__setitem__(0,{'Body':99}))
+    check('mutable_receiver',lambda c:f(c)['signature']['inputs'][0]['Untagged']['Ref'].__setitem__(2,'Mut'))
+    check('changed_root_class',lambda c:f(c)['item_meta'].update(opacity='Foreign'))
+    check('wrong_layout_argument',lambda c:f(c)['signature']['inputs'].__setitem__(1,REIFIER['SPEC']['USIZE']))
+    check('wrong_pointer_owner',lambda c:assignment(c,15)[1]['Use'][0]['Copy']['kind']['Projection'][1]['Field'][0]['Adt'].__setitem__(0,r.storage.inner['def_id']))
+    check('wrong_marker_field',lambda c:assignment(c,16)[1]['Use'][0]['Copy']['kind']['Projection'][1]['Field'].__setitem__(1,0))
+    check('invalid_pointer_retag',lambda c:assignment(c,15)[1]['Use'].__setitem__(1,'Unknown'))
+    check('wrapping_product',lambda c:assignment(c,6)[1]['BinaryOp'].__setitem__(0,{'Mul':'Wrapping'}))
+    check('wrong_product_operand_type',lambda c:assignment(c,6)[1]['BinaryOp'][1]['Copy'].update(ty={'Untagged':{'Literal':{'UInt':'U32'}}}))
+    check('wrong_carrier_cast',lambda c:assignment(c,4)[1]['UnaryOp'][0]['Cast']['Transmute'].__setitem__(1,{'Untagged':{'Literal':{'UInt':'U32'}}}))
+    check('wrong_alignment_cast',lambda c:assignment(c,10)[1]['UnaryOp'][0]['Cast']['Transmute'].__setitem__(0,REIFIER['SPEC']['USIZE']))
+    check('wrong_layout_constructor_arity',lambda c:assignment(c,9)[1]['Aggregate'][1].pop())
+    check('wrong_some_variant',lambda c:assignment(c,0)[1]['Aggregate'][0]['Adt'].__setitem__(1,2))
+    check('wrong_some_payload',lambda c:assignment(c,0)[1]['Aggregate'][1].clear())
+    check('changed_mul_helper_class',lambda c:c['fun_decls'][10]['item_meta'].update(opacity='Transparent'))
+    check('changed_layout_helper_class',lambda c:c['fun_decls'][11]['item_meta'].update(opacity='Foreign'))
+    check('wrong_helper_signature',lambda c:c['fun_decls'][10]['signature']['inputs'].pop())
+    check('wrong_pointer_geometry',lambda c:c['type_decls'][r.storage.inner['def_id']]['layout'][0]['value']['variant_layouts'][0]['field_offsets'].__setitem__(0,0))
+    check('invented_carrier_body',lambda c:c['type_decls'][r.storage.carrier['def_id']].update(kind={'Struct':[]}))
+    check('unknown_statement_effect',lambda c:f(c)['body']['Structured']['body']['statements'][0].update(hidden_effect='Drop'))
+    return records
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--build-receipt', type=Path, required=True); args = parser.parse_args()
+    out = Path(tempfile.mkdtemp(prefix='rawvec-current-memory-', dir=ROOT/'build/hasteboots-extraction'))
+    record = {'status':'started','commands':[], 'current_memory_root_interpreted':True, 'helper_bodies_interpreted':False, 'rawvec_cleanup_body_interpreted':False,
+              'native_carrier_validity_proved':False, 'physical_niche_decoded':False, 'native_lifetime_refinement':False,
+              'physical_work_refinement':False, 'final_security_theorem':False}
+    def save(): (out/'manifest.json').write_text(json.dumps(record,indent=2)+'\n')
+    def run(command, log):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out/log).open('w') as stream:
+            result = subprocess.run([str(x) for x in command],cwd=ROOT,stdout=stream,stderr=subprocess.STDOUT)
+        if result.returncode: raise RuntimeError('Command failed: '+log)
+    print('RawVec current_memory artifacts: '+str(out), flush=True)
+    try:
+        _, tools, _ = BUILD['verify_receipt'](args.build_receipt)
+        record['build_receipt_sha256'] = digest(args.build_receipt.read_bytes())
+        files = [Path(__file__), ROOT/'scripts/reify-hasteboots-rawvec-current-memory',
+                 ROOT/'scripts/reify-hasteboots-rawvec-reference',ROOT/'scripts/reify-hasteboots-variant-body',
+                 ROOT/'scripts/reify-hasteboots-allocator-caller',ROOT/'scripts/reify-hasteboots-rawvec-option',
+                 ROOT/'scripts/reify-hasteboots-global-deallocation',ROOT/'scripts/reify-hasteboots-rawvec-fields',
+                 ROOT/'scripts/check-hasteboots-allocator-caller',
+                 ROOT/'scripts/specify-hasteboots-deallocation-boundary',
+                 ROOT/'scripts/extract-hasteboots-parameters',ROOT/'lean-toolchain',
+                 *[DATA/n for n in ['fixture.rs','Generated.lean','Retained.json','Proof.lean','Smoke.lean']],
+                 *[ROOT/('FormalProof4FHE/HasteBoots/'+n+'.lean') for n in ['NativeRawVecFields','NativeRawVecReference','NativeRecordLLBC','NativeRecordValues']],
+                 *[ROOT/('FormalProof4FHETest/HasteBootsCurrentMemoryOps'+n+'.lean') for n in ['Smoke','Audit']]]
+        record['inputs'] = {str(p.relative_to(ROOT)):digest(p.read_bytes()) for p in files}
+        run([ROOT/'scripts/in-container','lake','build','FormalProof4FHETest.HasteBootsCurrentMemoryOpsSmoke',
+             'FormalProof4FHETest.HasteBootsCurrentMemoryOpsAudit'],'root-build.log')
+        llbc = out/'source.llbc'
+        command = [tools/'charon','rustc','--preset=aeneas','--sysroot','default','--monomorphize','--mir','optimized',
+                   '--consts','values','--evaluate-runtime-checks','--precise-drops','--desugar-drops','--preserve-allocator','--no-dedup-serialized-ast']
+        for include in INCLUDES: command += ['--include',include]
+        command += ['--dest-file',llbc,'--','--crate-type','lib','--edition','2024','-Cdebug-assertions=no',
+                    '--crate-name','hasteboots_rawvec_cleanup',(DATA/'fixture.rs').relative_to(ROOT)]
+        run(command,'charon.log'); ir = json.loads(llbc.read_text()); reifier = REIFIER['Reifier'](ir)
+        generated = reifier.render()
+        if generated != (DATA/'Generated.lean').read_text() or reifier.retained() != json.loads((DATA/'Retained.json').read_text()):
+            raise RuntimeError('Retained source schema/target metadata differs')
+        record['negative_controls'] = negatives(ir)
+        names = inventory()
+        checked = out/'Checked.lean'
+        checked.write_text(generated+'\n'+(DATA/'Proof.lean').read_text()+'\n'+(DATA/'Smoke.lean').read_text()+
+                           ''.join('\n#print axioms '+name+'\n' for name in names))
+        run([ROOT/'scripts/in-container','lake','env','lean','-DwarningAsError=true',checked.relative_to(ROOT)],'lean.log')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out/'lean.log').read_text(),names)
+        def find_conditions(x):
+            if isinstance(x,dict):
+                if set(x)=={'If'}:yield x['If'][0]['Const']['kind']['Literal']
+                for value in x.values():yield from find_conditions(value)
+            elif isinstance(x,list):
+                for value in x:yield from find_conditions(value)
+        changed=copy.deepcopy(ir)
+        conditions=list(find_conditions(changed['translated']['fun_decls'][reifier.root]['body']['Structured']['body']))
+        if len(conditions)!=2:raise RuntimeError('Unexpected precondition guard count')
+        conditions[0]['Bool']=True
+        changed_generated=REIFIER['Reifier'](changed).render()
+        code_only=lambda raw:re.sub(r'^--.*$','',raw,flags=re.M)
+        if code_only(changed_generated)==code_only(generated):raise RuntimeError('Activated helper guard ignored')
+        test=out/'HelperActivated.lean'
+        # Reuse definitions, retaining only the source smoke's private setup.
+        prefix=(DATA/'Smoke.lean').read_text().split('example :')[0]
+        test.write_text(changed_generated+'\n'+(DATA/'Proof.lean').read_text().split('theorem zero_capacity_exact')[0]+'\n'+prefix+"""
+example : (match invoke f8 (world 8) [.rawVecSharedReference 0,layoutInput 1 1] with
+    | .unsupported source next => (source,next.outputs.length,next.pointers.registers.length)
+    | _ => ("wrong",99,99)) = ("core::num::unchecked_mul::precondition_check",2,6) := by decide
+end HasteBootsRawVecCurrentMemory.Smoke
+""")
+        # The proof prefix opened its namespace; close it before smoke setup.
+        text=test.read_text().replace(prefix,'end HasteBootsRawVecCurrentMemory\n'+prefix,1);test.write_text(text)
+        run([ROOT/'scripts/in-container','lake','env','lean','-DwarningAsError=true',test.relative_to(ROOT)],'helper-activated.log')
+        record['supported_helper_guard_mutation']='literal false to true changes generated code; entry remains unsupported with two executed capacity reads retained'
+        changed=copy.deepcopy(ir)
+        def mutate_retag(x):
+            if isinstance(x,dict):
+                if 'kind' in x and isinstance(x['kind'],dict) and 'Assign' in x['kind']:
+                    left,rv=x['kind']['Assign']
+                    if left['kind']=={'Local':15}:rv['Use'][1]='No'
+                for v in x.values():mutate_retag(v)
+            elif isinstance(x,list):
+                for v in x:mutate_retag(v)
+        mutate_retag(changed['translated']['fun_decls'][reifier.root]['body']['Structured']['body'])
+        changed_generated=REIFIER['Reifier'](changed).render()
+        if code_only(changed_generated)==code_only(generated):raise RuntimeError('Pointer retag flag ignored')
+        test=out/'PointerRetagDisabled.lean';test.write_text(changed_generated+'\n'+(DATA/'Proof.lean').read_text()+'\n'+(DATA/'Smoke.lean').read_text())
+        run([ROOT/'scripts/in-container','lake','env','lean','-DwarningAsError=true',test.relative_to(ROOT)],'pointer-retag-disabled.log')
+        record['supported_pointer_retag_mutation']='Yes to No changes code; source theorems and regressions pass'
+        record['llbc_sha256'] = digest(llbc.read_bytes()); record['checked_sha256'] = digest(checked.read_bytes())
+        if record['inputs'] != {str(p.relative_to(ROOT)):digest(p.read_bytes()) for p in files}: raise RuntimeError('Inputs changed during validation')
+        BUILD['verify_receipt'](args.build_receipt); record['status'] = 'passed'
+        print('RawVec current_memory passed: '+str(len(names))+' audits; '+str(len(record['negative_controls']))+' rejecting controls')
+    except Exception as error:
+        record.update(status='failed',error=str(error)); raise SystemExit(str(error)+'; inspect '+str(out)) from error
+    finally:
+        record['logs'] = {p.name:digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__': main()

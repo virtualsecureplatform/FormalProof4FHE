@@ -1,0 +1,167 @@
+#!/usr/bin/env python3
+"""Reify original RawVec current_memory control flow over checked byte/shadow semantics.
+Untranslated precondition helpers reject if entered; carrier/ABI/compiler and
+lifetime correspondence remain unproved.
+"""
+import argparse
+import json
+from pathlib import Path
+import runpy
+from types import SimpleNamespace
+
+ROOT=Path(__file__).resolve().parent.parent
+VARIANT=runpy.run_path(str(ROOT/'scripts/reify-hasteboots-variant-body'))
+CAPACITY=runpy.run_path(str(ROOT/'scripts/reify-hasteboots-rawvec-reference'))
+STORAGE=CAPACITY['STORAGE'];BASE=VARIANT['PARENT'];SPEC=BASE['SPEC']
+REGIONS=CAPACITY['PARENT'];require=SPEC['require'];empty=SPEC['empty'];name=SPEC['name'];seq=BASE['seq']
+
+
+class Reifier(VARIANT['Reifier']):
+    def __init__(self,ir):
+        self.storage=storage=STORAGE['Reifier'](ir);self.crate=c=storage.crate
+        profile=VARIANT['PROFILE']['Reifier'](ir)
+        self.option=profile.option;self.layout=profile.types[1];self.alignment=profile.types[3];self.functions={f['def_id']:f for f in c['fun_decls'] if f}
+        self.types={t['def_id']:t for t in c['type_decls'] if t}
+        self.root=storage.function['def_id'];self.roots=[self.root]
+        self.boundary=SimpleNamespace(function=None,enum=profile.types[4],nonnull=profile.types[0],alignments=[2**i for i in range(64)])
+        self.schemas={};self.codes={};self.active=set();self.type_active=set();self.helper_names={}
+        for f in self.functions.values():
+            n=name(f)
+            if n in ['core::num::unchecked_mul::precondition_check','core::alloc::layout::from_size_align_unchecked::precondition_check']:
+                self.helper_names[f['def_id']]=n
+        require(len(self.helper_names)==2,'Missing/duplicate precondition declarations')
+        self.schema(self.root)
+
+    def ty(self,raw):
+        if raw==SPEC['adt'](self.storage.carrier['def_id']):return '(.scalar .usize)'
+        if raw==SPEC['adt'](self.storage.marker['def_id']):return '(.record '+str(self.storage.marker['def_id'])+' (.scalar .unit))'
+        if set(raw)=={'Untagged'} and set(raw['Untagged'])=={'Ref'}:
+            _,pointee,mode=raw['Untagged']['Ref']
+            require(mode=='Shared' and pointee==SPEC['adt'](self.storage.inner['def_id']),'Wrong current_memory receiver type')
+            return '(.scalar (.reference false))'
+        return super().ty(raw)
+
+    def schema(self,fid):
+        if fid in self.schemas:return self.schemas[fid]
+        f=self.functions[fid];sig=f['signature']
+        require(set(sig)=={'is_unsafe','abi','is_variadic','inputs','output'} and type(sig['is_unsafe']) is bool and sig['is_unsafe']==(fid==self.root) and
+                sig['abi']=='Rust' and sig['is_variadic'] is False and f['is_global_initializer'] is None,'Wrong source signature')
+        if fid!=self.root:
+            require(fid in self.helper_names and empty(f['generics']) and sig['inputs']==[SPEC['USIZE'],SPEC['USIZE']] and
+                    sig['output']==SPEC['UNIT'],'Unsupported helper signature')
+            if self.helper_names[fid]=='core::num::unchecked_mul::precondition_check':
+                require(f['item_meta']['opacity']=='Foreign' and f['body']=='Opaque','Changed multiplication helper classification')
+            else:require(f['item_meta']['opacity']=='Transparent' and set(f['body'])=={'Structured'},'Changed Layout helper classification')
+            self.schemas[fid]=[SPEC['UNIT']]+sig['inputs'],2;return self.schemas[fid]
+        require(f['generics']['regions']==[{'index':0,'name':None,'mutability':'Unknown'}] and
+                empty({**f['generics'],'regions':[]}) and len(sig['inputs'])==2 and
+                sig['inputs'][1]==SPEC['adt'](self.layout['def_id']) and
+                sig['output']==SPEC['adt'](self.option['def_id']),'Unclosed current_memory signature')
+        require(f['item_meta']['opacity']=='Transparent' and set(f['body'])=={'Structured'},'Changed current_memory classification')
+        b=f['body']['Structured'];require(set(b)=={'span','bound_body_regions','locals','body','comments'},'Unknown current_memory body fields')
+        bound=b['bound_body_regions'];require(type(bound) is int and bound>=0,'Wrong bound region count')
+        for raw in sig['inputs']+[sig['output']]:REGIONS['validate_regions'](raw,None,1)
+        locals=b['locals']['locals'];types=[v['ty'] for v in locals]
+        require([v['index'] for v in locals]==list(range(len(locals))) and b['locals']['arg_count']==2 and
+                REGIONS['erase_regions'](types[:3])==REGIONS['erase_regions']([sig['output']]+sig['inputs']),'Wrong current_memory locals')
+        for raw in types:REGIONS['validate_regions'](raw,bound,1);self.ty(raw)
+        self.schemas[fid]=types,2;return types,2
+
+    def heap_place(self,p,fid):
+        path=[];raw=p
+        while isinstance(raw['kind'],dict) and set(raw['kind'])=={'Projection'}:
+            require(set(raw)=={'kind','ty'},'Unknown heap projection fields')
+            base,projection=raw['kind']['Projection']
+            if projection=='Deref':
+                require(raw['ty']==SPEC['adt'](self.storage.inner['def_id']),'Wrong resident dereference')
+                index,local_path,ref_ty=self.place(base,fid)
+                require(not local_path and ref_ty['Untagged']['Ref'][1:]==[raw['ty'],'Shared'],'Wrong resident operand')
+                return index,list(reversed(path))
+            require(set(projection)=={'Field'},'Unknown resident projection')
+            owner,index=projection['Field'];tid,variant=owner['Adt'];source=self.types[tid]
+            require(owner=={'Adt':[tid,None]} and variant is None and base['ty']==SPEC['adt'](tid) and
+                    set(source['kind'])=={'Struct'} and type(index) is int and 0<=index<len(source['kind']['Struct']) and
+                    raw['ty']==source['kind']['Struct'][index]['ty'],'Wrong resident projection owner/type')
+            path.append((tid,index));raw=base
+        raise ValueError('Missing resident dereference')
+
+    def is_heap_place(self,p):
+        while isinstance(p.get('kind'),dict) and set(p['kind'])=={'Projection'}:
+            base,projection=p['kind']['Projection']
+            if projection=='Deref':return True
+            p=base
+        return False
+
+    def rvalue(self,rv,fid):
+        if set(rv)=={'Use'}:
+            op,retag=rv['Use'];require(retag in ['Yes','No'],'Unknown read retag flag')
+            if set(op)=={'Copy'} and self.is_heap_place(op['Copy']):
+                index,path=self.heap_place(op['Copy'],fid);operand='(.copy '+str(index)+' [])';enabled=str(retag=='Yes').lower()
+                inner=self.storage.inner['def_id'];unique=self.storage.unique['def_id']
+                if path==[(inner,1)]:
+                    return '(.rawVecField .capacity '+operand+' '+enabled+')',SPEC['adt'](self.storage.carrier['def_id'])
+                if path==[(inner,0),(unique,0)]:
+                    tag=self.storage.nonnull['def_id']
+                    return '(.recordResult '+str(tag)+' true (.rawVecField .pointer '+operand+' '+enabled+'))',SPEC['adt'](tag)
+                require(path==[(inner,0),(unique,1)],'Unsupported resident field path')
+                tag=self.storage.marker['def_id']
+                return '(.recordResult '+str(tag)+' false (.rawVecField .marker '+operand+' '+enabled+'))',SPEC['adt'](tag)
+        if set(rv)=={'BinaryOp'}:
+            operator,left,right=rv['BinaryOp'];first,first_ty=self.operand(left,fid);second,second_ty=self.operand(right,fid)
+            require(operator=={'Mul':'UB'} and first_ty==second_ty==SPEC['USIZE'],'Unsupported unchecked arithmetic')
+            return '(.mulUsizeUB '+first+' '+second+')',SPEC['USIZE']
+        if set(rv)=={'UnaryOp'}:
+            operator,op=rv['UnaryOp'];value,raw=self.operand(op,fid)
+            require(operator=={'Cast':{'Transmute':[raw,SPEC['USIZE']] }},'Unsupported current_memory cast')
+            if raw==SPEC['adt'](self.storage.carrier['def_id']):return '(.use '+value+' false .word)',SPEC['USIZE']
+            alignment=self.types[self.boundary.enum['def_id']]
+            alignment_tag=self.alignment['def_id']
+            wrapper=self.types[alignment_tag]
+            require(raw==SPEC['adt'](alignment_tag) and name(wrapper)=='core::mem::alignment::Alignment' and
+                    [f['ty'] for f in wrapper['kind']['Struct']]==[SPEC['adt'](alignment['def_id'])] and set(op)=={'Copy'},'Wrong alignment word cast')
+            index,path,_=self.place(op['Copy'],fid)
+            return '(.enumWord (.copy '+str(index)+' '+seq(path+['(.unwrap '+str(alignment_tag)+')','.left'])+') '+str(alignment['def_id'])+')',SPEC['USIZE']
+        if set(rv)=={'Aggregate'}:
+            aggregate,operands=rv['Aggregate'];identity,variant,field=aggregate['Adt']
+            if isinstance(identity['id'],dict) and identity['id']!={'Adt':self.option['def_id']}:
+                tid=identity['id']['Adt'];source=self.types[tid];args=[self.operand(op,fid) for op in operands]
+                require(empty(identity['generics']) and variant is None and field is None and set(source['kind'])=={'Struct'} and
+                        source['item_meta']['opacity']=='Transparent' and [v[1] for v in args]==[f['ty'] for f in source['kind']['Struct']], 'Wrong struct constructor')
+                self.ty(SPEC['adt'](tid))
+                return '(.aggregate (some '+str(tid)+') none '+seq([v[0] for v in args])+')',SPEC['adt'](tid)
+        return super().rvalue(rv,fid)
+
+    def switch(self,value,fid,following):
+        if set(value)=={'If'}:return BASE['Reifier'].switch(self,value,fid,following)
+        return REGIONS['Reifier'].switch(self,value,fid,following)
+
+    def code(self,fid):
+        if fid==self.root:return BASE['Reifier'].code(self,fid)
+        self.schema(fid)
+        result='(.unsupported '+json.dumps(self.helper_names[fid])+')';self.codes[fid]=result;return result
+
+    def retained(self):
+        self.code(self.root)
+        return {'root':self.root,'functions':[self.functions[i] for i in sorted(self.codes)],'storage':self.storage.retained(),
+                'types':[self.types[i] for i in sorted(self.types)],'helper_bodies_interpreted':False,
+                'claim':'complete original current_memory root over checked words/pointer shadow; helper entries unsupported; native carrier/ABI/compiler/lifetime correspondence unproved'}
+
+    def render(self):
+        self.code(self.root)
+        lines=['module','public import FormalProof4FHE.HasteBoots.NativeRecordLLBC','@[expose] public section','',
+               'namespace HasteBootsRawVecCurrentMemory','open FormalProof4FHE.HasteBoots.NativeRecordLLBC',
+               'def alignmentDiscriminants : List FormalProof4FHE.HasteBoots.NativeWord64Memory.Word := '+seq([BASE['word'](v) for v in self.boundary.alignments])]
+        for fid in sorted(self.codes):
+            types,count=self.schema(fid)
+            lines+=['-- Original declaration SHA256 '+SPEC['digest'](self.functions[fid]),'def f'+str(fid)+' : Function :=',
+                    '  ⟨'+json.dumps(name(self.functions[fid]))+', '+self.classification(fid)+', '+seq([self.ty(t) for t in types])+', '+str(count)+', '+self.code(fid)+'⟩']
+        return '\n'.join(lines+['end HasteBootsRawVecCurrentMemory',''])
+
+
+def main():
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('llbc',type=Path);parser.add_argument('output',type=Path)
+    parser.add_argument('--retained',type=Path,required=True);args=parser.parse_args();r=Reifier(json.loads(args.llbc.read_text()))
+    args.output.write_text(r.render());args.retained.write_text(json.dumps(r.retained(),indent=2)+'\n')
+
+
+if __name__=='__main__':main()
