@@ -6,6 +6,7 @@ public import FormalProof4FHE.HasteBoots.NativeRecordIncomingReference
 public import FormalProof4FHE.HasteBoots.NativeBorrowFrontier
 public import FormalProof4FHE.HasteBoots.NativeByteTraversalCompleteness
 public import FormalProof4FHE.HasteBoots.NativeVecBytePrefix
+public import FormalProof4FHE.HasteBoots.NativeRawVecBorrowCompleteness
 @[expose] public section
 
 namespace HasteBootsRawVecDrop

@@ -319,5 +319,28 @@ theorem rawvec_glue_changed_block (world : NativeReferenceMachine.State) (refere
   obtain ⟨blocks,released,_⟩ := memory
   obtain ⟨block,member,pointerEq,layoutEq⟩ := NativeByteMemory.release_selected _ _ _ blocks released
   exact ⟨positive,block,member,pointerEq.symm,layoutEq.symm,by rw [← pointerEq,← layoutEq]; exact freed⟩
+/-- The retained method reaches its deallocation callee from initialized
+resident RawVec fields and the logical alias condition. -/
+theorem rawvec_method_ready_prefix (world : NativeReferenceMachine.State)
+    (reference : NativeReferenceMachine.Reference) (lease : NativeByteBorrow.Lease)
+    (valid : NativeByteBorrow.WellFormed (NativeReferenceMachine.ledger world))
+    (frontier : NativeBorrowFrontier.ExclusiveFrontier (NativeReferenceMachine.ledger world) lease)
+    (tag : reference.tag = lease.tag) (shape : lease.layout = ⟨16,8⟩)
+    (referenceResident : reference ∈ world.references) (pointerResident : lease.pointer ∈ world.pointers.registers)
+    (bytes : List NativeByteMemory.Byte)
+    (initialized : NativeByteRange.loadRange world.pointers.heap.memory lease.pointer ⟨16,8⟩ = some bytes) :
+    ∃ entered, invokeValues HasteBootsRawVecDrop.f5 world [.scalar (.reference true reference 2)] =
+        settle world (resume (rawvecMethodCaller entered reference) 0 rawvecMethodTail.1 rawvecMethodTail.2
+          (invokeValues HasteBootsRawVecDrop.f7 entered
+            [.scalar (.reference true ⟨world.nextTag⟩ 2),currentMemoryLayoutValue])) ∧
+      NativeBorrowFrontier.ExclusiveFrontier (NativeReferenceMachine.ledger entered)
+        ⟨world.nextTag,some lease.tag,lease.pointer,⟨16,8⟩,.exclusive⟩ := by
+  have reserved := NativeRawVecBorrowCompleteness.reserve_complete world reference lease valid.2 frontier
+    tag shape referenceResident pointerResident
+  obtain ⟨entered,activated,available⟩ := NativeRawVecBorrowCompleteness.activate_complete world reference lease
+    valid frontier tag shape referenceResident bytes initialized
+  exact ⟨entered,rawvec_method_prefix world (NativeRawVecBorrowCompleteness.prepared world lease) entered
+    reference ⟨world.nextTag⟩ ⟨reference,lease.pointer⟩ reserved activated,available⟩
+
 end HasteBootsVecDrop
 
