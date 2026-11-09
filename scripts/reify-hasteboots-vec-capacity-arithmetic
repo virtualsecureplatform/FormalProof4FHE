@@ -1,0 +1,110 @@
+#!/usr/bin/env python3
+"""Retain actual Vec::with_capacity arithmetic assignments, without claiming whole-function execution."""
+import argparse
+import json
+from pathlib import Path
+import runpy
+ROOT=Path(__file__).resolve().parent.parent
+SPEC=runpy.run_path(str(ROOT/'scripts/specify-hasteboots-deallocation-boundary'))
+require=SPEC['require'];name=SPEC['name'];empty=SPEC['empty'];adt=SPEC['adt'];digest=SPEC['digest']
+def literal(t):return {'Untagged':{'Literal':t}}
+USIZE=literal({'UInt':'Usize'});U64=literal({'UInt':'U64'});BOOL=literal('Bool');ISIZE=literal({'Int':'Isize'});I32=literal({'Int':'I32'})
+TUPLE={'Untagged':{'Adt':{'id':'Tuple','generics':{'regions':[],'types':[U64,BOOL],'const_generics':[],'trait_refs':[]}}}}
+OPS={json.dumps(k,sort_keys=True):(label,owner,types,modes,output) for k,label,owner,types,modes,output in [
+ ({'Sub':'Wrap'},'wrappingSubtract','alloc::raw_vec::with_capacity_in',[USIZE,USIZE],['Copy','Const'],USIZE),
+ ('Gt','greater','alloc::raw_vec::with_capacity_in',[USIZE,USIZE],['Copy','Move'],BOOL),
+ ('Not','logicalNot','alloc::raw_vec::with_capacity_in',[BOOL],['Move'],BOOL),
+ ('MulChecked','checkedMultiply','alloc::raw_vec::try_allocate_in',[U64,U64],['Move','Move'],TUPLE),
+ ({'Sub':'UB'},'uncheckedSubtract','alloc::raw_vec::try_allocate_in',[USIZE,USIZE],['Const','Move'],USIZE),
+ ('Le','lessEqual','alloc::raw_vec::try_allocate_in',[USIZE,USIZE],['Copy','Move'],BOOL),
+ ('Eq','equal','alloc::alloc::alloc_impl_runtime',[ISIZE,ISIZE],['Copy','Const'],BOOL),
+ ({'Shl':'Wrap'},'wrappingShiftLeft','core::ptr::non_null::new_unchecked::precondition_check',[USIZE,I32],['Move','Const'],USIZE),
+ ('BitOr','bitOr','core::ptr::non_null::new_unchecked::precondition_check',[USIZE,USIZE],['Move','Const'],USIZE)]}
+LITERALS={'wrappingSubtract':('Unsigned','Usize','0'),'uncheckedSubtract':('Unsigned','Usize',str(2**63)),
+ 'equal':('Signed','Isize','1'),'wrappingShiftLeft':('Signed','I32','1'),'bitOr':('Unsigned','Usize','1')}
+class Reifier:
+ def __init__(self,ir):
+  require(ir['charon_version']=='0.1.226' and ir['has_errors'] is False,'Wrong schema/compiler errors')
+  self.crate=c=ir['translated'];o=c['options']
+  require(o['monomorphize'] and o['mir']=='Optimized' and o['sysroot']=='default' and o['consts']=='Values','Wrong extraction profile')
+  for k in ['evaluate_runtime_checks','precise_drops','desugar_drops','preserve_allocator','no_dedup_serialized_ast']:require(o[k] is True,'Missing policy: '+k)
+  require(not o['opaque'] and not o['exclude'] and not o['inline_functions'],'Hidden/rewritten source')
+  require(c['target_information']==[{'key':'x86_64-unknown-linux-gnu','value':{'target_pointer_size':8,'is_little_endian':True}}],'Wrong target')
+  self.functions={f['def_id']:f for f in c['fun_decls'] if f};self.rows=[]
+  roots=[f for f in self.functions.values() if name(f)=='hasteboots_vec_capacity_arithmetic::capacity'];require(len(roots)==1,'Missing/duplicate source root')
+  root=roots[0];require(root['signature']=={'is_unsafe':False,'abi':'Rust','is_variadic':False,'inputs':[USIZE],'output':adt(0)} and root['item_meta']['opacity']=='Transparent','Changed root signature')
+  for f in self.functions.values():
+   if isinstance(f['body'],dict) and 'Structured' in f['body']:
+    b=f['body']['Structured'];locals=b['locals']['locals'];require([l['index'] for l in locals]==list(range(len(locals))),'Noncanonical source locals')
+    self.walk(f,b['body'])
+  require(len(self.rows)==9 and {r['operation'] for r in self.rows}=={v[0] for v in OPS.values()},'Changed arithmetic inventory')
+ def walk(self,f,node):
+  if isinstance(node,dict):
+   if 'statements' in node:
+    for s in node['statements']:
+     require(set(s)=={'span','id','kind','comments_before'},'Unknown statement metadata')
+     k=s['kind']
+     if isinstance(k,dict) and 'Assign' in k:
+      dest,rv=k['Assign'];operation=None
+      if 'BinaryOp' in rv:operation,*args=rv['BinaryOp'];require(set(rv)=={'BinaryOp'},'Unknown binary rvalue metadata')
+      elif 'UnaryOp' in rv and rv['UnaryOp'][0]=='Not':operation,args0=rv['UnaryOp'];args=[args0];require(set(rv)=={'UnaryOp'},'Unknown unary rvalue metadata')
+      if operation is not None:self.assignment(f,s,dest,operation,args)
+   for k,v in node.items():
+    if k!='statements':self.walk(f,v)
+   if 'statements' in node:
+    for s in node['statements']:self.walk(f,s['kind'])
+  elif isinstance(node,list):
+   for item in node:self.walk(f,item)
+ def assignment(self,f,statement,dest,operation,args):
+  key=json.dumps(operation,sort_keys=True);require(key in OPS,'Unsupported arithmetic operator')
+  label,owner,types,modes,output=OPS[key];require(name(f)==owner,'Changed arithmetic owner')
+  require(f['item_meta']['opacity']=='Transparent' and f['signature']['abi']=='Rust' and empty(f['generics']),'Unclosed arithmetic owner')
+  require(len(args)==len(types) and [list(a) for a in args]==[[m] for m in modes],'Changed arithmetic operand modes/arity')
+  locals=f['body']['Structured']['locals']['locals']
+  require(set(dest)=={'kind','ty'} and set(dest['kind'])=={'Local'} and dest['ty']==output and locals[dest['kind']['Local']]['ty']==output,'Changed arithmetic destination')
+  rendered=[];inputs=[]
+  for arg,ty,mode in zip(args,types,modes):
+   value=arg[mode];require(value['ty']==ty,'Changed arithmetic operand width/type')
+   if mode=='Const':
+    sign,width,n=LITERALS[label];require(value=={'kind':{'Literal':{'Scalar':{sign:[width,n]}}},'ty':ty},'Changed arithmetic literal')
+    rendered.append('(.usize '+n+')')
+   else:
+    require(set(value)=={'kind','ty'} and set(value['kind'])=={'Local'},'Unsupported arithmetic operand place')
+    index=value['kind']['Local'];require(locals[index]['ty']==ty,'Changed arithmetic local type')
+    rendered.append('(.'+mode.lower()+' '+str(index)+' [])');inputs.append(index)
+  self.rows.append({'function':f['def_id'],'owner':name(f),'statement':statement,'destination':dest['kind']['Local'],
+    'operation':label,'operands':args,'inputs':inputs,'rendered':rendered})
+ def retained(self):
+  return {'functions':[self.functions[k] for k in sorted(self.functions)],'types':self.crate['type_decls'],
+   'globals':self.crate['global_decls'],'target':self.crate['target_information'],
+   'assignments':[{k:v for k,v in r.items() if k!='rendered'} for r in self.rows],
+   'claim':'isolated original scalar assignments only; whole constructor control flow, calls, failure paths, ABI and physical work remain open'}
+ def render(self):
+  lines=['module','public import FormalProof4FHE.HasteBoots.NativeRecordCallValues','@[expose] public section',
+   'namespace HasteBootsVecCapacityArithmetic','open FormalProof4FHE.HasteBoots','open NativeRecordLLBC']
+  for r in self.rows:
+   lines+=['-- Original assignment SHA256 '+digest(r['statement']),
+    'def expr_'+r['operation']+' : Rvalue := .arithmetic .'+r['operation']+' ['+', '.join(r['rendered'])+']',
+    'def step_'+r['operation']+' : Body := .assign '+str(r['destination'])+' expr_'+r['operation']+' .done']
+  row=next(r for r in self.rows if r['operation']=='checkedMultiply');left,right=row['inputs'];dest=row['destination']
+  require(len({left,right,dest})==3,'Aliased checked multiplication locals')
+  lines+=['def checkedLeft : Nat := '+str(left),'def checkedRight : Nat := '+str(right),'def checkedDestination : Nat := '+str(dest)]
+  count=max(left,right,dest)+1
+  # These contexts cover the isolated original assignment, with all unused locals dead.
+  for after in [False,True]:
+   label='checkedAfter' if after else 'checkedFrame'
+   types=[];slots=[]
+   for i in range(count):
+    types.append('(.pair (.scalar .usize) (.pair .boolean (.scalar .unit)))' if i==dest else '(.scalar .usize)' if i in [left,right] else '(.scalar .unit)')
+    if i==dest:
+     value='(.pair (.scalar (.usize (NativeRecordArithmetic.word (left.val*right.val)))) (.pair (.boolean (decide (2^64 ≤ left.val*right.val))) (.scalar .unit)))'
+     slots.append('(.live (some '+value+'))' if after else '(.live none)')
+    elif i in [left,right]:slots.append('(.live (some .uninit))' if after else '(.live (some (.scalar (.usize '+('left' if i==left else 'right')+'))))')
+    else:slots.append('.dead')
+   lines+=['def '+label+' (world : NativeReferenceMachine.State) (left right : NativeWord64Memory.Word) : Frame :=',
+    '  ⟨['+', '.join(types)+'], ['+', '.join(slots)+'], world⟩']
+  lines+=['end HasteBootsVecCapacityArithmetic',''];return '\n'.join(lines)
+def main():
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('llbc',type=Path);p.add_argument('output',type=Path);p.add_argument('--retained',type=Path,required=True);a=p.parse_args()
+ r=Reifier(json.loads(a.llbc.read_text()));a.output.write_text(r.render());a.retained.write_text(json.dumps(r.retained(),indent=2)+'\n')
+if __name__=='__main__':main()
