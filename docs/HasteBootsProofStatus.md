@@ -7,6 +7,43 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Stable reference operands now drive the original Vec capacity body
+
+The [resident-reference profile](../interop/aeneas/rawvec-reference/README.md)
+connects checked field reads to `NativeRecordLLBC` operands. Fixed sixteen-byte
+RawVecInner and twenty-four-byte Vec selectors recover stable tags from existing
+shared leases. Reads resolve the tag against the current registry and ledger;
+reborrows can shift indices without changing reference identity. Explicit
+word-aligned retags reborrow the complete object. The heap-execution projection
+and reachability proofs cover the added rvalue and preserve failed prefixes.
+
+The complete original ordinary-sysroot `alloc::vec::capacity` structured body is
+reified over this checked representation, including its nested RawVec capacity
+projection, element-size switch, maximum-word fallback, retag flag, early return
+and storage/suffix behavior. Four source theorems prove scalar-retag behavior,
+body projection and successful/rejected invocations from the computed read
+result. Seventeen model and six source regressions cover both object profiles,
+shifted tags, whole-object reborrows and read failures retained after destination
+write failure. Eight reference-layer theorems, two accessor projections, one
+interpreter helper projection and thirty new declaration audits support this.
+
+The source gate passed 188 dependency audits, twenty-five rejection controls and
+two source mutation controls checked in Lean. The full `scripts/check` run passed
+the 11,009-job build and all subsequent smoke checks; receipts and log hashes are
+recorded in the profile. The Global gate passed again with
+223 audits and 34 controls, and the storage gate with 36 audits and twenty
+controls. Native thin-reference/ABI correspondence, Foreign/Opaque capacity
+carrier validity/bitcast correspondence and Rust compiler/lifetime refinement
+remain open. The original capacity body is interpreted over checked words; this
+is not a native constructor-acceptance or compiler-correctness claim.
+
+Next interpret the original RawVec `current_memory` body with these operands,
+reconstruct its pointer wrappers, handle the unchecked product and preserve its
+lazy zero branches. Compose original deallocation/destruction calls with Global
+dispatch. Native construction, carrier validity, allocator correctness, physical
+work and the final complete security theorem remain open. The target above is
+unchanged.
+
 ## Resident RawVec capacity and pointer reads now use actual bytes and shadow
 
 The [RawVec storage profile](../interop/aeneas/rawvec-fields/README.md) validates
@@ -31,9 +68,9 @@ The final `scripts/check` run passed the 11,006-job build and subsequent smoke
 checks with the strengthened regression included; the profile records receipt
 and log hashes.
 
-The original RawVec/Vec bodies are not yet translated. Next bind these reads to
-actual reference operands and source field projections, handle the constrained
-capacity carrier and unchecked product, and translate `current_memory` preserving
+The original RawVec/Vec bodies are not yet translated. Reference operands and the original Vec capacity projection are now connected
+as described above. Next handle the constrained capacity carrier and unchecked
+product, and translate `current_memory` preserving
 its lazy zero branches. Compose the original deallocation/destruction calls with
 Global dispatch. Native reference/stack/layout/ABI and lifetime/compiler
 correspondence, allocator correctness, physical work and the complete security

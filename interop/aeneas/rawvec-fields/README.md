@@ -13,7 +13,7 @@ pointer load at offset eight and checks the recovered address is nonzero.
 Integer bytes alone do not recover an allocation origin. Mixed shadow fragments
 reject, and address reuse preserves the old stored generation.
 
-Twelve model theorems prove reference selection, projection into actual reference
+Fourteen model theorems prove reference selection, projection into actual reference
 execution, reachability, successful read witnesses, exact byte/shadow effects and
 failure prefixes. Successful reads preserve the heap, allocation history, loan
 counter, lease ledger, reference registers and birth history. Capacity reads
@@ -50,7 +50,7 @@ scripts/check-hasteboots-rawvec-fields \
 scripts/check
 ```
 
-The profile gate passed 32 dependency audits and twenty rejecting controls,
+The profile gate was revalidated with 36 dependency audits and twenty rejecting controls,
 including shifted fields, wrong extents/alignment, changed classifications,
 invented carrier fields, nullability changes and hidden layout effects. It uses
 a fresh extraction with the frozen tool receipt and compares the retained source
@@ -58,10 +58,11 @@ snapshot. The final `scripts/check` run passed its 11,006-job build and all
 subsequent smoke checks with the strengthened cleared-byte regression included.
 See `regression.json` for receipts and log hashes.
 
-Next connect the readers to actual RawVec reference operands and field projections
-in the LLBC interpreter. Resolve stable reference tags against the current
-reference registry, preserving complete-object reborrows and their layout; new
-borrow operations can shift register indices. Translate the original `current_memory` body with its
+The [reference profile](../rawvec-reference/README.md) now connects these readers
+to stable reference operands and interprets the original Vec capacity projection.
+It resolves stable tags against the current reference registry and preserves
+complete-object reborrows and their layout. Its regression file records the
+latest storage-gate revalidation. Translate the original `current_memory` body with its
 zero branches and unchecked product, then compose the original deallocation and
 Vec destruction calls with Global dispatch. Preserve the source's lazy branches:
 a path that does not use the pointer must not load it merely to build a snapshot.
