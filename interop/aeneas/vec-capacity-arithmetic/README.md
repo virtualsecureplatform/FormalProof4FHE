@@ -195,3 +195,19 @@ Eight regressions cover exact fields, moved capacity, decoded invocation and
 uninitialized reserved bytes. The gate checks 680 declarations and 131 rejecting
 controls. Error/drop/unwind and invalid layout branches, resident storage and
 native ABI/compiler/lifetime/work correspondence remain open.
+
+## Allocation failure and Global drop
+
+`ConstructorErrorProof.lean` proves the normal allocation-error path through its
+reservation-error aggregate, actual exclusive zero-byte Global loan, retained
+Global drop-glue body, cleanup and constructor return. The drop result follows
+from its concrete unit-returning body. Effect-free unit settlement preserves old
+leases under the world invariant, which is derived through actual modeled shim
+invocation. Both initialization modes preserve the shim-returned heap.
+
+The source checker validates the Global drop signature/body, mutable borrow,
+metadata, moved reference, call/unwind, error fields and exact operand modes. The
+profile has 724 audits, 141 rejecting controls and 100 source examples. Error
+propagation through outer callers, allocator unwind and invalid layout paths,
+native opaque-wrapper/ABI/compiler/lifetime correspondence, resident storage and
+physical work remain open.

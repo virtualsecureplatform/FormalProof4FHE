@@ -7,6 +7,41 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Allocation failure through Global drop
+
+`constructor_with_drop_failure` now proves normal positive-capacity allocation
+failure from the four typed constructor arguments through the returned
+`TryReserveError`. It composes the null allocator result, source reservation-error
+aggregates, exclusive Global borrow, concrete retained drop glue, normal cleanup
+and return. Both initialization modes are covered. The returned error retains
+the exact requested Layout. The final modeled heap is the shim-returned heap;
+exclusive reference issuance advances the reference state without allocating or
+deallocating heap blocks.
+
+The retained Global drop body initializes unit, kills its argument local and
+returns. Its invocation result is proved from that body, without a destructor
+success premise. A well-formed-world lemma proves that an effect-free unit call's
+scope settlement preserves its existing leases. The constructor proof derives
+shim-returned well-formedness from the initial invariant and actual modeled
+invocation, then executes a checked exclusive zero-byte loan at the explicit
+nonzero Global placement.
+
+Twelve source theorems and eight source regressions cover the allocation-error
+path. Eight additional model regressions and seven dependency guards cover
+exclusive local borrowing and unit settlement. The capacity gate passes 724
+dependency audits, 141 rejecting controls and 100 source examples. Reservation
+error copy/move modes and Global drop signature/body/borrow/call metadata are
+checked against retained source. Destructor, allocator-caller and empty gates
+pass at 1044/87, 388/31 and 395/17 audits/controls. A fresh `scripts/check`
+passes the 11088-job build and all subsequent standalone audits/smoke checks.
+
+This normal allocation-error interpreter is separate from the earlier positive
+success/decoded-root graph. Propagating errors through outer callers, allocator
+unwind cleanup, rejected layout/overflow branches, resident storage/destruction,
+native ABI/stack/type/compiler/lifetime correspondence, physical work and final
+security remain open. The nominal reservation-error fields are interpreted from
+source aggregates; native opaque-wrapper ABI correspondence is not established.
+
 ## Allocating outer callers and decoded positive-capacity root
 
 `positive_capacity_decoded` now composes the original decoded capacity argument
