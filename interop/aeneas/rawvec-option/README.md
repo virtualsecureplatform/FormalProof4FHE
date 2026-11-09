@@ -46,8 +46,9 @@ Lean evaluation while retaining variant index 1. A separate physical-metadata
 control changes the niche offset and confirms the retained snapshot changes.
 See `regression.json` for receipt and full-project validation evidence.
 
-Next, connect these payload operations to actual enum construction, discriminant
-switches and variant projections in the LLBC interpreter. Reify the original
+The [enum body profile](../variant-body/README.md) now connects binary payload
+operations to actual construction, matches and projections in the interpreter.
+Next reify the original
 `current_memory` body with checked resident-reference field reads: pointer fields
 must recover shadow provenance, and capacity fields must use actual byte loads.
 Handle the retained constrained-capacity carrier and unchecked multiplication

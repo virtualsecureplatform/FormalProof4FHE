@@ -7,6 +7,37 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## The aggregate interpreter now executes enum construction and matches
+
+The [enum body profile](../interop/aeneas/variant-body/README.md) translates three
+complete by-value Rust probe functions for None, Some and Layout selection. Its
+enum declaration is the exact same nominal Option returned by the retained
+RawVec `current_memory`. Binary choice typing, active-field projections,
+construction and matches now execute in `NativeRecordLLBC`; existing projection
+and reachability proofs include the added cases. Four bridge lemmas connect the
+binary payload encoding to checked typing, reads, replacement and tag selection.
+Seventeen new model regressions include post-move tag reads, blocked payload
+reads, surviving siblings, early outcomes and retained failed-retag prefixes.
+
+The source profile has one exact None-invocation theorem, two whole-body heap
+projection theorems and eight regressions. Its gate passed 169 dependency audits,
+seventeen rejection controls and two supported source mutations checked in Lean.
+The Global deallocation gate was revalidated with 174 audits and 34 rejection
+controls, including its allocator-caller parent with 153 audits and 31 controls.
+The earlier RawVec schema gate also passed again with 63 audits and eighteen
+rejection controls. Foreign classifications and the physical-niche boundary
+remain unchanged. The full `scripts/check` run passed, including the 11,003-job
+build and subsequent smoke checks; receipt hashes are stored in the profile
+regression file.
+
+These probe translations close the enum-operation gap; the original RawVec/Vec
+cleanup bodies are not yet translated. Next implement checked resident-reference
+field loads, recover pointer shadow provenance, handle the retained constrained
+capacity and unchecked multiplication, and compose original cleanup calls with
+Global dispatch. Native lifetime/compiler/ABI correspondence, allocator
+correctness, physical work and the complete expected-work security theorem
+remain open. The target stated above is unchanged.
+
 ## RawVec enum payload operations now have a checked source schema
 
 The [RawVec Option profile](../interop/aeneas/rawvec-option/README.md) reifies the
@@ -28,10 +59,9 @@ showing that changed niche metadata differs from the retained snapshot. The full
 checks; receipt hashes are recorded in the profile regression file.
 
 This is a logical payload-schema milestone. The source function body and outer
-RawVec/Vec cleanup are not interpreted by this profile. Next integrate enum
-construction, discriminant switches and variant projections into the interpreter,
-then implement checked resident-reference loads of RawVec capacity and pointer
-fields, preserving shadow provenance. The retained constrained-capacity carrier,
+RawVec/Vec cleanup are not interpreted by this profile. Enum construction, matches and variant projections are now integrated as
+described above. Next implement checked resident-reference loads of RawVec
+capacity and pointer fields, preserving shadow provenance. The retained constrained-capacity carrier,
 unchecked product and original helper classifications also need checked handling.
 Compose those original bodies with the already checked Global dispatch. Native lifetime/compiler/ABI correspondence,
 external allocator correctness, physical work and the final security theorem

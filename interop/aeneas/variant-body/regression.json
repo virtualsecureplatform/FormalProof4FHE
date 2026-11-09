@@ -1,0 +1,88 @@
+{
+  "profile": "complete-by-value-option-constructors-and-match-probes-v1",
+  "status": "passed",
+  "gate_manifest": "build/hasteboots-extraction/variant-body-1fdvc42s/manifest.json",
+  "gate_manifest_sha256": "9734801b1d048287326d0501f2ed30e1371f1c6a417646fac4f81031a6491355",
+  "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
+  "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
+  "dependency_audit_count": 169,
+  "negative_control_count": 17,
+  "negative_controls": {
+    "wrong_profile": "Wrong extraction profile",
+    "changed_function_class": "Changed structured caller classification",
+    "changed_option_class": "Changed result enum declaration",
+    "unknown_statement_effect": "Unknown statement fields",
+    "invalid_retag": "Unknown retag flag",
+    "unknown_constructor_variant": "Unsupported enum constructor",
+    "wrong_constructor_arity": "Wrong enum constructor fields",
+    "wrong_constructor_field": "Unclosed aggregate constructor",
+    "nonexhaustive_match": "Unsupported enum match",
+    "duplicate_match_label": "Nonexhaustive/duplicate variant match",
+    "unknown_match_label": "Nonexhaustive/duplicate variant match",
+    "boolean_match_label": "Nonexhaustive/duplicate variant match",
+    "unexpected_fallback": "Unsupported enum match",
+    "wrong_tuple_projection_arity": "Wrong tuple projection arity",
+    "wrong_payload_variant_projection": "Wrong projected field type/index",
+    "wrong_storage_index": "Bad storage local",
+    "signature_local_mismatch": "Caller signature/local mismatch"
+  },
+  "supported_match_mutation": "swapped branch bodies change generated code; None now rejects the Some projection in Lean",
+  "supported_retag_mutation": "Yes to No changes generated code; whole-body proofs and regressions pass",
+  "source_theorem_count": 3,
+  "new_bridge_theorem_count": 4,
+  "new_model_regression_count": 17,
+  "new_declaration_audit_count": 15,
+  "source_regression_count": 8,
+  "revalidated_profiles": {
+    "global": {
+      "manifest": "build/hasteboots-extraction/global-deallocation-33o57uwj/manifest.json",
+      "manifest_sha256": "82d14238ff405d4592f684339efd77889d5b87ae0f3b3427cfcb7c9c2a111e82",
+      "dependency_audit_count": 174,
+      "negative_control_count": 34
+    },
+    "option_schema": {
+      "manifest": "build/hasteboots-extraction/rawvec-option-p4y96am9/manifest.json",
+      "manifest_sha256": "70fe3b619502524ddf003d34d882c0c267f5915262f573c367d0eb3d53a4daac",
+      "dependency_audit_count": 63,
+      "negative_control_count": 18
+    }
+  },
+  "inputs": {
+    "scripts/check-hasteboots-variant-body": "8f85e5d55cd36869a70ee0aed6e1a162fc93025c53fc61d6987aedb28ac2741a",
+    "scripts/reify-hasteboots-variant-body": "2d0326329d538bb43685617133c2ecd96da497c81295cd221315807576383825",
+    "scripts/reify-hasteboots-allocator-caller": "de4180967196fd74585c085397620fb53ce388867be56f68731bf196ed783253",
+    "scripts/reify-hasteboots-rawvec-option": "18ef4ea5a9cfe3e016a4ce805557b60a2e098c8523a90afb6498142ae6a7bdfc",
+    "scripts/check-hasteboots-allocator-caller": "a247a26e27ecdbf53bb2740db90d61915e2cff1c663ee18b351056dc8c1387fa",
+    "scripts/specify-hasteboots-deallocation-boundary": "48abaf9e189486073c292cf915c5717f3ee9e5a69735fc6b09859b9a8a93774a",
+    "scripts/extract-hasteboots-parameters": "9ab0b333e12a4dac0fea4e37bc8bee430bdf56cac7eb4bcb5fa999ceab140993",
+    "lean-toolchain": "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c",
+    "interop/aeneas/variant-body/fixture.rs": "91e61d639c57e2a358eaa32b1ab7c9a687f7cfb693598d5e4aba1e71cff29204",
+    "interop/aeneas/variant-body/Generated.lean": "0e3d8e57998ba64d49efb8cc061d4be7ec4c20c19c86c4aebc719d0eba1f0a50",
+    "interop/aeneas/variant-body/Retained.json": "84851eb64c4beb702203bcf21bc96e0a1e45571fc736e11306901823be4b0b73",
+    "interop/aeneas/variant-body/Proof.lean": "fa27b9a3fd9a9bbf2aee59b5171d5057369685e759a6c8336c33fb923827b97e",
+    "interop/aeneas/variant-body/Smoke.lean": "acf62810d63c98a85c0a639ae5ce579fc8bc5c012c2352ae8804d6369b584db2",
+    "FormalProof4FHE/HasteBoots/NativeRecordValues.lean": "31d80448069358e44b298685733534f90e7136b0c6a7f774179a1553e4651484",
+    "FormalProof4FHE/HasteBoots/NativeVariantValues.lean": "56bf1e57fa96128e8e7ce75156caaf0e14369756c9de8539139ab804fd429552",
+    "FormalProof4FHE/HasteBoots/NativeRecordLLBC.lean": "d5d3bac84b774d8955eeba4531fda847f2266a0fa8dad172338fabaedac19a20",
+    "FormalProof4FHETest/HasteBootsChoiceLLBCSmoke.lean": "9fb49647444aea5a18f08fda853e0bc73b061d96679ac97be10b933bd7f550e7",
+    "FormalProof4FHETest/HasteBootsChoiceLLBCAudit.lean": "0deca25f72b62c25277b94f30d8c015c5caa6347e2dc93353050e5039ad1472e"
+  },
+  "source_llbc_sha256": "074596e179829c227da84ce23cbd087bed5bc4ebedf0c4f4578d02d51f2ae47e",
+  "probe_bodies_interpreted": true,
+  "rawvec_body_interpreted": false,
+  "physical_niche_decoded": false,
+  "native_lifetime_refinement": false,
+  "physical_work_refinement": false,
+  "final_security_theorem": false,
+  "implementation_commits": [
+    "ab4067d5c50438df4f84efc0a1468c8c3aa40762",
+    "970b1b3c9d4d106c3f49e8a28a9a41b220d362de"
+  ],
+  "full_project_check": {
+    "command": "scripts/check",
+    "exit_code": 0,
+    "build_jobs": 11003,
+    "log": "/tmp/hasteboots-choice-full-check.log",
+    "log_sha256": "eaa9a7adeece2274a7a40beab4a8a68cd22a48c9b8e45b1489ef303abec1d60f"
+  }
+}
