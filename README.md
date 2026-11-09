@@ -168,8 +168,10 @@ The retained byte `Vec::new` constructor now has an exact nominal-value proof: z
 capacity and length, an unchanged modeled world, and a dangling pointer without
 allocation provenance. A checked model adapter now stores it in a resident header
 and supplies all conditions for the retained reference-based Vec destructor.
-Native ABI/lifetime refinement and allocation-backed construction remain open;
-see `interop/aeneas/vec-empty`.
+A separate checked model allocates a fresh positive reservation, preserves its
+buffer provenance through storage, and composes exact-capacity release with the
+retained destructor. The Rust allocation-backed constructor, native ABI/lifetime
+refinement and physical-work proof remain open.
 
 See `docs/HasteBootsProofStatus.md` for the source mapping and remaining obligations.
 These components do not yet establish complete PBS or transcript security.

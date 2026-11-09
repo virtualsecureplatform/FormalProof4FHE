@@ -7,6 +7,45 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Modeled fresh reservations retain buffer provenance through destruction
+
+`NativePointerRestore` proves that writing back loaded initialized bytes preserves
+the entire byte heap. A typed pointer store can then install the complete source
+pointer's provenance without changing its address bytes. Integer-only header
+writes still erase provenance, including when their bits are unchanged.
+
+`NativeReservedVecStorage` writes arbitrary bounded capacity, the registered
+buffer pointer and zero element length into a checked header. The actual byte
+write, address derivation, typed store and fresh exclusive borrow produce the
+resident descriptor and header frontier. Allocation identities and extents are
+preserved. `NativeReservedVecConstruction.reserve_complete` adds a fresh modeled
+allocation and derives ownership and full-capacity separation from explicit
+allocator geometry, free space and loan separation. Successful allocation, writes,
+borrows, initialized payload bytes and an already-owned result are not premises.
+
+`modeled_reservation_destroy_complete` composes this model construction with the
+retained reference-based Vec destructor. Every operational invocation returns
+unit, preserves reachability, restores its complete ordered incoming loans and
+frees exactly the stored original buffer and capacity. Spare payload bytes may
+remain entirely uninitialized. The header's caller-owned loan remains live.
+
+This adds 15 model theorems, five definitions, a readiness structure and two
+source-composition theorems, with 24 declaration audits. Thirteen model regressions
+cover fresh ownership, stored origins and generations, uninitialized payloads, exact extent,
+integer-write erasure and typed restoration, overlapping storage, invalid header
+extent, allocator overlap and the positive allocator's zero-size rejection. Two
+source regressions cover canonical and arbitrary operational destruction.
+The combined gate now audits 949 declarations and retains 87 extraction controls.
+
+This is a fresh-allocation and storage theorem in the checked model. The original
+Rust `with_capacity` body remains unproved, including its checked multiplication,
+capacity assertion, allocation-error and abort paths. The existing empty profile
+handles zero capacity; this model reservation primitive is positive-capacity.
+Next connect the retained allocation-backed constructor to these model results
+without dropping its failure paths. Compiler/native ABI and external allocator
+correspondence, native by-value lifetime release, physical attacker work and final
+application security remain open.
+
 ## Empty constructor to resident storage and reference destruction
 
 `NativeEmptyVecStorage` proves a checked storage bridge for the original empty

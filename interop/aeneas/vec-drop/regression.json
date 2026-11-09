@@ -1,8 +1,8 @@
 {
-  "profile": "original-resident-vec-destruction-with-checked-empty-construction-v23",
+  "profile": "original-resident-vec-destruction-with-modeled-fresh-reservations-v24",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-drop-ov620q5l/manifest.json",
-  "gate_manifest_sha256": "3ccb30be0e6dad919589c7836239c5886b6d8359cfc9a4b64b39274786960d19",
+  "gate_manifest": "build/hasteboots-extraction/vec-drop-e3zmwgln/manifest.json",
+  "gate_manifest_sha256": "cbc750fb95a8159fe1f93723f30e58cd5683f3210641b826a6ac5776dc996de1",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -58,9 +58,12 @@
     "33b93d0d0b3b4caa563c688b7e62e7dec936d1be",
     "c8bdecf118de6e9b7b22ab6eda6f84d5ae1dda4e",
     "b89215400643f271165b8c085995171431ef097d",
-    "eb20d76d3f7f09eec5c53010ec80c11ead5f27ad"
+    "eb20d76d3f7f09eec5c53010ec80c11ead5f27ad",
+    "29c8af8a0987d586b34a55228890cbbc18cae28a",
+    "efd61cf98ca733870440eaaf22c145e2720515a6",
+    "4010168482922b41f22e110abbdbcbc4fb7eceb3"
   ],
-  "dependency_audit_count": 925,
+  "dependency_audit_count": 949,
   "negative_control_count": 87,
   "negative_controls": {
     "wrong_profile": "Wrong extraction profile",
@@ -157,12 +160,12 @@
   "interpreter_helper_theorem_count": 3,
   "source_loop_theorem_count": 16,
   "source_composition_theorem_count": 17,
-  "new_declaration_audit_count": 515,
-  "model_regression_count": 210,
-  "source_regression_count": 95,
+  "new_declaration_audit_count": 539,
+  "model_regression_count": 223,
+  "source_regression_count": 97,
   "inputs": {
-    "scripts/check-hasteboots-vec-drop": "481d466fbb132b4a01738eca6fb6eed1750696e898e5448fbdfa67ae81810403",
-    "scripts/reify-hasteboots-vec-drop": "7ae2c0b65cde2f73d1def2da162428296a1d5021c0dfdd764c33eb41b9aaf89b",
+    "scripts/check-hasteboots-vec-drop": "b70415c69ae052603d82dbb89d3ddcd50b73cd1deaf430ee83416a36632cec3c",
+    "scripts/reify-hasteboots-vec-drop": "0ef983324e439064ea0969a4fc60d6a574137d5548a1feaee727f018b9b1eb8d",
     "scripts/reify-hasteboots-rawvec-drop": "748d6a322c395db0244eec640359f5b4efd07d234b023a23aa23f9dfeee812aa",
     "scripts/check-hasteboots-rawvec-drop": "2774e9d2b0bf5817f876b4787101650118d905dbc954391743be2723518c1fb3",
     "scripts/reify-hasteboots-byte-loop-llbc": "fb747e07b75bcf8847326b3e3c3c9ff62402f1a2b306fb2123f1377bacc24b85",
@@ -182,7 +185,7 @@
     "scripts/extract-hasteboots-parameters": "9ab0b333e12a4dac0fea4e37bc8bee430bdf56cac7eb4bcb5fa999ceab140993",
     "lean-toolchain": "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c",
     "interop/aeneas/vec-drop/fixture.rs": "a9759ee4f6ff994cfeddd3783fadb15b3a9d754fce1d0c8d8f5b6d0b9da0529f",
-    "interop/aeneas/vec-drop/Generated.lean": "69780bdf93b4ad4963536ce73271746d28bdf30b762cf18e8ff44477948b48c8",
+    "interop/aeneas/vec-drop/Generated.lean": "69b42b315f5774b428e985a84d9fee014d7be2794db987a477a4e85009292d1e",
     "interop/aeneas/vec-drop/Retained.json": "dda5b5bf5f588a48df0955d1ea5c11351b99e58904dc6d1f946f72615b1db064",
     "interop/aeneas/vec-drop/LoopProof.lean": "a479d3c1bf0fdef3090c4fe779bfce3668c518fec1fedb67dabf86870ae66288",
     "interop/aeneas/vec-drop/Execution.lean": "73a161abfeb81b1284761074a9a908da70dfaf09fa47a2de6b38954d36c2afd7",
@@ -277,6 +280,13 @@
     "FormalProof4FHETest/HasteBootsTraversalCompletenessAudit.lean": "ff00b3c770ad800429c1a120cca7be7f952ecc5b7524c083f2e897cb018c7f44",
     "FormalProof4FHETest/HasteBootsVecBytePrefixSmoke.lean": "eb3539e646e35e4bc952a829119cc4b028a45d0900bbd1e74f12552e99173d22",
     "FormalProof4FHETest/HasteBootsVecBytePrefixAudit.lean": "bf1bf11e7db9c2ca65cd57665591cdaa219bb6dfbd903ffbb8f35b1367f09457",
+    "FormalProof4FHE/HasteBoots/NativePointerRestore.lean": "fda334897fa18d9c5b69942205182819d4375e6e6bad70a85170aaed6037e2a0",
+    "FormalProof4FHE/HasteBoots/NativeReservedVecStorage.lean": "41d7b82c9b92ccf037d54b6174a799a5a8e5fa2029f75567a68f515e1db7db60",
+    "FormalProof4FHE/HasteBoots/NativeReservedVecConstruction.lean": "f348614a1cbe30f73a345dce40dbb7b4c7889ba1089492e554992d63c2647c95",
+    "FormalProof4FHETest/HasteBootsReservedVecConstructionSmoke.lean": "2950e0509ce1584947dad771c13453284afb1cd874e3658036da0412b624c224",
+    "FormalProof4FHETest/HasteBootsReservedVecConstructionAudit.lean": "1f945934684ec05291e20e929ff216771f2dbd3ca648e579df284f5c5838adcb",
+    "interop/aeneas/vec-drop/ReservedConstructionProof.lean": "13a7cb2252da8af1fc50817ac798663387695ff69ad56888eac1cc4e046937cd",
+    "interop/aeneas/vec-drop/ReservedConstructionSmoke.lean": "c81af6dfdc7a2e4a40130eefc8c1284dcf25336d712fb836abcce46591143ad7",
     "scripts/check-hasteboots-vec-empty": "7efeddebd76273fde8f3a296a4c23157afa5a39a4d0656395091e2684d365208",
     "scripts/reify-hasteboots-vec-empty": "00a7debb4c04056f86a5fe37ecead6b1f26a8a6fa45642c9b7b6fa76a3532ccd",
     "FormalProof4FHE/HasteBoots/NativeEmptyVecStorage.lean": "aca5e21b457b6f69dfe7237bebbb8efe7d681b1196945d9c040b9d762b0644c2",
@@ -294,7 +304,7 @@
     "FormalProof4FHETest/HasteBootsRawVecDeallocationCompletenessAudit.lean": "85efbedcef271ce6dc69a0bebb5d25b0880091984899ae52e3c02bfe7bcb3a48",
     "FormalProof4FHETest/HasteBootsVecDestructionCompletenessAudit.lean": "b15ca27d45474cdbf6c85a2635a3969160d35fd7e658b00139d4ba8d394a3dbd"
   },
-  "source_llbc_sha256": "edfe324ccca5a89813ef69d3b1cc6327c672ba7f369e8e9b8621f499932ebd26",
+  "source_llbc_sha256": "0153659b9eb6e2a2d2cea3685efaf82b351bac547ad9d48d8aeac6a85f247cdb",
   "outer_vec_drop_glue_interpreted": true,
   "outer_vec_drop_method_interpreted": true,
   "unbounded_original_byte_loop_interpreted": true,
@@ -310,11 +320,11 @@
   "full_project_check": {
     "command": "scripts/check",
     "exit_code": 0,
-    "build_jobs": 11073,
-    "log": "/tmp/hasteboots-empty-storage-full-check.log",
-    "log_sha256": "8cb728cec4dd162d1bcce38daeea19b5b8604a0968eb7c56f433a3bb2e4c9678",
-    "library_root_sha256": "23c489a5b55b52a58d7f861d60e20509280707478a4758fdd7fcc591f1161c55",
-    "test_root_sha256": "f36eeb845dc014ad56e19867906f75ed0862dda687b0121d29af12e7430ec2cf"
+    "build_jobs": 11078,
+    "log": "/tmp/hasteboots-reserved-construction-full-check.log",
+    "log_sha256": "871fca03410a0754d954ff9e31fdbd069de8497ff3ce782abee3234556cae15a",
+    "library_root_sha256": "d44360b48a5dd41aef868a27147478db27fab3425bec3315689317904fab3fd9",
+    "test_root_sha256": "8a56aed1a5f6ca773a017a97315023f44bf07e92ca33089c3aa08aab018657e1"
   },
   "prior_gate_manifest": {
     "path": "build/hasteboots-extraction/vec-drop-j6ky4k09/manifest.json",
@@ -877,7 +887,7 @@
     "sha256": "23fa010e7985571731a11e530d4875404bb607e4130a85d9118c32cab37e0448",
     "dependency_audit_count": 897
   },
-  "empty_source_llbc_sha256": "ee799a5bc195740005c8aa00e3d6b45312de8e9dba81f712f72dd8d3afb3985a",
+  "empty_source_llbc_sha256": "0c6af53027b6bc12efbf282bc26b39bbd59fe2a44444eb5e2c1b53ecc88c888c",
   "empty_constructor_storage_bridge": {
     "module": "FormalProof4FHE/HasteBoots/NativeEmptyVecStorage.lean",
     "model_theorem_count": 7,
@@ -922,5 +932,56 @@
     "native_constructor_acceptance": false,
     "native_storage_abi_refinement": false,
     "final_security_theorem": false
-  }
+  },
+  "prior_reserved_construction_baseline": {
+    "manifest": "build/hasteboots-extraction/vec-drop-ov620q5l/manifest.json",
+    "sha256": "3ccb30be0e6dad919589c7836239c5886b6d8359cfc9a4b64b39274786960d19",
+    "dependency_audit_count": 925
+  },
+  "modeled_fresh_reservations": {
+    "modules": [
+      "FormalProof4FHE/HasteBoots/NativePointerRestore.lean",
+      "FormalProof4FHE/HasteBoots/NativeReservedVecStorage.lean",
+      "FormalProof4FHE/HasteBoots/NativeReservedVecConstruction.lean"
+    ],
+    "model_theorem_count": 15,
+    "model_definition_count": 5,
+    "model_structure_count": 1,
+    "model_declaration_audit_count": 22,
+    "model_regression_count": 13,
+    "source_proof": "interop/aeneas/vec-drop/ReservedConstructionProof.lean",
+    "source_smoke": "interop/aeneas/vec-drop/ReservedConstructionSmoke.lean",
+    "source_composition_theorem_count": 2,
+    "source_regression_count": 2,
+    "total_new_declaration_audit_count": 24,
+    "loaded_byte_write_preserves_entire_byte_memory": true,
+    "typed_pointer_store_restores_complete_source_origin": true,
+    "integer_only_writes_erase_origin": true,
+    "registered_source_buffer_used": true,
+    "fresh_modeled_allocator_operation_executed": true,
+    "allocator_geometry_and_free_space_explicit": true,
+    "header_and_buffer_loan_separation_explicit": true,
+    "successful_allocation_assumed": false,
+    "successful_write_or_borrow_assumed": false,
+    "allocated_buffer_ownership_assumed": false,
+    "resident_descriptor_and_frontier_derived": true,
+    "exact_buffer_ownership_derived": true,
+    "allocation_identities_and_extents_preserved_by_storage": true,
+    "payload_initialization_required": false,
+    "canonical_retained_reference_destructor_composed": true,
+    "every_operational_invocation_normal_unit_return": true,
+    "exact_original_complete_buffer_and_capacity_released": true,
+    "ordered_incoming_loans_restored": true,
+    "header_caller_loan_remains_live": true,
+    "positive_capacity_profile": true,
+    "original_retained_rust_functions_and_types_unchanged": true,
+    "rust_with_capacity_body_interpreted": false,
+    "with_capacity_overflow_error_abort_paths_interpreted": false,
+    "native_allocator_implementation_refinement": false,
+    "native_compiler_abi_refinement": false,
+    "native_by_value_lifetime_release": false,
+    "failure_trace_physical_work_accounted": false,
+    "final_security_theorem": false
+  },
+  "rust_with_capacity_refinement_proved": false
 }

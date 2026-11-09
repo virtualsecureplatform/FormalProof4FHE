@@ -1,8 +1,8 @@
 {
-  "profile": "original-empty-byte-vec-with-checked-resident-storage-v2",
+  "profile": "original-empty-byte-vec-resident-storage-revalidated-with-reservation-model-v3",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-empty-zoujnxro/manifest.json",
-  "gate_manifest_sha256": "f329388b328b5b4289d752bf4c47835eba074e4dac665dcdb7ee9a6093620ff2",
+  "gate_manifest": "build/hasteboots-extraction/vec-empty-ubhiltl2/manifest.json",
+  "gate_manifest_sha256": "8781a7915856685d34a18e04a09754e310390a9325c4b6a09c9abce7ae0f2a37",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -11,7 +11,10 @@
     "33b93d0d0b3b4caa563c688b7e62e7dec936d1be",
     "c8bdecf118de6e9b7b22ab6eda6f84d5ae1dda4e",
     "b89215400643f271165b8c085995171431ef097d",
-    "eb20d76d3f7f09eec5c53010ec80c11ead5f27ad"
+    "eb20d76d3f7f09eec5c53010ec80c11ead5f27ad",
+    "29c8af8a0987d586b34a55228890cbbc18cae28a",
+    "efd61cf98ca733870440eaaf22c145e2720515a6",
+    "4010168482922b41f22e110abbdbcbc4fb7eceb3"
   ],
   "dependency_audit_count": 304,
   "source_definition_count": 8,
@@ -63,7 +66,7 @@
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
     "scripts/reify-hasteboots-variant-body": "2d0326329d538bb43685617133c2ecd96da497c81295cd221315807576383825",
-    "scripts/reify-hasteboots-vec-drop": "7ae2c0b65cde2f73d1def2da162428296a1d5021c0dfdd764c33eb41b9aaf89b",
+    "scripts/reify-hasteboots-vec-drop": "0ef983324e439064ea0969a4fc60d6a574137d5548a1feaee727f018b9b1eb8d",
     "scripts/reify-hasteboots-vec-empty": "00a7debb4c04056f86a5fe37ecead6b1f26a8a6fa45642c9b7b6fa76a3532ccd",
     "FormalProof4FHE/HasteBoots/NativeAtomicIndexLaw.lean": "05162b4db7430d055e1a0cddd1a789836ea00740c6fcee9e552fb8a27dec576d",
     "FormalProof4FHE/HasteBoots/NativeBatchChecks.lean": "43bd99e09201910db0ebf322c8a52581429b6a46f39502256c65c1d6e72f9be0",
@@ -388,6 +391,7 @@
     "FormalProof4FHE/HasteBoots/NativePointerByteMemory.lean": "f62c76f67ec3785661456afc0f694c61dd3323546840de8ef2d2adb95fda495d",
     "FormalProof4FHE/HasteBoots/NativePointerMachine.lean": "ceeb2562745ad91b91120b0694587b464348439704ae1076719c031e30a1c813",
     "FormalProof4FHE/HasteBoots/NativePointerRepresentation.lean": "532c94c0ccc209cc350bd99dabdda21168069adb4225713a6ea2fb80a86a91ba",
+    "FormalProof4FHE/HasteBoots/NativePointerRestore.lean": "fda334897fa18d9c5b69942205182819d4375e6e6bad70a85170aaed6037e2a0",
     "FormalProof4FHE/HasteBoots/NativePointerShadow.lean": "a1c58b699670356e8d0b722758f9b16a1bee864a97f6347c11b7b2273dfb0521",
     "FormalProof4FHE/HasteBoots/NativePointerStorage.lean": "b7a5fae05f2d40efc49f233e88d5b5899e08985cc7e9d51c9f06ae7ca4a614f3",
     "FormalProof4FHE/HasteBoots/NativePrefixCodec.lean": "86889508b555bf7dbe4ff5596923662e5d27d286d5827ef5efd7a401b1094d73",
@@ -420,6 +424,8 @@
     "FormalProof4FHE/HasteBoots/NativeRegisteredLookup.lean": "2b3b5c6e38b865d8d091c175f9556f30ee4367d2ffd3f6d44823536e6838b3ea",
     "FormalProof4FHE/HasteBoots/NativeRegistryAncestry.lean": "aeab1da2d206b1f655e29098fa9222c42f64505f115273c820be1959d88e776c",
     "FormalProof4FHE/HasteBoots/NativeRegistryContextTrace.lean": "858999f463c933ce242f67709b51754fddd0dba4301900046867fa069ee09f70",
+    "FormalProof4FHE/HasteBoots/NativeReservedVecConstruction.lean": "f348614a1cbe30f73a345dce40dbb7b4c7889ba1089492e554992d63c2647c95",
+    "FormalProof4FHE/HasteBoots/NativeReservedVecStorage.lean": "41d7b82c9b92ccf037d54b6174a799a5a8e5fa2029f75567a68f515e1db7db60",
     "FormalProof4FHE/HasteBoots/NativeResidentVec.lean": "70de16d97021f328d1dfd610c9d7263435add478bda06dae88ec33faa561dd9a",
     "FormalProof4FHE/HasteBoots/NativeResidentVecBorrow.lean": "2dc04d719e60494d45a3521de39df8630e0980d1d7cf9735793d58665074e2a6",
     "FormalProof4FHE/HasteBoots/NativeRootFamilyAudit.lean": "94c74cb27fcd70d444dc94dc28050359b035603d21c7a31a45c3f78f1c194d4f",
@@ -506,7 +512,7 @@
     "interop/aeneas/vec-empty/Proof.lean": "e49c37943109ddd3fac76fade3e940454dd06f0e18b8ab1bcc0ffbdbfcb6a2f6",
     "interop/aeneas/vec-empty/Smoke.lean": "5c0cba3dfda637c34c2d2b735f362f71b013f17b2408e98ece36450c366ac244"
   },
-  "source_llbc_sha256": "ce61725dfffcb8d56790e125e5750b9e95325936610252cfbb0ea598dd53d1a5",
+  "source_llbc_sha256": "e625aefd07d53b2a08437a8a18fc379ca0315fd64ec4289582a17186396f5e90",
   "checked_sha256": "1cc2c840235c6e52aa6f780a43a1662c0be00d14d196d5644f6f126a9dbb1156",
   "original_constructor_and_direct_caller_interpreted": true,
   "exact_nominal_return_for_arbitrary_world_proved": true,
@@ -526,19 +532,19 @@
   "full_project_check": {
     "command": "scripts/check",
     "exit_code": 0,
-    "build_jobs": 11073,
-    "log": "/tmp/hasteboots-empty-storage-full-check.log",
-    "log_sha256": "8cb728cec4dd162d1bcce38daeea19b5b8604a0968eb7c56f433a3bb2e4c9678",
-    "library_root_sha256": "23c489a5b55b52a58d7f861d60e20509280707478a4758fdd7fcc591f1161c55",
-    "test_root_sha256": "f36eeb845dc014ad56e19867906f75ed0862dda687b0121d29af12e7430ec2cf"
+    "build_jobs": 11078,
+    "log": "/tmp/hasteboots-reserved-construction-full-check.log",
+    "log_sha256": "871fca03410a0754d954ff9e31fdbd069de8497ff3ce782abee3234556cae15a",
+    "library_root_sha256": "d44360b48a5dd41aef868a27147478db27fab3425bec3315689317904fab3fd9",
+    "test_root_sha256": "8a56aed1a5f6ca773a017a97315023f44bf07e92ca33089c3aa08aab018657e1"
   },
   "revalidated_vec_destruction": {
-    "manifest": "build/hasteboots-extraction/vec-drop-ov620q5l/manifest.json",
-    "manifest_sha256": "3ccb30be0e6dad919589c7836239c5886b6d8359cfc9a4b64b39274786960d19",
-    "dependency_audit_count": 925,
+    "manifest": "build/hasteboots-extraction/vec-drop-e3zmwgln/manifest.json",
+    "manifest_sha256": "cbc750fb95a8159fe1f93723f30e58cd5683f3210641b826a6ac5776dc996de1",
+    "dependency_audit_count": 949,
     "negative_control_count": 87
   },
-  "validation_note": "The retained constructor is followed by a checked model storage adapter. Both write and fresh borrow success are derived from explicit live-header geometry and separation. Native compiler/ABI correspondence and by-value lifetime release remain open. Both gates and the complete project check passed in serial validation.",
+  "validation_note": "The empty-constructor proof and modeled storage bridge are unchanged. Fresh extraction and dependency checks pass alongside the new modeled positive-reservation construction and retained destructor composition. The original Rust with_capacity body, native compiler/ABI correspondence, external allocator implementation, lifetime release and physical work remain open.",
   "prior_storage_bridge_baseline": {
     "manifest": "build/hasteboots-extraction/vec-empty-e010m81k/manifest.json",
     "sha256": "3d2248477bca4fce9445e4cbc4bb66e001323c05beae90deed8b7ecefcf5d5bf",
@@ -570,5 +576,11 @@
     "native_abi_refinement": false,
     "by_value_header_lifetime_release": false
   },
-  "original_source_functions_and_types_unchanged": true
+  "original_source_functions_and_types_unchanged": true,
+  "prior_reserved_model_revalidation_baseline": {
+    "manifest": "build/hasteboots-extraction/vec-empty-zoujnxro/manifest.json",
+    "sha256": "f329388b328b5b4289d752bf4c47835eba074e4dac665dcdb7ee9a6093620ff2",
+    "dependency_audit_count": 304
+  },
+  "rust_with_capacity_refinement_proved": false
 }
