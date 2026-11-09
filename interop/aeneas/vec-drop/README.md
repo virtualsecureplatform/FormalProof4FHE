@@ -1,5 +1,44 @@
 # Original resident Vec destruction
 
+## Successful unbounded byte traversal restores the incoming loans
+
+`NativeScopeRestoration` tracks the exact fresh-loan prefix created by checked
+non-ending operations, slice issuance and byte indexing. Completed cleanup
+filters precisely the scope's fresh tags and restores the original ordered
+lease list. Reachability proves cleanup completion for the actual prefix; the
+traversal theorem does not take a cleanup-success premise.
+
+`NativeByteTraversalCompleteness.Ready` combines reachability, resident slice
+reference/pointer registers, exact byte extent, initialized elements and the
+logical exclusive-frontier condition. Under these explicit conditions, issuance
+succeeds, indexing recovers its actual raw pointer, and each bounded iteration
+succeeds. Cleanup restores the incoming leases and the same slice conditions.
+Well-founded induction then proves completion at the original extent for the
+unbounded traversal, while retaining the original lease list. No execution cap
+or supplied successful iteration trace is used.
+
+`TraversalCompletenessProof.lean` connects this result to the actual retained
+source loop and its operational relation. Source regressions also carry the
+original resident Vec header through the successful loop and execute the loop
+again with the resulting slice conditions. The proof remains about the checked
+model; native construction/compiler/lifetime correspondence is still open.
+
+This step adds 17 model theorems, one relation structure, one slice-condition
+definition, 20 model declaration guards, two source theorems, 16 model
+regressions and three source regressions. Tests cover nested cleanup order,
+retained historical registers without tag reuse, revoked inputs, fresh borrowing
+after cleanup, repeated traversal and an empty slice with uninitialized capacity.
+
+Fresh extraction passed 749 dependency audits and 69 rejection controls.
+Full `scripts/check` passed its 11,059-job build and all subsequent smoke checks.
+Retained Rust function bodies and type declarations are unchanged. Input hashes
+and validation receipts are recorded in the profile's `regression.json`.
+
+Next establish these slice conditions from the original Vec byte-method prefix,
+then prove successful return and exact release through the remaining Vec and
+RawVec source calls. Native refinement, physical attacker work and the final
+application security theorem remain open.
+
 ## Initialized prefixes and logical alias conditions give checked index success
 
 `NativeByteRangeCompleteness` proves that every bounded subrange of an
@@ -31,9 +70,9 @@ Full `scripts/check` passed its 11,053-job build and all subsequent smoke checks
 Retained Rust function bodies and type declarations are unchanged; input and
 validation hashes are recorded in the profile's `regression.json`.
 
-Next carry these sufficient conditions through slice issuance and iteration
-cleanup, prove completion of the unbounded traversal, and lift that completion
-through the original Vec source calls. The sufficient conditions for successful
+Slice issuance, iteration cleanup and unbounded traversal completion are now
+proved above. Lifting these conditions through the original Vec source calls
+and the sufficient conditions for successful
 whole-Vec return and exact release, native refinement, physical attacker work
 and the final application security theorem remain open.
 
