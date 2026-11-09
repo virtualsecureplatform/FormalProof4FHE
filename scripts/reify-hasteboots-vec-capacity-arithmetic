@@ -50,6 +50,8 @@ class Reifier:
   self.positive_callers=PositiveCallers(self)
   self.constructor_error=ConstructorError(self)
   self.rejected_layout=RejectedLayout(self)
+  self.constructor_unwind=ConstructorUnwind(self)
+  self.unified_constructor=UnifiedConstructor(self)
  def walk(self,f,node):
   if isinstance(node,dict):
    if 'statements' in node:
@@ -116,7 +118,7 @@ class Reifier:
     else:slots.append('.dead')
    lines+=['def '+label+' (world : NativeReferenceMachine.State) (left right : NativeWord64Memory.Word) : Frame :=',
     '  ⟨['+', '.join(types)+'], ['+', '.join(slots)+'], world⟩']
-  lines+=[self.layout_prefix.render(),self.caller_preparation.render(),self.positive_preparation.render(),self.allocator_methods.render(),self.runtime_calls.render(),self.runtime_success.render(),self.runtime_null.render(),self.positive_construction.render(),self.positive_callers.render(),self.constructor_error.render(),self.rejected_layout.render(),'end HasteBootsVecCapacityArithmetic',''];return '\n'.join(lines)
+  lines+=[self.layout_prefix.render(),self.caller_preparation.render(),self.positive_preparation.render(),self.allocator_methods.render(),self.runtime_calls.render(),self.runtime_success.render(),self.runtime_null.render(),self.positive_construction.render(),self.positive_callers.render(),self.constructor_error.render(),self.rejected_layout.render(),self.constructor_unwind.render(),self.unified_constructor.render(),'end HasteBootsVecCapacityArithmetic',''];return '\n'.join(lines)
 
 class LayoutPrefix:
  def __init__(self,parent):
@@ -426,7 +428,7 @@ class PositivePreparation:
    'def reservationErrorPayloadType (ambient : Frame) : NativeRecordValues.Ty := .pair (reservationErrorType ambient) (.scalar .unit)',
    'def allocationModeValue (zeroed : Bool) : NativeRecordValues.Value := .record 10 (.choice zeroed (.scalar .unit))',
    'def positiveAmbient (ambient : Frame) (zeroed : Bool) : Frame :=',
-   '  ⟨['+', '.join({0:'(reservationErrorPayloadType ambient)',2:'allocationInitType',14:'(reservationErrorType ambient)',15:'(reservationKindType ambient)',41:'(.scalar (.reference true))',42:'(.scalar .unit)',47:'(.record 20 (.scalar .unit))',48:'((layoutTypes ambient)[22]?.getD (.scalar .unit))',49:'(reservationKindType ambient)',50:'(reservationErrorType ambient)',10:'(.record 15 (.choice (.pair (.record 16 (.pair (.scalar (.raw true)) (.scalar .unit))) (.scalar .unit)) (.pair (.record 17 (.scalar .unit)) (.scalar .unit))))',11:'(.scalar (.reference false))',12:'(.scalar (.reference false))',13:'(.record 16 (.pair (.scalar (.raw true)) (.scalar .unit)))',16:'((layoutTypes ambient)[8]?.getD (.scalar .unit))',17:'((layoutTypes ambient)[35]?.getD (.scalar .unit))',18:'((layoutTypes ambient)[36]?.getD (.scalar .unit))',19:'((layoutTypes ambient)[52]?.getD (.scalar .unit))',20:'(.record 1 (.scalar .unit))',37:'(.scalar (.raw false))',38:'(.scalar (.raw true))',53:'(.record 5 (.scalar .unit))'}.get(i,'(ambient.types['+str(i)+']?.getD (.scalar .unit))') for i in range(54))+'],[.dead,.dead,.live (some (allocationModeValue zeroed)),.live (some allocatorValue)] ++ List.replicate 50 .dead,ambient.world⟩',
+   '  ⟨['+', '.join({0:'(reservationErrorPayloadType ambient)',2:'allocationInitType',14:'(reservationErrorType ambient)',15:'(reservationKindType ambient)',41:'(.scalar (.reference true))',42:'(.scalar .unit)',43:'(.scalar (.reference true))',44:'(.scalar .unit)',47:'(.record 20 (.scalar .unit))',48:'((layoutTypes ambient)[22]?.getD (.scalar .unit))',49:'(reservationKindType ambient)',50:'(reservationErrorType ambient)',10:'(.record 15 (.choice (.pair (.record 16 (.pair (.scalar (.raw true)) (.scalar .unit))) (.scalar .unit)) (.pair (.record 17 (.scalar .unit)) (.scalar .unit))))',11:'(.scalar (.reference false))',12:'(.scalar (.reference false))',13:'(.record 16 (.pair (.scalar (.raw true)) (.scalar .unit)))',16:'((layoutTypes ambient)[8]?.getD (.scalar .unit))',17:'((layoutTypes ambient)[35]?.getD (.scalar .unit))',18:'((layoutTypes ambient)[36]?.getD (.scalar .unit))',19:'((layoutTypes ambient)[52]?.getD (.scalar .unit))',20:'(.record 1 (.scalar .unit))',37:'(.scalar (.raw false))',38:'(.scalar (.raw true))',53:'(.record 5 (.scalar .unit))'}.get(i,'(ambient.types['+str(i)+']?.getD (.scalar .unit))') for i in range(54))+'],[.dead,.dead,.live (some (allocationModeValue zeroed)),.live (some allocatorValue)] ++ List.replicate 50 .dead,ambient.world⟩',
    'def positiveBorrowPrefix (zeroed : Bool) (address : NativeWord64Memory.Word) (next : Body) : Body :=',
    '  if zeroed then .live 12 (.assign 12 (.borrowZstLocal 3 1 address) next) else .live 11 (.assign 11 (.borrowZstLocal 3 1 address) next)',
    'def positiveModePrefix (address : NativeWord64Memory.Word) (uninitialized zeroed next : Body) : Body :=',
@@ -864,6 +866,49 @@ class RejectedLayout(LayoutPrefix):
    '  ⟨"alloc::raw_vec::try_allocate_in",.transparent,layoutTypes (positiveAmbient ambient zeroed),4,',
    '    .legacy (layoutPrefix (.unsupported "source byte multiplication overflow") (.unsupported "source accepted allocation layout") (rejectedLayoutPrefix .done) .done)',
    '      (globalDropCall address (.legacy globalDropCleanup .done))⟩'])+'\n'
+
+class ConstructorUnwind(LayoutPrefix):
+ def __init__(self,parent):
+  self.parent=parent;self.function=parent.functions[3];self.locals=self.function['body']['Structured']['locals']['locals'];self.count=len(self.locals)
+  unit={'Untagged':{'Adt':{'id':'Tuple','generics':{'regions':[],'types':[],'const_generics':[],'trait_refs':[]}}}}
+  reference={'Untagged':{'Ref':['Erased',adt(1),'Mut']}};self.cleanups=[];self.terminations=[]
+  for arm in parent.positive_preparation.arms:
+   ss=arm[2]['kind']['Call']['on_unwind']['statements'];require(set(ss[0]['kind'])=={'Switch'} and set(ss[0]['kind']['Switch'])=={'If'},'Changed constructor unwind drop guard')
+   test,yes,no=ss[0]['kind']['Switch']['If'];require(test=={'Copy':{'kind':{'Local':21},'ty':BOOL}} and no['statements']==[],'Changed constructor unwind drop flag')
+   ssb=yes['statements'];require(len(ssb)==4 and ssb[0]['kind']=={'StorageLive':43} and ssb[2]['kind']=={'StorageLive':44},'Changed unwind Global borrow scope')
+   require(ssb[1]['kind']=={'Assign':[{'kind':{'Local':43},'ty':reference},{'Ref':{'place':{'kind':{'Local':3},'ty':adt(1)},'kind':'Mut','ptr_metadata':{'Const':{'kind':{'Adt':[None,[]]},'ty':unit}}}}]},'Changed unwind Global borrow')
+   require(set(ssb[3]['kind'])=={'Call'},'Missing unwind Global drop call');call=ssb[3]['kind']['Call']
+   require(set(call)=={'call','on_unwind'} and call['call']=={'func':{'Regular':{'kind':{'Fun':{'Regular':12}},'generics':{'regions':[{'Body':15}],'types':[],'const_generics':[],'trait_refs':[]}}},'args':[{'Move':{'kind':{'Local':43},'ty':reference}}],'dest':{'kind':{'Local':44},'ty':unit}},'Changed unwind Global drop call')
+   termination=call['on_unwind']['statements'];require(termination[-1]['kind']=={'Abort':'UnwindTerminate'},'Changed double-unwind termination')
+   require(all(set(s['kind'])=={'StorageDead'} for s in termination[:-1]),'Changed double-unwind cleanup')
+   require(ss[-1]['kind']=='UnwindResume' and all(set(s['kind'])=={'StorageDead'} for s in ss[1:-1]),'Changed constructor unwind cleanup or resume')
+   self.cleanups.append([s['kind']['StorageDead'] for s in ss[1:-1]])
+   self.terminations.append(self.code(termination[:-1],'.abort'))
+  require(self.cleanups[0]==self.cleanups[1] and self.terminations[0]==self.terminations[1],'Changed mode-specific unwind behavior')
+ def render(self):
+  return '\n'.join(['def constructorUnwindIndices : List Nat := '+str(self.cleanups[0]),
+   'def constructorUnwindCleanup : Body := '+self.code([{'kind':{'StorageDead':i}} for i in self.cleanups[0]],'.resume'),
+   'def constructorUnwindTerminate : Body := '+self.terminations[0],
+   'def constructorUnwindBorrowPrefix (address : NativeWord64Memory.Word) (next : Body) : Body := .live 43 (.assign 43 (.borrowZstMutLocal 3 1 address) (.live 44 next))',
+   'def constructorUnwindDrop (address : NativeWord64Memory.Word) : NativeAllocatorLLBC.Body :=',
+   '  .legacy (constructorUnwindBorrowPrefix address .done) (.call globalDropFunction.name globalDropFunction.classification globalDropFunction.types globalDropFunction.argCount 44 [(.move 43 [])] globalDropFunction.body (.legacy constructorUnwindTerminate .done) .done)',
+   'def constructorUnwind (address : NativeWord64Memory.Word) : NativeAllocatorLLBC.Body :=',
+   '  .switchBoolean (.copy 21 []) (constructorUnwindDrop address) .done (.legacy constructorUnwindCleanup .done)'])+'\n'
+
+class UnifiedConstructor:
+ def __init__(self,parent):self.parent=parent
+ def render(self):
+  return '\n'.join(['def unifiedPositiveBody (ambient : Frame) (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Body :=',
+   '  let actual := {ambient with world := NativeZstBorrow.granted ambient.world address}',
+   '  positiveConstructorBody actual address outcome shim (.legacy (.unsupported "source runtime zero size") .done) runtimeNull (constructorUnwind address) (constructorFailureContinuation address)',
+   'def unifiedAcceptedBody (ambient : Frame) (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Body :=',
+   '  .legacy (acceptedLayoutPrefix .done) (.switchUsize (.copy 7 []) 0 (.legacy zeroSizeBody .done) (unifiedPositiveBody ambient address outcome shim) .done)',
+   'def unifiedRejectedBody (address : NativeWord64Memory.Word) : NativeAllocatorLLBC.Body :=',
+   '  .legacy (rejectedLayoutPrefix .done) (globalDropCall address (.legacy globalDropCleanup .done))',
+   'def unifiedConstructorFunction (ambient : Frame) (zeroed : Bool) (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Function :=',
+   '  ⟨"alloc::raw_vec::try_allocate_in",.transparent,layoutTypes (positiveAmbient ambient zeroed),4,',
+   '    .legacy (layoutInitialPrefix .done) (.switchBoolean (.copy 24 []) (.legacy (.unsupported "source byte multiplication overflow") .done)',
+   '      (.legacy (layoutCheckPrefix .done) (.switchBoolean (.move 30 []) (unifiedAcceptedBody ambient address outcome shim) (unifiedRejectedBody address) .done)) .done)⟩'])+'\n'
 
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('llbc',type=Path);p.add_argument('output',type=Path);p.add_argument('--retained',type=Path,required=True);a=p.parse_args()
