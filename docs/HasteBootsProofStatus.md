@@ -18016,3 +18016,79 @@ and remain unchanged; those extraction gates were not rerun for this extension.
 
 Full-check log: `/tmp/private-coin-executable-full-check.log`; SHA-256
 `1cb0bd6957f05ad195617238f22e2a7cdb120207cdc9e49a1383be7b1623f782`.
+
+## Runtime private-byte instructions and complete work accounting
+
+`PrivateCoinByteMachine` now extends the existing closed byte instruction
+set with a runtime `coin` instruction. Base instructions call the original
+`ClosedByteMachine.issue` semantics. A coin reads the private tape at the
+persistent cursor, stores that byte in the selected register, and advances
+the cursor once. It emits no oracle observation. The cursor is separate from
+the ordinary machine state, so base instructions cannot rewrite it. Oracle
+requests still use the original shared world.
+
+The specified price of a coin is two work units: one for the instruction and
+one for its consumed private byte. This is a declared interpreter price,
+not a measured native RNG cost. Initialization installs finite code/private
+input and charges one additional unit for the private cursor. The infinite
+tape is not installed or charged in advance. Stopped states stutter without
+consuming coins or work; out-of-code and failed ordinary instructions retain
+their existing charged abort behavior.
+
+The operational proofs establish exact per-tick work and cursor changes,
+prefix suspension/resumption, work monotonicity and a prefix invariant that
+twice the consumed-coin count is bounded by that same work counter. Every
+finite prefix depends on finitely many private tape coordinates, while the
+complete execution can consume arbitrarily many. The finite-use proof bound
+is not used as a work charge or a preloaded tape length.
+
+`PrivateCoinByteWork` proves exact summation of actual instruction costs and
+joint measurability of the new prefix/lifetime counters. Expected work is an
+unconditional expectation on the private-tape/oracle product law and equals
+the supremum of expected finite-prefix work. Initialization, local steps,
+coin reads, unsuccessful termination and infinite execution remain in it.
+The sum of expected executed tick costs and expected lifetime consumed-coin
+cost are bounded by that expectation. No termination or finite-mean premise
+is introduced.
+
+`PrivateCoinByteEmbedding` proves conservative behavior for base-only code:
+from the same charged ordinary state and any private cursor, the full
+ordinary result and oracle log are retained exactly and the cursor stays
+unchanged. Installing base-only code adds exactly the declared one-unit
+cursor initialization charge to the previous initial work. Thus the runtime
+extension does not replace or reinterpret the old instruction semantics.
+
+Fourteen regressions and two fixture lemmas check one- versus two-coin
+halt/reject paths with work 20 and 22, unused coins after halt, charged abort,
+a private byte selecting the next actual SHAKE input, exact unconditional
+averaging of the two branch costs, measurable lifetime work, prefix-limit
+expectations, consumed-coin accounting and base-code embedding. A finite
+coin/jump loop is proved to consume exactly `n` private bytes after `2*n`
+instructions for every natural `n`, with no maximum iteration count.
+Twenty-six guards audit all new production theorems. Both root libraries
+import the new modules.
+
+The earlier quantitative executable-extractor/configuration-union theorems
+still apply to their original closed-interpreter/private-initialization
+model. They have not yet been transferred to arbitrary programs containing
+the new runtime coin instruction. Next, extend the request classification,
+lineage and root/receipt/field/column hazard-to-work proofs to this operational
+extension, preserving the actual shared history and work counter. The new
+model accepts fixed finite installed private input; random initialization
+can run as explicit coin-consuming code before oracle queries. Binding this
+to actual native randomness and its initialization/generation cost remains
+open, together with application coverage, actor-cost separation, public PBS
+semantics, native BabyBear support and physical/native implementation
+refinement. The final security goal remains open.
+
+Validation: full `scripts/check` completed with exit status zero, including
+11,128 build jobs and all subsequent audit/smoke commands. The final targeted
+build passed with 4,482 jobs. All twenty-six new theorem guards reported only
+the usual three allowed axioms or subsets. No proof placeholders, additional
+logical axioms, native decision proofs, proof-limit increases or linter
+suppression were introduced. The five retained-source gate manifests and all
+their recorded input hashes were verified unchanged; those extraction gates
+were not rerun for this interpreter extension.
+
+Full-check log: `/tmp/private-coin-byte-full-check.log`; SHA-256
+`4f76bc48233ee3ef2ee12a5c778fbfbdce69306ad85abd3d52fd26c260a67d27`.
