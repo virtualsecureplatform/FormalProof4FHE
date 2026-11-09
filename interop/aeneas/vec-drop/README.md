@@ -38,7 +38,7 @@ abort causes reject in the model, while their original labels remain in the
 source snapshot. Reference/fat-pointer extents are logical, not a native ABI
 representation theorem.
 
-Nine Vec-reference and seven composition theorems establish checked execution,
+The initial bridge supplied nine Vec-reference and seven composition theorems for checked execution,
 reachable states, minted-reference identity, borrow heap preservation and scope
 projection. Three aggregate helper theorems extend the existing interpreter
 projections. Fifty-one declaration guards and 28 model regressions cover these
@@ -58,6 +58,30 @@ allocation. The rejected oversized slice preserves its earlier whole-Vec loan
 and heap. Invalid-entry examples are defensive model checks, not evidence that
 those inputs are valid Rust values.
 
+`Execution.lean` now supplies a total executor for the concrete retained
+root. A closed syntax check verifies that every embedded loop is the original
+byte loop. Structural evaluation follows actual frames, argument moves, scope
+cleanup, calls, unwind and terminal prefixes. Loop execution uses the full
+well-founded traversal, with an exact proof of both unit completion and rejected
+iteration outcomes and their final worlds. There is no fuel, fallback result,
+supplied execution witness or successful-traversal premise.
+
+The new general call-relation and invocation determinism theorems make this
+characterization an equivalence: every invocation of the original root equals
+`execute world inputs`, for arbitrary states and inputs. The executor is proved
+to admit an actual source execution and project to the checked reference machine;
+it preserves reachability from a reachable entry. Its loop outcome preserves the
+heap on success and failure. These are complete source-model outcomes, not a
+native compiler/lifetime theorem or a universal postcondition asserting exactly
+when a valid nonempty Vec is freed.
+
+Fourteen new source theorems and eight additional regressions cover totality,
+execution equivalence, arbitrary-state rejected entries, altered-loop rejection,
+zero-length traversal, positive-extent failure without a parent, and exclusion
+of simultaneous unit success and rejection with the same final heap. Two new
+model theorem guards cover determinism. The profile now has sixteen source
+regressions in total.
+
 Run:
 
 ```sh
@@ -66,11 +90,12 @@ scripts/check-hasteboots-vec-drop \
 scripts/check
 ```
 
-Fresh extraction passed 341 dependency audits and 69 rejecting controls. Changing
+The final executor gate passed 362 dependency audits and 69 rejecting controls. Changing
 the constructed byte-slice extent to zero changes generated code, retains the
 free, and removes six iteration loans from the three-byte example. The original
 RawVec drop and deallocation gates passed again with 290/294 audits and 44/24
-rejection controls. See `regression.json` for final receipts and check results.
+rejection controls. The full `scripts/check` passed its 11,023-job build and subsequent smoke checks;
+final receipts and hashes are recorded in `regression.json`.
 
 Next prove universal destructor outcomes and connect native construction,
 carrier/reference/stack/layout/ABI, compiler and lifetime refinement. Retained

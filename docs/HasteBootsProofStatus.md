@@ -7,6 +7,42 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## The retained Vec destructor now has a total, unique model outcome
+
+The [Vec profile](../interop/aeneas/vec-drop/README.md) now includes a total
+executor of the concrete original call tree. Its syntax check establishes that
+all loop leaves are the retained source byte loop. Evaluation follows actual
+aggregate frames, argument moves, scope/callee cleanup, unwind and rejected or
+unsupported prefixes. The loop uses its complete well-founded traversal; new
+source proofs identify both unit completion and rejected-iteration outcomes,
+including the exact final machine world. No fuel, fallback, supplied execution
+witness or traversal-success premise is used.
+
+General determinism theorems for the aggregate call relation and invocation
+relation establish the complete equivalence: for every machine state, input
+list and outcome, an invocation of the original Vec root holds exactly when its
+outcome equals the computed executor. The executor admits an actual retained
+execution, projects to the checked machine, and preserves reachability from a
+reachable entry. The source loop's projected outcome preserves its heap on
+success and failure.
+
+Fourteen new source theorems and eight execution regressions cover this bridge.
+Two new model declaration guards audit determinism. The final fresh-extraction
+gate passed 362 dependency audits and 69 rejection controls, and rechecked the
+slice-extent mutation. Regressions include arbitrary-state invalid entries,
+rejection of a different loop body, zero length, positive-extent failure with
+no parent and exclusion of simultaneous unit success/rejection even when final
+heaps coincide. Full `scripts/check` passed its 11,023-job build and subsequent
+smoke checks. Receipts are recorded in the profile's regression file.
+
+This completes the source-model outcome characterization, not its native
+implementation correspondence or a universal valid-Vec allocation postcondition.
+Next characterize successful destructor heap effects under checked resident
+invariants, then connect native construction/carrier/reference/stack/layout/ABI,
+compiler and lifetime refinement. Helper/allocator correctness, physical attacker
+work, the complete application reduction and the final expected-work security
+theorem remain open. The complete protocol target above is unchanged.
+
 ## Original resident Vec destruction now includes the unbounded byte loop
 
 The [Vec drop profile](../interop/aeneas/vec-drop/README.md) composes original
