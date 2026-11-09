@@ -1,0 +1,96 @@
+#!/usr/bin/env python3
+"""Freshly extract and check the original byte Vec::new nominal constructor.
+The storage/ABI bridge, positive allocation and compiler/lifetime refinement remain open.
+"""
+import argparse
+import copy
+import hashlib
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+ROOT=Path(__file__).resolve().parent.parent
+DATA=ROOT/'interop/aeneas/vec-empty'
+BUILD=runpy.run_path(str(ROOT/'scripts/build-hasteboots-inline-tools'))
+PARAM=runpy.run_path(str(ROOT/'scripts/extract-hasteboots-parameters'))
+PARENT=runpy.run_path(str(ROOT/'scripts/check-hasteboots-allocator-caller'))
+REIFIER=runpy.run_path(str(ROOT/'scripts/reify-hasteboots-vec-empty'))
+INCLUDES=['alloc::raw_vec','alloc::vec','alloc::alloc','core::alloc::layout','core::ptr::unique','core::ptr::non_null','core::mem::alignment']
+def digest(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+
+def negatives(ir):
+    base=REIFIER['Reifier'](ir);records={}
+    def check(label,mutation):
+        changed=copy.deepcopy(ir);mutation(changed['translated'])
+        try:REIFIER['Reifier'](changed).render()
+        except (ValueError,KeyError,TypeError,IndexError) as error:records[label]=str(error)
+        else:raise RuntimeError('Negative accepted: '+label)
+    def statements(c,fid=None):return c['fun_decls'][base.constructor if fid is None else fid]['body']['Structured']['body']['statements']
+    def aggregate(c,tid):return next(s['kind']['Assign'][1]['Aggregate'][1] for s in statements(c)
+        if isinstance(s['kind'],dict) and 'Assign' in s['kind'] and 'Aggregate' in s['kind']['Assign'][1] and
+        s['kind']['Assign'][1]['Aggregate'][0]['Adt'][0]['id']=={'Adt':tid})
+    def cast(c):return next(s['kind']['Assign'][1]['UnaryOp'] for s in statements(c)
+        if isinstance(s['kind'],dict) and 'Assign' in s['kind'] and 'UnaryOp' in s['kind']['Assign'][1])
+    check('wrong_target',lambda c:c['target_information'][0]['value'].update(target_pointer_size=4))
+    check('unsafe_constructor',lambda c:c['fun_decls'][base.constructor]['signature'].update(is_unsafe=True))
+    check('hidden_constructor',lambda c:c['fun_decls'][base.constructor]['item_meta'].update(opacity='Foreign'))
+    check('constructor_argument',lambda c:c['fun_decls'][base.constructor]['signature']['inputs'].append(REIFIER['SPEC']['USIZE']))
+    check('vec_layout',lambda c:c['type_decls'][base.vector['def_id']]['layout'][0]['value'].update(size=16))
+    check('capacity_offset',lambda c:c['type_decls'][base.inner['def_id']]['layout'][0]['value']['variant_layouts'][0]['field_offsets'].__setitem__(1,8))
+    check('nonnull_mutability',lambda c:c['type_decls'][base.nonnull['def_id']]['kind']['Struct'][0]['ty']['Untagged']['Pattern'][0]['Untagged']['RawPtr'].__setitem__(1,'Mut'))
+    check('marker_extent',lambda c:c['type_decls'][base.marker['def_id']]['layout'][0]['value'].update(size=1))
+    check('capacity_class',lambda c:c['type_decls'][base.carrier['def_id']]['item_meta'].update(opacity='Transparent'))
+    check('nonzero_capacity',lambda c:aggregate(c,base.carrier['def_id'])[0]['Const']['kind']['Literal']['Scalar']['Unsigned'].__setitem__(1,'1'))
+    check('nonzero_length',lambda c:aggregate(c,base.vector['def_id'])[1]['Const']['kind']['Literal']['Scalar']['Unsigned'].__setitem__(1,'1'))
+    check('changed_byte_alignment',lambda c:c['global_decls'][base.global_alignment['def_id']]['value']['kind']['Adt'][1][0]['kind']['Adt'].__setitem__(0,1))
+    check('physical_alignment_tag',lambda c:c['type_decls'][base.enum['def_id']]['layout'][0]['value']['variant_layouts'][0]['tagger'][0][1]['Unsigned'].__setitem__(1,'2'))
+    check('wrong_transmute_target',lambda c:cast(c)[0]['Cast']['Transmute'].__setitem__(1,REIFIER['adt'](base.carrier['def_id'])))
+    check('wrong_global',lambda c:cast(c)[1]['Copy']['kind']['Global'].update(id=base.global_alignment['def_id']+1))
+    check('copy_owned_vec_field',lambda c:aggregate(c,base.vector['def_id'])[0].update(Copy=aggregate(c,base.vector['def_id'])[0].pop('Move')))
+    check('recursive_caller',lambda c:next(s['kind']['Call']['call'] for s in statements(c,base.root) if isinstance(s['kind'],dict) and 'Call' in s['kind'])['func']['Regular']['kind']['Fun'].update(Regular=base.root))
+    return records
+
+def main():
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--build-receipt',type=Path,required=True);args=p.parse_args()
+    out=Path(tempfile.mkdtemp(prefix='vec-empty-',dir=ROOT/'build/hasteboots-extraction'))
+    r={'status':'started','commands':[],'empty_constructor_nominal_value_proved':True,'constructor_world_unchanged':True,
+       'empty_pointer_has_no_allocation_origin':True,'native_storage_abi_refinement':False,'positive_allocation_constructor_proved':False,
+       'compiler_lifetime_refinement':False,'physical_work_refinement':False,'final_security_theorem':False}
+    def save():(out/'manifest.json').write_text(json.dumps(r,indent=2)+'\n')
+    def run(cmd,log):
+        r['commands'].append([str(x) for x in cmd]);save()
+        with (out/log).open('w') as f:result=subprocess.run([str(x) for x in cmd],cwd=ROOT,stdout=f,stderr=subprocess.STDOUT)
+        if result.returncode:raise RuntimeError('Command failed: '+log)
+    print('Vec empty artifacts: '+str(out),flush=True)
+    try:
+        _,tools,_=BUILD['verify_receipt'](args.build_receipt);r['build_receipt_sha256']=digest(args.build_receipt)
+        files=[Path(__file__),ROOT/'scripts/build-hasteboots-inline-tools',ROOT/'scripts/check-hasteboots-allocator-caller',
+            ROOT/'scripts/extract-hasteboots-parameters',ROOT/'scripts/specify-hasteboots-deallocation-boundary',ROOT/'lean-toolchain',
+            *sorted((ROOT/'scripts').glob('reify-hasteboots-*')),*sorted((ROOT/'FormalProof4FHE/HasteBoots').glob('Native*.lean')),
+            *[DATA/n for n in ['fixture.rs','Generated.lean','Retained.json','Proof.lean','Smoke.lean']]]
+        r['inputs']={str(f.relative_to(ROOT)):digest(f) for f in files}
+        run([ROOT/'scripts/in-container','lake','build','FormalProof4FHE.HasteBoots.NativeRecordCallValues'],'root-build.log')
+        llbc=out/'source.llbc'
+        cmd=[tools/'charon','rustc','--preset=aeneas','--sysroot','default','--monomorphize','--mir','optimized','--consts','values',
+            '--evaluate-runtime-checks','--precise-drops','--desugar-drops','--preserve-allocator','--no-dedup-serialized-ast']
+        for include in INCLUDES:cmd+=['--include',include]
+        cmd+=['--dest-file',llbc,'--','--crate-type','lib','--edition','2024','-Cdebug-assertions=no','--crate-name','hasteboots_vec_empty',(DATA/'fixture.rs').relative_to(ROOT)]
+        run(cmd,'charon.log');ir=json.loads(llbc.read_text());reifier=REIFIER['Reifier'](ir);generated=reifier.render()
+        if generated!=(DATA/'Generated.lean').read_text() or reifier.retained()!=json.loads((DATA/'Retained.json').read_text()):raise RuntimeError('Original constructor schema/body differs')
+        r['negative_controls']=negatives(ir);names=PARENT['inventory']()
+        for file in ['Generated.lean','Proof.lean']:
+            raw=(DATA/file).read_text();PARAM['validate_proof_source'](raw,re.findall(r'^theorem (\w+)',raw,re.M))
+            names+=['HasteBootsVecEmpty.'+n for n in re.findall(r'^(?:def|theorem) (\w+)',raw,re.M)]
+        checked=out/'Checked.lean';checked.write_text(generated+'\n'+(DATA/'Proof.lean').read_text()+'\n'+(DATA/'Smoke.lean').read_text()+
+            ''.join('\n#print axioms '+n+'\n' for n in names))
+        run([ROOT/'scripts/in-container','lake','env','lean','-DwarningAsError=true',checked.relative_to(ROOT)],'lean.log')
+        r['dependency_audit']=PARAM['audit_log']((out/'lean.log').read_text(),names)
+        if r['inputs']!={str(f.relative_to(ROOT)):digest(f) for f in files}:raise RuntimeError('Inputs changed during validation')
+        r['llbc_sha256']=digest(llbc);r['checked_sha256']=digest(checked)
+        BUILD['verify_receipt'](args.build_receipt);r['status']='passed'
+        print('Vec empty passed: '+str(len(names))+' audits; '+str(len(r['negative_controls']))+' rejecting controls')
+    except Exception as e:r.update(status='failed',error=str(e));raise SystemExit(str(e)+'; inspect '+str(out)) from e
+    finally:r['logs']={f.name:digest(f) for f in out.glob('*.log')};save()
+if __name__=='__main__':main()
