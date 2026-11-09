@@ -653,3 +653,5 @@ import FormalProof4FHE.HasteBoots.NativeVariantValues
 import FormalProof4FHE.HasteBoots.NativeRawVecFields
 import FormalProof4FHE.HasteBoots.NativeRawVecReference
 import FormalProof4FHE.HasteBoots.NativeRawVecBorrow
+
+import FormalProof4FHE.HasteBoots.NativeRawVecMutBorrow

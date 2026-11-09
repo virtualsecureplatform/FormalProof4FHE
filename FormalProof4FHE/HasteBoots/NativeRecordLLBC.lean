@@ -3,6 +3,7 @@ public import FormalProof4FHE.HasteBoots.NativeRecordValues
 public import FormalProof4FHE.HasteBoots.NativeZstReference
 public import FormalProof4FHE.HasteBoots.NativeRawVecReference
 public import FormalProof4FHE.HasteBoots.NativeRawVecBorrow
+public import FormalProof4FHE.HasteBoots.NativeRawVecMutBorrow
 public import FormalProof4FHE.HasteBoots.NativeByteDropCalls
 @[expose] public section
 
@@ -30,6 +31,7 @@ inductive Operand where
   | copy (index : Nat) (path : Path := [])
   | move (index : Nat) (path : Path := [])
   | usize (value : Word)
+  | layoutLiteral (size alignment : Word) (layoutTag alignmentTag enumTag : Nat)
   | unit
   deriving DecidableEq
 
@@ -89,6 +91,9 @@ def storageDead (frame : Frame) (index : Nat) : Option Frame :=
 def evalOperand (frame : Frame) : Operand → Option (Value × Frame)
   | .unit => some (.scalar .unit, frame)
   | .usize value => some (.scalar (.usize value), frame)
+  | .layoutLiteral size alignment layoutTag alignmentTag enumTag =>
+    some (.record layoutTag (.pair (.scalar (.usize size)) (.pair
+      (.record alignmentTag (.pair (.enumeration enumTag alignment) (.scalar .unit))) (.scalar .unit))), frame)
   | .copy index path => do
     let type ← frame.types[index]?
     let selectedType ← NativeRecordValues.typeAt type path
@@ -144,6 +149,7 @@ def retag (world : State) : Value → Bool → Element → Tagged
 
 inductive Rvalue where
   | unit
+  | borrowRawVecMut (index : Nat) (path : Path := [])
   | borrowRawVec (target : NativeRawVecBorrow.Target) (index : Nat) (path : Path := [])
   | recordResult (tag : Nat) (singleton : Bool) (inner : Rvalue)
   | mulUsizeUB (left right : Operand)
@@ -187,6 +193,23 @@ def evalRawVecBorrow (frame : Frame) (index : Nat) (path : Path) (target : Nativ
       | .value output next => .value (.scalar output) {frame with world := next}
     | _ => .invalid frame.world
 
+def reserveRawVec (frame : Frame) (index : Nat) (path : Path) : NativeRawVecFields.Result NativeRawVecMutBorrow.Reservation :=
+  match read frame index path with
+  | none => .invalid frame.world
+  | some value => match value with
+    | .scalar value => NativeRawVecMutBorrow.reserve frame.world value
+    | _ => .invalid frame.world
+
+def evalRawVecMutBorrow (frame : Frame) (index : Nat) (path : Path) : Evaluated :=
+  match reserveRawVec frame index path with
+  | .invalid next => .invalid next
+  | .value reservation prepared => match NativeRawVecMutBorrow.activate prepared reservation with
+    | .invalid next => .invalid next
+    | .value output next => .value (.scalar output) {frame with world := next}
+
+def pendingMutableSlot (frame : Frame) (index : Nat) : Bool :=
+  frame.types[index]? == some (.scalar (.reference true)) && frame.slots[index]? == some (.live none)
+
 def multiplyWords : List Value → Option Value
   | [.scalar (.usize left), .scalar (.usize right)] =>
     if bounded : left.val * right.val < 2^64 then some (.scalar (.usize ⟨left.val * right.val, bounded⟩)) else none
@@ -216,6 +239,7 @@ def recordResultValue (tag : Nat) (singleton : Bool) (value : Value) : Option Va
 
 def evalRvalue (frame : Frame) : Rvalue → Evaluated
   | .unit => .value (.scalar .unit) frame
+  | .borrowRawVecMut index path => evalRawVecMutBorrow frame index path
   | .borrowRawVec target index path => evalRawVecBorrow frame index path target
   | .recordResult tag singleton inner => match evalRvalue frame inner with
     | .invalid world => .invalid world
@@ -300,6 +324,9 @@ inductive Body where
   | matchChoice (index : Nat) (path : Path) (tag : Nat) (left right next : Body)
   | switchUsize (test : Operand) (value : Word) (yes no next : Body)
   | deallocate (pointer size alignment : Operand) (enumTag : Nat)
+  | twoPhaseRawVecCall (parent : Nat) (path : Path) (reserved : Nat)
+      (name : String) (classification : Classification) (types : List Ty) (argCount target : Nat)
+      (rest : List Operand) (callee unwind next : Body)
   | call (name : String) (classification : Classification) (types : List Ty) (argCount target : Nat)
       (args : List Operand) (callee unwind next : Body)
   deriving DecidableEq
@@ -340,6 +367,28 @@ def eval : Body → Frame → Flow
       match branch with | .normal changed => eval next changed | flow => flow
     | _ => .invalid frame.world
   | .deallocate pointer size alignment tag, frame => deallocate frame pointer size alignment tag
+  | .twoPhaseRawVecCall parent path reserved _ _ types argCount target rest callee unwind next, frame =>
+    if pendingMutableSlot frame reserved then
+      match reserveRawVec frame parent path with
+      | .invalid world => .invalid world
+      | .value reservation prepared => match evalArgs {frame with world := prepared} rest with
+        | none => .invalid prepared
+        | some (values,caller) => match NativeRawVecMutBorrow.activate caller.world reservation with
+          | .invalid world => .invalid world
+          | .value reference world => match write {caller with world} reserved (.scalar reference) with
+            | none => .invalid world
+            | some written => match evalOperand written (.move reserved []) with
+              | none => .invalid world
+              | some (argument,consumed) => match initial types argCount (argument :: values) consumed.world with
+                | none => .invalid consumed.world
+                | some entered => match settle entered.world (eval callee entered) with
+                  | .returned value world => match write {consumed with world} target value with
+                    | none => .invalid world | some changed => eval next changed
+                  | .unwind world => eval unwind {consumed with world}
+                  | .invalid world => .invalid world
+                  | .unsupported source world => .unsupported source world
+                  | .normal changed => .invalid changed.world
+    else .invalid frame.world
   | .call _ _ types argCount target args callee unwind next, frame => match evalArgs frame args with
     | none => .invalid frame.world
     | some (values,caller) => match initial types argCount values caller.world with
@@ -393,6 +442,7 @@ theorem evalOperand_world (frame changed : Frame) (operand : Operand) (value : V
   cases operand with
   | unit => cases evaluated; rfl
   | usize word => cases evaluated; rfl
+  | layoutLiteral size alignment layoutTag alignmentTag enumTag => cases evaluated; rfl
   | copy index path =>
     simp only [evalOperand, Option.bind_eq_bind', Option.bind_eq_some_iff] at evaluated
     obtain ⟨type, _, selectedType, _, actual⟩ := evaluated
@@ -535,6 +585,31 @@ theorem evalRawVecBorrow_projects (frame : Frame) (index : Nat) (path : Path) (t
     | enumeration tag value => simp only [evalRawVecBorrow, selected, Evaluated.world]; exact .refl _
     | uninit => simp only [evalRawVecBorrow, selected, Evaluated.world]; exact .refl _
 
+theorem reserveRawVec_projects (frame : Frame) (index : Nat) (path : Path) :
+    NativeReferenceMachine.Runs frame.world (reserveRawVec frame index path).world := by
+  cases selected : read frame index path with
+  | none => simp only [reserveRawVec, selected, NativeRawVecFields.Result.world]; exact .refl _
+  | some value =>
+    cases value with
+    | scalar value => simpa only [reserveRawVec, selected] using NativeRawVecMutBorrow.reserve_projects frame.world value
+    | choice side fields => simp only [reserveRawVec, selected, NativeRawVecFields.Result.world]; exact .refl _
+    | pair left right => simp only [reserveRawVec, selected, NativeRawVecFields.Result.world]; exact .refl _
+    | record tag fields => simp only [reserveRawVec, selected, NativeRawVecFields.Result.world]; exact .refl _
+    | enumeration tag value => simp only [reserveRawVec, selected, NativeRawVecFields.Result.world]; exact .refl _
+    | uninit => simp only [reserveRawVec, selected, NativeRawVecFields.Result.world]; exact .refl _
+
+theorem evalRawVecMutBorrow_projects (frame : Frame) (index : Nat) (path : Path) :
+    NativeReferenceMachine.Runs frame.world (evalRawVecMutBorrow frame index path).world := by
+  have first := reserveRawVec_projects frame index path
+  cases selected : reserveRawVec frame index path with
+  | invalid next => simpa only [evalRawVecMutBorrow, selected, Evaluated.world, NativeRawVecFields.Result.world] using first
+  | value reservation prepared =>
+    rw [selected] at first
+    have second := NativeRawVecMutBorrow.activate_projects prepared reservation
+    cases actual : NativeRawVecMutBorrow.activate prepared reservation <;>
+      simpa only [evalRawVecMutBorrow, selected, actual, Evaluated.world, NativeRawVecFields.Result.world] using
+        NativeReferenceMachine.runs_trans _ _ _ first second
+
 theorem multiplyWords_no_wrap (left right result : Word)
     (computed : multiplyWords [.scalar (.usize left), .scalar (.usize right)] = some (.scalar (.usize result))) :
     result.val = left.val * right.val := by
@@ -573,6 +648,7 @@ theorem evalRvalue_projects (frame : Frame) (rvalue : Rvalue) :
     NativeReferenceMachine.Runs frame.world (evalRvalue frame rvalue).world := by
   induction rvalue with
   | unit => exact .refl _
+  | borrowRawVecMut index path => exact evalRawVecMutBorrow_projects frame index path
   | borrowRawVec target index path => exact evalRawVecBorrow_projects frame index path target
   | mulUsizeUB left right =>
     change NativeReferenceMachine.Runs frame.world (evalMultiply frame left right).world
@@ -813,6 +889,70 @@ theorem eval_projects (body : Body) (frame : Frame) :
           | invalid world => exact first
           | unsupported source world => exact first
   | deallocate pointer size alignment tag => exact deallocate_projects frame pointer size alignment tag
+  | twoPhaseRawVecCall parent path reserved name classification types argCount target rest callee unwind next calleeIH unwindIH nextIH =>
+    by_cases pending : pendingMutableSlot frame reserved = true
+    · have reservedRun := reserveRawVec_projects frame parent path
+      cases reservationEq : reserveRawVec frame parent path with
+      | invalid world => simpa only [eval, pending, ite_true, reservationEq, Flow.world, NativeRawVecFields.Result.world] using reservedRun
+      | value reservation prepared =>
+        rw [reservationEq] at reservedRun
+        cases argsEq : evalArgs {frame with world := prepared} rest with
+        | none => simpa only [eval, pending, ite_true, reservationEq, argsEq, Flow.world, NativeRawVecFields.Result.world] using reservedRun
+        | some result =>
+          rcases result with ⟨values,caller⟩
+          have callerWorld := evalArgs_world {frame with world := prepared} caller rest values argsEq
+          have activatedRun := NativeRawVecMutBorrow.activate_projects caller.world reservation
+          have activationStart : NativeReferenceMachine.Runs frame.world caller.world := by
+            simpa only [callerWorld, NativeRawVecFields.Result.world] using reservedRun
+          cases activated : NativeRawVecMutBorrow.activate caller.world reservation with
+          | invalid world =>
+            rw [activated] at activatedRun
+            simpa only [eval, pending, ite_true, reservationEq, argsEq, activated, Flow.world, NativeRawVecFields.Result.world] using
+              NativeReferenceMachine.runs_trans _ _ _ activationStart activatedRun
+          | value reference world =>
+            rw [activated] at activatedRun
+            have beforeWrite : NativeReferenceMachine.Runs frame.world world :=
+              NativeReferenceMachine.runs_trans _ _ _ activationStart activatedRun
+            cases writtenEq : write {caller with world} reserved (.scalar reference) with
+            | none => simpa only [eval, pending, ite_true, reservationEq, argsEq, activated, writtenEq, Flow.world] using beforeWrite
+            | some written =>
+              have writtenWorld := write_world {caller with world} written reserved (.scalar reference) writtenEq
+              cases movedEq : evalOperand written (.move reserved []) with
+              | none => simpa only [eval, pending, ite_true, reservationEq, argsEq, activated, writtenEq, movedEq, Flow.world] using beforeWrite
+              | some moved =>
+                rcases moved with ⟨argument,consumed⟩
+                have consumedWorld := evalOperand_world written consumed (.move reserved []) argument movedEq
+                cases initialized : initial types argCount (argument :: values) consumed.world with
+                | none =>
+                  have consumedRun : NativeReferenceMachine.Runs frame.world consumed.world := by
+                    simpa only [consumedWorld, writtenWorld] using beforeWrite
+                  simpa only [eval, pending, ite_true, reservationEq, argsEq, activated, writtenEq, movedEq, initialized,
+                    Flow.world] using consumedRun
+                | some entered =>
+                  have entryWorld := initial_world types argCount (argument :: values) consumed.world entered initialized
+                  have callStart : NativeReferenceMachine.Runs frame.world entered.world := by
+                    simpa only [entryWorld, consumedWorld, writtenWorld] using beforeWrite
+                  have first := NativeReferenceMachine.runs_trans _ _ _ callStart
+                    (NativeReferenceMachine.runs_trans _ _ _ (calleeIH entered)
+                      (settle_projects entered.world (eval callee entered)))
+                  cases returned : settle entered.world (eval callee entered) with
+                  | normal changed => simpa only [eval, pending, ite_true, reservationEq, argsEq, activated, writtenEq, movedEq, initialized, returned, Flow.world] using first
+                  | invalid final => simpa only [eval, pending, ite_true, reservationEq, argsEq, activated, writtenEq, movedEq, initialized, returned, Flow.world] using first
+                  | unsupported source final => simpa only [eval, pending, ite_true, reservationEq, argsEq, activated, writtenEq, movedEq, initialized, returned, Flow.world] using first
+                  | unwind final =>
+                    rw [returned] at first
+                    simp only [eval, pending, ite_true, reservationEq, argsEq, activated, writtenEq, movedEq, initialized, returned]
+                    exact NativeReferenceMachine.runs_trans _ _ _ first (unwindIH {consumed with world := final})
+                  | returned output final =>
+                    rw [returned] at first
+                    cases stored : write {consumed with world := final} target output with
+                    | none => simpa only [eval, pending, ite_true, reservationEq, argsEq, activated, writtenEq, movedEq, initialized, returned, stored, Flow.world] using first
+                    | some changed =>
+                      simp only [eval, pending, ite_true, reservationEq, argsEq, activated, writtenEq, movedEq, initialized, returned, stored]
+                      have later := nextIH changed
+                      rw [write_world {consumed with world := final} changed target output stored] at later
+                      exact NativeReferenceMachine.runs_trans _ _ _ first later
+    · simp only [eval, pending, Flow.world]; exact .refl _
   | call name classification types argCount target args callee unwind next calleeIH unwindIH nextIH =>
     cases selected : evalArgs frame args with
     | none => simp only [eval, selected, Flow.world]; exact .refl _
