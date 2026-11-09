@@ -7,6 +7,39 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Outer Vec glue identifies the original buffer on every outcome
+
+`OuterVecProof.lean` now connects the original Vec entry to the existing RawVec
+buffer result. It checks the entry decoder and typed arguments, the whole-Vec
+borrow, the byte-method caller frame, cleanup, and both normal and unwind
+RawVec continuations. The proof follows the retained source tree; its bodies
+are not replaced by a destructor specification.
+
+The resulting `VecDeallocationPost` says that every outcome either preserves
+the complete heap or frees the original stored buffer with a positive capacity
+and its exact capacity-byte layout. Zero capacity preserves the complete heap.
+If the heap changes, a corollary identifies the matching block in the original
+allocation list. These results include rejected borrow, call and cleanup
+prefixes. They assume a resident header and an explicitly older incoming
+reference; they do not assume that any internal borrow or call succeeds.
+
+This step adds 31 source theorems and 16 checked definitions. Eight regressions
+cover reserved but uninitialized capacity at length zero, exact original-buffer
+identification, empty dangling buffers, both source continuation shapes and a
+retained failure fixture. Concrete executor facts are obtained from the checked
+operational relation and determinism at standard Lean limits.
+
+Fresh extraction passed 708 dependency audits and 69 rejecting controls,
+including the slice-extent mutation. Full `scripts/check` passed its 11,047-job
+build and subsequent smoke checks. Retained Rust function bodies and type
+declarations are unchanged; hashes and receipts are in `regression.json`.
+
+Next prove sufficient valid-Vec conditions for successful return and exact
+release, then connect native construction/compiler/lifetime/ABI refinement and
+the external allocator implementation. Physical attacker work and the final
+application security theorem also remain open. This result does not establish
+native constructor acceptance or the complete security theorem.
+
 ## Incoming references survive record calls and the complete byte destructor
 
 `NativeRecordIncomingReference` proves authority preservation through every
@@ -33,9 +66,8 @@ controls. Full `scripts/check` passed its 11,047-job build and all subsequent
 smoke checks. Retained Rust function bodies and type declarations are unchanged.
 The profile's `regression.json` records the input hashes and validation receipts.
 
-Next apply the exact RawVec buffer result at the outer Vec root using the
-preserved header. Original-buffer identification at that root, successful
-valid-Vec postconditions, native construction/compiler/lifetime/ABI refinement,
+Original-buffer identification at the outer Vec root is now proved above.
+Successful valid-Vec postconditions, native construction/compiler/lifetime/ABI refinement,
 the external allocator implementation, physical attacker work and the final
 application security theorem remain open.
 
@@ -75,7 +107,7 @@ and hashes are recorded in the profile regression file. Retained function bodies
 and type declarations are unchanged.
 
 The surrounding record and byte-drop call/cleanup composition is now proved
-above. Applying the exact RawVec entry result at the outer Vec root, successful valid-Vec
+above, along with original-buffer identification at the outer Vec root. Successful valid-Vec
 postconditions, native construction/compiler/lifetime/ABI refinement, the external
 allocator implementation, physical attacker work and the final application
 security theorem remain open.
@@ -111,8 +143,8 @@ build and subsequent smoke checks. The profile regression file records the
 receipts, input hashes and full-check log hash. Retained function bodies and type
 declarations are unchanged.
 
-Next carry the incoming Vec reference through the original byte-drop traversal
-and cleanup, then compose this RawVec result at the outer Vec entry. Successful
+Incoming-reference transport and composition at the outer Vec entry are now
+proved above. Successful
 valid-Vec postconditions, native construction, compiler/lifetime/ABI refinement,
 the external allocator implementation, physical attacker work and the final
 application security theorem remain open. Heap effects remain separate from
