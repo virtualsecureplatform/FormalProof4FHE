@@ -1,8 +1,8 @@
 {
-  "profile": "original-resident-vec-destruction-with-ownership-invariants-v5",
+  "profile": "original-resident-vec-destruction-with-source-capacity-dispatch-v6",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-drop-p6rpmzds/manifest.json",
-  "gate_manifest_sha256": "fef3c88d06fb9da086a6b7d5ee5f7bb051757c7eca4bac86b859034bcdb9d470",
+  "gate_manifest": "build/hasteboots-extraction/vec-drop-mf5orpcw/manifest.json",
+  "gate_manifest_sha256": "b7ae99b895fb52d8ea47716a578c5ea148ca18183c00172188d359720e8c3982",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -15,9 +15,11 @@
     "02f17a15f1631f12adfe8bc6bb3b9db0bc6cd0ff",
     "4a1130ea4444834d3a5c4f003b06fa1b37992496",
     "1cea5da6a63e201f306118ca8ffe8f606a81a3e3",
-    "7d8ada9390dd7ec9efcef158b3726c92b3bc3857"
+    "7d8ada9390dd7ec9efcef158b3726c92b3bc3857",
+    "7218cf23f6e7e6a1d35f052a8ea0b31cc104d416",
+    "0b45d9d7eed695e44ae296e2d135eebb463516e3"
   ],
-  "dependency_audit_count": 481,
+  "dependency_audit_count": 524,
   "negative_control_count": 69,
   "negative_controls": {
     "wrong_profile": "Wrong extraction profile",
@@ -96,12 +98,12 @@
   "interpreter_helper_theorem_count": 3,
   "source_loop_theorem_count": 16,
   "source_composition_theorem_count": 17,
-  "new_declaration_audit_count": 154,
-  "model_regression_count": 75,
-  "source_regression_count": 20,
+  "new_declaration_audit_count": 188,
+  "model_regression_count": 93,
+  "source_regression_count": 26,
   "inputs": {
-    "scripts/check-hasteboots-vec-drop": "318c0bd8c68e883f3d85af480b3edb5bf82245d19f8878cae089c4a9f84d61c0",
-    "scripts/reify-hasteboots-vec-drop": "59f0c8ab00078d47dc03a96481ebd79b8d816d20ca85a51639fa8821b0fc7916",
+    "scripts/check-hasteboots-vec-drop": "e86c9bcac895f1e895f15a84e3dc345ca671e30f0d2c29d507ef0c246dcd539e",
+    "scripts/reify-hasteboots-vec-drop": "f18e5891db630b7af9f8cddc39d707acc8dc4886965f1718d86dbaaf9a86e438",
     "scripts/reify-hasteboots-rawvec-drop": "748d6a322c395db0244eec640359f5b4efd07d234b023a23aa23f9dfeee812aa",
     "scripts/check-hasteboots-rawvec-drop": "2774e9d2b0bf5817f876b4787101650118d905dbc954391743be2723518c1fb3",
     "scripts/reify-hasteboots-byte-loop-llbc": "fb747e07b75bcf8847326b3e3c3c9ff62402f1a2b306fb2123f1377bacc24b85",
@@ -121,19 +123,22 @@
     "scripts/extract-hasteboots-parameters": "9ab0b333e12a4dac0fea4e37bc8bee430bdf56cac7eb4bcb5fa999ceab140993",
     "lean-toolchain": "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c",
     "interop/aeneas/vec-drop/fixture.rs": "a9759ee4f6ff994cfeddd3783fadb15b3a9d754fce1d0c8d8f5b6d0b9da0529f",
-    "interop/aeneas/vec-drop/Generated.lean": "247fbbe5674de9d3d760e0541d6d8643f7cf5b1083dded2a608a8794f2ec2d0b",
+    "interop/aeneas/vec-drop/Generated.lean": "aa4dc8a64b34741d7e16007d928e8ad1dfa16c90c1bce5cc0acaa4c5efda54f9",
     "interop/aeneas/vec-drop/Retained.json": "dda5b5bf5f588a48df0955d1ea5c11351b99e58904dc6d1f946f72615b1db064",
     "interop/aeneas/vec-drop/LoopProof.lean": "a479d3c1bf0fdef3090c4fe779bfce3668c518fec1fedb67dabf86870ae66288",
     "interop/aeneas/vec-drop/Execution.lean": "73a161abfeb81b1284761074a9a908da70dfaf09fa47a2de6b38954d36c2afd7",
     "interop/aeneas/vec-drop/HeapProof.lean": "c69d4e72d3782e7a38d4b198f3fc4b7160622a0971c5c6fbc61118e04e8d3dc1",
+    "interop/aeneas/vec-drop/CapacityProof.lean": "02789e1cb65c53487e586ee824f3f4d5f579d26a6043f87d460e609089416b55",
     "interop/aeneas/vec-drop/Proof.lean": "ed6262460778b3d76632aabe0fb3d5068b6fb292c8a4c17e45b0641acaf79ee0",
     "interop/aeneas/vec-drop/Smoke.lean": "e479c3ae32107fb4e678272a6b2c8513ce41ac0e4fa91456a69f281cc9a93829",
     "interop/aeneas/vec-drop/ExecutionSmoke.lean": "6dae342e7751b742f775689f1be6fd04f713fdd036c9a1a93ac1eaef26302e97",
     "interop/aeneas/vec-drop/ReleaseSmoke.lean": "0cde4f04709f6285d9ea1ee6e99057edbcff8f4be815fa558961ec535c16ec02",
+    "interop/aeneas/vec-drop/CapacitySmoke.lean": "967c3859ffce3331b80269b4f6b6c25b84d46cbb78626f4a81015501bb04adfa",
     "FormalProof4FHE/HasteBoots/NativeHeapFrame.lean": "e1c8d1062272a191f9bf3924c20b5c245c60753cf9bdf2af65fbe1e442460799",
     "FormalProof4FHE/HasteBoots/NativeHeapRelease.lean": "3f5a6ea3c2db24ff1c37dc6ad0def3ba90cba9801ae9297caaf81faca594709e",
     "FormalProof4FHE/HasteBoots/NativeRecordHeapBounds.lean": "aee4efbce17802c995c85e7d40300da4069111f866fd31bfe549975b2be13608",
     "FormalProof4FHE/HasteBoots/NativeResidentVec.lean": "70de16d97021f328d1dfd610c9d7263435add478bda06dae88ec33faa561dd9a",
+    "FormalProof4FHE/HasteBoots/NativeResidentVecBorrow.lean": "2dc04d719e60494d45a3521de39df8630e0980d1d7cf9735793d58665074e2a6",
     "FormalProof4FHE/HasteBoots/NativeReferenceMachine.lean": "c211d50ac2059b95d520867a26c982326cd8ba0233d5e55953d5f28afd9b2409",
     "FormalProof4FHE/HasteBoots/NativePointerMachine.lean": "ceeb2562745ad91b91120b0694587b464348439704ae1076719c031e30a1c813",
     "FormalProof4FHE/HasteBoots/NativePointerByteMemory.lean": "f62c76f67ec3785661456afc0f694c61dd3323546840de8ef2d2adb95fda495d",
@@ -166,9 +171,11 @@
     "FormalProof4FHETest/HasteBootsHeapReleaseSmoke.lean": "32c51028f40496201ee94c34c4d8675129e9424128c89d95f9f73b1c89bdad4d",
     "FormalProof4FHETest/HasteBootsHeapReleaseAudit.lean": "966753fd7b823de553cd2fb233c10a7bec61327e7c06af02c13a7c7b10f45116",
     "FormalProof4FHETest/HasteBootsResidentVecSmoke.lean": "5526372901dc1331514c9ed3ce24bf3b21087f1301c3edb00b0d88d48e4947f2",
-    "FormalProof4FHETest/HasteBootsResidentVecAudit.lean": "e4b084019e4ce32737a555595d6657ae2a18b700f1acc28729bf14af56837553"
+    "FormalProof4FHETest/HasteBootsResidentVecAudit.lean": "e4b084019e4ce32737a555595d6657ae2a18b700f1acc28729bf14af56837553",
+    "FormalProof4FHETest/HasteBootsResidentVecBorrowSmoke.lean": "4dfd192c0d5e06cc3e41fbf9f5cfa3a275cf2d7c4b6752932a4c8d0d3e3a7460",
+    "FormalProof4FHETest/HasteBootsResidentVecBorrowAudit.lean": "55271c5173c1ce7c124029333d1b5eea95cdea4ba541814310023a0d61a933ea"
   },
-  "source_llbc_sha256": "6ccc592002295ef26e480d3c676e1e5f4eadfe277d63cdfd848d256f7cd14cf3",
+  "source_llbc_sha256": "149f38a49376907875f7cb588802ce81a606e8c0dc8ae1774180ef56e3be5f84",
   "outer_vec_drop_glue_interpreted": true,
   "outer_vec_drop_method_interpreted": true,
   "unbounded_original_byte_loop_interpreted": true,
@@ -184,9 +191,9 @@
   "full_project_check": {
     "command": "scripts/check",
     "exit_code": 0,
-    "build_jobs": 11035,
-    "log": "/tmp/hasteboots-resident-vec-full-check.log",
-    "log_sha256": "ee04c7c1cb39a13be82d72ccc4669255d7ae4d755ce960b0829a57a1714eba27"
+    "build_jobs": 11038,
+    "log": "/tmp/hasteboots-borrow-capacity-full-check.log",
+    "log_sha256": "d84f6605af4aa3fc95b2f71a944d9941a9ecebd37851892041e30c0e8227d012"
   },
   "prior_gate_manifest": {
     "path": "build/hasteboots-extraction/vec-drop-j6ky4k09/manifest.json",
@@ -261,5 +268,37 @@
     "source_buffer_free_identification": false,
     "source_function_bodies_unchanged": true,
     "source_type_declarations_unchanged": true
+  },
+  "prior_borrow_transport_baseline": {
+    "manifest": "build/hasteboots-extraction/vec-drop-p6rpmzds/manifest.json",
+    "manifest_sha256": "fef3c88d06fb9da086a6b7d5ee5f7bb051757c7eca4bac86b859034bcdb9d470",
+    "dependency_audit_count": 481
+  },
+  "borrow_transport": {
+    "module": "FormalProof4FHE/HasteBoots/NativeResidentVecBorrow.lean",
+    "theorem_count": 31,
+    "declaration_guard_count": 34,
+    "regression_count": 18,
+    "whole_vec_and_rawvec_field": true,
+    "shared_rawvec_whole": true,
+    "reservation_and_activation": true,
+    "stable_reference_read_binding": true,
+    "read_residency_preserved": true,
+    "older_grant_residency_preserved": true,
+    "blocked_cleanup_keeps_incoming_residency": true
+  },
+  "source_capacity_dispatch": {
+    "proof": "interop/aeneas/vec-drop/CapacityProof.lean",
+    "theorem_count": 5,
+    "definition_count": 4,
+    "regression_count": 6,
+    "original_current_memory_interpreted": true,
+    "all_outcomes_checked": true,
+    "successful_field_read_premise": false,
+    "normal_return_premise": false,
+    "canonical_decode_derived_from_residency": true,
+    "zero_capacity_none": true,
+    "positive_capacity_exact_buffer_layout": true,
+    "source_buffer_free_identification": false
   }
 }

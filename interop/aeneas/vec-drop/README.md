@@ -171,6 +171,45 @@ source postconditions. Native construction, compiler/lifetime/ABI refinement,
 physical attacker work and the final application security theorem remain open.
 
 
+## Borrow transport and original capacity dispatch
+
+`NativeResidentVecBorrow` carries the original header contents through actual
+whole-Vec, RawVec-field, shared RawVec, and reservation/activation operations.
+The minted reference is bound to the original storage base, with its checked
+mode and extent. Capacity and pointer reads through the shared child return the
+original values and retain enough residency for subsequent reads, even as
+scratch registers shift. Fresh child grants preserve older resident loans.
+Scope cleanup preserves incoming residency, including a blocked cleanup prefix.
+
+The Vec profile's `CapacityProof.lean` applies these facts to the original
+retained `current_memory` function for byte elements. Under a resident shared
+RawVec view, every outcome is either a rejected prefix or a returned value with
+the exact source dispatch: zero capacity returns `None`; positive capacity returns
+`Some` containing the original complete buffer pointer and capacity-byte layout.
+The canonical caller reference is derived from the resident view. No successful
+field-read or normal-return premise is supplied. A separate return corollary
+exposes the result equality for subsequent caller proofs.
+
+Thirty-one model theorems and five source theorems support this step. Eighteen
+model regressions cover the nested borrow/read chain, reservation identity,
+register shifts, ended child references and blocked cleanup. Six source
+regressions cover zero capacity with a dangling buffer, reserved uninitialized
+capacity, exact returned provenance and rejection after cleanup.
+
+The fresh extraction gate passed 524 dependency audits and 69 rejection controls,
+including the slice-extent mutation. Full `scripts/check` passed its 11,038-job
+build and subsequent smoke checks. The profile regression file records the
+receipts, input hashes and full-check log hash. Retained function bodies and
+type declarations are unchanged.
+
+Next carry this exact `current_memory` result through the original deallocation
+caller and identify the root Vec destructor's freed allocation with the owned
+buffer. Successful valid-Vec source postconditions, native construction,
+compiler/lifetime/ABI refinement, physical attacker work and the final application
+security theorem remain open. These results use the checked model and do not
+establish native constructor acceptance.
+
+
 Run:
 
 ```sh
