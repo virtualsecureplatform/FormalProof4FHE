@@ -1,0 +1,105 @@
+#!/usr/bin/env python3
+"""Freshly retain constructor scalar assignments and check their arithmetic semantics.
+Whole constructor control flow, allocator/ABI refinement and physical work remain open.
+"""
+import argparse
+import copy
+import hashlib
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+ROOT=Path(__file__).resolve().parent.parent
+DATA=ROOT/'interop/aeneas/vec-capacity-arithmetic'
+BUILD=runpy.run_path(str(ROOT/'scripts/build-hasteboots-inline-tools'))
+PARAM=runpy.run_path(str(ROOT/'scripts/extract-hasteboots-parameters'))
+PARENT=runpy.run_path(str(ROOT/'scripts/check-hasteboots-allocator-caller'))
+REIFIER=runpy.run_path(str(ROOT/'scripts/reify-hasteboots-vec-capacity-arithmetic'))
+INCLUDES=['alloc::raw_vec','alloc::vec','alloc::alloc','core::alloc::layout','core::ptr::unique','core::ptr::non_null','core::mem::alignment']
+def digest(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def negatives(ir):
+ base=REIFIER['Reifier'](ir);records={}
+ def row(c,label):
+  r=next(r for r in base.rows if r['operation']==label)
+  def walk(node):
+   if isinstance(node,dict):
+    if set(node)=={'span','id','kind','comments_before'} and node['id']==r['statement']['id']:return node
+    for v in node.values():
+     found=walk(v)
+     if found is not None:return found
+   elif isinstance(node,list):
+    for v in node:
+     found=walk(v)
+     if found is not None:return found
+  return walk(c['fun_decls'][r['function']]['body'])
+ def check(label,mutate):
+  changed=copy.deepcopy(ir);mutate(changed['translated'])
+  try:REIFIER['Reifier'](changed).render()
+  except (ValueError,KeyError,TypeError,IndexError) as e:records[label]=str(e)
+  else:raise RuntimeError('Negative accepted: '+label)
+ def binary(c,label):return row(c,label)['kind']['Assign'][1]['BinaryOp']
+ def mul(c):return binary(c,'checkedMultiply')
+ check('wrong_target',lambda c:c['target_information'][0]['value'].update(target_pointer_size=4))
+ check('not_monomorphized',lambda c:c['options'].update(monomorphize=False))
+ check('wrong_mir',lambda c:c['options'].update(mir='Built'))
+ check('allocator_erased',lambda c:c['options'].update(preserve_allocator=False))
+ check('hidden_source',lambda c:c['options']['opaque'].append('alloc::raw_vec'))
+ check('unsafe_root',lambda c:c['fun_decls'][0]['signature'].update(is_unsafe=True))
+ check('wrong_root_input',lambda c:c['fun_decls'][0]['signature']['inputs'].__setitem__(0,REIFIER['U64']))
+ check('unchecked_multiplication',lambda c:mul(c).__setitem__(0,{'Mul':'UB'}))
+ check('wrong_operand_width',lambda c:mul(c)[1]['Move'].update(ty={'Untagged':{'Literal':{'UInt':'U32'}}}))
+ check('copy_instead_of_move',lambda c:mul(c)[1].update(Copy=mul(c)[1].pop('Move')))
+ check('wrong_destination_type',lambda c:row(c,'checkedMultiply')['kind']['Assign'][0].update(ty=REIFIER['BOOL']))
+ check('aliased_operands',lambda c:mul(c)[2].update(Move=copy.deepcopy(mul(c)[1]['Move'])))
+ check('unknown_arithmetic_effect',lambda c:row(c,'checkedMultiply')['kind']['Assign'][1].update(hidden_effect=True))
+ check('wrong_signed_shift',lambda c:binary(c,'wrappingShiftLeft')[2]['Const']['kind']['Literal']['Scalar']['Signed'].__setitem__(1,'64'))
+ check('word_instead_of_boolean',lambda c:row(c,'logicalNot')['kind']['Assign'][1]['UnaryOp'][1]['Move'].update(ty=REIFIER['USIZE']))
+ check('missing_checked_assignment',lambda c:row(c,'checkedMultiply').update(kind='Nop'))
+ check('duplicate_checked_assignment',lambda c:c['fun_decls'][next(r['function'] for r in base.rows if r['operation']=='checkedMultiply')]['body']['Structured']['body']['statements'].append(copy.deepcopy(row(c,'checkedMultiply'))))
+ check('wrong_operator_owner',lambda c:c['fun_decls'][next(r['function'] for r in base.rows if r['operation']=='checkedMultiply')]['item_meta'].update(opacity='Foreign'))
+ check('unknown_statement_metadata',lambda c:row(c,'checkedMultiply').update(unmodeled_effect=True))
+ check('changed_literal',lambda c:binary(c,'wrappingSubtract')[2]['Const']['kind']['Literal']['Scalar']['Unsigned'].__setitem__(1,'1'))
+ check('unregistered_local',lambda c:mul(c)[1]['Move']['kind'].update(Local=99999))
+ return records
+
+def main():
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--build-receipt',type=Path,required=True);a=p.parse_args()
+ out=Path(tempfile.mkdtemp(prefix='vec-capacity-arithmetic-',dir=ROOT/'build/hasteboots-extraction'))
+ r={'status':'started','commands':[],'isolated_original_arithmetic_assignments_reified':True,'original_checked_multiply_assignment_proved':True,
+ 'byte_size_one_overflow_flag_false_proved':True,'source_move_consumption_proved':True,'whole_constructor_control_flow_proved':False,
+ 'allocator_error_and_abort_paths_proved':False,'native_abi_refinement':False,'physical_work_refinement':False,'final_security_theorem':False}
+ def save():(out/'manifest.json').write_text(json.dumps(r,indent=2)+'\n')
+ def run(cmd,log):
+  r['commands'].append([str(x) for x in cmd]);save()
+  with (out/log).open('w') as f:result=subprocess.run([str(x) for x in cmd],cwd=ROOT,stdout=f,stderr=subprocess.STDOUT)
+  if result.returncode:raise RuntimeError('Command failed: '+log)
+ print('Capacity arithmetic artifacts: '+str(out),flush=True)
+ try:
+  _,tools,_=BUILD['verify_receipt'](a.build_receipt);r['build_receipt_sha256']=digest(a.build_receipt)
+  files=[Path(__file__),ROOT/'scripts/check-hasteboots-allocator-caller',ROOT/'scripts/build-hasteboots-inline-tools',ROOT/'scripts/extract-hasteboots-parameters',ROOT/'scripts/specify-hasteboots-deallocation-boundary',ROOT/'lean-toolchain',
+   *sorted((ROOT/'scripts').glob('reify-hasteboots-*')),*sorted((ROOT/'FormalProof4FHE/HasteBoots').glob('Native*.lean')),
+   ROOT/'FormalProof4FHETest/HasteBootsRecordArithmeticSmoke.lean',ROOT/'FormalProof4FHETest/HasteBootsRecordArithmeticAudit.lean',
+   *[DATA/n for n in ['fixture.rs','Generated.lean','Retained.json','Proof.lean','Smoke.lean']]]
+  r['inputs']={str(f.relative_to(ROOT)):digest(f) for f in files}
+  run([ROOT/'scripts/in-container','lake','build','FormalProof4FHE.HasteBoots.NativeRecordCallValues','FormalProof4FHETest.HasteBootsRecordArithmeticSmoke','FormalProof4FHETest.HasteBootsRecordArithmeticAudit'],'root-build.log')
+  llbc=out/'source.llbc';cmd=[tools/'charon','rustc','--preset=aeneas','--sysroot','default','--monomorphize','--mir','optimized','--consts','values','--evaluate-runtime-checks','--precise-drops','--desugar-drops','--preserve-allocator','--no-dedup-serialized-ast']
+  for include in INCLUDES:cmd+=['--include',include]
+  cmd+=['--dest-file',llbc,'--','--crate-type','lib','--edition','2024','-Cdebug-assertions=no','--crate-name','hasteboots_vec_capacity_arithmetic',(DATA/'fixture.rs').relative_to(ROOT)]
+  run(cmd,'charon.log');ir=json.loads(llbc.read_text());reifier=REIFIER['Reifier'](ir);generated=reifier.render()
+  if generated!=(DATA/'Generated.lean').read_text() or reifier.retained()!=json.loads((DATA/'Retained.json').read_text()):raise RuntimeError('Original constructor assignments/declarations differ')
+  r['negative_controls']=negatives(ir);names=PARENT['inventory']()
+  for file in ['Generated.lean','Proof.lean']:
+   raw=(DATA/file).read_text();PARAM['validate_proof_source'](raw,re.findall(r'^theorem (\w+)',raw,re.M))
+   names+=['HasteBootsVecCapacityArithmetic.'+n for n in re.findall(r'^(?:def|theorem) (\w+)',raw,re.M)]
+  checked=out/'Checked.lean';checked.write_text(generated+'\n'+(DATA/'Proof.lean').read_text()+'\n'+(DATA/'Smoke.lean').read_text()+''.join('\n#print axioms '+n+'\n' for n in names))
+  run([ROOT/'scripts/in-container','lake','env','lean','-DwarningAsError=true',checked.relative_to(ROOT)],'lean.log')
+  r['dependency_audit']=PARAM['audit_log']((out/'lean.log').read_text(),names)
+  if r['inputs']!={str(f.relative_to(ROOT)):digest(f) for f in files}:raise RuntimeError('Inputs changed during validation')
+  r['llbc_sha256']=digest(llbc);r['checked_sha256']=digest(checked);r['assignment_count']=len(reifier.rows);r['retained_function_count']=len(reifier.functions)
+  BUILD['verify_receipt'](a.build_receipt);r['status']='passed'
+  print('Capacity arithmetic passed: '+str(len(names))+' audits; '+str(len(r['negative_controls']))+' rejecting controls')
+ except Exception as e:r.update(status='failed',error=str(e));raise SystemExit(str(e)+'; inspect '+str(out)) from e
+ finally:r['logs']={f.name:digest(f) for f in out.glob('*.log')};save()
+if __name__=='__main__':main()
