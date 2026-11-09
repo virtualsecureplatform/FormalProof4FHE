@@ -18171,3 +18171,83 @@ those extraction gates were not rerun for this causal-coverage extension.
 
 Full-check log: `/tmp/private-coin-lineage-full-check.log`; SHA-256
 `b1a5d7e5ec6d39db4a5ee66ec46ef9622b346c4f8b4d166a92b51fac96ed971f`.
+
+## Quantitative executable soundness with runtime private coins
+
+The runtime-coin hazard-pricing gap above is now closed in the specified
+interpreter work model. `PrivateCoinByteFixed` exposes sections of the actual
+joint execution/work functions with an arbitrary private tape fixed. It
+neither replaces the interpreter nor installs a fuel-dependent finite tape.
+Its positive active-instruction cost and tick-sum bound use the existing
+runtime coin counter, including the two-unit cost of each consumed byte.
+
+`PrivateCoinByteGoldRisk` transfers the calibrated field/column exposure
+laws to this execution, bounding their lifetime probability by
+`(17 / 2^141)` times expected work for that fixed tape.
+`PrivateCoinByteLogWork` and `PrivateCoinByteRootBudget` derive log length,
+receipt-guess, actual input-byte, registry-pool and hash-key budgets from the
+same executed instruction counter. Silent coin instructions add work without
+adding oracle inputs or source-ledger mentions.
+
+`PrivateCoinByteRootFailure` locates the first global source/hash failure at
+an actual hash instruction. `PrivateCoinByteRootWork` pays its low-work
+hazard with the derived budgets and its high-work branch by Markov, yielding
+the existing `1 / 2^159` rate. `PrivateCoinByteReceiptWork` analogously obtains
+the `1 / 2^255` early-receipt rate. Their work thresholds are analysis splits,
+not operational caps; no long run, large query, retry or private-coin tail is
+removed. The numerical threshold inequalities reuse the previously proved
+arithmetic results, while the execution and work bounds are derived for the
+new interpreter.
+
+`PrivateCoinByteAllRisk` combines all four hazards on that same fixed-tape
+execution. Its total rate is
+`1 / 2^159 + (17 / 2^141 + 1 / 2^255)`, bounded by `18 / 2^141`.
+`PrivateCoinByteSoundness` then uses the previously proved executable failure
+coverage and joint measurability. It first derives the failure probability
+bound for every fixed private tape and then averages the failure event itself
+over the independent tape/oracle product law. No joint-measurability premise
+for individual hazard events, no assumed per-tape work calibration, and no
+finite expected-work or termination premise is introduced.
+
+The resulting `scaled_lifetime_bound` proves
+`2^128 * P[an accepted false executable-source claim at any prefix]`
+is at most `9/4096` times unconditional expected specified interpreter work.
+This covers arbitrary runtime coin use, rather than only randomized finite
+installed data. Initialization, silent computation, private generation steps,
+unsuccessful termination and infinite running remain in that work expectation.
+The native acceptance/log and parsed-view premises are retained by the failure
+predicate; the claim is still the executable common-source extraction claim.
+
+`PrivateCoinByteConfigurationUnion` extends the quantitative result to any
+finite family of calibrated targets sharing that execution and counter.
+Its scaled factor is the target count times `9/4096`; at most 256 configured
+targets give `9/16`. This is not a cap on attacker attempts, execution length,
+queries or consumed coins. Coverage of actual application contexts by the
+configured family remains to be proved.
+
+Thirteen regressions check positive coin work with zero field/column,
+root and receipt risk, actual mixed-log/input budgets, per-tape receipt and
+source bounds, the combined fixed-tape and product-law executable bounds,
+and the shared-counter family allowance. Fifty-seven guards audit all new
+production theorems. Both root libraries import the modules. The fixtures
+remain operational/calibration fixtures, not a complete native PBS run.
+
+The prices are still declared byte-interpreter prices. Native cache reuse,
+RNG generation, compiler/ABI/lifetime behavior and actor-cost separation have
+not been refined to these counters or to physical attacker work. The work
+also assumes the existing calibrated target geometry and trusted query quota;
+native registry/profile/quota binding and application-family coverage remain
+open. Public PBS semantics, efficient public extraction and native BabyBear
+coverage remain open. The final physical-work security goal is not achieved.
+
+Validation: full `scripts/check` completed with exit status zero, including
+11,147 build jobs and all subsequent audit/smoke commands. The final targeted
+build passed with 4,669 jobs. All fifty-seven guards reported only the usual
+three allowed axioms or subsets. No proof placeholders, extra logical axioms,
+native decision proofs, proof-limit increases or linter suppression were
+introduced. The input and manifest hashes of all five retained-source gates
+were verified unchanged; those extraction gates were not rerun for this
+runtime-interpreter work/probability extension.
+
+Full-check log: `/tmp/runtime-coin-soundness-full-check.log`; SHA-256
+`1921de63b58f5dfcb128fc6f6f0445b32e9f9a2861993817faf32241afb44797`.
