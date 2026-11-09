@@ -17755,3 +17755,57 @@ binding, native public extraction/PBS semantics, BabyBear coverage, remaining
 native ABI/compiler/lifetime/reclamation refinement, and calibration of all
 initialization/local/abort/rejection/private-coin work to actual attacker work.
 The final 128-bit security inequality remains open.
+
+## Independent private coins for the native lifetime bound
+
+`PrivateCoinLifetime.prelude_bound` now integrates the existing native
+Goldilocks lifetime bound over an independent private-coin measure. The coin
+space can be arbitrary and can contain an infinite random tape. Both the
+prelude and continuation strategy may depend on the coin outcome. The event
+still quantifies over all finite continuation lengths; the theorem introduces
+neither a fuel limit nor a union-bound factor for the number of coin outcomes.
+The charges include the causal prelude through the existing clean-machine
+rebasing theorem. Public parameters/profile remain fixed as before.
+
+The product measure explicitly specifies independence of private coins and the
+ideal oracle. Joint measurability of the failure event is required for arbitrary
+coin spaces. `failure_measurable_countable` discharges it for countable spaces
+with measurable singletons using the existing causal replay theorem.
+`failure_measurable_selection` also discharges it when an arbitrary tape makes
+a measurable choice among countably many strategies. General adaptive use of
+an infinite native random tape still needs its own joint-measurability
+refinement; sectionwise oracle measurability alone is insufficient.
+
+`independent_work_bound` and `independent_scaled_work_bound` preserve a
+per-coin calibration under averaging, including the intended finite factor
+`2^128`. They use an unconditional expectation over entire executions and
+require joint almost-everywhere measurability of the proposed work function.
+Their work-calibration inequalities are explicit hypotheses. No native
+physical-work calibration, public PBS security theorem or final 128-bit
+security claim has been established by these lemmas.
+
+Six regressions cover exact constant-event averaging, a weighted nonconstant
+coin event, a countably infinite family with coin-dependent oracle offsets,
+the instantiated native lifetime inequality, measurable selection from an
+infinite Boolean tape with its product sigma algebra, and preservation of the
+128-bit factor under an assumed calibration. Six axiom guards cover all new
+production theorems. Both root libraries import the new modules.
+
+Next, connect actual native private-coin consumption to the joint measurable
+execution family and bind its contexts to the trusted registry/parameter
+profile. Physical-work accounting must then price initialization, local work,
+failed/aborted/rejected paths and private randomness on that same execution.
+The public extraction/PBS, BabyBear and implementation-refinement obligations
+listed above also remain open.
+
+Validation: full `scripts/check` completed with exit status zero, including
+11,110 build jobs and every subsequent audit/smoke command. The targeted
+private-coin build also passed (4,523 jobs), including all six axiom guards
+with only `propext`, `Classical.choice` and `Quot.sound`. No proof placeholders,
+new logical assumptions, native decision proofs or proof-limit changes were
+introduced. The five retained-source gate manifests and all their recorded
+inputs were rechecked against their hashes and remain unchanged; those gates
+were not rerun for this probability-only extension.
+
+Full-check log: `/tmp/private-coin-full-check-final.log`; SHA-256
+`2ad8fefa2c2efe4784f82ccbefb3e51545c14f1fa56bba62bf7be971a7b0968d`.
