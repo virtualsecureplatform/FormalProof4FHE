@@ -78,6 +78,89 @@ theorem invokeValues_loss (function : Function) (world : State) (args : List Val
     rw [same] at body
     simpa only [invokeValues,initialized] using body.suffix (NativeRecordLLBC.settle_heap_projects world _)
 
+/-- The reserved receiver is activated after the remaining arguments, then
+moved into the callee. Every failure retains its actual execution prefix. -/
+theorem eval_twoPhase_call (function : Function) (caller : Frame) (parent reserved target : Nat)
+    (path : NativeRecordValues.Path) (rest : List Operand) (unwind next : Body) :
+    NativeRecordLLBC.eval (.twoPhaseRawVecCall parent path reserved function.name function.classification
+      function.types function.argCount target rest function.body unwind next) caller =
+      if NativeRecordLLBC.pendingMutableSlot caller reserved then
+        match NativeRecordLLBC.reserveRawVec caller parent path with
+        | .invalid world => .invalid world
+        | .value reservation prepared => match NativeRecordLLBC.evalArgs {caller with world := prepared} rest with
+          | none => .invalid prepared
+          | some (values,arguments) => match NativeRawVecMutBorrow.activate arguments.world reservation with
+            | .invalid world => .invalid world
+            | .value reference world => match NativeRecordLLBC.write {arguments with world} reserved (.scalar reference) with
+              | none => .invalid world
+              | some written => match NativeRecordLLBC.evalOperand written (.move reserved []) with
+                | none => .invalid world
+                | some (argument,consumed) => resume consumed target unwind next
+                    (invokeValues function consumed.world (argument :: values))
+      else .invalid caller.world := by
+  by_cases pending : NativeRecordLLBC.pendingMutableSlot caller reserved = true
+  · cases reservation : NativeRecordLLBC.reserveRawVec caller parent path with
+    | invalid world => simp only [NativeRecordLLBC.eval,pending,ite_true,reservation]
+    | value value prepared =>
+      cases arguments : NativeRecordLLBC.evalArgs {caller with world := prepared} rest with
+      | none => simp only [NativeRecordLLBC.eval,pending,ite_true,reservation,arguments]
+      | some pair =>
+        rcases pair with ⟨values,argumentFrame⟩
+        cases activated : NativeRawVecMutBorrow.activate argumentFrame.world value with
+        | invalid world => simp only [NativeRecordLLBC.eval,pending,ite_true,reservation,arguments,activated]
+        | value reference world =>
+          cases written : NativeRecordLLBC.write {argumentFrame with world} reserved (.scalar reference) with
+          | none => simp only [NativeRecordLLBC.eval,pending,ite_true,reservation,arguments,activated,written]
+          | some writtenFrame =>
+            cases moved : NativeRecordLLBC.evalOperand writtenFrame (.move reserved []) with
+            | none => simp only [NativeRecordLLBC.eval,pending,ite_true,reservation,arguments,activated,written,moved]
+            | some pair =>
+              rcases pair with ⟨argument,consumed⟩
+              cases initialized : NativeRecordLLBC.initial function.types function.argCount (argument :: values) consumed.world with
+              | none => simp only [NativeRecordLLBC.eval,pending,ite_true,reservation,arguments,activated,written,moved,initialized,invokeValues,resume]
+              | some entered =>
+                have same := NativeRecordLLBC.initial_world function.types function.argCount (argument :: values) consumed.world entered initialized
+                simp only [NativeRecordLLBC.eval,pending,ite_true,reservation,arguments,activated,written,moved,initialized,invokeValues,same]
+                rfl
+  · simp only [NativeRecordLLBC.eval,pending,Bool.false_eq_true,ite_false]
+
+theorem body_zero_heap (body : Body) (frame : Frame) (budget : NativeRecordLLBC.deallocationBudget body = 0) :
+    NativeHeapFrame.Runs frame.world (NativeRecordLLBC.eval body frame).world := by
+  have bound := NativeRecordLLBC.eval_loss body frame
+  rw [budget] at bound
+  have bounded := bound.bounded
+  have growth := bound.no_growth
+  exact ⟨bound.unchanged (by omega)⟩
+
+theorem resume_heap (caller : Frame) (target : Nat) (unwind next : Body) (flow : Flow)
+    (unwindBudget : NativeRecordLLBC.deallocationBudget unwind = 0)
+    (nextBudget : NativeRecordLLBC.deallocationBudget next = 0) :
+    NativeHeapFrame.Runs flow.world (resume caller target unwind next flow).world := by
+  cases flow with
+  | returned value world =>
+    cases written : NativeRecordLLBC.write {caller with world} target value with
+    | none => simp only [resume,written,Flow.world]; exact .refl _
+    | some changed =>
+      have frame := body_zero_heap next changed nextBudget
+      have same := NativeRecordLLBC.write_world {caller with world} changed target value written
+      refine ⟨?_⟩
+      simpa only [resume,written,Flow.world,same] using frame.heap_eq
+  | unwind world => exact body_zero_heap unwind {caller with world} unwindBudget
+  | invalid world => exact .refl _
+  | unsupported source world => exact .refl _
+  | normal changed => exact .refl _
+
+theorem eval_mut_borrow (frame : Frame) (index : Nat) (path : NativeRecordValues.Path) (value : NativeSliceLLBC.Value)
+    (selected : NativeRecordLLBC.read frame index path = some (.scalar value)) :
+    NativeRecordLLBC.evalRawVecMutBorrow frame index path =
+      match NativeRawVecMutBorrow.immediate frame.world value with
+      | .invalid world => .invalid world
+      | .value output world => .value (.scalar output) {frame with world} := by
+  simp only [NativeRecordLLBC.evalRawVecMutBorrow,NativeRecordLLBC.reserveRawVec,selected,NativeRawVecMutBorrow.immediate]
+  cases actual : NativeRawVecMutBorrow.reserve frame.world value with
+  | invalid world => rfl
+  | value reservation world => cases NativeRawVecMutBorrow.activate world reservation <;> rfl
+
 /-- Unit callees either return unit or retain a rejected execution prefix. -/
 def UnitResult : Flow → Prop
   | .returned value _ => value = .scalar .unit

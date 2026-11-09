@@ -41,4 +41,30 @@ example : UnitResult (invokeValues releasing ready [.scalar (.raw ⟨buffer,none
       .returned (.scalar .unit) released := by decide
   rw [returned]
   rfl
+private def rawvecReady : NativeReferenceMachine.State :=
+  (NativeReferenceMachine.run NativeReferenceMachine.empty
+    [.raw (.allocate 128 ⟨16,8⟩),.raw (.writeBytes 0 8 (NativeWord64Memory.encode 0)),
+     .raw (.fromAddress 1),.raw (.withAddress 1 136),.raw (.store 0 1),.borrow 2 .exclusive ⟨16,8⟩]).getD NativeReferenceMachine.empty
+private def phaseCaller : Frame :=
+  ⟨[.scalar .unit,.scalar (.reference true),.scalar (.reference true)],
+    [.live none,.live (some (.scalar (.reference true ⟨0⟩ 2))),.live none],rawvecReady⟩
+private def phaseFunction : Function :=
+  ⟨"phase",.transparent,[.scalar .unit,.scalar (.reference true),.scalar .usize],2,
+    .live 0 (.assign 0 (.aggregate none none []) .ret)⟩
+private def phasePrepared := (NativeRawVecMutBorrow.reserve rawvecReady (.reference true ⟨0⟩ 2)).world
+-- Rejected remaining arguments retain reservation but issue no child loan.
+example : NativeRecordLLBC.eval (.twoPhaseRawVecCall 1 [] 2 phaseFunction.name phaseFunction.classification
+    phaseFunction.types 2 0 [.copy 1 []] phaseFunction.body .abort .ret) phaseCaller = .invalid phasePrepared := by decide
+example : phasePrepared.nextTag = rawvecReady.nextTag ∧ phasePrepared.pointers.registers.length = rawvecReady.pointers.registers.length + 1 := by decide
+private def wrongPhase := NativeRecordLLBC.eval (.twoPhaseRawVecCall 1 [] 2 phaseFunction.name phaseFunction.classification
+  phaseFunction.types 2 0 [.unit] phaseFunction.body .abort .ret) phaseCaller
+-- A rejected callee type check happens after actual exclusive activation.
+example : wrongPhase = .invalid wrongPhase.world ∧ wrongPhase.world.nextTag = 2 ∧
+    wrongPhase.world.pointers.heap = rawvecReady.pointers.heap := by decide
+private def resumedBorrow := resume phaseCaller 0 .abort (.assign 2 (.borrowRawVecMut 1 []) .ret)
+  (.returned (.scalar .unit) rawvecReady)
+-- The zero-budget continuation preserves the heap while adding a real loan.
+example : resumedBorrow = .returned (.scalar .unit) resumedBorrow.world ∧ resumedBorrow.world.nextTag = 2 ∧
+    resumedBorrow.world.pointers.heap = rawvecReady.pointers.heap := by decide
+
 end FormalProof4FHETest.HasteBootsRecordCallValuesSmoke
