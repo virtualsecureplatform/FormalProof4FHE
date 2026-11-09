@@ -7,6 +7,40 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Reservation-error field decoder and padding boundary
+
+`NativeReservationErrorFields` reads the retained 16-byte reservation-error
+representation through checked reference-machine accesses. It reads the word at
+offset zero as layout alignment. Zero returns `capacityOverflow` immediately;
+only a nonzero alignment causes the size word at offset eight to be read. An
+allocation error is returned only when the recovered layout satisfies the
+existing 64-bit `Layout.Valid` predicate. Failed reads and invalid layouts retain
+the machine steps already executed.
+
+Seventeen theorems establish complete and successful-read characterizations,
+observations of the original heap, the overflow branch's lack of a tail read,
+heap and incoming-authority preservation, operational projection, reachability
+and well-formedness. Twenty-three dependency guards cover the type, constructors,
+operations and theorems. Sixteen model examples include both variants, malformed
+alignment, excessive size, wrong reference/mutability, alias conflict and an
+uninitialized overflow tail. The source reifier now validates the complete
+wrapper/niche layouts against the extracted target; eight mutations test those
+checks. The source gate passes 827 dependency audits and 165 rejecting
+controls, alongside 125 source examples and 90 model examples. A fresh full
+`scripts/check` passed with 11091 build jobs. This validates the representation
+used by the model, not native ABI or compiler correspondence. Related gates also
+pass: Vec destruction 1044 audits/87 controls, allocator caller 388/31 and empty
+constructor 395/17.
+
+The padded-tail example explicitly supplies an existing resident loan and makes
+no claim to have issued it. A paired test proves that the current full-byte
+borrow primitive refuses to issue the 16-byte loan when the tail is uninitialized.
+The next required change is a checked storage-borrow operation whose permission
+and extent checks do not read padding, followed by typed field validity and
+local storage construction. The transparent source getter and outer error path
+still need to be connected to this decoder. Native stack/lifetime correspondence,
+resident storage/destruction, physical work and final security remain open.
+
 ## Decoded callers use the shared constructor
 
 `unifiedCapacityRoot` now connects the decoded public capacity argument through

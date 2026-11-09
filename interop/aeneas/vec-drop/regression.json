@@ -1,8 +1,8 @@
 {
-  "profile": "revalidated-with-shared-callers-v37",
+  "profile": "revalidated-with-reservation-error-fields-v38",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-drop-1qe6w4bq/manifest.json",
-  "gate_manifest_sha256": "f202138a97b2ece28c0c45d7d5ff041cc775452db54171963f6547fce01ceb5c",
+  "gate_manifest": "build/hasteboots-extraction/vec-drop-lwie0djj/manifest.json",
+  "gate_manifest_sha256": "42dcbdab7fa8b8a1875779266ad52774765cda1144030d010fa3ff816daa550b",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -316,7 +316,7 @@
     "FormalProof4FHETest/HasteBootsRawVecDeallocationCompletenessAudit.lean": "85efbedcef271ce6dc69a0bebb5d25b0880091984899ae52e3c02bfe7bcb3a48",
     "FormalProof4FHETest/HasteBootsVecDestructionCompletenessAudit.lean": "b15ca27d45474cdbf6c85a2635a3969160d35fd7e658b00139d4ba8d394a3dbd"
   },
-  "source_llbc_sha256": "4eff8a04fefb58cabf8f0f01e7fbeb14886c528f35f717e09a24e38f407c39ad",
+  "source_llbc_sha256": "ef51712a1e28b6b175ebd81a6b7d6e049db2396f31a5574809a07f0e713b02f3",
   "outer_vec_drop_glue_interpreted": true,
   "outer_vec_drop_method_interpreted": true,
   "unbounded_original_byte_loop_interpreted": true,
@@ -332,11 +332,11 @@
   "full_project_check": {
     "command": "scripts/check",
     "exit_code": 0,
-    "build_jobs": 11088,
-    "log": "/tmp/hasteboots-constructor-error-full-check.log",
-    "log_sha256": "38bff111e15a826eb859240f80685aa6f80f5e710674ae86724afc3e44f61382",
-    "library_root_sha256": "028c7c32f236b663f7d18dcc858576493801afbcd5da9d1a0a2b679c30adb579",
-    "test_root_sha256": "de455dcd7f21235561a0aca4da280c3e9e9ac71defb92de05d46e04a6cdece30"
+    "build_jobs": 11091,
+    "log": "/tmp/reservation-error-full-check.log",
+    "log_sha256": "c40664775a2bf561bb59d989cda790c29c9ed277990d9a4f8a67b1d1f41b2635",
+    "library_root_sha256": "6c9172aee86e92137818a85ce8f90bbd604cc7d4440533305e1e978095b4d0a8",
+    "test_root_sha256": "d766a07c2f2ae2be0dad6da01cb9848bc7a7c2037ab107ce4ff5cf2d76d4aac4"
   },
   "prior_gate_manifest": {
     "path": "build/hasteboots-extraction/vec-drop-j6ky4k09/manifest.json",
@@ -1035,7 +1035,7 @@
     "heap_and_incoming_reference_preservation_extended": true,
     "native_alignment_transmute_abi_refinement": false
   },
-  "validation_note": "Fresh coupled-tool source/proof gates and the full project check passed. Allocation-capable execution embeds the legacy interpreter and supports checked heap-changing callees; the legacy language and its preservation theorems are unchanged. An initial legacy-checker test-filename assumption was corrected by separating the optional allocation inventory from the legacy test list; affected gates were rerun. Source wrappers forward every common-runtime outcome. Opaque shim execution, source post-allocation null/Result handling, native allocator/type/ABI/compiler/lifetime correspondence, physical work and final security remain open.",
+  "validation_note": "Fresh source extraction gate and full scripts/check passed. The full build contains 11091 jobs and includes the separately audited reservation-error field decoder. This profile retains its existing source theorem scope; native correspondence, physical work and final security remain open.",
   "prior_zst_local_borrow_baseline": {
     "profile": "original-resident-vec-destruction-with-checked-enum-address-v26",
     "gate_manifest": "build/hasteboots-extraction/vec-drop-u8mfb0e8/manifest.json",
@@ -1157,5 +1157,14 @@
     "dependency_audit_count": 1044,
     "negative_control_count": 87
   },
-  "revalidated_with_shared_callers": true
+  "revalidated_with_shared_callers": true,
+  "prior_reservation_error_fields_baseline": {
+    "profile": "revalidated-with-shared-callers-v37",
+    "gate_manifest": "build/hasteboots-extraction/vec-drop-1qe6w4bq/manifest.json",
+    "gate_manifest_sha256": "f202138a97b2ece28c0c45d7d5ff041cc775452db54171963f6547fce01ceb5c",
+    "dependency_audit_count": 1044,
+    "negative_control_count": 87
+  },
+  "revalidated_with_reservation_error_fields": true,
+  "root_full_check_reused_without_library_or_root_test_changes": false
 }

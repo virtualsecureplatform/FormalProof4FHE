@@ -1,8 +1,8 @@
 {
-  "profile": "revalidated-with-shared-callers-v16",
+  "profile": "revalidated-with-reservation-error-fields-v17",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-empty-mkidwhih/manifest.json",
-  "gate_manifest_sha256": "da2957929e744abf04b8443b6cc61f7ccd148d78eda8cfbb4435446e2d7f9192",
+  "gate_manifest": "build/hasteboots-extraction/vec-empty-4xe4bz0l/manifest.json",
+  "gate_manifest_sha256": "004041fb44b3441ee259d74f5554f115383f544c5891277a5c50e1c45e5d98ab",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -81,7 +81,7 @@
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
     "scripts/reify-hasteboots-variant-body": "2d0326329d538bb43685617133c2ecd96da497c81295cd221315807576383825",
-    "scripts/reify-hasteboots-vec-capacity-arithmetic": "c109ab9aa41275c363562d7c28d09bd7154dfd779d75859d9da3368abd228fa7",
+    "scripts/reify-hasteboots-vec-capacity-arithmetic": "57a516fedaf938f341598a33ecf75a9267938de22ae06dc147af805132244329",
     "scripts/reify-hasteboots-vec-drop": "0ef983324e439064ea0969a4fc60d6a574137d5548a1feaee727f018b9b1eb8d",
     "scripts/reify-hasteboots-vec-empty": "00a7debb4c04056f86a5fe37ecead6b1f26a8a6fa45642c9b7b6fa76a3532ccd",
     "FormalProof4FHE/HasteBoots/NativeAllocatorExecution.lean": "2c3008e94760730cfbc65c7bee2707e107f23fabdb9df93f302c5848fc909a15",
@@ -443,6 +443,7 @@
     "FormalProof4FHE/HasteBoots/NativeRegisteredLookup.lean": "2b3b5c6e38b865d8d091c175f9556f30ee4367d2ffd3f6d44823536e6838b3ea",
     "FormalProof4FHE/HasteBoots/NativeRegistryAncestry.lean": "aeab1da2d206b1f655e29098fa9222c42f64505f115273c820be1959d88e776c",
     "FormalProof4FHE/HasteBoots/NativeRegistryContextTrace.lean": "858999f463c933ce242f67709b51754fddd0dba4301900046867fa069ee09f70",
+    "FormalProof4FHE/HasteBoots/NativeReservationErrorFields.lean": "deb72f5a224200e0ac80727d4da4e104c6ef189d260eccaae5bc90f9a977cc59",
     "FormalProof4FHE/HasteBoots/NativeReservedVecConstruction.lean": "f348614a1cbe30f73a345dce40dbb7b4c7889ba1089492e554992d63c2647c95",
     "FormalProof4FHE/HasteBoots/NativeReservedVecStorage.lean": "41d7b82c9b92ccf037d54b6174a799a5a8e5fa2029f75567a68f515e1db7db60",
     "FormalProof4FHE/HasteBoots/NativeResidentVec.lean": "70de16d97021f328d1dfd610c9d7263435add478bda06dae88ec33faa561dd9a",
@@ -532,7 +533,7 @@
     "interop/aeneas/vec-empty/Proof.lean": "e49c37943109ddd3fac76fade3e940454dd06f0e18b8ab1bcc0ffbdbfcb6a2f6",
     "interop/aeneas/vec-empty/Smoke.lean": "5c0cba3dfda637c34c2d2b735f362f71b013f17b2408e98ece36450c366ac244"
   },
-  "source_llbc_sha256": "cc3651137ae7d4ba30981342b929ab34804c37b5eeb98eff73ac3ae1e0e150b5",
+  "source_llbc_sha256": "c296b02baec07ceae9eac460b7f9109cdc7db31b686f85668db48fd96b85efeb",
   "checked_sha256": "751f619066943dc4773abed0b4ee7f3ad63e22f2b70705160a7b0d018177f3d1",
   "original_constructor_and_direct_caller_interpreted": true,
   "exact_nominal_return_for_arbitrary_world_proved": true,
@@ -552,11 +553,11 @@
   "full_project_check": {
     "command": "scripts/check",
     "exit_code": 0,
-    "build_jobs": 11088,
-    "log": "/tmp/hasteboots-constructor-error-full-check.log",
-    "log_sha256": "38bff111e15a826eb859240f80685aa6f80f5e710674ae86724afc3e44f61382",
-    "library_root_sha256": "028c7c32f236b663f7d18dcc858576493801afbcd5da9d1a0a2b679c30adb579",
-    "test_root_sha256": "de455dcd7f21235561a0aca4da280c3e9e9ac71defb92de05d46e04a6cdece30"
+    "build_jobs": 11091,
+    "log": "/tmp/reservation-error-full-check.log",
+    "log_sha256": "c40664775a2bf561bb59d989cda790c29c9ed277990d9a4f8a67b1d1f41b2635",
+    "library_root_sha256": "6c9172aee86e92137818a85ce8f90bbd604cc7d4440533305e1e978095b4d0a8",
+    "test_root_sha256": "d766a07c2f2ae2be0dad6da01cb9848bc7a7c2037ab107ce4ff5cf2d76d4aac4"
   },
   "revalidated_vec_destruction": {
     "manifest": "build/hasteboots-extraction/vec-drop-6vkj6__f/manifest.json",
@@ -564,7 +565,7 @@
     "dependency_audit_count": 977,
     "negative_control_count": 87
   },
-  "validation_note": "Fresh coupled-tool source/proof gates and the full project check passed. Allocation-capable execution embeds the legacy interpreter and supports checked heap-changing callees; the legacy language and its preservation theorems are unchanged. An initial legacy-checker test-filename assumption was corrected by separating the optional allocation inventory from the legacy test list; affected gates were rerun. Source wrappers forward every common-runtime outcome. Opaque shim execution, source post-allocation null/Result handling, native allocator/type/ABI/compiler/lifetime correspondence, physical work and final security remain open.",
+  "validation_note": "Fresh source extraction gate and full scripts/check passed. The full build contains 11091 jobs and includes the separately audited reservation-error field decoder. This profile retains its existing source theorem scope; native correspondence, physical work and final security remain open.",
   "prior_storage_bridge_baseline": {
     "manifest": "build/hasteboots-extraction/vec-empty-e010m81k/manifest.json",
     "sha256": "3d2248477bca4fce9445e4cbc4bb66e001323c05beae90deed8b7ecefcf5d5bf",
@@ -775,5 +776,14 @@
     "dependency_audit_count": 395,
     "negative_control_count": 17
   },
-  "revalidated_with_shared_callers": true
+  "revalidated_with_shared_callers": true,
+  "prior_reservation_error_fields_baseline": {
+    "profile": "revalidated-with-shared-callers-v16",
+    "gate_manifest": "build/hasteboots-extraction/vec-empty-mkidwhih/manifest.json",
+    "gate_manifest_sha256": "da2957929e744abf04b8443b6cc61f7ccd148d78eda8cfbb4435446e2d7f9192",
+    "dependency_audit_count": 395,
+    "negative_control_count": 17
+  },
+  "revalidated_with_reservation_error_fields": true,
+  "root_full_check_reused_without_library_or_root_test_changes": false
 }

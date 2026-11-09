@@ -260,3 +260,19 @@ A scratch extraction with `--include alloc::collections` successfully exposes
 It keeps 21 functions/31 types but changes some IDs. This gives a source-based
 next step for the accessor; it still needs validated declaration identities and
 nonzero-sized resident local borrowing before proving outer error propagation.
+
+## Reservation-error storage fields
+
+The reifier validates the complete physical wrapper and niche layouts: 16 bytes,
+alignment 8, wrapper field offset 0, zero u64 at offset 0 selecting capacity
+overflow, and the allocation-error Layout at offset 0. Existing Layout checks
+place alignment at offset 0 and size at offset 8. Eight new rejecting controls
+cover changes to this representation. `NativeReservationErrorFields` performs
+checked reads and proves the zero branch never reads the potentially
+uninitialized tail. Its shared resident-loan premise is separate from local
+loan issuance: the existing borrow primitive still requires the whole byte span
+to be initialized. The source accessor and outer error handler remain unproved.
+
+Validation: 827 dependency audits, 165 rejecting controls, 125 source examples
+and 90 model examples pass. The fresh full `scripts/check` passes with 11091
+build jobs.
