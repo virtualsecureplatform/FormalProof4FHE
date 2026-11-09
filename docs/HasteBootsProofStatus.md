@@ -17943,3 +17943,76 @@ those extraction gates were not rerun for this probability/work extension.
 
 Full-check log: `/tmp/private-coin-work-full-check.log`; SHA-256
 `fcfd48da9a8715513fd6c1289f9d5c878731683bcb0604817ac3759e438af108`.
+
+## Private initialization with executable extraction and configuration unions
+
+The earlier fixed-private-input modules `ClosedByteMachineGoldAllRisk`,
+`ClosedByteMachineNativeSoundness` and `ClosedByteMachineExecutableSoundness`
+already combine the root/source, early-receipt and field/column exceptions
+and relate the common-source analysis predicate to executable extraction.
+This checkpoint connects those stronger existing results to the private-tape
+expectation, beyond the field/column-only extension above.
+
+`PrivateCoinInitialisation` proves joint measurability for any event selected
+by finitary private initialization whose fixed-private-input sections are
+measurable. Its integration lemma preserves finite scaling factors and the
+same specified interpreter work on the same installed input. The concrete
+soundness theorem discharges its conditional bound using the existing
+executable-extractor theorem; no new work-calibration hypothesis is supplied.
+
+`PrivateCoinExecutableSoundness.Target` records constructor provenance,
+primitive-root evidence and the existing role calibration for a public context.
+That calibration includes the trusted ordered-query quota of at least 544;
+it is a hypothesis about configured parameters, not something inferred from
+an attacker-supplied positive parsed quota. The record does not establish
+trust in a native registry or bind actual application parameters to the record.
+Its private-tape failure predicate retains the existing executable-source
+false-claim witness, actual acceptance/log premises, parsed-view conditions,
+original verifier fuel, scheduler and memory. Every finite machine prefix and
+all such witnesses remain in the lifetime event.
+
+`failure_covered` places that event in the same combined root/source,
+early-receipt and field/column hazard event. `lifetime_le_work` averages the
+combined rate against unconditional expected interpreter work;
+`scaled_lifetime_le_work` retains the existing scaled factor `9/4096`.
+Initialization, local instructions, reject/abort paths and infinite running
+are not filtered out of the work expectation.
+
+`PrivateCoinConfigurationUnion` proves a bound for an actual union of these
+executable failure events over any finite family of calibrated targets.
+Every target uses the same code, public input, private tape, oracle world and
+work counter. Neither target events nor their oracle worlds are assumed
+independent. The scaled factor is the number of targets times `9/4096`.
+For a configured family of at most 256 targets it is at most `9/16`, consuming
+the numerical allowance previously stated for 64 shapes and four roles.
+This is now an event-union theorem, but actual application coverage by such a
+family remains an independent obligation. The target count is not an attacker
+trial, query, retry, private-coin or lifetime bound. The general family theorem
+has no fixed target-count limit.
+
+Eleven regressions exercise a constructor-backed helper target, distinct
+profiles on shared geometry, joint measurability, combined hazard coverage,
+both quantitative private-initialization bounds, a two-profile union, empty
+and duplicated families, and the configured 256-target allowance. Nine guards
+audit every new production theorem using only the usual three allowed axioms.
+Both root libraries import the new modules.
+
+Remaining boundaries: the concrete interpreter still randomizes finite
+installed private data, rather than executing priced runtime coin instructions.
+The public source-extraction predicate is not yet the full false-PBS semantic
+predicate or a proved efficient public extractor. Native registry/profile and
+query-quota binding, application configuration-family coverage, actor-cost
+separation, native/compiler/lifetime refinement, physical-work calibration,
+and native BabyBear support remain open. These results do not establish the
+final physical-attacker-work security inequality.
+
+Validation: full `scripts/check` completed with exit status zero, including
+11,125 build jobs and all subsequent audit/smoke commands. The final targeted
+build passed with 4,648 jobs; all nine new guards reported only `propext`,
+`Classical.choice` and `Quot.sound`. No proof placeholders, extra logical
+axioms, native decision proofs or proof-limit increases were introduced.
+All input and manifest hashes of the five retained-source gates were checked
+and remain unchanged; those extraction gates were not rerun for this extension.
+
+Full-check log: `/tmp/private-coin-executable-full-check.log`; SHA-256
+`1cb0bd6957f05ad195617238f22e2a7cdb120207cdc9e49a1383be7b1623f782`.
