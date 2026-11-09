@@ -105,3 +105,19 @@ The source allocation calls and subsequent cleanup/result handling remain open.
 Six source theorems and seven regressions extend the gate to 464 dependency
 audits, 77 rejecting controls and 44 source examples. Eleven new model regressions
 and ten persistent dependency guards cover the checked ZST-local borrow.
+
+
+`AllocatorProof.lean` now interprets both allocation-method wrappers and the
+common runtime's checked entry, initial size extraction and positive-size switch.
+The forwarding equations quantify over allocation-capable continuation bodies
+and preserve all outcomes and heap changes. Source shim ordering, opaque unsafe
+Rust declarations, alignment argument shape and ordinary/zeroed targets are
+validated. Opaque shim execution, post-allocation null/Result construction and
+native allocator ABI correspondence remain open.
+
+The separate allocation-capable evaluator embeds legacy bodies exactly and has
+an all-outcome machine projection. Its allocator model checks actual allocation
+and zeroing steps with explicit placement/failure outcomes; no external success
+callback is used. Fourteen model regressions include allocation/deallocation
+with advanced generation. Eight source examples and sixteen dependency guards
+bring the capacity gate to 535 audits, 95 rejecting controls and 52 source examples.

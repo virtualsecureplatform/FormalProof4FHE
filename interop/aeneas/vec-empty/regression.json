@@ -1,8 +1,8 @@
 {
-  "profile": "original-empty-byte-vec-revalidated-with-zst-local-borrow-v6",
+  "profile": "original-empty-byte-vec-revalidated-with-allocation-capable-layer-v7",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-empty-i2esxxsv/manifest.json",
-  "gate_manifest_sha256": "f36af1583a3769e99a7d7373ebdc518bf0d5e33ad24a32a1e11acf96f84cd216",
+  "gate_manifest": "build/hasteboots-extraction/vec-empty-6t19s5go/manifest.json",
+  "gate_manifest_sha256": "7d6183da21e0da9b5bf0afd5a8826b2d530c11d6331e22a76039f5f0e1df65ac",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -27,7 +27,9 @@
     "156600e9a96c31f4214e1ce555989f712d70221b",
     "17b14f953d835c4ff99212195017d4713729b8c4",
     "8acddae597cce1bf3deb0f8e9a39c202212ad881",
-    "4969bd829bcdbac9678c147240fd7e31886c2f36"
+    "4969bd829bcdbac9678c147240fd7e31886c2f36",
+    "4a9ee78a2f9c1be8878871aacc36e63234412c14",
+    "68c847d7be7ccbca8150998b3471458c6086acc9"
   ],
   "dependency_audit_count": 356,
   "source_definition_count": 8,
@@ -59,7 +61,7 @@
   "inputs": {
     "scripts/check-hasteboots-vec-empty": "7efeddebd76273fde8f3a296a4c23157afa5a39a4d0656395091e2684d365208",
     "scripts/build-hasteboots-inline-tools": "efda9a152172fdebfb14919f4c29e920f12da0d2ad71ab45ee526a27d9713452",
-    "scripts/check-hasteboots-allocator-caller": "b211f4ba0821323b0020144ee5a9d24b09f8c441938b676a4ae3c98df3e1af1f",
+    "scripts/check-hasteboots-allocator-caller": "fc8fe65283b35815fa94f28ab7a96018c4902639756f587253a0ba0ccdc835ed",
     "scripts/extract-hasteboots-parameters": "9ab0b333e12a4dac0fea4e37bc8bee430bdf56cac7eb4bcb5fa999ceab140993",
     "scripts/specify-hasteboots-deallocation-boundary": "48abaf9e189486073c292cf915c5717f3ee9e5a69735fc6b09859b9a8a93774a",
     "lean-toolchain": "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c",
@@ -79,9 +81,11 @@
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
     "scripts/reify-hasteboots-variant-body": "2d0326329d538bb43685617133c2ecd96da497c81295cd221315807576383825",
-    "scripts/reify-hasteboots-vec-capacity-arithmetic": "1e195177506001f32b826ff482b311dee235702261dca6e18a9c0491eff2233c",
+    "scripts/reify-hasteboots-vec-capacity-arithmetic": "5418b0ff9e004ca3953046c530a2a7e06b4bae12fd80eb1d5ac930a907451fb3",
     "scripts/reify-hasteboots-vec-drop": "0ef983324e439064ea0969a4fc60d6a574137d5548a1feaee727f018b9b1eb8d",
     "scripts/reify-hasteboots-vec-empty": "00a7debb4c04056f86a5fe37ecead6b1f26a8a6fa45642c9b7b6fa76a3532ccd",
+    "FormalProof4FHE/HasteBoots/NativeAllocatorExecution.lean": "2c3008e94760730cfbc65c7bee2707e107f23fabdb9df93f302c5848fc909a15",
+    "FormalProof4FHE/HasteBoots/NativeAllocatorLLBC.lean": "ed17ab102265af1216e20afa0eadc552bfbecbc326f4fd17e24560df9a5e9b2f",
     "FormalProof4FHE/HasteBoots/NativeAtomicIndexLaw.lean": "05162b4db7430d055e1a0cddd1a789836ea00740c6fcee9e552fb8a27dec576d",
     "FormalProof4FHE/HasteBoots/NativeBatchChecks.lean": "43bd99e09201910db0ebf322c8a52581429b6a46f39502256c65c1d6e72f9be0",
     "FormalProof4FHE/HasteBoots/NativeBatchColumnWorkerPool.lean": "40a149ed6aff8590b8aeae51936243c7314375bb9cbbc335b86d1fd699f5aeb8",
@@ -528,7 +532,7 @@
     "interop/aeneas/vec-empty/Proof.lean": "e49c37943109ddd3fac76fade3e940454dd06f0e18b8ab1bcc0ffbdbfcb6a2f6",
     "interop/aeneas/vec-empty/Smoke.lean": "5c0cba3dfda637c34c2d2b735f362f71b013f17b2408e98ece36450c366ac244"
   },
-  "source_llbc_sha256": "5fb67ff807be29df376b0e00a56b0bd1c2e03e6243805d4dd13349f32051a504",
+  "source_llbc_sha256": "b688331ffa0a2a4ab8b41805ad2b6a9da66ebfcfdde41957f29f7af9dddb75ab",
   "checked_sha256": "9577a9f7b07730bf46a69ca90b25e0404ee78589a64cfc38702aa0771a41ef81",
   "original_constructor_and_direct_caller_interpreted": true,
   "exact_nominal_return_for_arbitrary_world_proved": true,
@@ -548,11 +552,11 @@
   "full_project_check": {
     "command": "scripts/check",
     "exit_code": 0,
-    "build_jobs": 11084,
-    "log": "/tmp/hasteboots-positive-mode-full-check.log",
-    "log_sha256": "ebe497e857bbd1c982d07a2520d59e6c61d72c26a9222a1cfbdadd4c652ddc14",
-    "library_root_sha256": "a3d86340eecdc5e9f583366d8767937bb0db614dc6402d33263785cfe8f980c5",
-    "test_root_sha256": "4f802de11bfc981c34b3399ea6fa61cc19f12300f53966e21fa57b26bd7752f2"
+    "build_jobs": 11088,
+    "log": "/tmp/hasteboots-allocator-layer-full-check.log",
+    "log_sha256": "8fccb06cf95e94c048d08e421df1f9585b87067023c1903a7b7df0f27b19227a",
+    "library_root_sha256": "028c7c32f236b663f7d18dcc858576493801afbcd5da9d1a0a2b679c30adb579",
+    "test_root_sha256": "de455dcd7f21235561a0aca4da280c3e9e9ac71defb92de05d46e04a6cdece30"
   },
   "revalidated_vec_destruction": {
     "manifest": "build/hasteboots-extraction/vec-drop-6vkj6__f/manifest.json",
@@ -560,7 +564,7 @@
     "dependency_audit_count": 977,
     "negative_control_count": 87
   },
-  "validation_note": "Fresh coupled-tool source/proof gates, dependency audits and rejecting controls passed after adding shared ZST-local loan issuance and positive allocation-mode/reference preparation. The full project check passed. Global placement is explicit; allocator method bodies, temporary-reference cleanup, native stack/type/ABI/compiler/lifetime correspondence, complete positive construction, physical work and final security remain open.",
+  "validation_note": "Fresh coupled-tool source/proof gates and the full project check passed. Allocation-capable execution embeds the legacy interpreter and supports checked heap-changing callees; the legacy language and its preservation theorems are unchanged. An initial legacy-checker test-filename assumption was corrected by separating the optional allocation inventory from the legacy test list; affected gates were rerun. Source wrappers forward every common-runtime outcome. Opaque shim execution, source post-allocation null/Result handling, native allocator/type/ABI/compiler/lifetime correspondence, physical work and final security remain open.",
   "prior_storage_bridge_baseline": {
     "manifest": "build/hasteboots-extraction/vec-empty-e010m81k/manifest.json",
     "sha256": "3d2248477bca4fce9445e4cbc4bb66e001323c05beae90deed8b7ecefcf5d5bf",
@@ -670,5 +674,34 @@
     "reference_decoder_acceptance": true,
     "native_stack_placement_refinement": false,
     "native_lifetime_refinement": false
+  },
+  "prior_allocator_layer_baseline": {
+    "profile": "original-empty-byte-vec-revalidated-with-zst-local-borrow-v6",
+    "gate_manifest": "build/hasteboots-extraction/vec-empty-i2esxxsv/manifest.json",
+    "gate_manifest_sha256": "f36af1583a3769e99a7d7373ebdc518bf0d5e33ad24a32a1e11acf96f84cd216",
+    "dependency_audit_count": 356,
+    "negative_control_count": 17
+  },
+  "allocation_capable_layer": {
+    "modules": [
+      "FormalProof4FHE/HasteBoots/NativeAllocatorExecution.lean",
+      "FormalProof4FHE/HasteBoots/NativeAllocatorLLBC.lean"
+    ],
+    "new_declaration_audit_count": 50,
+    "model_regression_count": 14,
+    "persistent_dependency_guard_count": 16,
+    "legacy_evaluator_embedding_exact": true,
+    "legacy_heap_preservation_theorems_unchanged": true,
+    "all_outcome_machine_projection": true,
+    "invocation_reachability": true,
+    "actual_allocation_and_zeroing_model_steps": true,
+    "chosen_null_failure_distinct_from_invalid_placement": true,
+    "allocation_outcome_explicit": true,
+    "zero_write_completion_from_range_and_permission": true,
+    "allocation_then_deallocation_advances_generation_regression": true,
+    "opaque_shim_execution_proved": false,
+    "native_allocator_abi_refinement": false,
+    "source_post_allocation_result_construction_proved": false,
+    "native_physical_work_refinement": false
   }
 }

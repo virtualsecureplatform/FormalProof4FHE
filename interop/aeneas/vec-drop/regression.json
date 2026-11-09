@@ -1,8 +1,8 @@
 {
-  "profile": "original-resident-vec-destruction-with-zst-local-borrow-v27",
+  "profile": "original-resident-vec-destruction-revalidated-with-allocation-capable-layer-v28",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-drop-7l_o69fp/manifest.json",
-  "gate_manifest_sha256": "25f4fa981852afed0c5e7ceba77dc5cdf09642fa48a25cb6461628cf48cfe492",
+  "gate_manifest": "build/hasteboots-extraction/vec-drop-76z3rj3r/manifest.json",
+  "gate_manifest_sha256": "615ff77d00638c3420536c5327712dd98ce575bfe1a5c971bc7ed81b220617b1",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -68,7 +68,9 @@
     "d720135badb2c1003008b7614a53175dbf6405df",
     "b4e826eec33ffa2ecdb6b54a082e521f831d3072",
     "8acddae597cce1bf3deb0f8e9a39c202212ad881",
-    "4969bd829bcdbac9678c147240fd7e31886c2f36"
+    "4969bd829bcdbac9678c147240fd7e31886c2f36",
+    "4a9ee78a2f9c1be8878871aacc36e63234412c14",
+    "68c847d7be7ccbca8150998b3471458c6086acc9"
   ],
   "dependency_audit_count": 1003,
   "negative_control_count": 87,
@@ -187,7 +189,7 @@
     "scripts/reify-hasteboots-rawvec-option": "18ef4ea5a9cfe3e016a4ce805557b60a2e098c8523a90afb6498142ae6a7bdfc",
     "scripts/reify-hasteboots-global-deallocation": "e97864487e595ad6fcb031271dcf334cb745371b5cae294ac29e3a82857bbc25",
     "scripts/reify-hasteboots-rawvec-fields": "fd3abf7ed31234ed5c63d754e529400203cbfb9d52f0914f428ff8932ced92ca",
-    "scripts/check-hasteboots-allocator-caller": "b211f4ba0821323b0020144ee5a9d24b09f8c441938b676a4ae3c98df3e1af1f",
+    "scripts/check-hasteboots-allocator-caller": "fc8fe65283b35815fa94f28ab7a96018c4902639756f587253a0ba0ccdc835ed",
     "scripts/specify-hasteboots-deallocation-boundary": "48abaf9e189486073c292cf915c5717f3ee9e5a69735fc6b09859b9a8a93774a",
     "scripts/extract-hasteboots-parameters": "9ab0b333e12a4dac0fea4e37bc8bee430bdf56cac7eb4bcb5fa999ceab140993",
     "lean-toolchain": "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c",
@@ -314,7 +316,7 @@
     "FormalProof4FHETest/HasteBootsRawVecDeallocationCompletenessAudit.lean": "85efbedcef271ce6dc69a0bebb5d25b0880091984899ae52e3c02bfe7bcb3a48",
     "FormalProof4FHETest/HasteBootsVecDestructionCompletenessAudit.lean": "b15ca27d45474cdbf6c85a2635a3969160d35fd7e658b00139d4ba8d394a3dbd"
   },
-  "source_llbc_sha256": "89c042e2a03e59c2faf60ecf75e0287697cecb8188016eec119e4c2f9b462544",
+  "source_llbc_sha256": "ae21c9a2b306b63aad6ac4b0e0edcdb4ec1fb9931ba97252d653da340b3ced7e",
   "outer_vec_drop_glue_interpreted": true,
   "outer_vec_drop_method_interpreted": true,
   "unbounded_original_byte_loop_interpreted": true,
@@ -330,11 +332,11 @@
   "full_project_check": {
     "command": "scripts/check",
     "exit_code": 0,
-    "build_jobs": 11084,
-    "log": "/tmp/hasteboots-positive-mode-full-check.log",
-    "log_sha256": "ebe497e857bbd1c982d07a2520d59e6c61d72c26a9222a1cfbdadd4c652ddc14",
-    "library_root_sha256": "a3d86340eecdc5e9f583366d8767937bb0db614dc6402d33263785cfe8f980c5",
-    "test_root_sha256": "4f802de11bfc981c34b3399ea6fa61cc19f12300f53966e21fa57b26bd7752f2"
+    "build_jobs": 11088,
+    "log": "/tmp/hasteboots-allocator-layer-full-check.log",
+    "log_sha256": "8fccb06cf95e94c048d08e421df1f9585b87067023c1903a7b7df0f27b19227a",
+    "library_root_sha256": "028c7c32f236b663f7d18dcc858576493801afbcd5da9d1a0a2b679c30adb579",
+    "test_root_sha256": "de455dcd7f21235561a0aca4da280c3e9e9ac71defb92de05d46e04a6cdece30"
   },
   "prior_gate_manifest": {
     "path": "build/hasteboots-extraction/vec-drop-j6ky4k09/manifest.json",
@@ -1033,7 +1035,7 @@
     "heap_and_incoming_reference_preservation_extended": true,
     "native_alignment_transmute_abi_refinement": false
   },
-  "validation_note": "Fresh coupled-tool source/proof gates, dependency audits and rejecting controls passed after adding shared ZST-local loan issuance and positive allocation-mode/reference preparation. The full project check passed. Global placement is explicit; allocator method bodies, temporary-reference cleanup, native stack/type/ABI/compiler/lifetime correspondence, complete positive construction, physical work and final security remain open.",
+  "validation_note": "Fresh coupled-tool source/proof gates and the full project check passed. Allocation-capable execution embeds the legacy interpreter and supports checked heap-changing callees; the legacy language and its preservation theorems are unchanged. An initial legacy-checker test-filename assumption was corrected by separating the optional allocation inventory from the legacy test list; affected gates were rerun. Source wrappers forward every common-runtime outcome. Opaque shim execution, source post-allocation null/Result handling, native allocator/type/ABI/compiler/lifetime correspondence, physical work and final security remain open.",
   "prior_zst_local_borrow_baseline": {
     "profile": "original-resident-vec-destruction-with-checked-enum-address-v26",
     "gate_manifest": "build/hasteboots-extraction/vec-drop-u8mfb0e8/manifest.json",
@@ -1054,5 +1056,34 @@
     "reference_decoder_acceptance": true,
     "native_stack_placement_refinement": false,
     "native_lifetime_refinement": false
+  },
+  "prior_allocator_layer_baseline": {
+    "profile": "original-resident-vec-destruction-with-zst-local-borrow-v27",
+    "gate_manifest": "build/hasteboots-extraction/vec-drop-7l_o69fp/manifest.json",
+    "gate_manifest_sha256": "25f4fa981852afed0c5e7ceba77dc5cdf09642fa48a25cb6461628cf48cfe492",
+    "dependency_audit_count": 1003,
+    "negative_control_count": 87
+  },
+  "allocation_capable_layer": {
+    "modules": [
+      "FormalProof4FHE/HasteBoots/NativeAllocatorExecution.lean",
+      "FormalProof4FHE/HasteBoots/NativeAllocatorLLBC.lean"
+    ],
+    "new_declaration_audit_count": 50,
+    "model_regression_count": 14,
+    "persistent_dependency_guard_count": 16,
+    "legacy_evaluator_embedding_exact": true,
+    "legacy_heap_preservation_theorems_unchanged": true,
+    "all_outcome_machine_projection": true,
+    "invocation_reachability": true,
+    "actual_allocation_and_zeroing_model_steps": true,
+    "chosen_null_failure_distinct_from_invalid_placement": true,
+    "allocation_outcome_explicit": true,
+    "zero_write_completion_from_range_and_permission": true,
+    "allocation_then_deallocation_advances_generation_regression": true,
+    "opaque_shim_execution_proved": false,
+    "native_allocator_abi_refinement": false,
+    "source_post_allocation_result_construction_proved": false,
+    "native_physical_work_refinement": false
   }
 }

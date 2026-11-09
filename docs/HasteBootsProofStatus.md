@@ -7,6 +7,43 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Allocation effects and source allocator method forwarding
+
+The model now has an allocation-capable interpreter that embeds the existing
+record evaluator exactly. `NativeAllocatorLLBC.eval_projects` proves that every
+outcome follows actual checked reference-machine execution, including failed
+allocation and failed result storage. Calls support heap-changing callees and
+retain normal, unwind, invalid and unsupported outcomes. The earlier evaluator's
+heap-preserving scalar-expression theorems remain unchanged.
+
+`NativeAllocatorExecution` checks positive valid layouts, models null failure
+without a heap change, and checks fresh placement/space through the existing
+allocator machine. Successful pointers retain their allocated origin. Zeroed
+allocation executes the actual modeled byte write; completion from checked range
+and permission, loaded zero bytes and reachable-state preservation are proved.
+Invalid placement is distinct from a chosen null allocation outcome. Model
+regressions cover both modes and allocation followed by deallocation: live block
+count returns to zero while the heap generation remains advanced.
+
+Eight new source theorems interpret both `allocate`/`allocate_zeroed` wrappers,
+checked Layout/Boolean call entry, the common runtime's 12-statement size prefix,
+positive-size dispatch, moved Layout arguments and all-outcome caller forwarding.
+The method flag is read back in both source regressions. Source checks retain
+opaque unsafe Rust ABI declarations, the allocator shim before the allocation
+call, distinct ordinary/zeroed targets and the alignment wrapper argument.
+The common runtime's unprocessed branches remain explicit code parameters; no
+shim return or allocator success is assumed by these forwarding theorems.
+
+The fresh capacity gate passes 535 dependency audits and 95 rejecting controls.
+Eight new source examples bring that suite to 52; fourteen model examples and
+sixteen persistent dependency guards cover the allocation layer. The model
+allocation result type checks nominal/slice structure; native non-nullness,
+length/ownership postconditions still need the source post-allocation branches.
+Next, interpret the opaque-shim boundary and post-allocation null/Result path,
+then compose positive construction with resident storage and destruction.
+Native allocator ABI, stack/type/compiler/lifetime refinement, physical work and
+the final HasteBoots security theorem remain open.
+
 ## Positive allocation mode and Global reference preparation
 
 `positive_layout_entry` now composes the original layout prefix with positive-size
