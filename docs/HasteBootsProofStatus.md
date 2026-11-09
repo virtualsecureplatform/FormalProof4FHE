@@ -7,6 +7,34 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Non-null allocator Result and runtime invocation
+
+The retained non-null runtime arm is now interpreted through its successful
+Result and the common runtime return. Seven theorems compose source pointer
+wrappers and moved Option/Result fields, pointer-to-slice metadata construction,
+successful Result storage, final cleanup, and the actual modeled invocation.
+The final invocation theorem requires positive capacity, a non-null allocation
+pointer, an explicit returned-unit shim invocation, and the concrete allocator
+machine result. Both uninitialized and zeroed allocation follow the same source
+construction while preserving the returned pointer's origin and requested length.
+
+The source checker validates the NonNull transparent field layouts, wrapper
+variants and projections, disabled source precondition branches, and the exact
+slice-parts builtin. Unselected precondition bodies remain explicit unsupported code; changes to
+their constant-false source condition are rejected. No native transmute/NonNull ABI correctness is claimed
+by the logical nominal wrappers.
+
+The capacity gate passes 587 dependency audits, 109 rejecting controls and
+67 source examples, including ordinary/zeroed invocation and loaded zero bytes.
+Destructor, allocator-caller and empty-constructor gates pass again at
+1008/87, 354/31 and 361/17 audits/controls. The preceding full project check
+remains applicable: shared library and root test inputs are unchanged.
+
+The null arm's zero-sized Result discriminant remains open. After that arm,
+compose the allocation methods and positive-capacity constructor with resident
+storage/destruction. Native shim and allocator ABI, type/compiler/lifetime
+correspondence, physical work and the final security theorem remain open.
+
 ## Conditional source runtime through pointer dispatch
 
 The common allocator runtime now has eleven source theorems through its

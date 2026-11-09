@@ -1,8 +1,8 @@
 {
-  "profile": "original-empty-byte-vec-revalidated-with-pointer-inspection-v8",
+  "profile": "original-empty-byte-vec-revalidated-with-nonnull-runtime-v9",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-empty-eupqans5/manifest.json",
-  "gate_manifest_sha256": "8e99fed8a83123db52e3be49862d74b85020ec84bbb2fdbb21ba9f615e463d34",
+  "gate_manifest": "build/hasteboots-extraction/vec-empty-44gjy8wa/manifest.json",
+  "gate_manifest_sha256": "6c03b693fb96f59726b7731eb16c33e19dc48d63a51c22d3f7b1c1ee40660ea4",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -81,7 +81,7 @@
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
     "scripts/reify-hasteboots-variant-body": "2d0326329d538bb43685617133c2ecd96da497c81295cd221315807576383825",
-    "scripts/reify-hasteboots-vec-capacity-arithmetic": "bedfcad7a886b1282007af2003e84549b9862fd92d6abecad0bbab552a810b9b",
+    "scripts/reify-hasteboots-vec-capacity-arithmetic": "762d8a22c421e8a95913af8cffabd1acd3e694443488c5330560d40f1f7cef0a",
     "scripts/reify-hasteboots-vec-drop": "0ef983324e439064ea0969a4fc60d6a574137d5548a1feaee727f018b9b1eb8d",
     "scripts/reify-hasteboots-vec-empty": "00a7debb4c04056f86a5fe37ecead6b1f26a8a6fa45642c9b7b6fa76a3532ccd",
     "FormalProof4FHE/HasteBoots/NativeAllocatorExecution.lean": "2c3008e94760730cfbc65c7bee2707e107f23fabdb9df93f302c5848fc909a15",
@@ -532,7 +532,7 @@
     "interop/aeneas/vec-empty/Proof.lean": "e49c37943109ddd3fac76fade3e940454dd06f0e18b8ab1bcc0ffbdbfcb6a2f6",
     "interop/aeneas/vec-empty/Smoke.lean": "5c0cba3dfda637c34c2d2b735f362f71b013f17b2408e98ece36450c366ac244"
   },
-  "source_llbc_sha256": "e2268832df169ee03207a8766b27f52dc530a440a99d29942e390039d0a09458",
+  "source_llbc_sha256": "83863e6a411b0e851b99592e1cca8527e5084a80da8aa176b3082cda29658181",
   "checked_sha256": "b3b7238e77592d01fa2d2d537c1da1c6c3e92c44319690d5826a6b77e5687280",
   "original_constructor_and_direct_caller_interpreted": true,
   "exact_nominal_return_for_arbitrary_world_proved": true,
@@ -711,5 +711,13 @@
     "dependency_audit_count": 356,
     "negative_control_count": 17
   },
-  "thin_pointer_address_inspection_revalidated": true
+  "thin_pointer_address_inspection_revalidated": true,
+  "prior_nonnull_runtime_baseline": {
+    "profile": "original-empty-byte-vec-revalidated-with-pointer-inspection-v8",
+    "gate_manifest": "build/hasteboots-extraction/vec-empty-eupqans5/manifest.json",
+    "gate_manifest_sha256": "8e99fed8a83123db52e3be49862d74b85020ec84bbb2fdbb21ba9f615e463d34",
+    "dependency_audit_count": 361,
+    "negative_control_count": 17
+  },
+  "nonnull_runtime_source_extension_revalidated": true
 }

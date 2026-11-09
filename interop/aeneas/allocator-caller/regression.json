@@ -1,7 +1,7 @@
 {
-  "profile": "original-finite-allocator-caller-revalidated-with-pointer-inspection-v6",
-  "gate_manifest": "build/hasteboots-extraction/allocator-caller-n3nountn/manifest.json",
-  "gate_manifest_sha256": "69a037fe2dadd6882f46f81bea1c6e745a3c4f4d733521ccf6f44343691ed146",
+  "profile": "original-finite-allocator-caller-revalidated-with-nonnull-runtime-v7",
+  "gate_manifest": "build/hasteboots-extraction/allocator-caller-hqity447/manifest.json",
+  "gate_manifest_sha256": "fd6f4848236e0103d14b721bfee89c7b7af5f1fbc0a922a3ecab84e7910c7ee1",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "status": "passed",
   "commands": [
@@ -668,5 +668,13 @@
     "log_sha256": "11b27c2f7112b019c0935801346ab9a97a231617e50c2ba24f65d56097a220e7",
     "library_root_sha256": "028c7c32f236b663f7d18dcc858576493801afbcd5da9d1a0a2b679c30adb579",
     "test_root_sha256": "de455dcd7f21235561a0aca4da280c3e9e9ac71defb92de05d46e04a6cdece30"
-  }
+  },
+  "prior_nonnull_runtime_baseline": {
+    "profile": "original-finite-allocator-caller-revalidated-with-pointer-inspection-v6",
+    "gate_manifest": "build/hasteboots-extraction/allocator-caller-n3nountn/manifest.json",
+    "gate_manifest_sha256": "69a037fe2dadd6882f46f81bea1c6e745a3c4f4d733521ccf6f44343691ed146",
+    "dependency_audit_count": 354,
+    "negative_control_count": 31
+  },
+  "nonnull_runtime_source_extension_revalidated": true
 }

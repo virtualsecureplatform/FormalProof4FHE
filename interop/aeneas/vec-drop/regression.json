@@ -1,8 +1,8 @@
 {
-  "profile": "original-resident-vec-destruction-revalidated-with-pointer-inspection-v29",
+  "profile": "original-resident-vec-destruction-revalidated-with-nonnull-runtime-v30",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-drop-ux5qapnv/manifest.json",
-  "gate_manifest_sha256": "829cb7a0eaeaae9605f41261e7c5c2db54a12bcc3814811e1ed1ea0caf85377e",
+  "gate_manifest": "build/hasteboots-extraction/vec-drop-gur1bww3/manifest.json",
+  "gate_manifest_sha256": "eb29ce726ede39bc122c95d06ecec759e6f61f40835e027796b5debd5f757b48",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -316,7 +316,7 @@
     "FormalProof4FHETest/HasteBootsRawVecDeallocationCompletenessAudit.lean": "85efbedcef271ce6dc69a0bebb5d25b0880091984899ae52e3c02bfe7bcb3a48",
     "FormalProof4FHETest/HasteBootsVecDestructionCompletenessAudit.lean": "b15ca27d45474cdbf6c85a2635a3969160d35fd7e658b00139d4ba8d394a3dbd"
   },
-  "source_llbc_sha256": "05e4a21d67aa5ff8971d80791ac09a2e6ae6ccf7245599f04c518adf3d8a5714",
+  "source_llbc_sha256": "ee2b6d879711a45e57f044d67e22d44af3c98fc3b5e403fb01e2f7540580113e",
   "outer_vec_drop_glue_interpreted": true,
   "outer_vec_drop_method_interpreted": true,
   "unbounded_original_byte_loop_interpreted": true,
@@ -1093,5 +1093,13 @@
     "dependency_audit_count": 1003,
     "negative_control_count": 87
   },
-  "thin_pointer_address_inspection_revalidated": true
+  "thin_pointer_address_inspection_revalidated": true,
+  "prior_nonnull_runtime_baseline": {
+    "profile": "original-resident-vec-destruction-revalidated-with-pointer-inspection-v29",
+    "gate_manifest": "build/hasteboots-extraction/vec-drop-ux5qapnv/manifest.json",
+    "gate_manifest_sha256": "829cb7a0eaeaae9605f41261e7c5c2db54a12bcc3814811e1ed1ea0caf85377e",
+    "dependency_audit_count": 1008,
+    "negative_control_count": 87
+  },
+  "nonnull_runtime_source_extension_revalidated": true
 }

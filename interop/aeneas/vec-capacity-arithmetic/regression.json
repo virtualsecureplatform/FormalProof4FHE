@@ -1,8 +1,8 @@
 {
-  "profile": "conditional-source-runtime-shim-allocation-pointer-dispatch-v8",
+  "profile": "conditional-nonnull-runtime-slice-result-and-invocation-v9",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-blhh6xul/manifest.json",
-  "gate_manifest_sha256": "a670ccd1ce53b9f34e3ab58c01a823e124675e0281e90873b28d341eacb1cffe",
+  "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-gs8lixht/manifest.json",
+  "gate_manifest_sha256": "03c3b5e74ae203df8c2a338c5350e0a4f3426186a68cf9358cc0a485eb93f906",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -22,10 +22,11 @@
     "4a9ee78a2f9c1be8878871aacc36e63234412c14",
     "68c847d7be7ccbca8150998b3471458c6086acc9",
     "82b819610f2ffe74052de85710159e52235c7d7c",
-    "ba5a33e36e6d90b483cb0d1050d98c267b91d5c3"
+    "ba5a33e36e6d90b483cb0d1050d98c267b91d5c3",
+    "a45163285ab32b4bf21524e66708f2e785013c7f"
   ],
-  "dependency_audit_count": 566,
-  "negative_control_count": 100,
+  "dependency_audit_count": 587,
+  "negative_control_count": 109,
   "negative_controls": {
     "wrong_target": "Wrong target",
     "not_monomorphized": "Wrong extraction profile",
@@ -126,10 +127,19 @@
     "changed_pointer_inspection_scope": "Changed allocation pointer-check scope",
     "changed_pointer_cast_source": "Changed allocation pointer inspection",
     "changed_null_dispatch_local": "Changed allocation null condition",
-    "changed_null_dispatch_case": "Changed allocation null condition"
+    "changed_null_dispatch_case": "Changed allocation null condition",
+    "changed_nonnull_cast_source": "Changed success pointer transmute",
+    "changed_nonnull_option_variant": "Changed success aggregate variant",
+    "changed_nonnull_projection_variant": "Changed layout field projection",
+    "changed_slice_parts_length": "Changed source slice-parts builtin",
+    "unknown_slice_builtin_effect": "Unknown slice builtin effects",
+    "changed_slice_parts_target": "Changed source slice-parts builtin",
+    "enabled_nonnull_precondition": "Changed success disabled precondition",
+    "removed_nonnull_pointer_pattern": "Changed NonNull representation",
+    "changed_slice_pointer_field_offset": "Changed nonnull pointer representation"
   },
   "inputs": {
-    "scripts/check-hasteboots-vec-capacity-arithmetic": "15ae339d136733da4c99e39cdabe89a8b31f3ffe36b6a2a031de426d90c918b6",
+    "scripts/check-hasteboots-vec-capacity-arithmetic": "24c3075425be6298a68619b807d4db2174ec55239381a07fb86a20f13d449544",
     "scripts/check-hasteboots-allocator-caller": "1289efdfb1e6e2f1c94431f6bc30455ab03692f76c856576d72e5b301e650764",
     "scripts/build-hasteboots-inline-tools": "efda9a152172fdebfb14919f4c29e920f12da0d2ad71ab45ee526a27d9713452",
     "scripts/extract-hasteboots-parameters": "9ab0b333e12a4dac0fea4e37bc8bee430bdf56cac7eb4bcb5fa999ceab140993",
@@ -151,7 +161,7 @@
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
     "scripts/reify-hasteboots-variant-body": "2d0326329d538bb43685617133c2ecd96da497c81295cd221315807576383825",
-    "scripts/reify-hasteboots-vec-capacity-arithmetic": "bedfcad7a886b1282007af2003e84549b9862fd92d6abecad0bbab552a810b9b",
+    "scripts/reify-hasteboots-vec-capacity-arithmetic": "762d8a22c421e8a95913af8cffabd1acd3e694443488c5330560d40f1f7cef0a",
     "scripts/reify-hasteboots-vec-drop": "0ef983324e439064ea0969a4fc60d6a574137d5548a1feaee727f018b9b1eb8d",
     "scripts/reify-hasteboots-vec-empty": "00a7debb4c04056f86a5fe37ecead6b1f26a8a6fa45642c9b7b6fa76a3532ccd",
     "FormalProof4FHE/HasteBoots/NativeAllocatorExecution.lean": "2c3008e94760730cfbc65c7bee2707e107f23fabdb9df93f302c5848fc909a15",
@@ -601,7 +611,7 @@
     "FormalProof4FHETest/HasteBootsAllocatorExecutionSmoke.lean": "2243790737ab7a892b4e555675cba8c3b635c9649133c7b89aae552cee124c89",
     "FormalProof4FHETest/HasteBootsAllocatorExecutionAudit.lean": "0ca9e3d074415026a68855d5dedcfae76425a683d586893e6cd0889e679e89bd",
     "interop/aeneas/vec-capacity-arithmetic/fixture.rs": "a1b4abdec2d161f72fd7e843f8d49e276aff4ce79b95cc0884807a084f620861",
-    "interop/aeneas/vec-capacity-arithmetic/Generated.lean": "030636cb1aed21075720fd5aef2ade86abf1c61c2c4d00b45d5b1abe9d8730d9",
+    "interop/aeneas/vec-capacity-arithmetic/Generated.lean": "ee301a01ce39c5cb0f8074ae76d129d6f6b09bbdf9bcd89c0f61f2c10a2f7807",
     "interop/aeneas/vec-capacity-arithmetic/Retained.json": "797c79f20dc245262170cfac7aaf0ba468d4bfbdd627c6141e469c2dddaead83",
     "interop/aeneas/vec-capacity-arithmetic/Proof.lean": "7a15b251f41be0ea0ca802b9cd68956aed7446968cb737607348477e323bf518",
     "interop/aeneas/vec-capacity-arithmetic/LayoutProof.lean": "31a80b3e5b8eb9a85bc9154abe0a5b573b2368ada8c09ba1d7929ebdb6edfe4b",
@@ -611,6 +621,7 @@
     "interop/aeneas/vec-capacity-arithmetic/PositiveProof.lean": "c6929b4bd2510726c0221980d91f38e0f3047e61b720ce75230d99ce2f2af848",
     "interop/aeneas/vec-capacity-arithmetic/AllocatorProof.lean": "19e2453bd6cf079d5d942ef5e2821873d69eb6d048cead4ac0b3f530c1e5c24b",
     "interop/aeneas/vec-capacity-arithmetic/RuntimeProof.lean": "4bb1c188e9fdce5700c4fb31bebba91e11ce8e1821c3d4051a26fc9dd94a6755",
+    "interop/aeneas/vec-capacity-arithmetic/SuccessProof.lean": "054a0854935b70c97b1d72b3519cfe4007c36f28bc7a78badab94477f591c7d5",
     "interop/aeneas/vec-capacity-arithmetic/Smoke.lean": "62710e1fb00e8db3b3f5a0232ea568dd616594e30171dbc10bb9f21a2f7fe08f",
     "interop/aeneas/vec-capacity-arithmetic/LayoutSmoke.lean": "5aed39dd3f94928d8ec11c49643504c8d5e553e5f62f9897cbeefa38c8c2a92c",
     "interop/aeneas/vec-capacity-arithmetic/AcceptedSmoke.lean": "cb8b53a45b6d27fd0636169b6321554ce79a6fd00a94b402399c7f028c236a09",
@@ -618,19 +629,20 @@
     "interop/aeneas/vec-capacity-arithmetic/CallerSmoke.lean": "d580434f8ff73bb853c96a1d161fcb3b268b6ab7b2aa0b2c2e71781d0e775e64",
     "interop/aeneas/vec-capacity-arithmetic/PositiveSmoke.lean": "290cf1a74b618c3de6ee3f7ba605c8e1e598768de3483e68611c4a0d7a16eff5",
     "interop/aeneas/vec-capacity-arithmetic/AllocatorSmoke.lean": "f47a477fe46d8dd8d520bd74a2101314b4bb6bb4132a57d246a620a161543ac0",
-    "interop/aeneas/vec-capacity-arithmetic/RuntimeSmoke.lean": "4d2e78cc37dd572dfb8b4240323242904617b644ddd85484980eda967fcc06f3"
+    "interop/aeneas/vec-capacity-arithmetic/RuntimeSmoke.lean": "4d2e78cc37dd572dfb8b4240323242904617b644ddd85484980eda967fcc06f3",
+    "interop/aeneas/vec-capacity-arithmetic/SuccessSmoke.lean": "e75ad6a5b1d99241f336bf09e72ac7d2804fbf489c80071451f64fa85d6c4435"
   },
   "source_llbc_sha256": "d301cc3898da0acdbda28f1364d0e65a2fa7d5b08822ec997d14a2030ac213ec",
-  "checked_sha256": "f074b7739f9c88a80225e37f4b7d41601b264f4188e66484a31246fb0252a45e",
+  "checked_sha256": "8a8a68cca54fab2c81da88729d9bf2733d8d2e79732ba5d972cc74261b4b599e",
   "source_definition_count": 100,
   "source_theorem_count": 55,
-  "source_declaration_audit_count": 180,
+  "source_declaration_audit_count": 201,
   "core_extension_declaration_audit_count": 110,
-  "new_declaration_audit_count": 290,
+  "new_declaration_audit_count": 311,
   "retained_function_count": 21,
   "retained_type_count": 31,
   "isolated_assignment_count": 9,
-  "source_regression_count": 59,
+  "source_regression_count": 67,
   "model_regression_count": 54,
   "arithmetic_extension": {
     "module": "FormalProof4FHE/HasteBoots/NativeRecordArithmetic.lean",
@@ -671,20 +683,20 @@
   },
   "revalidated_profiles": {
     "vec": {
-      "manifest": "build/hasteboots-extraction/vec-drop-ux5qapnv/manifest.json",
-      "manifest_sha256": "829cb7a0eaeaae9605f41261e7c5c2db54a12bcc3814811e1ed1ea0caf85377e",
+      "manifest": "build/hasteboots-extraction/vec-drop-gur1bww3/manifest.json",
+      "manifest_sha256": "eb29ce726ede39bc122c95d06ecec759e6f61f40835e027796b5debd5f757b48",
       "dependency_audit_count": 1008,
       "negative_control_count": 87
     },
     "empty": {
-      "manifest": "build/hasteboots-extraction/vec-empty-eupqans5/manifest.json",
-      "manifest_sha256": "8e99fed8a83123db52e3be49862d74b85020ec84bbb2fdbb21ba9f615e463d34",
+      "manifest": "build/hasteboots-extraction/vec-empty-44gjy8wa/manifest.json",
+      "manifest_sha256": "6c03b693fb96f59726b7731eb16c33e19dc48d63a51c22d3f7b1c1ee40660ea4",
       "dependency_audit_count": 361,
       "negative_control_count": 17
     },
     "allocator": {
-      "manifest": "build/hasteboots-extraction/allocator-caller-n3nountn/manifest.json",
-      "manifest_sha256": "69a037fe2dadd6882f46f81bea1c6e745a3c4f4d733521ccf6f44343691ed146",
+      "manifest": "build/hasteboots-extraction/allocator-caller-hqity447/manifest.json",
+      "manifest_sha256": "fd6f4848236e0103d14b721bfee89c7b7af5f1fbc0a922a3ecab84e7910c7ee1",
       "dependency_audit_count": 354,
       "negative_control_count": 31
     }
@@ -872,5 +884,30 @@
     "null_nonnull_dispatch_proved": true,
     "source_post_dispatch_result_construction_proved": false,
     "native_opaque_shim_behavior_proved": false
-  }
+  },
+  "prior_nonnull_result_baseline": {
+    "profile": "conditional-source-runtime-shim-allocation-pointer-dispatch-v8",
+    "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-blhh6xul/manifest.json",
+    "gate_manifest_sha256": "a670ccd1ce53b9f34e3ab58c01a823e124675e0281e90873b28d341eacb1cffe",
+    "dependency_audit_count": 566,
+    "negative_control_count": 100
+  },
+  "runtime_nonnull_result": {
+    "source_theorem_count": 7,
+    "source_regression_count": 8,
+    "source_result_move_projection_and_cleanup_proved": true,
+    "source_slice_metadata_is_requested_capacity": true,
+    "source_pointer_origin_preserved": true,
+    "common_runtime_return_and_invocation_proved": true,
+    "positive_capacity_and_nonnull_pointer_explicit": true,
+    "shim_return_and_allocator_result_premises_explicit": true,
+    "ordinary_and_zeroed_invocation_regressions": true,
+    "zeroed_model_bytes_loaded_regression": true,
+    "transparent_nonnull_fields_and_layouts_validated": true,
+    "disabled_precondition_changes_rejected": true,
+    "slice_builtin_args_and_unknown_effects_validated": true,
+    "null_result_discriminant_proved": false,
+    "native_nonnull_transmute_and_abi_refinement": false
+  },
+  "root_full_check_reused_without_library_or_root_test_changes": true
 }

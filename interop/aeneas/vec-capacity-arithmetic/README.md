@@ -136,3 +136,15 @@ The reifier validates the thin pointer cast, pointer-check local scopes, zero
 comparison, and shim unwind abort. Five additional mutations must be rejected.
 The gate now checks 566 declarations and 100 rejecting controls. This does not
 interpret the post-dispatch Result construction or prove native shim behavior.
+
+## Non-null slice Result construction
+
+`SuccessProof.lean` proves the source non-null arm in three stages, then composes
+it through cleanup and `implementationFunction` invocation. The result retains
+the allocated pointer and origin and uses the requested byte capacity as slice
+metadata. The final invocation theorem keeps positive capacity, non-nullness,
+shim behavior and the concrete allocator-machine result explicit. The source
+checker validates transparent NonNull fields, Option/Result/ControlFlow variants,
+projections, disabled checks and the exact pointer-from-parts builtin.
+
+The null Result discriminant and native layout/ABI refinement remain open.
