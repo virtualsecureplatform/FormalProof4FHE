@@ -228,3 +228,8 @@ import FormalProof4FHETest.HasteBootsRawVecBorrowAudit
 
 import FormalProof4FHETest.HasteBootsRawVecMutBorrowSmoke
 import FormalProof4FHETest.HasteBootsRawVecMutBorrowAudit
+
+import FormalProof4FHETest.HasteBootsVecReferenceSmoke
+import FormalProof4FHETest.HasteBootsVecReferenceAudit
+import FormalProof4FHETest.HasteBootsRecordDropCallsSmoke
+import FormalProof4FHETest.HasteBootsRecordDropCallsAudit

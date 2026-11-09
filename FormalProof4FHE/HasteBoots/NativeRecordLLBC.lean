@@ -3,6 +3,7 @@ public import FormalProof4FHE.HasteBoots.NativeRecordValues
 public import FormalProof4FHE.HasteBoots.NativeZstReference
 public import FormalProof4FHE.HasteBoots.NativeRawVecReference
 public import FormalProof4FHE.HasteBoots.NativeRawVecBorrow
+public import FormalProof4FHE.HasteBoots.NativeVecReference
 public import FormalProof4FHE.HasteBoots.NativeRawVecMutBorrow
 public import FormalProof4FHE.HasteBoots.NativeByteDropCalls
 @[expose] public section
@@ -36,6 +37,7 @@ inductive Operand where
   deriving DecidableEq
 
 inductive Input where
+  | vectorExclusiveReference (index : Nat)
   | rawVecExclusiveReference (index : Nat)
   | vectorSharedReference (index : Nat)
   | rawVecSharedReference (index : Nat)
@@ -49,6 +51,7 @@ inductive Input where
   deriving DecidableEq
 
 def decode (world : State) : Input → Option Value
+  | .vectorExclusiveReference index => (NativeVecReference.decodeExclusive world index).map Value.scalar
   | .rawVecExclusiveReference index => (NativeRawVecBorrow.decodeExclusive world index).map Value.scalar
   | .vectorSharedReference index => (NativeRawVecReference.decode world index .vector).map Value.scalar
   | .rawVecSharedReference index => (NativeRawVecReference.decode world index).map Value.scalar
@@ -148,6 +151,9 @@ def retag (world : State) : Value → Bool → Element → Tagged
   | .uninit, true, _ => .invalid world
 
 inductive Rvalue where
+  | vec (operation : NativeVecReference.Operation) (index : Nat) (path : Path := [])
+  | borrowSlice (index : Nat) (path : Path := [])
+  | parts (data length : Operand)
   | unit
   | borrowRawVecMut (index : Nat) (path : Path := [])
   | borrowRawVec (target : NativeRawVecBorrow.Target) (index : Nat) (path : Path := [])
@@ -210,6 +216,33 @@ def evalRawVecMutBorrow (frame : Frame) (index : Nat) (path : Path) : Evaluated 
 def pendingMutableSlot (frame : Frame) (index : Nat) : Bool :=
   frame.types[index]? == some (.scalar (.reference true)) && frame.slots[index]? == some (.live none)
 
+def evalVec (frame : Frame) (index : Nat) (path : Path) (operation : NativeVecReference.Operation) : Evaluated :=
+  match read frame index path with
+  | none => .invalid frame.world
+  | some value => match value with
+    | .scalar value => match NativeVecReference.eval frame.world value operation with
+      | .invalid next => .invalid next
+      | .value output next => .value (.scalar output) {frame with world := next}
+    | _ => .invalid frame.world
+
+def evalBorrowSlice (frame : Frame) (index : Nat) (path : Path) : Evaluated :=
+  match read frame index path with
+  | some (.scalar value) => match NativeSliceLLBC.issue frame.world true value .byte with
+    | none => .invalid frame.world
+    | some (output,next) => .value (.scalar output) {frame with world := next}
+  | _ => .invalid frame.world
+
+def partsValue : List Value → Option Value
+  | [.scalar pointer,.scalar length] => (NativeSliceLLBC.partsValue pointer length).map Value.scalar
+  | _ => none
+
+def evalParts (frame : Frame) (data length : Operand) : Evaluated :=
+  match evalArgs frame [data,length] with
+  | none => .invalid frame.world
+  | some (values,caller) => match partsValue values with
+    | none => .invalid caller.world
+    | some value => .value value caller
+
 def multiplyWords : List Value → Option Value
   | [.scalar (.usize left), .scalar (.usize right)] =>
     if bounded : left.val * right.val < 2^64 then some (.scalar (.usize ⟨left.val * right.val, bounded⟩)) else none
@@ -238,6 +271,9 @@ def recordResultValue (tag : Nat) (singleton : Bool) (value : Value) : Option Va
     match value with | .scalar .unit => some (.record tag (.scalar .unit)) | _ => none
 
 def evalRvalue (frame : Frame) : Rvalue → Evaluated
+  | .vec operation index path => evalVec frame index path operation
+  | .borrowSlice index path => evalBorrowSlice frame index path
+  | .parts data length => evalParts frame data length
   | .unit => .value (.scalar .unit) frame
   | .borrowRawVecMut index path => evalRawVecMutBorrow frame index path
   | .borrowRawVec target index path => evalRawVecBorrow frame index path target
@@ -610,6 +646,49 @@ theorem evalRawVecMutBorrow_projects (frame : Frame) (index : Nat) (path : Path)
       simpa only [evalRawVecMutBorrow, selected, actual, Evaluated.world, NativeRawVecFields.Result.world] using
         NativeReferenceMachine.runs_trans _ _ _ first second
 
+theorem evalVec_projects (frame : Frame) (index : Nat) (path : Path) (operation : NativeVecReference.Operation) :
+    NativeReferenceMachine.Runs frame.world (evalVec frame index path operation).world := by
+  cases selected : read frame index path with
+  | none => simp only [evalVec, selected, Evaluated.world]; exact .refl _
+  | some value =>
+    cases value with
+    | scalar value =>
+      have first := NativeVecReference.eval_projects frame.world value operation
+      cases actual : NativeVecReference.eval frame.world value operation <;>
+        simpa only [evalVec, selected, actual, Evaluated.world, NativeRawVecFields.Result.world] using first
+    | choice side fields => simp only [evalVec, selected, Evaluated.world]; exact .refl _
+    | pair left right => simp only [evalVec, selected, Evaluated.world]; exact .refl _
+    | record tag fields => simp only [evalVec, selected, Evaluated.world]; exact .refl _
+    | enumeration tag value => simp only [evalVec, selected, Evaluated.world]; exact .refl _
+    | uninit => simp only [evalVec, selected, Evaluated.world]; exact .refl _
+
+theorem evalBorrowSlice_projects (frame : Frame) (index : Nat) (path : Path) :
+    NativeReferenceMachine.Runs frame.world (evalBorrowSlice frame index path).world := by
+  cases selected : read frame index path with
+  | none => simp only [evalBorrowSlice, selected, Evaluated.world]; exact .refl _
+  | some value =>
+    cases value with
+    | scalar value =>
+      cases issued : NativeSliceLLBC.issue frame.world true value .byte with
+      | none => simp only [evalBorrowSlice, selected, issued, Evaluated.world]; exact .refl _
+      | some pair =>
+        rcases pair with ⟨output,next⟩
+        simpa only [evalBorrowSlice, selected, issued, Evaluated.world] using NativeSliceLLBC.issue_projects frame.world next true value output issued
+    | choice side fields => simp only [evalBorrowSlice, selected, Evaluated.world]; exact .refl _
+    | pair left right => simp only [evalBorrowSlice, selected, Evaluated.world]; exact .refl _
+    | record tag fields => simp only [evalBorrowSlice, selected, Evaluated.world]; exact .refl _
+    | enumeration tag word => simp only [evalBorrowSlice, selected, Evaluated.world]; exact .refl _
+    | uninit => simp only [evalBorrowSlice, selected, Evaluated.world]; exact .refl _
+
+theorem evalParts_world (frame : Frame) (data length : Operand) :
+    (evalParts frame data length).world = frame.world := by
+  cases selected : evalArgs frame [data,length] with
+  | none => simp only [evalParts, selected, Evaluated.world]
+  | some pair =>
+    rcases pair with ⟨values,caller⟩
+    have same := evalArgs_world frame caller [data,length] values selected
+    cases actual : partsValue values <;> simpa only [evalParts, selected, actual, Evaluated.world] using same
+
 theorem multiplyWords_no_wrap (left right result : Word)
     (computed : multiplyWords [.scalar (.usize left), .scalar (.usize right)] = some (.scalar (.usize result))) :
     result.val = left.val * right.val := by
@@ -647,6 +726,11 @@ theorem evalEnumWord_world (frame : Frame) (operand : Operand) (tag : Nat) :
 theorem evalRvalue_projects (frame : Frame) (rvalue : Rvalue) :
     NativeReferenceMachine.Runs frame.world (evalRvalue frame rvalue).world := by
   induction rvalue with
+  | vec operation index path => exact evalVec_projects frame index path operation
+  | borrowSlice index path => exact evalBorrowSlice_projects frame index path
+  | parts data length =>
+    change NativeReferenceMachine.Runs frame.world (evalParts frame data length).world
+    rw [evalParts_world]; exact .refl _
   | unit => exact .refl _
   | borrowRawVecMut index path => exact evalRawVecMutBorrow_projects frame index path
   | borrowRawVec target index path => exact evalRawVecBorrow_projects frame index path target
