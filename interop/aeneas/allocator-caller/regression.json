@@ -1,7 +1,7 @@
 {
-  "profile": "revalidated-with-source-terminal-helpers-v1",
-  "gate_manifest": "build/hasteboots-extraction/allocator-caller-woze7eyb/manifest.json",
-  "gate_manifest_sha256": "05a8ba41183d519978f69dac6c585f8c54dca93c31924e0c43f7201e16f5d4fd",
+  "profile": "revalidated-with-root-terminal-helper-composition-v1",
+  "gate_manifest": "build/hasteboots-extraction/allocator-caller-9n16k06x/manifest.json",
+  "gate_manifest_sha256": "4bf09cd37b6536d2fdaa19485dc07813ad5540b10605a3cceed22a4004af81aa",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "status": "passed",
   "commands": [
@@ -637,7 +637,7 @@
     "heap_and_incoming_reference_preservation_extended": true,
     "native_alignment_transmute_abi_refinement": false
   },
-  "validation_note": "Fresh extraction gates, warning-as-error Lean checks, allowed-axiom audits and mutation controls passed. The complete capacity_overflow/handle_alloc_error/ct_error bodies and external formatter identity/layout are now validated. Terminal helper proofs cover the copied layout tuple, moved argument, exact literal forwarding, typed formatting results, source cleanup and a distinct named Panic boundary. The formatter uses an abstract logical Arguments carrier and String argument; native &str/Arguments ABI is open. Execution projection/reachability/well-formedness require explicit formatter/panic callback execution contracts. These helpers have independent entry points and are not yet installed in handledRootInvoke, which retains its prior terminal-body parameters. Native formatter/panic behavior, stack/ABI/lifetime/compiler correspondence, physical destruction/reclamation/work and final security remain open. The prior 11101-job full check is reused because library, root tests, toolchain, dependencies and full-check scripts are unchanged.",
+  "validation_note": "Fresh extraction gates, warning-as-error Lean checks, allowed-axiom audits and mutation controls passed. terminalRootInvoke now composes the retained capacity_overflow/handle_alloc_error/ct_error helpers through the checked getter and error-local snapshot. Generic handler/root continuations specialize to the previous implementations; zero/success behavior is preserved and both error paths reach the helpers after successful snapshots, without an assumed getter result. Root execution projection/reachability/well-formedness require the explicit formatter/panic callback execution contracts. Logical String/abstract Arguments representation, native ABI/stack/lifetime/compiler correspondence, actual formatter/panic behavior, physical destruction/reclamation/work and final security remain open. handledRootInvoke retains its prior terminal-body parameters. The prior 11101-job full check is reused because library, root tests, toolchain, dependencies and full-check scripts are unchanged.",
   "prior_zst_local_borrow_baseline": {
     "profile": "original-finite-allocator-caller-revalidated-with-checked-enum-address-v3",
     "gate_manifest": "build/hasteboots-extraction/allocator-caller-97_hgb6y/manifest.json",
@@ -811,8 +811,8 @@
   },
   "revalidated_with_source_getter_body": true,
   "source_getter_body_profile": {
-    "manifest": "build/hasteboots-extraction/reservation-error-kind-h9fowgpm/manifest.json",
-    "manifest_sha256": "7baf21470fc7254d6ceb94623530b12f79e2364211c2f6844a368dc6e0e7356d",
+    "manifest": "build/hasteboots-extraction/reservation-error-kind-zago0xrm/manifest.json",
+    "manifest_sha256": "dead37f6ffad03cd869128a2e8dbc56d9794a7834a200a8f53ea334afce37c67",
     "dependency_audit_count": 652,
     "negative_control_count": 55
   },
@@ -870,5 +870,18 @@
     "manifest_sha256": "fae92a2b283161aa389811cea9e545859446124f927d1528f36bb1489f2faded",
     "dependency_audit_count": 1143,
     "negative_control_count": 241
+  },
+  "prior_terminal_root_composition_baseline": {
+    "profile": "revalidated-with-source-terminal-helpers-v1",
+    "gate_manifest": "build/hasteboots-extraction/allocator-caller-woze7eyb/manifest.json",
+    "gate_manifest_sha256": "05a8ba41183d519978f69dac6c585f8c54dca93c31924e0c43f7201e16f5d4fd",
+    "dependency_audit_count": 388,
+    "negative_control_count": 31
+  },
+  "terminal_root_composition_profile": {
+    "manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-sw2g6mqc/manifest.json",
+    "manifest_sha256": "ad95060dc9a58645fbf9fd8f6e7c0364d95ab9605f4f8f34a70977cd732e7d0c",
+    "dependency_audit_count": 1206,
+    "negative_control_count": 247
   }
 }

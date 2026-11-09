@@ -1,8 +1,8 @@
 {
-  "profile": "revalidated-with-source-terminal-helpers-v1",
+  "profile": "revalidated-with-root-terminal-helper-composition-v1",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-empty-oxtk8v2l/manifest.json",
-  "gate_manifest_sha256": "7835b52c89efee611844c60008d20444558a2d5460ce4a5c9bdafd8556bb5709",
+  "gate_manifest": "build/hasteboots-extraction/vec-empty-9zgvkxi7/manifest.json",
+  "gate_manifest_sha256": "3738d0209afa55f345552a3c40dae2713d91705e89d682e4270d0dc8878b9df3",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -84,7 +84,7 @@
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
     "scripts/reify-hasteboots-variant-body": "2d0326329d538bb43685617133c2ecd96da497c81295cd221315807576383825",
-    "scripts/reify-hasteboots-vec-capacity-arithmetic": "d0734b95943e9706234b3d5f698da008a01bc54156f904ccb5faf3819167fa82",
+    "scripts/reify-hasteboots-vec-capacity-arithmetic": "259f14556bcd8c1bc6ce9a32c0cb843579b7354ae742b6385385cb2aaab1a259",
     "scripts/reify-hasteboots-vec-drop": "0ef983324e439064ea0969a4fc60d6a574137d5548a1feaee727f018b9b1eb8d",
     "scripts/reify-hasteboots-vec-empty": "00a7debb4c04056f86a5fe37ecead6b1f26a8a6fa45642c9b7b6fa76a3532ccd",
     "FormalProof4FHE/HasteBoots/NativeAllocatorExecution.lean": "2c3008e94760730cfbc65c7bee2707e107f23fabdb9df93f302c5848fc909a15",
@@ -540,7 +540,7 @@
     "interop/aeneas/vec-empty/Proof.lean": "e49c37943109ddd3fac76fade3e940454dd06f0e18b8ab1bcc0ffbdbfcb6a2f6",
     "interop/aeneas/vec-empty/Smoke.lean": "5c0cba3dfda637c34c2d2b735f362f71b013f17b2408e98ece36450c366ac244"
   },
-  "source_llbc_sha256": "f1722af4a94b3184edd62cf1cbc2717826a123be029cdc3f1273e4cd35fcba4d",
+  "source_llbc_sha256": "6895c456f8382f98a9296762bd21f312a497b1f6b8e365b6f2a585e6d8e12bcb",
   "checked_sha256": "751f619066943dc4773abed0b4ee7f3ad63e22f2b70705160a7b0d018177f3d1",
   "original_constructor_and_direct_caller_interpreted": true,
   "exact_nominal_return_for_arbitrary_world_proved": true,
@@ -572,7 +572,7 @@
     "dependency_audit_count": 977,
     "negative_control_count": 87
   },
-  "validation_note": "Fresh extraction gates, warning-as-error Lean checks, allowed-axiom audits and mutation controls passed. The complete capacity_overflow/handle_alloc_error/ct_error bodies and external formatter identity/layout are now validated. Terminal helper proofs cover the copied layout tuple, moved argument, exact literal forwarding, typed formatting results, source cleanup and a distinct named Panic boundary. The formatter uses an abstract logical Arguments carrier and String argument; native &str/Arguments ABI is open. Execution projection/reachability/well-formedness require explicit formatter/panic callback execution contracts. These helpers have independent entry points and are not yet installed in handledRootInvoke, which retains its prior terminal-body parameters. Native formatter/panic behavior, stack/ABI/lifetime/compiler correspondence, physical destruction/reclamation/work and final security remain open. The prior 11101-job full check is reused because library, root tests, toolchain, dependencies and full-check scripts are unchanged.",
+  "validation_note": "Fresh extraction gates, warning-as-error Lean checks, allowed-axiom audits and mutation controls passed. terminalRootInvoke now composes the retained capacity_overflow/handle_alloc_error/ct_error helpers through the checked getter and error-local snapshot. Generic handler/root continuations specialize to the previous implementations; zero/success behavior is preserved and both error paths reach the helpers after successful snapshots, without an assumed getter result. Root execution projection/reachability/well-formedness require the explicit formatter/panic callback execution contracts. Logical String/abstract Arguments representation, native ABI/stack/lifetime/compiler correspondence, actual formatter/panic behavior, physical destruction/reclamation/work and final security remain open. handledRootInvoke retains its prior terminal-body parameters. The prior 11101-job full check is reused because library, root tests, toolchain, dependencies and full-check scripts are unchanged.",
   "prior_storage_bridge_baseline": {
     "manifest": "build/hasteboots-extraction/vec-empty-e010m81k/manifest.json",
     "sha256": "3d2248477bca4fce9445e4cbc4bb66e001323c05beae90deed8b7ecefcf5d5bf",
@@ -826,8 +826,8 @@
   },
   "revalidated_with_source_getter_body": true,
   "source_getter_body_profile": {
-    "manifest": "build/hasteboots-extraction/reservation-error-kind-h9fowgpm/manifest.json",
-    "manifest_sha256": "7baf21470fc7254d6ceb94623530b12f79e2364211c2f6844a368dc6e0e7356d",
+    "manifest": "build/hasteboots-extraction/reservation-error-kind-zago0xrm/manifest.json",
+    "manifest_sha256": "dead37f6ffad03cd869128a2e8dbc56d9794a7834a200a8f53ea334afce37c67",
     "dependency_audit_count": 652,
     "negative_control_count": 55
   },
@@ -885,5 +885,18 @@
     "manifest_sha256": "fae92a2b283161aa389811cea9e545859446124f927d1528f36bb1489f2faded",
     "dependency_audit_count": 1143,
     "negative_control_count": 241
+  },
+  "prior_terminal_root_composition_baseline": {
+    "profile": "revalidated-with-source-terminal-helpers-v1",
+    "gate_manifest": "build/hasteboots-extraction/vec-empty-oxtk8v2l/manifest.json",
+    "gate_manifest_sha256": "7835b52c89efee611844c60008d20444558a2d5460ce4a5c9bdafd8556bb5709",
+    "dependency_audit_count": 395,
+    "negative_control_count": 17
+  },
+  "terminal_root_composition_profile": {
+    "manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-sw2g6mqc/manifest.json",
+    "manifest_sha256": "ad95060dc9a58645fbf9fd8f6e7c0364d95ab9605f4f8f34a70977cd732e7d0c",
+    "dependency_audit_count": 1206,
+    "negative_control_count": 247
   }
 }

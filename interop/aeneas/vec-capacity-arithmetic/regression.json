@@ -1,8 +1,8 @@
 {
-  "profile": "source-terminal-helpers-explicit-format-and-panic-v1",
+  "profile": "source-root-retained-terminal-helper-composition-v1",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-hzh2iu0k/manifest.json",
-  "gate_manifest_sha256": "fae92a2b283161aa389811cea9e545859446124f927d1528f36bb1489f2faded",
+  "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-sw2g6mqc/manifest.json",
+  "gate_manifest_sha256": "ad95060dc9a58645fbf9fd8f6e7c0364d95ab9605f4f8f34a70977cd732e7d0c",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -43,10 +43,11 @@
     "601d57a93ff1a8fa767bbb09f1c2b5ff0d303b8c",
     "e95c395dbc254a1475e36e8d125f3b1cd2b3dda6",
     "2798bd4b1a4eadd531afe8048cc644e1f578d5e8",
-    "328c1aaf8f312edbc5fe265866964dec010e11df"
+    "328c1aaf8f312edbc5fe265866964dec010e11df",
+    "80b65760ca360e021d9579dcdbcb418a2a955c17"
   ],
-  "dependency_audit_count": 1143,
-  "negative_control_count": 241,
+  "dependency_audit_count": 1206,
+  "negative_control_count": 247,
   "negative_controls": {
     "wrong_target": "Wrong target",
     "not_monomorphized": "Wrong extraction profile",
@@ -282,6 +283,12 @@
     "terminal_formatter_owner": "Changed formatter method owner",
     "terminal_formatter_instantiation": "Changed formatter instantiation",
     "terminal_format_arguments_layout": "Changed external formatting argument type/layout",
+    "terminal_composition_local_type_10": "Changed terminal helper locals",
+    "terminal_composition_argument_count_10": "Changed terminal helper metadata",
+    "terminal_composition_local_type_11": "Changed allocation wrapper locals",
+    "terminal_composition_argument_count_11": "Changed allocation wrapper metadata",
+    "terminal_composition_local_type_15": "Changed terminal helper locals",
+    "terminal_composition_argument_count_15": "Changed terminal helper metadata",
     "getter_link_method_owner": "Getter link method identity differs",
     "getter_link_method_name": "Getter link method identity differs",
     "getter_link_signature": "Getter link signature differs",
@@ -291,7 +298,7 @@
     "getter_link_type_identity": "Getter link type identity/layout differs"
   },
   "inputs": {
-    "scripts/check-hasteboots-vec-capacity-arithmetic": "a8e3f5abb0cf723747de4c2101b6c0481b726a069f632d1475175541d9dc7eba",
+    "scripts/check-hasteboots-vec-capacity-arithmetic": "c789f138649842cb3a0ef2d9f63201978beb0a641b08ec75a4ab5d0df5f25216",
     "scripts/check-hasteboots-reservation-error-kind": "eaf7c3fddc367731f76266c3125a73609882bab90934f333fdb3243cd07ed363",
     "interop/aeneas/reservation-error-kind/fixture.rs": "bcb152c61f699329e5fb840c2d98abfadc639f5b7b3899c1a003f04d3f2c99b4",
     "interop/aeneas/reservation-error-kind/Retained.json": "22314f3125438e781e27db1907076a2b2151e25efa9572fa618c04a75276ffd3",
@@ -320,7 +327,7 @@
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
     "scripts/reify-hasteboots-variant-body": "2d0326329d538bb43685617133c2ecd96da497c81295cd221315807576383825",
-    "scripts/reify-hasteboots-vec-capacity-arithmetic": "d0734b95943e9706234b3d5f698da008a01bc54156f904ccb5faf3819167fa82",
+    "scripts/reify-hasteboots-vec-capacity-arithmetic": "259f14556bcd8c1bc6ce9a32c0cb843579b7354ae742b6385385cb2aaab1a259",
     "scripts/reify-hasteboots-vec-drop": "0ef983324e439064ea0969a4fc60d6a574137d5548a1feaee727f018b9b1eb8d",
     "scripts/reify-hasteboots-vec-empty": "00a7debb4c04056f86a5fe37ecead6b1f26a8a6fa45642c9b7b6fa76a3532ccd",
     "FormalProof4FHE/HasteBoots/NativeAllocatorExecution.lean": "2c3008e94760730cfbc65c7bee2707e107f23fabdb9df93f302c5848fc909a15",
@@ -783,7 +790,7 @@
     "FormalProof4FHETest/HasteBootsReservationErrorReadSmoke.lean": "0036c6b9d2c45a7e65c6fb46a90c623c36e9ff62916432e69ceb8c5aebe84333",
     "FormalProof4FHETest/HasteBootsReservationErrorReadAudit.lean": "d51d3b9b9df5b2d1021ea291a56f90c44952f6ea57a422bf047be5b4d4b86f54",
     "interop/aeneas/vec-capacity-arithmetic/fixture.rs": "a1b4abdec2d161f72fd7e843f8d49e276aff4ce79b95cc0884807a084f620861",
-    "interop/aeneas/vec-capacity-arithmetic/Generated.lean": "d8c830719c0db4b128338e34195472fc5ef00fc663034b11381deda147542c20",
+    "interop/aeneas/vec-capacity-arithmetic/Generated.lean": "68ce2a5aa879cd2f2fba594a8a0909db9343efdce1dd2cd139a5e69f9faf1098",
     "interop/aeneas/vec-capacity-arithmetic/Retained.json": "797c79f20dc245262170cfac7aaf0ba468d4bfbdd627c6141e469c2dddaead83",
     "interop/aeneas/vec-capacity-arithmetic/Proof.lean": "7a15b251f41be0ea0ca802b9cd68956aed7446968cb737607348477e323bf518",
     "interop/aeneas/vec-capacity-arithmetic/LayoutProof.lean": "31a80b3e5b8eb9a85bc9154abe0a5b573b2368ada8c09ba1d7929ebdb6edfe4b",
@@ -812,6 +819,10 @@
     "interop/aeneas/vec-capacity-arithmetic/OuterProjectionProof.lean": "5e5b508f2239d3e2ef27d82fac489e06720514d4e565faaf918ccc6e5ca852d1",
     "interop/aeneas/vec-capacity-arithmetic/TerminalProof.lean": "d7a6c39f532374406e2376635e751e722c749e63824e7e066828a1461afc06df",
     "interop/aeneas/vec-capacity-arithmetic/TerminalProjectionProof.lean": "c96f8d514754783f3f58b440bde5ba42a4166a931ae841367a86bb70392e750c",
+    "interop/aeneas/vec-capacity-arithmetic/EffectRootProof.lean": "70204816c297036e8dd5dcb29652833f181788a77c9f0b7aa2e4ebf014dea8fa",
+    "interop/aeneas/vec-capacity-arithmetic/TerminalHandlerProof.lean": "2793ffad9be1eec6b3a81e9376a02d9118956ccaf11e17aeb93c4ed397afb629",
+    "interop/aeneas/vec-capacity-arithmetic/TerminalRootProof.lean": "b91cb3156fcde2806c6b59ce497aab10b8bc80ef4f9ef77b76e2ca4317825efa",
+    "interop/aeneas/vec-capacity-arithmetic/TerminalRootProjectionProof.lean": "324b3257cbfc624b3a1b25fab57e7c8af317382fd78c93ac4d832866ed944f13",
     "interop/aeneas/vec-capacity-arithmetic/Smoke.lean": "62710e1fb00e8db3b3f5a0232ea568dd616594e30171dbc10bb9f21a2f7fe08f",
     "interop/aeneas/vec-capacity-arithmetic/LayoutSmoke.lean": "5aed39dd3f94928d8ec11c49643504c8d5e553e5f62f9897cbeefa38c8c2a92c",
     "interop/aeneas/vec-capacity-arithmetic/AcceptedSmoke.lean": "cb8b53a45b6d27fd0636169b6321554ce79a6fd00a94b402399c7f028c236a09",
@@ -832,19 +843,20 @@
     "interop/aeneas/vec-capacity-arithmetic/ReadSmoke.lean": "6726af23fdfd9806e9bf7da055d771fe4d20bd73df6e9c4c0aefd01bae02992e",
     "interop/aeneas/vec-capacity-arithmetic/HandlerSmoke.lean": "39464457d25edbbb1c254ea482a2984c587110bb9e9524fc856514289c78fc53",
     "interop/aeneas/vec-capacity-arithmetic/OuterSmoke.lean": "6a49f0debf7c2838623997cff2d30bfdee0beba65aa4f25737537a9b379a23a8",
-    "interop/aeneas/vec-capacity-arithmetic/TerminalSmoke.lean": "b84d6c30700ec4e674773409d088573b5824c19e4d6f39f779aafcededf4cef7"
+    "interop/aeneas/vec-capacity-arithmetic/TerminalSmoke.lean": "b84d6c30700ec4e674773409d088573b5824c19e4d6f39f779aafcededf4cef7",
+    "interop/aeneas/vec-capacity-arithmetic/TerminalRootSmoke.lean": "edc6a13b08ea1340504630ea8f5f3dddff0356a4c0f10d863b743d4efd730c4a"
   },
-  "source_llbc_sha256": "b52d2ac90047da1b1519ca543a5e89f8b75d3e5f9ff44d131ac86741370860b1",
-  "checked_sha256": "ecd23f5dec3651b4f9a301be53409761c1c742dd2907d2346b68fa847a785ff1",
-  "source_definition_count": 267,
-  "source_theorem_count": 268,
-  "source_declaration_audit_count": 535,
+  "source_llbc_sha256": "7b3202997721fc481f8b27c5bfda921db46a52ea07fa2b0268258f813b302d71",
+  "checked_sha256": "76249dd7390fbe7a806eaa30628818e99bd1c5b6b0da96d0e42fca4afa626171",
+  "source_definition_count": 280,
+  "source_theorem_count": 318,
+  "source_declaration_audit_count": 598,
   "core_extension_declaration_audit_count": 278,
-  "new_declaration_audit_count": 867,
+  "new_declaration_audit_count": 930,
   "retained_function_count": 21,
   "retained_type_count": 31,
   "isolated_assignment_count": 9,
-  "source_regression_count": 170,
+  "source_regression_count": 186,
   "model_regression_count": 151,
   "arithmetic_extension": {
     "module": "FormalProof4FHE/HasteBoots/NativeRecordArithmetic.lean",
@@ -885,31 +897,31 @@
   },
   "revalidated_profiles": {
     "vec": {
-      "manifest": "build/hasteboots-extraction/vec-drop-xgg4jtu7/manifest.json",
-      "manifest_sha256": "944f6562e0303e8c644c06f20d5fcb7f9c7d26134dd71ace09c7b05d48cdc8dc",
+      "manifest": "build/hasteboots-extraction/vec-drop-1psd_tbn/manifest.json",
+      "manifest_sha256": "a165006cc1ba1ad0e41aaac5b11ce6614ebd69c79eb80e81d991c92f81725e17",
       "dependency_audit_count": 1044,
       "negative_control_count": 87
     },
     "allocator": {
-      "manifest": "build/hasteboots-extraction/allocator-caller-woze7eyb/manifest.json",
-      "manifest_sha256": "05a8ba41183d519978f69dac6c585f8c54dca93c31924e0c43f7201e16f5d4fd",
+      "manifest": "build/hasteboots-extraction/allocator-caller-9n16k06x/manifest.json",
+      "manifest_sha256": "4bf09cd37b6536d2fdaa19485dc07813ad5540b10605a3cceed22a4004af81aa",
       "dependency_audit_count": 388,
       "negative_control_count": 31
     },
     "empty": {
-      "manifest": "build/hasteboots-extraction/vec-empty-oxtk8v2l/manifest.json",
-      "manifest_sha256": "7835b52c89efee611844c60008d20444558a2d5460ce4a5c9bdafd8556bb5709",
+      "manifest": "build/hasteboots-extraction/vec-empty-9zgvkxi7/manifest.json",
+      "manifest_sha256": "3738d0209afa55f345552a3c40dae2713d91705e89d682e4270d0dc8878b9df3",
       "dependency_audit_count": 395,
       "negative_control_count": 17
     },
     "getter": {
-      "manifest": "build/hasteboots-extraction/reservation-error-kind-h9fowgpm/manifest.json",
-      "manifest_sha256": "7baf21470fc7254d6ceb94623530b12f79e2364211c2f6844a368dc6e0e7356d",
+      "manifest": "build/hasteboots-extraction/reservation-error-kind-zago0xrm/manifest.json",
+      "manifest_sha256": "dead37f6ffad03cd869128a2e8dbc56d9794a7834a200a8f53ea334afce37c67",
       "dependency_audit_count": 652,
       "negative_control_count": 55
     }
   },
-  "validation_note": "Fresh extraction gates, warning-as-error Lean checks, allowed-axiom audits and mutation controls passed. The complete capacity_overflow/handle_alloc_error/ct_error bodies and external formatter identity/layout are now validated. Terminal helper proofs cover the copied layout tuple, moved argument, exact literal forwarding, typed formatting results, source cleanup and a distinct named Panic boundary. The formatter uses an abstract logical Arguments carrier and String argument; native &str/Arguments ABI is open. Execution projection/reachability/well-formedness require explicit formatter/panic callback execution contracts. These helpers have independent entry points and are not yet installed in handledRootInvoke, which retains its prior terminal-body parameters. Native formatter/panic behavior, stack/ABI/lifetime/compiler correspondence, physical destruction/reclamation/work and final security remain open. The prior 11101-job full check is reused because library, root tests, toolchain, dependencies and full-check scripts are unchanged.",
+  "validation_note": "Fresh extraction gates, warning-as-error Lean checks, allowed-axiom audits and mutation controls passed. terminalRootInvoke now composes the retained capacity_overflow/handle_alloc_error/ct_error helpers through the checked getter and error-local snapshot. Generic handler/root continuations specialize to the previous implementations; zero/success behavior is preserved and both error paths reach the helpers after successful snapshots, without an assumed getter result. Root execution projection/reachability/well-formedness require the explicit formatter/panic callback execution contracts. Logical String/abstract Arguments representation, native ABI/stack/lifetime/compiler correspondence, actual formatter/panic behavior, physical destruction/reclamation/work and final security remain open. handledRootInvoke retains its prior terminal-body parameters. The prior 11101-job full check is reused because library, root tests, toolchain, dependencies and full-check scripts are unchanged.",
   "prior_isolated_assignment_baseline": {
     "profile": "retained-with-capacity-scalar-assignments-and-typed-boolean-arithmetic-v1",
     "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-hmaelxmc/manifest.json",
@@ -1647,8 +1659,8 @@
   },
   "revalidated_with_source_getter_body": true,
   "source_getter_body_profile": {
-    "manifest": "build/hasteboots-extraction/reservation-error-kind-h9fowgpm/manifest.json",
-    "manifest_sha256": "7baf21470fc7254d6ceb94623530b12f79e2364211c2f6844a368dc6e0e7356d",
+    "manifest": "build/hasteboots-extraction/reservation-error-kind-zago0xrm/manifest.json",
+    "manifest_sha256": "dead37f6ffad03cd869128a2e8dbc56d9794a7834a200a8f53ea334afce37c67",
     "dependency_audit_count": 652,
     "negative_control_count": 55
   },
@@ -1705,7 +1717,7 @@
       "caller_wrapper_opaque_source_wrapper_transparent": true,
       "native_abi_refinement": false
     },
-    "getter_source_llbc_sha256": "a05bbcb05829062ab8626ca3b7435c124a9de5068a6c13d326a9f72f08485ee5",
+    "getter_source_llbc_sha256": "a7693fe896a283a87794e5fc6c4ed4bd106e4ca1db991792cd51c85600babce0",
     "source_definition_count": 14,
     "source_theorem_count": 14,
     "source_regression_count": 12,
@@ -1791,6 +1803,41 @@
     "execution_projection_requires_callback_execution_contracts": true,
     "new_terminal_helpers_installed_in_handled_root": false,
     "native_string_and_format_arguments_abi_refinement": false,
+    "native_formatter_and_panic_semantics_proved": false,
+    "physical_work_refinement": false,
+    "final_security_theorem": false,
+    "new_terminal_root_entry_uses_retained_helpers": true
+  },
+  "prior_terminal_root_composition_baseline": {
+    "profile": "source-terminal-helpers-explicit-format-and-panic-v1",
+    "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-hzh2iu0k/manifest.json",
+    "gate_manifest_sha256": "fae92a2b283161aa389811cea9e545859446124f927d1528f36bb1489f2faded",
+    "dependency_audit_count": 1143,
+    "negative_control_count": 241
+  },
+  "terminal_root_composition_profile": {
+    "manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-sw2g6mqc/manifest.json",
+    "manifest_sha256": "ad95060dc9a58645fbf9fd8f6e7c0364d95ab9605f4f8f34a70977cd732e7d0c",
+    "dependency_audit_count": 1206,
+    "negative_control_count": 247
+  },
+  "terminal_root_composition": {
+    "entry_point": "terminalRootInvoke",
+    "source_definition_count": 13,
+    "source_theorem_count": 50,
+    "source_regression_count": 16,
+    "generalized_handler_and_root_from_validated_templates": true,
+    "prior_handler_root_specialization_proved": true,
+    "complete_terminal_local_contexts_entered": true,
+    "zero_and_success_behavior_preserved": true,
+    "both_root_error_paths_reach_terminal_helpers_after_snapshot": true,
+    "getter_success_derived_from_snapshot": true,
+    "source_caller_cleanup_composed": true,
+    "all_outcome_execution_projection_proved_under_external_contracts": true,
+    "root_reachability_and_well_formedness_proved_under_external_contracts": true,
+    "formatter_and_panic_callbacks_explicit": true,
+    "string_and_format_arguments_carriers_abstract": true,
+    "native_abi_stack_lifetime_compiler_refinement": false,
     "native_formatter_and_panic_semantics_proved": false,
     "physical_work_refinement": false,
     "final_security_theorem": false

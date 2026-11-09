@@ -1,8 +1,8 @@
 {
-  "profile": "revalidated-with-source-terminal-helpers-v1",
+  "profile": "revalidated-with-root-terminal-helper-composition-v1",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-drop-xgg4jtu7/manifest.json",
-  "gate_manifest_sha256": "944f6562e0303e8c644c06f20d5fcb7f9c7d26134dd71ace09c7b05d48cdc8dc",
+  "gate_manifest": "build/hasteboots-extraction/vec-drop-1psd_tbn/manifest.json",
+  "gate_manifest_sha256": "a165006cc1ba1ad0e41aaac5b11ce6614ebd69c79eb80e81d991c92f81725e17",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -318,7 +318,7 @@
     "FormalProof4FHETest/HasteBootsRawVecDeallocationCompletenessAudit.lean": "85efbedcef271ce6dc69a0bebb5d25b0880091984899ae52e3c02bfe7bcb3a48",
     "FormalProof4FHETest/HasteBootsVecDestructionCompletenessAudit.lean": "b15ca27d45474cdbf6c85a2635a3969160d35fd7e658b00139d4ba8d394a3dbd"
   },
-  "source_llbc_sha256": "fc2c3669b4088499559e8031fadd70b91f0f55c999c01e5159e65e0cf2161a2f",
+  "source_llbc_sha256": "eb7edd3aa83c1b985f9dbd1677b0a47fe278b8eb7c3c68200ae1d232b6c80854",
   "outer_vec_drop_glue_interpreted": true,
   "outer_vec_drop_method_interpreted": true,
   "unbounded_original_byte_loop_interpreted": true,
@@ -1037,7 +1037,7 @@
     "heap_and_incoming_reference_preservation_extended": true,
     "native_alignment_transmute_abi_refinement": false
   },
-  "validation_note": "Fresh extraction gates, warning-as-error Lean checks, allowed-axiom audits and mutation controls passed. The complete capacity_overflow/handle_alloc_error/ct_error bodies and external formatter identity/layout are now validated. Terminal helper proofs cover the copied layout tuple, moved argument, exact literal forwarding, typed formatting results, source cleanup and a distinct named Panic boundary. The formatter uses an abstract logical Arguments carrier and String argument; native &str/Arguments ABI is open. Execution projection/reachability/well-formedness require explicit formatter/panic callback execution contracts. These helpers have independent entry points and are not yet installed in handledRootInvoke, which retains its prior terminal-body parameters. Native formatter/panic behavior, stack/ABI/lifetime/compiler correspondence, physical destruction/reclamation/work and final security remain open. The prior 11101-job full check is reused because library, root tests, toolchain, dependencies and full-check scripts are unchanged.",
+  "validation_note": "Fresh extraction gates, warning-as-error Lean checks, allowed-axiom audits and mutation controls passed. terminalRootInvoke now composes the retained capacity_overflow/handle_alloc_error/ct_error helpers through the checked getter and error-local snapshot. Generic handler/root continuations specialize to the previous implementations; zero/success behavior is preserved and both error paths reach the helpers after successful snapshots, without an assumed getter result. Root execution projection/reachability/well-formedness require the explicit formatter/panic callback execution contracts. Logical String/abstract Arguments representation, native ABI/stack/lifetime/compiler correspondence, actual formatter/panic behavior, physical destruction/reclamation/work and final security remain open. handledRootInvoke retains its prior terminal-body parameters. The prior 11101-job full check is reused because library, root tests, toolchain, dependencies and full-check scripts are unchanged.",
   "prior_zst_local_borrow_baseline": {
     "profile": "original-resident-vec-destruction-with-checked-enum-address-v26",
     "gate_manifest": "build/hasteboots-extraction/vec-drop-u8mfb0e8/manifest.json",
@@ -1202,8 +1202,8 @@
   },
   "revalidated_with_source_getter_body": true,
   "source_getter_body_profile": {
-    "manifest": "build/hasteboots-extraction/reservation-error-kind-h9fowgpm/manifest.json",
-    "manifest_sha256": "7baf21470fc7254d6ceb94623530b12f79e2364211c2f6844a368dc6e0e7356d",
+    "manifest": "build/hasteboots-extraction/reservation-error-kind-zago0xrm/manifest.json",
+    "manifest_sha256": "dead37f6ffad03cd869128a2e8dbc56d9794a7834a200a8f53ea334afce37c67",
     "dependency_audit_count": 652,
     "negative_control_count": 55
   },
@@ -1261,5 +1261,18 @@
     "manifest_sha256": "fae92a2b283161aa389811cea9e545859446124f927d1528f36bb1489f2faded",
     "dependency_audit_count": 1143,
     "negative_control_count": 241
+  },
+  "prior_terminal_root_composition_baseline": {
+    "profile": "revalidated-with-source-terminal-helpers-v1",
+    "gate_manifest": "build/hasteboots-extraction/vec-drop-xgg4jtu7/manifest.json",
+    "gate_manifest_sha256": "944f6562e0303e8c644c06f20d5fcb7f9c7d26134dd71ace09c7b05d48cdc8dc",
+    "dependency_audit_count": 1044,
+    "negative_control_count": 87
+  },
+  "terminal_root_composition_profile": {
+    "manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-sw2g6mqc/manifest.json",
+    "manifest_sha256": "ad95060dc9a58645fbf9fd8f6e7c0364d95ab9605f4f8f34a70977cd732e7d0c",
+    "dependency_audit_count": 1206,
+    "negative_control_count": 247
   }
 }
