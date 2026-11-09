@@ -282,3 +282,6 @@ import FormalProof4FHETest.HasteBootsRecordArithmeticAudit
 
 import FormalProof4FHETest.HasteBootsReservationErrorFieldsSmoke
 import FormalProof4FHETest.HasteBootsReservationErrorFieldsAudit
+
+import FormalProof4FHETest.HasteBootsStorageBorrowSmoke
+import FormalProof4FHETest.HasteBootsStorageBorrowAudit

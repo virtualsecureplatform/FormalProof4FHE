@@ -691,3 +691,6 @@ import FormalProof4FHE.HasteBoots.NativeReservedVecConstruction
 import FormalProof4FHE.HasteBoots.NativeRecordArithmetic
 
 import FormalProof4FHE.HasteBoots.NativeReservationErrorFields
+
+import FormalProof4FHE.HasteBoots.NativeByteBorrowStorage
+import FormalProof4FHE.HasteBoots.NativeStorageBorrowMachine
