@@ -7,6 +7,33 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Source success aggregates and capacity dispatch
+
+The accepted layout branch now executes its original 16 aggregate, projection,
+move and storage statements before the source zero-size switch. Lean proves
+construction of `Layout { size: capacity, align: 1 }`, the two nominal `Ok`
+wrappers and recovery of that layout into local 6. Temporary aggregate locals
+are consumed and made dead in source order. The recovered size in local 7
+selects the zero-size continuation exactly when the requested capacity is zero.
+
+`layout_capacity_dispatch` composes this result with the earlier overflow and
+layout-bound prefix for every capacity below `2^63`. The zero-size, positive-size,
+rejected-layout, overflow and following continuations remain arbitrary; their
+normal and exceptional outcomes are preserved. Source regressions exercise zero,
+one and the largest accepted size, including a selected failing branch that
+must suppress the following continuation. Fresh extraction validates both Result
+success/error variant declarations, success field projections and the exact
+unsigned zero-size switch. The unused reservation-error field type remains
+arbitrary: this proves success-side operations without assigning a representation
+to the source error type hidden by this extraction.
+
+The fresh gate passes 361 dependency audits and 42 rejecting controls. Eight new
+source regressions extend the earlier thirteen. No production interpreter module
+or root import changed. The next source obligations are the zero-size return
+construction and positive-size allocation-mode dispatch with its actual allocator
+reference and call. Allocator/error execution, native ABI/compiler correspondence,
+physical work and the final security theorem remain open.
+
 ## Continuous byte-allocation layout prefix
 
 The retained `alloc::raw_vec::try_allocate_in` prefix now has an operational

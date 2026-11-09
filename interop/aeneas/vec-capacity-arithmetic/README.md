@@ -52,3 +52,14 @@ Fresh extraction checks nominal Layout/Alignment fields, their physical layouts,
 all alignment tags and the evaluated byte-layout global. This version audits
 352 dependencies and rejects 32 source/profile mutations. Allocator and error
 suffixes are retained as arbitrary continuation holes; their execution is open.
+
+
+`AcceptedProof.lean` now additionally checks the 16 source statements constructing
+Layout and its two success Result wrappers, consuming their fields and recovering
+the allocation size. It composes their exact final frame and zero-size switch
+with the preceding layout bound. The reservation-error field representation is
+arbitrary and unused; its source variant declaration is validated. Eight further
+source examples check zero/positive dispatch, failure propagation and storage
+lifetimes. The current gate has 361 dependency audits and 42 rejecting controls.
+Zero-size return construction and the positive allocator-mode dispatch remain
+unprocessed source continuations.

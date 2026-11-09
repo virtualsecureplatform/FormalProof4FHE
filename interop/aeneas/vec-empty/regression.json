@@ -1,8 +1,8 @@
 {
   "profile": "original-empty-byte-vec-resident-storage-with-typed-boolean-arithmetic-v4",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-empty-sg8127og/manifest.json",
-  "gate_manifest_sha256": "5edeb8024e16f7f89faac57e7b6a92e068d166370eac479da9ef23080e7774c9",
+  "gate_manifest": "build/hasteboots-extraction/vec-empty-bjhva77y/manifest.json",
+  "gate_manifest_sha256": "6cca12ffc32a8fdebdba1775191468c189dc6b2dcdca9423922211a54af03c83",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -19,7 +19,9 @@
     "8db02890bded3b18a259c769a8c7c953c57781ca",
     "814a24a5ae283b13af3251b376db1d3fbde7835d",
     "a26654d411cdaa2663f021e176efb600c179701e",
-    "386c112944135e244f21ff4d036af9b110294d5b"
+    "386c112944135e244f21ff4d036af9b110294d5b",
+    "49cfed0d66ee5b5740b7337e058ac46cdfbbe771",
+    "7f83378c32a3c8cc40d388aefd9695ba63f3e5fe"
   ],
   "dependency_audit_count": 332,
   "source_definition_count": 8,
@@ -71,7 +73,7 @@
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
     "scripts/reify-hasteboots-variant-body": "2d0326329d538bb43685617133c2ecd96da497c81295cd221315807576383825",
-    "scripts/reify-hasteboots-vec-capacity-arithmetic": "7b840cf39acaf8df8ddd8dae1b1ab1f176af1fd5519a318753a6c0df20e2e04e",
+    "scripts/reify-hasteboots-vec-capacity-arithmetic": "4526c81456289a9e3d5d3a12ce8fc2445c45f3674f519d78e032938b8abb3323",
     "scripts/reify-hasteboots-vec-drop": "0ef983324e439064ea0969a4fc60d6a574137d5548a1feaee727f018b9b1eb8d",
     "scripts/reify-hasteboots-vec-empty": "00a7debb4c04056f86a5fe37ecead6b1f26a8a6fa45642c9b7b6fa76a3532ccd",
     "FormalProof4FHE/HasteBoots/NativeAtomicIndexLaw.lean": "05162b4db7430d055e1a0cddd1a789836ea00740c6fcee9e552fb8a27dec576d",
@@ -519,7 +521,7 @@
     "interop/aeneas/vec-empty/Proof.lean": "e49c37943109ddd3fac76fade3e940454dd06f0e18b8ab1bcc0ffbdbfcb6a2f6",
     "interop/aeneas/vec-empty/Smoke.lean": "5c0cba3dfda637c34c2d2b735f362f71b013f17b2408e98ece36450c366ac244"
   },
-  "source_llbc_sha256": "22c66423c1fe4a8ba948471514aae52a1305556f07166d636a9de4f109e55dfd",
+  "source_llbc_sha256": "71dbd288993466969c5e17c13eede1088fe5c6b7a0bff73c45ac3dc903d82261",
   "checked_sha256": "cf6f61906ec1aa2bc2b1f5e590e3493a3790a9480f9204d4eb1c754346460347",
   "original_constructor_and_direct_caller_interpreted": true,
   "exact_nominal_return_for_arbitrary_world_proved": true,
@@ -551,7 +553,7 @@
     "dependency_audit_count": 977,
     "negative_control_count": 87
   },
-  "validation_note": "Revalidated after extending the capacity reifier to the continuous layout prefix: 332 audits and 17 rejecting controls passed, followed by the full project check. Empty-constructor source and proof scope are unchanged.",
+  "validation_note": "Freshly revalidated with 332 audits and 17 rejecting controls after the capacity reifier gained success aggregates and zero-size dispatch. Empty source/proofs and production interpreter are unchanged; the prior full project check remains applicable.",
   "prior_storage_bridge_baseline": {
     "manifest": "build/hasteboots-extraction/vec-empty-e010m81k/manifest.json",
     "sha256": "3d2248477bca4fce9445e4cbc4bb66e001323c05beae90deed8b7ecefcf5d5bf",
@@ -616,5 +618,9 @@
     "profile": "original-empty-byte-vec-resident-storage-with-typed-boolean-arithmetic-v4",
     "gate_manifest": "build/hasteboots-extraction/vec-empty-3amzqoj7/manifest.json",
     "gate_manifest_sha256": "266b7909306f9946bd229ff0c059e610a9d3a085c6e492d15bf26f8f84abd10f"
+  },
+  "prior_success_aggregate_revalidation_baseline": {
+    "gate_manifest": "build/hasteboots-extraction/vec-empty-sg8127og/manifest.json",
+    "gate_manifest_sha256": "5edeb8024e16f7f89faac57e7b6a92e068d166370eac479da9ef23080e7774c9"
   }
 }

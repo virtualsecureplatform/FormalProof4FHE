@@ -1,8 +1,8 @@
 {
-  "profile": "retained-byte-layout-continuous-prefix-and-arbitrary-continuations-v2",
+  "profile": "retained-layout-success-aggregates-and-capacity-dispatch-v3",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-8ylk67gl/manifest.json",
-  "gate_manifest_sha256": "976fe358cd154e589c8dd88ebc3e1eda1d5eae4083252f428564517d42a6e4aa",
+  "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-ydjunlov/manifest.json",
+  "gate_manifest_sha256": "627cd52330c4225d0d07cc92e8a578fc95373063c17edb1a7453ea0cee8c1069",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -10,10 +10,12 @@
     "8db02890bded3b18a259c769a8c7c953c57781ca",
     "814a24a5ae283b13af3251b376db1d3fbde7835d",
     "a26654d411cdaa2663f021e176efb600c179701e",
-    "386c112944135e244f21ff4d036af9b110294d5b"
+    "386c112944135e244f21ff4d036af9b110294d5b",
+    "49cfed0d66ee5b5740b7337e058ac46cdfbbe771",
+    "7f83378c32a3c8cc40d388aefd9695ba63f3e5fe"
   ],
-  "dependency_audit_count": 352,
-  "negative_control_count": 32,
+  "dependency_audit_count": 361,
+  "negative_control_count": 42,
   "negative_controls": {
     "wrong_target": "Wrong target",
     "not_monomorphized": "Wrong extraction profile",
@@ -46,10 +48,20 @@
     "changed_prefix_retag": "Changed prefix retag",
     "changed_prefix_boolean": "Changed prefix Boolean literal",
     "extra_prefix_statement": "Changed layout prefix extent",
-    "duplicate_byte_layout_global": "Missing byte layout global"
+    "duplicate_byte_layout_global": "Missing byte layout global",
+    "changed_size_case": "Changed zero-size dispatch",
+    "size_move_instead_of_copy": "Changed zero-size dispatch",
+    "missing_positive_size_arm": "Changed zero-size dispatch",
+    "changed_accepted_prefix_extent": "Changed accepted prefix extent",
+    "changed_layout_success_variant": "Unsupported prefix aggregate variant",
+    "changed_reservation_success_variant": "Unsupported prefix aggregate variant",
+    "changed_aggregate_union_field": "Changed aggregate nominal type",
+    "changed_layout_result_fields": "Changed Result variants",
+    "changed_reservation_result_discriminant": "Changed Result variants",
+    "changed_result_success_projection": "Changed Result success projection"
   },
   "inputs": {
-    "scripts/check-hasteboots-vec-capacity-arithmetic": "78fcedbdb3d33686338a9f09c9cf86415d533706477e28dd600be2432603b215",
+    "scripts/check-hasteboots-vec-capacity-arithmetic": "114cb83522151aa19f098d7de413e32d8a6eae0d46fbee10433e773d53408277",
     "scripts/check-hasteboots-allocator-caller": "b51f70a0aa8db041c98995874afbe92cfed358380b111785a6258792dd953405",
     "scripts/build-hasteboots-inline-tools": "efda9a152172fdebfb14919f4c29e920f12da0d2ad71ab45ee526a27d9713452",
     "scripts/extract-hasteboots-parameters": "9ab0b333e12a4dac0fea4e37bc8bee430bdf56cac7eb4bcb5fa999ceab140993",
@@ -71,7 +83,7 @@
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
     "scripts/reify-hasteboots-variant-body": "2d0326329d538bb43685617133c2ecd96da497c81295cd221315807576383825",
-    "scripts/reify-hasteboots-vec-capacity-arithmetic": "7b840cf39acaf8df8ddd8dae1b1ab1f176af1fd5519a318753a6c0df20e2e04e",
+    "scripts/reify-hasteboots-vec-capacity-arithmetic": "4526c81456289a9e3d5d3a12ce8fc2445c45f3674f519d78e032938b8abb3323",
     "scripts/reify-hasteboots-vec-drop": "0ef983324e439064ea0969a4fc60d6a574137d5548a1feaee727f018b9b1eb8d",
     "scripts/reify-hasteboots-vec-empty": "00a7debb4c04056f86a5fe37ecead6b1f26a8a6fa45642c9b7b6fa76a3532ccd",
     "FormalProof4FHE/HasteBoots/NativeAtomicIndexLaw.lean": "05162b4db7430d055e1a0cddd1a789836ea00740c6fcee9e552fb8a27dec576d",
@@ -514,24 +526,26 @@
     "FormalProof4FHETest/HasteBootsRecordArithmeticSmoke.lean": "c1ee6cd9a7d929326ba2d1dc9998f26ded001e2cd19bc3142834f3efeb341807",
     "FormalProof4FHETest/HasteBootsRecordArithmeticAudit.lean": "e02ccd12113415f36008ec5fcd252b76587698d8392c2620e0477452d61985d9",
     "interop/aeneas/vec-capacity-arithmetic/fixture.rs": "a1b4abdec2d161f72fd7e843f8d49e276aff4ce79b95cc0884807a084f620861",
-    "interop/aeneas/vec-capacity-arithmetic/Generated.lean": "bce949e74bae8f4d189da1eff9beae8791e75e84e51db22cb2b3829939cd7b9a",
-    "interop/aeneas/vec-capacity-arithmetic/Retained.json": "ac8eaba833d000e0a902a953aafc57892cd57b77b6d9c786af444f1f7ac0ef24",
+    "interop/aeneas/vec-capacity-arithmetic/Generated.lean": "6ae96a0bd8a60bffe4ddaefb47fd4035f8dd85d1b754726a88c3d83ae0a8a3e1",
+    "interop/aeneas/vec-capacity-arithmetic/Retained.json": "1c49ab8d19589357fcc5e83203e7535a47d406b5e92ff82f1853f5e3a75a784f",
     "interop/aeneas/vec-capacity-arithmetic/Proof.lean": "7a15b251f41be0ea0ca802b9cd68956aed7446968cb737607348477e323bf518",
     "interop/aeneas/vec-capacity-arithmetic/LayoutProof.lean": "31a80b3e5b8eb9a85bc9154abe0a5b573b2368ada8c09ba1d7929ebdb6edfe4b",
+    "interop/aeneas/vec-capacity-arithmetic/AcceptedProof.lean": "e64b1b81eb85e40ac9e01c1748bc1e9aabf975c064532f9a25297d558e4d6797",
     "interop/aeneas/vec-capacity-arithmetic/Smoke.lean": "62710e1fb00e8db3b3f5a0232ea568dd616594e30171dbc10bb9f21a2f7fe08f",
-    "interop/aeneas/vec-capacity-arithmetic/LayoutSmoke.lean": "5aed39dd3f94928d8ec11c49643504c8d5e553e5f62f9897cbeefa38c8c2a92c"
+    "interop/aeneas/vec-capacity-arithmetic/LayoutSmoke.lean": "5aed39dd3f94928d8ec11c49643504c8d5e553e5f62f9897cbeefa38c8c2a92c",
+    "interop/aeneas/vec-capacity-arithmetic/AcceptedSmoke.lean": "cb8b53a45b6d27fd0636169b6321554ce79a6fd00a94b402399c7f028c236a09"
   },
-  "source_llbc_sha256": "4459ae06563853f5dbb4fabb72bdf4c738d38e8501620e7740d0bb8c877cfcd2",
-  "checked_sha256": "69dd39ba048e4f1e6235256e10922c5290e8ec1bae10123cbbd5c1012c9f56b9",
-  "source_definition_count": 35,
-  "source_theorem_count": 11,
-  "source_declaration_audit_count": 46,
+  "source_llbc_sha256": "d0abc94fc67e5c30098e363975d4b3411c471dbcca32266b08d07a759e688516",
+  "checked_sha256": "5528ffd94949f593d019da3319e36281f704f5ffd029589e2b195a1ee8967fb2",
+  "source_definition_count": 39,
+  "source_theorem_count": 16,
+  "source_declaration_audit_count": 55,
   "core_extension_declaration_audit_count": 28,
-  "new_declaration_audit_count": 74,
+  "new_declaration_audit_count": 83,
   "retained_function_count": 21,
   "retained_type_count": 31,
   "isolated_assignment_count": 9,
-  "source_regression_count": 13,
+  "source_regression_count": 21,
   "model_regression_count": 17,
   "arithmetic_extension": {
     "module": "FormalProof4FHE/HasteBoots/NativeRecordArithmetic.lean",
@@ -578,8 +592,8 @@
       "negative_control_count": 87
     },
     "empty": {
-      "manifest": "build/hasteboots-extraction/vec-empty-sg8127og/manifest.json",
-      "manifest_sha256": "5edeb8024e16f7f89faac57e7b6a92e068d166370eac479da9ef23080e7774c9",
+      "manifest": "build/hasteboots-extraction/vec-empty-bjhva77y/manifest.json",
+      "manifest_sha256": "6cca12ffc32a8fdebdba1775191468c189dc6b2dcdca9423922211a54af03c83",
       "dependency_audit_count": 332,
       "negative_control_count": 17
     },
@@ -590,7 +604,7 @@
       "negative_control_count": 31
     }
   },
-  "validation_note": "Fresh continuous-prefix extraction, 352 declaration dependency audits and 32 rejecting controls passed. Thirteen source regressions include the actual prefix at both sides of the signed-size boundary, arbitrary overflow suffix replacement and ambient argument/world preservation. Full project check passed. Existing Vec destructor and allocator-caller receipt inputs remain byte-for-byte current; the empty-vector gate was freshly rerun because it hashes the extended reifier. Source allocator/error suffixes, whole constructor, native ABI, physical work and final security remain open.",
+  "validation_note": "Fresh extraction and Lean checks passed with 361 dependency audits, 42 rejecting controls and 21 source regressions. The empty-vector gate was rerun and passed. Vec destructor and allocator-caller receipt input hashes are unchanged. The recorded full project check is retained: no production interpreter, root import or root test changed; the new source-profile proofs and regressions are compiled and audited by the fresh capacity gate. The opaque reservation error representation remains arbitrary and unused; source allocator/error suffixes, whole constructor execution, native ABI, physical work and final security remain open.",
   "prior_isolated_assignment_baseline": {
     "profile": "retained-with-capacity-scalar-assignments-and-typed-boolean-arithmetic-v1",
     "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-hmaelxmc/manifest.json",
@@ -611,5 +625,20 @@
     9223372036854775807,
     9223372036854775808,
     18446744073709551615
-  ]
+  ],
+  "prior_continuous_layout_prefix_baseline": {
+    "profile": "retained-byte-layout-continuous-prefix-and-arbitrary-continuations-v2",
+    "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-8ylk67gl/manifest.json",
+    "gate_manifest_sha256": "976fe358cd154e589c8dd88ebc3e1eda1d5eae4083252f428564517d42a6e4aa",
+    "dependency_audit_count": 352,
+    "negative_control_count": 32
+  },
+  "accepted_layout_statement_count": 16,
+  "source_success_aggregates_and_partial_moves_proved": true,
+  "source_zero_size_dispatch_proved": true,
+  "success_aggregate_prefix_composed_with_layout_bound": true,
+  "reservation_error_representation_arbitrary": true,
+  "reservation_error_representation_refinement_proved": false,
+  "zero_size_return_construction_proved": false,
+  "positive_size_allocator_dispatch_proved": false
 }
