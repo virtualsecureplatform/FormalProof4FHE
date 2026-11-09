@@ -43,6 +43,7 @@ class Reifier:
   self.caller_preparation=CallerPreparation(self)
   self.positive_preparation=PositivePreparation(self)
   self.allocator_methods=AllocatorMethods(self)
+  self.runtime_calls=RuntimeCalls(self)
  def walk(self,f,node):
   if isinstance(node,dict):
    if 'statements' in node:
@@ -109,7 +110,7 @@ class Reifier:
     else:slots.append('.dead')
    lines+=['def '+label+' (world : NativeReferenceMachine.State) (left right : NativeWord64Memory.Word) : Frame :=',
     '  ⟨['+', '.join(types)+'], ['+', '.join(slots)+'], world⟩']
-  lines+=[self.layout_prefix.render(),self.caller_preparation.render(),self.positive_preparation.render(),self.allocator_methods.render(),'end HasteBootsVecCapacityArithmetic',''];return '\n'.join(lines)
+  lines+=[self.layout_prefix.render(),self.caller_preparation.render(),self.positive_preparation.render(),self.allocator_methods.render(),self.runtime_calls.render(),'end HasteBootsVecCapacityArithmetic',''];return '\n'.join(lines)
 
 class LayoutPrefix:
  def __init__(self,parent):
@@ -224,6 +225,9 @@ class LayoutPrefix:
   require(set(rv)=={'UnaryOp'},'Unsupported prefix rvalue');op,arg=rv['UnaryOp']
   if op in [{'Cast':{'Scalar':[{'UInt':'Usize'},{'UInt':'U64'}]}},{'Cast':{'Scalar':[{'UInt':'U64'},{'UInt':'Usize'}]}}]:
    source,target=op['Cast']['Scalar'];require(set(arg)=={'Copy'} and arg['Copy']['ty']==literal(source) and output==literal(target),'Changed word-width cast');return '(.use '+self.operand(arg)+' false .byte)'
+  if output==USIZE and op=={'Cast':{'Transmute':[{'Untagged':{'RawPtr':[literal({'UInt':'U8'}),'Mut']}},USIZE]}}:
+   require(arg=={'Copy':{'kind':{'Local':6},'ty':{'Untagged':{'RawPtr':[literal({'UInt':'U8'}),'Mut']}}}},'Changed allocation pointer inspection')
+   return '(.rawAddress (.copy 6 []))'
   if output==USIZE and op=={'Cast':{'Transmute':[adt(7),USIZE]}}:
    require(arg=={'Copy':{'kind':{'Local':12},'ty':adt(7)}},'Changed bounded-capacity transmute')
    return '(.use (.copy 12 [(.unwrap 7),.left]) false .byte)'
@@ -470,7 +474,7 @@ class AllocatorMethods:
   lines=['def allocationResultType : NativeRecordValues.Ty := .record 15 (.choice (.pair (.record 16 (.pair (.scalar (.raw true)) (.scalar .unit))) (.scalar .unit)) (.pair (.record 17 (.scalar .unit)) (.scalar .unit)))',
    'def implementationPrefix (next : Body) : Body := '+self.prefix,
    'def implementationTail : Body := '+self.tail,
-   'def implementationTypes (ambient : Frame) : List NativeRecordValues.Ty := ['+', '.join({0:'allocationResultType',1:layout,2:'.boolean',3:'(.scalar .usize)',6:'(.scalar (.raw false))',18:'(.scalar .unit)',20:'(.scalar .unit)'}.get(i,'(ambient.types['+str(i)+']?.getD (.scalar .unit))') for i in range(39))+']']
+   'def implementationTypes (ambient : Frame) : List NativeRecordValues.Ty := ['+', '.join({0:'allocationResultType',1:layout,2:'.boolean',3:'(.scalar .usize)',6:'(.scalar (.raw false))',18:'(.scalar .unit)',20:'(.scalar .unit)',19:'((layoutTypes (calleeEntryAmbient ambient))[40]?.getD (.scalar .unit))',21:'((layoutTypes (calleeEntryAmbient ambient))[40]?.getD (.scalar .unit))',23:'(.scalar .usize)'}.get(i,'(ambient.types['+str(i)+']?.getD (.scalar .unit))') for i in range(39))+']']
   for label in ['implementationFrame','implementationPrepared']:
    slots={1:'(.live (some (capacityLayout capacity)))',2:'(.live (some (.boolean zeroed)))'}
    if label=='implementationPrepared':slots.update({i:'(.live none)' for i in [0,6,10,11,13,16,18,20,24,30]});slots[3]='(.live (some (.scalar (.usize capacity))))'
@@ -488,6 +492,52 @@ class AllocatorMethods:
    '  let callee := implementationFunction ambient zero positive',
    '  ⟨if zeroed then "alloc::alloc::allocate_zeroed" else "alloc::alloc::allocate",.transparent,allocationMethodTypes ambient,2,',
    '    .legacy (.live 0 .done) (.call callee.name callee.classification callee.types callee.argCount 0 (allocationMethodArgs zeroed) callee.body (.legacy (.dead 2 (.dead 1 .resume)) .done) (.legacy (.dead 2 (.dead 1 .ret)) .done))⟩']
+  return '\n'.join(lines)+'\n'
+
+class RuntimeCalls:
+ def __init__(self,parent):
+  source=parent.allocator_methods.positive['statements'];condition,zeroed,ordinary=source[0]['kind']['Switch']['If']
+  self.unwinds=[];self.alignments=[];f=parent.functions[13]
+  view=copy.copy(parent.layout_prefix);view.function=f;view.locals=f['body']['Structured']['locals']['locals'];view.count=len(view.locals)
+  for branch in [ordinary,zeroed]:
+   ss=branch['statements'];unwind=ss[0]['kind']['Call']['on_unwind']['statements']
+   require(unwind[-1]['kind']=={'Abort':'UndefinedBehavior'},'Changed allocator shim unwind exit')
+   self.unwinds.append(view.code(unwind[:-1],'.abort'));self.alignments.append(view.code(ss[1:3],'.done'))
+  require([s['kind'] for s in source[1:5]]==[{'StorageLive':7},{'StorageLive':8},{'StorageLive':9},{'StorageLive':23}],'Changed allocation pointer-check scope')
+  self.inspect=view.code(source[1:6],'next')
+  require(set(source[6]['kind'])=={'Switch'} and set(source[6]['kind']['Switch'])=={'SwitchInt'},'Missing allocation null dispatch')
+  test,width,arms,otherwise=source[6]['kind']['Switch']['SwitchInt']
+  require(test=={'Copy':{'kind':{'Local':23},'ty':USIZE}} and width=={'UInt':'Usize'} and len(arms)==1 and arms[0][0]==[{'Scalar':{'Unsigned':['Usize','0']}}] and otherwise is not None,'Changed allocation null condition')
+ def render(self):
+  lines=['def runtimeShim (body : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Function := ⟨"alloc::alloc::__rust_no_alloc_shim_is_unstable_v2",.externalBody,[.scalar .unit],0,body⟩',
+   'def runtimeShimUnwind (zeroed : Bool) : Body := if zeroed then '+self.unwinds[1]+' else '+self.unwinds[0],
+   'def runtimeAlignmentPrefix (zeroed : Bool) : Body := if zeroed then '+self.alignments[1]+' else '+self.alignments[0],
+   'def runtimeInspectPrefix (next : Body) : Body := '+self.inspect,
+   'def runtimeAfterShim (ambient : Frame) (capacity : NativeWord64Memory.Word) (zeroed : Bool) (world : NativeReferenceMachine.State) : Frame :=',
+   '  let base := implementationPrepared ambient capacity zeroed',
+   '  {base with slots := base.slots.set (if zeroed then 18 else 20) (.live (some (.scalar .unit))),world}',
+   'def runtimeAlignmentFrame (ambient : Frame) (capacity : NativeWord64Memory.Word) (zeroed : Bool) (world : NativeReferenceMachine.State) : Frame :=',
+   '  let base := runtimeAfterShim ambient capacity zeroed world',
+   '  {base with slots := base.slots.set (if zeroed then 19 else 21) (.live (some byteAlignment))}',
+   'def runtimeAllocatorArgs (zeroed : Bool) : List Operand := if zeroed then [(.copy 3 []),(.move 19 [])] else [(.copy 3 []),(.move 21 [])]',
+   'def runtimeArgumentsFrame (ambient : Frame) (capacity : NativeWord64Memory.Word) (zeroed : Bool) (world : NativeReferenceMachine.State) : Frame :=',
+   '  let base := runtimeAlignmentFrame ambient capacity zeroed world',
+   '  {base with slots := base.slots.set (if zeroed then 19 else 21) (.live (some .uninit))}',
+   'def runtimeAllocatedFrame (ambient : Frame) (capacity : NativeWord64Memory.Word) (zeroed : Bool) (world : NativeReferenceMachine.State) (pointer : NativePointerStorage.Pointer) : Frame :=',
+   '  let base := runtimeArgumentsFrame ambient capacity zeroed world',
+   '  {base with slots := (base.slots.set 6 (.live (some (.scalar (.raw ⟨pointer,none⟩))))).set (if zeroed then 19 else 21) .dead}',
+   'def runtimeInspectedFrame (ambient : Frame) (capacity : NativeWord64Memory.Word) (zeroed : Bool) (world : NativeReferenceMachine.State) (pointer : NativePointerStorage.Pointer) : Frame :=',
+   '  let base := runtimeAllocatedFrame ambient capacity zeroed world pointer',
+   '  {base with slots := (((base.slots.set 7 (.live none)).set 8 (.live none)).set 9 (.live none)).set 23 (.live (some (.scalar (.usize pointer.address))))}',
+   'def runtimeAfterAlignment (zeroed : Bool) (outcome : Option NativePointerStorage.Address) : NativeAllocatorLLBC.Body :=',
+   '  .allocate (if zeroed then .zeroed else .allocate) outcome 11 12 6 (runtimeAllocatorArgs zeroed) (.legacy (.dead (if zeroed then 19 else 21) .done) .done)',
+   'def runtimeCallBranch (zeroed : Bool) (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Body :=',
+   '  let callee := runtimeShim shim',
+   '  .call callee.name callee.classification callee.types callee.argCount (if zeroed then 18 else 20) [] callee.body (.legacy (runtimeShimUnwind zeroed) .done) (.legacy (runtimeAlignmentPrefix zeroed) (runtimeAfterAlignment zeroed outcome))',
+   'def runtimePointerDispatch (null nonnull : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Body :=',
+   '  .legacy (runtimeInspectPrefix .done) (.switchUsize (.copy 23 []) 0 null nonnull .done)',
+   'def runtimePositive (outcome : Option NativePointerStorage.Address) (shim null nonnull : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Body :=',
+   '  .switchBoolean (.copy 2 []) (runtimeCallBranch true outcome shim) (runtimeCallBranch false outcome shim) (runtimePointerDispatch null nonnull)']
   return '\n'.join(lines)+'\n'
 
 def main():
