@@ -1,5 +1,5 @@
 module
-import FormalProof4FHE.HasteBoots.NativeRawVecSharedCompleteness
+import FormalProof4FHE.HasteBoots.NativeRawVecDeallocationCompleteness
 namespace FormalProof4FHETest.HasteBootsByteRangeCompletenessSmoke
 open FormalProof4FHE.HasteBoots
 open NativeByteRangeCompleteness
@@ -154,7 +154,8 @@ example : NativeRawVecReference.eval
 example : ∃ next, NativeRawVecReference.eval sharedWorld (.reference false ⟨1⟩ 2) .pointer =
     .value (.raw ⟨pointer,none⟩) next ∧
     Nonempty (NativeRawVecSharedCompleteness.Header next ⟨1⟩ 8 2 pointer) ∧
-    next.leases = sharedWorld.leases ∧ next.pointers.heap = sharedWorld.pointers.heap := sharedHeader.pointer_eval
+    next.leases = sharedWorld.leases ∧ next.pointers.heap = sharedWorld.pointers.heap ∧
+    pointer ∈ next.pointers.registers := sharedHeader.pointer_eval
 example : ∃ next, NativeRawVecReference.eval sharedWorld (.reference false ⟨1⟩ 2) .marker =
     .value .unit next ∧ next.leases = sharedWorld.leases ∧ next.pointers.heap = sharedWorld.pointers.heap :=
   sharedHeader.marker_eval
@@ -163,4 +164,44 @@ private def conflictingShared : NativeReferenceMachine.State :=
   {sharedWorld with nextTag := 3,leases := ⟨2,none,⟨128,some ⟨128,1⟩⟩,⟨1,1⟩,.exclusive⟩ :: sharedWorld.leases}
 example : NativeRawVecReference.eval conflictingShared (.reference false ⟨1⟩ 2) .capacity =
     .invalid conflictingShared := by decide
+private def allocatorWorld :=
+  (NativeRawVecBorrow.reborrow sharedWorld (.reference true ⟨0⟩ 2) .allocator).world
+private theorem rawAvailable : NativeVecBytePrefix.Available rawWorld pointer 8 := by
+  intro lease member
+  have only : rawWorld.leases = [rawLease] := by decide
+  rw [only] at member
+  have same := List.mem_singleton.mp member
+  subst lease
+  decide
+private theorem sharedAvailable : NativeVecBytePrefix.Available sharedWorld pointer 8 :=
+  NativeRawVecDeallocationCompleteness.available_reborrow rawWorld sharedWorld pointer 8 (.reference true ⟨0⟩ 2) (.reference false ⟨1⟩ 2) .whole rawAvailable (by decide)
+private theorem allocatorAvailable : NativeVecBytePrefix.Available allocatorWorld pointer 8 :=
+  NativeRawVecDeallocationCompleteness.available_reborrow sharedWorld allocatorWorld pointer 8 (.reference true ⟨0⟩ 2) (.reference false ⟨2⟩ 0) .allocator sharedAvailable (by decide)
+private def bufferBlock : NativeByteMemory.Block :=
+  ⟨⟨64,0⟩,64,⟨8,1⟩,[some 10,some 20] ++ List.replicate 6 none⟩
+example : ∃ slot next, NativeByteRange.pointerAt rawLease.pointer 16 = some slot ∧
+    NativeRawVecBorrow.reborrow sharedWorld (.reference true ⟨0⟩ 2) .allocator =
+      .value (.reference false ⟨sharedWorld.nextTag⟩ 0) next ∧ next.nextTag = sharedWorld.nextTag + 1 ∧
+    next.leases = ⟨sharedWorld.nextTag,some 0,slot,⟨0,1⟩,.shared⟩ :: sharedWorld.leases ∧
+    next.pointers.heap = sharedWorld.pointers.heap :=
+  NativeRawVecDeallocationCompleteness.allocator_complete sharedWorld ⟨0⟩ rawLease
+    (NativeReferenceMachine.reachable_wellFormed sharedWorld sharedReached).2.1 (by decide) rfl rfl (by decide) (by decide)
+example : allocatorWorld.nextTag = 3 ∧ allocatorWorld.leases.map NativeByteBorrow.Lease.tag = [2,1,0] := by decide
+example : ∃ next, NativeByteDeallocation.execute allocatorWorld ⟨pointer,none⟩ 8 1 = some next ∧
+    NativePointerByteMemory.deallocate allocatorWorld.pointers.heap pointer ⟨8,1⟩ = some next.pointers.heap ∧
+    next.leases = allocatorWorld.leases ∧ next.nextTag = allocatorWorld.nextTag :=
+  NativeRawVecDeallocationCompleteness.free_complete allocatorWorld pointer 8 (by decide) (by decide) (by decide)
+    (by decide) allocatorAvailable bufferBlock (by decide) rfl rfl
+example : (NativeByteDeallocation.execute allocatorWorld ⟨pointer,none⟩ 8 1).map
+    (fun next => (next.pointers.heap.memory.blocks.length,next.nextTag,next.leases.map NativeByteBorrow.Lease.tag)) =
+    some (1,3,[2,1,0]) := by decide
+private def protectedAllocatorWorld : NativeReferenceMachine.State :=
+  (NativeReferenceMachine.execute allocatorWorld
+    (.borrow (allocatorWorld.pointers.registers.idxOf pointer) .shared ⟨1,1⟩)).getD allocatorWorld
+example : NativeByteDeallocation.execute protectedAllocatorWorld ⟨pointer,none⟩ 8 1 = none := by decide
+example : NativeByteRange.loadRange
+    ((NativeByteDeallocation.execute allocatorWorld ⟨pointer,none⟩ 8 1).getD allocatorWorld).pointers.heap.memory
+    pointer ⟨2,1⟩ = none := by decide
+example : (NativeRecordLLBC.settle rawWorld (.returned (.scalar .unit) allocatorWorld)).world.leases.map
+    NativeByteBorrow.Lease.tag = [0] := by decide
 end FormalProof4FHETest.HasteBootsByteRangeCompletenessSmoke

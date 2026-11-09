@@ -79,10 +79,70 @@ example : ∃ final, invokeValues HasteBootsRawVecDrop.f8 reservedShared.2
     [.scalar (.reference false ⟨2⟩ 2),currentMemoryLayoutValue] =
       .returned (currentMemorySome ⟨64,some ⟨64,0⟩⟩ 8) final ∧
     final.leases = reservedShared.2.leases ∧ final.pointers.heap = reservedShared.2.pointers.heap := by
-  simpa only [show (8 : NativeWord64Memory.Word) ≠ 0 by decide,ite_false] using
+  obtain ⟨final,returned,loans,heap,_⟩ :=
     current_memory_complete reservedShared.2 ⟨2⟩ 8 0 ⟨64,some ⟨64,0⟩⟩ reservedSharedHeader
+  exact ⟨final,by simpa only [show (8 : NativeWord64Memory.Word) ≠ 0 by decide,ite_false] using returned,loans,heap⟩
 example : ∃ final, invokeValues HasteBootsRawVecDrop.f8 emptyShared.2
     [.scalar (.reference false ⟨2⟩ 2),currentMemoryLayoutValue] = .returned currentMemoryNone final ∧
     final.leases = emptyShared.2.leases ∧ final.pointers.heap = emptyShared.2.pointers.heap := by
-  simpa only [ite_true] using current_memory_complete emptyShared.2 ⟨2⟩ 0 0 ⟨1,none⟩ emptySharedHeader
+  obtain ⟨final,returned,loans,heap,_⟩ := current_memory_complete emptyShared.2 ⟨2⟩ 0 0 ⟨1,none⟩ emptySharedHeader
+  exact ⟨final,by simpa only [ite_true] using returned,loans,heap⟩
+private theorem fixture_exclusive_frontier (world : NativeReferenceMachine.State) (lease : NativeByteBorrow.Lease)
+    (exclusive : lease.mode = .exclusive) (found : NativeByteBorrow.lookup world.leases lease.tag = some lease)
+    (checked : world.leases.all (fun other => decide (other.tag = lease.tag) ||
+      NativeByteBorrow.ancestor world.leases world.nextTag other.tag lease.tag) = true) :
+    NativeBorrowFrontier.ExclusiveFrontier (NativeReferenceMachine.ledger world) lease := by
+  refine ⟨exclusive,found,?_⟩
+  simp only [List.all_eq_true,Bool.or_eq_true,decide_eq_true_eq] at checked
+  intro other member
+  rcases checked other member with same | ancestor
+  · exact Or.inl same
+  · exact Or.inr (Or.inl (NativeByteBorrow.ancestor_sound _ _ _ _ ancestor))
+private theorem fixture_buffer_available (world : NativeReferenceMachine.State) (buffer : NativePointerStorage.Pointer) (size : Nat)
+    (checked : world.leases.all (fun lease => decide (¬ NativeByteBorrow.Overlap buffer ⟨size,1⟩ lease.pointer lease.layout)) = true) :
+    NativeVecBytePrefix.Available world buffer size := by
+  simpa only [NativeVecBytePrefix.Available,List.all_eq_true,decide_eq_true_eq] using checked
+private def reservedRawVecReady : NativeRawVecDeallocationCompleteness.Ready reservedRawVec.2 ⟨1⟩ 8 0 ⟨64,some ⟨64,0⟩⟩ where
+  lease := ⟨1,some 0,⟨128,some ⟨128,1⟩⟩,⟨16,8⟩,.exclusive⟩
+  reachable := NativeReferenceMachine.run_reachable _ _ .empty
+    [.raw (.allocate 64 ⟨8,1⟩),.raw (.allocate 128 ⟨24,8⟩),
+     .raw (.writeBytes 0 8 (NativeWord64Memory.encode 8)),.raw (.withAddress 0 136),
+     .raw (.store 0 2),.raw (.withAddress 1 144),.raw (.writeBytes 0 8 (NativeWord64Memory.encode 0)),
+     .borrow 2 .exclusive ⟨24,8⟩,.raw (.withAddress 2 128),.reborrow 0 0 .exclusive ⟨16,8⟩] (by decide)
+  frontier := fixture_exclusive_frontier _ _ rfl (by decide) (by decide)
+  tag := rfl
+  shape := rfl
+  referenceResident := by decide
+  pointerResident := by decide
+  fields := by constructor <;> decide
+  initialized := ⟨NativeWord64Memory.encode 8 ++ NativeWord64Memory.encode 64,by decide⟩
+private def emptyRawVecReady : NativeRawVecDeallocationCompleteness.Ready emptyRawVec.2 ⟨1⟩ 0 0 ⟨1,none⟩ where
+  lease := ⟨1,some 0,⟨128,some ⟨128,0⟩⟩,⟨16,8⟩,.exclusive⟩
+  reachable := NativeReferenceMachine.run_reachable _ _ .empty
+    [.raw (.allocate 128 ⟨24,8⟩),.raw (.writeBytes 0 8 (NativeWord64Memory.encode 0)),
+     .raw (.fromAddress 1),.raw (.withAddress 1 136),.raw (.store 0 1),
+     .raw (.withAddress 2 144),.raw (.writeBytes 0 8 (NativeWord64Memory.encode 0)),
+     .borrow 3 .exclusive ⟨24,8⟩,.raw (.withAddress 3 128),.reborrow 0 0 .exclusive ⟨16,8⟩] (by decide)
+  frontier := fixture_exclusive_frontier _ _ rfl (by decide) (by decide)
+  tag := rfl
+  shape := rfl
+  referenceResident := by decide
+  pointerResident := by decide
+  fields := by constructor <;> decide
+  initialized := ⟨NativeWord64Memory.encode 0 ++ NativeWord64Memory.encode 1,by decide⟩
+example : ∃ final, invoke HasteBootsRawVecDrop.f7 reservedRawVec.2 [.rawVecExclusiveReference 0,currentMemoryLayout] =
+    .returned (.scalar .unit) final ∧ final.leases = reservedRawVec.2.leases ∧ NativeReferenceMachine.Reachable final ∧
+    NativePointerByteMemory.deallocate reservedRawVec.2.pointers.heap ⟨64,some ⟨64,0⟩⟩ ⟨8,1⟩ = some final.pointers.heap := by
+  simpa only [show reservedRawVec.2.references.idxOf ⟨1⟩ = 0 by decide,
+    show (8 : NativeWord64Memory.Word) ≠ 0 by decide,
+    show (8 : NativeWord64Memory.Word).val = 8 from rfl,ite_false] using
+    deallocation_invocation_complete reservedRawVec.2 ⟨1⟩ 8 0 ⟨64,some ⟨64,0⟩⟩ reservedRawVecReady
+      (fixture_buffer_available _ _ _ (by decide))
+      (Or.inr ⟨⟨⟨64,0⟩,64,⟨8,1⟩,List.replicate 8 none⟩,by decide,rfl,rfl⟩)
+example : ∃ final, invoke HasteBootsRawVecDrop.f7 emptyRawVec.2 [.rawVecExclusiveReference 0,currentMemoryLayout] =
+    .returned (.scalar .unit) final ∧ final.leases = emptyRawVec.2.leases ∧ NativeReferenceMachine.Reachable final ∧
+    final.pointers.heap = emptyRawVec.2.pointers.heap := by
+  simpa only [show emptyRawVec.2.references.idxOf ⟨1⟩ = 0 by decide,ite_true] using
+    deallocation_invocation_complete emptyRawVec.2 ⟨1⟩ 0 0 ⟨1,none⟩ emptyRawVecReady
+      (fixture_buffer_available _ _ _ (by decide)) (Or.inl rfl)
 end HasteBootsVecDrop.Smoke
