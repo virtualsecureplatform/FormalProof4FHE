@@ -23,6 +23,41 @@ theorem current_memory_values (world : NativeReferenceMachine.State)
   rw [current_memory_values_eq world reference base buffer capacity length resident]
   exact current_memory_resident world reference base buffer capacity length resident
 
+/-- The retained current-memory body returns its original capacity dispatch
+from the derived shared-header read conditions. -/
+theorem current_memory_complete (world : NativeReferenceMachine.State)
+    (reference : NativeReferenceMachine.Reference) (capacity length : NativeWord64Memory.Word)
+    (buffer : NativePointerStorage.Pointer)
+    (header : NativeRawVecSharedCompleteness.Header world reference capacity length buffer) :
+    ∃ final, invokeValues HasteBootsRawVecDrop.f8 world
+        [.scalar (.reference false reference 2),currentMemoryLayoutValue] =
+      .returned (if capacity = 0 then currentMemoryNone else currentMemorySome buffer capacity) final ∧
+      final.leases = world.leases ∧ final.pointers.heap = world.pointers.heap := by
+  have first := header.capacity_eval
+  by_cases zero : capacity = 0
+  · refine ⟨NativeRawVecSharedCompleteness.wordWorld world header.lease.pointer capacity,?_,rfl,rfl⟩
+    simp [invokeValues,HasteBootsRawVecDrop.f8,initial,currentMemoryLayoutValue,eval,evalRvalue,
+      evalRawVecField,evalOperand,evalArgs,storageLive,storageDead,write,NativeRecordLLBC.read,
+      NativeRecordValues.fits,NativeRecordValues.complete,NativeRecordValues.compatible,
+      NativeRecordValues.typeAt,NativeRecordValues.get,NativeRecordValues.copyable,
+      NativeSliceLLBC.fits,retag,NativeSliceLLBC.retagValue,HasteBootsRawVecDrop.alignmentDiscriminants,
+      settle,currentMemoryNone,first,zero]
+  · have second := header.after_capacity.capacity_eval
+    obtain ⟨afterPointer,pointerRead,⟨afterHeader⟩,pointerLeases,pointerHeap⟩ :=
+      header.after_capacity.after_capacity.pointer_eval
+    obtain ⟨final,markerRead,markerLeases,markerHeap⟩ := afterHeader.marker_eval
+    refine ⟨final,?_,markerLeases.trans pointerLeases,markerHeap.trans pointerHeap⟩
+    have nonnull : buffer.address ≠ 0 := by
+      intro empty
+      exact header.fields.nonnull (congrArg Fin.val empty)
+    simp [invokeValues,HasteBootsRawVecDrop.f8,initial,currentMemoryLayoutValue,eval,evalRvalue,
+      evalRawVecField,evalOperand,evalArgs,storageLive,storageDead,write,NativeRecordLLBC.read,
+      NativeRecordValues.fits,NativeRecordValues.complete,NativeRecordValues.compatible,
+      NativeRecordValues.typeAt,NativeRecordValues.get,NativeRecordValues.replace,NativeRecordValues.copyable,
+      NativeSliceLLBC.fits,retag,NativeSliceLLBC.retagValue,HasteBootsRawVecDrop.alignmentDiscriminants,
+      settle,currentMemorySome,evalMultiply,multiplyWords,evalEnumWord,enumWordValue,recordResultValue,
+      zero,nonnull,first,second,pointerRead,markerRead]
+
 theorem current_memory_values_heap (world : NativeReferenceMachine.State) (args : List NativeRecordValues.Value) :
     (invokeValues HasteBootsRawVecDrop.f8 world args).world.pointers.heap = world.pointers.heap := by
   have bound := invokeValues_loss HasteBootsRawVecDrop.f8 world args
