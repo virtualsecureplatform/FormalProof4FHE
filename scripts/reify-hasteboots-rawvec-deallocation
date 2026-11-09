@@ -1,0 +1,149 @@
+#!/usr/bin/env python3
+"""Reify original RawVec deallocation, current_memory and Global dispatch.
+External deallocation retains its explicit logical specification; native
+constructor, ABI/compiler/lifetime and allocator correspondence remain open.
+"""
+import argparse
+import json
+from pathlib import Path
+import runpy
+from types import SimpleNamespace
+
+ROOT=Path(__file__).resolve().parent.parent
+CURRENT=runpy.run_path(str(ROOT/'scripts/reify-hasteboots-rawvec-current-memory'))
+BASE=CURRENT['BASE'];SPEC=CURRENT['SPEC'];REGIONS=CURRENT['REGIONS']
+require=SPEC['require'];empty=SPEC['empty'];name=SPEC['name'];seq=BASE['seq']
+
+
+def validate_regions(raw,bound,free):
+    if isinstance(raw,dict):
+        if set(raw)=={'Ref'}:
+            region,_,kind=raw['Ref']
+            require(REGIONS['region_valid'](region,bound,free) and kind in ['Shared','Mut'],'Unbound/unknown reference region')
+        for value in raw.values():validate_regions(value,bound,free)
+    elif isinstance(raw,list):
+        for value in raw:validate_regions(value,bound,free)
+
+
+class Reifier(CURRENT['Reifier']):
+    def __init__(self,ir):
+        self.caller=None;self.global_caller=None;self.external=None
+        super().__init__(ir);self.current=self.root
+        def find(expected):
+            matches=[f['def_id'] for f in self.functions.values() if name(f)==expected]
+            require(len(matches)==1,'Missing/duplicate '+expected);return matches[0]
+        self.caller=find('alloc::raw_vec::deallocate');self.global_caller=find('alloc::alloc::deallocate')
+        self.external=find('alloc::alloc::__rust_dealloc');f=self.functions[self.external]
+        require(f['item_meta']['opacity']=='Opaque' and f['body']=={'Extern':'__rust_dealloc'} and empty(f['generics']) and
+                f['is_global_initializer'] is None and f['signature']=={'is_unsafe':True,'abi':'Rust','is_variadic':False,
+                'inputs':[SPEC['adt'](self.storage.nonnull['def_id']),SPEC['USIZE'],SPEC['adt'](self.alignment['def_id'])],
+                'output':SPEC['UNIT']},'Changed external deallocation declaration')
+        self.boundary=SimpleNamespace(function=f,enum=self.boundary.enum,nonnull=self.storage.nonnull,alignments=self.boundary.alignments)
+        self.root=self.caller;self.roots=[self.root]
+        self.schema(self.root);self.schema(self.global_caller);self.schema(self.external)
+
+    def ty(self,raw):
+        if set(raw)=={'Untagged'} and set(raw['Untagged'])=={'Ref'}:
+            _,pointee,kind=raw['Untagged']['Ref']
+            require(kind in ['Shared','Mut'],'Unknown receiver mutability')
+            require(pointee==SPEC['adt'](self.storage.inner['def_id']) or
+                    (kind=='Shared' and pointee==SPEC['adt'](self.storage.allocator['def_id'])),'Wrong borrowed object')
+            return '(.scalar (.reference '+str(kind=='Mut').lower()+'))'
+        return super().ty(raw)
+
+    def schema(self,fid):
+        if fid in self.schemas:return self.schemas[fid]
+        if fid not in [self.caller,self.global_caller,self.external]:return super().schema(fid)
+        f=self.functions[fid];sig=f['signature']
+        require(set(sig)=={'is_unsafe','abi','is_variadic','inputs','output'} and sig['is_unsafe'] is True and
+                sig['abi']=='Rust' and sig['is_variadic'] is False and sig['output']==SPEC['UNIT'] and
+                f['is_global_initializer'] is None,'Wrong deallocation signature')
+        if fid==self.external:
+            self.schemas[fid]=[sig['output']]+sig['inputs'],3;return self.schemas[fid]
+        require(f['item_meta']['opacity']=='Transparent' and set(f['body'])=={'Structured'} and
+                f['generics']['regions']==[{'index':0,'name':None,'mutability':'Unknown'}] and
+                empty({**f['generics'],'regions':[]}), 'Unclosed deallocation body')
+        expected=([{'Untagged':{'Ref':[{'Var':{'Free':0}},SPEC['adt'](self.storage.inner['def_id']),'Mut']}},
+                  SPEC['adt'](self.layout['def_id'])] if fid==self.caller else
+                  [{'Untagged':{'Ref':[{'Var':{'Free':0}},SPEC['adt'](self.storage.allocator['def_id']),'Shared']}},
+                   SPEC['adt'](self.storage.nonnull['def_id']),SPEC['adt'](self.layout['def_id'])])
+        require(sig['inputs']==expected,'Changed caller argument types')
+        b=f['body']['Structured'];require(set(b)=={'span','bound_body_regions','locals','body','comments'},'Unknown caller body fields')
+        bound=b['bound_body_regions'];require(type(bound) is int and bound>=0,'Wrong bound region count')
+        for raw in sig['inputs']+[sig['output']]:validate_regions(raw,None,1)
+        locals=b['locals']['locals'];types=[v['ty'] for v in locals];count=b['locals']['arg_count']
+        require([v['index'] for v in locals]==list(range(len(locals))) and count==len(sig['inputs']) and
+                REGIONS['erase_regions'](types[:count+1])==REGIONS['erase_regions']([sig['output']]+sig['inputs']),'Wrong caller locals/signature')
+        for raw in types:validate_regions(raw,bound,1);self.ty(raw)
+        self.schemas[fid]=types,count;return types,count
+
+    def assignment(self,target,rv,fid,following):
+        if set(rv)!={'Ref'}:return super().assignment(target,rv,fid,following)
+        index,path,raw=self.place(target,fid);ref=rv['Ref']
+        require(fid==self.caller and not path and set(ref)=={'place','kind','ptr_metadata'} and ref['kind']=='Shared' and
+                ref['ptr_metadata']=={'Const':{'kind':{'Adt':[None,[]]},'ty':SPEC['UNIT']}},'Unsupported source reference constructor')
+        borrowed=ref['place'];require(set(borrowed)=={'kind','ty'},'Unknown borrowed place fields')
+        region,pointee,kind=raw['Untagged']['Ref'];require(kind=='Shared' and pointee==borrowed['ty'],'Wrong borrow target type')
+        if borrowed['ty']==SPEC['adt'](self.storage.inner['def_id']):target_kind='whole';base=borrowed
+        else:
+            require(borrowed['ty']==SPEC['adt'](self.storage.allocator['def_id']) and set(borrowed['kind'])=={'Projection'},'Wrong Global borrow')
+            base,field=borrowed['kind']['Projection']
+            require(field=={'Field':[{'Adt':[self.storage.inner['def_id'],None]},2]} and base['ty']==SPEC['adt'](self.storage.inner['def_id']),'Wrong Global subobject projection')
+            target_kind='allocator'
+        require(set(base['kind'])=={'Projection'} and base['kind']['Projection'][1]=='Deref','Missing receiver dereference')
+        parent,parent_path,parent_ty=self.place(base['kind']['Projection'][0],fid)
+        require(not parent_path and parent_ty['Untagged']['Ref'][1:]==[SPEC['adt'](self.storage.inner['def_id']),'Mut'],'Wrong mutable parent place')
+        return '(.assign '+str(index)+' (.borrowRawVec .'+target_kind+' '+str(parent)+' []) '+following+')'
+
+    def block(self,b,fid):
+        # Calls instantiate regions, whose well-formedness is checked before
+        # logical comparison. All other statements use the shared translator.
+        require(set(b)=={'span','statements'},'Unknown caller block fields')
+        result='.done'
+        for statement in reversed(b['statements']):
+            require(set(statement)=={'span','id','kind','comments_before'},'Unknown caller statement fields')
+            kind=statement['kind']
+            if not isinstance(kind,dict) or set(kind)!={'Call'}:
+                result=BASE['Reifier'].block(self,{'span':b['span'],'statements':[statement]},fid,result)
+                continue
+            callinfo=kind['Call'];require(set(callinfo)=={'call','on_unwind'},'Unknown call fields')
+            call=callinfo['call'];require(set(call)=={'func','args','dest'} and set(call['func'])=={'Regular'},'Unknown callee form')
+            fun=call['func']['Regular'];require(set(fun)=={'kind','generics'} and set(fun['kind'])=={'Fun'} and set(fun['kind']['Fun'])=={'Regular'},'Unknown direct call')
+            callee=fun['kind']['Fun']['Regular'];types,count=self.schema(callee);generics=fun['generics']
+            region_count=len(self.functions[callee]['generics']['regions'])
+            require(empty({**generics,'regions':[]}) and len(generics['regions'])==region_count,'Wrong call instantiation arity')
+            for region in generics['regions']:require(REGIONS['region_valid'](region,self.functions[fid]['body']['Structured']['bound_body_regions'],1),'Unbound call region')
+            index,path,raw=self.place(call['dest'],fid);args=[self.operand(op,fid) for op in call['args']]
+            require(not path and REGIONS['erase_regions'](raw)==REGIONS['erase_regions'](types[0]) and
+                    REGIONS['erase_regions']([a[1] for a in args])==REGIONS['erase_regions'](types[1:count+1]),'Wrong instantiated call types')
+            result='(.call '+json.dumps(name(self.functions[callee]))+' '+self.classification(callee)+' '+seq([self.ty(t) for t in types])+' '+str(count)+' '+str(index)+' '+seq([a[0] for a in args])+' '+self.code(callee)+' '+self.block(callinfo['on_unwind'],fid)+' '+result+')'
+        return result
+
+    def switch(self,value,fid,following):
+        if set(value)=={'Match'}:return CURRENT['VARIANT']['Reifier'].switch(self,value,fid,following)
+        return super().switch(value,fid,following)
+
+    def code(self,fid):
+        if fid in self.codes:return self.codes[fid]
+        if fid==self.external:
+            self.schema(fid)
+            result='(.deallocate (.move 1 [(.unwrap '+str(self.storage.nonnull['def_id'])+'), .left]) (.move 2 []) (.move 3 [(.unwrap '+str(self.alignment['def_id'])+'), .left]) '+str(self.boundary.enum['def_id'])+')'
+            self.codes[fid]=result;return result
+        if fid in [self.root,self.current,self.global_caller]:return BASE['Reifier'].code(self,fid)
+        return super().code(fid)
+
+    def retained(self):
+        value=super().retained();value['external_specification']='__rust_dealloc logical deallocation; native allocator correspondence unproved'
+        value['claim']='original RawVec deallocate/current_memory/Global control flow; external leaf specified; native constructor/ABI/compiler/lifetime/allocator/work/security refinement unproved'
+        return value
+
+    def render(self):return super().render().replace('HasteBootsRawVecCurrentMemory','HasteBootsRawVecDeallocation')
+
+
+def main():
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('llbc',type=Path);parser.add_argument('output',type=Path)
+    parser.add_argument('--retained',type=Path,required=True);args=parser.parse_args();r=Reifier(json.loads(args.llbc.read_text()))
+    args.output.write_text(r.render());args.retained.write_text(json.dumps(r.retained(),indent=2)+'\n')
+
+
+if __name__=='__main__':main()

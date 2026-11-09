@@ -117,9 +117,9 @@ class Reifier:
                 raw == {'Untagged': {'RawPtr': [{'Untagged': {'Literal': {'UInt': 'U8'}}}, 'Mut']}}, 'Unsupported source transmute')
         return '(.wrapOne ' + str(self.boundary.nonnull['def_id']) + ' ' + value + ')', target
 
-    def block(self, b, fid):
+    def block(self, b, fid, following=".done"):
         require(set(b) == {'span', 'statements'}, 'Unknown block fields')
-        result = '.done'
+        result = following
         for s in reversed(b['statements']):
             require(set(s) == {'span', 'id', 'kind', 'comments_before'}, 'Unknown statement fields')
             kind = s['kind']
@@ -132,9 +132,7 @@ class Reifier:
                 require(isinstance(v, int) and 0 <= v < len(self.schema(fid)[0]), 'Bad storage local')
                 result = '(.' + ('live' if tag == 'StorageLive' else 'dead') + ' ' + str(v) + ' ' + result + ')'
             elif tag == 'Assign':
-                index, path, raw = self.place(v[0], fid); value, actual = self.rvalue(v[1], fid)
-                require(not path and raw == actual, 'Assignment type/path mismatch')
-                result = '(.assign ' + str(index) + ' ' + value + ' ' + result + ')'
+                result = self.assignment(v[0], v[1], fid, result)
             elif tag == 'Abort':
                 require(v == 'UndefinedBehavior' and result == '.done', 'Unsupported abort')
                 result = '.abort'
@@ -150,6 +148,11 @@ class Reifier:
                 result = '(.call ' + json.dumps(name(self.functions[target])) + ' ' + self.classification(target) + ' ' + seq([self.ty(t) for t in types]) + ' ' + str(count) + ' ' + str(index) + ' ' + seq([x[0] for x in args]) + ' ' + self.code(target) + ' ' + self.block(v['on_unwind'], fid) + ' ' + result + ')'
             else: raise ValueError('Unsupported statement: ' + tag)
         return result
+
+    def assignment(self, target, rvalue, fid, following):
+        index, path, raw = self.place(target, fid); value, actual = self.rvalue(rvalue, fid)
+        require(not path and raw == actual, 'Assignment type/path mismatch')
+        return '(.assign ' + str(index) + ' ' + value + ' ' + following + ')'
 
     def switch(self, value, fid, following):
         require(set(value) == {'If'}, 'Unsupported switch')

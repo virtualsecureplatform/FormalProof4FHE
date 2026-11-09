@@ -1,0 +1,151 @@
+#!/usr/bin/env python3
+"""Check original current_memory control flow; native ABI/compiler and helper refinement remain open."""
+import argparse
+import copy
+import hashlib
+import json
+from pathlib import Path
+import re
+import runpy
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parent.parent
+DATA = ROOT/'interop/aeneas/rawvec-deallocation'
+BUILD = runpy.run_path(str(ROOT/'scripts/build-hasteboots-inline-tools'))
+PARAMETERS = runpy.run_path(str(ROOT/'scripts/extract-hasteboots-parameters'))
+PARENT = runpy.run_path(str(ROOT/'scripts/check-hasteboots-allocator-caller'))
+REIFIER = runpy.run_path(str(ROOT/'scripts/reify-hasteboots-rawvec-deallocation'))
+INCLUDES = ['alloc::raw_vec','alloc::vec','alloc::alloc','core::alloc::layout',
+            'core::ptr::unique','core::ptr::non_null','core::mem::alignment','core::ptr::drop_in_place']
+
+
+def digest(raw): return hashlib.sha256(raw).hexdigest()
+
+
+def inventory():
+    names = PARENT['inventory']()
+    for file in ['Generated.lean','Proof.lean']:
+        raw=(DATA/file).read_text()
+        PARAMETERS['validate_proof_source'](raw,re.findall(r'^theorem (\w+)',raw,re.M))
+        names += ['HasteBootsRawVecDeallocation.'+n for n in re.findall(r'^(?:def|theorem) (\w+)',raw,re.M)]
+    return names
+
+
+def negatives(ir):
+    base=REIFIER['Reifier'](ir);root=base.root;records={}
+    def f(c):return c['fun_decls'][root]
+    def statements(c):return f(c)['body']['Structured']['body']['statements']
+    def reference(c,index):return next(s['kind']['Assign'][1]['Ref'] for s in statements(c)
+        if isinstance(s['kind'],dict) and 'Assign' in s['kind'] and s['kind']['Assign'][0]['kind']=={'Local':index})
+    def calls(c):return [s['kind']['Call']['call'] for s in statements(c) if isinstance(s['kind'],dict) and 'Call' in s['kind']]
+    def match(c):return next(s['kind']['Switch']['Match'] for s in statements(c) if isinstance(s['kind'],dict) and 'Switch' in s['kind'])
+    def check(label,mutation):
+        changed=copy.deepcopy(ir);mutation(changed['translated'])
+        try:REIFIER['Reifier'](changed).render()
+        except (ValueError,KeyError,TypeError,IndexError) as error:records[label]=str(error)
+        else:raise RuntimeError('Negative accepted: '+label)
+    check('wrong_profile',lambda c:c['options'].update(mir='Built'))
+    check('wrong_receiver_mutability',lambda c:f(c)['signature']['inputs'][0]['Untagged']['Ref'].__setitem__(2,'Shared'))
+    check('unbound_receiver_region',lambda c:f(c)['signature']['inputs'][0]['Untagged']['Ref'].__setitem__(0,{'Var':{'Free':99}}))
+    check('unbound_local_region',lambda c:f(c)['body']['Structured']['locals']['locals'][1]['ty']['Untagged']['Ref'].__setitem__(0,{'Body':99}))
+    check('unbound_call_region',lambda c:calls(c)[0]['func']['Regular']['generics']['regions'].__setitem__(0,{'Body':99}))
+    check('missing_call_region',lambda c:calls(c)[0]['func']['Regular']['generics']['regions'].clear())
+    check('changed_root_class',lambda c:f(c)['item_meta'].update(opacity='Foreign'))
+    check('mutable_child_borrow',lambda c:reference(c,4).update(kind='Mut'))
+    check('wrong_reference_metadata',lambda c:reference(c,4)['ptr_metadata']['Const'].update(kind={'Literal':{'Scalar':{'Unsigned':['Usize','1']}}}))
+    check('missing_whole_dereference',lambda c:reference(c,4)['place'].update(kind={'Local':1}))
+    check('wrong_global_field',lambda c:reference(c,8)['place']['kind']['Projection'][1]['Field'].__setitem__(1,1))
+    check('wrong_global_field_owner',lambda c:reference(c,8)['place']['kind']['Projection'][1]['Field'][0]['Adt'].__setitem__(0,base.layout['def_id']))
+    check('nonexhaustive_match',lambda c:match(c)[1].pop())
+    check('duplicate_match_case',lambda c:match(c)[1][1][0].__setitem__(0,1))
+    check('unexpected_match_fallback',lambda c:match(c).__setitem__(2,copy.deepcopy(match(c)[1][0][1])))
+    check('wrong_option_payload_owner',lambda c:next(s['kind']['Assign'][1]['Use'][0]['Copy'] for s in statements(c) if isinstance(s['kind'],dict) and 'Assign' in s['kind'] and s['kind']['Assign'][0]['kind']=={'Local':5})['kind']['Projection'][0]['kind']['Projection'][1]['Field'][0]['Adt'].__setitem__(1,0))
+    check('wrong_external_symbol',lambda c:c['fun_decls'][base.external]['body'].update(Extern='other_dealloc'))
+    check('changed_external_class',lambda c:c['fun_decls'][base.external]['item_meta'].update(opacity='Foreign'))
+    check('wrong_external_signature',lambda c:c['fun_decls'][base.external]['signature']['inputs'].reverse())
+    check('wrong_allocator_extent',lambda c:c['type_decls'][base.storage.allocator['def_id']]['layout'][0]['value'].update(size=1))
+    check('wrong_allocator_offset',lambda c:c['type_decls'][base.storage.inner['def_id']]['layout'][0]['value']['variant_layouts'][0]['field_offsets'].__setitem__(2,8))
+    check('invented_carrier_body',lambda c:c['type_decls'][base.storage.carrier['def_id']].update(kind={'Struct':[]}))
+    check('unknown_statement_effect',lambda c:statements(c)[0].update(hidden_effect='Drop'))
+    check('unknown_reference_effect',lambda c:reference(c,4).update(hidden_effect='Drop'))
+    return records
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--build-receipt', type=Path, required=True); args = parser.parse_args()
+    out = Path(tempfile.mkdtemp(prefix='rawvec-deallocation-', dir=ROOT/'build/hasteboots-extraction'))
+    record = {'status':'started','commands':[], 'deallocation_caller_interpreted':True, 'current_memory_root_interpreted':True, 'helper_bodies_interpreted':False, 'rawvec_cleanup_body_interpreted':False,
+              'native_carrier_validity_proved':False, 'physical_niche_decoded':False, 'native_lifetime_refinement':False,
+              'physical_work_refinement':False, 'final_security_theorem':False}
+    def save(): (out/'manifest.json').write_text(json.dumps(record,indent=2)+'\n')
+    def run(command, log):
+        record['commands'].append([str(x) for x in command]); save()
+        with (out/log).open('w') as stream:
+            result = subprocess.run([str(x) for x in command],cwd=ROOT,stdout=stream,stderr=subprocess.STDOUT)
+        if result.returncode: raise RuntimeError('Command failed: '+log)
+    print('RawVec deallocation artifacts: '+str(out), flush=True)
+    try:
+        _, tools, _ = BUILD['verify_receipt'](args.build_receipt)
+        record['build_receipt_sha256'] = digest(args.build_receipt.read_bytes())
+        files = [Path(__file__), ROOT/'scripts/reify-hasteboots-rawvec-deallocation',
+                 ROOT/'scripts/reify-hasteboots-rawvec-current-memory',ROOT/'scripts/reify-hasteboots-rawvec-reference',ROOT/'scripts/reify-hasteboots-variant-body',
+                 ROOT/'scripts/reify-hasteboots-allocator-caller',ROOT/'scripts/reify-hasteboots-rawvec-option',
+                 ROOT/'scripts/reify-hasteboots-global-deallocation',ROOT/'scripts/reify-hasteboots-rawvec-fields',
+                 ROOT/'scripts/check-hasteboots-allocator-caller',
+                 ROOT/'scripts/specify-hasteboots-deallocation-boundary',
+                 ROOT/'scripts/extract-hasteboots-parameters',ROOT/'lean-toolchain',
+                 *[DATA/n for n in ['fixture.rs','Generated.lean','Retained.json','Proof.lean','Smoke.lean']],
+                 *[ROOT/('FormalProof4FHE/HasteBoots/'+n+'.lean') for n in ['NativeRawVecFields','NativeRawVecReference','NativeRawVecBorrow','NativeRecordLLBC','NativeRecordValues']],
+                 *[ROOT/('FormalProof4FHETest/HasteBootsRawVecBorrow'+n+'.lean') for n in ['Smoke','Audit']]]
+        record['inputs'] = {str(p.relative_to(ROOT)):digest(p.read_bytes()) for p in files}
+        run([ROOT/'scripts/in-container','lake','build','FormalProof4FHETest.HasteBootsRawVecBorrowSmoke',
+             'FormalProof4FHETest.HasteBootsRawVecBorrowAudit'],'root-build.log')
+        llbc = out/'source.llbc'
+        command = [tools/'charon','rustc','--preset=aeneas','--sysroot','default','--monomorphize','--mir','optimized',
+                   '--consts','values','--evaluate-runtime-checks','--precise-drops','--desugar-drops','--preserve-allocator','--no-dedup-serialized-ast']
+        for include in INCLUDES: command += ['--include',include]
+        command += ['--dest-file',llbc,'--','--crate-type','lib','--edition','2024','-Cdebug-assertions=no',
+                    '--crate-name','hasteboots_rawvec_cleanup',(DATA/'fixture.rs').relative_to(ROOT)]
+        run(command,'charon.log'); ir = json.loads(llbc.read_text()); reifier = REIFIER['Reifier'](ir)
+        generated = reifier.render()
+        if generated != (DATA/'Generated.lean').read_text() or reifier.retained() != json.loads((DATA/'Retained.json').read_text()):
+            raise RuntimeError('Retained source schema/target metadata differs')
+        record['negative_controls'] = negatives(ir)
+        names = inventory()
+        checked = out/'Checked.lean'
+        checked.write_text(generated+'\n'+(DATA/'Proof.lean').read_text()+'\n'+(DATA/'Smoke.lean').read_text()+
+                           ''.join('\n#print axioms '+name+'\n' for name in names))
+        run([ROOT/'scripts/in-container','lake','env','lean','-DwarningAsError=true',checked.relative_to(ROOT)],'lean.log')
+        record['dependency_audit'] = PARAMETERS['audit_log']((out/'lean.log').read_text(),names)
+        changed=copy.deepcopy(ir)
+        block=changed['translated']['fun_decls'][reifier.root]['body']['Structured']['body']['statements']
+        cases=next(s['kind']['Switch']['Match'][1] for s in block if isinstance(s['kind'],dict) and 'Switch' in s['kind'])
+        cases[0][1],cases[1][1]=cases[1][1],cases[0][1]
+        changed_generated=REIFIER['Reifier'](changed).render()
+        code_only=lambda raw:re.sub(r'^--.*$','',raw,flags=re.M)
+        if code_only(changed_generated)==code_only(generated):raise RuntimeError('Changed Option branches ignored')
+        prefix=(DATA/'Smoke.lean').read_text().split('example :')[0]
+        test=out/'BranchesSwapped.lean';test.write_text(changed_generated+'\n'+(DATA/'Proof.lean').read_text().split('theorem zero_element_skips_allocator')[0]+'end HasteBootsRawVecDeallocation\n'+prefix+"""
+example : (match invoke f7 (world 8) [.rawVecExclusiveReference 0,layoutInput 1 1] with
+    | .returned (.scalar .unit) next => next.pointers.heap == (world 8).pointers.heap
+    | _ => false) = true := by decide
+example : (match invoke f7 (world 0) [.rawVecExclusiveReference 0,layoutInput 1 1] with
+    | .invalid next => next.pointers.heap == (world 0).pointers.heap
+    | _ => false) = true := by decide
+end HasteBootsRawVecDeallocation.Smoke
+""")
+        run([ROOT/'scripts/in-container','lake','env','lean','-DwarningAsError=true',test.relative_to(ROOT)],'branches-swapped.log')
+        record['supported_option_branch_mutation']='swapped original branch bodies change code; Some now skips free and None rejects payload projection'
+        record['llbc_sha256'] = digest(llbc.read_bytes()); record['checked_sha256'] = digest(checked.read_bytes())
+        if record['inputs'] != {str(p.relative_to(ROOT)):digest(p.read_bytes()) for p in files}: raise RuntimeError('Inputs changed during validation')
+        BUILD['verify_receipt'](args.build_receipt); record['status'] = 'passed'
+        print('RawVec deallocation passed: '+str(len(names))+' audits; '+str(len(record['negative_controls']))+' rejecting controls')
+    except Exception as error:
+        record.update(status='failed',error=str(error)); raise SystemExit(str(error)+'; inspect '+str(out)) from error
+    finally:
+        record['logs'] = {p.name:digest(p.read_bytes()) for p in out.glob('*.log')}; save()
+
+
+if __name__ == '__main__': main()
