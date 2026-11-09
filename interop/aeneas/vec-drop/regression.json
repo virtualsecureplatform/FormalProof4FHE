@@ -1,8 +1,8 @@
 {
-  "profile": "original-resident-vec-destruction-revalidated-with-rejected-layout-v35",
+  "profile": "revalidated-with-shared-constructor-v36",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-drop-dnp0lp97/manifest.json",
-  "gate_manifest_sha256": "1f2ee0506eb557694331e37adbc1b3015c587158efb86923ef895826258df569",
+  "gate_manifest": "build/hasteboots-extraction/vec-drop-fxv9r1dq/manifest.json",
+  "gate_manifest_sha256": "3861541b5e97ead26f64cd2543ec83aa45cba4123bf5b62db2a6ee053ae81579",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -316,7 +316,7 @@
     "FormalProof4FHETest/HasteBootsRawVecDeallocationCompletenessAudit.lean": "85efbedcef271ce6dc69a0bebb5d25b0880091984899ae52e3c02bfe7bcb3a48",
     "FormalProof4FHETest/HasteBootsVecDestructionCompletenessAudit.lean": "b15ca27d45474cdbf6c85a2635a3969160d35fd7e658b00139d4ba8d394a3dbd"
   },
-  "source_llbc_sha256": "79bc4a8c7ff3b5a08f5bb693dcaaa3e42591008287ae8215cd3095f16bda67bb",
+  "source_llbc_sha256": "004ecb2518ace8c61b5c7346994607d08e6f1d852b3613890ac8ec9c48f9de53",
   "outer_vec_drop_glue_interpreted": true,
   "outer_vec_drop_method_interpreted": true,
   "unbounded_original_byte_loop_interpreted": true,
@@ -1141,5 +1141,13 @@
     "dependency_audit_count": 1044,
     "negative_control_count": 87
   },
-  "rejected_layout_source_extension_revalidated": true
+  "rejected_layout_source_extension_revalidated": true,
+  "prior_unified_constructor_baseline": {
+    "profile": "original-resident-vec-destruction-revalidated-with-rejected-layout-v35",
+    "gate_manifest": "build/hasteboots-extraction/vec-drop-dnp0lp97/manifest.json",
+    "gate_manifest_sha256": "1f2ee0506eb557694331e37adbc1b3015c587158efb86923ef895826258df569",
+    "dependency_audit_count": 1044,
+    "negative_control_count": 87
+  },
+  "revalidated_with_shared_constructor": true
 }

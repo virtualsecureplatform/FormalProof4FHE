@@ -226,3 +226,18 @@ Regressions include the exact threshold in both modes and maximum unsigned
 capacity. Outer error/unwind propagation, resident storage, native correspondence
 and physical work remain open. Byte multiplication overflow is proved unreachable
 by the existing prefix theorem; its unchosen arm remains explicit unsupported code.
+
+## Shared constructor and unwind continuations
+
+`UnwindProof.lean` checks the source ownership guard, exclusive Global borrow,
+drop-glue invocation, cleanup/resume and double-unwind termination. Conditional
+entry theorems preserve the actual unwind world and do not assert that native
+allocation can unwind. `UnifiedConstructorProof.lean` combines zero capacity,
+positive success, allocation failure and rejected layouts in one interpreter,
+with their path-specific premises. Ten regressions exercise these branches.
+
+The gate has 783 audits, 157 rejecting controls and 118 source examples. The
+outer error handler's nonzero-sized opaque borrow and foreign accessor require
+a resident-stack/native-wrapper bridge. Outer error propagation, native
+allocator ABI/unwind behavior, resident storage/destruction and physical work
+remain open.

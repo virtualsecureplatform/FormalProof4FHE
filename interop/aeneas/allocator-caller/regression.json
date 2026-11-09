@@ -1,7 +1,7 @@
 {
-  "profile": "original-finite-allocator-caller-revalidated-with-rejected-layout-v12",
-  "gate_manifest": "build/hasteboots-extraction/allocator-caller-w7ep4j_1/manifest.json",
-  "gate_manifest_sha256": "e5272c1fab3be359483eace68d07db4518127fafa70f0d65c4d244bf130f0ad7",
+  "profile": "revalidated-with-shared-constructor-v13",
+  "gate_manifest": "build/hasteboots-extraction/allocator-caller-50yerg_c/manifest.json",
+  "gate_manifest_sha256": "0542244b7a19142f740dac9af907be47af3a919969e908e4fd361532d11db63f",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "status": "passed",
   "commands": [
@@ -750,5 +750,13 @@
     "dependency_audit_count": 388,
     "negative_control_count": 31
   },
-  "rejected_layout_source_extension_revalidated": true
+  "rejected_layout_source_extension_revalidated": true,
+  "prior_unified_constructor_baseline": {
+    "profile": "original-finite-allocator-caller-revalidated-with-rejected-layout-v12",
+    "gate_manifest": "build/hasteboots-extraction/allocator-caller-w7ep4j_1/manifest.json",
+    "gate_manifest_sha256": "e5272c1fab3be359483eace68d07db4518127fafa70f0d65c4d244bf130f0ad7",
+    "dependency_audit_count": 388,
+    "negative_control_count": 31
+  },
+  "revalidated_with_shared_constructor": true
 }

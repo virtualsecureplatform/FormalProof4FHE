@@ -1,8 +1,8 @@
 {
-  "profile": "rejected-byte-layout-and-generic-global-drop-v14",
+  "profile": "shared-constructor-normal-outcomes-and-guarded-unwind-v15",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-ufslqsap/manifest.json",
-  "gate_manifest_sha256": "8d6f71a8a1a01315f43de32d09892e01d227534124684b285dafea7ffc253f6c",
+  "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-_1khv4a8/manifest.json",
+  "gate_manifest_sha256": "b51be2f9c2a91fde498c9ec78e3bba014b95c42ed9f6b70aa55e7fd6752da2fc",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -31,10 +31,11 @@
     "9f47bb1b561aa95b80955d73ac02a1acd9f1270f",
     "466557da7d95275a1b8eb81583c0803bd68e53af",
     "793dc8cca88d57eab22a16c1b4684d9a65b6c7e9",
-    "d3633803a97049b8b751bae51cd878141bc814bb"
+    "d3633803a97049b8b751bae51cd878141bc814bb",
+    "b6fc2ceb7b53473fa57a83b1b2ea89e265a73529"
   ],
-  "dependency_audit_count": 747,
-  "negative_control_count": 149,
+  "dependency_audit_count": 783,
+  "negative_control_count": 157,
   "negative_controls": {
     "wrong_target": "Wrong target",
     "not_monomorphized": "Wrong extraction profile",
@@ -184,10 +185,18 @@
     "copied_capacity_overflow_wrapper": "Changed rejected layout fields, variants or operand modes",
     "missing_rejected_layout_cleanup": "Unknown prefix statement",
     "global_drop_cleanup_reopens_storage": "Changed Global drop cleanup operations",
-    "global_drop_cleanup_destroys_return": "Changed Global drop cleanup result storage"
+    "global_drop_cleanup_destroys_return": "Changed Global drop cleanup result storage",
+    "changed_constructor_unwind_owner_flag": "Changed constructor unwind drop flag",
+    "moved_constructor_unwind_owner_flag": "Changed constructor unwind drop flag",
+    "changed_unwind_global_borrow_scope": "Changed unwind Global borrow scope",
+    "changed_unwind_global_borrow_mode": "Changed unwind Global borrow",
+    "copied_unwind_global_reference": "Changed unwind Global drop call",
+    "changed_double_unwind_exit": "Changed double-unwind termination",
+    "changed_constructor_unwind_resume": "Changed constructor unwind cleanup or resume",
+    "unwind_else_body_invented": "Changed constructor unwind drop flag"
   },
   "inputs": {
-    "scripts/check-hasteboots-vec-capacity-arithmetic": "9a6be6f4b4e7bb28023744b50621de83fca932de9b5ea13385a574c6a9abbe86",
+    "scripts/check-hasteboots-vec-capacity-arithmetic": "9f9e65ad6cd5ff2799d563ad99b0f21701c3928137cf97d3d27d03672faf3bc0",
     "scripts/check-hasteboots-allocator-caller": "685e1e505b8e985f2862e69b41c8df0c238c3f8e7901366cecd375fbd3e383db",
     "scripts/build-hasteboots-inline-tools": "efda9a152172fdebfb14919f4c29e920f12da0d2ad71ab45ee526a27d9713452",
     "scripts/extract-hasteboots-parameters": "9ab0b333e12a4dac0fea4e37bc8bee430bdf56cac7eb4bcb5fa999ceab140993",
@@ -209,7 +218,7 @@
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
     "scripts/reify-hasteboots-variant-body": "2d0326329d538bb43685617133c2ecd96da497c81295cd221315807576383825",
-    "scripts/reify-hasteboots-vec-capacity-arithmetic": "9bd6eadb97745bf3ca4ddcf7cfe4a7ca3069cfc313a69fede9fc770098519787",
+    "scripts/reify-hasteboots-vec-capacity-arithmetic": "b5608b78f9f215f25cbd5e6a73eccb67eaceaf0ed74cd6ffdbb27df43aa3a737",
     "scripts/reify-hasteboots-vec-drop": "0ef983324e439064ea0969a4fc60d6a574137d5548a1feaee727f018b9b1eb8d",
     "scripts/reify-hasteboots-vec-empty": "00a7debb4c04056f86a5fe37ecead6b1f26a8a6fa45642c9b7b6fa76a3532ccd",
     "FormalProof4FHE/HasteBoots/NativeAllocatorExecution.lean": "2c3008e94760730cfbc65c7bee2707e107f23fabdb9df93f302c5848fc909a15",
@@ -659,7 +668,7 @@
     "FormalProof4FHETest/HasteBootsAllocatorExecutionSmoke.lean": "f35784d6b0c1935a62c375091630087ea91f73519032421c0ff865e11819be3f",
     "FormalProof4FHETest/HasteBootsAllocatorExecutionAudit.lean": "e3a812462caa6295d23425b1ba4b6bf5f933a1efc822430d3abbd819ff5b70a8",
     "interop/aeneas/vec-capacity-arithmetic/fixture.rs": "a1b4abdec2d161f72fd7e843f8d49e276aff4ce79b95cc0884807a084f620861",
-    "interop/aeneas/vec-capacity-arithmetic/Generated.lean": "e3640a2ad1c95ad9515dcbea89efd4881074d24f3637227fc0cbe3b88e6385a8",
+    "interop/aeneas/vec-capacity-arithmetic/Generated.lean": "c7e4e1236c6c3b1118e69c90eb7d7904d9deaaca483058265f861916758c5037",
     "interop/aeneas/vec-capacity-arithmetic/Retained.json": "797c79f20dc245262170cfac7aaf0ba468d4bfbdd627c6141e469c2dddaead83",
     "interop/aeneas/vec-capacity-arithmetic/Proof.lean": "7a15b251f41be0ea0ca802b9cd68956aed7446968cb737607348477e323bf518",
     "interop/aeneas/vec-capacity-arithmetic/LayoutProof.lean": "31a80b3e5b8eb9a85bc9154abe0a5b573b2368ada8c09ba1d7929ebdb6edfe4b",
@@ -677,6 +686,8 @@
     "interop/aeneas/vec-capacity-arithmetic/ConstructorErrorProof.lean": "14e684556f235f55e8b7af67b424364eda5dc8ddbd560e2da6e83eed658e88ef",
     "interop/aeneas/vec-capacity-arithmetic/DropFrameProof.lean": "d8715605486dd9447f00c9b54bd0e892d4cbcfdc909f2dbb0eb8f07a213c542d",
     "interop/aeneas/vec-capacity-arithmetic/RejectedLayoutProof.lean": "04681d866f4771c72913d72d9552de274883298822f2e8be2f0e3b925d333bac",
+    "interop/aeneas/vec-capacity-arithmetic/UnwindProof.lean": "180aee6cbe65825c2f7544c39daedec10f0ee124e1df61768dafdfa84871b6c4",
+    "interop/aeneas/vec-capacity-arithmetic/UnifiedConstructorProof.lean": "7d599dbcfc440e91002c02d6b98aa71c753169e16b79cf1f2672ae8df7e280ea",
     "interop/aeneas/vec-capacity-arithmetic/Smoke.lean": "62710e1fb00e8db3b3f5a0232ea568dd616594e30171dbc10bb9f21a2f7fe08f",
     "interop/aeneas/vec-capacity-arithmetic/LayoutSmoke.lean": "5aed39dd3f94928d8ec11c49643504c8d5e553e5f62f9897cbeefa38c8c2a92c",
     "interop/aeneas/vec-capacity-arithmetic/AcceptedSmoke.lean": "cb8b53a45b6d27fd0636169b6321554ce79a6fd00a94b402399c7f028c236a09",
@@ -690,19 +701,20 @@
     "interop/aeneas/vec-capacity-arithmetic/ConstructionSmoke.lean": "c0c21ac6dbb8d42070f8b7d6ebd6c495d3d8c1bd72bcd9578d377dfed190f119",
     "interop/aeneas/vec-capacity-arithmetic/PositiveCallerSmoke.lean": "d16c87d7e28e2b368027380b79bf633bcf0b7ccdb4f88fdc0e3b20b5291562ed",
     "interop/aeneas/vec-capacity-arithmetic/ConstructorErrorSmoke.lean": "b7815aaad56bd64a557e89305a5ef73474dc164e82295089e6114358ae142216",
-    "interop/aeneas/vec-capacity-arithmetic/RejectedLayoutSmoke.lean": "2cf4a62d8a8bdb570c62c6aa25e5ab566c08e30ac84686e60d6f8760ff8907f5"
+    "interop/aeneas/vec-capacity-arithmetic/RejectedLayoutSmoke.lean": "2cf4a62d8a8bdb570c62c6aa25e5ab566c08e30ac84686e60d6f8760ff8907f5",
+    "interop/aeneas/vec-capacity-arithmetic/UnifiedSmoke.lean": "4651cd322a1f3fb067095ea94dce145665838345cbaf10b300a46e4808ce59cc"
   },
-  "source_llbc_sha256": "d301cc3898da0acdbda28f1364d0e65a2fa7d5b08822ec997d14a2030ac213ec",
-  "checked_sha256": "08fedde8bb6469b18e1cb74018ed2cff400e6ea934b5a28aa51cee0a21bdc334",
+  "source_llbc_sha256": "7f8e747b1f2197c30cc4f1b22f17d12e30fbf076cf4ad14f31922cbcb99a0024",
+  "checked_sha256": "aa5dab4bd4a69d1e38e3a351bd853310602c8f7226e5582a0ca8786fb8a23a74",
   "source_definition_count": 100,
   "source_theorem_count": 55,
-  "source_declaration_audit_count": 327,
+  "source_declaration_audit_count": 363,
   "core_extension_declaration_audit_count": 144,
-  "new_declaration_audit_count": 471,
+  "new_declaration_audit_count": 507,
   "retained_function_count": 21,
   "retained_type_count": 31,
   "isolated_assignment_count": 9,
-  "source_regression_count": 108,
+  "source_regression_count": 118,
   "model_regression_count": 74,
   "arithmetic_extension": {
     "module": "FormalProof4FHE/HasteBoots/NativeRecordArithmetic.lean",
@@ -743,25 +755,25 @@
   },
   "revalidated_profiles": {
     "vec": {
-      "manifest": "build/hasteboots-extraction/vec-drop-dnp0lp97/manifest.json",
-      "manifest_sha256": "1f2ee0506eb557694331e37adbc1b3015c587158efb86923ef895826258df569",
+      "manifest": "build/hasteboots-extraction/vec-drop-fxv9r1dq/manifest.json",
+      "manifest_sha256": "3861541b5e97ead26f64cd2543ec83aa45cba4123bf5b62db2a6ee053ae81579",
       "dependency_audit_count": 1044,
       "negative_control_count": 87
     },
     "empty": {
-      "manifest": "build/hasteboots-extraction/vec-empty-u12_erww/manifest.json",
-      "manifest_sha256": "3fdeeed0ce74f042857dfeeda90cde5cf984b92bfc5ca60ed1f050121b62d7ba",
+      "manifest": "build/hasteboots-extraction/vec-empty-2m8jesvn/manifest.json",
+      "manifest_sha256": "b98453a6dcd23ee0a5ec657bec1d0a06b3b57f68da3de4282ab403ce815d21c9",
       "dependency_audit_count": 395,
       "negative_control_count": 17
     },
     "allocator": {
-      "manifest": "build/hasteboots-extraction/allocator-caller-w7ep4j_1/manifest.json",
-      "manifest_sha256": "e5272c1fab3be359483eace68d07db4518127fafa70f0d65c4d244bf130f0ad7",
+      "manifest": "build/hasteboots-extraction/allocator-caller-50yerg_c/manifest.json",
+      "manifest_sha256": "0542244b7a19142f740dac9af907be47af3a919969e908e4fd361532d11db63f",
       "dependency_audit_count": 388,
       "negative_control_count": 31
     }
   },
-  "validation_note": "Fresh coupled-tool source/proof gates and the full project check passed. Allocation-capable execution embeds the legacy interpreter and supports checked heap-changing callees; the legacy language and its preservation theorems are unchanged. An initial legacy-checker test-filename assumption was corrected by separating the optional allocation inventory from the legacy test list; affected gates were rerun. Source wrappers forward every common-runtime outcome. Opaque shim execution, source post-allocation null/Result handling, native allocator/type/ABI/compiler/lifetime correspondence, physical work and final security remain open.",
+  "validation_note": "Fresh shared-constructor source gate passed: 783 dependency audits, 157 rejecting controls, 118 source examples and 74 model examples. Root library, root tests, toolchain, dependencies and project check scripts are unchanged from the prior successful 11088-job full check, which is reused. Conditional unwind cleanup does not assert allocator unwind existence. Outer error propagation, native allocator/shim/type/ABI/compiler/lifetime correspondence, resident storage/destruction, physical work and final security remain open.",
   "prior_isolated_assignment_baseline": {
     "profile": "retained-with-capacity-scalar-assignments-and-typed-boolean-arithmetic-v1",
     "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-hmaelxmc/manifest.json",
@@ -1167,5 +1179,34 @@
     "outer_error_propagation_proved": false,
     "native_abi_compiler_lifetime_work_refinement": false
   },
-  "root_full_check_reused_without_library_or_root_test_changes": true
+  "root_full_check_reused_without_library_or_root_test_changes": true,
+  "prior_unified_constructor_baseline": {
+    "profile": "rejected-byte-layout-and-generic-global-drop-v14",
+    "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-ufslqsap/manifest.json",
+    "gate_manifest_sha256": "8d6f71a8a1a01315f43de32d09892e01d227534124684b285dafea7ffc253f6c",
+    "dependency_audit_count": 747,
+    "negative_control_count": 149
+  },
+  "constructor_unwind": {
+    "source_theorem_count": 13,
+    "source_helper_definition_count": 3,
+    "ownership_flag_false_skips_drop": true,
+    "ownership_flag_true_actual_exclusive_borrow_and_drop": true,
+    "cleanup_resumes_and_nested_drop_unwind_terminates": true,
+    "actual_method_unwind_premise_explicit": true,
+    "constructor_unwind_existence_claimed": false,
+    "native_allocator_unwind_refinement": false
+  },
+  "unified_constructor": {
+    "source_definition_count": 4,
+    "source_theorem_count": 10,
+    "source_regression_count": 10,
+    "typed_entry_and_dispatch_proved": true,
+    "zero_success_null_failure_and_rejected_layout_in_one_interpreter": true,
+    "positive_shim_and_allocator_result_premises_explicit": true,
+    "zero_and_rejected_layout_skip_allocator": true,
+    "conditional_unwind_continuation_proved": true,
+    "outer_callers_ported_to_shared_constructor": false,
+    "native_abi_refinement": false
+  }
 }

@@ -7,6 +7,41 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Shared constructor interpreter and guarded unwind cleanup
+
+`unifiedConstructorFunction` now places zero capacity, positive allocation
+success, normal allocation failure and rejected layouts in one allocation-capable
+interpreter. Its typed entry, overflow/layout/size dispatch and four normal
+outcome theorems reuse the checked source prefixes. Zero capacity returns without
+placement, shim or allocator premises. Rejection requires no shim/allocator
+premise. Positive allocation outcomes retain the actual modeled shim/allocator
+premises and explicit placement/invariants required by their paths.
+
+The original allocation-call unwind continuations are now interpreted in both
+initialization modes. The ownership flag is copied and tested before any borrow:
+false skips Global drop and resumes in the incoming world; true executes the
+exclusive zero-byte Global borrow, concrete drop glue, cleanup and resume. The
+original double-unwind cleanup and `UnwindTerminate` exit are retained and checked.
+The source callback and shared interpreter have conditional unwind-entry theorems.
+These do not claim that the modeled allocator primitive or a native allocator can
+unwind; native allocator ABI/unwind refinement remains open.
+
+Thirteen unwind theorems and ten shared-interpreter theorems compile under the
+existing proof limits. Ten regressions cover both ownership branches, both mode
+entries, double-unwind termination, heap preservation and all four normal outcomes.
+The source gate passes 783 dependency audits, 157 rejecting controls and 118
+source examples. Shared library/root-test inputs are unchanged, so the preceding
+full project check remains applicable. Fresh related extraction gates also pass:
+Vec destruction 1044 audits/87 controls, allocator caller 388/31 and empty
+constructor 395/17.
+
+The outer decoded callers still use the earlier positive-success interpreter.
+Their error handler borrows a nonzero-sized opaque reservation error and calls a
+foreign `kind` accessor; interpreting that path requires the resident-stack/
+native-wrapper bridge. Outer error propagation, resident storage/destruction,
+native ABI/stack/type/compiler/lifetime correspondence, physical work and final
+security remain open.
+
 ## Rejected byte layouts through reusable Global drop
 
 `rejected_constructor_invocation` now proves that every byte capacity at or
