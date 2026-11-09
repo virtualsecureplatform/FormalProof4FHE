@@ -42,6 +42,7 @@ class Reifier:
   self.layout_prefix=LayoutPrefix(self)
   self.caller_preparation=CallerPreparation(self)
   self.positive_preparation=PositivePreparation(self)
+  self.allocator_methods=AllocatorMethods(self)
  def walk(self,f,node):
   if isinstance(node,dict):
    if 'statements' in node:
@@ -85,7 +86,7 @@ class Reifier:
    'assignments':[{k:v for k,v in r.items() if k!='rendered'} for r in self.rows],
    'claim':'original scalar assignments, continuous layout prefix and decoded zero-capacity source call path; positive construction, unprocessed error/unwind branches, ABI and physical work remain open'}
  def render(self):
-  lines=['module','public import FormalProof4FHE.HasteBoots.NativeRecordCallValues','@[expose] public section',
+  lines=['module','public import FormalProof4FHE.HasteBoots.NativeRecordCallValues','public import FormalProof4FHE.HasteBoots.NativeAllocatorLLBC','@[expose] public section',
    'namespace HasteBootsVecCapacityArithmetic','open FormalProof4FHE.HasteBoots','open NativeRecordLLBC']
   for r in self.rows:
    lines+=['-- Original assignment SHA256 '+digest(r['statement']),
@@ -108,7 +109,7 @@ class Reifier:
     else:slots.append('.dead')
    lines+=['def '+label+' (world : NativeReferenceMachine.State) (left right : NativeWord64Memory.Word) : Frame :=',
     '  ⟨['+', '.join(types)+'], ['+', '.join(slots)+'], world⟩']
-  lines+=[self.layout_prefix.render(),self.caller_preparation.render(),self.positive_preparation.render(),'end HasteBootsVecCapacityArithmetic',''];return '\n'.join(lines)
+  lines+=[self.layout_prefix.render(),self.caller_preparation.render(),self.positive_preparation.render(),self.allocator_methods.render(),'end HasteBootsVecCapacityArithmetic',''];return '\n'.join(lines)
 
 class LayoutPrefix:
  def __init__(self,parent):
@@ -427,6 +428,66 @@ class PositivePreparation:
    'def positiveMovedFrame (ambient : Frame) (capacity : NativeWord64Memory.Word) (zeroed : Bool) (address : NativeWord64Memory.Word) : Frame :=',
    '  let base := positiveBorrowFrame ambient capacity zeroed address',
    '  {base with slots := base.slots.set (if zeroed then 12 else 11) (.live (some .uninit))}']
+  return '\n'.join(lines)+'\n'
+
+class AllocatorMethods:
+ def __init__(self,parent):
+  self.parent=parent;impl=parent.functions[13]
+  require(name(impl)=='alloc::alloc::alloc_impl_runtime' and impl['item_meta']['opacity']=='Transparent' and impl['signature']=={'is_unsafe':False,'abi':'Rust','is_variadic':False,'inputs':[adt(4),BOOL],'output':adt(15)},'Changed allocation implementation')
+  self.method_calls=[]
+  for mode,fid in enumerate([7,8]):
+   f=parent.functions[fid];ss=f['body']['Structured']['body']['statements']
+   require(len(ss)==5 and ss[0]['kind']=={'StorageLive':0} and [s['kind'] for s in ss[2:]]==[{'StorageDead':2},{'StorageDead':1},'Return'] and set(ss[1]['kind'])=={'Call'},'Changed allocator method body')
+   call=ss[1]['kind']['Call'];require(set(call)=={'call','on_unwind'} and call['call']=={'func':{'Regular':{'kind':{'Fun':{'Regular':13}},'generics':{'regions':[],'types':[],'const_generics':[],'trait_refs':[]}}},'args':[{'Move':{'kind':{'Local':2},'ty':adt(4)}},{'Const':{'kind':{'Literal':{'Bool':bool(mode)}},'ty':BOOL}}],'dest':{'kind':{'Local':0},'ty':adt(15)}} and [s['kind'] for s in call['on_unwind']['statements']]==[{'StorageDead':2},{'StorageDead':1},'UnwindResume'],'Changed allocator forwarding call or unwind')
+   self.method_calls.append(call)
+  ss=impl['body']['Structured']['body']['statements'];require(set(ss[12]['kind'])=={'Switch'} and set(ss[12]['kind']['Switch'])=={'SwitchInt'},'Changed implementation size dispatch')
+  test,width,cases,otherwise=ss[12]['kind']['Switch']['SwitchInt']
+  require(test=={'Copy':{'kind':{'Local':3},'ty':USIZE}} and width=={'UInt':'Usize'} and len(cases)==1 and cases[0][0]==[{'Scalar':{'Unsigned':['Usize','0']}}] and otherwise is not None,'Changed implementation size test')
+  self.zero=cases[0][1];self.positive=otherwise
+  raw={'Untagged':{'RawPtr':[literal({'UInt':'U8'}),'Mut']}}
+  unit={'Untagged':{'Adt':{'id':'Tuple','generics':{'regions':[],'types':[],'const_generics':[],'trait_refs':[]}}}}
+  generics={'regions':[],'types':[],'const_generics':[],'trait_refs':[]}
+  for fid,owner,inputs,output in [(17,'alloc::alloc::__rust_no_alloc_shim_is_unstable_v2',[],unit),(18,'alloc::alloc::__rust_alloc_zeroed',[USIZE,adt(11)],raw),(19,'alloc::alloc::__rust_alloc',[USIZE,adt(11)],raw)]:
+   f=parent.functions[fid];require(name(f)==owner and f['item_meta']['opacity']=='Opaque' and f['signature']=={'is_unsafe':True,'abi':'Rust','is_variadic':False,'inputs':inputs,'output':output},'Changed allocator external boundary')
+  positive=self.positive['statements'];require(len(positive)==7 and set(positive[0]['kind'])=={'Switch'} and set(positive[0]['kind']['Switch'])=={'If'},'Changed runtime allocation-mode branch')
+  test,zeroed,uninitialized=positive[0]['kind']['Switch']['If'];require(test=={'Copy':{'kind':{'Local':2},'ty':BOOL}},'Changed runtime mode flag')
+  for mode,branch in [(True,zeroed),(False,uninitialized)]:
+   ssb=branch['statements'];temporary=19 if mode else 21;shim=18 if mode else 20;target=18 if mode else 19
+   require(len(ssb)==5 and ssb[1]['kind']=={'StorageLive':temporary} and ssb[4]['kind']=={'StorageDead':temporary},'Changed external alignment scope')
+   require(set(ssb[0]['kind'])=={'Call'} and set(ssb[3]['kind'])=={'Call'},'Missing allocator shim or allocation call')
+   require(set(ssb[0]['kind']['Call'])=={'call','on_unwind'} and set(ssb[3]['kind']['Call'])=={'call','on_unwind'},'Unknown allocator external effects')
+   require(ssb[0]['kind']['Call']['call']=={'func':{'Regular':{'kind':{'Fun':{'Regular':17}},'generics':generics}},'args':[],'dest':{'kind':{'Local':shim},'ty':unit}},'Changed allocator shim ordering')
+   place={'kind':{'Projection':[{'kind':{'Local':1},'ty':adt(4)},{'Field':[{'Adt':[4,None]},1]}]},'ty':adt(11)}
+   require(ssb[2]['kind']=={'Assign':[{'kind':{'Local':temporary},'ty':adt(11)},{'Use':[{'Copy':place},'Yes']}]},'Changed external alignment projection')
+   require(ssb[3]['kind']['Call']['call']=={'func':{'Regular':{'kind':{'Fun':{'Regular':target}},'generics':generics}},'args':[{'Copy':{'kind':{'Local':3},'ty':USIZE}},{'Move':{'kind':{'Local':temporary},'ty':adt(11)}}],'dest':{'kind':{'Local':6},'ty':raw}},'Changed allocator external arguments')
+  view=copy.copy(parent.layout_prefix);view.function=impl;view.locals=impl['body']['Structured']['locals']['locals'];view.count=len(view.locals)
+  require(view.count==39 and ss[-1]['kind']=='Return','Changed implementation locals/return')
+  self.prefix=view.code(ss[:12],'next');self.tail=view.code(ss[13:-1],'.ret')
+  variants=parent.layout_prefix.types[15]['kind']['Enum']
+  require([(v['id'],v['name'],[f['ty'] for f in v['fields']]) for v in variants]==[(0,'Ok',[adt(16)]),(1,'Err',[adt(17)])] and parent.layout_prefix.types[17]['kind']=={'Struct':[]},'Changed allocator Result fields')
+ def render(self):
+  layout='((layoutTypes (calleeEntryAmbient ambient))[4]?.getD (.scalar .unit))'
+  lines=['def allocationResultType : NativeRecordValues.Ty := .record 15 (.choice (.pair (.record 16 (.pair (.scalar (.raw true)) (.scalar .unit))) (.scalar .unit)) (.pair (.record 17 (.scalar .unit)) (.scalar .unit)))',
+   'def implementationPrefix (next : Body) : Body := '+self.prefix,
+   'def implementationTail : Body := '+self.tail,
+   'def implementationTypes (ambient : Frame) : List NativeRecordValues.Ty := ['+', '.join({0:'allocationResultType',1:layout,2:'.boolean',3:'(.scalar .usize)',6:'(.scalar (.raw false))',18:'(.scalar .unit)',20:'(.scalar .unit)'}.get(i,'(ambient.types['+str(i)+']?.getD (.scalar .unit))') for i in range(39))+']']
+  for label in ['implementationFrame','implementationPrepared']:
+   slots={1:'(.live (some (capacityLayout capacity)))',2:'(.live (some (.boolean zeroed)))'}
+   if label=='implementationPrepared':slots.update({i:'(.live none)' for i in [0,6,10,11,13,16,18,20,24,30]});slots[3]='(.live (some (.scalar (.usize capacity))))'
+   lines+=['def '+label+' (ambient : Frame) (capacity : NativeWord64Memory.Word) (zeroed : Bool) : Frame := ⟨implementationTypes ambient,['+', '.join(slots.get(i,'.dead') for i in range(39))+'],ambient.world⟩']
+  lines+=['def implementationFunction (ambient : Frame) (zero positive : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Function :=',
+   '  ⟨"alloc::alloc::alloc_impl_runtime",.transparent,implementationTypes ambient,2,.legacy (implementationPrefix .done) (.switchUsize (.copy 3 []) 0 zero positive (.legacy implementationTail .done))⟩',
+   'def allocationMethodTypes (ambient : Frame) : List NativeRecordValues.Ty := [allocationResultType,(.scalar (.reference false)),'+layout+']',
+   'def allocationMethodArgs (zeroed : Bool) : List Operand := [(.move 2 []),(.boolean zeroed)]']
+  for label in ['allocationMethodFrame','allocationMethodPrepared','allocationMethodMoved']:
+   slots=['.dead','(.live (some (.scalar (.reference false reference 0))))','(.live (some (capacityLayout capacity)))']
+   if label!='allocationMethodFrame':slots[0]='(.live none)'
+   if label=='allocationMethodMoved':slots[2]='(.live (some .uninit))'
+   lines+=['def '+label+' (ambient : Frame) (reference : NativeReferenceMachine.Reference) ('+('capacity' if label!='allocationMethodMoved' else '_capacity')+' : NativeWord64Memory.Word) : Frame := ⟨allocationMethodTypes ambient,['+', '.join(slots)+'],ambient.world⟩']
+  lines+=['def allocationMethod (ambient : Frame) (zeroed : Bool) (zero positive : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Function :=',
+   '  let callee := implementationFunction ambient zero positive',
+   '  ⟨if zeroed then "alloc::alloc::allocate_zeroed" else "alloc::alloc::allocate",.transparent,allocationMethodTypes ambient,2,',
+   '    .legacy (.live 0 .done) (.call callee.name callee.classification callee.types callee.argCount 0 (allocationMethodArgs zeroed) callee.body (.legacy (.dead 2 (.dead 1 .resume)) .done) (.legacy (.dead 2 (.dead 1 .ret)) .done))⟩']
   return '\n'.join(lines)+'\n'
 
 def main():

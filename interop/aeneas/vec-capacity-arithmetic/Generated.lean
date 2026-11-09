@@ -1,5 +1,6 @@
 module
 public import FormalProof4FHE.HasteBoots.NativeRecordCallValues
+public import FormalProof4FHE.HasteBoots.NativeAllocatorLLBC
 @[expose] public section
 namespace HasteBootsVecCapacityArithmetic
 open FormalProof4FHE.HasteBoots
@@ -123,5 +124,23 @@ def positiveBorrowFrame (ambient : Frame) (capacity : NativeWord64Memory.Word) (
 def positiveMovedFrame (ambient : Frame) (capacity : NativeWord64Memory.Word) (zeroed : Bool) (address : NativeWord64Memory.Word) : Frame :=
   let base := positiveBorrowFrame ambient capacity zeroed address
   {base with slots := base.slots.set (if zeroed then 12 else 11) (.live (some .uninit))}
+
+def allocationResultType : NativeRecordValues.Ty := .record 15 (.choice (.pair (.record 16 (.pair (.scalar (.raw true)) (.scalar .unit))) (.scalar .unit)) (.pair (.record 17 (.scalar .unit)) (.scalar .unit)))
+def implementationPrefix (next : Body) : Body := (.live 0 (.live 6 (.live 10 (.live 11 (.live 13 (.live 16 (.live 18 (.live 20 (.live 24 (.live 30 (.live 3 (.assign 3 (.use (.copy 1 [(.unwrap 4), .left]) true .byte) next))))))))))))
+def implementationTail : Body := (.dead 3 (.dead 30 (.dead 24 (.dead 20 (.dead 18 (.dead 16 (.dead 13 (.dead 11 (.dead 10 (.dead 6 (.dead 2 (.dead 1 (.dead 38 (.dead 37 (.dead 36 (.dead 35 (.dead 34 .ret)))))))))))))))))
+def implementationTypes (ambient : Frame) : List NativeRecordValues.Ty := [allocationResultType, ((layoutTypes (calleeEntryAmbient ambient))[4]?.getD (.scalar .unit)), .boolean, (.scalar .usize), (ambient.types[4]?.getD (.scalar .unit)), (ambient.types[5]?.getD (.scalar .unit)), (.scalar (.raw false)), (ambient.types[7]?.getD (.scalar .unit)), (ambient.types[8]?.getD (.scalar .unit)), (ambient.types[9]?.getD (.scalar .unit)), (ambient.types[10]?.getD (.scalar .unit)), (ambient.types[11]?.getD (.scalar .unit)), (ambient.types[12]?.getD (.scalar .unit)), (ambient.types[13]?.getD (.scalar .unit)), (ambient.types[14]?.getD (.scalar .unit)), (ambient.types[15]?.getD (.scalar .unit)), (ambient.types[16]?.getD (.scalar .unit)), (ambient.types[17]?.getD (.scalar .unit)), (.scalar .unit), (ambient.types[19]?.getD (.scalar .unit)), (.scalar .unit), (ambient.types[21]?.getD (.scalar .unit)), (ambient.types[22]?.getD (.scalar .unit)), (ambient.types[23]?.getD (.scalar .unit)), (ambient.types[24]?.getD (.scalar .unit)), (ambient.types[25]?.getD (.scalar .unit)), (ambient.types[26]?.getD (.scalar .unit)), (ambient.types[27]?.getD (.scalar .unit)), (ambient.types[28]?.getD (.scalar .unit)), (ambient.types[29]?.getD (.scalar .unit)), (ambient.types[30]?.getD (.scalar .unit)), (ambient.types[31]?.getD (.scalar .unit)), (ambient.types[32]?.getD (.scalar .unit)), (ambient.types[33]?.getD (.scalar .unit)), (ambient.types[34]?.getD (.scalar .unit)), (ambient.types[35]?.getD (.scalar .unit)), (ambient.types[36]?.getD (.scalar .unit)), (ambient.types[37]?.getD (.scalar .unit)), (ambient.types[38]?.getD (.scalar .unit))]
+def implementationFrame (ambient : Frame) (capacity : NativeWord64Memory.Word) (zeroed : Bool) : Frame := ⟨implementationTypes ambient,[.dead, (.live (some (capacityLayout capacity))), (.live (some (.boolean zeroed))), .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead],ambient.world⟩
+def implementationPrepared (ambient : Frame) (capacity : NativeWord64Memory.Word) (zeroed : Bool) : Frame := ⟨implementationTypes ambient,[(.live none), (.live (some (capacityLayout capacity))), (.live (some (.boolean zeroed))), (.live (some (.scalar (.usize capacity)))), .dead, .dead, (.live none), .dead, .dead, .dead, (.live none), (.live none), .dead, (.live none), .dead, .dead, (.live none), .dead, (.live none), .dead, (.live none), .dead, .dead, .dead, (.live none), .dead, .dead, .dead, .dead, .dead, (.live none), .dead, .dead, .dead, .dead, .dead, .dead, .dead, .dead],ambient.world⟩
+def implementationFunction (ambient : Frame) (zero positive : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Function :=
+  ⟨"alloc::alloc::alloc_impl_runtime",.transparent,implementationTypes ambient,2,.legacy (implementationPrefix .done) (.switchUsize (.copy 3 []) 0 zero positive (.legacy implementationTail .done))⟩
+def allocationMethodTypes (ambient : Frame) : List NativeRecordValues.Ty := [allocationResultType,(.scalar (.reference false)),((layoutTypes (calleeEntryAmbient ambient))[4]?.getD (.scalar .unit))]
+def allocationMethodArgs (zeroed : Bool) : List Operand := [(.move 2 []),(.boolean zeroed)]
+def allocationMethodFrame (ambient : Frame) (reference : NativeReferenceMachine.Reference) (capacity : NativeWord64Memory.Word) : Frame := ⟨allocationMethodTypes ambient,[.dead, (.live (some (.scalar (.reference false reference 0)))), (.live (some (capacityLayout capacity)))],ambient.world⟩
+def allocationMethodPrepared (ambient : Frame) (reference : NativeReferenceMachine.Reference) (capacity : NativeWord64Memory.Word) : Frame := ⟨allocationMethodTypes ambient,[(.live none), (.live (some (.scalar (.reference false reference 0)))), (.live (some (capacityLayout capacity)))],ambient.world⟩
+def allocationMethodMoved (ambient : Frame) (reference : NativeReferenceMachine.Reference) (_capacity : NativeWord64Memory.Word) : Frame := ⟨allocationMethodTypes ambient,[(.live none), (.live (some (.scalar (.reference false reference 0)))), (.live (some .uninit))],ambient.world⟩
+def allocationMethod (ambient : Frame) (zeroed : Bool) (zero positive : NativeAllocatorLLBC.Body) : NativeAllocatorLLBC.Function :=
+  let callee := implementationFunction ambient zero positive
+  ⟨if zeroed then "alloc::alloc::allocate_zeroed" else "alloc::alloc::allocate",.transparent,allocationMethodTypes ambient,2,
+    .legacy (.live 0 .done) (.call callee.name callee.classification callee.types callee.argCount 0 (allocationMethodArgs zeroed) callee.body (.legacy (.dead 2 (.dead 1 .resume)) .done) (.legacy (.dead 2 (.dead 1 .ret)) .done))⟩
 
 end HasteBootsVecCapacityArithmetic

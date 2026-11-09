@@ -134,13 +134,36 @@ def negatives(ir):
  check('wrong_shared_temporary_scope',lambda c:arm(c,0)[3]['kind'].update(StorageDead=12))
  check('wrong_allocation_method_result',lambda c:c['fun_decls'][7]['signature'].update(output=REIFIER['USIZE']))
  check('wrong_allocation_method_owner',lambda c:c['fun_decls'][8]['item_meta'].update(opacity='Foreign'))
+ def method(c,mode):return c['fun_decls'][7+mode]['body']['Structured']['body']['statements']
+ def runtime(c):return c['fun_decls'][13]['body']['Structured']['body']['statements']
+ def runtime_size(c):return runtime(c)[12]['kind']['Switch']['SwitchInt']
+ def runtime_modes(c):return runtime_size(c)[3]['statements'][0]['kind']['Switch']['If']
+ def runtime_arm(c,zeroed):return runtime_modes(c)[1 if zeroed else 2]['statements']
+ check('ordinary_wrapper_zeroed_flag',lambda c:method(c,0)[1]['kind']['Call']['call']['args'][1]['Const']['kind']['Literal'].update(Bool=True))
+ check('zeroed_wrapper_ordinary_flag',lambda c:method(c,1)[1]['kind']['Call']['call']['args'][1]['Const']['kind']['Literal'].update(Bool=False))
+ check('copied_forwarded_layout',lambda c:method(c,0)[1]['kind']['Call']['call']['args'][0].update(Copy=method(c,0)[1]['kind']['Call']['call']['args'][0].pop('Move')))
+ check('wrong_wrapper_runtime_target',lambda c:method(c,1)[1]['kind']['Call']['call']['func']['Regular']['kind']['Fun'].update(Regular=18))
+ check('wrong_wrapper_return_cleanup',lambda c:method(c,0)[3]['kind'].update(StorageDead=2))
+ check('wrong_wrapper_unwind',lambda c:method(c,1)[1]['kind']['Call']['on_unwind']['statements'][-1].update(kind='Abort'))
+ check('wrong_runtime_signature',lambda c:c['fun_decls'][13]['signature']['inputs'].__setitem__(1,REIFIER['USIZE']))
+ check('moved_runtime_size_condition',lambda c:runtime_size(c)[0].update(Move=runtime_size(c)[0].pop('Copy')))
+ check('missing_runtime_return',lambda c:runtime(c)[-1].update(kind='Nop'))
+ check('erased_allocator_external_boundary',lambda c:c['fun_decls'][18]['item_meta'].update(opacity='Transparent'))
+ check('changed_allocator_external_safety',lambda c:c['fun_decls'][19]['signature'].update(is_unsafe=False))
+ check('changed_allocator_external_return',lambda c:c['fun_decls'][18]['signature'].update(output=REIFIER['USIZE']))
+ check('changed_shim_arguments',lambda c:c['fun_decls'][17]['signature']['inputs'].append(REIFIER['USIZE']))
+ check('moved_runtime_mode_flag',lambda c:runtime_modes(c)[0].update(Move=runtime_modes(c)[0].pop('Copy')))
+ check('wrong_zeroed_external_target',lambda c:runtime_arm(c,True)[3]['kind']['Call']['call']['func']['Regular']['kind']['Fun'].update(Regular=19))
+ check('copied_external_alignment',lambda c:runtime_arm(c,False)[3]['kind']['Call']['call']['args'][1].update(Copy=runtime_arm(c,False)[3]['kind']['Call']['call']['args'][1].pop('Move')))
+ check('allocator_before_shim',lambda c:runtime_arm(c,False).__setitem__(slice(0,4,3),[runtime_arm(c,False)[3],runtime_arm(c,False)[0]]))
+ check('unknown_external_call_effect',lambda c:runtime_arm(c,True)[3]['kind']['Call'].update(hidden_effect=True))
  return records
 
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--build-receipt',type=Path,required=True);a=p.parse_args()
  out=Path(tempfile.mkdtemp(prefix='vec-capacity-arithmetic-',dir=ROOT/'build/hasteboots-extraction'))
  r={'status':'started','commands':[],'isolated_original_arithmetic_assignments_reified':True,'original_checked_multiply_assignment_proved':True,
- 'byte_size_one_overflow_flag_false_proved':True,'source_move_consumption_proved':True,'source_layout_prefix_branch_selection_proved':True,'arbitrary_suffix_continuations_preserved':True,'layout_prefix_statement_counts':[28,9],'accepted_layout_statement_count':16,'source_success_aggregates_and_moves_proved':True,'source_zero_size_dispatch_proved':True,'reservation_error_representation_arbitrary':True,'source_zero_size_return_proved':True,'zero_capacity_decoded_root_proved':True,'zero_capacity_source_call_chain':[0,1,2,3],'zero_capacity_external_allocator_assumption':False,'unused_logical_local_and_error_types_arbitrary':True,'unprocessed_source_branches_explicitly_unsupported':True,'positive_size_allocator_dispatch_proved':True,'positive_size_allocator_body_execution_proved':False,'global_placement_address_explicit':True,'native_stack_placement_refinement':False,'whole_constructor_control_flow_proved':False,
+ 'byte_size_one_overflow_flag_false_proved':True,'source_move_consumption_proved':True,'source_layout_prefix_branch_selection_proved':True,'arbitrary_suffix_continuations_preserved':True,'layout_prefix_statement_counts':[28,9],'accepted_layout_statement_count':16,'source_success_aggregates_and_moves_proved':True,'source_zero_size_dispatch_proved':True,'reservation_error_representation_arbitrary':True,'source_zero_size_return_proved':True,'zero_capacity_decoded_root_proved':True,'zero_capacity_source_call_chain':[0,1,2,3],'zero_capacity_external_allocator_assumption':False,'unused_logical_local_and_error_types_arbitrary':True,'unprocessed_source_branches_explicitly_unsupported':True,'positive_size_allocator_dispatch_proved':True,'positive_size_allocator_body_execution_proved':False,'allocation_capable_evaluator_embeds_legacy_exactly':True,'source_allocator_wrappers_forward_all_outcomes':True,'common_runtime_entry_and_size_dispatch_proved':True,'allocator_boundary_model_executes_heap_steps':True,'native_allocator_shim_and_abi_refinement':False,'global_placement_address_explicit':True,'native_stack_placement_refinement':False,'whole_constructor_control_flow_proved':False,
  'allocator_error_and_abort_paths_proved':False,'native_abi_refinement':False,'physical_work_refinement':False,'final_security_theorem':False}
  def save():(out/'manifest.json').write_text(json.dumps(r,indent=2)+'\n')
  def run(cmd,log):
@@ -152,20 +175,20 @@ def main():
   _,tools,_=BUILD['verify_receipt'](a.build_receipt);r['build_receipt_sha256']=digest(a.build_receipt)
   files=[Path(__file__),ROOT/'scripts/check-hasteboots-allocator-caller',ROOT/'scripts/build-hasteboots-inline-tools',ROOT/'scripts/extract-hasteboots-parameters',ROOT/'scripts/specify-hasteboots-deallocation-boundary',ROOT/'lean-toolchain',
    *sorted((ROOT/'scripts').glob('reify-hasteboots-*')),*sorted((ROOT/'FormalProof4FHE/HasteBoots').glob('Native*.lean')),
-   ROOT/'FormalProof4FHETest/HasteBootsRecordArithmeticSmoke.lean',ROOT/'FormalProof4FHETest/HasteBootsRecordArithmeticAudit.lean',ROOT/'FormalProof4FHETest/HasteBootsZstBorrowSmoke.lean',ROOT/'FormalProof4FHETest/HasteBootsZstBorrowAudit.lean',
-   *[DATA/n for n in ['fixture.rs','Generated.lean','Retained.json','Proof.lean','LayoutProof.lean','AcceptedProof.lean','ZeroProof.lean','CallerProof.lean','PositiveProof.lean','Smoke.lean','LayoutSmoke.lean','AcceptedSmoke.lean','ZeroSmoke.lean','CallerSmoke.lean','PositiveSmoke.lean']]]
+   ROOT/'FormalProof4FHETest/HasteBootsRecordArithmeticSmoke.lean',ROOT/'FormalProof4FHETest/HasteBootsRecordArithmeticAudit.lean',ROOT/'FormalProof4FHETest/HasteBootsZstBorrowSmoke.lean',ROOT/'FormalProof4FHETest/HasteBootsZstBorrowAudit.lean',ROOT/'FormalProof4FHETest/HasteBootsAllocatorExecutionSmoke.lean',ROOT/'FormalProof4FHETest/HasteBootsAllocatorExecutionAudit.lean',
+   *[DATA/n for n in ['fixture.rs','Generated.lean','Retained.json','Proof.lean','LayoutProof.lean','AcceptedProof.lean','ZeroProof.lean','CallerProof.lean','PositiveProof.lean','AllocatorProof.lean','Smoke.lean','LayoutSmoke.lean','AcceptedSmoke.lean','ZeroSmoke.lean','CallerSmoke.lean','PositiveSmoke.lean','AllocatorSmoke.lean']]]
   r['inputs']={str(f.relative_to(ROOT)):digest(f) for f in files}
-  run([ROOT/'scripts/in-container','lake','build','FormalProof4FHE.HasteBoots.NativeRecordCallValues','FormalProof4FHETest.HasteBootsRecordArithmeticSmoke','FormalProof4FHETest.HasteBootsRecordArithmeticAudit','FormalProof4FHETest.HasteBootsZstBorrowSmoke','FormalProof4FHETest.HasteBootsZstBorrowAudit'],'root-build.log')
+  run([ROOT/'scripts/in-container','lake','build','FormalProof4FHE.HasteBoots.NativeRecordCallValues','FormalProof4FHETest.HasteBootsRecordArithmeticSmoke','FormalProof4FHETest.HasteBootsRecordArithmeticAudit','FormalProof4FHETest.HasteBootsZstBorrowSmoke','FormalProof4FHETest.HasteBootsZstBorrowAudit','FormalProof4FHETest.HasteBootsAllocatorExecutionSmoke','FormalProof4FHETest.HasteBootsAllocatorExecutionAudit'],'root-build.log')
   llbc=out/'source.llbc';cmd=[tools/'charon','rustc','--preset=aeneas','--sysroot','default','--monomorphize','--mir','optimized','--consts','values','--evaluate-runtime-checks','--precise-drops','--desugar-drops','--preserve-allocator','--no-dedup-serialized-ast']
   for include in INCLUDES:cmd+=['--include',include]
   cmd+=['--dest-file',llbc,'--','--crate-type','lib','--edition','2024','-Cdebug-assertions=no','--crate-name','hasteboots_vec_capacity_arithmetic',(DATA/'fixture.rs').relative_to(ROOT)]
   run(cmd,'charon.log');ir=json.loads(llbc.read_text());reifier=REIFIER['Reifier'](ir);generated=reifier.render()
   if generated!=(DATA/'Generated.lean').read_text() or reifier.retained()!=json.loads((DATA/'Retained.json').read_text()):raise RuntimeError('Original constructor assignments/declarations differ')
-  r['negative_controls']=negatives(ir);names=PARENT['inventory']()
-  for file in ['Generated.lean','Proof.lean','LayoutProof.lean','AcceptedProof.lean','ZeroProof.lean','CallerProof.lean','PositiveProof.lean']:
+  r['negative_controls']=negatives(ir);names=PARENT['inventory'](include_allocator=True)
+  for file in ['Generated.lean','Proof.lean','LayoutProof.lean','AcceptedProof.lean','ZeroProof.lean','CallerProof.lean','PositiveProof.lean','AllocatorProof.lean']:
    raw=(DATA/file).read_text();PARAM['validate_proof_source'](raw,re.findall(r'^theorem (\w+)',raw,re.M))
    names+=['HasteBootsVecCapacityArithmetic.'+n for n in re.findall(r'^(?:def|theorem) (\w+)',raw,re.M)]
-  checked=out/'Checked.lean';checked.write_text(generated+'\n'+'\n'.join((DATA/n).read_text() for n in ['Proof.lean','LayoutProof.lean','AcceptedProof.lean','ZeroProof.lean','CallerProof.lean','PositiveProof.lean','Smoke.lean','LayoutSmoke.lean','AcceptedSmoke.lean','ZeroSmoke.lean','CallerSmoke.lean','PositiveSmoke.lean'])+''.join('\n#print axioms '+n+'\n' for n in names))
+  checked=out/'Checked.lean';checked.write_text(generated+'\n'+'\n'.join((DATA/n).read_text() for n in ['Proof.lean','LayoutProof.lean','AcceptedProof.lean','ZeroProof.lean','CallerProof.lean','PositiveProof.lean','AllocatorProof.lean','Smoke.lean','LayoutSmoke.lean','AcceptedSmoke.lean','ZeroSmoke.lean','CallerSmoke.lean','PositiveSmoke.lean','AllocatorSmoke.lean'])+''.join('\n#print axioms '+n+'\n' for n in names))
   run([ROOT/'scripts/in-container','lake','env','lean','-DwarningAsError=true',checked.relative_to(ROOT)],'lean.log')
   r['dependency_audit']=PARAM['audit_log']((out/'lean.log').read_text(),names)
   if r['inputs']!={str(f.relative_to(ROOT)):digest(f) for f in files}:raise RuntimeError('Inputs changed during validation')
