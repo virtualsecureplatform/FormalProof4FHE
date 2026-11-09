@@ -5,7 +5,8 @@ complete source function declarations, 31 types and globals in `Retained.json`.
 `Generated.lean` emits nine isolated arithmetic assignments with their original
 operators, destination/local indices, operand move/copy modes, primitive types
 and statement hashes. The retained whole functions include their branches and
-error helpers; this profile interprets only the listed scalar assignments.
+error helpers. The initial profile interpreted isolated scalar assignments;
+the extension below also interprets continuous prefix control flow.
 
 The scalar contexts for checked multiplication include its three actual locals;
 all unused locals are dead. Four theorems prove the original assignment for every
@@ -18,8 +19,8 @@ The shared interpreter uses distinct Boolean types and values, explicit overflow
 flags, wrapping operations, precondition-checked subtraction and dynamic Boolean
 branching. Existing heap, incoming-reference and deallocation-budget proofs are
 extended to these cases. Seventeen model regressions and 28 core declaration
-audits guard these additions. All 333 audited dependencies use only the permitted
-standard Lean dependencies; 21 negative controls reject changes to extraction
+audits guard these additions. The original 333 audited dependencies used only the permitted
+standard Lean dependencies; its 21 negative controls rejected changes to extraction
 policy, widths, modes, locals, literals, owners and assignment metadata.
 
 Run with the coupled tool receipt:
@@ -37,3 +38,17 @@ build manifest. `regression.json` records the checked milestone.
 Whole-constructor control flow and calls, overflow/error and abort handling,
 allocator implementation, native compiler/ABI/lifetime refinement, physical work
 and the final HasteBoots security theorem remain open.
+
+The continuous-prefix extension additionally emits the original 28 statements
+before the multiplication-overflow branch and nine statements before the layout
+branch. `LayoutProof.lean` proves their composition with arbitrary overflow,
+accepted, rejected and following continuations. For byte elements the valid
+branch is selected exactly when `capacity < 2^63`. Unrelated ambient locals and
+the complete world are preserved; source Boolean moves remain observable.
+`LayoutSmoke.lean` checks the four unsigned/signed boundary values, overflow-arm
+irrelevance, ambient argument/world preservation and normal continuation.
+
+Fresh extraction checks nominal Layout/Alignment fields, their physical layouts,
+all alignment tags and the evaluated byte-layout global. This version audits
+352 dependencies and rejects 32 source/profile mutations. Allocator and error
+suffixes are retained as arbitrary continuation holes; their execution is open.

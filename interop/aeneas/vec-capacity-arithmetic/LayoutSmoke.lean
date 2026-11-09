@@ -2,10 +2,29 @@ namespace HasteBootsVecCapacityArithmetic
 open FormalProof4FHE.HasteBoots
 open NativeRecordLLBC
 
-example : decide ((0 : Nat) < 2^63) = true := by decide
-example : decide ((9223372036854775807 : Nat) < 2^63) = true := by decide
-example : decide ((9223372036854775808 : Nat) < 2^63) = false := by decide
-example : decide ((18446744073709551615 : Nat) < 2^63) = false := by decide
+example (ambient : Frame) (overflow yes no next : Body) :
+    eval (layoutPrefix overflow yes no next) (layoutFrame ambient ⟨0,by decide⟩) =
+    eval (.constIf true yes no next) (layoutAfterFrame ambient ⟨0,by decide⟩) := by
+  rw [layout_prefix_exact]
+  rfl
+
+example (ambient : Frame) (overflow yes no next : Body) :
+    eval (layoutPrefix overflow yes no next) (layoutFrame ambient ⟨9223372036854775807,by decide⟩) =
+    eval (.constIf true yes no next) (layoutAfterFrame ambient ⟨9223372036854775807,by decide⟩) := by
+  rw [layout_prefix_exact]
+  rfl
+
+example (ambient : Frame) (overflow yes no next : Body) :
+    eval (layoutPrefix overflow yes no next) (layoutFrame ambient ⟨9223372036854775808,by decide⟩) =
+    eval (.constIf false yes no next) (layoutAfterFrame ambient ⟨9223372036854775808,by decide⟩) := by
+  rw [layout_prefix_exact]
+  rfl
+
+example (ambient : Frame) (overflow yes no next : Body) :
+    eval (layoutPrefix overflow yes no next) (layoutFrame ambient ⟨18446744073709551615,by decide⟩) =
+    eval (.constIf false yes no next) (layoutAfterFrame ambient ⟨18446744073709551615,by decide⟩) := by
+  rw [layout_prefix_exact]
+  rfl
 
 example (ambient : Frame) (capacity : NativeWord64Memory.Word) (a b yes no next : Body) :
     eval (layoutPrefix a yes no next) (layoutFrame ambient capacity) =

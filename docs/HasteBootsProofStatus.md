@@ -7,6 +7,30 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Continuous byte-allocation layout prefix
+
+The retained `alloc::raw_vec::try_allocate_in` prefix now has an operational
+Lean proof across its original 28 initial statements, overflow branch, nine
+layout-check statements and consuming Boolean layout branch. For every 64-bit
+capacity it computes byte size without multiplication overflow and selects the
+valid layout suffix exactly when `capacity < 2^63`. The nominal `Layout`,
+`Alignment`, all 64 alignment discriminants, physical field offsets and evaluated
+byte-layout global are checked against fresh LLBC.
+
+`layout_prefix_exact` is contextual: the overflow, valid-layout, invalid-layout
+and following bodies are arbitrary. It preserves the following continuation on
+normal completion and propagates other outcomes. The resulting frame preserves
+the ambient world and unrelated locals, including both remaining arguments;
+the moved layout-condition local contains an uninitialized value. This extends
+the earlier isolated-assignment result to continuous source control flow.
+
+The suffixes remain proof obligations. This result does not execute the source
+allocator, build its success/error values, drop the allocator or establish a
+native by-value ABI. Next, translate the valid-layout aggregate construction and
+its allocation dispatch, then the actual error/abort suffixes, and compose them
+with the existing modeled reservation/storage/destructor results. Compiler
+refinement, physical attacker work and the final security theorem remain open.
+
 ## Retained allocation arithmetic and typed Boolean branches
 
 The record interpreter now represents primitive Booleans separately from word
@@ -24,11 +48,12 @@ indices, declared primitive widths, operand modes and source statement hashes.
 The checked multiplication assignment is proved for every 64-bit word pair and
 modeled world, including the original two source moves. For byte element size one,
 the unsigned multiplication result is exactly the requested capacity and its
-overflow flag is false, even at the largest unsigned word. The later allocation
-layout bound remains a separate check.
+overflow flag is false, even at the largest unsigned word. The continuous-prefix proof above additionally covers the later allocation
+layout check.
 
-The profile proves isolated assignments, not whole constructor execution. Its
-partial scalar contexts leave unused locals dead. The complete retained Rust
+The original isolated-assignment proofs use partial scalar contexts with unused
+locals dead; the continuous-prefix proof above preserves arbitrary unrelated
+locals. Whole constructor execution remains open. The complete retained Rust
 control flow and calls are available for the next translation step; their success,
 overflow/error handling, abort paths and native layout/ABI correspondence remain
 unproved. No uninterpreted allocator success or error callback is introduced.
