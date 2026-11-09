@@ -1,0 +1,141 @@
+#!/usr/bin/env python3
+"""Reify the original complete Vec capacity body using checked resident reference operands.
+The capacity carrier is represented by checked words; native carrier/ABI/compiler
+correspondence and the outer Vec reference constructor remain unproved.
+"""
+import argparse
+import json
+from pathlib import Path
+import runpy
+from types import SimpleNamespace
+
+ROOT=Path(__file__).resolve().parent.parent
+PARENT=runpy.run_path(str(ROOT/'scripts/reify-hasteboots-global-deallocation'))
+BASE=PARENT['BASE'];SPEC=BASE['SPEC'];require=SPEC['require'];empty=SPEC['empty'];name=SPEC['name']
+STORAGE=runpy.run_path(str(ROOT/'scripts/reify-hasteboots-rawvec-fields'))
+
+
+class Reifier(BASE['Reifier']):
+    def __init__(self,ir):
+        self.storage=storage=STORAGE['Reifier'](ir);self.crate=c=storage.crate
+        self.functions={f['def_id']:f for f in c['fun_decls'] if f}
+        self.types={t['def_id']:t for t in c['type_decls'] if t}
+        matches=[f['def_id'] for f in self.functions.values() if name(f)=='alloc::vec::capacity']
+        require(len(matches)==1,'Missing/duplicate original Vec capacity body');self.root=matches[0]
+        raw=self.functions[self.root]['signature']['inputs'][0]
+        region,pointee,mode=raw['Untagged']['Ref']
+        require(region=={'Var':{'Free':0}} and mode=='Shared','Wrong Vec signature reference')
+        self.vector=self.types[pointee['Untagged']['Adt']['id']['Adt']]
+        vector=self.vector
+        require(pointee==SPEC['adt'](vector['def_id']) and name(vector)=='alloc::vec::Vec' and
+                vector['item_meta']['opacity']=='Transparent' and empty(vector['generics']) and
+                set(vector['kind'])=={'Struct'},'Wrong Vec declaration')
+        fields=vector['kind']['Struct'];require([f['name'] for f in fields]==['buf','len'] and fields[1]['ty']==SPEC['USIZE'],'Wrong Vec fields')
+        self.buffer=buffer=self.types[fields[0]['ty']['Untagged']['Adt']['id']['Adt']]
+        require(fields[0]['ty']==SPEC['adt'](buffer['def_id']) and name(buffer)=='alloc::raw_vec::RawVec' and
+                buffer['item_meta']['opacity']=='Transparent' and empty(buffer['generics']) and
+                set(buffer['kind'])=={'Struct'},'Wrong RawVec buffer declaration')
+        fields=buffer['kind']['Struct'];require([f['name'] for f in fields]==['inner','_marker'] and
+                fields[0]['ty']==SPEC['adt'](storage.inner['def_id']) and
+                fields[1]['ty']==SPEC['adt'](storage.marker['def_id']),'Wrong RawVec inner/marker fields')
+        require(vector['layout']==STORAGE['layout'](24,8,[0,16]) and buffer['layout']==STORAGE['layout'](16,8,[0,16]),'Changed Vec/RawVec storage geometry')
+        self.boundary=SimpleNamespace(function=None,enum=None,nonnull=None)
+        self.schemas={};self.codes={};self.active=set();self.type_active=set()
+        self.schema(self.root)
+        self.globals={g['def_id']:g for g in c['global_decls'] if g}
+        self.used_globals=set()
+
+    def ty(self,raw):
+        if raw==SPEC['adt'](self.storage.carrier['def_id']):return '(.scalar .usize)'
+        if set(raw)=={'Untagged'} and set(raw['Untagged'])=={'Ref'}:
+            _,pointee,mode=raw['Untagged']['Ref']
+            require(mode=='Shared' and pointee==SPEC['adt'](self.vector['def_id']),'Unsupported resident reference type')
+            return '(.scalar (.reference false))'
+        return super().ty(raw)
+
+    def schema(self,fid):
+        if fid in self.schemas:return self.schemas[fid]
+        require(fid==self.root,'Unexpected capacity callee')
+        f=self.functions[fid];regions=f['generics']['regions'];sig=f['signature']
+        require(regions==[{'index':0,'name':None,'mutability':'Unknown'}] and empty({**f['generics'],'regions':[]}) and
+                f['is_global_initializer'] is None,'Unclosed capacity declaration')
+        require(set(sig)=={'is_unsafe','abi','is_variadic','inputs','output'} and sig['is_unsafe'] is False and
+                sig['abi']=='Rust' and sig['is_variadic'] is False and sig['output']==SPEC['USIZE'] and len(sig['inputs'])==1,'Wrong capacity signature')
+        require(f['item_meta']['opacity']=='Transparent' and set(f['body'])=={'Structured'},'Changed capacity classification')
+        b=f['body']['Structured'];require(set(b)=={'span','bound_body_regions','locals','body','comments'},'Unknown body fields')
+        bound=b['bound_body_regions'];require(type(bound) is int and bound>=0,'Wrong bound region count')
+        for raw in sig['inputs']+[sig['output']]:PARENT['validate_regions'](raw,None,1)
+        locals=b['locals']['locals'];types=[x['ty'] for x in locals]
+        require([v['index'] for v in locals]==list(range(len(locals))) and b['locals']['arg_count']==1 and
+                PARENT['erase_regions'](types[:2])==PARENT['erase_regions']([sig['output']]+sig['inputs']),'Wrong capacity locals/signature')
+        for raw in types:PARENT['validate_regions'](raw,bound,1);self.ty(raw)
+        self.schemas[fid]=types,1;return types,1
+
+    def literal(self,raw):
+        require(set(raw)=={'ty','kind'} and raw['ty']==SPEC['USIZE'] and set(raw['kind'])=={'Literal'},'Wrong usize literal')
+        value=raw['kind']['Literal'];number=value['Scalar']['Unsigned'][1]
+        require(value=={'Scalar':{'Unsigned':['Usize',number]}} and isinstance(number,str) and str(int(number))==number,'Noncanonical usize literal')
+        return '(.usize '+BASE['word'](int(number))+')'
+
+    def operand(self,op,fid):
+        if set(op)=={'Const'}:return self.literal(op['Const']),SPEC['USIZE']
+        if set(op)=={'Copy'} and set(op['Copy']['kind'])=={'Global'}:
+            p=op['Copy'];global_=p['kind']['Global'];require(set(p)=={'kind','ty'} and empty(global_['generics']) and p['ty']==SPEC['USIZE'],'Unclosed global operand')
+            g=self.globals[global_['id']]
+            require(g['item_meta']['lang_item']=='mem_size_const' and g['item_meta']['opacity']=='Foreign' and
+                    g['global_kind']=='NamedConst' and empty(g['generics']) and g['ty']==SPEC['USIZE'] and
+                    g['src']['TraitDecl']['trait_ref']['generics']['types']==[{'Untagged':{'Literal':{'UInt':'U8'}}}],'Wrong retained element-size global')
+            self.used_globals.add(g['def_id']);return self.literal(g['value']),SPEC['USIZE']
+        return super().operand(op,fid)
+
+    def capacity_place(self,p,fid):
+        raw=p
+        for source,index in [(self.storage.inner,1),(self.buffer,0),(self.vector,0)]:
+            require(set(raw)=={'kind','ty'} and raw['ty']==source['kind']['Struct'][index]['ty'] and set(raw['kind'])=={'Projection'},'Wrong capacity projection field')
+            base,field=raw['kind']['Projection']
+            require(field=={'Field':[{'Adt':[source['def_id'],None]},index]} and base['ty']==SPEC['adt'](source['def_id']),'Wrong capacity projection owner')
+            raw=base
+        require(set(raw['kind'])=={'Projection'},'Missing capacity dereference')
+        base,projection=raw['kind']['Projection'];require(projection=='Deref' and raw['ty']==SPEC['adt'](self.vector['def_id']),'Wrong capacity dereference')
+        index,path,type_=self.place(base,fid)
+        require(not path and set(type_['Untagged'])=={'Ref'} and type_['Untagged']['Ref'][1:]==[SPEC['adt'](self.vector['def_id']),'Shared'],'Wrong capacity reference operand')
+        return '(.copy '+str(index)+' [])'
+
+    def rvalue(self,rv,fid):
+        if set(rv)=={'Use'}:
+            op,retag=rv['Use'];require(retag in ['Yes','No'],'Unknown capacity retag flag')
+            if set(op)=={'Copy'} and set(op['Copy']['kind'])=={'Projection'}:
+                return '(.rawVecField .capacity '+self.capacity_place(op['Copy'],fid)+' '+str(retag=='Yes').lower()+')',SPEC['adt'](self.storage.carrier['def_id'])
+        if set(rv)=={'UnaryOp'}:
+            operator,op=rv['UnaryOp'];value,raw=self.operand(op,fid)
+            require(operator=={'Cast':{'Transmute':[SPEC['adt'](self.storage.carrier['def_id']),SPEC['USIZE']]}} and
+                    raw==SPEC['adt'](self.storage.carrier['def_id']),'Unsupported carrier transmute')
+            return '(.use '+value+' false .word)',SPEC['USIZE']
+        return super().rvalue(rv,fid)
+
+    def switch(self,value,fid,following):return PARENT['Reifier'].switch(self,value,fid,following)
+
+    def retained(self):
+        self.code(self.root)
+        return {'root':self.root,'function':self.functions[self.root],
+                'globals':[self.globals[i] for i in sorted(self.used_globals)],'storage':self.storage.retained(),
+                'vector':self.vector,'buffer':self.buffer,'native_carrier_correspondence':False,
+                'claim':'complete original Vec capacity control flow with checked reference reads; native carrier/ABI/compiler/lifetime refinement unproved'}
+
+    def render(self):
+        body=self.code(self.root);types,count=self.schema(self.root)
+        return '\n'.join(['module','public import FormalProof4FHE.HasteBoots.NativeRecordLLBC','@[expose] public section','',
+            '-- Original Vec capacity body; constrained carrier correspondence remains open.',
+            'namespace HasteBootsRawVecReference','open FormalProof4FHE.HasteBoots.NativeRecordLLBC',
+            '-- Original declaration SHA256 '+SPEC['digest'](self.functions[self.root]),
+            'def capacity : Function := ⟨"alloc::vec::capacity", .transparent, '+BASE['seq']([self.ty(t) for t in types])+', '+str(count)+', '+body+'⟩',
+            'end HasteBootsRawVecReference',''])
+
+
+def main():
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('llbc',type=Path);parser.add_argument('output',type=Path)
+    parser.add_argument('--retained',type=Path,required=True);args=parser.parse_args();r=Reifier(json.loads(args.llbc.read_text()))
+    args.output.write_text(r.render());args.retained.write_text(json.dumps(r.retained(),indent=2)+'\n')
+
+
+if __name__=='__main__':main()

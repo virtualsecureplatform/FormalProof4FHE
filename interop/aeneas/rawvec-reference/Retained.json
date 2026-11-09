@@ -1,0 +1,2877 @@
+{
+  "root": 2,
+  "function": {
+    "def_id": 2,
+    "item_meta": {
+      "name": [
+        {
+          "Ident": [
+            "alloc",
+            0
+          ]
+        },
+        {
+          "Ident": [
+            "vec",
+            0
+          ]
+        },
+        {
+          "Impl": {
+            "Ty": {
+              "params": {
+                "regions": [],
+                "types": [],
+                "const_generics": [],
+                "trait_clauses": [],
+                "regions_outlive": [],
+                "types_outlive": [],
+                "trait_type_constraints": []
+              },
+              "skip_binder": {
+                "Untagged": {
+                  "Adt": {
+                    "id": {
+                      "Adt": 0
+                    },
+                    "generics": {
+                      "regions": [],
+                      "types": [],
+                      "const_generics": [],
+                      "trait_refs": []
+                    }
+                  }
+                }
+              },
+              "kind": "InherentImplBlock"
+            }
+          }
+        },
+        {
+          "Ident": [
+            "capacity",
+            0
+          ]
+        },
+        {
+          "Instantiated": {
+            "params": {
+              "regions": [],
+              "types": [],
+              "const_generics": [],
+              "trait_clauses": [],
+              "regions_outlive": [],
+              "types_outlive": [],
+              "trait_type_constraints": []
+            },
+            "skip_binder": {
+              "regions": [],
+              "types": [
+                {
+                  "Untagged": {
+                    "Literal": {
+                      "UInt": "U8"
+                    }
+                  }
+                },
+                {
+                  "Untagged": {
+                    "Adt": {
+                      "id": {
+                        "Adt": 1
+                      },
+                      "generics": {
+                        "regions": [],
+                        "types": [],
+                        "const_generics": [],
+                        "trait_refs": []
+                      }
+                    }
+                  }
+                }
+              ],
+              "const_generics": [],
+              "trait_refs": []
+            },
+            "kind": "Other"
+          }
+        }
+      ],
+      "span": {
+        "data": {
+          "file_id": 1,
+          "beg": {
+            "line": 1446,
+            "col": 4
+          },
+          "end": {
+            "line": 1446,
+            "col": 41
+          }
+        },
+        "generated_from_span": null
+      },
+      "source_text": null,
+      "attr_info": {
+        "attributes": [
+          {
+            "DocComment": " Returns the total number of elements the vector can hold without"
+          },
+          {
+            "DocComment": " reallocating."
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " # Examples"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " ```"
+          },
+          {
+            "DocComment": " let mut vec: Vec<i32> = Vec::with_capacity(10);"
+          },
+          {
+            "DocComment": " vec.push(42);"
+          },
+          {
+            "DocComment": " assert!(vec.capacity() >= 10);"
+          },
+          {
+            "DocComment": " ```"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " A vector with zero-sized elements will always have a capacity of usize::MAX:"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " ```"
+          },
+          {
+            "DocComment": " #[derive(Clone)]"
+          },
+          {
+            "DocComment": " struct ZeroSized;"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " fn main() {"
+          },
+          {
+            "DocComment": "     assert_eq!(std::mem::size_of::<ZeroSized>(), 0);"
+          },
+          {
+            "DocComment": "     let v = vec![ZeroSized; 0];"
+          },
+          {
+            "DocComment": "     assert_eq!(v.capacity(), usize::MAX);"
+          },
+          {
+            "DocComment": " }"
+          },
+          {
+            "DocComment": " ```"
+          }
+        ],
+        "inline": "Hint",
+        "rename": null,
+        "public": true
+      },
+      "is_local": false,
+      "opacity": "Transparent",
+      "lang_item": null
+    },
+    "generics": {
+      "regions": [
+        {
+          "index": 0,
+          "name": null,
+          "mutability": "Unknown"
+        }
+      ],
+      "types": [],
+      "const_generics": [],
+      "trait_clauses": [],
+      "regions_outlive": [],
+      "types_outlive": [],
+      "trait_type_constraints": []
+    },
+    "signature": {
+      "is_unsafe": false,
+      "abi": "Rust",
+      "is_variadic": false,
+      "inputs": [
+        {
+          "Untagged": {
+            "Ref": [
+              {
+                "Var": {
+                  "Free": 0
+                }
+              },
+              {
+                "Untagged": {
+                  "Adt": {
+                    "id": {
+                      "Adt": 0
+                    },
+                    "generics": {
+                      "regions": [],
+                      "types": [],
+                      "const_generics": [],
+                      "trait_refs": []
+                    }
+                  }
+                }
+              },
+              "Shared"
+            ]
+          }
+        }
+      ],
+      "output": {
+        "Untagged": {
+          "Literal": {
+            "UInt": "Usize"
+          }
+        }
+      }
+    },
+    "src": "TopLevel",
+    "is_global_initializer": null,
+    "body": {
+      "Structured": {
+        "span": {
+          "data": {
+            "file_id": 1,
+            "beg": {
+              "line": 1446,
+              "col": 4
+            },
+            "end": {
+              "line": 1448,
+              "col": 5
+            }
+          },
+          "generated_from_span": null
+        },
+        "bound_body_regions": 6,
+        "locals": {
+          "arg_count": 1,
+          "locals": [
+            {
+              "index": 0,
+              "name": null,
+              "span": {
+                "data": {
+                  "file_id": 1,
+                  "beg": {
+                    "line": 1446,
+                    "col": 36
+                  },
+                  "end": {
+                    "line": 1446,
+                    "col": 41
+                  }
+                },
+                "generated_from_span": null
+              },
+              "ty": {
+                "Untagged": {
+                  "Literal": {
+                    "UInt": "Usize"
+                  }
+                }
+              }
+            },
+            {
+              "index": 1,
+              "name": "self",
+              "span": {
+                "data": {
+                  "file_id": 1,
+                  "beg": {
+                    "line": 1446,
+                    "col": 26
+                  },
+                  "end": {
+                    "line": 1446,
+                    "col": 31
+                  }
+                },
+                "generated_from_span": null
+              },
+              "ty": {
+                "Untagged": {
+                  "Ref": [
+                    {
+                      "Body": 1
+                    },
+                    {
+                      "Untagged": {
+                        "Adt": {
+                          "id": {
+                            "Adt": 0
+                          },
+                          "generics": {
+                            "regions": [],
+                            "types": [],
+                            "const_generics": [],
+                            "trait_refs": []
+                          }
+                        }
+                      }
+                    },
+                    "Shared"
+                  ]
+                }
+              }
+            },
+            {
+              "index": 2,
+              "name": "self",
+              "span": {
+                "data": {
+                  "file_id": 6,
+                  "beg": {
+                    "line": 619,
+                    "col": 48
+                  },
+                  "end": {
+                    "line": 619,
+                    "col": 56
+                  }
+                },
+                "generated_from_span": null
+              },
+              "ty": {
+                "Untagged": {
+                  "Adt": {
+                    "id": {
+                      "Adt": 4
+                    },
+                    "generics": {
+                      "regions": [],
+                      "types": [],
+                      "const_generics": [],
+                      "trait_refs": []
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "body": {
+          "span": {
+            "data": {
+              "file_id": 6,
+              "beg": {
+                "line": 308,
+                "col": 4
+              },
+              "end": {
+                "line": 310,
+                "col": 5
+              }
+            },
+            "generated_from_span": null
+          },
+          "statements": [
+            {
+              "span": {
+                "data": {
+                  "file_id": 6,
+                  "beg": {
+                    "line": 308,
+                    "col": 4
+                  },
+                  "end": {
+                    "line": 310,
+                    "col": 5
+                  }
+                },
+                "generated_from_span": {
+                  "file_id": 6,
+                  "beg": {
+                    "line": 619,
+                    "col": 11
+                  },
+                  "end": {
+                    "line": 619,
+                    "col": 25
+                  }
+                }
+              },
+              "id": 20,
+              "kind": {
+                "StorageLive": 0
+              },
+              "comments_before": []
+            },
+            {
+              "span": {
+                "data": {
+                  "file_id": 6,
+                  "beg": {
+                    "line": 308,
+                    "col": 4
+                  },
+                  "end": {
+                    "line": 310,
+                    "col": 5
+                  }
+                },
+                "generated_from_span": null
+              },
+              "id": 28,
+              "kind": {
+                "Switch": {
+                  "SwitchInt": [
+                    {
+                      "Copy": {
+                        "kind": {
+                          "Global": {
+                            "id": 0,
+                            "generics": {
+                              "regions": [],
+                              "types": [],
+                              "const_generics": [],
+                              "trait_refs": []
+                            }
+                          }
+                        },
+                        "ty": {
+                          "Untagged": {
+                            "Literal": {
+                              "UInt": "Usize"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "UInt": "Usize"
+                    },
+                    [
+                      [
+                        [
+                          {
+                            "Scalar": {
+                              "Unsigned": [
+                                "Usize",
+                                "0"
+                              ]
+                            }
+                          }
+                        ],
+                        {
+                          "span": {
+                            "data": {
+                              "file_id": 6,
+                              "beg": {
+                                "line": 308,
+                                "col": 4
+                              },
+                              "end": {
+                                "line": 310,
+                                "col": 5
+                              }
+                            },
+                            "generated_from_span": {
+                              "file_id": 6,
+                              "beg": {
+                                "line": 619,
+                                "col": 11
+                              },
+                              "end": {
+                                "line": 619,
+                                "col": 25
+                              }
+                            }
+                          },
+                          "statements": []
+                        }
+                      ]
+                    ],
+                    {
+                      "span": {
+                        "data": {
+                          "file_id": 6,
+                          "beg": {
+                            "line": 308,
+                            "col": 4
+                          },
+                          "end": {
+                            "line": 310,
+                            "col": 5
+                          }
+                        },
+                        "generated_from_span": null
+                      },
+                      "statements": [
+                        {
+                          "span": {
+                            "data": {
+                              "file_id": 6,
+                              "beg": {
+                                "line": 308,
+                                "col": 4
+                              },
+                              "end": {
+                                "line": 310,
+                                "col": 5
+                              }
+                            },
+                            "generated_from_span": {
+                              "file_id": 6,
+                              "beg": {
+                                "line": 619,
+                                "col": 48
+                              },
+                              "end": {
+                                "line": 619,
+                                "col": 56
+                              }
+                            }
+                          },
+                          "id": 22,
+                          "kind": {
+                            "StorageLive": 2
+                          },
+                          "comments_before": []
+                        },
+                        {
+                          "span": {
+                            "data": {
+                              "file_id": 6,
+                              "beg": {
+                                "line": 308,
+                                "col": 4
+                              },
+                              "end": {
+                                "line": 310,
+                                "col": 5
+                              }
+                            },
+                            "generated_from_span": {
+                              "file_id": 6,
+                              "beg": {
+                                "line": 619,
+                                "col": 48
+                              },
+                              "end": {
+                                "line": 619,
+                                "col": 56
+                              }
+                            }
+                          },
+                          "id": 23,
+                          "kind": {
+                            "Assign": [
+                              {
+                                "kind": {
+                                  "Local": 2
+                                },
+                                "ty": {
+                                  "Untagged": {
+                                    "Adt": {
+                                      "id": {
+                                        "Adt": 4
+                                      },
+                                      "generics": {
+                                        "regions": [],
+                                        "types": [],
+                                        "const_generics": [],
+                                        "trait_refs": []
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "Use": [
+                                  {
+                                    "Copy": {
+                                      "kind": {
+                                        "Projection": [
+                                          {
+                                            "kind": {
+                                              "Projection": [
+                                                {
+                                                  "kind": {
+                                                    "Projection": [
+                                                      {
+                                                        "kind": {
+                                                          "Projection": [
+                                                            {
+                                                              "kind": {
+                                                                "Local": 1
+                                                              },
+                                                              "ty": {
+                                                                "Untagged": {
+                                                                  "Ref": [
+                                                                    {
+                                                                      "Body": 1
+                                                                    },
+                                                                    {
+                                                                      "Untagged": {
+                                                                        "Adt": {
+                                                                          "id": {
+                                                                            "Adt": 0
+                                                                          },
+                                                                          "generics": {
+                                                                            "regions": [],
+                                                                            "types": [],
+                                                                            "const_generics": [],
+                                                                            "trait_refs": []
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    },
+                                                                    "Shared"
+                                                                  ]
+                                                                }
+                                                              }
+                                                            },
+                                                            "Deref"
+                                                          ]
+                                                        },
+                                                        "ty": {
+                                                          "Untagged": {
+                                                            "Adt": {
+                                                              "id": {
+                                                                "Adt": 0
+                                                              },
+                                                              "generics": {
+                                                                "regions": [],
+                                                                "types": [],
+                                                                "const_generics": [],
+                                                                "trait_refs": []
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      {
+                                                        "Field": [
+                                                          {
+                                                            "Adt": [
+                                                              0,
+                                                              null
+                                                            ]
+                                                          },
+                                                          0
+                                                        ]
+                                                      }
+                                                    ]
+                                                  },
+                                                  "ty": {
+                                                    "Untagged": {
+                                                      "Adt": {
+                                                        "id": {
+                                                          "Adt": 2
+                                                        },
+                                                        "generics": {
+                                                          "regions": [],
+                                                          "types": [],
+                                                          "const_generics": [],
+                                                          "trait_refs": []
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                {
+                                                  "Field": [
+                                                    {
+                                                      "Adt": [
+                                                        2,
+                                                        null
+                                                      ]
+                                                    },
+                                                    0
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            "ty": {
+                                              "Untagged": {
+                                                "Adt": {
+                                                  "id": {
+                                                    "Adt": 3
+                                                  },
+                                                  "generics": {
+                                                    "regions": [],
+                                                    "types": [],
+                                                    "const_generics": [],
+                                                    "trait_refs": []
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "Field": [
+                                              {
+                                                "Adt": [
+                                                  3,
+                                                  null
+                                                ]
+                                              },
+                                              1
+                                            ]
+                                          }
+                                        ]
+                                      },
+                                      "ty": {
+                                        "Untagged": {
+                                          "Adt": {
+                                            "id": {
+                                              "Adt": 4
+                                            },
+                                            "generics": {
+                                              "regions": [],
+                                              "types": [],
+                                              "const_generics": [],
+                                              "trait_refs": []
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "Yes"
+                                ]
+                              }
+                            ]
+                          },
+                          "comments_before": []
+                        },
+                        {
+                          "span": {
+                            "data": {
+                              "file_id": 6,
+                              "beg": {
+                                "line": 308,
+                                "col": 4
+                              },
+                              "end": {
+                                "line": 310,
+                                "col": 5
+                              }
+                            },
+                            "generated_from_span": {
+                              "file_id": 7,
+                              "beg": {
+                                "line": 49,
+                                "col": 25
+                              },
+                              "end": {
+                                "line": 49,
+                                "col": 52
+                              }
+                            }
+                          },
+                          "id": 24,
+                          "kind": {
+                            "Assign": [
+                              {
+                                "kind": {
+                                  "Local": 0
+                                },
+                                "ty": {
+                                  "Untagged": {
+                                    "Literal": {
+                                      "UInt": "Usize"
+                                    }
+                                  }
+                                }
+                              },
+                              {
+                                "UnaryOp": [
+                                  {
+                                    "Cast": {
+                                      "Transmute": [
+                                        {
+                                          "Untagged": {
+                                            "Adt": {
+                                              "id": {
+                                                "Adt": 4
+                                              },
+                                              "generics": {
+                                                "regions": [],
+                                                "types": [],
+                                                "const_generics": [],
+                                                "trait_refs": []
+                                              }
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "Untagged": {
+                                            "Literal": {
+                                              "UInt": "Usize"
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "Copy": {
+                                      "kind": {
+                                        "Local": 2
+                                      },
+                                      "ty": {
+                                        "Untagged": {
+                                          "Adt": {
+                                            "id": {
+                                              "Adt": 4
+                                            },
+                                            "generics": {
+                                              "regions": [],
+                                              "types": [],
+                                              "const_generics": [],
+                                              "trait_refs": []
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          "comments_before": []
+                        },
+                        {
+                          "span": {
+                            "data": {
+                              "file_id": 6,
+                              "beg": {
+                                "line": 308,
+                                "col": 4
+                              },
+                              "end": {
+                                "line": 310,
+                                "col": 5
+                              }
+                            },
+                            "generated_from_span": {
+                              "file_id": 6,
+                              "beg": {
+                                "line": 619,
+                                "col": 66
+                              },
+                              "end": {
+                                "line": 619,
+                                "col": 67
+                              }
+                            }
+                          },
+                          "id": 25,
+                          "kind": {
+                            "StorageDead": 2
+                          },
+                          "comments_before": []
+                        },
+                        {
+                          "span": {
+                            "data": {
+                              "file_id": 1,
+                              "beg": {
+                                "line": 1448,
+                                "col": 5
+                              },
+                              "end": {
+                                "line": 1448,
+                                "col": 5
+                              }
+                            },
+                            "generated_from_span": null
+                          },
+                          "id": 26,
+                          "kind": {
+                            "StorageDead": 1
+                          },
+                          "comments_before": []
+                        },
+                        {
+                          "span": {
+                            "data": {
+                              "file_id": 1,
+                              "beg": {
+                                "line": 1448,
+                                "col": 5
+                              },
+                              "end": {
+                                "line": 1448,
+                                "col": 5
+                              }
+                            },
+                            "generated_from_span": null
+                          },
+                          "id": 27,
+                          "kind": "Return",
+                          "comments_before": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              "comments_before": []
+            },
+            {
+              "span": {
+                "data": {
+                  "file_id": 6,
+                  "beg": {
+                    "line": 308,
+                    "col": 4
+                  },
+                  "end": {
+                    "line": 310,
+                    "col": 5
+                  }
+                },
+                "generated_from_span": {
+                  "file_id": 6,
+                  "beg": {
+                    "line": 619,
+                    "col": 28
+                  },
+                  "end": {
+                    "line": 619,
+                    "col": 38
+                  }
+                }
+              },
+              "id": 29,
+              "kind": {
+                "Assign": [
+                  {
+                    "kind": {
+                      "Local": 0
+                    },
+                    "ty": {
+                      "Untagged": {
+                        "Literal": {
+                          "UInt": "Usize"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "Use": [
+                      {
+                        "Const": {
+                          "kind": {
+                            "Literal": {
+                              "Scalar": {
+                                "Unsigned": [
+                                  "Usize",
+                                  "18446744073709551615"
+                                ]
+                              }
+                            }
+                          },
+                          "ty": {
+                            "Untagged": {
+                              "Literal": {
+                                "UInt": "Usize"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "Yes"
+                    ]
+                  }
+                ]
+              },
+              "comments_before": []
+            },
+            {
+              "span": {
+                "data": {
+                  "file_id": 1,
+                  "beg": {
+                    "line": 1448,
+                    "col": 5
+                  },
+                  "end": {
+                    "line": 1448,
+                    "col": 5
+                  }
+                },
+                "generated_from_span": null
+              },
+              "id": 30,
+              "kind": {
+                "StorageDead": 1
+              },
+              "comments_before": []
+            },
+            {
+              "span": {
+                "data": {
+                  "file_id": 1,
+                  "beg": {
+                    "line": 1448,
+                    "col": 5
+                  },
+                  "end": {
+                    "line": 1448,
+                    "col": 5
+                  }
+                },
+                "generated_from_span": null
+              },
+              "id": 31,
+              "kind": "Return",
+              "comments_before": []
+            }
+          ]
+        },
+        "comments": []
+      }
+    }
+  },
+  "globals": [
+    {
+      "def_id": 0,
+      "item_meta": {
+        "name": [
+          {
+            "Ident": [
+              "core",
+              0
+            ]
+          },
+          {
+            "Ident": [
+              "mem",
+              0
+            ]
+          },
+          {
+            "Ident": [
+              "SizedTypeProperties",
+              0
+            ]
+          },
+          {
+            "Ident": [
+              "SIZE",
+              0
+            ]
+          },
+          {
+            "Instantiated": {
+              "params": {
+                "regions": [],
+                "types": [],
+                "const_generics": [],
+                "trait_clauses": [],
+                "regions_outlive": [],
+                "types_outlive": [],
+                "trait_type_constraints": []
+              },
+              "skip_binder": {
+                "regions": [],
+                "types": [
+                  {
+                    "Untagged": {
+                      "Literal": {
+                        "UInt": "U8"
+                      }
+                    }
+                  }
+                ],
+                "const_generics": [],
+                "trait_refs": []
+              },
+              "kind": "Other"
+            }
+          }
+        ],
+        "span": {
+          "data": {
+            "file_id": 9,
+            "beg": {
+              "line": 1379,
+              "col": 4
+            },
+            "end": {
+              "line": 1379,
+              "col": 21
+            }
+          },
+          "generated_from_span": null
+        },
+        "source_text": null,
+        "attr_info": {
+          "attributes": [],
+          "inline": null,
+          "rename": null,
+          "public": true
+        },
+        "is_local": false,
+        "opacity": "Foreign",
+        "lang_item": "mem_size_const"
+      },
+      "generics": {
+        "regions": [],
+        "types": [],
+        "const_generics": [],
+        "trait_clauses": [],
+        "regions_outlive": [],
+        "types_outlive": [],
+        "trait_type_constraints": []
+      },
+      "ty": {
+        "Untagged": {
+          "Literal": {
+            "UInt": "Usize"
+          }
+        }
+      },
+      "src": {
+        "TraitDecl": {
+          "trait_ref": {
+            "id": 1,
+            "generics": {
+              "regions": [],
+              "types": [
+                {
+                  "Untagged": {
+                    "Literal": {
+                      "UInt": "U8"
+                    }
+                  }
+                }
+              ],
+              "const_generics": [],
+              "trait_refs": []
+            }
+          },
+          "item_id": {
+            "Const": 0
+          }
+        }
+      },
+      "global_kind": "NamedConst",
+      "value": {
+        "kind": {
+          "Literal": {
+            "Scalar": {
+              "Unsigned": [
+                "Usize",
+                "1"
+              ]
+            }
+          }
+        },
+        "ty": {
+          "Untagged": {
+            "Literal": {
+              "UInt": "Usize"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "storage": {
+    "function_id": 10,
+    "function_name": "alloc::raw_vec::current_memory",
+    "input_type": {
+      "Untagged": {
+        "Ref": [
+          {
+            "Var": {
+              "Free": 0
+            }
+          },
+          {
+            "Untagged": {
+              "Adt": {
+                "id": {
+                  "Adt": 3
+                },
+                "generics": {
+                  "regions": [],
+                  "types": [],
+                  "const_generics": [],
+                  "trait_refs": []
+                }
+              }
+            }
+          },
+          "Shared"
+        ]
+      }
+    },
+    "types": [
+      {
+        "id": 3,
+        "name": "alloc::raw_vec::RawVecInner",
+        "kind": {
+          "Struct": [
+            {
+              "span": {
+                "data": {
+                  "file_id": 6,
+                  "beg": {
+                    "line": 86,
+                    "col": 4
+                  },
+                  "end": {
+                    "line": 86,
+                    "col": 19
+                  }
+                },
+                "generated_from_span": null
+              },
+              "attr_info": {
+                "attributes": [],
+                "inline": null,
+                "rename": null,
+                "public": false
+              },
+              "name": "ptr",
+              "ty": {
+                "Untagged": {
+                  "Adt": {
+                    "id": {
+                      "Adt": 6
+                    },
+                    "generics": {
+                      "regions": [],
+                      "types": [],
+                      "const_generics": [],
+                      "trait_refs": []
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "span": {
+                "data": {
+                  "file_id": 6,
+                  "beg": {
+                    "line": 92,
+                    "col": 4
+                  },
+                  "end": {
+                    "line": 92,
+                    "col": 12
+                  }
+                },
+                "generated_from_span": null
+              },
+              "attr_info": {
+                "attributes": [],
+                "inline": null,
+                "rename": null,
+                "public": false
+              },
+              "name": "cap",
+              "ty": {
+                "Untagged": {
+                  "Adt": {
+                    "id": {
+                      "Adt": 4
+                    },
+                    "generics": {
+                      "regions": [],
+                      "types": [],
+                      "const_generics": [],
+                      "trait_refs": []
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "span": {
+                "data": {
+                  "file_id": 6,
+                  "beg": {
+                    "line": 93,
+                    "col": 4
+                  },
+                  "end": {
+                    "line": 93,
+                    "col": 12
+                  }
+                },
+                "generated_from_span": null
+              },
+              "attr_info": {
+                "attributes": [],
+                "inline": null,
+                "rename": null,
+                "public": false
+              },
+              "name": "alloc",
+              "ty": {
+                "Untagged": {
+                  "Adt": {
+                    "id": {
+                      "Adt": 1
+                    },
+                    "generics": {
+                      "regions": [],
+                      "types": [],
+                      "const_generics": [],
+                      "trait_refs": []
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "layout": [
+          {
+            "key": "x86_64-unknown-linux-gnu",
+            "value": {
+              "size": 16,
+              "align": 8,
+              "discriminator": {
+                "Known": 0
+              },
+              "uninhabited": false,
+              "variant_layouts": [
+                {
+                  "field_offsets": [
+                    8,
+                    0,
+                    16
+                  ],
+                  "uninhabited": false,
+                  "tagger": []
+                }
+              ],
+              "repr": {
+                "repr_algo": "Rust",
+                "align_modif": null,
+                "transparent": false,
+                "explicit_discr_type": false
+              }
+            }
+          }
+        ],
+        "classification": "Transparent"
+      },
+      {
+        "id": 6,
+        "name": "core::ptr::unique::Unique",
+        "kind": {
+          "Struct": [
+            {
+              "span": {
+                "data": {
+                  "file_id": 11,
+                  "beg": {
+                    "line": 36,
+                    "col": 4
+                  },
+                  "end": {
+                    "line": 36,
+                    "col": 23
+                  }
+                },
+                "generated_from_span": null
+              },
+              "attr_info": {
+                "attributes": [],
+                "inline": null,
+                "rename": null,
+                "public": false
+              },
+              "name": "pointer",
+              "ty": {
+                "Untagged": {
+                  "Adt": {
+                    "id": {
+                      "Adt": 7
+                    },
+                    "generics": {
+                      "regions": [],
+                      "types": [],
+                      "const_generics": [],
+                      "trait_refs": []
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "span": {
+                "data": {
+                  "file_id": 11,
+                  "beg": {
+                    "line": 42,
+                    "col": 4
+                  },
+                  "end": {
+                    "line": 42,
+                    "col": 27
+                  }
+                },
+                "generated_from_span": null
+              },
+              "attr_info": {
+                "attributes": [],
+                "inline": null,
+                "rename": null,
+                "public": false
+              },
+              "name": "_marker",
+              "ty": {
+                "Untagged": {
+                  "Adt": {
+                    "id": {
+                      "Adt": 5
+                    },
+                    "generics": {
+                      "regions": [],
+                      "types": [],
+                      "const_generics": [],
+                      "trait_refs": []
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "layout": [
+          {
+            "key": "x86_64-unknown-linux-gnu",
+            "value": {
+              "size": 8,
+              "align": 8,
+              "discriminator": {
+                "Known": 0
+              },
+              "uninhabited": false,
+              "variant_layouts": [
+                {
+                  "field_offsets": [
+                    0,
+                    8
+                  ],
+                  "uninhabited": false,
+                  "tagger": []
+                }
+              ],
+              "repr": {
+                "repr_algo": "Rust",
+                "align_modif": null,
+                "transparent": true,
+                "explicit_discr_type": false
+              }
+            }
+          }
+        ],
+        "classification": "Transparent"
+      },
+      {
+        "id": 4,
+        "name": "core::num::niche_types::UsizeNoHighBit",
+        "kind": "Opaque",
+        "layout": [
+          {
+            "key": "x86_64-unknown-linux-gnu",
+            "value": {
+              "size": 8,
+              "align": 8,
+              "discriminator": {
+                "Known": 0
+              },
+              "uninhabited": false,
+              "variant_layouts": [
+                {
+                  "field_offsets": [
+                    0
+                  ],
+                  "uninhabited": false,
+                  "tagger": []
+                }
+              ],
+              "repr": {
+                "repr_algo": "Rust",
+                "align_modif": null,
+                "transparent": true,
+                "explicit_discr_type": false
+              }
+            }
+          }
+        ],
+        "classification": "Foreign"
+      },
+      {
+        "id": 1,
+        "name": "alloc::alloc::Global",
+        "kind": {
+          "Struct": []
+        },
+        "layout": [
+          {
+            "key": "x86_64-unknown-linux-gnu",
+            "value": {
+              "size": 0,
+              "align": 1,
+              "discriminator": {
+                "Known": 0
+              },
+              "uninhabited": false,
+              "variant_layouts": [
+                {
+                  "field_offsets": [],
+                  "uninhabited": false,
+                  "tagger": []
+                }
+              ],
+              "repr": {
+                "repr_algo": "Rust",
+                "align_modif": null,
+                "transparent": false,
+                "explicit_discr_type": false
+              }
+            }
+          }
+        ],
+        "classification": "Transparent"
+      },
+      {
+        "id": 7,
+        "name": "core::ptr::non_null::NonNull",
+        "kind": {
+          "Struct": [
+            {
+              "span": {
+                "data": {
+                  "file_id": 14,
+                  "beg": {
+                    "line": 75,
+                    "col": 4
+                  },
+                  "end": {
+                    "line": 75,
+                    "col": 52
+                  }
+                },
+                "generated_from_span": null
+              },
+              "attr_info": {
+                "attributes": [],
+                "inline": null,
+                "rename": null,
+                "public": false
+              },
+              "name": "pointer",
+              "ty": {
+                "Untagged": {
+                  "Pattern": [
+                    {
+                      "Untagged": {
+                        "RawPtr": [
+                          {
+                            "Untagged": {
+                              "Literal": {
+                                "UInt": "U8"
+                              }
+                            }
+                          },
+                          "Shared"
+                        ]
+                      }
+                    },
+                    "NotNull"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "layout": [
+          {
+            "key": "x86_64-unknown-linux-gnu",
+            "value": {
+              "size": 8,
+              "align": 8,
+              "discriminator": {
+                "Known": 0
+              },
+              "uninhabited": false,
+              "variant_layouts": [
+                {
+                  "field_offsets": [
+                    0
+                  ],
+                  "uninhabited": false,
+                  "tagger": []
+                }
+              ],
+              "repr": {
+                "repr_algo": "Rust",
+                "align_modif": null,
+                "transparent": true,
+                "explicit_discr_type": false
+              }
+            }
+          }
+        ],
+        "classification": "Transparent"
+      },
+      {
+        "id": 5,
+        "name": "core::marker::PhantomData",
+        "kind": {
+          "Struct": []
+        },
+        "layout": [
+          {
+            "key": "x86_64-unknown-linux-gnu",
+            "value": {
+              "size": 0,
+              "align": 1,
+              "discriminator": {
+                "Known": 0
+              },
+              "uninhabited": false,
+              "variant_layouts": [
+                {
+                  "field_offsets": [],
+                  "uninhabited": false,
+                  "tagger": []
+                }
+              ],
+              "repr": {
+                "repr_algo": "Rust",
+                "align_modif": null,
+                "transparent": false,
+                "explicit_discr_type": false
+              }
+            }
+          }
+        ],
+        "classification": "Foreign"
+      }
+    ],
+    "body_interpreted": false,
+    "native_carrier_validity_proved": false
+  },
+  "vector": {
+    "def_id": 0,
+    "item_meta": {
+      "name": [
+        {
+          "Ident": [
+            "alloc",
+            0
+          ]
+        },
+        {
+          "Ident": [
+            "vec",
+            0
+          ]
+        },
+        {
+          "Ident": [
+            "Vec",
+            0
+          ]
+        },
+        {
+          "Instantiated": {
+            "params": {
+              "regions": [],
+              "types": [],
+              "const_generics": [],
+              "trait_clauses": [],
+              "regions_outlive": [],
+              "types_outlive": [],
+              "trait_type_constraints": []
+            },
+            "skip_binder": {
+              "regions": [],
+              "types": [
+                {
+                  "Untagged": {
+                    "Literal": {
+                      "UInt": "U8"
+                    }
+                  }
+                },
+                {
+                  "Untagged": {
+                    "Adt": {
+                      "id": {
+                        "Adt": 1
+                      },
+                      "generics": {
+                        "regions": [],
+                        "types": [],
+                        "const_generics": [],
+                        "trait_refs": []
+                      }
+                    }
+                  }
+                }
+              ],
+              "const_generics": [],
+              "trait_refs": []
+            },
+            "kind": "Other"
+          }
+        }
+      ],
+      "span": {
+        "data": {
+          "file_id": 1,
+          "beg": {
+            "line": 438,
+            "col": 0
+          },
+          "end": {
+            "line": 438,
+            "col": 96
+          }
+        },
+        "generated_from_span": null
+      },
+      "source_text": null,
+      "attr_info": {
+        "attributes": [
+          {
+            "DocComment": " A contiguous growable array type, written as `Vec<T>`, short for 'vector'."
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " # Examples"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " ```"
+          },
+          {
+            "DocComment": " let mut vec = Vec::new();"
+          },
+          {
+            "DocComment": " vec.push(1);"
+          },
+          {
+            "DocComment": " vec.push(2);"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " assert_eq!(vec.len(), 2);"
+          },
+          {
+            "DocComment": " assert_eq!(vec[0], 1);"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " assert_eq!(vec.pop(), Some(2));"
+          },
+          {
+            "DocComment": " assert_eq!(vec.len(), 1);"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " vec[0] = 7;"
+          },
+          {
+            "DocComment": " assert_eq!(vec[0], 7);"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " vec.extend([1, 2, 3]);"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " for x in &vec {"
+          },
+          {
+            "DocComment": "     println!(\"{x}\");"
+          },
+          {
+            "DocComment": " }"
+          },
+          {
+            "DocComment": " assert_eq!(vec, [7, 1, 2, 3]);"
+          },
+          {
+            "DocComment": " ```"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " The [`vec!`] macro is provided for convenient initialization:"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " ```"
+          },
+          {
+            "DocComment": " let mut vec1 = vec![1, 2, 3];"
+          },
+          {
+            "DocComment": " vec1.push(4);"
+          },
+          {
+            "DocComment": " let vec2 = Vec::from([1, 2, 3, 4]);"
+          },
+          {
+            "DocComment": " assert_eq!(vec1, vec2);"
+          },
+          {
+            "DocComment": " ```"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " It can also initialize each element of a `Vec<T>` with a given value."
+          },
+          {
+            "DocComment": " This may be more efficient than performing allocation and initialization"
+          },
+          {
+            "DocComment": " in separate steps, especially when initializing a vector of zeros:"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " ```"
+          },
+          {
+            "DocComment": " let vec = vec![0; 5];"
+          },
+          {
+            "DocComment": " assert_eq!(vec, [0, 0, 0, 0, 0]);"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " // The following is equivalent, but potentially slower:"
+          },
+          {
+            "DocComment": " let mut vec = Vec::with_capacity(5);"
+          },
+          {
+            "DocComment": " vec.resize(5, 0);"
+          },
+          {
+            "DocComment": " assert_eq!(vec, [0, 0, 0, 0, 0]);"
+          },
+          {
+            "DocComment": " ```"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " For more information, see"
+          },
+          {
+            "DocComment": " [Capacity and Reallocation](#capacity-and-reallocation)."
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " Use a `Vec<T>` as an efficient stack:"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " ```"
+          },
+          {
+            "DocComment": " let mut stack = Vec::new();"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " stack.push(1);"
+          },
+          {
+            "DocComment": " stack.push(2);"
+          },
+          {
+            "DocComment": " stack.push(3);"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " while let Some(top) = stack.pop() {"
+          },
+          {
+            "DocComment": "     // Prints 3, 2, 1"
+          },
+          {
+            "DocComment": "     println!(\"{top}\");"
+          },
+          {
+            "DocComment": " }"
+          },
+          {
+            "DocComment": " ```"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " # Indexing"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " The `Vec` type allows access to values by index, because it implements the"
+          },
+          {
+            "DocComment": " [`Index`] trait. An example will be more explicit:"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " ```"
+          },
+          {
+            "DocComment": " let v = vec![0, 2, 4, 6];"
+          },
+          {
+            "DocComment": " println!(\"{}\", v[1]); // it will display '2'"
+          },
+          {
+            "DocComment": " ```"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " However be careful: if you try to access an index which isn't in the `Vec`,"
+          },
+          {
+            "DocComment": " your software will panic! You cannot do this:"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " ```should_panic"
+          },
+          {
+            "DocComment": " let v = vec![0, 2, 4, 6];"
+          },
+          {
+            "DocComment": " println!(\"{}\", v[6]); // it will panic!"
+          },
+          {
+            "DocComment": " ```"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " Use [`get`] and [`get_mut`] if you want to check whether the index is in"
+          },
+          {
+            "DocComment": " the `Vec`."
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " # Slicing"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " A `Vec` can be mutable. On the other hand, slices are read-only objects."
+          },
+          {
+            "DocComment": " To get a [slice][prim@slice], use [`&`]. Example:"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " ```"
+          },
+          {
+            "DocComment": " fn read_slice(slice: &[usize]) {"
+          },
+          {
+            "DocComment": "     // ..."
+          },
+          {
+            "DocComment": " }"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " let v = vec![0, 1];"
+          },
+          {
+            "DocComment": " read_slice(&v);"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " // ... and that's all!"
+          },
+          {
+            "DocComment": " // you can also do it like this:"
+          },
+          {
+            "DocComment": " let u: &[usize] = &v;"
+          },
+          {
+            "DocComment": " // or like this:"
+          },
+          {
+            "DocComment": " let u: &[_] = &v;"
+          },
+          {
+            "DocComment": " ```"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " In Rust, it's more common to pass slices as arguments rather than vectors"
+          },
+          {
+            "DocComment": " when you just want to provide read access. The same goes for [`String`] and"
+          },
+          {
+            "DocComment": " [`&str`]."
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " # Capacity and reallocation"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " The capacity of a vector is the amount of space allocated for any future"
+          },
+          {
+            "DocComment": " elements that will be added onto the vector. This is not to be confused with"
+          },
+          {
+            "DocComment": " the *length* of a vector, which specifies the number of actual elements"
+          },
+          {
+            "DocComment": " within the vector. If a vector's length exceeds its capacity, its capacity"
+          },
+          {
+            "DocComment": " will automatically be increased, but its elements will have to be"
+          },
+          {
+            "DocComment": " reallocated."
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " For example, a vector with capacity 10 and length 0 would be an empty vector"
+          },
+          {
+            "DocComment": " with space for 10 more elements. Pushing 10 or fewer elements onto the"
+          },
+          {
+            "DocComment": " vector will not change its capacity or cause reallocation to occur. However,"
+          },
+          {
+            "DocComment": " if the vector's length is increased to 11, it will have to reallocate, which"
+          },
+          {
+            "DocComment": " can be slow. For this reason, it is recommended to use [`Vec::with_capacity`]"
+          },
+          {
+            "DocComment": " whenever possible to specify how big the vector is expected to get."
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " # Guarantees"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " Due to its incredibly fundamental nature, `Vec` makes a lot of guarantees"
+          },
+          {
+            "DocComment": " about its design. This ensures that it's as low-overhead as possible in"
+          },
+          {
+            "DocComment": " the general case, and can be correctly manipulated in primitive ways"
+          },
+          {
+            "DocComment": " by unsafe code. Note that these guarantees refer to an unqualified `Vec<T>`."
+          },
+          {
+            "DocComment": " If additional type parameters are added (e.g., to support custom allocators),"
+          },
+          {
+            "DocComment": " overriding their defaults may change the behavior."
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " Most fundamentally, `Vec` is and always will be a (pointer, capacity, length)"
+          },
+          {
+            "DocComment": " triplet. No more, no less. The order of these fields is completely"
+          },
+          {
+            "DocComment": " unspecified, and you should use the appropriate methods to modify these."
+          },
+          {
+            "DocComment": " The pointer will never be null, so this type is null-pointer-optimized."
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " However, the pointer might not actually point to allocated memory. In particular,"
+          },
+          {
+            "DocComment": " if you construct a `Vec` with capacity 0 via [`Vec::new`], [`vec![]`][`vec!`],"
+          },
+          {
+            "DocComment": " [`Vec::with_capacity(0)`][`Vec::with_capacity`], or by calling [`shrink_to_fit`]"
+          },
+          {
+            "DocComment": " on an empty Vec, it will not allocate memory. Similarly, if you store zero-sized"
+          },
+          {
+            "DocComment": " types inside a `Vec`, it will not allocate space for them. *Note that in this case"
+          },
+          {
+            "DocComment": " the `Vec` might not report a [`capacity`] of 0*. `Vec` will allocate if and only"
+          },
+          {
+            "DocComment": " if <code>[size_of::\\<T>]\\() * [capacity]\\() > 0</code>. In general, `Vec`'s allocation"
+          },
+          {
+            "DocComment": " details are very subtle --- if you intend to allocate memory using a `Vec`"
+          },
+          {
+            "DocComment": " and use it for something else (either to pass to unsafe code, or to build your"
+          },
+          {
+            "DocComment": " own memory-backed collection), be sure to deallocate this memory by using"
+          },
+          {
+            "DocComment": " `from_raw_parts` to recover the `Vec` and then dropping it."
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " If a `Vec` *has* allocated memory, then the memory it points to is on the heap"
+          },
+          {
+            "DocComment": " (as defined by the allocator Rust is configured to use by default), and its"
+          },
+          {
+            "DocComment": " pointer points to [`len`] initialized, contiguous elements in order (what"
+          },
+          {
+            "DocComment": " you would see if you coerced it to a slice), followed by <code>[capacity] - [len]</code>"
+          },
+          {
+            "DocComment": " logically uninitialized, contiguous elements."
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " A vector containing the elements `'a'` and `'b'` with capacity 4 can be"
+          },
+          {
+            "DocComment": " visualized as below. The top part is the `Vec` struct, it contains a"
+          },
+          {
+            "DocComment": " pointer to the head of the allocation in the heap, length and capacity."
+          },
+          {
+            "DocComment": " The bottom part is the allocation on the heap, a contiguous memory block."
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " ```text"
+          },
+          {
+            "DocComment": "             ptr      len  capacity"
+          },
+          {
+            "DocComment": "        +--------+--------+--------+"
+          },
+          {
+            "DocComment": "        | 0x0123 |      2 |      4 |"
+          },
+          {
+            "DocComment": "        +--------+--------+--------+"
+          },
+          {
+            "DocComment": "             |"
+          },
+          {
+            "DocComment": "             v"
+          },
+          {
+            "DocComment": " Heap   +--------+--------+--------+--------+"
+          },
+          {
+            "DocComment": "        |    'a' |    'b' | uninit | uninit |"
+          },
+          {
+            "DocComment": "        +--------+--------+--------+--------+"
+          },
+          {
+            "DocComment": " ```"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " - **uninit** represents memory that is not initialized, see [`MaybeUninit`]."
+          },
+          {
+            "DocComment": " - Note: the ABI is not stable and `Vec` makes no guarantees about its memory"
+          },
+          {
+            "DocComment": "   layout (including the order of fields)."
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " `Vec` will never perform a \"small optimization\" where elements are actually"
+          },
+          {
+            "DocComment": " stored on the stack for two reasons:"
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " * It would make it more difficult for unsafe code to correctly manipulate"
+          },
+          {
+            "DocComment": "   a `Vec`. The contents of a `Vec` wouldn't have a stable address if it were"
+          },
+          {
+            "DocComment": "   only moved, and it would be more difficult to determine if a `Vec` had"
+          },
+          {
+            "DocComment": "   actually allocated memory."
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " * It would penalize the general case, incurring an additional branch"
+          },
+          {
+            "DocComment": "   on every access."
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " `Vec` will never automatically shrink itself, even if completely empty. This"
+          },
+          {
+            "DocComment": " ensures no unnecessary allocations or deallocations occur. Emptying a `Vec`"
+          },
+          {
+            "DocComment": " and then filling it back up to the same [`len`] should incur no calls to"
+          },
+          {
+            "DocComment": " the allocator. If you wish to free up unused memory, use"
+          },
+          {
+            "DocComment": " [`shrink_to_fit`] or [`shrink_to`]."
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " [`push`] and [`insert`] will never (re)allocate if the reported capacity is"
+          },
+          {
+            "DocComment": " sufficient. [`push`] and [`insert`] *will* (re)allocate if"
+          },
+          {
+            "DocComment": " <code>[len] == [capacity]</code>. That is, the reported capacity is completely"
+          },
+          {
+            "DocComment": " accurate, and can be relied on. It can even be used to manually free the memory"
+          },
+          {
+            "DocComment": " allocated by a `Vec` if desired. Bulk insertion methods *may* reallocate, even"
+          },
+          {
+            "DocComment": " when not necessary."
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " `Vec` does not guarantee any particular growth strategy when reallocating"
+          },
+          {
+            "DocComment": " when full, nor when [`reserve`] is called. The current strategy is basic"
+          },
+          {
+            "DocComment": " and it may prove desirable to use a non-constant growth factor. Whatever"
+          },
+          {
+            "DocComment": " strategy is used will of course guarantee *O*(1) amortized [`push`]."
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " It is guaranteed, in order to respect the intentions of the programmer, that"
+          },
+          {
+            "DocComment": " all of `vec![e_1, e_2, ..., e_n]`, `vec![x; n]`, and [`Vec::with_capacity(n)`] produce a `Vec`"
+          },
+          {
+            "DocComment": " that requests an allocation of the exact size needed for precisely `n` elements from the allocator,"
+          },
+          {
+            "DocComment": " and no other size (such as, for example: a size rounded up to the nearest power of 2)."
+          },
+          {
+            "DocComment": " The allocator will return an allocation that is at least as large as requested, but it may be larger."
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " It is guaranteed that the [`Vec::capacity`] method returns a value that is at least the requested capacity"
+          },
+          {
+            "DocComment": " and not more than the allocated capacity."
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " The method [`Vec::shrink_to_fit`] will attempt to discard excess capacity an allocator has given to a `Vec`."
+          },
+          {
+            "DocComment": " If <code>[len] == [capacity]</code>, then a `Vec<T>` can be converted"
+          },
+          {
+            "DocComment": " to and from a [`Box<[T]>`][owned slice] without reallocating or moving the elements."
+          },
+          {
+            "DocComment": " `Vec` exploits this fact as much as reasonable when implementing common conversions"
+          },
+          {
+            "DocComment": " such as [`into_boxed_slice`]."
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " `Vec` will not specifically overwrite any data that is removed from it,"
+          },
+          {
+            "DocComment": " but also won't specifically preserve it. Its uninitialized memory is"
+          },
+          {
+            "DocComment": " scratch space that it may use however it wants. It will generally just do"
+          },
+          {
+            "DocComment": " whatever is most efficient or otherwise easy to implement. Do not rely on"
+          },
+          {
+            "DocComment": " removed data to be erased for security purposes. Even if you drop a `Vec`, its"
+          },
+          {
+            "DocComment": " buffer may simply be reused by another allocation. Even if you zero a `Vec`'s memory"
+          },
+          {
+            "DocComment": " first, that might not actually happen because the optimizer does not consider"
+          },
+          {
+            "DocComment": " this a side-effect that must be preserved. There is one case which we will"
+          },
+          {
+            "DocComment": " not break, however: using `unsafe` code to write to the excess capacity,"
+          },
+          {
+            "DocComment": " and then increasing the length to match, is always valid."
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " Currently, `Vec` does not guarantee the order in which elements are dropped."
+          },
+          {
+            "DocComment": " The order has changed in the past and may change again."
+          },
+          {
+            "DocComment": ""
+          },
+          {
+            "DocComment": " [`get`]: slice::get"
+          },
+          {
+            "DocComment": " [`get_mut`]: slice::get_mut"
+          },
+          {
+            "DocComment": " [`String`]: crate::string::String"
+          },
+          {
+            "DocComment": " [`&str`]: type@str"
+          },
+          {
+            "DocComment": " [`shrink_to_fit`]: Vec::shrink_to_fit"
+          },
+          {
+            "DocComment": " [`shrink_to`]: Vec::shrink_to"
+          },
+          {
+            "DocComment": " [capacity]: Vec::capacity"
+          },
+          {
+            "DocComment": " [`capacity`]: Vec::capacity"
+          },
+          {
+            "DocComment": " [`Vec::capacity`]: Vec::capacity"
+          },
+          {
+            "DocComment": " [size_of::\\<T>]: size_of"
+          },
+          {
+            "DocComment": " [len]: Vec::len"
+          },
+          {
+            "DocComment": " [`len`]: Vec::len"
+          },
+          {
+            "DocComment": " [`push`]: Vec::push"
+          },
+          {
+            "DocComment": " [`insert`]: Vec::insert"
+          },
+          {
+            "DocComment": " [`reserve`]: Vec::reserve"
+          },
+          {
+            "DocComment": " [`Vec::with_capacity(n)`]: Vec::with_capacity"
+          },
+          {
+            "DocComment": " [`MaybeUninit`]: core::mem::MaybeUninit"
+          },
+          {
+            "DocComment": " [owned slice]: Box"
+          },
+          {
+            "DocComment": " [`into_boxed_slice`]: Vec::into_boxed_slice"
+          }
+        ],
+        "inline": null,
+        "rename": null,
+        "public": true
+      },
+      "is_local": false,
+      "opacity": "Transparent",
+      "lang_item": "Vec"
+    },
+    "generics": {
+      "regions": [],
+      "types": [],
+      "const_generics": [],
+      "trait_clauses": [],
+      "regions_outlive": [],
+      "types_outlive": [],
+      "trait_type_constraints": []
+    },
+    "src": "TopLevel",
+    "kind": {
+      "Struct": [
+        {
+          "span": {
+            "data": {
+              "file_id": 1,
+              "beg": {
+                "line": 439,
+                "col": 4
+              },
+              "end": {
+                "line": 439,
+                "col": 21
+              }
+            },
+            "generated_from_span": null
+          },
+          "attr_info": {
+            "attributes": [],
+            "inline": null,
+            "rename": null,
+            "public": false
+          },
+          "name": "buf",
+          "ty": {
+            "Untagged": {
+              "Adt": {
+                "id": {
+                  "Adt": 2
+                },
+                "generics": {
+                  "regions": [],
+                  "types": [],
+                  "const_generics": [],
+                  "trait_refs": []
+                }
+              }
+            }
+          }
+        },
+        {
+          "span": {
+            "data": {
+              "file_id": 1,
+              "beg": {
+                "line": 440,
+                "col": 4
+              },
+              "end": {
+                "line": 440,
+                "col": 14
+              }
+            },
+            "generated_from_span": null
+          },
+          "attr_info": {
+            "attributes": [],
+            "inline": null,
+            "rename": null,
+            "public": false
+          },
+          "name": "len",
+          "ty": {
+            "Untagged": {
+              "Literal": {
+                "UInt": "Usize"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "layout": [
+      {
+        "key": "x86_64-unknown-linux-gnu",
+        "value": {
+          "size": 24,
+          "align": 8,
+          "discriminator": {
+            "Known": 0
+          },
+          "uninhabited": false,
+          "variant_layouts": [
+            {
+              "field_offsets": [
+                0,
+                16
+              ],
+              "uninhabited": false,
+              "tagger": []
+            }
+          ],
+          "repr": {
+            "repr_algo": "Rust",
+            "align_modif": null,
+            "transparent": false,
+            "explicit_discr_type": false
+          }
+        }
+      }
+    ],
+    "ptr_metadata": "None"
+  },
+  "buffer": {
+    "def_id": 2,
+    "item_meta": {
+      "name": [
+        {
+          "Ident": [
+            "alloc",
+            0
+          ]
+        },
+        {
+          "Ident": [
+            "raw_vec",
+            0
+          ]
+        },
+        {
+          "Ident": [
+            "RawVec",
+            0
+          ]
+        },
+        {
+          "Instantiated": {
+            "params": {
+              "regions": [],
+              "types": [],
+              "const_generics": [],
+              "trait_clauses": [],
+              "regions_outlive": [],
+              "types_outlive": [],
+              "trait_type_constraints": []
+            },
+            "skip_binder": {
+              "regions": [],
+              "types": [
+                {
+                  "Untagged": {
+                    "Literal": {
+                      "UInt": "U8"
+                    }
+                  }
+                },
+                {
+                  "Untagged": {
+                    "Adt": {
+                      "id": {
+                        "Adt": 1
+                      },
+                      "generics": {
+                        "regions": [],
+                        "types": [],
+                        "const_generics": [],
+                        "trait_refs": []
+                      }
+                    }
+                  }
+                }
+              ],
+              "const_generics": [],
+              "trait_refs": []
+            },
+            "kind": "Other"
+          }
+        }
+      ],
+      "span": {
+        "data": {
+          "file_id": 6,
+          "beg": {
+            "line": 73,
+            "col": 0
+          },
+          "end": {
+            "line": 73,
+            "col": 50
+          }
+        },
+        "generated_from_span": null
+      },
+      "source_text": null,
+      "attr_info": {
+        "attributes": [],
+        "inline": null,
+        "rename": null,
+        "public": false
+      },
+      "is_local": false,
+      "opacity": "Transparent",
+      "lang_item": null
+    },
+    "generics": {
+      "regions": [],
+      "types": [],
+      "const_generics": [],
+      "trait_clauses": [],
+      "regions_outlive": [],
+      "types_outlive": [],
+      "trait_type_constraints": []
+    },
+    "src": "TopLevel",
+    "kind": {
+      "Struct": [
+        {
+          "span": {
+            "data": {
+              "file_id": 6,
+              "beg": {
+                "line": 74,
+                "col": 4
+              },
+              "end": {
+                "line": 74,
+                "col": 25
+              }
+            },
+            "generated_from_span": null
+          },
+          "attr_info": {
+            "attributes": [],
+            "inline": null,
+            "rename": null,
+            "public": false
+          },
+          "name": "inner",
+          "ty": {
+            "Untagged": {
+              "Adt": {
+                "id": {
+                  "Adt": 3
+                },
+                "generics": {
+                  "regions": [],
+                  "types": [],
+                  "const_generics": [],
+                  "trait_refs": []
+                }
+              }
+            }
+          }
+        },
+        {
+          "span": {
+            "data": {
+              "file_id": 6,
+              "beg": {
+                "line": 75,
+                "col": 4
+              },
+              "end": {
+                "line": 75,
+                "col": 27
+              }
+            },
+            "generated_from_span": null
+          },
+          "attr_info": {
+            "attributes": [],
+            "inline": null,
+            "rename": null,
+            "public": false
+          },
+          "name": "_marker",
+          "ty": {
+            "Untagged": {
+              "Adt": {
+                "id": {
+                  "Adt": 5
+                },
+                "generics": {
+                  "regions": [],
+                  "types": [],
+                  "const_generics": [],
+                  "trait_refs": []
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "layout": [
+      {
+        "key": "x86_64-unknown-linux-gnu",
+        "value": {
+          "size": 16,
+          "align": 8,
+          "discriminator": {
+            "Known": 0
+          },
+          "uninhabited": false,
+          "variant_layouts": [
+            {
+              "field_offsets": [
+                0,
+                16
+              ],
+              "uninhabited": false,
+              "tagger": []
+            }
+          ],
+          "repr": {
+            "repr_algo": "Rust",
+            "align_modif": null,
+            "transparent": false,
+            "explicit_discr_type": false
+          }
+        }
+      }
+    ],
+    "ptr_metadata": "None"
+  },
+  "native_carrier_correspondence": false,
+  "claim": "complete original Vec capacity control flow with checked reference reads; native carrier/ABI/compiler/lifetime refinement unproved"
+}
