@@ -9,6 +9,7 @@ public import FormalProof4FHE.HasteBoots.NativeVecBytePrefix
 public import FormalProof4FHE.HasteBoots.NativeRawVecBorrowCompleteness
 public import FormalProof4FHE.HasteBoots.NativeRawVecSharedCompleteness
 public import FormalProof4FHE.HasteBoots.NativeRawVecDeallocationCompleteness
+public import FormalProof4FHE.HasteBoots.NativeVecDestructionCompleteness
 @[expose] public section
 
 namespace HasteBootsRawVecDrop
