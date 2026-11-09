@@ -1,5 +1,6 @@
 module
 public import FormalProof4FHE.HasteBoots.NativeRecordCallValues
+public import FormalProof4FHE.HasteBoots.NativeEmptyVecStorage
 @[expose] public section
 
 -- Original byte Vec::new value construction; native storage and compiler refinement remain open.

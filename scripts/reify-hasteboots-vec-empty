@@ -132,7 +132,7 @@ class Reifier(BASE['Reifier']):
         raw=super().render().replace('HasteBootsAllocatorCaller','HasteBootsVecEmpty').replace(
             '-- Original finite allocator caller; the external leaf remains a logical specification.',
             '-- Original byte Vec::new value construction; native storage and compiler refinement remain open.').replace(
-            'public import FormalProof4FHE.HasteBoots.NativeRecordLLBC','public import FormalProof4FHE.HasteBoots.NativeRecordCallValues')
+            'public import FormalProof4FHE.HasteBoots.NativeRecordLLBC','public import FormalProof4FHE.HasteBoots.NativeRecordCallValues\npublic import FormalProof4FHE.HasteBoots.NativeEmptyVecStorage')
         def pack(tag,fields):
             tree='(.scalar .unit)'
             for field in reversed(fields):tree='(.pair '+field+' '+tree+')'

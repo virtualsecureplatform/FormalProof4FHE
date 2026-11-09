@@ -43,4 +43,32 @@ theorem empty_pointer_unreadable (world : NativeReferenceMachine.State) (layout 
     NativeByteRange.loadRange world.pointers.heap.memory ⟨1,none⟩ layout = none :=
   NativeByteRange.positive_without_origin _ _ layout positive rfl
 
+/-- Execute the retained constructor, validate its fields and store its empty
+representation with actual checked machine operations. -/
+def constructStored (world : NativeReferenceMachine.State) (register : Nat) : Option NativeReferenceMachine.State :=
+  match invoke f0 world [] with
+  | .returned value after =>
+    if NativeRecordValues.get value capacityPath = some (.scalar (.usize 0)) ∧
+        NativeRecordValues.get value pointerPath = some (.scalar (.raw ⟨⟨1,none⟩,none⟩)) ∧
+        NativeRecordValues.get value lengthPath = some (.scalar (.usize 0)) then
+      NativeEmptyVecStorage.install after register
+    else none
+  | _ => none
+
+theorem constructStored_complete (world : NativeReferenceMachine.State) (register : Nat) (header : NativePointerStorage.Pointer)
+    (reachable : NativeReferenceMachine.Reachable world)
+    (resident : world.pointers.registers[register]? = some header)
+    (checked : NativeByteRange.checkRange world.pointers.heap.memory header ⟨24,8⟩ = true)
+    (separate : NativeVecBytePrefix.Available world header 24) :
+    ∃ next, ∃ ready : NativeEmptyVecStorage.Ready next,
+      constructStored world register = some next ∧ NativeReferenceMachine.Reachable next ∧
+      next.pointers.registers = world.pointers.registers ∧
+      next.leases = ready.descriptor.lease :: world.leases ∧
+      next.references = ⟨world.nextTag⟩ :: world.references ∧
+      ready.descriptor.reference = ⟨world.nextTag⟩ := by
+  obtain ⟨next,ready,installed,reached,registers,loans,references,reference⟩ :=
+    NativeEmptyVecStorage.install_complete world register header reachable resident checked separate
+  refine ⟨next,ready,?_,reached,registers,loans,references,reference⟩
+  simp only [constructStored,empty_invocation,empty_fields.1,empty_fields.2.1,empty_fields.2.2,and_self,ite_true,installed]
+
 end HasteBootsVecEmpty
