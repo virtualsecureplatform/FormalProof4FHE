@@ -7,6 +7,35 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Conditional source runtime through pointer dispatch
+
+The common allocator runtime now has eleven source theorems through its
+post-allocation pointer check. They preserve the explicit shim invocation,
+forward its unsupported result, execute its source unwind cleanup and abort,
+prepare the moved alignment argument, and compose an actual modeled allocator
+result with pointer inspection and null/non-null dispatch. The composed theorem
+requires the shim's modeled invocation to return unit; it does not establish
+that behavior for the native opaque shim. The allocator outcome and placement
+remain explicit model inputs.
+
+Thin pointer inspection produces address bits while retaining the original
+pointer and its allocation origin in the source frame. Fat pointers are rejected.
+The shared heap and incoming-reference proofs cover the added operation.
+Seven source regressions and four model regressions cover this extension.
+The fresh capacity gate passes 566 dependency audits and 100 rejecting controls.
+Destructor, allocator-caller and empty-constructor revalidation passes with
+1008/87, 354/31 and 361/17 audits/controls respectively. `scripts/check` passes,
+including the 11088-job build and subsequent standalone audits/smoke checks.
+
+Post-dispatch Result/NonNull/slice construction remains open, followed by
+composition into the positive-capacity constructor and resident destruction.
+The next source slice must validate the null branch's layout-known discriminant
+for the zero-sized `Result<Infallible, AllocError>`, then interpret the non-null
+pointer wrappers, slice metadata and returned Result. These representations must
+come from retained source layouts before composing the positive decoded root.
+Native shim/allocator ABI, stack/type/compiler/lifetime correspondence, physical
+work, and the final HasteBoots security theorem remain open.
+
 ## Allocation effects and source allocator method forwarding
 
 The model now has an allocation-capable interpreter that embeds the existing

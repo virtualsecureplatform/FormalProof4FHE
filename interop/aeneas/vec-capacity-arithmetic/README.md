@@ -121,3 +121,18 @@ and zeroing steps with explicit placement/failure outcomes; no external success
 callback is used. Fourteen model regressions include allocation/deallocation
 with advanced generation. Eight source examples and sixteen dependency guards
 bring the capacity gate to 535 audits, 95 rejecting controls and 52 source examples.
+
+## Runtime shim and pointer dispatch
+
+`RuntimeProof.lean` adds eleven theorems for the source positive runtime: explicit
+shim forwarding, returned-unit continuation, alignment extraction/move, concrete
+modeled allocation result, pointer inspection, Boolean mode selection and null
+selection. `runtime_positive_result` composes these stages with explicit premises
+about the shim invocation and allocator-machine result. Unsupported shim results
+stop execution; source shim unwind executes cleanup and abort. Seven regressions
+exercise arguments, null/non-null selection, preserved provenance and shim exits.
+
+The reifier validates the thin pointer cast, pointer-check local scopes, zero
+comparison, and shim unwind abort. Five additional mutations must be rejected.
+The gate now checks 566 declarations and 100 rejecting controls. This does not
+interpret the post-dispatch Result construction or prove native shim behavior.

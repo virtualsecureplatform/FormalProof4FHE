@@ -1,7 +1,7 @@
 {
-  "profile": "original-finite-allocator-caller-revalidated-with-optional-allocation-inventory-v5",
-  "gate_manifest": "build/hasteboots-extraction/allocator-caller-w76y5p81/manifest.json",
-  "gate_manifest_sha256": "cc199ebab895f5fa0240baf48f96c5f34ba56fc67b8ad94521a5a5b1f52a108c",
+  "profile": "original-finite-allocator-caller-revalidated-with-pointer-inspection-v6",
+  "gate_manifest": "build/hasteboots-extraction/allocator-caller-n3nountn/manifest.json",
+  "gate_manifest_sha256": "69a037fe2dadd6882f46f81bea1c6e745a3c4f4d733521ccf6f44343691ed146",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "status": "passed",
   "commands": [
@@ -70,7 +70,7 @@
   "physical_work_refinement": false,
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "inputs": {
-    "scripts/check-hasteboots-allocator-caller": "fc8fe65283b35815fa94f28ab7a96018c4902639756f587253a0ba0ccdc835ed",
+    "scripts/check-hasteboots-allocator-caller": "1289efdfb1e6e2f1c94431f6bc30455ab03692f76c856576d72e5b301e650764",
     "scripts/reify-hasteboots-allocator-caller": "77a5bfd17d3871e60fe99b81fa4ac1019a6ab5d3028cabcaa9628d1e3d0226ca",
     "scripts/specify-hasteboots-deallocation-boundary": "48abaf9e189486073c292cf915c5717f3ee9e5a69735fc6b09859b9a8a93774a",
     "scripts/check-hasteboots-byte-deallocation": "19fe28ad65b241176a06762c54a04089395d77cf57e5fff26a8cf360485c1da4",
@@ -86,7 +86,7 @@
     "FormalProof4FHE/HasteBoots/NativeRawVecReference.lean": "3faa865ab90ca84ef7c3b0b678d7f550017970070b6c793b8583e899e1610d54",
     "FormalProof4FHE/HasteBoots/NativeRecordArithmetic.lean": "68f77d47868bb0ce3d3fe9deffb481864c25410beae71fda57c3c1dc4dd559fd",
     "FormalProof4FHE/HasteBoots/NativeRecordValues.lean": "55d3f80a243da0b05bcd04c467aa70589b0504d586a80223f57c9d892f6d4d49",
-    "FormalProof4FHE/HasteBoots/NativeRecordLLBC.lean": "7b46c40a6195fbcde469db1f40f30a600c751158e6205c4417d44a1b739a02c7",
+    "FormalProof4FHE/HasteBoots/NativeRecordLLBC.lean": "5fdef2ebc522ea3652d9e545d26aa1eff70ced8dfd1bd4907b7db0045ff8bf05",
     "FormalProof4FHETest/HasteBootsZstReferenceSmoke.lean": "951d4a5b4fb0fcbb049d397256e05179c2226a4ff77f55c7623a19ba09a6bc7b",
     "FormalProof4FHETest/HasteBootsZstReferenceAudit.lean": "e606f0fd69b2500bfc9087932a400c7262156d88fb2f37127b45b1b45a32043f",
     "FormalProof4FHETest/HasteBootsZstBorrowSmoke.lean": "6e752139577e3e06ed11e00861645210835b67f553c8f41e3437ccd76422a97a",
@@ -359,6 +359,8 @@
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalParts": "depends on axioms: [propext, Classical.choice, Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.multiplyWords": "depends on axioms: [propext]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalMultiply": "depends on axioms: [propext, Classical.choice, Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeRecordLLBC.rawAddressValue": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalRawAddress": "depends on axioms: [propext, Classical.choice, Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.enumWordValue": "depends on axioms: [propext]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalEnumWord": "depends on axioms: [propext, Classical.choice, Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.enumAddressValue": "depends on axioms: [propext]",
@@ -402,6 +404,8 @@
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalEnumAddress_world": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalArithmetic_world": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalZstBorrow_projects": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
+    "FormalProof4FHE.HasteBoots.NativeRecordLLBC.rawAddressValue_exact": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalRawAddress_world": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalRvalue_projects": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.settle_projects": "depends on axioms: [propext, Quot.sound]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.deallocate_projects": "depends on axioms: [propext,\n Classical.choice,\n Quot.sound]",
@@ -449,6 +453,7 @@
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.Rvalue.rawVecField": "depends on axioms: [propext]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.Rvalue.unit": "does not depend on any axioms",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.Rvalue.use": "depends on axioms: [propext]",
+    "FormalProof4FHE.HasteBoots.NativeRecordLLBC.Rvalue.rawAddress": "depends on axioms: [propext]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.Rvalue.rawCast": "depends on axioms: [propext]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.Rvalue.wrapOne": "depends on axioms: [propext]",
     "FormalProof4FHE.HasteBoots.NativeRecordLLBC.Rvalue.pair": "depends on axioms: [propext]",
@@ -515,7 +520,7 @@
     "foreign_unsupported_before_free_checked": true
   },
   "llbc_sha256": "940d41ed70449818bb9514bc62adeebd068534746c550e9103db59e02a39222c",
-  "checked_sha256": "55d079b3268fa92ae895108241768d7e24aaaa09fad7af30fbdb5560ce57630b",
+  "checked_sha256": "6e2ae1593cf114c6c5dc62568afd97f00cedbcd98d12023e53b00310be5a448d",
   "logs": {
     "guard-enabled-lean.log": "cb57e98c8b5365e217c1a9a709b94e15dc7a8c38e28dc9f85f0fc36c1f69804d",
     "parent-byte-deallocation.log": "8fba2f8760147057d15bdae0ef43bf356f894cd97d67fdcc933f1f5d7dd71fab",
@@ -550,7 +555,7 @@
     "sha256": "7a7b88054fb9c05752c9b89270f268fe65cc6ae8f906c7cd3ee841d0b7ef5bfd",
     "dependency_audit_count": 144
   },
-  "dependency_audit_count": 349,
+  "dependency_audit_count": 354,
   "negative_control_count": 31,
   "arithmetic_extension": {
     "module": "FormalProof4FHE/HasteBoots/NativeRecordArithmetic.lean",
@@ -646,5 +651,22 @@
     "native_allocator_abi_refinement": false,
     "source_post_allocation_result_construction_proved": false,
     "native_physical_work_refinement": false
+  },
+  "prior_pointer_inspection_baseline": {
+    "profile": "original-finite-allocator-caller-revalidated-with-optional-allocation-inventory-v5",
+    "gate_manifest": "build/hasteboots-extraction/allocator-caller-w76y5p81/manifest.json",
+    "gate_manifest_sha256": "cc199ebab895f5fa0240baf48f96c5f34ba56fc67b8ad94521a5a5b1f52a108c",
+    "dependency_audit_count": 349,
+    "negative_control_count": 31
+  },
+  "thin_pointer_address_inspection_revalidated": true,
+  "full_project_check": {
+    "command": "scripts/check",
+    "exit_code": 0,
+    "build_jobs": 11088,
+    "log": "/tmp/hasteboots-runtime-full-check.log",
+    "log_sha256": "11b27c2f7112b019c0935801346ab9a97a231617e50c2ba24f65d56097a220e7",
+    "library_root_sha256": "028c7c32f236b663f7d18dcc858576493801afbcd5da9d1a0a2b679c30adb579",
+    "test_root_sha256": "de455dcd7f21235561a0aca4da280c3e9e9ac71defb92de05d46e04a6cdece30"
   }
 }

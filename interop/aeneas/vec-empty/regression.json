@@ -1,8 +1,8 @@
 {
-  "profile": "original-empty-byte-vec-revalidated-with-allocation-capable-layer-v7",
+  "profile": "original-empty-byte-vec-revalidated-with-pointer-inspection-v8",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-empty-6t19s5go/manifest.json",
-  "gate_manifest_sha256": "7d6183da21e0da9b5bf0afd5a8826b2d530c11d6331e22a76039f5f0e1df65ac",
+  "gate_manifest": "build/hasteboots-extraction/vec-empty-eupqans5/manifest.json",
+  "gate_manifest_sha256": "8e99fed8a83123db52e3be49862d74b85020ec84bbb2fdbb21ba9f615e463d34",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -31,7 +31,7 @@
     "4a9ee78a2f9c1be8878871aacc36e63234412c14",
     "68c847d7be7ccbca8150998b3471458c6086acc9"
   ],
-  "dependency_audit_count": 356,
+  "dependency_audit_count": 361,
   "source_definition_count": 8,
   "source_theorem_count": 7,
   "new_declaration_audit_count": 54,
@@ -61,7 +61,7 @@
   "inputs": {
     "scripts/check-hasteboots-vec-empty": "7efeddebd76273fde8f3a296a4c23157afa5a39a4d0656395091e2684d365208",
     "scripts/build-hasteboots-inline-tools": "efda9a152172fdebfb14919f4c29e920f12da0d2ad71ab45ee526a27d9713452",
-    "scripts/check-hasteboots-allocator-caller": "fc8fe65283b35815fa94f28ab7a96018c4902639756f587253a0ba0ccdc835ed",
+    "scripts/check-hasteboots-allocator-caller": "1289efdfb1e6e2f1c94431f6bc30455ab03692f76c856576d72e5b301e650764",
     "scripts/extract-hasteboots-parameters": "9ab0b333e12a4dac0fea4e37bc8bee430bdf56cac7eb4bcb5fa999ceab140993",
     "scripts/specify-hasteboots-deallocation-boundary": "48abaf9e189486073c292cf915c5717f3ee9e5a69735fc6b09859b9a8a93774a",
     "lean-toolchain": "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c",
@@ -81,11 +81,11 @@
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
     "scripts/reify-hasteboots-variant-body": "2d0326329d538bb43685617133c2ecd96da497c81295cd221315807576383825",
-    "scripts/reify-hasteboots-vec-capacity-arithmetic": "5418b0ff9e004ca3953046c530a2a7e06b4bae12fd80eb1d5ac930a907451fb3",
+    "scripts/reify-hasteboots-vec-capacity-arithmetic": "bedfcad7a886b1282007af2003e84549b9862fd92d6abecad0bbab552a810b9b",
     "scripts/reify-hasteboots-vec-drop": "0ef983324e439064ea0969a4fc60d6a574137d5548a1feaee727f018b9b1eb8d",
     "scripts/reify-hasteboots-vec-empty": "00a7debb4c04056f86a5fe37ecead6b1f26a8a6fa45642c9b7b6fa76a3532ccd",
     "FormalProof4FHE/HasteBoots/NativeAllocatorExecution.lean": "2c3008e94760730cfbc65c7bee2707e107f23fabdb9df93f302c5848fc909a15",
-    "FormalProof4FHE/HasteBoots/NativeAllocatorLLBC.lean": "ed17ab102265af1216e20afa0eadc552bfbecbc326f4fd17e24560df9a5e9b2f",
+    "FormalProof4FHE/HasteBoots/NativeAllocatorLLBC.lean": "96337c76b865eda3c61ae93913b3b5299d3281584a2e791dc08379c49a32b123",
     "FormalProof4FHE/HasteBoots/NativeAtomicIndexLaw.lean": "05162b4db7430d055e1a0cddd1a789836ea00740c6fcee9e552fb8a27dec576d",
     "FormalProof4FHE/HasteBoots/NativeBatchChecks.lean": "43bd99e09201910db0ebf322c8a52581429b6a46f39502256c65c1d6e72f9be0",
     "FormalProof4FHE/HasteBoots/NativeBatchColumnWorkerPool.lean": "40a149ed6aff8590b8aeae51936243c7314375bb9cbbc335b86d1fd699f5aeb8",
@@ -348,7 +348,7 @@
     "FormalProof4FHE/HasteBoots/NativeGoldWeightLayout.lean": "7e748c9324d5605b917243c87a547e5c01a2b9de5f7b083aeb80c12295ea4e50",
     "FormalProof4FHE/HasteBoots/NativeHashOracleBridge.lean": "59a4bb2072c685d6645c53adc390e49ab5d5b8398c7ce046e943c82bb305aefc",
     "FormalProof4FHE/HasteBoots/NativeHashPrefix.lean": "9965105748bacce1e5d016bda664c083b97edc00fbf96606597982791c19b05a",
-    "FormalProof4FHE/HasteBoots/NativeHeapFrame.lean": "18a6d3002f31f2d7ae7e5f0aac61ba41a77afda3bfbf3615bafdec1ef70b83b4",
+    "FormalProof4FHE/HasteBoots/NativeHeapFrame.lean": "f04d37bd6c47936ec7a354b0940c531ab826e7d346cbec558ebbd39ef66c5f1d",
     "FormalProof4FHE/HasteBoots/NativeHeapRelease.lean": "3f5a6ea3c2db24ff1c37dc6ad0def3ba90cba9801ae9297caaf81faca594709e",
     "FormalProof4FHE/HasteBoots/NativeHelperPacking.lean": "ef6dade136bb70150cd939d5966609ce839c9265a05d40326a3b7dbd2b3b45e1",
     "FormalProof4FHE/HasteBoots/NativeIncomingReference.lean": "f5e52dc9c5055e99643cd552b9c488066c11143cfde9bde8e3d805599a917479",
@@ -435,8 +435,8 @@
     "FormalProof4FHE/HasteBoots/NativeRecordCallValues.lean": "6aa63875bf445f426e3484cbf425f58e378f83d31f93e8faab8b2f04eb272b56",
     "FormalProof4FHE/HasteBoots/NativeRecordDropCalls.lean": "a8d8f2103827f492542049d6c992a0cb4ea49d74e69717530b8bc5a7e79875bd",
     "FormalProof4FHE/HasteBoots/NativeRecordHeapBounds.lean": "8400afe5343501bd77ea8758e70a3e350840dafcc2eee2a2a6097f71d10c8f8d",
-    "FormalProof4FHE/HasteBoots/NativeRecordIncomingReference.lean": "d87b9edc33246dc94e56592b2398f3d5d095fef77f4a16b63937bbeade267295",
-    "FormalProof4FHE/HasteBoots/NativeRecordLLBC.lean": "7b46c40a6195fbcde469db1f40f30a600c751158e6205c4417d44a1b739a02c7",
+    "FormalProof4FHE/HasteBoots/NativeRecordIncomingReference.lean": "894d5b2efe62d931004f4b455e0acaa41e77c736198c0378ea0b7c490e163c02",
+    "FormalProof4FHE/HasteBoots/NativeRecordLLBC.lean": "5fdef2ebc522ea3652d9e545d26aa1eff70ced8dfd1bd4907b7db0045ff8bf05",
     "FormalProof4FHE/HasteBoots/NativeRecordValues.lean": "55d3f80a243da0b05bcd04c467aa70589b0504d586a80223f57c9d892f6d4d49",
     "FormalProof4FHE/HasteBoots/NativeReferenceCleanup.lean": "0405ccb95660fa6c4d173b570fd80fa26bb2ab1bf4171dcc30b70af962b619d5",
     "FormalProof4FHE/HasteBoots/NativeReferenceMachine.lean": "c211d50ac2059b95d520867a26c982326cd8ba0233d5e55953d5f28afd9b2409",
@@ -532,8 +532,8 @@
     "interop/aeneas/vec-empty/Proof.lean": "e49c37943109ddd3fac76fade3e940454dd06f0e18b8ab1bcc0ffbdbfcb6a2f6",
     "interop/aeneas/vec-empty/Smoke.lean": "5c0cba3dfda637c34c2d2b735f362f71b013f17b2408e98ece36450c366ac244"
   },
-  "source_llbc_sha256": "b688331ffa0a2a4ab8b41805ad2b6a9da66ebfcfdde41957f29f7af9dddb75ab",
-  "checked_sha256": "9577a9f7b07730bf46a69ca90b25e0404ee78589a64cfc38702aa0771a41ef81",
+  "source_llbc_sha256": "e2268832df169ee03207a8766b27f52dc530a440a99d29942e390039d0a09458",
+  "checked_sha256": "b3b7238e77592d01fa2d2d537c1da1c6c3e92c44319690d5826a6b77e5687280",
   "original_constructor_and_direct_caller_interpreted": true,
   "exact_nominal_return_for_arbitrary_world_proved": true,
   "zero_capacity_and_length_proved": true,
@@ -553,8 +553,8 @@
     "command": "scripts/check",
     "exit_code": 0,
     "build_jobs": 11088,
-    "log": "/tmp/hasteboots-allocator-layer-full-check.log",
-    "log_sha256": "8fccb06cf95e94c048d08e421df1f9585b87067023c1903a7b7df0f27b19227a",
+    "log": "/tmp/hasteboots-runtime-full-check.log",
+    "log_sha256": "11b27c2f7112b019c0935801346ab9a97a231617e50c2ba24f65d56097a220e7",
     "library_root_sha256": "028c7c32f236b663f7d18dcc858576493801afbcd5da9d1a0a2b679c30adb579",
     "test_root_sha256": "de455dcd7f21235561a0aca4da280c3e9e9ac71defb92de05d46e04a6cdece30"
   },
@@ -703,5 +703,13 @@
     "native_allocator_abi_refinement": false,
     "source_post_allocation_result_construction_proved": false,
     "native_physical_work_refinement": false
-  }
+  },
+  "prior_pointer_inspection_baseline": {
+    "profile": "original-empty-byte-vec-revalidated-with-allocation-capable-layer-v7",
+    "gate_manifest": "build/hasteboots-extraction/vec-empty-6t19s5go/manifest.json",
+    "gate_manifest_sha256": "7d6183da21e0da9b5bf0afd5a8826b2d530c11d6331e22a76039f5f0e1df65ac",
+    "dependency_audit_count": 356,
+    "negative_control_count": 17
+  },
+  "thin_pointer_address_inspection_revalidated": true
 }
