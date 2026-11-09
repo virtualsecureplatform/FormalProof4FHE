@@ -7,6 +7,44 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## The Vec byte-method prefix establishes the traversal conditions
+
+`NativeVecBytePrefix` derives checked pointer and length field reads from a
+resident Vec descriptor and its logical header-frontier condition. The pointer
+read recovers the complete stored provenance; the length read returns the
+original stored length. Initialization is required only for the element prefix.
+Physical separation of the buffer's full capacity from active loans remains an
+explicit condition, distinct from ownership and initialization.
+
+`ByteMethodPrefixProof.lean` follows the retained field-read scope, raw cast,
+fat-pointer construction and mutable slice borrow. The resulting slice satisfies
+the conditions for successful unbounded traversal. The proof factors the actual
+byte-method execution at its first call and checks the move from caller local 6
+into the retained callee's typed argument frame. It keeps the original scope
+entry cutoff, so later cleanup still ends the fresh data loan.
+
+This step adds 14 model theorems, three definitions, 17 model declaration guards,
+nine source theorems, 13 checked source definitions, nine model regressions and
+four source regressions. Cases include empty dangling buffers, partially
+initialized capacity, complete pointer origins and an overlapping data loan
+that blocks exclusive borrowing.
+
+The zero-slice mutation now has two checks: its altered execution still removes
+six iteration loans in the three-byte fixture, while the original-length prefix
+proof must fail specifically at `byte_parts_complete`. This binds the new proof
+to the source's real length rather than accepting a silently shortened slice.
+
+Fresh extraction passed 788 dependency audits and 70 rejection controls.
+Full `scripts/check` passed its 11,062-job build and all subsequent smoke checks.
+Retained Rust function bodies and type declarations are unchanged; input hashes
+and validation receipts are recorded in `regression.json`.
+
+Next prove unit return through the retained slice-drop helper and byte-method
+cleanup, then complete successful Vec/RawVec destruction under sufficient
+ownership and alias conditions. Deriving those conditions from native
+construction, compiler/lifetime/ABI refinement, physical attacker work and the
+final application security theorem remain open.
+
 ## Successful unbounded byte traversal restores the incoming loans
 
 `NativeScopeRestoration` tracks the exact fresh-loan prefix created by checked
@@ -41,8 +79,8 @@ Full `scripts/check` passed its 11,059-job build and all subsequent smoke checks
 Retained Rust function bodies and type declarations are unchanged. Input hashes
 and validation receipts are recorded in the profile's `regression.json`.
 
-Next establish these slice conditions from the original Vec byte-method prefix,
-then prove successful return and exact release through the remaining Vec and
+The original Vec byte-method prefix now establishes the slice conditions above.
+Next prove successful return and exact release through the remaining Vec and
 RawVec source calls. Native refinement, physical attacker work and the final
 application security theorem remain open.
 
