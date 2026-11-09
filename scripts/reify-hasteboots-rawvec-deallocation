@@ -95,11 +95,11 @@ class Reifier(CURRENT['Reifier']):
         require(not parent_path and parent_ty['Untagged']['Ref'][1:]==[SPEC['adt'](self.storage.inner['def_id']),'Mut'],'Wrong mutable parent place')
         return '(.assign '+str(index)+' (.borrowRawVec .'+target_kind+' '+str(parent)+' []) '+following+')'
 
-    def block(self,b,fid):
+    def block(self,b,fid,following=".done"):
         # Calls instantiate regions, whose well-formedness is checked before
         # logical comparison. All other statements use the shared translator.
         require(set(b)=={'span','statements'},'Unknown caller block fields')
-        result='.done'
+        result=following
         for statement in reversed(b['statements']):
             require(set(statement)=={'span','id','kind','comments_before'},'Unknown caller statement fields')
             kind=statement['kind']

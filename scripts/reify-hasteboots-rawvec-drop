@@ -1,0 +1,142 @@
+#!/usr/bin/env python3
+"""Retain original RawVec drop glue/method and restricted adjacent two-phase call.
+Native compiler, Rust lifetime, allocator and constructor correspondence are open.
+"""
+import argparse
+import json
+from pathlib import Path
+import runpy
+ROOT=Path(__file__).resolve().parent.parent
+PARENT=runpy.run_path(str(ROOT/'scripts/reify-hasteboots-rawvec-deallocation'))
+BASE=PARENT['BASE'];SPEC=PARENT['SPEC'];REGIONS=PARENT['REGIONS']
+require=SPEC['require'];empty=SPEC['empty'];name=SPEC['name'];seq=BASE['seq']
+
+class Reifier(PARENT['Reifier']):
+    def __init__(self,ir):
+        self.drop_glue=None;self.drop_method=None;self.rawvec=None;self.used_globals={}
+        super().__init__(ir)
+        def find(items,expected):
+            found=[x for x in items if name(x)==expected]
+            require(len(found)==1,'Missing/duplicate '+expected);return found[0]
+        self.rawvec=find(self.types.values(),'alloc::raw_vec::RawVec')
+        fields=self.rawvec['kind'].get('Struct',[])
+        require(self.rawvec['item_meta']['opacity']=='Transparent' and empty(self.rawvec['generics']) and
+                [(x['name'],x['ty']) for x in fields]==[('inner',SPEC['adt'](self.storage.inner['def_id'])),('_marker',SPEC['adt'](self.storage.marker['def_id']))], 'Changed RawVec fields')
+        require(self.rawvec['layout']==[{**self.storage.inner['layout'][0], 'value':{**self.storage.inner['layout'][0]['value'],
+            'variant_layouts':[{'field_offsets':[0,16],'uninhabited':False,'tagger':[]}]}}], 'Changed RawVec layout')
+        self.drop_glue=find(self.functions.values(),'alloc::raw_vec::RawVec::drop_glue')['def_id']
+        self.drop_method=find(self.functions.values(),'alloc::raw_vec::drop')['def_id']
+        self.globals={g['def_id']:g for g in self.crate['global_decls'] if g}
+        self.root=self.drop_glue;self.roots=[self.root]
+        self.schema(self.drop_glue);self.schema(self.drop_method)
+
+    def ty(self,raw):
+        if self.rawvec and set(raw)=={'Untagged'} and set(raw['Untagged'])=={'Ref'}:
+            _,pointee,kind=raw['Untagged']['Ref']
+            if pointee==SPEC['adt'](self.rawvec['def_id']):
+                require(kind=='Mut','Wrong RawVec receiver mutability');return '(.scalar (.reference true))'
+        return super().ty(raw)
+
+    def schema(self,fid):
+        if fid in self.schemas:return self.schemas[fid]
+        if fid not in [self.drop_glue,self.drop_method]:return super().schema(fid)
+        f=self.functions[fid];sig=f['signature']
+        expected={'Untagged':{'Ref':[{'Var':{'Free':0}},SPEC['adt'](self.rawvec['def_id']),'Mut']}}
+        require(sig=={'is_unsafe':fid==self.drop_glue,'abi':'Rust','is_variadic':False,'inputs':[expected],'output':SPEC['UNIT']} and
+                f['is_global_initializer'] is None,'Changed drop signature')
+        require(f['item_meta']['opacity']=='Transparent' and set(f['body'])=={'Structured'} and
+                f['generics']['regions']==[{'index':0,'name':None,'mutability':'Unknown'}] and empty({**f['generics'],'regions':[]}), 'Unclosed drop body')
+        b=f['body']['Structured'];require(set(b)=={'span','bound_body_regions','locals','body','comments'},'Unknown drop body fields')
+        bound=b['bound_body_regions'];require(type(bound) is int and bound>=0,'Wrong bound region count')
+        for raw in sig['inputs']+[sig['output']]:PARENT['validate_regions'](raw,None,1)
+        locals=b['locals']['locals'];types=[v['ty'] for v in locals]
+        require([v['index'] for v in locals]==list(range(len(locals))) and b['locals']['arg_count']==1 and
+                REGIONS['erase_regions'](types[:2])==REGIONS['erase_regions']([sig['output']]+sig['inputs']),'Wrong drop locals/signature')
+        for raw in types:PARENT['validate_regions'](raw,bound,1);self.ty(raw)
+        self.schemas[fid]=types,1;return types,1
+
+    def operand(self,op,fid):
+        if set(op)=={'Copy'} and set(op['Copy'].get('kind',{}))=={'Global'}:
+            p=op['Copy'];require(set(p)=={'kind','ty'},'Unknown global place fields')
+            g=p['kind']['Global'];require(set(g)=={'id','generics'} and empty(g['generics']),'Open layout global')
+            source=self.globals[g['id']];layout=SPEC['adt'](self.layout['def_id']);align=SPEC['adt'](self.alignment['def_id']);enum=SPEC['adt'](self.boundary.enum['def_id'])
+            u8={'Untagged':{'Literal':{'UInt':'U8'}}}
+            require(name(source)=='core::mem::SizedTypeProperties::LAYOUT' and source['item_meta']['opacity']=='Foreign' and
+                    empty(source['generics']) and p['ty']==source['ty']==layout and source['global_kind']=='NamedConst' and
+                    source['src']=={'TraitDecl':{'trait_ref':{'id':2,'generics':{'regions':[],'types':[u8],'const_generics':[],'trait_refs':[]}},'item_id':{'Const':4}}},'Wrong byte layout global')
+            v=source['value'];require(set(v)=={'kind','ty'} and v['ty']==layout and set(v['kind'])=={'Adt'},'Wrong layout literal')
+            variant,fields=v['kind']['Adt'];require(variant is None and len(fields)==2,'Wrong layout literal fields')
+            size,alignment=fields
+            require(size=={'kind':{'Literal':{'Scalar':{'Unsigned':['Usize','1']}}},'ty':SPEC['USIZE']} and
+                    alignment=={'kind':{'Adt':[None,[{'kind':{'Adt':[0,[]]},'ty':enum}]]},'ty':align},'Wrong byte layout literal')
+            # The enum variant index is not its numeric alignment discriminant.
+            discr=self.boundary.alignments[0];require(discr==1,'Wrong alignment discriminant')
+            self.used_globals[g['id']]=source
+            return '(.layoutLiteral 1 '+str(discr)+' '+str(self.layout['def_id'])+' '+str(self.alignment['def_id'])+' '+str(self.boundary.enum['def_id'])+')',layout
+        return super().operand(op,fid)
+
+    def mutable_borrow(self,target,rv,fid):
+        index,path,raw=self.place(target,fid);ref=rv['Ref']
+        require(not path and set(ref)=={'place','kind','ptr_metadata'} and ref['kind'] in ['Mut','TwoPhaseMut'] and
+                ref['ptr_metadata']=={'Const':{'kind':{'Adt':[None,[]]},'ty':SPEC['UNIT']}},'Unsupported mutable source reference')
+        borrowed=ref['place'];require(set(borrowed)=={'kind','ty'},'Unknown mutable place fields')
+        require(raw['Untagged']['Ref'][1:]==[borrowed['ty'],'Mut'],'Wrong mutable target type')
+        base=borrowed
+        if fid==self.drop_method:
+            require(borrowed['ty']==SPEC['adt'](self.storage.inner['def_id']) and set(borrowed['kind'])=={'Projection'},'Wrong inner mutable borrow')
+            base,projection=borrowed['kind']['Projection']
+            require(projection=={'Field':[{'Adt':[self.rawvec['def_id'],None]},0]},'Wrong inner field projection')
+        else:require(fid==self.drop_glue and ref['kind']=='Mut','Wrong mutable borrow caller')
+        require(set(base)=={'kind','ty'} and base['ty']==SPEC['adt'](self.rawvec['def_id']) and
+                set(base['kind'])=={'Projection'} and base['kind']['Projection'][1]=='Deref','Missing RawVec dereference')
+        parent,parent_path,parent_ty=self.place(base['kind']['Projection'][0],fid)
+        require(not parent_path and parent_ty['Untagged']['Ref'][1:]==[SPEC['adt'](self.rawvec['def_id']),'Mut'],'Wrong RawVec parent')
+        return index,parent
+
+    def assignment(self,target,rv,fid,following):
+        if fid in [self.drop_glue,self.drop_method] and set(rv)=={'Ref'}:
+            index,parent=self.mutable_borrow(target,rv,fid)
+            require(rv['Ref']['kind']=='Mut','Two-phase borrow requires adjacent call')
+            return '(.assign '+str(index)+' (.borrowRawVecMut '+str(parent)+' []) '+following+')'
+        return super().assignment(target,rv,fid,following)
+
+    def block(self,b,fid,following='.done'):
+        require(set(b)=={'span','statements'},'Unknown drop block fields')
+        result=following;statements=b['statements'];i=len(statements)-1
+        while i>=0:
+            statement=statements[i];require(set(statement)=={'span','id','kind','comments_before'},'Unknown drop statement fields')
+            if i>0 and isinstance(statements[i-1]['kind'],dict) and set(statements[i-1]['kind'])=={'Assign'}:
+                target,rv=statements[i-1]['kind']['Assign']
+                if set(rv)=={'Ref'} and rv['Ref']['kind']=='TwoPhaseMut':
+                    require(set(statements[i-1])=={'span','id','kind','comments_before'},'Unknown reservation statement fields')
+                    reserved,parent=self.mutable_borrow(target,rv,fid)
+                    require(isinstance(statement['kind'],dict) and set(statement['kind'])=={'Call'},'Two-phase borrow requires adjacent call')
+                    info=statement['kind']['Call'];call=info['call']
+                    require(call['args'][0]=={'Move':target} and len(call['args'])==2 and set(call['args'][1])=={'Copy'} and
+                            set(call['args'][1]['Copy']['kind'])=={'Global'},'Unsupported two-phase call arguments')
+                    # Use the ordinary call validator, including regions, destination,
+                    # source classification and the complete unwind/suffix bodies.
+                    ordinary=super().block({'span':b['span'],'statements':[statement]},fid,result)
+                    require(ordinary.startswith('(.call '),'Wrong adjacent call lowering')
+                    first=self.operand(call['args'][0],fid)[0];rest=self.operand(call['args'][1],fid)[0]
+                    args=seq([first,rest]);require(ordinary.count(args)==1,'Ambiguous adjacent call arguments')
+                    result='(.twoPhaseRawVecCall '+str(parent)+' [] '+str(reserved)+' '+ordinary[len('(.call '):].replace(args,seq([rest]),1)
+                    i-=2;continue
+            result=super().block({'span':b['span'],'statements':[statement]},fid,result);i-=1
+        return result
+
+    def code(self,fid):
+        if fid in [self.drop_glue,self.drop_method,self.caller]:return BASE['Reifier'].code(self,fid)
+        return super().code(fid)
+
+    def retained(self):
+        value=super().retained();value['globals']=[self.used_globals[i] for i in sorted(self.used_globals)]
+        value['claim']='original RawVec drop glue/method with adjacent two-phase ordering; native compiler/lifetime/constructor/allocator/work/security correspondence unproved'
+        return value
+
+    def render(self):return super().render().replace('HasteBootsRawVecDeallocation','HasteBootsRawVecDrop')
+
+def main():
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('llbc',type=Path);p.add_argument('output',type=Path);p.add_argument('--retained',type=Path,required=True)
+    args=p.parse_args();r=Reifier(json.loads(args.llbc.read_text()));args.output.write_text(r.render());args.retained.write_text(json.dumps(r.retained(),indent=2)+'\n')
+if __name__=='__main__':main()
