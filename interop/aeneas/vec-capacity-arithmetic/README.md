@@ -276,3 +276,21 @@ to be initialized. The source accessor and outer error handler remain unproved.
 Validation: 827 dependency audits, 165 rejecting controls, 125 source examples
 and 90 model examples pass. The fresh full `scripts/check` passes with 11091
 build jobs.
+
+## Checked storage loans
+
+`NativeByteBorrowStorage` separates storage permission/extent from initialized
+byte reads. `NativeStorageBorrowMachine` embeds the old reference operations
+unchanged and issues fresh storage loans from checked resident registers. Its
+extended reachability and well-formedness proofs support an actual loan over
+the partially initialized overflow object, followed by the checked decoder.
+Twenty-two model examples and forty-one dependency guards cover this extension.
+A storage loan establishes no Rust pointee validity by itself; the LLBC local
+bridge, transparent getter composition and native stack/lifetime refinement
+remain open. The original initialized-byte borrowing and its theorems are
+unchanged.
+
+Storage-loan validation: 868 dependency audits, 165 rejecting controls,
+125 source examples and 112 model examples. The fresh full project check
+passes with 11095 build jobs, and all four new modules pass direct
+warning-as-error checks.

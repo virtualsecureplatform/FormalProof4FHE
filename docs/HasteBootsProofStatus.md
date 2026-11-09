@@ -7,6 +7,45 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Storage loans admit uninitialized padding
+
+`NativeByteBorrowStorage.borrow` checks the existing parent/raw permission rules
+and `checkRange`, then issues a fresh lease without reading any bytes. A positive
+range must lie in a live allocation with the exact stored origin. Alignment,
+extent, parent containment and mode restrictions remain checked. The original
+initialized-byte borrow operation is unchanged; its successful results refine
+the new storage operation exactly.
+
+`NativeStorageBorrowMachine` embeds every original reference-machine operation
+unchanged and adds storage borrowing through checked pointer/reference registers.
+Its grant executes the new primitive and records the actual fresh tag, parent,
+lease and birth. Twenty-nine theorems across both modules prove complete and
+successful grants, live allocation coverage, exclusive separation, compatibility
+with original grants, well-formedness, heap/incoming-authority preservation,
+pointer projection, and borrowing followed by error-field reads. Original runs
+embed into extension runs. Reachability in the extension is stated separately;
+it is not asserted to be reachability in the original initialized-byte machine.
+
+Twenty-two examples now mint the padded reservation-error loan through actual
+operations and read `CapacityOverflow` through it. They prove the resulting
+state well formed and the decoder result reachable in the extension. Other
+examples reject uninitialized field reads, origin forgery, misalignment, extent
+escape, permission upgrades, conflicting root loans, freeing borrowed storage
+and ending a parent before its child. Forty-one dependency guards cover the
+new declarations and constructors. All four new-module warning-as-error checks
+pass, and a fresh full `scripts/check` passes with 11095 build jobs. The
+constructor source gate passes 868 dependency audits, 165 rejecting controls,
+125 source examples and 112 model examples. Related gates
+also pass: Vec destruction 1044 audits/87 controls, allocator caller 388/31
+and empty constructor 395/17.
+
+This removes the decoder test's need to assume a resident padded loan. It does
+not yet connect an LLBC local to this heap-backed storage, interpret the source
+getter through that local, or establish Rust typed-reference validity. Source
+local placement/lifetime, native ABI/compiler correspondence, outer error and
+unwind propagation, resident storage/destruction, physical work and final
+security remain open.
+
 ## Reservation-error field decoder and padding boundary
 
 `NativeReservationErrorFields` reads the retained 16-byte reservation-error
@@ -35,9 +74,9 @@ constructor 395/17.
 The padded-tail example explicitly supplies an existing resident loan and makes
 no claim to have issued it. A paired test proves that the current full-byte
 borrow primitive refuses to issue the 16-byte loan when the tail is uninitialized.
-The next required change is a checked storage-borrow operation whose permission
-and extent checks do not read padding, followed by typed field validity and
-local storage construction. The transparent source getter and outer error path
+At that stage, the missing step was a checked storage-borrow operation whose
+permission and extent checks do not read padding; the extension above now
+supplies it. Typed field validity and local storage construction remain open. The transparent source getter and outer error path
 still need to be connected to this decoder. Native stack/lifetime correspondence,
 resident storage/destruction, physical work and final security remain open.
 
