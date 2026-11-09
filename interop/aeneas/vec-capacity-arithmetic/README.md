@@ -406,3 +406,46 @@ capacity, moved payload locals, retained execution effects and unwind
 propagation. All four related extraction gates pass. The unchanged shared
 library, root tests, toolchain, dependencies and full-check scripts permit reuse
 of the successful 11101-job full project check.
+
+## Terminal helpers through formatting and panic boundaries
+
+The reifier now validates the complete bodies of `capacity_overflow`,
+`handle_alloc_error` and its nested `ct_error`: signatures, local types,
+copy/retag modes, the one-element layout tuple, its moved field, exact string
+literals, formatter calls, cleanup and distinct `Panic` versus undefined-behavior
+exits. It also validates the foreign `Arguments::from_str` declaration, method
+owner/instantiation and the retained 16-byte formatting-argument layout.
+
+`terminalAllocationEval` interprets the allocation wrapper's source tuple and
+typed call to `terminalCtEval`. The forwarding theorem covers every valid layout
+and arbitrary modeled formatter/panic callbacks. The two formatting helpers pass
+exactly `capacity overflow` and `allocation failed`, check returned formatting
+values, run their source storage cleanup, and reach the named
+`core::panicking::panic_fmt` boundary. Normal returns from that uninhabited panic
+boundary are rejected in the model. A retained `Panic` is not silently interpreted
+as an abort.
+
+The formatter receives the literal as a logical String and returns an abstract
+nominal `Arguments` value; native `&str`/`Arguments` representation and calling
+conventions remain explicit obligations. Formatting and panic are external
+callbacks. `TerminalProjectionProof` requires their execution-projection
+contracts and preserves their actual effects through every helper outcome.
+Reachability and well-formedness are consequently conditional on those stated
+contracts. Source control flow alone supplies no proof of native panic/abort
+behavior or formatting work cost.
+
+These helpers currently have independent typed entry points
+`terminalOverflowInvoke` and `terminalAllocationInvoke`. Threading them into the
+handler and root continuation interfaces remains the next composition step;
+`handledRootInvoke` still takes its prior terminal-body parameters. Native
+stack/compiler/ABI/lifetime correspondence, destruction/reclamation, physical
+attacker-work accounting and the final security inequality remain open.
+
+Terminal-helper validation: 1,143 dependency audits and 241 rejecting controls
+pass, covering 535 constructor/helper declarations and 54 linked getter
+declarations. The profile has 170 source examples, including 15 new helper
+regressions for literals, the named panic exit, tuple forwarding, malformed
+results, unwinding and retained callback effects. The 151 shared-model examples
+retain their prior scope. The unchanged library, root tests, toolchain,
+dependencies and full-check scripts permit reuse of the successful 11101-job
+full project check.

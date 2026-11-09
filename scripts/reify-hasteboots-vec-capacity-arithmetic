@@ -54,6 +54,7 @@ class Reifier:
   self.unified_constructor=UnifiedConstructor(self)
   self.error_handler=ErrorHandler(self)
   self.outer_error=OuterError(self)
+  self.terminal_helpers=TerminalHelpers(self)
  def walk(self,f,node):
   if isinstance(node,dict):
    if 'statements' in node:
@@ -121,7 +122,7 @@ class Reifier:
     else:slots.append('.dead')
    lines+=['def '+label+' (world : NativeReferenceMachine.State) (left right : NativeWord64Memory.Word) : Frame :=',
     '  ⟨['+', '.join(types)+'], ['+', '.join(slots)+'], world⟩']
-  lines+=[self.layout_prefix.render(),self.caller_preparation.render(),self.positive_preparation.render(),self.allocator_methods.render(),self.runtime_calls.render(),self.runtime_success.render(),self.runtime_null.render(),self.positive_construction.render(),self.positive_callers.render(),self.constructor_error.render(),self.rejected_layout.render(),self.constructor_unwind.render(),self.unified_constructor.render(),self.positive_callers.render_unified(),self.error_handler.render(),self.outer_error.render(),'end HasteBootsVecCapacityArithmetic',''];return '\n'.join(lines)
+  lines+=[self.layout_prefix.render(),self.caller_preparation.render(),self.positive_preparation.render(),self.allocator_methods.render(),self.runtime_calls.render(),self.runtime_success.render(),self.runtime_null.render(),self.positive_construction.render(),self.positive_callers.render(),self.constructor_error.render(),self.rejected_layout.render(),self.constructor_unwind.render(),self.unified_constructor.render(),self.positive_callers.render_unified(),self.error_handler.render(),self.outer_error.render(),self.terminal_helpers.render(),'end HasteBootsVecCapacityArithmetic',''];return '\n'.join(lines)
 
 class LayoutPrefix:
  def __init__(self,parent):
@@ -1157,6 +1158,103 @@ def handledRootInvoke (world : NativeReferenceMachine.State) (base : NativePoint
   let ambient := handledAmbient world
   handledInvoke (capacityRootTypes ambient) 1 (handledRootEval ambient base address outcome shim overflow allocation)
     world [.scalar (.usize capacity)]
+"""
+
+
+
+class TerminalHelpers:
+ def __init__(self,parent):
+  G=runpy.run_path(str(ROOT/'scripts/reify-hasteboots-reservation-error-kind'))
+  block=G['block'];local=G['local'];clean=G['clean'];unit=G['UNIT'];never={'Untagged':'Never'}
+  def signature(inputs,output):return {'is_unsafe':False,'abi':'Rust','is_variadic':False,'inputs':inputs,'output':output}
+  def tuple_type(types):return {'Untagged':{'Adt':{'id':'Tuple','generics':{'regions':[],'types':types,'const_generics':[],'trait_refs':[]}}}}
+  string={'Untagged':{'Adt':{'id':{'Builtin':'Str'},'generics':{'regions':[],'types':[],'const_generics':[],'trait_refs':[]}}}}
+  def reference(region):return {'Untagged':{'Ref':[region,string,'Shared']}}
+  def call(index,args,target,ty,dead):return {'Call':{'call':{'func':{'Regular':{'kind':{'Fun':{'Regular':index}},'generics':{'regions':[],'types':[],'const_generics':[],'trait_refs':[]}}},'args':args,'dest':local(target,ty)},'on_unwind':block([{'StorageDead':i} for i in dead]+['UnwindResume'])}}
+  panic={'Abort':{'Panic':[{'Ident':['core',0]},{'Ident':['panicking',0]},{'Ident':['panic_fmt',0]}]}}
+  for index,wanted,inputs,regions,types,slot,text,dead in [
+   (10,'alloc::raw_vec::capacity_overflow',[],2,[never,adt(21)],1,'capacity overflow',[1]),
+   (15,'alloc::alloc::handle_alloc_error::ct_error',[adt(4)],2,[never,adt(4),adt(21)],2,'allocation failed',[2,1])]:
+   f=parent.functions[index]
+   require(name(f)==wanted and f['item_meta']['opacity']=='Transparent' and empty(f['generics']) and f['signature']==signature(inputs,never),'Changed terminal helper declaration')
+   b=f['body']['Structured'];require(set(b)=={'span','bound_body_regions','locals','body','comments'} and b['comments']==[] and b['bound_body_regions']==regions and set(b['locals'])=={'arg_count','locals'} and b['locals']['arg_count']==len(inputs),'Changed terminal helper metadata')
+   require([(x['index'],x['ty']) for x in b['locals']['locals']]==list(enumerate(types)),'Changed terminal helper locals')
+   expected=block([{'StorageLive':0},{'StorageLive':slot},call(14,[{'Const':{'kind':{'Literal':{'Str':text}},'ty':reference({'Body':1})}}],slot,adt(21),dead)]+[{'StorageDead':i} for i in dead]+[panic])
+   require(clean(b['body'])==expected,'Changed terminal literal, formatting call, cleanup or Panic exit')
+  f=parent.functions[11];b=f['body']['Structured'];tupleLayout=tuple_type([adt(4)])
+  require(set(b)=={'span','bound_body_regions','locals','body','comments'} and b['comments']==[] and b['bound_body_regions']==0 and set(b['locals'])=={'arg_count','locals'} and b['locals']['arg_count']==1,'Changed allocation wrapper metadata')
+  require([(x['index'],x['ty']) for x in b['locals']['locals']]==list(enumerate([never,adt(4),tupleLayout,adt(4)])),'Changed allocation wrapper locals')
+  tuple_owner={'id':'Tuple','generics':{'regions':[],'types':[],'const_generics':[],'trait_refs':[]}}
+  moved={'kind':{'Projection':[local(2,tupleLayout),{'Field':[{'Tuple':1},0]}]},'ty':adt(4)}
+  expected=block([{'StorageLive':0},{'StorageLive':2},{'StorageLive':3},{'Assign':[local(3,adt(4)),{'Use':[{'Copy':local(1,adt(4))},'Yes']}]},{'Assign':[local(2,tupleLayout),{'Aggregate':[{'Adt':[tuple_owner,None,None]},[{'Move':local(3,adt(4))}]]}]},{'StorageDead':3},call(15,[{'Move':moved}],0,never,[2,1]),{'StorageDead':2},{'StorageDead':1},{'Abort':'UndefinedBehavior'}])
+  require(clean(b['body'])==expected,'Changed allocation wrapper layout copy, tuple move, call or cleanup')
+  fmt=parent.functions[14]
+  require(name(fmt)=='core::fmt::from_str' and fmt['item_meta']['opacity']=='Foreign' and fmt['body']=='Opaque' and empty(fmt['generics']) and fmt['signature']==signature([reference('Static')],adt(21)),'Changed external formatter declaration')
+  method=fmt['item_meta']['name'];require(len(method)==5 and method[:2]==[{'Ident':['core',0]},{'Ident':['fmt',0]}] and method[3]=={'Ident':['from_str',0]},'Changed formatter method path')
+  owner=method[2]['Impl']['Ty'];require(owner['kind']=='InherentImplBlock' and owner['skip_binder']==adt(21) and empty(owner['params']),'Changed formatter method owner')
+  require(method[4]['Instantiated']=={'params':{'regions':[],'types':[],'const_generics':[],'trait_clauses':[],'regions_outlive':[],'types_outlive':[],'trait_type_constraints':[]},'skip_binder':{'regions':['Erased'],'types':[],'const_generics':[],'trait_refs':[]},'kind':'Other'},'Changed formatter instantiation')
+  t=parent.layout_prefix.types[21];layout=runpy.run_path(str(ROOT/'scripts/reify-hasteboots-rawvec-fields'))['layout']
+  require(name(t)=='core::fmt::Arguments' and t['kind']=='Opaque' and empty(t['generics']) and t['layout']==layout(16,8,[0,8]),'Changed external formatting argument type/layout')
+ def render(self):return """
+-- Formatting values use an explicit abstract logical carrier. The external
+-- callback receives the validated literal as String; native &str/Arguments ABI
+-- correspondence remains open. Panic is a distinct external boundary.
+def terminalFormatType (fields : NativeRecordValues.Ty) : NativeRecordValues.Ty := .record 21 fields
+def terminalOverflowTypes (fields : NativeRecordValues.Ty) : List NativeRecordValues.Ty :=
+  [handlerNeverType,terminalFormatType fields]
+def terminalCtTypes (fields : NativeRecordValues.Ty) : List NativeRecordValues.Ty :=
+  [handlerNeverType,HasteBootsReservationErrorKind.layoutTypeFor reservationErrorTags,terminalFormatType fields]
+def terminalAllocationTypes : List NativeRecordValues.Ty :=
+  [handlerNeverType,HasteBootsReservationErrorKind.layoutTypeFor reservationErrorTags,
+    .pair (HasteBootsReservationErrorKind.layoutTypeFor reservationErrorTags) (.scalar .unit),
+    HasteBootsReservationErrorKind.layoutTypeFor reservationErrorTags]
+def terminalOverflowFrame (fields : NativeRecordValues.Ty) (world : NativeReferenceMachine.State) : Frame :=
+  ⟨terminalOverflowTypes fields,[.dead,.dead],world⟩
+def terminalOverflowPrepared (fields : NativeRecordValues.Ty) (world : NativeReferenceMachine.State) : Frame :=
+  ⟨terminalOverflowTypes fields,[.live none,.live none],world⟩
+def terminalCtFrame (fields : NativeRecordValues.Ty) (world : NativeReferenceMachine.State) (layout : NativeRecordValues.Value) : Frame :=
+  ⟨terminalCtTypes fields,[.dead,.live (some layout),.dead],world⟩
+def terminalCtPrepared (fields : NativeRecordValues.Ty) (world : NativeReferenceMachine.State) (layout : NativeRecordValues.Value) : Frame :=
+  ⟨terminalCtTypes fields,[.live none,.live (some layout),.live none],world⟩
+def terminalAllocationFrame (world : NativeReferenceMachine.State) (layout : NativeRecordValues.Value) : Frame :=
+  ⟨terminalAllocationTypes,[.dead,.live (some layout),.dead,.dead],world⟩
+def terminalAllocationPrepared (world : NativeReferenceMachine.State) (layout : NativeRecordValues.Value) : Frame :=
+  ⟨terminalAllocationTypes,[.live none,.live (some layout),.live (some (.pair layout (.scalar .unit))),.dead],world⟩
+def terminalAllocationMoved (world : NativeReferenceMachine.State) (layout : NativeRecordValues.Value) : Frame :=
+  ⟨terminalAllocationTypes,[.live none,.live (some layout),.live (some (.pair .uninit (.scalar .unit))),.dead],world⟩
+def terminalOverflowPrefix : Body := .live 0 (.live 1 .done)
+def terminalCtPrefix : Body := .live 0 (.live 2 .done)
+def terminalCtCleanup (next : Body) : Body := .dead 2 (.dead 1 next)
+def terminalAllocationPrefix : Body := .live 0 (.live 2 (.live 3
+  (.assign 3 (.use (.copy 1 []) true .byte)
+    (.assign 2 (.aggregate none none [(.move 3 [])]) (.dead 3 .done)))))
+def terminalPanicEval (panic : String → NativeReferenceMachine.State → Flow) (frame : Frame) : Flow :=
+  match panic "core::panicking::panic_fmt" frame.world with
+  | .normal changed => .invalid changed.world
+  | .returned _ world => .invalid world
+  | flow => flow
+def terminalFormatEval (target : Nat) (cleanup : Body → Body) (text : String)
+    (formatter panic : String → NativeReferenceMachine.State → Flow) (frame : Frame) : Flow :=
+  handledResume frame target (eval (cleanup .resume))
+    (fun changed => handledContinue (terminalPanicEval panic) (eval (cleanup .done) changed))
+    (formatter text frame.world)
+def terminalOverflowEval (formatter panic : String → NativeReferenceMachine.State → Flow) (frame : Frame) : Flow :=
+  handledContinue (terminalFormatEval 1 (Body.dead 1) "capacity overflow" formatter panic)
+    (eval terminalOverflowPrefix frame)
+def terminalCtEval (formatter panic : String → NativeReferenceMachine.State → Flow) (frame : Frame) : Flow :=
+  handledContinue (terminalFormatEval 2 terminalCtCleanup "allocation failed" formatter panic)
+    (eval terminalCtPrefix frame)
+def terminalAllocationEval (fields : NativeRecordValues.Ty) (formatter panic : String → NativeReferenceMachine.State → Flow)
+    (frame : Frame) : Flow :=
+  handledContinue (handledCall (terminalCtTypes fields) 1 0 [(.move 2 [.left])]
+    (terminalCtEval formatter panic) (eval (terminalCtCleanup .resume)) (eval (terminalCtCleanup .abort)))
+    (eval terminalAllocationPrefix frame)
+def terminalOverflowInvoke (fields : NativeRecordValues.Ty) (formatter panic : String → NativeReferenceMachine.State → Flow)
+    (world : NativeReferenceMachine.State) : Flow :=
+  handledInvoke (terminalOverflowTypes fields) 0 (terminalOverflowEval formatter panic) world []
+def terminalAllocationInvoke (fields : NativeRecordValues.Ty) (formatter panic : String → NativeReferenceMachine.State → Flow)
+    (world : NativeReferenceMachine.State) (layout : NativeRecordValues.Value) : Flow :=
+  handledInvoke terminalAllocationTypes 1 (terminalAllocationEval fields formatter panic) world [layout]
 """
 
 if __name__=='__main__':main()

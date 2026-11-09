@@ -525,4 +525,65 @@ def handledRootInvoke (world : NativeReferenceMachine.State) (base : NativePoint
   handledInvoke (capacityRootTypes ambient) 1 (handledRootEval ambient base address outcome shim overflow allocation)
     world [.scalar (.usize capacity)]
 
+
+-- Formatting values use an explicit abstract logical carrier. The external
+-- callback receives the validated literal as String; native &str/Arguments ABI
+-- correspondence remains open. Panic is a distinct external boundary.
+def terminalFormatType (fields : NativeRecordValues.Ty) : NativeRecordValues.Ty := .record 21 fields
+def terminalOverflowTypes (fields : NativeRecordValues.Ty) : List NativeRecordValues.Ty :=
+  [handlerNeverType,terminalFormatType fields]
+def terminalCtTypes (fields : NativeRecordValues.Ty) : List NativeRecordValues.Ty :=
+  [handlerNeverType,HasteBootsReservationErrorKind.layoutTypeFor reservationErrorTags,terminalFormatType fields]
+def terminalAllocationTypes : List NativeRecordValues.Ty :=
+  [handlerNeverType,HasteBootsReservationErrorKind.layoutTypeFor reservationErrorTags,
+    .pair (HasteBootsReservationErrorKind.layoutTypeFor reservationErrorTags) (.scalar .unit),
+    HasteBootsReservationErrorKind.layoutTypeFor reservationErrorTags]
+def terminalOverflowFrame (fields : NativeRecordValues.Ty) (world : NativeReferenceMachine.State) : Frame :=
+  ⟨terminalOverflowTypes fields,[.dead,.dead],world⟩
+def terminalOverflowPrepared (fields : NativeRecordValues.Ty) (world : NativeReferenceMachine.State) : Frame :=
+  ⟨terminalOverflowTypes fields,[.live none,.live none],world⟩
+def terminalCtFrame (fields : NativeRecordValues.Ty) (world : NativeReferenceMachine.State) (layout : NativeRecordValues.Value) : Frame :=
+  ⟨terminalCtTypes fields,[.dead,.live (some layout),.dead],world⟩
+def terminalCtPrepared (fields : NativeRecordValues.Ty) (world : NativeReferenceMachine.State) (layout : NativeRecordValues.Value) : Frame :=
+  ⟨terminalCtTypes fields,[.live none,.live (some layout),.live none],world⟩
+def terminalAllocationFrame (world : NativeReferenceMachine.State) (layout : NativeRecordValues.Value) : Frame :=
+  ⟨terminalAllocationTypes,[.dead,.live (some layout),.dead,.dead],world⟩
+def terminalAllocationPrepared (world : NativeReferenceMachine.State) (layout : NativeRecordValues.Value) : Frame :=
+  ⟨terminalAllocationTypes,[.live none,.live (some layout),.live (some (.pair layout (.scalar .unit))),.dead],world⟩
+def terminalAllocationMoved (world : NativeReferenceMachine.State) (layout : NativeRecordValues.Value) : Frame :=
+  ⟨terminalAllocationTypes,[.live none,.live (some layout),.live (some (.pair .uninit (.scalar .unit))),.dead],world⟩
+def terminalOverflowPrefix : Body := .live 0 (.live 1 .done)
+def terminalCtPrefix : Body := .live 0 (.live 2 .done)
+def terminalCtCleanup (next : Body) : Body := .dead 2 (.dead 1 next)
+def terminalAllocationPrefix : Body := .live 0 (.live 2 (.live 3
+  (.assign 3 (.use (.copy 1 []) true .byte)
+    (.assign 2 (.aggregate none none [(.move 3 [])]) (.dead 3 .done)))))
+def terminalPanicEval (panic : String → NativeReferenceMachine.State → Flow) (frame : Frame) : Flow :=
+  match panic "core::panicking::panic_fmt" frame.world with
+  | .normal changed => .invalid changed.world
+  | .returned _ world => .invalid world
+  | flow => flow
+def terminalFormatEval (target : Nat) (cleanup : Body → Body) (text : String)
+    (formatter panic : String → NativeReferenceMachine.State → Flow) (frame : Frame) : Flow :=
+  handledResume frame target (eval (cleanup .resume))
+    (fun changed => handledContinue (terminalPanicEval panic) (eval (cleanup .done) changed))
+    (formatter text frame.world)
+def terminalOverflowEval (formatter panic : String → NativeReferenceMachine.State → Flow) (frame : Frame) : Flow :=
+  handledContinue (terminalFormatEval 1 (Body.dead 1) "capacity overflow" formatter panic)
+    (eval terminalOverflowPrefix frame)
+def terminalCtEval (formatter panic : String → NativeReferenceMachine.State → Flow) (frame : Frame) : Flow :=
+  handledContinue (terminalFormatEval 2 terminalCtCleanup "allocation failed" formatter panic)
+    (eval terminalCtPrefix frame)
+def terminalAllocationEval (fields : NativeRecordValues.Ty) (formatter panic : String → NativeReferenceMachine.State → Flow)
+    (frame : Frame) : Flow :=
+  handledContinue (handledCall (terminalCtTypes fields) 1 0 [(.move 2 [.left])]
+    (terminalCtEval formatter panic) (eval (terminalCtCleanup .resume)) (eval (terminalCtCleanup .abort)))
+    (eval terminalAllocationPrefix frame)
+def terminalOverflowInvoke (fields : NativeRecordValues.Ty) (formatter panic : String → NativeReferenceMachine.State → Flow)
+    (world : NativeReferenceMachine.State) : Flow :=
+  handledInvoke (terminalOverflowTypes fields) 0 (terminalOverflowEval formatter panic) world []
+def terminalAllocationInvoke (fields : NativeRecordValues.Ty) (formatter panic : String → NativeReferenceMachine.State → Flow)
+    (world : NativeReferenceMachine.State) (layout : NativeRecordValues.Value) : Flow :=
+  handledInvoke terminalAllocationTypes 1 (terminalAllocationEval fields formatter panic) world [layout]
+
 end HasteBootsVecCapacityArithmetic
