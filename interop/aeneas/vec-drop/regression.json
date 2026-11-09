@@ -1,8 +1,8 @@
 {
-  "profile": "original-resident-vec-destruction-with-ready-byte-method-prefix-v14",
+  "profile": "original-resident-vec-destruction-with-successful-byte-method-return-v15",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-drop-g872tbzq/manifest.json",
-  "gate_manifest_sha256": "e003badc2c9824e8dede87a9982e397d0653f9794177108eff8005e55251b35f",
+  "gate_manifest": "build/hasteboots-extraction/vec-drop-i9nd3cok/manifest.json",
+  "gate_manifest_sha256": "82f89075706e7078de723a66819098adac41926fd9995064a1d0e58906828451",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -33,9 +33,11 @@
     "06dbcbf5b7a218186030705b628136c763e8eff0",
     "8a460a92ceab0fea3f52aa146e80c19a8f5ac56b",
     "b8085a05fe7d07dc0bee5163f876a91da537871a",
-    "42c2d67078af06096090b5f33fb8b373fa1bd779"
+    "42c2d67078af06096090b5f33fb8b373fa1bd779",
+    "506ce8041f0b1b272274a5699eee951a88557fc8",
+    "396c31809080885a24ae4c63ba5619caad23ab26"
   ],
-  "dependency_audit_count": 788,
+  "dependency_audit_count": 813,
   "negative_control_count": 70,
   "negative_controls": {
     "wrong_profile": "Wrong extraction profile",
@@ -115,11 +117,11 @@
   "interpreter_helper_theorem_count": 3,
   "source_loop_theorem_count": 16,
   "source_composition_theorem_count": 17,
-  "new_declaration_audit_count": 378,
+  "new_declaration_audit_count": 403,
   "model_regression_count": 171,
-  "source_regression_count": 70,
+  "source_regression_count": 75,
   "inputs": {
-    "scripts/check-hasteboots-vec-drop": "8f7ca52192bafe56e1f296580ac0a4915b8d77cad6330d5ca071e66827067501",
+    "scripts/check-hasteboots-vec-drop": "b593448b77e0ce6cbda5722dfce5044dec60040877b59a71e5ba28c302518d6a",
     "scripts/reify-hasteboots-vec-drop": "653ffccc29f1bcc65d02e478102f128447145c7b39f3669486f142bc94f54fa5",
     "scripts/reify-hasteboots-rawvec-drop": "748d6a322c395db0244eec640359f5b4efd07d234b023a23aa23f9dfeee812aa",
     "scripts/check-hasteboots-rawvec-drop": "2774e9d2b0bf5817f876b4787101650118d905dbc954391743be2723518c1fb3",
@@ -147,6 +149,7 @@
     "interop/aeneas/vec-drop/IncomingReferenceProof.lean": "5d6a4ec78dbb0cb0f027cea0b634f2da7c0f5827ab8c83c2929b3b6cd61db756",
     "interop/aeneas/vec-drop/TraversalCompletenessProof.lean": "5bb9c221925d093313fe26b8b503834a63acfcf0e53dea5d8c2f8adbd55d8973",
     "interop/aeneas/vec-drop/ByteMethodPrefixProof.lean": "25022262aebc6b68581101dd674f8003459537c48e7ba945edac3f2e06939e2a",
+    "interop/aeneas/vec-drop/ByteMethodReturnProof.lean": "8d1334a3ed3e3e1b804a5183bfe37e3853d64d154a16684101d2ee1e9777407f",
     "interop/aeneas/vec-drop/HeapProof.lean": "ba5306d3d646602d82f65d0c968d81908f5c3c4e9514c739d4ee37227ea5d5dd",
     "interop/aeneas/vec-drop/CapacityProof.lean": "02789e1cb65c53487e586ee824f3f4d5f579d26a6043f87d460e609089416b55",
     "interop/aeneas/vec-drop/DeallocationProof.lean": "07ace9ca7c6fd39c334bd619aed8814bab452548c41ede13725c3787107a08c5",
@@ -163,6 +166,7 @@
     "interop/aeneas/vec-drop/OuterVecSmoke.lean": "3ac2327488192fffdab4fac20d1d244c497d19023c8370f00ebc795897608478",
     "interop/aeneas/vec-drop/TraversalCompletenessSmoke.lean": "5aff71910a6b1092ce4782e342a2e8a05252f4ca64a86f0896135441e1dd9281",
     "interop/aeneas/vec-drop/ByteMethodPrefixSmoke.lean": "8ace5f1cbea23a679a81ad467fb7934d40b1a8e4a5da659506cc9035cc06a0ab",
+    "interop/aeneas/vec-drop/ByteMethodReturnSmoke.lean": "6ca8a555fc7fd436d43121e5e473646a19aeb2fe0b55ce6fff25979758f202a7",
     "FormalProof4FHE/HasteBoots/NativeHeapFrame.lean": "e1c8d1062272a191f9bf3924c20b5c245c60753cf9bdf2af65fbe1e442460799",
     "FormalProof4FHE/HasteBoots/NativeHeapRelease.lean": "3f5a6ea3c2db24ff1c37dc6ad0def3ba90cba9801ae9297caaf81faca594709e",
     "FormalProof4FHE/HasteBoots/NativeRecordHeapBounds.lean": "aee4efbce17802c995c85e7d40300da4069111f866fd31bfe549975b2be13608",
@@ -228,7 +232,7 @@
     "FormalProof4FHETest/HasteBootsVecBytePrefixSmoke.lean": "eb3539e646e35e4bc952a829119cc4b028a45d0900bbd1e74f12552e99173d22",
     "FormalProof4FHETest/HasteBootsVecBytePrefixAudit.lean": "bf1bf11e7db9c2ca65cd57665591cdaa219bb6dfbd903ffbb8f35b1367f09457"
   },
-  "source_llbc_sha256": "3dd5c4ee5e350677e4ec9d6980a221c46505f1362caf184d645f3410197c36fd",
+  "source_llbc_sha256": "b5cd9a8b04246fe9b183e413d0832cbe342eb9b84739cee78d49253ca1d8c965",
   "outer_vec_drop_glue_interpreted": true,
   "outer_vec_drop_method_interpreted": true,
   "unbounded_original_byte_loop_interpreted": true,
@@ -245,8 +249,8 @@
     "command": "scripts/check",
     "exit_code": 0,
     "build_jobs": 11062,
-    "log": "/tmp/hasteboots-vec-byte-prefix-full-check.log",
-    "log_sha256": "eced8c5320d181777a90fc071f9b5dbb11207a674212476b3a127ae0db1f438f"
+    "log": "/tmp/hasteboots-byte-method-return-full-check.log",
+    "log_sha256": "b990418fb66a586055390792766152ad03ed0087f367456aa9a1a51131c2b5c3"
   },
   "prior_gate_manifest": {
     "path": "build/hasteboots-extraction/vec-drop-j6ky4k09/manifest.json",
@@ -578,7 +582,31 @@
     "traversal_ready_slice_derived": true,
     "supplied_read_or_borrow_success_boolean_premises": false,
     "zero_slice_original_length_proof_rejected_at_byte_parts_complete": true,
-    "foreign_helper_unit_return_proved": false,
+    "foreign_helper_unit_return_proved": true,
+    "sufficient_whole_vec_success_conditions_proved": false,
+    "retained_function_bodies_and_type_declarations_unchanged": true
+  },
+  "prior_byte_method_return_baseline": {
+    "manifest": "build/hasteboots-extraction/vec-drop-g872tbzq/manifest.json",
+    "manifest_sha256": "e003badc2c9824e8dede87a9982e397d0653f9794177108eff8005e55251b35f",
+    "dependency_audit_count": 788
+  },
+  "byte_method_return": {
+    "source_proof": "interop/aeneas/vec-drop/ByteMethodReturnProof.lean",
+    "source_smoke": "interop/aeneas/vec-drop/ByteMethodReturnSmoke.lean",
+    "theorem_count": 17,
+    "definition_count": 8,
+    "declaration_guard_count": 25,
+    "source_regression_count": 5,
+    "slice_helper_unit_return_proved": true,
+    "vec_byte_method_unit_return_proved": true,
+    "canonical_operational_invocation_proved": true,
+    "invocation_unit_result_deterministic": true,
+    "original_ordered_loans_restored": true,
+    "complete_heap_unchanged": true,
+    "resident_header_handoff_proved": true,
+    "reachability_initialization_capacity_separation_and_header_frontier_explicit": true,
+    "successful_callee_or_cleanup_premise": false,
     "sufficient_whole_vec_success_conditions_proved": false,
     "retained_function_bodies_and_type_declarations_unchanged": true
   }

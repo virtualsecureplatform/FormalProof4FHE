@@ -1,5 +1,33 @@
 # Original resident Vec destruction
 
+## The retained slice helper and Vec byte method return unit
+
+`ByteMethodReturnProof.lean` composes traversal completion through the retained
+slice-drop helper and the original Vec byte method. It checks their actual
+argument moves, loop call, unit-result writes, scope cleanup and return bodies.
+The helper restores its incoming loans; the byte method then ends its own data
+loan and restores the original ordered lease list. Both preserve the complete
+heap and return a reachable modeled state.
+
+The public invocation theorem checks the original Vec decoder and typed initial
+frame. Determinism makes every invocation under the same sufficient conditions a
+unit return with the original loans and heap. A separate corollary carries the
+original resident header to the following RawVec path. The hypotheses remain
+explicit: reachability, resident fields, initialized elements, full-capacity
+separation from active loans, and the header's logical alias frontier. Successful
+callee results or cleanup booleans are derived rather than supplied.
+
+This step adds 17 source theorems and eight checked definitions, with five source
+regressions. They cover the helper's incoming leases, byte-method invocation,
+resident-header handoff, an empty dangling buffer and the original three-byte
+execution's exact counter and remaining header loan.
+
+Next prove sufficient conditions for normal RawVec return and owned-buffer
+release, then compose successful outer Vec glue destruction. Native construction,
+compiler/lifetime/ABI refinement, the external allocator implementation, physical
+attacker work and the final application security theorem remain open. This byte
+method result preserves the buffer; it does not claim the whole Vec was freed.
+
 ## The Vec byte-method prefix establishes the traversal conditions
 
 `NativeVecBytePrefix` derives checked pointer and length field reads from a
@@ -32,8 +60,8 @@ Full `scripts/check` passed its 11,062-job build and all subsequent smoke checks
 Retained Rust function bodies and type declarations are unchanged; input hashes
 and validation receipts are recorded in `regression.json`.
 
-Next prove unit return through the retained slice-drop helper and byte-method
-cleanup, then complete successful Vec/RawVec destruction under sufficient
+Unit return through the retained slice-drop helper and byte-method cleanup is
+now proved above. Next complete successful Vec/RawVec destruction under sufficient
 ownership and alias conditions. Deriving those conditions from native
 construction, compiler/lifetime/ABI refinement, physical attacker work and the
 final application security theorem remain open.
