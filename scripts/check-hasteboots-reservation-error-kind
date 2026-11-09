@@ -91,7 +91,7 @@ def negatives(ir):
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--build-receipt',type=Path,required=True);a=p.parse_args()
  out=Path(tempfile.mkdtemp(prefix='reservation-error-kind-',dir=ROOT/'build/hasteboots-extraction'))
- r={'status':'started','commands':[],'transparent_original_getter_body_retained':True,'complete_statement_tree_validated':True,'reference_dereference_materialization_explicit':True,'pure_materialized_getter_proved':True,'equivalent_to_checked_kind_getter':True,'snapshot_to_source_body_round_trip':True,'fixture_root_reborrow_execution_proved':True,'fixture_root_call_moves_cleanup_proved':True,'normal_return_scope_cleanup_explicit':True,'wrapper_snapshot_round_trip_proved':True,'original_error_handler_installed':False,'native_reference_stack_abi_lifetime_refinement':False,'physical_work_refinement':False,'final_security_theorem':False}
+ r={'status':'started','commands':[],'transparent_original_getter_body_retained':True,'complete_statement_tree_validated':True,'reference_dereference_materialization_explicit':True,'pure_materialized_getter_proved':True,'equivalent_to_checked_kind_getter':True,'snapshot_to_source_body_round_trip':True,'fixture_root_reborrow_execution_proved':True,'fixture_root_call_moves_cleanup_proved':True,'normal_return_scope_cleanup_explicit':True,'wrapper_snapshot_round_trip_proved':True,'nominal_tag_parametric_getter_proved':True,'original_getter_specialization_proved':True,'original_error_handler_installed':False,'native_reference_stack_abi_lifetime_refinement':False,'physical_work_refinement':False,'final_security_theorem':False}
  def save():(out/'manifest.json').write_text(json.dumps(r,indent=2)+'\n')
  def run(command,log):
   r['commands'].append([str(x)for x in command]);save()
@@ -100,7 +100,7 @@ def main():
  print('Reservation error kind artifacts: '+str(out),flush=True)
  try:
   _,tools,_=BUILD['verify_receipt'](a.build_receipt);r['build_receipt_sha256']=digest(a.build_receipt)
-  files=[Path(__file__),ROOT/'scripts/reify-hasteboots-reservation-error-kind',ROOT/'scripts/build-hasteboots-inline-tools',ROOT/'scripts/extract-hasteboots-parameters',ROOT/'scripts/specify-hasteboots-deallocation-boundary',ROOT/'scripts/check-hasteboots-allocator-caller',ROOT/'lean-toolchain',*sorted((ROOT/'scripts').glob('reify-hasteboots-*')),*sorted((ROOT/'FormalProof4FHE/HasteBoots').glob('Native*.lean')),*[DATA/n for n in ['fixture.rs','Generated.lean','Retained.json','Proof.lean','WrapperProof.lean','ReadyProof.lean','CleanupProof.lean','ProjectionProof.lean','HeapProof.lean','Smoke.lean','WrapperSmoke.lean']]]
+  files=[Path(__file__),ROOT/'scripts/reify-hasteboots-reservation-error-kind',ROOT/'scripts/build-hasteboots-inline-tools',ROOT/'scripts/extract-hasteboots-parameters',ROOT/'scripts/specify-hasteboots-deallocation-boundary',ROOT/'scripts/check-hasteboots-allocator-caller',ROOT/'lean-toolchain',*sorted((ROOT/'scripts').glob('reify-hasteboots-*')),*sorted((ROOT/'FormalProof4FHE/HasteBoots').glob('Native*.lean')),*[DATA/n for n in ['fixture.rs','Generated.lean','Retained.json','Proof.lean','GenericProof.lean','WrapperProof.lean','ReadyProof.lean','CleanupProof.lean','ProjectionProof.lean','HeapProof.lean','Smoke.lean','GenericSmoke.lean','WrapperSmoke.lean']]]
   files=list(dict.fromkeys(files));r['inputs']={str(f.relative_to(ROOT)):digest(f)for f in files}
   run([ROOT/'scripts/in-container','lake','build','FormalProof4FHE.HasteBoots.NativeAllocatorLLBC','FormalProof4FHE.HasteBoots.NativeReservationErrorRead'],'root-build.log')
   llbc=out/'source.llbc';command=[tools/'charon','rustc','--preset=aeneas','--sysroot','default','--monomorphize','--mir','optimized','--consts','values','--evaluate-runtime-checks','--precise-drops','--desugar-drops','--preserve-allocator','--no-dedup-serialized-ast']
@@ -112,14 +112,14 @@ def main():
   for module,extra in EXTRA_MODULES:
    raw=(ROOT/'FormalProof4FHE/HasteBoots'/(module+'.lean')).read_text();PARAM['validate_proof_source'](raw,re.findall(r'^theorem (\w+)',raw,re.M));names+=['FormalProof4FHE.HasteBoots.'+module+'.'+n for n in re.findall(r'^(?:structure|inductive|def|theorem) (\w+)',raw,re.M)+extra]
   dependencyBase=len(names)
-  for file in ['Generated.lean','Proof.lean','WrapperProof.lean','ReadyProof.lean','CleanupProof.lean','ProjectionProof.lean','HeapProof.lean']:
+  for file in ['Generated.lean','Proof.lean','GenericProof.lean','WrapperProof.lean','ReadyProof.lean','CleanupProof.lean','ProjectionProof.lean','HeapProof.lean']:
    raw=(DATA/file).read_text();PARAM['validate_proof_source'](raw,re.findall(r'^theorem (\w+)',raw,re.M));names+=['HasteBootsReservationErrorKind.'+n for n in re.findall(r'^(?:structure|def|theorem) (\w+)',raw,re.M)]
   names+=['HasteBootsReservationErrorKind.'+n for n in ['Ready.mk','Ready.descriptor','Ready.checked']]
-  checked=out/'Checked.lean';checked.write_text(generated+'\n'+'\n'.join((DATA/n).read_text() for n in ['Proof.lean','WrapperProof.lean','ReadyProof.lean','CleanupProof.lean','ProjectionProof.lean','HeapProof.lean','Smoke.lean','WrapperSmoke.lean'])+''.join('\n#print axioms '+n+'\n'for n in names))
+  checked=out/'Checked.lean';checked.write_text(generated+'\n'+'\n'.join((DATA/n).read_text() for n in ['Proof.lean','GenericProof.lean','WrapperProof.lean','ReadyProof.lean','CleanupProof.lean','ProjectionProof.lean','HeapProof.lean','Smoke.lean','GenericSmoke.lean','WrapperSmoke.lean'])+''.join('\n#print axioms '+n+'\n'for n in names))
   run([ROOT/'scripts/in-container','lake','env','lean','-DwarningAsError=true',checked.relative_to(ROOT)],'lean.log')
   r['dependency_audit']=PARAM['audit_log']((out/'lean.log').read_text(),names)
   if r['inputs']!={str(f.relative_to(ROOT)):digest(f)for f in files}:raise RuntimeError('Inputs changed during validation')
-  r['llbc_sha256']=digest(llbc);r['checked_sha256']=digest(checked);r['retained_function_count']=2;r['retained_type_count']=5;r['source_example_count']=sum(len(re.findall(r'^example',(DATA/file).read_text(),re.M)) for file in ['Smoke.lean','WrapperSmoke.lean']);r['source_declaration_count']=len(names)-dependencyBase
+  r['llbc_sha256']=digest(llbc);r['checked_sha256']=digest(checked);r['retained_function_count']=2;r['retained_type_count']=5;r['source_example_count']=sum(len(re.findall(r'^example',(DATA/file).read_text(),re.M)) for file in ['Smoke.lean','GenericSmoke.lean','WrapperSmoke.lean']);r['source_declaration_count']=len(names)-dependencyBase
   BUILD['verify_receipt'](a.build_receipt);r['status']='passed';print('Reservation error kind passed: '+str(len(names))+' audits; '+str(len(r['negative_controls']))+' rejecting controls',flush=True)
  except Exception as error:r.update(status='failed',error=str(error));raise SystemExit(str(error)+'; inspect '+str(out))from error
  finally:r['logs']={f.name:digest(f)for f in out.glob('*.log')};save()

@@ -21,6 +21,16 @@ It composes with the existing successful-snapshot theorem. The materialization
 boundary does not establish a native reference ABI, stack placement, lifetime,
 compiler or physical-work refinement.
 
+`getterBodyFor`, `materializedFrameFor` and `invokeFor` expose the same body
+with an explicit descriptor for nominal type identities. `GenericProof` proves
+both branches, checked-getter equivalence, heap framing, operational projection,
+reachability and snapshot composition for every descriptor. Definitional
+specialization theorems recover the original extracted getter and frame exactly.
+`GenericSmoke` exercises the constructor extraction's descriptor `(9,18,4,11,12)`
+with both variants, untouched overflow padding and rejected references. This is
+logical nominal relabeling; the separate extraction's source call and its
+error-handler dispatch still require validation and composition.
+
 The fixture wrapper's complete reborrow/call statement tree is now validated
 and executed. `WrapperProof`, `ReadyProof`, `CleanupProof`, `ProjectionProof` and
 `HeapProof` compose typed entry, checked child-loan issuance, the moved argument,
@@ -42,6 +52,6 @@ scripts/check-hasteboots-reservation-error-kind \
   --build-receipt build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json
 ```
 
-Validation: 632 dependency audits, 55 rejecting controls and 30 examples pass.
+Validation: 652 dependency audits, 55 rejecting controls and 39 examples pass.
 The library, root tests, toolchain, dependencies and full-check scripts are
 unchanged; the prior successful 11101-job full project check is reused.

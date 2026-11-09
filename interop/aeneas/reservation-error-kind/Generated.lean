@@ -25,6 +25,23 @@ def invoke (world : NativeReferenceMachine.State) (value : NativeRecordValues.Va
   | some index => match NativeReservationErrorFields.read world index with
     | .invalid next => .invalid next
     | .value kind next => eval getterBody (materializedFrame next kind)
+def alignmentTypeFor (descriptor : NativeReservationErrorLocal.Tags) : NativeRecordValues.Ty := .record descriptor.alignment (.pair (.enumeration descriptor.alignmentEnum alignmentDiscriminants) (.scalar .unit))
+def layoutTypeFor (descriptor : NativeReservationErrorLocal.Tags) : NativeRecordValues.Ty := .record descriptor.layout (.pair (.scalar .usize) (.pair (alignmentTypeFor descriptor) (.scalar .unit)))
+def kindTypeFor (descriptor : NativeReservationErrorLocal.Tags) : NativeRecordValues.Ty := .record descriptor.kind (.choice (.scalar .unit) (.pair (layoutTypeFor descriptor) (.pair (.scalar .unit) (.scalar .unit))))
+def errorTypeFor (descriptor : NativeReservationErrorLocal.Tags) : NativeRecordValues.Ty := .record descriptor.error (.pair (kindTypeFor descriptor) (.scalar .unit))
+def allocationBodyFor (descriptor : NativeReservationErrorLocal.Tags) : Body := .live 2 (.assign 2 (.use (.copy 1 [(.unwrap descriptor.error),.left,(.unwrap descriptor.kind),(.active true),.left]) true .byte)
+  (.assign 0 (.aggregate (some descriptor.kind) (some true) [(.move 2 []),.unit]) (.dead 2 (.dead 1 (.dead 3 .ret)))))
+def overflowBodyFor (descriptor : NativeReservationErrorLocal.Tags) : Body := .live 3 (.assign 3 (.aggregate (some descriptor.kind) (some false) [])
+  (.assign 0 (.use (.move 3 []) true .byte) (.dead 1 (.dead 3 .ret))))
+def getterBodyFor (descriptor : NativeReservationErrorLocal.Tags) : Body := .live 0 (.matchChoice 1 [(.unwrap descriptor.error),.left] descriptor.kind .done (allocationBodyFor descriptor) (overflowBodyFor descriptor))
+def materializedFrameFor (descriptor : NativeReservationErrorLocal.Tags) (world : NativeReferenceMachine.State) (kind : Kind) : Frame :=
+  ⟨[(kindTypeFor descriptor),(errorTypeFor descriptor),(layoutTypeFor descriptor),(kindTypeFor descriptor)],[.live none,.live (some (NativeReservationErrorLocal.encode descriptor kind)),.dead,.dead],world⟩
+def invokeFor (descriptor : NativeReservationErrorLocal.Tags) (world : NativeReferenceMachine.State) (value : NativeRecordValues.Value) : Flow :=
+  match NativeReservationErrorRead.resolveOperand world value with
+  | none => .invalid world
+  | some index => match NativeReservationErrorFields.read world index with
+    | .invalid next => .invalid next
+    | .value kind next => eval (getterBodyFor descriptor) ((materializedFrameFor descriptor) next kind)
 def rootTypes : List NativeRecordValues.Ty := [kindType,.scalar (.reference false),.scalar (.reference false)]
 def rootFrame (world : NativeReferenceMachine.State) (value : NativeRecordValues.Value) : Frame :=
   ⟨rootTypes,[.dead,.live (some value),.dead],world⟩
