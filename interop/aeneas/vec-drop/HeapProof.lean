@@ -240,7 +240,8 @@ theorem invocation_live_count (world : State) (args : List NativeRecordLLBC.Inpu
   have same := (invocation_iff_execute world args flow).mp invoked
   rw [same]
   have bound := execute_loss world args
-  rcases bound with ⟨noGrowth,bounded,_⟩
+  have noGrowth := bound.no_growth
+  have bounded := bound.bounded
   dsimp only [NativeHeapLoss.count] at noGrowth bounded
   omega
 
@@ -268,5 +269,82 @@ theorem byte_method_heap_frame (world : State) (args : List NativeRecordLLBC.Inp
   have noGrowth := bound.no_growth
   have bounded := bound.bounded
   omega
+
+/-- Every heap change is the specified free of a complete base pointer and
+layout belonging to an originally live block. The containing owner's metadata
+is removed; pointers stored under other owners keep their original metadata. -/
+theorem invocation_exact_heap_effect (world : State) (args : List NativeRecordLLBC.Input) (flow : Flow)
+    (invoked : Invokes f1 world args flow) :
+    flow.world.pointers.heap = world.pointers.heap ∨
+      ∃ block ∈ world.pointers.heap.memory.blocks,
+        0 < block.layout.size ∧ block.layout.Valid ∧ block.base.val ≠ 0 ∧
+        NativePointerByteMemory.deallocate world.pointers.heap block.pointer block.layout = some flow.world.pointers.heap ∧
+        flow.world.pointers.heap.shadow = world.pointers.heap.shadow.filter (fun cell => decide (cell.owner ≠ block.origin)) := by
+  have same := (invocation_iff_execute world args flow).mp invoked
+  have bound := execute_loss world args
+  rw [← same] at bound
+  rcases invocation_live_count world args flow invoked with unchanged | freed
+  · exact Or.inl (bound.unchanged unchanged)
+  · exact Or.inr (bound.released.single_block freed)
+
+theorem invocation_blocks_sublist (world : State) (args : List NativeRecordLLBC.Input) (flow : Flow)
+    (invoked : Invokes f1 world args flow) :
+    flow.world.pointers.heap.memory.blocks.Sublist world.pointers.heap.memory.blocks := by
+  have bound := execute_loss world args
+  rw [← (invocation_iff_execute world args flow).mp invoked] at bound
+  exact bound.released.blocks_sublist
+
+theorem invocation_shadow_sublist (world : State) (args : List NativeRecordLLBC.Input) (flow : Flow)
+    (invoked : Invokes f1 world args flow) : flow.world.pointers.heap.shadow.Sublist world.pointers.heap.shadow := by
+  have bound := execute_loss world args
+  rw [← (invocation_iff_execute world args flow).mp invoked] at bound
+  exact bound.released.shadow_sublist
+
+theorem invocation_generation (world : State) (args : List NativeRecordLLBC.Input) (flow : Flow)
+    (invoked : Invokes f1 world args flow) :
+    flow.world.pointers.heap.memory.nextGeneration = world.pointers.heap.memory.nextGeneration := by
+  have bound := execute_loss world args
+  rw [← (invocation_iff_execute world args flow).mp invoked] at bound
+  exact bound.released.generation
+
+theorem invocation_changed_heap_frame (world : State) (args : List NativeRecordLLBC.Input) (flow : Flow)
+    (invoked : Invokes f1 world args flow) (changed : flow.world.pointers.heap ≠ world.pointers.heap) :
+    ∃ block ∈ world.pointers.heap.memory.blocks,
+      NativePointerByteMemory.deallocate world.pointers.heap block.pointer block.layout = some flow.world.pointers.heap ∧
+      ∀ slot, slot.provenance ≠ some block.origin →
+        NativePointerByteMemory.load flow.world.pointers.heap slot = NativePointerByteMemory.load world.pointers.heap slot := by
+  rcases invocation_exact_heap_effect world args flow invoked with same | freed
+  · exact False.elim (changed same)
+  · obtain ⟨block,member,_,_,_,freed,_⟩ := freed
+    refine ⟨block,member,freed,?_⟩
+    intro slot outside
+    exact NativeHeapRelease.deallocate_load_frame world.pointers.heap flow.world.pointers.heap block.pointer block.layout freed slot outside
+
+theorem invocation_removed_alias_unreadable (world : State) (args : List NativeRecordLLBC.Input) (flow : Flow)
+    (valid : NativeByteMemory.WellFormed world.pointers.heap.memory)
+    (invoked : Invokes f1 world args flow) (changed : flow.world.pointers.heap ≠ world.pointers.heap) :
+    ∃ block ∈ world.pointers.heap.memory.blocks,
+      ∀ slot, slot.provenance = some block.origin → NativePointerByteMemory.load flow.world.pointers.heap slot = none := by
+  rcases invocation_exact_heap_effect world args flow invoked with same | freed
+  · exact False.elim (changed same)
+  · obtain ⟨block,member,_,_,_,freed,_⟩ := freed
+    refine ⟨block,member,?_⟩
+    intro slot sameOrigin
+    exact NativePointerByteMemory.load_after_deallocation world.pointers.heap flow.world.pointers.heap valid block.pointer block.layout freed slot sameOrigin
+
+theorem execute_exact_heap_effect (world : State) (args : List NativeRecordLLBC.Input) :
+    (execute world args).world.pointers.heap = world.pointers.heap ∨
+      ∃ block ∈ world.pointers.heap.memory.blocks,
+        0 < block.layout.size ∧ block.layout.Valid ∧ block.base.val ≠ 0 ∧
+        NativePointerByteMemory.deallocate world.pointers.heap block.pointer block.layout = some (execute world args).world.pointers.heap ∧
+        (execute world args).world.pointers.heap.shadow = world.pointers.heap.shadow.filter (fun cell => decide (cell.owner ≠ block.origin)) :=
+  invocation_exact_heap_effect world args (execute world args) (execute_invokes world args)
+
+theorem invocation_reachable_removed_alias_unreadable (world : State) (args : List NativeRecordLLBC.Input) (flow : Flow)
+    (reachable : NativeReferenceMachine.Reachable world)
+    (invoked : Invokes f1 world args flow) (changed : flow.world.pointers.heap ≠ world.pointers.heap) :
+    ∃ block ∈ world.pointers.heap.memory.blocks,
+      ∀ slot, slot.provenance = some block.origin → NativePointerByteMemory.load flow.world.pointers.heap slot = none :=
+  invocation_removed_alias_unreadable world args flow (NativeReferenceMachine.reachable_wellFormed world reachable).1.1 invoked changed
 
 end HasteBootsVecDrop
