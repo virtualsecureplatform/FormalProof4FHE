@@ -41,6 +41,7 @@ class Reifier:
   require(len(self.rows)==9 and {r['operation'] for r in self.rows}=={v[0] for v in OPS.values()},'Changed arithmetic inventory')
   self.layout_prefix=LayoutPrefix(self)
   self.caller_preparation=CallerPreparation(self)
+  self.positive_preparation=PositivePreparation(self)
  def walk(self,f,node):
   if isinstance(node,dict):
    if 'statements' in node:
@@ -107,7 +108,7 @@ class Reifier:
     else:slots.append('.dead')
    lines+=['def '+label+' (world : NativeReferenceMachine.State) (left right : NativeWord64Memory.Word) : Frame :=',
     '  ⟨['+', '.join(types)+'], ['+', '.join(slots)+'], world⟩']
-  lines+=[self.layout_prefix.render(),self.caller_preparation.render(),'end HasteBootsVecCapacityArithmetic',''];return '\n'.join(lines)
+  lines+=[self.layout_prefix.render(),self.caller_preparation.render(),self.positive_preparation.render(),'end HasteBootsVecCapacityArithmetic',''];return '\n'.join(lines)
 
 class LayoutPrefix:
  def __init__(self,parent):
@@ -389,6 +390,43 @@ class CallerPreparation:
    lines+=['def '+label+' (ambient : Frame) (capacity : NativeWord64Memory.Word) : Frame := ⟨capacityRootTypes ambient,['+', '.join(slots)+'],ambient.world⟩']
   lines+=['def capacityRootCall (ambient : Frame) (unwind next : Body) : Body := capacityRootPrefix (.call (vecZeroFunction ambient).name (vecZeroFunction ambient).classification (vecZeroFunction ambient).types (vecZeroFunction ambient).argCount 0 [(.move 2 [])] (vecZeroFunction ambient).body unwind next)',
    'def capacityZeroRoot (ambient : Frame) : Function := ⟨"hasteboots_vec_capacity_arithmetic::capacity",.transparent,capacityRootTypes ambient,1,capacityRootCall ambient (.unsupported "source root unwind") capacityRootTail⟩']
+  return '\n'.join(lines)+'\n'
+
+class PositivePreparation:
+ def __init__(self,parent):
+  layout=parent.layout_prefix;source=layout.positive_size['statements']
+  require(len(source)==4 and source[0]['kind']=={'StorageDead':7} and source[1]['kind']=={'StorageLive':10} and set(source[2]['kind'])=={'Switch'} and set(source[2]['kind']['Switch'])=={'Match'},'Changed positive source prefix')
+  place,arms,otherwise=source[2]['kind']['Switch']['Match']
+  require(place=={'kind':{'Local':2},'ty':adt(10)} and len(arms)==2 and [a[0] for a in arms]==[[0],[1]] and otherwise is None,'Changed allocation-mode dispatch')
+  self.arms=[]
+  for mode,(_,body) in enumerate(arms):
+   local=11+mode;region=4+mode;target=7+mode;statements=body['statements']
+   ref={'Untagged':{'Ref':[{'Body':region},adt(1),'Shared']}}
+   unit={'Untagged':{'Adt':{'id':'Tuple','generics':{'regions':[],'types':[],'const_generics':[],'trait_refs':[]}}}}
+   borrow={'Assign':[{'kind':{'Local':local},'ty':ref},{'Ref':{'place':{'kind':{'Local':3},'ty':adt(1)},'kind':'Shared','ptr_metadata':{'Const':{'kind':{'Adt':[None,[]]},'ty':unit}}}}]}
+   require(len(statements)==4 and statements[0]['kind']=={'StorageLive':local} and statements[1]['kind']==borrow and statements[3]['kind']=={'StorageDead':local},'Changed Global borrow or scope')
+   require(set(statements[2]['kind'])=={'Call'},'Missing allocation-method call');call=statements[2]['kind']['Call']
+   require(set(call)=={'call','on_unwind'} and call['call']=={'func':{'Regular':{'kind':{'Fun':{'Regular':target}},'generics':{'regions':[{'Body':12+2*mode}],'types':[],'const_generics':[],'trait_refs':[]}}},'args':[{'Move':{'kind':{'Local':local},'ty':ref}},{'Copy':{'kind':{'Local':6},'ty':adt(4)}}],'dest':{'kind':{'Local':10},'ty':adt(15)}},'Changed allocation-method arguments')
+   callee=parent.functions[target];require(name(callee)==['alloc::alloc::allocate','alloc::alloc::allocate_zeroed'][mode] and callee['item_meta']['opacity']=='Transparent' and callee['signature']=={'is_unsafe':False,'abi':'Rust','is_variadic':False,'inputs':[{'Untagged':{'Ref':[{'Var':{'Free':0}},adt(1),'Shared']}},adt(4)],'output':adt(15)},'Changed allocation-method owner/signature')
+   self.arms.append(statements)
+ def render(self):
+  lines=['def allocationModeValue (zeroed : Bool) : NativeRecordValues.Value := .record 10 (.choice zeroed (.scalar .unit))',
+   'def positiveAmbient (ambient : Frame) (zeroed : Bool) : Frame :=',
+   '  ⟨['+', '.join('allocationInitType' if i==2 else '(.scalar (.reference false))' if i in [11,12] else '(ambient.types['+str(i)+']?.getD (.scalar .unit))' for i in range(54))+'],[.dead,.dead,.live (some (allocationModeValue zeroed)),.live (some allocatorValue)] ++ List.replicate 50 .dead,ambient.world⟩',
+   'def positiveBorrowPrefix (zeroed : Bool) (address : NativeWord64Memory.Word) (next : Body) : Body :=',
+   '  if zeroed then .live 12 (.assign 12 (.borrowZstLocal 3 1 address) next) else .live 11 (.assign 11 (.borrowZstLocal 3 1 address) next)',
+   'def positiveModePrefix (address : NativeWord64Memory.Word) (uninitialized zeroed next : Body) : Body :=',
+   '  .dead 7 (.live 10 (.matchChoice 2 [] 10 (positiveBorrowPrefix false address uninitialized) (positiveBorrowPrefix true address zeroed) next))',
+   'def positiveCallArgs (zeroed : Bool) : List Operand := if zeroed then [(.move 12 []),(.copy 6 [])] else [(.move 11 []),(.copy 6 [])]',
+   'def positiveModeFrame (ambient : Frame) (capacity : NativeWord64Memory.Word) (zeroed : Bool) : Frame :=',
+   '  let base := layoutAcceptedFrame (positiveAmbient ambient zeroed) capacity',
+   '  {base with slots := (base.slots.set 7 .dead).set 10 (.live none)}',
+   'def positiveBorrowFrame (ambient : Frame) (capacity : NativeWord64Memory.Word) (zeroed : Bool) (address : NativeWord64Memory.Word) : Frame :=',
+   '  let base := positiveModeFrame ambient capacity zeroed',
+   '  {base with slots := base.slots.set (if zeroed then 12 else 11) (.live (some (.scalar (.reference false ⟨ambient.world.nextTag⟩ 0)))), world := NativeZstBorrow.granted ambient.world address}',
+   'def positiveMovedFrame (ambient : Frame) (capacity : NativeWord64Memory.Word) (zeroed : Bool) (address : NativeWord64Memory.Word) : Frame :=',
+   '  let base := positiveBorrowFrame ambient capacity zeroed address',
+   '  {base with slots := base.slots.set (if zeroed then 12 else 11) (.live (some .uninit))}']
   return '\n'.join(lines)+'\n'
 
 def main():

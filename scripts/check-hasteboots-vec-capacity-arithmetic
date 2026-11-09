@@ -119,13 +119,28 @@ def negatives(ir):
  check('changed_vec_wrapper_offset',lambda c:c['type_decls'][0]['layout'][0]['value']['variant_layouts'][0]['field_offsets'].__setitem__(1,8))
  check('missing_root_return',lambda c:caller(c,0)[-1].update(kind='Nop'))
  check('extra_call_effect',lambda c:caller(c,2)[6]['kind']['Call'].update(hidden_effect=True))
+ def modes(c):return size(c)[3]['statements'][2]['kind']['Switch']['Match']
+ def arm(c,mode):return modes(c)[1][mode][1]['statements']
+ def borrow(c,mode):return arm(c,mode)[1]['kind']['Assign'][1]['Ref']
+ def allocation_call(c,mode):return arm(c,mode)[2]['kind']['Call']['call']
+ check('changed_positive_mode_place',lambda c:modes(c)[0]['kind'].update(Local=21))
+ check('swapped_allocation_mode_arms',lambda c:modes(c)[1].reverse())
+ check('mutable_global_borrow',lambda c:borrow(c,0).update(kind='Mut'))
+ check('wrong_global_borrow_local',lambda c:borrow(c,0)['place']['kind'].update(Local=2))
+ check('changed_global_borrow_metadata',lambda c:borrow(c,0)['ptr_metadata']['Const']['kind'].update(Adt=[0,[]]))
+ check('copied_allocation_reference',lambda c:allocation_call(c,0)['args'][0].update(Copy=allocation_call(c,0)['args'][0].pop('Move')))
+ check('moved_allocation_layout',lambda c:allocation_call(c,1)['args'][1].update(Move=allocation_call(c,1)['args'][1].pop('Copy')))
+ check('wrong_zeroed_allocation_target',lambda c:allocation_call(c,1)['func']['Regular']['kind']['Fun'].update(Regular=7))
+ check('wrong_shared_temporary_scope',lambda c:arm(c,0)[3]['kind'].update(StorageDead=12))
+ check('wrong_allocation_method_result',lambda c:c['fun_decls'][7]['signature'].update(output=REIFIER['USIZE']))
+ check('wrong_allocation_method_owner',lambda c:c['fun_decls'][8]['item_meta'].update(opacity='Foreign'))
  return records
 
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--build-receipt',type=Path,required=True);a=p.parse_args()
  out=Path(tempfile.mkdtemp(prefix='vec-capacity-arithmetic-',dir=ROOT/'build/hasteboots-extraction'))
  r={'status':'started','commands':[],'isolated_original_arithmetic_assignments_reified':True,'original_checked_multiply_assignment_proved':True,
- 'byte_size_one_overflow_flag_false_proved':True,'source_move_consumption_proved':True,'source_layout_prefix_branch_selection_proved':True,'arbitrary_suffix_continuations_preserved':True,'layout_prefix_statement_counts':[28,9],'accepted_layout_statement_count':16,'source_success_aggregates_and_moves_proved':True,'source_zero_size_dispatch_proved':True,'reservation_error_representation_arbitrary':True,'source_zero_size_return_proved':True,'zero_capacity_decoded_root_proved':True,'zero_capacity_source_call_chain':[0,1,2,3],'zero_capacity_external_allocator_assumption':False,'unused_logical_local_and_error_types_arbitrary':True,'unprocessed_source_branches_explicitly_unsupported':True,'positive_size_allocator_dispatch_proved':False,'whole_constructor_control_flow_proved':False,
+ 'byte_size_one_overflow_flag_false_proved':True,'source_move_consumption_proved':True,'source_layout_prefix_branch_selection_proved':True,'arbitrary_suffix_continuations_preserved':True,'layout_prefix_statement_counts':[28,9],'accepted_layout_statement_count':16,'source_success_aggregates_and_moves_proved':True,'source_zero_size_dispatch_proved':True,'reservation_error_representation_arbitrary':True,'source_zero_size_return_proved':True,'zero_capacity_decoded_root_proved':True,'zero_capacity_source_call_chain':[0,1,2,3],'zero_capacity_external_allocator_assumption':False,'unused_logical_local_and_error_types_arbitrary':True,'unprocessed_source_branches_explicitly_unsupported':True,'positive_size_allocator_dispatch_proved':True,'positive_size_allocator_body_execution_proved':False,'global_placement_address_explicit':True,'native_stack_placement_refinement':False,'whole_constructor_control_flow_proved':False,
  'allocator_error_and_abort_paths_proved':False,'native_abi_refinement':False,'physical_work_refinement':False,'final_security_theorem':False}
  def save():(out/'manifest.json').write_text(json.dumps(r,indent=2)+'\n')
  def run(cmd,log):
@@ -137,20 +152,20 @@ def main():
   _,tools,_=BUILD['verify_receipt'](a.build_receipt);r['build_receipt_sha256']=digest(a.build_receipt)
   files=[Path(__file__),ROOT/'scripts/check-hasteboots-allocator-caller',ROOT/'scripts/build-hasteboots-inline-tools',ROOT/'scripts/extract-hasteboots-parameters',ROOT/'scripts/specify-hasteboots-deallocation-boundary',ROOT/'lean-toolchain',
    *sorted((ROOT/'scripts').glob('reify-hasteboots-*')),*sorted((ROOT/'FormalProof4FHE/HasteBoots').glob('Native*.lean')),
-   ROOT/'FormalProof4FHETest/HasteBootsRecordArithmeticSmoke.lean',ROOT/'FormalProof4FHETest/HasteBootsRecordArithmeticAudit.lean',
-   *[DATA/n for n in ['fixture.rs','Generated.lean','Retained.json','Proof.lean','LayoutProof.lean','AcceptedProof.lean','ZeroProof.lean','CallerProof.lean','Smoke.lean','LayoutSmoke.lean','AcceptedSmoke.lean','ZeroSmoke.lean','CallerSmoke.lean']]]
+   ROOT/'FormalProof4FHETest/HasteBootsRecordArithmeticSmoke.lean',ROOT/'FormalProof4FHETest/HasteBootsRecordArithmeticAudit.lean',ROOT/'FormalProof4FHETest/HasteBootsZstBorrowSmoke.lean',ROOT/'FormalProof4FHETest/HasteBootsZstBorrowAudit.lean',
+   *[DATA/n for n in ['fixture.rs','Generated.lean','Retained.json','Proof.lean','LayoutProof.lean','AcceptedProof.lean','ZeroProof.lean','CallerProof.lean','PositiveProof.lean','Smoke.lean','LayoutSmoke.lean','AcceptedSmoke.lean','ZeroSmoke.lean','CallerSmoke.lean','PositiveSmoke.lean']]]
   r['inputs']={str(f.relative_to(ROOT)):digest(f) for f in files}
-  run([ROOT/'scripts/in-container','lake','build','FormalProof4FHE.HasteBoots.NativeRecordCallValues','FormalProof4FHETest.HasteBootsRecordArithmeticSmoke','FormalProof4FHETest.HasteBootsRecordArithmeticAudit'],'root-build.log')
+  run([ROOT/'scripts/in-container','lake','build','FormalProof4FHE.HasteBoots.NativeRecordCallValues','FormalProof4FHETest.HasteBootsRecordArithmeticSmoke','FormalProof4FHETest.HasteBootsRecordArithmeticAudit','FormalProof4FHETest.HasteBootsZstBorrowSmoke','FormalProof4FHETest.HasteBootsZstBorrowAudit'],'root-build.log')
   llbc=out/'source.llbc';cmd=[tools/'charon','rustc','--preset=aeneas','--sysroot','default','--monomorphize','--mir','optimized','--consts','values','--evaluate-runtime-checks','--precise-drops','--desugar-drops','--preserve-allocator','--no-dedup-serialized-ast']
   for include in INCLUDES:cmd+=['--include',include]
   cmd+=['--dest-file',llbc,'--','--crate-type','lib','--edition','2024','-Cdebug-assertions=no','--crate-name','hasteboots_vec_capacity_arithmetic',(DATA/'fixture.rs').relative_to(ROOT)]
   run(cmd,'charon.log');ir=json.loads(llbc.read_text());reifier=REIFIER['Reifier'](ir);generated=reifier.render()
   if generated!=(DATA/'Generated.lean').read_text() or reifier.retained()!=json.loads((DATA/'Retained.json').read_text()):raise RuntimeError('Original constructor assignments/declarations differ')
   r['negative_controls']=negatives(ir);names=PARENT['inventory']()
-  for file in ['Generated.lean','Proof.lean','LayoutProof.lean','AcceptedProof.lean','ZeroProof.lean','CallerProof.lean']:
+  for file in ['Generated.lean','Proof.lean','LayoutProof.lean','AcceptedProof.lean','ZeroProof.lean','CallerProof.lean','PositiveProof.lean']:
    raw=(DATA/file).read_text();PARAM['validate_proof_source'](raw,re.findall(r'^theorem (\w+)',raw,re.M))
    names+=['HasteBootsVecCapacityArithmetic.'+n for n in re.findall(r'^(?:def|theorem) (\w+)',raw,re.M)]
-  checked=out/'Checked.lean';checked.write_text(generated+'\n'+'\n'.join((DATA/n).read_text() for n in ['Proof.lean','LayoutProof.lean','AcceptedProof.lean','ZeroProof.lean','CallerProof.lean','Smoke.lean','LayoutSmoke.lean','AcceptedSmoke.lean','ZeroSmoke.lean','CallerSmoke.lean'])+''.join('\n#print axioms '+n+'\n' for n in names))
+  checked=out/'Checked.lean';checked.write_text(generated+'\n'+'\n'.join((DATA/n).read_text() for n in ['Proof.lean','LayoutProof.lean','AcceptedProof.lean','ZeroProof.lean','CallerProof.lean','PositiveProof.lean','Smoke.lean','LayoutSmoke.lean','AcceptedSmoke.lean','ZeroSmoke.lean','CallerSmoke.lean','PositiveSmoke.lean'])+''.join('\n#print axioms '+n+'\n' for n in names))
   run([ROOT/'scripts/in-container','lake','env','lean','-DwarningAsError=true',checked.relative_to(ROOT)],'lean.log')
   r['dependency_audit']=PARAM['audit_log']((out/'lean.log').read_text(),names)
   if r['inputs']!={str(f.relative_to(ROOT)):digest(f) for f in files}:raise RuntimeError('Inputs changed during validation')
