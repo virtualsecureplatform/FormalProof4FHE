@@ -29,3 +29,19 @@ import FormalProof4FHE.HasteBoots.NativeByteRangeCompleteness
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeResidentVec.InitializedElements.byte
 
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeByteRangeCompleteness.readSpan_join' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeByteRangeCompleteness.readSpan_join
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeByteRangeCompleteness.block_origin_unique' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeByteRangeCompleteness.block_origin_unique
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeByteRangeCompleteness.loadRange_join' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeByteRangeCompleteness.loadRange_join
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeResidentVec.Descriptor.header_initialized' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeResidentVec.Descriptor.header_initialized

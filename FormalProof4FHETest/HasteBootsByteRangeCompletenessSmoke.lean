@@ -1,5 +1,5 @@
 module
-import FormalProof4FHE.HasteBoots.NativeByteRangeCompleteness
+import FormalProof4FHE.HasteBoots.NativeBorrowFrontier
 namespace FormalProof4FHETest.HasteBootsByteRangeCompletenessSmoke
 open FormalProof4FHE.HasteBoots
 open NativeByteRangeCompleteness
@@ -60,4 +60,21 @@ example : ∃ shifted bytes, NativeByteRange.pointerAt descriptor.buffer 2 = som
     NativeByteRange.loadRange ready.pointers.heap.memory shifted ⟨0,1⟩ = some bytes :=
   initialized.subrange readyMemory 2 0 (by decide)
 example : NativeByteRange.loadRange ready.pointers.heap.memory ⟨66,some ⟨64,0⟩⟩ ⟨1,1⟩ = none := by decide
+example : ∃ bytes, NativeByteRange.loadRange ready.pointers.heap.memory descriptor.lease.pointer
+    ⟨24,8⟩ = some bytes := descriptor.header_initialized readyMemory
+example : NativeByteRange.readSpan [some 10,some 20,none] (1 + 1) = some ([10] ++ [20]) :=
+  readSpan_join _ 1 1 [10] [20] (by decide) (by decide)
+example : NativeByteRange.readSpan [some 10,none,some 20] 3 = none := by decide
+example : NativeByteRange.loadRange memory pointer ⟨4,1⟩ = some ([10,20] ++ [30,40]) :=
+  loadRange_join memory valid pointer ⟨66,some ⟨64,0⟩⟩ 2 2 1 [10,20] [30,40]
+    (by decide) (by decide) (by decide) (by decide) (by decide) (by decide)
+example : NativeByteRange.loadRange memory ⟨66,some ⟨64,1⟩⟩ ⟨2,1⟩ = none := by decide
+example : ∃ next, NativeReferenceMachine.grant ready (some descriptor.lease.tag) .exclusive
+      descriptor.lease.pointer ⟨24,8⟩ = some next ∧
+    NativeBorrowFrontier.ExclusiveFrontier (NativeReferenceMachine.ledger next)
+      ⟨ready.nextTag,some descriptor.lease.tag,descriptor.lease.pointer,⟨24,8⟩,.exclusive⟩ := by
+  have worldValid := NativeReferenceMachine.run_wellFormed operations ready (by decide)
+  apply NativeBorrowFrontier.vec_header_grant_complete ready 0 descriptor
+    ⟨worldValid.1.1,worldValid.2.1⟩
+  exact NativeBorrowFrontier.singleton_frontier _ _ (by decide) rfl
 end FormalProof4FHETest.HasteBootsByteRangeCompletenessSmoke

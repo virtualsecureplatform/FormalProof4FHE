@@ -63,3 +63,11 @@ import FormalProof4FHE.HasteBoots.NativeBorrowFrontier
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeBorrowFrontier.index_complete
 
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeBorrowFrontier.grant_initialized' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeBorrowFrontier.grant_initialized
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeBorrowFrontier.vec_header_grant_complete' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeBorrowFrontier.vec_header_grant_complete
