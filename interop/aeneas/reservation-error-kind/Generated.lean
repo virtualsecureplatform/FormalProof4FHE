@@ -25,4 +25,51 @@ def invoke (world : NativeReferenceMachine.State) (value : NativeRecordValues.Va
   | some index => match NativeReservationErrorFields.read world index with
     | .invalid next => .invalid next
     | .value kind next => eval getterBody (materializedFrame next kind)
+def rootTypes : List NativeRecordValues.Ty := [kindType,.scalar (.reference false),.scalar (.reference false)]
+def rootFrame (world : NativeReferenceMachine.State) (value : NativeRecordValues.Value) : Frame :=
+  ⟨rootTypes,[.dead,.live (some value),.dead],world⟩
+def rootPrefix : Body := .live 0 (.live 2 .done)
+def rootTail : Body := .dead 2 (.dead 1 .ret)
+def rootUnwind : Body := .dead 1 .resume
+def reborrow (world : NativeReferenceMachine.State) (value : NativeRecordValues.Value) : NativeRawVecFields.Result NativeRecordValues.Value :=
+  match value with
+  | .scalar (.reference false reference count) =>
+    match NativeRawVecBorrow.parent world (.reference false reference count) with
+    | none => .invalid world
+    | some (index,register,_) => match NativeStorageBorrowMachine.execute world (.storageBorrow (some index) register .shared ⟨16,8⟩) with
+      | none => .invalid world
+      | some next => .value (.scalar (.reference false ⟨world.nextTag⟩ 2)) next
+  | _ => .invalid world
+def rootResume (caller : Frame) : Flow → Flow
+  | .returned value world => match write {caller with world} 0 value with
+    | none => .invalid world
+    | some changed => eval rootTail changed
+  | .unwind world => eval rootUnwind {caller with world}
+  | .normal changed => .invalid changed.world
+  | .invalid world => .invalid world
+  | .unsupported source world => .unsupported source world
+def rootEval (frame : Frame) : Flow :=
+  match eval rootPrefix frame with
+  | .normal prepared => match NativeRecordLLBC.read prepared 1 [] with
+    | none => .invalid prepared.world
+    | some value => match reborrow prepared.world value with
+      | .invalid world => .invalid world
+      | .value reference world => match write {prepared with world} 2 reference with
+        | none => .invalid world
+        | some borrowed => match evalArgs borrowed [.move 2 []] with
+          | none => .invalid borrowed.world
+          | some ([argument],caller) => rootResume caller (invoke caller.world argument)
+          | some (_,caller) => .invalid caller.world
+  | flow => flow
+def rootInvoke (world : NativeReferenceMachine.State) (value : NativeRecordValues.Value) : Flow :=
+  match initial rootTypes 1 [value] world with
+  | none => .invalid world
+  | some frame => rootEval frame
+def closeReturned (entered : NativeReferenceMachine.State) : Flow → Flow
+  | .returned value world =>
+    let closed := NativeReferenceCleanup.closeScope entered world
+    if closed.pending = [] then .returned value closed.world else .invalid closed.world
+  | flow => flow
+def rootWithCleanup (world : NativeReferenceMachine.State) (value : NativeRecordValues.Value) : Flow :=
+  closeReturned world (rootInvoke world value)
 end HasteBootsReservationErrorKind
