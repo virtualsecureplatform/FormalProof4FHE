@@ -7,6 +7,41 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## The retained deallocation callee returns and releases its buffer
+
+`NativeRawVecDeallocationCompleteness` proves the actual empty allocator-subobject
+borrow, including with an overlapping shared header child. Logical full-capacity
+buffer separation is preserved through header reborrows and the empty allocator
+loan. Exact ownership, a resident complete pointer and separation suffice for
+the existing permission-checked byte/shadow free at the specified external
+boundary; unused buffer capacity need not be initialized.
+
+`deallocation_complete` composes the retained shared borrow, current-memory call,
+allocator borrow, Global wrapper call and final cleanup. Zero capacity returns
+unit with the complete heap unchanged. Positive capacity returns unit after
+freeing the original stored buffer and capacity. Both branches preserve
+reachability and restore the original ordered incoming loans. The invocation
+corollary also checks the canonical input decoder. No successful internal borrow,
+free, return or cleanup result is supplied as a hypothesis.
+
+The current-memory result now also derives positive-capacity buffer-register
+membership from the actual pointer read and subsequent marker read. Scope cleanup
+uses reachability and a fresh-loan-prefix proof relative to the original call
+entry. The checked sufficient conditions package resident fields, initialized
+header bytes and the exclusive alias frontier; ownership and physical buffer
+separation remain explicit independent conditions.
+
+This step adds 12 model theorems, one model structure and three source theorems,
+with 17 declaration audits, seven model regressions and two source regressions.
+The cases cover overlapping header/allocator loans, exact release, protected
+buffer rejection, post-free unreadability, ordered scope restoration, positive
+uninitialized spare capacity and an empty dangling buffer.
+
+Next carry normal return through the RawVec method and glue, then compose outer
+Vec destruction. Native construction, compiler/lifetime/ABI refinement, the
+external allocator implementation, physical attacker work and final application
+security remain open.
+
 ## The retained current-memory callee now returns normally
 
 `NativeRawVecSharedCompleteness` proves completion of the actual RawVec shared
