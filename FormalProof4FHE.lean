@@ -1,3 +1,4 @@
+import FormalProof4FHE.HasteBoots.PrivateCoinClosedGoldRisk
 import FormalProof4FHE.HasteBoots.PrivateCoinMachine
 import FormalProof4FHE.HasteBoots.PrivateCoinLifetime
 import FormalProof4FHE.HasteBoots.DenseSourceExtraction

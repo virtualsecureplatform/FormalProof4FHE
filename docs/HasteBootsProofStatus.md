@@ -17869,3 +17869,77 @@ unchanged; those extraction gates were not rerun for this extension.
 
 Full-check log: `/tmp/private-coin-replay-full-check.log`; SHA-256
 `7f79d0afb66f4719e26357c41309e590b665d05f9b3862e398617ea3e7e01991`.
+
+## Private-coin scores and specified byte-work bounds
+
+`PrivateCoinScores` extends the finite-certificate argument from oracle logs
+to entire execution results. Private state can vary even when every oracle
+log is empty, so log-only measurability is insufficient for work counters.
+Full-result finite tape dependence and causal oracle replay now make every
+result/log predicate and nonnegative score jointly measurable, without a
+measurable-space or countability assumption on the state type. Countable
+indices are finite byte-prefix/oracle-log certificates; the chosen payload
+itself need not be used as a countable index.
+
+Lifetime scores are suprema over all finite prefixes. Their measurability
+and exact product-expectation formula require no finite mean or termination
+premise. For increasing cumulative scores, expected lifetime score equals
+the supremum of expected finite-prefix scores. The monotonicity condition is
+explicit and is discharged by the existing closed interpreter's work theorem
+in the concrete instantiation below.
+
+`PrivateCoinClosedWork` connects these results to the existing closed byte
+interpreter's actual work counter. Installed private data may depend on the
+infinite random tape, provided each installation depends on some finite tape
+prefix. Work includes the existing initialization charge, silent local
+instructions, unsuccessful instructions and stopped-state behavior. The
+product expectation equals the average of the previous fixed-private-input
+expected-work function. Both expected initialization work and the sum of
+expected actual tick costs are bounded by that same lifetime expectation.
+No acceptance-conditioned distribution or incomplete-run filter is used.
+
+`PrivateCoinClosedGoldRisk.lifetime_le_work` now bounds the existing
+field-proximity/column-exposure lifetime event under private random
+initialization by `(17 / 2^141)` times unconditional expected specified
+byte-work. The bound is derived from the existing calibrated interpreter
+theorem, not supplied as an extra per-coin work-calibration hypothesis.
+`scaled_exposure_bound` consequently proves the `2^128`-scaled inequality for
+this exposure component in those specified work units. Joint measurability
+of the exposure event is derived using the countable space of installed
+finite byte inputs and their measurable tape fibers.
+
+These are still specified interpreter prices, not physical attacker-work
+prices. The exposure event excludes source/hash/receipt exceptions and full
+application coverage. Moreover, this concrete closed-interpreter theorem
+randomizes installed finite private data; it does not yet add a priced
+runtime random-tape instruction. General finitary runtime coin choices are
+covered by the score-measurability theorem and its adaptive-machine regression,
+but connecting all their consumed coins to a priced native execution remains
+open. The final false-PBS security theorem is not established.
+
+Fifteen regression examples and two fixture lemmas cover private results with
+empty oracle logs, full-state scores for the previously constructed adaptive
+tape machine, distinct halt/reject work counters, failed-pop abort costs,
+exact averaging of 21 units on the halting branch and 22 on the rejecting
+branch, measurable lifetime work, product and prefix-limit expectations,
+expected tick-cost accounting, and both calibrated exposure inequalities.
+Eighteen guards audit all new production theorems. Both root libraries import
+the new modules.
+
+Next, combine the remaining source/hash/receipt exceptions and trusted
+registry/parameter binding with the same complete-execution work accounting,
+and refine priced runtime coin consumption and native execution to physical
+attacker work. Public extraction/PBS semantics and native BabyBear coverage
+remain outstanding as previously recorded.
+
+Validation: full `scripts/check` completed with exit status zero, including
+11,120 build jobs and all subsequent audit/smoke commands. The targeted
+build completed with 4,574 jobs; all eighteen new theorem guards passed with
+only the usual three allowed axioms or subsets, including one proof using
+none. No proof placeholders, extra logical axioms, native decision proofs
+or proof-limit increases were introduced. All recorded input hashes and
+manifest hashes of the five retained-source gates were verified unchanged;
+those extraction gates were not rerun for this probability/work extension.
+
+Full-check log: `/tmp/private-coin-work-full-check.log`; SHA-256
+`fcfd48da9a8715513fd6c1289f9d5c878731683bcb0604817ac3759e438af108`.

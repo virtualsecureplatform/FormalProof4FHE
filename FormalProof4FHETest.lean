@@ -1,3 +1,5 @@
+import FormalProof4FHETest.HasteBootsPrivateCoinWorkSmoke
+import FormalProof4FHETest.HasteBootsPrivateCoinWorkAudit
 import FormalProof4FHETest.HasteBootsPrivateCoinReplaySmoke
 import FormalProof4FHETest.HasteBootsPrivateCoinReplayAudit
 import FormalProof4FHETest.HasteBootsPrivateCoinSmoke
