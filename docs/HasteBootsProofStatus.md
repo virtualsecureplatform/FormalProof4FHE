@@ -17809,3 +17809,63 @@ were not rerun for this probability-only extension.
 
 Full-check log: `/tmp/private-coin-full-check-final.log`; SHA-256
 `2ad8fefa2c2efe4784f82ccbefb3e51545c14f1fa56bba62bf7be971a7b0968d`.
+
+## Joint measurability from finite private-tape execution
+
+`PrivateCoinReplay` now derives joint measurability on the product of an
+infinite byte tape and the existing ideal-oracle world from finite tape use
+and causal oracle replay. For every actual finite execution, `FiniteUse`
+requires some finite tape prefix to fix its oracle log at that world. The
+prefix length may depend on both the tape and oracle responses. There is no
+uniform bound on that length. Each such prefix and log determine a whole
+product cylinder by replay. Countably many finite byte certificates establish
+measurability; the probability bound still integrates over tapes and does not
+apply a union bound over them. Impossible oracle logs are handled explicitly
+when proving their agreement sets measurable.
+
+`PrivateCoinNativeMeasurable` applies this result to native accepted-false-claim
+witnesses using the existing replay-to-history characterization. Joint
+measurability follows if each finite native history satisfies `FiniteUse`.
+The union over continuation fuel retains all lifetime witnesses.
+
+`PrivateCoinMachine` gives compositional conditions that establish that
+finite-use property for causal machine histories. `FiniteResult` preserves the
+entire prelude result/log under a sufficiently long finite tape prefix;
+`FiniteStep` preserves each chosen command under such a prefix. The command
+condition includes its stored response continuation, rather than merely its
+request input. Finite-result preservation is closed under bind and is proved
+for every finite machine prefix. Prelude and command bounds are combined only
+along the actual execution, so later oracle responses can select different
+private coordinates and total coin use can grow without limit.
+`PrivateCoinMachine.failure_measurable` consequently discharges the previous
+joint-measurability premise for these machine families.
+
+The regression begins with the actual native verifier prelude, samples an
+initial cursor from a private byte, and then chooses later tape coordinates
+from oracle responses. It proves finite-use conditions, their composition,
+the native failure event's measurability, and the lifetime probability bound
+under an infinite product law of private bytes independent of the oracle.
+A separate regression proves that no one finite tape prefix fixes all its
+commands. Five examples and two named fixture lemmas exercise the connection;
+twelve guards audit every new production theorem, with only the usual three
+allowed axioms or subsets (three proofs use none).
+
+This closes the model-level measurability gap for finitary private-coin
+commands, including strategies that cannot be selected by inspecting just one
+fixed finite tape prefix. It does not establish that the Rust random source,
+its command boundaries, local divergence, compiler, or physical work refine
+this model. Those implementation obligations remain, together with trusted
+registry/parameter binding, public extraction/PBS security, BabyBear coverage,
+and the physical-work calibration needed for the final 128-bit inequality.
+
+Validation: full `scripts/check` completed with exit status zero, including
+11,114 build jobs and all subsequent audit/smoke commands. The targeted
+build passed with 4,526 jobs, and all twelve new theorem guards passed.
+The final audit file was also checked directly with warnings as errors after
+trailing whitespace cleanup. No proof placeholders, additional logical axioms,
+native decision proofs or proof-limit increases were introduced. All recorded
+input hashes and manifest hashes of the five retained-source gates remain
+unchanged; those extraction gates were not rerun for this extension.
+
+Full-check log: `/tmp/private-coin-replay-full-check.log`; SHA-256
+`7f79d0afb66f4719e26357c41309e590b665d05f9b3862e398617ea3e7e01991`.
