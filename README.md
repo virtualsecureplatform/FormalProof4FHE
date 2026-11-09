@@ -163,6 +163,12 @@ initialization, with one whole-run hash charge and first-failure stopping.
 The NTT adapter replaces factory queries and values with the verifier's computed
 claims, preserves per-root binding before sampling, and rejects failed rows
 before compression or either opening batch.
+
+The retained byte `Vec::new` constructor now has an exact nominal-value proof: zero
+capacity and length, an unchanged modeled world, and a dangling pointer without
+allocation provenance. Its native storage/ABI bridge and allocation-backed
+construction remain open; see `interop/aeneas/vec-empty`.
+
 See `docs/HasteBootsProofStatus.md` for the source mapping and remaining obligations.
 These components do not yet establish complete PBS or transcript security.
 

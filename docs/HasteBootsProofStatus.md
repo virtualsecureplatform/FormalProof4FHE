@@ -7,6 +7,30 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Retained empty Vec constructor value
+
+The original byte `Vec::new` constructor and a direct caller are now freshly
+extracted and checked in `interop/aeneas/vec-empty`. Six theorems prove their
+exact nominal return value, zero capacity and length, unchanged incoming world,
+and absence of allocation provenance on the dangling pointer. This holds for
+arbitrary incoming modeled worlds. Even a live allocation at numerical address
+one cannot make the returned pointer readable for a positive extent.
+
+The interpreter gains a pure address literal; it creates no allocation, reference,
+loan or allocation provenance. The reifier validates the original transmute,
+evaluated byte alignment, all 64 physical alignment discriminants, nominal field
+types and move/copy modes, constrained capacity and concrete layouts. Both
+original function bodies and all ten type declarations are retained. The gate
+checks 291 declaration dependencies, four regression examples and 17 rejecting
+extraction controls using the existing frozen toolchain receipt.
+
+This establishes nominal value construction only. Storing the returned aggregate
+in native header memory, connecting it to the resident descriptor and destructor,
+positive-capacity allocation, compiler/lifetime/ABI refinement, the external
+allocator implementation, physical attacker work and the final application
+security inequality remain open. Next connect this constructor value to the
+resident storage invariant before extending to allocation-backed construction.
+
 ## Complete outer Vec destruction under resident model conditions
 
 `VecDestructionProof.lean` composes the original outer destructor through the
