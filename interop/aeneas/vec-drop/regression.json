@@ -1,8 +1,8 @@
 {
-  "profile": "original-resident-vec-destruction-with-incoming-reference-loop-frame-v9",
+  "profile": "original-resident-vec-destruction-with-record-call-incoming-frame-v10",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-drop-5aytjl_3/manifest.json",
-  "gate_manifest_sha256": "bfb7bbfb666b746385ec1a1053d8c28d6be7df9e474e9ac77c58231099ee9c47",
+  "gate_manifest": "build/hasteboots-extraction/vec-drop-19855hhj/manifest.json",
+  "gate_manifest_sha256": "865309220353ed5a330ce0f59a413383b58e1660c3c3a931497bb1b22057f67b",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -23,9 +23,11 @@
     "1dbc9d31174d2ff7214f1942fcd537886331ed67",
     "ebb492a801f5601a80d14e4221f46f73adf0d2f9",
     "0b6a94285a727c03d5282b1c2e2edd508a86246b",
-    "03dc16ab7218f8813b239e06d47e2105fa72e247"
+    "03dc16ab7218f8813b239e06d47e2105fa72e247",
+    "117ac51b476e364a18f90fd57458d0f81255b409",
+    "5bf7ef962412c5c668501b318843b0387896ba83"
   ],
-  "dependency_audit_count": 628,
+  "dependency_audit_count": 661,
   "negative_control_count": 69,
   "negative_controls": {
     "wrong_profile": "Wrong extraction profile",
@@ -104,12 +106,12 @@
   "interpreter_helper_theorem_count": 3,
   "source_loop_theorem_count": 16,
   "source_composition_theorem_count": 17,
-  "new_declaration_audit_count": 218,
-  "model_regression_count": 118,
-  "source_regression_count": 51,
+  "new_declaration_audit_count": 251,
+  "model_regression_count": 126,
+  "source_regression_count": 55,
   "inputs": {
-    "scripts/check-hasteboots-vec-drop": "bc2e3765db3341736088bbd903754966f61b7c2a6eeb462098e674f60cd91528",
-    "scripts/reify-hasteboots-vec-drop": "77bb1a0c8f3dc9207be544c2f182c59e048c8a52ed1b857aea31d49374e6f210",
+    "scripts/check-hasteboots-vec-drop": "ab9d2cd92f192b814a99c928f52786c5c51ec45e8511b99ecc52e12d2c82e76a",
+    "scripts/reify-hasteboots-vec-drop": "25c09489afc174b2176715d06e4875bb1280eacb7508962c3943265489da4865",
     "scripts/reify-hasteboots-rawvec-drop": "748d6a322c395db0244eec640359f5b4efd07d234b023a23aa23f9dfeee812aa",
     "scripts/check-hasteboots-rawvec-drop": "2774e9d2b0bf5817f876b4787101650118d905dbc954391743be2723518c1fb3",
     "scripts/reify-hasteboots-byte-loop-llbc": "fb747e07b75bcf8847326b3e3c3c9ff62402f1a2b306fb2123f1377bacc24b85",
@@ -129,12 +131,12 @@
     "scripts/extract-hasteboots-parameters": "9ab0b333e12a4dac0fea4e37bc8bee430bdf56cac7eb4bcb5fa999ceab140993",
     "lean-toolchain": "ca5f1f601d34c49079e38d7e7041eb0f2a9c227fbc1df0f404820069a052330c",
     "interop/aeneas/vec-drop/fixture.rs": "a9759ee4f6ff994cfeddd3783fadb15b3a9d754fce1d0c8d8f5b6d0b9da0529f",
-    "interop/aeneas/vec-drop/Generated.lean": "3ab8aff38c16c0928abd4a8691fbe9f38a3d21de5b6797c9d041cf9c21985b06",
+    "interop/aeneas/vec-drop/Generated.lean": "12766d0310e8a31acdfe25f0707d2a112ca091c738ca2700dd8f2f2f0d24a4f7",
     "interop/aeneas/vec-drop/Retained.json": "dda5b5bf5f588a48df0955d1ea5c11351b99e58904dc6d1f946f72615b1db064",
     "interop/aeneas/vec-drop/LoopProof.lean": "a479d3c1bf0fdef3090c4fe779bfce3668c518fec1fedb67dabf86870ae66288",
     "interop/aeneas/vec-drop/Execution.lean": "73a161abfeb81b1284761074a9a908da70dfaf09fa47a2de6b38954d36c2afd7",
-    "interop/aeneas/vec-drop/IncomingReferenceProof.lean": "2740c263d140cdd725826ee30905c286ffa31f3ef22835b81249bed6e5d15100",
-    "interop/aeneas/vec-drop/HeapProof.lean": "c69d4e72d3782e7a38d4b198f3fc4b7160622a0971c5c6fbc61118e04e8d3dc1",
+    "interop/aeneas/vec-drop/IncomingReferenceProof.lean": "5d6a4ec78dbb0cb0f027cea0b634f2da7c0f5827ab8c83c2929b3b6cd61db756",
+    "interop/aeneas/vec-drop/HeapProof.lean": "ba5306d3d646602d82f65d0c968d81908f5c3c4e9514c739d4ee37227ea5d5dd",
     "interop/aeneas/vec-drop/CapacityProof.lean": "02789e1cb65c53487e586ee824f3f4d5f579d26a6043f87d460e609089416b55",
     "interop/aeneas/vec-drop/DeallocationProof.lean": "07ace9ca7c6fd39c334bd619aed8814bab452548c41ede13725c3787107a08c5",
     "interop/aeneas/vec-drop/RawVecDestructorProof.lean": "08d88a03c4c62b50a890871c79511d08679ed95328663ddb1a90c10aef8fc5cd",
@@ -145,7 +147,7 @@
     "interop/aeneas/vec-drop/CapacitySmoke.lean": "967c3859ffce3331b80269b4f6b6c25b84d46cbb78626f4a81015501bb04adfa",
     "interop/aeneas/vec-drop/DeallocationSmoke.lean": "b5a0606652dad922ceba609d00784b87b871649fb7241460deb9c84ca5811fb9",
     "interop/aeneas/vec-drop/RawVecDestructorSmoke.lean": "b9cc245c780e5f1c5d80c96d7d93ed68c13f8796b8f584a1079d02071d1e6b01",
-    "interop/aeneas/vec-drop/IncomingReferenceSmoke.lean": "6e82c4d7e65abc63a6fce9326612c3e79e6373e08b091cb894735444bb986797",
+    "interop/aeneas/vec-drop/IncomingReferenceSmoke.lean": "38cd2d992c6887ae5726295df4e4069d35e87d5b856d218e5307e0fed29b5ba8",
     "FormalProof4FHE/HasteBoots/NativeHeapFrame.lean": "e1c8d1062272a191f9bf3924c20b5c245c60753cf9bdf2af65fbe1e442460799",
     "FormalProof4FHE/HasteBoots/NativeHeapRelease.lean": "3f5a6ea3c2db24ff1c37dc6ad0def3ba90cba9801ae9297caaf81faca594709e",
     "FormalProof4FHE/HasteBoots/NativeRecordHeapBounds.lean": "aee4efbce17802c995c85e7d40300da4069111f866fd31bfe549975b2be13608",
@@ -153,6 +155,7 @@
     "FormalProof4FHE/HasteBoots/NativeResidentVecBorrow.lean": "2dc04d719e60494d45a3521de39df8630e0980d1d7cf9735793d58665074e2a6",
     "FormalProof4FHE/HasteBoots/NativeRecordCallValues.lean": "6aa63875bf445f426e3484cbf425f58e378f83d31f93e8faab8b2f04eb272b56",
     "FormalProof4FHE/HasteBoots/NativeIncomingReference.lean": "f5e52dc9c5055e99643cd552b9c488066c11143cfde9bde8e3d805599a917479",
+    "FormalProof4FHE/HasteBoots/NativeRecordIncomingReference.lean": "36daf682bbbd383eff81a297b63f3a86b3d6054d6837b753c3db22fee7c28ac9",
     "FormalProof4FHE/HasteBoots/NativeReferenceMachine.lean": "c211d50ac2059b95d520867a26c982326cd8ba0233d5e55953d5f28afd9b2409",
     "FormalProof4FHE/HasteBoots/NativePointerMachine.lean": "ceeb2562745ad91b91120b0694587b464348439704ae1076719c031e30a1c813",
     "FormalProof4FHE/HasteBoots/NativePointerByteMemory.lean": "f62c76f67ec3785661456afc0f694c61dd3323546840de8ef2d2adb95fda495d",
@@ -191,9 +194,11 @@
     "FormalProof4FHETest/HasteBootsRecordCallValuesSmoke.lean": "5134b2592c298fce7cbc9c5aacb27bc03dbdbd3c4841ca34476ef920a356fae7",
     "FormalProof4FHETest/HasteBootsRecordCallValuesAudit.lean": "85cb1ab5befd990f561b9d29ef8ddea58d6398fe268086cd142a67fab2065c93",
     "FormalProof4FHETest/HasteBootsIncomingReferenceSmoke.lean": "1f5a071f5f2b98c3f0bb14e81e318cf32e461dd4206221137ada40fc3aa2416c",
-    "FormalProof4FHETest/HasteBootsIncomingReferenceAudit.lean": "e4c2dfe30dfbef8dc37e4d6295a8f015b7bb288138e2459f5b9ece23a5874f20"
+    "FormalProof4FHETest/HasteBootsIncomingReferenceAudit.lean": "e4c2dfe30dfbef8dc37e4d6295a8f015b7bb288138e2459f5b9ece23a5874f20",
+    "FormalProof4FHETest/HasteBootsRecordIncomingReferenceSmoke.lean": "38193b3fd4712174c3e504822d7819666cc3c1ca8080920917671da012dbf3ec",
+    "FormalProof4FHETest/HasteBootsRecordIncomingReferenceAudit.lean": "47c56a5f6d4aa39a2284cd4ef8e53aafba7e7d360acd2128cbbd79aa1a789763"
   },
-  "source_llbc_sha256": "de5fec51a36d85c342ddab3dbb59c28169fbad6539725b53e658ca6240dc74ce",
+  "source_llbc_sha256": "04f3d3d7c0f25e0b7d19d1a615aea3fcd4c5eac8e1b3a450f1f63132302b7fda",
   "outer_vec_drop_glue_interpreted": true,
   "outer_vec_drop_method_interpreted": true,
   "unbounded_original_byte_loop_interpreted": true,
@@ -209,9 +214,9 @@
   "full_project_check": {
     "command": "scripts/check",
     "exit_code": 0,
-    "build_jobs": 11044,
-    "log": "/tmp/hasteboots-incoming-reference-full-check.log",
-    "log_sha256": "eea0bfd8c25c64be0dbc3bbb908ad072a5b42c2e6721eaf72ae0cb91832ccf41"
+    "build_jobs": 11047,
+    "log": "/tmp/hasteboots-record-incoming-full-check.log",
+    "log_sha256": "30119d59714ddbae545277eb7c10f6cd268432fca48ffb3383871c45791ad879"
   },
   "prior_gate_manifest": {
     "path": "build/hasteboots-extraction/vec-drop-j6ky4k09/manifest.json",
@@ -373,7 +378,7 @@
     "operational_invocation_bridge": true,
     "changed_heap_original_positive_block_identified": true,
     "outer_vec_entry_buffer_identification": false,
-    "incoming_vec_byte_traversal_reference_frame": false
+    "incoming_vec_byte_traversal_reference_frame": true
   },
   "prior_incoming_reference_baseline": {
     "manifest": "build/hasteboots-extraction/vec-drop-_whk772_/manifest.json",
@@ -397,7 +402,30 @@
     "resident_header_transport_with_explicit_age": true,
     "successful_iteration_or_cleanup_premise": false,
     "loan_preservation_distinct_from_heap_frame": true,
-    "whole_byte_method_call_composition": false,
+    "whole_byte_method_call_composition": true,
     "outer_vec_entry_buffer_identification": false
+  },
+  "prior_record_incoming_baseline": {
+    "manifest": "build/hasteboots-extraction/vec-drop-5aytjl_3/manifest.json",
+    "manifest_sha256": "bfb7bbfb666b746385ec1a1053d8c28d6be7df9e474e9ac77c58231099ee9c47",
+    "dependency_audit_count": 628
+  },
+  "record_incoming_reference": {
+    "module": "FormalProof4FHE/HasteBoots/NativeRecordIncomingReference.lean",
+    "model_theorem_count": 28,
+    "declaration_guard_count": 28,
+    "model_regression_count": 8,
+    "source_theorem_count": 5,
+    "source_regression_count": 4,
+    "all_record_rvalues_and_bodies": true,
+    "ordinary_and_two_phase_calls": true,
+    "cleanup_relative_to_call_entry": true,
+    "failed_prefix_child_leases_retained": true,
+    "generic_source_code_and_invocation_frame": true,
+    "whole_byte_method_resident_header_transport": true,
+    "explicit_reference_age_premise": true,
+    "successful_call_or_cleanup_premise": false,
+    "outer_vec_entry_buffer_identification": false,
+    "retained_function_bodies_and_type_declarations_unchanged": true
   }
 }

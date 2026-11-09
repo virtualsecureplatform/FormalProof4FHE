@@ -1,5 +1,37 @@
 # Original resident Vec destruction
 
+## Incoming references survive record calls and the complete byte destructor
+
+`NativeRecordIncomingReference` proves authority preservation through every
+record rvalue and body, including ordinary calls, two-phase mutable calls,
+retained failure prefixes and unit-return cleanup. Cleanup is proved relative
+to callee entry: it can end temporary child leases while retaining every older
+incoming lease. Raw deallocation preserves this authority relation without
+claiming that the heap remains unchanged.
+
+The source proof extends this result through the complete retained call tree,
+scopes, loop and invocation. Combining the byte method's existing full-heap
+frame with incoming-reference preservation now carries an older resident Vec
+header through the complete original byte destructor on every outcome. The
+reference-age premise remains explicit; no successful call or cleanup premise
+is supplied.
+
+This step adds 28 model theorems with guarded dependency audits, five source
+theorems, eight model regressions and four source regressions. The model tests
+check that a temporary child remains after rejection and ends after a normal
+unit return while the incoming lease survives both.
+
+The fresh extraction gate passed 661 dependency audits and 69 rejection
+controls. Full `scripts/check` passed its 11,047-job build and all subsequent
+smoke checks. Retained Rust function bodies and type declarations are unchanged.
+The profile's `regression.json` records the input hashes and validation receipts.
+
+Next apply the exact RawVec buffer result at the outer Vec root using the
+preserved header. Original-buffer identification at that root, successful
+valid-Vec postconditions, native construction/compiler/lifetime/ABI refinement,
+the external allocator implementation, physical attacker work and the final
+application security theorem remain open.
+
 This profile composes original `alloc::vec::Vec::drop_glue`, `alloc::vec::drop`,
 foreign-classified retained `core::ptr::drop_glue`, the original mutable byte
 loop, and the earlier RawVec destructor/deallocation chain. Entry selects an
@@ -322,9 +354,8 @@ use the checked operational traversal relation at standard Lean limits. Receipts
 and hashes are recorded in the profile regression file. Retained function bodies
 and type declarations are unchanged.
 
-Next extend incoming-reference preservation through the surrounding record
-operations and byte-drop call/cleanup composition, then apply the exact RawVec
-entry result at the outer Vec root. That composition, successful valid-Vec
+The surrounding record and byte-drop call/cleanup composition is now proved
+above. Applying the exact RawVec entry result at the outer Vec root, successful valid-Vec
 postconditions, native construction/compiler/lifetime/ABI refinement, the external
 allocator implementation, physical attacker work and the final application
 security theorem remain open.
