@@ -672,3 +672,5 @@ import FormalProof4FHE.HasteBoots.NativeRecordCallValues
 
 import FormalProof4FHE.HasteBoots.NativeIncomingReference
 import FormalProof4FHE.HasteBoots.NativeRecordIncomingReference
+import FormalProof4FHE.HasteBoots.NativeByteRangeCompleteness
+import FormalProof4FHE.HasteBoots.NativeBorrowFrontier
