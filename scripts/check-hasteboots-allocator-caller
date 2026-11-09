@@ -26,7 +26,7 @@ EXTRAS = {
     'NativeRecordValues': {'Ty': ['scalar', 'nonnull', 'pair', 'record', 'enumeration', 'choice'],
         'Value': ['scalar', 'pair', 'record', 'enumeration', 'uninit', 'choice'], 'Step': ['left', 'right', 'unwrap', 'active']},
     'NativeRecordLLBC': {'Slot': ['dead', 'live'], 'Frame': ['mk', 'types', 'slots', 'world'],
-        'Operand': ['layoutLiteral', 'copy', 'move', 'usize', 'unit'], 'Input': ['vectorExclusiveReference', 'rawVecExclusiveReference', 'rawVecSharedReference', 'vectorSharedReference', 'zstSharedReference', 'unit', 'scalar', 'pair', 'record', 'enumeration', 'choice'],
+        'Operand': ['addressLiteral', 'layoutLiteral', 'copy', 'move', 'usize', 'unit'], 'Input': ['vectorExclusiveReference', 'rawVecExclusiveReference', 'rawVecSharedReference', 'vectorSharedReference', 'zstSharedReference', 'unit', 'scalar', 'pair', 'record', 'enumeration', 'choice'],
         'Tagged': ['value', 'invalid'], 'Rvalue': ['vec', 'borrowSlice', 'parts', 'borrowRawVecMut', 'borrowRawVec', 'recordResult', 'mulUsizeUB', 'enumWord', 'rawVecField', 'unit', 'use', 'rawCast', 'wrapOne', 'pair', 'choice', 'aggregate'],
         'Evaluated': ['value', 'invalid'], 'Flow': ['normal', 'returned', 'unwind', 'invalid', 'unsupported'],
         'Body': ['twoPhaseRawVecCall', 'done', 'ret', 'resume', 'abort', 'unsupported', 'live', 'dead', 'assign', 'constIf', 'switchUsize', 'deallocate', 'call', 'matchChoice'],

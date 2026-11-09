@@ -32,6 +32,7 @@ inductive Operand where
   | copy (index : Nat) (path : Path := [])
   | move (index : Nat) (path : Path := [])
   | usize (value : Word)
+  | addressLiteral (address : Word)
   | layoutLiteral (size alignment : Word) (layoutTag alignmentTag enumTag : Nat)
   | unit
   deriving DecidableEq
@@ -94,6 +95,7 @@ def storageDead (frame : Frame) (index : Nat) : Option Frame :=
 def evalOperand (frame : Frame) : Operand → Option (Value × Frame)
   | .unit => some (.scalar .unit, frame)
   | .usize value => some (.scalar (.usize value), frame)
+  | .addressLiteral address => some (.scalar (.raw ⟨⟨address,none⟩,none⟩),frame)
   | .layoutLiteral size alignment layoutTag alignmentTag enumTag =>
     some (.record layoutTag (.pair (.scalar (.usize size)) (.pair
       (.record alignmentTag (.pair (.enumeration enumTag alignment) (.scalar .unit))) (.scalar .unit))), frame)
@@ -478,6 +480,7 @@ theorem evalOperand_world (frame changed : Frame) (operand : Operand) (value : V
   cases operand with
   | unit => cases evaluated; rfl
   | usize word => cases evaluated; rfl
+  | addressLiteral address => cases evaluated; rfl
   | layoutLiteral size alignment layoutTag alignmentTag enumTag => cases evaluated; rfl
   | copy index path =>
     simp only [evalOperand, Option.bind_eq_bind', Option.bind_eq_some_iff] at evaluated
