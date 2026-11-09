@@ -1,7 +1,7 @@
 {
-  "profile": "revalidated-with-shared-constructor-v13",
-  "gate_manifest": "build/hasteboots-extraction/allocator-caller-50yerg_c/manifest.json",
-  "gate_manifest_sha256": "0542244b7a19142f740dac9af907be47af3a919969e908e4fd361532d11db63f",
+  "profile": "revalidated-with-shared-callers-v14",
+  "gate_manifest": "build/hasteboots-extraction/allocator-caller-axk2yfkm/manifest.json",
+  "gate_manifest_sha256": "a6504125376b54031ac3f76708985eefbd2ae54ddef0b76572158eb3fe5ed114",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "status": "passed",
   "commands": [
@@ -758,5 +758,13 @@
     "dependency_audit_count": 388,
     "negative_control_count": 31
   },
-  "revalidated_with_shared_constructor": true
+  "revalidated_with_shared_constructor": true,
+  "prior_shared_caller_baseline": {
+    "profile": "revalidated-with-shared-constructor-v13",
+    "gate_manifest": "build/hasteboots-extraction/allocator-caller-50yerg_c/manifest.json",
+    "gate_manifest_sha256": "0542244b7a19142f740dac9af907be47af3a919969e908e4fd361532d11db63f",
+    "dependency_audit_count": 388,
+    "negative_control_count": 31
+  },
+  "revalidated_with_shared_callers": true
 }

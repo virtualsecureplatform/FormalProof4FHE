@@ -241,3 +241,22 @@ outer error handler's nonzero-sized opaque borrow and foreign accessor require
 a resident-stack/native-wrapper bridge. Outer error propagation, native
 allocator ABI/unwind behavior, resident storage/destruction and physical work
 remain open.
+
+## Shared decoded caller graph
+
+`UnifiedCallerProof.lean` connects the original three outer caller layers to
+`unifiedConstructorFunction`. The same decoded entry point proves zero-capacity
+return without placement/shim/allocator premises and positive success under the
+explicit modeled placement, shim and allocator-result premises. Fifteen theorems
+check typed entry, move/call/resume behavior and reachability. Seven examples in
+`UnifiedCallerSmoke.lean` cover zero, concrete positive allocation, uninitialized
+reserved bytes and reachability. Source validation is reused when rendering the
+six shared caller declarations. The source gate passes 804 dependency audits,
+157 rejecting controls, 125 source examples and 74 model examples. It does not replace the reservation-error arm or
+outer unwind handlers, whose semantics remain explicit unsupported boundaries.
+
+A scratch extraction with `--include alloc::collections` successfully exposes
+`TryReserveError::kind` as transparent and the reservation-error wrapper fields.
+It keeps 21 functions/31 types but changes some IDs. This gives a source-based
+next step for the accessor; it still needs validated declaration identities and
+nonzero-sized resident local borrowing before proving outer error propagation.

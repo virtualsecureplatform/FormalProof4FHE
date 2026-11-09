@@ -7,6 +7,41 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Decoded callers use the shared constructor
+
+`unifiedCapacityRoot` now connects the decoded public capacity argument through
+`Vec::with_capacity`, `RawVec::with_capacity_in` and the shared
+`try_allocate_in` interpreter. The generated caller bodies reuse the already
+validated source statements and change only their interpreted callee. Fifteen
+new theorems cover typed initialization, argument moves, result writes, caller
+resumption, zero and positive successful invocation, decoded input and reachability.
+
+The same public-entry interpreter now handles zero capacity and positive
+allocation success. Its zero theorem holds for any world, placement address,
+allocator outcome and shim body, with no allocator or placement premise. The
+positive theorem retains the explicit nonzero placement, capacity bound, actual
+shim return and allocator machine result. Seven regressions include zero with
+address zero and an unusable shim, concrete positive allocation, uninitialized
+reserved bytes and reachability. The source gate passes 804 dependency audits,
+157 rejecting controls, 125 source examples and 74 model examples. Related extraction
+gates pass unchanged counts: Vec destruction 1044 audits/87 controls, allocator
+caller 388/31 and empty constructor 395/17. The previous 11088-job full project
+check is reused because shared library, root-test, toolchain, dependency and
+project-check inputs are unchanged.
+
+Constructor errors are interpreted before the outer caller reaches its explicit
+unsupported reservation-error arm. This does not prove native error propagation:
+the source handler's nonzero-sized opaque error borrow and foreign `kind` accessor
+still require a resident-stack bridge. A scratch extraction adding
+`--include alloc::collections` succeeds and retains `TryReserveError::kind` as a
+transparent body, together with the wrapper fields. It retains 21 functions and
+31 types but renumbers some type IDs. The next extension should therefore bind
+these declarations by validated identity, interpret the getter's dereference and
+variant reconstruction, and supply the nonzero-sized resident local borrow.
+This exploratory extraction has no new correctness theorem. Outer unwind
+handling, resident storage/destruction, native correspondence, physical work and
+the final security theorem remain open.
+
 ## Shared constructor interpreter and guarded unwind cleanup
 
 `unifiedConstructorFunction` now places zero capacity, positive allocation
@@ -35,7 +70,8 @@ full project check remains applicable. Fresh related extraction gates also pass:
 Vec destruction 1044 audits/87 controls, allocator caller 388/31 and empty
 constructor 395/17.
 
-The outer decoded callers still use the earlier positive-success interpreter.
+The earlier decoded caller proofs use the positive-success interpreter; the
+shared caller graph above now also composes the zero path.
 Their error handler borrows a nonzero-sized opaque reservation error and calls a
 foreign `kind` accessor; interpreting that path requires the resident-stack/
 native-wrapper bridge. Outer error propagation, resident storage/destruction,
