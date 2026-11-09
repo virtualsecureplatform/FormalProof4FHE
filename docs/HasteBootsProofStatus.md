@@ -7,6 +7,38 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Resident RawVec capacity and pointer reads now use actual bytes and shadow
+
+The [RawVec storage profile](../interop/aeneas/rawvec-fields/README.md) validates
+the retained RawVecInner/Unique/NonNull and zero-byte field layouts and binds them
+to `NativeRawVecFields`. The reader selects an existing shared sixteen-byte,
+alignment-eight lease. Capacity uses the actual byte read at offset zero; the
+pointer uses the actual shadow-aware load at offset eight. It neither invents
+origins from address bits nor mints a loan. The capacity high-bit check is an
+explicit checked policy; the original Foreign/Opaque capacity carrier's native
+validity range and transmute correspondence are not proved by this profile.
+
+Twelve model theorems prove resident selection, real execution/reachability,
+read witnesses, byte/shadow effects and retained failure prefixes. The heap,
+allocation history and loan/reference/birth state are preserved. Twenty-four
+model regressions include high-bit/null failures, missing and malformed leases,
+deliberately cleared bytes under a retained lease, mixed shadow, origin-free
+integer bytes and old generations
+surviving address reuse. Seven source-metadata theorems and five regressions bind
+the readers to the retained offsets/alignment. The gate passed 32 dependency
+audits and twenty rejecting controls with fresh extraction and snapshot checks.
+The final `scripts/check` run passed the 11,006-job build and subsequent smoke
+checks with the strengthened regression included; the profile records receipt
+and log hashes.
+
+The original RawVec/Vec bodies are not yet translated. Next bind these reads to
+actual reference operands and source field projections, handle the constrained
+capacity carrier and unchecked product, and translate `current_memory` preserving
+its lazy zero branches. Compose the original deallocation/destruction calls with
+Global dispatch. Native reference/stack/layout/ABI and lifetime/compiler
+correspondence, allocator correctness, physical work and the complete security
+theorem remain open. The protocol and expected-work target above is unchanged.
+
 ## The aggregate interpreter now executes enum construction and matches
 
 The [enum body profile](../interop/aeneas/variant-body/README.md) translates three
@@ -31,10 +63,10 @@ build and subsequent smoke checks; receipt hashes are stored in the profile
 regression file.
 
 These probe translations close the enum-operation gap; the original RawVec/Vec
-cleanup bodies are not yet translated. Next implement checked resident-reference
-field loads, recover pointer shadow provenance, handle the retained constrained
-capacity and unchecked multiplication, and compose original cleanup calls with
-Global dispatch. Native lifetime/compiler/ABI correspondence, allocator
+cleanup bodies are not yet translated. Resident byte/shadow readers are now checked as described above. Next connect
+them to actual source reference operands, handle the retained constrained capacity
+and unchecked multiplication, and compose original cleanup calls with Global
+dispatch. Native lifetime/compiler/ABI correspondence, allocator
 correctness, physical work and the complete expected-work security theorem
 remain open. The target stated above is unchanged.
 
