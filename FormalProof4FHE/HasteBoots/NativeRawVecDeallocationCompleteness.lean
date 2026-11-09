@@ -248,6 +248,65 @@ theorem reborrow_extends (world : State) (value : NativeSliceLLBC.Value) (target
           have second := NativeScopeRestoration.step prepared next _ issued
           simpa only [NativeRawVecBorrow.reborrow,selected,shifted,address,issued,NativeRawVecFields.Result.world] using first.trans second
 
+/-- Reservation and activation only prepend fresh loans. -/
+theorem immediate_extends (world next : State) (input output : NativeSliceLLBC.Value)
+    (created : NativeRawVecMutBorrow.immediate world input = .value output next) :
+    NativeScopeRestoration.Extends world next := by
+  cases reserved : NativeRawVecMutBorrow.reserve world input with
+  | invalid failed => simp only [NativeRawVecMutBorrow.immediate,reserved] at created; cases created
+  | value reservation prepared =>
+    have activated : NativeRawVecMutBorrow.activate prepared reservation = .value output next := by
+      simpa only [NativeRawVecMutBorrow.immediate,reserved] using created
+    obtain ⟨_,_,_,_,_,_,_,address,_⟩ := NativeRawVecMutBorrow.reserve_success world prepared input reservation reserved
+    have first := NativeScopeRestoration.step world prepared _ address
+    have second := NativeScopeRestoration.step prepared next _
+      (NativeRawVecMutBorrow.activate_success prepared next reservation output activated).1
+    exact first.trans second
+
+/-- An immediate exclusive header child retains full-capacity buffer separation. -/
+theorem available_immediate (world next : State) (pointer : Pointer) (size : Nat)
+    (input output : NativeSliceLLBC.Value) (available : Available world pointer size)
+    (created : NativeRawVecMutBorrow.immediate world input = .value output next) : Available next pointer size := by
+  cases reserved : NativeRawVecMutBorrow.reserve world input with
+  | invalid failed => simp only [NativeRawVecMutBorrow.immediate,reserved] at created; cases created
+  | value reservation prepared =>
+    have activated : NativeRawVecMutBorrow.activate prepared reservation = .value output next := by
+      simpa only [NativeRawVecMutBorrow.immediate,reserved] using created
+    have loans := (NativeRawVecMutBorrow.reserve_no_loan world prepared input reservation reserved).2.1
+    have preparedAvailable := available_same_loans world prepared pointer size available loans
+    have executed := (NativeRawVecMutBorrow.activate_success prepared next reservation output activated).1
+    simp only [NativeReferenceMachine.execute,Option.bind_eq_some_iff] at executed
+    obtain ⟨reference,_,stored,_,granted⟩ := executed
+    exact available_grant prepared next pointer size reference.tag .exclusive stored ⟨16,8⟩ preparedAvailable granted
+
+/-- A successful actual immediate reborrow constructs the next callee's full
+readiness conditions, including resident fields and initialized header bytes. -/
+theorem Ready.immediate_complete {world reference capacity length buffer}
+    (ready : Ready world reference capacity length buffer) :
+    ∃ next, NativeRawVecMutBorrow.immediate world (.reference true reference 2) =
+        .value (.reference true ⟨world.nextTag⟩ 2) next ∧
+      Nonempty (Ready next ⟨world.nextTag⟩ capacity length buffer) ∧ next.pointers.heap = world.pointers.heap := by
+  have valid := NativeReferenceMachine.reachable_wellFormed world ready.reachable
+  obtain ⟨bytes,loaded⟩ := ready.initialized
+  obtain ⟨next,created,frontier⟩ := NativeRawVecBorrowCompleteness.immediate_complete world reference ready.lease
+    ⟨valid.1.1,valid.2.1⟩ ready.frontier ready.tag ready.shape ready.referenceResident ready.pointerResident bytes loaded
+  have reached := NativeSliceLLBC.reference_runs_reachable world _ ready.reachable
+    (NativeRawVecMutBorrow.immediate_projects world (.reference true reference 2))
+  rw [created] at reached
+  have heap := (NativeRawVecMutBorrow.immediate_heap_projects world (.reference true reference 2)).heap_eq
+  rw [created] at heap
+  change next.pointers.heap = world.pointers.heap at heap
+  have resident := NativeResidentVecBorrow.rawvec_immediate ready.resident created
+  obtain ⟨mutable,child,count,lease,valueEq,member,registered,baseEq,mode,shape,present,contents⟩ := resident
+  cases valueEq
+  have leaseEq : lease = ⟨world.nextTag,some ready.lease.tag,ready.lease.pointer,⟨16,8⟩,.exclusive⟩ :=
+    Option.some.inj (registered.symm.trans frontier.2.1)
+  subst lease
+  have initialized : ∃ bytes, NativeByteRange.loadRange next.pointers.heap.memory ready.lease.pointer ⟨16,8⟩ = some bytes := by
+    rw [heap]
+    exact ⟨bytes,loaded⟩
+  exact ⟨next,created,⟨⟨_,reached,frontier,rfl,rfl,member,present,contents,initialized⟩⟩,heap⟩
+
 /-- Exact incoming loans make unit-return settlement inert. -/
 theorem settle_same_loans (entered current : State)
     (valid : NativeByteBorrow.LedgerValid (NativeReferenceMachine.ledger entered)) (same : current.leases = entered.leases) :
