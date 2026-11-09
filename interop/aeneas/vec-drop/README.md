@@ -287,6 +287,49 @@ application security theorem remain open. Heap effects remain separate from
 physical work charges.
 
 
+## Incoming references survive the original unbounded byte loop
+
+`NativeIncomingReference` now records counter monotonicity, preservation of
+reference/pointer registers and birth records, and exact lookup equality for
+every lease tag older than entry. Checked non-ending machine steps preserve
+this relation. Fresh grants retain older leases. Scope cleanup preserves the
+incoming relation even when cleanup stops with a pending suffix.
+
+The relation is proved through slice issuance, byte indexing, every traversal
+iteration and the complete unbounded traversal, including retained failure
+prefixes. Combining it with the existing full-heap frame carries the original
+resident Vec/RawVec view through traversal. No traversal-success or cleanup
+completion premise is supplied. The age condition is explicit: historical
+registers and births do not revive an ended lease. Loan preservation alone is
+separate from heap preservation and does not assert that bytes were unchanged.
+
+`IncomingReferenceProof.lean` connects the result to the original retained byte
+loop's operational relation. Every loop outcome preserves incoming authority and
+the complete heap, including malformed arguments and failed iterations. A source
+corollary carries an older resident header view through that actual loop.
+
+Fourteen model theorems, seventeen declaration guards and three source theorems
+support this step. Twelve model regressions cover the three-byte traversal,
+original leases/births, retained failed-index reborrows, ended leases, and the
+separation between loan preservation and memory writes. Five source regressions
+cover the original loop, resident-header transport, malformed arguments and an
+ended slice input.
+
+The final fresh extraction gate passed 628 dependency audits and 69 rejection
+controls, including the slice-extent mutation. Full `scripts/check` passed its
+11,044-job build and subsequent smoke checks. Concrete source-loop regressions
+use the checked operational traversal relation at standard Lean limits. Receipts
+and hashes are recorded in the profile regression file. Retained function bodies
+and type declarations are unchanged.
+
+Next extend incoming-reference preservation through the surrounding record
+operations and byte-drop call/cleanup composition, then apply the exact RawVec
+entry result at the outer Vec root. That composition, successful valid-Vec
+postconditions, native construction/compiler/lifetime/ABI refinement, the external
+allocator implementation, physical attacker work and the final application
+security theorem remain open.
+
+
 Run:
 
 ```sh
