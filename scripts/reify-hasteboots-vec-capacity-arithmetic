@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""Retain actual Vec::with_capacity arithmetic assignments, without claiming whole-function execution."""
+"""Retain Vec::with_capacity arithmetic and its decoded zero-capacity source call path."""
 import argparse
+import copy
 import json
 from pathlib import Path
 import runpy
@@ -39,6 +40,7 @@ class Reifier:
     self.walk(f,b['body'])
   require(len(self.rows)==9 and {r['operation'] for r in self.rows}=={v[0] for v in OPS.values()},'Changed arithmetic inventory')
   self.layout_prefix=LayoutPrefix(self)
+  self.caller_preparation=CallerPreparation(self)
  def walk(self,f,node):
   if isinstance(node,dict):
    if 'statements' in node:
@@ -80,7 +82,7 @@ class Reifier:
    'globals':self.crate['global_decls'],'target':self.crate['target_information'],
    'layout_prefix':self.layout_prefix.retained(),
    'assignments':[{k:v for k,v in r.items() if k!='rendered'} for r in self.rows],
-   'claim':'original scalar assignments and contiguous layout prefix with arbitrary continuations; whole constructor, calls, error suffixes, ABI and physical work remain open'}
+   'claim':'original scalar assignments, continuous layout prefix and decoded zero-capacity source call path; positive construction, unprocessed error/unwind branches, ABI and physical work remain open'}
  def render(self):
   lines=['module','public import FormalProof4FHE.HasteBoots.NativeRecordCallValues','@[expose] public section',
    'namespace HasteBootsVecCapacityArithmetic','open FormalProof4FHE.HasteBoots','open NativeRecordLLBC']
@@ -105,7 +107,7 @@ class Reifier:
     else:slots.append('.dead')
    lines+=['def '+label+' (world : NativeReferenceMachine.State) (left right : NativeWord64Memory.Word) : Frame :=',
     '  ⟨['+', '.join(types)+'], ['+', '.join(slots)+'], world⟩']
-  lines+=[self.layout_prefix.render(),'end HasteBootsVecCapacityArithmetic',''];return '\n'.join(lines)
+  lines+=[self.layout_prefix.render(),self.caller_preparation.render(),'end HasteBootsVecCapacityArithmetic',''];return '\n'.join(lines)
 
 class LayoutPrefix:
  def __init__(self,parent):
@@ -176,6 +178,8 @@ class LayoutPrefix:
   if mode=='Const':
    pattern={'Untagged':{'Pattern':[USIZE,{'Range':[{'kind':{'Literal':{'Scalar':{'Unsigned':['Usize','0']}}},'ty':USIZE},{'kind':{'Literal':{'Scalar':{'Unsigned':['Usize','9223372036854775807']}}},'ty':USIZE}]}]}}
    if v=={'kind':{'Literal':{'Scalar':{'Unsigned':['Usize','0']}}},'ty':pattern}:return '(.usize 0)'
+   for n in ['0','18446744073709551615']:
+    if v=={'kind':{'Literal':{'Scalar':{'Unsigned':['Usize',n]}}},'ty':USIZE}:return '(.usize '+n+')'
    require(v=={'kind':{'Literal':{'Bool':True}},'ty':BOOL},'Changed prefix Boolean literal');return '(.boolean true)'
   require(mode in ['Copy','Move'],'Unsupported prefix operand mode')
   def place(p):
@@ -187,6 +191,12 @@ class LayoutPrefix:
    if owner=={'Tuple':2}:
     require(raw==TUPLE and index in [0,1] and ty==[U64,BOOL][index],'Changed checked result projection')
     return idx,path+(['.left'] if index==0 else ['.right','.left']),ty
+   if owner=={'Adt':[8,0]}:
+    require(raw==adt(8) and index==0 and ty==adt(3),'Changed RawVec success projection')
+    return idx,path+['(.unwrap 8)','(.active false)','.left'],ty
+   if owner=={'Adt':[3,None]}:
+    require(raw==adt(3) and index==1 and ty==adt(7),'Changed RawVec capacity projection')
+    return idx,path+['(.unwrap 3)','.right','.left'],ty
    if owner in [{'Adt':[14,0]},{'Adt':[19,0]}]:
     tag=owner['Adt'][0];require(raw==adt(tag) and index==0 and ty==adt(4),'Changed Result success projection')
     return idx,path+['(.unwrap '+str(tag)+')','(.active false)','.left'],ty
@@ -199,19 +209,22 @@ class LayoutPrefix:
   if set(rv)=={'Aggregate'}:
    kind,args=rv['Aggregate'];require(set(kind)=={'Adt'},'Changed prefix aggregate');owner,variant,union=kind['Adt']
    tag=owner['id']['Adt'];require(owner==adt(tag)['Untagged']['Adt'] and union is None and output==adt(tag),'Changed aggregate nominal type')
-   zero_fields={1:[],5:[],6:[adt(13),adt(5)],7:[next(iter(args[0].values()))['ty']] if len(args)==1 else [],3:[adt(6),adt(7),adt(1)],8:[adt(3)]}
+   zero_fields={0:[adt(2),USIZE],2:[adt(3),adt(5)],10:[],1:[],5:[],6:[adt(13),adt(5)],7:[next(iter(args[0].values()))['ty']] if len(args)==1 else [],3:[adt(6),adt(7),adt(1)],8:[adt(3)]}
    if tag in zero_fields:
-    require(variant==(0 if tag==8 else None) and [next(iter(a.values()))['ty'] for a in args]==zero_fields[tag],'Changed zero-return aggregate')
+    require(variant==(0 if tag in [8,10] else None) and [next(iter(a.values()))['ty'] for a in args]==zero_fields[tag],'Changed zero-return aggregate')
     if tag==7:require(len(args)==1 and self.operand(args[0])=='(.usize 0)','Changed zero capacity')
-    return '(.aggregate (some '+str(tag)+') '+('(some false)' if tag==8 else 'none')+' ['+', '.join(self.operand(a) for a in args)+'])'
+    return '(.aggregate (some '+str(tag)+') '+('(some false)' if tag in [8,10] else 'none')+' ['+', '.join(self.operand(a) for a in args)+'])'
    require((tag==4 and variant is None and [next(iter(a.values()))['ty'] for a in args]==[USIZE,adt(11)]) or (tag in [14,19] and variant==0 and [next(iter(a.values()))['ty'] for a in args]==[adt(4)]),'Unsupported prefix aggregate variant')
    return '(.aggregate (some '+str(tag)+') '+('none' if variant is None else '(some false)')+' ['+', '.join(self.operand(a) for a in args)+'])'
-  if set(rv)=={'BinaryOp'}:
+  if set(rv)=={'BinaryOp'} or (set(rv)=={'UnaryOp'} and rv['UnaryOp'][0]=='Not'):
    row=next((r for r in self.parent.rows if r['function']==self.function['def_id'] and r['statement']['id']==statement['id']),None)
    require(row is not None,'Missing prefix arithmetic assignment');return 'expr_'+row['operation']
   require(set(rv)=={'UnaryOp'},'Unsupported prefix rvalue');op,arg=rv['UnaryOp']
   if op in [{'Cast':{'Scalar':[{'UInt':'Usize'},{'UInt':'U64'}]}},{'Cast':{'Scalar':[{'UInt':'U64'},{'UInt':'Usize'}]}}]:
    source,target=op['Cast']['Scalar'];require(set(arg)=={'Copy'} and arg['Copy']['ty']==literal(source) and output==literal(target),'Changed word-width cast');return '(.use '+self.operand(arg)+' false .byte)'
+  if output==USIZE and op=={'Cast':{'Transmute':[adt(7),USIZE]}}:
+   require(arg=={'Copy':{'kind':{'Local':12},'ty':adt(7)}},'Changed bounded-capacity transmute')
+   return '(.use (.copy 12 [(.unwrap 7),.left]) false .byte)'
   if output==adt(13):
    require(op=={'Cast':{'Transmute':[adt(11),adt(13)]}} and arg=={'Copy':{'kind':{'Local':40},'ty':adt(11)}},'Changed dangling alignment conversion')
    return '(.enumAddress (.copy 40 [(.unwrap 11),.left]) 12 13)'
@@ -272,6 +285,110 @@ class LayoutPrefix:
     values.update({6:'(.live (some (capacityLayout capacity)))',7:'(.live (some (.scalar (.usize capacity))))'})
    lines+=['def '+label+' (ambient : Frame) (capacity : NativeWord64Memory.Word) : Frame :=',
     '  ⟨layoutTypes ambient,['+', '.join(values.get(i,'(ambient.slots['+str(i)+']?.getD .dead)') for i in range(self.count))+'],ambient.world⟩']
+  return '\n'.join(lines)+'\n'
+
+class CallerPreparation:
+ def __init__(self,parent):
+  self.parent=parent;self.prefixes={};self.calls={};self.views={}
+  for fid,owner,target,length,args,dest in [
+   (1,'alloc::vec::with_capacity',2,5,[{'Move':{'kind':{'Local':1},'ty':USIZE}},{'Move':{'kind':{'Local':5},'ty':adt(1)}},{'Copy':{'kind':{'Global':{'id':parent.layout_prefix.global_layout['def_id'],'generics':{'regions':[],'types':[],'const_generics':[],'trait_refs':[]}}},'ty':adt(4)}}],3),
+   (2,'alloc::raw_vec::with_capacity_in',3,6,[{'Copy':{'kind':{'Local':1},'ty':USIZE}},{'Move':{'kind':{'Local':14},'ty':adt(10)}},{'Move':{'kind':{'Local':2},'ty':adt(1)}},{'Copy':{'kind':{'Local':3},'ty':adt(4)}}],4)]:
+   f=parent.functions[fid];require(name(f)==owner and f['item_meta']['opacity']=='Transparent','Changed constructor caller owner')
+   body=f['body']['Structured']['body']['statements'];require(set(body[length]['kind'])=={'Call'},'Missing constructor call')
+   call=body[length]['kind']['Call'];require(set(call)=={'call','on_unwind'},'Unknown caller call effects')
+   callee=parent.functions[target];require(callee['item_meta']['opacity']=='Transparent' and callee['signature']=={'is_unsafe':False,'abi':'Rust','is_variadic':False,'inputs':[USIZE,adt(1),adt(4)] if target==2 else [USIZE,adt(10),adt(1),adt(4)],'output':adt(3) if target==2 else adt(8)},'Changed constructor callee signature')
+   require(call['call']=={'func':{'Regular':{'kind':{'Fun':{'Regular':target}},'generics':{'regions':[],'types':[],'const_generics':[],'trait_refs':[]}}},'args':args,'dest':{'kind':{'Local':dest},'ty':callee['signature']['output']}},'Changed constructor call arguments or target')
+   view=copy.copy(parent.layout_prefix);view.function=f;view.locals=f['body']['Structured']['locals']['locals'];view.count=len(view.locals)
+   self.prefixes[fid]=view.code(body[:length],'next');self.calls[fid]=call;self.views[fid]=view
+  t=parent.layout_prefix.types[10]
+  require(name(t)=='alloc::raw_vec::AllocInit' and t['item_meta']['opacity']=='Transparent' and [(v['id'],v['name'],v['fields'],v['discriminant']) for v in t['kind']['Enum']]==[(0,'Uninitialized',[],{'Scalar':{'Signed':['Isize','0']}}),(1,'Zeroed',[],{'Scalar':{'Signed':['Isize','1']}})],'Changed allocation initialization variants')
+  types=parent.layout_prefix.types
+  require([(f['name'],f['ty']) for f in types[0]['kind']['Struct']]==[('buf',adt(2)),('len',USIZE)] and [(f['name'],f['ty']) for f in types[2]['kind']['Struct']]==[('inner',adt(3)),('_marker',adt(5))],'Changed Vec wrappers')
+  layout=runpy.run_path(str(ROOT/'scripts/reify-hasteboots-rawvec-fields'))['layout']
+  require(types[0]['layout']==layout(24,8,[0,16]) and types[2]['layout']==layout(16,8,[0,16]),'Changed Vec wrapper layout')
+  vb=parent.functions[1]['body']['Structured']['body']['statements'];require(vb[-1]['kind']=='Return','Missing Vec caller return')
+  self.vec_tail=self.views[1].code(vb[6:-1],'.ret')
+  root=parent.functions[0];rb=root['body']['Structured']['body']['statements']
+  require(parent.functions[1]['signature']==root['signature'] and set(rb[3]['kind'])=={'Call'} and rb[-1]['kind']=='Return','Changed root call shape')
+  call=rb[3]['kind']['Call'];require(set(call)=={'call','on_unwind'} and call['call']=={'func':{'Regular':{'kind':{'Fun':{'Regular':1}},'generics':{'regions':[],'types':[],'const_generics':[],'trait_refs':[]}}},'args':[{'Move':{'kind':{'Local':2},'ty':USIZE}}],'dest':{'kind':{'Local':0},'ty':adt(0)}},'Changed root call')
+  view=copy.copy(parent.layout_prefix);view.function=root;view.locals=root['body']['Structured']['locals']['locals'];view.count=len(view.locals)
+  self.root_prefix=view.code(rb[:3],'next');self.root_tail=view.code(rb[4:-1],'.ret')
+  self.raw_tail=self.tail_code(parent.functions[2]['body']['Structured']['body']['statements'][7:])
+ def tail_code(self,statements):
+  code='.done';view=self.views[2]
+  for statement in reversed(statements):
+   k=statement['kind']
+   if k=='Return':require(code=='.done','Nonterminal caller return');code='.ret'
+   elif isinstance(k,dict) and set(k)=={'Switch'}:
+    switch=k['Switch']
+    if set(switch)=={'Match'}:
+     place,arms,otherwise=switch['Match'];require(place=={'kind':{'Local':4},'ty':adt(8)} and len(arms)==2 and arms[0][0]==[0] and arms[1][0]==[1] and not arms[0][1]['statements'] and otherwise is None,'Changed caller Result dispatch')
+     code='(.matchChoice 4 [] 8 .done error '+code+')'
+    elif set(switch)=={'If'}:
+     test,yes,no=switch['If'];require(test=={'Const':{'kind':{'Literal':{'Bool':False}},'ty':BOOL}} and len(yes['statements'])==1 and not no['statements'],'Changed cold assertion dispatch')
+     code='(.constIf false cold .done '+code+')'
+    else:
+     require(set(switch)=={'SwitchInt'},'Unsupported caller switch');test,width,arms,otherwise=switch['SwitchInt']
+     require(test=={'Copy':{'kind':{'Local':11},'ty':USIZE}} and width=={'UInt':'Usize'} and len(arms)==1 and arms[0][0]==[{'Scalar':{'Unsigned':['Usize','0']}}] and otherwise is not None,'Changed caller element-size dispatch')
+     code='(.switchUsize (.copy 11 []) 0 '+self.tail_code(arms[0][1]['statements'])+' '+self.tail_code(otherwise['statements'])+' '+code+')'
+   elif isinstance(k,dict) and set(k)=={'Assert'}:
+    a=k['Assert'];require(set(a)=={'assert','on_failure','on_unwind'} and a['assert']=={'cond':{'Copy':{'kind':{'Local':5},'ty':BOOL}},'expected':True,'check_kind':None} and a['on_failure']=='UndefinedBehavior' and [s['kind'] for s in a['on_unwind']['statements']]==['UnwindResume'],'Changed caller assumption')
+    code='(.switchBoolean (.copy 5 []) '+code+' .abort .done)'
+   else:code=view.code([statement],code)
+  return code
+ def render(self):
+  lines=['def uninitializedValue : NativeRecordValues.Value := .record 10 (.choice false (.scalar .unit))',
+   'def allocationInitType : NativeRecordValues.Ty := .record 10 (.choice (.scalar .unit) (.scalar .unit))',
+   'def vecCallerPrefix (next : Body) : Body := '+self.prefixes[1],
+   'def rawCallerPrefix (next : Body) : Body := '+self.prefixes[2],
+   'def rawCallerTail (error cold : Body) : Body := '+self.raw_tail,
+   'def rawCallerArgs : List Operand := [(.copy 1 []),(.move 14 []),(.move 2 []),(.copy 3 [])]',
+   'def vecCallerArgs : List Operand := [(.move 1 []),(.move 5 []),(.layoutLiteral 1 1 4 11 12)]',
+   'def calleeEntryAmbient (ambient : Frame) : Frame :=',
+   '  ⟨['+', '.join('allocationInitType' if i==2 else '(ambient.types['+str(i)+']?.getD (.scalar .unit))' for i in range(54))+'],[.dead,.dead,.live (some uninitializedValue),.live (some allocatorValue)] ++ List.replicate 50 .dead,ambient.world⟩',
+   'def zeroCalleeBody : Body := layoutPrefix (.unsupported "source overflow arm") (capacityDispatch zeroSizeBody (.unsupported "source positive arm") .done) (.unsupported "source layout error arm") (.unsupported "source following tail")',
+   'def zeroCallee (ambient : Frame) : Function := ⟨"alloc::raw_vec::try_allocate_in",.transparent,layoutTypes (calleeEntryAmbient ambient),4,zeroCalleeBody⟩',
+   'def rawCallerTypes (ambient : Frame) : List NativeRecordValues.Ty := ['+', '.join({0:'((layoutTypes (calleeEntryAmbient ambient))[8]?.getD (.scalar .unit))',1:'(.scalar .usize)',2:'(.record 1 (.scalar .unit))',3:'((layoutTypes (calleeEntryAmbient ambient))[4]?.getD (.scalar .unit))',4:'((layoutTypes (calleeEntryAmbient ambient))[0]?.getD (.scalar .unit))',14:'allocationInitType',5:'.boolean',6:'.boolean',9:'(.scalar .usize)',10:'(.scalar .usize)',11:'(.scalar .usize)',12:'(.record 7 (.pair (.scalar .usize) (.scalar .unit)))'}.get(i,'(ambient.types['+str(i)+']?.getD (.scalar .unit))') for i in range(15))+']']
+  for label in ['rawCallerFrame','rawCallerPrepared','rawCallerMoved','rawCallerReturned']:
+   values={1:'(.live (some (.scalar (.usize capacity))))',2:'(.live (some allocatorValue))',3:'(.live (some byteLayout))'}
+   if label!='rawCallerFrame':
+    values.update({i:'(.live none)' for i in [0,8,13,4]});values[14]='(.live (some uninitializedValue))'
+   if label in ['rawCallerMoved','rawCallerReturned']:values.update({i:'(.live (some .uninit))' for i in [2,14]})
+   if label=='rawCallerReturned':values[4]='(.live (some zeroResultValue))'
+   lines+=['def '+label+' (ambient : Frame) (capacity : NativeWord64Memory.Word) : Frame :=',
+    '  ⟨rawCallerTypes ambient,['+', '.join(values.get(i,'(ambient.slots['+str(i)+']?.getD .dead)') for i in range(15))+'],ambient.world⟩']
+  lines+=['def rawCallerCall (ambient : Frame) (unwind next : Body) : Body := rawCallerPrefix (.call (zeroCallee ambient).name (zeroCallee ambient).classification (zeroCallee ambient).types (zeroCallee ambient).argCount 4 rawCallerArgs (zeroCallee ambient).body unwind next)']
+  raw='((layoutTypes (calleeEntryAmbient ambient))[8]?.getD (.scalar .unit))'
+  marker='(.record 5 (.scalar .unit))';allocator='(.record 1 (.scalar .unit))'
+  buf='(.record 2 (.pair '+raw+' (.pair '+marker+' (.scalar .unit))))'
+  vec='(.record 0 (.pair '+buf+' (.pair (.scalar .usize) (.scalar .unit))))'
+  lines+=['def rawEntryAmbient (ambient : Frame) : Frame := {ambient with slots := List.replicate 15 .dead}',
+   'def rawZeroFunction (ambient : Frame) : Function := ⟨"alloc::raw_vec::with_capacity_in",.transparent,rawCallerTypes (rawEntryAmbient ambient),3,rawCallerCall (rawEntryAmbient ambient) (.unsupported "source raw caller unwind") (rawCallerTail (.unsupported "source reservation error arm") (.unsupported "source cold helper"))⟩',
+   'def vecCallerTypes (ambient : Frame) : List NativeRecordValues.Ty := ['+', '.join([vec,'(.scalar .usize)',buf,raw,marker,allocator])+']',
+   'def vecCallerTail : Body := '+self.vec_tail,
+   'def zeroVecValue : NativeRecordValues.Value := .record 0 (.pair (.record 2 (.pair zeroRawValue (.pair (.record 5 (.scalar .unit)) (.scalar .unit)))) (.pair (.scalar (.usize 0)) (.scalar .unit)))']
+  for label in ['vecCallerFrame','vecCallerPrepared','vecCallerMoved','vecCallerReturned']:
+   slots=['.dead','(.live (some (.scalar (.usize capacity))))','.dead','.dead','.dead','.dead']
+   if label!='vecCallerFrame':
+    for i in [0,2,3]:slots[i]='(.live none)'
+    slots[5]='(.live (some allocatorValue))'
+   if label in ['vecCallerMoved','vecCallerReturned']:
+    for i in [1,5]:slots[i]='(.live (some .uninit))'
+   if label=='vecCallerReturned':slots[3]='(.live (some zeroRawValue))'
+   lines+=['def '+label+' (ambient : Frame) ('+('_capacity' if label in ['vecCallerMoved','vecCallerReturned'] else 'capacity')+' : NativeWord64Memory.Word) : Frame := ⟨vecCallerTypes ambient,['+', '.join(slots)+'],ambient.world⟩']
+  lines+=['def vecCallerCall (ambient : Frame) (unwind next : Body) : Body := vecCallerPrefix (.call (rawZeroFunction ambient).name (rawZeroFunction ambient).classification (rawZeroFunction ambient).types (rawZeroFunction ambient).argCount 3 vecCallerArgs (rawZeroFunction ambient).body unwind next)',
+   'def vecZeroFunction (ambient : Frame) : Function := ⟨"alloc::vec::with_capacity",.transparent,vecCallerTypes ambient,1,vecCallerCall ambient (.unsupported "source Vec caller unwind") vecCallerTail⟩']
+  lines+=['def capacityRootTypes (ambient : Frame) : List NativeRecordValues.Ty := [(vecCallerTypes ambient)[0]?.getD (.scalar .unit),(.scalar .usize),(.scalar .usize)]',
+   'def capacityRootPrefix (next : Body) : Body := '+self.root_prefix,
+   'def capacityRootTail : Body := '+self.root_tail]
+  for label in ['capacityRootFrame','capacityRootPrepared','capacityRootMoved','capacityRootReturned']:
+   slots=['.dead','(.live (some (.scalar (.usize capacity))))','.dead']
+   if label!='capacityRootFrame':slots[0]='(.live none)';slots[2]='(.live (some (.scalar (.usize capacity))))'
+   if label in ['capacityRootMoved','capacityRootReturned']:slots[2]='(.live (some .uninit))'
+   if label=='capacityRootReturned':slots[0]='(.live (some zeroVecValue))'
+   lines+=['def '+label+' (ambient : Frame) (capacity : NativeWord64Memory.Word) : Frame := ⟨capacityRootTypes ambient,['+', '.join(slots)+'],ambient.world⟩']
+  lines+=['def capacityRootCall (ambient : Frame) (unwind next : Body) : Body := capacityRootPrefix (.call (vecZeroFunction ambient).name (vecZeroFunction ambient).classification (vecZeroFunction ambient).types (vecZeroFunction ambient).argCount 0 [(.move 2 [])] (vecZeroFunction ambient).body unwind next)',
+   'def capacityZeroRoot (ambient : Frame) : Function := ⟨"hasteboots_vec_capacity_arithmetic::capacity",.transparent,capacityRootTypes ambient,1,capacityRootCall ambient (.unsupported "source root unwind") capacityRootTail⟩']
   return '\n'.join(lines)+'\n'
 
 def main():

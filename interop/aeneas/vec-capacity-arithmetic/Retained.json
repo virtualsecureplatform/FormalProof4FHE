@@ -83294,5 +83294,5 @@
       ]
     }
   ],
-  "claim": "original scalar assignments and contiguous layout prefix with arbitrary continuations; whole constructor, calls, error suffixes, ABI and physical work remain open"
+  "claim": "original scalar assignments, continuous layout prefix and decoded zero-capacity source call path; positive construction, unprocessed error/unwind branches, ABI and physical work remain open"
 }
