@@ -1,3 +1,4 @@
+import FormalProof4FHE.HasteBoots.PrivateCoinByteFailure
 import FormalProof4FHE.HasteBoots.PrivateCoinByteEmbedding
 import FormalProof4FHE.HasteBoots.PrivateCoinConfigurationUnion
 import FormalProof4FHE.HasteBoots.PrivateCoinClosedGoldRisk

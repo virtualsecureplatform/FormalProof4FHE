@@ -18092,3 +18092,82 @@ were not rerun for this interpreter extension.
 
 Full-check log: `/tmp/private-coin-byte-full-check.log`; SHA-256
 `4f76bc48233ee3ef2ee12a5c778fbfbdce69306ad85abd3d52fd26c260a67d27`.
+
+## Runtime-coin requests, lineage and executable-failure coverage
+
+`InstructionClock` provides reusable iteration of single-instruction commands.
+A `done next` command returns that instruction's next state and iteration
+continues; it does not terminate the whole machine. Finite prefixes resume
+exactly, retain the actual residual state and append the same mixed oracle
+history. First positive stream exposures are located on that instruction
+clock and recover the complete earlier history, including inherited prequeries.
+
+`PrivateCoinByteRequest` constructs the exact command of the runtime-coin
+interpreter. Base instructions lift the existing ordinary request and retain
+the private cursor in every response continuation. Coin/local instructions
+are silent commands returning their real next state. `command_exact` and
+`take_exact` link this classification and the reusable clock to the actual
+priced interpreter, without a replacement evaluator or an assumed request
+trace. A newly positive read supplies the existing first-read selector;
+private coin steps cannot fabricate such an exposure.
+
+`PrivateCoinByteLineage` derives first-read packets and full history splits
+from the actual runtime-coin execution. It locates the instruction index,
+proves the conditional-law selector chooses that input there, recovers the
+same earlier mixed log and retains the first positive output plus the entire
+later suffix. There is no observation-count proxy for instruction time and
+no fabricated start or reset of the private cursor/oracle history.
+
+`PrivateCoinByteNativeCoverage.accepted_coverage` now extends the native
+accepted-false-analysis-claim coverage theorem to this interpreter. Actual
+native acceptance/log inclusion, parsed-view and response-fit premises are
+retained. First-read packets and source-history splits are derived rather
+than supplied as additional premises. The conclusion is source disagreement,
+early receipt, field proximity or column exposure on this same runtime-coin
+execution.
+
+`PrivateCoinByteFailure` defines the lifetime executable-source-extractor
+failure event for runtime-coin programs. It reuses the existing executable
+witness type, which is independent of the interpreter's state type, and
+proves its log-level equivalence to the analysis witness under the existing
+calibrated target certificate. Its `failure_covered` theorem derives the
+combined root/source, early-receipt and field/column hazard event. Joint
+measurability of every finite failure prefix and the unbounded lifetime event
+follows from full-result finite tape use and oracle replay; no new
+joint-measurability hypothesis or countable support of infinite tapes is
+assumed. It can therefore be averaged over independent private randomness
+using the existing integration theorem.
+
+Thirteen regressions cover silent-command resumption, private steps and
+zero-length reads that do not expose a stream, two coin reads before a
+positive far-offset read, retained SHA-512/start/empty-read observations,
+repeat exclusion, exact first-exposure lineage, inherited exposure after
+resumption, joint failure measurability, combined hazard coverage and
+private-tape integration. The concrete fixture has eight instructions and
+three mixed observations before its first positive read. Twenty-four guards
+audit every new production theorem; both root libraries import the modules.
+These fixtures do not claim a complete native PBS run.
+
+Next, transfer the root/source, receipt and field/column hazard-to-work
+bounds to the runtime-coin interpreter for each fixed private tape, then
+integrate the now measurable executable failure event against its proved
+runtime work expectation. Apply the product-measure identity to the failure
+event itself; the per-tape hazard bounds then suffice without a new joint
+measurability proof for every hazard event. The old quantitative bounds still apply to their
+original interpreter/private-initialization model; a quantitative bound for
+arbitrary runtime-coin programs is not yet established. Trusted native
+registry/profile/quota and application-family binding, actor-cost separation,
+public PBS semantics, native BabyBear coverage and physical/native
+implementation refinement remain open. The final security goal remains open.
+
+Validation: full `scripts/check` completed with exit status zero, including
+11,137 build jobs and all subsequent audit/smoke commands. The final targeted
+build passed with 4,659 jobs. All twenty-four new theorem guards reported only
+the usual three allowed axioms or subsets, including two proofs using none.
+No proof placeholders, extra logical axioms, native decision proofs,
+proof-limit increases or linter suppression were introduced. All input and
+manifest hashes of the five retained-source gates were checked unchanged;
+those extraction gates were not rerun for this causal-coverage extension.
+
+Full-check log: `/tmp/private-coin-lineage-full-check.log`; SHA-256
+`b1a5d7e5ec6d39db4a5ee66ec46ef9622b346c4f8b4d166a92b51fac96ed971f`.
