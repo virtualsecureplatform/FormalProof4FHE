@@ -663,3 +663,5 @@ import FormalProof4FHE.HasteBoots.NativeHeapFrame
 import FormalProof4FHE.HasteBoots.NativeRecordHeapBounds
 
 import FormalProof4FHE.HasteBoots.NativeHeapRelease
+
+import FormalProof4FHE.HasteBoots.NativeResidentVec
