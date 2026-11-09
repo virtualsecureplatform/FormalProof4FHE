@@ -61,8 +61,8 @@ with the preceding layout bound. The reservation-error field representation is
 arbitrary and unused; its source variant declaration is validated. Eight further
 source examples check zero/positive dispatch, failure propagation and storage
 lifetimes. The current gate has 361 dependency audits and 42 rejecting controls.
-Zero-size return construction and the positive allocator-mode dispatch remain
-unprocessed source continuations.
+At that stage zero-size return construction and the positive allocator-mode
+dispatch were unprocessed; the subsequent extensions below handle the zero path.
 
 
 `ZeroProof.lean` executes all 41 statements of the source zero-size arm and
@@ -76,3 +76,19 @@ the alignment enum through the new checked enum-address operation; its eight
 model regressions cover provenance, move consumption, zero/tag/kind rejection and
 world preservation. The positive allocation path and whole Rust constructor
 refinement remain open.
+
+
+`CallerProof.lean` closes the decoded capacity-zero fixture path through the
+original Vec and RawVec callers and the allocation helper. Twenty-three theorems
+prove source Global/Uninitialized construction, ordered argument moves, checked
+callee entry, caller resumption, the raw caller's capacity assumption, both
+aggregate returns and the final decoded root. No allocator premise is needed;
+the modeled world is unchanged. Unused logical-local/error types remain arbitrary,
+and unprocessed positive/error/unwind branches explicitly report unsupported.
+This is a zero-capacity source-path result, with native ABI/compiler/lifetime and
+positive constructor refinement still open.
+
+The gate now passes 433 dependency audits, 66 rejecting controls and 37 source
+regressions. `CallerSmoke.lean` checks malformed arguments, moved operands, exact
+vector fields, zero-root execution over arbitrary worlds and an explicitly
+unsupported positive-size callee. Production interpreter/root imports are unchanged.

@@ -1,8 +1,8 @@
 {
-  "profile": "retained-zero-capacity-source-return-with-checked-enum-address-v4",
+  "profile": "decoded-zero-capacity-source-root-and-nested-call-chain-v5",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-4o28x8in/manifest.json",
-  "gate_manifest_sha256": "8dc4bda3612a018bbed3b0779c5aa6f614dbeeaee799c33596724df155cfc9d1",
+  "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-xxa_b8lg/manifest.json",
+  "gate_manifest_sha256": "34127153090b0f22783185d1e4c68c43a8eaa7b0c9a7dbdcd7f42be4cc8ff874",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -14,10 +14,12 @@
     "49cfed0d66ee5b5740b7337e058ac46cdfbbe771",
     "7f83378c32a3c8cc40d388aefd9695ba63f3e5fe",
     "d720135badb2c1003008b7614a53175dbf6405df",
-    "b4e826eec33ffa2ecdb6b54a082e521f831d3072"
+    "b4e826eec33ffa2ecdb6b54a082e521f831d3072",
+    "156600e9a96c31f4214e1ce555989f712d70221b",
+    "17b14f953d835c4ff99212195017d4713729b8c4"
   ],
-  "dependency_audit_count": 374,
-  "negative_control_count": 50,
+  "dependency_audit_count": 433,
+  "negative_control_count": 66,
   "negative_controls": {
     "wrong_target": "Wrong target",
     "not_monomorphized": "Wrong extraction profile",
@@ -68,10 +70,26 @@
     "wrong_zero_rawvec_field_order": "Changed zero-return fields",
     "wrong_zero_return_variant": "Changed zero-return aggregate",
     "wrong_zero_physical_pointer_offset": "Changed zero-return physical layout",
-    "wrong_capacity_upper_bound": "Changed prefix Boolean literal"
+    "wrong_capacity_upper_bound": "Changed prefix Boolean literal",
+    "global_copy_instead_of_move": "Changed constructor call arguments or target",
+    "inner_global_copy_instead_of_move": "Changed constructor call arguments or target",
+    "reordered_inner_arguments": "Changed constructor call arguments or target",
+    "wrong_root_call_target": "Changed root call",
+    "root_copy_instead_of_move": "Changed root call",
+    "changed_callee_signature": "Changed constructor callee signature",
+    "changed_allocation_mode_discriminant": "Changed allocation initialization variants",
+    "missing_global_construction": "Unknown prefix statement",
+    "missing_allocation_mode_construction": "Unknown prefix statement",
+    "caller_size_move_instead_of_copy": "Changed caller element-size dispatch",
+    "caller_false_assumption": "Changed caller assumption",
+    "caller_wrong_assumption_failure": "Changed caller assumption",
+    "changed_vec_wrapper_fields": "Changed Vec wrappers",
+    "changed_vec_wrapper_offset": "Changed Vec wrapper layout",
+    "missing_root_return": "Changed root call shape",
+    "extra_call_effect": "Unknown caller call effects"
   },
   "inputs": {
-    "scripts/check-hasteboots-vec-capacity-arithmetic": "a101b3f84a7291b649ebe34ea3d7f7281607e9e961a8869c421a3f2774c4dd8e",
+    "scripts/check-hasteboots-vec-capacity-arithmetic": "4606e683b93740a13ac77391bbb113b230d5ff2c17b021998c2e47ce85a66e28",
     "scripts/check-hasteboots-allocator-caller": "9a6a379f86a2e72e311e0391573e6513ed370a87ae09c7a41c3f1feccd798098",
     "scripts/build-hasteboots-inline-tools": "efda9a152172fdebfb14919f4c29e920f12da0d2ad71ab45ee526a27d9713452",
     "scripts/extract-hasteboots-parameters": "9ab0b333e12a4dac0fea4e37bc8bee430bdf56cac7eb4bcb5fa999ceab140993",
@@ -93,7 +111,7 @@
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
     "scripts/reify-hasteboots-variant-body": "2d0326329d538bb43685617133c2ecd96da497c81295cd221315807576383825",
-    "scripts/reify-hasteboots-vec-capacity-arithmetic": "cb7c773df1a74627383df77d1f165e4c514335571e9655da90c212d6525e404c",
+    "scripts/reify-hasteboots-vec-capacity-arithmetic": "3bc398c13d7029c313cd8dfacb21f87a9624d44c282b205caa3bbd4a33ed60ab",
     "scripts/reify-hasteboots-vec-drop": "0ef983324e439064ea0969a4fc60d6a574137d5548a1feaee727f018b9b1eb8d",
     "scripts/reify-hasteboots-vec-empty": "00a7debb4c04056f86a5fe37ecead6b1f26a8a6fa45642c9b7b6fa76a3532ccd",
     "FormalProof4FHE/HasteBoots/NativeAtomicIndexLaw.lean": "05162b4db7430d055e1a0cddd1a789836ea00740c6fcee9e552fb8a27dec576d",
@@ -536,28 +554,30 @@
     "FormalProof4FHETest/HasteBootsRecordArithmeticSmoke.lean": "83c9d04c9715f6c339e17fd5dd49602850ddb6189a206438e0cbb8a6fa257111",
     "FormalProof4FHETest/HasteBootsRecordArithmeticAudit.lean": "e02ccd12113415f36008ec5fcd252b76587698d8392c2620e0477452d61985d9",
     "interop/aeneas/vec-capacity-arithmetic/fixture.rs": "a1b4abdec2d161f72fd7e843f8d49e276aff4ce79b95cc0884807a084f620861",
-    "interop/aeneas/vec-capacity-arithmetic/Generated.lean": "507f8be11fe297f0ba883c52628352a702006d4a02e2cb4c95669dd39d1b0a11",
-    "interop/aeneas/vec-capacity-arithmetic/Retained.json": "1c49ab8d19589357fcc5e83203e7535a47d406b5e92ff82f1853f5e3a75a784f",
+    "interop/aeneas/vec-capacity-arithmetic/Generated.lean": "e078d1d8a86dfb9ee8f1bd245367b03ee50b5ec34c80ae09245588db0ff898f0",
+    "interop/aeneas/vec-capacity-arithmetic/Retained.json": "797c79f20dc245262170cfac7aaf0ba468d4bfbdd627c6141e469c2dddaead83",
     "interop/aeneas/vec-capacity-arithmetic/Proof.lean": "7a15b251f41be0ea0ca802b9cd68956aed7446968cb737607348477e323bf518",
     "interop/aeneas/vec-capacity-arithmetic/LayoutProof.lean": "31a80b3e5b8eb9a85bc9154abe0a5b573b2368ada8c09ba1d7929ebdb6edfe4b",
     "interop/aeneas/vec-capacity-arithmetic/AcceptedProof.lean": "e64b1b81eb85e40ac9e01c1748bc1e9aabf975c064532f9a25297d558e4d6797",
     "interop/aeneas/vec-capacity-arithmetic/ZeroProof.lean": "213f14ae0cb8f12350a08022c606d23b3c89d674197007343a0958e9bd5c5acd",
+    "interop/aeneas/vec-capacity-arithmetic/CallerProof.lean": "337d8ffa8cdf703b3351cb362422f73a6b3a711a70922fcda3de7a392a2d4792",
     "interop/aeneas/vec-capacity-arithmetic/Smoke.lean": "62710e1fb00e8db3b3f5a0232ea568dd616594e30171dbc10bb9f21a2f7fe08f",
     "interop/aeneas/vec-capacity-arithmetic/LayoutSmoke.lean": "5aed39dd3f94928d8ec11c49643504c8d5e553e5f62f9897cbeefa38c8c2a92c",
     "interop/aeneas/vec-capacity-arithmetic/AcceptedSmoke.lean": "cb8b53a45b6d27fd0636169b6321554ce79a6fd00a94b402399c7f028c236a09",
-    "interop/aeneas/vec-capacity-arithmetic/ZeroSmoke.lean": "61f625de1a737753c7ddc6c87eb5a269d5924adb064ca116a889d17d6a40776e"
+    "interop/aeneas/vec-capacity-arithmetic/ZeroSmoke.lean": "61f625de1a737753c7ddc6c87eb5a269d5924adb064ca116a889d17d6a40776e",
+    "interop/aeneas/vec-capacity-arithmetic/CallerSmoke.lean": "d580434f8ff73bb853c96a1d161fcb3b268b6ab7b2aa0b2c2e71781d0e775e64"
   },
-  "source_llbc_sha256": "2e61e306dcd7270726ad1248af3cd4e7a8ae4e5ba1b56282aea18145919b193a",
-  "checked_sha256": "dd540e0953207ba9ba7e39bdc6190496f5c9390819f9ce254b5caf4e32d97853",
-  "source_definition_count": 43,
-  "source_theorem_count": 18,
-  "source_declaration_audit_count": 61,
+  "source_llbc_sha256": "7c6c363fd8958ea41b03d7c0460fedb50bb59aceb334a8f02180e2c11020fc3c",
+  "checked_sha256": "2340e0bc0509d99f2a339dd36c2e0ee776154acfe3782fa43f6e49314f325d92",
+  "source_definition_count": 79,
+  "source_theorem_count": 41,
+  "source_declaration_audit_count": 120,
   "core_extension_declaration_audit_count": 35,
-  "new_declaration_audit_count": 96,
+  "new_declaration_audit_count": 155,
   "retained_function_count": 21,
   "retained_type_count": 31,
   "isolated_assignment_count": 9,
-  "source_regression_count": 26,
+  "source_regression_count": 37,
   "model_regression_count": 25,
   "arithmetic_extension": {
     "module": "FormalProof4FHE/HasteBoots/NativeRecordArithmetic.lean",
@@ -604,8 +624,8 @@
       "negative_control_count": 87
     },
     "empty": {
-      "manifest": "build/hasteboots-extraction/vec-empty-a5bqmm4d/manifest.json",
-      "manifest_sha256": "116f03ba090cecfd5a32aab1e72b8b6f8324f7f138c2c9be26ca8475557509b8",
+      "manifest": "build/hasteboots-extraction/vec-empty-3qlifhiz/manifest.json",
+      "manifest_sha256": "5dffbce1814eb12dfda9063d9e1cec958a9dc5f112417b2c7c8bb61ba446bea7",
       "dependency_audit_count": 339,
       "negative_control_count": 17
     },
@@ -616,7 +636,7 @@
       "negative_control_count": 31
     }
   },
-  "validation_note": "Fresh coupled-tool extraction, source proof checks, dependency audits and rejecting controls passed after adding checked enum-derived addresses. The full project check passed. The zero-capacity source arm is proved with an initialized Global premise; positive allocation, complete caller/constructor argument refinement, native ABI, physical work and final security remain open.",
+  "validation_note": "Fresh coupled-tool source extraction passed with 433 dependency audits, 66 rejecting controls and 37 source regressions. Twenty-three new source theorems compose the decoded root and all three nested calls on capacity zero, including source Global construction and no allocator premise. The empty-vector gate was freshly rerun. Existing destructor and allocator-caller receipt input hashes remain current. The recorded full check remains applicable: no production interpreter, root import or root test changed. New source-profile proofs are compiled and audited by the fresh gate. Positive allocation, unprocessed error/unwind execution, complete native type/ABI/compiler/lifetime refinement, physical work and final security remain open.",
   "prior_isolated_assignment_baseline": {
     "profile": "retained-with-capacity-scalar-assignments-and-typed-boolean-arithmetic-v1",
     "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-hmaelxmc/manifest.json",
@@ -674,5 +694,31 @@
   "zero_size_allocator_initialized_premise": true,
   "zero_size_exact_nominal_return_proved": true,
   "zero_size_world_unchanged_proved": true,
-  "positive_and_following_continuations_skipped": true
+  "positive_and_following_continuations_skipped": true,
+  "prior_zero_size_arm_baseline": {
+    "profile": "retained-zero-capacity-source-return-with-checked-enum-address-v4",
+    "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-4o28x8in/manifest.json",
+    "gate_manifest_sha256": "8dc4bda3612a018bbed3b0779c5aa6f614dbeeaee799c33596724df155cfc9d1",
+    "dependency_audit_count": 374,
+    "negative_control_count": 50
+  },
+  "zero_capacity_decoded_root_proved": true,
+  "zero_capacity_call_chain_source_functions": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "zero_capacity_call_chain_call_count": 3,
+  "decoded_zero_root_requires_allocator_premise": false,
+  "zero_capacity_external_allocator_success_assumption": false,
+  "zero_capacity_source_global_and_uninitialized_construction_proved": true,
+  "zero_capacity_call_argument_moves_and_type_checks_proved": true,
+  "zero_capacity_result_and_caller_resumption_proved": true,
+  "raw_caller_capacity_assumption_and_cleanup_proved": true,
+  "zero_capacity_exact_vector_fields_and_world_proved": true,
+  "unused_logical_local_and_unchosen_error_types_arbitrary": true,
+  "unprocessed_source_branches_explicitly_unsupported": true,
+  "positive_callee_unsupported_regression": true,
+  "rust_with_capacity_refinement_proved": false
 }

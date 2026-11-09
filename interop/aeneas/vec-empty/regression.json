@@ -1,8 +1,8 @@
 {
   "profile": "original-empty-byte-vec-revalidated-with-checked-enum-address-v5",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-empty-a5bqmm4d/manifest.json",
-  "gate_manifest_sha256": "116f03ba090cecfd5a32aab1e72b8b6f8324f7f138c2c9be26ca8475557509b8",
+  "gate_manifest": "build/hasteboots-extraction/vec-empty-3qlifhiz/manifest.json",
+  "gate_manifest_sha256": "5dffbce1814eb12dfda9063d9e1cec958a9dc5f112417b2c7c8bb61ba446bea7",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -23,7 +23,9 @@
     "49cfed0d66ee5b5740b7337e058ac46cdfbbe771",
     "7f83378c32a3c8cc40d388aefd9695ba63f3e5fe",
     "d720135badb2c1003008b7614a53175dbf6405df",
-    "b4e826eec33ffa2ecdb6b54a082e521f831d3072"
+    "b4e826eec33ffa2ecdb6b54a082e521f831d3072",
+    "156600e9a96c31f4214e1ce555989f712d70221b",
+    "17b14f953d835c4ff99212195017d4713729b8c4"
   ],
   "dependency_audit_count": 339,
   "source_definition_count": 8,
@@ -75,7 +77,7 @@
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
     "scripts/reify-hasteboots-variant-body": "2d0326329d538bb43685617133c2ecd96da497c81295cd221315807576383825",
-    "scripts/reify-hasteboots-vec-capacity-arithmetic": "cb7c773df1a74627383df77d1f165e4c514335571e9655da90c212d6525e404c",
+    "scripts/reify-hasteboots-vec-capacity-arithmetic": "3bc398c13d7029c313cd8dfacb21f87a9624d44c282b205caa3bbd4a33ed60ab",
     "scripts/reify-hasteboots-vec-drop": "0ef983324e439064ea0969a4fc60d6a574137d5548a1feaee727f018b9b1eb8d",
     "scripts/reify-hasteboots-vec-empty": "00a7debb4c04056f86a5fe37ecead6b1f26a8a6fa45642c9b7b6fa76a3532ccd",
     "FormalProof4FHE/HasteBoots/NativeAtomicIndexLaw.lean": "05162b4db7430d055e1a0cddd1a789836ea00740c6fcee9e552fb8a27dec576d",
@@ -523,7 +525,7 @@
     "interop/aeneas/vec-empty/Proof.lean": "e49c37943109ddd3fac76fade3e940454dd06f0e18b8ab1bcc0ffbdbfcb6a2f6",
     "interop/aeneas/vec-empty/Smoke.lean": "5c0cba3dfda637c34c2d2b735f362f71b013f17b2408e98ece36450c366ac244"
   },
-  "source_llbc_sha256": "e8270b4526ebc818d5de680a4ae723960ca3943e669eeb8d4a3c3ff2d088813d",
+  "source_llbc_sha256": "0008c1417eec19470bdbb350523ce151022a0b7f51f1e9a973b35bd94d2299e3",
   "checked_sha256": "e8854c26bd78507e0f95b7ef67de8135b42d036d0bc0a70d07579b12ce24ffe9",
   "original_constructor_and_direct_caller_interpreted": true,
   "exact_nominal_return_for_arbitrary_world_proved": true,
@@ -555,7 +557,7 @@
     "dependency_audit_count": 977,
     "negative_control_count": 87
   },
-  "validation_note": "Fresh coupled-tool extraction, source proof checks, dependency audits and rejecting controls passed after adding checked enum-derived addresses. The full project check passed. The zero-capacity source arm is proved with an initialized Global premise; positive allocation, complete caller/constructor argument refinement, native ABI, physical work and final security remain open.",
+  "validation_note": "Revalidated with 339 audits and 17 rejecting controls after the capacity reifier gained the decoded zero-capacity call chain. Empty-source proofs and production modules are unchanged; the recorded full project check remains applicable.",
   "prior_storage_bridge_baseline": {
     "manifest": "build/hasteboots-extraction/vec-empty-e010m81k/manifest.json",
     "sha256": "3d2248477bca4fce9445e4cbc4bb66e001323c05beae90deed8b7ecefcf5d5bf",
@@ -640,5 +642,9 @@
     "exposed_address_has_no_allocation_origin_or_length": true,
     "heap_and_incoming_reference_preservation_extended": true,
     "native_alignment_transmute_abi_refinement": false
+  },
+  "prior_decoded_zero_root_revalidation_baseline": {
+    "gate_manifest": "build/hasteboots-extraction/vec-empty-a5bqmm4d/manifest.json",
+    "gate_manifest_sha256": "116f03ba090cecfd5a32aab1e72b8b6f8324f7f138c2c9be26ca8475557509b8"
   }
 }

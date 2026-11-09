@@ -7,6 +7,38 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Decoded zero-capacity constructor call chain
+
+`capacity_zero_root` now proves the decoded fixture root at capacity zero through
+all four original source bodies: the fixture, `Vec::with_capacity`,
+`RawVecInner::with_capacity_in` and `try_allocate_in`. The source constructs Global
+and Uninitialized values, evaluates the actual ordered arguments and partial
+moves, passes the interpreter's argument/type checks, executes the zero-size
+return, resumes both callers and builds the returned vector. The result has
+length zero, capacity zero and dangling address 1 with no allocation origin;
+the complete modeled memory/reference world is unchanged. No initialized-Global
+premise or external allocator success assumption is needed for this root theorem.
+
+The raw-vector caller's source tail is also interpreted: Result success dispatch,
+field extraction, element-size dispatch, bounded-capacity conversion, wrapping
+subtraction, comparison, Boolean negation, constant-false cold dispatch, checked
+assumption and cleanup. The unreachable error, positive allocation and unwind
+branches are explicit unsupported bodies. The zero theorem proves that none is
+executed. Logical types for unused locals and unchosen error fields remain
+arbitrary; native type layout, calling convention, stack lifetime and compiler
+correspondence are still separate proof obligations.
+
+The fresh capacity gate passes 433 dependency audits, 66 rejecting controls and
+37 source regressions. Eleven new examples cover the decoded root, malformed
+arguments, operand consumption, exact vector fields and explicit unsupported
+positive allocation. Twenty-three new source theorems compose these results.
+No production interpreter or root import changed; the previously recorded full
+project check remains applicable, and the source proofs are compiled/audited by
+the fresh gate. Next, interpret the positive-size allocator-mode/reference path
+and its allocation/error outcomes, then connect successful construction to the
+resident-storage/destructor theorems. Full positive constructor refinement,
+physical work and the final HasteBoots security theorem remain open.
+
 ## Source zero-capacity return
 
 The source `try_allocate_in` zero-size arm now executes all 41 retained
@@ -28,10 +60,10 @@ reservation-error representation remains arbitrary. The capacity gate passes 374
 dependency audits, 50 rejecting controls and 26 source regressions; eight new
 conversion regressions bring the shared arithmetic/address smoke suite to 25.
 
-This is a modeled source zero-capacity path theorem with an explicit initialized
-Global premise. Decoding the complete constructor arguments, proving its caller,
-the positive-size allocator-mode branch and allocator/error/abort execution are
-still required. Native ABI/compiler/lifetime correspondence, physical work and
+This earlier path theorem has an explicit initialized Global premise. The decoded
+call-chain theorem above now discharges its caller and argument initialization
+for zero capacity. The positive-size allocator-mode branch and allocator/error/abort
+execution remain required. Native ABI/compiler/lifetime correspondence, physical work and
 the final HasteBoots security theorem remain open.
 
 ## Source success aggregates and capacity dispatch
