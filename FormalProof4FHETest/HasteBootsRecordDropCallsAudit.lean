@@ -91,3 +91,11 @@ import all FormalProof4FHE.HasteBoots.NativeRecordDropCalls
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeRecordDropCalls.invokes_reachable
 
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeRecordDropCalls.runs_deterministic' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeRecordDropCalls.runs_deterministic
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeRecordDropCalls.invokes_deterministic' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeRecordDropCalls.invokes_deterministic

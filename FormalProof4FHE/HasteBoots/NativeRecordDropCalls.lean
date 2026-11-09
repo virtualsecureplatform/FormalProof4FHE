@@ -268,4 +268,218 @@ theorem invokes_reachable (function : Definition) (world : State) (args : List I
     NativeReferenceMachine.Reachable flow.world :=
   NativeSliceLLBC.reference_runs_reachable _ _ reachable (invokes_projects function world args flow invoked)
 
+/-- Retained calls and explicit scope cleanup do not introduce a choice of
+execution outcome. The embedded loop uses its unbounded determinism theorem. -/
+theorem runs_deterministic (code : Code) (frame : Frame) (left right : Flow)
+    (first : Runs code frame left) (second : Runs code frame right) : left = right := by
+  induction code generalizing frame left right with
+  | done => cases first; cases second; rfl
+  | scope body next bodyIH nextIH =>
+    cases first <;> cases second <;> (try simp_all [Flow.terminal]) <;>
+      aesop (add safe forward [bodyIH])
+  | native body next nextIH =>
+    cases first <;> cases second <;> (try simp_all [Flow.terminal]) <;> aesop
+  | call name classification types count target args callee unwind next calleeIH unwindIH nextIH =>
+    cases first <;> cases second
+    case callNext.callNext callerA enteredA changedA returnedA resumedA calledA preparedA laterA callerB enteredB changedB returnedB resumedB calledB preparedB laterB =>
+      have pairEq := Option.some.inj (preparedA.symm.trans preparedB)
+      have sameCaller := congrArg Prod.fst pairEq
+      have sameEntered := congrArg Prod.snd pairEq
+      dsimp only at sameCaller sameEntered
+      subst callerB
+      subst enteredB
+      have sameResult := calleeIH enteredA returnedA returnedB calledA calledB
+      subst returnedB
+      have sameResume := resumedA.symm.trans resumedB
+      cases sameResume
+      exact nextIH changedA left right laterA laterB
+    case callNext.callUnwind callerA enteredA changedA returnedA resumedA calledA preparedA laterA callerB enteredB changedB returnedB resumedB calledB preparedB laterB =>
+      have pairEq := Option.some.inj (preparedA.symm.trans preparedB)
+      have sameCaller := congrArg Prod.fst pairEq
+      have sameEntered := congrArg Prod.snd pairEq
+      dsimp only at sameCaller sameEntered
+      subst callerB
+      subst enteredB
+      have sameResult := calleeIH enteredA returnedA returnedB calledA calledB
+      subst returnedB
+      have sameResume := resumedA.symm.trans resumedB
+      cases sameResume
+    case callNext.callStopped callerA enteredA changedA returnedA resumedA calledA preparedA laterA callerB enteredB returnedB worldB resumedB calledB preparedB =>
+      have pairEq := Option.some.inj (preparedA.symm.trans preparedB)
+      have sameCaller := congrArg Prod.fst pairEq
+      have sameEntered := congrArg Prod.snd pairEq
+      dsimp only at sameCaller sameEntered
+      subst callerB
+      subst enteredB
+      have sameResult := calleeIH enteredA returnedA returnedB calledA calledB
+      subst returnedB
+      have sameResume := resumedA.symm.trans resumedB
+      cases sameResume
+    case callNext.callUnsupported callerA enteredA changedA returnedA resumedA calledA preparedA laterA callerB enteredB returnedB sourceB worldB resumedB calledB preparedB =>
+      have pairEq := Option.some.inj (preparedA.symm.trans preparedB)
+      have sameCaller := congrArg Prod.fst pairEq
+      have sameEntered := congrArg Prod.snd pairEq
+      dsimp only at sameCaller sameEntered
+      subst callerB
+      subst enteredB
+      have sameResult := calleeIH enteredA returnedA returnedB calledA calledB
+      subst returnedB
+      have sameResume := resumedA.symm.trans resumedB
+      cases sameResume
+    case callUnwind.callNext callerA enteredA changedA returnedA resumedA calledA preparedA laterA callerB enteredB changedB returnedB resumedB calledB preparedB laterB =>
+      have pairEq := Option.some.inj (preparedA.symm.trans preparedB)
+      have sameCaller := congrArg Prod.fst pairEq
+      have sameEntered := congrArg Prod.snd pairEq
+      dsimp only at sameCaller sameEntered
+      subst callerB
+      subst enteredB
+      have sameResult := calleeIH enteredA returnedA returnedB calledA calledB
+      subst returnedB
+      have sameResume := resumedA.symm.trans resumedB
+      cases sameResume
+    case callUnwind.callUnwind callerA enteredA changedA returnedA resumedA calledA preparedA laterA callerB enteredB changedB returnedB resumedB calledB preparedB laterB =>
+      have pairEq := Option.some.inj (preparedA.symm.trans preparedB)
+      have sameCaller := congrArg Prod.fst pairEq
+      have sameEntered := congrArg Prod.snd pairEq
+      dsimp only at sameCaller sameEntered
+      subst callerB
+      subst enteredB
+      have sameResult := calleeIH enteredA returnedA returnedB calledA calledB
+      subst returnedB
+      have sameResume := resumedA.symm.trans resumedB
+      cases sameResume
+      exact unwindIH changedA left right laterA laterB
+    case callUnwind.callStopped callerA enteredA changedA returnedA resumedA calledA preparedA laterA callerB enteredB returnedB worldB resumedB calledB preparedB =>
+      have pairEq := Option.some.inj (preparedA.symm.trans preparedB)
+      have sameCaller := congrArg Prod.fst pairEq
+      have sameEntered := congrArg Prod.snd pairEq
+      dsimp only at sameCaller sameEntered
+      subst callerB
+      subst enteredB
+      have sameResult := calleeIH enteredA returnedA returnedB calledA calledB
+      subst returnedB
+      have sameResume := resumedA.symm.trans resumedB
+      cases sameResume
+    case callUnwind.callUnsupported callerA enteredA changedA returnedA resumedA calledA preparedA laterA callerB enteredB returnedB sourceB worldB resumedB calledB preparedB =>
+      have pairEq := Option.some.inj (preparedA.symm.trans preparedB)
+      have sameCaller := congrArg Prod.fst pairEq
+      have sameEntered := congrArg Prod.snd pairEq
+      dsimp only at sameCaller sameEntered
+      subst callerB
+      subst enteredB
+      have sameResult := calleeIH enteredA returnedA returnedB calledA calledB
+      subst returnedB
+      have sameResume := resumedA.symm.trans resumedB
+      cases sameResume
+    case callStopped.callNext callerA enteredA returnedA worldA resumedA calledA preparedA callerB enteredB changedB returnedB resumedB calledB preparedB laterB =>
+      have pairEq := Option.some.inj (preparedA.symm.trans preparedB)
+      have sameCaller := congrArg Prod.fst pairEq
+      have sameEntered := congrArg Prod.snd pairEq
+      dsimp only at sameCaller sameEntered
+      subst callerB
+      subst enteredB
+      have sameResult := calleeIH enteredA returnedA returnedB calledA calledB
+      subst returnedB
+      have sameResume := resumedA.symm.trans resumedB
+      cases sameResume
+    case callStopped.callUnwind callerA enteredA returnedA worldA resumedA calledA preparedA callerB enteredB changedB returnedB resumedB calledB preparedB laterB =>
+      have pairEq := Option.some.inj (preparedA.symm.trans preparedB)
+      have sameCaller := congrArg Prod.fst pairEq
+      have sameEntered := congrArg Prod.snd pairEq
+      dsimp only at sameCaller sameEntered
+      subst callerB
+      subst enteredB
+      have sameResult := calleeIH enteredA returnedA returnedB calledA calledB
+      subst returnedB
+      have sameResume := resumedA.symm.trans resumedB
+      cases sameResume
+    case callStopped.callStopped callerA enteredA returnedA worldA resumedA calledA preparedA callerB enteredB returnedB worldB resumedB calledB preparedB =>
+      have pairEq := Option.some.inj (preparedA.symm.trans preparedB)
+      have sameCaller := congrArg Prod.fst pairEq
+      have sameEntered := congrArg Prod.snd pairEq
+      dsimp only at sameCaller sameEntered
+      subst callerB
+      subst enteredB
+      have sameResult := calleeIH enteredA returnedA returnedB calledA calledB
+      subst returnedB
+      have sameResume := resumedA.symm.trans resumedB
+      cases sameResume
+      rfl
+    case callStopped.callUnsupported callerA enteredA returnedA worldA resumedA calledA preparedA callerB enteredB returnedB sourceB worldB resumedB calledB preparedB =>
+      have pairEq := Option.some.inj (preparedA.symm.trans preparedB)
+      have sameCaller := congrArg Prod.fst pairEq
+      have sameEntered := congrArg Prod.snd pairEq
+      dsimp only at sameCaller sameEntered
+      subst callerB
+      subst enteredB
+      have sameResult := calleeIH enteredA returnedA returnedB calledA calledB
+      subst returnedB
+      have sameResume := resumedA.symm.trans resumedB
+      cases sameResume
+    case callUnsupported.callNext callerA enteredA returnedA sourceA worldA resumedA calledA preparedA callerB enteredB changedB returnedB resumedB calledB preparedB laterB =>
+      have pairEq := Option.some.inj (preparedA.symm.trans preparedB)
+      have sameCaller := congrArg Prod.fst pairEq
+      have sameEntered := congrArg Prod.snd pairEq
+      dsimp only at sameCaller sameEntered
+      subst callerB
+      subst enteredB
+      have sameResult := calleeIH enteredA returnedA returnedB calledA calledB
+      subst returnedB
+      have sameResume := resumedA.symm.trans resumedB
+      cases sameResume
+    case callUnsupported.callUnwind callerA enteredA returnedA sourceA worldA resumedA calledA preparedA callerB enteredB changedB returnedB resumedB calledB preparedB laterB =>
+      have pairEq := Option.some.inj (preparedA.symm.trans preparedB)
+      have sameCaller := congrArg Prod.fst pairEq
+      have sameEntered := congrArg Prod.snd pairEq
+      dsimp only at sameCaller sameEntered
+      subst callerB
+      subst enteredB
+      have sameResult := calleeIH enteredA returnedA returnedB calledA calledB
+      subst returnedB
+      have sameResume := resumedA.symm.trans resumedB
+      cases sameResume
+    case callUnsupported.callStopped callerA enteredA returnedA sourceA worldA resumedA calledA preparedA callerB enteredB returnedB worldB resumedB calledB preparedB =>
+      have pairEq := Option.some.inj (preparedA.symm.trans preparedB)
+      have sameCaller := congrArg Prod.fst pairEq
+      have sameEntered := congrArg Prod.snd pairEq
+      dsimp only at sameCaller sameEntered
+      subst callerB
+      subst enteredB
+      have sameResult := calleeIH enteredA returnedA returnedB calledA calledB
+      subst returnedB
+      have sameResume := resumedA.symm.trans resumedB
+      cases sameResume
+    case callUnsupported.callUnsupported callerA enteredA returnedA sourceA worldA resumedA calledA preparedA callerB enteredB returnedB sourceB worldB resumedB calledB preparedB =>
+      have pairEq := Option.some.inj (preparedA.symm.trans preparedB)
+      have sameCaller := congrArg Prod.fst pairEq
+      have sameEntered := congrArg Prod.snd pairEq
+      dsimp only at sameCaller sameEntered
+      subst callerB
+      subst enteredB
+      have sameResult := calleeIH enteredA returnedA returnedB calledA calledB
+      subst returnedB
+      have sameResume := resumedA.symm.trans resumedB
+      cases sameResume
+      rfl
+    all_goals simp_all only [reduceCtorEq]
+  | loop classification function =>
+    cases first <;> cases second <;> (try simp_all)
+    aesop (add safe forward [NativeByteLoopLLBC.executes_deterministic])
+
+theorem invokes_deterministic (function : Definition) (world : State) (args : List Input) (left right : Flow)
+    (first : Invokes function world args left) (second : Invokes function world args right) : left = right := by
+  cases first with
+  | argumentsInvalid rejected => cases second <;> simp_all
+  | initialInvalid values decoded rejected => cases second <;> simp_all
+  | run values frame flow decoded initialized executed =>
+    cases second with
+    | argumentsInvalid rejected => simp_all
+    | initialInvalid other found rejected => simp_all
+    | run other entered returned found prepared ran =>
+      have sameValues := Option.some.inj (decoded.symm.trans found)
+      subst other
+      have sameEntry := Option.some.inj (initialized.symm.trans prepared)
+      subst entered
+      rw [runs_deterministic function.code frame flow returned executed ran]
+
 end FormalProof4FHE.HasteBoots.NativeRecordDropCalls
