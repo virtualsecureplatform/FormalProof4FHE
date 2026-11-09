@@ -1,5 +1,25 @@
 # Original resident Vec destruction
 
+## Stored fields establish initialized Vec header borrows
+
+`NativeByteRangeCompleteness` now composes adjacent initialized reads while
+preserving their complete pointer origin. Heap well-formedness identifies the
+same allocation for both reads; numerical adjacency alone is insufficient.
+`Descriptor.header_initialized` derives the complete 24-byte aligned header read
+from its existing capacity, pointer and length observations. It requires no new
+whole-header initialization assumption and no initialization of unused capacity.
+
+`NativeBorrowFrontier.grant_initialized` extends the checked child-grant
+completion argument to aligned record layouts. `vec_header_grant_complete`
+combines it with the derived header read and the explicit logical alias frontier.
+The actual grant mints the child reference and preserves its frontier. This
+establishes an input to the remaining source borrow/call proof; it does not yet
+prove normal RawVec return or whole-Vec destruction.
+
+The addition has six theorems, six model regressions and dependency audits for
+all six declarations. The regressions include uninitialized spare capacity,
+a missing byte, and a numerically adjacent pointer with a different generation.
+
 ## The retained slice helper and Vec byte method return unit
 
 `ByteMethodReturnProof.lean` composes traversal completion through the retained

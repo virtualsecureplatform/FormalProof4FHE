@@ -1,8 +1,8 @@
 {
-  "profile": "original-resident-vec-destruction-with-successful-byte-method-return-v15",
+  "profile": "original-resident-vec-destruction-with-derived-header-initialization-v16",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-drop-i9nd3cok/manifest.json",
-  "gate_manifest_sha256": "82f89075706e7078de723a66819098adac41926fd9995064a1d0e58906828451",
+  "gate_manifest": "build/hasteboots-extraction/vec-drop-tnkictqe/manifest.json",
+  "gate_manifest_sha256": "a5f39e6f98ce55c5952d7096ec2f0f7655c515d65fcbee0a32b1fb2dee217801",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -35,9 +35,11 @@
     "b8085a05fe7d07dc0bee5163f876a91da537871a",
     "42c2d67078af06096090b5f33fb8b373fa1bd779",
     "506ce8041f0b1b272274a5699eee951a88557fc8",
-    "396c31809080885a24ae4c63ba5619caad23ab26"
+    "396c31809080885a24ae4c63ba5619caad23ab26",
+    "7de84e6e155556724ba52e62a1147fe41e21ad90",
+    "418eccf0253b679ffca193592242b3eec96b7d54"
   ],
-  "dependency_audit_count": 813,
+  "dependency_audit_count": 819,
   "negative_control_count": 70,
   "negative_controls": {
     "wrong_profile": "Wrong extraction profile",
@@ -117,8 +119,8 @@
   "interpreter_helper_theorem_count": 3,
   "source_loop_theorem_count": 16,
   "source_composition_theorem_count": 17,
-  "new_declaration_audit_count": 403,
-  "model_regression_count": 171,
+  "new_declaration_audit_count": 409,
+  "model_regression_count": 177,
   "source_regression_count": 75,
   "inputs": {
     "scripts/check-hasteboots-vec-drop": "b593448b77e0ce6cbda5722dfce5044dec60040877b59a71e5ba28c302518d6a",
@@ -175,8 +177,8 @@
     "FormalProof4FHE/HasteBoots/NativeRecordCallValues.lean": "6aa63875bf445f426e3484cbf425f58e378f83d31f93e8faab8b2f04eb272b56",
     "FormalProof4FHE/HasteBoots/NativeIncomingReference.lean": "f5e52dc9c5055e99643cd552b9c488066c11143cfde9bde8e3d805599a917479",
     "FormalProof4FHE/HasteBoots/NativeRecordIncomingReference.lean": "36daf682bbbd383eff81a297b63f3a86b3d6054d6837b753c3db22fee7c28ac9",
-    "FormalProof4FHE/HasteBoots/NativeByteRangeCompleteness.lean": "1aca2332957ff9e41b2bc19b41c22b31f54a88dc35e342c0a299a5aee3389ddc",
-    "FormalProof4FHE/HasteBoots/NativeBorrowFrontier.lean": "95b14ee0164bbc197577a84314277b749fa39fd1b4ef9eb7d974296880e59980",
+    "FormalProof4FHE/HasteBoots/NativeByteRangeCompleteness.lean": "42338fd4ea467bea2c48c733e71cb664674aa986df25d63d28efe7efa9df9996",
+    "FormalProof4FHE/HasteBoots/NativeBorrowFrontier.lean": "3801d9cf6f405ec296aa7df340893ef4bf50d144b315280b1d165b21cee4073f",
     "FormalProof4FHE/HasteBoots/NativeScopeRestoration.lean": "0347d3276180625f8d05b4be9d6cb4ac3689848814c61260b5b91905d9edb20d",
     "FormalProof4FHE/HasteBoots/NativeByteTraversalCompleteness.lean": "a78fcac306ffc1822c56ad1cf5a79075bf001a444f6df2e1ffb254c9d65a1fa0",
     "FormalProof4FHE/HasteBoots/NativeVecBytePrefix.lean": "e5c626d594a180380d0ba1832e116448a383f5d277600931a1f7394f3c92e488",
@@ -221,10 +223,10 @@
     "FormalProof4FHETest/HasteBootsIncomingReferenceAudit.lean": "e4c2dfe30dfbef8dc37e4d6295a8f015b7bb288138e2459f5b9ece23a5874f20",
     "FormalProof4FHETest/HasteBootsRecordIncomingReferenceSmoke.lean": "38193b3fd4712174c3e504822d7819666cc3c1ca8080920917671da012dbf3ec",
     "FormalProof4FHETest/HasteBootsRecordIncomingReferenceAudit.lean": "47c56a5f6d4aa39a2284cd4ef8e53aafba7e7d360acd2128cbbd79aa1a789763",
-    "FormalProof4FHETest/HasteBootsByteRangeCompletenessSmoke.lean": "23da327972cfcd5e447d0c2f332371dd6354558b27bc3fc67fe58e12386efb4e",
-    "FormalProof4FHETest/HasteBootsByteRangeCompletenessAudit.lean": "8d19199963fdc9aa10e8eddf242e6d88632aa799c65dfcaa321381ab68c00075",
+    "FormalProof4FHETest/HasteBootsByteRangeCompletenessSmoke.lean": "4587ca09a0d8599df9bdec542e4476b55ab912927b8e1c33e62ee6f7be7d9c25",
+    "FormalProof4FHETest/HasteBootsByteRangeCompletenessAudit.lean": "2985344d678dee23437c26ff772f19286b0d6c24953570a7fab2020292f543df",
     "FormalProof4FHETest/HasteBootsBorrowFrontierSmoke.lean": "4d88408411533a407e13c239ea4d484396b983f15201b88f53c584cd35fa79d3",
-    "FormalProof4FHETest/HasteBootsBorrowFrontierAudit.lean": "cd73e7b5d16ae7cc3327d6c8723b899544434049ba64a601a2607f90dbafa01c",
+    "FormalProof4FHETest/HasteBootsBorrowFrontierAudit.lean": "bb7934daabf92c11a22744e0cab5f4886e783e5634c3dffde4dac21d69af5fac",
     "FormalProof4FHETest/HasteBootsScopeRestorationSmoke.lean": "4639b634beb8a45bdcaac3acb1d5c693ace9d81ae85d0f34d04978c936d59857",
     "FormalProof4FHETest/HasteBootsScopeRestorationAudit.lean": "f0fcb55b5cfc29dae9fe098711357c1bdef2e4f259bb0e512b6337d9a41d5786",
     "FormalProof4FHETest/HasteBootsTraversalCompletenessSmoke.lean": "2e84ec797ed78141496ea626d328253c898a452f9056e0297dcb5ac3a09b5fa7",
@@ -232,7 +234,7 @@
     "FormalProof4FHETest/HasteBootsVecBytePrefixSmoke.lean": "eb3539e646e35e4bc952a829119cc4b028a45d0900bbd1e74f12552e99173d22",
     "FormalProof4FHETest/HasteBootsVecBytePrefixAudit.lean": "bf1bf11e7db9c2ca65cd57665591cdaa219bb6dfbd903ffbb8f35b1367f09457"
   },
-  "source_llbc_sha256": "b5cd9a8b04246fe9b183e413d0832cbe342eb9b84739cee78d49253ca1d8c965",
+  "source_llbc_sha256": "39a26524560c796ac2502f9e5fc4a0ab4ed53dc13ca2037bf94a94988f7ec3d5",
   "outer_vec_drop_glue_interpreted": true,
   "outer_vec_drop_method_interpreted": true,
   "unbounded_original_byte_loop_interpreted": true,
@@ -249,8 +251,8 @@
     "command": "scripts/check",
     "exit_code": 0,
     "build_jobs": 11062,
-    "log": "/tmp/hasteboots-byte-method-return-full-check.log",
-    "log_sha256": "b990418fb66a586055390792766152ad03ed0087f367456aa9a1a51131c2b5c3"
+    "log": "/tmp/hasteboots-header-initialization-full-check.log",
+    "log_sha256": "728012b85303decf1a38bf15bd85c994fbcb1460762e14d1045dc0fb42ca65ed"
   },
   "prior_gate_manifest": {
     "path": "build/hasteboots-extraction/vec-drop-j6ky4k09/manifest.json",
@@ -607,6 +609,29 @@
     "resident_header_handoff_proved": true,
     "reachability_initialization_capacity_separation_and_header_frontier_explicit": true,
     "successful_callee_or_cleanup_premise": false,
+    "sufficient_whole_vec_success_conditions_proved": false,
+    "retained_function_bodies_and_type_declarations_unchanged": true
+  },
+  "prior_header_initialization_baseline": {
+    "manifest": "build/hasteboots-extraction/vec-drop-i9nd3cok/manifest.json",
+    "manifest_sha256": "82f89075706e7078de723a66819098adac41926fd9995064a1d0e58906828451",
+    "dependency_audit_count": 813
+  },
+  "header_initialization": {
+    "range_module": "FormalProof4FHE/HasteBoots/NativeByteRangeCompleteness.lean",
+    "grant_module": "FormalProof4FHE/HasteBoots/NativeBorrowFrontier.lean",
+    "theorem_count": 6,
+    "declaration_guard_count": 6,
+    "model_regression_count": 6,
+    "adjacent_initialized_reads_composed": true,
+    "same_complete_origin_and_heap_wellformedness_required": true,
+    "full_aligned_header_read_derived_from_stored_fields": true,
+    "whole_header_initialization_premise": false,
+    "spare_capacity_initialization_required": false,
+    "aligned_record_child_grant_complete": true,
+    "fresh_child_alias_frontier_preserved": true,
+    "vec_header_child_grant_complete": true,
+    "normal_rawvec_source_return_proved": false,
     "sufficient_whole_vec_success_conditions_proved": false,
     "retained_function_bodies_and_type_declarations_unchanged": true
   }
