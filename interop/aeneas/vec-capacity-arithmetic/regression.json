@@ -1,8 +1,8 @@
 {
-  "profile": "normal-allocation-error-through-exclusive-global-drop-v13",
+  "profile": "rejected-byte-layout-and-generic-global-drop-v14",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-h160c6ye/manifest.json",
-  "gate_manifest_sha256": "735beb3ef1af780d32a802dca2578deeb571807a1a3b86eed6c73d7d0c7af524",
+  "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-ufslqsap/manifest.json",
+  "gate_manifest_sha256": "8d6f71a8a1a01315f43de32d09892e01d227534124684b285dafea7ffc253f6c",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -30,10 +30,11 @@
     "d7c17152d52f38dfe6a5bdbd338f23644d7014a4",
     "9f47bb1b561aa95b80955d73ac02a1acd9f1270f",
     "466557da7d95275a1b8eb81583c0803bd68e53af",
-    "793dc8cca88d57eab22a16c1b4684d9a65b6c7e9"
+    "793dc8cca88d57eab22a16c1b4684d9a65b6c7e9",
+    "d3633803a97049b8b751bae51cd878141bc814bb"
   ],
-  "dependency_audit_count": 724,
-  "negative_control_count": 141,
+  "dependency_audit_count": 747,
+  "negative_control_count": 149,
   "negative_controls": {
     "wrong_target": "Wrong target",
     "not_monomorphized": "Wrong extraction profile",
@@ -175,10 +176,18 @@
     "changed_global_drop_unwind_exit": "Changed normal drop unwind exit",
     "changed_reservation_error_kind_fields": "Changed reservation error kind fields",
     "changed_reservation_error_kind_variant": "Changed reservation error aggregate fields",
-    "moved_reservation_error_layout": "Changed reservation error source operand modes or locals"
+    "moved_reservation_error_layout": "Changed reservation error source operand modes or locals",
+    "changed_rejected_layout_error_variant": "Changed rejected layout fields, variants or operand modes",
+    "changed_capacity_overflow_kind_variant": "Changed rejected layout fields, variants or operand modes",
+    "copied_rejected_layout_error": "Changed rejected layout fields, variants or operand modes",
+    "copied_capacity_overflow_kind": "Changed rejected layout fields, variants or operand modes",
+    "copied_capacity_overflow_wrapper": "Changed rejected layout fields, variants or operand modes",
+    "missing_rejected_layout_cleanup": "Unknown prefix statement",
+    "global_drop_cleanup_reopens_storage": "Changed Global drop cleanup operations",
+    "global_drop_cleanup_destroys_return": "Changed Global drop cleanup result storage"
   },
   "inputs": {
-    "scripts/check-hasteboots-vec-capacity-arithmetic": "cc259a81e2634740a3fcf64ce94a2b17735ca691d95ed4a5bad7c7a700edce0d",
+    "scripts/check-hasteboots-vec-capacity-arithmetic": "9a6be6f4b4e7bb28023744b50621de83fca932de9b5ea13385a574c6a9abbe86",
     "scripts/check-hasteboots-allocator-caller": "685e1e505b8e985f2862e69b41c8df0c238c3f8e7901366cecd375fbd3e383db",
     "scripts/build-hasteboots-inline-tools": "efda9a152172fdebfb14919f4c29e920f12da0d2ad71ab45ee526a27d9713452",
     "scripts/extract-hasteboots-parameters": "9ab0b333e12a4dac0fea4e37bc8bee430bdf56cac7eb4bcb5fa999ceab140993",
@@ -200,7 +209,7 @@
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
     "scripts/reify-hasteboots-variant-body": "2d0326329d538bb43685617133c2ecd96da497c81295cd221315807576383825",
-    "scripts/reify-hasteboots-vec-capacity-arithmetic": "bdf037be3c93830c08126da25c1ed14a254eb5cc021e0c4a213ab638f5494636",
+    "scripts/reify-hasteboots-vec-capacity-arithmetic": "9bd6eadb97745bf3ca4ddcf7cfe4a7ca3069cfc313a69fede9fc770098519787",
     "scripts/reify-hasteboots-vec-drop": "0ef983324e439064ea0969a4fc60d6a574137d5548a1feaee727f018b9b1eb8d",
     "scripts/reify-hasteboots-vec-empty": "00a7debb4c04056f86a5fe37ecead6b1f26a8a6fa45642c9b7b6fa76a3532ccd",
     "FormalProof4FHE/HasteBoots/NativeAllocatorExecution.lean": "2c3008e94760730cfbc65c7bee2707e107f23fabdb9df93f302c5848fc909a15",
@@ -650,7 +659,7 @@
     "FormalProof4FHETest/HasteBootsAllocatorExecutionSmoke.lean": "f35784d6b0c1935a62c375091630087ea91f73519032421c0ff865e11819be3f",
     "FormalProof4FHETest/HasteBootsAllocatorExecutionAudit.lean": "e3a812462caa6295d23425b1ba4b6bf5f933a1efc822430d3abbd819ff5b70a8",
     "interop/aeneas/vec-capacity-arithmetic/fixture.rs": "a1b4abdec2d161f72fd7e843f8d49e276aff4ce79b95cc0884807a084f620861",
-    "interop/aeneas/vec-capacity-arithmetic/Generated.lean": "18f0c8cd611a8db4125775d1da0b8c6a5ddef99099dda34af1d2744f5b80b9a0",
+    "interop/aeneas/vec-capacity-arithmetic/Generated.lean": "e3640a2ad1c95ad9515dcbea89efd4881074d24f3637227fc0cbe3b88e6385a8",
     "interop/aeneas/vec-capacity-arithmetic/Retained.json": "797c79f20dc245262170cfac7aaf0ba468d4bfbdd627c6141e469c2dddaead83",
     "interop/aeneas/vec-capacity-arithmetic/Proof.lean": "7a15b251f41be0ea0ca802b9cd68956aed7446968cb737607348477e323bf518",
     "interop/aeneas/vec-capacity-arithmetic/LayoutProof.lean": "31a80b3e5b8eb9a85bc9154abe0a5b573b2368ada8c09ba1d7929ebdb6edfe4b",
@@ -666,6 +675,8 @@
     "interop/aeneas/vec-capacity-arithmetic/ConstructionProof.lean": "9cea464f5d2d9a70f36bd08f610c87e021c5196ecfd06dcc7e8d7682797ec0cc",
     "interop/aeneas/vec-capacity-arithmetic/PositiveCallerProof.lean": "cbf7d6d29d925b12234ba706588a45b842901c1f5ba030aeed63c0799c0a6133",
     "interop/aeneas/vec-capacity-arithmetic/ConstructorErrorProof.lean": "14e684556f235f55e8b7af67b424364eda5dc8ddbd560e2da6e83eed658e88ef",
+    "interop/aeneas/vec-capacity-arithmetic/DropFrameProof.lean": "d8715605486dd9447f00c9b54bd0e892d4cbcfdc909f2dbb0eb8f07a213c542d",
+    "interop/aeneas/vec-capacity-arithmetic/RejectedLayoutProof.lean": "04681d866f4771c72913d72d9552de274883298822f2e8be2f0e3b925d333bac",
     "interop/aeneas/vec-capacity-arithmetic/Smoke.lean": "62710e1fb00e8db3b3f5a0232ea568dd616594e30171dbc10bb9f21a2f7fe08f",
     "interop/aeneas/vec-capacity-arithmetic/LayoutSmoke.lean": "5aed39dd3f94928d8ec11c49643504c8d5e553e5f62f9897cbeefa38c8c2a92c",
     "interop/aeneas/vec-capacity-arithmetic/AcceptedSmoke.lean": "cb8b53a45b6d27fd0636169b6321554ce79a6fd00a94b402399c7f028c236a09",
@@ -678,19 +689,20 @@
     "interop/aeneas/vec-capacity-arithmetic/NullSmoke.lean": "52c120089ceccc6c62fa5b15a1363e569e878efdacb9018734588fddd8716515",
     "interop/aeneas/vec-capacity-arithmetic/ConstructionSmoke.lean": "c0c21ac6dbb8d42070f8b7d6ebd6c495d3d8c1bd72bcd9578d377dfed190f119",
     "interop/aeneas/vec-capacity-arithmetic/PositiveCallerSmoke.lean": "d16c87d7e28e2b368027380b79bf633bcf0b7ccdb4f88fdc0e3b20b5291562ed",
-    "interop/aeneas/vec-capacity-arithmetic/ConstructorErrorSmoke.lean": "b7815aaad56bd64a557e89305a5ef73474dc164e82295089e6114358ae142216"
+    "interop/aeneas/vec-capacity-arithmetic/ConstructorErrorSmoke.lean": "b7815aaad56bd64a557e89305a5ef73474dc164e82295089e6114358ae142216",
+    "interop/aeneas/vec-capacity-arithmetic/RejectedLayoutSmoke.lean": "2cf4a62d8a8bdb570c62c6aa25e5ab566c08e30ac84686e60d6f8760ff8907f5"
   },
   "source_llbc_sha256": "d301cc3898da0acdbda28f1364d0e65a2fa7d5b08822ec997d14a2030ac213ec",
-  "checked_sha256": "c0c5884e53c199dec5649dcd441978e0f323d6269c262b78b9aa89e6dc836c42",
+  "checked_sha256": "08fedde8bb6469b18e1cb74018ed2cff400e6ea934b5a28aa51cee0a21bdc334",
   "source_definition_count": 100,
   "source_theorem_count": 55,
-  "source_declaration_audit_count": 304,
+  "source_declaration_audit_count": 327,
   "core_extension_declaration_audit_count": 144,
-  "new_declaration_audit_count": 448,
+  "new_declaration_audit_count": 471,
   "retained_function_count": 21,
   "retained_type_count": 31,
   "isolated_assignment_count": 9,
-  "source_regression_count": 100,
+  "source_regression_count": 108,
   "model_regression_count": 74,
   "arithmetic_extension": {
     "module": "FormalProof4FHE/HasteBoots/NativeRecordArithmetic.lean",
@@ -731,20 +743,20 @@
   },
   "revalidated_profiles": {
     "vec": {
-      "manifest": "build/hasteboots-extraction/vec-drop-wkrty1i4/manifest.json",
-      "manifest_sha256": "98ed6f284e3d92cbfecfe426828f45c5af58c79e0d2b1fb3ffa82e990b23e375",
+      "manifest": "build/hasteboots-extraction/vec-drop-dnp0lp97/manifest.json",
+      "manifest_sha256": "1f2ee0506eb557694331e37adbc1b3015c587158efb86923ef895826258df569",
       "dependency_audit_count": 1044,
       "negative_control_count": 87
     },
     "empty": {
-      "manifest": "build/hasteboots-extraction/vec-empty-95ajp0fe/manifest.json",
-      "manifest_sha256": "052e9829b01691c1dbdfd9b2bbfbabdacc9855e55cd7e5d713c4a5ffb8644c9d",
+      "manifest": "build/hasteboots-extraction/vec-empty-u12_erww/manifest.json",
+      "manifest_sha256": "3fdeeed0ce74f042857dfeeda90cde5cf984b92bfc5ca60ed1f050121b62d7ba",
       "dependency_audit_count": 395,
       "negative_control_count": 17
     },
     "allocator": {
-      "manifest": "build/hasteboots-extraction/allocator-caller-mrbujikk/manifest.json",
-      "manifest_sha256": "1974626cac4077d329c4ff70a45de3d7221179475d26f63bb34a5651bd60f16e",
+      "manifest": "build/hasteboots-extraction/allocator-caller-w7ep4j_1/manifest.json",
+      "manifest_sha256": "e5272c1fab3be359483eace68d07db4518127fafa70f0d65c4d244bf130f0ad7",
       "dependency_audit_count": 388,
       "negative_control_count": 31
     }
@@ -1105,5 +1117,55 @@
     "outer_caller_error_propagation_proved": false,
     "allocator_unwind_and_invalid_layout_paths_proved": false,
     "native_opaque_reservation_error_abi_refinement": false
-  }
+  },
+  "prior_rejected_layout_baseline": {
+    "profile": "normal-allocation-error-through-exclusive-global-drop-v13",
+    "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-h160c6ye/manifest.json",
+    "gate_manifest_sha256": "735beb3ef1af780d32a802dca2578deeb571807a1a3b86eed6c73d7d0c7af524",
+    "dependency_audit_count": 724,
+    "negative_control_count": 141
+  },
+  "generic_global_drop_frame": {
+    "source_theorem_count": 8,
+    "source_helper_definition_count": 4,
+    "checked_live_global_nominal_value": true,
+    "mutable_reference_and_unit_types_checked": true,
+    "source_slot_bounds_checked": true,
+    "actual_exclusive_borrow_and_concrete_drop_body": true,
+    "cleanup_list_from_retained_source": true,
+    "return_slot_preservation_and_index_bounds": true,
+    "no_assumption_on_unrelated_local_contents": true
+  },
+  "rejected_byte_layout": {
+    "source_theorem_count": 6,
+    "source_regression_count": 8,
+    "source_statement_ids": [
+      381,
+      382,
+      383,
+      384,
+      385,
+      386,
+      387,
+      388,
+      389,
+      390,
+      391,
+      392,
+      393,
+      394,
+      395
+    ],
+    "all_capacities_at_or_above_signed_limit": true,
+    "both_initialization_modes": true,
+    "source_error_variants_moves_drop_and_return_proved": true,
+    "typed_constructor_invocation_proved": true,
+    "no_shim_or_allocator_result_premise": true,
+    "heap_preservation": true,
+    "threshold_and_max_word_regressions": true,
+    "byte_multiplication_overflow_unreachable_from_existing_prefix_theorem": true,
+    "outer_error_propagation_proved": false,
+    "native_abi_compiler_lifetime_work_refinement": false
+  },
+  "root_full_check_reused_without_library_or_root_test_changes": true
 }

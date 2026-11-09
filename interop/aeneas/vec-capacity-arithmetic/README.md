@@ -211,3 +211,18 @@ profile has 724 audits, 141 rejecting controls and 100 source examples. Error
 propagation through outer callers, allocator unwind and invalid layout paths,
 native opaque-wrapper/ABI/compiler/lifetime correspondence, resident storage and
 physical work remain open.
+
+## Rejected layouts and reusable drop cleanup
+
+`DropFrameProof.lean` proves Global drop and cleanup for a checked caller frame,
+independently of unrelated local contents. The cleanup list comes from
+the retained source and excludes the return slot. `RejectedLayoutProof.lean`
+uses that result for capacities at or above `2^63`: the typed constructor returns
+`CapacityOverflow`, preserves the heap and performs the actual exclusive Global
+borrow/drop. No shim or allocator result is assumed on this rejected path.
+
+The profile has 747 audits, 149 rejecting controls and 108 source examples.
+Regressions include the exact threshold in both modes and maximum unsigned
+capacity. Outer error/unwind propagation, resident storage, native correspondence
+and physical work remain open. Byte multiplication overflow is proved unreachable
+by the existing prefix theorem; its unchosen arm remains explicit unsupported code.

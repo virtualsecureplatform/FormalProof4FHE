@@ -1,7 +1,7 @@
 {
-  "profile": "original-finite-allocator-caller-revalidated-with-exclusive-zst-drop-v11",
-  "gate_manifest": "build/hasteboots-extraction/allocator-caller-mrbujikk/manifest.json",
-  "gate_manifest_sha256": "1974626cac4077d329c4ff70a45de3d7221179475d26f63bb34a5651bd60f16e",
+  "profile": "original-finite-allocator-caller-revalidated-with-rejected-layout-v12",
+  "gate_manifest": "build/hasteboots-extraction/allocator-caller-w7ep4j_1/manifest.json",
+  "gate_manifest_sha256": "e5272c1fab3be359483eace68d07db4518127fafa70f0d65c4d244bf130f0ad7",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "status": "passed",
   "commands": [
@@ -742,5 +742,13 @@
     "dependency_audit_count": 373,
     "negative_control_count": 31
   },
-  "exclusive_zst_borrow_and_unit_settlement_revalidated": true
+  "exclusive_zst_borrow_and_unit_settlement_revalidated": true,
+  "prior_rejected_layout_baseline": {
+    "profile": "original-finite-allocator-caller-revalidated-with-exclusive-zst-drop-v11",
+    "gate_manifest": "build/hasteboots-extraction/allocator-caller-mrbujikk/manifest.json",
+    "gate_manifest_sha256": "1974626cac4077d329c4ff70a45de3d7221179475d26f63bb34a5651bd60f16e",
+    "dependency_audit_count": 388,
+    "negative_control_count": 31
+  },
+  "rejected_layout_source_extension_revalidated": true
 }

@@ -7,6 +7,37 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Rejected byte layouts through reusable Global drop
+
+`rejected_constructor_invocation` now proves that every byte capacity at or
+above `2^63` returns the source `CapacityOverflow` reservation error after Global
+drop. It starts from the original four typed constructor arguments, executes the
+rejected-layout aggregates and moves, then the concrete drop/cleanup continuation.
+It requires a well-formed world and explicit nonzero Global placement. It needs
+no shim-return or allocator-result premise: this path rejects before those calls.
+The heap is unchanged; exclusive zero-byte borrowing advances reference state.
+
+The Global drop proof is now reusable across caller return values and unrelated
+locals. It checks live source Global data, mutable-reference/unit types and slot
+bounds; its cleanup theorem follows the retained list of dead locals and preserves
+the return slot. Eight generic drop theorems and six rejection theorems are
+compiled with the existing proof limits. Source controls reject reopening storage
+or destroying the return slot during cleanup, and incorrect rejection variants or
+copy/move modes.
+
+Eight regressions cover the rejection threshold in both initialization modes,
+maximum unsigned capacity, exact error reason, heap/reference effects and generic
+cleanup. The capacity gate passes 747 dependency audits, 149 rejecting controls
+and 108 source examples. Destructor, allocator-caller and empty-constructor
+gates pass again at 1044/87, 388/31 and 395/17 audits/controls.
+Shared library/root-test inputs are unchanged; the last
+full project check remains applicable.
+
+Outer error propagation, allocator unwind cleanup, resident storage/destruction,
+native ABI/stack/type/compiler/lifetime correspondence, physical work and final
+security remain open. The byte multiplication-overflow arm remains uninterpreted;
+the existing prefix theorem proves it unreachable for these byte-capacity inputs.
+
 ## Allocation failure through Global drop
 
 `constructor_with_drop_failure` now proves normal positive-capacity allocation

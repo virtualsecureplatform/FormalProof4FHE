@@ -1,8 +1,8 @@
 {
-  "profile": "original-empty-byte-vec-revalidated-with-exclusive-zst-drop-v13",
+  "profile": "original-empty-byte-vec-revalidated-with-rejected-layout-v14",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-empty-95ajp0fe/manifest.json",
-  "gate_manifest_sha256": "052e9829b01691c1dbdfd9b2bbfbabdacc9855e55cd7e5d713c4a5ffb8644c9d",
+  "gate_manifest": "build/hasteboots-extraction/vec-empty-u12_erww/manifest.json",
+  "gate_manifest_sha256": "3fdeeed0ce74f042857dfeeda90cde5cf984b92bfc5ca60ed1f050121b62d7ba",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -81,7 +81,7 @@
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
     "scripts/reify-hasteboots-variant-body": "2d0326329d538bb43685617133c2ecd96da497c81295cd221315807576383825",
-    "scripts/reify-hasteboots-vec-capacity-arithmetic": "bdf037be3c93830c08126da25c1ed14a254eb5cc021e0c4a213ab638f5494636",
+    "scripts/reify-hasteboots-vec-capacity-arithmetic": "9bd6eadb97745bf3ca4ddcf7cfe4a7ca3069cfc313a69fede9fc770098519787",
     "scripts/reify-hasteboots-vec-drop": "0ef983324e439064ea0969a4fc60d6a574137d5548a1feaee727f018b9b1eb8d",
     "scripts/reify-hasteboots-vec-empty": "00a7debb4c04056f86a5fe37ecead6b1f26a8a6fa45642c9b7b6fa76a3532ccd",
     "FormalProof4FHE/HasteBoots/NativeAllocatorExecution.lean": "2c3008e94760730cfbc65c7bee2707e107f23fabdb9df93f302c5848fc909a15",
@@ -532,7 +532,7 @@
     "interop/aeneas/vec-empty/Proof.lean": "e49c37943109ddd3fac76fade3e940454dd06f0e18b8ab1bcc0ffbdbfcb6a2f6",
     "interop/aeneas/vec-empty/Smoke.lean": "5c0cba3dfda637c34c2d2b735f362f71b013f17b2408e98ece36450c366ac244"
   },
-  "source_llbc_sha256": "70418c7ae8b2d113934403396b5eb56ed0a8b753deb3d1d88126498099fb91cb",
+  "source_llbc_sha256": "7904ebaf58027f99b41292f11b6bf2fe6aa7e7726a3f1c372f78810a8dae1893",
   "checked_sha256": "751f619066943dc4773abed0b4ee7f3ad63e22f2b70705160a7b0d018177f3d1",
   "original_constructor_and_direct_caller_interpreted": true,
   "exact_nominal_return_for_arbitrary_world_proved": true,
@@ -751,5 +751,13 @@
     "dependency_audit_count": 380,
     "negative_control_count": 17
   },
-  "exclusive_zst_borrow_and_unit_settlement_revalidated": true
+  "exclusive_zst_borrow_and_unit_settlement_revalidated": true,
+  "prior_rejected_layout_baseline": {
+    "profile": "original-empty-byte-vec-revalidated-with-exclusive-zst-drop-v13",
+    "gate_manifest": "build/hasteboots-extraction/vec-empty-95ajp0fe/manifest.json",
+    "gate_manifest_sha256": "052e9829b01691c1dbdfd9b2bbfbabdacc9855e55cd7e5d713c4a5ffb8644c9d",
+    "dependency_audit_count": 395,
+    "negative_control_count": 17
+  },
+  "rejected_layout_source_extension_revalidated": true
 }
