@@ -58,9 +58,8 @@ controls; the capacity gate passed with 204 audits and twenty-five controls.
 The full `scripts/check` run passed its 11,011-job build and all subsequent
 smoke checks. Receipts and log hashes are recorded in `regression.json`.
 
-Next connect this original root to its caller `alloc::raw_vec::deallocate`.
-Implement the source's mutable receiver/shared reborrow and zero-byte Global-field
-borrow, consume the original Option match and preserve the returned pointer's
-complete identity through the actual allocator call. Then compose the original
-RawVec/Vec destruction path. Loan cleanup remains explicit ghost composition
-until native lifetime correspondence is proved.
+The [deallocation caller profile](../rawvec-deallocation/README.md) now connects
+this root to its original caller, shared receiver/Global borrows, Option match
+and allocator dispatch. Next compose the original RawVec/Vec destruction path.
+Loan cleanup remains explicit ghost composition until native lifetime
+correspondence is proved.

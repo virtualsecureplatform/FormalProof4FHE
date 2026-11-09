@@ -7,6 +7,43 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## The original RawVec deallocation caller now composes with the allocator path
+
+The [RawVec caller profile](../interop/aeneas/rawvec-deallocation/README.md)
+composes its original mutable receiver, shared whole-object and zero-byte Global
+field borrows, `current_memory` call, actual Option match and allocator calls.
+`NativeRawVecBorrow` validates resident exclusive entry and executes address
+derivation and checked loan issuance as separate machine steps. Its six theorems
+prove registration, execution/reachability, issued reference identity and heap
+preservation. One interpreter helper theorem extends the existing projections;
+nineteen new declaration audits and fifteen model regressions accompany it.
+
+Eight source theorems prove execution projections, the zero-element caller path
+and heap preservation through explicit scope cleanup, and exact byte-aligned
+external-entry semantics with one allocation removed on its normal return.
+Fifteen end-to-end source regressions cover actual data removal, both zero paths,
+loan cleanup, rejection prefixes, active data borrows, double free and generation
+reuse. The nonzero caller path is currently covered by these regressions, not a
+universal nonzero caller-outcome theorem. The external leaf remains the checked
+logical deallocation specification; native allocator correspondence is open.
+
+The final profile gate passed 235 dependency audits, twenty-four rejection
+controls and an Option-branch mutation checked in Lean. The full `scripts/check`
+run passed its 11,014-job build and subsequent smoke checks; the final source
+gate also checks the two external-entry theorems. Receipts and log hashes are
+recorded in the profile. Global deallocation was
+revalidated with 258 audits and 34 controls, and `current_memory` with 230 audits
+and twenty-three controls. Earlier `current_memory` generated code is unchanged
+by the assignment/continuation translator hooks. Classifications are preserved;
+call region labels are validated before logical comparison, without claiming
+native lifetime correspondence.
+
+Next compose original RawVec/Vec drop methods and glue with mutable subobject
+borrows and byte-drop traversal. Universal caller characterization, native
+construction/carrier/reference/stack/layout/ABI and lifetime/compiler refinement,
+allocator correctness, physical work and the complete security theorem remain
+open. The protocol and expected-work target above is unchanged.
+
 ## The original RawVec current_memory root is now reified
 
 The [current-memory profile](../interop/aeneas/rawvec-current-memory/README.md)
@@ -35,10 +72,9 @@ still needs native carrier validity/bitcast and reference/stack/layout/ABI,
 lifetime/compiler correspondence. This milestone supplies neither native
 constructor acceptance nor an allocator/physical-work/final-security theorem.
 
-Next interpret the original RawVec deallocation caller: mutable receiver entry,
-shared whole-object and zero-byte Global-field reborrows, the actual Option match
-and allocator call. Compose original RawVec/Vec destruction, then discharge native
-refinement and physical-work obligations. The complete protocol and expected-work
+The original deallocation caller is now composed as described above. Next
+connect original RawVec/Vec destruction, then discharge native refinement and
+physical-work obligations. The complete protocol and expected-work
 target above is unchanged.
 
 ## Stable reference operands now drive the original Vec capacity body
