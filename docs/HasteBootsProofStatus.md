@@ -7,6 +7,44 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Exact buffer identification through the RawVec destructor entry
+
+`RawVecDestructorProof.lean` lifts the deallocation caller result through the
+original RawVec destructor method and drop glue. It follows actual reservation,
+remaining-argument evaluation, exclusive activation, child-reference transfer,
+callee execution, caller resumption and cleanup. Every outcome either preserves
+the full heap or frees exactly the original stored buffer with its capacity-byte
+layout. Zero capacity preserves the heap on every outcome.
+
+The generated RawVec drop definition is proved equal to the native-body view of
+the retained glue function. A general equality connects that view's operational
+invocation relation to the existing finite-body invocation, including malformed
+arguments and failed initialization. Consequently the exact-buffer postcondition
+holds for the RawVec entry actually used by the outer Vec call tree. A changed
+entry heap identifies a positive-capacity original live block with that exact
+pointer and layout. No successful reservation, activation, call, normal return
+or cleanup premise is supplied by these universal wrapper theorems.
+
+Four added model theorems and 26 source theorems support this step. Four new model
+regressions check remaining-argument rejection before activation, callee rejection
+after activation, retained reservation effects, and heap-preserving continuations
+that issue real loans. Ten source regressions cover the actual drop entry,
+reserved/empty buffers, original block identity, preserved incoming loans,
+blocked activation/free and stale checked references.
+
+The fresh extraction gate passed 608 dependency audits and 69 rejection controls,
+including the slice-extent mutation. Full `scripts/check` passed its 11,041-job
+build and subsequent smoke checks. The profile regression file records the
+receipts, input hashes and full-check log hash. Retained function bodies and type
+declarations are unchanged.
+
+Next carry the incoming Vec reference through the original byte-drop traversal
+and cleanup, then compose this RawVec result at the outer Vec entry. Successful
+valid-Vec postconditions, native construction, compiler/lifetime/ABI refinement,
+the external allocator implementation, physical attacker work and the final
+application security theorem remain open. Heap effects remain separate from
+physical work charges.
+
 ## Exact buffer identification in the retained deallocation caller
 
 `DeallocationProof.lean` now proves the original RawVec deallocation caller's

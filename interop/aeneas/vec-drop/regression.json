@@ -1,8 +1,8 @@
 {
-  "profile": "original-resident-vec-destruction-with-exact-source-deallocation-v7",
+  "profile": "original-resident-vec-destruction-with-exact-rawvec-entry-v8",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-drop-6wov0trz/manifest.json",
-  "gate_manifest_sha256": "57e1ae0a00252333717cdacc4c7e81423293c1c4f599b46d88cb8da7281d34fb",
+  "gate_manifest": "build/hasteboots-extraction/vec-drop-_whk772_/manifest.json",
+  "gate_manifest_sha256": "94b81cea88c77fba6376473250118f485cef985c7c35dd793724c59cd9dc0d17",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -19,9 +19,11 @@
     "7218cf23f6e7e6a1d35f052a8ea0b31cc104d416",
     "0b45d9d7eed695e44ae296e2d135eebb463516e3",
     "0e29362b3452d564c462105b58bb7713fba7e556",
-    "f320504a2a6602878ed30313a5f0ef9ca605b5a6"
+    "f320504a2a6602878ed30313a5f0ef9ca605b5a6",
+    "1dbc9d31174d2ff7214f1942fcd537886331ed67",
+    "ebb492a801f5601a80d14e4221f46f73adf0d2f9"
   ],
-  "dependency_audit_count": 569,
+  "dependency_audit_count": 608,
   "negative_control_count": 69,
   "negative_controls": {
     "wrong_profile": "Wrong extraction profile",
@@ -100,11 +102,11 @@
   "interpreter_helper_theorem_count": 3,
   "source_loop_theorem_count": 16,
   "source_composition_theorem_count": 17,
-  "new_declaration_audit_count": 197,
-  "model_regression_count": 102,
-  "source_regression_count": 36,
+  "new_declaration_audit_count": 201,
+  "model_regression_count": 106,
+  "source_regression_count": 46,
   "inputs": {
-    "scripts/check-hasteboots-vec-drop": "a0dab2ab018011b603d84d2a4d45f9e8c30a5abbb3374bb6949e1176a466508e",
+    "scripts/check-hasteboots-vec-drop": "41b2c070733cb415791c2d33f83a8b65ff041ba2910d6b594cf6f2dfe56bcdcd",
     "scripts/reify-hasteboots-vec-drop": "062d411f56fb19862244623aa5203e3eb1e4a78424f289f4ad68b35f89df09d4",
     "scripts/reify-hasteboots-rawvec-drop": "748d6a322c395db0244eec640359f5b4efd07d234b023a23aa23f9dfeee812aa",
     "scripts/check-hasteboots-rawvec-drop": "2774e9d2b0bf5817f876b4787101650118d905dbc954391743be2723518c1fb3",
@@ -132,18 +134,20 @@
     "interop/aeneas/vec-drop/HeapProof.lean": "c69d4e72d3782e7a38d4b198f3fc4b7160622a0971c5c6fbc61118e04e8d3dc1",
     "interop/aeneas/vec-drop/CapacityProof.lean": "02789e1cb65c53487e586ee824f3f4d5f579d26a6043f87d460e609089416b55",
     "interop/aeneas/vec-drop/DeallocationProof.lean": "07ace9ca7c6fd39c334bd619aed8814bab452548c41ede13725c3787107a08c5",
+    "interop/aeneas/vec-drop/RawVecDestructorProof.lean": "08d88a03c4c62b50a890871c79511d08679ed95328663ddb1a90c10aef8fc5cd",
     "interop/aeneas/vec-drop/Proof.lean": "ed6262460778b3d76632aabe0fb3d5068b6fb292c8a4c17e45b0641acaf79ee0",
     "interop/aeneas/vec-drop/Smoke.lean": "e479c3ae32107fb4e678272a6b2c8513ce41ac0e4fa91456a69f281cc9a93829",
     "interop/aeneas/vec-drop/ExecutionSmoke.lean": "6dae342e7751b742f775689f1be6fd04f713fdd036c9a1a93ac1eaef26302e97",
     "interop/aeneas/vec-drop/ReleaseSmoke.lean": "0cde4f04709f6285d9ea1ee6e99057edbcff8f4be815fa558961ec535c16ec02",
     "interop/aeneas/vec-drop/CapacitySmoke.lean": "967c3859ffce3331b80269b4f6b6c25b84d46cbb78626f4a81015501bb04adfa",
     "interop/aeneas/vec-drop/DeallocationSmoke.lean": "b5a0606652dad922ceba609d00784b87b871649fb7241460deb9c84ca5811fb9",
+    "interop/aeneas/vec-drop/RawVecDestructorSmoke.lean": "b9cc245c780e5f1c5d80c96d7d93ed68c13f8796b8f584a1079d02071d1e6b01",
     "FormalProof4FHE/HasteBoots/NativeHeapFrame.lean": "e1c8d1062272a191f9bf3924c20b5c245c60753cf9bdf2af65fbe1e442460799",
     "FormalProof4FHE/HasteBoots/NativeHeapRelease.lean": "3f5a6ea3c2db24ff1c37dc6ad0def3ba90cba9801ae9297caaf81faca594709e",
     "FormalProof4FHE/HasteBoots/NativeRecordHeapBounds.lean": "aee4efbce17802c995c85e7d40300da4069111f866fd31bfe549975b2be13608",
     "FormalProof4FHE/HasteBoots/NativeResidentVec.lean": "70de16d97021f328d1dfd610c9d7263435add478bda06dae88ec33faa561dd9a",
     "FormalProof4FHE/HasteBoots/NativeResidentVecBorrow.lean": "2dc04d719e60494d45a3521de39df8630e0980d1d7cf9735793d58665074e2a6",
-    "FormalProof4FHE/HasteBoots/NativeRecordCallValues.lean": "6b20901bb5b6bec1ea99c4cff7730efc0802ff5d6c7a34333b8bb55bc1da4474",
+    "FormalProof4FHE/HasteBoots/NativeRecordCallValues.lean": "6aa63875bf445f426e3484cbf425f58e378f83d31f93e8faab8b2f04eb272b56",
     "FormalProof4FHE/HasteBoots/NativeReferenceMachine.lean": "c211d50ac2059b95d520867a26c982326cd8ba0233d5e55953d5f28afd9b2409",
     "FormalProof4FHE/HasteBoots/NativePointerMachine.lean": "ceeb2562745ad91b91120b0694587b464348439704ae1076719c031e30a1c813",
     "FormalProof4FHE/HasteBoots/NativePointerByteMemory.lean": "f62c76f67ec3785661456afc0f694c61dd3323546840de8ef2d2adb95fda495d",
@@ -179,10 +183,10 @@
     "FormalProof4FHETest/HasteBootsResidentVecAudit.lean": "e4b084019e4ce32737a555595d6657ae2a18b700f1acc28729bf14af56837553",
     "FormalProof4FHETest/HasteBootsResidentVecBorrowSmoke.lean": "4dfd192c0d5e06cc3e41fbf9f5cfa3a275cf2d7c4b6752932a4c8d0d3e3a7460",
     "FormalProof4FHETest/HasteBootsResidentVecBorrowAudit.lean": "55271c5173c1ce7c124029333d1b5eea95cdea4ba541814310023a0d61a933ea",
-    "FormalProof4FHETest/HasteBootsRecordCallValuesSmoke.lean": "f9dce4f746975926a8b4f15f12a96f55ad11ce0c055b52394b0b0a81bf51e680",
-    "FormalProof4FHETest/HasteBootsRecordCallValuesAudit.lean": "60e3b47353a26350fc72e4989d142dfa880553179909f20a7e56e2a032e5c8de"
+    "FormalProof4FHETest/HasteBootsRecordCallValuesSmoke.lean": "5134b2592c298fce7cbc9c5aacb27bc03dbdbd3c4841ca34476ef920a356fae7",
+    "FormalProof4FHETest/HasteBootsRecordCallValuesAudit.lean": "85cb1ab5befd990f561b9d29ef8ddea58d6398fe268086cd142a67fab2065c93"
   },
-  "source_llbc_sha256": "ea1be70e78156f7828141dce22266d044f6839f98cd7ce6829eb485da1d49248",
+  "source_llbc_sha256": "d3fefe67000966862157f831267ca26c1ad847e39e7db0360a95f7d2500ad4d2",
   "outer_vec_drop_glue_interpreted": true,
   "outer_vec_drop_method_interpreted": true,
   "unbounded_original_byte_loop_interpreted": true,
@@ -199,8 +203,8 @@
     "command": "scripts/check",
     "exit_code": 0,
     "build_jobs": 11041,
-    "log": "/tmp/hasteboots-source-deallocation-full-check.log",
-    "log_sha256": "fad5cd7e743137c37458914a2da5ec4ee5b11370caae08fdd304dc61aa27dc12"
+    "log": "/tmp/hasteboots-rawvec-destructor-full-check.log",
+    "log_sha256": "6c7237a986650e4bf1bef4c2804d541545c8529c76d0e654c7f503ee1229f279"
   },
   "prior_gate_manifest": {
     "path": "build/hasteboots-extraction/vec-drop-j6ky4k09/manifest.json",
@@ -315,14 +319,17 @@
   },
   "typed_callee_bridge": {
     "module": "FormalProof4FHE/HasteBoots/NativeRecordCallValues.lean",
-    "theorem_count": 6,
+    "theorem_count": 10,
     "definition_count": 3,
-    "declaration_guard_count": 9,
-    "regression_count": 9,
+    "declaration_guard_count": 13,
+    "regression_count": 13,
     "equal_to_existing_eval_call": true,
     "caller_arguments_consumed": true,
     "callee_effect_retained_on_result_write_failure": true,
-    "normal_unwind_and_unsupported_preserved": true
+    "normal_unwind_and_unsupported_preserved": true,
+    "reservation_activation_call_equivalence": true,
+    "zero_budget_continuation_heap_frame": true,
+    "mutable_borrow_evaluation_equivalence": true
   },
   "source_deallocation_caller": {
     "proof": "interop/aeneas/vec-drop/DeallocationProof.lean",
@@ -340,5 +347,25 @@
     "specified_external_free_boundary": true,
     "external_allocator_implementation_proved": false,
     "outer_vec_entry_buffer_identification": false
+  },
+  "prior_rawvec_destructor_baseline": {
+    "manifest": "build/hasteboots-extraction/vec-drop-6wov0trz/manifest.json",
+    "manifest_sha256": "57e1ae0a00252333717cdacc4c7e81423293c1c4f599b46d88cb8da7281d34fb",
+    "dependency_audit_count": 569
+  },
+  "source_rawvec_destructor": {
+    "proof": "interop/aeneas/vec-drop/RawVecDestructorProof.lean",
+    "theorem_count": 26,
+    "definition_count": 9,
+    "regression_count": 10,
+    "all_outcomes_checked": true,
+    "successful_reservation_activation_or_return_premise": false,
+    "original_buffer_and_capacity_preserved_through_method_and_glue": true,
+    "zero_capacity_heap_frame": true,
+    "generated_definition_equal_to_native_body_view": true,
+    "operational_invocation_bridge": true,
+    "changed_heap_original_positive_block_identified": true,
+    "outer_vec_entry_buffer_identification": false,
+    "incoming_vec_byte_traversal_reference_frame": false
   }
 }
