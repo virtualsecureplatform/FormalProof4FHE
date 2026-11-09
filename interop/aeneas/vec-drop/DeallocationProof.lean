@@ -32,10 +32,13 @@ theorem current_memory_complete (world : NativeReferenceMachine.State)
     ∃ final, invokeValues HasteBootsRawVecDrop.f8 world
         [.scalar (.reference false reference 2),currentMemoryLayoutValue] =
       .returned (if capacity = 0 then currentMemoryNone else currentMemorySome buffer capacity) final ∧
-      final.leases = world.leases ∧ final.pointers.heap = world.pointers.heap := by
+      final.leases = world.leases ∧ final.pointers.heap = world.pointers.heap ∧
+      (capacity ≠ 0 → buffer ∈ final.pointers.registers) := by
   have first := header.capacity_eval
   by_cases zero : capacity = 0
-  · refine ⟨NativeRawVecSharedCompleteness.wordWorld world header.lease.pointer capacity,?_,rfl,rfl⟩
+  · refine ⟨NativeRawVecSharedCompleteness.wordWorld world header.lease.pointer capacity,?_,rfl,rfl,?_⟩
+    swap
+    · intro nonzero; exact False.elim (nonzero zero)
     simp [invokeValues,HasteBootsRawVecDrop.f8,initial,currentMemoryLayoutValue,eval,evalRvalue,
       evalRawVecField,evalOperand,evalArgs,storageLive,storageDead,write,NativeRecordLLBC.read,
       NativeRecordValues.fits,NativeRecordValues.complete,NativeRecordValues.compatible,
@@ -43,10 +46,13 @@ theorem current_memory_complete (world : NativeReferenceMachine.State)
       NativeSliceLLBC.fits,retag,NativeSliceLLBC.retagValue,HasteBootsRawVecDrop.alignmentDiscriminants,
       settle,currentMemoryNone,first,zero]
   · have second := header.after_capacity.capacity_eval
-    obtain ⟨afterPointer,pointerRead,⟨afterHeader⟩,pointerLeases,pointerHeap⟩ :=
+    obtain ⟨afterPointer,pointerRead,⟨afterHeader⟩,pointerLeases,pointerHeap,bufferResident⟩ :=
       header.after_capacity.after_capacity.pointer_eval
     obtain ⟨final,markerRead,markerLeases,markerHeap⟩ := afterHeader.marker_eval
-    refine ⟨final,?_,markerLeases.trans pointerLeases,markerHeap.trans pointerHeap⟩
+    have retained := NativeRawVecReference.eval_incoming_projects afterPointer (.reference false reference 2) .marker
+    rw [markerRead] at retained
+    refine ⟨final,?_,markerLeases.trans pointerLeases,markerHeap.trans pointerHeap,
+      fun _ => retained.registers buffer bufferResident⟩
     have nonnull : buffer.address ≠ 0 := by
       intro empty
       exact header.fields.nonnull (congrArg Fin.val empty)
@@ -464,5 +470,138 @@ theorem deallocation_changed_block (world : NativeReferenceMachine.State) (refer
   obtain ⟨blocks,released,_⟩ := memory
   obtain ⟨block,member,pointerEq,layoutEq⟩ := NativeByteMemory.release_selected _ _ _ blocks released
   exact ⟨block,member,pointerEq.symm,layoutEq.symm,by rw [← pointerEq,← layoutEq]; exact freed⟩
+
+/-- The retained Global wrappers return unit after the specified owned free;
+no successful free or cleanup result is supplied. -/
+theorem global_values_complete (world : NativeReferenceMachine.State) (allocator : NativeReferenceMachine.Reference)
+    (buffer : NativePointerStorage.Pointer) (capacity : NativeWord64Memory.Word)
+    (valid : NativeByteBorrow.LedgerValid (NativeReferenceMachine.ledger world))
+    (positive : 0 < capacity.val) (nonnull : buffer.address.val ≠ 0)
+    (layout : (NativeByteMemory.Layout.mk capacity.val 1).Valid)
+    (resident : buffer ∈ world.pointers.registers) (available : NativeVecBytePrefix.Available world buffer capacity.val)
+    (block : NativeByteMemory.Block) (member : block ∈ world.pointers.heap.memory.blocks)
+    (base : block.pointer = buffer) (extent : block.layout = ⟨capacity.val,1⟩) :
+    ∃ final, invokeValues HasteBootsRawVecDrop.f9 world (globalValues allocator buffer capacity) = .returned (.scalar .unit) final ∧
+      NativePointerByteMemory.deallocate world.pointers.heap buffer ⟨capacity.val,1⟩ = some final.pointers.heap ∧
+      final.leases = world.leases ∧ final.nextTag = world.nextTag := by
+  obtain ⟨final,freed,heap,loans,counter⟩ := NativeRawVecDeallocationCompleteness.free_complete world buffer capacity
+    positive nonnull layout resident available block member base extent
+  have nonzero : capacity ≠ 0 := by intro zero; subst capacity; cases positive
+  refine ⟨final,?_,heap,loans,counter⟩
+  rw [global_values_nonzero world allocator buffer capacity nonnull nonzero]
+  simp only [freeFlow,freed]
+  rw [NativeRawVecDeallocationCompleteness.settle_same_loans world final valid loans,
+    NativeRawVecDeallocationCompleteness.settle_same_loans world final valid loans]
+
+/-- The retained deallocation callee returns normally, releasing exactly the
+owned positive-capacity buffer and restoring its incoming loans. -/
+theorem deallocation_complete (world : NativeReferenceMachine.State) (reference : NativeReferenceMachine.Reference)
+    (capacity length : NativeWord64Memory.Word) (buffer : NativePointerStorage.Pointer)
+    (ready : NativeRawVecDeallocationCompleteness.Ready world reference capacity length buffer)
+    (available : NativeVecBytePrefix.Available world buffer capacity.val)
+    (owned : capacity = 0 ∨ ∃ block ∈ world.pointers.heap.memory.blocks,
+      block.pointer = buffer ∧ block.layout = ⟨capacity.val,1⟩) :
+    ∃ final, invokeValues HasteBootsRawVecDrop.f7 world [.scalar (.reference true reference 2),currentMemoryLayoutValue] =
+        .returned (.scalar .unit) final ∧ final.leases = world.leases ∧ NativeReferenceMachine.Reachable final ∧
+      (if capacity = 0 then final.pointers.heap = world.pointers.heap else
+        NativePointerByteMemory.deallocate world.pointers.heap buffer ⟨capacity.val,1⟩ = some final.pointers.heap) := by
+  have valid := NativeReferenceMachine.reachable_wellFormed world ready.reachable
+  obtain ⟨borrowed,created,⟨header⟩,borrowedReach⟩ := ready.shared
+  obtain ⟨memoryWorld,returned,memoryLoans,memoryHeap,bufferResident⟩ :=
+    current_memory_complete borrowed ⟨world.nextTag⟩ capacity length buffer header
+  have borrowedHeap := NativeRawVecBorrow.reborrow_preserves_heap world borrowed _ _ .whole created
+  have memoryRun := invokeValues_projects HasteBootsRawVecDrop.f8 borrowed
+    [.scalar (.reference false ⟨world.nextTag⟩ 2),currentMemoryLayoutValue]
+  rw [returned] at memoryRun
+  have memoryReach := NativeSliceLLBC.reference_runs_reachable borrowed memoryWorld borrowedReach memoryRun
+  have incoming := NativeRecordLLBC.invoke_incoming_projects HasteBootsRawVecDrop.f8 borrowed
+    [.rawVecSharedReference (borrowed.references.idxOf ⟨world.nextTag⟩),currentMemoryLayout]
+  rw [← current_memory_values_eq borrowed ⟨world.nextTag⟩ header.lease.pointer buffer capacity length header.resident,returned] at incoming
+  have first := NativeRawVecDeallocationCompleteness.reborrow_extends world (.reference true reference 2) .whole
+  rw [created] at first
+  have second : NativeScopeRestoration.Extends borrowed memoryWorld :=
+    ⟨incoming.counter,[],by simpa only [List.nil_append] using memoryLoans,by simp⟩
+  have beforeAllocator : NativeScopeRestoration.Extends world memoryWorld := first.trans second
+  have memoryOriginal : memoryWorld.pointers.heap = world.pointers.heap := memoryHeap.trans borrowedHeap
+  by_cases zero : capacity = 0
+  · rw [ite_eq_left zero] at returned
+    obtain ⟨final,settled,loans,heap,reached⟩ := NativeRawVecDeallocationCompleteness.settle_complete
+      world memoryWorld valid.2.1 beforeAllocator memoryReach
+    refine ⟨final,?_,loans,reached,?_⟩
+    · rw [deallocation_prefix world reference ⟨world.nextTag⟩ borrowed created,returned,deallocation_none]
+      exact settled
+    · rw [ite_eq_left zero]
+      exact heap.trans memoryOriginal
+  · rw [ite_eq_right zero] at returned
+    have originalIncoming := NativeRawVecBorrow.reborrow_incoming_projects world (.reference true reference 2) .whole
+    rw [created] at originalIncoming
+    have preserved := originalIncoming.trans incoming
+    have registered : NativeByteBorrow.lookup world.leases reference.tag = some ready.lease := by
+      rw [ready.tag]; exact ready.frontier.2.1
+    have age : reference.tag < world.nextTag := by
+      have older : ready.lease.tag < world.nextTag := (valid.2.1.1 ready.lease (NativeByteBorrow.lookup_selected _ _ _ registered).1).1
+      rw [ready.tag]; exact older
+    have currentRegistered := (preserved.lookup reference.tag age).trans registered
+    have memoryValid := NativeReferenceMachine.reachable_wellFormed memoryWorld memoryReach
+    obtain ⟨slot,allocatorWorld,allocatorBorrowed,allocatorCreated,allocatorCounter,allocatorLoans,allocatorHeap⟩ :=
+      NativeRawVecDeallocationCompleteness.allocator_complete memoryWorld reference ready.lease memoryValid.2.1
+        currentRegistered ready.frontier.1 ready.shape (preserved.references reference ready.referenceResident)
+        (preserved.registers ready.lease.pointer ready.pointerResident)
+    have allocatorReach := NativeRawVecBorrow.reborrow_reachable memoryWorld (.reference true reference 2) .allocator memoryReach
+    rw [allocatorCreated] at allocatorReach
+    have allocatorValid := NativeReferenceMachine.reachable_wellFormed allocatorWorld allocatorReach
+    have borrowedAvailable := NativeRawVecDeallocationCompleteness.available_reborrow world borrowed buffer capacity.val
+      _ _ .whole available created
+    have memoryAvailable := NativeRawVecDeallocationCompleteness.available_same_loans borrowed memoryWorld buffer capacity.val
+      borrowedAvailable memoryLoans
+    have allocatorAvailable := NativeRawVecDeallocationCompleteness.available_allocator memoryWorld allocatorWorld buffer slot
+      capacity.val memoryWorld.nextTag reference.tag memoryAvailable allocatorLoans
+    have allocatorIncoming := NativeRawVecBorrow.reborrow_incoming_projects memoryWorld (.reference true reference 2) .allocator
+    rw [allocatorCreated] at allocatorIncoming
+    have resident := allocatorIncoming.registers buffer (bufferResident zero)
+    have positive : 0 < capacity.val := Nat.pos_of_ne_zero (fun empty => zero (Fin.ext empty))
+    have layout : (NativeByteMemory.Layout.mk capacity.val 1).Valid := by
+      refine ⟨?_,?_⟩
+      · change (1 : Nat) ∈ (List.range 64).map (fun exponent => 2^exponent)
+        decide
+      have bound := ready.fields.capacityBound
+      simp only [Nat.sub_self,Nat.add_zero]
+      omega
+    obtain ⟨block,member,base,extent⟩ := owned.resolve_left zero
+    have allocatorOriginal : allocatorWorld.pointers.heap = world.pointers.heap := allocatorHeap.trans memoryOriginal
+    have memberNow : block ∈ allocatorWorld.pointers.heap.memory.blocks := by rw [allocatorOriginal]; exact member
+    obtain ⟨freedWorld,globalReturned,freed,freeLoans,freeCounter⟩ := global_values_complete allocatorWorld ⟨memoryWorld.nextTag⟩
+      buffer capacity allocatorValid.2.1 positive ready.fields.nonnull layout resident allocatorAvailable block memberNow base extent
+    have freedRun := invokeValues_projects HasteBootsRawVecDrop.f9 allocatorWorld (globalValues ⟨memoryWorld.nextTag⟩ buffer capacity)
+    rw [globalReturned] at freedRun
+    have freedReach := NativeSliceLLBC.reference_runs_reachable allocatorWorld freedWorld allocatorReach freedRun
+    have allocatorExtension := NativeRawVecDeallocationCompleteness.reborrow_extends memoryWorld (.reference true reference 2) .allocator
+    rw [allocatorCreated] at allocatorExtension
+    have freeExtension : NativeScopeRestoration.Extends allocatorWorld freedWorld :=
+      ⟨freeCounter.ge,[],by simpa only [List.nil_append] using freeLoans,by simp⟩
+    obtain ⟨final,settled,loans,heap,reached⟩ := NativeRawVecDeallocationCompleteness.settle_complete world freedWorld valid.2.1
+      ((beforeAllocator.trans allocatorExtension).trans freeExtension) freedReach
+    refine ⟨final,?_,loans,reached,?_⟩
+    · rw [deallocation_prefix world reference ⟨world.nextTag⟩ borrowed created,returned,
+        deallocation_some borrowed memoryWorld allocatorWorld reference ⟨memoryWorld.nextTag⟩ buffer capacity ready.fields.nonnull allocatorCreated,
+        globalReturned,deallocation_global_unit]
+      exact settled
+    · rw [ite_eq_right zero,heap]
+      rw [allocatorOriginal] at freed
+      exact freed
+
+theorem deallocation_invocation_complete (world : NativeReferenceMachine.State) (reference : NativeReferenceMachine.Reference)
+    (capacity length : NativeWord64Memory.Word) (buffer : NativePointerStorage.Pointer)
+    (ready : NativeRawVecDeallocationCompleteness.Ready world reference capacity length buffer)
+    (available : NativeVecBytePrefix.Available world buffer capacity.val)
+    (owned : capacity = 0 ∨ ∃ block ∈ world.pointers.heap.memory.blocks,
+      block.pointer = buffer ∧ block.layout = ⟨capacity.val,1⟩) :
+    ∃ final, invoke HasteBootsRawVecDrop.f7 world
+        [.rawVecExclusiveReference (world.references.idxOf reference),currentMemoryLayout] =
+      .returned (.scalar .unit) final ∧ final.leases = world.leases ∧ NativeReferenceMachine.Reachable final ∧
+      (if capacity = 0 then final.pointers.heap = world.pointers.heap else
+        NativePointerByteMemory.deallocate world.pointers.heap buffer ⟨capacity.val,1⟩ = some final.pointers.heap) := by
+  rw [← deallocation_values_eq world reference ready.lease.pointer buffer capacity length ready.resident]
+  exact deallocation_complete world reference capacity length buffer ready available owned
 
 end HasteBootsVecDrop
