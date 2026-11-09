@@ -58,8 +58,9 @@ The parent deallocation/current-memory/Global profiles passed again with
 `regression.json` with receipts and hashes. Full `scripts/check` passed its
 11,017-job build and subsequent smoke checks.
 
-Next compose original outer Vec destruction with the existing byte-drop traversal
-and these RawVec bodies. Native construction, carrier/reference/stack/layout/ABI,
+Original resident outer Vec destruction now composes in the sibling `vec-drop`
+profile, including the unbounded byte loop. Universal destructor outcomes remain
+open. Native construction, carrier/reference/stack/layout/ABI,
 compiler and lifetime refinement, helper and allocator correctness, physical work
 and the final expected-work security theorem remain open. Scope settlement is
 explicit ghost composition. The external allocator body is still specified,

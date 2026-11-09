@@ -7,6 +7,48 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Original resident Vec destruction now includes the unbounded byte loop
+
+The [Vec drop profile](../interop/aeneas/vec-drop/README.md) composes original
+Vec drop glue/method, retained foreign-classified slice glue, the original byte
+loop, and the RawVec/deallocation chain. Entry selects an existing exclusive
+24-byte, alignment-eight receiver. Checked pointer-shadow and length reads,
+pointer/length parts construction and mutable byte-slice issuance bridge its
+original source statements to the shared heap. No exclusive reference is copied,
+and neither tag nor pointer origin is supplied by the caller.
+
+The new aggregate-frame call relation composes actual callee frames, moves,
+returns and unwind/rejection prefixes with the unbounded typed-loop relation.
+Explicit ghost scopes around call argument preparation and execution close only
+new loans on normal continuation. They leave incoming loans and local slots
+unchanged; failures retain their prefixes. This resolves the modeled conflict
+between a completed whole-Vec method call and its later RawVec-field borrow.
+It does not establish those cleanup points as Rust lifetime endings.
+
+Nine Vec-reference and seven composition theorems, three interpreter helper
+theorems, 51 declaration guards and 28 model regressions cover these operations.
+Fourteen source-loop theorems include universal execution simulation/agreement,
+heap framing and unit-return behavior on completed traversals. Five source
+composition/classification theorems retain the foreign slice classification and
+prove invocation projection/reachability and loop lifting. Eight source examples
+check actual unit returns for three-byte traversal/deallocation, zero capacity,
+and zero length with nonzero capacity; oversized rejection retains its earlier
+whole-Vec loan and heap. Wrong entries and classifications are also checked.
+
+The final fresh-extraction gate passed 341 dependency audits and 69 rejecting
+controls. A changed slice extent is checked in Lean: zero extent retains the free
+and removes six iteration loans from the three-byte example. Parent RawVec drop
+and deallocation gates passed 290/294 audits and 44/24 rejecting controls. Full
+`scripts/check` passed its 11,023-job build and subsequent smoke checks. Receipts
+and hashes are in the profile's regression file.
+
+Next prove universal destructor outcomes and connect native construction,
+carrier/reference/stack/layout/ABI, compiler and lifetime refinement. By-value
+`release(Vec<u8>)` entry is not interpreted or accepted as a native constructor.
+Precondition helper/allocator refinement, physical attacker work, the complete
+application reduction and the final expected-work security theorem remain open.
+The complete protocol and expected-work target above is unchanged.
+
 ## Original RawVec drop glue and method now compose with deallocation
 
 The [RawVec drop profile](../interop/aeneas/rawvec-drop/README.md) reifies both
@@ -38,8 +80,8 @@ regression distinguishes failed-argument prefixes. Parent deallocation passed
 279 and 34. Full `scripts/check` passed the 11,017-job build and subsequent
 smoke checks. Validation receipts are in the profile's regression file.
 
-Next compose original outer Vec drop methods/glue with byte-drop traversal and
-these RawVec bodies. Universal nonzero caller/destructor characterization and
+Original resident outer Vec destruction now composes above. Next prove universal
+destructor outcomes and native construction/execution correspondence. Universal nonzero caller/destructor characterization and
 native construction/carrier/reference/stack/layout/ABI, compiler/lifetime,
 helper/allocator and physical-work refinement remain open, as does the full
 security theorem. These source projections and examples do not discharge those
