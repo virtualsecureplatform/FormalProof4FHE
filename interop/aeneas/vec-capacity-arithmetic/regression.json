@@ -1,8 +1,8 @@
 {
-  "profile": "typed-error-local-resident-snapshot-v19",
+  "profile": "complete-snapshot-reads-and-checked-kind-getter-v20",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-r96_slem/manifest.json",
-  "gate_manifest_sha256": "e4e90b724140163ffc4b83e95db79a45ceacdf753396147495c09ec4b4834f7f",
+  "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-l46qm1_q/manifest.json",
+  "gate_manifest_sha256": "4e2aa512ac8200ae0391c017293235aafd709c3cfd00685a6a9c99b15c18ac14",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -36,9 +36,10 @@
     "5aee11049033594ff571ed31e9a9ce670ba7e7bb",
     "fce484af8ea8ff98a0745a4174c81bc104868ba2",
     "1f4ca89922e7ea922e3fc2f639fda1fc870e9af9",
-    "211654f302bbaa55aa51e6937f03c0478c5809e0"
+    "211654f302bbaa55aa51e6937f03c0478c5809e0",
+    "3e3768854a1512ceb4281df578f24d6eca11b56b"
   ],
-  "dependency_audit_count": 915,
+  "dependency_audit_count": 945,
   "negative_control_count": 165,
   "negative_controls": {
     "wrong_target": "Wrong target",
@@ -208,7 +209,7 @@
     "error_allocation_unit_offset": "Changed reservation error niche layout"
   },
   "inputs": {
-    "scripts/check-hasteboots-vec-capacity-arithmetic": "82d8d5f1dbfe1f37f794691e346322d3c061b38a269fd1bbbd6901f994e0e90a",
+    "scripts/check-hasteboots-vec-capacity-arithmetic": "4c888c34929c529cfff121cd2a5222025b4a5fd367a3f382d34ef35d148e7849",
     "scripts/check-hasteboots-allocator-caller": "685e1e505b8e985f2862e69b41c8df0c238c3f8e7901366cecd375fbd3e383db",
     "scripts/build-hasteboots-inline-tools": "efda9a152172fdebfb14919f4c29e920f12da0d2ad71ab45ee526a27d9713452",
     "scripts/extract-hasteboots-parameters": "9ab0b333e12a4dac0fea4e37bc8bee430bdf56cac7eb4bcb5fa999ceab140993",
@@ -230,7 +231,7 @@
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
     "scripts/reify-hasteboots-variant-body": "2d0326329d538bb43685617133c2ecd96da497c81295cd221315807576383825",
-    "scripts/reify-hasteboots-vec-capacity-arithmetic": "853c50825ed5f1368a75666b6e82905c2797d7ca58e1de7c538decf28cadb46a",
+    "scripts/reify-hasteboots-vec-capacity-arithmetic": "e7a33f12620337ab56baf8446967cf753d9a4a5e7c4bcdfd50479422f7f38645",
     "scripts/reify-hasteboots-vec-drop": "0ef983324e439064ea0969a4fc60d6a574137d5548a1feaee727f018b9b1eb8d",
     "scripts/reify-hasteboots-vec-empty": "00a7debb4c04056f86a5fe37ecead6b1f26a8a6fa45642c9b7b6fa76a3532ccd",
     "FormalProof4FHE/HasteBoots/NativeAllocatorExecution.lean": "2c3008e94760730cfbc65c7bee2707e107f23fabdb9df93f302c5848fc909a15",
@@ -595,6 +596,7 @@
     "FormalProof4FHE/HasteBoots/NativeRegistryContextTrace.lean": "858999f463c933ce242f67709b51754fddd0dba4301900046867fa069ee09f70",
     "FormalProof4FHE/HasteBoots/NativeReservationErrorFields.lean": "deb72f5a224200e0ac80727d4da4e104c6ef189d260eccaae5bc90f9a977cc59",
     "FormalProof4FHE/HasteBoots/NativeReservationErrorLocal.lean": "37d5db5999443d9804fcd0bbe905f0d7ac8e46e2da3b2fabe444bb6287dd8978",
+    "FormalProof4FHE/HasteBoots/NativeReservationErrorRead.lean": "b6c164bda222056ba3750611fa604ab75d728131b3bc38b0da84c155fb693f86",
     "FormalProof4FHE/HasteBoots/NativeReservedVecConstruction.lean": "f348614a1cbe30f73a345dce40dbb7b4c7889ba1089492e554992d63c2647c95",
     "FormalProof4FHE/HasteBoots/NativeReservedVecStorage.lean": "41d7b82c9b92ccf037d54b6174a799a5a8e5fa2029f75567a68f515e1db7db60",
     "FormalProof4FHE/HasteBoots/NativeResidentVec.lean": "70de16d97021f328d1dfd610c9d7263435add478bda06dae88ec33faa561dd9a",
@@ -689,8 +691,10 @@
     "FormalProof4FHETest/HasteBootsStorageBorrowAudit.lean": "e2c1b7d1caf3c31090a93c72c465dde5527160fffad83007a1a2ae786fd51ed2",
     "FormalProof4FHETest/HasteBootsReservationErrorLocalSmoke.lean": "af5274146c64cc81864431163cb67dfb27bdb5364222296b303abe74439c3057",
     "FormalProof4FHETest/HasteBootsReservationErrorLocalAudit.lean": "ca5017bb21e4bf2e9ba1984dbb0fe77583369350773a10a6f1f6996eb7626252",
+    "FormalProof4FHETest/HasteBootsReservationErrorReadSmoke.lean": "0036c6b9d2c45a7e65c6fb46a90c623c36e9ff62916432e69ceb8c5aebe84333",
+    "FormalProof4FHETest/HasteBootsReservationErrorReadAudit.lean": "d51d3b9b9df5b2d1021ea291a56f90c44952f6ea57a422bf047be5b4d4b86f54",
     "interop/aeneas/vec-capacity-arithmetic/fixture.rs": "a1b4abdec2d161f72fd7e843f8d49e276aff4ce79b95cc0884807a084f620861",
-    "interop/aeneas/vec-capacity-arithmetic/Generated.lean": "f6540272ee2af033af0542b5bb3e0efa46d90d6f5d50c6b02686643925ab0aeb",
+    "interop/aeneas/vec-capacity-arithmetic/Generated.lean": "901bfb05211028cb69a4e6cc5fb309d32f9492e1db52fb79ad794dc40c9ed860",
     "interop/aeneas/vec-capacity-arithmetic/Retained.json": "797c79f20dc245262170cfac7aaf0ba468d4bfbdd627c6141e469c2dddaead83",
     "interop/aeneas/vec-capacity-arithmetic/Proof.lean": "7a15b251f41be0ea0ca802b9cd68956aed7446968cb737607348477e323bf518",
     "interop/aeneas/vec-capacity-arithmetic/LayoutProof.lean": "31a80b3e5b8eb9a85bc9154abe0a5b573b2368ada8c09ba1d7929ebdb6edfe4b",
@@ -712,6 +716,7 @@
     "interop/aeneas/vec-capacity-arithmetic/UnifiedConstructorProof.lean": "7d599dbcfc440e91002c02d6b98aa71c753169e16b79cf1f2672ae8df7e280ea",
     "interop/aeneas/vec-capacity-arithmetic/UnifiedCallerProof.lean": "ff9c08bd546ecce1c06ef16865217a1f6e5484b8c6ce00ef450f5f8988e94da4",
     "interop/aeneas/vec-capacity-arithmetic/LocalProof.lean": "6631b79b098e3192f1fcb77b18e1da479685eff3bbb652ab3056b68a41e8ccea",
+    "interop/aeneas/vec-capacity-arithmetic/ReadProof.lean": "79c74c7f0e6ebcacb520f23e967bba86ce75269f0027e83d9b149dff327eb6c8",
     "interop/aeneas/vec-capacity-arithmetic/Smoke.lean": "62710e1fb00e8db3b3f5a0232ea568dd616594e30171dbc10bb9f21a2f7fe08f",
     "interop/aeneas/vec-capacity-arithmetic/LayoutSmoke.lean": "5aed39dd3f94928d8ec11c49643504c8d5e553e5f62f9897cbeefa38c8c2a92c",
     "interop/aeneas/vec-capacity-arithmetic/AcceptedSmoke.lean": "cb8b53a45b6d27fd0636169b6321554ce79a6fd00a94b402399c7f028c236a09",
@@ -728,20 +733,21 @@
     "interop/aeneas/vec-capacity-arithmetic/RejectedLayoutSmoke.lean": "2cf4a62d8a8bdb570c62c6aa25e5ab566c08e30ac84686e60d6f8760ff8907f5",
     "interop/aeneas/vec-capacity-arithmetic/UnifiedSmoke.lean": "4651cd322a1f3fb067095ea94dce145665838345cbaf10b300a46e4808ce59cc",
     "interop/aeneas/vec-capacity-arithmetic/UnifiedCallerSmoke.lean": "d79cc3cb200eb755d07420b59c6485efa99bd063e74dc14be22e62bddd8a5181",
-    "interop/aeneas/vec-capacity-arithmetic/LocalSmoke.lean": "d2747a0e3a20591418fd9e828d0b1420fbfaa7718ab55e6874773591faa5ae32"
+    "interop/aeneas/vec-capacity-arithmetic/LocalSmoke.lean": "d2747a0e3a20591418fd9e828d0b1420fbfaa7718ab55e6874773591faa5ae32",
+    "interop/aeneas/vec-capacity-arithmetic/ReadSmoke.lean": "6726af23fdfd9806e9bf7da055d771fe4d20bd73df6e9c4c0aefd01bae02992e"
   },
-  "source_llbc_sha256": "0046133f55a0d4b7fce51c0f659b00a7a989456e811ed0b9ece2459c2f9d220a",
-  "checked_sha256": "c237d44c8ade33a518c382510b2b205cd2c948c6c400880ee755a91ab4bb8958",
+  "source_llbc_sha256": "cd79c04c8c606bca09c3d102de35f82d33a9280bf7da7af881c61d223fc4d8b1",
+  "checked_sha256": "2168b0c5d23914c285491b652d9399e20f1e0f8b1a203e256d7182b83ddeac69",
   "source_definition_count": 211,
-  "source_theorem_count": 178,
-  "source_declaration_audit_count": 389,
-  "core_extension_declaration_audit_count": 250,
-  "new_declaration_audit_count": 639,
+  "source_theorem_count": 180,
+  "source_declaration_audit_count": 391,
+  "core_extension_declaration_audit_count": 278,
+  "new_declaration_audit_count": 669,
   "retained_function_count": 21,
   "retained_type_count": 31,
   "isolated_assignment_count": 9,
-  "source_regression_count": 128,
-  "model_regression_count": 134,
+  "source_regression_count": 130,
+  "model_regression_count": 151,
   "arithmetic_extension": {
     "module": "FormalProof4FHE/HasteBoots/NativeRecordArithmetic.lean",
     "core_declaration_audit_count": 28,
@@ -773,33 +779,33 @@
   "full_project_check": {
     "command": "scripts/check",
     "exit_code": 0,
-    "build_jobs": 11098,
-    "log": "/tmp/error-local-full-check.log",
-    "log_sha256": "acf1e399c25c1e209e949f74783be11506a493e5b72e57721b3694c53c3d6f98",
-    "library_root_sha256": "c7be2a57d0308fdd21d7b67fe6d987a1e7cf8f2569ed9706665708c0906ddebb",
-    "test_root_sha256": "215960acba9317f09697aad1cca29315a77764d339630b2a9d1e396ec5efedc8"
+    "build_jobs": 11101,
+    "log": "/tmp/error-read-full-check.log",
+    "log_sha256": "bb0bc8b19e79bdc529e9c96ea37db31abb2f109996b8e69fe26a2a1d17d9d7c4",
+    "library_root_sha256": "38e2c1c1cc5818c3966c78f7292e3c9e744904cf97689a9cdeb0f2d6de2341dd",
+    "test_root_sha256": "2a03a552feb0e1cd386d2a10948d97b8e6bccf2ec4ac7e875974dafad2502383"
   },
   "revalidated_profiles": {
     "vec": {
-      "manifest": "build/hasteboots-extraction/vec-drop-a7o8ofv3/manifest.json",
-      "manifest_sha256": "c5ded0b57be3109e760053a2b410bbae034742d91f14f9cad7ce0cda09e1c33b",
+      "manifest": "build/hasteboots-extraction/vec-drop-xj8t6pe5/manifest.json",
+      "manifest_sha256": "ce77f0fe8897df97a96fa76a8f9b812697632c21c76ef29ece16cc221b75db56",
       "dependency_audit_count": 1044,
       "negative_control_count": 87
     },
     "allocator": {
-      "manifest": "build/hasteboots-extraction/allocator-caller-ww_85bdv/manifest.json",
-      "manifest_sha256": "be35e52a1dc234a54771e04b92741ad4881b1a374ebc1baec3c03f1c8392ebe3",
+      "manifest": "build/hasteboots-extraction/allocator-caller-z3kzyp_d/manifest.json",
+      "manifest_sha256": "5fe042ff56f46f3f75de45af5980d05dd9a0d1b89da83302bc491e6c0ae7b885",
       "dependency_audit_count": 388,
       "negative_control_count": 31
     },
     "empty": {
-      "manifest": "build/hasteboots-extraction/vec-empty-tzdqgxbn/manifest.json",
-      "manifest_sha256": "a5ba251858319b2fc4b866e77561f82a83f4a68724c1d1142c72a6a74603913a",
+      "manifest": "build/hasteboots-extraction/vec-empty-9r_fa0e4/manifest.json",
+      "manifest_sha256": "f4523958966a7eff186dacff2a1f83aa31c1746815cbc788260213f588fde491",
       "dependency_audit_count": 395,
       "negative_control_count": 17
     }
   },
-  "validation_note": "Fresh full scripts/check and direct warning-as-error checks passed. The capacity extraction gate passed 915 dependency audits, 165 rejecting controls, 128 source examples and 134 model examples. Complete typed logical locals marshal through actual allocation/write/loan operations; residency binds the returned reference to those same fields. Source getter and caller composition, read completeness, native stack/type/lifetime/compiler correspondence, reclamation, resident destruction, physical work and final security remain open.",
+  "validation_note": "Fresh full scripts/check and direct warning-as-error checks passed. The capacity extraction gate passed 945 dependency audits, 165 rejecting controls, 130 source examples and 151 model examples. Read permission and residency derived from actual grants prove complete field reads and a checked kind-getter round trip after successful snapshots, with no assumed read success. Equivalence to the extracted Rust getter body, source caller installation, native stack/type/lifetime/compiler correspondence, reclamation, resident destruction, physical work and final security remain open.",
   "prior_isolated_assignment_baseline": {
     "profile": "retained-with-capacity-scalar-assignments-and-typed-boolean-arithmetic-v1",
     "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-hmaelxmc/manifest.json",
@@ -1471,6 +1477,56 @@
         "command": "scripts/in-container lake env lean -DwarningAsError=true",
         "exit_code": 0,
         "log": "/tmp/error-local-strict-HasteBootsReservationErrorLocalAudit.lean.log",
+        "log_sha256": "cb57e98c8b5365e217c1a9a709b94e15dc7a8c38e28dc9f85f0fc36c1f69804d"
+      }
+    }
+  },
+  "prior_error_read_baseline": {
+    "profile": "typed-error-local-resident-snapshot-v19",
+    "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-r96_slem/manifest.json",
+    "gate_manifest_sha256": "e4e90b724140163ffc4b83e95db79a45ceacdf753396147495c09ec4b4834f7f",
+    "dependency_audit_count": 915,
+    "negative_control_count": 165
+  },
+  "revalidated_with_error_read": true,
+  "reservation_error_read": {
+    "module": "FormalProof4FHE/HasteBoots/NativeReservationErrorRead.lean",
+    "core_declaration_audit_count": 28,
+    "core_theorem_count": 15,
+    "source_theorem_count": 2,
+    "model_regression_count": 17,
+    "source_regression_count": 2,
+    "readability_separates_bytes_and_alias_permission": true,
+    "readability_derived_from_actual_grant": true,
+    "bounded_word_access_complete": true,
+    "readability_preserved_through_field_reads": true,
+    "successful_snapshot_requires_no_read_success_premise": true,
+    "checked_kind_getter_uses_stable_reference_tag": true,
+    "typed_local_getter_round_trip": true,
+    "heap_preservation_and_operational_projection": true,
+    "partial_read_failure_prefix_retained": true,
+    "constructor_payload_modeled_getter_agreement": true,
+    "bare_residency_implies_readability": false,
+    "extracted_rust_getter_equivalence": false,
+    "source_error_handler_installation": false,
+    "native_stack_type_lifetime_refinement": false,
+    "strict_checks": {
+      "NativeReservationErrorRead.lean": {
+        "command": "scripts/in-container lake env lean -DwarningAsError=true",
+        "exit_code": 0,
+        "log": "/tmp/error-read-strict-NativeReservationErrorRead.lean.log",
+        "log_sha256": "cb57e98c8b5365e217c1a9a709b94e15dc7a8c38e28dc9f85f0fc36c1f69804d"
+      },
+      "HasteBootsReservationErrorReadSmoke.lean": {
+        "command": "scripts/in-container lake env lean -DwarningAsError=true",
+        "exit_code": 0,
+        "log": "/tmp/error-read-strict-HasteBootsReservationErrorReadSmoke.lean.log",
+        "log_sha256": "cb57e98c8b5365e217c1a9a709b94e15dc7a8c38e28dc9f85f0fc36c1f69804d"
+      },
+      "HasteBootsReservationErrorReadAudit.lean": {
+        "command": "scripts/in-container lake env lean -DwarningAsError=true",
+        "exit_code": 0,
+        "log": "/tmp/error-read-strict-HasteBootsReservationErrorReadAudit.lean.log",
         "log_sha256": "cb57e98c8b5365e217c1a9a709b94e15dc7a8c38e28dc9f85f0fc36c1f69804d"
       }
     }

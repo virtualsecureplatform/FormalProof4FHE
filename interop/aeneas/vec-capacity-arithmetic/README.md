@@ -310,3 +310,18 @@ handler or refined to native stack placement, typed borrowing and lifetime.
 Typed-local validation: 915 dependency audits, 165 rejecting controls,
 128 source examples and 134 model examples. The full project check passes
 with 11098 build jobs, alongside all three new-module warning-as-error checks.
+
+## Complete snapshot reads and checked getter
+
+`NativeReservationErrorRead` derives byte residency and alias permission from
+actual snapshot execution, proves complete field reads, and supplies a checked
+kind getter using stable reference-tag resolution. Successful snapshots require
+no additional read-success premise. `ReadProof.lean` connects both constructor
+error payloads to this modeled operation; `ReadSmoke.lean` runs the complete
+payload/snapshot/getter pipeline. The operation has not yet been proved equivalent
+to the extracted Rust getter body or installed in its source caller. Native
+stack/type/lifetime refinement, reclamation and physical work remain open.
+
+Read/getter validation: 945 dependency audits, 165 rejecting controls,
+130 source examples and 151 model examples. The full project check passes
+with 11101 build jobs, alongside all three new-module warning-as-error checks.

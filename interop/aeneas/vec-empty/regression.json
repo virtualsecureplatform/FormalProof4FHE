@@ -1,8 +1,8 @@
 {
-  "profile": "revalidated-with-error-local-v19",
+  "profile": "revalidated-with-error-read-v20",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-empty-tzdqgxbn/manifest.json",
-  "gate_manifest_sha256": "a5ba251858319b2fc4b866e77561f82a83f4a68724c1d1142c72a6a74603913a",
+  "gate_manifest": "build/hasteboots-extraction/vec-empty-9r_fa0e4/manifest.json",
+  "gate_manifest_sha256": "f4523958966a7eff186dacff2a1f83aa31c1746815cbc788260213f588fde491",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -81,7 +81,7 @@
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
     "scripts/reify-hasteboots-variant-body": "2d0326329d538bb43685617133c2ecd96da497c81295cd221315807576383825",
-    "scripts/reify-hasteboots-vec-capacity-arithmetic": "853c50825ed5f1368a75666b6e82905c2797d7ca58e1de7c538decf28cadb46a",
+    "scripts/reify-hasteboots-vec-capacity-arithmetic": "e7a33f12620337ab56baf8446967cf753d9a4a5e7c4bcdfd50479422f7f38645",
     "scripts/reify-hasteboots-vec-drop": "0ef983324e439064ea0969a4fc60d6a574137d5548a1feaee727f018b9b1eb8d",
     "scripts/reify-hasteboots-vec-empty": "00a7debb4c04056f86a5fe37ecead6b1f26a8a6fa45642c9b7b6fa76a3532ccd",
     "FormalProof4FHE/HasteBoots/NativeAllocatorExecution.lean": "2c3008e94760730cfbc65c7bee2707e107f23fabdb9df93f302c5848fc909a15",
@@ -446,6 +446,7 @@
     "FormalProof4FHE/HasteBoots/NativeRegistryContextTrace.lean": "858999f463c933ce242f67709b51754fddd0dba4301900046867fa069ee09f70",
     "FormalProof4FHE/HasteBoots/NativeReservationErrorFields.lean": "deb72f5a224200e0ac80727d4da4e104c6ef189d260eccaae5bc90f9a977cc59",
     "FormalProof4FHE/HasteBoots/NativeReservationErrorLocal.lean": "37d5db5999443d9804fcd0bbe905f0d7ac8e46e2da3b2fabe444bb6287dd8978",
+    "FormalProof4FHE/HasteBoots/NativeReservationErrorRead.lean": "b6c164bda222056ba3750611fa604ab75d728131b3bc38b0da84c155fb693f86",
     "FormalProof4FHE/HasteBoots/NativeReservedVecConstruction.lean": "f348614a1cbe30f73a345dce40dbb7b4c7889ba1089492e554992d63c2647c95",
     "FormalProof4FHE/HasteBoots/NativeReservedVecStorage.lean": "41d7b82c9b92ccf037d54b6174a799a5a8e5fa2029f75567a68f515e1db7db60",
     "FormalProof4FHE/HasteBoots/NativeResidentVec.lean": "70de16d97021f328d1dfd610c9d7263435add478bda06dae88ec33faa561dd9a",
@@ -536,7 +537,7 @@
     "interop/aeneas/vec-empty/Proof.lean": "e49c37943109ddd3fac76fade3e940454dd06f0e18b8ab1bcc0ffbdbfcb6a2f6",
     "interop/aeneas/vec-empty/Smoke.lean": "5c0cba3dfda637c34c2d2b735f362f71b013f17b2408e98ece36450c366ac244"
   },
-  "source_llbc_sha256": "568c8faa8846fd991f877460e360f356f36f2ec7a123256938ae57e8d48d8c06",
+  "source_llbc_sha256": "369a24e5a153d546121d4100ea1c6928a524a6babbfd8e68f0b8f87807c63dd7",
   "checked_sha256": "751f619066943dc4773abed0b4ee7f3ad63e22f2b70705160a7b0d018177f3d1",
   "original_constructor_and_direct_caller_interpreted": true,
   "exact_nominal_return_for_arbitrary_world_proved": true,
@@ -556,11 +557,11 @@
   "full_project_check": {
     "command": "scripts/check",
     "exit_code": 0,
-    "build_jobs": 11098,
-    "log": "/tmp/error-local-full-check.log",
-    "log_sha256": "acf1e399c25c1e209e949f74783be11506a493e5b72e57721b3694c53c3d6f98",
-    "library_root_sha256": "c7be2a57d0308fdd21d7b67fe6d987a1e7cf8f2569ed9706665708c0906ddebb",
-    "test_root_sha256": "215960acba9317f09697aad1cca29315a77764d339630b2a9d1e396ec5efedc8"
+    "build_jobs": 11101,
+    "log": "/tmp/error-read-full-check.log",
+    "log_sha256": "bb0bc8b19e79bdc529e9c96ea37db31abb2f109996b8e69fe26a2a1d17d9d7c4",
+    "library_root_sha256": "38e2c1c1cc5818c3966c78f7292e3c9e744904cf97689a9cdeb0f2d6de2341dd",
+    "test_root_sha256": "2a03a552feb0e1cd386d2a10948d97b8e6bccf2ec4ac7e875974dafad2502383"
   },
   "revalidated_vec_destruction": {
     "manifest": "build/hasteboots-extraction/vec-drop-6vkj6__f/manifest.json",
@@ -568,7 +569,7 @@
     "dependency_audit_count": 977,
     "negative_control_count": 87
   },
-  "validation_note": "Fresh source extraction gate and full project check passed, including separate error-local snapshot audits. This profile retains its existing source theorem scope; native correspondence, physical work and final security remain open.",
+  "validation_note": "Fresh source extraction gate and full project check passed, including separate complete error-read and getter audits. This profile retains its existing source theorem scope; native correspondence, physical work and final security remain open.",
   "prior_storage_bridge_baseline": {
     "manifest": "build/hasteboots-extraction/vec-empty-e010m81k/manifest.json",
     "sha256": "3d2248477bca4fce9445e4cbc4bb66e001323c05beae90deed8b7ecefcf5d5bf",
@@ -804,5 +805,13 @@
     "dependency_audit_count": 395,
     "negative_control_count": 17
   },
-  "revalidated_with_error_local": true
+  "revalidated_with_error_local": true,
+  "prior_error_read_baseline": {
+    "profile": "revalidated-with-error-local-v19",
+    "gate_manifest": "build/hasteboots-extraction/vec-empty-tzdqgxbn/manifest.json",
+    "gate_manifest_sha256": "a5ba251858319b2fc4b866e77561f82a83f4a68724c1d1142c72a6a74603913a",
+    "dependency_audit_count": 395,
+    "negative_control_count": 17
+  },
+  "revalidated_with_error_read": true
 }

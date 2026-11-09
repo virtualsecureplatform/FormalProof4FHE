@@ -1,7 +1,7 @@
 {
-  "profile": "revalidated-with-error-local-v17",
-  "gate_manifest": "build/hasteboots-extraction/allocator-caller-ww_85bdv/manifest.json",
-  "gate_manifest_sha256": "be35e52a1dc234a54771e04b92741ad4881b1a374ebc1baec3c03f1c8392ebe3",
+  "profile": "revalidated-with-error-read-v18",
+  "gate_manifest": "build/hasteboots-extraction/allocator-caller-z3kzyp_d/manifest.json",
+  "gate_manifest_sha256": "5fe042ff56f46f3f75de45af5980d05dd9a0d1b89da83302bc491e6c0ae7b885",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "status": "passed",
   "commands": [
@@ -635,7 +635,7 @@
     "heap_and_incoming_reference_preservation_extended": true,
     "native_alignment_transmute_abi_refinement": false
   },
-  "validation_note": "Fresh source extraction gate and full project check passed, including separate error-local snapshot audits. This profile retains its existing source theorem scope; native correspondence, physical work and final security remain open.",
+  "validation_note": "Fresh source extraction gate and full project check passed, including separate complete error-read and getter audits. This profile retains its existing source theorem scope; native correspondence, physical work and final security remain open.",
   "prior_zst_local_borrow_baseline": {
     "profile": "original-finite-allocator-caller-revalidated-with-checked-enum-address-v3",
     "gate_manifest": "build/hasteboots-extraction/allocator-caller-97_hgb6y/manifest.json",
@@ -697,11 +697,11 @@
   "full_project_check": {
     "command": "scripts/check",
     "exit_code": 0,
-    "build_jobs": 11098,
-    "log": "/tmp/error-local-full-check.log",
-    "log_sha256": "acf1e399c25c1e209e949f74783be11506a493e5b72e57721b3694c53c3d6f98",
-    "library_root_sha256": "c7be2a57d0308fdd21d7b67fe6d987a1e7cf8f2569ed9706665708c0906ddebb",
-    "test_root_sha256": "215960acba9317f09697aad1cca29315a77764d339630b2a9d1e396ec5efedc8"
+    "build_jobs": 11101,
+    "log": "/tmp/error-read-full-check.log",
+    "log_sha256": "bb0bc8b19e79bdc529e9c96ea37db31abb2f109996b8e69fe26a2a1d17d9d7c4",
+    "library_root_sha256": "38e2c1c1cc5818c3966c78f7292e3c9e744904cf97689a9cdeb0f2d6de2341dd",
+    "test_root_sha256": "2a03a552feb0e1cd386d2a10948d97b8e6bccf2ec4ac7e875974dafad2502383"
   },
   "prior_nonnull_runtime_baseline": {
     "profile": "original-finite-allocator-caller-revalidated-with-pointer-inspection-v6",
@@ -791,5 +791,13 @@
     "dependency_audit_count": 388,
     "negative_control_count": 31
   },
-  "revalidated_with_error_local": true
+  "revalidated_with_error_local": true,
+  "prior_error_read_baseline": {
+    "profile": "revalidated-with-error-local-v17",
+    "gate_manifest": "build/hasteboots-extraction/allocator-caller-ww_85bdv/manifest.json",
+    "gate_manifest_sha256": "be35e52a1dc234a54771e04b92741ad4881b1a374ebc1baec3c03f1c8392ebe3",
+    "dependency_audit_count": 388,
+    "negative_control_count": 31
+  },
+  "revalidated_with_error_read": true
 }

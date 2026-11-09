@@ -7,6 +7,42 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Snapshot reads and checked kind getter are complete
+
+`NativeReservationErrorRead` separates byte residency from alias permission.
+Its `Readable` descriptor includes the selected shared lease, physical extent,
+complete base pointer in the register file, raw read permission and stored error
+fields. The descriptor is derived from the actual root storage-loan grant after
+the snapshot's allocation and byte write; it is not an external certificate.
+
+Fifteen core theorems prove permission for bounded subranges, actual aligned word
+access, preservation of readability across the first word read, and complete
+error decoding. Overflow reads only the initialized first word; allocation
+errors read alignment and size. Every successful typed-local snapshot now has a
+successful decoder result without an assumed read-success premise.
+
+The checked `getKind` operation validates a shared two-word operand, resolves its
+stable tag through the current reference register file and performs those reads.
+It returns the original encoded kind, preserves the heap, and projects to actual
+machine steps. A later loan may shift register positions without changing which
+error object is read. Seventeen examples cover both variants, tag shifts between
+distinct objects, revocation, invalid operands and a failed second read retaining
+the first read's effects. Twenty-eight dependency guards cover the new module.
+Two source-agreement theorems and two concrete source examples connect constructor
+error payloads to this modeled getter after actual snapshot execution. All three
+new-module warning-as-error checks pass, and a fresh full `scripts/check`
+passes with 11101 build jobs. The constructor gate passes 945 dependency audits,
+165 rejecting controls, 130 source examples and 151 model examples. Related
+gates pass: Vec destruction 1044 audits/87 controls, allocator caller 388/31
+and empty constructor 395/17.
+
+This closes read completeness for successful snapshots, not read completeness
+from byte residency alone. It does not establish equivalence to the extracted
+Rust getter body, install the operation in the source error handler, or refine
+marshaling to native stack placement/borrowing. Source getter/caller execution,
+native ABI/type/compiler/lifetime correspondence, storage reclamation, resident
+destruction, physical work and final security remain open.
+
 ## Typed reservation-error locals marshal into resident storage
 
 `NativeReservationErrorLocal` reads a complete typed LLBC local, decodes its
