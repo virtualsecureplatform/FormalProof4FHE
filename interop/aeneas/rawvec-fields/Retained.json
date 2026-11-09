@@ -1,0 +1,485 @@
+{
+  "function_id": 8,
+  "function_name": "alloc::raw_vec::current_memory",
+  "input_type": {
+    "Untagged": {
+      "Ref": [
+        {
+          "Var": {
+            "Free": 0
+          }
+        },
+        {
+          "Untagged": {
+            "Adt": {
+              "id": {
+                "Adt": 3
+              },
+              "generics": {
+                "regions": [],
+                "types": [],
+                "const_generics": [],
+                "trait_refs": []
+              }
+            }
+          }
+        },
+        "Shared"
+      ]
+    }
+  },
+  "types": [
+    {
+      "id": 3,
+      "name": "alloc::raw_vec::RawVecInner",
+      "kind": {
+        "Struct": [
+          {
+            "span": {
+              "data": {
+                "file_id": 6,
+                "beg": {
+                  "line": 86,
+                  "col": 4
+                },
+                "end": {
+                  "line": 86,
+                  "col": 19
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "ptr",
+            "ty": {
+              "Untagged": {
+                "Adt": {
+                  "id": {
+                    "Adt": 5
+                  },
+                  "generics": {
+                    "regions": [],
+                    "types": [],
+                    "const_generics": [],
+                    "trait_refs": []
+                  }
+                }
+              }
+            }
+          },
+          {
+            "span": {
+              "data": {
+                "file_id": 6,
+                "beg": {
+                  "line": 92,
+                  "col": 4
+                },
+                "end": {
+                  "line": 92,
+                  "col": 12
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "cap",
+            "ty": {
+              "Untagged": {
+                "Adt": {
+                  "id": {
+                    "Adt": 6
+                  },
+                  "generics": {
+                    "regions": [],
+                    "types": [],
+                    "const_generics": [],
+                    "trait_refs": []
+                  }
+                }
+              }
+            }
+          },
+          {
+            "span": {
+              "data": {
+                "file_id": 6,
+                "beg": {
+                  "line": 93,
+                  "col": 4
+                },
+                "end": {
+                  "line": 93,
+                  "col": 12
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "alloc",
+            "ty": {
+              "Untagged": {
+                "Adt": {
+                  "id": {
+                    "Adt": 1
+                  },
+                  "generics": {
+                    "regions": [],
+                    "types": [],
+                    "const_generics": [],
+                    "trait_refs": []
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "layout": [
+        {
+          "key": "x86_64-unknown-linux-gnu",
+          "value": {
+            "size": 16,
+            "align": 8,
+            "discriminator": {
+              "Known": 0
+            },
+            "uninhabited": false,
+            "variant_layouts": [
+              {
+                "field_offsets": [
+                  8,
+                  0,
+                  16
+                ],
+                "uninhabited": false,
+                "tagger": []
+              }
+            ],
+            "repr": {
+              "repr_algo": "Rust",
+              "align_modif": null,
+              "transparent": false,
+              "explicit_discr_type": false
+            }
+          }
+        }
+      ],
+      "classification": "Transparent"
+    },
+    {
+      "id": 5,
+      "name": "core::ptr::unique::Unique",
+      "kind": {
+        "Struct": [
+          {
+            "span": {
+              "data": {
+                "file_id": 8,
+                "beg": {
+                  "line": 36,
+                  "col": 4
+                },
+                "end": {
+                  "line": 36,
+                  "col": 23
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "pointer",
+            "ty": {
+              "Untagged": {
+                "Adt": {
+                  "id": {
+                    "Adt": 7
+                  },
+                  "generics": {
+                    "regions": [],
+                    "types": [],
+                    "const_generics": [],
+                    "trait_refs": []
+                  }
+                }
+              }
+            }
+          },
+          {
+            "span": {
+              "data": {
+                "file_id": 8,
+                "beg": {
+                  "line": 42,
+                  "col": 4
+                },
+                "end": {
+                  "line": 42,
+                  "col": 27
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "_marker",
+            "ty": {
+              "Untagged": {
+                "Adt": {
+                  "id": {
+                    "Adt": 4
+                  },
+                  "generics": {
+                    "regions": [],
+                    "types": [],
+                    "const_generics": [],
+                    "trait_refs": []
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "layout": [
+        {
+          "key": "x86_64-unknown-linux-gnu",
+          "value": {
+            "size": 8,
+            "align": 8,
+            "discriminator": {
+              "Known": 0
+            },
+            "uninhabited": false,
+            "variant_layouts": [
+              {
+                "field_offsets": [
+                  0,
+                  8
+                ],
+                "uninhabited": false,
+                "tagger": []
+              }
+            ],
+            "repr": {
+              "repr_algo": "Rust",
+              "align_modif": null,
+              "transparent": true,
+              "explicit_discr_type": false
+            }
+          }
+        }
+      ],
+      "classification": "Transparent"
+    },
+    {
+      "id": 6,
+      "name": "core::num::niche_types::UsizeNoHighBit",
+      "kind": "Opaque",
+      "layout": [
+        {
+          "key": "x86_64-unknown-linux-gnu",
+          "value": {
+            "size": 8,
+            "align": 8,
+            "discriminator": {
+              "Known": 0
+            },
+            "uninhabited": false,
+            "variant_layouts": [
+              {
+                "field_offsets": [
+                  0
+                ],
+                "uninhabited": false,
+                "tagger": []
+              }
+            ],
+            "repr": {
+              "repr_algo": "Rust",
+              "align_modif": null,
+              "transparent": true,
+              "explicit_discr_type": false
+            }
+          }
+        }
+      ],
+      "classification": "Foreign"
+    },
+    {
+      "id": 1,
+      "name": "alloc::alloc::Global",
+      "kind": {
+        "Struct": []
+      },
+      "layout": [
+        {
+          "key": "x86_64-unknown-linux-gnu",
+          "value": {
+            "size": 0,
+            "align": 1,
+            "discriminator": {
+              "Known": 0
+            },
+            "uninhabited": false,
+            "variant_layouts": [
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": []
+              }
+            ],
+            "repr": {
+              "repr_algo": "Rust",
+              "align_modif": null,
+              "transparent": false,
+              "explicit_discr_type": false
+            }
+          }
+        }
+      ],
+      "classification": "Transparent"
+    },
+    {
+      "id": 7,
+      "name": "core::ptr::non_null::NonNull",
+      "kind": {
+        "Struct": [
+          {
+            "span": {
+              "data": {
+                "file_id": 13,
+                "beg": {
+                  "line": 75,
+                  "col": 4
+                },
+                "end": {
+                  "line": 75,
+                  "col": 52
+                }
+              },
+              "generated_from_span": null
+            },
+            "attr_info": {
+              "attributes": [],
+              "inline": null,
+              "rename": null,
+              "public": false
+            },
+            "name": "pointer",
+            "ty": {
+              "Untagged": {
+                "Pattern": [
+                  {
+                    "Untagged": {
+                      "RawPtr": [
+                        {
+                          "Untagged": {
+                            "Literal": {
+                              "UInt": "U8"
+                            }
+                          }
+                        },
+                        "Shared"
+                      ]
+                    }
+                  },
+                  "NotNull"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "layout": [
+        {
+          "key": "x86_64-unknown-linux-gnu",
+          "value": {
+            "size": 8,
+            "align": 8,
+            "discriminator": {
+              "Known": 0
+            },
+            "uninhabited": false,
+            "variant_layouts": [
+              {
+                "field_offsets": [
+                  0
+                ],
+                "uninhabited": false,
+                "tagger": []
+              }
+            ],
+            "repr": {
+              "repr_algo": "Rust",
+              "align_modif": null,
+              "transparent": true,
+              "explicit_discr_type": false
+            }
+          }
+        }
+      ],
+      "classification": "Transparent"
+    },
+    {
+      "id": 4,
+      "name": "core::marker::PhantomData",
+      "kind": {
+        "Struct": []
+      },
+      "layout": [
+        {
+          "key": "x86_64-unknown-linux-gnu",
+          "value": {
+            "size": 0,
+            "align": 1,
+            "discriminator": {
+              "Known": 0
+            },
+            "uninhabited": false,
+            "variant_layouts": [
+              {
+                "field_offsets": [],
+                "uninhabited": false,
+                "tagger": []
+              }
+            ],
+            "repr": {
+              "repr_algo": "Rust",
+              "align_modif": null,
+              "transparent": false,
+              "explicit_discr_type": false
+            }
+          }
+        }
+      ],
+      "classification": "Foreign"
+    }
+  ],
+  "body_interpreted": false,
+  "native_carrier_validity_proved": false
+}

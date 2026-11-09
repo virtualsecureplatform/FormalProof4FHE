@@ -1,0 +1,87 @@
+#!/usr/bin/env python3
+"""Validate retained RawVecInner storage geometry for checked byte/shadow readers.
+No Rust body, constrained-carrier validity, ABI or lifetime theorem is supplied.
+"""
+import argparse
+import json
+from pathlib import Path
+import runpy
+
+ROOT = Path(__file__).resolve().parent.parent
+PROFILE = runpy.run_path(str(ROOT/'scripts/reify-hasteboots-rawvec-option'))
+SPEC = PROFILE['SPEC']; require = SPEC['require']; name = SPEC['name']; empty = SPEC['empty']
+
+
+def layout(size, alignment, offsets, transparent=False):
+    return [{'key':'x86_64-unknown-linux-gnu','value':{
+        'size':size,'align':alignment,'discriminator':{'Known':0},'uninhabited':False,
+        'variant_layouts':[{'field_offsets':offsets,'uninhabited':False,'tagger':[]}],
+        'repr':{'repr_algo':'Rust','align_modif':None,'transparent':transparent,'explicit_discr_type':False}}}]
+
+
+class Reifier:
+    def __init__(self, ir):
+        profile = PROFILE['Reifier'](ir); self.crate = profile.crate; self.function = profile.function
+        types = {t['def_id']:t for t in self.crate['type_decls'] if t}
+        raw = self.function['signature']['inputs'][0]
+        region, pointee, mode = raw['Untagged']['Ref']
+        require(region == {'Var':{'Free':0}} and mode == 'Shared', 'Changed current_memory self reference')
+        def decl(raw, expected, classification):
+            index = raw['Untagged']['Adt']['id']['Adt']; result = types[index]
+            require(raw == SPEC['adt'](index) and name(result) == expected and empty(result['generics']) and
+                    result['item_meta']['opacity'] == classification, 'Changed resident nominal declaration')
+            return result
+        self.inner = inner = decl(pointee,'alloc::raw_vec::RawVecInner','Transparent')
+        require(set(inner['kind']) == {'Struct'}, 'Changed RawVecInner kind')
+        fields = inner['kind']['Struct']
+        require([f['name'] for f in fields] == ['ptr','cap','alloc'], 'Changed RawVecInner fields')
+        self.unique = unique = decl(fields[0]['ty'],'core::ptr::unique::Unique','Transparent')
+        self.carrier = carrier = decl(fields[1]['ty'],'core::num::niche_types::UsizeNoHighBit','Foreign')
+        self.allocator = allocator = decl(fields[2]['ty'],'alloc::alloc::Global','Transparent')
+        require(carrier['kind'] == 'Opaque', 'Changed constrained-capacity classification')
+        require(set(unique['kind']) == {'Struct'} and [f['name'] for f in unique['kind']['Struct']] ==
+                ['pointer','_marker'], 'Changed Unique wrapper')
+        fields = unique['kind']['Struct']
+        self.nonnull = nonnull = decl(fields[0]['ty'],'core::ptr::non_null::NonNull','Transparent')
+        self.marker = marker = decl(fields[1]['ty'],'core::marker::PhantomData','Foreign')
+        require(nonnull == profile.types[0], 'Pointer wrapper differs from current_memory result')
+        require(allocator['kind'] == {'Struct':[]} and marker['kind'] == {'Struct':[]}, 'Inhabited zero-byte field')
+        require(inner['layout'] == layout(16,8,[8,0,16]), 'Changed RawVecInner storage layout')
+        require(unique['layout'] == layout(8,8,[0,8],True), 'Changed Unique storage layout')
+        require(carrier['layout'] == layout(8,8,[0],True), 'Changed capacity storage layout')
+        require(nonnull['layout'] == layout(8,8,[0],True), 'Changed NonNull storage layout')
+        require(allocator['layout'] == layout(0,1,[]) and marker['layout'] == layout(0,1,[]), 'Changed zero-byte field layout')
+        self.types = [inner,unique,carrier,allocator,nonnull,marker]
+
+    def retained(self):
+        return {'function_id':self.function['def_id'],'function_name':name(self.function),
+                'input_type':self.function['signature']['inputs'][0],
+                'types':[{'id':t['def_id'],'name':name(t),'kind':t['kind'],'layout':t['layout'],
+                          'classification':t['item_meta']['opacity']} for t in self.types],
+                'body_interpreted':False,'native_carrier_validity_proved':False}
+
+    def render(self):
+        source = self.inner['layout'][0]['value']; offsets = source['variant_layouts'][0]['field_offsets']
+        return '\n'.join(['module','public import FormalProof4FHE.HasteBoots.NativeRawVecFields',
+            '@[expose] public section','',
+            '-- Retained storage metadata bound to checked reads; no Rust body translation.',
+            'namespace HasteBootsRawVecFields',
+            'open FormalProof4FHE.HasteBoots',
+            'def sourceSize : Nat := '+str(source['size']),
+            'def sourceAlignment : Nat := '+str(source['align']),
+            'def capacityOffset : Nat := '+str(offsets[1]),
+            'def pointerOffset : Nat := '+str(offsets[0]),
+            'def capacityRead := NativeRawVecFields.capacity',
+            'def pointerRead := NativeRawVecFields.pointer',
+            'end HasteBootsRawVecFields',''])
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('llbc',type=Path); parser.add_argument('output',type=Path)
+    parser.add_argument('--retained',type=Path,required=True); args = parser.parse_args()
+    reifier = Reifier(json.loads(args.llbc.read_text()))
+    args.output.write_text(reifier.render()); args.retained.write_text(json.dumps(reifier.retained(),indent=2)+'\n')
+
+
+if __name__ == '__main__': main()
