@@ -30,7 +30,7 @@ def inventory():
     local=re.findall(r'^(?:def|theorem|structure|inductive) ([\w.]+)',raw,re.M)
     local+=['Code.'+n for n in ['scope','done','native','call','loop']]
     names+=['FormalProof4FHE.HasteBoots.NativeRecordDropCalls.'+n for n in local]
-    for module in ['NativeHeapFrame','NativeHeapRelease','NativeRecordHeapBounds']:
+    for module in ['NativeHeapFrame','NativeHeapRelease','NativeRecordHeapBounds','NativeResidentVec']:
         raw=(ROOT/'FormalProof4FHE/HasteBoots'/(module+'.lean')).read_text()
         PARAMETERS['validate_proof_source'](raw,re.findall(r'^theorem (\w+)',raw,re.M))
         namespace=''
@@ -38,7 +38,7 @@ def inventory():
             if line.startswith('namespace '):namespace=line.split()[1]
             match=re.match(r'^(?:def|theorem|structure|inductive) ([\w.]+)',line)
             if match:names.append(namespace+'.'+match[1])
-    names += ['FormalProof4FHE.HasteBoots.NativeHeapRelease.Releases.refl', 'FormalProof4FHE.HasteBoots.NativeHeapRelease.Releases.free', 'FormalProof4FHE.HasteBoots.NativeHeapLoss.Loss.released']
+    names += ['FormalProof4FHE.HasteBoots.NativeHeapRelease.Releases.refl', 'FormalProof4FHE.HasteBoots.NativeHeapRelease.Releases.free', 'FormalProof4FHE.HasteBoots.NativeHeapLoss.Loss.released', 'FormalProof4FHE.HasteBoots.NativeResidentVec.Descriptor.mk']
     for file in ['Generated.lean','LoopProof.lean','Execution.lean','HeapProof.lean','Proof.lean']:
         raw=(DATA/file).read_text();PARAMETERS['validate_proof_source'](raw,re.findall(r'^theorem (\w+)',raw,re.M))
         namespace=''
@@ -114,13 +114,13 @@ def main():
                  ROOT/'scripts/specify-hasteboots-deallocation-boundary',
                  ROOT/'scripts/extract-hasteboots-parameters',ROOT/'lean-toolchain',
                  *[DATA/n for n in ['fixture.rs','Generated.lean','Retained.json','LoopProof.lean','Execution.lean','HeapProof.lean','Proof.lean','Smoke.lean','ExecutionSmoke.lean','ReleaseSmoke.lean']],
-                 *[ROOT/('FormalProof4FHE/HasteBoots/'+n+'.lean') for n in ['NativeHeapFrame','NativeHeapRelease','NativeRecordHeapBounds','NativeReferenceMachine','NativePointerMachine','NativePointerByteMemory','NativeByteDeallocation','NativeByteBorrow','NativeSliceLLBC','NativeByteLoopLLBC','NativeByteDropTraversal','NativeReferenceCleanup','NativeVecReference','NativeRecordDropCalls','NativeRawVecFields','NativeRawVecReference','NativeRawVecBorrow','NativeRawVecMutBorrow','NativeRecordLLBC','NativeRecordValues']],
+                 *[ROOT/('FormalProof4FHE/HasteBoots/'+n+'.lean') for n in ['NativeHeapFrame','NativeHeapRelease','NativeRecordHeapBounds','NativeResidentVec','NativeReferenceMachine','NativePointerMachine','NativePointerByteMemory','NativeByteDeallocation','NativeByteBorrow','NativeSliceLLBC','NativeByteLoopLLBC','NativeByteDropTraversal','NativeReferenceCleanup','NativeVecReference','NativeRecordDropCalls','NativeRawVecFields','NativeRawVecReference','NativeRawVecBorrow','NativeRawVecMutBorrow','NativeRecordLLBC','NativeRecordValues']],
                  *[ROOT/('FormalProof4FHETest/HasteBootsRawVec'+kind+n+'.lean') for kind in ['Borrow','MutBorrow'] for n in ['Smoke','Audit']],
-                 *[ROOT/('FormalProof4FHETest/HasteBoots'+kind+n+'.lean') for kind in ['VecReference','RecordDropCalls','HeapFrame','RecordHeapBounds','HeapRelease'] for n in ['Smoke','Audit']]]
+                 *[ROOT/('FormalProof4FHETest/HasteBoots'+kind+n+'.lean') for kind in ['VecReference','RecordDropCalls','HeapFrame','RecordHeapBounds','HeapRelease','ResidentVec'] for n in ['Smoke','Audit']]]
         record['inputs'] = {str(p.relative_to(ROOT)):digest(p.read_bytes()) for p in files}
         run([ROOT/'scripts/in-container','lake','build','FormalProof4FHETest.HasteBootsRawVecBorrowSmoke',
              'FormalProof4FHETest.HasteBootsRawVecBorrowAudit','FormalProof4FHETest.HasteBootsRawVecMutBorrowSmoke',
-             'FormalProof4FHETest.HasteBootsRawVecMutBorrowAudit','FormalProof4FHETest.HasteBootsVecReferenceSmoke','FormalProof4FHETest.HasteBootsVecReferenceAudit','FormalProof4FHETest.HasteBootsRecordDropCallsSmoke','FormalProof4FHETest.HasteBootsRecordDropCallsAudit','FormalProof4FHETest.HasteBootsHeapFrameSmoke','FormalProof4FHETest.HasteBootsHeapFrameAudit','FormalProof4FHETest.HasteBootsRecordHeapBoundsSmoke','FormalProof4FHETest.HasteBootsRecordHeapBoundsAudit','FormalProof4FHETest.HasteBootsHeapReleaseSmoke','FormalProof4FHETest.HasteBootsHeapReleaseAudit'],'root-build.log')
+             'FormalProof4FHETest.HasteBootsRawVecMutBorrowAudit','FormalProof4FHETest.HasteBootsVecReferenceSmoke','FormalProof4FHETest.HasteBootsVecReferenceAudit','FormalProof4FHETest.HasteBootsRecordDropCallsSmoke','FormalProof4FHETest.HasteBootsRecordDropCallsAudit','FormalProof4FHETest.HasteBootsHeapFrameSmoke','FormalProof4FHETest.HasteBootsHeapFrameAudit','FormalProof4FHETest.HasteBootsRecordHeapBoundsSmoke','FormalProof4FHETest.HasteBootsRecordHeapBoundsAudit','FormalProof4FHETest.HasteBootsHeapReleaseSmoke','FormalProof4FHETest.HasteBootsHeapReleaseAudit','FormalProof4FHETest.HasteBootsResidentVecSmoke','FormalProof4FHETest.HasteBootsResidentVecAudit'],'root-build.log')
         llbc = out/'source.llbc'
         command = [tools/'charon','rustc','--preset=aeneas','--sysroot','default','--monomorphize','--mir','optimized',
                    '--consts','values','--evaluate-runtime-checks','--precise-drops','--desugar-drops','--preserve-allocator','--no-dedup-serialized-ast']

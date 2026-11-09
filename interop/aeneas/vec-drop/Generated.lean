@@ -1,5 +1,6 @@
 module
 public import FormalProof4FHE.HasteBoots.NativeRecordHeapBounds
+public import FormalProof4FHE.HasteBoots.NativeResidentVec
 @[expose] public section
 
 namespace HasteBootsRawVecDrop
