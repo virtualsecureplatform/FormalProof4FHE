@@ -45,6 +45,7 @@ class Reifier:
   self.allocator_methods=AllocatorMethods(self)
   self.runtime_calls=RuntimeCalls(self)
   self.runtime_success=RuntimeSuccess(self)
+  self.runtime_null=RuntimeNull(self)
  def walk(self,f,node):
   if isinstance(node,dict):
    if 'statements' in node:
@@ -111,7 +112,7 @@ class Reifier:
     else:slots.append('.dead')
    lines+=['def '+label+' (world : NativeReferenceMachine.State) (left right : NativeWord64Memory.Word) : Frame :=',
     '  ⟨['+', '.join(types)+'], ['+', '.join(slots)+'], world⟩']
-  lines+=[self.layout_prefix.render(),self.caller_preparation.render(),self.positive_preparation.render(),self.allocator_methods.render(),self.runtime_calls.render(),self.runtime_success.render(),'end HasteBootsVecCapacityArithmetic',''];return '\n'.join(lines)
+  lines+=[self.layout_prefix.render(),self.caller_preparation.render(),self.positive_preparation.render(),self.allocator_methods.render(),self.runtime_calls.render(),self.runtime_success.render(),self.runtime_null.render(),'end HasteBootsVecCapacityArithmetic',''];return '\n'.join(lines)
 
 class LayoutPrefix:
  def __init__(self,parent):
@@ -473,14 +474,16 @@ class AllocatorMethods:
  def render(self):
   layout='((layoutTypes (calleeEntryAmbient ambient))[4]?.getD (.scalar .unit))'
   lines=['def runtimeThinPointerType : NativeRecordValues.Ty := .record 13 (.pair (.scalar (.raw false)) (.scalar .unit))',
+   'def runtimeNeverType : NativeRecordValues.Ty := .enumeration 25 []',
    'def runtimeErrorType : NativeRecordValues.Ty := .record 17 (.scalar .unit)',
+   'def runtimeResidualType : NativeRecordValues.Ty := .record 24 (.choice (.pair runtimeNeverType (.scalar .unit)) (.pair runtimeErrorType (.scalar .unit)))',
    'def runtimePointerResultType : NativeRecordValues.Ty := .record 26 (.choice (.pair runtimeThinPointerType (.scalar .unit)) (.pair runtimeErrorType (.scalar .unit)))',
    'def runtimePointerOptionType : NativeRecordValues.Ty := .record 27 (.choice (.scalar .unit) (.pair runtimeThinPointerType (.scalar .unit)))',
    'def runtimeControlType (unreachable : NativeRecordValues.Ty) : NativeRecordValues.Ty := .record 23 (.choice (.pair runtimeThinPointerType (.scalar .unit)) (.pair unreachable (.scalar .unit)))',
    'def allocationResultType : NativeRecordValues.Ty := .record 15 (.choice (.pair (.record 16 (.pair (.scalar (.raw true)) (.scalar .unit))) (.scalar .unit)) (.pair (.record 17 (.scalar .unit)) (.scalar .unit)))',
    'def implementationPrefix (next : Body) : Body := '+self.prefix,
    'def implementationTail : Body := '+self.tail,
-   'def implementationTypes (ambient : Frame) : List NativeRecordValues.Ty := ['+', '.join({0:'allocationResultType',1:layout,2:'.boolean',3:'(.scalar .usize)',6:'(.scalar (.raw false))',7:'(runtimeControlType (ambient.types[10]?.getD (.scalar .unit)))',8:'runtimePointerResultType',9:'runtimePointerOptionType',11:'runtimeThinPointerType',12:'(.record 16 (.pair (.scalar (.raw true)) (.scalar .unit)))',22:'runtimeThinPointerType',26:'runtimeThinPointerType',27:'runtimeThinPointerType',28:'(.scalar (.raw true))',29:'(.scalar (.raw false))',18:'(.scalar .unit)',20:'(.scalar .unit)',19:'((layoutTypes (calleeEntryAmbient ambient))[40]?.getD (.scalar .unit))',21:'((layoutTypes (calleeEntryAmbient ambient))[40]?.getD (.scalar .unit))',23:'(.scalar .usize)'}.get(i,'(ambient.types['+str(i)+']?.getD (.scalar .unit))') for i in range(39))+']']
+   'def implementationTypes (ambient : Frame) : List NativeRecordValues.Ty := ['+', '.join({0:'allocationResultType',1:layout,2:'.boolean',3:'(.scalar .usize)',6:'(.scalar (.raw false))',7:'(runtimeControlType runtimeResidualType)',8:'runtimePointerResultType',9:'runtimePointerOptionType',10:'runtimeResidualType',11:'runtimeThinPointerType',12:'(.record 16 (.pair (.scalar (.raw true)) (.scalar .unit)))',22:'runtimeThinPointerType',26:'runtimeThinPointerType',27:'runtimeThinPointerType',28:'(.scalar (.raw true))',29:'(.scalar (.raw false))',32:'(.scalar .usize)',33:'.boolean',34:'runtimePointerOptionType',35:'runtimeErrorType',36:'runtimePointerResultType',37:'runtimeErrorType',38:'allocationResultType',18:'(.scalar .unit)',20:'(.scalar .unit)',19:'((layoutTypes (calleeEntryAmbient ambient))[40]?.getD (.scalar .unit))',21:'((layoutTypes (calleeEntryAmbient ambient))[40]?.getD (.scalar .unit))',23:'(.scalar .usize)'}.get(i,'(ambient.types['+str(i)+']?.getD (.scalar .unit))') for i in range(39))+']']
   for label in ['implementationFrame','implementationPrepared']:
    slots={1:'(.live (some (capacityLayout capacity)))',2:'(.live (some (.boolean zeroed)))'}
    if label=='implementationPrepared':slots.update({i:'(.live none)' for i in [0,6,10,11,13,16,18,20,24,30]});slots[3]='(.live (some (.scalar (.usize capacity))))'
@@ -609,6 +612,51 @@ class RuntimeSuccess(LayoutPrefix):
    'def runtimeSuccessFrame (ambient : Frame) (capacity : NativeWord64Memory.Word) (zeroed : Bool) (world : NativeReferenceMachine.State) (pointer : NativePointerStorage.Pointer) : Frame :=',
    '  let base := runtimeSliceFrame ambient capacity zeroed world pointer',
    '  {base with slots := ((base.slots.set 0 (.live (some (runtimeSuccessValue pointer capacity)))).set 12 .dead).set 28 .dead}'])+'\n'
+
+class RuntimeNull(RuntimeSuccess):
+ def __init__(self,parent):
+  self.parent=parent;self.function=parent.functions[13];self.locals=self.function['body']['Structured']['locals']['locals'];self.count=len(self.locals)
+  ss=parent.allocator_methods.positive['statements'][6]['kind']['Switch']['SwitchInt'][2][0][1]['statements'];types=parent.layout_prefix.types
+  require([s['id'] for s in ss]==list(range(634,649))+[650]+list(range(651,671))+[933,934,935,936,937,671],'Changed null runtime sequence')
+  residual=types[24];never=types[25];error=types[17]
+  require(name(residual)=='core::result::Result' and [(v['id'],v['name'],[f['ty'] for f in v['fields']],v['discriminant']) for v in residual['kind']['Enum']]==[(0,'Ok',[adt(25)],{'Scalar':{'Signed':['Isize','0']}}),(1,'Err',[adt(17)],{'Scalar':{'Signed':['Isize','1']}})],'Changed residual Result variants')
+  require(name(never)=='core::convert::Infallible' and never['kind']=={'Enum':[]} and len(never['layout'])==1 and never['layout'][0]['value']=={'size':0,'align':1,'discriminator':None,'uninhabited':True,'variant_layouts':[],'repr':{'repr_algo':'Rust','align_modif':None,'transparent':False,'explicit_discr_type':False}},'Changed uninhabited residual field')
+  require(len(residual['layout'])==1 and residual['layout'][0]=={'key':'x86_64-unknown-linux-gnu','value':{'size':0,'align':1,'discriminator':{'Known':1},'uninhabited':False,'variant_layouts':[None,{'field_offsets':[0],'uninhabited':False,'tagger':[]}],'repr':{'repr_algo':'Rust','align_modif':None,'transparent':False,'explicit_discr_type':False}}},'Changed known zero-sized Result discriminant')
+  require(error['kind']=={'Struct':[]} and error['layout'][0]['value']['size']==0 and error['layout'][0]['value']['align']==1 and not error['layout'][0]['value']['uninhabited'],'Changed allocator error layout')
+  self.prefix=self.code(ss[:13],'next');self.check=self.code(ss[13:16],'next');self.tail=self.code(ss[16:],'.done')
+ def rvalue(self,statement,rv,output):
+  if set(rv)=={'Discriminant'}:
+   require(rv['Discriminant']=={'kind':{'Local':10},'ty':adt(24)} and output==ISIZE,'Changed zero-sized discriminant place')
+   return '(.knownDiscriminant 10 runtimeResidualDiscriminant)'
+  if set(rv)=={'Aggregate'}:
+   kind,args=rv['Aggregate'];require(set(kind)=={'Adt'},'Changed null aggregate');owner,variant,union=kind['Adt'];tag=owner['id']['Adt']
+   require(owner==adt(tag)['Untagged']['Adt'] and union is None and output==adt(tag),'Changed null nominal aggregate')
+   require((tag,variant) in [(27,0),(17,None),(26,1),(15,1)] and [next(iter(a.values()))['ty'] for a in args]==([] if tag in [27,17] else [adt(17)]),'Changed null aggregate variant or fields')
+   return '(.aggregate (some '+str(tag)+') '+('none' if variant is None else '(some '+str(bool(variant)).lower()+')')+' ['+', '.join(self.operand(a) for a in args)+'])'
+  return LayoutPrefix.rvalue(self,statement,rv,output)
+ def code(self,statements,tail):
+  code=tail
+  for statement in reversed(statements):
+   k=statement['kind']
+   if k=='Return':code='.ret'
+   elif isinstance(k,dict) and set(k)=={'Assert'}:
+    require(k['Assert']=={'assert':{'cond':{'Move':{'kind':{'Local':33},'ty':BOOL}},'expected':True,'check_kind':None},'on_failure':'UndefinedBehavior','on_unwind':k['Assert']['on_unwind']} and [s['kind'] for s in k['Assert']['on_unwind']['statements']]==['UnwindResume'],'Changed residual discriminant assertion')
+    code='(.switchBoolean (.move 33 []) .done .abort '+code+')'
+   else:code=LayoutPrefix.code(self,[statement],code)
+  return code
+ def render(self):
+  return '\n'.join(['def runtimeResidualDiscriminant : ZeroSizeEnum := ⟨24,0,1,[none,some 1],1⟩',
+   'def runtimeNullPrefix (next : Body) : Body := '+self.prefix,
+   'def runtimeNullCheck (next : Body) : Body := '+self.check,
+   'def runtimeNullTail : Body := '+self.tail,
+   'def runtimeNull : NativeAllocatorLLBC.Body := .legacy (runtimeNullPrefix (runtimeNullCheck runtimeNullTail)) .done',
+   'def runtimeFailureValue : NativeRecordValues.Value := .record 15 (.choice true (.pair (.record 17 (.scalar .unit)) (.scalar .unit)))',
+   'def runtimeNullPrepared (ambient : Frame) (capacity : NativeWord64Memory.Word) (zeroed : Bool) (world : NativeReferenceMachine.State) : Frame :=',
+   '  let base := runtimeInspectedFrame ambient capacity zeroed world ⟨0,none⟩',
+   '  {base with slots := (((((((base.slots.set 23 .dead).set 34 (.live (some .uninit))).set 35 (.live (some .uninit))).set 36 (.live (some .uninit))).set 9 .dead).set 8 .dead).set 32 (.live none)).set 33 (.live none)}',
+   'def runtimeNullChecked (ambient : Frame) (capacity : NativeWord64Memory.Word) (zeroed : Bool) (world : NativeReferenceMachine.State) : Frame :=',
+   '  let base := runtimeNullPrepared ambient capacity zeroed world',
+   '  {base with slots := (base.slots.set 32 (.live (some (.scalar (.usize 1))))).set 33 (.live (some .uninit))}'])+'\n'
 
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('llbc',type=Path);p.add_argument('output',type=Path);p.add_argument('--retained',type=Path,required=True);a=p.parse_args()
