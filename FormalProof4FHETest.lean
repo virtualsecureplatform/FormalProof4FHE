@@ -238,3 +238,6 @@ import FormalProof4FHETest.HasteBootsHeapFrameSmoke
 import FormalProof4FHETest.HasteBootsHeapFrameAudit
 import FormalProof4FHETest.HasteBootsRecordHeapBoundsSmoke
 import FormalProof4FHETest.HasteBootsRecordHeapBoundsAudit
+
+import FormalProof4FHETest.HasteBootsHeapReleaseSmoke
+import FormalProof4FHETest.HasteBootsHeapReleaseAudit

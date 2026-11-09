@@ -1,5 +1,5 @@
 module
-public import FormalProof4FHE.HasteBoots.NativeHeapFrame
+public import FormalProof4FHE.HasteBoots.NativeHeapRelease
 @[expose] public section
 
 /-! Bounds on live-allocation loss in finite retained aggregate bodies. These
@@ -10,34 +10,35 @@ open NativeReferenceMachine (State)
 def count (world : State) : Nat := world.pointers.heap.memory.blocks.length
 
 structure Loss (before after : State) (budget : Nat) : Prop where
-  no_growth : count after ≤ count before
   bounded : count before ≤ count after + budget
-  unchanged : count after = count before → after.pointers.heap = before.pointers.heap
+  released : NativeHeapRelease.Releases before.pointers.heap after.pointers.heap
 
-theorem Loss.refl (world : State) (budget : Nat) : Loss world world budget := ⟨Nat.le_refl _, Nat.le_add_right _ _,by intro; rfl⟩
+theorem Loss.no_growth {before after : State} {budget : Nat} (bound : Loss before after budget) : count after ≤ count before :=
+  bound.released.no_growth
+
+theorem Loss.unchanged {before after : State} {budget : Nat} (bound : Loss before after budget)
+    (same : count after = count before) : after.pointers.heap = before.pointers.heap :=
+  bound.released.unchanged same
+
+theorem Loss.refl (world : State) (budget : Nat) : Loss world world budget := ⟨Nat.le_add_right _ _,.refl _⟩
 
 theorem Loss.ofFrame {before after : State} (same : NativeHeapFrame.Runs before after) (budget : Nat) : Loss before after budget := by
   have counts : count after = count before := congrArg (fun heap => heap.memory.blocks.length) same.heap_eq
   constructor
-  · exact Nat.le_of_eq counts
   · rw [counts]; exact Nat.le_add_right _ _
-  · intro; exact same.heap_eq
+  · rw [same.heap_eq]; exact .refl _
 
 theorem Loss.mono {before after : State} {small : Nat} (first : Loss before after small)
     (large : Nat) (enough : small ≤ large) : Loss before after large := by
-  rcases first with ⟨noGrowth,bound,unchanged⟩
-  exact ⟨noGrowth,by omega,unchanged⟩
+  rcases first with ⟨bound,released⟩
+  exact ⟨by omega,released⟩
 
 theorem Loss.trans {before middle after : State} {firstBudget secondBudget : Nat}
     (first : Loss before middle firstBudget) (second : Loss middle after secondBudget) :
     Loss before after (firstBudget + secondBudget) := by
-  rcases first with ⟨noGrowth,bound,firstFrame⟩
-  rcases second with ⟨noGrowthNext,boundNext,secondFrame⟩
-  refine ⟨by omega,by omega,?_⟩
-  intro sameCount
-  have middleCount : count middle = count before := by omega
-  have afterCount : count after = count middle := by omega
-  exact (secondFrame afterCount).trans (firstFrame middleCount)
+  rcases first with ⟨bound,firstRelease⟩
+  rcases second with ⟨boundNext,secondRelease⟩
+  exact ⟨by omega,firstRelease.trans secondRelease⟩
 
 theorem Loss.prefix {before middle after : State} {budget : Nat}
     (same : NativeHeapFrame.Runs before middle) (later : Loss middle after budget) : Loss before after budget := by
@@ -117,12 +118,13 @@ theorem deallocate_loss (frame : Frame) (pointer size alignment : Operand) (tag 
           have countEq := NativeByteDeallocation.execute_frees_one caller.world world raw bytes align freed
           rw [same] at countEq
           change Loss frame.world world 1
-          refine ⟨?_,?_,?_⟩
+          refine ⟨?_,?_⟩
           · dsimp only [NativeHeapLoss.count]; omega
-          · dsimp only [NativeHeapLoss.count]; omega
-          · intro unchanged
-            dsimp only [NativeHeapLoss.count] at unchanged
-            omega
+          · obtain ⟨heap,release,snapshot⟩ := NativeByteDeallocation.execute_heap caller.world world raw bytes align freed
+            have conditions := NativeByteDeallocation.execute_success caller.world world raw bytes align freed
+            have heapEq := congrArg (fun state => state.pointers.heap) snapshot
+            rw [heapEq, ← same]
+            exact .free (.refl _) raw.storage ⟨bytes.val,align.val⟩ conditions.2.1 conditions.2.2.1 conditions.1.2 release
       · simp only [matched, ite_false, Flow.world]; rw [same]; exact .refl _ _
     next => change Loss frame.world caller.world 1; rw [same]; exact .refl _ _
 

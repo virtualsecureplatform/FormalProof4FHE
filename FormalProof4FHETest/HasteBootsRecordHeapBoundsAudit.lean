@@ -9,6 +9,14 @@ import all FormalProof4FHE.HasteBoots.NativeRecordHeapBounds
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeHeapLoss.Loss
 
+/-- info: 'FormalProof4FHE.HasteBoots.NativeHeapLoss.Loss.no_growth' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeHeapLoss.Loss.no_growth
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeHeapLoss.Loss.unchanged' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeHeapLoss.Loss.unchanged
+
 /-- info: 'FormalProof4FHE.HasteBoots.NativeHeapLoss.Loss.refl' does not depend on any axioms -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeHeapLoss.Loss.refl
