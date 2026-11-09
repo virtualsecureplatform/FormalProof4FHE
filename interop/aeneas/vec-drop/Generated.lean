@@ -1,5 +1,5 @@
 module
-public import FormalProof4FHE.HasteBoots.NativeRecordDropCalls
+public import FormalProof4FHE.HasteBoots.NativeRecordHeapBounds
 @[expose] public section
 
 namespace HasteBootsRawVecDrop

@@ -30,7 +30,15 @@ def inventory():
     local=re.findall(r'^(?:def|theorem|structure|inductive) ([\w.]+)',raw,re.M)
     local+=['Code.'+n for n in ['scope','done','native','call','loop']]
     names+=['FormalProof4FHE.HasteBoots.NativeRecordDropCalls.'+n for n in local]
-    for file in ['Generated.lean','LoopProof.lean','Execution.lean','Proof.lean']:
+    for module in ['NativeHeapFrame','NativeRecordHeapBounds']:
+        raw=(ROOT/'FormalProof4FHE/HasteBoots'/(module+'.lean')).read_text()
+        PARAMETERS['validate_proof_source'](raw,re.findall(r'^theorem (\w+)',raw,re.M))
+        namespace=''
+        for line in raw.splitlines():
+            if line.startswith('namespace '):namespace=line.split()[1]
+            match=re.match(r'^(?:def|theorem|structure|inductive) ([\w.]+)',line)
+            if match:names.append(namespace+'.'+match[1])
+    for file in ['Generated.lean','LoopProof.lean','Execution.lean','HeapProof.lean','Proof.lean']:
         raw=(DATA/file).read_text();PARAMETERS['validate_proof_source'](raw,re.findall(r'^theorem (\w+)',raw,re.M))
         namespace=''
         for line in raw.splitlines():
@@ -84,7 +92,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--build-receipt', type=Path, required=True); args = parser.parse_args()
     out = Path(tempfile.mkdtemp(prefix='vec-drop-', dir=ROOT/'build/hasteboots-extraction'))
-    record = {'status':'started','commands':[], 'deallocation_caller_interpreted':True, 'current_memory_root_interpreted':True, 'helper_bodies_interpreted':False, 'rawvec_cleanup_body_interpreted':True,'outer_vec_destruction_interpreted':True,'unbounded_byte_loop_relation':True,'total_concrete_source_executor':True,'execution_relation_deterministic':True,'explicit_call_preparation_scope_cleanup':True,
+    record = {'status':'started','commands':[], 'deallocation_caller_interpreted':True, 'current_memory_root_interpreted':True, 'helper_bodies_interpreted':False, 'rawvec_cleanup_body_interpreted':True,'outer_vec_destruction_interpreted':True,'unbounded_byte_loop_relation':True,'total_concrete_source_executor':True,'all_outcome_heap_loss_at_most_one':True,'unchanged_count_implies_heap_identity':True,'byte_method_heap_frame':True,'execution_relation_deterministic':True,'explicit_call_preparation_scope_cleanup':True,
               'native_carrier_validity_proved':False, 'physical_niche_decoded':False, 'native_lifetime_refinement':False,
               'physical_work_refinement':False, 'final_security_theorem':False}
     def save(): (out/'manifest.json').write_text(json.dumps(record,indent=2)+'\n')
@@ -104,14 +112,14 @@ def main():
                  ROOT/'scripts/check-hasteboots-allocator-caller',
                  ROOT/'scripts/specify-hasteboots-deallocation-boundary',
                  ROOT/'scripts/extract-hasteboots-parameters',ROOT/'lean-toolchain',
-                 *[DATA/n for n in ['fixture.rs','Generated.lean','Retained.json','LoopProof.lean','Execution.lean','Proof.lean','Smoke.lean','ExecutionSmoke.lean']],
-                 *[ROOT/('FormalProof4FHE/HasteBoots/'+n+'.lean') for n in ['NativeByteLoopLLBC','NativeByteDropTraversal','NativeReferenceCleanup','NativeVecReference','NativeRecordDropCalls','NativeRawVecFields','NativeRawVecReference','NativeRawVecBorrow','NativeRawVecMutBorrow','NativeRecordLLBC','NativeRecordValues']],
+                 *[DATA/n for n in ['fixture.rs','Generated.lean','Retained.json','LoopProof.lean','Execution.lean','HeapProof.lean','Proof.lean','Smoke.lean','ExecutionSmoke.lean']],
+                 *[ROOT/('FormalProof4FHE/HasteBoots/'+n+'.lean') for n in ['NativeHeapFrame','NativeRecordHeapBounds','NativeReferenceMachine','NativePointerMachine','NativePointerByteMemory','NativeByteDeallocation','NativeByteBorrow','NativeSliceLLBC','NativeByteLoopLLBC','NativeByteDropTraversal','NativeReferenceCleanup','NativeVecReference','NativeRecordDropCalls','NativeRawVecFields','NativeRawVecReference','NativeRawVecBorrow','NativeRawVecMutBorrow','NativeRecordLLBC','NativeRecordValues']],
                  *[ROOT/('FormalProof4FHETest/HasteBootsRawVec'+kind+n+'.lean') for kind in ['Borrow','MutBorrow'] for n in ['Smoke','Audit']],
-                 *[ROOT/('FormalProof4FHETest/HasteBoots'+kind+n+'.lean') for kind in ['VecReference','RecordDropCalls'] for n in ['Smoke','Audit']]]
+                 *[ROOT/('FormalProof4FHETest/HasteBoots'+kind+n+'.lean') for kind in ['VecReference','RecordDropCalls','HeapFrame','RecordHeapBounds'] for n in ['Smoke','Audit']]]
         record['inputs'] = {str(p.relative_to(ROOT)):digest(p.read_bytes()) for p in files}
         run([ROOT/'scripts/in-container','lake','build','FormalProof4FHETest.HasteBootsRawVecBorrowSmoke',
              'FormalProof4FHETest.HasteBootsRawVecBorrowAudit','FormalProof4FHETest.HasteBootsRawVecMutBorrowSmoke',
-             'FormalProof4FHETest.HasteBootsRawVecMutBorrowAudit','FormalProof4FHETest.HasteBootsVecReferenceSmoke','FormalProof4FHETest.HasteBootsVecReferenceAudit','FormalProof4FHETest.HasteBootsRecordDropCallsSmoke','FormalProof4FHETest.HasteBootsRecordDropCallsAudit'],'root-build.log')
+             'FormalProof4FHETest.HasteBootsRawVecMutBorrowAudit','FormalProof4FHETest.HasteBootsVecReferenceSmoke','FormalProof4FHETest.HasteBootsVecReferenceAudit','FormalProof4FHETest.HasteBootsRecordDropCallsSmoke','FormalProof4FHETest.HasteBootsRecordDropCallsAudit','FormalProof4FHETest.HasteBootsHeapFrameSmoke','FormalProof4FHETest.HasteBootsHeapFrameAudit','FormalProof4FHETest.HasteBootsRecordHeapBoundsSmoke','FormalProof4FHETest.HasteBootsRecordHeapBoundsAudit'],'root-build.log')
         llbc = out/'source.llbc'
         command = [tools/'charon','rustc','--preset=aeneas','--sysroot','default','--monomorphize','--mir','optimized',
                    '--consts','values','--evaluate-runtime-checks','--precise-drops','--desugar-drops','--preserve-allocator','--no-dedup-serialized-ast']
@@ -125,7 +133,7 @@ def main():
         record['negative_controls'] = negatives(ir)
         names = inventory()
         checked = out/'Checked.lean'
-        checked.write_text(generated+'\n'+(DATA/'LoopProof.lean').read_text()+'\n'+(DATA/'Execution.lean').read_text()+'\n'+(DATA/'Proof.lean').read_text()+'\n'+(DATA/'Smoke.lean').read_text()+'\n'+(DATA/'ExecutionSmoke.lean').read_text()+
+        checked.write_text(generated+'\n'+(DATA/'LoopProof.lean').read_text()+'\n'+(DATA/'Execution.lean').read_text()+'\n'+(DATA/'HeapProof.lean').read_text()+'\n'+(DATA/'Proof.lean').read_text()+'\n'+(DATA/'Smoke.lean').read_text()+'\n'+(DATA/'ExecutionSmoke.lean').read_text()+
                            ''.join('\n#print axioms '+name+'\n' for name in names))
         run([ROOT/'scripts/in-container','lake','env','lean','-DwarningAsError=true',checked.relative_to(ROOT)],'lean.log')
         record['dependency_audit'] = PARAMETERS['audit_log']((out/'lean.log').read_text(),names)
@@ -138,7 +146,7 @@ def main():
         if code_only(changed_generated)==code_only(generated):raise RuntimeError('Changed slice extent ignored')
         test=out/'ZeroSlice.lean'
         smoke=(DATA/'Smoke.lean').read_text().split('syntax "run_vec_rejected"')[0].replace('nextTag = 15','nextTag = 9')+'end HasteBootsVecDrop.Smoke\n'
-        test.write_text(changed_generated+'\n'+(DATA/'LoopProof.lean').read_text()+'\n'+(DATA/'Execution.lean').read_text()+'\n'+(DATA/'Proof.lean').read_text()+'\n'+smoke+'\n'+(DATA/'ExecutionSmoke.lean').read_text())
+        test.write_text(changed_generated+'\n'+(DATA/'LoopProof.lean').read_text()+'\n'+(DATA/'Execution.lean').read_text()+'\n'+(DATA/'HeapProof.lean').read_text()+'\n'+(DATA/'Proof.lean').read_text()+'\n'+smoke+'\n'+(DATA/'ExecutionSmoke.lean').read_text())
         run([ROOT/'scripts/in-container','lake','env','lean','-DwarningAsError=true',test.relative_to(ROOT)],'zero-slice.log')
         record['supported_slice_extent_mutation']='changing byte-slice extent to zero changes generated code, retains deallocation and removes six iteration loans in the three-byte example'
         record['llbc_sha256'] = digest(llbc.read_bytes()); record['checked_sha256'] = digest(checked.read_bytes())
