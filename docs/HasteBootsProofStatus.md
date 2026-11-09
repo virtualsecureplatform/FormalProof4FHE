@@ -7,6 +7,44 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Original RawVec drop glue and method now compose with deallocation
+
+The [RawVec drop profile](../interop/aeneas/rawvec-drop/README.md) reifies both
+original roots through the existing deallocation/current-memory/Global chain.
+It preserves the ordinary mutable whole-object borrow and the adjacent
+`TwoPhaseMut` inner-field borrow/call. The new checked reservation executes an
+address step without issuing a loan; the closed byte Layout argument is evaluated
+before exclusive activation. Only then is the child reference stored and moved
+to the callee. A failing argument therefore retains no newly issued loan. This
+restricted pair translation does not establish general Rust two-phase semantics.
+
+Six borrow theorems prove execution projections, successful-step witnesses and
+reservation's unchanged loan/registry/birth/counter/heap state. Two interpreter
+helper theorems extend the body/invocation projection and reachability proofs.
+Eighteen declaration checks and sixteen model regressions include failed argument
+ordering, conflicting children, exclusive-copy rejection and slot occupancy.
+The reifier validates RawVec's complete geometry and nominal subobject, regions
+and the closed named byte Layout value, using its alignment discriminant rather
+than its enum variant index.
+
+Four source theorems prove body/invocation projection for the two original roots.
+Eleven source regressions exercise real modeled allocation removal, zero capacity,
+loan settlement preserving the incoming loan, rejected entries/high-bit capacity,
+double free, generation reuse and conflicting loans. The fresh-extraction gate
+passed 252 dependency audits and 44 rejection controls. Changing `TwoPhaseMut` to
+ordinary `Mut` changes code and passes checked destructor outcomes, while a model
+regression distinguishes failed-argument prefixes. Parent deallocation passed
+256 audits and 24 controls, current-memory passed 251 and 23, and Global passed
+279 and 34. Full `scripts/check` passed the 11,017-job build and subsequent
+smoke checks. Validation receipts are in the profile's regression file.
+
+Next compose original outer Vec drop methods/glue with byte-drop traversal and
+these RawVec bodies. Universal nonzero caller/destructor characterization and
+native construction/carrier/reference/stack/layout/ABI, compiler/lifetime,
+helper/allocator and physical-work refinement remain open, as does the full
+security theorem. These source projections and examples do not discharge those
+obligations. The complete protocol and expected-work target above is unchanged.
+
 ## The original RawVec deallocation caller now composes with the allocator path
 
 The [RawVec caller profile](../interop/aeneas/rawvec-deallocation/README.md)
@@ -38,8 +76,8 @@ by the assignment/continuation translator hooks. Classifications are preserved;
 call region labels are validated before logical comparison, without claiming
 native lifetime correspondence.
 
-Next compose original RawVec/Vec drop methods and glue with mutable subobject
-borrows and byte-drop traversal. Universal caller characterization, native
+RawVec drop methods/glue are now composed above. Next compose outer Vec drop
+methods and glue with mutable subobject borrows and byte-drop traversal. Universal caller characterization, native
 construction/carrier/reference/stack/layout/ABI and lifetime/compiler refinement,
 allocator correctness, physical work and the complete security theorem remain
 open. The protocol and expected-work target above is unchanged.

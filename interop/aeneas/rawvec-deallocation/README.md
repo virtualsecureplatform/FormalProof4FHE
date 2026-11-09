@@ -63,8 +63,8 @@ and twenty-three controls. The full `scripts/check` run passed its 11,014-job
 build and subsequent smoke checks. The final source gate additionally checks the
 external-entry theorems. See `regression.json` for receipts and log hashes.
 
-Next compose the original RawVec and Vec drop methods/glue, preserving their
-mutable subobject borrows and byte-drop traversal. A universal nonzero caller
+The original RawVec drop methods/glue now compose in the sibling `rawvec-drop`
+profile. Next compose outer Vec destruction with byte-drop traversal. A universal nonzero caller
 characterization, native constructor/carrier/reference/stack/layout/ABI and
 lifetime/compiler correspondence, helper refinement, allocator correctness,
 physical work and the final expected-work security theorem remain open. Scope
