@@ -139,6 +139,38 @@ Native construction, compiler/lifetime/ABI refinement, physical attacker work
 and the final application security theorem remain open.
 
 
+## Resident Vec field and ownership invariants
+
+`NativeResidentVec` now binds a checked resident Vec descriptor to its original
+heap slots. Successful pointer, capacity and length accesses return exactly the
+stored values. Pointer observations preserve the complete stored provenance.
+The converse pointer-access theorem requires the actual live borrow permission;
+a resident descriptor alone does not authorize access through a blocked parent.
+
+The ownership predicate distinguishes zero capacity from an exact positive byte
+allocation. Initialization of the element prefix is a separate predicate; unused
+capacity need not be initialized. Zero capacity implies zero length and an
+initialized empty prefix without requiring a data allocation. At the modeled
+allocator boundary, positive ownership supplies a successful exact-layout free.
+It removes one block, preserves surviving blocks and generation state, and makes
+positive ranges through the removed origin unreadable. Separately stored header
+fields and their now-dangling pointer value survive that free.
+
+Twenty-two model theorems, 26 declaration guards and seventeen regressions cover
+this step. The fresh Vec extraction gate passed 481 dependency audits and 69
+rejection controls. The generated source bodies and retained source schema are
+unchanged; the profile additionally imports and audits the new invariant module.
+Full `scripts/check` passed its 11,035-job build and subsequent smoke checks.
+The profile regression file records the receipt and source/log hashes.
+
+These are resident-model premises and allocator-boundary postconditions. The
+universal theorem identifying the original source destructor's removed block
+with this descriptor's buffer remains open. Next carry the invariant through
+source borrow/call preparation and capacity dispatch, proving exact zero/nonzero
+source postconditions. Native construction, compiler/lifetime/ABI refinement,
+physical attacker work and the final application security theorem remain open.
+
+
 Run:
 
 ```sh
