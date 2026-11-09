@@ -411,6 +411,7 @@ theorem retag_heap_projects (world : State) (value : Value) (enabled : Bool) (el
       | invalid rejected => simpa only [retag, actual, Tagged.world] using first
       | value output final => simpa only [retag, actual, Tagged.world] using first
   | enumeration tag value => cases enabled <;> exact .refl _
+  | boolean value => cases enabled <;> exact .refl _
   | uninit => cases enabled <;> exact .refl _
 
 
@@ -447,6 +448,7 @@ theorem evalRawVecField_heap_projects (frame : Frame) (operand : Operand) (actio
     | pair left right => simp only [evalRawVecField, selected, Evaluated.world]; rw [same]; exact .refl _
     | record tag fields => simp only [evalRawVecField, selected, Evaluated.world]; rw [same]; exact .refl _
     | enumeration tag value => simp only [evalRawVecField, selected, Evaluated.world]; rw [same]; exact .refl _
+    | boolean value => simp only [evalRawVecField, selected, Evaluated.world]; rw [same]; exact .refl _
     | uninit => simp only [evalRawVecField, selected, Evaluated.world]; rw [same]; exact .refl _
 
 
@@ -464,6 +466,7 @@ theorem evalRawVecBorrow_heap_projects (frame : Frame) (index : Nat) (path : Pat
     | pair left right => simp only [evalRawVecBorrow, selected, Evaluated.world]; exact .refl _
     | record tag fields => simp only [evalRawVecBorrow, selected, Evaluated.world]; exact .refl _
     | enumeration tag value => simp only [evalRawVecBorrow, selected, Evaluated.world]; exact .refl _
+    | boolean value => simp only [evalRawVecBorrow, selected, Evaluated.world]; exact .refl _
     | uninit => simp only [evalRawVecBorrow, selected, Evaluated.world]; exact .refl _
 
 
@@ -478,6 +481,7 @@ theorem reserveRawVec_heap_projects (frame : Frame) (index : Nat) (path : Path) 
     | pair left right => simp only [reserveRawVec, selected, NativeRawVecFields.Result.world]; exact .refl _
     | record tag fields => simp only [reserveRawVec, selected, NativeRawVecFields.Result.world]; exact .refl _
     | enumeration tag value => simp only [reserveRawVec, selected, NativeRawVecFields.Result.world]; exact .refl _
+    | boolean value => simp only [reserveRawVec, selected, NativeRawVecFields.Result.world]; exact .refl _
     | uninit => simp only [reserveRawVec, selected, NativeRawVecFields.Result.world]; exact .refl _
 
 
@@ -508,6 +512,7 @@ theorem evalVec_heap_projects (frame : Frame) (index : Nat) (path : Path) (opera
     | pair left right => simp only [evalVec, selected, Evaluated.world]; exact .refl _
     | record tag fields => simp only [evalVec, selected, Evaluated.world]; exact .refl _
     | enumeration tag value => simp only [evalVec, selected, Evaluated.world]; exact .refl _
+    | boolean value => simp only [evalVec, selected, Evaluated.world]; exact .refl _
     | uninit => simp only [evalVec, selected, Evaluated.world]; exact .refl _
 
 
@@ -527,12 +532,16 @@ theorem evalBorrowSlice_heap_projects (frame : Frame) (index : Nat) (path : Path
     | pair left right => simp only [evalBorrowSlice, selected, Evaluated.world]; exact .refl _
     | record tag fields => simp only [evalBorrowSlice, selected, Evaluated.world]; exact .refl _
     | enumeration tag word => simp only [evalBorrowSlice, selected, Evaluated.world]; exact .refl _
+    | boolean value => simp only [evalBorrowSlice, selected, Evaluated.world]; exact .refl _
     | uninit => simp only [evalBorrowSlice, selected, Evaluated.world]; exact .refl _
 
 
 theorem evalRvalue_heap_projects (frame : Frame) (rvalue : Rvalue) :
     NativeHeapFrame.Runs frame.world (evalRvalue frame rvalue).world := by
   induction rvalue with
+  | arithmetic operation args =>
+    change NativeHeapFrame.Runs frame.world (evalArithmetic frame operation args).world
+    rw [evalArithmetic_world]; exact .refl _
   | vec operation index path => exact evalVec_heap_projects frame index path operation
   | borrowSlice index path => exact evalBorrowSlice_heap_projects frame index path
   | parts data length =>
@@ -616,6 +625,7 @@ theorem evalRvalue_heap_projects (frame : Frame) (rvalue : Rvalue) :
       | choice side fields => simp only [evalRvalue, selected, Evaluated.world]; rw [same]; exact .refl _
       | record tag fields => simp only [evalRvalue, selected, Evaluated.world]; rw [same]; exact .refl _
       | enumeration tag value => simp only [evalRvalue, selected, Evaluated.world]; rw [same]; exact .refl _
+      | boolean value => simp only [evalRvalue, selected, Evaluated.world]; rw [same]; exact .refl _
       | uninit => simp only [evalRvalue, selected, Evaluated.world]; rw [same]; exact .refl _
   | pair left right =>
     cases selected : evalArgs frame [left,right] with
@@ -679,6 +689,7 @@ theorem settle_heap_projects (entered : State) (flow : Flow) :
     | choice side fields => exact .refl _
     | record tag fields => exact .refl _
     | enumeration tag value => exact .refl _
+    | boolean value => exact .refl _
     | uninit => exact .refl _
     | scalar value =>
       cases value with

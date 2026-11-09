@@ -321,7 +321,7 @@ theorem deallocation_some (world memoryWorld allocatorWorld : NativeReferenceMac
     write,storageLive,storageDead,selectChoice,NativeRecordLLBC.read,NativeRecordValues.typeAt,NativeRecordValues.get,
     NativeRecordValues.replace,NativeRecordValues.sideAt,NativeRecordValues.fits,NativeRecordValues.compatible,
     NativeRecordValues.complete,NativeRecordValues.copyable,NativeSliceLLBC.fits,nonnull,
-    eval.eq_1,eval.eq_6,eval.eq_7,eval.eq_8,eval.eq_10,NativeRecordCallValues.eval_call HasteBootsRawVecDrop.f9,
+    eval.eq_1,eval.eq_6,eval.eq_7,eval.eq_8,eval_matchChoice,NativeRecordCallValues.eval_call HasteBootsRawVecDrop.f9,
     evalRvalue,evalRawVecBorrow,created,evalArgs,evalOperand,retag,NativeSliceLLBC.retagValue,HasteBootsRawVecDrop.alignmentDiscriminants]
 
 theorem deallocation_allocator_invalid (world memoryWorld failed : NativeReferenceMachine.State)
@@ -335,7 +335,7 @@ theorem deallocation_allocator_invalid (world memoryWorld failed : NativeReferen
     write,storageLive,storageDead,selectChoice,NativeRecordLLBC.read,NativeRecordValues.typeAt,NativeRecordValues.get,
     NativeRecordValues.sideAt,NativeRecordValues.fits,NativeRecordValues.compatible,
     NativeRecordValues.complete,NativeRecordValues.copyable,NativeSliceLLBC.fits,nonnull,
-    eval.eq_1,eval.eq_6,eval.eq_7,eval.eq_8,eval.eq_10,
+    eval.eq_1,eval.eq_6,eval.eq_7,eval.eq_8,eval_matchChoice,
     evalRvalue,evalRawVecBorrow,created,evalOperand,retag,NativeSliceLLBC.retagValue,HasteBootsRawVecDrop.alignmentDiscriminants]
 
 theorem deallocation_global_unit (world final : NativeReferenceMachine.State) (reference : NativeReferenceMachine.Reference)

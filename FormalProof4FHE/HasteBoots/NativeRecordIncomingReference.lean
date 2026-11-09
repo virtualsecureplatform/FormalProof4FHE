@@ -337,6 +337,7 @@ theorem retag_incoming_projects (world : State) (value : Value) (enabled : Bool)
       | invalid rejected => simpa only [retag, actual, Tagged.world] using first
       | value output final => simpa only [retag, actual, Tagged.world] using first
   | enumeration tag value => cases enabled <;> exact .refl _
+  | boolean value => cases enabled <;> exact .refl _
   | uninit => cases enabled <;> exact .refl _
 
 
@@ -373,6 +374,7 @@ theorem evalRawVecField_incoming_projects (frame : Frame) (operand : Operand) (a
     | pair left right => simp only [evalRawVecField, selected, Evaluated.world]; rw [same]; exact .refl _
     | record tag fields => simp only [evalRawVecField, selected, Evaluated.world]; rw [same]; exact .refl _
     | enumeration tag value => simp only [evalRawVecField, selected, Evaluated.world]; rw [same]; exact .refl _
+    | boolean value => simp only [evalRawVecField, selected, Evaluated.world]; rw [same]; exact .refl _
     | uninit => simp only [evalRawVecField, selected, Evaluated.world]; rw [same]; exact .refl _
 
 
@@ -390,6 +392,7 @@ theorem evalRawVecBorrow_incoming_projects (frame : Frame) (index : Nat) (path :
     | pair left right => simp only [evalRawVecBorrow, selected, Evaluated.world]; exact .refl _
     | record tag fields => simp only [evalRawVecBorrow, selected, Evaluated.world]; exact .refl _
     | enumeration tag value => simp only [evalRawVecBorrow, selected, Evaluated.world]; exact .refl _
+    | boolean value => simp only [evalRawVecBorrow, selected, Evaluated.world]; exact .refl _
     | uninit => simp only [evalRawVecBorrow, selected, Evaluated.world]; exact .refl _
 
 
@@ -404,6 +407,7 @@ theorem reserveRawVec_incoming_projects (frame : Frame) (index : Nat) (path : Pa
     | pair left right => simp only [reserveRawVec, selected, NativeRawVecFields.Result.world]; exact .refl _
     | record tag fields => simp only [reserveRawVec, selected, NativeRawVecFields.Result.world]; exact .refl _
     | enumeration tag value => simp only [reserveRawVec, selected, NativeRawVecFields.Result.world]; exact .refl _
+    | boolean value => simp only [reserveRawVec, selected, NativeRawVecFields.Result.world]; exact .refl _
     | uninit => simp only [reserveRawVec, selected, NativeRawVecFields.Result.world]; exact .refl _
 
 
@@ -434,6 +438,7 @@ theorem evalVec_incoming_projects (frame : Frame) (index : Nat) (path : Path) (o
     | pair left right => simp only [evalVec, selected, Evaluated.world]; exact .refl _
     | record tag fields => simp only [evalVec, selected, Evaluated.world]; exact .refl _
     | enumeration tag value => simp only [evalVec, selected, Evaluated.world]; exact .refl _
+    | boolean value => simp only [evalVec, selected, Evaluated.world]; exact .refl _
     | uninit => simp only [evalVec, selected, Evaluated.world]; exact .refl _
 
 
@@ -453,12 +458,16 @@ theorem evalBorrowSlice_incoming_projects (frame : Frame) (index : Nat) (path : 
     | pair left right => simp only [evalBorrowSlice, selected, Evaluated.world]; exact .refl _
     | record tag fields => simp only [evalBorrowSlice, selected, Evaluated.world]; exact .refl _
     | enumeration tag word => simp only [evalBorrowSlice, selected, Evaluated.world]; exact .refl _
+    | boolean value => simp only [evalBorrowSlice, selected, Evaluated.world]; exact .refl _
     | uninit => simp only [evalBorrowSlice, selected, Evaluated.world]; exact .refl _
 
 
 theorem evalRvalue_incoming_projects (frame : Frame) (rvalue : Rvalue) :
     NativeIncomingReference.Preserves frame.world (evalRvalue frame rvalue).world := by
   induction rvalue with
+  | arithmetic operation args =>
+    change NativeIncomingReference.Preserves frame.world (evalArithmetic frame operation args).world
+    rw [evalArithmetic_world]; exact .refl _
   | vec operation index path => exact evalVec_incoming_projects frame index path operation
   | borrowSlice index path => exact evalBorrowSlice_incoming_projects frame index path
   | parts data length =>
@@ -542,6 +551,7 @@ theorem evalRvalue_incoming_projects (frame : Frame) (rvalue : Rvalue) :
       | choice side fields => simp only [evalRvalue, selected, Evaluated.world]; rw [same]; exact .refl _
       | record tag fields => simp only [evalRvalue, selected, Evaluated.world]; rw [same]; exact .refl _
       | enumeration tag value => simp only [evalRvalue, selected, Evaluated.world]; rw [same]; exact .refl _
+      | boolean value => simp only [evalRvalue, selected, Evaluated.world]; rw [same]; exact .refl _
       | uninit => simp only [evalRvalue, selected, Evaluated.world]; rw [same]; exact .refl _
   | pair left right =>
     cases selected : evalArgs frame [left,right] with
@@ -572,6 +582,7 @@ theorem settle_incoming_projects (entered : State) (flow : Flow)
     | choice side fields => exact prior
     | record tag fields => exact prior
     | enumeration tag value => exact prior
+    | boolean value => exact prior
     | uninit => exact prior
     | scalar value =>
       cases value with
@@ -641,6 +652,26 @@ theorem eval_incoming_projects (body : Body) (frame : Frame) :
         have second := ih changed
         rw [write_world caller changed index value written] at second
         exact NativeIncomingReference.runs_trans _ _ _ first second
+  | switchBoolean operand yes no next yesIH noIH nextIH =>
+    cases selected : evalBooleanOperand frame operand with
+    | none => simp only [eval,selected,Flow.world]; exact .refl _
+    | some result =>
+      rcases result with ⟨condition,caller⟩
+      have same := evalBooleanOperand_world frame caller operand condition selected
+      have first : NativeIncomingReference.Preserves frame.world
+          (if condition then eval yes caller else eval no caller).world := by
+        rw [← same]
+        cases condition
+        · exact noIH caller
+        · exact yesIH caller
+      simp only [eval,selected]
+      generalize chosen : (if condition then eval yes caller else eval no caller) = branch at first ⊢
+      cases branch with
+      | normal changed => exact NativeIncomingReference.runs_trans _ _ _ first (nextIH changed)
+      | returned value world => exact first
+      | unwind world => exact first
+      | invalid world => exact first
+      | unsupported source world => exact first
   | constIf condition yes no next yesIH noIH nextIH =>
     have first : NativeIncomingReference.Preserves frame.world
         (if condition then eval yes frame else eval no frame).world := by
@@ -683,6 +714,7 @@ theorem eval_incoming_projects (body : Body) (frame : Frame) :
       | choice side fields => simp only [eval, selected, Flow.world]; exact .refl _
       | record tag fields => simp only [eval, selected, Flow.world]; exact .refl _
       | enumeration tag value => simp only [eval, selected, Flow.world]; exact .refl _
+      | boolean value => simp only [eval, selected, Flow.world]; exact .refl _
       | uninit => simp only [eval, selected, Flow.world]; exact .refl _
       | scalar value =>
         cases value with

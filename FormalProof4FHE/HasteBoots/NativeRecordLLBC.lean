@@ -1,5 +1,6 @@
 module
 public import FormalProof4FHE.HasteBoots.NativeRecordValues
+public import FormalProof4FHE.HasteBoots.NativeRecordArithmetic
 public import FormalProof4FHE.HasteBoots.NativeZstReference
 public import FormalProof4FHE.HasteBoots.NativeRawVecReference
 public import FormalProof4FHE.HasteBoots.NativeRawVecBorrow
@@ -29,6 +30,7 @@ structure Frame where
   deriving DecidableEq
 
 inductive Operand where
+  | boolean (value : Bool)
   | copy (index : Nat) (path : Path := [])
   | move (index : Nat) (path : Path := [])
   | usize (value : Word)
@@ -38,6 +40,7 @@ inductive Operand where
   deriving DecidableEq
 
 inductive Input where
+  | boolean (value : Bool)
   | vectorExclusiveReference (index : Nat)
   | rawVecExclusiveReference (index : Nat)
   | vectorSharedReference (index : Nat)
@@ -52,6 +55,7 @@ inductive Input where
   deriving DecidableEq
 
 def decode (world : State) : Input → Option Value
+  | .boolean value => some (.boolean value)
   | .vectorExclusiveReference index => (NativeVecReference.decodeExclusive world index).map Value.scalar
   | .rawVecExclusiveReference index => (NativeRawVecBorrow.decodeExclusive world index).map Value.scalar
   | .vectorSharedReference index => (NativeRawVecReference.decode world index .vector).map Value.scalar
@@ -93,6 +97,7 @@ def storageDead (frame : Frame) (index : Nat) : Option Frame :=
   frame.slots[index]?.map (fun _ => {frame with slots := frame.slots.set index .dead})
 
 def evalOperand (frame : Frame) : Operand → Option (Value × Frame)
+  | .boolean value => some (.boolean value,frame)
   | .unit => some (.scalar .unit, frame)
   | .usize value => some (.scalar (.usize value), frame)
   | .addressLiteral address => some (.scalar (.raw ⟨⟨address,none⟩,none⟩),frame)
@@ -108,6 +113,11 @@ def evalOperand (frame : Frame) : Operand → Option (Value × Frame)
     let .live (some value) ← frame.slots[index]? | none
     let changed ← NativeRecordValues.replace value path .uninit
     pure (selected, {frame with slots := frame.slots.set index (.live (some changed))})
+
+def evalBooleanOperand (frame : Frame) (operand : Operand) : Option (Bool × Frame) :=
+  match evalOperand frame operand with
+  | some (.boolean value,caller) => some (value,caller)
+  | _ => none
 
 def evalArgs (frame : Frame) : List Operand → Option (List Value × Frame)
   | [] => some ([],frame)
@@ -134,6 +144,7 @@ def Tagged.world : Tagged → State
 /-- Aggregate retags execute in field order and retain a failed prefix. -/
 def retag (world : State) : Value → Bool → Element → Tagged
   | value, false, _ => .value value world
+  | .boolean value, true, _ => .value (.boolean value) world
   | .scalar value, true, element =>
     match NativeSliceLLBC.retagValue ⟨[],[],world⟩ value true element with
     | none => .invalid world
@@ -153,6 +164,7 @@ def retag (world : State) : Value → Bool → Element → Tagged
   | .uninit, true, _ => .invalid world
 
 inductive Rvalue where
+  | arithmetic (operation : NativeRecordArithmetic.Operation) (args : List Operand)
   | vec (operation : NativeVecReference.Operation) (index : Nat) (path : Path := [])
   | borrowSlice (index : Nat) (path : Path := [])
   | parts (data length : Operand)
@@ -272,7 +284,15 @@ def recordResultValue (tag : Nat) (singleton : Bool) (value : Value) : Option Va
   if singleton then some (.record tag (.pair value (.scalar .unit))) else
     match value with | .scalar .unit => some (.record tag (.scalar .unit)) | _ => none
 
+def evalArithmetic (frame : Frame) (operation : NativeRecordArithmetic.Operation) (args : List Operand) : Evaluated :=
+  match evalArgs frame args with
+  | none => .invalid frame.world
+  | some (values,caller) => match NativeRecordArithmetic.eval operation values with
+    | none => .invalid caller.world
+    | some value => .value value caller
+
 def evalRvalue (frame : Frame) : Rvalue → Evaluated
+  | .arithmetic operation args => evalArithmetic frame operation args
   | .vec operation index path => evalVec frame index path operation
   | .borrowSlice index path => evalBorrowSlice frame index path
   | .parts data length => evalParts frame data length
@@ -359,6 +379,7 @@ inductive Body where
   | dead (index : Nat) (next : Body)
   | assign (index : Nat) (value : Rvalue) (next : Body)
   | constIf (condition : Bool) (yes no next : Body)
+  | switchBoolean (test : Operand) (yes no next : Body)
   | matchChoice (index : Nat) (path : Path) (tag : Nat) (left right next : Body)
   | switchUsize (test : Operand) (value : Word) (yes no next : Body)
   | deallocate (pointer size alignment : Operand) (enumTag : Nat)
@@ -391,6 +412,11 @@ def eval : Body → Frame → Flow
     | .invalid world => .invalid world
     | .value output changed => match write changed index output with
       | none => .invalid changed.world | some written => eval next written
+  | .switchBoolean operand yes no next, frame => match evalBooleanOperand frame operand with
+    | none => .invalid frame.world
+    | some (condition,caller) =>
+      let branch := if condition then eval yes caller else eval no caller
+      match branch with | .normal changed => eval next changed | flow => flow
   | .constIf condition yes no next, frame =>
     let branch := if condition then eval yes frame else eval no frame
     match branch with | .normal changed => eval next changed | flow => flow
@@ -451,6 +477,15 @@ def invoke (function : Function) (world : State) (args : List Input) : Flow :=
     | some frame => settle world (eval function.body frame)
 
 
+/-- Stable equation for enum dispatch, independent of generated equation indices. -/
+theorem eval_matchChoice (frame : Frame) (index : Nat) (path : Path) (tag : Nat) (left right next : Body) :
+    eval (.matchChoice index path tag left right next) frame =
+      match selectChoice frame index path tag with
+      | none => .invalid frame.world
+      | some side =>
+        let branch := if side then eval right frame else eval left frame
+        match branch with | .normal changed => eval next changed | flow => flow := rfl
+
 theorem write_world (frame changed : Frame) (index : Nat) (value : Value)
     (written : write frame index value = some changed) : changed.world = frame.world := by
   simp only [write, Option.bind_eq_some_iff] at written
@@ -478,6 +513,7 @@ theorem storageDead_world (frame changed : Frame) (index : Nat)
 theorem evalOperand_world (frame changed : Frame) (operand : Operand) (value : Value)
     (evaluated : evalOperand frame operand = some (value,changed)) : changed.world = frame.world := by
   cases operand with
+  | boolean value => cases evaluated; rfl
   | unit => cases evaluated; rfl
   | usize word => cases evaluated; rfl
   | addressLiteral address => cases evaluated; rfl
@@ -504,6 +540,16 @@ theorem evalOperand_world (frame changed : Frame) (operand : Operand) (value : V
         obtain ⟨_, _, same⟩ := actual
         cases same
         rfl
+
+theorem evalBooleanOperand_world (frame changed : Frame) (operand : Operand) (value : Bool)
+    (evaluated : evalBooleanOperand frame operand = some (value,changed)) : changed.world = frame.world := by
+  cases selected : evalOperand frame operand with
+  | none => simp only [evalBooleanOperand,selected] at evaluated; cases evaluated
+  | some result =>
+    rcases result with ⟨output,caller⟩
+    have same := evalOperand_world frame caller operand output selected
+    cases output <;> simp only [evalBooleanOperand,selected] at evaluated <;> try cases evaluated
+    exact same
 
 theorem evalArgs_world (frame changed : Frame) (args : List Operand) (values : List Value)
     (evaluated : evalArgs frame args = some (values,changed)) : changed.world = frame.world := by
@@ -570,6 +616,7 @@ theorem retag_projects (world : State) (value : Value) (enabled : Bool) (element
       cases actual : retag world fields true element with
       | invalid rejected => simpa only [retag, actual, Tagged.world] using first
       | value output final => simpa only [retag, actual, Tagged.world] using first
+  | boolean value => cases enabled <;> exact .refl _
   | enumeration tag value => cases enabled <;> exact .refl _
   | uninit => cases enabled <;> exact .refl _
 
@@ -606,6 +653,7 @@ theorem evalRawVecField_projects (frame : Frame) (operand : Operand) (action : N
     | pair left right => simp only [evalRawVecField, selected, Evaluated.world]; rw [same]; exact .refl _
     | record tag fields => simp only [evalRawVecField, selected, Evaluated.world]; rw [same]; exact .refl _
     | enumeration tag value => simp only [evalRawVecField, selected, Evaluated.world]; rw [same]; exact .refl _
+    | boolean value => simp only [evalRawVecField, selected, Evaluated.world]; rw [same]; exact .refl _
     | uninit => simp only [evalRawVecField, selected, Evaluated.world]; rw [same]; exact .refl _
 
 theorem evalRawVecBorrow_projects (frame : Frame) (index : Nat) (path : Path) (target : NativeRawVecBorrow.Target) :
@@ -622,6 +670,7 @@ theorem evalRawVecBorrow_projects (frame : Frame) (index : Nat) (path : Path) (t
     | pair left right => simp only [evalRawVecBorrow, selected, Evaluated.world]; exact .refl _
     | record tag fields => simp only [evalRawVecBorrow, selected, Evaluated.world]; exact .refl _
     | enumeration tag value => simp only [evalRawVecBorrow, selected, Evaluated.world]; exact .refl _
+    | boolean value => simp only [evalRawVecBorrow, selected, Evaluated.world]; exact .refl _
     | uninit => simp only [evalRawVecBorrow, selected, Evaluated.world]; exact .refl _
 
 theorem reserveRawVec_projects (frame : Frame) (index : Nat) (path : Path) :
@@ -635,6 +684,7 @@ theorem reserveRawVec_projects (frame : Frame) (index : Nat) (path : Path) :
     | pair left right => simp only [reserveRawVec, selected, NativeRawVecFields.Result.world]; exact .refl _
     | record tag fields => simp only [reserveRawVec, selected, NativeRawVecFields.Result.world]; exact .refl _
     | enumeration tag value => simp only [reserveRawVec, selected, NativeRawVecFields.Result.world]; exact .refl _
+    | boolean value => simp only [reserveRawVec, selected, NativeRawVecFields.Result.world]; exact .refl _
     | uninit => simp only [reserveRawVec, selected, NativeRawVecFields.Result.world]; exact .refl _
 
 theorem evalRawVecMutBorrow_projects (frame : Frame) (index : Nat) (path : Path) :
@@ -663,6 +713,7 @@ theorem evalVec_projects (frame : Frame) (index : Nat) (path : Path) (operation 
     | pair left right => simp only [evalVec, selected, Evaluated.world]; exact .refl _
     | record tag fields => simp only [evalVec, selected, Evaluated.world]; exact .refl _
     | enumeration tag value => simp only [evalVec, selected, Evaluated.world]; exact .refl _
+    | boolean value => simp only [evalVec, selected, Evaluated.world]; exact .refl _
     | uninit => simp only [evalVec, selected, Evaluated.world]; exact .refl _
 
 theorem evalBorrowSlice_projects (frame : Frame) (index : Nat) (path : Path) :
@@ -681,6 +732,7 @@ theorem evalBorrowSlice_projects (frame : Frame) (index : Nat) (path : Path) :
     | pair left right => simp only [evalBorrowSlice, selected, Evaluated.world]; exact .refl _
     | record tag fields => simp only [evalBorrowSlice, selected, Evaluated.world]; exact .refl _
     | enumeration tag word => simp only [evalBorrowSlice, selected, Evaluated.world]; exact .refl _
+    | boolean value => simp only [evalBorrowSlice, selected, Evaluated.world]; exact .refl _
     | uninit => simp only [evalBorrowSlice, selected, Evaluated.world]; exact .refl _
 
 theorem evalParts_world (frame : Frame) (data length : Operand) :
@@ -726,9 +778,22 @@ theorem evalEnumWord_world (frame : Frame) (operand : Operand) (tag : Nat) :
     have same := evalOperand_world frame caller operand value selected
     cases actual : enumWordValue tag value <;> simpa only [evalEnumWord, selected, actual, Evaluated.world] using same
 
+theorem evalArithmetic_world (frame : Frame) (operation : NativeRecordArithmetic.Operation) (args : List Operand) :
+    (evalArithmetic frame operation args).world = frame.world := by
+  cases selected : evalArgs frame args with
+  | none => simp only [evalArithmetic,selected,Evaluated.world]
+  | some result =>
+    rcases result with ⟨values,caller⟩
+    have same := evalArgs_world frame caller args values selected
+    cases actual : NativeRecordArithmetic.eval operation values <;>
+      simpa only [evalArithmetic,selected,actual,Evaluated.world] using same
+
 theorem evalRvalue_projects (frame : Frame) (rvalue : Rvalue) :
     NativeReferenceMachine.Runs frame.world (evalRvalue frame rvalue).world := by
   induction rvalue with
+  | arithmetic operation args =>
+    change NativeReferenceMachine.Runs frame.world (evalArithmetic frame operation args).world
+    rw [evalArithmetic_world]; exact .refl _
   | vec operation index path => exact evalVec_projects frame index path operation
   | borrowSlice index path => exact evalBorrowSlice_projects frame index path
   | parts data length =>
@@ -812,6 +877,7 @@ theorem evalRvalue_projects (frame : Frame) (rvalue : Rvalue) :
       | choice side fields => simp only [evalRvalue, selected, Evaluated.world]; rw [same]; exact .refl _
       | record tag fields => simp only [evalRvalue, selected, Evaluated.world]; rw [same]; exact .refl _
       | enumeration tag value => simp only [evalRvalue, selected, Evaluated.world]; rw [same]; exact .refl _
+      | boolean value => simp only [evalRvalue, selected, Evaluated.world]; rw [same]; exact .refl _
       | uninit => simp only [evalRvalue, selected, Evaluated.world]; rw [same]; exact .refl _
   | pair left right =>
     cases selected : evalArgs frame [left,right] with
@@ -840,6 +906,7 @@ theorem settle_projects (entered : State) (flow : Flow) :
     | choice side fields => exact .refl _
     | record tag fields => exact .refl _
     | enumeration tag value => exact .refl _
+    | boolean value => exact .refl _
     | uninit => exact .refl _
     | scalar value =>
       cases value with
@@ -912,6 +979,26 @@ theorem eval_projects (body : Body) (frame : Frame) :
         have second := ih changed
         rw [write_world caller changed index value written] at second
         exact NativeReferenceMachine.runs_trans _ _ _ first second
+  | switchBoolean operand yes no next yesIH noIH nextIH =>
+    cases selected : evalBooleanOperand frame operand with
+    | none => simp only [eval,selected,Flow.world]; exact .refl _
+    | some result =>
+      rcases result with ⟨condition,caller⟩
+      have same := evalBooleanOperand_world frame caller operand condition selected
+      have first : NativeReferenceMachine.Runs frame.world
+          (if condition then eval yes caller else eval no caller).world := by
+        rw [← same]
+        cases condition
+        · exact noIH caller
+        · exact yesIH caller
+      simp only [eval,selected]
+      generalize chosen : (if condition then eval yes caller else eval no caller) = branch at first ⊢
+      cases branch with
+      | normal changed => exact NativeReferenceMachine.runs_trans _ _ _ first (nextIH changed)
+      | returned value world => exact first
+      | unwind world => exact first
+      | invalid world => exact first
+      | unsupported source world => exact first
   | constIf condition yes no next yesIH noIH nextIH =>
     have first : NativeReferenceMachine.Runs frame.world
         (if condition then eval yes frame else eval no frame).world := by
@@ -954,6 +1041,7 @@ theorem eval_projects (body : Body) (frame : Frame) :
       | choice side fields => simp only [eval, selected, Flow.world]; exact .refl _
       | record tag fields => simp only [eval, selected, Flow.world]; exact .refl _
       | enumeration tag value => simp only [eval, selected, Flow.world]; exact .refl _
+      | boolean value => simp only [eval, selected, Flow.world]; exact .refl _
       | uninit => simp only [eval, selected, Flow.world]; exact .refl _
       | scalar value =>
         cases value with

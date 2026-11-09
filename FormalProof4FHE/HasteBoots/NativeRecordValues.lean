@@ -8,6 +8,7 @@ namespace FormalProof4FHE.HasteBoots.NativeRecordValues
 open NativeWord64Memory (Word)
 
 inductive Ty where
+  | boolean
   | scalar (type : NativeSliceLLBC.Ty)
   | nonnull
   | choice (left right : Ty)
@@ -17,6 +18,7 @@ inductive Ty where
   deriving DecidableEq
 
 inductive Value where
+  | boolean (value : Bool)
   | scalar (value : NativeSliceLLBC.Value)
   | choice (right : Bool) (fields : Value)
   | pair (left right : Value)
@@ -26,7 +28,7 @@ inductive Value where
   deriving DecidableEq
 
 def complete : Value → Bool
-  | .scalar _ | .enumeration _ _ => true
+  | .boolean _ | .scalar _ | .enumeration _ _ => true
   | .pair left right => complete left && complete right
   | .record _ fields | .choice _ fields => complete fields
   | .uninit => false
@@ -34,6 +36,7 @@ def complete : Value → Bool
 /-- Compatibility permits holes in storage; reading requires completeness. -/
 def compatible : Ty → Value → Bool
   | _, .uninit => true
+  | .boolean, .boolean _ => true
   | .scalar type, .scalar value => NativeSliceLLBC.fits type value
   | .nonnull, .scalar (.raw pointer) => pointer.length.isNone && pointer.storage.address.val != 0
   | .choice left right, .choice side fields => compatible (if side then right else left) fields
@@ -120,7 +123,7 @@ def leaves : Value → List NativeSliceLLBC.Value
   | .scalar value => [value]
   | .pair left right => leaves left ++ leaves right
   | .record _ fields | .choice _ fields => leaves fields
-  | .enumeration _ _ | .uninit => []
+  | .boolean _ | .enumeration _ _ | .uninit => []
 
 theorem get_complete (value selected : Value) (path : Path) (read : get value path = some selected) :
     complete selected = true := by

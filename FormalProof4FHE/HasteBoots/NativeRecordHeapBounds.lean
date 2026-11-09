@@ -59,7 +59,7 @@ are summed conservatively, without assuming any branch is unreachable. -/
 def deallocationBudget : Body → Nat
   | .done | .ret | .resume | .abort | .unsupported _ => 0
   | .live _ next | .dead _ next | .assign _ _ next => deallocationBudget next
-  | .constIf _ yes no next | .switchUsize _ _ yes no next | .matchChoice _ _ _ yes no next =>
+  | .switchBoolean _ yes no next | .constIf _ yes no next | .switchUsize _ _ yes no next | .matchChoice _ _ _ yes no next =>
     deallocationBudget yes + deallocationBudget no + deallocationBudget next
   | .deallocate _ _ _ _ => 1
   | .call _ _ _ _ _ _ callee unwind next | .twoPhaseRawVecCall _ _ _ _ _ _ _ _ _ callee unwind next =>
@@ -70,7 +70,7 @@ def canContinue : Body → Bool
   | .done => true
   | .ret | .resume | .abort | .unsupported _ | .deallocate _ _ _ _ => false
   | .live _ next | .dead _ next | .assign _ _ next => canContinue next
-  | .constIf _ yes no next | .switchUsize _ _ yes no next | .matchChoice _ _ _ yes no next =>
+  | .switchBoolean _ yes no next | .constIf _ yes no next | .switchUsize _ _ yes no next | .matchChoice _ _ _ yes no next =>
     (canContinue yes || canContinue no) && canContinue next
   | .call _ _ _ _ _ _ _ unwind next | .twoPhaseRawVecCall _ _ _ _ _ _ _ _ _ _ unwind next =>
     canContinue unwind || canContinue next
@@ -162,6 +162,26 @@ theorem eval_loss (body : Body) (frame : Frame) :
         have second := ih changed
         rw [write_world caller changed index value written] at second
         exact Loss.prefix first second
+  | switchBoolean operand yes no next yesIH noIH nextIH =>
+    cases selected : evalBooleanOperand frame operand with
+    | none => simp only [eval,selected,Flow.world]; exact .refl _ _
+    | some result =>
+      rcases result with ⟨condition,caller⟩
+      have same := evalBooleanOperand_world frame caller operand condition selected
+      have first : Loss frame.world (if condition then eval yes caller else eval no caller).world
+          (deallocationBudget yes + deallocationBudget no) := by
+        rw [← same]
+        cases condition
+        · exact (noIH caller).mono _ (by omega)
+        · exact (yesIH caller).mono _ (by omega)
+      simp only [eval,selected]
+      generalize chosen : (if condition then eval yes caller else eval no caller) = branch at first ⊢
+      cases branch with
+      | normal changed => exact first.trans (nextIH changed)
+      | returned value world => exact first.mono _ (by dsimp only [deallocationBudget]; omega)
+      | unwind world => exact first.mono _ (by dsimp only [deallocationBudget]; omega)
+      | invalid world => exact first.mono _ (by dsimp only [deallocationBudget]; omega)
+      | unsupported source world => exact first.mono _ (by dsimp only [deallocationBudget]; omega)
   | constIf condition yes no next yesIH noIH nextIH =>
     have first : Loss frame.world (if condition then eval yes frame else eval no frame).world
         (deallocationBudget yes + deallocationBudget no) := by
@@ -204,6 +224,7 @@ theorem eval_loss (body : Body) (frame : Frame) :
       | choice side fields => simp only [eval, selected, Flow.world]; exact .refl _ _
       | record tag fields => simp only [eval, selected, Flow.world]; exact .refl _ _
       | enumeration tag value => simp only [eval, selected, Flow.world]; exact .refl _ _
+      | boolean value => simp only [eval, selected, Flow.world]; exact .refl _ _
       | uninit => simp only [eval, selected, Flow.world]; exact .refl _ _
       | scalar value =>
         cases value with
