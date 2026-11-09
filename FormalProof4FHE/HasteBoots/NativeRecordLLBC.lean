@@ -30,6 +30,37 @@ structure Frame where
   world : State
   deriving DecidableEq
 
+/-- A zero-byte enum whose inhabited variants share one discriminant.
+The descriptor is checked against retained source layouts by the reifier.
+Native layout/compiler correspondence is a separate obligation. -/
+structure ZeroSizeEnum where
+  tag : Nat
+  size : Nat
+  alignment : Nat
+  variants : List (Option Word)
+  known : Word
+  deriving DecidableEq
+
+def ZeroSizeEnum.valid (descriptor : ZeroSizeEnum) : Bool :=
+  descriptor.size == 0 && descriptor.alignment == 1 &&
+    descriptor.variants.any Option.isSome &&
+    descriptor.variants.all (fun variant => match variant with | none => true | some word => word == descriptor.known)
+
+def ZeroSizeEnum.read (descriptor : ZeroSizeEnum) (type : Ty) : Option Value :=
+  match type with
+  | .record tag _ => if tag == descriptor.tag && descriptor.valid then some (.scalar (.usize descriptor.known)) else none
+  | _ => none
+
+theorem ZeroSizeEnum.read_exact (descriptor : ZeroSizeEnum) (fields : Ty) (valid : descriptor.valid = true) :
+    descriptor.read (.record descriptor.tag fields) = some (.scalar (.usize descriptor.known)) := by
+  simp [ZeroSizeEnum.read,valid]
+
+theorem ZeroSizeEnum.inhabited_discriminant (descriptor : ZeroSizeEnum) (value : Word)
+    (valid : descriptor.valid = true) (inhabited : some value ∈ descriptor.variants) : value = descriptor.known := by
+  have all := (Bool.and_eq_true_iff.mp valid).2
+  have selected := List.all_eq_true.mp all (some value) inhabited
+  simpa using selected
+
 inductive Operand where
   | boolean (value : Bool)
   | copy (index : Nat) (path : Path := [])
@@ -180,6 +211,7 @@ inductive Rvalue where
   | rawVecField (action : NativeRawVecReference.Action) (reference : Operand) (enabled : Bool := false)
   | aggregate (tag : Option Nat) (side : Option Bool) (fields : List Operand)
   | use (value : Operand) (enabled : Bool) (element : Element := .byte)
+  | knownDiscriminant (index : Nat) (descriptor : ZeroSizeEnum)
   | rawAddress (value : Operand)
   | rawCast (value : Operand)
   | choice (right : Bool) (value : Operand)
@@ -282,6 +314,13 @@ def evalMultiply (frame : Frame) (left right : Operand) : Evaluated :=
     | none => .invalid caller.world
     | some value => .value value caller
 
+def evalKnownDiscriminant (frame : Frame) (index : Nat) (descriptor : ZeroSizeEnum) : Evaluated :=
+  match frame.types[index]?, frame.slots[index]? with
+  | some type, some (.live _) => match descriptor.read type with
+    | none => .invalid frame.world
+    | some value => .value value frame
+  | _, _ => .invalid frame.world
+
 /-- Pointer-to-word inspection keeps the original pointer value available.
 This operation returns address bits without granting allocation authority. -/
 def rawAddressValue : Value → Option Value
@@ -362,6 +401,7 @@ def evalRvalue (frame : Frame) : Rvalue → Evaluated
     | some (value,caller) => match retag caller.world value enabled element with
       | .invalid world => .invalid world
       | .value changed world => .value changed {caller with world}
+  | .knownDiscriminant index descriptor => evalKnownDiscriminant frame index descriptor
   | .rawAddress operand => evalRawAddress frame operand
   | .rawCast operand => match evalOperand frame operand with
     | none => .invalid frame.world
@@ -865,6 +905,20 @@ theorem evalZstBorrow_projects (frame : Frame) (index tag : Nat) (address : Word
       simpa only [actual,Evaluated.world,NativeRawVecFields.Result.world] using first
   · exact .refl _
 
+theorem evalKnownDiscriminant_world (frame : Frame) (index : Nat) (descriptor : ZeroSizeEnum) :
+    (evalKnownDiscriminant frame index descriptor).world = frame.world := by
+  cases foundType : frame.types[index]? with
+  | none => simp only [evalKnownDiscriminant,foundType,Evaluated.world]
+  | some type =>
+    cases foundSlot : frame.slots[index]? with
+    | none => simp only [evalKnownDiscriminant,foundType,foundSlot,Evaluated.world]
+    | some slot =>
+      cases slot with
+      | dead => simp only [evalKnownDiscriminant,foundType,foundSlot,Evaluated.world]
+      | live value =>
+        cases actual : descriptor.read type <;>
+          simp only [evalKnownDiscriminant,foundType,foundSlot,actual,Evaluated.world]
+
 theorem rawAddressValue_exact (pointer : NativePointerStorage.Pointer) :
     rawAddressValue (.scalar (.raw ⟨pointer,none⟩)) = some (.scalar (.usize pointer.address)) := rfl
 
@@ -949,6 +1003,9 @@ theorem evalRvalue_projects (frame : Frame) (rvalue : Rvalue) :
       simp only [evalRvalue, selected, Evaluated.world]
       rw [evalOperand_world frame caller operand value selected]
       exact .refl _
+  | knownDiscriminant index descriptor =>
+    change NativeReferenceMachine.Runs frame.world (evalKnownDiscriminant frame index descriptor).world
+    rw [evalKnownDiscriminant_world]; exact .refl _
   | rawAddress operand =>
     change NativeReferenceMachine.Runs frame.world (evalRawAddress frame operand).world
     rw [evalRawAddress_world]; exact .refl _

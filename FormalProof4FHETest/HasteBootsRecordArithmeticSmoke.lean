@@ -59,4 +59,27 @@ example (world : NativeReferenceMachine.State) :
 example (frame : Frame) (operand : NativeRecordLLBC.Operand) :
     (NativeRecordLLBC.evalEnumAddress frame operand 12 13).world = frame.world :=
   NativeRecordLLBC.evalEnumAddress_world frame operand 12 13
+private def residualDescriptor : NativeRecordLLBC.ZeroSizeEnum := ⟨24,0,1,[none,some 1],1⟩
+
+example : residualDescriptor.valid = true := by decide
+example : (NativeRecordLLBC.ZeroSizeEnum.mk 24 0 1 [some 0,some 1] 1).valid = false := by decide
+example : (NativeRecordLLBC.ZeroSizeEnum.mk 24 1 1 [none,some 1] 1).valid = false := by decide
+example : (NativeRecordLLBC.ZeroSizeEnum.mk 24 0 1 [none,none] 1).valid = false := by decide
+
+example (world : NativeReferenceMachine.State) :
+    NativeRecordLLBC.evalKnownDiscriminant ⟨[.record 24 (.scalar .unit)],[.live none],world⟩ 0 residualDescriptor =
+      .value (.scalar (.usize 1)) ⟨[.record 24 (.scalar .unit)],[.live none],world⟩ := rfl
+
+example (world : NativeReferenceMachine.State) :
+    NativeRecordLLBC.evalKnownDiscriminant ⟨[.record 24 (.scalar .unit)],[.dead],world⟩ 0 residualDescriptor =
+      .invalid world := rfl
+
+example (world : NativeReferenceMachine.State) :
+    NativeRecordLLBC.evalKnownDiscriminant ⟨[.record 25 (.scalar .unit)],[.live none],world⟩ 0 residualDescriptor =
+      .invalid world := rfl
+
+example (frame : Frame) (index : Nat) (descriptor : NativeRecordLLBC.ZeroSizeEnum) :
+    (NativeRecordLLBC.evalKnownDiscriminant frame index descriptor).world = frame.world :=
+  NativeRecordLLBC.evalKnownDiscriminant_world frame index descriptor
+
 end FormalProof4FHETest.HasteBootsRecordArithmeticSmoke

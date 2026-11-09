@@ -131,3 +131,23 @@ import FormalProof4FHE.HasteBoots.NativeRecordLLBC
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeRecordLLBC.eval_matchChoice
 
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeRecordLLBC.ZeroSizeEnum.valid' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeRecordLLBC.ZeroSizeEnum.valid
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeRecordLLBC.ZeroSizeEnum.read' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeRecordLLBC.ZeroSizeEnum.read
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeRecordLLBC.ZeroSizeEnum.read_exact' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeRecordLLBC.ZeroSizeEnum.read_exact
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeRecordLLBC.ZeroSizeEnum.inhabited_discriminant' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeRecordLLBC.ZeroSizeEnum.inhabited_discriminant
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalKnownDiscriminant_world' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalKnownDiscriminant_world
