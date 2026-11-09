@@ -658,3 +658,6 @@ import FormalProof4FHE.HasteBoots.NativeRawVecMutBorrow
 
 import FormalProof4FHE.HasteBoots.NativeVecReference
 import FormalProof4FHE.HasteBoots.NativeRecordDropCalls
+
+import FormalProof4FHE.HasteBoots.NativeHeapFrame
+import FormalProof4FHE.HasteBoots.NativeRecordHeapBounds
