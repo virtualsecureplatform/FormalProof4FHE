@@ -1,8 +1,8 @@
 {
-  "profile": "source-root-return-allocation-coverage-v1",
+  "profile": "source-root-executed-allocation-and-fresh-origin-v1",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-l8lghj_r/manifest.json",
-  "gate_manifest_sha256": "9e9bba438c74916be6adb64528cc470f1f730508ef522cacd21b48bde3ff451b",
+  "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-8nz0hg_s/manifest.json",
+  "gate_manifest_sha256": "974943ac7895f3a2ff36c05e8c7e51b52e045fa283ea5300a11f1af5a6795881",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -45,9 +45,10 @@
     "2798bd4b1a4eadd531afe8048cc644e1f578d5e8",
     "328c1aaf8f312edbc5fe265866964dec010e11df",
     "80b65760ca360e021d9579dcdbcb418a2a955c17",
-    "38c9c1e5e010379370c074bad1c2573c04c05bef"
+    "38c9c1e5e010379370c074bad1c2573c04c05bef",
+    "7af0f318b04e3c4460d40196802de998c5113bf3"
   ],
-  "dependency_audit_count": 1226,
+  "dependency_audit_count": 1233,
   "negative_control_count": 247,
   "negative_controls": {
     "wrong_target": "Wrong target",
@@ -299,7 +300,7 @@
     "getter_link_type_identity": "Getter link type identity/layout differs"
   },
   "inputs": {
-    "scripts/check-hasteboots-vec-capacity-arithmetic": "d67fbb329e596bc161d8578d0dea17b29e9eb1c63f14a8c253e15c4742bb9ffd",
+    "scripts/check-hasteboots-vec-capacity-arithmetic": "bb5ff65f95e4e8690d034efcb99ca5daa42ce4ed5f170a38b878e66e2f73dad7",
     "scripts/check-hasteboots-reservation-error-kind": "eaf7c3fddc367731f76266c3125a73609882bab90934f333fdb3243cd07ed363",
     "interop/aeneas/reservation-error-kind/fixture.rs": "bcb152c61f699329e5fb840c2d98abfadc639f5b7b3899c1a003f04d3f2c99b4",
     "interop/aeneas/reservation-error-kind/Retained.json": "22314f3125438e781e27db1907076a2b2151e25efa9572fa618c04a75276ffd3",
@@ -826,6 +827,7 @@
     "interop/aeneas/vec-capacity-arithmetic/TerminalRootProjectionProof.lean": "324b3257cbfc624b3a1b25fab57e7c8af317382fd78c93ac4d832866ed944f13",
     "interop/aeneas/vec-capacity-arithmetic/AllocationCoverageProof.lean": "089811ffc26ef39ec1dd6197cfe6bffe85c15f5f0a4cc2ca4c0ec8ecde14a476",
     "interop/aeneas/vec-capacity-arithmetic/ReturnExclusionProof.lean": "e500c152c8a9fcffcc94d227941eec6d929c0b543db3127c416b7a1db4d7b1cf",
+    "interop/aeneas/vec-capacity-arithmetic/AllocationEventProof.lean": "53c9a82228b5424d942ac2638834f3dc9a90f7cd03a7e847174517a90869caa4",
     "interop/aeneas/vec-capacity-arithmetic/Smoke.lean": "62710e1fb00e8db3b3f5a0232ea568dd616594e30171dbc10bb9f21a2f7fe08f",
     "interop/aeneas/vec-capacity-arithmetic/LayoutSmoke.lean": "5aed39dd3f94928d8ec11c49643504c8d5e553e5f62f9897cbeefa38c8c2a92c",
     "interop/aeneas/vec-capacity-arithmetic/AcceptedSmoke.lean": "cb8b53a45b6d27fd0636169b6321554ce79a6fd00a94b402399c7f028c236a09",
@@ -848,19 +850,20 @@
     "interop/aeneas/vec-capacity-arithmetic/OuterSmoke.lean": "6a49f0debf7c2838623997cff2d30bfdee0beba65aa4f25737537a9b379a23a8",
     "interop/aeneas/vec-capacity-arithmetic/TerminalSmoke.lean": "b84d6c30700ec4e674773409d088573b5824c19e4d6f39f779aafcededf4cef7",
     "interop/aeneas/vec-capacity-arithmetic/TerminalRootSmoke.lean": "edc6a13b08ea1340504630ea8f5f3dddff0356a4c0f10d863b743d4efd730c4a",
-    "interop/aeneas/vec-capacity-arithmetic/AllocationCoverageSmoke.lean": "a57ea75f913c7ab1df9832e0a26e407c52c16548fa29bcb51c6ba2fcf645e2ef"
+    "interop/aeneas/vec-capacity-arithmetic/AllocationCoverageSmoke.lean": "a57ea75f913c7ab1df9832e0a26e407c52c16548fa29bcb51c6ba2fcf645e2ef",
+    "interop/aeneas/vec-capacity-arithmetic/AllocationEventSmoke.lean": "962e23306739340939eddca572c60440e8128aee2bcb841db2542a79beb22e0a"
   },
-  "source_llbc_sha256": "c943d082200cbf08def92ba87a5071d84f1bc8ee0bb9194822a2027011f22112",
-  "checked_sha256": "80b64f128ac403d71afb636bac05e2ae15f359aa264b7653400abe938d760f1c",
+  "source_llbc_sha256": "2836056abe4cea70035a5e5abf0cb7a518b5b15470c4c18751350b94bcbf3a0b",
+  "checked_sha256": "57ec478483f8db9aadf1f2359149ef26f71d1a853e9f00732aebd5b2928cdf82",
   "source_definition_count": 281,
-  "source_theorem_count": 337,
-  "source_declaration_audit_count": 618,
+  "source_theorem_count": 344,
+  "source_declaration_audit_count": 625,
   "core_extension_declaration_audit_count": 278,
-  "new_declaration_audit_count": 950,
+  "new_declaration_audit_count": 957,
   "retained_function_count": 21,
   "retained_type_count": 31,
   "isolated_assignment_count": 9,
-  "source_regression_count": 196,
+  "source_regression_count": 202,
   "model_regression_count": 151,
   "arithmetic_extension": {
     "module": "FormalProof4FHE/HasteBoots/NativeRecordArithmetic.lean",
@@ -925,7 +928,7 @@
       "negative_control_count": 55
     }
   },
-  "validation_note": "Fresh constructor/getter extraction, warning-as-error Lean compilation, allowed-axiom audit and 247 rejecting controls passed. Normal-unit-shim allocation outcomes are now classified without an assumed allocator result. Invalid allocator outcomes propagate through the root; rejected capacities/null allocation cannot return without requiring successful snapshots or formatter/panic contracts. Every positive returned vector has the actual fresh checked allocation, validated block geometry and final allocator state, under explicit starting-state/global-placement/normal-shim conditions. Native allocator/compiler/ABI/lifetime correspondence, native PBS acceptance, physical work and final security remain open. Four related profiles are reused after verifying all recorded input/log/manifest hashes. The unchanged library/root tests/toolchain/dependencies/full-check scripts permit reuse of the successful 11101-job full check.",
+  "validation_note": "Fresh constructor/getter extraction, warning-as-error Lean compilation, allowed-axiom audit and 247 rejecting controls passed. Positive returned vectors now have an actual checked raw allocation step from post-shim to returned state, an exact recorded allocation event and fresh origin issued only afterward, plus exact history/heap/generation and reference-state deltas. These are modeled execution/ownership certificates, not physical-work charges or actor authority. Native ABI/compiler/lifetime/reclamation refinement, native PBS linkage, actual attacker-work calibration and final security remain open. Four related profiles are reused after verifying all recorded input/log/manifest hashes. The unchanged library/root tests/toolchain/dependencies/full-check scripts permit reuse of the successful 11101-job full check.",
   "prior_isolated_assignment_baseline": {
     "profile": "retained-with-capacity-scalar-assignments-and-typed-boolean-arithmetic-v1",
     "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-hmaelxmc/manifest.json",
@@ -1721,7 +1724,7 @@
       "caller_wrapper_opaque_source_wrapper_transparent": true,
       "native_abi_refinement": false
     },
-    "getter_source_llbc_sha256": "aa0b6acab2275d47f3b6f085b3adc17172bfec6080b033ece3a7a54345d5e53a",
+    "getter_source_llbc_sha256": "4d894774ec56f2a4699995866922f14d696a328a535e77dba7ca0396d9b638e6",
     "source_definition_count": 14,
     "source_theorem_count": 14,
     "source_regression_count": 12,
@@ -1906,6 +1909,30 @@
     "zero_capacity_separate_allocation_free_case": true,
     "native_allocator_abi_refinement": false,
     "native_pbs_acceptance_link": false,
+    "physical_work_refinement": false,
+    "final_security_theorem": false
+  },
+  "prior_allocation_event_baseline": {
+    "profile": "source-root-return-allocation-coverage-v1",
+    "gate_manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-l8lghj_r/manifest.json",
+    "gate_manifest_sha256": "9e9bba438c74916be6adb64528cc470f1f730508ef522cacd21b48bde3ff451b",
+    "dependency_audit_count": 1226,
+    "negative_control_count": 247
+  },
+  "allocation_events": {
+    "source_definition_count": 0,
+    "source_theorem_count": 7,
+    "source_regression_count": 6,
+    "actual_checked_allocation_step_extracted_from_result": true,
+    "positive_return_has_executed_allocator_step": true,
+    "exact_allocation_history_entry_and_generation_proved": true,
+    "new_origin_issued_after_and_not_before_unit_shim_allocation": true,
+    "exact_history_heap_generation_deltas_proved": true,
+    "post_shim_reference_and_loan_state_preserved": true,
+    "starting_well_formedness_nonzero_global_placement_and_normal_shim_explicit": true,
+    "step_certificate_is_not_physical_work": true,
+    "allocation_identity_does_not_grant_actor_authority_or_rust_borrow_rights": true,
+    "native_abi_compiler_lifetime_refinement": false,
     "physical_work_refinement": false,
     "final_security_theorem": false
   }
