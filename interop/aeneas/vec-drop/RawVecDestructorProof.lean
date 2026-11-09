@@ -342,5 +342,167 @@ theorem rawvec_method_ready_prefix (world : NativeReferenceMachine.State)
   exact ⟨entered,rawvec_method_prefix world (NativeRawVecBorrowCompleteness.prepared world lease) entered
     reference ⟨world.nextTag⟩ ⟨reference,lease.pointer⟩ reserved activated,available⟩
 
+theorem rawvec_method_immediate_prefix (world entered : NativeReferenceMachine.State)
+    (reference child : NativeReferenceMachine.Reference)
+    (created : NativeRawVecMutBorrow.immediate world (.reference true reference 2) = .value (.reference true child 2) entered) :
+    invokeValues HasteBootsRawVecDrop.f5 world [.scalar (.reference true reference 2)] =
+      settle world (resume (rawvecMethodCaller entered reference) 0 rawvecMethodTail.1 rawvecMethodTail.2
+        (invokeValues HasteBootsRawVecDrop.f7 entered [.scalar (.reference true child 2),currentMemoryLayoutValue])) := by
+  cases reserved : NativeRawVecMutBorrow.reserve world (.reference true reference 2) with
+  | invalid failed => simp only [NativeRawVecMutBorrow.immediate,reserved] at created; cases created
+  | value reservation prepared =>
+    have activated : NativeRawVecMutBorrow.activate prepared reservation = .value (.reference true child 2) entered := by
+      simpa only [NativeRawVecMutBorrow.immediate,reserved] using created
+    exact rawvec_method_prefix world prepared entered reference child reservation reserved activated
+
+theorem rawvec_method_unit (world final : NativeReferenceMachine.State) (reference : NativeReferenceMachine.Reference) :
+    resume (rawvecMethodCaller world reference) 0 rawvecMethodTail.1 rawvecMethodTail.2 (.returned (.scalar .unit) final) =
+      .returned (.scalar .unit) final := by
+  simp [resume,rawvecMethodCaller,rawvecMethodTail,rawvecMethodCallTail,HasteBootsRawVecDrop.f5,
+    write,storageDead,NativeRecordLLBC.read,NativeRecordValues.typeAt,NativeRecordValues.get,
+    NativeRecordValues.fits,NativeRecordValues.compatible,NativeRecordValues.complete,NativeSliceLLBC.fits,eval]
+
+theorem rawvec_glue_unit (world final : NativeReferenceMachine.State) (reference : NativeReferenceMachine.Reference) :
+    resume (rawvecGlueCaller world reference) 3 rawvecGlueTail.1 rawvecGlueTail.2 (.returned (.scalar .unit) final) =
+      .returned (.scalar .unit) final := by
+  simp [resume,rawvecGlueCaller,rawvecGlueTail,memoryCallTail,HasteBootsRawVecDrop.f4,
+    write,storageDead,NativeRecordLLBC.read,NativeRecordValues.typeAt,NativeRecordValues.get,
+    NativeRecordValues.fits,NativeRecordValues.compatible,NativeRecordValues.complete,NativeSliceLLBC.fits,eval]
+
+/-- Normal return of the retained RawVec method, including its temporary loan and cleanup. -/
+theorem rawvec_method_complete (world : NativeReferenceMachine.State) (reference : NativeReferenceMachine.Reference)
+    (capacity length : NativeWord64Memory.Word) (buffer : NativePointerStorage.Pointer)
+    (ready : NativeRawVecDeallocationCompleteness.Ready world reference capacity length buffer)
+    (available : NativeVecBytePrefix.Available world buffer capacity.val)
+    (owned : capacity = 0 ∨ ∃ block ∈ world.pointers.heap.memory.blocks,
+      block.pointer = buffer ∧ block.layout = ⟨capacity.val,1⟩) :
+    ∃ final, invokeValues HasteBootsRawVecDrop.f5 world [.scalar (.reference true reference 2)] =
+        .returned (.scalar .unit) final ∧ final.leases = world.leases ∧ NativeReferenceMachine.Reachable final ∧
+      (if capacity = 0 then final.pointers.heap = world.pointers.heap else
+        NativePointerByteMemory.deallocate world.pointers.heap buffer ⟨capacity.val,1⟩ = some final.pointers.heap) := by
+  obtain ⟨entered,created,⟨enteredReady⟩,beforeHeap⟩ := ready.immediate_complete
+  have enteredAvailable := NativeRawVecDeallocationCompleteness.available_immediate world entered buffer capacity.val _ _ available created
+  have enteredOwned : capacity = 0 ∨ ∃ block ∈ entered.pointers.heap.memory.blocks,
+      block.pointer = buffer ∧ block.layout = ⟨capacity.val,1⟩ := by
+    rcases owned with zero | ⟨block,member,base,extent⟩
+    · exact Or.inl zero
+    · right
+      exact ⟨block,by rw [beforeHeap]; exact member,base,extent⟩
+  obtain ⟨current,called,currentLoans,reached,effect⟩ := deallocation_complete entered ⟨world.nextTag⟩ capacity length buffer
+    enteredReady enteredAvailable enteredOwned
+  have incoming := NativeRecordLLBC.invoke_incoming_projects HasteBootsRawVecDrop.f7 entered
+    [.rawVecExclusiveReference (entered.references.idxOf ⟨world.nextTag⟩),currentMemoryLayout]
+  rw [← deallocation_values_eq entered ⟨world.nextTag⟩ enteredReady.lease.pointer buffer capacity length enteredReady.resident,called] at incoming
+  have first := NativeRawVecDeallocationCompleteness.immediate_extends world entered _ _ created
+  have second : NativeScopeRestoration.Extends entered current :=
+    ⟨incoming.counter,[],by simpa only [List.nil_append] using currentLoans,by simp⟩
+  obtain ⟨final,settled,loans,heap,finalReach⟩ := NativeRawVecDeallocationCompleteness.settle_complete world current
+    (NativeReferenceMachine.reachable_wellFormed world ready.reachable).2.1 (first.trans second) reached
+  refine ⟨final,?_,loans,finalReach,?_⟩
+  · rw [rawvec_method_immediate_prefix world entered reference ⟨world.nextTag⟩ created,called,rawvec_method_unit]
+    exact settled
+  · by_cases zero : capacity = 0
+    · rw [ite_eq_left zero] at effect ⊢
+      exact heap.trans (effect.trans beforeHeap)
+    · rw [ite_eq_right zero] at effect ⊢
+      rw [heap]
+      rw [beforeHeap] at effect
+      exact effect
+
+/-- Normal return of the retained RawVec glue, including its temporary loan and cleanup. -/
+theorem rawvec_glue_complete (world : NativeReferenceMachine.State) (reference : NativeReferenceMachine.Reference)
+    (capacity length : NativeWord64Memory.Word) (buffer : NativePointerStorage.Pointer)
+    (ready : NativeRawVecDeallocationCompleteness.Ready world reference capacity length buffer)
+    (available : NativeVecBytePrefix.Available world buffer capacity.val)
+    (owned : capacity = 0 ∨ ∃ block ∈ world.pointers.heap.memory.blocks,
+      block.pointer = buffer ∧ block.layout = ⟨capacity.val,1⟩) :
+    ∃ final, invokeValues HasteBootsRawVecDrop.f4 world [.scalar (.reference true reference 2)] =
+        .returned (.scalar .unit) final ∧ final.leases = world.leases ∧ NativeReferenceMachine.Reachable final ∧
+      (if capacity = 0 then final.pointers.heap = world.pointers.heap else
+        NativePointerByteMemory.deallocate world.pointers.heap buffer ⟨capacity.val,1⟩ = some final.pointers.heap) := by
+  obtain ⟨entered,created,⟨enteredReady⟩,beforeHeap⟩ := ready.immediate_complete
+  have enteredAvailable := NativeRawVecDeallocationCompleteness.available_immediate world entered buffer capacity.val _ _ available created
+  have enteredOwned : capacity = 0 ∨ ∃ block ∈ entered.pointers.heap.memory.blocks,
+      block.pointer = buffer ∧ block.layout = ⟨capacity.val,1⟩ := by
+    rcases owned with zero | ⟨block,member,base,extent⟩
+    · exact Or.inl zero
+    · right
+      exact ⟨block,by rw [beforeHeap]; exact member,base,extent⟩
+  obtain ⟨current,called,currentLoans,reached,effect⟩ := rawvec_method_complete entered ⟨world.nextTag⟩ capacity length buffer
+    enteredReady enteredAvailable enteredOwned
+  have incoming := NativeRecordLLBC.invoke_incoming_projects HasteBootsRawVecDrop.f5 entered
+    [.rawVecExclusiveReference (entered.references.idxOf ⟨world.nextTag⟩)]
+  rw [← rawvec_values_eq HasteBootsRawVecDrop.f5 entered ⟨world.nextTag⟩ enteredReady.lease.pointer buffer capacity length enteredReady.resident,called] at incoming
+  have first := NativeRawVecDeallocationCompleteness.immediate_extends world entered _ _ created
+  have second : NativeScopeRestoration.Extends entered current :=
+    ⟨incoming.counter,[],by simpa only [List.nil_append] using currentLoans,by simp⟩
+  obtain ⟨final,settled,loans,heap,finalReach⟩ := NativeRawVecDeallocationCompleteness.settle_complete world current
+    (NativeReferenceMachine.reachable_wellFormed world ready.reachable).2.1 (first.trans second) reached
+  refine ⟨final,?_,loans,finalReach,?_⟩
+  · rw [rawvec_glue_prefix world entered reference ⟨world.nextTag⟩ created,called,rawvec_glue_unit]
+    exact settled
+  · by_cases zero : capacity = 0
+    · rw [ite_eq_left zero] at effect ⊢
+      exact heap.trans (effect.trans beforeHeap)
+    · rw [ite_eq_right zero] at effect ⊢
+      rw [heap]
+      rw [beforeHeap] at effect
+      exact effect
+
+theorem rawvec_method_invocation_complete (world : NativeReferenceMachine.State) (reference : NativeReferenceMachine.Reference)
+    (capacity length : NativeWord64Memory.Word) (buffer : NativePointerStorage.Pointer)
+    (ready : NativeRawVecDeallocationCompleteness.Ready world reference capacity length buffer)
+    (available : NativeVecBytePrefix.Available world buffer capacity.val)
+    (owned : capacity = 0 ∨ ∃ block ∈ world.pointers.heap.memory.blocks,
+      block.pointer = buffer ∧ block.layout = ⟨capacity.val,1⟩) :
+    ∃ final, invoke HasteBootsRawVecDrop.f5 world [.rawVecExclusiveReference (world.references.idxOf reference)] =
+        .returned (.scalar .unit) final ∧ final.leases = world.leases ∧ NativeReferenceMachine.Reachable final ∧
+      (if capacity = 0 then final.pointers.heap = world.pointers.heap else
+        NativePointerByteMemory.deallocate world.pointers.heap buffer ⟨capacity.val,1⟩ = some final.pointers.heap) := by
+  rw [← rawvec_values_eq HasteBootsRawVecDrop.f5 world reference ready.lease.pointer buffer capacity length ready.resident]
+  exact rawvec_method_complete world reference capacity length buffer ready available owned
+
+theorem rawvec_glue_invocation_complete (world : NativeReferenceMachine.State) (reference : NativeReferenceMachine.Reference)
+    (capacity length : NativeWord64Memory.Word) (buffer : NativePointerStorage.Pointer)
+    (ready : NativeRawVecDeallocationCompleteness.Ready world reference capacity length buffer)
+    (available : NativeVecBytePrefix.Available world buffer capacity.val)
+    (owned : capacity = 0 ∨ ∃ block ∈ world.pointers.heap.memory.blocks,
+      block.pointer = buffer ∧ block.layout = ⟨capacity.val,1⟩) :
+    ∃ final, invoke HasteBootsRawVecDrop.f4 world [.rawVecExclusiveReference (world.references.idxOf reference)] =
+        .returned (.scalar .unit) final ∧ final.leases = world.leases ∧ NativeReferenceMachine.Reachable final ∧
+      (if capacity = 0 then final.pointers.heap = world.pointers.heap else
+        NativePointerByteMemory.deallocate world.pointers.heap buffer ⟨capacity.val,1⟩ = some final.pointers.heap) := by
+  rw [← rawvec_values_eq HasteBootsRawVecDrop.f4 world reference ready.lease.pointer buffer capacity length ready.resident]
+  exact rawvec_glue_complete world reference capacity length buffer ready available owned
+
+theorem rawvec_glue_invokes_complete (world : NativeReferenceMachine.State) (reference : NativeReferenceMachine.Reference)
+    (capacity length : NativeWord64Memory.Word) (buffer : NativePointerStorage.Pointer)
+    (ready : NativeRawVecDeallocationCompleteness.Ready world reference capacity length buffer)
+    (available : NativeVecBytePrefix.Available world buffer capacity.val)
+    (owned : capacity = 0 ∨ ∃ block ∈ world.pointers.heap.memory.blocks,
+      block.pointer = buffer ∧ block.layout = ⟨capacity.val,1⟩) :
+    ∃ final, NativeRecordDropCalls.Invokes f4 world [.rawVecExclusiveReference (world.references.idxOf reference)]
+        (.returned (.scalar .unit) final) ∧ final.leases = world.leases ∧ NativeReferenceMachine.Reachable final ∧
+      (if capacity = 0 then final.pointers.heap = world.pointers.heap else
+        NativePointerByteMemory.deallocate world.pointers.heap buffer ⟨capacity.val,1⟩ = some final.pointers.heap) := by
+  obtain ⟨final,returned,loans,reached,effect⟩ := rawvec_glue_invocation_complete world reference capacity length buffer ready available owned
+  refine ⟨final,?_,loans,reached,effect⟩
+  apply invokeCode_sound
+  rw [rawvec_glue_definition,native_definition_invoke,returned]
+
+theorem rawvec_glue_invokes_unit (world : NativeReferenceMachine.State) (reference : NativeReferenceMachine.Reference)
+    (capacity length : NativeWord64Memory.Word) (buffer : NativePointerStorage.Pointer)
+    (ready : NativeRawVecDeallocationCompleteness.Ready world reference capacity length buffer)
+    (available : NativeVecBytePrefix.Available world buffer capacity.val)
+    (owned : capacity = 0 ∨ ∃ block ∈ world.pointers.heap.memory.blocks,
+      block.pointer = buffer ∧ block.layout = ⟨capacity.val,1⟩)
+    (flow : Flow) (invoked : NativeRecordDropCalls.Invokes f4 world
+      [.rawVecExclusiveReference (world.references.idxOf reference)] flow) :
+    ∃ final, flow = .returned (.scalar .unit) final ∧ final.leases = world.leases ∧ NativeReferenceMachine.Reachable final ∧
+      (if capacity = 0 then final.pointers.heap = world.pointers.heap else
+        NativePointerByteMemory.deallocate world.pointers.heap buffer ⟨capacity.val,1⟩ = some final.pointers.heap) := by
+  obtain ⟨final,expected,loans,reached,effect⟩ := rawvec_glue_invokes_complete world reference capacity length buffer ready available owned
+  exact ⟨final,NativeRecordDropCalls.invokes_deterministic f4 world _ _ _ invoked expected,loans,reached,effect⟩
+
 end HasteBootsVecDrop
 
