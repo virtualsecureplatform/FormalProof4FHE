@@ -210,6 +210,44 @@ security theorem remain open. These results use the checked model and do not
 establish native constructor acceptance.
 
 
+## Exact buffer identification in the retained deallocation caller
+
+`DeallocationProof.lean` now proves the original RawVec deallocation caller's
+heap effect under the resident buffer invariant. Every outcome either preserves
+the full heap or performs exactly the specified deallocation of the original
+stored buffer with its capacity-byte layout. Zero capacity preserves the heap on
+every outcome. Any changed heap identifies a positive-capacity original live
+block with that exact pointer and layout. The theorem also covers the canonical
+checked-reference invocation; its input decode follows from residency.
+
+The proof carries the existing `current_memory` result through the caller's
+actual option dispatch, allocator-subobject borrow, Global wrapper and specified
+external free boundary. Typed call execution is proved equal to the existing
+finite-body call semantics, including argument consumption, normal/unwind
+resumption, result-write failure and unit cleanup. Rejected prefixes are retained;
+no successful borrow/read, free, normal return or cleanup is assumed by the
+universal caller theorem. Structural views of the original caller are checked by
+reflexive equalities against the complete retained body.
+
+Six model theorems and 25 source theorems support this step. Nine model regressions
+cover argument rejection, consumed caller slots, unwind/unsupported results and
+failure to write a result after a callee has freed memory. Ten source regressions
+cover empty dangling buffers, reserved uninitialized capacity, exact capacity and
+provenance, preserved stale pointer metadata and a live data loan blocking free.
+
+The fresh extraction gate passed 569 dependency audits and 69 rejection controls,
+including the slice-extent mutation. Full `scripts/check` passed its 11,041-job
+build and subsequent smoke checks. Receipts and hashes are recorded in the
+profile regression file. Retained function bodies and type declarations are
+unchanged.
+
+This identifies the buffer at the RawVec deallocation caller. Next lift it through
+the RawVec destructor and outer Vec drop composition to the original Vec entry,
+and prove successful valid-Vec zero/nonzero postconditions. Native construction,
+compiler/lifetime/ABI refinement, the external allocator implementation, physical
+attacker work and the final application security theorem remain open.
+
+
 Run:
 
 ```sh
