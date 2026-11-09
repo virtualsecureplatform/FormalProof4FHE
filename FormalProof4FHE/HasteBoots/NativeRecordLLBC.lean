@@ -212,6 +212,7 @@ inductive Rvalue where
   | aggregate (tag : Option Nat) (side : Option Bool) (fields : List Operand)
   | use (value : Operand) (enabled : Bool) (element : Element := .byte)
   | knownDiscriminant (index : Nat) (descriptor : ZeroSizeEnum)
+  | rawThin (value : Operand)
   | rawAddress (value : Operand)
   | rawCast (value : Operand)
   | choice (right : Bool) (value : Operand)
@@ -321,6 +322,18 @@ def evalKnownDiscriminant (frame : Frame) (index : Nat) (descriptor : ZeroSizeEn
     | some value => .value value frame
   | _, _ => .invalid frame.world
 
+/-- Drop pointer metadata while preserving address and allocation origin. -/
+def rawThinValue : Value → Option Value
+  | .scalar (.raw pointer) => some (.scalar (.raw ⟨pointer.storage,none⟩))
+  | _ => none
+
+def evalRawThin (frame : Frame) (operand : Operand) : Evaluated :=
+  match evalOperand frame operand with
+  | none => .invalid frame.world
+  | some (value,caller) => match rawThinValue value with
+    | none => .invalid caller.world
+    | some pointer => .value pointer caller
+
 /-- Pointer-to-word inspection keeps the original pointer value available.
 This operation returns address bits without granting allocation authority. -/
 def rawAddressValue : Value → Option Value
@@ -402,6 +415,7 @@ def evalRvalue (frame : Frame) : Rvalue → Evaluated
       | .invalid world => .invalid world
       | .value changed world => .value changed {caller with world}
   | .knownDiscriminant index descriptor => evalKnownDiscriminant frame index descriptor
+  | .rawThin operand => evalRawThin frame operand
   | .rawAddress operand => evalRawAddress frame operand
   | .rawCast operand => match evalOperand frame operand with
     | none => .invalid frame.world
@@ -919,6 +933,19 @@ theorem evalKnownDiscriminant_world (frame : Frame) (index : Nat) (descriptor : 
         cases actual : descriptor.read type <;>
           simp only [evalKnownDiscriminant,foundType,foundSlot,actual,Evaluated.world]
 
+theorem rawThinValue_exact (pointer : NativePointerStorage.Pointer) (length : Option Word) :
+    rawThinValue (.scalar (.raw ⟨pointer,length⟩)) = some (.scalar (.raw ⟨pointer,none⟩)) := rfl
+
+theorem evalRawThin_world (frame : Frame) (operand : Operand) :
+    (evalRawThin frame operand).world = frame.world := by
+  cases selected : evalOperand frame operand with
+  | none => simp only [evalRawThin,selected,Evaluated.world]
+  | some result =>
+    rcases result with ⟨value,caller⟩
+    have same := evalOperand_world frame caller operand value selected
+    cases actual : rawThinValue value <;>
+      simpa only [evalRawThin,selected,actual,Evaluated.world] using same
+
 theorem rawAddressValue_exact (pointer : NativePointerStorage.Pointer) :
     rawAddressValue (.scalar (.raw ⟨pointer,none⟩)) = some (.scalar (.usize pointer.address)) := rfl
 
@@ -1006,6 +1033,9 @@ theorem evalRvalue_projects (frame : Frame) (rvalue : Rvalue) :
   | knownDiscriminant index descriptor =>
     change NativeReferenceMachine.Runs frame.world (evalKnownDiscriminant frame index descriptor).world
     rw [evalKnownDiscriminant_world]; exact .refl _
+  | rawThin operand =>
+    change NativeReferenceMachine.Runs frame.world (evalRawThin frame operand).world
+    rw [evalRawThin_world]; exact .refl _
   | rawAddress operand =>
     change NativeReferenceMachine.Runs frame.world (evalRawAddress frame operand).world
     rw [evalRawAddress_world]; exact .refl _

@@ -620,6 +620,9 @@ theorem evalRvalue_heap_projects (frame : Frame) (rvalue : Rvalue) :
   | knownDiscriminant index descriptor =>
     change NativeHeapFrame.Runs frame.world (evalKnownDiscriminant frame index descriptor).world
     rw [evalKnownDiscriminant_world]; exact .refl _
+  | rawThin operand =>
+    change NativeHeapFrame.Runs frame.world (evalRawThin frame operand).world
+    rw [evalRawThin_world]; exact .refl _
   | rawAddress operand =>
     change NativeHeapFrame.Runs frame.world (evalRawAddress frame operand).world
     rw [evalRawAddress_world]; exact .refl _

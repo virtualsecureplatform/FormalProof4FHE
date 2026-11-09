@@ -29,7 +29,7 @@ EXTRAS = {
         'Value': ['boolean','scalar', 'pair', 'record', 'enumeration', 'uninit', 'choice'], 'Step': ['left', 'right', 'unwrap', 'active']},
     'NativeRecordLLBC': {'ZeroSizeEnum':['mk','tag','size','alignment','variants','known'],'Slot': ['dead', 'live'], 'Frame': ['mk', 'types', 'slots', 'world'],
         'Operand': ['boolean','addressLiteral', 'layoutLiteral', 'copy', 'move', 'usize', 'unit'], 'Input': ['boolean','vectorExclusiveReference', 'rawVecExclusiveReference', 'rawVecSharedReference', 'vectorSharedReference', 'zstSharedReference', 'unit', 'scalar', 'pair', 'record', 'enumeration', 'choice'],
-        'Tagged': ['value', 'invalid'], 'Rvalue': ['arithmetic','vec', 'borrowSlice', 'parts', 'borrowRawVecMut', 'borrowZstLocal', 'borrowRawVec', 'recordResult', 'mulUsizeUB', 'enumAddress', 'enumWord', 'rawVecField', 'unit', 'use', 'knownDiscriminant', 'rawAddress', 'rawCast', 'wrapOne', 'pair', 'choice', 'aggregate'],
+        'Tagged': ['value', 'invalid'], 'Rvalue': ['arithmetic','vec', 'borrowSlice', 'parts', 'borrowRawVecMut', 'borrowZstLocal', 'borrowRawVec', 'recordResult', 'mulUsizeUB', 'enumAddress', 'enumWord', 'rawVecField', 'unit', 'use', 'knownDiscriminant', 'rawThin', 'rawAddress', 'rawCast', 'wrapOne', 'pair', 'choice', 'aggregate'],
         'Evaluated': ['value', 'invalid'], 'Flow': ['normal', 'returned', 'unwind', 'invalid', 'unsupported'],
         'Body': ['switchBoolean','twoPhaseRawVecCall', 'done', 'ret', 'resume', 'abort', 'unsupported', 'live', 'dead', 'assign', 'constIf', 'switchUsize', 'deallocate', 'call', 'matchChoice'],
         'Function': ['mk', 'name', 'classification', 'types', 'argCount', 'body']}}

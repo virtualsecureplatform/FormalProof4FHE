@@ -77,4 +77,19 @@ example : NativeRecordLLBC.rawAddressValue (.scalar (.raw ⟨⟨8,some ⟨8,0⟩
 example (frame : NativeRecordLLBC.Frame) (operand : NativeRecordLLBC.Operand) :
     (NativeRecordLLBC.evalRawAddress frame operand).world = frame.world := NativeRecordLLBC.evalRawAddress_world frame operand
 
+example : NativeRecordLLBC.rawThinValue (.scalar (.raw ⟨⟨8,some ⟨8,0⟩⟩,some 3⟩)) =
+    some (.scalar (.raw ⟨⟨8,some ⟨8,0⟩⟩,none⟩)) := rfl
+
+example : NativeRecordLLBC.rawThinValue (.boolean true) = none := rfl
+
+example (world : NativeReferenceMachine.State) :
+    NativeRecordLLBC.evalRawThin ⟨[.scalar (.raw true)],[.live (some (.scalar (.raw ⟨⟨8,some ⟨8,0⟩⟩,some 3⟩)))],world⟩ (.move 0 []) =
+      .value (.scalar (.raw ⟨⟨8,some ⟨8,0⟩⟩,none⟩)) ⟨[.scalar (.raw true)],[.live (some .uninit)],world⟩ := by
+  simp [NativeRecordLLBC.evalRawThin,NativeRecordLLBC.rawThinValue,NativeRecordLLBC.evalOperand,NativeRecordLLBC.read,
+    NativeRecordValues.typeAt,NativeRecordValues.get,NativeRecordValues.replace,NativeRecordValues.fits,
+    NativeRecordValues.complete,NativeRecordValues.compatible,NativeSliceLLBC.fits]
+
+example (frame : NativeRecordLLBC.Frame) (operand : NativeRecordLLBC.Operand) :
+    (NativeRecordLLBC.evalRawThin frame operand).world = frame.world := NativeRecordLLBC.evalRawThin_world frame operand
+
 end FormalProof4FHETest.HasteBootsAllocatorExecutionSmoke

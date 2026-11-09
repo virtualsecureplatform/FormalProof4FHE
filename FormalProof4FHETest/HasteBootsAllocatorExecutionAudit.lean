@@ -75,3 +75,15 @@ import FormalProof4FHE.HasteBoots.NativeAllocatorLLBC
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeAllocatorExecution.Symbol.allocate
 
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeRecordLLBC.rawThinValue' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeRecordLLBC.rawThinValue
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeRecordLLBC.rawThinValue_exact' depends on axioms: [propext] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeRecordLLBC.rawThinValue_exact
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalRawThin_world' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeRecordLLBC.evalRawThin_world
