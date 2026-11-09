@@ -52,4 +52,21 @@ private theorem revokedComputed : NativeByteDropTraversal.run revokedWorld incom
 example : revokedOutcome = .invalid revokedWorld ∧ NativeByteBorrow.lookup revokedOutcome.world.leases 1 = none := by
   simp only [revokedOutcome,loopOutcome,revokedComputed]
   decide
+private def byteMethodOutcome : Flow :=
+  (invokeCode f2 incomingWorld [.vectorExclusiveReference 0]).get
+    (invokeCode_total f2 incomingWorld [.vectorExclusiveReference 0] (by decide))
+private theorem byteMethodInvoked : NativeRecordDropCalls.Invokes f2 incomingWorld [.vectorExclusiveReference 0] byteMethodOutcome :=
+  invokeCode_sound f2 incomingWorld [.vectorExclusiveReference 0] byteMethodOutcome
+    (Option.get_mem (invokeCode_total f2 incomingWorld [.vectorExclusiveReference 0] (by decide)))
+-- An overlapping incoming data lease may reject the body; the header still survives.
+example : Preserves incomingWorld byteMethodOutcome.world :=
+  invocation_incoming f2 incomingWorld [.vectorExclusiveReference 0] byteMethodOutcome (by decide) byteMethodInvoked
+example : NativeResidentVecBorrow.Resident byteMethodOutcome.world (.reference true ⟨0⟩ 3) ⟨128,some ⟨128,1⟩⟩ 8 3 ⟨64,some ⟨64,0⟩⟩ :=
+  byte_method_resident incomingWorld [.vectorExclusiveReference 0] byteMethodOutcome true ⟨0⟩ 3 8 3
+    ⟨128,some ⟨128,1⟩⟩ ⟨64,some ⟨64,0⟩⟩ incomingView (by decide) byteMethodInvoked
+example : NativeByteBorrow.lookup byteMethodOutcome.world.leases 1 = NativeByteBorrow.lookup incomingWorld.leases 1 :=
+  (invocation_incoming f2 incomingWorld [.vectorExclusiveReference 0] byteMethodOutcome (by decide) byteMethodInvoked).lookup 1 (by decide)
+example : Preserves incomingWorld (execute incomingWorld [.vectorExclusiveReference 0]).world :=
+  invokeCode_incoming f1 incomingWorld [.vectorExclusiveReference 0] _
+    (Option.get_mem (invokeCode_total f1 incomingWorld [.vectorExclusiveReference 0] source_loops_checked))
 end HasteBootsVecDrop.Smoke

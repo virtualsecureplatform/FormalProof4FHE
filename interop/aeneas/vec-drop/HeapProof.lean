@@ -347,4 +347,16 @@ theorem invocation_reachable_removed_alias_unreadable (world : State) (args : Li
       ∀ slot, slot.provenance = some block.origin → NativePointerByteMemory.load flow.world.pointers.heap slot = none :=
   invocation_removed_alias_unreadable world args flow (NativeReferenceMachine.reachable_wellFormed world reachable).1.1 invoked changed
 
+/-- The original byte destructor, including calls and cleanup, carries every
+older resident header through all outcomes without a successful-run premise. -/
+theorem byte_method_resident (world : State) (args : List NativeRecordLLBC.Input) (flow : Flow)
+    (mutable : Bool) (reference : NativeReferenceMachine.Reference) (count capacity length : NativeWord64Memory.Word)
+    (base buffer : NativePointerStorage.Pointer)
+    (view : NativeResidentVecBorrow.Resident world (.reference mutable reference count) base capacity length buffer)
+    (older : reference.tag < world.nextTag) (invoked : Invokes f2 world args flow) :
+    NativeResidentVecBorrow.Resident flow.world (.reference mutable reference count) base capacity length buffer := by
+  exact NativeIncomingReference.resident
+    (invocation_incoming f2 world args flow (by decide) invoked) view older
+    (byte_method_heap_frame world args flow invoked)
+
 end HasteBootsVecDrop
