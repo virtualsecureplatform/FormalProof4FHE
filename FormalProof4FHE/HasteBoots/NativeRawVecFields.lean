@@ -26,25 +26,31 @@ def Result.world {α : Type} : Result α → State
 
 /-- Reject a high-bit capacity after retaining the actual eight-byte read. The
 check is not a native validity theorem for the source's constrained carrier. -/
+def capacityAccess (world : State) (index : Nat) : Result Word :=
+  match NativeReferenceMachine.execute world (.access index 0 (.read 8 8)) with
+  | none => .invalid world
+  | some next => match next.outputs[0]? >>= NativeWord64Memory.decode with
+    | none => .invalid next
+    | some value => if value.val < 2^63 then .value value next else .invalid next
+
 def capacity (world : State) (index : Nat) : Result Word :=
   match select world index with
   | none => .invalid world
-  | some _ => match NativeReferenceMachine.execute world (.access index 0 (.read 8 8)) with
-    | none => .invalid world
-    | some next => match next.outputs[0]? >>= NativeWord64Memory.decode with
-      | none => .invalid next
-      | some value => if value.val < 2^63 then .value value next else .invalid next
+  | some _ => capacityAccess world index
 
 /-- Recover complete provenance from the pointer shadow, never from address bits.
 A rejected null value retains the executed pointer load. -/
+def pointerAccess (world : State) (index : Nat) : Result Pointer :=
+  match NativeReferenceMachine.execute world (.access index 8 .loadPointer) with
+  | none => .invalid world
+  | some next => match next.pointers.registers[0]? with
+    | none => .invalid next
+    | some value => if value.address.val ≠ 0 then .value value next else .invalid next
+
 def pointer (world : State) (index : Nat) : Result Pointer :=
   match select world index with
   | none => .invalid world
-  | some _ => match NativeReferenceMachine.execute world (.access index 8 .loadPointer) with
-    | none => .invalid world
-    | some next => match next.pointers.registers[0]? with
-      | none => .invalid next
-      | some value => if value.address.val ≠ 0 then .value value next else .invalid next
+  | some _ => pointerAccess world index
 
 theorem select_success (world : State) (index : Nat) (reference : Reference)
     (selected : select world index = some reference) :
@@ -70,14 +76,14 @@ theorem capacity_projects (world : State) (index : Nat) :
   | none => simp only [capacity, selected, Result.world]; exact .refl _
   | some reference =>
     cases actual : NativeReferenceMachine.execute world (.access index 0 (.read 8 8)) with
-    | none => simp only [capacity, selected, actual, Result.world]; exact .refl _
+    | none => simp only [capacity, capacityAccess, selected, actual, Result.world]; exact .refl _
     | some next =>
       have first := NativeReferenceMachine.Runs.step (.refl world) _ actual
       cases decoded : next.outputs[0]? >>= NativeWord64Memory.decode with
-      | none => simpa only [capacity, selected, actual, decoded, Result.world] using first
+      | none => simpa only [capacity, capacityAccess, selected, actual, decoded, Result.world] using first
       | some value =>
         by_cases valid : value.val < 2^63 <;>
-          simpa only [capacity, selected, actual, decoded, valid, ite_true, ite_false, Result.world] using first
+          simpa only [capacity, capacityAccess, selected, actual, decoded, valid, ite_true, ite_false, Result.world] using first
 
 theorem pointer_projects (world : State) (index : Nat) :
     NativeReferenceMachine.Runs world (pointer world index).world := by
@@ -85,13 +91,13 @@ theorem pointer_projects (world : State) (index : Nat) :
   | none => simp only [pointer, selected, Result.world]; exact .refl _
   | some reference =>
     cases actual : NativeReferenceMachine.execute world (.access index 8 .loadPointer) with
-    | none => simp only [pointer, selected, actual, Result.world]; exact .refl _
+    | none => simp only [pointer, pointerAccess, selected, actual, Result.world]; exact .refl _
     | some next =>
       have first := NativeReferenceMachine.Runs.step (.refl world) _ actual
       cases found : next.pointers.registers[0]? with
-      | none => simpa only [pointer, selected, actual, found, Result.world] using first
+      | none => simpa only [pointer, pointerAccess, selected, actual, found, Result.world] using first
       | some value =>
-        simp only [pointer, selected, actual, found]
+        simp only [pointer, pointerAccess, selected, actual, found]
         split <;> exact first
 
 theorem capacity_success (world next : State) (index : Nat) (value : Word)
@@ -103,16 +109,16 @@ theorem capacity_success (world next : State) (index : Nat) (value : Word)
   | none => simp only [capacity, selected] at loaded; cases loaded
   | some reference =>
     cases actual : NativeReferenceMachine.execute world (.access index 0 (.read 8 8)) with
-    | none => simp only [capacity, selected, actual] at loaded; cases loaded
+    | none => simp only [capacity, capacityAccess, selected, actual] at loaded; cases loaded
     | some changed =>
       cases decoded : changed.outputs[0]? >>= NativeWord64Memory.decode with
-      | none => simp only [capacity, selected, actual, decoded] at loaded; cases loaded
+      | none => simp only [capacity, capacityAccess, selected, actual, decoded] at loaded; cases loaded
       | some word =>
         by_cases valid : word.val < 2^63
-        · simp only [capacity, selected, actual, decoded, valid, ite_true] at loaded
+        · simp only [capacity, capacityAccess, selected, actual, decoded, valid, ite_true] at loaded
           cases loaded
           exact ⟨⟨reference, rfl⟩,rfl,decoded,valid⟩
-        · simp only [capacity, selected, actual, decoded, valid, ite_false] at loaded; cases loaded
+        · simp only [capacity, capacityAccess, selected, actual, decoded, valid, ite_false] at loaded; cases loaded
 
 theorem pointer_success (world next : State) (index : Nat) (value : Pointer)
     (loaded : pointer world index = .value value next) :
@@ -123,12 +129,12 @@ theorem pointer_success (world next : State) (index : Nat) (value : Pointer)
   | none => simp only [pointer, selected] at loaded; cases loaded
   | some reference =>
     cases actual : NativeReferenceMachine.execute world (.access index 8 .loadPointer) with
-    | none => simp only [pointer, selected, actual] at loaded; cases loaded
+    | none => simp only [pointer, pointerAccess, selected, actual] at loaded; cases loaded
     | some changed =>
       cases found : changed.pointers.registers[0]? with
-      | none => simp only [pointer, selected, actual, found] at loaded; cases loaded
+      | none => simp only [pointer, pointerAccess, selected, actual, found] at loaded; cases loaded
       | some raw =>
-        simp only [pointer, selected, actual, found] at loaded
+        simp only [pointer, pointerAccess, selected, actual, found] at loaded
         split at loaded
         next valid =>
           cases loaded
@@ -215,12 +221,12 @@ theorem capacity_failure_prefix (world next : State) (index : Nat)
   | none => simp only [capacity, selected] at failed; cases failed; exact Or.inl rfl
   | some reference =>
     cases actual : NativeReferenceMachine.execute world (.access index 0 (.read 8 8)) with
-    | none => simp only [capacity, selected, actual] at failed; cases failed; exact Or.inl rfl
+    | none => simp only [capacity, capacityAccess, selected, actual] at failed; cases failed; exact Or.inl rfl
     | some changed =>
       cases decoded : changed.outputs[0]? >>= NativeWord64Memory.decode with
-      | none => simp only [capacity, selected, actual, decoded] at failed; cases failed; exact Or.inr rfl
+      | none => simp only [capacity, capacityAccess, selected, actual, decoded] at failed; cases failed; exact Or.inr rfl
       | some value =>
-        simp only [capacity, selected, actual, decoded] at failed
+        simp only [capacity, capacityAccess, selected, actual, decoded] at failed
         split at failed
         · cases failed
         · cases failed; exact Or.inr rfl
@@ -232,14 +238,38 @@ theorem pointer_failure_prefix (world next : State) (index : Nat)
   | none => simp only [pointer, selected] at failed; cases failed; exact Or.inl rfl
   | some reference =>
     cases actual : NativeReferenceMachine.execute world (.access index 8 .loadPointer) with
-    | none => simp only [pointer, selected, actual] at failed; cases failed; exact Or.inl rfl
+    | none => simp only [pointer, pointerAccess, selected, actual] at failed; cases failed; exact Or.inl rfl
     | some changed =>
       cases found : changed.pointers.registers[0]? with
-      | none => simp only [pointer, selected, actual, found] at failed; cases failed; exact Or.inr rfl
+      | none => simp only [pointer, pointerAccess, selected, actual, found] at failed; cases failed; exact Or.inr rfl
       | some value =>
-        simp only [pointer, selected, actual, found] at failed
+        simp only [pointer, pointerAccess, selected, actual, found] at failed
         split at failed
         · cases failed
         · cases failed; exact Or.inr rfl
+
+theorem capacityAccess_projects (world : State) (index : Nat) :
+    NativeReferenceMachine.Runs world (capacityAccess world index).world := by
+  cases actual : NativeReferenceMachine.execute world (.access index 0 (.read 8 8)) with
+  | none => simp only [capacityAccess, actual, Result.world]; exact .refl _
+  | some next =>
+    have first := NativeReferenceMachine.Runs.step (.refl world) _ actual
+    cases decoded : next.outputs[0]? >>= NativeWord64Memory.decode with
+    | none => simpa only [capacityAccess, actual, decoded, Result.world] using first
+    | some value =>
+      simp only [capacityAccess, actual, decoded]
+      split <;> exact first
+
+theorem pointerAccess_projects (world : State) (index : Nat) :
+    NativeReferenceMachine.Runs world (pointerAccess world index).world := by
+  cases actual : NativeReferenceMachine.execute world (.access index 8 .loadPointer) with
+  | none => simp only [pointerAccess, actual, Result.world]; exact .refl _
+  | some next =>
+    have first := NativeReferenceMachine.Runs.step (.refl world) _ actual
+    cases found : next.pointers.registers[0]? with
+    | none => simpa only [pointerAccess, actual, found, Result.world] using first
+    | some value =>
+      simp only [pointerAccess, actual, found]
+      split <;> exact first
 
 end FormalProof4FHE.HasteBoots.NativeRawVecFields

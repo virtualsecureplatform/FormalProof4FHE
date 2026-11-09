@@ -1,6 +1,7 @@
 module
 public import FormalProof4FHE.HasteBoots.NativeRecordValues
 public import FormalProof4FHE.HasteBoots.NativeZstReference
+public import FormalProof4FHE.HasteBoots.NativeRawVecReference
 public import FormalProof4FHE.HasteBoots.NativeByteDropCalls
 @[expose] public section
 
@@ -32,6 +33,8 @@ inductive Operand where
   deriving DecidableEq
 
 inductive Input where
+  | vectorSharedReference (index : Nat)
+  | rawVecSharedReference (index : Nat)
   | zstSharedReference (index : Nat)
   | unit
   | scalar (value : NativeSliceLLBC.Input)
@@ -42,6 +45,8 @@ inductive Input where
   deriving DecidableEq
 
 def decode (world : State) : Input → Option Value
+  | .vectorSharedReference index => (NativeRawVecReference.decode world index .vector).map Value.scalar
+  | .rawVecSharedReference index => (NativeRawVecReference.decode world index).map Value.scalar
   | .zstSharedReference index => (NativeZstReference.decode world index).map Value.scalar
   | .unit => some (.scalar .unit)
   | .scalar value => (NativeSliceLLBC.decodeInput world value).map Value.scalar
@@ -136,6 +141,7 @@ def retag (world : State) : Value → Bool → Element → Tagged
 
 inductive Rvalue where
   | unit
+  | rawVecField (action : NativeRawVecReference.Action) (reference : Operand) (enabled : Bool := false)
   | aggregate (tag : Option Nat) (side : Option Bool) (fields : List Operand)
   | use (value : Operand) (enabled : Bool) (element : Element := .byte)
   | rawCast (value : Operand)
@@ -153,8 +159,20 @@ def Evaluated.world : Evaluated → State
   | .value _ frame => frame.world
   | .invalid world => world
 
+def evalRawVecField (frame : Frame) (operand : Operand) (action : NativeRawVecReference.Action) (enabled : Bool := false) : Evaluated :=
+  match evalOperand frame operand with
+  | none => .invalid frame.world
+  | some (value,caller) => match value with
+    | .scalar value => match NativeRawVecReference.eval caller.world value action with
+      | .invalid next => .invalid next
+      | .value output next => match retag next (.scalar output) enabled .word with
+        | .invalid final => .invalid final
+        | .value tagged final => .value tagged {caller with world := final}
+    | _ => .invalid caller.world
+
 def evalRvalue (frame : Frame) : Rvalue → Evaluated
   | .unit => .value (.scalar .unit) frame
+  | .rawVecField action operand enabled => evalRawVecField frame operand action enabled
   | .aggregate tag side fields => match evalArgs frame fields with
     | none => .invalid frame.world
     | some (values,caller) =>
@@ -414,10 +432,46 @@ theorem retag_projects (world : State) (value : Value) (enabled : Bool) (element
   | enumeration tag value => cases enabled <;> exact .refl _
   | uninit => cases enabled <;> exact .refl _
 
+theorem evalRawVecField_projects (frame : Frame) (operand : Operand) (action : NativeRawVecReference.Action) (enabled : Bool) :
+    NativeReferenceMachine.Runs frame.world (evalRawVecField frame operand action enabled).world := by
+  cases selected : evalOperand frame operand with
+  | none => simp only [evalRawVecField, selected, Evaluated.world]; exact .refl _
+  | some result =>
+    rcases result with ⟨value,caller⟩
+    have same := evalOperand_world frame caller operand value selected
+    cases value with
+    | scalar value =>
+      have first := NativeRawVecReference.eval_projects caller.world value action
+      cases actual : NativeRawVecReference.eval caller.world value action with
+      | invalid rejected =>
+        rw [actual] at first
+        simp only [evalRawVecField, selected, actual, Evaluated.world]
+        simpa only [NativeRawVecFields.Result.world, same] using first
+      | value output next =>
+        rw [actual] at first
+        have readPrefix : NativeReferenceMachine.Runs frame.world next := by
+          simpa only [NativeRawVecFields.Result.world, same] using first
+        have second := retag_projects next (.scalar output) enabled .word
+        cases tagged : retag next (.scalar output) enabled .word with
+        | invalid final =>
+          rw [tagged] at second
+          simp only [evalRawVecField, selected, actual, tagged, Evaluated.world]
+          exact NativeReferenceMachine.runs_trans _ _ _ readPrefix second
+        | value result final =>
+          rw [tagged] at second
+          simp only [evalRawVecField, selected, actual, tagged, Evaluated.world]
+          exact NativeReferenceMachine.runs_trans _ _ _ readPrefix second
+    | choice side fields => simp only [evalRawVecField, selected, Evaluated.world]; rw [same]; exact .refl _
+    | pair left right => simp only [evalRawVecField, selected, Evaluated.world]; rw [same]; exact .refl _
+    | record tag fields => simp only [evalRawVecField, selected, Evaluated.world]; rw [same]; exact .refl _
+    | enumeration tag value => simp only [evalRawVecField, selected, Evaluated.world]; rw [same]; exact .refl _
+    | uninit => simp only [evalRawVecField, selected, Evaluated.world]; rw [same]; exact .refl _
+
 theorem evalRvalue_projects (frame : Frame) (rvalue : Rvalue) :
     NativeReferenceMachine.Runs frame.world (evalRvalue frame rvalue).world := by
   cases rvalue with
   | unit => exact .refl _
+  | rawVecField action operand enabled => exact evalRawVecField_projects frame operand action enabled
   | aggregate tag side fields =>
     cases selected : evalArgs frame fields with
     | none => simp only [evalRvalue, selected, Evaluated.world]; exact .refl _
