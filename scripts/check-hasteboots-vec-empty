@@ -56,7 +56,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--build-receipt',type=Path,required=True);args=p.parse_args()
     out=Path(tempfile.mkdtemp(prefix='vec-empty-',dir=ROOT/'build/hasteboots-extraction'))
     r={'status':'started','commands':[],'empty_constructor_nominal_value_proved':True,'constructor_world_unchanged':True,
-       'empty_pointer_has_no_allocation_origin':True,'native_storage_abi_refinement':False,'positive_allocation_constructor_proved':False,
+       'empty_pointer_has_no_allocation_origin':True,'modeled_resident_storage_bridge_proved':True,'native_storage_abi_refinement':False,'positive_allocation_constructor_proved':False,
        'compiler_lifetime_refinement':False,'physical_work_refinement':False,'final_security_theorem':False}
     def save():(out/'manifest.json').write_text(json.dumps(r,indent=2)+'\n')
     def run(cmd,log):
@@ -69,9 +69,10 @@ def main():
         files=[Path(__file__),ROOT/'scripts/build-hasteboots-inline-tools',ROOT/'scripts/check-hasteboots-allocator-caller',
             ROOT/'scripts/extract-hasteboots-parameters',ROOT/'scripts/specify-hasteboots-deallocation-boundary',ROOT/'lean-toolchain',
             *sorted((ROOT/'scripts').glob('reify-hasteboots-*')),*sorted((ROOT/'FormalProof4FHE/HasteBoots').glob('Native*.lean')),
+            ROOT/'FormalProof4FHETest/HasteBootsEmptyVecStorageSmoke.lean',ROOT/'FormalProof4FHETest/HasteBootsEmptyVecStorageAudit.lean',
             *[DATA/n for n in ['fixture.rs','Generated.lean','Retained.json','Proof.lean','Smoke.lean']]]
         r['inputs']={str(f.relative_to(ROOT)):digest(f) for f in files}
-        run([ROOT/'scripts/in-container','lake','build','FormalProof4FHE.HasteBoots.NativeRecordCallValues'],'root-build.log')
+        run([ROOT/'scripts/in-container','lake','build','FormalProof4FHE.HasteBoots.NativeRecordCallValues','FormalProof4FHE.HasteBoots.NativeEmptyVecStorage','FormalProof4FHETest.HasteBootsEmptyVecStorageSmoke','FormalProof4FHETest.HasteBootsEmptyVecStorageAudit'],'root-build.log')
         llbc=out/'source.llbc'
         cmd=[tools/'charon','rustc','--preset=aeneas','--sysroot','default','--monomorphize','--mir','optimized','--consts','values',
             '--evaluate-runtime-checks','--precise-drops','--desugar-drops','--preserve-allocator','--no-dedup-serialized-ast']
@@ -80,6 +81,10 @@ def main():
         run(cmd,'charon.log');ir=json.loads(llbc.read_text());reifier=REIFIER['Reifier'](ir);generated=reifier.render()
         if generated!=(DATA/'Generated.lean').read_text() or reifier.retained()!=json.loads((DATA/'Retained.json').read_text()):raise RuntimeError('Original constructor schema/body differs')
         r['negative_controls']=negatives(ir);names=PARENT['inventory']()
+        model=(ROOT/'FormalProof4FHE/HasteBoots/NativeEmptyVecStorage.lean').read_text()
+        PARAM['validate_proof_source'](model,re.findall(r'^theorem (\w+)',model,re.M))
+        names+=['FormalProof4FHE.HasteBoots.NativeEmptyVecStorage.'+n for n in re.findall(r'^(?:def|theorem|structure) ([\w.]+)',model,re.M)]
+        names+=['FormalProof4FHE.HasteBoots.NativeEmptyVecStorage.Ready.mk']
         for file in ['Generated.lean','Proof.lean']:
             raw=(DATA/file).read_text();PARAM['validate_proof_source'](raw,re.findall(r'^theorem (\w+)',raw,re.M))
             names+=['HasteBootsVecEmpty.'+n for n in re.findall(r'^(?:def|theorem) (\w+)',raw,re.M)]
