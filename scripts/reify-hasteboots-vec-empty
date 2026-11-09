@@ -1,0 +1,158 @@
+#!/usr/bin/env python3
+"""Reify the retained byte Vec::new constructor and its actual nominal aggregates.
+Native aggregate storage/ABI, allocation constructors and compiler refinement remain open.
+"""
+import argparse
+import json
+from pathlib import Path
+import runpy
+from types import SimpleNamespace
+ROOT = Path(__file__).resolve().parent.parent
+BASE = runpy.run_path(str(ROOT/'scripts/reify-hasteboots-allocator-caller'))
+STORAGE = runpy.run_path(str(ROOT/'scripts/reify-hasteboots-rawvec-fields'))
+SPEC = BASE['SPEC']; require=SPEC['require']; empty=SPEC['empty']; name=SPEC['name']; adt=SPEC['adt']; digest=SPEC['digest']
+U8={'Untagged':{'Literal':{'UInt':'U8'}}}
+
+def usize(value):return {'kind':{'Literal':{'Scalar':{'Unsigned':['Usize',str(value)]}}},'ty':SPEC['USIZE']}
+def pattern():return {'Untagged':{'Pattern':[SPEC['USIZE'],{'Range':[usize(0),usize(2**63-1)]}]}}
+
+class Reifier(BASE['Reifier']):
+    def __init__(self,ir):
+        require(ir['charon_version']=='0.1.226' and ir['has_errors'] is False,'Wrong schema/compiler errors')
+        self.crate=c=ir['translated'];o=c['options']
+        require(o['monomorphize'] and o['mir']=='Optimized' and o['sysroot']=='default' and o['consts']=='Values','Wrong extraction profile')
+        for k in ['evaluate_runtime_checks','precise_drops','desugar_drops','preserve_allocator','no_dedup_serialized_ast']:require(o[k] is True,'Missing policy: '+k)
+        require(not o['opaque'] and not o['exclude'] and not o['inline_functions'],'Hidden/rewritten source closure')
+        require(c['target_information']==[{'key':'x86_64-unknown-linux-gnu','value':{'target_pointer_size':8,'is_little_endian':True}}],'Wrong target')
+        self.functions={f['def_id']:f for f in c['fun_decls'] if f};self.types={t['def_id']:t for t in c['type_decls'] if t}
+        self.schemas={};self.codes={};self.active=set();self.type_active=set()
+        def find(items,expected):
+            found=[x for x in items if name(x)==expected];require(len(found)==1,'Missing/duplicate '+expected);return found[0]
+        self.root=find(self.functions.values(),'hasteboots_vec_empty::empty')['def_id']
+        self.constructor=find(self.functions.values(),'alloc::vec::new')['def_id']
+        require(set(self.functions)=={self.root,self.constructor},'Unexpected constructor call closure')
+        self.vector=find(self.types.values(),'alloc::vec::Vec');self.rawvec=find(self.types.values(),'alloc::raw_vec::RawVec')
+        self.inner=find(self.types.values(),'alloc::raw_vec::RawVecInner');self.unique=find(self.types.values(),'core::ptr::unique::Unique')
+        self.nonnull=find(self.types.values(),'core::ptr::non_null::NonNull');self.marker=find(self.types.values(),'core::marker::PhantomData')
+        self.carrier=find(self.types.values(),'core::num::niche_types::UsizeNoHighBit');self.allocator=find(self.types.values(),'alloc::alloc::Global')
+        self.alignment=find(self.types.values(),'core::mem::alignment::Alignment');self.enum=find(self.types.values(),'core::mem::alignment::AlignmentEnum')
+        require(len(self.types)==10 and all(empty(t['generics']) for t in self.types.values()),'Unclosed constructor types')
+        def fields(t,expected,classification='Transparent'):
+            require(t['item_meta']['opacity']==classification and set(t['kind'])=={'Struct'} and
+                [(f['name'],f['ty']) for f in t['kind']['Struct']]==expected,'Changed '+name(t)+' fields/classification')
+        fields(self.vector,[('buf',adt(self.rawvec['def_id'])),('len',SPEC['USIZE'])])
+        fields(self.rawvec,[('inner',adt(self.inner['def_id'])),('_marker',adt(self.marker['def_id']))])
+        fields(self.inner,[('ptr',adt(self.unique['def_id'])),('cap',adt(self.carrier['def_id'])),('alloc',adt(self.allocator['def_id']))])
+        fields(self.unique,[('pointer',adt(self.nonnull['def_id'])),('_marker',adt(self.marker['def_id']))])
+        fields(self.nonnull,[('pointer',{'Untagged':{'Pattern':[{'Untagged':{'RawPtr':[U8,'Shared']}},'NotNull']}})])
+        fields(self.marker,[],'Foreign');fields(self.allocator,[])
+        fields(self.alignment,[('_inner_repr_trick',adt(self.enum['def_id']))])
+        require(self.carrier['item_meta']['opacity']=='Foreign' and self.carrier['kind']=='Opaque','Changed constrained-capacity classification')
+        layout=STORAGE['layout']
+        for t,size,align,offsets,transparent in [(self.vector,24,8,[0,16],False),(self.rawvec,16,8,[0,16],False),
+            (self.inner,16,8,[8,0,16],False),(self.unique,8,8,[0,8],True),(self.nonnull,8,8,[0],True),
+            (self.carrier,8,8,[0],True),(self.marker,0,1,[],False),(self.allocator,0,1,[],False),(self.alignment,8,8,[0],True)]:
+            require(t['layout']==layout(size,align,offsets,transparent),'Changed '+name(t)+' storage layout')
+        variants=self.enum['kind'].get('Enum',[])
+        require(self.enum['item_meta']['opacity']=='Transparent' and len(variants)==64,'Changed alignment enum')
+        for i,v in enumerate(variants):
+            require(set(v)=={'id','span','attr_info','name','fields','discriminant'} and v['id']==i and v['name']=='_Align1Shl'+str(i) and v['fields']==[] and
+                v['discriminant']=={'Scalar':{'Unsigned':['Usize',str(2**i)]}},'Changed alignment discriminant')
+        enum_layout=[{'key':'x86_64-unknown-linux-gnu','value':{'size':8,'align':8,'uninhabited':False,
+            'repr':{'repr_algo':'Rust','align_modif':None,'transparent':False,'explicit_discr_type':True},
+            'variant_layouts':[{'field_offsets':[],'uninhabited':False,'tagger':[[0,{'Unsigned':['U64',str(2**i)]}]]} for i in range(64)],
+            'discriminator':{'Branch':{'offset':0,'int_ty':{'Unsigned':'U64'},'fallback':'Invalid',
+                'children':[[{'start':{'Unsigned':['U64',str(2**i)]},'end':{'Unsigned':['U64',str(2**i)]}},{'Known':i}] for i in range(64)]}}}}]
+        require(self.enum['layout']==enum_layout,'Changed physical alignment discriminants')
+        gs=[g for g in c['global_decls'] if g];require(len(gs)==1,'Unexpected constructor globals');self.global_alignment=gs[0]
+        g=self.global_alignment
+        require(name(g)=='core::mem::SizedTypeProperties::ALIGNMENT' and empty(g['generics']) and
+            g['item_meta']['opacity']=='Foreign' and g['global_kind']=='NamedConst' and g['ty']==adt(self.alignment['def_id']) and
+            g['src']['TraitDecl']['trait_ref']['generics']=={'regions':[],'types':[U8],'const_generics':[],'trait_refs':[]} and
+            g['src']['TraitDecl']['item_id']=={'Const':2} and
+            g['value']=={'kind':{'Adt':[None,[{'kind':{'Adt':[0,[]]},'ty':adt(self.enum['def_id'])}]]},'ty':adt(self.alignment['def_id'])},
+            'Changed evaluated byte alignment')
+        self.boundary=SimpleNamespace(function=None,enum=self.enum,nonnull=self.nonnull,alignments=[2**i for i in range(64)])
+        for fid in self.functions:self.schema(fid)
+        self.code(self.root)
+        require(set(self.codes)=={self.root,self.constructor},'Unclosed constructor call graph')
+
+    def ty(self,raw):
+        if raw==pattern():return '(.scalar .usize)'
+        if raw==adt(self.marker['def_id']):return '(.record '+str(self.marker['def_id'])+' (.scalar .unit))'
+        if raw==adt(self.carrier['def_id']):return '(.record '+str(self.carrier['def_id'])+' (.pair (.scalar .usize) (.scalar .unit)))'
+        return super().ty(raw)
+
+    def schema(self,fid):
+        require(fid in self.functions,'Unknown constructor callee')
+        f=self.functions[fid]
+        require(f['signature']=={'is_unsafe':False,'abi':'Rust','is_variadic':False,'inputs':[],'output':adt(self.vector['def_id'])} and
+            f['item_meta']['opacity']=='Transparent' and f['is_global_initializer'] is None and
+            set(f['body'])=={'Structured'} and f['body']['Structured']['bound_body_regions']==0,'Changed constructor signature/body')
+        return super().schema(fid)
+
+    def operand(self,op,fid):
+        if set(op)=={'Const'}:
+            value=op['Const'];require(value['ty'] in [SPEC['USIZE'],pattern()] and value['kind']==usize(0)['kind'],'Nonzero or mistyped constructor word')
+            return '(.usize 0)',value['ty']
+        return super().operand(op,fid)
+
+    def rvalue(self,rv,fid):
+        if set(rv)=={'UnaryOp'}:
+            operator,op=rv['UnaryOp']
+            require(fid==self.constructor and operator=={'Cast':{'Transmute':[adt(self.alignment['def_id']),adt(self.nonnull['def_id'])]}} and
+                op=={'Copy':{'kind':{'Global':{'id':self.global_alignment['def_id'],'generics':{'regions':[],'types':[],'const_generics':[],'trait_refs':[]}}},
+                    'ty':adt(self.alignment['def_id'])}},'Unsupported constructor transmute/global')
+            return '(.wrapOne '+str(self.nonnull['def_id'])+' (.addressLiteral 1))',adt(self.nonnull['def_id'])
+        if set(rv)=={'Aggregate'}:
+            kind,args=rv['Aggregate'];require(set(kind)=={'Adt'},'Unsupported constructor aggregate')
+            owner,variant,user=kind['Adt'];require(variant is None and user is None and owner==adt(owner['id']['Adt'])['Untagged']['Adt'],'Changed aggregate identity')
+            tid=owner['id']['Adt'];require(tid in self.types and tid not in [self.nonnull['def_id'],self.alignment['def_id'],self.enum['def_id']],'Unexpected constructor aggregate')
+            if tid==self.carrier['def_id']:
+                require(args==[{'Const':{'kind':usize(0)['kind'],'ty':pattern()}}],'Changed zero capacity initialization')
+                values=['(.usize 0)']
+            else:
+                fields=self.types[tid]['kind']['Struct'];require(len(args)==len(fields),'Changed aggregate field count')
+                values=[]
+                expected_modes={self.unique['def_id']:['Copy','Move'],self.inner['def_id']:['Copy','Move','Move'],
+                    self.rawvec['def_id']:['Move','Move'],self.vector['def_id']:['Move','Const']}.get(tid,[])
+                require([next(iter(a)) for a in args]==expected_modes,'Changed constructor field move/copy')
+                for op,field in zip(args,fields):
+                    value,raw=self.operand(op,fid);require(raw==field['ty'],'Wrong aggregate field type');values.append(value)
+            return '(.aggregate (some '+str(tid)+') none '+BASE['seq'](values)+')',adt(tid)
+        return super().rvalue(rv,fid)
+
+    def retained(self):
+        self.code(self.root)
+        return {'root':self.root,'constructor':self.constructor,'functions':[self.functions[i] for i in sorted(self.codes)],
+            'types':[self.types[i] for i in sorted(self.types)],'globals':[self.global_alignment],
+            'target':self.crate['target_information'],'claim':'original byte Vec::new nominal value construction; storage/ABI, positive allocation, compiler and lifetime refinement remain open'}
+
+    def render(self):
+        raw=super().render().replace('HasteBootsAllocatorCaller','HasteBootsVecEmpty').replace(
+            '-- Original finite allocator caller; the external leaf remains a logical specification.',
+            '-- Original byte Vec::new value construction; native storage and compiler refinement remain open.').replace(
+            'public import FormalProof4FHE.HasteBoots.NativeRecordLLBC','public import FormalProof4FHE.HasteBoots.NativeRecordCallValues')
+        def pack(tag,fields):
+            tree='(.scalar .unit)'
+            for field in reversed(fields):tree='(.pair '+field+' '+tree+')'
+            return '(.record '+str(tag)+' '+tree+')'
+        marker=pack(self.marker['def_id'],[])
+        pointer=pack(self.nonnull['def_id'],['(.scalar (.raw ⟨⟨1,none⟩,none⟩))'])
+        unique=pack(self.unique['def_id'],[pointer,marker])
+        inner=pack(self.inner['def_id'],[unique,pack(self.carrier['def_id'],['(.scalar (.usize 0))']),pack(self.allocator['def_id'],[])])
+        expected=pack(self.vector['def_id'],[pack(self.rawvec['def_id'],[inner,marker]),'(.scalar (.usize 0))'])
+        def unwrap(t):return '(.unwrap '+str(t['def_id'])+')'
+        base=[unwrap(self.vector),'.left',unwrap(self.rawvec),'.left',unwrap(self.inner)]
+        additions='def emptyValue : FormalProof4FHE.HasteBoots.NativeRecordValues.Value := '+expected+'\n'
+        for label,path in [('capacityPath',base+['.right','.left',unwrap(self.carrier),'.left']),
+            ('pointerPath',base+['.left',unwrap(self.unique),'.left',unwrap(self.nonnull),'.left']),
+            ('lengthPath',[unwrap(self.vector),'.right','.left'])]:
+            additions+='def '+label+' : FormalProof4FHE.HasteBoots.NativeRecordValues.Path := '+BASE['seq'](path)+'\n'
+        return raw.replace('end HasteBootsVecEmpty',additions+'end HasteBootsVecEmpty')
+
+
+def main():
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('llbc',type=Path);p.add_argument('output',type=Path);a=p.parse_args()
+    a.output.write_text(Reifier(json.loads(a.llbc.read_text())).render())
+if __name__=='__main__':main()
