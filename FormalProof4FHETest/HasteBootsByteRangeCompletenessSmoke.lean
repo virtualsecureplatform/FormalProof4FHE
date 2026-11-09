@@ -1,5 +1,5 @@
 module
-import FormalProof4FHE.HasteBoots.NativeBorrowFrontier
+import FormalProof4FHE.HasteBoots.NativeRawVecBorrowCompleteness
 namespace FormalProof4FHETest.HasteBootsByteRangeCompletenessSmoke
 open FormalProof4FHE.HasteBoots
 open NativeByteRangeCompleteness
@@ -77,4 +77,39 @@ example : ∃ next, NativeReferenceMachine.grant ready (some descriptor.lease.ta
   apply NativeBorrowFrontier.vec_header_grant_complete ready 0 descriptor
     ⟨worldValid.1.1,worldValid.2.1⟩
   exact NativeBorrowFrontier.singleton_frontier _ _ (by decide) rfl
+private theorem readyFrontier : NativeBorrowFrontier.ExclusiveFrontier
+    (NativeReferenceMachine.ledger ready) descriptor.lease :=
+  NativeBorrowFrontier.singleton_frontier _ _ (by decide) rfl
+private theorem readyReachable : NativeReferenceMachine.Reachable ready :=
+  NativeReferenceMachine.run_reachable _ _ .empty operations (by decide)
+example : NativeByteRange.loadRange memory pointer ⟨2,1⟩ = some ([10,20,30,40].take 2) :=
+  loadRange_prefix memory valid pointer 4 2 1 _ (by decide) (by decide) (by decide)
+example : ∃ bytes, NativeByteRange.loadRange ready.pointers.heap.memory descriptor.lease.pointer
+    ⟨16,8⟩ = some bytes := descriptor.rawvec_initialized readyMemory
+example (target : NativeVecReference.Target) : ∃ next,
+    NativeVecReference.reborrow ready (.reference true descriptor.reference 3) target =
+      .value (.reference true ⟨ready.nextTag⟩ target.count) next ∧
+    NativeBorrowFrontier.ExclusiveFrontier (NativeReferenceMachine.ledger next)
+      ⟨ready.nextTag,some descriptor.lease.tag,descriptor.lease.pointer,target.layout,.exclusive⟩ ∧
+    NativeResidentVecBorrow.Resident next (.reference true ⟨ready.nextTag⟩ target.count)
+      descriptor.lease.pointer descriptor.capacity descriptor.length descriptor.buffer := by
+  have worldValid := NativeReferenceMachine.reachable_wellFormed ready readyReachable
+  exact NativeRawVecBorrowCompleteness.vec_reborrow_complete ready 0 descriptor
+    ⟨worldValid.1.1,worldValid.2.1⟩ readyFrontier target
+example : ∃ entered next,
+    NativeVecReference.reborrow ready (.reference true descriptor.reference 3) .rawVec =
+      .value (.reference true ⟨ready.nextTag⟩ 2) entered ∧
+    NativeRawVecMutBorrow.immediate entered (.reference true ⟨ready.nextTag⟩ 2) =
+      .value (.reference true ⟨entered.nextTag⟩ 2) next ∧
+    NativeReferenceMachine.Reachable next ∧ next.pointers.heap = ready.pointers.heap := by
+  obtain ⟨entered,next,borrowed,activated,_,_,reached,heap⟩ :=
+    NativeRawVecBorrowCompleteness.vec_rawvec_activation_complete ready 0 descriptor readyReachable readyFrontier
+  exact ⟨entered,next,borrowed,activated,reached,heap⟩
+example : (match NativeVecReference.reborrow ready (.reference true descriptor.reference 3) .rawVec with
+    | .invalid _ => none
+    | .value operand entered => match NativeRawVecMutBorrow.immediate entered operand with
+      | .invalid _ => none
+      | .value _ next => some (next.nextTag,next.leases.map NativeByteBorrow.Lease.tag)) =
+    some (3,[2,1,0]) := by decide
+example : NativeByteRange.loadRange ready.pointers.heap.memory ⟨66,some ⟨64,0⟩⟩ ⟨6,1⟩ = none := by decide
 end FormalProof4FHETest.HasteBootsByteRangeCompletenessSmoke

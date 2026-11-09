@@ -45,3 +45,11 @@ import FormalProof4FHE.HasteBoots.NativeByteRangeCompleteness
 /-- info: 'FormalProof4FHE.HasteBoots.NativeResidentVec.Descriptor.header_initialized' depends on axioms: [propext, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.NativeResidentVec.Descriptor.header_initialized
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeByteRangeCompleteness.loadRange_prefix' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeByteRangeCompleteness.loadRange_prefix
+
+/-- info: 'FormalProof4FHE.HasteBoots.NativeResidentVec.Descriptor.rawvec_initialized' depends on axioms: [propext, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.NativeResidentVec.Descriptor.rawvec_initialized
