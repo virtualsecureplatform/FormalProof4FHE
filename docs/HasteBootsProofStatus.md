@@ -17730,3 +17730,28 @@ warning-as-error checks passed for all four new production modules and both
 regression/audit modules. All fourteen new theorem axiom guards passed using
 only the three allowed axioms or subsets. No axioms, proof placeholders,
 native decision proofs or proof-limit increases were introduced.
+
+
+## Current constructor-to-allocation checkpoint
+
+The later probability modules `NativeGoldBatchConcreteAcceptedChecks`,
+`NativeGoldBatchConcreteCoverage`, `NativeGoldBatchConcreteExposureCoverage`
+and `NativeGoldBatchLifetimeSoundness` already implement the accepted-check and
+causal lifetime composition discussed as next steps above. The lifetime theorem
+still uses fixed public parameters/profile and ideal-oracle exposure charges;
+it does not prove the physical attacker-work inequality.
+
+The separate retained-source constructor profile now provides
+`terminalRootInvoke`, allocation-outcome coverage, error-return exclusion and
+fresh returned-vector allocation certificates. Its allocation-event extension
+identifies the executed checked allocation operation and the newly issued
+allocation origin, including history/heap/generation changes. These are modeled
+implementation/ownership facts, not physical costs or actor-authority proofs.
+See `interop/aeneas/vec-capacity-arithmetic/README.md` and its recorded extraction
+receipt for the precise source boundary and validation.
+
+Connecting these tracks still requires trusted registry/context and parameter
+binding, native public extraction/PBS semantics, BabyBear coverage, remaining
+native ABI/compiler/lifetime/reclamation refinement, and calibration of all
+initialization/local/abort/rejection/private-coin work to actual attacker work.
+The final 128-bit security inequality remains open.

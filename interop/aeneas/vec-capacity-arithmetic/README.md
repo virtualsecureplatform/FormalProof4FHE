@@ -528,3 +528,32 @@ coverage regressions. The four related profiles retain valid input/log/manifest
 hashes and their existing proof scope; their gates are reused. The unchanged
 library, root tests, toolchain, dependencies and full-check scripts permit reuse
 of the successful 11101-job full project check.
+
+## Executed allocation and fresh history event
+
+`AllocationEventProof` now derives the actual
+`NativeReferenceMachine.execute (.raw (.allocate ...))` success from the
+allocator result. For every returned positive-capacity root vector, it proves
+that this checked operation connects the post-shim state to the returned state.
+The returned state's allocation history records the exact address, layout and
+fresh generation. That origin is issued afterward and was not issued in the
+well-formed post-shim state. The allocation adds exactly one history entry and
+heap block, advances the generation once, and preserves the post-shim loan,
+reference, birth and tag-counter fields.
+
+The starting-state/global-placement and actual normal-shim conditions remain
+explicit. These results grant neither actor authority nor Rust borrow rights.
+The checked operation is the vector allocator step, distinguished by the source
+call chain and allocator result; error-local snapshot allocations are a separate
+modeling boundary. No physical cost is inferred from the length of a history,
+a generation counter or this one-step witness. Native allocator/compiler/
+lifetime correspondence and calibration to actual attacker work remain open.
+
+Allocation-event validation: 1,233 dependency audits and 247 rejecting controls
+pass, covering 625 constructor/helper/composition declarations and 54 linked
+getter declarations. The 202 source examples include six new event regressions
+for the executed step, exact history, issued/new origin, returned vector and
+reference-state preservation. The four related profiles are reused after their
+recorded input/log/manifest hashes are verified. The unchanged library, root
+tests, toolchain, dependencies and full-check scripts permit reuse of the
+successful 11101-job full project check.
