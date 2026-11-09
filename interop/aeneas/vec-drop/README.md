@@ -1,5 +1,43 @@
 # Original resident Vec destruction
 
+## Empty constructor to resident storage and reference destruction
+
+`NativeEmptyVecStorage` proves a checked storage bridge for the original empty
+byte Vec value. A registered pointer to a live 24-byte header, a reachable
+modeled world, checked alignment/extent and separation from existing loans suffice
+for the actual byte write and fresh exclusive borrow. Neither operation's success
+is assumed. The resulting resident descriptor has capacity and length zero and
+a dangling pointer with no allocation origin. Its initialization, buffer ownership,
+empty buffer separation and exclusive header frontier are proved.
+
+`HasteBootsVecEmpty.constructStored_complete` first invokes the retained original
+constructor, validates its actual nominal fields, then performs that storage
+sequence. The combined `empty_construct_destroy_complete` theorem feeds the
+result directly into the retained complete reference-based Vec destructor.
+`constructed_empty_every_invocation` gives the same normal unit return,
+reachability, complete ordered incoming loans and unchanged stored heap to every
+operational destructor invocation. This leaves the header's caller-owned loan
+in place; native by-value drop and header lifetime discharge are not proved.
+
+Seven model theorems, two definitions and a readiness structure have 11
+declaration audits. Seven model regressions cover uninitialized header bytes,
+actual descriptor construction, derived destructor conditions, unrelated live
+loans, overlapping loans, misalignment and address bits without provenance.
+The constructor profile now has seven source theorems, eight definitions and
+six regressions. Two additional composition theorems and two regressions connect
+the freshly extracted constructor and destructor profiles. The constructor gate
+checks 304 dependencies and 17 rejection controls; the combined gate checks 925
+dependencies and 87 controls. Both use the existing frozen toolchain.
+
+This proves modeled serialization into the validated physical field layout.
+Compiler/native ABI correspondence, positive-capacity constructors and ownership,
+native lifetime/by-value release, the external allocator implementation, physical
+attacker work and the final application security inequality remain open. Next
+extend construction to the allocation-backed path, preserving capacity-overflow,
+allocation-error and abort branches as well as success, while retaining these
+explicit implementation-refinement boundaries.
+
+
 ## Complete outer Vec destruction under resident model conditions
 
 `VecDestructionProof.lean` composes the original outer destructor through the

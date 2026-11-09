@@ -166,8 +166,10 @@ before compression or either opening batch.
 
 The retained byte `Vec::new` constructor now has an exact nominal-value proof: zero
 capacity and length, an unchanged modeled world, and a dangling pointer without
-allocation provenance. Its native storage/ABI bridge and allocation-backed
-construction remain open; see `interop/aeneas/vec-empty`.
+allocation provenance. A checked model adapter now stores it in a resident header
+and supplies all conditions for the retained reference-based Vec destructor.
+Native ABI/lifetime refinement and allocation-backed construction remain open;
+see `interop/aeneas/vec-empty`.
 
 See `docs/HasteBootsProofStatus.md` for the source mapping and remaining obligations.
 These components do not yet establish complete PBS or transcript security.
