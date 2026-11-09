@@ -435,9 +435,9 @@ contracts. Source control flow alone supplies no proof of native panic/abort
 behavior or formatting work cost.
 
 These helpers currently have independent typed entry points
-`terminalOverflowInvoke` and `terminalAllocationInvoke`. Threading them into the
-handler and root continuation interfaces remains the next composition step;
-`handledRootInvoke` still takes its prior terminal-body parameters. Native
+`terminalOverflowInvoke` and `terminalAllocationInvoke`. The root composition below threads them into the handler and root continuation
+interfaces through `terminalRootInvoke`. `handledRootInvoke` retains its prior
+terminal-body parameters as a checked specialization baseline. Native
 stack/compiler/ABI/lifetime correspondence, destruction/reclamation, physical
 attacker-work accounting and the final security inequality remain open.
 
@@ -449,3 +449,39 @@ results, unwinding and retained callback effects. The 151 shared-model examples
 retain their prior scope. The unchanged library, root tests, toolchain,
 dependencies and full-check scripts permit reuse of the successful 11101-job
 full project check.
+
+## Root execution through the retained terminal helpers
+
+`terminalRootInvoke` now runs the retained terminal helpers from both constructor
+error paths. The handler enters the complete helper-local contexts, including
+the allocation wrapper's tuple temporaries, and forwards through `ct_error` to
+the formatter and named panic boundary. The terminal routines are no longer
+arbitrary terminal-body parameters of this new entry point; the remaining
+external callbacks are the formatter and panic boundary themselves.
+
+The generalized `effectHandlerEval` and root continuations are emitted from the
+same already-validated source templates. `EffectRootProof` proves specialization
+to the previous handler/root implementations and carries over zero, success,
+rejected-capacity and allocation-failure behavior. `TerminalHandlerProof` derives
+checked getter success from a successful snapshot, dispatches each kind into its
+complete helper context, and executes the source caller cleanup.
+`TerminalRootProof` composes both error paths through those helpers without an
+assumed getter result. Modeled allocator/shim results and successful error-local
+snapshot execution remain explicit boundaries in the corresponding theorems.
+
+`TerminalRootProjectionProof` preserves every executed operation, including
+failures and external-callback effects. Its root reachability and well-formedness
+results require the explicit formatter/panic execution contracts. The logical
+String/abstract Arguments carrier, native stack/reference/compiler/ABI/lifetime
+correspondence, actual formatter/panic behavior, destruction/reclamation,
+physical attacker-work accounting and the final security inequality remain
+open. The generalized previous entry points retain their documented scope.
+
+Terminal-root validation: 1,206 dependency audits and 247 rejecting controls
+pass, covering 598 constructor/helper/composition declarations and 54 linked
+getter declarations. The 186 source examples include 16 new full-root tests for
+both literals, named panic dispatch, malformed results, unwinding, callback
+effects, failed placement, successful allocation, zero capacity and conditional
+well-formedness. The 151 shared-model examples retain their prior scope. The
+unchanged library, root tests, toolchain, dependencies and full-check scripts
+permit reuse of the successful 11101-job full project check.

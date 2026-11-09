@@ -586,4 +586,83 @@ def terminalAllocationInvoke (fields : NativeRecordValues.Ty) (formatter panic :
     (world : NativeReferenceMachine.State) (layout : NativeRecordValues.Value) : Flow :=
   handledInvoke terminalAllocationTypes 1 (terminalAllocationEval fields formatter panic) world [layout]
 
+def effectHandlerEval (base : NativePointerStorage.Address) (tail : Frame → Flow) (frame : Frame) : Flow :=
+  match eval handlerPrefix frame with
+  | .normal prepared => match NativeReservationErrorLocal.snapshotLocal reservationErrorTags prepared 1 base with
+    | .invalid world => .invalid world
+    | .value reference world => match write {prepared with world} 3 reference with
+      | none => .invalid world
+      | some borrowed => match evalArgs borrowed [(.move 3 [])] with
+        | none => .invalid borrowed.world
+        | some ([argument],caller) => handledResume caller 2 (eval (handlerCleanup .resume)) tail
+            (HasteBootsReservationErrorKind.invokeFor reservationErrorTags caller.world argument)
+        | some (_,caller) => .invalid caller.world
+  | flow => flow
+def effectOuterErrorEval (base : NativePointerStorage.Address) (handler : NativePointerStorage.Address → Frame → Flow) (frame : Frame) : Flow :=
+  handledContinue (handledCall handlerTypes 1 8 [(.move 7 [])] (handler base)
+    (eval (outerErrorCleanup .resume)) (eval (outerErrorCleanup (.dead 14 .abort))))
+    (eval outerErrorPrefix frame)
+def effectRawTail (base : NativePointerStorage.Address) (handler : NativePointerStorage.Address → Frame → Flow) (cold : Body) (frame : Frame) : Flow :=
+  match selectChoice frame 4 [] 8 with
+  | none => .invalid frame.world
+  | some side => handledContinue (eval (rawSuccessTail cold))
+      (if side then effectOuterErrorEval base handler frame else .normal frame)
+def effectRawEval (ambient : Frame) (base : NativePointerStorage.Address) (address : NativeWord64Memory.Word)
+    (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body)
+    (handler : NativePointerStorage.Address → Frame → Flow) (frame : Frame) : Flow :=
+  handledContinue (effectRawTail base handler (.unsupported "source cold helper"))
+    (NativeAllocatorLLBC.eval (unifiedRawCallerCall ambient address outcome shim
+      (.legacy (outerErrorCleanup .resume) .done) .done) frame)
+def effectRawInvoke (world : NativeReferenceMachine.State) (base : NativePointerStorage.Address)
+    (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body)
+    (handler : NativePointerStorage.Address → Frame → Flow) (capacity : NativeWord64Memory.Word) : Flow :=
+  let ambient := rawEntryAmbient (handledAmbient world)
+  handledInvoke (rawCallerTypes ambient) 3 (effectRawEval ambient base address outcome shim handler)
+    world [.scalar (.usize capacity),allocatorValue,byteLayout]
+def effectVecEval (ambient : Frame) (base : NativePointerStorage.Address) (address : NativeWord64Memory.Word)
+    (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body)
+    (handler : NativePointerStorage.Address → Frame → Flow) (frame : Frame) : Flow :=
+  let raw := rawEntryAmbient ambient
+  handledContinue (handledCall (rawCallerTypes raw) 3 3 vecCallerArgs
+    (effectRawEval raw base address outcome shim handler) (eval (.dead 1 .resume)) (eval vecCallerTail))
+    (eval (vecCallerPrefix .done) frame)
+def effectRootEval (ambient : Frame) (base : NativePointerStorage.Address) (address : NativeWord64Memory.Word)
+    (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body)
+    (handler : NativePointerStorage.Address → Frame → Flow) (frame : Frame) : Flow :=
+  handledContinue (handledCall (vecCallerTypes ambient) 1 0 [(.move 2 [])]
+    (effectVecEval ambient base address outcome shim handler) (eval (.dead 1 .resume)) (eval capacityRootTail))
+    (eval (capacityRootPrefix .done) frame)
+def effectRootInvoke (world : NativeReferenceMachine.State) (base : NativePointerStorage.Address)
+    (address : NativeWord64Memory.Word) (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body)
+    (handler : NativePointerStorage.Address → Frame → Flow) (capacity : NativeWord64Memory.Word) : Flow :=
+  let ambient := handledAmbient world
+  handledInvoke (capacityRootTypes ambient) 1 (effectRootEval ambient base address outcome shim handler)
+    world [.scalar (.usize capacity)]
+
+def terminalHandlerOverflowCall (fields : NativeRecordValues.Ty)
+    (formatter panic : String → NativeReferenceMachine.State → Flow) (frame : Frame) : Flow :=
+  handledCall (terminalOverflowTypes fields) 0 0 [] (terminalOverflowEval formatter panic)
+    (eval (handlerCleanup .resume)) (eval (handlerCleanup .abort)) frame
+def terminalHandlerAllocationCall (fields : NativeRecordValues.Ty)
+    (formatter panic : String → NativeReferenceMachine.State → Flow) (frame : Frame) : Flow :=
+  handledCall terminalAllocationTypes 1 0 [(.move 5 [])] (terminalAllocationEval fields formatter panic)
+    (eval (handlerCleanup .resume)) (eval (handlerCleanup .abort)) frame
+def terminalHandlerTail (fields : NativeRecordValues.Ty)
+    (formatter panic : String → NativeReferenceMachine.State → Flow) (frame : Frame) : Flow :=
+  handledContinue (fun caller =>
+    match selectChoice caller 2 [] 18 with
+    | none => .invalid caller.world
+    | some side => handledContinue (terminalHandlerOverflowCall fields formatter panic)
+        (if side then handledContinue (terminalHandlerAllocationCall fields formatter panic)
+          (eval (handlerAllocationPrefix .done) caller) else .normal caller))
+    (eval (.dead 3 .done) frame)
+def terminalHandlerInvoke (fields : NativeRecordValues.Ty) (formatter panic : String → NativeReferenceMachine.State → Flow)
+    (world : NativeReferenceMachine.State) (base : NativePointerStorage.Address) (value : NativeRecordValues.Value) : Flow :=
+  handledInvoke handlerTypes 1 (effectHandlerEval base (terminalHandlerTail fields formatter panic)) world [value]
+def terminalRootInvoke (fields : NativeRecordValues.Ty) (formatter panic : String → NativeReferenceMachine.State → Flow)
+    (world : NativeReferenceMachine.State) (base : NativePointerStorage.Address) (address : NativeWord64Memory.Word)
+    (outcome : Option NativePointerStorage.Address) (shim : NativeAllocatorLLBC.Body) (capacity : NativeWord64Memory.Word) : Flow :=
+  effectRootInvoke world base address outcome shim
+    (fun placement => effectHandlerEval placement (terminalHandlerTail fields formatter panic)) capacity
+
 end HasteBootsVecCapacityArithmetic
