@@ -60,6 +60,31 @@ theorem readSpan_subrange (bytes : List (Option Byte)) (size offset requested : 
     readSpan (bytes.drop offset) requested = some ((output.drop offset).take requested) :=
   readSpan_take _ (size - offset) requested _ (readSpan_drop bytes size offset output read (by omega)) (by omega)
 
+/-- A shorter prefix retains the original alignment when its layout is valid. -/
+theorem loadRange_prefix (state : State) (valid : NativeByteMemory.WellFormed state)
+    (pointer : Pointer) (size requested alignment : Nat) (output : List Byte)
+    (loaded : loadRange state pointer ⟨size,alignment⟩ = some output)
+    (bounded : requested ≤ size) (layout : (NativeByteMemory.Layout.mk requested alignment).Valid) :
+    loadRange state pointer ⟨requested,alignment⟩ = some (output.take requested) := by
+  have original := loadRange_geometry state pointer _ output loaded
+  have geometry : Geometry pointer ⟨requested,alignment⟩ := by
+    refine ⟨layout,original.2.1,original.2.2.1,?_⟩
+    have limit : pointer.address.val + size < 2^64 := original.2.2.2
+    change pointer.address.val + requested < 2^64
+    omega
+  by_cases empty : requested = 0
+  · subst requested
+    simpa only [List.take_zero] using empty_range state pointer alignment geometry
+  · have positive : 0 < requested := Nat.pos_of_ne_zero empty
+    obtain ⟨block,member,covered,initialized⟩ :=
+      loadRange_positive_selected state pointer _ (by change 0 < size; omega) output loaded
+    apply loadRange_of_ready state valid pointer _ geometry positive block member
+    · refine ⟨covered.1,covered.2.1,?_⟩
+      have limit : pointer.address.val + size ≤ block.base.val + block.layout.size := covered.2.2
+      change pointer.address.val + requested ≤ block.base.val + block.layout.size
+      omega
+    · exact readSpan_take _ size requested output initialized bounded
+
 /-- Adjacent initialized spans compose without assuming their surrounding bytes. -/
 theorem readSpan_join (bytes : List (Option Byte)) (first second : Nat)
     (left right : List Byte) (initial : readSpan bytes first = some left)
@@ -227,6 +252,16 @@ theorem Descriptor.header_initialized {world : NativeReferenceMachine.State} {in
   exact ⟨_,NativeByteRangeCompleteness.loadRange_join _ valid _ _ 16 8 8
     _ lengthBytes (by decide) (by decide) descriptor.lengthAt
     (geometry 24 (by decide) (by decide)) firstRead lengthRead⟩
+
+/-- The first two stored words initialize the RawVec subobject at its alignment. -/
+theorem Descriptor.rawvec_initialized {world : NativeReferenceMachine.State} {index : Nat}
+    (descriptor : Descriptor world index)
+    (valid : NativeByteMemory.WellFormed world.pointers.heap.memory) :
+    ∃ bytes, NativeByteRange.loadRange world.pointers.heap.memory descriptor.lease.pointer
+      ⟨16,8⟩ = some bytes := by
+  obtain ⟨bytes,loaded⟩ := descriptor.header_initialized valid
+  exact ⟨_,NativeByteRangeCompleteness.loadRange_prefix _ valid _ 24 16 8 bytes loaded
+    (by decide) (by decide)⟩
 
 theorem InitializedElements.subrange {world : NativeReferenceMachine.State} {index : Nat}
     {descriptor : Descriptor world index} (initialized : InitializedElements descriptor)
