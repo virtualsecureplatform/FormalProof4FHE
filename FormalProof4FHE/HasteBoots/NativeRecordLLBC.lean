@@ -2,6 +2,7 @@ module
 public import FormalProof4FHE.HasteBoots.NativeRecordValues
 public import FormalProof4FHE.HasteBoots.NativeRecordArithmetic
 public import FormalProof4FHE.HasteBoots.NativeZstReference
+public import FormalProof4FHE.HasteBoots.NativeZstBorrow
 public import FormalProof4FHE.HasteBoots.NativeRawVecReference
 public import FormalProof4FHE.HasteBoots.NativeRawVecBorrow
 public import FormalProof4FHE.HasteBoots.NativeVecReference
@@ -170,6 +171,7 @@ inductive Rvalue where
   | parts (data length : Operand)
   | unit
   | borrowRawVecMut (index : Nat) (path : Path := [])
+  | borrowZstLocal (index tag : Nat) (address : Word)
   | borrowRawVec (target : NativeRawVecBorrow.Target) (index : Nat) (path : Path := [])
   | recordResult (tag : Nat) (singleton : Bool) (inner : Rvalue)
   | mulUsizeUB (left right : Operand)
@@ -203,6 +205,15 @@ def evalRawVecField (frame : Frame) (operand : Operand) (action : NativeRawVecRe
         | .invalid final => .invalid final
         | .value tagged final => .value tagged {caller with world := final}
     | _ => .invalid caller.world
+
+/-- A complete empty nominal local is borrowed at an explicit placement address.
+The source-to-native placement correspondence is a separate obligation. -/
+def evalZstBorrow (frame : Frame) (index tag : Nat) (address : Word) : Evaluated :=
+  if read frame index [] = some (.record tag (.scalar .unit)) then
+    match NativeZstBorrow.issue frame.world address with
+    | .invalid world => .invalid world
+    | .value value world => .value (.scalar value) {frame with world}
+  else .invalid frame.world
 
 /-- Borrowing a place reads its identity without copying exclusive ownership. -/
 def evalRawVecBorrow (frame : Frame) (index : Nat) (path : Path) (target : NativeRawVecBorrow.Target) : Evaluated :=
@@ -315,6 +326,7 @@ def evalRvalue (frame : Frame) : Rvalue → Evaluated
   | .parts data length => evalParts frame data length
   | .unit => .value (.scalar .unit) frame
   | .borrowRawVecMut index path => evalRawVecMutBorrow frame index path
+  | .borrowZstLocal index tag address => evalZstBorrow frame index tag address
   | .borrowRawVec target index path => evalRawVecBorrow frame index path target
   | .recordResult tag singleton inner => match evalRvalue frame inner with
     | .invalid world => .invalid world
@@ -829,6 +841,15 @@ theorem evalArithmetic_world (frame : Frame) (operation : NativeRecordArithmetic
     cases actual : NativeRecordArithmetic.eval operation values <;>
       simpa only [evalArithmetic,selected,actual,Evaluated.world] using same
 
+theorem evalZstBorrow_projects (frame : Frame) (index tag : Nat) (address : Word) :
+    NativeReferenceMachine.Runs frame.world (evalZstBorrow frame index tag address).world := by
+  unfold evalZstBorrow
+  split
+  · have first := NativeZstBorrow.issue_projects frame.world address
+    cases actual : NativeZstBorrow.issue frame.world address <;>
+      simpa only [actual,Evaluated.world,NativeRawVecFields.Result.world] using first
+  · exact .refl _
+
 theorem evalRvalue_projects (frame : Frame) (rvalue : Rvalue) :
     NativeReferenceMachine.Runs frame.world (evalRvalue frame rvalue).world := by
   induction rvalue with
@@ -842,6 +863,7 @@ theorem evalRvalue_projects (frame : Frame) (rvalue : Rvalue) :
     rw [evalParts_world]; exact .refl _
   | unit => exact .refl _
   | borrowRawVecMut index path => exact evalRawVecMutBorrow_projects frame index path
+  | borrowZstLocal index tag address => exact evalZstBorrow_projects frame index tag address
   | borrowRawVec target index path => exact evalRawVecBorrow_projects frame index path target
   | mulUsizeUB left right =>
     change NativeReferenceMachine.Runs frame.world (evalMultiply frame left right).world

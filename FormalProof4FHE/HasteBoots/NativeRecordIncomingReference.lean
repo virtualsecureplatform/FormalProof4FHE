@@ -462,6 +462,24 @@ theorem evalBorrowSlice_incoming_projects (frame : Frame) (index : Nat) (path : 
     | uninit => simp only [evalBorrowSlice, selected, Evaluated.world]; exact .refl _
 
 
+theorem evalZstBorrow_incoming_projects (frame : Frame) (index tag : Nat) (address : NativeWord64Memory.Word) :
+    NativeIncomingReference.Preserves frame.world (evalZstBorrow frame index tag address).world := by
+  have issued : NativeIncomingReference.Preserves frame.world (NativeZstBorrow.issue frame.world address).world := by
+    cases preparedEq : NativeReferenceMachine.execute frame.world (.raw (.fromAddress address)) with
+    | none => simp only [NativeZstBorrow.issue,preparedEq,NativeRawVecFields.Result.world]; exact .refl _
+    | some prepared =>
+      have first := NativeIncomingReference.Preserves.step (.refl frame.world) _ preparedEq
+      cases actual : NativeReferenceMachine.execute prepared (.borrow 0 .shared ⟨0,1⟩) with
+      | none => simpa only [NativeZstBorrow.issue,preparedEq,actual,NativeRawVecFields.Result.world] using first
+      | some next =>
+        have later := NativeIncomingReference.Preserves.step (.refl prepared) _ actual
+        simpa only [NativeZstBorrow.issue,preparedEq,actual,NativeRawVecFields.Result.world] using first.trans later
+  unfold evalZstBorrow
+  split
+  · cases actual : NativeZstBorrow.issue frame.world address <;>
+      simpa only [actual,Evaluated.world,NativeRawVecFields.Result.world] using issued
+  · exact .refl _
+
 theorem evalRvalue_incoming_projects (frame : Frame) (rvalue : Rvalue) :
     NativeIncomingReference.Preserves frame.world (evalRvalue frame rvalue).world := by
   induction rvalue with
@@ -475,6 +493,7 @@ theorem evalRvalue_incoming_projects (frame : Frame) (rvalue : Rvalue) :
     rw [evalParts_world]; exact .refl _
   | unit => exact .refl _
   | borrowRawVecMut index path => exact evalRawVecMutBorrow_incoming_projects frame index path
+  | borrowZstLocal index tag address => exact evalZstBorrow_incoming_projects frame index tag address
   | borrowRawVec target index path => exact evalRawVecBorrow_incoming_projects frame index path target
   | mulUsizeUB left right =>
     change NativeIncomingReference.Preserves frame.world (evalMultiply frame left right).world
