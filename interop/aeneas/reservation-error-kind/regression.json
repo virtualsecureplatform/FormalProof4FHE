@@ -1,8 +1,8 @@
 {
-  "profile": "revalidated-with-source-root-owned-error-composition-v1",
+  "profile": "revalidated-with-source-terminal-helpers-v1",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/reservation-error-kind-wgv0186a/manifest.json",
-  "gate_manifest_sha256": "5fda78033ac8538422cc52619cfdecc34da65da198a0a03ea7d5535246aab7c8",
+  "gate_manifest": "build/hasteboots-extraction/reservation-error-kind-h9fowgpm/manifest.json",
+  "gate_manifest_sha256": "7baf21470fc7254d6ceb94623530b12f79e2364211c2f6844a368dc6e0e7356d",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -35,7 +35,7 @@
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
     "scripts/reify-hasteboots-variant-body": "2d0326329d538bb43685617133c2ecd96da497c81295cd221315807576383825",
-    "scripts/reify-hasteboots-vec-capacity-arithmetic": "5c6ba1d144c0af66b8dc16a0d4992d56c35d98b379f1b0141272f1b1dfd6ad9c",
+    "scripts/reify-hasteboots-vec-capacity-arithmetic": "d0734b95943e9706234b3d5f698da008a01bc54156f904ccb5faf3819167fa82",
     "scripts/reify-hasteboots-vec-drop": "0ef983324e439064ea0969a4fc60d6a574137d5548a1feaee727f018b9b1eb8d",
     "scripts/reify-hasteboots-vec-empty": "00a7debb4c04056f86a5fe37ecead6b1f26a8a6fa45642c9b7b6fa76a3532ccd",
     "FormalProof4FHE/HasteBoots/NativeAllocatorExecution.lean": "2c3008e94760730cfbc65c7bee2707e107f23fabdb9df93f302c5848fc909a15",
@@ -497,7 +497,7 @@
     "interop/aeneas/reservation-error-kind/GenericSmoke.lean": "80ee1ce9a7d85309c9b4c229e36e40b76520aaa73f910fde061ac6d0f2ff2132",
     "interop/aeneas/reservation-error-kind/WrapperSmoke.lean": "4925117c10cfe945743d7867bfab20aeac0fcda7c9642e46eef5d0a47ac24dfb"
   },
-  "source_llbc_sha256": "896375f3a9a75a0043294f2c7f19bbec33a947b1202ff5b878c654c9205bdfc7",
+  "source_llbc_sha256": "384250bc92ade5da364372c7582808c500a95b4a6adc9402b416272a8568503e",
   "checked_sha256": "8ff55dd98d66b38b0a3ec353f061b8e4b2441fdf798197b3c03991369cf9faa3",
   "dependency_audit_count": 652,
   "negative_control_count": 55,
@@ -592,7 +592,7 @@
     "test_root_sha256": "2a03a552feb0e1cd386d2a10948d97b8e6bccf2ec4ac7e875974dafad2502383"
   },
   "root_full_check_reused_without_library_or_root_test_changes": true,
-  "validation_note": "Fresh extraction gates, warning-as-error Lean checks, allowed-axiom audits and mutation controls passed. The new handledRootInvoke source composition connects the validated outer Result::Err payload move and typed handler call, and executes all three outer caller unwind cleanups. Root theorems cover zero, successful allocation, rejected capacity and normal allocator failure. Execution projection, reachability and well-formedness cover every outcome. Checked local materialization remains explicit, and terminal bodies remain model parameters. Native ABI/stack/lifetime/compiler correspondence, terminal-helper behavior, physical destruction/reclamation/work and final security remain open. The earlier unifiedCapacityRoot retains its prior scope. The prior 11101-job full check is reused because library, root tests, toolchain, dependencies and full-check scripts are unchanged.",
+  "validation_note": "Fresh extraction gates, warning-as-error Lean checks, allowed-axiom audits and mutation controls passed. The complete capacity_overflow/handle_alloc_error/ct_error bodies and external formatter identity/layout are now validated. Terminal helper proofs cover the copied layout tuple, moved argument, exact literal forwarding, typed formatting results, source cleanup and a distinct named Panic boundary. The formatter uses an abstract logical Arguments carrier and String argument; native &str/Arguments ABI is open. Execution projection/reachability/well-formedness require explicit formatter/panic callback execution contracts. These helpers have independent entry points and are not yet installed in handledRootInvoke, which retains its prior terminal-body parameters. Native formatter/panic behavior, stack/ABI/lifetime/compiler correspondence, physical destruction/reclamation/work and final security remain open. The prior 11101-job full check is reused because library, root tests, toolchain, dependencies and full-check scripts are unchanged.",
   "prior_wrapper_baseline": {
     "profile": "transparent-getter-after-reference-materialization-v1",
     "gate_manifest": "build/hasteboots-extraction/reservation-error-kind-x9b11738/manifest.json",
@@ -634,5 +634,18 @@
     "manifest_sha256": "b86f60ef159ff53c9a819c5b0724dc0f780be92fb6b92592eaef1a6e98c392e6",
     "dependency_audit_count": 1088,
     "negative_control_count": 212
+  },
+  "prior_terminal_helper_baseline": {
+    "profile": "revalidated-with-source-root-owned-error-composition-v1",
+    "gate_manifest": "build/hasteboots-extraction/reservation-error-kind-wgv0186a/manifest.json",
+    "gate_manifest_sha256": "5fda78033ac8538422cc52619cfdecc34da65da198a0a03ea7d5535246aab7c8",
+    "dependency_audit_count": 652,
+    "negative_control_count": 55
+  },
+  "terminal_helper_profile": {
+    "manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-hzh2iu0k/manifest.json",
+    "manifest_sha256": "fae92a2b283161aa389811cea9e545859446124f927d1528f36bb1489f2faded",
+    "dependency_audit_count": 1143,
+    "negative_control_count": 241
   }
 }
