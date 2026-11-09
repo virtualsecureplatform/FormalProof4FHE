@@ -95,7 +95,7 @@ class Reifier:
    'assignments':[{k:v for k,v in r.items() if k!='rendered'} for r in self.rows],
    'claim':'original scalar assignments, continuous layout prefix and decoded zero-capacity source call path; positive construction, unprocessed error/unwind branches, ABI and physical work remain open'}
  def render(self):
-  lines=['module','public import FormalProof4FHE.HasteBoots.NativeRecordCallValues','public import FormalProof4FHE.HasteBoots.NativeAllocatorLLBC','@[expose] public section',
+  lines=['module','public import FormalProof4FHE.HasteBoots.NativeRecordCallValues','public import FormalProof4FHE.HasteBoots.NativeAllocatorLLBC','public import FormalProof4FHE.HasteBoots.NativeReservationErrorFields','@[expose] public section',
    'namespace HasteBootsVecCapacityArithmetic','open FormalProof4FHE.HasteBoots','open NativeRecordLLBC']
   for r in self.rows:
    lines+=['-- Original assignment SHA256 '+digest(r['statement']),
@@ -813,6 +813,13 @@ class ConstructorError(LayoutPrefix):
   self.error=self.code(ss,'next')
   kind=parent.layout_prefix.types[18];require(name(kind)=='alloc::collections::TryReserveErrorKind' and [(v['id'],v['name'],[(f['name'],f['ty']) for f in v['fields']],v['discriminant']) for v in kind['kind']['Enum']]==[(0,'CapacityOverflow',[],{'Scalar':{'Signed':['Isize','0']}}),(1,'AllocError',[('layout',adt(4)),('non_exhaustive',unit)],{'Scalar':{'Signed':['Isize','1']}})],'Changed reservation error kind fields')
   require(name(parent.layout_prefix.types[9])=='alloc::collections::TryReserveError' and parent.layout_prefix.types[9]['kind']=='Opaque','Changed nominal reservation error wrapper')
+  layout=runpy.run_path(str(ROOT/'scripts/reify-hasteboots-rawvec-fields'))['layout']
+  require(parent.layout_prefix.types[9]['layout']==layout(16,8,[0]),'Changed reservation error wrapper layout')
+  expected=layout(16,8,[])
+  zero={'Unsigned':['U64','0']}
+  expected[0]['value']['discriminator']={'Branch':{'offset':0,'int_ty':{'Unsigned':'U64'},'children':[[{'start':zero,'end':zero},{'Known':0}]],'fallback':{'Known':1}}}
+  expected[0]['value']['variant_layouts']=[{'field_offsets':[],'uninhabited':False,'tagger':[[0,zero]]},{'field_offsets':[0,16],'uninhabited':False,'tagger':[]}]
+  require(kind['layout']==expected,'Changed reservation error niche layout')
  def operand(self,arg):
   unit={'Untagged':{'Adt':{'id':'Tuple','generics':{'regions':[],'types':[],'const_generics':[],'trait_refs':[]}}}}
   if arg=={'Const':{'kind':{'Adt':[None,[]]},'ty':unit}}:return '.unit'
