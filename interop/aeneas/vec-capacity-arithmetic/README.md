@@ -359,3 +359,10 @@ Twelve handler regressions cover both dispatches, the forwarded allocation size,
 untouched overflow padding, retained loans, invalid inputs and placement,
 unwind cleanup and rejected normal terminal returns. Source mutation controls
 also reject handler changes and broken links between the two extractions.
+
+Handler validation: 1,027 dependency audits and 194 rejecting controls pass,
+covering 419 constructor declarations and 54 linked getter declarations. The
+constructor profile now has 142 source examples; the 151 shared-model examples
+retain their prior scope. All four related source gates pass. The unchanged
+library, root tests, toolchain, dependencies and full-check scripts permit reuse
+of the successful 11101-job full project check.

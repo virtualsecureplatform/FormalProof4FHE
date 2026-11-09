@@ -1,14 +1,15 @@
 {
-  "profile": "nominal-getter-relabeling-v1",
+  "profile": "revalidated-with-owned-error-handler-dispatch-v1",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/reservation-error-kind-cr5o5lgl/manifest.json",
-  "gate_manifest_sha256": "e52e5de1c487e3da0db617e70170e3b13b46edaa074eceacece5a97669ad56d4",
+  "gate_manifest": "build/hasteboots-extraction/reservation-error-kind-qm0ukvit/manifest.json",
+  "gate_manifest_sha256": "5d3102b3124085224e5047613f5d3a0e71520e855f12d29fa239d2a50b0a00b4",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
     "87cfe450b6295a5837480ac1029369bd5c795750",
     "4601203f907c5bb7fb83717a1fee51e4e500ed3b",
-    "601d57a93ff1a8fa767bbb09f1c2b5ff0d303b8c"
+    "601d57a93ff1a8fa767bbb09f1c2b5ff0d303b8c",
+    "e95c395dbc254a1475e36e8d125f3b1cd2b3dda6"
   ],
   "inputs": {
     "scripts/check-hasteboots-reservation-error-kind": "eaf7c3fddc367731f76266c3125a73609882bab90934f333fdb3243cd07ed363",
@@ -34,7 +35,7 @@
     "scripts/reify-hasteboots-slice-reference-llbc": "2e75e1760356e617a1e527654e16c5a6587aa43c67d518e84343500bf780d572",
     "scripts/reify-hasteboots-slice-scope-llbc": "80e6bb59425391984d91238498f224ba4572d957e66e035f5293371153a4bad2",
     "scripts/reify-hasteboots-variant-body": "2d0326329d538bb43685617133c2ecd96da497c81295cd221315807576383825",
-    "scripts/reify-hasteboots-vec-capacity-arithmetic": "e7a33f12620337ab56baf8446967cf753d9a4a5e7c4bcdfd50479422f7f38645",
+    "scripts/reify-hasteboots-vec-capacity-arithmetic": "f7a107b95741471499461dd38068783b2cb5d0aece1cf0697d2f801619c4d933",
     "scripts/reify-hasteboots-vec-drop": "0ef983324e439064ea0969a4fc60d6a574137d5548a1feaee727f018b9b1eb8d",
     "scripts/reify-hasteboots-vec-empty": "00a7debb4c04056f86a5fe37ecead6b1f26a8a6fa45642c9b7b6fa76a3532ccd",
     "FormalProof4FHE/HasteBoots/NativeAllocatorExecution.lean": "2c3008e94760730cfbc65c7bee2707e107f23fabdb9df93f302c5848fc909a15",
@@ -496,7 +497,7 @@
     "interop/aeneas/reservation-error-kind/GenericSmoke.lean": "80ee1ce9a7d85309c9b4c229e36e40b76520aaa73f910fde061ac6d0f2ff2132",
     "interop/aeneas/reservation-error-kind/WrapperSmoke.lean": "4925117c10cfe945743d7867bfab20aeac0fcda7c9642e46eef5d0a47ac24dfb"
   },
-  "source_llbc_sha256": "48771a837c294fe89943947335c845410ae7a70a7635094031bdfcd05581439a",
+  "source_llbc_sha256": "4168791270bd471d38992866be155018e3c09ff790162a27be72d5239cef2cee",
   "checked_sha256": "8ff55dd98d66b38b0a3ec353f061b8e4b2441fdf798197b3c03991369cf9faa3",
   "dependency_audit_count": 652,
   "negative_control_count": 55,
@@ -591,7 +592,7 @@
     "test_root_sha256": "2a03a552feb0e1cd386d2a10948d97b8e6bccf2ec4ac7e875974dafad2502383"
   },
   "root_full_check_reused_without_library_or_root_test_changes": true,
-  "validation_note": "Fresh extraction, warning-as-error Lean compilation, allowed-axiom audit and mutation controls passed. The getter is now proved for explicit nominal type descriptors, with definitional specialization to the original body, snapshot composition, operational projection and heap framing. Constructor-profile tag regressions pass. Source handler call linkage/dispatch, native ABI/stack/lifetime/compiler correspondence, physical reclamation/work and final security remain open. The prior 11101-job full check is reused: shared library, root tests, toolchain, dependencies and full-check scripts are unchanged.",
+  "validation_note": "Fresh extraction gates, warning-as-error Lean checks, allowed-axiom audits and mutation controls passed. The constructor gate independently extracts the getter and checks its method/signature/type-role/layout link. It proves owned-error handler dispatch after checked local marshaling, including both constructor payloads and complete execution projection. Terminal bodies remain explicit parameters. Outer constructor error-arm composition, terminal-helper native behavior, native ABI/stack/lifetime/compiler correspondence, physical destruction/reclamation/work and final security remain open. The prior 11101-job full check is reused because shared library, root tests, toolchain, dependencies and full-check scripts are unchanged.",
   "prior_wrapper_baseline": {
     "profile": "transparent-getter-after-reference-materialization-v1",
     "gate_manifest": "build/hasteboots-extraction/reservation-error-kind-x9b11738/manifest.json",
@@ -607,5 +608,18 @@
     "negative_control_count": 55
   },
   "nominal_tag_parametric_getter_proved": true,
-  "original_getter_specialization_proved": true
+  "original_getter_specialization_proved": true,
+  "prior_owned_handler_baseline": {
+    "profile": "nominal-getter-relabeling-v1",
+    "gate_manifest": "build/hasteboots-extraction/reservation-error-kind-cr5o5lgl/manifest.json",
+    "gate_manifest_sha256": "e52e5de1c487e3da0db617e70170e3b13b46edaa074eceacece5a97669ad56d4",
+    "dependency_audit_count": 652,
+    "negative_control_count": 55
+  },
+  "owned_error_handler_profile": {
+    "manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-mwaeoy_w/manifest.json",
+    "manifest_sha256": "895709e787906f6109d2f8424412e51aed8431f24035c898729f0b7714fb7b63",
+    "dependency_audit_count": 1027,
+    "negative_control_count": 194
+  }
 }

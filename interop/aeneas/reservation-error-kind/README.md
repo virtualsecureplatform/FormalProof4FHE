@@ -41,8 +41,9 @@ reference/birth entries remain. Rejected/partial runs preserve executed prefixes
 
 Scope cleanup is explicit ghost/model composition for this non-unit return; it
 does not establish native Rust lifetime correspondence or alter generic unit
-settlement. Connecting the original constructor error handler remains open, as
-do native reference/stack/compiler/lifetime refinement, physical reclamation,
+settlement. The constructor profile separately links this getter to owned-error handler
+dispatch after checked local marshaling. Integration of the outer constructor
+error arm remains open, as do native reference/stack/compiler/lifetime refinement, physical reclamation,
 resident destruction, physical work and final security.
 
 Run:

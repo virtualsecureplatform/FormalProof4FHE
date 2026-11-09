@@ -1,8 +1,8 @@
 {
-  "profile": "revalidated-with-nominal-getter-relabeling-v1",
+  "profile": "revalidated-with-owned-error-handler-dispatch-v1",
   "status": "passed",
-  "gate_manifest": "build/hasteboots-extraction/vec-drop-170ywydz/manifest.json",
-  "gate_manifest_sha256": "db3d479bc7581934c7ec943edabeb37943828aa7c5ba66a858b3b3d97cbf0eac",
+  "gate_manifest": "build/hasteboots-extraction/vec-drop-b447sqin/manifest.json",
+  "gate_manifest_sha256": "170fc4a18be9bbaf055c2cddff9e9c53e70bf2cc9e8caef1600240df22039712",
   "build_receipt": "build/hasteboots-extraction/inline-tools-build-b6esls36/manifest.json",
   "build_receipt_sha256": "1be13eea5e508230d324102d07a26117442406ee7fa8b2537916e58795f4db6a",
   "implementation_commits": [
@@ -71,7 +71,8 @@
     "4969bd829bcdbac9678c147240fd7e31886c2f36",
     "4a9ee78a2f9c1be8878871aacc36e63234412c14",
     "68c847d7be7ccbca8150998b3471458c6086acc9",
-    "601d57a93ff1a8fa767bbb09f1c2b5ff0d303b8c"
+    "601d57a93ff1a8fa767bbb09f1c2b5ff0d303b8c",
+    "e95c395dbc254a1475e36e8d125f3b1cd2b3dda6"
   ],
   "dependency_audit_count": 1044,
   "negative_control_count": 87,
@@ -317,7 +318,7 @@
     "FormalProof4FHETest/HasteBootsRawVecDeallocationCompletenessAudit.lean": "85efbedcef271ce6dc69a0bebb5d25b0880091984899ae52e3c02bfe7bcb3a48",
     "FormalProof4FHETest/HasteBootsVecDestructionCompletenessAudit.lean": "b15ca27d45474cdbf6c85a2635a3969160d35fd7e658b00139d4ba8d394a3dbd"
   },
-  "source_llbc_sha256": "c4b9fa1de80a0276a4ec7ffa8de5e4d4a551a1fb3b3cf7eeee33257e3954db63",
+  "source_llbc_sha256": "4ac084afd0346a33be475224d743bb6fce9c1ab29db168f63854ac71295e6ac7",
   "outer_vec_drop_glue_interpreted": true,
   "outer_vec_drop_method_interpreted": true,
   "unbounded_original_byte_loop_interpreted": true,
@@ -1036,7 +1037,7 @@
     "heap_and_incoming_reference_preservation_extended": true,
     "native_alignment_transmute_abi_refinement": false
   },
-  "validation_note": "Fresh extraction, warning-as-error Lean compilation, allowed-axiom audit and mutation controls passed. The getter is now proved for explicit nominal type descriptors, with definitional specialization to the original body, snapshot composition, operational projection and heap framing. Constructor-profile tag regressions pass. Source handler call linkage/dispatch, native ABI/stack/lifetime/compiler correspondence, physical reclamation/work and final security remain open. The prior 11101-job full check is reused: shared library, root tests, toolchain, dependencies and full-check scripts are unchanged.",
+  "validation_note": "Fresh extraction gates, warning-as-error Lean checks, allowed-axiom audits and mutation controls passed. The constructor gate independently extracts the getter and checks its method/signature/type-role/layout link. It proves owned-error handler dispatch after checked local marshaling, including both constructor payloads and complete execution projection. Terminal bodies remain explicit parameters. Outer constructor error-arm composition, terminal-helper native behavior, native ABI/stack/lifetime/compiler correspondence, physical destruction/reclamation/work and final security remain open. The prior 11101-job full check is reused because shared library, root tests, toolchain, dependencies and full-check scripts are unchanged.",
   "prior_zst_local_borrow_baseline": {
     "profile": "original-resident-vec-destruction-with-checked-enum-address-v26",
     "gate_manifest": "build/hasteboots-extraction/vec-drop-u8mfb0e8/manifest.json",
@@ -1201,8 +1202,8 @@
   },
   "revalidated_with_source_getter_body": true,
   "source_getter_body_profile": {
-    "manifest": "build/hasteboots-extraction/reservation-error-kind-cr5o5lgl/manifest.json",
-    "manifest_sha256": "e52e5de1c487e3da0db617e70170e3b13b46edaa074eceacece5a97669ad56d4",
+    "manifest": "build/hasteboots-extraction/reservation-error-kind-qm0ukvit/manifest.json",
+    "manifest_sha256": "5d3102b3124085224e5047613f5d3a0e71520e855f12d29fa239d2a50b0a00b4",
     "dependency_audit_count": 652,
     "negative_control_count": 55
   },
@@ -1221,5 +1222,18 @@
     "dependency_audit_count": 1044,
     "negative_control_count": 87
   },
-  "revalidated_with_nominal_getter_relabeling": true
+  "revalidated_with_nominal_getter_relabeling": true,
+  "prior_owned_handler_baseline": {
+    "profile": "revalidated-with-nominal-getter-relabeling-v1",
+    "gate_manifest": "build/hasteboots-extraction/vec-drop-170ywydz/manifest.json",
+    "gate_manifest_sha256": "db3d479bc7581934c7ec943edabeb37943828aa7c5ba66a858b3b3d97cbf0eac",
+    "dependency_audit_count": 1044,
+    "negative_control_count": 87
+  },
+  "owned_error_handler_profile": {
+    "manifest": "build/hasteboots-extraction/vec-capacity-arithmetic-mwaeoy_w/manifest.json",
+    "manifest_sha256": "895709e787906f6109d2f8424412e51aed8431f24035c898729f0b7714fb7b63",
+    "dependency_audit_count": 1027,
+    "negative_control_count": 194
+  }
 }
