@@ -7,6 +7,33 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+## Source zero-capacity return
+
+The source `try_allocate_in` zero-size arm now executes all 41 retained
+statements, including its direct return. `zero_capacity_return` composes the
+original layout/overflow prefix, success aggregates and zero-size switch with
+this arm. Given the initialized zero-sized Global argument, it returns the exact
+nominal `Ok(RawVecInner)` with capacity zero and dangling byte pointer address 1,
+no allocation origin and no slice metadata. The incoming memory/reference world
+is unchanged, even if that world contains an allocation at address 1. Both the
+positive-size arm and the following source tail are skipped by the return.
+
+The interpreter now checks enum-to-address conversion: it reads the actual enum
+operand, requires its nominal tag and a nonzero address, and produces the nominal
+NonNull field with empty provenance. Copy/move behavior and world preservation
+are explicit. The source reifier validates the alignment-to-NonNull transmute,
+zero-capacity range, zero-sized allocator/marker, RawVecInner/Unique/NonNull field
+shapes and physical offsets, and the returned Result variants. The unchosen
+reservation-error representation remains arbitrary. The capacity gate passes 374
+dependency audits, 50 rejecting controls and 26 source regressions; eight new
+conversion regressions bring the shared arithmetic/address smoke suite to 25.
+
+This is a modeled source zero-capacity path theorem with an explicit initialized
+Global premise. Decoding the complete constructor arguments, proving its caller,
+the positive-size allocator-mode branch and allocator/error/abort execution are
+still required. Native ABI/compiler/lifetime correspondence, physical work and
+the final HasteBoots security theorem remain open.
+
 ## Source success aggregates and capacity dispatch
 
 The accepted layout branch now executes its original 16 aggregate, projection,

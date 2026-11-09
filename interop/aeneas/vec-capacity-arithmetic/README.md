@@ -63,3 +63,16 @@ source examples check zero/positive dispatch, failure propagation and storage
 lifetimes. The current gate has 361 dependency audits and 42 rejecting controls.
 Zero-size return construction and the positive allocator-mode dispatch remain
 unprocessed source continuations.
+
+
+`ZeroProof.lean` executes all 41 statements of the source zero-size arm and
+composes its direct return with the preceding prefix. With an initialized Global
+argument it returns the exact nominal success value, capacity zero and a dangling
+address-one pointer without allocation origin. The modeled world is unchanged,
+and arbitrary positive and following bodies cannot execute after the return.
+Five source regressions check that composition, pointer/capacity/allocator fields
+and rejection of an uninitialized allocator argument. The source conversion reads
+the alignment enum through the new checked enum-address operation; its eight
+model regressions cover provenance, move consumption, zero/tag/kind rejection and
+world preservation. The positive allocation path and whole Rust constructor
+refinement remain open.
