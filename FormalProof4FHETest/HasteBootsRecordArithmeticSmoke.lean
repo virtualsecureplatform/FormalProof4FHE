@@ -38,4 +38,25 @@ example (world : NativeReferenceMachine.State) :
   simp [NativeRecordLLBC.eval,NativeRecordLLBC.evalBooleanOperand,NativeRecordLLBC.evalOperand,NativeRecordLLBC.read,
     NativeRecordValues.typeAt,NativeRecordValues.get,NativeRecordValues.complete,NativeRecordValues.fits,
     NativeRecordValues.compatible,NativeRecordValues.replace]
+example (address : NativeWord64Memory.Word) (nonzero : address.val ≠ 0) :
+    NativeRecordLLBC.enumAddressValue 12 13 (.enumeration 12 address) =
+      some (.record 13 (.pair (.scalar (.raw ⟨⟨address,none⟩,none⟩)) (.scalar .unit))) :=
+  NativeRecordLLBC.enumAddressValue_exact 12 13 address nonzero
+example : NativeRecordLLBC.enumAddressValue 12 13 (.enumeration 12 0) = none :=
+  NativeRecordLLBC.enumAddressValue_zero 12 13
+example : NativeRecordLLBC.enumAddressValue 12 13 (.enumeration 11 1) = none := by decide
+example : NativeRecordLLBC.enumAddressValue 12 13 (.boolean true) = none := rfl
+example : NativeRecordLLBC.enumAddressValue 12 13 (.scalar (.usize 1)) = none := rfl
+example : NativeRecordLLBC.enumAddressValue 12 13 (.enumeration 12 ⟨9223372036854775808,by decide⟩) =
+    some (.record 13 (.pair (.scalar (.raw ⟨⟨⟨9223372036854775808,by decide⟩,none⟩,none⟩)) (.scalar .unit))) := by decide
+example (world : NativeReferenceMachine.State) :
+    NativeRecordLLBC.evalEnumAddress ⟨[.enumeration 12 [1]],[.live (some (.enumeration 12 1))],world⟩ (.move 0 []) 12 13 =
+      .value (.record 13 (.pair (.scalar (.raw ⟨⟨1,none⟩,none⟩)) (.scalar .unit)))
+        ⟨[.enumeration 12 [1]],[.live (some .uninit)],world⟩ := by
+  simp [NativeRecordLLBC.evalEnumAddress,NativeRecordLLBC.enumAddressValue,NativeRecordLLBC.evalOperand,
+    NativeRecordLLBC.read,NativeRecordValues.typeAt,NativeRecordValues.get,NativeRecordValues.complete,
+    NativeRecordValues.fits,NativeRecordValues.compatible,NativeRecordValues.replace]
+example (frame : Frame) (operand : NativeRecordLLBC.Operand) :
+    (NativeRecordLLBC.evalEnumAddress frame operand 12 13).world = frame.world :=
+  NativeRecordLLBC.evalEnumAddress_world frame operand 12 13
 end FormalProof4FHETest.HasteBootsRecordArithmeticSmoke

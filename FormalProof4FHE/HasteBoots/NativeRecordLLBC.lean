@@ -173,6 +173,7 @@ inductive Rvalue where
   | borrowRawVec (target : NativeRawVecBorrow.Target) (index : Nat) (path : Path := [])
   | recordResult (tag : Nat) (singleton : Bool) (inner : Rvalue)
   | mulUsizeUB (left right : Operand)
+  | enumAddress (value : Operand) (enumTag recordTag : Nat)
   | enumWord (value : Operand) (tag : Nat)
   | rawVecField (action : NativeRawVecReference.Action) (reference : Operand) (enabled : Bool := false)
   | aggregate (tag : Option Nat) (side : Option Bool) (fields : List Operand)
@@ -280,6 +281,22 @@ def evalEnumWord (frame : Frame) (operand : Operand) (tag : Nat) : Evaluated :=
     | none => .invalid caller.world
     | some value => .value value caller
 
+/-- Expose an enum address as a single non-null record field. An exposed
+address carries no allocation origin and no slice length. Zero is rejected. -/
+def enumAddressValue (enumTag recordTag : Nat) : Value → Option Value
+  | .enumeration actual address =>
+    if enumTag = actual ∧ address.val ≠ 0 then
+      some (.record recordTag (.pair (.scalar (.raw ⟨⟨address,none⟩,none⟩)) (.scalar .unit)))
+    else none
+  | _ => none
+
+def evalEnumAddress (frame : Frame) (operand : Operand) (enumTag recordTag : Nat) : Evaluated :=
+  match evalOperand frame operand with
+  | none => .invalid frame.world
+  | some (value,caller) => match enumAddressValue enumTag recordTag value with
+    | none => .invalid caller.world
+    | some value => .value value caller
+
 def recordResultValue (tag : Nat) (singleton : Bool) (value : Value) : Option Value :=
   if singleton then some (.record tag (.pair value (.scalar .unit))) else
     match value with | .scalar .unit => some (.record tag (.scalar .unit)) | _ => none
@@ -305,6 +322,7 @@ def evalRvalue (frame : Frame) : Rvalue → Evaluated
       | none => .invalid caller.world
       | some output => .value output caller
   | .mulUsizeUB left right => evalMultiply frame left right
+  | .enumAddress operand enumTag recordTag => evalEnumAddress frame operand enumTag recordTag
   | .enumWord operand tag => evalEnumWord frame operand tag
   | .rawVecField action operand enabled => evalRawVecField frame operand action enabled
   | .aggregate tag side fields => match evalArgs frame fields with
@@ -778,6 +796,29 @@ theorem evalEnumWord_world (frame : Frame) (operand : Operand) (tag : Nat) :
     have same := evalOperand_world frame caller operand value selected
     cases actual : enumWordValue tag value <;> simpa only [evalEnumWord, selected, actual, Evaluated.world] using same
 
+theorem enumAddressValue_exact (enumTag recordTag : Nat) (address : Word) (nonzero : address.val ≠ 0) :
+    enumAddressValue enumTag recordTag (.enumeration enumTag address) =
+      some (.record recordTag (.pair (.scalar (.raw ⟨⟨address,none⟩,none⟩)) (.scalar .unit))) := by
+  rw [enumAddressValue,ite_eq_left ⟨rfl,nonzero⟩]
+
+theorem enumAddressValue_zero (enumTag recordTag : Nat) :
+    enumAddressValue enumTag recordTag (.enumeration enumTag 0) = none := by
+  simp [enumAddressValue]
+
+theorem enumAddressValue_wrong_tag (expected actual recordTag : Nat) (address : Word) (different : expected ≠ actual) :
+    enumAddressValue expected recordTag (.enumeration actual address) = none := by
+  simp only [enumAddressValue,different,false_and,ite_false]
+
+theorem evalEnumAddress_world (frame : Frame) (operand : Operand) (enumTag recordTag : Nat) :
+    (evalEnumAddress frame operand enumTag recordTag).world = frame.world := by
+  cases selected : evalOperand frame operand with
+  | none => simp only [evalEnumAddress, selected, Evaluated.world]
+  | some result =>
+    rcases result with ⟨value,caller⟩
+    have same := evalOperand_world frame caller operand value selected
+    cases actual : enumAddressValue enumTag recordTag value <;>
+      simpa only [evalEnumAddress, selected, actual, Evaluated.world] using same
+
 theorem evalArithmetic_world (frame : Frame) (operation : NativeRecordArithmetic.Operation) (args : List Operand) :
     (evalArithmetic frame operation args).world = frame.world := by
   cases selected : evalArgs frame args with
@@ -805,6 +846,9 @@ theorem evalRvalue_projects (frame : Frame) (rvalue : Rvalue) :
   | mulUsizeUB left right =>
     change NativeReferenceMachine.Runs frame.world (evalMultiply frame left right).world
     rw [evalMultiply_world]; exact .refl _
+  | enumAddress operand enumTag recordTag =>
+    change NativeReferenceMachine.Runs frame.world (evalEnumAddress frame operand enumTag recordTag).world
+    rw [evalEnumAddress_world]; exact .refl _
   | enumWord operand tag =>
     change NativeReferenceMachine.Runs frame.world (evalEnumWord frame operand tag).world
     rw [evalEnumWord_world]; exact .refl _

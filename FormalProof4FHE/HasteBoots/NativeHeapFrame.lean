@@ -553,6 +553,9 @@ theorem evalRvalue_heap_projects (frame : Frame) (rvalue : Rvalue) :
   | mulUsizeUB left right =>
     change NativeHeapFrame.Runs frame.world (evalMultiply frame left right).world
     rw [evalMultiply_world]; exact .refl _
+  | enumAddress operand enumTag recordTag =>
+    change NativeHeapFrame.Runs frame.world (evalEnumAddress frame operand enumTag recordTag).world
+    rw [evalEnumAddress_world]; exact .refl _
   | enumWord operand tag =>
     change NativeHeapFrame.Runs frame.world (evalEnumWord frame operand tag).world
     rw [evalEnumWord_world]; exact .refl _
