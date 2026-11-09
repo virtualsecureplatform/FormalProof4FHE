@@ -244,12 +244,12 @@ theorem Header.pointer_eval {world reference capacity length buffer}
     (header : Header world reference capacity length buffer) :
     ∃ next, NativeRawVecReference.eval world (.reference false reference 2) .pointer =
       .value (.raw ⟨buffer,none⟩) next ∧
-      Nonempty (Header next reference capacity length buffer) ∧ next.leases = world.leases ∧ next.pointers.heap = world.pointers.heap := by
+      Nonempty (Header next reference capacity length buffer) ∧ next.leases = world.leases ∧ next.pointers.heap = world.pointers.heap ∧ buffer ∈ next.pointers.registers := by
   have stored := header.fields.pointerStored
   cases shifted : NativeByteRange.pointerAt header.lease.pointer 8 with
   | none => simp only [shifted,Option.bind_none] at stored; cases stored
   | some slot =>
-    refine ⟨pointerWorld world slot buffer,?_,⟨header.after_pointer slot⟩,rfl,rfl⟩
+    refine ⟨pointerWorld world slot buffer,?_,⟨header.after_pointer slot⟩,rfl,rfl,List.mem_cons_self⟩
     simp only [NativeRawVecReference.eval,NativeRawVecReference.objectOfCount,ite_true,header.resolve,
       NativeRawVecFields.pointerAccess,header.pointer_execute slot shifted,pointerWorld,NativePointerMachine.push,
       List.getElem?_cons_zero]
