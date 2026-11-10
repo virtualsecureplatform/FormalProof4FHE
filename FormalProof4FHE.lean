@@ -778,3 +778,8 @@ import FormalProof4FHE.HasteBoots.OwnedPrivateLookupSoundness
 import FormalProof4FHE.HasteBoots.SharedBatchSumcheckOracle
 import FormalProof4FHE.HasteBoots.SharedBatchSumcheckSoundness
 import FormalProof4FHE.HasteBoots.SharedScalarBatchQuery
+
+import FormalProof4FHE.HasteBoots.SharedLookupOpeningFamily
+import FormalProof4FHE.HasteBoots.RadixSharedSourceSlots
+import FormalProof4FHE.HasteBoots.StagedHeterogeneousBatchException
+import FormalProof4FHE.HasteBoots.SharedLookupGroupedOpening
