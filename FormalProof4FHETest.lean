@@ -396,3 +396,6 @@ import FormalProof4FHETest.HasteBootsSharedLookupTerminalAudit
 
 import FormalProof4FHETest.HasteBootsSharedLookupPCSSmoke
 import FormalProof4FHETest.HasteBootsSharedLookupPCSAudit
+
+import FormalProof4FHETest.HasteBootsPrivateSharedLookupSmoke
+import FormalProof4FHETest.HasteBootsPrivateSharedLookupAudit

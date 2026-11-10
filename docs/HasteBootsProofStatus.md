@@ -20745,3 +20745,89 @@ linter suppressions were introduced.
 
 Full-check log: `/tmp/staged-shared-pcs-full-check.log`; SHA-256
 `dae7116b0da1981f9d281927c496bd4d0f560fa1032cfb7916665cf573abe699`.
+
+### Request-specific private sampling and shared lookup acceptance (2026-11-10)
+
+`RequestLookupPairs` samples requests in request-major order and each request's
+pairs in repetition-minor order. Literal tables, tuple widths, table sizes and
+configured repetition counts may differ between requests. It proves a fixed
+selected request's event is bounded by that request's original vector law, then
+retains `TupleLookupPair.error(card K,width,active,size)^repetitions` with BOTH
+hash and reciprocal-domain terms. Repetition independence follows from the
+actual sampling program; no joint-law certificate is supplied.
+
+Dependent request vectors flatten to the shared job list without resampling.
+The job index is the sum of all preceding request repetition counts plus the
+local repetition index. For uniform repetitions it equals the native radix
+index `request * repetitions + repetition`. Width/packing and total job count
+never replace a request's own repetition count.
+
+`RequestLookupPairMiddle` embeds that sampler in the shared oracle execution,
+then performs arbitrary adaptive helper construction. Its trusted wrapper
+stores the exact sampled vectors alongside the returned roots and opaque memory;
+the helper builder cannot replace them. Selection of a false request uses only
+the original source prefix, before all pair draws. All later helper/query/PCS
+work is retained. Request-specific repeated errors are combined by their finite
+maximum, not a union over requests or a request-count multiplier.
+
+`RequestSharedLookup` compiles public request data to the shared job parameters.
+Tables, source slots, active lengths, source-prefix multiplicities and stored
+sampled pairs are fixed by the compiler. Positive request/repetition counts
+supply the real job count and preserve coverage of all original source slots.
+The tuple interpretation takes only the original source emission and its saved
+pre-pair log. Its `allPass_iff` proves that the compiled shared all-jobs predicate
+is exactly each request vector's pass predicate on that original tuple family.
+No helper-time decoding or post-query source replacement enters this step.
+
+`StagedPrivateSharedLookup.false_acceptance_or_bad_bound` composes the actual
+private request sampler with adaptive helper commitments, ordered EQ, the common
+scalar batch, computed terminal guard and original grouped PCS. Its event is
+`(an original request tuple outside its literal table AND final PCS acceptance)
+ OR terminal common history failure`. Its bound is
+`maximum request-specific repeatedPairError +
+ ((scalarError + originalRootPCSerrorSum) + ONE wholeRunHashCharge)`.
+Lookup field K and PCS analysis field L remain distinct. Each table and its
+multiplicities retain their original request indexing. No all-pairs-pass,
+source-stability, accepted-wrong-opening or supplied randomness law remains as
+a security premise. This theorem uses the ideal accepted-domain private sampler;
+native rejection-loop/transcript/physical-work refinement is still open.
+
+Regressions use two requests with different widths/table sizes and repetition
+counts one/three. The selected false request retains exponent three although
+there are four jobs total. Prefix-sum job indexing and the fixed-repetition radix
+formula are checked. A concrete false tuple passes on an ACTUALLY ALLOWED hash
+collision, retaining the need for the hash term. The combined request budget is
+proved to be the maximum of the two repeated errors. Twelve exact axiom guards
+generated from actual Lean output cover all new production theorems and the
+proof-bearing parameter compiler; dependencies are only `propext`,
+`Classical.choice`, and `Quot.sound`.
+
+Native geometry inspection identifies a further concrete refinement gap.
+`packed_extension_lookup/canonical.rs::bind` requires power-of-two source width
+k but permits helper width either k OR the bare extension degree EF::D. The
+current grouped-opening framework has a single global packed width b; these
+shared/private theorems currently instantiate the common-width branch. They do
+NOT establish the unequal helper/source packing required by the Goldilocks 3/4
+or BabyBear 6/8 target. Earlier references to "native grouped PCS" denote the
+checked typed operational kernel, not a completed refinement of that compact
+helper branch. Padding a new helper commitment would change the root and is not
+a valid substitute for authenticating the original width-three/six helper.
+
+The next priority is per-root PCS widths and per-root analysis fields/bases,
+then a mixed-width common-point opening family using the original helper roots.
+The request sampler and repetition proofs are independent of that packing and
+can be reused. Original-owner reuse, native source-alias deduplication and actual
+byte/field/layout/job-index association remain to compose. Full PBS lifetime,
+production Fiat--Shamir, native BabyBear, actor-cost separation and physical
+work/compiler/cache/RNG refinement remain open. The final 128-bit
+actual-attacker-work theorem remains unproved.
+
+Validation: targeted smoke/audit build passed (3,816 jobs). Full
+`scripts/check` exited zero, including the 11,309-job build and all subsequent
+standalone checks. All five retained-source gate input, manifest, and receipt
+hashes remain unchanged (552, 484, 142, 42, 478 inputs). No proof placeholders,
+additional logical axioms, native decision proofs, proof-limit increases, or
+linter suppressions were introduced.
+
+Full-check log: `/tmp/private-request-shared-full-check.log`; SHA-256
+`9e7b91988be5b89793dd26b55371187c380a86bd78978b32a75e0fa69f7225bc`.
