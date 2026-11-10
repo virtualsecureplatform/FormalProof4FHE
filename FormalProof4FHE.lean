@@ -726,3 +726,5 @@ import FormalProof4FHE.HasteBoots.NativeReservationErrorRead
 import FormalProof4FHE.HasteBoots.PackedAccumulatorTrace
 
 import FormalProof4FHE.HasteBoots.PackedBlindRotationTrace
+
+import FormalProof4FHE.HasteBoots.DecompositionBlindRotation
