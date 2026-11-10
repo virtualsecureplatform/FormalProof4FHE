@@ -384,3 +384,6 @@ import FormalProof4FHETest.HasteBootsOwnedLookupAudit
 
 import FormalProof4FHETest.HasteBootsSharedBatchSmoke
 import FormalProof4FHETest.HasteBootsSharedBatchAudit
+
+import FormalProof4FHETest.HasteBootsSharedLookupFamilySmoke
+import FormalProof4FHETest.HasteBootsSharedLookupFamilyAudit

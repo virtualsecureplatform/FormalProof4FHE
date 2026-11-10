@@ -20452,3 +20452,78 @@ linter suppressions were introduced.
 
 Full-check log: `/tmp/shared-batch-final-check.log`; SHA-256
 `92a3466eecab00e757f5f8b8bcf55f3d7405ec1967fe9e86bbedf19ba8801e83`.
+
+### Common-point shared lookup openings and original radix slots (2026-11-10)
+
+`SharedLookupOpeningFamily` supplies the common-point family required by the
+native shared backend. Its packet contains one scalar point, one global family
+of received original source vectors, and each job's sum/identity expectations,
+helper value and equality point. There is exactly ONE claim per original
+source root and TWO ordered claims [sum, identity] per helper root. Both helper
+queries use the common point; source values remain the raw packed vectors,
+including the zero-row source bridge with a separate finish map. Behavior
+factories cannot replace the constructed query or value family.
+
+Jobs have their own column counts and ordered source-slot maps into the global
+registry. Aliases and repetitions are retained. The job-local union of original
+wrong openings is proved exactly equivalent to the global PCS wrong-value event
+when the schedule uses every global source. This is a structural coverage
+condition, not an authentication assumption. `ofBatch` deterministically extracts
+a packet from the returned batch claims; `pairPacket_ofBatch` proves each job
+contains the actual sum/identity subclaims using the common-query invariant
+already derived from supported batch execution. It does not reconstruct or
+resample an independent point.
+
+`RadixSharedSourceSlots` fixes request-major/repetition-minor indexing and the
+literal slots `[i,d+i,d+i+1]` in the comparison registry that omits only the
+original input. Every digit and all d+1 borrows, including the final borrow,
+are used when limb/repetition counts are positive. For d limbs and R configured
+repetitions, the helper/job count in the generic opening family is d*R. Repeated
+jobs reuse the same source roots. Generic checked finite gathering preserves
+both order and aliases. A typed constructor fixes the native guard request and
+source fields from the original registry. `guard_values` derives the exact
+three original vectors for an entry directly from a successful native guard
+run, its returned trace membership, and the entry's request index. No supplied
+tuple or guard-evidence certificate is required by that theorem.
+
+`StagedHeterogeneousBatchException` strengthens staged heterogeneous grouped
+PCS to bound accepted original wrong values OR the terminal common history
+exception. Original source words use their actual pre-helper prefix logs;
+helper words use their actual later helper prefix logs. `SharedLookupGroupedOpening`
+instantiates the bound with the new trusted one-source/two-helper family and
+identifies its accepted wrong-value event with the ordered job-local opening
+failures. The bound is the explicit PCS arithmetic-error sum over the
+helper/source root lists plus ONE whole-run hash charge. With the native
+`finRange` lists, each original root occurs once, independently of how many jobs
+reuse a source.
+Arbitrary query-selection work, enabling/rejection, and native grouped opening
+callbacks remain in the actual staged execution. Lookup arithmetic field K and
+PCS analysis field L remain distinct and explicitly parameterized.
+
+Regressions use three radix limbs and two repetitions, check request/repetition
+order, final-borrow coverage, an aliased gather, retained raw packed source
+lanes, helper [sum, received-value] order, exact claim counts, and actual batch
+subclaim preservation. Fourteen exact axiom guards generated from current Lean
+output cover all new production theorems; dependencies are only `propext`,
+`Classical.choice`, and `Quot.sound` (two gather lemmas need no choice).
+
+This closes the common-point opening-family/grouped-PCS step, not full lookup
+soundness. Remaining work includes composing the common-challenge arithmetic
+and private pair sampler with per-request literal public tables and this
+opening execution, associating actual produced job indices and native
+byte/owner/field/layout parameters with these constructors, and transferring
+the resulting event to arbitrary recorded original owner families. The earlier
+separate-point lookup theorem is still not a native shared-batch refinement.
+Full PBS lifetime composition, production Fiat--Shamir, native BabyBear,
+actor-cost separation, and physical work/compiler/cache/RNG refinement remain
+open. The final 128-bit actual-attacker-work theorem remains unproved.
+
+Validation: targeted smoke/audit build passed (4,286 jobs). Full
+`scripts/check` completed with exit status zero, including 11,287 build jobs
+and all subsequent standalone audit/smoke commands. All five retained-source
+gate input, manifest, and receipt hashes remain unchanged (552, 484, 142, 42,
+478 inputs). No proof placeholders, additional logical axioms, native decision
+proofs, proof-limit increases, or linter suppressions were introduced.
+
+Full-check log: `/tmp/shared-opening-full-check.log`; SHA-256
+`21734068315d2f8ca14634c6210e04a8d5072287818eac53a836ea6b3c7c13cb`.
