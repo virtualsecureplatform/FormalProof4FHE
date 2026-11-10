@@ -801,3 +801,5 @@ import FormalProof4FHE.HasteBoots.RequestLookupPairs
 import FormalProof4FHE.HasteBoots.RequestLookupPairMiddle
 import FormalProof4FHE.HasteBoots.RequestSharedLookup
 import FormalProof4FHE.HasteBoots.StagedPrivateSharedLookup
+
+import FormalProof4FHE.HasteBoots.VariableWidthBatchOpening

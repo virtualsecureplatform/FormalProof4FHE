@@ -20831,3 +20831,34 @@ linter suppressions were introduced.
 
 Full-check log: `/tmp/private-request-shared-full-check.log`; SHA-256
 `9e7b91988be5b89793dd26b55371187c380a86bd78978b32a75e0fa69f7225bc`.
+
+
+### Per-root packing widths and analysis fields (2026-11-10)
+
+`VariableWidthBatchOpening` generalizes the original-root grouped PCS execution
+to a dependent packing width and analysis field for every factor. Protocols,
+received opening data, test matrices, extraction capacity, basis, code distance,
+and arithmetic error use that factor's own width. The operational field and
+shared hash state remain common. The theorem authenticates the original root
+and checkpoint context; it introduces no padded commitment or replacement root.
+
+`soundness_from_empty` derives accepted wrong-value probability bounded by the
+sum of the actual per-factor arithmetic errors plus one whole-execution expected
+availability charge. It retains disabled and rejected branches and short-circuit
+execution. `project_witness` proves exact erasure to that real execution, and
+`snapshots_recorded` proves membership of each original root checkpoint. Three
+exact axiom guards generated from Lean output cover these proofs.
+
+This removes the global-width restriction in the foundational PCS theorem. It
+does not yet compose mixed-width source/helper lookup terminals, staged source
+and helper checkpoints, or the private request bound. The required Goldilocks
+3/4 and BabyBear 6/8 compact-helper branch remains an open composition task;
+the earlier common-width shared theorems retain their stated scope. The final
+128-bit actual-attacker-work theorem remains unproved.
+
+Validation: `scripts/check` exited zero, including the 11,311-job build and
+all standalone checks. All five frozen gate input, manifest, and receipt hashes
+are unchanged (552, 484, 142, 42, 478 inputs). No proof placeholders, additional
+axioms, native decision proofs, proof-limit increases, or linter suppressions
+were introduced. Full-check log: `/tmp/variable-width-full-check.log`; SHA-256
+`1c6cb4dc856666ed495896f3bfce6b26773093792136323350c773d0f97718ee`.
