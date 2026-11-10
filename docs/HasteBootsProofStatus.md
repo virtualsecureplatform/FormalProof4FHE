@@ -21040,3 +21040,58 @@ additional logical axioms, native decision proofs, proof-limit increases or
 linter suppressions were introduced. Full-check log:
 `/tmp/mixed-width-private-full-check.log`; SHA-256
 `b55ca9171c15d148c8a385aef5d96ab0760e3f7799782130cf396280972909a5`.
+
+
+### Original owner reuse for mixed-width private shared requests (2026-11-10)
+
+`MixedWidthOwnedLookupSources` derives membership of the actual fresh source
+and helper checkpoints in the final history, through arbitrary adaptive helper
+and continuation work. It proves that complete decoded source columns from any
+matching recorded owner family equal the fresh pre-pair columns OR the existing
+terminal history Bad event occurs. Owner families may be selected after the run.
+The source context, root, tree height and per-source interpretation parameters
+are fixed on both sides; digest equality alone does not identify parameters.
+Source and helper physical packing widths remain independent.
+
+`MixedWidthOwnedRequestSources` gathers request tuples from those complete
+original columns using each request's actual ordered source slots, active length
+and literal table. Its `OriginalFalse` event existentially quantifies matching
+recorded owner families and a false request tuple. The owner checkpoints need
+not have the fresh recording time. `original_false_reduction` transports that
+event to a false actual pre-pair request tuple or the same terminal history Bad.
+There is no probability union over owners or selected requests. The converse
+`fresh_false_implies_original` constructs fresh owner checkpoints and derives
+membership from actual execution, proving that fresh false requests remain
+included. Helper construction's retained memory is independent of the request
+configuration's behavior-memory type.
+
+`MixedWidthOwnedPrivateSharedLookup.false_acceptance_or_bad_bound` composes
+this reduction with the actual private shared request execution and original
+mixed-width PCS. Acceptance of a false tuple from any such original owner OR
+terminal Bad has the existing maximum request-specific repeated-pair error,
+shared scalar error and per-root PCS errors, plus ONE complete-run expected
+hash charge. Source reuse introduces neither a second hash charge nor an
+owner-count union. Root membership and matching are part of the measured owner
+event; no source-truth, replay, hash-safety or PCS soundness premise is supplied.
+
+Five exact axiom guards generated from Lean output cover all new production
+theorems. Dependencies are only `propext`, `Classical.choice` and `Quot.sound`.
+The retained heterogeneous/recorded source-coherence regressions and mixed-width
+private theorem audit are included in targeted validation.
+
+This establishes owner reuse in the typed fixed-parameter model. It still
+requires association of those parameters and owner identities to the native
+objects and original PBS constraint families. Native source context/root alias
+deduplication and request/registry/job association remain open. Concrete native
+Goldilocks/BabyBear fields and bytes, complete PBS lifetime, production
+Fiat--Shamir, actor costs and physical work/compiler/cache/RNG refinement also
+remain open. The final 128-bit actual-attacker-work theorem remains unproved.
+
+Validation: targeted owner/coherence smoke and audit build passed (3,856 jobs).
+Full `scripts/check` exited zero, including the 11,336-job build and all
+standalone checks. All five frozen gate input, manifest and receipt hashes
+remain unchanged (552, 484, 142, 42, 478 inputs). No proof placeholders,
+additional logical axioms, native decision proofs, proof-limit increases or
+linter suppressions were introduced. Full-check log:
+`/tmp/mixed-width-owned-full-check.log`; SHA-256
+`ca57e97166dfdb53f2c3dff6453bffceec38e65ef0148a4b4be2f860d82012b5`.

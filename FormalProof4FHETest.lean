@@ -409,3 +409,5 @@ import FormalProof4FHETest.HasteBootsMixedWidthTerminalSmoke
 import FormalProof4FHETest.HasteBootsMixedWidthTerminalAudit
 
 import FormalProof4FHETest.HasteBootsMixedWidthPrivateAudit
+
+import FormalProof4FHETest.HasteBootsMixedWidthOwnedAudit
