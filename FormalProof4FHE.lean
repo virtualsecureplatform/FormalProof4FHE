@@ -796,3 +796,8 @@ import FormalProof4FHE.HasteBoots.SharedLookupPCS
 import FormalProof4FHE.HasteBoots.SharedLookupPCSAlgebra
 import FormalProof4FHE.HasteBoots.StagedSharedLookup
 import FormalProof4FHE.HasteBoots.StagedSharedLookupSoundness
+
+import FormalProof4FHE.HasteBoots.RequestLookupPairs
+import FormalProof4FHE.HasteBoots.RequestLookupPairMiddle
+import FormalProof4FHE.HasteBoots.RequestSharedLookup
+import FormalProof4FHE.HasteBoots.StagedPrivateSharedLookup
