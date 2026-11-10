@@ -20917,3 +20917,61 @@ frozen gate input, manifest, and receipt hashes are unchanged (552, 484, 142,
 proofs, proof-limit increases, or linter suppressions were introduced.
 Full-check log: `/tmp/staged-mixed-width-full-check.log`; SHA-256
 `4c5fb5f8af4a8121b67bc98c758b0464cdc16dfcc6a6978b4a051766f902277e`.
+
+
+### Mixed-width local and operational shared lookup arithmetic (2026-11-10)
+
+`MixedWidthExtensionLookupTerminal` derives the truthful terminal alternative
+or an incorrect original base opening from the computed source/helper decoding
+and literal terminal equality. Original source vectors have width `d + padding`;
+original helper vectors have the independent width `d + helperPadding`. The
+source point order and original scalar query are reused unchanged. The helper
+decoder uses its own original physical width.
+
+`MixedWidthLookupScalarSubclaim` identifies the partial/full terminal formulas
+with the existing scalar MLE truth predicates over the original flattened
+sources and decoded original helpers. `MixedWidthLookupPairTerminal` reuses the
+existing computed local checker and derives joint sum/identity truth or exactly
+the mixed-width source/sum-helper/identity-helper opening alternatives. This
+retains the degree-four partial and degree-three full identity grammars.
+
+The mixed-width opening family's packet is now an abbreviation of the existing
+shared execution packet. It has exactly the same source vectors, received helper
+values, claims and equality points; no new operational verifier is substituted.
+`MixedWidthSharedLookupTerminalReduction` derives packet provenance and common
+query validity from the supported execution of the existing shared batch and
+receipt/binding program. Its accepted partial/full reductions expose the actual
+earlier shared arithmetic event or a wrong mixed-width original opening. Its
+wrong-opening equivalence connects these same packets to the mixed-width PCS
+family on decoded original checkpoint words, with structural slot coverage.
+
+`MixedWidthSharedLookupTerminalSoundness` bounds computed terminal acceptance
+without a wrong original opening for a fixed nonpassing job by `n/Q + n*4/Q`
+(partial) or `n/Q + n*3/Q` (full). Actual ordered equality-point draws, the one
+common sumcheck, receipt work and memory binding remain in the same execution.
+This is an event restriction subsequently controlled by original-root PCS,
+not an authentication or soundness premise supplied by the caller.
+
+The checked F17 regression decodes two-lane original source vectors at zero row
+variables (including the optional scalar post-map), proves the actual checker
+accepts helper one and rejects helper two under the full two-cell mask, and
+works for arbitrary source-column counts. Seventeen exact axiom guards cover
+all new production theorems. Dependencies remain only `propext`,
+`Classical.choice` and `Quot.sound`. Earlier mixed-width opening smoke/audit
+checks are retained after sharing the execution packet type.
+
+Next: compose these actual mixed-width terminal reductions with the per-root
+PCS continuation, staged original source/helper checkpoints and independently
+sampled per-request repeated pairs. Native Goldilocks/BabyBear instantiations,
+source-owner reuse, context/root alias deduplication, bytes/parameters/job order,
+full PBS lifetime, production Fiat--Shamir and physical attacker work remain
+open. The final 128-bit actual-attacker-work theorem remains unproved.
+
+Validation: targeted new and retained smoke/audit checks passed (3,805 jobs).
+Full `scripts/check` exited zero, including the 11,325-job build and all
+standalone checks. All five frozen gate input, manifest and receipt hashes
+remain unchanged (552, 484, 142, 42, 478 inputs). No proof placeholders,
+additional logical axioms, native decision proofs, proof-limit increases or
+linter suppressions were introduced. Full-check log:
+`/tmp/mixed-width-terminal-full-check.log`; SHA-256
+`79068ebe6399cc316cb3ebb836da6239c3de73102dcf1de203d9d9ad0e54c07e`.

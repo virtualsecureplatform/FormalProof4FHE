@@ -404,3 +404,6 @@ import FormalProof4FHETest.HasteBootsVariableWidthBatchAudit
 
 import FormalProof4FHETest.HasteBootsMixedWidthLookupSmoke
 import FormalProof4FHETest.HasteBootsMixedWidthLookupAudit
+
+import FormalProof4FHETest.HasteBootsMixedWidthTerminalSmoke
+import FormalProof4FHETest.HasteBootsMixedWidthTerminalAudit
