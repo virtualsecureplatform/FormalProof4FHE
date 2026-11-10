@@ -18659,3 +18659,69 @@ descriptor-projection and setup-composition extension.
 
 Full-check log: `/tmp/gold-descriptor-full-check.log`; SHA-256
 `af0c71b318c28082d906fa7a3bf7b5e8dca935391f62ca6ab93d8dbfb6d02660`.
+
+## Allocated role identity and logical stage-source registration (2026-11-10)
+
+`ConstructedGoldAllocationOrder` proves successful sequential allocation retains
+the complete job sequence after the original prefix, in order. Each retained
+job includes its request, header and constructor state. The initial-allocation
+lookup theorem consequently identifies the actual object at every role index;
+there is no independent object-to-role association premise.
+
+`ClassicalGoldRoleBundle` combines one checked descriptor with its successful
+four-role allocation. The proof derives an arena length of four and reads each
+entry directly from its bounded index. Retained entry fields, constructor
+validity, descriptor variable/width/quota equality and calibrated target facts
+all follow from those execution receipts. The bundle does not substitute an
+independently certified parameter object for an allocated entry.
+
+The `Stage` projection follows `canonical/classical.rs::parameters`: main
+coefficients/evaluations/key/inputs/borrows, four accumulator borrows and
+monomial use object zero; the main helper uses object one; final coefficients,
+evaluations/key/input/borrows use object two; the final helper uses object three.
+The resulting stage geometry and quota are proved for the retained object at
+that index. This is a logical model of the literal read-only source mapping,
+not a Rust AST/heap/ABI or complete dispatcher refinement theorem.
+
+`ClassicalGoldStageRegistry` accepts a complete vector of stage/root pairs.
+It constructs every original handle from that stage projection and proves
+collection succeeds using the actual allocated entries. The source vector's
+count, order and roots are preserved, including repeated handles, aliases and
+unused positions. No separate collection-success, registry-admission,
+stage-parameter association or target certificate is supplied to the work
+interface. Empty vectors and arbitrary native-size source vectors are allowed;
+there is no additional source-count bound. The same all-profile registered
+executable-source event and unconditional interpreter-work expectation are used.
+
+Three kernel-checked regressions cover the stage's exact descriptor quota,
+measurability and the source-registry work interface. Two guarded Lean execution
+fixtures exercise all 17 native parameter uses with distinct role quotas
+544/600/700/800, verifying the expected actual retained quotas and variable
+counts. They preserve every root in the original order, including empty and
+1,024-position registry cases. The fixtures execute logical constructors and
+collection, not a native Rust or complete PBS verifier.
+
+Twenty-four guards audit all twenty-two new production theorems and both target
+and registry construction definitions. Dependencies are subsets of `propext`,
+`Classical.choice` and `Quot.sound`. Both root libraries import the extension.
+
+This derives the logical stage-source parameter identity and collection receipt
+from descriptor/constructor/allocation evidence. The application still must
+relate every actual native source occurrence and stage invocation to this model
+and prove accepted-false-PBS coverage. Native field/profile validation and
+identifier construction/serialization, Rust AST/heap/ABI/dispatcher refinement,
+full public PBS semantics and efficient extraction, native BabyBear, actor-cost
+separation and physical attacker-work/compiler/lifetime/cache/RNG refinement
+remain open. The final physical-work security goal is not established.
+
+Validation: targeted smoke/audit build passed with 4,738 jobs. Full
+`scripts/check` completed with exit status zero, including 11,179 build jobs
+and all subsequent audit/smoke commands. No proof placeholders, additional
+logical axioms, native decision proofs, proof-limit increases or linter
+suppression were introduced. All recorded input, manifest and build-receipt
+hashes of the five retained-source gates were verified unchanged (552, 484,
+142, 42 and 478 inputs); those extraction gates were not rerun for this
+allocation-order and logical stage-registration extension.
+
+Full-check log: `/tmp/gold-stage-full-check.log`; SHA-256
+`5d48f6b04a901630a451046e87b809eca948e3a45aa61a5bd2c5a3e8364670cf`.
