@@ -1,3 +1,4 @@
+import FormalProof4FHE.HasteBoots.ConstructedGoldAnyProfileSecurity
 import FormalProof4FHE.HasteBoots.ConstructedGoldRegisteredSecurity
 import FormalProof4FHE.HasteBoots.ConstructedGoldRegistrySoundness
 import FormalProof4FHE.HasteBoots.PrivateCoinByteConfigurationUnion

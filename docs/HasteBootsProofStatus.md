@@ -18381,3 +18381,74 @@ registered-event probability extension.
 
 Full-check log: `/tmp/registered-security-full-check.log`; SHA-256
 `0458e220252979c148a5900d9aa0f453617dc4c29d32b639219897f1b50bb6cf`.
+
+## Oracle-dependent profiles without an identifier union loss (2026-11-10)
+
+The sampling analysis supplies a `profile` argument when reconstructing an
+auxiliary transcript from parsed input frames. This argument is metadata;
+the actual absorbed profile identifier is already present in those frames.
+It must not be confused with changing the input bytes or treating different
+profile domains as the same oracle key.
+
+`ProfileMetadataErasure` proves exact rejection-sampler and coefficient-collector
+simulation when only that metadata field is replaced. All consumed bytes,
+candidate decisions, accepted values, remaining counts and observation logs
+are preserved through arbitrary fuel, rejection, suspension and resumption.
+The atomic index value projection is also unchanged, including invalid request
+dimensions. The derived field-proximity, early-receipt and concrete/profiled
+column hazard events are invariant under this metadata replacement. Their
+actual parsed frame bytes, source snapshots and native quotas are untouched.
+
+`PrivateCoinByteAnyProfile` uses these invariances to cover executable-source
+failures for every profile identifier by one fixed-profile hazard event on
+the same execution. It does not sum the probability bounds over identifiers.
+The resulting per-target scaled lifetime bound is still `9/4096` times
+unconditional expected specified interpreter work. Joint measurability of the
+all-profile failure event follows separately from the finite digest type and
+the previously proved per-profile measurability. The finite union is used for
+measurability only, not for the numerical loss.
+
+`ConstructedGoldAnyProfileSecurity` connects that bound to the original checked
+registered slots and to all candidate contexts. The roles are still derived
+from those same original constructor entries. At most 256 original slots give
+`2^128 * P[registered executable-source failure for any profile at any prefix]`
+at most unconditional expected specified interpreter work. Duplicate and unused
+slots remain counted. All targets, profiles and attempts share one program,
+one runtime private tape, one oracle world and one work expectation.
+
+A profile selected from the execution itself is covered by the same bound;
+no independence from the oracle or private tape is required. A measurable
+selector also gives a measurable selected failure event. A regression
+instantiates both statements with the SHA-512 output on descriptor bytes in
+that same oracle world. This is not a proof that those bytes implement the
+native descriptor serializer or that the complete native verifier performs
+its setup/proof identifier checks.
+
+Three kernel-checked regression examples cover all-profile measurability,
+same-world hash-selected measurability and its work bound. Two guarded runtime
+evaluations cover actual rejection, paused/resumed collection, identical
+consumed bytes and logs, zero fuel and completed-state stuttering. Twenty-six
+axiom guards cover all twenty-five new production theorems and the target
+metadata-update construction. Dependencies are subsets of `propext`,
+`Classical.choice` and `Quot.sound`. Runtime evaluations remain fixtures, not
+native PBS execution proofs.
+
+This removes the fixed/independent-profile restriction from the registered
+executable-source probability interface. Trusted parameter admission and
+native application-family coverage remain necessary. Actual protocol-12
+setup/proof profile validation, schedule-5 descriptor serialization and dispatch,
+full public PBS semantics and efficient extraction, native BabyBear, and
+physical attacker-work/compiler/ABI/lifetime/cache/RNG refinement remain open.
+The final physical-work security goal is not established.
+
+Validation: targeted smoke/audit build passed with 4,723 jobs. Full
+`scripts/check` completed with exit status zero, including 11,162 build jobs
+and all subsequent audit/smoke commands. No proof placeholders, additional
+logical axioms, native decision proofs, proof-limit increases or linter
+suppression were introduced. All recorded input, manifest and build-receipt
+hashes of the five retained-source gates were verified unchanged (552, 484,
+142, 42 and 478 inputs); those extraction gates were not rerun for this
+profile-metadata invariance and probability extension.
+
+Full-check log: `/tmp/any-profile-full-check.log`; SHA-256
+`5197b04e4dbdd6c8b9cceba3dc82533bb9d1be62027372a22de4a2594e9d1e69`.

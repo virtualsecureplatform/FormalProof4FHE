@@ -1,3 +1,5 @@
+import FormalProof4FHETest.HasteBootsAnyProfileSmoke
+import FormalProof4FHETest.HasteBootsAnyProfileAudit
 import FormalProof4FHETest.HasteBootsRegisteredSecuritySmoke
 import FormalProof4FHETest.HasteBootsRegisteredSecurityAudit
 import FormalProof4FHETest.HasteBootsConstructedTargetsSmoke
