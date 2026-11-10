@@ -360,3 +360,6 @@ import FormalProof4FHETest.HasteBootsAuthenticatedExtractionAudit
 
 import FormalProof4FHETest.HasteBootsRecordedSourceCoherenceSmoke
 import FormalProof4FHETest.HasteBootsRecordedSourceCoherenceAudit
+
+import FormalProof4FHETest.HasteBootsExceptionUnionSmoke
+import FormalProof4FHETest.HasteBootsExceptionUnionAudit

@@ -19949,3 +19949,87 @@ recorded-source coherence extension.
 
 Full-check log: `/tmp/recorded-source-coherence-full-check.log`; SHA-256
 `8448f9f3927f3d28b4616d8fd1c29f9a784821572ea32b2e5c6f448625a6d0a0`.
+
+## Original-source extraction with one shared exception charge (2026-11-10)
+
+`CommitmentExceptionUnion.event_bound_or_bad` strengthens the commitment-prefix
+bound to include the terminal common `CheckpointCollision.Bad` event itself.
+The probability is bounded by the arithmetic term plus ONE whole-program hash
+charge. A supported witness's audit invariant is derived through the exact
+projection to its actual shared program. Accepted arithmetic failures and
+source/collision exceptions are unioned before charging; an existing exception
+is not paid again merely because a later source-reuse argument needs it.
+
+`CommittedOpeningException` lifts the stopped joint opening bound to include
+that same terminal bad event. `OpeningExceptionBound` then supplies the
+concrete native-worker version for accepted wrong claimed values OR the common
+exception. Trusted roots, code domain, matrix query and supplied values retain
+the existing native overrides; arbitrary prover response/column/worker
+behavior and rejection paths remain in the actual execution. The original
+native opening implementations are unchanged. In particular the event includes
+the bad branch even if the verifier's accepted flag is false.
+
+`AuthenticatedExceptionUnion` combines the truthful-subclaim term with the
+accepted-wrong-private-value OR bad term. The full authenticated false-relation
+OR bad event has exactly the preceding three ZeroCheck arithmetic terms, the
+PCS error sum over private factors and one expected hash charge on the actual
+commitment/ZeroCheck/terminal/native-worker program. There is no second charge
+for the checkpoint-source exception.
+
+`OriginalRisk` permits ANY matching recorded private source family, even if
+selected after the complete execution. Each candidate retains the same
+context/root and trusted field, code, capacity, radius and layout. Public
+factors remain the same pre-query verifier tables. `original_risk_reduction`
+derives the audit invariant from supported execution and uses the original/
+fresh source coherence theorem to expose either an accepted false fresh-source
+relation or the same terminal bad event. No safety or decoder-consistency
+certificate is assumed. Fresh root snapshots are proved to remain recorded
+through the complete continuation. `fresh_risk_implies_original` proves that
+the new event includes the ordinary fresh-source case rather than restricting
+the event to a smaller set of accepted false relations.
+
+`original_soundness_from_empty` therefore has the SAME arithmetic and private
+PCS terms and one whole-run charge, without a union over original owner
+snapshots or aliases. `OwnedExtractionSoundness` specializes it to the actual
+extraction shape with one private increment and verifier-computed mask/target.
+Native interpolation messages discharge the degree bounds. Its semantic
+lemma identifies the original-owner vanishing relation with the masked
+extraction constraint. `native_original_soundness_from_empty` bounds the
+accepted original-source event by the full ZeroCheck error, ONE private PCS
+error and ONE shared hash charge. No extra public commitments/openings or
+independent source-reuse failure charge are introduced.
+
+The unit-digest regression constructs a coherent cache collision between two
+distinct inputs. With no recorded roots the availability-disagreement event is
+absent, while the combined bad event still holds. A two-hash program with an
+always-false acceptance predicate instantiates the strengthened union bound
+with arithmetic error zero and exactly one charge. This records why the
+terminal collision exception must not be guarded by the verifier's accepted
+flag or confused with a recorded-root disagreement. The small digest is only
+an event-scope regression, not a target security parameter. Twelve exact
+axiom guards cover every new production theorem; dependencies are subsets of
+`propext`, `Classical.choice` and `Quot.sound`. Both root libraries import the
+new composition, extraction specialization, tests and audits.
+
+This closes the logical source-reuse/hash-accounting composition for the
+interactive extraction model. Identifying these recorded snapshots and trusted
+parameters with concrete original Rust owners, native arrays/field values and
+accepted byte paths remains a refinement obligation. The signed key-product,
+canonical digit and other PBS-stage constraints still need common-owner
+accepted-stage coverage in the complete verifier. Production Fiat--Shamir
+composition, native BabyBear, actor-cost separation and physical attacker-work/
+compiler/lifetime/cache/RNG refinement remain open. The whole-program logical
+hash charge is not yet the final actual-attacker-work inequality. The overall
+security goal remains unproved.
+
+Validation: targeted smoke/audit build passed with 3,796 jobs. Full
+`scripts/check` completed with exit status zero, including 11,242 build jobs
+and all subsequent audit/smoke commands. No proof placeholders, additional
+logical axioms, native decision proofs, proof-limit increases or linter
+suppression were introduced. All recorded input, manifest and build-receipt
+hashes of the five retained-source gates were verified unchanged (552, 484,
+142, 42 and 478 inputs); those extraction gates were not rerun for this
+original-source/shared-exception composition.
+
+Full-check log: `/tmp/exception-union-full-check.log`; SHA-256
+`bd94bf269b691d6f135a656e1f9ec54882d0ff2229e21cf8f48768fe2555b552`.
