@@ -18319,3 +18319,65 @@ suppression were introduced.
 
 Full-check log: `/tmp/constructed-targets-full-check.log`; SHA-256
 `8947bef26946be24d338b7e427290ca6c53e51a03e06f1090bc726d100c75c9d`.
+
+## All-context registered executable security (2026-11-10)
+
+`ConstructedGoldRegisteredSecurity.Registry` contains only the reachable arena,
+checked original references and successful collected registry. It requires no
+caller-selected context family or per-context parameter association. A fixed
+trusted profile and the registered parameters construct analysis representatives;
+their empty openings, zero fuel and unavailable table callbacks are not claimed
+to execute or accept. All acceptance evidence belongs to the actual candidate.
+The original constructor receipts still supply the target's code/root facts.
+
+The new failure event quantifies over all candidate contexts with registered
+parameters and that profile, over all prefixes of one runtime-private-coin
+execution. Roots, opening data, transcript prefixes, verifier fuel, scheduling
+and memory are not fixed by the representatives. Reanchoring keeps the same
+accepted candidate, scheduler, parsed view and executable public false claim.
+`failure_iff` proves that this event equals the measurable previously priced
+registered-family event, avoiding a measurability assumption or a separate
+union over the candidate context type. Role classification is proved independent
+of the representative profile, using the same original stored entry.
+
+`binding_registered` derives the original registry slot, its parameter equality
+and calibrated role from an original-owner binding. In particular, the binding
+returned by the preceding observed public-extraction theorem can be used without
+a separately supplied parameter-to-context association. `failure_of_binding`
+connects such a binding and the same prefix's executable acceptance/falsity
+witness to the registered event. The trusted-profile equality remains explicit.
+
+The family loss remains its full original slot count times `9/4096`, preserving
+aliases and unused positions. At most 256 slots give `9/16`; `work_bound` then
+proves `2^128 * P[registered executable-source failure at any prefix]` is at
+most unconditional expected specified interpreter work. There is no bound on
+attempts, execution length, verifier fuel or private-coin consumption, and no
+finite-expectation or termination premise.
+
+Four kernel-checked regressions cover measurability with arbitrary candidate
+contexts, the registered work inequality without supplied target certificates,
+original-owner association and preservation of the actual candidate/scheduler
+when reanchoring. Nine axiom guards cover the eight production theorems and the
+witness transport construction. Their dependencies are subsets of `propext`,
+`Classical.choice` and `Quot.sound`.
+
+This removes the supplied representative-context association from the security
+interface. It does not prove that native application dispatch uses the checked
+registry/profile, nor that every false PBS gives this executable-source failure.
+The original-owner theorem retains its observed-extraction acceptance, history,
+truthfulness and safe-root premises. Application/profile binding, full public
+PBS semantics and extraction, native BabyBear, and physical attacker-work and
+compiler/ABI/lifetime/cache/RNG refinement remain open. The physical-work goal
+is still not established.
+
+Validation: targeted smoke/audit build passed with 4,720 jobs. Full
+`scripts/check` completed with exit status zero, including 11,155 build jobs
+and all subsequent audit/smoke commands. No proof placeholders, additional
+logical axioms, native decision proofs, proof-limit increases or linter
+suppression were introduced. All recorded input, manifest and build-receipt
+hashes of the five retained-source gates were verified unchanged (552, 484,
+142, 42 and 478 inputs); those extraction gates were not rerun for this
+registered-event probability extension.
+
+Full-check log: `/tmp/registered-security-full-check.log`; SHA-256
+`0458e220252979c148a5900d9aa0f453617dc4c29d32b639219897f1b50bb6cf`.
