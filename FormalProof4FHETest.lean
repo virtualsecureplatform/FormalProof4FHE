@@ -423,3 +423,5 @@ import FormalProof4FHETest.HasteBootsLookupPCSBackendAudit
 import FormalProof4FHETest.HasteBootsCacheBackedBatchAudit
 
 import FormalProof4FHETest.HasteBootsCacheBackedAcceptanceAudit
+
+import FormalProof4FHETest.HasteBootsCacheBackedLifetimeAudit

@@ -21358,3 +21358,59 @@ inputs). No proof placeholders, additional logical axioms, native decision
 proofs, proof-limit increases or linter suppressions were introduced.
 Full-check log: `/tmp/cache-backed-acceptance-full-check.log`; SHA-256
 `9b7bda128f396cb0dd5269415628ff877532114fc1b927b5cd49670e5d9b1a83`.
+
+
+### Cache-backed native lifetime false-claim bound with actual prelude (2026-11-10)
+
+`CacheBackedCodeOrigin.Origin` records a completed reachable backend constructor
+and its retained original code identity. It stores no primitive-root, capacity,
+distance or probability certificate. The corresponding methods derive native
+code construction, primitive root, coefficient capacity and exact distance for
+every candidate with the same original parameter object. The numerical radius
+condition also derives the field-size condition through the actual injective
+domain and positive constructed degree. Packing/test width and code-block width
+remain independent.
+
+`CacheBackedBatchLifetimeSoundness.Witness` retains the actual candidate,
+parameter/profile identity, scheduler/fuel/memory, prepared batch, parsed native
+challenge data, response framing, witnessed acceptance and false analysis claim.
+Primitive-root and capacity fields of the earlier witness are replaced by facts
+derived from the completed constructor. `toNative` and `ofNative` preserve all
+execution/claim data. `failure_iff` proves exact equivalence with the earlier
+native lifetime failure predicate in both directions, so no cases are discarded
+by the new representation.
+
+`prelude_bound` applies the native lifetime theorem to that equivalent event.
+All actual setup/prequeries and partial earlier stream exposures remain in the
+same rebased causal machine. Its bound is one supremum of complete-prefix hash
+charges plus the existing early-receipt, field-proximity and profile-column
+exposure charges. It assumes neither an independent constructor/primitive-root
+certificate nor an independently supplied field-size/code-distance condition.
+Only the original public width threshold and numerical radius bound remain.
+There is no clean-start assumption about the original prelude, no trial cutoff,
+and no union over accepted batches/groups/columns. This is the native causal
+exposure bound, not a substitution of the ideal interactive experiment.
+
+Eleven exact axiom guards generated from Lean output cover all eight new
+production theorems and three proof-bearing observation/witness constructors.
+Dependencies are only `propext`, `Classical.choice`, and `Quot.sound`. Targeted
+validation retains the native lifetime soundness/lineage and completed backend
+constructor regressions.
+
+The predicate is still falsity against the common analysis source extractor,
+not a completed wrong-PBS-output event. Original registry/constructor/owner and
+source-alias/request/job association must still be connected to that application
+falsity. The native exposure charges must be coupled to actual attacker work
+with actor costs and complete parameter admission. Concrete field/basis and
+BabyBear implementation, scalar/lookup production Fiat--Shamir, full modified
+PBS lifetime and physical work/compiler/cache/RNG refinement remain open. The
+final 128-bit actual-attacker-work theorem remains unproved.
+
+Validation: targeted cache-backed lifetime audit and retained native lifetime/
+lineage/backend regression build passed (4,605 jobs). Full `scripts/check`
+exited zero, including the 11,356-job build and all standalone checks. All five
+frozen gate input, manifest and receipt hashes remain unchanged (552, 484, 142,
+42, 478 inputs). No proof placeholders, additional logical axioms, native
+decision proofs, proof-limit increases or linter suppressions were introduced.
+Full-check log: `/tmp/cache-backed-lifetime-full-check.log`; SHA-256
+`ac6ac4ce46d87946ac34ee07846853c87ff7c1511068bd157e3a15977941a1d5`.
