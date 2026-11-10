@@ -414,3 +414,6 @@ import FormalProof4FHETest.HasteBootsMixedWidthOwnedAudit
 
 import FormalProof4FHETest.HasteBootsLookupPreflightPackingSmoke
 import FormalProof4FHETest.HasteBootsLookupPreflightPackingAudit
+
+import FormalProof4FHETest.HasteBootsLookupPCSBoundsSmoke
+import FormalProof4FHETest.HasteBootsLookupPCSBoundsAudit

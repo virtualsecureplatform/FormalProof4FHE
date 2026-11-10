@@ -829,3 +829,6 @@ import FormalProof4FHE.HasteBoots.MixedWidthOwnedPrivateSharedLookup
 
 import FormalProof4FHE.HasteBoots.LookupPreflightPacking
 import FormalProof4FHE.HasteBoots.LookupPreflightPCSGeometry
+
+import FormalProof4FHE.HasteBoots.LookupPCSCodeCapacity
+import FormalProof4FHE.HasteBoots.LookupPCSLayoutBounds

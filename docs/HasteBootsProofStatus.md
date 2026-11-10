@@ -21150,3 +21150,52 @@ additional logical axioms, native decision proofs, proof-limit increases or
 linter suppressions were introduced. Full-check log:
 `/tmp/lookup-preflight-full-check.log`; SHA-256
 `f9a73e82e9e85329c8de680fb9dd4d3a7de36c1e07f598380064b777927e215b`.
+
+
+### Native constructor-derived mixed PCS capacity bounds (2026-11-10)
+
+`LookupPCSCodeCapacity.code_spec` combines successful construction of an
+original retained block code at the original parameter object's packed width
+with successful native parameter construction. It derives stored block-width
+identity, coefficient capacity `2^(numVariables-leftVariables) ≤ messageBlocks *
+width`, positive message-block degree, degree strictly below native code-block
+count, exact tree-height/log-size agreement, and degree bounded by the actual
+leaf count. The actual native code-shape gate supplies message-length equality;
+neither it nor a padding/count decoder is assumed independently. `height_power`
+connects native least-cover tree height with a constructed power-of-two domain.
+
+`LookupPCSLayoutBounds.bounds` transports these constructor-derived conditions
+to the mixed-width layout built from the original source/helper parameter
+objects. Each root gets its own coefficient capacity, positive `m`, enough
+leaves, nonzero query count, and original native tree height. The mixed-width
+family's physical widths are identified using accepted native preflight. The
+source and helper do not share a padded degree merely because they share a
+logical row message length.
+
+The checked constructor regression uses eight row coefficients at source
+width four and compact helper width three, with the existing valid 32-block
+root fixture. Both native code and parameter constructors succeed. The source
+has degree two and the helper has degree four; the source degree would fail
+to cover the helper's eight coefficients (`8 > 2*3`). Both derive the new
+capacity specification from their own constructor results. Backend table
+responses remain fixture observations; mutable-cache/root-generation refinement
+is not proved by this regression. Three exact axiom guards generated from Lean
+output cover all new production theorems. Dependencies are only `propext`,
+`Classical.choice`, and `Quot.sound`.
+
+These bounds apply when the original code constructor is actually called at
+that object's packing width. Associating those constructor calls with the
+complete native profile/verifier trace remains required. Native encoder and
+code-distance/domain semantics, registry/context/alias and job association,
+Goldilocks/BabyBear field/byte bridges, full PBS lifetime, production
+Fiat--Shamir and physical attacker work remain open. The final 128-bit
+actual-attacker-work theorem remains unproved.
+
+Validation: targeted constructor-capacity smoke and axiom-audit build passed
+(4,295 jobs). Full `scripts/check` exited zero, including the 11,344-job build
+and all standalone checks. All five frozen gate input, manifest and receipt
+hashes remain unchanged (552, 484, 142, 42, 478 inputs). No proof placeholders,
+additional logical axioms, native decision proofs, proof-limit increases or
+linter suppressions were introduced. Full-check log:
+`/tmp/lookup-pcs-bounds-full-check.log`; SHA-256
+`7ef0a21a2d03e225c6ad4a1682a53ac7c2b10be67c9866ac7534cc1955d2978c`.
