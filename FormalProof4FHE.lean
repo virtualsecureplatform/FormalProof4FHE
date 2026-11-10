@@ -748,3 +748,6 @@ import FormalProof4FHE.HasteBoots.CommittedOpeningException
 import FormalProof4FHE.HasteBoots.OpeningExceptionBound
 import FormalProof4FHE.HasteBoots.AuthenticatedExceptionUnion
 import FormalProof4FHE.HasteBoots.OwnedExtractionSoundness
+
+import FormalProof4FHE.HasteBoots.PackedKeySwitchStage
+import FormalProof4FHE.HasteBoots.PackedPBSCoverage
