@@ -731,3 +731,6 @@ import FormalProof4FHE.HasteBoots.DecompositionBlindRotation
 
 import FormalProof4FHE.HasteBoots.CanonicalKeySwitch
 import FormalProof4FHE.HasteBoots.CanonicalPBS
+
+import FormalProof4FHE.HasteBoots.KeySwitchExtraction
+import FormalProof4FHE.HasteBoots.KeySwitchExtractionSoundness
