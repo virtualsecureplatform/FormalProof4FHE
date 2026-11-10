@@ -755,3 +755,10 @@ import FormalProof4FHE.HasteBoots.PackedPBSCoverage
 import FormalProof4FHE.HasteBoots.OriginalFactorExceptionUnion
 import FormalProof4FHE.HasteBoots.OwnedHadamardSoundness
 import FormalProof4FHE.HasteBoots.OwnedKeySwitchCoverage
+
+import FormalProof4FHE.HasteBoots.PackedNTTBinding
+import FormalProof4FHE.HasteBoots.KeySwitchSourceConstraints
+import FormalProof4FHE.HasteBoots.CommittedBatchException
+import FormalProof4FHE.HasteBoots.OwnedNTTSoundness
+import FormalProof4FHE.HasteBoots.OwnedNTTBinding
+import FormalProof4FHE.HasteBoots.OwnedKeySwitchSourceCoverage
