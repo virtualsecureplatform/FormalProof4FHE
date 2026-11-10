@@ -734,3 +734,7 @@ import FormalProof4FHE.HasteBoots.CanonicalPBS
 
 import FormalProof4FHE.HasteBoots.KeySwitchExtraction
 import FormalProof4FHE.HasteBoots.KeySwitchExtractionSoundness
+
+import FormalProof4FHE.HasteBoots.PreparedPublicZeroTerminal
+import FormalProof4FHE.HasteBoots.AuthenticatedPublicZeroCheck
+import FormalProof4FHE.HasteBoots.AuthenticatedExtraction
