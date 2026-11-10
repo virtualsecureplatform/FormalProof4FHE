@@ -21820,3 +21820,86 @@ placeholders, additional logical axioms, native decision proofs, proof-limit
 increases or linter suppressions were introduced. Full-check log:
 `/tmp/single-challenge-full-check.log`; SHA-256
 `d99a3cf3b501dee60c11f5d8ab3b04f423b32106d3a52efe1d5f1f1d4085532b`.
+
+## Single-helper nonce lineage, first-field source and causal stream coverage
+
+`SingleOpeningColumnInputView` recovers both original raw response rows and
+checked index dimensions from the complete pending column input. The immediate
+single-opening response frame is checked with complete canonical payload
+parsing. Authentication columns are later data and absent from this nonce.
+`SingleOpeningChallengeLink` then checks the immediately preceding native field
+receipt, including its single-opening label and exact 80-byte quote, and
+recovers the original field input. No parser assumes the quote is the true
+receipt or searches across intervening frames for an earlier matching label.
+
+`SingleOpeningPreparedChallenge` closes that structural/operational gap for
+actual prepared native calls. Original parent framing and payload allocation
+bounds remain explicit. The actual sampler receipt derives the complete
+linked parse, the exact original field phase, the collector state and its true
+native receipt. `parsed_origin` identifies any successful parse of that actual
+input with the same count, state, receipt, raw test/evaluation rows, original
+root/query/claim, native column quota/domain/label and computed parameter
+context. This is pointwise native recovery, not an assertion that future
+accepted work is measurable in an earlier selecting history. No new bound on
+the receipt's fixed-width consumed-length header is assumed.
+
+`SingleOpeningFirstFieldSource` selects the source from the actual history
+before the field stream's first positive read. Selection uses the shared
+parent ledger, byte cache, hash cache and immutable root checkpoints. Already
+frozen keys retain their original common log; new keys use the actual pre-read
+hash log. Recovery is deterministic from the observed prefix and input bytes,
+ignores starts/empty reads, and remains unchanged under arbitrary later
+observations. The strict linked parser supplies the same canonical field
+input. Snapshot membership follows from the recovered first-read split, not a
+caller-supplied checkpoint certificate. `accepted_at_log` and
+`accepted_selected` prove that every later accepted original raw column and
+both coordinate families use that particular earlier source. Actual native
+context/root association is derived from the prepared field parse; no source
+log is chosen from future accepted work.
+
+`SingleOpeningChallengeHistory` derives the actual field/column read subtraces
+from native preparation and the sampler receipt. Native parameter validation
+supplies their positive quotas. Accepted calls therefore expose both actual
+inputs in the complete history without a supplied stream-touch witness.
+`accepted_coverage` gives the exact causal split for both streams: either the
+exposure is inherited from the prelude, or a real earlier machine packet
+selects the first positive read and supplies the matching complete-history
+split and recovered prefix. Arbitrary offsets and earlier off-path reads are
+retained; inherited exposures are not discarded by a clean-start assumption.
+
+`SingleOpeningFieldExposure` selects the strict single-opening field view from
+the current first-read packet. Its local native vector law retains the real
+collector completion mass, and its all-budget law includes suspended/rejected
+candidate histories. Measurability and averaged event bounds are proved from
+countable replay histories. `lifetime_le` bounds any chosen field-vector bad
+event across every actual causal prefix by the inherited event plus expected
+summed first-exposure risk. The bad predicate is fixed by the selecting packet
+and decoded nonce; no future prepared work, freshness certificate, finite
+trial cutoff or caller-chosen checkpoint state is an argument. This is the
+generic field-event lifetime bound, not yet a complete accepted-false-claim
+lifetime theorem or physical attacker-work bound.
+
+Nine new regression examples cover exact linked recovery, 79/81-byte quote
+rejection, single/batch receipt labels, receipt adjacency, trailing response
+bytes, far-offset first exposure, later-read/hash retention, and starts/empty
+reads before a positive read. The latter uses the history/selection lemmas
+within unchanged default proof limits; it checks that two earlier hashes are
+retained when no positive read has yet occurred. Sixty-five exact Lean-output
+guards cover all new production declarations and proof constructors; only
+standard `propext`, `Classical.choice` and `Quot.sound` occur. The targeted audit
+and retained single-challenge, first-exposure, source-lineage and native
+field-law regressions passed (4,520 jobs).
+
+Next is the single-opening field/column input separation and posterior
+collector composition, concrete field-proximity/shared-column event families,
+then early-receipt/inherited/field/column coverage of actual accepted false
+claims and its lifetime charge bound. Outer lookup commitment/common-point/
+query/job and original-owner/alias/application associations remain open.
+Production scalar/lookup Fiat--Shamir, BabyBear, complete modified-PBS lifetime
+and actor-separated actual attacker work/compiler/cache/RNG refinement remain
+open. The final 128-bit actual-attacker-work theorem remains unproved.
+
+Full validation for this milestone: `scripts/check` exited successfully, including
+the 11,389-job build and subsequent standalone checks. Full-check log SHA-256:
+`ff86a422f3a0451e05826de48580fd0f9a6843ec8d35c412cadb2a3e61f71fe4`.
+The five frozen gate input sets remained unchanged (552/484/142/42/478 inputs).

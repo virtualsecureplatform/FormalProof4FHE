@@ -439,3 +439,6 @@ import FormalProof4FHETest.HasteBootsSingleRectangularAudit
 
 import FormalProof4FHETest.HasteBootsSingleChallengeSmoke
 import FormalProof4FHETest.HasteBootsSingleChallengeAudit
+
+import FormalProof4FHETest.HasteBootsSingleLinkSmoke
+import FormalProof4FHETest.HasteBootsSingleLinkAudit
