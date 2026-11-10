@@ -1,3 +1,4 @@
+import FormalProof4FHE.HasteBoots.AccumulatorShiftQueries
 import FormalProof4FHE.HasteBoots.PackedMonomialLayout
 import FormalProof4FHE.HasteBoots.PublicMonomialEvaluation
 import FormalProof4FHE.HasteBoots.PublicMonomialTable

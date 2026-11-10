@@ -19046,3 +19046,68 @@ arithmetic semantics extension.
 
 Full-check log: `/tmp/packed-monomial-layout-full-check.log`; SHA-256
 `3f9df4da8da7d0fcd96f983289318bda65b32104e01340adbec105a962be29b3`.
+
+## Ordered accumulator shift and endpoint row queries (2026-11-10)
+
+`AccumulatorShiftQueries` proves the exact row-query transformation used by
+`packed_accumulator::shift_queries`. Its non-wrap query list selects the first
+set bit of the source row in increasing bit order. At that bit it places the
+pair's zero-branch matrix, multiplied on the right by the accumulated lower one-matrices;
+previous bits are zero selectors with identity matrices, and higher query
+pairs are retained. The wrap query selects row zero and places the complete
+ordered lower product at its first selector. This matches the native placement,
+including its explicit zero-row-variable case. Lists retain every branch;
+the number of returned shift queries is proved to be `row_variables + 1`.
+
+A pointwise matrix-weight proof shows that the sum of these
+branch weights at source row r is exactly the original weight at r-1 modulo
+the padded row domain. The low accumulator always multiplies each one-matrix
+on the left. Carry and wrap proofs never commute matrix factors. The indexed
+query's weights are connected to the existing list-weight semantics, and its
+fold is connected to the weighted evaluation of that same source. Reindexing
+by a proved predecessor/successor bijection then gives `shifted_fold`: summing
+all branch evaluations equals evaluating the input table at cyclic successor
+rows. `successor_index` identifies that successor with `(t+1) % M` in the
+original flat row addresses, yielding `shifted_fold_flat`.
+
+The same module formalizes the row selector used by `select_row` and proves
+that its fold returns exactly the selected row. This supplies the row-block
+meaning of the initial/final endpoint queries, without a supplied row-selection
+certificate. These results apply to arbitrary source vectors and arbitrary
+field-valued matrix query pairs; the row-variable and lane counts are generic.
+
+Sixteen kernel-checked regression examples use four distinct width-two rows
+and the preceding modulus-17 noncommuting matrix fixture. They check original
+and shifted golden vectors, all literal carry/wrap query pairs and their order,
+individual branch vectors, failure when wrap is omitted, both fold theorems,
+first/last-active/padded endpoint selection, binary carry and wrap flat addresses,
+and the single-query zero-row-variable case. Nineteen guards audit all eighteen
+production theorems and the predecessor/successor bijection construction.
+Dependencies are subsets of `propext`, `Classical.choice` and `Quot.sound` (the
+zero-dimensional row equality needs no axioms). Both root libraries import
+the extension.
+
+This establishes the accumulator's row-shift and row-selector algebra, not yet
+the whole accumulator constraint protocol. The row-block transformations must
+still be embedded into complete coefficient/row/half queries, with native
+query construction, source ordering and framing linked to the transcript.
+The shifted-input correction terms, active-round/padded-row continuity,
+subtraction/addition and duplicated-half equations, endpoints and their
+combination into a full `NativeBlindRotation.ValidTrace` remain to be connected.
+Accepted native checks and their Fiat--Shamir error bounds remain open, as do
+remaining decomposition/key-switch constraints, accepted-false-PBS extraction/
+coverage, native BabyBear, actor-cost separation and physical attacker-work/
+compiler/lifetime/cache/RNG refinement. The overall security goal remains
+unproved.
+
+Validation: targeted smoke/audit build passed with 3,775 jobs. Full
+`scripts/check` completed with exit status zero, including 11,194 build jobs
+and all subsequent audit/smoke commands. No proof placeholders, additional
+logical axioms, native decision proofs, proof-limit increases or linter
+suppression were introduced. All recorded input, manifest and build-receipt
+hashes of the five retained-source gates were verified unchanged (552, 484,
+142, 42 and 478 inputs); those extraction gates were not rerun for this
+arithmetic semantics extension.
+
+Full-check log: `/tmp/accumulator-shift-full-check.log`; SHA-256
+`09d213921db2da21fa99c14411597b23839531f2c19f9f761c0418c315c8fc1d`.
