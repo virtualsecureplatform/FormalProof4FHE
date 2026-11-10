@@ -20388,3 +20388,67 @@ recorded-owner composition.
 
 Full-check log: `/tmp/owned-lookup-full-check.log`; SHA-256
 `aac6c232e37e42429ca3c2c89f4a89a38d8a7aba6e679a977aabd18f8b188a75`.
+
+### Shared-challenge scalar batch arithmetic (2026-11-10)
+
+Inspection of `NativeScalarBatchVerifier.prepare`, `tick`, and `afterField`
+shows that the native shared backend binds/checks every equation message before
+one scalar challenge per round, updates every equation at that challenge, and
+returns one common point. `NativeSharedLookupGuard` pulls its source query from
+that common point and reuses the global source registry. The previously checked
+`RepeatedLookupPCSAlgebra` / `OwnedPrivateLookupSoundness` execution permits
+separate sum/identity/repetition points and source claims per repetition. Its
+interactive theorem remains valid for that program; it does not establish
+operational equivalence to this native shared batch. Earlier descriptions of
+"native lookup algebra" must be read with this explicit limitation.
+
+`SharedBatchSumcheckOracle` now binds all equation messages, checks all round
+relations, and draws a single common challenge vector. It returns all terminal
+subclaims in their original equation indexing. Any failed equation rejects
+before sampling or callbacks, retaining actual send work in the shared state.
+Source tables and the selected false equation are analysis parameters and
+never enter the operational verifier.
+
+`SharedBatchSumcheckSoundness` proves a fixed false equation's truthful-terminal
+probability is at most
+`n * ((((2*k - 1)*productDegree) / card F)^k)` under the explicit polynomial
+bounds, without an equation-count multiplier or independence between equations.
+The selected equation alone needs an arithmetic degree bound. All adaptive
+send/callback programs retain the same cache, logs, and checkpoints; arbitrary
+later work retains the bound through the existing continuation construction.
+Evaluation-vector interpolation supplies the message degree bound for the
+explicit consecutive-node vector family. This is not yet a refinement of all
+native variable-degree message vectors or transcript samplers.
+
+`SharedScalarBatchQuery` proves that every supported successful width-one
+result has scalar MLE query form AND the same query for every equation. Neither
+fact is a supplied certificate. It translates truthfulness to the ordinary MLE
+terminal expression and proves the scalar bound `n * degree / card K`.
+
+Regressions check one draw after the entire batch check, shared challenge use
+in terminal values, another equation's rejection before the draw/callback, and
+retention of message hash work on rejection. Individually scalar queries at
+different points fail the common-query invariant. Nine exact axiom guards,
+generated from actual Lean output, cover all new production theorems and use
+only `propext`, `Classical.choice`, and `Quot.sound`.
+
+The next composition must use the actual native family: one common source
+query/claim per original source root, with two ordered claims per helper root.
+It must connect request-major/repetition-minor equations, actual per-request
+literal radix tables and original registry slots to this batch, then combine
+authentication and the pre-pair source prefix. Duplicating source claims per
+repetition would change native metadata/transcript/work and is not that bridge.
+Native byte/owner/parameter association, full PBS lifetime composition,
+production Fiat--Shamir, native BabyBear, actor-cost separation, and physical
+work/compiler/cache/RNG refinement remain open. The final 128-bit
+actual-attacker-work theorem remains unproved.
+
+Validation: targeted smoke/audit build passed (3,730 jobs). Final full
+`scripts/check` exited zero, including the 11,281-job build and all subsequent
+standalone checks. All five retained-source gate input, manifest, and receipt
+hashes remain unchanged (552, 484, 142, 42, 478 inputs). No proof placeholders,
+additional logical axioms, native decision proofs, proof-limit increases, or
+linter suppressions were introduced.
+
+Full-check log: `/tmp/shared-batch-final-check.log`; SHA-256
+`92a3466eecab00e757f5f8b8bcf55f3d7405ec1967fe9e86bbedf19ba8801e83`.
