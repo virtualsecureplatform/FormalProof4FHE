@@ -728,3 +728,6 @@ import FormalProof4FHE.HasteBoots.PackedAccumulatorTrace
 import FormalProof4FHE.HasteBoots.PackedBlindRotationTrace
 
 import FormalProof4FHE.HasteBoots.DecompositionBlindRotation
+
+import FormalProof4FHE.HasteBoots.CanonicalKeySwitch
+import FormalProof4FHE.HasteBoots.CanonicalPBS
