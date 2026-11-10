@@ -390,3 +390,6 @@ import FormalProof4FHETest.HasteBootsSharedLookupFamilyAudit
 
 import FormalProof4FHETest.HasteBootsSharedLookupArithmeticSmoke
 import FormalProof4FHETest.HasteBootsSharedLookupArithmeticAudit
+
+import FormalProof4FHETest.HasteBootsSharedLookupTerminalSmoke
+import FormalProof4FHETest.HasteBootsSharedLookupTerminalAudit

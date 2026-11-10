@@ -20596,3 +20596,73 @@ linter suppressions were introduced.
 
 Full-check log: `/tmp/shared-arithmetic-full-check.log`; SHA-256
 `c7ab7ff0a4e2b4d6c35f3765c154cd5aff26e6bca0301e75e11ff7ef8c03b853`.
+
+### Computed shared terminal guard and original-opening reduction (2026-11-10)
+
+`SharedLookupTerminal` extends the actual ordered-EQ/common-scalar-batch
+program with receipt of one global source-vector family and one helper value
+per job. It constructs the packet from the returned batch subclaims and EQ
+points, selects the native first sum equation's common point, and computes
+all jobs' sum/helper equalities and identity checks before binding values.
+Every job gathers its own ordered original source slots. A rejected batch
+skips receipt/binding; a failed terminal retains receipt work and skips binding.
+The receiver uses the batch's current memory, not the earlier EQ-draw memory.
+No decoded source table is an operational input.
+
+Successful supported executions derive the packet's actual batch association,
+common scalar-query validity, EQ points, expected values and computed guard
+success internally. `accepted_data` does not require any supplied accepted-bit,
+query-form, tuple, or provenance certificate. The pure guard is a semantic
+field-level adapter; native canonical-word equality, byte parsing/framing,
+shared-query construction cost and transcript refinement remain separate.
+
+`SharedLookupTerminalReduction` identifies each job's old local sum/identity
+arithmetic obligations with those of the SAME returned shared batch. Partial
+and full-table packet reductions then show that a computed accepted terminal
+forces the selected joint arithmetic event OR a wrong original opening. The
+full operational reductions obtain all association facts from execution,
+including receive and binding callbacks. Original global source matrices are
+sliced by the actual job slots; helpers retain the two ordered original claims.
+The wrong-opening union is proved exactly equivalent to the common-point
+grouped PCS wrong-value event on decoded original checkpoint words, using
+only structural slot coverage (already proved for the radix schedule).
+
+`SharedLookupTerminalSoundness` bounds the event that the computed terminal
+program returns a packet AND no original opening is wrong. For any fixed
+nonpassing selected pair with nonzero r and the explicit syntactic message
+degree conditions, the partial bound is
+`(c+row)/card(K) + (c+row) * (4/card(K))`; the full bound retains degree three.
+These probabilities include actual EQ, batch, receipt and binding work on the
+same shared state. Each job retains its own literal public table, tuple width,
+row count and multiplicities. There is no job-count multiplier. The condition
+that no opening is wrong is part of the measured event, not a caller-supplied
+security premise; grouped PCS must still control its complement in the composed run.
+
+Regressions check successful receipt/binding with retained batch memory,
+second-job sum rejection, independent second-job identity rejection, retained
+receipt hash work on failure, skipped receipt after batch rejection, ordered
+aliased source slots and the exact returned packet. A locally accepted helper
+one on an original all-zero helper is explicitly shown to be a wrong original
+opening, preventing accidental removal of the authentication term. Eleven
+exact axiom guards generated from actual Lean output cover all new production
+theorems; dependencies are only `propext`, `Classical.choice`, and `Quot.sound`.
+
+The next step is to make this computed terminal program the actual query
+selection for the original staged common-point grouped PCS, enable openings
+only on its returned packet, and combine the arithmetic/opening events with
+one whole-run exception charge. Then the independent pair sampler and its
+configured repetitions must be composed per request on the original pre-pair
+sources. Native byte/owner/field/layout and job-index association, full PBS
+lifetime composition, production Fiat--Shamir, native BabyBear, actor-cost
+separation, and physical work/compiler/cache/RNG refinement remain open.
+The final 128-bit actual-attacker-work theorem remains unproved.
+
+Validation: targeted smoke/audit build passed (3,795 jobs). Full
+`scripts/check` exited zero, including the 11,297-job build and all subsequent
+standalone checks. All five retained-source gate input, manifest, and receipt
+hashes remain unchanged (552, 484, 142, 42, 478 inputs). No proof placeholders,
+additional logical axioms, native decision proofs, proof-limit increases, or
+linter suppressions were introduced.
+
+Full-check log: `/tmp/shared-terminal-full-check.log`; SHA-256
+`db9aea9bc92cbb04ef7474fe40f79c496d0f6ab45ed54b2329cd841de57f244a`.
