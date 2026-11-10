@@ -738,3 +738,7 @@ import FormalProof4FHE.HasteBoots.KeySwitchExtractionSoundness
 import FormalProof4FHE.HasteBoots.PreparedPublicZeroTerminal
 import FormalProof4FHE.HasteBoots.AuthenticatedPublicZeroCheck
 import FormalProof4FHE.HasteBoots.AuthenticatedExtraction
+
+import FormalProof4FHE.HasteBoots.RecordedPayloadCoherence
+import FormalProof4FHE.HasteBoots.RecordedSourceCoherence
+import FormalProof4FHE.HasteBoots.ReusedPrivateSource
