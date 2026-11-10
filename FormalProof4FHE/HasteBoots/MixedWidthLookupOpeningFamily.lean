@@ -1,6 +1,6 @@
 module
 
-public import FormalProof4FHE.HasteBoots.LookupOpeningFamily
+public import FormalProof4FHE.HasteBoots.SharedLookupOpeningFamily
 public import FormalProof4FHE.HasteBoots.SharedScalarBatchQuery
 public import FormalProof4FHE.HasteBoots.StagedVariableWidthBatchOpening
 
@@ -49,13 +49,8 @@ def layout (g : Geometry c row count repetitions) (root : Root count repetitions
 
 /-- Terminal data contains a single point and a single global source vector
 family. All job subclaims are constructed from this data, not certified equal. -/
-structure Packet (F K : Type) (width count n jobs : ℕ) where
-  point : Fin n → K
-  sources : Fin count → Fin width → F
-  sumExpected : Fin jobs → K
-  identityExpected : Fin jobs → K
-  helpers : Fin jobs → K
-  equalityPoints : Fin jobs → Fin n → K
+abbrev Packet (F K : Type) (width count n jobs : ℕ) :=
+  SharedLookupOpeningFamily.Packet F K width count n jobs
 
 def pairPacket {columns : Fin repetitions → ℕ}
     (slots : (job : Fin repetitions) → Fin (columns job) → Fin count)
