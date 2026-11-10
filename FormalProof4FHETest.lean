@@ -1,3 +1,5 @@
+import FormalProof4FHETest.HasteBootsAccumulatorPackedSmoke
+import FormalProof4FHETest.HasteBootsAccumulatorPackedAudit
 import FormalProof4FHETest.HasteBootsAccumulatorTraceSmoke
 import FormalProof4FHETest.HasteBootsAccumulatorTraceAudit
 import FormalProof4FHETest.HasteBootsAccumulatorShiftSmoke

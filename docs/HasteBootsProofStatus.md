@@ -19179,3 +19179,78 @@ arithmetic semantics extension.
 
 Full-check log: `/tmp/accumulator-trace-full-check.log`; SHA-256
 `e3bc96b8fc0d78a53a3db5559fcc7e2f30dc84aaad21a0475bed790f33433b8b`.
+
+## Complete packed accumulator query identities (2026-11-10)
+
+`AccumulatorPackedQueries` embeds the preceding row-query algebra into complete
+coefficient/row/half queries. Its indexed append preserves the original list
+order and has a proved split-fold identity. The full-query coordinate theorem
+puts coefficients in the low cell bits, then rounds, then the ciphertext half,
+with address `cell + 2^c * (row + 2^r * half)`. `whole_fold` gives the staged
+matrix evaluation of that same complete source. No query-dependent source or
+supplied prefix/suffix equivalence is introduced.
+
+`shiftWhole` changes only the row block, retaining each original coefficient
+pair and the final half pair in every carry/wrap query. Its list theorem states
+those literal blocks, and `shiftWhole_fold` sums their complete-source evaluations
+to the cyclic row-successor evaluation. `selectWhole_fold` gives the initial/
+final row-selection meaning while preserving both other query blocks.
+`selectHalf_fold` retains the sum of the two original half matrices, and
+`duplicate_fold` proves equality with an appropriately duplicated source under
+its explicit pointwise duplication relation. These are the complete-query
+identities used for the native decomposition-a/decomposition-b input links.
+
+The fixed-row impulse fold is the ordered row-weight matrix acting on the
+endpoint vector. Coefficient evaluation commutes with this fixed row support.
+`whole_impulse` therefore gives the endpoint correction with row weighting on
+the inside and the original half matrices on the outside, matching
+`row_weight`/`mix_halves`. `continuity_check` combines the full shifted-input
+sum, the output opening and the two endpoint corrections: the literal native
+check follows from the pointwise cyclic coefficient/round/half equation. No
+matrix factors are commuted. Source-fold additivity and subtraction are proved
+as well; the remaining arithmetic equations use those same fixed queries.
+This implication is exact algebra, not randomized-check soundness or a converse.
+
+The seven original source positions and their per-source query order are
+specified without merging slots: INPUT_ACC, MONOMIAL_PRODUCT, EXTERNAL_INPUT,
+OUTPUT_ACC, SUM_PRODUCT, DECOMPOSITION_A and DECOMPOSITION_B. The source opening
+counts are proved to be `[r+3,1,3,2,1,1,1]`, including all carry/wrap branches and
+the zero-row-variable case. Every complete query has `c+r+1` pairs. These are
+logical schedule/count theorems; native registry/owner/history execution and
+query-construction validation are not claimed refined by them.
+
+Seventeen kernel-checked regression examples and three fixture lemmas use
+modulus 17, width two and 32 complete source cells. Noncommuting coefficient,
+row and half matrices exercise complete addresses/list order, ordinary and
+shifted golden evaluations, unchanged coefficient/half blocks, endpoint row
+selection, duplicated-half equality, endpoint impulse/correction values and
+the corrected continuity check. A negative example observes the changed result
+if the row weight is moved outside the half matrices. All seven source counts,
+the original input query order and empty coefficient/row blocks are checked.
+Twenty-one guards audit all production theorems; dependencies are subsets of
+`propext`, `Classical.choice` and `Quot.sound`. Both root libraries import the
+extension.
+
+This closes the exact-algebra embedding of the row identities into complete
+queries and their correction/duplication equations. The pointwise constraints
+must still be linked to the original native coefficient sources and public
+endpoints, and the protocol must prove that false pointwise constraints cause
+accepted native matrix checks only with the required error bound. Native
+constructor/error behavior, query construction, authenticated source ordering,
+framing and Fiat--Shamir/lifetime composition remain open. Canonical
+decomposition/key switching, complete accepted-false-PBS extraction/coverage,
+native BabyBear, actor-cost separation and physical attacker-work/compiler/
+lifetime/cache/RNG refinement also remain open. The overall security goal
+remains unproved.
+
+Validation: targeted smoke/audit build passed with 3,776 jobs. Full
+`scripts/check` completed with exit status zero, including 11,200 build jobs
+and all subsequent audit/smoke commands. No proof placeholders, additional
+logical axioms, native decision proofs, proof-limit increases or linter
+suppression were introduced. All recorded input, manifest and build-receipt
+hashes of the five retained-source gates were verified unchanged (552, 484,
+142, 42 and 478 inputs); those extraction gates were not rerun for this
+arithmetic semantics extension.
+
+Full-check log: `/tmp/accumulator-packed-full-check.log`; SHA-256
+`c0efc3cfd446ad2b428a4a91b9cfb4793edf28984559727583c7375f56030358`.

@@ -1,3 +1,4 @@
+import FormalProof4FHE.HasteBoots.AccumulatorPackedQueries
 import FormalProof4FHE.HasteBoots.AccumulatorTrace
 import FormalProof4FHE.HasteBoots.AccumulatorShiftQueries
 import FormalProof4FHE.HasteBoots.PackedMonomialLayout
