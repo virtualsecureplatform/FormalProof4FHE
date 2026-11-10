@@ -21959,3 +21959,73 @@ actual-attacker-work theorem is not yet proved.
 Full validation: `scripts/check` exited successfully, including the
 11,395-job build and all subsequent standalone checks. Full-check log SHA-256:
 `729e2d95cd796651ff30d73acfef43e5056d1a3d7444f2406ba9800f4e23ef81`.
+
+
+## Concrete single-opening source/response families and profile column lifetime
+
+`SingleOpeningSelectedWord` defines the single-opening frozen source from
+fixed original parameters, context/root and a pre-field-read selected log.
+Native preparation and the retained code constructor identify its tag, word
+layout and original root with the existing native rectangular source.
+`SingleOpeningFixedResponseData` computes ordered query weights and the
+original test/evaluation messages from fixed parameters and raw input data.
+Native validated query/message dimensions identify these total analysis
+projections with the original prepared projections. The source word and
+response projections take no future Prepared work or oracle-world argument.
+They remain analysis definitions, not efficient public application extraction.
+
+`SingleOpeningConcreteColumnFamily` combines the actual random and single
+structured lane families using one common source. Original raw test and
+evaluation packets are projected independently; no batch grouping or
+substituted transcript is used. Every claimed response is an encoded word.
+`SingleOpeningConcreteColumnChecks.accepted_checks` transports an actual
+accepted native rectangular view to this exact parsed family at the same
+ordered draws, using the acceptance view's retained log. This pointwise lemma
+does not yet assert that this particular log equals the source recovered from
+the original causal selecting prefix; that remaining coverage obligation is
+explicit in the module documentation.
+
+`SingleOpeningConcreteColumnBound` instantiates the shared-column law with
+these concrete source/response functions and the first-field log recovered
+from the selecting history. Its winning event includes completion, a distance
+witness, and all shared checks. The bound covers the union over all collector
+budgets, preserves the source under later history extensions, and uses the
+minimum distance of the two witness cases. The resulting miss probability is
+exactly the maximum of the random/structured miss bounds; no lane/test or
+retry factor is introduced.
+
+`SingleOpeningFieldMatrix` supplies the fixed lane-major coefficient count and
+vector-to-rectangular reshape. This reshape preserves the uniform law and
+matches the recovered collector matrix; native preparation derives its actual
+count. `SingleOpeningProfileColumnExposure` selects only original single
+column labels, positive quotas, the fixed code domain, the original query
+quota and this complete coefficient count. It proves conditional, averaged
+and unbounded lifetime bounds for the concrete column event, with inherited
+events retained and one charge per eligible first positive stream read.
+`SingleOpeningProfileColumnNative.selected_native` derives all eligibility
+conditions from actual preparation, strict actual-input parsing, the native
+sampler receipt and the retained code constructor. The selector is not an
+extra verifier certificate. Physical attacker work is not yet identified with
+this mathematical exposure charge.
+
+Fifty-five exact Lean-output guards cover every new public declaration;
+only `propext`, `Classical.choice` and `Quot.sound` occur. Twelve regression
+examples cover successful structural selection, valid smaller foreign quotas
+and field counts rejected by the profile selector, prior far-offset exposure,
+starts/empty reads, both single lane families, and independent packing/code
+widths three/four with correct lane-major matrix and raw response indexing.
+The structural selector fixture explicitly makes no native code-construction
+claim. The targeted smoke/audit build passed (4,516 jobs), with unchanged
+proof limits and no frozen native source edits.
+
+Next are exact selected-log native acceptance checks, concrete field proximity
+and near-source false-claim disagreement, then early-receipt/inherited/field/
+column coverage and the combined accepted-false-claim lifetime bound. Original
+owner/alias/application associations, production scalar/lookup Fiat--Shamir,
+native BabyBear, complete modified-PBS lifetime and physical attacker-work/
+compiler/cache/RNG refinement remain open. The final 128-bit
+actual-attacker-work theorem is not yet proved.
+
+Full validation: `scripts/check` exited successfully, including the
+11,405-job build and all subsequent standalone checks. Full-check log SHA-256:
+`f808ca30ce923679c2f0d59d1d169034b8efe4d6cf7aa1d946f45a6ead38e943`.
