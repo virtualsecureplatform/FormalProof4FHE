@@ -20862,3 +20862,58 @@ are unchanged (552, 484, 142, 42, 478 inputs). No proof placeholders, additional
 axioms, native decision proofs, proof-limit increases, or linter suppressions
 were introduced. Full-check log: `/tmp/variable-width-full-check.log`; SHA-256
 `1c6cb4dc856666ed495896f3bfce6b26773093792136323350c773d0f97718ee`.
+
+
+### Staged mixed-width original lookup openings (2026-11-10)
+
+`RecordedVariableWidthBatchOpening` proves the wrong-value reduction and
+uniform arithmetic bound against immutable original checkpoints with a separate
+packing width and PCS analysis field for each root. The recording times need
+not agree. `StagedVariableWidthBatchOpening` derives those checkpoints from the
+actual source commit, root recording, arbitrary adaptive helper construction,
+and later helper-root recording. Source history survives the middle phase;
+helper words use its later log. `StagedVariableWidthBatchException` includes
+the terminal common-history bad event in the same whole-run hash charge.
+
+`MixedWidthLookupOpeningFamily` constructs a common-point source query with
+source width `d + padding`, and coefficient queries/helper values with the
+independent helper width `d + helperPadding`. Each original source has one raw
+vector claim; each original helper has two ordered claims [sum, identity].
+The source power-of-two shape remains explicit. Thus the opening geometry
+permits both the Goldilocks 4/3 and BabyBear 8/6 source/helper widths without
+padding a helper payload or replacing its commitment. This is generic geometry
+coverage, not a completed instantiation of either native field implementation.
+
+The source/helper wrong-value equivalences are derived against the decoded
+original matrices with their own widths. With structural slot coverage, the
+union of job-local source/sum-helper/identity-helper failures equals the global
+one-source/two-helper opening event. Ordered source slots and aliases are
+preserved; this does not establish native context/root alias deduplication.
+`MixedWidthLookupGroupedOpening` fixes the behavior's queries and values to
+that family and derives accepted wrong openings OR the terminal history bad
+event bounded by per-root PCS arithmetic errors plus one complete-run hash
+charge. Lookup extension `K` and root-dependent PCS analysis fields `L root`
+remain distinct. Query selection may perform arbitrary actual shared work.
+
+A checked F17 regression uses a two-lane original source and a one-lane
+original helper: a nonzero sum claim over an all-zero helper exposes the helper
+opening failure. Fourteen exact axiom guards, generated from Lean output,
+cover every new production theorem; only the standard `propext`,
+`Classical.choice`, and `Quot.sound` dependencies occur.
+
+The next required composition is the mixed-width local lookup terminal
+arithmetic and its actual shared batch/receipt program, then the independently
+sampled per-request repetition bound. The earlier private/shared acceptance
+theorems still cover their stated common-width execution. Original-owner reuse,
+native source alias deduplication, byte/parameter/job association, full PBS
+lifetime, production Fiat--Shamir, BabyBear field refinement, actor costs and
+physical work remain open. The final 128-bit actual-attacker-work theorem
+remains unproved.
+
+Validation: targeted smoke/audit build passed (3,789 jobs). Full `scripts/check`
+exited zero, including the 11,318-job build and all standalone checks. All five
+frozen gate input, manifest, and receipt hashes are unchanged (552, 484, 142,
+42, 478 inputs). No placeholders, additional logical axioms, native decision
+proofs, proof-limit increases, or linter suppressions were introduced.
+Full-check log: `/tmp/staged-mixed-width-full-check.log`; SHA-256
+`4c5fb5f8af4a8121b67bc98c758b0464cdc16dfcc6a6978b4a051766f902277e`.

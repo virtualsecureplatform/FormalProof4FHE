@@ -401,3 +401,6 @@ import FormalProof4FHETest.HasteBootsPrivateSharedLookupSmoke
 import FormalProof4FHETest.HasteBootsPrivateSharedLookupAudit
 
 import FormalProof4FHETest.HasteBootsVariableWidthBatchAudit
+
+import FormalProof4FHETest.HasteBootsMixedWidthLookupSmoke
+import FormalProof4FHETest.HasteBootsMixedWidthLookupAudit

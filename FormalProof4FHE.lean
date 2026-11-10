@@ -803,3 +803,9 @@ import FormalProof4FHE.HasteBoots.RequestSharedLookup
 import FormalProof4FHE.HasteBoots.StagedPrivateSharedLookup
 
 import FormalProof4FHE.HasteBoots.VariableWidthBatchOpening
+
+import FormalProof4FHE.HasteBoots.RecordedVariableWidthBatchOpening
+import FormalProof4FHE.HasteBoots.StagedVariableWidthBatchOpening
+import FormalProof4FHE.HasteBoots.StagedVariableWidthBatchException
+import FormalProof4FHE.HasteBoots.MixedWidthLookupOpeningFamily
+import FormalProof4FHE.HasteBoots.MixedWidthLookupGroupedOpening
