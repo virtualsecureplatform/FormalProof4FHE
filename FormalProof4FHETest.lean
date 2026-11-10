@@ -448,3 +448,6 @@ import FormalProof4FHETest.HasteBootsSingleCompositionAudit
 
 import FormalProof4FHETest.HasteBootsSingleFamilySmoke
 import FormalProof4FHETest.HasteBootsSingleFamilyAudit
+
+import FormalProof4FHETest.HasteBootsSingleSelectedSmoke
+import FormalProof4FHETest.HasteBootsSingleSelectedAudit

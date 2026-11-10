@@ -22029,3 +22029,69 @@ actual-attacker-work theorem is not yet proved.
 Full validation: `scripts/check` exited successfully, including the
 11,405-job build and all subsequent standalone checks. Full-check log SHA-256:
 `f808ca30ce923679c2f0d59d1d169034b8efe4d6cf7aa1d946f45a6ead38e943`.
+
+
+## Exact recovered single-opening source checks and field proximity lifetime
+
+`SingleOpeningFixedSourceChecks.combinations/checks` retain an explicitly
+specified context and source log through the native authenticated payload
+and ordered-column rectangular checks. The input's particular log is a
+parameter of the result, so an existential source cannot replace it.
+Both random and structured checks retain the original ordered draw vector,
+including repeated draws whose native workers are deduplicated.
+
+`SingleOpeningSelectedChecks.accepted_view` constructs an actual native
+acceptance view at the specific log selected before a positive field read.
+The actual accepted execution, truthful full history and absence of shared
+checkpoint disagreement derive its authenticated equations. The result pins
+the view's computed context, exact log and original native sampler result.
+`recovered_view` obtains the first-read split from the full history's source
+recovery; no caller supplies a source-log selection witness from later
+acceptance. `recovered_checks` transports these checks to the concrete parsed
+response family at that very recovered log and actual ordered sample. It
+derives field-parser validity and the complete field phase from strict
+parsing of the actual native column nonce, rather than taking field parsing
+as another certificate. Native framing/response length bounds remain explicit.
+The existing concrete-check bridge accepts any actual sampler receipt for
+the same native work; the new selected view separately derives equality with
+the original sample. The two native executions are not resampled.
+
+`SingleOpeningFieldProximity` defines the concrete far-source/near-random-row
+obstruction using fixed parameters, parsed field binding and the selecting
+history's source log. The exact vector-to-matrix reshape transfers the joint
+uniform law. Its conditional and unbounded lifetime bounds use one field
+proximity loss, retaining rejection/suspension and all candidate budgets.
+The explicit conditions are radius below field cardinality and three times
+radius below the retained code minimum distance. No future work or arbitrary
+response callback is an argument to the event's source word.
+
+`SingleOpeningFieldProximityCoverage.complete` derives collector completion
+from the actual native request receipt. `later_proximity` places a later
+actual matrix obstruction at the original first field exposure. The history
+split and recovery equality identify the same earlier selected source log;
+strict native nonce recovery identifies the same collector, values and full
+coefficient count. Its original native budget supplies the event witness;
+there is no new field sample or discarded rejected-candidate history.
+
+Twenty-two exact Lean-output guards cover every new public declaration and
+the generalized concrete-check bridge. Only `propext`, `Classical.choice` and
+`Quot.sound` occur. Six regression examples run the original single-opening
+protocol using original code/query data with packing width three and code
+symbol width four. They check native dimensions/count, worker indices
+`[1,7]`, retained ordered draws `[7,1,7]`, actual request completion with all
+18 values, suspension at budget 17, and true-receipt linked nonce recovery
+with count 18, quota 3 and an 80-byte receipt. The targeted tests and retained
+family/composition audits passed (4,539 jobs). Proof limits and frozen native
+sources are unchanged.
+
+Next are the near-source false-claim disagreement witness and the concrete
+column/proximity dichotomy, followed by early-receipt/inherited/field/column
+coverage and the combined accepted-false-claim lifetime theorem. Production
+scalar/lookup Fiat--Shamir, original owner/alias/application associations,
+native BabyBear, complete modified-PBS lifetime and physical attacker-work/
+compiler/cache/RNG refinement remain open. The final 128-bit
+actual-attacker-work theorem is not yet proved.
+
+Full validation: `scripts/check` exited successfully, including the
+11,411-job build and all subsequent standalone checks. Full-check log SHA-256:
+`b8ae1d8199de3ac4ab03423a1c3c744823dd2870bf6248d934baa63297c38bdd`.
