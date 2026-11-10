@@ -18591,3 +18591,71 @@ constructor-run/setup/registry composition extension.
 
 Full-check log: `/tmp/setup-registry-full-check.log`; SHA-256
 `56d104153d00dc847a855369e201b6af0dd24d1a3ebe229b51dc73fcdb5b127d`.
+
+## Trusted descriptor projects the four Goldilocks constructor roles (2026-11-10)
+
+`ClassicalGoldDescriptor` models the `Specification`/`Role` fields read by
+`classical_profile.rs::brakedown_parameters`: backend, four ordered role
+records, blowup and optional fragment cap. The projection keeps each role's
+variable count, width, quota, optional row split and optional block width.
+It derives the scalar message size from `2^(num_vars-left_vars)` with an
+explicit proof that it fits the native 64-bit word. Missing fields, an invalid
+split or a variable count outside the checked shift domain return an error;
+there is no subtraction truncation or word wrap used to manufacture a plan.
+
+The shift/split gates combine checks performed by the descriptor constructor
+with the backend projection. This model does not assert a new runtime guard
+inside the native `brakedown_parameters` body. Backend and fragment checks
+select the Brakedown descriptor path; the full native field/basis and profile
+version validation is outside this projection model.
+
+Plans retain canonical source/helper/final-source/final-helper order. Security
+admission checks each position against its expected calibrated role, rather
+than merely allowing any of the four roles at any position. The projection
+proofs recover every request/header field from that same descriptor.
+`descriptor_geometry` consequently derives the descriptor's own role arities,
+test widths, query quotas of at least 544, row splits, code widths and blowup.
+Helper test width three and code width four remain independent. Generic native
+constructor success and security qualification remain separate conditions.
+
+`ClassicalGoldDescriptorSetup` connects one projected descriptor to executed
+constructor ticks, allocation and collection. The existing registered-source
+work theorem now takes that descriptor and its checked projection instead of
+independently assembled request/header inputs or target certificates. Four
+plans derive the object budget automatically; complete original source vectors,
+aliases, unused positions, all profile identifiers and all execution prefixes
+remain covered on the same specified interpreter work counter.
+
+Three kernel-checked interface regressions cover the descriptor's derived
+quota/width facts, exact checked message sizing and its registered-source work
+interface. Three guarded Lean execution fixtures run all four projected roles
+and collect 1,024 original references; check the derived message sizes
+`[1024,2048,32,64]`; reject missing fields, foreign backend/fragment settings,
+invalid shifts/splits and swapped roles; and exercise quotas 544, 545, 600 and
+1024 with the below-quota control at 543. Alternative helper/code geometries
+may project but are outside this calibration and fail qualification. These
+are logical constructor fixtures, not native Rust or full PBS executions.
+
+Twelve guards audit all eleven new production theorems and the descriptor-based
+registry construction. Their dependencies are subsets of `propext`,
+`Classical.choice` and `Quot.sound`. Both root libraries import the extension.
+
+This derives constructor inputs from a single logical role descriptor. Native
+AST/heap/ABI correspondence for the descriptor loop, exact field/basis and
+schedule-5 profile validation/serialization/identifier construction, native
+role-to-stage dispatch and complete accepted-false-PBS coverage remain open.
+Full public PBS semantics and efficient extraction, native BabyBear, actor-cost
+separation and physical attacker-work/compiler/lifetime/cache/RNG refinement
+remain open. The final physical-work security goal is not established.
+
+Validation: targeted smoke/audit build passed with 4,734 jobs. Full
+`scripts/check` completed with exit status zero, including 11,170 build jobs
+and all subsequent audit/smoke commands. No proof placeholders, additional
+logical axioms, native decision proofs, proof-limit increases or linter
+suppression were introduced. All recorded input, manifest and build-receipt
+hashes of the five retained-source gates were verified unchanged (552, 484,
+142, 42 and 478 inputs); those extraction gates were not rerun for this
+descriptor-projection and setup-composition extension.
+
+Full-check log: `/tmp/gold-descriptor-full-check.log`; SHA-256
+`af0c71b318c28082d906fa7a3bf7b5e8dca935391f62ca6ab93d8dbfb6d02660`.

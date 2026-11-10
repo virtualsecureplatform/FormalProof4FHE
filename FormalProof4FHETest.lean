@@ -1,3 +1,5 @@
+import FormalProof4FHETest.HasteBootsGoldDescriptorSmoke
+import FormalProof4FHETest.HasteBootsGoldDescriptorAudit
 import FormalProof4FHETest.HasteBootsSetupRegistrySmoke
 import FormalProof4FHETest.HasteBootsSetupRegistryAudit
 import FormalProof4FHETest.HasteBootsObjectSecuritySmoke

@@ -1,3 +1,4 @@
+import FormalProof4FHE.HasteBoots.ClassicalGoldDescriptorSetup
 import FormalProof4FHE.HasteBoots.ConstructedGoldConstructorSetup
 import FormalProof4FHE.HasteBoots.ConstructedGoldObjectSetup
 import FormalProof4FHE.HasteBoots.ConstructedGoldAnyProfileSecurity
