@@ -20033,3 +20033,63 @@ original-source/shared-exception composition.
 
 Full-check log: `/tmp/exception-union-full-check.log`; SHA-256
 `bd94bf269b691d6f135a656e1f9ec54882d0ff2229e21cf8f48768fe2555b552`.
+
+## Complete corrected PBS packed-source arithmetic coverage
+
+`PackedKeySwitchStage` packages the final signed-product source tables and
+coefficient addresses with independent packing dimensions and width. Its four
+explicit constraints are the packed Hadamard identity, full NTT bindings of the
+canonical negative-mask digits, original public key rows, and signed result.
+`increment_of_holds` derives the coefficient-domain increment through the
+primitive-root NTT theorem. `false_stage_coverage` exposes a failed identity or
+a particular digit/key/result binding; relation satisfaction alone does not
+certify an original key or a result source.
+
+`PackedPBSCoverage.output_of_constraints` now composes the accumulator's full
+core/endpoint constraints, all original packed blind-rotation stages, this
+signed key product, and public masked extraction into the complete corrected
+`CanonicalPBS.evaluate` output. The original public frontend derives the
+initial accumulator and rotations. Monomial, external-product, accumulator,
+key-product and extraction packings retain their independent geometry. The
+same supplied final increment feeds both the key product and extraction;
+the switched polynomial is computed as initial plus that increment. No
+separate `CanonicalKeySwitch.Valid` certificate or unrelated switched source
+is a premise. `wrong_output_coverage` places an incorrect final public PBS
+ciphertext in the union of failures of these four explicit constraint
+families. Existing per-stage failure expansions expose the individual source
+bindings within the blind-rotation and key-product families.
+
+The new complete public-frontend regression uses q=17, degree four, one
+original blind round, radix eight for blind rotation, radix four and three
+levels for final key switching, and monomial/external/key-product widths
+3/6/2. The accumulator uses its supported power-of-two width two. Its single
+row exercises coinciding last/wrap corrections, with nonzero final increment
+and kernel-checked public output mask 1, body 2. All four constraint families
+are checked directly on the packed tables before applying the composition
+theorem. A changed public body fails extraction. Separate final-stage
+regressions show that a foreign zero increment can satisfy extraction for a
+different output while failing the original product's result-source binding,
+and that replacing the original key with a zero key fails its source binding.
+Four fresh exact axiom guards cover all new production theorems; dependencies
+are only `propext`, `Classical.choice`, and `Quot.sound`.
+
+This closes the corrected PBS deterministic packed-source coverage step. It
+does not derive these source constraints from native accepted bytes. Original
+Rust owner identity, canonical digit/lookup acceptance, field and parameter
+construction, common-owner accepted-stage coverage, production Fiat--Shamir,
+native BabyBear, actor-cost separation and physical attacker-work refinement
+remain open. The preceding original-owner extraction bound still needs to be
+composed with accepted coverage for every other stage and the shared lifetime
+model. The final 128-bit actual-attacker-work security claim remains unproved.
+
+Validation: targeted builds and all new smoke/audit modules passed. Full
+`scripts/check` completed with exit status zero, including 11,247 build jobs
+and every subsequent standalone audit/smoke command. No proof placeholders,
+additional logical axioms, native decision proofs, proof-limit increases or
+linter suppressions were introduced. All five retained-source gates retain
+their recorded input, manifest and build-receipt hashes (552, 484, 142, 42,
+and 478 inputs); these extraction gates were not rerun for this arithmetic
+composition.
+
+Full-check log: `/tmp/packed-pbs-full-check.log`; SHA-256
+`9d6b6f8749351469894573642f8d203626fe6376a084d8fb3f902027ff223794`.
