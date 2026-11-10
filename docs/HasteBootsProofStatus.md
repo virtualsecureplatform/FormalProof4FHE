@@ -19875,3 +19875,77 @@ authenticated public-factor extraction extension.
 
 Full-check log: `/tmp/authenticated-extraction-full-check.log`; SHA-256
 `3da5e8050c415dcc40d21b1174fe235d92e2d892c60227544fac4a4c0071e072`.
+
+## Original and reused checkpoint source coherence (2026-11-10)
+
+`RecordedPayloadCoherence` defines one payload-drift event over all pairs of
+recorded snapshots with the same context and root. Contexts may have different
+tree shapes in the same shared state. The event retains every optional payload
+at every leaf; it is independent of a selected query, field interpretation,
+lane width or decoder. Stable cumulative history makes those complete payload
+sources equal, and any deterministic interpretation preserves the equality.
+On a supported actual run from empty initialization, the audit invariant is
+derived by the handler theorem rather than assumed as an external safety
+certificate. Drift exposes the existing persistent failure monitor. Its
+probability is bounded by one whole-run checkpoint/hash charge, with no union
+over contexts, shapes, aliases, checkpoints or eventual interpretations.
+
+`RecordedSourceCoherence` lifts payload equality to the complete native typed
+word and the deterministic PCS decoded matrix source. Field, domain, code
+capacity, radius, width and layout remain fixed in this interpretation; no
+parameter equality is inferred merely from hash-root equality. The source
+includes every column/row/lane. Equal later query values are not used to
+conclude source equality. A typed source drift reduces to the same generic
+payload-drift event. The typed event also has a direct whole-run charge bound.
+
+`predicate_transfer_on_run` moves any source-level violation from an original
+recorded snapshot to a later snapshot of the same context/root, outside the
+common `CheckpointCollision.Bad` event. Original and later checkpoint
+membership and root equality remain explicit structural premises. Actual run
+support discharges the audit invariant automatically. The predicate may be a
+later verifier's masked extraction relation; neither a truthful opening nor a
+source-safety certificate is assumed.
+
+`ReusedPrivateSource` identifies the authenticated public-ZeroCheck framework's
+fresh prefix decoder with this same interpretation at its actual recorded
+snapshot. Its runtime theorem transfers source predicates from an original
+owner checkpoint to `AuthenticatedPublicZeroCheck.privateSources`. The
+trusted dimension equality reindexes the source and retains its ordered
+coordinates. It does not select a source after seeing the verification query.
+The same owner/context, immutable code parameters and unchanged root still
+need to be established by the concrete native owner/registry path.
+
+The coherent modulus-17 regression records a root, inserts an unrelated fresh
+cache answer outside its live target set, and records the same root again.
+The two snapshots have different cumulative logs. The proof checks both
+memberships, cache/log coherence, the clear persistent monitor and equality of
+the full word and decoded source. It also checks absence of the typed drift
+event. A second fixture records contexts with height-zero and height-one trees
+in one shared state and verifies the common payload event remains absent.
+Fifteen exact axiom guards cover every new production theorem; dependencies
+are subsets of `propext`, `Classical.choice` and `Quot.sound`. Both root
+libraries import the payload theorem, typed source theorem, private-source
+adapter, tests and audits.
+
+This provides the source-reuse reduction required to compare the preceding
+extraction theorem's prefix decoder with an original owner snapshot. It does
+not yet assemble an accepted-false-PBS theorem on original owner identities.
+Final composition must union source-drift and opening exceptions into their
+same common bad event before paying the shared charge once. Native owner
+identity/immutable parameter construction, source/field/array/query/value
+refinement, common history and actual checkpoint placement still need their
+Rust connections. Production Fiat--Shamir composition, native BabyBear,
+actor-cost separation and physical attacker-work/compiler/lifetime/cache/RNG
+refinement remain open. The overall security goal remains unproved.
+
+Validation: targeted smoke/audit build passed with 3,763 jobs. Full
+`scripts/check` completed with exit status zero, including 11,235 build jobs
+and all subsequent audit/smoke commands. No proof placeholders, additional
+logical axioms, native decision proofs, proof-limit increases or linter
+suppression were introduced. All recorded input, manifest and build-receipt
+hashes of the five retained-source gates were verified unchanged (552, 484,
+142, 42 and 478 inputs); those extraction gates were not rerun for this
+recorded-source coherence extension.
+
+Full-check log: `/tmp/recorded-source-coherence-full-check.log`; SHA-256
+`8448f9f3927f3d28b4616d8fd1c29f9a784821572ea32b2e5c6f448625a6d0a0`.
