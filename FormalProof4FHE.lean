@@ -787,3 +787,7 @@ import FormalProof4FHE.HasteBoots.SharedLookupGroupedOpening
 import FormalProof4FHE.HasteBoots.OrderedPrivateDraws
 import FormalProof4FHE.HasteBoots.SharedLookupBatchSequence
 import FormalProof4FHE.HasteBoots.SharedLookupBatchArithmetic
+
+import FormalProof4FHE.HasteBoots.SharedLookupTerminal
+import FormalProof4FHE.HasteBoots.SharedLookupTerminalReduction
+import FormalProof4FHE.HasteBoots.SharedLookupTerminalSoundness
