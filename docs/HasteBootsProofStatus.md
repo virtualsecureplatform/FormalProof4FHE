@@ -21532,3 +21532,63 @@ additional logical axioms, native decision proofs, proof-limit increases or
 linter suppressions were introduced. Full-check log:
 `/tmp/single-helper-full-check.log`; SHA-256
 `51d03981911325d3a1262c2db112114b51303440f0bc4b16f2effc7c15b41da1`.
+
+## Native single-opening finishing from original helper allocation
+
+`SingleOpeningFinishing.prepared_encoding` recovers an analysis `Encoding`
+record from the actual native single-opening prefix: both original test and
+evaluation response encodings, the original query length and validated
+matrices, and the retained code's response message length. No response,
+encoding-success or query-validity certificate is supplied to the verifier.
+`accepted_finishes` derives `Finishes` from the actual causal
+`NativeGoldPcsProgram.program` completion and computed accepted status. It uses
+the native suffix checker and the original encoded evaluation, preserving the
+original single-opening transcript. Physical packing width and code-symbol
+width are independent throughout.
+
+`CacheBackedSingleOpening.Origin` records a reachable completed native code
+constructor and the retained original code identity. Constructor tables,
+primitive root and message capacity are derived. `ofInitialization` obtains
+that origin from successful original native parameter initialization and the
+actual helper parameter identity, retaining the original request/configuration.
+`helper_receipt_finishes` composes this with the executed ordered helper
+verifier: every accepted receipt finishes in that allocated code's domain,
+including accepted receipts before a later stop. It derives the individual
+single-call completion and acceptance from the actual helper run, rather than
+assuming per-receipt flags. The logical helper-to-initialized-parameter equality
+is still an explicit association premise; this is not physical heap/pointer or
+compiler refinement.
+
+`matched_sum_finishes` and `guarded_sum_finishes` connect the preceding
+single-helper reduction to this acceptance result. The successful native
+terminal guard supplies semantic equality between the sum expectation and
+received helper. One original accepted coefficient packet therefore also
+finishes that sum value, without replacing raw words or transcript bytes. The
+actual claimed-row association remains explicit; the source guard's packing
+width and the helper's physical width are independent. `FinishesAs` and
+`finishes_as` perform only field-value transport, preserving the original call's
+query, root, opening and response encoding.
+
+This closes deterministic single-call finishing and its logical original
+allocation provenance for actual helper receipts. Authentication against the
+pre-challenge original helper/source checkpoints, rectangular extraction,
+source aliases and request/job/common-query associations still need full
+composition. No interactive or production Fiat--Shamir soundness bound for the
+whole helper path is claimed here. Scalar/lookup Fiat--Shamir, BabyBear, complete
+PBS lifetime and actor-separated actual attacker work/compiler/cache/RNG
+refinement remain open. The final 128-bit actual-attacker-work statement remains
+unproved.
+
+Fifteen exact guards generated from Lean output audit all eleven new production
+theorems and four proof-bearing constructors/definitions; only standard
+`propext`, `Classical.choice` and `Quot.sound` occur. The targeted audit and
+retained native parameter initialization, code backend and duplicate-zero
+helper regressions passed (4,689 jobs).
+
+Validation: full `scripts/check` exited zero, including the 11,366-job
+build and all standalone checks. All five frozen gate input, manifest and
+receipt hashes remain unchanged (552, 484, 142, 42, 478 inputs). No proof
+placeholders, additional logical axioms, native decision proofs, proof-limit
+increases or linter suppressions were introduced. Full-check log:
+`/tmp/single-opening-finishing-full-check.log`; SHA-256
+`b5e11d518db4f36f7a3873418b246322ae26a4c17b861a1aeadab42a6191e4cd`.

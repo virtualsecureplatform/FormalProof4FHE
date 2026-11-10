@@ -850,3 +850,6 @@ import FormalProof4FHE.HasteBoots.RegistryBatchCodeOrigin
 
 import FormalProof4FHE.HasteBoots.SingleHelperLookupOpening
 import FormalProof4FHE.HasteBoots.SingleHelperNativeValue
+
+import FormalProof4FHE.HasteBoots.SingleOpeningFinishing
+import FormalProof4FHE.HasteBoots.CacheBackedSingleOpening

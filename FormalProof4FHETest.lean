@@ -430,3 +430,5 @@ import FormalProof4FHETest.HasteBootsRegistryCodeOriginAudit
 
 import FormalProof4FHETest.HasteBootsSingleHelperSmoke
 import FormalProof4FHETest.HasteBootsSingleHelperAudit
+
+import FormalProof4FHETest.HasteBootsSingleOpeningFinishingAudit
