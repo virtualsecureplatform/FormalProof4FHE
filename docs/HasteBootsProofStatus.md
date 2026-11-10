@@ -7,6 +7,14 @@ soundness/knowledge and 128-bit expected work per false acceptance in an
 explicit classical ideal-oracle model. Encryption privacy and zero knowledge
 are separate claims.
 
+The current arithmetic target is `CanonicalPBS` with `CanonicalKeySwitch`.
+The earlier frozen `NativePBS`/`NativeKeySwitch` references use subtraction of
+positive-mask digit products. Native code instead decomposes the canonical
+negative mask and adds the products; these operations differ for general key
+rows. Earlier claims that those old evaluators already matched native key
+switching are superseded by the correction documented at the end of this file.
+The old modules remain retained-source artifacts, not the corrected target.
+
 ## Source wrapper reborrow, call and normal-return cleanup
 
 The getter profile now validates the fixture wrapper's complete statement tree,
@@ -19612,3 +19620,89 @@ arithmetic provenance extension.
 
 Full-check log: `/tmp/decomposition-blind-rotation-full-check.log`; SHA-256
 `9e4cf6d1502a609fe7357f2c435efc76249182e44038d641cf560661a8ba8b53`.
+
+## Corrected negative-mask key switching and the complete PBS reference (2026-11-10)
+
+Native source inspection exposed an error in the old coefficient reference.
+`lattice/src/rlwe.rs::sub_assign_gadget_rlwe_mul_polynomial_inplace_fast` and
+its traced variant negate the input polynomial before canonical unsigned
+radix decomposition, then add each original key product. The canonical packed
+key-switch input likewise duplicates the negative accumulator mask, and its
+result source is the signed increment (final minus initial). In contrast,
+`NativeKeySwitch.switch` subtracts products of digits of the positive mask.
+Canonical digit extraction is not additive, so these formulas need not agree
+for the original arbitrary ciphertext key rows. A sign change on the final
+product alone cannot repair this discrepancy.
+
+`CanonicalKeySwitch` now defines the corrected operation as constant-body
+initialization plus the sum of products of canonical digits of the negative
+mask and the original switching-key rows. Its trace stores that signed
+increment explicitly. It reuses only the correct `NativeKeySwitch.initial`
+and `extract` functions. The old reference modules are covered by the five
+retained-source manifests and remain unchanged; their internal mathematical
+theorems still describe their own evaluator, but do not prove refinement of
+this native key switch. The status introduction now identifies the corrected
+target and supersedes earlier native-correspondence claims for those modules.
+
+The new NTT theorem transforms every original gadget-level contribution.
+`increment_of_relations` recovers the coefficient increment from the complete
+Hadamard relation, canonical negative-mask digit-factor bindings, original
+key-factor bindings and result binding. Each half retains its own supplied
+addresses, with no permutation, dropped gadget levels or assumed key-product
+conclusion. These bindings still require enforcement from the actual accepted
+stages and immutable public-key objects.
+
+`Extraction` states the coefficients selected by the native public mask:
+nonce coefficient zero, the reversed and negated retained nonce positions,
+and body coefficient zero. Its body equation uses the already biased input;
+this is the native target `outputBody - accumulatorBody - q/8`. The theorem
+`extract_of_constraints` proves that these checks determine precisely the
+public partial LWE extraction. It does not assert equality of unselected
+coefficients. `valid_of_extraction` combines this with the increment and
+initialization identities, while `wrong_output_coverage` locates a wrong
+output in one of these concrete final-stage constraints.
+
+`CanonicalPBS` composes the existing public preprocessing, original blind key
+rows and frontend rotations, complete coefficient blind rotation and q/8 bias
+with the corrected final key switch. Its trace relation determines its public
+evaluator. `relation_of_packed` supplies its blind trace from all seven packed
+accumulator constraints and the original multiplication-source predicates,
+using exactly the public frontend rotations and original key-row order. The
+remaining canonical final-stage relation can be discharged through the new
+NTT and selected-coefficient theorems. This is a complete arithmetic-reference
+composition, not a theorem about actual verifier acceptance.
+
+The modulus-17, degree-four, three-level regression distinguishes the two
+references using the same original key rows and accumulator: the corrected
+partial output has first mask/body `(3,9)`, whereas the earlier reference has
+`(16,3)`. It derives negative-mask digit provenance from the complete base-4
+linear/lookup constraints and the original digit-column NTT bindings, then
+proves the corrected increment and selected public output. It rejects a
+changed final retained mask coordinate. Changing an unselected nonce
+coefficient still passes extraction alone and fails the key-product identity,
+recording why extraction cannot certify the whole polynomial. A full public
+PBS fixture instantiates the corrected reference trace. Fourteen exact axiom
+guards cover all new production theorems; dependencies are subsets of
+`propext`, `Classical.choice` and `Quot.sound`, and ciphertext extensionality
+uses no axioms. Both root libraries import the corrected modules and tests.
+
+Original coefficient/evaluation/heap/address and public-key correspondence,
+native accepted-stage constraint enforcement and decoding, authenticated
+source ownership/history, and Fiat--Shamir/lifetime composition still remain
+open. The retained old reference artifacts must not be used to conclude
+corrected native PBS acceptance soundness. Complete accepted-false-PBS
+coverage, native BabyBear, actor-cost separation and physical attacker-work/
+compiler/lifetime/cache/RNG refinement remain open. The overall security goal
+remains unproved.
+
+Validation: targeted smoke/audit build passed with 3,863 jobs. Full
+`scripts/check` completed with exit status zero, including 11,221 build jobs
+and all subsequent audit/smoke commands. No proof placeholders, additional
+logical axioms, native decision proofs, proof-limit increases or linter
+suppression were introduced. All recorded input, manifest and build-receipt
+hashes of the five retained-source gates were verified unchanged (552, 484,
+142, 42 and 478 inputs); those extraction gates were not rerun for this
+corrected arithmetic reference and its new NTT/extraction bridges.
+
+Full-check log: `/tmp/canonical-key-switch-full-check.log`; SHA-256
+`fae29c715724f90d7a86d0843e7b1994b536703336b41272b09c5f32bb5b1075`.
