@@ -18912,3 +18912,69 @@ arithmetic semantics extension.
 
 Full-check log: `/tmp/public-monomial-full-check.log`; SHA-256
 `078b5ef05cb554e5be0a23ef188c4dfd48fb1815b22f8b17cf63bcfb62d6725b`.
+
+## Optimized public monomial evaluation in exact arithmetic (2026-11-10)
+
+`MonomialBitOrder` proves the address identities needed by the public monomial
+coefficient loop. Appending a bit and reversing a cube relate the existing
+low-bit-first `FlatMatrixFold.index` and high-bit-first
+`NTTButterfly.outputIndex`. It follows that the NTT's `reverseIndex` at a flat
+cube address is its high-bit-first index. Splitting lane and coefficient bits
+then proves both contiguous flat addresses and the corresponding reversed root
+exponents. These identities include zero-bit dimensions and require no supplied
+bit-reversal certificate.
+
+`PublicMonomialEvaluation` formalizes the exact field-arithmetic loop from
+`packed_monomial::Plan::evaluate`. Each iteration forms the zero matrix-vector
+product plus the one matrix-vector product scaled by the phase raised to the
+appropriate descending power of two. The first-variable elimination theorem
+pulls the common scalar phase through those products; induction proves that the
+optimized loop equals ordered matrix folding of the geometric coefficient
+cells. Query matrices are never commuted. Lane initialization includes the
+shift of its lane-only reversed address by the coefficient-bit count, matching
+reversal over the entire polynomial width.
+
+The geometric cells are proved equal to the preceding signed-monomial
+materialization under the existing primitive-root hypotheses. The coefficient
+loop therefore evaluates the actual signed-coefficient butterfly row, both in
+Boolean-cube form and using the native adjacent-cell flat fold. The flat row
+address is proved to be `lane + width * cell`. `optimizedRows_eq_materialized`
+preserves every original active row and its zero padding. Finally,
+`evaluate_materialized` composes the padded row folds with the final two-half
+matrix-vector products, yielding the same staged evaluation of the materialized
+rows. It does not assume a public-table/node-power equality or a bit-order
+identity as a premise. The single coefficient-step identity is valid over a
+commutative semiring; monomial materialization uses the prime-field setting.
+
+Fifteen kernel-checked regression examples and one primitive-root fixture lemma
+use modulus 17, N=8 and width two. They cover full-width lane reversal, contiguous
+lane/cell addressing, signed monomial butterfly cells, golden coefficient-loop
+outputs, noncommuting matrix queries and the observable effect of reversing
+query order, cube/flat materialization bridges, both active signs, duplicate
+rotations, an inactive padded row, a complete staged evaluator golden vector,
+and the zero-query/zero-bit cases. Eighteen guards audit all new production
+theorems; dependencies are subsets of `propext`, `Classical.choice` and
+`Quot.sound`. Both root libraries import the extension.
+
+The exact-arithmetic staged evaluator is now connected to the signed table.
+Remaining native refinement includes the full flat coefficient/round/half
+allocation and query-slicing layout, constructor and validation/error behavior,
+actual usize reversal/shifts/overflow, concrete field/root/cache/kernel dispatch,
+and Rust heap/ABI execution. This theorem does not state that a native accepted
+monomial check supplies truthful committed source relations. Full accepted-stage
+coverage and Fiat--Shamir error composition, accumulator/decomposition/key-switch
+constraints, accepted-false-PBS extraction/coverage, native BabyBear, actor-cost
+separation and physical attacker-work/compiler/lifetime/cache/RNG refinement
+remain open. The overall security goal remains unproved.
+
+Validation: targeted smoke/audit build passed with 3,777 jobs. Full
+`scripts/check` completed with exit status zero, including 11,192 build jobs
+and all subsequent audit/smoke commands. No proof placeholders, additional
+logical axioms, native decision proofs, proof-limit increases or linter
+suppression were introduced. All recorded input, manifest and build-receipt
+hashes of the five retained-source gates were verified unchanged (552, 484,
+142, 42 and 478 inputs); those extraction gates were not rerun for this
+arithmetic semantics extension.
+
+Full-check log: `/tmp/public-monomial-evaluation-full-check.log`; SHA-256
+`9058ee1738d687ee59349f4a27d2c3c33fbc8e8cac764fc7d64d07a3237f1e03`.
