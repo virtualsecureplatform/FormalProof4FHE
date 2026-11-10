@@ -18792,3 +18792,65 @@ arithmetic semantics extension.
 
 Full-check log: `/tmp/hadamard-blind-full-check.log`; SHA-256
 `f3e36ba4588f488557ec858ccbb12dc916618ae495f885c155a83ecbfe582af9`.
+
+## Monomial/NTT relations determine the reference rotation (2026-11-10)
+
+`BlindRotationMonomial` proves the signed coefficient scatter's evaluation at
+any point satisfying `point^N = -1`. The proof accounts for the reduction of
+`j+exponent` modulo `2N`, the positive and negative sectors, and arbitrary
+natural-number exponents. Under the existing primitive-root hypotheses this
+identifies the reference rotation's NTT with the input NTT multiplied by the
+odd, bit-reversed nodes raised to the rotation exponent. The same identity
+holds for the existing butterfly implementation; transform injectivity recovers
+the coefficient rotation from the pointwise identity. These are generic
+prime-field statements, not only statements about a concrete small example.
+
+`PBSMonomialBlindRotation` projects the one-product Hadamard relation's input,
+public monomial and result factors at explicit packed-table addresses. Truthful
+input/result NTT equalities and a public-factor equality to those node powers
+now imply the signed coefficient rotation, for both ciphertext halves. A wrong
+rotation therefore violates the Hadamard relation, an input/result NTT equality,
+or the public-factor equality. Composing this with the preceding external-product
+bridge proves `NativeBlindRotation.ValidStep` without supplying a coefficient
+rotation equality. The accumulator subtraction and addition constraints remain
+explicit premises. Both stages currently share the supplied cell/lane geometry;
+their address functions and factor tables are supplied independently.
+
+The native `packed_monomial.rs` plan table constructs the signed monomial at
+`rotation % N`, transforms it, zero-pads inactive rounds and repeats it for the
+two ciphertext halves. Its optimized public evaluation must still be proved to
+match that table and the node-power projection. This checkpoint supplies no
+native plan-table/evaluator refinement or accepted-stage claim. In particular,
+the reference action's arbitrary-exponent theorem does not broaden the native
+plan constructor's requirement that each rotation is below `2N`.
+
+Ten kernel-checked regression examples and four fixture lemmas cover zero,
+negative-sector, full-turn and large reference rotations, the transform theorem,
+a composed nonzero-rotation step, corruption of the other ciphertext half, and
+a truthful one-product relation with a wrong public factor. The last example
+shows why the independent public-power premise is necessary. Fixtures retain
+modulus 17, degree four and the preceding external-product control/accumulator.
+That preceding smoke module now exports its existing fixtures for reuse.
+Eleven guards audit every new production theorem; dependencies are subsets of
+`propext`, `Classical.choice` and `Quot.sound`.
+
+This closes the coefficient-rotation premise in the deterministic step bridge,
+not the full modified-HasteBoots security claim. Still open are the native
+public monomial evaluator and packed/key layout, accumulator continuity and
+endpoints, decomposition and key switching, accepted native stage coverage and
+Fiat--Shamir error composition, full accepted-false-PBS extraction/coverage,
+profile validation and Rust/heap/ABI/dispatcher correspondence, native BabyBear,
+actor-cost separation and physical work/compiler/lifetime/cache/RNG refinement.
+The final physical-work security goal remains unproved.
+
+Validation: targeted smoke/audit build passed with 3,775 jobs. Full
+`scripts/check` completed with exit status zero, including 11,187 build jobs
+and all subsequent audit/smoke commands. No proof placeholders, additional
+logical axioms, native decision proofs, proof-limit increases or linter
+suppression were introduced. All recorded input, manifest and build-receipt
+hashes of the five retained-source gates were verified unchanged (552, 484,
+142, 42 and 478 inputs); those extraction gates were not rerun for this
+arithmetic semantics extension.
+
+Full-check log: `/tmp/monomial-blind-full-check.log`; SHA-256
+`3dc2742791e40a0675555d441ff1007a34d0b4996d02a434c19412352085e44c`.

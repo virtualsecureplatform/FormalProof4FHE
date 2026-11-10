@@ -1,3 +1,4 @@
+import FormalProof4FHE.HasteBoots.PBSMonomialBlindRotation
 import FormalProof4FHE.HasteBoots.PBSHadamardBlindRotation
 import FormalProof4FHE.HasteBoots.ClassicalGoldStageRegistry
 import FormalProof4FHE.HasteBoots.ClassicalGoldDescriptorSetup

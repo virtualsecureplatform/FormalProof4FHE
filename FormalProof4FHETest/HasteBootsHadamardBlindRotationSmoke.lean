@@ -1,5 +1,6 @@
 module
-import FormalProof4FHE.HasteBoots.PBSHadamardBlindRotation
+public import FormalProof4FHE.HasteBoots.PBSHadamardBlindRotation
+@[expose] public section
 open FormalProof4FHE.HasteBoots
 open scoped BigOperators Matrix
 open NativeBlindRotation (Poly Cipher Control digit externalProduct)
