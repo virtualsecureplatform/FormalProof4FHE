@@ -20975,3 +20975,68 @@ additional logical axioms, native decision proofs, proof-limit increases or
 linter suppressions were introduced. Full-check log:
 `/tmp/mixed-width-terminal-full-check.log`; SHA-256
 `79068ebe6399cc316cb3ebb836da6239c3de73102dcf1de203d9d9ad0e54c07e`.
+
+
+### Private shared lookup acceptance with compact helpers (2026-11-10)
+
+`MixedWidthSharedLookupPCS` composes the actual successful terminal receipt
+with the original-root grouped PCS continuation. Receipt failure disables PCS;
+fallback packet data cannot enable acceptance. The trusted builder fixes the
+common-point queries and values, and the receipt's actual retained memory starts
+the opening loop. Helpers precede sources, each registry entry occurs once, and
+each root retains its physical packing width and original commitment/context.
+The successful-run reduction exposes scalar arithmetic, per-root PCS arithmetic,
+or the common availability exception on that same execution.
+
+`MixedWidthSharedLookupPCSAlgebra.facts` derives the local acceptance reduction
+and retained scalar arithmetic bound internally from the computed shared
+verifier. Every job keeps its own literal table, multiplicities, source slots,
+EQ point and sampled pair. A nonpassing job is chosen before EQ draws. There
+is no soundness multiplier for the number of jobs or equations.
+
+`MixedWidthStagedSharedLookup` and its soundness module place the source roots
+before adaptive pair/helper work and helper roots afterwards. Their original
+checkpoint words retain their own prefix logs. A nonpassing sampled job and
+final PCS acceptance OR terminal common-history Bad are bounded by scalar error,
+original-root PCS errors and one complete-run expected hash charge. Each root
+has its own PCS analysis field and basis of the actual packed width, distinct
+from the lookup extension field.
+
+`MixedWidthRequestSharedLookup` compiles request-major/repetition-minor jobs,
+fixing each job's table, multiplicities, original source slots and retained
+private sampled pair. Its all-pass equivalence ties those jobs to the original
+source tuples frozen before pair sampling. `MixedWidthStagedPrivateSharedLookup`
+composes the ideal independent per-request sampler, arbitrary adaptive helper
+construction, ordered EQ/common sumcheck, computed terminal receipt and original
+mixed-width PCS. Its `false_acceptance_or_bad_bound` proves:
+
+* false original request tuple acceptance OR terminal Bad is bounded by the
+  maximum request-specific repeated pair error, plus shared scalar error, plus
+  the sum of per-root PCS errors, plus one complete-run hash charge;
+* each request keeps its own repetition count, with no request-count union;
+* original sources and original compact helpers retain independent physical
+  widths, including the 4/3 and 8/6 source/helper geometries when instantiated;
+* no helper commitment is padded or replaced, and no acceptance/hash-safety/PCS
+  soundness certificate is supplied by the adversary.
+
+Ten exact axiom guards generated from Lean output cover all new production
+theorems and the proof-bearing request parameter compiler. Their dependencies
+are only `propext`, `Classical.choice`, and `Quot.sound`.
+
+This closes the generic mixed-width private shared acceptance composition from
+fresh source commits at an empty initial history. It does not instantiate the
+native Goldilocks/BabyBear field and byte implementations, connect reused source
+owners to this fresh checkpoint theorem, or prove native context/root source
+alias deduplication. Next priorities are original-owner reuse and native
+parameter/registry/job association. Full PBS lifetime, production Fiat--Shamir,
+actor-cost separation and physical work/compiler/cache/RNG refinement remain
+open. The final 128-bit actual-attacker-work theorem remains unproved.
+
+Validation: targeted mixed-width/private smoke and audit build passed (3,834
+jobs). Full `scripts/check` exited zero, including the 11,332-job build and all
+standalone checks. All five frozen gate input, manifest and receipt hashes
+remain unchanged (552, 484, 142, 42, 478 inputs). No proof placeholders,
+additional logical axioms, native decision proofs, proof-limit increases or
+linter suppressions were introduced. Full-check log:
+`/tmp/mixed-width-private-full-check.log`; SHA-256
+`b55ca9171c15d148c8a385aef5d96ab0760e3f7799782130cf396280972909a5`.
