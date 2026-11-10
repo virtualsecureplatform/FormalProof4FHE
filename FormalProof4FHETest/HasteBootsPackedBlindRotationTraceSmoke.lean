@@ -1,6 +1,7 @@
 module
-import FormalProof4FHE.HasteBoots.PackedBlindRotationTrace
-import FormalProof4FHETest.HasteBootsPackedAccumulatorTraceSmoke
+public import FormalProof4FHE.HasteBoots.PackedBlindRotationTrace
+public import FormalProof4FHETest.HasteBootsPackedAccumulatorTraceSmoke
+@[expose] public section
 open FormalProof4FHE.HasteBoots
 open HasteBootsAccumulatorTraceSmoke HasteBootsHadamardBlindRotationSmoke
 open HasteBootsPackedAccumulatorTraceSmoke (rounds embed decompositionA decompositionB holds)

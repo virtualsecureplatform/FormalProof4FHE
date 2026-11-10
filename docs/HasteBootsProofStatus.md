@@ -19542,3 +19542,73 @@ arithmetic composition.
 
 Full-check log: `/tmp/packed-blind-rotation-full-check.log`; SHA-256
 `d39d73207fcd990f6cfe5f06f6465c4f250d49f7c2b3b777ccd9d92f36f810a9`.
+
+## Canonical decomposition supplies external-product digit provenance (2026-11-10)
+
+`DecompositionBlindRotation` connects the existing integer canonicity theorem
+to the coefficient-domain digit polynomials used by blind rotation. `Registry`
+retains the original input, every digit and every borrow column in the native
+`DecompositionLinear` order. Its coefficient projection uses supplied addresses
+and does not relabel digit levels. `digit_of_constraints` derives equality to
+`NativeBlindRotation.digit` from the concrete reconstruction/zero-borrow linear
+relation, membership in every public comparison table at each mapped scalar,
+and the original input binding. It does not assume a canonical digit equality.
+The radix and characteristic bounds and sufficient full digit count remain
+explicit checked-configuration obligations.
+
+An external product may use fewer levels than the full canonical decomposition.
+The `levels <= d` bound selects the original low limbs using `Fin.castLE`, which
+preserves their values/indices. All decomposition limbs still occur in the
+linear relation and comparison lookups; high limbs are not removed from the
+canonicity argument. Lookup membership is required at every mapped coefficient
+of both original input halves. This theorem does not impose membership on
+unmapped inactive padding; the linear relation remains over its complete
+original registry.
+
+`digits_transform_of_constraints` transfers actual NTT bindings of the original
+registry digit columns to the digit-factor premise of the external-product
+relation. `external_of_constraints` then proves the complete coefficient
+external product using those constraints, the original key-factor bindings,
+result binding, Hadamard relation and primitive root. Decomposition and NTT
+stage dimensions and widths remain independent. `wrong_digit_coverage` exposes
+a wrong projected digit in the original input binding, the reconstruction
+relation, or a concrete public-table lookup. Field reconstruction by itself
+is never used to conclude integer canonicity.
+
+The regression fixture retains the preceding three original modulus-17 rounds
+with monomial width 3, external-product width 6 and accumulator width 2. For
+each original difference half it constructs a full three-limb base-4 registry
+with input/digit/borrow columns, proves its linear relation and comparison
+memberships using `RadixWitness`, and directly checks its original digit-column
+NTT bindings. The digit premise of the complete multiplication trace is then
+replaced by the new derived theorem. The final golden reference output and
+all per-round external products follow without an assumed canonical-digit
+premise. The boundary representative 16 is checked to use the third limb.
+A noncanonical digit string `1 + 4^2 = 17` passes field reconstruction for
+input zero but is covered by a failed comparison lookup. Four exact axiom
+guards cover every new theorem; dependencies are limited to `propext`,
+`Classical.choice` and `Quot.sound`. Both root libraries import the extension;
+the preceding multiplication fixture is exported for reuse.
+
+This discharges the mathematical digit-provenance step from explicit linear
+and lookup constraints. Their enforcement by the actual shared accepted
+linear/lookup stages, authentication of the same original arrays/owners,
+configuration and address/source/heap correspondence, and NTT/public-key
+source provenance still require refinement. It does not supply accepted-stage
+soundness, lookup probability composition, or native Fiat--Shamir freshness.
+Key switching and partial extraction coverage, complete accepted-false-PBS
+coverage, native BabyBear, actor-cost separation and physical attacker-work/
+compiler/lifetime/cache/RNG refinement remain open. The overall security goal
+remains unproved.
+
+Validation: targeted smoke/audit build passed with 3,858 jobs. Full
+`scripts/check` completed with exit status zero, including 11,217 build jobs
+and all subsequent audit/smoke commands. No proof placeholders, additional
+logical axioms, native decision proofs, proof-limit increases or linter
+suppression were introduced. All recorded input, manifest and build-receipt
+hashes of the five retained-source gates were verified unchanged (552, 484,
+142, 42 and 478 inputs); those extraction gates were not rerun for this
+arithmetic provenance extension.
+
+Full-check log: `/tmp/decomposition-blind-rotation-full-check.log`; SHA-256
+`9e4cf6d1502a609fe7357f2c435efc76249182e44038d641cf560661a8ba8b53`.
