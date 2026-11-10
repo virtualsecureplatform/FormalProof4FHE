@@ -18854,3 +18854,61 @@ arithmetic semantics extension.
 
 Full-check log: `/tmp/monomial-blind-full-check.log`; SHA-256
 `3dc2742791e40a0675555d441ff1007a34d0b4996d02a434c19412352085e44c`.
+
+## Signed public monomial materialization (2026-11-10)
+
+`PublicMonomialTable` specifies the mathematical rows materialized by
+`packed_monomial::Plan::table`: a single coefficient at `rotation % N`, with
+sign determined by `rotation < N`, transformed by the existing butterfly NTT.
+Rotations are bounded by `2N`, matching the native plan constructor's rotation
+range. A finite-sum proof shows that evaluating these coefficients at any
+`point` with `point^N = -1` gives `point^rotation`. Consequently their NTT is
+exactly the node-power polynomial used by the preceding rotation bridge.
+This no longer assumes the monomial transform identity for these coefficients.
+
+The row/table definitions preserve the supplied original round order, duplicate
+rotations, zero inactive rows and identical ciphertext halves. The active-row
+theorem gives the public powers, the inactive-row theorem gives zero, and the
+original-round theorem retains every rotation when `rounds ≤ padded`.
+`rotate_of_table` discharges the preceding bridge's public-power premise from
+an equality binding the packed public factor to a materialized active row.
+Hadamard and input/result NTT relations remain explicit stage premises, as does
+that binding. This is a mathematical materialization theorem, not an extraction
+or Rust execution theorem for `Plan::table`.
+
+Eleven kernel-checked regression examples and four fixture lemmas cover both
+coefficient signs, a negative-sector golden butterfly row, active original
+rounds, duplicate rotations, padding, empty rounds, degree one, both halves,
+and coefficient rotation recovered through a materialized public row. A
+negative example distinguishes zero padding from exponent-zero monomials.
+The fixtures use modulus 17 and degree four; the production field/log/rotation
+statements are generic. The empty-round example is an edge case of the row
+model; the native plan constructor still requires nonempty rotations. Eight
+guards audit all new production theorems, with
+dependencies contained in `propext`, `Classical.choice` and `Quot.sound`.
+No proof-limit changes are needed: regression applications instantiate the
+field, transform dimension, active count and padded count explicitly to avoid
+nonlinear index inference.
+
+The next public-monomial obligation is the verifier's optimized `Plan::evaluate`:
+prove its lane initialization, scalar-power multipliers, ordered matrix-vector
+coefficient folds, padded row fold and final two-half fold agree with the
+materialized table. Native bit-reversal/index arithmetic, flat packing,
+constructor shape/error behavior and concrete field transforms must also be
+connected to this mathematical model. The new table binding does not establish
+any of those refinements. The remaining accumulator/decomposition/key-switch
+constraints, native accepted-stage and Fiat--Shamir composition, complete
+accepted-false-PBS coverage/extraction, native BabyBear and physical attacker-work
+refinement remain open. The overall security goal remains unproved.
+
+Validation: targeted smoke/audit build passed with 3,778 jobs. Full
+`scripts/check` completed with exit status zero, including 11,190 build jobs
+and all subsequent audit/smoke commands. No proof placeholders, additional
+logical axioms, native decision proofs, proof-limit increases or linter
+suppression were introduced. All recorded input, manifest and build-receipt
+hashes of the five retained-source gates were verified unchanged (552, 484,
+142, 42 and 478 inputs); those extraction gates were not rerun for this
+arithmetic semantics extension.
+
+Full-check log: `/tmp/public-monomial-full-check.log`; SHA-256
+`078b5ef05cb554e5be0a23ef188c4dfd48fb1815b22f8b17cf63bcfb62d6725b`.
