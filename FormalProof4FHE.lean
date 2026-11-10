@@ -751,3 +751,7 @@ import FormalProof4FHE.HasteBoots.OwnedExtractionSoundness
 
 import FormalProof4FHE.HasteBoots.PackedKeySwitchStage
 import FormalProof4FHE.HasteBoots.PackedPBSCoverage
+
+import FormalProof4FHE.HasteBoots.OriginalFactorExceptionUnion
+import FormalProof4FHE.HasteBoots.OwnedHadamardSoundness
+import FormalProof4FHE.HasteBoots.OwnedKeySwitchCoverage
