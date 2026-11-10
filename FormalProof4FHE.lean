@@ -791,3 +791,8 @@ import FormalProof4FHE.HasteBoots.SharedLookupBatchArithmetic
 import FormalProof4FHE.HasteBoots.SharedLookupTerminal
 import FormalProof4FHE.HasteBoots.SharedLookupTerminalReduction
 import FormalProof4FHE.HasteBoots.SharedLookupTerminalSoundness
+
+import FormalProof4FHE.HasteBoots.SharedLookupPCS
+import FormalProof4FHE.HasteBoots.SharedLookupPCSAlgebra
+import FormalProof4FHE.HasteBoots.StagedSharedLookup
+import FormalProof4FHE.HasteBoots.StagedSharedLookupSoundness
