@@ -20160,3 +20160,79 @@ model composition.
 
 Full-check log: `/tmp/owned-hadamard-full-check.log`; SHA-256
 `5abdf1c7b537318c10231161b27327ce46a1e4a19c936ffb3770c4c75b86f9b5`.
+
+## Original NTT owner soundness and derived final-stage source bindings
+
+`PackedNTTBinding` connects the existing packed butterfly relation to
+`BlindRotationNTT.transform` on every original polynomial row. The coefficient
+bits remain low, row bits high and lanes unchanged; both sides use the same
+odd bit-reversed root powers. It proves the equivalence in both directions,
+full source-address equality, and packing/row recovery for honest source
+fixtures. No transform equality from a native factory is assumed.
+
+`KeySwitchSourceConstraints` derives the final key product's digit/result NTT
+bindings from canonical negative-mask reconstruction/comparison constraints,
+original coefficient-column bindings, and full packed NTT source relations.
+The two high rows are the original nonce/body halves. Full decomposition may
+retain more canonical limbs than the product uses, with explicit coverage and
+original low-to-high indices. The result is the original signed increment,
+not a separate switched polynomial. Original public-key NTT bindings remain
+explicit setup obligations: native key switching checks its `d+1` digit/result
+NTTs and reuses already preprocessed key roots, so no extra key NTT subproof
+is invented. `holds_of_constraints` supplies the existing packed key-switch
+stage and hence the corrected coefficient increment.
+
+`CommittedBatchException` strengthens the actual stopped native-batch bound
+to include its terminal common history exception in the same event. It retains
+the original batch program and callbacks, with one PCS error per original
+root, independent of the number of claims. `OwnedNTTSoundness` uses this bound
+to cover a false NTT relation on any matching recorded coefficient/evaluation
+owner pair, even selected after the run. Fresh false-source acceptance is
+included in that event. Audit is derived from actual run support. Outside the
+same terminal exception, the complete original owner sources equal the actual
+pre-query decoded sources, without a union over owner choices.
+
+`OwnedNTTBinding` fixes the actual NTT scheme to the proved butterfly map and
+expresses the bounded event as an incorrect `BlindRotationNTT.transform` at
+some original row. The bound is the row-miss term `(r/q)^k`, common compression
+term `c*((2*b-1)/q)^b`, TWO PCS errors for the two original batches, and ONE
+whole-program hash charge. There is no row-repetition multiplier or a separate
+hash charge for source reuse. The original field, primitive-root, independent
+packing length, code/domain/radius and extension-basis hypotheses remain.
+
+`OwnedKeySwitchSourceCoverage` connects the derived bindings to the existing
+accepted original-owner Hadamard risk. Its premises are the canonical
+reconstruction/comparison constraints, original coefficient-source equations,
+NTT source relations and original setup-key binding; it no longer takes
+transforms of canonical digits or the signed result as supplied equalities.
+The dimension equality between `1+c` and `c+1` is transported explicitly without
+permuting any cube bit or lane.
+
+The new q=17, degree-four, width-two regression checks all three canonical
+negative-mask limbs, both NTT halves, original key rows and the signed result,
+then derives the final key product through the new source constraints. The
+last body coefficient retains its high row and nonzero lane. Swapped nonce/body
+evaluations fail the original NTT relation. Positive-mask coefficient/evaluation
+sources satisfy their NTT relation but fail the canonical negative-mask source
+binding, guarding against confusing transform correctness with decomposition
+correctness. Eighteen fresh exact axiom guards cover every new production
+theorem; dependencies are subsets of `propext`, `Classical.choice`, `Quot.sound`.
+
+These results do not yet prove native byte/owner identification, original key
+preprocessing correctness or accepted canonical lookup/decomposition coverage.
+The NTT and Hadamard/extraction bounds still require composition for all stages
+under the complete verifier lifetime. Production Fiat--Shamir, native BabyBear,
+actor-cost separation and physical work/compiler/cache/RNG refinement remain
+open. The final 128-bit actual-attacker-work security theorem remains unproved.
+
+Validation: targeted smoke/audit build passed (3,884 jobs). Full
+`scripts/check` completed with exit status zero, including 11,260 build jobs
+and all subsequent standalone audit/smoke commands. No proof placeholders,
+additional logical axioms, native decision proofs, proof-limit increases or
+linter suppressions were introduced. All five retained-source gate input,
+manifest and build-receipt hashes were verified unchanged (552, 484, 142, 42
+and 478 inputs); those extraction gates were not rerun for this source/NTT
+model composition.
+
+Full-check log: `/tmp/ntt-source-full-check.log`; SHA-256
+`203fb0daa8c38fabac5052f220674b03af828aa1cd81e380836b8ec17c006e67`.

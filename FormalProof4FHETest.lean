@@ -370,3 +370,6 @@ import FormalProof4FHETest.HasteBootsPackedPBSCoverageAudit
 
 import FormalProof4FHETest.HasteBootsOwnedHadamardSmoke
 import FormalProof4FHETest.HasteBootsOwnedHadamardAudit
+
+import FormalProof4FHETest.HasteBootsKeySwitchSourceConstraintsSmoke
+import FormalProof4FHETest.HasteBootsNTTSourceBindingAudit
