@@ -774,3 +774,7 @@ import FormalProof4FHE.HasteBoots.StagedLookupException
 import FormalProof4FHE.HasteBoots.StagedPrivateLookupException
 import FormalProof4FHE.HasteBoots.OwnedLookupSources
 import FormalProof4FHE.HasteBoots.OwnedPrivateLookupSoundness
+
+import FormalProof4FHE.HasteBoots.SharedBatchSumcheckOracle
+import FormalProof4FHE.HasteBoots.SharedBatchSumcheckSoundness
+import FormalProof4FHE.HasteBoots.SharedScalarBatchQuery
