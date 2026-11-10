@@ -18725,3 +18725,70 @@ allocation-order and logical stage-registration extension.
 
 Full-check log: `/tmp/gold-stage-full-check.log`; SHA-256
 `5d48f6b04a901630a451046e87b809eca948e3a45aa61a5bd2c5a3e8364670cf`.
+
+## Hadamard/NTT relations determine the reference external product (2026-11-10)
+
+`BlindRotationNTT` closes an arithmetic gap between the complete-PBS Hadamard
+stage's pointwise evaluation identity and `NativeBlindRotation.externalProduct`.
+It proves directly from the reference double-sum convolution that evaluation
+at a root of `X^N+1` turns negacyclic multiplication into field multiplication.
+The proof accounts explicitly for upper coefficients wrapping with a minus
+sign; it does not assume convolution or transform correctness.
+
+The existing odd, bit-reversed root-domain theorem then supplies multiplicativity
+of the proved butterfly transform. Distinct nodes and the existing polynomial
+encoder injectivity theorem supply transform injectivity. Consequently, a
+pointwise transformed external-product identity uniquely determines the original
+coefficient-domain result. The theorems cover arbitrary prime modulus, arbitrary
+power-of-two degree and gadget count, with the required primitive root explicit.
+They do not change the original native 1024/728 target parameters.
+
+`PBSHadamardBlindRotation` fixes native half-major digit indexing: every level
+of the nonce family, then every level of the body family. A proved bijection
+covers exactly all `2*levels` evaluation/key pairs. The original trusted
+`PBSHadamard.Relation` projects to the pointwise sum of those pairs at each
+polynomial output point. Truthful digit, public-key and result NTT relations
+then imply the reference coefficient-domain external product for both output
+halves. No independently supplied transform-correctness certificate is used.
+
+`wrong_external_coverage` gives the deterministic contrapositive: a wrong
+external product violates the Hadamard relation or one of the digit/key/result
+NTT source equalities. `validStep_of_relations` supplies the external-product
+constraint in the independently defined reference blind-rotation step; its
+monomial action, subtraction and final accumulation identities remain explicit
+other-stage obligations. The address locating each polynomial and its public
+key rows in the packed source tables remains an explicit layout interface.
+
+Seven kernel-checked regression examples and five fixture lemmas exercise
+negacyclic wrap signs, native-order butterfly outputs, both source families and
+both output halves, reconstruction from packed Hadamard/NTT relations, a complete
+nonzero-rotation reference step, a corrupted output, and empty gadget families.
+The concrete fixtures use modulus 17 and degree four for inspectable arithmetic;
+the production theorems are generic and the native target is unchanged. These
+are arithmetic checks, not accepted native PBS executions.
+
+Fifteen guards audit all fourteen new production theorems and the digit-index
+bijection construction. Dependencies are subsets of `propext`, `Classical.choice`
+and `Quot.sound`. Both root libraries import the extension.
+
+This is a deterministic application-semantics bridge. It does not show that
+accepted native Hadamard/NTT checks supply the truthful relations, adapt their
+interactive error terms to the production Fiat--Shamir execution/work bound,
+or establish the remaining decomposition, monomial, accumulator and key-switch
+relations. Actual packed/public-key layout, native profile/field/identifier
+validation and Rust/heap/ABI/dispatcher correspondence, full accepted-false-PBS
+coverage and efficient extraction, native BabyBear, actor-cost separation and
+physical attacker-work/compiler/lifetime/cache/RNG refinement remain open.
+The final physical-work security goal is not established.
+
+Validation: targeted smoke/audit build passed with 3,770 jobs. Full
+`scripts/check` completed with exit status zero, including 11,179 build jobs
+and all subsequent audit/smoke commands. No proof placeholders, additional
+logical axioms, native decision proofs, proof-limit increases or linter
+suppression were introduced. All recorded input, manifest and build-receipt
+hashes of the five retained-source gates were verified unchanged (552, 484,
+142, 42 and 478 inputs); those extraction gates were not rerun for this
+arithmetic semantics extension.
+
+Full-check log: `/tmp/hadamard-blind-full-check.log`; SHA-256
+`f3e36ba4588f488557ec858ccbb12dc916618ae495f885c155a83ecbfe582af9`.
