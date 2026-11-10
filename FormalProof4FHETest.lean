@@ -411,3 +411,6 @@ import FormalProof4FHETest.HasteBootsMixedWidthTerminalAudit
 import FormalProof4FHETest.HasteBootsMixedWidthPrivateAudit
 
 import FormalProof4FHETest.HasteBootsMixedWidthOwnedAudit
+
+import FormalProof4FHETest.HasteBootsLookupPreflightPackingSmoke
+import FormalProof4FHETest.HasteBootsLookupPreflightPackingAudit

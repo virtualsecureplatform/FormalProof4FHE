@@ -826,3 +826,6 @@ import FormalProof4FHE.HasteBoots.MixedWidthStagedPrivateSharedLookup
 import FormalProof4FHE.HasteBoots.MixedWidthOwnedLookupSources
 import FormalProof4FHE.HasteBoots.MixedWidthOwnedRequestSources
 import FormalProof4FHE.HasteBoots.MixedWidthOwnedPrivateSharedLookup
+
+import FormalProof4FHE.HasteBoots.LookupPreflightPacking
+import FormalProof4FHE.HasteBoots.LookupPreflightPCSGeometry

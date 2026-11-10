@@ -21095,3 +21095,58 @@ additional logical axioms, native decision proofs, proof-limit increases or
 linter suppressions were introduced. Full-check log:
 `/tmp/mixed-width-owned-full-check.log`; SHA-256
 `ca57e97166dfdb53f2c3dff6453bffceec38e65ef0148a4b4be2f860d82012b5`.
+
+
+### Native Goldilocks preflight-to-packing and PCS layout association (2026-11-10)
+
+`LookupPreflightPacking` computes source padding, helper padding, lane bits and
+source row variables from the accepted native shared preflight output and its
+original helper parameters. Native binding success supplies the source width
+lower bound and power-of-two property. The derived specification proves source
+shape `3 + sourcePadding = 2^lanes`, exact original source and helper widths,
+helper padding either zero or source padding, registry row variables, helper
+and terminal arities, the native machine shift bound, and every request's
+logical active-length bound. The active/inactive split follows from that actual
+bound. These facts are derived from the existing numeric preflight, including
+its check on all registry entries, rather than a supplied geometry decoder.
+
+`root_widths` connects the mixed PCS family's per-root width function to the
+actual original numeric registry/helper widths. In particular, compact helper
+width three remains width three while source width four remains width four.
+No helper payload, context or commitment is rewritten. This adapter is for the
+existing native Goldilocks degree-three binding path; it does not establish the
+native BabyBear degree-six path.
+
+`LookupPreflightPCSGeometry` reads the numeric binding fields from the original
+retained Goldilocks Brakedown parameter objects. Its proof-bearing `geometry`
+constructor retains their left-variable splits, right-variable differences,
+query counts and stored row-code message-block metadata. Actual native
+parameter-constructor and preflight success derive both source and helper
+arity obligations. Its per-root width theorem links those same original
+objects to the mixed-width family.
+
+The native numeric regression uses two width-four sources, source row arity
+one, two requests with active lengths five/eight and repetition counts one/three.
+Both compact width-three and full width-four helpers pass and compute their
+own padding; the native repetition total is four. Width-two helpers, changed
+source dimensions and a wrong helper arity reject. Six exact axiom guards,
+generated from Lean output, cover every new production theorem and the
+proof-bearing PCS geometry constructor. Dependencies are only `propext`,
+`Classical.choice`, and `Quot.sound`.
+
+This associates packing and tensor/query metadata, not full native PCS
+security. The code block width still needs association with the mathematical
+symbol width, and its encoder, domain and distance semantics must be connected.
+Original context/root association to the actual recorded registry, native used
+source/alias deduplication, request/job order, field/byte bridges, complete PBS
+lifetime, production Fiat--Shamir and physical attacker work remain open.
+The final 128-bit actual-attacker-work theorem remains unproved.
+
+Validation: targeted native packing smoke and axiom-audit build passed (4,285
+jobs). Full `scripts/check` exited zero, including the 11,340-job build and all
+standalone checks. All five frozen gate input, manifest and receipt hashes
+remain unchanged (552, 484, 142, 42, 478 inputs). No proof placeholders,
+additional logical axioms, native decision proofs, proof-limit increases or
+linter suppressions were introduced. Full-check log:
+`/tmp/lookup-preflight-full-check.log`; SHA-256
+`f9a73e82e9e85329c8de680fb9dd4d3a7de36c1e07f598380064b777927e215b`.
