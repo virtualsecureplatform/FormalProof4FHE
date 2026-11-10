@@ -857,3 +857,11 @@ import FormalProof4FHE.HasteBoots.CacheBackedSingleOpening
 import FormalProof4FHE.HasteBoots.SingleOpeningExposure
 import FormalProof4FHE.HasteBoots.SingleOpeningAvailability
 import FormalProof4FHE.HasteBoots.SharedOpeningAvailability
+
+import FormalProof4FHE.HasteBoots.SingleOpeningRectangularData
+
+import FormalProof4FHE.HasteBoots.SingleOpeningRectangularChecks
+
+import FormalProof4FHE.HasteBoots.SingleOpeningRectangularAcceptance
+
+import FormalProof4FHE.HasteBoots.SingleOpeningInteractiveSoundness

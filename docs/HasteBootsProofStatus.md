@@ -21664,3 +21664,82 @@ placeholders, additional logical axioms, native decision proofs, proof-limit
 increases or linter suppressions were introduced. Full-check log:
 `/tmp/shared-opening-availability-full-check.log`; SHA-256
 `5d07a36e63d116088dea56207db0bb02cc9d9ca6e1c1e408534d88793d24cb71`.
+
+## Native single-helper rectangular transport, extraction and ideal bound
+
+`SingleOpeningRectangularData` derives the original query/message lengths,
+validated geometry and row dimensions from actual native preparation. One
+query-independent row bijection exposes left cells and packing lanes in native
+order. The computed original structured vector is proved equal to the original
+query's left-matrix weights. Both actual encoded responses are the padded
+native messages over the retained code domain, preserving independent packing
+and code-symbol widths. Accepted native suffix checking enforces the original
+claimed field vector's rectangular message finishing. No raw words, roots or
+transcript frames are replaced.
+
+`SingleOpeningRectangularChecks` transports the two native coordinate families
+on one immutable source word. The finite row sums are reindexed by that
+bijection, retaining their exact lane/row/symbol address. Every original draw
+occurrence, including repetitions, is covered by the lossless deduplicated
+worker/request mapping. The `Sampled` receipt retains the exact actual native
+column-prefix result, with its state, structured/random vectors and resulting
+transcript. The ordered typed vector is associated with that same sample;
+matching a sorted set of worker indices alone is not treated as native draw
+provenance. Both random and structured checks share the resulting vector and
+one frozen source; no fresh-challenge law is asserted here.
+
+`SingleOpeningRectangularAcceptance.accepted_view_or_bad` derives the complete
+rectangular `View` from a witnessed native accepted single call and its
+original completed code origin, or the existing persistent shared-history Bad.
+The actual ordered helper verifier also supplies this view through
+`helper_receipt_view_or_bad`, including accepted receipts before a later stop.
+The original allocation and framing domain remain explicit. The view retains
+actual preparation, context hash, common checkpoint log, native sampling
+receipt, typed/ordered draws, both rectangular check families and native
+finishing. Missing-view acceptances have the existing complete-program hash
+charge; the deterministic transport adds no extra hash risk.
+
+`View.table` applies the common decoder to the complete frozen source word,
+retained code, message capacity and radius. It is an analysis extractor, not an
+efficient public PBS extractor. `View.false_iff_error` identifies falsity of the
+original claimed field vector against that table with the one-opening kernel
+error and its actual checks, without a lane union. `View.table_encoded` proves
+that an honestly encoded original table is recovered exactly at radius zero;
+capacity and nonzero symbol width are derived from the retained constructor.
+That theorem's honest source-encoding association is an explicit premise, not
+a truth certificate supplied to the native verifier or an already completed
+application association.
+
+`SingleOpeningInteractiveSoundness` retains native finishing for arbitrary
+response openings, including probabilistic response state depending on the
+whole test matrix. The ideal experiment then samples one later ordered column
+vector. Constructor/cache provenance derives primitive-root correctness,
+capacity, positive code dimensions, original RS minimum distance and the
+required field-size inequality. Its bound is `(D/|Goldilocks|)^packingWidth`
+plus the maximum of the two existing column miss terms, with
+`D = native blocks - native message blocks + 1` and the explicit numeric radius
+condition `3*radius < D`. No query/lane/owner multiplier, homogeneous-width
+assumption, response enumeration or losslessness premise is introduced.
+
+This is the ideal interactive experiment, not the production SHAKE/SHA512
+Fiat--Shamir event. Connecting the exact native causal challenge law and
+lifetime exposure charges to this single-opening bound is next. Outer lookup
+commitment/common-point/query/job association, source aliases/owners and
+application truth still need composition. Production scalar/lookup
+Fiat--Shamir, BabyBear, complete modified-PBS lifetime and actor-separated
+actual attacker work/compiler/cache/RNG refinement remain open. The final
+128-bit actual-attacker-work theorem is still unproved.
+
+Forty exact Lean-output guards cover every new production theorem, definition,
+abbreviation and proof constructor; only standard `propext`,
+`Classical.choice` and `Quot.sound` occur. The targeted audit and retained
+rectangular matrix/extractor/native rectangular and duplicate-zero helper
+regressions passed (4,523 jobs).
+
+Validation: full `scripts/check` exited zero, including the 11,375-job
+build and all standalone checks. All five frozen gate input, manifest and
+receipt hashes remain unchanged (552, 484, 142, 42, 478 inputs). No proof
+placeholders, additional logical axioms, native decision proofs, proof-limit
+increases or linter suppressions were introduced. Full-check log:
+`/tmp/single-rectangular-full-check.log`; SHA-256
+`f3321d324382e28937a457beccc57882e2af0ad68c1e943181fe7f517f900c0d`.

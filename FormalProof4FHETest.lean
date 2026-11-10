@@ -434,3 +434,5 @@ import FormalProof4FHETest.HasteBootsSingleHelperAudit
 import FormalProof4FHETest.HasteBootsSingleOpeningFinishingAudit
 
 import FormalProof4FHETest.HasteBootsSharedOpeningAvailabilityAudit
+
+import FormalProof4FHETest.HasteBootsSingleRectangularAudit
