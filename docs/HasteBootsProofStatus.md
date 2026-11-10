@@ -18452,3 +18452,75 @@ profile-metadata invariance and probability extension.
 
 Full-check log: `/tmp/any-profile-full-check.log`; SHA-256
 `5197b04e4dbdd6c8b9cceba3dc82533bb9d1be62027372a22de4a2594e9d1e69`.
+
+## Parameter-object counting with all original source slots (2026-11-10)
+
+The preceding all-profile theorem imposed a bound on the original registry
+length. Native `classical::parameters` reuses its four retained role objects
+for many source commitments, so source-slot count is not the required
+configuration count. The new result covers the same registered executable
+failure event while counting admitted immutable parameter objects instead.
+
+`ConstructedGoldObjectSecurity` constructs one calibrated target for each
+admitted arena index from its actual constructor receipt. Every original
+registered slot maps through its retained handle to such an index; its
+parameter equality and role follow the stored entry and unique classifier
+result. Reanchoring preserves the same accepted candidate, root, executable
+false claim, parsed view, scheduler and history. The original registry and
+failure predicate are unchanged: aliases, repeated roots and unused slots
+are still present and covered. Unrelated unadmitted arena objects are allowed;
+admitted objects that are never registered remain in the conservative budget.
+
+The scaled probability is at most the number of admitted objects times
+`9/4096` times unconditional expected specified interpreter work. At most
+256 admitted objects suffice for the existing unit-work inequality. A second
+interface uses the entire arena size as a conservative upper bound. Neither
+interface introduces a registry-slot, root-count, attempt, execution-length,
+verifier-fuel or private-coin cap. Oracle-dependent profile identifiers remain
+covered without an identifier union loss.
+
+`ConstructedGoldObjectSetup.allocate` composes the existing logical native
+parameter-store allocation calls in order. Pending initialization returns no
+result and constructor errors propagate; neither branch skips a role to
+produce a smaller successful family. Successful execution retains exactly
+one additional object per job. Reachable constructors plus the explicit
+trusted admission checks produce the existing `Configured` arena evidence.
+Security admission remains separate from generic native constructor success.
+
+The setup work theorem derives the object-count premise from successful
+execution starting at an empty arena. Its four-job corollary therefore needs
+no separately supplied count bound. This models composition of the existing
+constructor/store functions; it does not refine the Rust descriptor loop,
+prove descriptor identity or enforce the four role-to-stage assignments.
+Actual native setup/profile validation, heap/ABI correspondence and dispatcher
+coverage remain obligations for the final application theorem.
+
+Three kernel-checked regressions exercise the arena-based work interface,
+the four-successful-allocation interface and same-world hash-selected profiles
+with an admitted-object budget. Two guarded Lean execution fixtures construct
+all four calibrated Goldilocks roles and collect 1,024 original references
+from four objects, retaining independent test/code widths and all query quotas.
+They also check pending and rejected intermediate roles propagate correctly.
+These are constructor/collection fixtures, not native Rust or full PBS runs.
+Thirteen axiom guards cover all twelve new production theorems and the object
+target construction; dependencies are subsets of `propext`, `Classical.choice`
+and `Quot.sound`.
+
+The registered-source theorem still has its existing acceptance/parsed-view,
+framing, response-size and constructor/calibration premises. Every accepted
+false PBS has not yet been shown to yield this event. Full PBS semantics and
+efficient public extraction, native BabyBear, actual native profile/setup/stage
+binding and physical attacker-work/compiler/ABI/lifetime/cache/RNG refinement
+remain open. The final physical-work security goal is not established.
+
+Validation: targeted smoke/audit build passed with 4,729 jobs. Full
+`scripts/check` completed with exit status zero, including 11,166 build jobs
+and all subsequent audit/smoke commands. No proof placeholders, additional
+logical axioms, native decision proofs, proof-limit increases or linter
+suppression were introduced. All recorded input, manifest and build-receipt
+hashes of the five retained-source gates were verified unchanged (552, 484,
+142, 42 and 478 inputs); those extraction gates were not rerun for this
+parameter-object covering and setup-composition extension.
+
+Full-check log: `/tmp/object-security-full-check.log`; SHA-256
+`76c84d2933a17514adac28b4f93c43294be2e41a681a4c006641e8ecd71a64a5`.
