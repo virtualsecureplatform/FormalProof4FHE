@@ -19254,3 +19254,77 @@ arithmetic semantics extension.
 
 Full-check log: `/tmp/accumulator-packed-full-check.log`; SHA-256
 `c0efc3cfd446ad2b428a4a91b9cfb4793edf28984559727583c7375f56030358`.
+
+## Fresh-query detection for the accumulator's full-dimension constraints (2026-11-10)
+
+`AccumulatorQuerySplit` gives fixed coefficient/row/half coordinates for the
+complete Boolean cube and decomposes every indexed complete query into those
+three blocks. Reconstruction is proved for arbitrary queries, not only queries
+initially built with `whole`. This lets the existing sequential fresh-query
+sampler be used directly, without an assumed query decomposition or a new
+sampling-law certificate. The source coordinate equivalence is independent
+of all query values.
+
+`AccumulatorMatrixSoundness` constructs five fixed residual sources from the
+original input, monomial product, external-product input, sum-product output,
+output accumulator, decomposition-a and decomposition-b tables and public
+boundary data. The residuals express subtraction, addition, both duplicated-half
+links and corrected cyclic continuity. Half copying, row advancement and the
+two row-supported boundary sources are defined on the complete source cube.
+Their folds are proved to equal the actual transformed-query evaluations and
+ordered endpoint corrections from the preceding checkpoint.
+
+`CoreCheck` states the five literal equations on truthful complete-query source
+values. `fold_residual` identifies each computed check discrepancy with the fold
+of its fixed residual source. `coreCheck_iff` proves that the complete check is
+exactly simultaneous zero compression of those five residuals. A valid fixed
+family passes every matrix query. For a false fixed family,
+`fresh_core_bound` selects a nonzero residual before the common fresh query and
+proves a pass probability at most
+`n * ((2*k-1)/card(F))^k`, where `n = c+r+1`.
+There is no five-equation or source-count multiplier. The proof applies the
+existing sequential matrix-compression theorem to that selected residual;
+it does not assume an accumulator error bound as a premise.
+
+The theorem explicitly covers only the five full-dimension constraints. The
+two separately selected public initial/final endpoint checks require a bound
+for the coefficient/half projection of the same query. Nor is the theorem an
+authentication or production Fiat--Shamir result: sources and public boundary
+data are fixed before independently sampled native-order Lagrange challenge
+vectors, and the check uses their truthful evaluations.
+
+Twelve kernel-checked regression examples and two fixture lemmas use modulus
+17, width two and three query variables. They exercise arbitrary-query block
+reconstruction, coordinate splitting, honest core checks, a fixed corrupted
+residual detected by a nondegenerate query, and the computed residual/check
+identity. A chosen zero query hides that corrupted source, demonstrating why
+the fresh-query assumption is needed. Another example keeps the five core
+constraints valid while a public endpoint is wrong, recording the deliberate
+endpoint limitation. A checked adjacent-node embedding and uniform finite
+sampler instantiate the probability theorem with error `27/289`; this is a
+proof-bound instantiation, not enumeration of the probability experiment.
+Twenty guards audit all seventeen production theorems and the three coordinate
+bijection constructions; dependencies are subsets of `propext`,
+`Classical.choice` and `Quot.sound`. Both root libraries import the extension.
+
+This is the fresh private-query arithmetic error component for those five
+accumulator constraints. Still open are endpoint-projection detection,
+original native source/public-endpoint correspondence and authentication,
+constructor/query/value decoding and error behavior, complete native accepted
+stage coverage, and Fiat--Shamir/lifetime composition against the original
+joint oracle/history model. Canonical decomposition/key switching, complete
+accepted-false-PBS extraction/coverage, native BabyBear, actor-cost separation
+and physical attacker-work/compiler/lifetime/cache/RNG refinement also remain
+open. The overall security goal remains unproved.
+
+Validation: targeted smoke/audit build passed with 3,779 jobs. Full
+`scripts/check` completed with exit status zero, including 11,204 build jobs
+and all subsequent audit/smoke commands. No proof placeholders, additional
+logical axioms, native decision proofs, proof-limit increases or linter
+suppression were introduced. All recorded input, manifest and build-receipt
+hashes of the five retained-source gates were verified unchanged (552, 484,
+142, 42 and 478 inputs); those extraction gates were not rerun for this
+arithmetic semantics extension.
+
+Full-check log: `/tmp/accumulator-matrix-full-check.log`; SHA-256
+`34c63082563411832a7ad13026900a2ccbd2bcdfa8f13044140449b635cd1f82`.
