@@ -20093,3 +20093,70 @@ composition.
 
 Full-check log: `/tmp/packed-pbs-full-check.log`; SHA-256
 `9d6b6f8749351469894573642f8d203626fe6376a084d8fb3f902027ff223794`.
+
+## Recorded original-factor soundness with trusted setup key roots
+
+Inspection of `HasteBoots/snarks/src/packed_key_switch.rs` confirms that the
+public switching key is preprocessed into trusted expected commitments and
+its rows remain authenticated opening factors. The verifier does not replace
+these native key openings with verifier-computed full public-key folds. The
+new composition preserves those original factors and their arithmetic error.
+
+`OriginalFactorExceptionUnion` extends the recorded-source/exception reduction
+to the existing `AuthenticatedZeroCheck` all-factor program. Its original-owner
+event permits any complete family of matching recorded snapshots, including a
+family selected after the run. Automatic auditing comes from support of the
+actual committed/ZeroCheck/native-worker execution. Outside the same terminal
+history exception, all original sources equal the current pre-query sources.
+There is no sum over owner choices. Accepted wrong openings and source reuse
+share one whole-program hash charge; the arithmetic terms retain one PCS error
+for each original factor. Fresh false-source acceptance is proved to be a
+subset of the original-owner event, so the latter is not a restricted event
+chosen merely to make the bound hold.
+
+`OwnedHadamardSoundness` fixes the degree-two relation, original digit/key/result
+opening order and trusted setup key roots. It overrides only key-root slots in
+the arbitrary callback's emitted root family, preserving digit/result roots,
+callback calls and memory. `witness_key_root` proves that every supported run
+uses the expected root at each key slot. Native interpolation discharges the
+message degree bounds. Its original-owner false-relation bound is the three
+ZeroCheck arithmetic terms plus `(2*d+1)` PCS errors plus ONE whole-run hash
+charge, for `d` original product pairs. The factor count is proved symbolically.
+The field, packing width and PCS split remain generic; this does not assert
+native parameter validation or a BabyBear implementation refinement.
+
+`OwnedKeySwitchCoverage` connects these original-owner sources to the corrected
+signed key product. If a supplied increment differs from the canonical
+negative-mask key product, the digit/key/result NTT bindings and actual stage
+acceptance place it in the bounded original-owner relation event. The theorem
+retains the original coefficient key, full digit and result bindings,
+primitive root, original root equality and recorded family explicitly. It does
+not assume a Hadamard-relation validity or wrong-opening security certificate.
+It does not yet derive those bindings from native NTT/decomposition acceptance.
+
+The new operational smoke regression deliberately supplies conflicting setup
+roots both from the commitment callback and opening factory. Trusted roots win
+at the emitted key slots and actual native opening adapter; original digit and
+result roots remain. The callback's hash, private draw and retained memory are
+checked in order. All five native factor slots for two product pairs remain,
+including both key openings. Fifteen fresh exact axiom guards cover every new
+production theorem, with only the existing standard logical axioms.
+
+This is a logical model composition, not a proof that Rust setup roots decode
+to the original public key coefficients. Original owner/parameter construction,
+accepted native NTT and canonical digit/lookup coverage, all PBS stages under a
+common lifetime, production Fiat--Shamir, native BabyBear, actor-cost separation
+and physical work/compiler/cache/RNG refinement remain open. The final 128-bit
+actual-attacker-work security theorem remains unproved.
+
+Validation: targeted smoke/audit build passed (3,779 jobs). Full
+`scripts/check` completed with exit status zero, including 11,252 build jobs
+and all subsequent standalone audit/smoke commands. No proof placeholders,
+additional logical axioms, native decision proofs, proof-limit increases or
+linter suppressions were introduced. All five retained-source gate input,
+manifest and build-receipt hashes were verified unchanged (552, 484, 142, 42
+and 478 inputs). Those extraction gates were not rerun for this original-owner
+model composition.
+
+Full-check log: `/tmp/owned-hadamard-full-check.log`; SHA-256
+`5abdf1c7b537318c10231161b27327ce46a1e4a19c936ffb3770c4c75b86f9b5`.
