@@ -767,3 +767,10 @@ import FormalProof4FHE.HasteBoots.OwnedLinearSoundness
 import FormalProof4FHE.HasteBoots.OwnedDecompositionSoundness
 import FormalProof4FHE.HasteBoots.RadixLookupSources
 import FormalProof4FHE.HasteBoots.OwnedRadixCoverage
+
+import FormalProof4FHE.HasteBoots.StagedCommitmentException
+import FormalProof4FHE.HasteBoots.HeterogeneousSourceCoherence
+import FormalProof4FHE.HasteBoots.StagedLookupException
+import FormalProof4FHE.HasteBoots.StagedPrivateLookupException
+import FormalProof4FHE.HasteBoots.OwnedLookupSources
+import FormalProof4FHE.HasteBoots.OwnedPrivateLookupSoundness
