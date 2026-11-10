@@ -18251,3 +18251,71 @@ runtime-interpreter work/probability extension.
 
 Full-check log: `/tmp/runtime-coin-soundness-full-check.log`; SHA-256
 `1921de63b58f5dfcb128fc6f6f0445b32e9f9a2861993817faf32241afb44797`.
+
+## Constructor-derived registered Goldilocks targets (2026-11-10)
+
+`ConstructedGoldTargets` derives a calibrated executable-source target from
+an actual reachable parameter-store entry and checked trusted-configuration
+fields. Its block-code build certificate uses the retained constructor/cache
+observations, and its primitive-root certificate follows the successful
+parameter initialization. Role geometry and the query quota follow the
+retained request/header fields. Callers no longer supply independent build,
+primitive-root or `Matches` certificates for this path.
+
+Admission is explicit and separate from the generic native constructor. The
+policy checks the four Goldilocks roles, their arities/partitions and test
+widths, the scalar message size, code block width four, blowup two and at
+least 544 queries. Test width three for helper roles remains distinct from
+code packing width four. A guarded constructor evaluation demonstrates that
+initialization at 543 queries succeeds while security admission rejects it.
+Thus generic constructor success does not prove the security query quota.
+
+`ConstructedGoldRegistryTargets` supplies a role classifier, optional trusted
+allocation-trace evidence, and a check of the original registered references.
+The main registered-family path checks every listed reference, including
+aliases and unused positions. It allows unrelated unadmitted objects elsewhere
+in the arena. Constructor reachability and successful collection supply the
+actual entry and parameter provenance for each original registry slot.
+Successful public extraction also follows its original owner to that entry,
+retaining the existing transcript, truthfulness and safe-root premises.
+These are logical constructor/store proofs; they do not establish Rust heap
+or ABI refinement.
+
+`ConstructedGoldRegistrySoundness.Family` combines those receipts with an
+explicit association between each context and its registered parameters.
+It derives the targets used by the runtime-private-coin executable-source
+bound. The measurable family failure event has scaled lifetime probability
+at most `registry.length * (9/4096)` times unconditional expected specified
+interpreter work. With at most 256 registered slots the factor is `9/16`.
+The count includes duplicate and unused slots; no successful attempt, long
+run, private-coin tail or attacker query is removed from the execution.
+
+Eight kernel-checked examples and a fixture reachability theorem exercise
+the interfaces. Four guarded runtime evaluations check all four roles and
+several quotas, constructor success below the security quota, retained
+query values through duplicate slots, and reference admission with unrelated
+arena objects, rejected listed objects and missing handles. These evaluations
+are regression fixtures, not proofs of a complete native PBS execution.
+Eighteen guards audit all new production theorems; their dependencies are
+subsets of `propext`, `Classical.choice` and `Quot.sound`.
+
+The actual application still must establish trusted configuration admission,
+context/profile registration and coverage of every accepted false PBS by this
+family. The context-to-parameter association is explicit evidence, not derived
+from a native registration implementation here. Physical attacker work,
+compiler/ABI/lifetime/cache/RNG refinement, full public PBS semantics, efficient
+public extraction and native BabyBear coverage remain open. This checkpoint
+does not establish the final physical-work security claim.
+
+Validation: the targeted smoke/audit build passed with 4,724 jobs. All input,
+manifest and recorded build-receipt hashes of the five retained-source gates
+were verified unchanged (552, 484, 142, 42 and 478 recorded inputs). Those
+extraction gates were not rerun for this constructor/registry proof extension.
+
+Full `scripts/check` completed with exit status zero: 11,154 build jobs
+and all subsequent audit/smoke commands. No proof placeholders, additional
+logical axioms, native decision proofs, proof-limit increases or linter
+suppression were introduced.
+
+Full-check log: `/tmp/constructed-targets-full-check.log`; SHA-256
+`8947bef26946be24d338b7e427290ca6c53e51a03e06f1090bc726d100c75c9d`.
