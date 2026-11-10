@@ -15,9 +15,9 @@ open SingleOpeningConcreteColumnFamily (Test raw claim source)
 noncomputable section
 
 theorem accepted_checks {dummy : Digest} {ctx : Context} {world : World} {work : Prepared}
-    {history : List NativeTranscript.Observation} {origin : CacheBackedSingleOpening.Origin ctx}
+    {history : List NativeTranscript.Observation} {origin : CacheBackedSingleOpening.Origin ctx} {sample : NativeIndexRequest.Result}
     (accepted : SingleOpeningRectangularAcceptance.View dummy ctx world work history origin)
-    (receipt : SingleOpeningSamplingReceipt.Receipt ctx world work accepted.sample)
+    (receipt : SingleOpeningSamplingReceipt.Receipt ctx world work sample)
     (before : List Frame) (parent : ctx.transcript.input = TranscriptFrame.encodeMany before)
     (valid : ∀ frame ∈ before, TranscriptFrame.Valid frame)
     (fits : (NativeGoldPcsWire.opening ctx.root ctx.query ctx.claimed).length < TranscriptFrame.lengthLimit)
