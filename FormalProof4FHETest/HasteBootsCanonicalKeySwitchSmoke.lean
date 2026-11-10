@@ -1,8 +1,9 @@
 module
-import FormalProof4FHE.HasteBoots.CanonicalPBS
-import FormalProof4FHE.HasteBoots.DecompositionBlindRotation
-import FormalProof4FHE.HasteBoots.RadixWitness
-import FormalProof4FHETest.HasteBootsHadamardBlindRotationSmoke
+public import FormalProof4FHE.HasteBoots.CanonicalPBS
+public import FormalProof4FHE.HasteBoots.DecompositionBlindRotation
+public import FormalProof4FHE.HasteBoots.RadixWitness
+public import FormalProof4FHETest.HasteBootsHadamardBlindRotationSmoke
+@[expose] public section
 open FormalProof4FHE.HasteBoots
 open HasteBootsHadamardBlindRotationSmoke (polynomial primitive)
 open NativeBlindRotation (Cipher digit)

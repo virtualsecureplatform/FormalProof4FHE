@@ -351,3 +351,6 @@ import FormalProof4FHETest.HasteBootsDecompositionBlindRotationAudit
 
 import FormalProof4FHETest.HasteBootsCanonicalKeySwitchSmoke
 import FormalProof4FHETest.HasteBootsCanonicalKeySwitchAudit
+
+import FormalProof4FHETest.HasteBootsKeySwitchExtractionSmoke
+import FormalProof4FHETest.HasteBootsKeySwitchExtractionAudit

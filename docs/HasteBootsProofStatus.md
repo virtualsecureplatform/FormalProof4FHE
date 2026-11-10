@@ -19706,3 +19706,83 @@ corrected arithmetic reference and its new NTT/extraction bridges.
 
 Full-check log: `/tmp/canonical-key-switch-full-check.log`; SHA-256
 `fae29c715724f90d7a86d0843e7b1994b536703336b41272b09c5f32bb5b1075`.
+
+## Native extraction roles, single private value, and shared ZeroCheck error (2026-11-10)
+
+`KeySwitchExtraction` fixes the public coefficient mask and target used by
+`packed_key_switch::extraction_tables_dimensions`. The mask selects nonce
+coefficient zero, positions `N-i` for the original retained indices
+`1 <= i < dimension`, and body coefficient zero. The target contains the
+public mask coordinates with the required reversal/sign and the public body
+minus the already biased accumulator body. Positive output dimension and
+`dimension <= N` are explicit hypotheses. `extraction_of_masked` proves that
+the full polynomial constraint determines exactly the corrected partial
+extraction, including the final retained coordinate.
+
+The three sources preserve native factor order: signed increment, public mask,
+public target. Packing retains all coefficient/lane/half coordinates through
+the existing canonical polynomial equivalence. The equality between `c+1` and
+`1+c` transports the dimension only; it does not permute or replace any source.
+Injectivity and multiplication preservation connect `PBSHadamard.Relation`
+for these original factors to the coefficient constraint. Consequently
+`extraction_of_relation` derives `CanonicalKeySwitch.Extraction`, and
+`false_zero_relation` exposes a false extraction as a false fixed ZeroCheck
+relation of degree two.
+
+The native extraction verifier does not authenticate three separate factors:
+it computes the public mask and target evaluations itself and opens only the
+increment. `values` mirrors those literal terminal roles using the same full
+ordered query. `checked_truthful_or_wrong_increment` specializes the terminal
+alternative to exactly that private increment value. A checked terminal
+therefore produces a truthful reduced subclaim or a wrong increment value;
+there is no assumed authentication of extra mask/target commitments and no
+prover-supplied public factor or public EQ value.
+
+`KeySwitchExtractionSoundness.Prover` retains arbitrary first-response,
+after-first, ordinary-message and after-challenge shared-oracle programs, plus
+their actual initial memory. `program` instantiates the native interpolation
+messages and the existing stopping/rejection behavior. `miss_bound` measures
+the actual shared execution from any retained checkpoint/cache state. A false
+fixed extraction relation gives a truthful subclaim with probability at most
+`(c/q)^k + (((2*k-1)*2+1)/q)^k + c*(((2*k-1)*3)/q)^k`.
+All equality-point, first-mixing and remaining-round arithmetic terms remain.
+`wrong_output_bound` obtains the same bound for an incorrect corrected
+key-switch output when the original increment/key-product identity holds.
+That identity can be supplied by the preceding NTT/canonical-digit bridge.
+
+The kernel-checked degree-four modulus-17 fixture checks both public mask
+halves and target halves, the exact three source roles, and the golden public
+output through the masked relation. A changed final retained mask coordinate
+violates the relation. An unselected coefficient can still be nonzero, so the
+extraction relation deliberately does not certify the complete key product.
+The numerical shared-run bound is `131/289` at coefficient dimension one and
+width two, uniformly over arbitrary adaptive shared provers, encodings and
+retained states. This example instantiates the theorem rather than enumerating
+an execution. Ten exact axiom guards cover all new production theorems;
+dependencies are subsets of `propext`, `Classical.choice` and `Quot.sound`.
+The preceding corrected key-switch fixture is exported for reuse and both
+root libraries import the extraction geometry, bound, tests and audits.
+
+These are source semantics, the single-private-value terminal alternative,
+and the arithmetic error component for fresh interactive challenges. The
+probability event is `TruthfulResult`, not native acceptance. Authentication
+of the increment's original opening, continuation on the same actual owner/
+cache/history, prefix source decoding/fixity, public-table Rust construction
+and field/configuration/geometry refinement remain open. No single-opening
+PCS error or hash charge has been discarded from an acceptance theorem, and
+no three-opening theorem has been substituted for the native stage. Complete
+accepted-false-PBS coverage, Fiat--Shamir/lifetime composition, native BabyBear,
+actor-cost separation and physical attacker-work/compiler/lifetime/cache/RNG
+refinement remain open. The overall security goal remains unproved.
+
+Validation: targeted smoke/audit build passed with 3,863 jobs. Full
+`scripts/check` completed with exit status zero, including 11,225 build jobs
+and all subsequent audit/smoke commands. No proof placeholders, additional
+logical axioms, native decision proofs, proof-limit increases or linter
+suppression were introduced. All recorded input, manifest and build-receipt
+hashes of the five retained-source gates were verified unchanged (552, 484,
+142, 42 and 478 inputs); those extraction gates were not rerun for this
+arithmetic extraction and shared ZeroCheck extension.
+
+Full-check log: `/tmp/key-switch-extraction-full-check.log`; SHA-256
+`734d8093c497c681b705ec5f7c63c2cfe925f32293c79bb38b3de49ed9db3029`.
