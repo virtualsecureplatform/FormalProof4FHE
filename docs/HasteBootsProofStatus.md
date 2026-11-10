@@ -18524,3 +18524,70 @@ parameter-object covering and setup-composition extension.
 
 Full-check log: `/tmp/object-security-full-check.log`; SHA-256
 `76c84d2933a17514adac28b4f93c43294be2e41a681a4c006641e8ecd71a64a5`.
+
+## Registry certificates derived from executed constructor setup (2026-11-10)
+
+`ConstructedGoldSetupRegistry` derives all original reference checks from a
+configured allocation trace and successful collection. A missing handle cannot
+produce that collection receipt. Every collected reference selects an admitted
+stored entry, including aliases and unused source positions. The resulting
+`Registry` retains the supplied complete reference and source vectors verbatim;
+its reachability and admission fields are constructed by the proof rather than
+supplied independently by the caller.
+
+`ofSetup` composes the preceding sequential allocation theorem with this
+collection result. Its inputs are reachable constructor states, trusted job
+admission and the actual allocation/collection equations. It derives the
+registered executable-source work theorem with the job-count budget; no
+separately assembled registry, calibrated target, primitive-root certificate
+or per-reference check is supplied.
+
+`ConstructedGoldConstructorSetup` supplies a further executed-run entry point.
+Each invocation gives the request, header and an arbitrary number of constructor
+ticks from the default initial state. The proof derives reachability for every
+such run, then derives job admission from one computed classifier check. Actual
+successful allocation and collection receipts complete the registry construction
+and the all-profile, runtime-private-coin work inequality. Four invocations
+derive the count bound automatically, without restricting the original registry
+length, roots, profile identifiers or attacker attempts.
+
+The tick count observes a constructor prefix; it is not a new operational retry
+limit. A pending prefix supplies no successful allocation receipt. The more
+general `ofSetup` interface continues to support any existing reachable
+constructor/cache state, including warm and concurrent cache histories. Security
+admission remains explicit: generic native constructor success below 544 queries
+does not qualify a configuration for this bound.
+
+Three kernel-checked interface regressions cover derived reference admission,
+measurability of the resulting execution event and the four-invocation work
+bound with no supplied registry certificate. Two guarded Lean execution
+fixtures run the four calibrated roles, security admission, allocation and
+typed collection of all 1,024 original source positions. Controls confirm
+constructor success at 543 queries fails security admission and a zero-tick
+admitted invocation supplies no allocation receipt. These fixtures are not
+native Rust or complete PBS executions.
+
+Twelve guards audit the nine new production theorems and all three registry
+construction definitions. Their dependencies are subsets of `propext`,
+`Classical.choice` and `Quot.sound`. Both root libraries import the extension.
+
+This closes the supplied reachability/reference-certificate boundary for the
+executed constructor specialization. It does not derive the job fields from the
+native immutable descriptor, prove the native role-to-stage assignments, refine
+Rust heap/ABI behavior, or show that every accepted false PBS yields the existing
+registered executable-source failure. Native profile/setup/dispatch binding,
+full public PBS semantics and efficient extraction, native BabyBear, actor-cost
+separation and physical attacker-work/compiler/lifetime/cache/RNG refinement
+remain open. The final physical-work security goal is not established.
+
+Validation: targeted smoke/audit build passed with 4,733 jobs. Full
+`scripts/check` completed with exit status zero, including 11,170 build jobs
+and all subsequent audit/smoke commands. No proof placeholders, additional
+logical axioms, native decision proofs, proof-limit increases or linter
+suppression were introduced. All recorded input, manifest and build-receipt
+hashes of the five retained-source gates were verified unchanged (552, 484,
+142, 42 and 478 inputs); those extraction gates were not rerun for this
+constructor-run/setup/registry composition extension.
+
+Full-check log: `/tmp/setup-registry-full-check.log`; SHA-256
+`56d104153d00dc847a855369e201b6af0dd24d1a3ebe229b51dc73fcdb5b127d`.
