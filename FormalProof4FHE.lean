@@ -847,3 +847,6 @@ import FormalProof4FHE.HasteBoots.CacheBackedBatchLifetimeSoundness
 
 import FormalProof4FHE.HasteBoots.AllocatedCodeOrigin
 import FormalProof4FHE.HasteBoots.RegistryBatchCodeOrigin
+
+import FormalProof4FHE.HasteBoots.SingleHelperLookupOpening
+import FormalProof4FHE.HasteBoots.SingleHelperNativeValue

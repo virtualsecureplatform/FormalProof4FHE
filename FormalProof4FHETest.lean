@@ -427,3 +427,6 @@ import FormalProof4FHETest.HasteBootsCacheBackedAcceptanceAudit
 import FormalProof4FHETest.HasteBootsCacheBackedLifetimeAudit
 
 import FormalProof4FHETest.HasteBootsRegistryCodeOriginAudit
+
+import FormalProof4FHETest.HasteBootsSingleHelperSmoke
+import FormalProof4FHETest.HasteBootsSingleHelperAudit

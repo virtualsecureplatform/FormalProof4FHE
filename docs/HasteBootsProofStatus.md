@@ -21486,3 +21486,49 @@ additional logical axioms, native decision proofs, proof-limit increases or
 linter suppressions were introduced. Full-check log:
 `/tmp/registry-code-origin-full-check.log`; SHA-256
 `dff0813d6f5715c182ea6934e1f74cfd56df9c85d430176180395a3f479ed66b`.
+
+## Single original helper opening: logical collapse and native field values
+
+`SingleHelperLookupOpening` proves that both common-point logical helper
+queries coincide, and that the checked sum/helper equality identifies their
+claimed values. Its `wrong_iff` and `guard_wrong_iff` replace the two logical
+helper failure alternatives by exactly one coefficient-helper failure plus the
+selected original source failures. The latter derives the equality from the
+computed `SharedLookupTerminal.guard`. Source and helper physical widths remain
+independent. These are opening-data equivalences; they do not change the
+existing mathematical two-claim batch execution or claim its transcript is the
+native single-opening transcript.
+
+`SingleHelperNativeValue` derives semantic extension equality from the actual
+native equality check, then equality of field-decoded coefficient vectors.
+`guard_vector` obtains that equality from a successful native terminal guard and
+a checked job. `packet_at` retains the original index, root, query, received raw
+helper coefficient vector and opening in the actual helper handoff, and proves
+that its field interpretation also serves the matched sum expectation. Its
+original-vector getter and equality premises remain explicit; it does not yet
+compose parser/job association or PCS acceptance.
+
+The raw/semantic distinction is necessary: Goldilocks words 0 and the modulus
+represent the same field element. Regression examples prove native guard
+equality accepts those extension values, their original raw coefficient vectors
+differ, and their field-decoded vectors agree. No raw word, commitment root or
+transcript byte is rewritten using field equality.
+
+Eight exact axiom guards generated from Lean output cover every new production
+theorem; all use only `propext`, `Classical.choice` and `Quot.sound`. The native
+helper regression and audit build passed. Native single-opening acceptance and
+cache-backed constructor provenance still need composition with these results;
+the existing batch soundness theorem is not a replacement for that path.
+Source alias-compression, request/job and owner/application associations,
+production scalar/lookup Fiat--Shamir, BabyBear and the complete PBS lifetime
+and actual attacker work refinement remain open. The final 128-bit security
+statement is unproved.
+
+Validation: targeted native helper smoke/audit builds passed (4,309 jobs).
+Full `scripts/check` exited zero, including the 11,363-job build and all
+standalone checks. All five frozen gate input, manifest and receipt hashes
+remain unchanged (552, 484, 142, 42, 478 inputs). No proof placeholders,
+additional logical axioms, native decision proofs, proof-limit increases or
+linter suppressions were introduced. Full-check log:
+`/tmp/single-helper-full-check.log`; SHA-256
+`51d03981911325d3a1262c2db112114b51303440f0bc4b16f2effc7c15b41da1`.
