@@ -18978,3 +18978,71 @@ arithmetic semantics extension.
 
 Full-check log: `/tmp/public-monomial-evaluation-full-check.log`; SHA-256
 `9058ee1738d687ee59349f4a27d2c3c33fbc8e8cac764fc7d64d07a3237f1e03`.
+
+## One packed public monomial source for the complete query (2026-11-10)
+
+`PackedMonomialLayout` connects the preceding staged evaluator to one finite
+packed public table. The source is constructed from the trusted lane,
+coefficient and padded-round dimensions, root and original rotations, without
+receiving matrix queries. Its cell coordinates put coefficient bits first,
+round bits next and the ciphertext-half bit last. The layout bijection retains
+all finite coordinates, including duplicate rotations and both equal halves.
+Its value theorem gives
+`cell + 2^coefficient * (row + 2^rows * half)`. The scalar-address theorem adds
+the low lane bits and gives the original within-row NTT address plus
+`N * (row + padded_rounds * half)`, matching the concatenated-half ordering.
+This is a finite arithmetic layout theorem, not a Rust allocation theorem.
+
+A generic split-fold theorem proves that a complete adjacent-cell fold equals
+front folding followed by back folding, with later query matrices still acting
+on the left. The three-block specialization treats coefficient variables,
+round variables and the final half variable in native order. Each coefficient
+slice of the fixed source is proved to be exactly the materialized row from
+the preceding checkpoint. `evaluate_source` and `evaluate_packed` therefore
+identify the optimized evaluator with a single complete packed-table fold.
+The latter theorem uses the finite source itself. The intermediate total-word
+interface is zero outside that finite extent, and the in-bounds theorem proves
+that valid fold addresses read the original finite source. No source/layout
+equality or staged/full-fold equality is supplied as a premise.
+
+The complete-query length reindexing preserves every numeric address. Separate
+slicing lemmas recover the coefficient prefix, round segment and final half
+pair from the complete query. These are list and finite-address equalities;
+they do not by themselves establish native query validation or slicing code.
+The earlier row-retention theorem still uses the condition that active rounds
+fit within the padded count. Native nonempty/power-of-two/overflow validation
+is not replaced by these broader mathematical definitions.
+
+Fifteen kernel-checked regression examples reuse the preceding modulus-17,
+N=8, width-two noncommuting-matrix fixture. They check the last cell/scalar
+addresses, signed original rows, duplicated halves, zero padding, out-of-bounds
+zero lookup, the complete packed-source bridge and golden vector, and a changed
+result when coefficient and round query blocks exchange places while the
+source remains fixed. Query slices and zero-bit dimensions are covered too.
+The preceding smoke module now exports its existing fixtures for reuse.
+Eighteen guards audit all fifteen production theorems and the three layout/
+length-bijection constructions; dependencies are contained in `propext`,
+`Classical.choice` and `Quot.sound`. Both root libraries import the extension.
+
+This closes the exact-arithmetic staged/full-packed-table distinction for the
+public monomial evaluator. Still open are native constructor/error/length
+validation and query slicing execution, actual word shifts and index arithmetic,
+allocation/heap/ABI and field/root/cache/kernel dispatch correspondence, and
+connecting the public factor to the accepted sumcheck/PCS transcript. It does
+not establish native accepted-stage coverage or Fiat--Shamir soundness. The
+remaining accumulator/decomposition/key-switch constraints, accepted-false-PBS
+extraction/coverage, native BabyBear, actor-cost separation and physical
+attacker-work/compiler/lifetime/cache/RNG refinement remain open. The overall
+security goal remains unproved.
+
+Validation: targeted smoke/audit build passed with 3,781 jobs. Full
+`scripts/check` completed with exit status zero, including 11,193 build jobs
+and all subsequent audit/smoke commands. No proof placeholders, additional
+logical axioms, native decision proofs, proof-limit increases or linter
+suppression were introduced. All recorded input, manifest and build-receipt
+hashes of the five retained-source gates were verified unchanged (552, 484,
+142, 42 and 478 inputs); those extraction gates were not rerun for this
+arithmetic semantics extension.
+
+Full-check log: `/tmp/packed-monomial-layout-full-check.log`; SHA-256
+`3f9df4da8da7d0fcd96f983289318bda65b32104e01340adbec105a962be29b3`.

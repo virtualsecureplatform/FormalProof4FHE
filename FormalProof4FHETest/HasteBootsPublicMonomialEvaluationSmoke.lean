@@ -1,5 +1,6 @@
 module
-import FormalProof4FHE.HasteBoots.PublicMonomialEvaluation
+public import FormalProof4FHE.HasteBoots.PublicMonomialEvaluation
+@[expose] public section
 open FormalProof4FHE.HasteBoots
 open scoped Matrix
 open Matrix
