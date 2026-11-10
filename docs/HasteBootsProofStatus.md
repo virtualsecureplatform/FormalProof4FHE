@@ -20313,3 +20313,78 @@ comparison-source model composition.
 
 Full-check log: `/tmp/owned-radix-full-check.log`; SHA-256
 `bc4c6ecb968d07b064f67e28aca9c13e33a3d64a5b2067db31f7a2c4ac2f0bdd`.
+
+## Accepted staged lookup on recorded original sources
+
+`StagedCommitmentException` retains both real recording times: sources before
+the adaptive pair/helper phase, helpers after it. Actual-support auditing uses
+the existing witness-erasure equality. The strengthened event bound includes
+the terminal common history failure alongside acceptance, with ONE hash charge
+on the complete source/middle/helper-recording/later program. Neither snapshot
+is moved to a different phase.
+
+`StagedLookupException` includes that same terminal exception in the existing
+native lookup-algebra/grouped-PCS reduction. `StagedPrivateLookupException`
+combines it with the actual independent private pair sampler. The fresh false
+lookup acceptance OR common exception event retains the full repeated
+hash/reciprocal term, native algebra loss, original-root PCS sum, and one
+whole-run hash charge. Helper commitments remain adaptive to the sampled pairs;
+source tuples and multiplicities remain fixed at their actual earlier prefix.
+
+`HeterogeneousSourceCoherence` proves full word/decoded-source agreement for
+matching recorded checkpoints when contexts have different tree heights and
+PCS layouts. Each comparison retains its fixed context, domain, front/suffix,
+width and decoder radius. It does not infer parameter equality from a digest
+alone or identify decoded matrices of different shapes.
+
+`OwnedLookupSources` measures false tuples on any matching recorded original
+source family, including a family selected after the run. Every source/helper
+snapshot is shown to remain recorded after actual later work. Complete decoded
+original columns agree with the real pre-pair source columns outside the same
+terminal exception, and this transports the active scalar tuples. Fresh-source
+failure is included in the owner event, so the event is not narrowed to a
+convenient set of source checkpoints. There is no union over owner choices.
+
+`OwnedPrivateLookupSoundness.false_acceptance_bound` now closes this composition
+for the existing staged shared private-coin verifier model. Its event is an
+original-source tuple outside the literal table together with actual native
+algebra/grouped-opening acceptance. The bound is
+`TupleLookupPair.error(card K,count,active,size)^repetitions +
+ (lookupAlgebraError + originalRootPCSsum) + wholeRunHashCharge`.
+The lookup field K and PCS analysis field L, source/helper layouts, all
+configured repetitions, code/domain/radius bounds and partial/full lookup shape
+conditions remain explicit. No all-pairs-pass, accepted-wrong-opening,
+source-stability, replay or safe-prefix certificate remains as a security
+premise. Source reuse does not add a second hash charge.
+
+Operational regressions check source recording before the middle private draw
+and helper hash, helper recording afterwards, retained source/helper memory,
+and the final hash on a rejected path. A cache collision spanning the two
+prefixes remains covered even with always-false acceptance and no root
+availability disagreement; the toy digest is only an event-scope regression.
+The coherence regression uses contexts of heights zero/one and distinct
+layouts, aliasing the same digest, with a real unrelated cache insertion and
+four old/reused checkpoints. Complete words and decoded sources retain their
+meaning across different cumulative logs. Twelve fresh exact axiom guards cover
+all new production theorems; dependencies are only `propext`, `Classical.choice`
+and `Quot.sound`.
+
+This closes recorded-original-source acceptance soundness for the staged
+interactive lookup model. Native byte/owner and parameter association, mapping
+all actual shared comparison requests to this model, and the complete canonical
+decomposition/PBS source graph still require refinement and composition. Full
+PBS lifetime composition, production Fiat--Shamir, native BabyBear, actor-cost
+separation and physical work/compiler/cache/RNG refinement remain open. The
+final 128-bit actual-attacker-work theorem remains unproved.
+
+Validation: targeted smoke/audit build passed (3,805 jobs). Full
+`scripts/check` completed with exit status zero, including 11,276 build jobs
+and all subsequent standalone audit/smoke commands. No proof placeholders,
+additional logical axioms, native decision proofs, proof-limit increases or
+linter suppressions were introduced. All five retained-source gate input,
+manifest and build-receipt hashes were verified unchanged (552, 484, 142, 42
+and 478 inputs); those extraction gates were not rerun for this staged lookup/
+recorded-owner composition.
+
+Full-check log: `/tmp/owned-lookup-full-check.log`; SHA-256
+`aac6c232e37e42429ca3c2c89f4a89a38d8a7aba6e679a977aabd18f8b188a75`.
