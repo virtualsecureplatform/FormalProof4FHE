@@ -20527,3 +20527,72 @@ proofs, proof-limit increases, or linter suppressions were introduced.
 
 Full-check log: `/tmp/shared-opening-full-check.log`; SHA-256
 `21734068315d2f8ca14634c6210e04a8d5072287818eac53a836ea6b3c7c13cb`.
+
+### Ordered EQ and concrete shared-batch lookup arithmetic (2026-11-10)
+
+The native shared verifier (`packed_extension_lookup/canonical/shared.rs`)
+appends all helper roots, draws one equality point per job in job order, and
+then runs one scalar batch with alternating public helper-sum and zero identity
+claims. The earlier sequential sumcheck-then-EQ-then-identity execution cannot
+stand in for that order. The new program retains the actual order at the
+interactive arithmetic level; transcript-derived native coins remain separate.
+
+`OrderedPrivateDraws` runs arbitrary shared work before and after each private
+draw, retaining memory and the full cache/log/checkpoint state. A fixed selected
+coordinate's event is bounded by one fresh draw, without losslessness of the
+callbacks or an assertion that adaptive callbacks are independent. This avoids
+moving all EQ draws into a simultaneous vector draw and erasing interleaved work.
+
+`SharedLookupBatchSequence` draws every job's equality point with that program,
+then invokes the existing common-challenge scalar batch. Initial claims are
+constructed internally as [public total, zero] for each job. Source/helper
+tables are analysis only and are fixed before this execution. A false selected
+helper sum contributes at most n/card(K). Otherwise a selected fresh-EQ miss
+and degree-D shared identity batch contribute at most
+`n/card(K) + n * (D/card(K))`. There is no job-count multiplier, no second
+sumcheck challenge experiment, and no independence assumption between equations.
+A supported-result theorem derives common scalar-query validity from this
+complete EQ/batch execution. Arbitrary later terminal/PCS work retains the
+same arithmetic event and its actual shared calls through a continuation bound.
+
+`SharedLookupBatchArithmetic` computes the vector of public totals from each
+job's own literal table, embedded base-field multiplicities, and (y,r) pair.
+Tuple widths and table sizes may differ between jobs. For a fixed nonpassing
+pair with nonzero r, the helper-sum/Boolean-identity obstruction is derived
+from concrete lookup arithmetic internally. The partial degree-four bound is
+`n/card(K) + n * (4/card(K))`; the full degree-three bound is
+`n/card(K) + n * (3/card(K))`. Both events require the actual selected job's sum
+and identity terminals on the one common-point batch. Other jobs can reject,
+and all their preceding work remains. The round polynomial-degree conditions
+remain explicit syntactic obligations; refinement of actual native message
+vectors will discharge them.
+
+Regressions check two ordered draws with distinct hash work before/after each
+draw and retained callback memory. A two-job example uses different tuple
+widths and table row counts, literal different tables and public claims, and a
+concrete nonpassing job. Partial and full arithmetic bounds are instantiated.
+All equation round checks are proved to pass for its adversarial constant
+messages, so the bound is not vacuous through another job's rejection. Nine
+exact axiom guards generated from current Lean output cover all new production
+theorems; dependencies are only `propext`, `Classical.choice`, and `Quot.sound`.
+
+The next composition must compute the terminal guard from these actual batch
+results, receive/bind the original global source/helper claim vectors, and use
+the established common-point grouped PCS bound on that same execution. It must
+then combine the independent pair sampler with each request's own table and
+original pre-pair sources, retaining configured repetitions and source reuse.
+Native byte/owner/field/layout association and actual job-index refinement are
+still open; this theorem is not a production Fiat--Shamir or complete native
+lookup acceptance result. Full PBS lifetime composition, native BabyBear,
+actor-cost separation, and physical work/compiler/cache/RNG refinement remain
+open. The final 128-bit actual-attacker-work theorem remains unproved.
+
+Validation: targeted smoke/audit build passed (3,741 jobs). Full
+`scripts/check` exited zero, including the 11,292-job build and all subsequent
+standalone checks. All five retained-source gate input, manifest, and receipt
+hashes remain unchanged (552, 484, 142, 42, 478 inputs). No proof placeholders,
+additional logical axioms, native decision proofs, proof-limit increases, or
+linter suppressions were introduced.
+
+Full-check log: `/tmp/shared-arithmetic-full-check.log`; SHA-256
+`c7ab7ff0a4e2b4d6c35f3765c154cd5aff26e6bca0301e75e11ff7ef8c03b853`.
