@@ -835,3 +835,6 @@ import FormalProof4FHE.HasteBoots.LookupPCSLayoutBounds
 
 import FormalProof4FHE.HasteBoots.LookupPCSBackendCode
 import FormalProof4FHE.HasteBoots.LookupPCSParameterDomain
+
+import FormalProof4FHE.HasteBoots.CacheBackedBatchSoundness
+import FormalProof4FHE.HasteBoots.CacheBackedBatchFinishing

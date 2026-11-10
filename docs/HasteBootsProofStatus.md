@@ -21253,3 +21253,55 @@ No proof placeholders, additional logical axioms, native decision proofs,
 proof-limit increases or linter suppressions were introduced. Full-check log:
 `/tmp/lookup-pcs-backend-full-check.log`; SHA-256
 `74c47b0cae1ec9e713caaab44eb54cac6f9e3eba531123cbc63009f8fcf8f0b8`.
+
+
+### Cache-backed native rectangular batch finishing and soundness (2026-11-10)
+
+`CacheBackedBatchSoundness` derives the retained-code constructor result and
+primitive root from completed reachable cache-backed construction and its
+original retained code identity. It proves the native rectangular block code's
+exact distance `blocks - messageBlocks + 1`, without a supplied distance or
+primitive-root certificate. Test/packing width and code-block width remain
+independent; the constructor request need not force those widths to agree.
+
+Its `soundness_bound` applies the existing native batch finishing theorem to
+the same ideal interactive experiment with arbitrary probabilistic adaptive
+response state, the actual prepared batch, original queries and assigned
+response groups. Code construction and the primitive root are now derived.
+The radius field-size bound is also derived: injectivity of the actual domain
+bounds its cardinality by Goldilocks, and native positive degree plus the public
+`3*radius < blocks-messageBlocks+1` condition imply the required field bound.
+Only that numerical radius condition is supplied. The bound uses the computed
+native distance, retaining one batch loss and no query/group-count factor.
+
+`CacheBackedBatchFinishing.accepted_value` handles actual completed native
+batch PCS executions, including the original scheduler/fuel/memory/world and
+accepted parent. Each original claimed vector is identified with finishing its
+actual computed encoded response group and public right query. The native
+constructor/root premises of the earlier finishing result are internally
+derived from completed backend execution, preserving original code identity.
+
+Six exact axiom guards generated from Lean output cover all five new
+production theorems and the proof-bearing constructor observation function.
+Dependencies are only `propext`, `Classical.choice`, and `Quot.sound`. Targeted
+validation retains native rectangular batch, actual finishing and cache-backed
+constructor/response regressions, including unequal test/code-block widths.
+
+The probabilistic result is still the actual stated ideal interactive
+experiment, not an assertion that the native production transcript samples
+that law. Full authenticated-column acceptance must be composed with these
+finishing/response conditions and original-owner extraction on one history.
+Constructor/registry/context and source-alias/request/job association,
+concrete lookup and PCS field/basis instantiation, BabyBear, complete PBS
+lifetime, production Fiat--Shamir and physical work/compiler/cache/RNG
+refinement remain open. The final 128-bit actual-attacker-work theorem remains
+unproved.
+
+Validation: targeted cache-backed batch audit and retained native rectangular,
+finishing and backend regression build passed (4,517 jobs). Full `scripts/check`
+exited zero, including the 11,350-job build and all standalone checks. All five
+frozen gate input, manifest and receipt hashes remain unchanged (552, 484, 142,
+42, 478 inputs). No proof placeholders, additional logical axioms, native
+decision proofs, proof-limit increases or linter suppressions were introduced.
+Full-check log: `/tmp/cache-backed-batch-full-check.log`; SHA-256
+`41f99ed956bccec3d759945681a63b1c72b43a6044285ab021303b26cd8b1704`.
