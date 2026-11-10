@@ -742,3 +742,9 @@ import FormalProof4FHE.HasteBoots.AuthenticatedExtraction
 import FormalProof4FHE.HasteBoots.RecordedPayloadCoherence
 import FormalProof4FHE.HasteBoots.RecordedSourceCoherence
 import FormalProof4FHE.HasteBoots.ReusedPrivateSource
+
+import FormalProof4FHE.HasteBoots.CommitmentExceptionUnion
+import FormalProof4FHE.HasteBoots.CommittedOpeningException
+import FormalProof4FHE.HasteBoots.OpeningExceptionBound
+import FormalProof4FHE.HasteBoots.AuthenticatedExceptionUnion
+import FormalProof4FHE.HasteBoots.OwnedExtractionSoundness
