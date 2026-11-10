@@ -1,6 +1,7 @@
 module
-import FormalProof4FHE.HasteBoots.AccumulatorMatrixSoundness
-import FormalProof4FHETest.HasteBootsPublicMonomialEvaluationSmoke
+public import FormalProof4FHE.HasteBoots.AccumulatorMatrixSoundness
+public import FormalProof4FHETest.HasteBootsPublicMonomialEvaluationSmoke
+@[expose] public section
 open FormalProof4FHE.HasteBoots
 open HasteBootsPublicMonomialEvaluationSmoke
 open PackedSumcheckSubclaim (Query)

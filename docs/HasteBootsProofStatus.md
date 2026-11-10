@@ -19328,3 +19328,67 @@ arithmetic semantics extension.
 
 Full-check log: `/tmp/accumulator-matrix-full-check.log`; SHA-256
 `34c63082563411832a7ad13026900a2ccbd2bcdfa8f13044140449b635cd1f82`.
+
+## Endpoint projection and a bound for all seven accumulator equations (2026-11-10)
+
+`MatrixQueryProjection` proves that deleting a fixed middle block from an
+independently sampled matrix query leaves exactly the fresh-query distribution
+for the retained prefix and suffix. The indexed projection and append theorems
+retain every coefficient pair and the original final half pair. The sampler
+proof uses equality in distribution, not equality of programs: discarded row
+draws remain present in the original experiment. In particular the proof does
+not erase their work from the eventual execution/work refinement.
+
+`AccumulatorEndpointSoundness` constructs fixed coefficient/half residuals for
+the initial row and last active row against their public endpoints. The public
+endpoint source has the native coefficient/half ordering. Its projected fold
+is the coefficient evaluation followed by the original half matrices; the
+selected row-source fold equals the complete original table queried with
+identity row selectors. The two literal native endpoint equations are proved
+equivalent to zero folds of these residuals under the projected common query.
+
+`fresh_endpoint_bound` transfers the existing compression theorem through the
+proved projection distribution. False fixed endpoint constraints pass within
+`(c+1) * ((2*k-1)/card(F))^k`, without a two-endpoint multiplier. `FullHolds` and
+`FullCheck` combine them with the preceding five full-dimension equations.
+`fresh_full_bound` selects a false fixed core or endpoint constraint before
+sampling, then bounds all seven equations by the original
+`(c+r+1) * ((2*k-1)/card(F))^k`. It uses the endpoint/full dimension inequality,
+not a union bound over seven checks. Correlations between the checks on the
+same query require no additional independence premise.
+
+Fifteen kernel-checked regression examples and three fixture lemmas reuse the
+preceding modulus-17 width-two sources. The former endpoint-only counterexample
+still passes the five core equations, but is now rejected by the endpoint
+check. The tests exercise retained pair order, no-row/no-coefficient projections,
+selected-row and public-endpoint golden values, honest full checks, and the
+failure of a deliberately chosen zero query to detect a bad source. The exact
+projection sampling law is instantiated, with numerical endpoint and full
+bounds `18/289` and `27/289`. These probability examples instantiate the proved
+bounds rather than enumerate the experiments. The preceding smoke module now
+exports its existing fixtures. Sixteen guards audit every new production
+theorem; dependencies are subsets of `propext`, `Classical.choice` and
+`Quot.sound`. Both root libraries import the extension.
+
+This supplies the fresh private-query arithmetic error component for all seven
+accumulator equations on fixed sources with truthful evaluations. It does not
+establish authentication or production Fiat--Shamir freshness. The complete
+fixed-source constraint family must still be connected to the original native
+coefficient arrays, public endpoint construction and reference trace, with
+checked shape/field/configuration, query/value decoding, owner/history/framing
+and native accepted-stage coverage. Canonical decomposition/key switching,
+complete accepted-false-PBS extraction/coverage, native BabyBear, actor-cost
+separation and physical attacker-work/compiler/lifetime/cache/RNG refinement
+remain open. The overall security goal remains unproved.
+
+Validation: targeted smoke/audit build passed with 3,782 jobs. Full
+`scripts/check` completed with exit status zero, including 11,208 build jobs
+and all subsequent audit/smoke commands. No proof placeholders, additional
+logical axioms, native decision proofs, proof-limit increases or linter
+suppression were introduced. All recorded input, manifest and build-receipt
+hashes of the five retained-source gates were verified unchanged (552, 484,
+142, 42 and 478 inputs); those extraction gates were not rerun for this
+arithmetic semantics extension.
+
+Full-check log: `/tmp/accumulator-endpoint-full-check.log`; SHA-256
+`66bfe593bf2b6ba86e7d0a9bad1277ee10f46c78b47e5908b46804516ba720dd`.

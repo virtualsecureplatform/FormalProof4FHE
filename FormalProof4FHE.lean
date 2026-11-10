@@ -1,3 +1,4 @@
+import FormalProof4FHE.HasteBoots.AccumulatorEndpointSoundness
 import FormalProof4FHE.HasteBoots.AccumulatorMatrixSoundness
 import FormalProof4FHE.HasteBoots.AccumulatorPackedQueries
 import FormalProof4FHE.HasteBoots.AccumulatorTrace
