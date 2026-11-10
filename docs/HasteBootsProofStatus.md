@@ -21305,3 +21305,56 @@ frozen gate input, manifest and receipt hashes remain unchanged (552, 484, 142,
 decision proofs, proof-limit increases or linter suppressions were introduced.
 Full-check log: `/tmp/cache-backed-batch-full-check.log`; SHA-256
 `41f99ed956bccec3d759945681a63b1c72b43a6044285ab021303b26cd8b1704`.
+
+
+### Authenticated cache-backed opening views over complete lifetimes (2026-11-10)
+
+`CacheBackedBatchAcceptance.view_or_bad` derives the complete native rectangular
+opening view from a witnessed authenticated acceptance and completed cache-backed
+constructor retaining the original code. The view contains the actual prepared
+batch, original context hash, recorded frozen source snapshots, actual ordered
+column draws, test checks, response-group checks and finishing equalities. These
+are theorem conclusions, not verifier inputs or supplied source/PCS certificates.
+Constructor and primitive-root premises are internally derived. If the view
+cannot be obtained, the existing shared history Bad event occurs; a separate
+no-disagreement certificate is not an input.
+
+`program_view_or_bad` obtains truthful observation replay directly from the
+enclosing actual program run. The measured `Failure` event ranges over any
+witnessed accepted batch, context, scheduler, memory, fuel and matching completed
+constructor in that complete mixed history that lacks the derived view.
+`failure_implies_bad` reduces all such failures to the same Bad, and
+`failure_le_charge` gives one complete-program expected hash charge. The native
+acceptance predicate retains its existing framing and actual-log inclusion
+requirements; this module does not remove that trusted-input domain obligation.
+
+`CacheBackedBatchAcceptanceLifetime` covers a missing view at any prefix of an
+unbounded causal machine lifetime, including its actual prelude and suspension/
+resume histories. Each prefix failure implies Bad there, so the existing
+persistent-Bad lifetime theorem bounds it by the supremum of increasing charges
+on the same shared ledger, SHAKE ownership cache, SHA512 cache and history.
+No batch/trial cutoff or union over owners, constructors, contexts, groups,
+columns or schedulers is introduced. Missing views need not themselves be
+persistent; the proof uses persistence of Bad rather than assuming that fact.
+
+Six exact axiom guards generated from Lean output cover all new production
+theorems. Dependencies are only `propext`, `Classical.choice`, and `Quot.sound`.
+Targeted validation retains the native rectangular acceptance checks and source/
+soundness lifetime regressions.
+
+This supplies authenticated opening data outside one charged history event.
+It does not identify production transcript draws with the ideal interactive
+experiment or complete application falsity/extraction. Association of actual
+registry/context/constructor identities, source aliases, request/job order,
+concrete field/basis implementations, BabyBear, complete modified PBS behavior,
+production Fiat--Shamir and physical work/compiler/cache/RNG refinement remain
+open. The final 128-bit actual-attacker-work theorem remains unproved.
+
+Validation: targeted accepted-view audit and retained native rectangular and
+lifetime regression build passed (4,618 jobs). Full `scripts/check` exited zero,
+including the 11,353-job build and all standalone checks. All five frozen gate
+input, manifest and receipt hashes remain unchanged (552, 484, 142, 42, 478
+inputs). No proof placeholders, additional logical axioms, native decision
+proofs, proof-limit increases or linter suppressions were introduced.
+Full-check log: `/tmp/cache-backed-acceptance-full-check.log`; SHA-256
+`9b7bda128f396cb0dd5269415628ff877532114fc1b927b5cd49670e5d9b1a83`.

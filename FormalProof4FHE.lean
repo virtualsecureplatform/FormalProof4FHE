@@ -838,3 +838,6 @@ import FormalProof4FHE.HasteBoots.LookupPCSParameterDomain
 
 import FormalProof4FHE.HasteBoots.CacheBackedBatchSoundness
 import FormalProof4FHE.HasteBoots.CacheBackedBatchFinishing
+
+import FormalProof4FHE.HasteBoots.CacheBackedBatchAcceptance
+import FormalProof4FHE.HasteBoots.CacheBackedBatchAcceptanceLifetime
