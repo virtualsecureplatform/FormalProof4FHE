@@ -21414,3 +21414,75 @@ frozen gate input, manifest and receipt hashes remain unchanged (552, 484, 142,
 decision proofs, proof-limit increases or linter suppressions were introduced.
 Full-check log: `/tmp/cache-backed-lifetime-full-check.log`; SHA-256
 `ac6ac4ce46d87946ac34ee07846853c87ff7c1511068bd157e3a15977941a1d5`.
+
+
+### Allocated original parameter provenance for actual batch receipts (2026-11-10)
+
+`AllocatedCodeOrigin.ofInitialization` derives a completed backend origin from
+successful actual parameter initialization and the corresponding reachable
+constructor configuration. Retained code identity follows from the initializer;
+no separate code-identity certificate is supplied. `initialization_data` proves
+that the original request and cache configuration are retained verbatim.
+
+For a reachable immutable parameter store and actual registry collection,
+`registryEntry` selects the entry witnessed by the original slot lookup.
+`registry_entry_spec` proves the original reference/handle lookup, entry
+reachability and exact registry parameter/root object. `ofRegistry` obtains
+provenance from that selected entry's initializer. It does not choose an
+arbitrary constructor merely producing equal code. `registry_data` proves its
+request and configuration are those of the selected original stored entry.
+Aliases and unused positions remain in the original collected vector.
+
+`RegistryBatchCodeOrigin` links this provenance to native calls. A checked
+lookup supplies its own index bound. `found_original` preserves both the
+original initialized parameter object and the original reference commitment
+root. `ofCall` derives the lookup from the actual deferred call factory's
+first-original representative selection. `receipt_found` derives that same
+association from a receipt in the actual lookup dispatcher's executed batch
+verification. `ofReceipt` then returns completed code provenance for the
+receipt's actual PCS context, including its original parent, tables and field
+fuel, without an independently supplied parameter, code or owner equality.
+These results do not assert truth of the committed source table.
+
+Thirteen exact axiom guards generated from Lean output cover all six new
+production theorems and seven proof-bearing lookup/provenance constructors.
+Dependencies are only standard `propext`, `Classical.choice` and `Quot.sound`
+(the index lookup and index equality use only `propext`). Targeted validation
+retains actual native parameter allocation, registry ancestry and stored-owner
+geometry regressions.
+
+This closes the logical allocated-object-to-receipt provenance association for
+source batch calls. Physical pointers/heap/source compiler refinement remain
+separate. Helper allocation linkage, decoded source owner/application semantics,
+lookup alias-compression algebra and request/job order still need composition.
+Concrete field/basis and BabyBear implementations, scalar/lookup production
+Fiat--Shamir, complete modified PBS lifetime and actor-separated actual attacker
+work/compiler/cache/RNG refinement remain open. The final 128-bit
+actual-attacker-work theorem remains unproved.
+
+
+Native helper-path inspection identifies an additional required refinement:
+`packed_extension_lookup/canonical/shared.rs` constructs one coefficient query
+and one encoded helper value, then calls the single-opening PCS verifier once
+per helper root. `NativeSharedLookupHelpers.Call` and
+`NativeGoldHelperVerification` retain that single-query path. The mathematical
+shared lookup opening family currently carries two logical helper obligations
+[sum, identity]; the terminal guard equates the sum expectation to the same
+received helper value at their common point. Those obligations must be collapsed
+with a checked equivalence and linked to the actual single-opening helper
+program. A two-claim batch packet changes transcript binding and is not an
+operational substitute. Earlier descriptions of two ordered helper claims refer
+to that checked mathematical family, not completed native packet refinement.
+This collapse/single-opening bridge is a priority before claiming full native
+shared/private lookup coverage. The original source batch provenance results
+above do not depend on changing the helper path.
+
+Validation: targeted allocation/registry provenance audit and retained native
+parameter, ancestry and stored-owner regression build passed (4,736 jobs).
+Full `scripts/check` exited zero, including the 11,359-job build and all
+standalone checks. All five frozen gate input, manifest and receipt hashes
+remain unchanged (552, 484, 142, 42, 478 inputs). No proof placeholders,
+additional logical axioms, native decision proofs, proof-limit increases or
+linter suppressions were introduced. Full-check log:
+`/tmp/registry-code-origin-full-check.log`; SHA-256
+`dff0813d6f5715c182ea6934e1f74cfd56df9c85d430176180395a3f479ed66b`.
