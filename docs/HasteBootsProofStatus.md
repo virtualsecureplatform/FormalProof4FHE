@@ -19443,10 +19443,12 @@ cover every new theorem and the proof-bearing polynomial equivalence; their
 dependencies are limited to `propext`, `Classical.choice` and `Quot.sound`.
 Both root libraries import the new modules.
 
-This bridge currently covers power-of-two widths `2^lanes` and polynomial
-degree `2^(c+lanes)`. Widths 3 and 6 still require a packing/padding refinement;
-the generic preceding matrix error bound itself is not restricted to powers
-of two.
+This bridge covers power-of-two accumulator widths `2^lanes` and polynomial
+degree `2^(c+lanes)`. Native `packed_accumulator::Shape::coefficient_variables`
+rejects non-power-of-two accumulator widths. Widths 3 and 6 belong to other
+packed stages and need independent dimensions in their composition; they are
+not additional accumulator configurations. The generic preceding matrix error
+bound itself is not restricted to powers of two.
 
 Native array/heap and public-endpoint construction correspondence, checked
 shape/field/configuration and query/value decoding, authenticated evaluation,
@@ -19469,3 +19471,74 @@ arithmetic semantics extension.
 
 Full-check log: `/tmp/packed-accumulator-trace-full-check.log`; SHA-256
 `c53d11895036b9237a3fb6ee33df048459c560bee6f6d1627a1fe6679f131f3b`.
+
+## Multiplication sources composed with the complete accumulator trace (2026-11-10)
+
+`PackedBlindRotationTrace` composes the two original multiplication source
+families with `PackedAccumulatorTrace`. `Stages` retains the supplied monomial
+and external-product tables and their addresses. The two families have
+independent coefficient dimensions and lane widths; neither is coerced into
+the accumulator width or into the other family's layout. `Holds` lists the
+actual Hadamard relations and NTT bindings for the input, public monomial,
+monomial result, digit factors, original key factors and external-product
+result. Both ciphertext halves, every original digit source and every gadget
+level remain quantified. This is an explicit deterministic source predicate,
+not an assumed native verifier soundness or acceptance certificate.
+
+`rotation_of_holds` and `external_of_holds` discharge the coefficient-domain
+multiplication conclusions using the existing NTT injectivity and negacyclic
+multiplication theorems. `AllHolds` retains each original active round in order.
+Together with the seven accumulator constraints, `validTrace` and
+`output_eq_run` prove the complete reference blind rotation without separate
+rotation, external-product, subtraction, addition or round-linkage premises.
+The remaining premises are the actual source relations/bindings and primitive
+root, base-field/analysis-field and shape data.
+
+`wrong_output_coverage` locates an incorrect reference output in either the
+seven-constraint family or an original active round's multiplication sources.
+`false_stage_coverage` exposes the latter as a false monomial/external relation
+or a concrete NTT source, public-power, digit, key or result binding failure.
+`wrong_output_bound` derives the existing fresh common-query arithmetic bound
+from the multiplication source predicates. It does not sum over rounds or
+remove multiplication-stage soundness obligations: it assumes their explicit
+source predicates hold, and bounds only the remaining accumulator checks.
+
+The kernel-checked fixture reuses the three-round, four-row modulus-17 trace
+and its original nonzero and zero rotations. Monomial width 3, external-product
+width 6 and accumulator width 2 are used simultaneously, with complete
+relations over every lane. The fixture derives the valid trace and golden
+output without supplying coefficient multiplication identities, uses nonzero
+lane addresses in both independent layouts, and instantiates the wrong-public-
+output bound as `36/289`. A zero-public-factor regression still satisfies the
+monomial relation with a zero result, but fails the required public-power
+binding. Seven exact axiom guards cover every new theorem; dependencies are
+limited to `propext`, `Classical.choice` and `Quot.sound`. The preceding packed
+accumulator fixture is exported for reuse, and both root libraries import the
+new composition and tests.
+
+The earlier width limitation is clarified above: native accumulator packing
+requires a power-of-two width. Widths 3 and 6 are permitted in the independently
+packed multiplication families; no change to native accepted configurations
+was made. This fixture establishes mathematical dimension independence, not
+native address/source/heap correspondence for these layouts.
+
+Still open are discharge of these source predicates from the actual shared
+accepted stages, original public-key and digit/decomposition provenance,
+authenticated evaluations and query/value decoding, shape/field/configuration
+and public-endpoint construction refinement, owner/history/framing and
+Fiat--Shamir lifetime composition. Canonical decomposition/key switching,
+complete accepted-false-PBS coverage, native BabyBear, actor-cost separation
+and physical attacker-work/compiler/lifetime/cache/RNG refinement also remain
+open. The overall security goal remains unproved.
+
+Validation: targeted smoke/audit build passed with 3,788 jobs. Full
+`scripts/check` completed with exit status zero, including 11,214 build jobs
+and all subsequent audit/smoke commands. No proof placeholders, additional
+logical axioms, native decision proofs, proof-limit increases or linter
+suppression were introduced. All recorded input, manifest and build-receipt
+hashes of the five retained-source gates were verified unchanged (552, 484,
+142, 42 and 478 inputs); those extraction gates were not rerun for this
+arithmetic composition.
+
+Full-check log: `/tmp/packed-blind-rotation-full-check.log`; SHA-256
+`d39d73207fcd990f6cfe5f06f6465c4f250d49f7c2b3b777ccd9d92f36f810a9`.

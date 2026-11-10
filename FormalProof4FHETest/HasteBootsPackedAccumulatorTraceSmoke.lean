@@ -1,7 +1,8 @@
 module
-import FormalProof4FHE.HasteBoots.PackedAccumulatorTrace
-import FormalProof4FHETest.HasteBootsAccumulatorTraceSmoke
-import FormalProof4FHETest.HasteBootsAccumulatorMatrixSmoke
+public import FormalProof4FHE.HasteBoots.PackedAccumulatorTrace
+public import FormalProof4FHETest.HasteBootsAccumulatorTraceSmoke
+public import FormalProof4FHETest.HasteBootsAccumulatorMatrixSmoke
+@[expose] public section
 open FormalProof4FHE.HasteBoots
 open HasteBootsAccumulatorTraceSmoke HasteBootsHadamardBlindRotationSmoke
 open OracleSpec OracleComp
