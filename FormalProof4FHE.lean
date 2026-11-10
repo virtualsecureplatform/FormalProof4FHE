@@ -783,3 +783,7 @@ import FormalProof4FHE.HasteBoots.SharedLookupOpeningFamily
 import FormalProof4FHE.HasteBoots.RadixSharedSourceSlots
 import FormalProof4FHE.HasteBoots.StagedHeterogeneousBatchException
 import FormalProof4FHE.HasteBoots.SharedLookupGroupedOpening
+
+import FormalProof4FHE.HasteBoots.OrderedPrivateDraws
+import FormalProof4FHE.HasteBoots.SharedLookupBatchSequence
+import FormalProof4FHE.HasteBoots.SharedLookupBatchArithmetic
