@@ -853,3 +853,7 @@ import FormalProof4FHE.HasteBoots.SingleHelperNativeValue
 
 import FormalProof4FHE.HasteBoots.SingleOpeningFinishing
 import FormalProof4FHE.HasteBoots.CacheBackedSingleOpening
+
+import FormalProof4FHE.HasteBoots.SingleOpeningExposure
+import FormalProof4FHE.HasteBoots.SingleOpeningAvailability
+import FormalProof4FHE.HasteBoots.SharedOpeningAvailability

@@ -21592,3 +21592,75 @@ placeholders, additional logical axioms, native decision proofs, proof-limit
 increases or linter suppressions were introduced. Full-check log:
 `/tmp/single-opening-finishing-full-check.log`; SHA-256
 `b5e11d518db4f36f7a3873418b246322ae26a4c17b861a1aeadab42a6191e4cd`.
+
+## Native single-helper availability in the shared source history
+
+`SingleOpeningExposure` recognizes the original adjacent context/opening frames
+and proves they are direct mentions of the actual context/root pair. From the
+executed single-opening prefix it derives the first positive random-test byte
+read, including when that candidate is rejected. The framing uses the exact
+single-opening labels and original raw query/value bytes, never a batch
+replacement. The context digest is computed from the original parameter
+object. Valid parent frames and the original serialized opening allocation
+bound remain explicit. This exposure is before PCS random-test answers;
+association with earlier outer lookup commitment/challenge boundaries remains
+a separate composition obligation.
+
+`SingleOpeningAvailability` derives the selected native tree height, lossless
+typed worker requests and actual worker payload authentication/coordinate
+checks. A witnessed acceptance in a truthful complete history supplies one
+common immutable checkpoint log for all supported heights and all its sampled
+columns. Payloads are first identified with the original raw checkpoint word,
+then projected to field values for both native coordinate families. The raw
+fallback and lazy field spellings are retained. The state is the same
+parent-ledger/byte-cache/hash-cache reconstruction used for source batches;
+there is no new oracle state or cache reset. Actual execution supplies context,
+exposure, height, request and replay witnesses. Only the global no-disagreement
+event is excluded by `accepted_has_source`.
+
+Any accepted single call without that source implies the existing persistent
+`NativeRootFamilyLifetime.Bad`, and its complete-program risk is bounded by one
+existing hash charge. The event quantifies over arbitrary witnessed contexts,
+schedulers and calls in the same history. This is raw-source availability,
+not truth of the final claimed lookup or PBS output.
+
+`SharedOpeningAvailability.SingleView` combines those source equations with the
+preceding allocated-code finishing theorem. `single_view_or_bad` and
+`helper_receipt_view_or_bad` derive it from actual single calls or accepted
+receipts of the ordered native helper verifier. The original allocated-code
+origin and native framing domain remain explicit. Receipts before a later
+helper stop are covered; their subtraces are transported to the whole mixed
+history without replay/acceptance certificates supplied by the verifier's
+caller.
+
+The combined `Failure` includes a missing single-helper source OR a missing
+source-batch source, allowing different helper and batch memory types. Both
+imply the same persistent Bad, so `failure_le_charge` uses one complete-history
+charge, without summing helper/source risks or adding owner/job/column/call
+multipliers. `lifetime_failure_le_charge` covers a failure at any actual
+execution prefix by the supremum of existing increasing prefix charges. It
+does not assume the missing-source predicate itself stays true after later
+observations. Prelude, issued calls, rejected/suspended work and suffix
+observations all remain in the complete history.
+
+Thirty-four exact Lean-output guards audit every new production theorem,
+definition and proof constructor; dependencies are only standard `propext`,
+`Classical.choice` and `Quot.sound`. The targeted audit and retained native
+single/batch input recognition, first-exposure, raw batch framing, source
+lineage and duplicate-zero helper regressions passed (4,476 jobs).
+
+Next is deterministic rectangular transport/extraction for this single helper
+view and its original common-point/query/job association. Outer lookup
+first-exposure/owner and alias compression composition, production scalar and
+lookup Fiat--Shamir, BabyBear, full modified-PBS lifetime and actor-separated
+actual attacker work/compiler/cache/RNG refinement remain open. No full
+production single-helper PCS soundness or final 128-bit work statement is
+claimed by these availability bounds.
+
+Validation: full `scripts/check` exited zero, including the 11,370-job
+build and all standalone checks. All five frozen gate input, manifest and
+receipt hashes remain unchanged (552, 484, 142, 42, 478 inputs). No proof
+placeholders, additional logical axioms, native decision proofs, proof-limit
+increases or linter suppressions were introduced. Full-check log:
+`/tmp/shared-opening-availability-full-check.log`; SHA-256
+`5d07a36e63d116088dea56207db0bb02cc9d9ca6e1c1e408534d88793d24cb71`.

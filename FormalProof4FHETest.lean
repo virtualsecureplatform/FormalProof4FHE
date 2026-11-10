@@ -432,3 +432,5 @@ import FormalProof4FHETest.HasteBootsSingleHelperSmoke
 import FormalProof4FHETest.HasteBootsSingleHelperAudit
 
 import FormalProof4FHETest.HasteBootsSingleOpeningFinishingAudit
+
+import FormalProof4FHETest.HasteBootsSharedOpeningAvailabilityAudit
