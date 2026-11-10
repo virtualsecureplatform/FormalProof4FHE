@@ -1,6 +1,7 @@
 module
-import FormalProof4FHE.HasteBoots.KeySwitchExtractionSoundness
-import FormalProof4FHETest.HasteBootsCanonicalKeySwitchSmoke
+public import FormalProof4FHE.HasteBoots.KeySwitchExtractionSoundness
+public import FormalProof4FHETest.HasteBootsCanonicalKeySwitchSmoke
+@[expose] public section
 open FormalProof4FHE.HasteBoots
 open HasteBootsCanonicalKeySwitchSmoke (acc trace output badOutput shape hidden key product)
 open OracleSpec OracleComp BinaryTree

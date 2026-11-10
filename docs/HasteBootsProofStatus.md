@@ -19786,3 +19786,92 @@ arithmetic extraction and shared ZeroCheck extension.
 
 Full-check log: `/tmp/key-switch-extraction-full-check.log`; SHA-256
 `734d8093c497c681b705ec5f7c63c2cfe925f32293c79bb38b3de49ed9db3029`.
+
+## Authenticated extraction with one private PCS opening (2026-11-10)
+
+`PreparedPublicZeroTerminal` separates private terminal values from public
+factor tables. Only private values can be received or passed to the binding
+callback; public values are folded by the verifier from the actual retained
+full query. The public EQ terminal remains verifier-computed. Preparation
+retains the original subclaim, private memory and every shared receive/bind
+call. A rejected terminal retains received values/memory and skips binding;
+a missing subclaim skips both callbacks. Its support theorems prove that an
+enabled packet contains the checked actual subclaim and expose only a wrong
+private value as the alternative to a truthful reduced relation.
+
+`AuthenticatedPublicZeroCheck` composes this adapter with the root-recorded
+commitment prefix and concrete interleaved native matrix-opening workers.
+Only private roots are recorded/opened. Public tables are fixed functions of
+the pre-query commitment emission, allowing endpoints selected adaptively
+before the ZeroCheck coins without letting them depend on those fresh coins.
+The private decoder uses the same prefix snapshots and trusted code/query
+geometry as the actual opening protocol. Claimed values override opening
+factory values, and trusted roots, domain and full query override factory
+context. No worker success flag, wrong-opening certificate, replay certificate
+or assumed terminal authentication is accepted as an input.
+
+The proof separates the actual truthful-subclaim and accepted-wrong-private-
+value events. Arithmetic risk averages the three ZeroCheck error terms over
+the actual commitment outcomes and carries the returned cache through terminal
+preparation and opening. Private opening risk is bounded by the existing
+native-worker PCS theorem. Their union yields the arithmetic error plus a PCS
+error sum over private factors only, plus one expected hash charge on exactly
+the complete stopped commitment/ZeroCheck/receive/bind/native-worker program.
+`project_witness` proves that erasing the analysis-only prefix reproduces that
+actual shared program, including rejection paths and final cache/log. Native
+interpolation messages discharge the degree bounds as in the preceding
+all-private theorem; the original all-private implementation is unchanged.
+
+`AuthenticatedExtraction` specializes the new theorem to one private increment
+and two public factors. Its bijective role map preserves native order
+`increment, mask, target`; its fixed degree-two expression is
+`increment*mask-target`. The trusted stage constructor overrides the factory's
+relation, factor list and public tables, opening exactly `[()]` for the
+increment. The endpoint and output may be functions of the same pre-query
+emission. Its semantic theorem connects the zero relation to the original
+masked extraction constraint and hence to `CanonicalKeySwitch.Extraction`
+when the private table is the canonical packing of the coefficient increment.
+
+`native_soundness_from_empty` now bounds acceptance of a false decoded-source
+extraction relation by the full three-term ZeroCheck arithmetic error plus
+ONE private `JointMatrixOpening.error`, plus one expected shared hash charge.
+The event uses the actual root-recorded private decoder, not an assumed
+truthful opening or an extra source-dependent operational check. It does not
+substitute three authenticated commitments for the native computed public
+factors. This advances the preceding truthful-subclaim-only theorem to an
+interactive source-level acceptance theorem for this extraction stage.
+
+The operational regression fixture checks correct and incorrect terminals at
+a concrete Lagrange node. Equality of OracleComp programs proves that the
+accepted path retains receive hash then bind hash and the updated private
+memory; rejection retains receive work without binding; a missing subclaim invokes
+neither callback. The checked private-value alternative is instantiated, and
+the extraction role relation is checked against the preceding golden source
+fixture. Fifteen exact axiom guards cover every new production theorem;
+dependencies are subsets of `propext`, `Classical.choice` and `Quot.sound`.
+The preceding extraction fixture is exported for reuse, and both root
+libraries import the new modules and tests.
+
+The theorem describes one actual root-recorded shared execution from empty
+initialization. Its commitment program may return/reuse existing roots, but
+identifying the stage snapshot with an original immutable owner's earlier
+lifetime snapshot remains a refinement obligation. Native array/field/context/
+query/value decoding, trusted public-table construction and original endpoint/
+key-product provenance still need connection to the accepted Rust path. The
+single private opening is no longer an assumed source-level security premise;
+its PCS error and hash charge are explicit. Complete accepted-false-PBS
+coverage on common owner/history, production Fiat--Shamir composition, native
+BabyBear, actor-cost separation and physical attacker-work/compiler/lifetime/
+cache/RNG refinement remain open. The overall security goal remains unproved.
+
+Validation: targeted smoke/audit build passed with 3,864 jobs. Full
+`scripts/check` completed with exit status zero, including 11,230 build jobs
+and all subsequent audit/smoke commands. No proof placeholders, additional
+logical axioms, native decision proofs, proof-limit increases or linter
+suppression were introduced. All recorded input, manifest and build-receipt
+hashes of the five retained-source gates were verified unchanged (552, 484,
+142, 42 and 478 inputs); those extraction gates were not rerun for this
+authenticated public-factor extraction extension.
+
+Full-check log: `/tmp/authenticated-extraction-full-check.log`; SHA-256
+`3da5e8050c415dcc40d21b1174fe235d92e2d892c60227544fac4a4c0071e072`.

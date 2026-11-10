@@ -354,3 +354,6 @@ import FormalProof4FHETest.HasteBootsCanonicalKeySwitchAudit
 
 import FormalProof4FHETest.HasteBootsKeySwitchExtractionSmoke
 import FormalProof4FHETest.HasteBootsKeySwitchExtractionAudit
+
+import FormalProof4FHETest.HasteBootsPublicZeroTerminalSmoke
+import FormalProof4FHETest.HasteBootsAuthenticatedExtractionAudit
