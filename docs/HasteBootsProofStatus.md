@@ -19392,3 +19392,80 @@ arithmetic semantics extension.
 
 Full-check log: `/tmp/accumulator-endpoint-full-check.log`; SHA-256
 `66bfe593bf2b6ba86e7d0a9bad1277ee10f46c78b47e5908b46804516ba720dd`.
+
+## Canonical accumulator packing and wrong-reference-output bound (2026-11-10)
+
+This checkpoint corrects a source-slot error in the preceding matrix model.
+Native `packed_accumulator.rs` checks the selected halves of `EXTERNAL_INPUT`
+(the monomial product minus the input accumulator) against the original
+`DECOMPOSITION_A` and `DECOMPOSITION_B` sources. The earlier `CoreCheck`,
+`residual` and `error` definitions instead selected `INPUT_ACC`. They now use
+`sources.difference`, matching the native equations. The existing zero-difference
+fixture has zero decomposition sources. A separate nonzero-difference fixture
+with distinct halves proves the corrected links and rejects the old accumulator
+links. The generic compression proofs and their error bounds continue to check
+for the corrected residuals; this correction supersedes earlier claims that
+those two source slots already matched the native verifier.
+
+`PackedAccumulatorTrace` gives a canonical map from the original coefficient
+arrays to all five accumulator matrix sources. The polynomial address is
+`lane + width*coefficient`, and the complete scalar-address theorem retains the
+coefficient, lane, row and half with the native strides. The polynomial and row
+maps are bijections: no coefficients, padded rows or original rounds are
+removed. The two decomposition sources remain independent supplied tables;
+the production constructor does not replace them with manufactured honest
+copies. Public endpoints are packed from the supplied coefficient ciphertexts.
+
+The map accepts a ring embedding from the prime base field into an arbitrary
+analysis field. Its injectivity follows from the field hypotheses. Packing
+preserves subtraction and addition, and its row advance agrees with the
+coefficient trace's cyclic successor, including the wrap row. Selected endpoint
+slices and both boundary impulses are proved to match the coefficient model.
+Consequently `arithmetic_of_holds` and `linkage_of_holds` derive the original
+`AccumulatorTrace.Arithmetic` and `Linkage` from `FullHolds`, rather than taking
+these trace properties as additional premises.
+
+`validTrace` and `output_eq_run` connect these seven fixed-source constraints
+to the complete reference blind rotation, given the explicit per-round rotation
+and external-product identities. `wrong_output_bound` combines that connection
+with the fresh common-query theorem: an incorrect public reference accumulator
+output with those multiplication-stage identities passes `FullCheck` with
+probability at most `(c+r+1) * ((2*width-1)/card(F))^width`. It adds no multiplier
+for the seven equations. This is a fresh private-query experiment on fixed,
+truthfully evaluated sources, not a production acceptance theorem.
+
+The new kernel-checked fixture reuses all three original modulus-17 rounds,
+including a zero rotation, with the fourth row padded. It derives arithmetic,
+linkage, the full valid trace and the golden output through the new bridge,
+checks scalar layout, rejects the incorrect accumulator-half links, and
+instantiates the wrong-public-output bound as `36/289`. Twenty-one axiom guards
+cover every new theorem and the proof-bearing polynomial equivalence; their
+dependencies are limited to `propext`, `Classical.choice` and `Quot.sound`.
+Both root libraries import the new modules.
+
+This bridge currently covers power-of-two widths `2^lanes` and polynomial
+degree `2^(c+lanes)`. Widths 3 and 6 still require a packing/padding refinement;
+the generic preceding matrix error bound itself is not restricted to powers
+of two.
+
+Native array/heap and public-endpoint construction correspondence, checked
+shape/field/configuration and query/value decoding, authenticated evaluation,
+owner/history/framing, production Fiat--Shamir freshness and accepted-stage
+coverage still need refinement. The rotation and external-product premises
+must be discharged from the respective accepted multiplication stages using
+the existing algebraic bridges. Canonical decomposition/key switching, complete
+accepted-false-PBS extraction/coverage, native BabyBear, actor-cost separation
+and physical attacker-work/compiler/lifetime/cache/RNG refinement remain open.
+The overall security goal remains unproved.
+
+Validation: the targeted smoke/audit build passed with 3,786 jobs. Full
+`scripts/check` completed with exit status zero, including 11,211 build jobs
+and all subsequent audit/smoke commands. No proof placeholders, additional
+logical axioms, native decision proofs, proof-limit increases or linter
+suppression were introduced. All recorded input, manifest and build-receipt
+hashes of the five retained-source gates were verified unchanged (552, 484,
+142, 42 and 478 inputs); those extraction gates were not rerun for this
+arithmetic semantics extension.
+
+Full-check log: `/tmp/packed-accumulator-trace-full-check.log`; SHA-256
+`c53d11895036b9237a3fb6ee33df048459c560bee6f6d1627a1fe6679f131f3b`.

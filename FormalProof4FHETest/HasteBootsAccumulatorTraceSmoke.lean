@@ -1,6 +1,7 @@
 module
-import FormalProof4FHE.HasteBoots.AccumulatorTrace
-import FormalProof4FHETest.HasteBootsHadamardBlindRotationSmoke
+public import FormalProof4FHE.HasteBoots.AccumulatorTrace
+public import FormalProof4FHETest.HasteBootsHadamardBlindRotationSmoke
+@[expose] public section
 open FormalProof4FHE.HasteBoots
 open HasteBootsHadamardBlindRotationSmoke
 open NativeBlindRotation (Cipher Control StepTrace makeStep)

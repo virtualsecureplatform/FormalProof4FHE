@@ -339,3 +339,6 @@ import FormalProof4FHETest.HasteBootsReservationErrorLocalAudit
 
 import FormalProof4FHETest.HasteBootsReservationErrorReadSmoke
 import FormalProof4FHETest.HasteBootsReservationErrorReadAudit
+
+import FormalProof4FHETest.HasteBootsPackedAccumulatorTraceSmoke
+import FormalProof4FHETest.HasteBootsPackedAccumulatorTraceAudit
