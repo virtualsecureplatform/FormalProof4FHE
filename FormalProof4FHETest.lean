@@ -373,3 +373,7 @@ import FormalProof4FHETest.HasteBootsOwnedHadamardAudit
 
 import FormalProof4FHETest.HasteBootsKeySwitchSourceConstraintsSmoke
 import FormalProof4FHETest.HasteBootsNTTSourceBindingAudit
+
+import FormalProof4FHETest.HasteBootsOwnedDecompositionSmoke
+import FormalProof4FHETest.HasteBootsRadixLookupSourcesSmoke
+import FormalProof4FHETest.HasteBootsOwnedRadixAudit

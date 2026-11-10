@@ -20236,3 +20236,80 @@ model composition.
 
 Full-check log: `/tmp/ntt-source-full-check.log`; SHA-256
 `203fb0daa8c38fabac5052f220674b03af828aa1cd81e380836b8ec17c006e67`.
+
+## Original decomposition roots and comparison-source coverage
+
+Native `packed_decomposition::verify_impl` receives its input and digit roots
+from the caller and accepts only the auxiliary borrow roots from the proof.
+`OwnedDecompositionSoundness` now preserves that distinction in the model:
+the fixed three linear relations and caller input/digit roots override the
+factory, while all borrow roots, callback calls and retained memory remain.
+`witness_expected_roots` proves the input/digit selection on every supported
+execution, including later rejection. All `2*d+2` columns stay in native order.
+
+`OwnedLinearSoundness` extends the actual common-query/single-opening linear
+program to any matching recorded original registry, including owner families
+selected after the run. Actual support supplies audit and fresh root recording.
+Original sources equal pre-query sources outside the existing terminal history
+exception. Wrong openings and source reuse share ONE whole-program hash charge.
+The bound retains the common linear-compression term and one PCS error per
+original column; there is no extra relation-count or owner-choice multiplier.
+Fresh-source false acceptance is included in the original-owner event.
+
+The native-node decomposition specialization constructs the PCS analysis field
+and basis itself. Its explicit bound is
+`(front+suffix)*((2*b-1)/p)^b + (2*d+2)*PCSParameters.error + hashCharge`.
+The three checked relations are original input reconstruction, zero initial
+borrow and zero final borrow. Their validity on original owners is equivalent
+to `DecompositionLinear.Relation`; tuple membership remains a separate check.
+
+`RadixLookupSources` identifies original `(digit,borrow_in,borrow_out)` triples
+with the literal digit-major, incoming-borrow-minor public comparison table.
+It proves the comparison registry omits only the input column, preserving
+native slots `[i,d+i,d+i+1]` in the remaining digit/borrow registry. The original
+registry's complete last borrow is retained. Comparison membership is equivalent
+to the canonical proof's `LookupAt`. The semantic comparison bound includes
+the tuple-hash union AND reciprocal-domain term, independently amplified by the
+configured repetition count, and survives arbitrary later shared work. Its
+bound is `TupleLookupPair.error(card K,3,active,2*radix)^repetitions`.
+
+`OwnedRadixCoverage` connects an incorrect individual original digit to the
+bounded original-owner linear event or a particular original comparison triple
+outside its public table. The acceptance premise refers to the modeled linear
+stage. This covers wrong digits even if their weighted natural-number sum
+already equals the canonical input: range/borrow lookup is still essential.
+The proof derives the failing comparison rather than assuming an integer
+interpretation of a field congruence or a lookup-validity certificate.
+
+Operational tests supply conflicting input/digit roots and opening-factory
+roots, check caller roots win, preserve all auxiliary borrow roots and eight
+opening slots for three digits, and retain the callback's hash/private draw/
+memory in order. Comparison tests exercise the first/last native registry slots,
+public table order and swapped borrow roles. A q=17 counterexample with input
+4 and digits `[4,0,0]` satisfies field reconstruction, integer reconstruction
+and zero endpoints, but its first digit fails the comparison table. A separate
+mathematical degree-two extension of size 289 instantiates the full repeated
+semantic bound `(8*(2/289)+8/280)^2` through arbitrary later work. This extension
+regression does not claim a native lookup-field implementation. Twenty fresh
+exact axiom guards cover every new production theorem, with dependencies only
+on `propext`, `Classical.choice`, and `Quot.sound`.
+
+Original native byte/owner identification and public commitment construction
+remain open. Actual comparison acceptance still needs composition with the
+lookup algebra and grouped PCS bounds on the same original registry, including
+helper owners and all configured repetitions. Full PBS lifetime composition,
+production Fiat--Shamir, native BabyBear, actor-cost separation and physical
+work/compiler/cache/RNG refinement remain open. The final 128-bit
+actual-attacker-work security theorem remains unproved.
+
+Validation: targeted smoke/audit build passed (3,835 jobs). Full
+`scripts/check` completed with exit status zero, including 11,267 build jobs
+and all subsequent standalone audit/smoke commands. No proof placeholders,
+additional logical axioms, native decision proofs, proof-limit increases or
+linter suppressions were introduced. All five retained-source gate input,
+manifest and build-receipt hashes were verified unchanged (552, 484, 142, 42
+and 478 inputs); those extraction gates were not rerun for this decomposition/
+comparison-source model composition.
+
+Full-check log: `/tmp/owned-radix-full-check.log`; SHA-256
+`bc4c6ecb968d07b064f67e28aca9c13e33a3d64a5b2067db31f7a2c4ac2f0bdd`.
