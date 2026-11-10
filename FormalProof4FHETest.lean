@@ -436,3 +436,6 @@ import FormalProof4FHETest.HasteBootsSingleOpeningFinishingAudit
 import FormalProof4FHETest.HasteBootsSharedOpeningAvailabilityAudit
 
 import FormalProof4FHETest.HasteBootsSingleRectangularAudit
+
+import FormalProof4FHETest.HasteBootsSingleChallengeSmoke
+import FormalProof4FHETest.HasteBootsSingleChallengeAudit

@@ -865,3 +865,8 @@ import FormalProof4FHE.HasteBoots.SingleOpeningRectangularChecks
 import FormalProof4FHE.HasteBoots.SingleOpeningRectangularAcceptance
 
 import FormalProof4FHE.HasteBoots.SingleOpeningInteractiveSoundness
+
+import FormalProof4FHE.HasteBoots.SingleOpeningSamplingReceipt
+import FormalProof4FHE.HasteBoots.SingleOpeningRandomLaw
+import FormalProof4FHE.HasteBoots.SingleOpeningColumnLaw
+import FormalProof4FHE.HasteBoots.SingleOpeningFieldInputView

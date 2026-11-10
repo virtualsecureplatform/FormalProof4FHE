@@ -21743,3 +21743,80 @@ placeholders, additional logical axioms, native decision proofs, proof-limit
 increases or linter suppressions were introduced. Full-check log:
 `/tmp/single-rectangular-full-check.log`; SHA-256
 `f3321d324382e28937a457beccc57882e2af0ad68c1e943181fe7f517f900c0d`.
+
+## Actual single-helper sampler receipts and local causal challenge laws
+
+`SingleOpeningSamplingReceipt` recovers the native field binding, collector
+state, completed receipt parent, actual column-prefix result and ordered sample
+from the same checked single-opening execution. `ofSampled` preserves the exact
+sample retained by the preceding rectangular view; `ofPreparation` derives it
+from actual preparation. Native completion proves that the next transcript is
+the result of `finishField` on that same collector phase. The following index
+request uses that actual receipt and the original single-opening response
+binding. Known receipt coordinates, including knowledge assembled by arbitrary
+split reads, fix its parent across the complete replay fiber. These are derived
+analysis receipts, not new native verifier inputs or certificates.
+
+`SingleOpeningRandomLaw` identifies the actual canonical raw random array with
+the native joint field matrix and then the same rectangular row reindexing used
+by the source checks. Its conditional law retains the real shared-candidate-
+budget completion factor. Neither completed experiments nor rejected candidate
+histories are normalized to a probability-one return. The all-prefix law covers
+arbitrary candidate prefixes without a native retry bound. The first-positive-
+read versions derive fresh-tail eligibility from the full causal mixed history,
+including reads at arbitrary offsets. Earlier partial/orphan reads are retained
+and exclude fresh-first-read eligibility for that input. These are local laws
+at the selected stream exposure, not global coverage of every
+possible execution.
+
+`SingleOpeningColumnLaw` retains the exact single-opening response frame and
+both original raw rows. Equality of the complete response-bound input is
+proved equivalent to equality of both rows; semantically equal lazy field
+spellings do not replace raw transcript words. The computed law values equal
+the original sample's typed ordered draw vector. Its general posterior law
+retains every already known column-input byte through the shared cache mask.
+The first-positive-read specialization gives one joint uniform ordered vector,
+including repetitions. All tests/lanes share its one witness miss bound, with
+no lane or response-count multiplier. The world-dependent completed parent is
+proved constant on the replay fiber from known receipt coordinates, rather
+than assumed as an independent parent-transcript certificate. Unknown or only
+partially known receipt lineage still needs global early-receipt coverage.
+
+`SingleOpeningFieldInputView` checks the complete immediate native field suffix
+and adjacent original context/opening frames. It recovers the computed context
+digest, root, complete raw query/claim and positive native count. Full fixed-
+width modulus/count bytes and canonical complete payload decoding are checked;
+it does not scan for an arbitrary earlier matching label. Soundness reconstructs
+the exact pending input, and native completeness recovers the view. Most
+importantly, `receipt_parse` derives that parse from an actual sampler receipt,
+with the actual computed parameter-context digest. Parent framing and the
+original opening allocation bound remain explicit; no successful parse or
+source/context identity is supplied as a verifier certificate.
+
+Seven new regression examples cover raw lazy-word recovery, zero-count
+rejection, single/batch label separation, binding adjacency, trailing binding
+and transcript bytes, and response-input separation for duplicate zero
+spellings. The targeted audit also retains native field-law, partial-prequery
+index, early-receipt and fresh-receipt regressions (4,522 jobs). Sixty-two exact
+Lean-output guards cover every new production theorem, definition and proof
+constructor; dependencies are only standard `propext`, `Classical.choice` and
+`Quot.sound`.
+
+The new results are local native sampler/byte links. They do not yet identify
+the entire native accepted-false-claim event with the ideal interactive event.
+Next is the single-opening column/receipt challenge-link view, recovery of its
+first-field frozen source and global causal inherited/early-receipt/field/
+column event coverage, then the lifetime exposure-charge bound. Outer lookup
+commitment/common-point/query/job and original-owner/alias/application
+associations remain open. Production scalar/lookup Fiat--Shamir, BabyBear,
+complete modified-PBS lifetime and actor-separated actual attacker work/
+compiler/cache/RNG refinement also remain open. The final 128-bit
+actual-attacker-work theorem is still unproved.
+
+Validation: full `scripts/check` exited zero, including the 11,381-job
+build and all standalone checks. All five frozen gate input, manifest and
+receipt hashes remain unchanged (552, 484, 142, 42, 478 inputs). No proof
+placeholders, additional logical axioms, native decision proofs, proof-limit
+increases or linter suppressions were introduced. Full-check log:
+`/tmp/single-challenge-full-check.log`; SHA-256
+`d99a3cf3b501dee60c11f5d8ab3b04f423b32106d3a52efe1d5f1f1d4085532b`.
