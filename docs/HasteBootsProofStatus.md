@@ -21903,3 +21903,59 @@ Full validation for this milestone: `scripts/check` exited successfully, includi
 the 11,389-job build and subsequent standalone checks. Full-check log SHA-256:
 `ff86a422f3a0451e05826de48580fd0f9a6843ec8d35c412cadb2a3e61f71fe4`.
 The five frozen gate input sets remained unchanged (552/484/142/42/478 inputs).
+
+
+## Single-opening posterior collector composition and shared-column loss
+
+`SingleOpeningChallengeScope` derives strict encoded-input length separation
+between the recovered field request and the actual single-opening column
+nonce. This uses complete native framing, the original single response and
+receipt labels, and structural parsing only; it does not assume that a quoted
+receipt is true. Auxiliary field collection preserves an unseen column stream
+for every budget and world, including rejection and suspended outcomes.
+
+`SingleOpeningFieldColumnLaw` extends the original replayable history by the
+actual native field collector and retains its whole result and observation
+log. On each refined posterior fiber, the original ordered column vector is
+jointly uniform. The original-posterior law averages every collector outcome;
+it neither resets the history nor conditions away noncompletion. First-read
+eligibility comes from the original machine packet, with arbitrary earlier
+hashes and reads at other inputs retained.
+
+`SingleOpeningWitnessedColumnBound` bounds completed collection with both a
+column-distance witness and all shared checks by one `ColumnOpening.missBound`.
+The witness is part of the winning event, so correct/unwitnessed collector
+states do not require a disagreement premise. Completion makes these events
+monotone over collector budgets; the union over all budgets has the same bound.
+There is no retry, lane or number-of-tests multiplier. This is a generic
+sampling bound: concrete fixed-source error families and actual false-claim
+coverage still have to instantiate it.
+
+`SingleOpeningRecoveredMatrix.random` depends only on the fixed original
+context dimensions and retained collector state. The actual native sampling
+receipt identifies this matrix with the rectangular native random weights.
+Strict parsing of the actual single-opening column input recovers the same
+state. `acceptance_random_checks` transports the actual accepted native checks
+to that recovered-state matrix, preserving the actual ordered draw vector and
+original response. Pointwise recovery does not assert that future Prepared
+work is measurable in the selecting history.
+
+Twenty-one exact Lean-output guards cover every new public production declaration;
+only `propext`, `Classical.choice` and `Quot.sound` occur. Seven regression
+examples check strict single-input separation, nonidentity, suspension with no
+reads, successful zero collection, one and two rejected candidates with eight
+and sixteen consumed bytes, and untouched columns after arbitrary collector
+budgets despite starts/empty reads. The targeted smoke and audit build passed
+(4,509 jobs). No proof limits were raised and no frozen native source changed.
+
+Next are the concrete single-opening selected source word, raw/claimed column
+families and field proximity events, followed by early-receipt/inherited/
+field/column coverage of actual accepted false claims and its lifetime bound.
+Original owner/alias/application associations, production scalar/lookup
+Fiat--Shamir, native BabyBear, complete modified-PBS lifetime and physical
+attacker-work/compiler/cache/RNG refinement remain open. The final 128-bit
+actual-attacker-work theorem is not yet proved.
+
+Full validation: `scripts/check` exited successfully, including the
+11,395-job build and all subsequent standalone checks. Full-check log SHA-256:
+`729e2d95cd796651ff30d73acfef43e5056d1a3d7444f2406ba9800f4e23ef81`.
