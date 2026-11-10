@@ -393,3 +393,6 @@ import FormalProof4FHETest.HasteBootsSharedLookupArithmeticAudit
 
 import FormalProof4FHETest.HasteBootsSharedLookupTerminalSmoke
 import FormalProof4FHETest.HasteBootsSharedLookupTerminalAudit
+
+import FormalProof4FHETest.HasteBootsSharedLookupPCSSmoke
+import FormalProof4FHETest.HasteBootsSharedLookupPCSAudit

@@ -20666,3 +20666,82 @@ linter suppressions were introduced.
 
 Full-check log: `/tmp/shared-terminal-full-check.log`; SHA-256
 `db9aea9bc92cbb04ef7474fe40f79c496d0f6ab45ed54b2329cd841de57f244a`.
+
+### Computed shared terminal selection with staged original grouped PCS (2026-11-10)
+
+`SharedLookupPCS` makes the computed terminal selection drive the grouped
+opening execution. Only its returned packet enables openings. The packet's own
+queries/values overwrite behavior-factory fields, and its actual bound memory
+starts the opening loop. Fallback data cannot enable acceptance; rejected
+selection retains its own work and issues no opening calls. The root list is
+fixed to all helpers followed by all original sources, each registry index once.
+Each source has one common-point claim; each helper has two ordered claims.
+
+Final supported PCS acceptance exposes the actual successful supported terminal
+execution and packet. Its computed arithmetic/original-opening reduction then
+reduces final acceptance to the SAME scalar arithmetic event, an actual native
+PCS arithmetic event, or the common availability exception. The two arithmetic
+events share one selection/opening run. The PCS bound is derived from the
+existing native grouped verifier, with its actual tests, column samples,
+responses, grouped checks, worker callbacks and rejection behavior. There is
+no caller-supplied enabled flag, start memory, packet family or PCS security law.
+The generic adapter's local arithmetic interfaces are discharged below.
+
+`SharedLookupPCSAlgebra` constructs the real terminal program from its schedule,
+receiver and memory. It computes every public total from that job's own literal
+table, tuple width, table size, pair and prefix-fixed multiplicities. For a
+selected nonpassing job it derives both the supported acceptance reduction and
+retained scalar bound internally. Partial mode retains degree four; full mode
+retains degree three with its explicit full-length condition. Source/helper
+matrices are analysis data fixed before the EQ/batch program, never operational
+inputs or replacement commitments.
+
+`StagedSharedLookup` fixes the source/helper prefix association. Multiplicities
+are read only from the original source emission before pair/helper work, and
+pairs only from the later helper emission before EQ and sumcheck. Actual source
+words use their original source-prefix logs; helper words use their actual later
+helper-prefix logs. Every job retains its own table and ordered original source
+slots. Public geometry, lengths, source-slot coverage and syntactic polynomial
+degrees remain explicit parameters. A nonpassing job is selected only in analysis
+before any EQ/batch coins; execution still runs the full ordered job schedule.
+
+`StagedSharedLookupSoundness.bad_prefix_or_bad_bound` now proves the complete
+staged bound for
+`(not AllPass on original sources and pairs AND actual final PCS acceptance)
+ OR terminal common hash-history failure`.
+The bound is
+`scalarError(K,mode,c+row) + originalRootPCSerrorSum(L) + wholeRunHashCharge`.
+The scalar term has no job-count multiplier. Each root in the fixed helper/source
+`finRange` lists contributes one PCS arithmetic term, independently of how many
+jobs use a source or how many claims share its root. ONE hash charge covers the
+complete source commit, adaptive pair/helper work, helper recording, ordered EQ,
+common scalar batch, computed terminal receipt/binding and grouped opening run,
+including disabled/rejected executions. Lookup field K and PCS analysis field L
+remain distinct, with their own basis and distance conditions.
+
+The operational regression quantifies over arbitrary fallback packets and
+arbitrary opening behavior: a rejected selection cannot reach PCS acceptance
+or issue any opening work, while its real earlier hash call remains in the trace.
+It also checks fixed helper-before-source order. Five exact axiom guards generated
+from actual Lean output cover all new production theorems; dependencies are only
+`propext`, `Classical.choice`, and `Quot.sound`.
+
+This closes the shared private-coin algebra/computed-terminal/original grouped
+PCS composition conditional on a nonpassing sampled job. Pair randomness is not
+assumed by the parameters or the theorem: the next step must construct the actual
+independent pair/helper sampler per request, keep its configured repetitions,
+and bound AllPass for a false original tuple. Original-owner reuse and native
+byte/field/layout/job-index association still require refinement. Full PBS
+lifetime composition, production Fiat--Shamir, native BabyBear, actor-cost
+separation, and physical work/compiler/cache/RNG refinement remain open.
+The final 128-bit actual-attacker-work theorem remains unproved.
+
+Validation: targeted smoke/audit build passed (3,806 jobs). Full
+`scripts/check` exited zero, including the 11,303-job build and all subsequent
+standalone checks. All five retained-source gate input, manifest, and receipt
+hashes remain unchanged (552, 484, 142, 42, 478 inputs). No proof placeholders,
+additional logical axioms, native decision proofs, proof-limit increases, or
+linter suppressions were introduced.
+
+Full-check log: `/tmp/staged-shared-pcs-full-check.log`; SHA-256
+`dae7116b0da1981f9d281927c496bd4d0f560fa1032cfb7916665cf573abe699`.
