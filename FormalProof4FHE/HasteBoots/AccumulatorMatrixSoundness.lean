@@ -107,8 +107,8 @@ and cyclic continuity with both public boundary corrections. -/
 def residual (sources : Sources F k c r) (role : Fin 5) : Table F k c r :=
   if role.val = 0 then sources.difference-(sources.product-sources.input)
   else if role.val = 1 then sources.output-(sources.input+sources.external)
-  else if role.val = 2 then copyHalf sources.input false-sources.duplicateA
-  else if role.val = 3 then copyHalf sources.input true-sources.duplicateB
+  else if role.val = 2 then copyHalf sources.difference false-sources.duplicateA
+  else if role.val = 3 then copyHalf sources.difference true-sources.duplicateB
   else advance sources.input-sources.output-(boundary sources.start sources.initial-boundary sources.finish sources.final)
 
 def Holds (sources : Sources F k c r) : Prop := ∀ role, residual sources role = 0
@@ -118,16 +118,16 @@ The separately selected initial/final endpoint checks are not included here. -/
 def CoreCheck (sources : Sources F k c r) (query : Query F k ((1+r)+c)) : Prop :=
   query.fold sources.difference = query.fold sources.product-query.fold sources.input ∧
   query.fold sources.output = query.fold sources.input+query.fold sources.external ∧
-  (selectedQuery query false).fold sources.input = query.fold sources.duplicateA ∧
-  (selectedQuery query true).fold sources.input = query.fold sources.duplicateB ∧
+  (selectedQuery query false).fold sources.difference = query.fold sources.duplicateA ∧
+  (selectedQuery query true).fold sources.difference = query.fold sources.duplicateB ∧
   ((shiftedQueries query).map (fun branch => branch.fold sources.input)).sum-query.fold sources.output =
     correction query sources.start sources.initial-correction query sources.finish sources.final
 
 def error (sources : Sources F k c r) (query : Query F k ((1+r)+c)) (role : Fin 5) : Fin k → F :=
   if role.val = 0 then query.fold sources.difference-(query.fold sources.product-query.fold sources.input)
   else if role.val = 1 then query.fold sources.output-(query.fold sources.input+query.fold sources.external)
-  else if role.val = 2 then (selectedQuery query false).fold sources.input-query.fold sources.duplicateA
-  else if role.val = 3 then (selectedQuery query true).fold sources.input-query.fold sources.duplicateB
+  else if role.val = 2 then (selectedQuery query false).fold sources.difference-query.fold sources.duplicateA
+  else if role.val = 3 then (selectedQuery query true).fold sources.difference-query.fold sources.duplicateB
   else ((shiftedQueries query).map (fun branch => branch.fold sources.input)).sum-query.fold sources.output-
     (correction query sources.start sources.initial-correction query sources.finish sources.final)
 
@@ -138,10 +138,10 @@ theorem fold_residual (sources : Sources F k c r) (query : Query F k ((1+r)+c)) 
       (congrArg (query.fold sources.difference-·) (AccumulatorPackedQueries.fold_sub query sources.product sources.input))
   · exact (AccumulatorPackedQueries.fold_sub query sources.output (sources.input+sources.external)).trans
       (congrArg (query.fold sources.output-·) (AccumulatorPackedQueries.fold_add query sources.input sources.external))
-  · exact (AccumulatorPackedQueries.fold_sub query (copyHalf sources.input false) sources.duplicateA).trans
-      (congrArg (·-query.fold sources.duplicateA) (fold_copyHalf query sources.input false))
-  · exact (AccumulatorPackedQueries.fold_sub query (copyHalf sources.input true) sources.duplicateB).trans
-      (congrArg (·-query.fold sources.duplicateB) (fold_copyHalf query sources.input true))
+  · exact (AccumulatorPackedQueries.fold_sub query (copyHalf sources.difference false) sources.duplicateA).trans
+      (congrArg (·-query.fold sources.duplicateA) (fold_copyHalf query sources.difference false))
+  · exact (AccumulatorPackedQueries.fold_sub query (copyHalf sources.difference true) sources.duplicateB).trans
+      (congrArg (·-query.fold sources.duplicateB) (fold_copyHalf query sources.difference true))
   · have first := (AccumulatorPackedQueries.fold_sub query (advance sources.input) sources.output).trans
       (congrArg (·-query.fold sources.output) (fold_advance query sources.input))
     have last := (AccumulatorPackedQueries.fold_sub query (boundary sources.start sources.initial) (boundary sources.finish sources.final)).trans

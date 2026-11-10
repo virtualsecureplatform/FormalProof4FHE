@@ -23,8 +23,8 @@ def good : AccumulatorMatrixSoundness.Sources (ZMod 17) 2 1 1 where
   difference := 0
   external := 0
   output := input
-  duplicateA := AccumulatorMatrixSoundness.copyHalf input false
-  duplicateB := AccumulatorMatrixSoundness.copyHalf input true
+  duplicateA := 0
+  duplicateB := 0
   initial := 0
   final := 0
   start := (true,())
@@ -75,6 +75,31 @@ example : AccumulatorMatrixSoundness.CoreCheck bad zeroQuery := by
 
 -- Core validity deliberately does not assert the two public endpoint checks.
 example : good.input (AccumulatorPackedQueries.coordinate (c := 1) (r := 1) (false,()) (false,()) false) ≠ good.initial false (false,()) := by decide +kernel
+
+-- EXTERNAL_INPUT is the subtraction result, not INPUT_ACC. Keep the two
+-- halves nonzero and distinct so a source-slot substitution is observable.
+def nonzeroDifference (cell : MatrixFold.Cube 3) : Fin 2 → ZMod 17 :=
+  if (AccumulatorQuerySplit.coordinates 1 1 cell).2.2 then ![5,6] else ![1,2]
+def linked : AccumulatorMatrixSoundness.Sources (ZMod 17) 2 1 1 :=
+  { good with
+    product := input+nonzeroDifference
+    difference := nonzeroDifference
+    duplicateA := AccumulatorMatrixSoundness.copyHalf nonzeroDifference false
+    duplicateB := AccumulatorMatrixSoundness.copyHalf nonzeroDifference true }
+theorem linked_holds : AccumulatorMatrixSoundness.Holds linked := by
+  unfold AccumulatorMatrixSoundness.Holds
+  decide +kernel
+example : AccumulatorMatrixSoundness.CoreCheck linked query :=
+  AccumulatorMatrixSoundness.honest_coreCheck linked linked_holds query
+example : AccumulatorMatrixSoundness.residual linked 2 = 0 ∧ AccumulatorMatrixSoundness.residual linked 3 = 0 :=
+  ⟨linked_holds 2,linked_holds 3⟩
+def wrongAccumulatorLinks : AccumulatorMatrixSoundness.Sources (ZMod 17) 2 1 1 :=
+  { linked with
+    duplicateA := AccumulatorMatrixSoundness.copyHalf input false
+    duplicateB := AccumulatorMatrixSoundness.copyHalf input true }
+example : ¬AccumulatorMatrixSoundness.Holds wrongAccumulatorLinks := by
+  unfold AccumulatorMatrixSoundness.Holds
+  decide +kernel
 
 def nodes : PackedSumcheckRound.Node 2 ↪ ZMod 17 where
   toFun := fun entry => (2*entry.2.val+(if entry.1 then 1 else 0) : ℕ)
