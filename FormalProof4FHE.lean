@@ -832,3 +832,6 @@ import FormalProof4FHE.HasteBoots.LookupPreflightPCSGeometry
 
 import FormalProof4FHE.HasteBoots.LookupPCSCodeCapacity
 import FormalProof4FHE.HasteBoots.LookupPCSLayoutBounds
+
+import FormalProof4FHE.HasteBoots.LookupPCSBackendCode
+import FormalProof4FHE.HasteBoots.LookupPCSParameterDomain

@@ -417,3 +417,5 @@ import FormalProof4FHETest.HasteBootsLookupPreflightPackingAudit
 
 import FormalProof4FHETest.HasteBootsLookupPCSBoundsSmoke
 import FormalProof4FHETest.HasteBootsLookupPCSBoundsAudit
+
+import FormalProof4FHETest.HasteBootsLookupPCSBackendAudit

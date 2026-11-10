@@ -21199,3 +21199,57 @@ additional logical axioms, native decision proofs, proof-limit increases or
 linter suppressions were introduced. Full-check log:
 `/tmp/lookup-pcs-bounds-full-check.log`; SHA-256
 `7ef0a21a2d03e225c6ad4a1682a53ac7c2b10be67c9866ac7534cc1955d2978c`.
+
+
+### Cache-backed native RS domain, response membership and distance (2026-11-10)
+
+`LookupPCSBackendCode` connects completed reachable native block-code
+construction to the RS analysis. The actual cache-backed constructor supplies
+the primitive root, the bit-reversed odd-root domain, and its block cardinality.
+No primitive-root or encoder-correctness certificate is a caller premise.
+`parameter_spec` combines that completed constructor with the original retained
+code identity and native parameter-constructor result to derive the previous
+capacity/degree specification from the same execution model.
+
+`lifted_response` proves every actually encoded response lane, assembled using
+a basis of its original physical code-block width, belongs to the scalar RS
+code used by PCS analysis. It uses the actual completed constructor's plan root
+and the native response encoder result, preserving native evaluation order.
+The PCS analysis field is independent of the lookup extension field.
+`lifted_minDist` derives distance `blocks - messageBlocks + 1` from the actual
+constructed degree/domain; positivity and the degree bound come from construction.
+`parameter_minDist` expresses the same distance using the native parameter
+object's tree height and original message-block count.
+
+`LookupPCSParameterDomain` indexes that original domain by the actual parameter
+constructor's tree height. Its proof-bearing `positions` equivalence uses the
+derived height/log equality. Reindexing preserves the same evaluation points,
+scalar RS membership of each actually encoded response, and exact minimum
+distance `2^height - messageBlocks + 1`. Thus the domain and distance can use
+the index type expected by the original-root PCS layout, with no padded root or
+replacement commitment.
+
+Ten exact axiom guards generated from Lean output cover all seven new
+production theorems and the three proof-bearing domain/index constructors.
+Dependencies are only `propext`, `Classical.choice`, and `Quot.sound`. Targeted
+validation retains the actual cold/warm cache, retry, constructor and encoded
+response backend regressions, plus the mixed source/helper capacity regression.
+
+This connects code semantics in the checked native constructor/encoder model.
+Association of those completed constructors, retained code identities, domains
+and bases to every actual verifier registry/context and original source owner
+still remains required. The native verifier's received-column/test/group
+execution must be related to the mathematical PCS program. Native used-source
+and context/root alias deduplication, request/job order, concrete lookup and PCS
+field/basis instantiation, BabyBear, full PBS lifetime, production Fiat--Shamir
+and physical work/compiler/cache/RNG refinement remain open. The final 128-bit
+actual-attacker-work theorem remains unproved.
+
+Validation: targeted backend/domain axiom audit and retained backend/capacity
+regression build passed (4,343 jobs). Full `scripts/check` exited zero, including
+the 11,347-job build and all standalone checks. All five frozen gate input,
+manifest and receipt hashes remain unchanged (552, 484, 142, 42, 478 inputs).
+No proof placeholders, additional logical axioms, native decision proofs,
+proof-limit increases or linter suppressions were introduced. Full-check log:
+`/tmp/lookup-pcs-backend-full-check.log`; SHA-256
+`74c47b0cae1ec9e713caaab44eb54cac6f9e3eba531123cbc63009f8fcf8f0b8`.
