@@ -19111,3 +19111,71 @@ arithmetic semantics extension.
 
 Full-check log: `/tmp/accumulator-shift-full-check.log`; SHA-256
 `09d213921db2da21fa99c14411597b23839531f2c19f9f761c0418c315c8fc1d`.
+
+## Accumulator constraints reconstruct the full blind-rotation trace (2026-11-10)
+
+`AccumulatorTrace` connects the pointwise accumulator constraints to the
+independent coefficient-domain blind-rotation recurrence. `Tables` retains
+input, monomial product, external-product input, sum-product output and output
+accumulator at every original padded row. `Arithmetic` states the subtraction
+and addition equations at all those rows. `Linkage` states the initial and
+final endpoints plus the literal shifted-input equation:
+`input[(row+1)%M] - output[row] = [row=M-1]*initial - [row=L-1]*final`.
+Both correction terms are retained when the last active and last padded rows
+coincide. No new zero-padding premise is introduced to replace this equation.
+
+`active_next` derives adjacency of successive active rounds from the cyclic
+identity and shape bounds. The boundary correction terms vanish at each such
+interior row. The initial endpoint supplies the first state; the final endpoint
+supplies the terminal state. A generic indexed-chain theorem then constructs
+`NativeBlindRotation.ValidTrace` using the original control and trace ordering.
+Only the L active rows become executed steps; the M padded rows stay present in
+the tables and constraint predicates. Exponent-zero rounds are still executed.
+The shape requires positive active count and enough padded rows; native checked
+shape construction, power-of-two padding and overflow behavior remain separate.
+
+`validTrace_of_steps` accepts the per-round validity supplied by the preceding
+NTT/monomial/Hadamard bridges together with accumulator linkage. Alternatively,
+`validTrace_tables` derives local step validity from arithmetic and the per-round
+rotation/external-product identities. `output_eq_run` identifies the public final
+accumulator with the full reference run. `wrong_output_coverage` proves that a
+wrong reference accumulator forces an arithmetic/linkage failure or a wrong
+monomial/external-product stage identity at some original active round. These
+are deterministic relations, not accepted-verifier or probability statements.
+
+Fourteen kernel-checked regression examples and four fixture lemmas use modulus
+17 and degree four. A three-round trace includes a zero-exponent round and a
+negative-sector rotation, retains its fourth padded row, and reconstructs a
+full reference trace with an independently specified golden final vector.
+The two separate boundary corrections, their coincident unpadded case and the
+single-round case are checked. A negative fixture keeps every local step,
+arithmetic equation and endpoint correct while jumping to an unrelated input
+at the second round: its cyclic linkage fails and its final accumulator is
+wrong. Thus the trace bridge cannot bypass continuity using only local stages
+and endpoints. Sixteen guards audit all eleven production theorems and the five
+bounded-index constructions; dependencies are subsets of `propext`,
+`Classical.choice` and `Quot.sound`. Both root libraries import the extension.
+
+This closes the deterministic implication from these pointwise accumulator
+constraints and per-round multiplication stages to a complete blind-rotation
+trace. It does not show that native randomized matrix checks enforce those
+pointwise constraints. The row-query identities must still be embedded into
+complete coefficient/row/half queries, including duplicated-half links, endpoint
+mixing and correction weights, and connected to authenticated native sources
+and transcript framing. Native acceptance coverage, Fiat--Shamir error bounds,
+canonical decomposition and key-switch constraints, accepted-false-PBS
+extraction/coverage, native BabyBear, actor-cost separation and physical
+attacker-work/compiler/lifetime/cache/RNG refinement remain open. The overall
+security goal remains unproved.
+
+Validation: targeted smoke/audit build passed with 3,771 jobs. Full
+`scripts/check` completed with exit status zero, including 11,197 build jobs
+and all subsequent audit/smoke commands. No proof placeholders, additional
+logical axioms, native decision proofs, proof-limit increases or linter
+suppression were introduced. All recorded input, manifest and build-receipt
+hashes of the five retained-source gates were verified unchanged (552, 484,
+142, 42 and 478 inputs); those extraction gates were not rerun for this
+arithmetic semantics extension.
+
+Full-check log: `/tmp/accumulator-trace-full-check.log`; SHA-256
+`e3bc96b8fc0d78a53a3db5559fcc7e2f30dc84aaad21a0475bed790f33433b8b`.
