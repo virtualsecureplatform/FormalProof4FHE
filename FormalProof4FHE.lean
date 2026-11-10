@@ -762,3 +762,8 @@ import FormalProof4FHE.HasteBoots.CommittedBatchException
 import FormalProof4FHE.HasteBoots.OwnedNTTSoundness
 import FormalProof4FHE.HasteBoots.OwnedNTTBinding
 import FormalProof4FHE.HasteBoots.OwnedKeySwitchSourceCoverage
+
+import FormalProof4FHE.HasteBoots.OwnedLinearSoundness
+import FormalProof4FHE.HasteBoots.OwnedDecompositionSoundness
+import FormalProof4FHE.HasteBoots.RadixLookupSources
+import FormalProof4FHE.HasteBoots.OwnedRadixCoverage
