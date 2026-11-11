@@ -972,3 +972,7 @@ import FormalProof4FHE.HasteBoots.HelperPublicSourceObligation
 import FormalProof4FHE.HasteBoots.AllocatedLookupContext
 import FormalProof4FHE.HasteBoots.AllocatedLookupExecution
 import FormalProof4FHE.HasteBoots.AllocatedLookupPublicOwnership
+
+import FormalProof4FHE.HasteBoots.GoldScalarChallengeLaw
+import FormalProof4FHE.HasteBoots.ScalarRoundChallengeMeaning
+import FormalProof4FHE.HasteBoots.ScalarRoundHealingBound
