@@ -24727,3 +24727,50 @@ and every standalone check. Full-check log SHA-256:
 `4fe35252fac336fd5811e65c7c74f8524fbce1286814ddfee8d8482bc3770da4`.
 No proof placeholders, custom axioms, unsafe evaluation, resource-limit
 increases or linter suppressions were introduced.
+
+### Program-wide unnamed-receipt bound and allocated sample coverage
+
+`ProgramReceiptCoverage.Bad` is one fresh-receipt target-hit event over all
+actual prefixes of an enclosing oracle program. Its `totalCharge` sums the
+existing causal receipt risks at those prefixes. `bad_le` bounds the event
+by the expected lifetime charge; `inherited_le` retains one inherited bad
+event additively for the entire program. The proof uses actual prefix replay
+and the exact conditional fresh-receipt law. It introduces no uniform retry
+bound, job count or factor-count multiplier.
+
+`Unnamed` existentially covers every factor sample with a real native
+receipt output in the enclosing program whose raw payload was unnamed at
+its outer scalar first read. `unnamed_subset` places the whole event in the
+single program ledger, and `unnamed_le` supplies its lifetime probability
+bound. The existential sample can be selected after the execution; the
+countable union is over actual program prefixes, not over independently
+charged original jobs or samples.
+
+`AllocatedReceiptCoverage.samples_named` connects this ledger to actual
+allocated verification. It derives native success and caller-log inclusion
+from the executed allocated outcome, constructs the three original factor
+samples, and recovers the actual outer scalar first read from captured scalar
+observations. Outside `ProgramReceiptCoverage.Bad`, all three compression,
+reciprocal-offset and equality payloads are named in that same first-read
+prefix. Their original views, fixed receipt positions, native decoded words
+and equality point remain explicit. No independent receipt occurrence,
+first-read position, freshness or temporal certificate is supplied.
+
+Next, feed these named samples into candidate/fixation and posterior
+composition, retain the separate SHAKE receipt-collision alternative and
+prove its probability bound. Cross-world original metadata/source-family
+coupling and actual attacker-work accounting still remain. The new lifetime
+charge is a probability-risk ledger, not a physical-cost theorem. The final
+modified-PBS 128-bit actual-attacker-work theorem remains unproved. Frozen
+`Native*` modules, dependencies and kernel resource limits are unchanged.
+
+Validation: the mixed-history all-zero fixture enters the program-wide
+ledger and its far-offset first receipt read carries exactly `2^-512` risk.
+The later full digest read contributes zero additional charge; terminated
+programs have zero lifetime charge at every world. Eleven exact axiom guards
+passed using only standard Lean axioms, with a 4,922-job targeted guarded
+build. `scripts/check` exited successfully, including the 11,677-job root
+build and every standalone check. Full-check log SHA-256:
+`eba227325d75c1357dedcffc39123a08c9d9d7ae254dba3d9bea65621abd64e9`.
+No proof placeholders, custom axioms, unsafe evaluation, resource-limit
+increases or linter suppressions were introduced.

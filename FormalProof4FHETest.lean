@@ -587,3 +587,6 @@ import FormalProof4FHETest.HasteBootsFreshReceiptTargetAudit
 
 import FormalProof4FHETest.HasteBootsReceiptCoverageSmoke
 import FormalProof4FHETest.HasteBootsReceiptCoverageAudit
+
+import FormalProof4FHETest.HasteBootsProgramReceiptSmoke
+import FormalProof4FHETest.HasteBootsProgramReceiptAudit
