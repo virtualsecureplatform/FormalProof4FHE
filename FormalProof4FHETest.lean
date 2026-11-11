@@ -627,3 +627,5 @@ import FormalProof4FHETest.HasteBootsReferenceSelectionAudit
 import FormalProof4FHETest.HasteBootsCandidateScalarAudit
 
 import FormalProof4FHETest.HasteBootsAttainableIdentityAudit
+
+import FormalProof4FHETest.HasteBootsAllocatedHealingAudit

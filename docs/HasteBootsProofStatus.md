@@ -25523,3 +25523,45 @@ passed after strengthening native recovery (4,996-job guarded build).
 `scripts/check` passed the 11,772-job root build and every standalone check
 with source and tests frozen. Full-check log SHA-256:
 `dce0b2c010da53fd8f73d866139e51b4cfcd113196fcec12e4ab399ee21054b2`.
+
+### Actual allocated healing-witness coverage
+
+`AllocatedCandidateEvent` identifies the attainable candidate test with the
+actual native full/partial test using exact original context, body, origin,
+job ordinal, job and complete source/helper function provenance. It preserves
+the original equality transcript as well. Its witness constructor reuses the
+actual completed scalar entry, received message and recovered replay; it
+requires no independently chosen reference message or polynomial.
+
+`AllocatedHealingWitness` accepts the actual native completed-entry healing
+event on completed-history source/helper functions. Both branches of
+`ScalarFinishedSourceEvent.Event` supply this event directly. Actual allocated
+execution derives an enclosing-program first read and the strengthened
+candidate constructor transports the full families to its prefix. The result
+is an attained identity event at an actual first-read position/input, or the
+same shared full-history root/hash alternative. Geometry proof choices are
+irrelevant; no extra geometry event or charge is introduced.
+
+`AllocatedIdentityAlternatives.false_identity_alternatives` composes this
+coverage with the executed native identity reduction. An originally false
+identity equation, using its actual allocated public families and selected
+native logical-length branch, yields an attained healing event, the original
+PCS `Wrong` alternative, or the shared full-history root/hash event. Full and
+partial branches use one theorem without a branch union multiplier.
+
+Execution success, original geometry, framing allocation domains, initial
+identity falsity, observation embedding and seed-order safety remain explicit
+premises. The conclusion still existentially selects the actual first-read
+position/input. It is not a probability bound for their adaptive union.
+Next work must compose the original PCS alternative, retain the shared
+full-history root/hash event once together with the prefix bad remainder,
+and combine adaptive first-read/job classes. Deriving initial identity
+falsity for the full modified-PBS experiment, profile admission and physical
+attacker-work refinement also remain obligations. The final 128-bit
+actual-attacker-work theorem remains unproved.
+
+Validation: all seven new exact axiom guards passed using only standard Lean
+axioms (4,992-job guarded build). `scripts/check` passed the 11,776-job root
+build and all standalone checks with source and tests frozen. Full-check log
+SHA-256:
+`5b51ac4214e724ba7dee298ca5f4d99ee21bf5f0befd52291999ae68629f1620`.
