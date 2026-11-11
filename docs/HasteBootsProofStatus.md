@@ -22857,3 +22857,48 @@ Validation: targeted common-source smoke and twenty exact axiom guards passed.
 `scripts/check` exited successfully, including the 11,481-job build and all
 standalone checks. Full-check log SHA-256:
 `2ef440e6fec7faba457cf83a27296a966874043ddcc2c5aaafb2ea5126047b85`.
+
+
+## Exact recovered-log identity across native opening streams
+
+`SourceSnapshotLogIdentity.snapshots_perm` transports the existing stored
+causal replay to actual native checkpoints. Together with reconstructed
+source-key uniqueness, it proves that a complete context/root key has one
+exact immutable log at every supported checkpoint height. The invariant
+covers arbitrary mixed histories; it assumes neither truthful oracle answers
+nor a cryptographic no-collision event. Arbitrary hand-built checkpoint states
+are not covered by this replay theorem.
+
+Canonical single and batch field inputs resolving the same context/root in
+one containing history therefore recover the same exact log, including across
+different streams, request counts and first-read times. Canonical parsing and
+successful recovery remain explicit; equal roots without the context key or
+an unobserved field input do not suffice.
+
+`GoldRecoveredSourceTableIdentity` composes this invariant with actual native
+preparation, strict parsing, framing and computed context/root binding.
+Actual batch/batch and single/batch calls with equal full retained parameters
+and original roots use one complete extracted cube at the same decoder radius.
+Their parsed digest association and recovered-log equality are conclusions,
+not caller assertions. It introduces no bad event or extra hash charge.
+
+The mixed-stream regression starts with a hash and first batch read, adds an
+intervening hash, then reads a single stream and a different batch count before
+a final hash. Both later streams recover the exact original one-entry log,
+while the current hash log has three entries. Other checks cover distinct
+stream inputs for one key, canonical parsing, zero-byte outputs and arbitrary
+later history extension. Seven exact axiom guards cover all new public proofs;
+only `propext`, `Classical.choice` and `Quot.sound` occur.
+
+This closes exact log association between canonical native opening streams
+for one shared source identity. Original application/helper allocation and
+table ownership, application-level extraction, native outer scalar/lookup
+Fiat--Shamir and the application falsity reduction remain open. So do concrete
+profile admission, native BabyBear, full modified-PBS lifetime and physical
+attacker-work/compiler/cache/RNG coupling. The final 128-bit actual-attacker-work
+theorem is not proved.
+
+Validation: targeted mixed-stream smoke and seven exact axiom guards passed
+(4,732 jobs). `scripts/check` exited successfully, including the 11,485-job
+build and every standalone check. Full-check log SHA-256:
+`def728b4c670a056bb747134c6fa86eb234da2aaac770bf981a3dafdf5e73c51`.
