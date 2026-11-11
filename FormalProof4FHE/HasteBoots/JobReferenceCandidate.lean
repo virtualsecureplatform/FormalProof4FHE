@@ -56,11 +56,20 @@ theorem recover_at_first {Memory A : Type} (entries : List Entry) (reachable : N
     (before : List TranscriptFrame.Frame) (bytes : ctx.parent.input = TranscriptFrame.encodeMany before)
     (valid : ∀ frame ∈ before, TranscriptFrame.Valid frame)
     (parentDomain : NativeLookupParentFraming.Domain ctx.registry.val ctx.requests)
-    (index : Fin origin.ready.jobs.length) (job : LookupExecutionJob.Job origin index) (dummy : Digest) :
-    (∃ candidate : Candidate program first.position world,
+    (index : Fin origin.ready.jobs.length) (job : LookupExecutionJob.Job origin index) (dummy : Digest) (radius : ℕ) :
+    (∃ geometry : AllocatedLookupTables.Geometry origin index job, ∃ candidate : Candidate program first.position world,
       candidate.selection.ctx = ctx ∧ candidate.selection.body = lookup.body ∧ candidate.selection.index.val = index.val ∧
         candidate.selection.family.input = entry.coefficients.phase.pending.input ∧
-        candidate.compression.value.view.reader.entry = entry) ∨
+        candidate.compression.value.view.reader.entry = entry ∧
+        HEq candidate.selection.origin origin ∧ HEq candidate.selection.job job ∧
+        HEq (candidate.selection.sources dummy radius)
+          (AllocatedLookupTables.sources origin index job entries reachable helperHandle references template
+            (AllocatedLookupExecution.verification_origin entries helperHandle references template chooseHelper chooseBatch memory world ctx result executed).1
+            geometry dummy (run program world).run.2 radius) ∧
+        HEq (candidate.selection.helpers dummy radius)
+          (AllocatedLookupTables.helpers origin index job entries reachable helperHandle references template
+            (AllocatedLookupExecution.verification_origin entries helperHandle references template chooseHelper chooseBatch memory world ctx result executed).1
+            geometry dummy (run program world).run.2 radius)) ∨
       NativeRootFamilyLifetime.Bad dummy (run program world).run.2 := by
   rcases AllocatedLookupTables.geometry_or_bad entries reachable helperHandle references template chooseHelper chooseBatch memory result executed lookup progress after phase
       origin index job dummy (run program world).run.2 (OracleProgram.run_replay program |>.truthful world) observed with geometry | bad
@@ -80,11 +89,19 @@ theorem recover_at_first {Memory A : Type} (entries : List Entry) (reachable : N
       ⟨offset,by rw [offsetView]; rfl,by rw [offsetView,input]; rfl,offsetAt,offsetLog⟩
     let pointSample : PointAt program world selection.family.input (.equalityPoint selection.index.val) :=
       ⟨point,by rw [pointView]; rfl,by rw [pointView,input]; rfl,pointAt,pointLog⟩
-    exact Or.inl ⟨⟨selection,PositionedFactorSamples.reindex first world family.input rfl input,rfl,
+    have positive : InputIndexedOracle.bytes world entry.coefficients.phase.pending.input first.offset first.count ≠ [] := by
+      simpa only [ne_eq,← List.length_eq_zero_iff,InputIndexedOracle.bytes_length] using Nat.ne_of_gt first.positive
+    have stability := AllocatedLookupReadStability.allocated_program_read entries reachable helperHandle references template chooseHelper chooseBatch memory result executed
+      lookup progress after phase origin index job allocation.assembled geometry dummy radius program observed framing rootsFit statementFits domain entry member
+      first.position first.offset _ positive first.outputAt
+    have stable := stability.resolve_right safe
+    rw [← first.history] at stable
+    exact Or.inl ⟨geometry,⟨selection,PositionedFactorSamples.reindex first world family.input rfl input,rfl,
       compressionSample,offsetSample,pointSample,rootsFit,
       (by change compression.view.reader.statement = _; rw [compressionView]; rfl),
       (by change compression.view.reader.transcript = _; rw [compressionView]; rfl),y,r,eqPoint⟩,rfl,rfl,rfl,input,
-      (by change compression.view.reader.entry = entry; rw [compressionView]; rfl)⟩
+      (by change compression.view.reader.entry = entry; rw [compressionView]; rfl),
+      HEq.rfl,HEq.rfl,heq_of_eq stable.1.symm,heq_of_eq stable.2.symm⟩
   · exact Or.inr bad
 
 end
