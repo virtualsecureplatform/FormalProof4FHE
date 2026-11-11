@@ -985,3 +985,8 @@ import FormalProof4FHE.HasteBoots.ScalarAncestorExposure
 import FormalProof4FHE.HasteBoots.ScalarStoppedReplay
 
 import FormalProof4FHE.HasteBoots.ScalarReplayChallengeLaw
+
+import FormalProof4FHE.HasteBoots.ScalarTranscriptPrefix
+import FormalProof4FHE.HasteBoots.ScalarPrefixProof
+import FormalProof4FHE.HasteBoots.ScalarRecoveredReplay
+import FormalProof4FHE.HasteBoots.ScalarProofPrefixExecution
