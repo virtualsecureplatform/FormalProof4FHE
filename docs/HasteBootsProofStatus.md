@@ -25610,3 +25610,53 @@ axioms (4,995-job guarded build). `scripts/check` passed the 11,780-job root
 build and every standalone check with source and tests frozen. Full-check
 log SHA-256:
 `fbae470d6fcbb39bb2f797841e5a30ce3b4de08d511955881aa10faad09d6576`.
+
+### Original source PCS lifetime obligation
+
+`AllocatedSourceCube` identifies each complete original allocated source
+function with its executable public cube, using only the original native
+row/packing-width casts. The existing owner/reference compatibility theorem
+then identifies an accepted owner's extracted cube with that entire original
+function for every recovered source log, under the existing admitted-radius,
+framing and response-allocation domains. No pointwise source-evaluation
+certificate or initializer-equality premise is introduced.
+
+`QueryPairFoldTransport` identifies queries read from the same native
+matrix pairs across exact dimension/width equalities and transports complete
+cube folds. `AllocatedSourceWrongObligation.wrong` combines this with actual
+source-query meaning. A received original pair's row mismatch against the
+original allocated family becomes the native batch lifetime model's `Wrong`
+obligation. It retains the original pair index, including pairs sharing a
+left-response group. The source log is universally quantified, rather than
+chosen to fit the received value.
+
+`AllocatedSourceLifetime.source_no_bad` derives the accepted first-original
+owner, full parameter/root association and raw alias matching from actual
+source collection, outside the same shared full-history hash event. The
+actual registry store supplies that owner's constructor provenance. The
+native `Wrong` proof enters `SourceOpeningObligationLifetime.witness` with
+the original reference context/profile. `source_or_bad` retains one shared
+hash alternative for all selected source columns, without per-column or
+per-alias hash charges.
+
+`AllocatedIdentitySourceLifetime.false_identity_source_lifetime` composes
+this with the actual allocated false-identity theorem. The source branch
+now yields an existing batch PCS lifetime witness, alongside attained scalar
+healing, a helper receipt mismatch and the same shared full-history hash
+event. All tables use the enclosing program's actual completed history.
+The original geometry, allocation/framing domains and seed-order premises
+remain explicit; source radius admission and actual receipt framing/response
+size are also explicit inherited PCS domains.
+
+The helper lifetime adapter remains open. These source lifetime witnesses
+must still be injected into the joint lifetime event and its shared bound,
+with the shared full-history hash event retained once. Adaptive scalar
+first-read/job composition, whole modified-PBS initial falsity, profile
+admission and physical attacker-work refinement remain open. The final
+128-bit actual-attacker-work theorem remains unproved.
+
+Validation: all nine new exact axiom guards passed using only standard Lean
+axioms (5,001-job guarded build). `scripts/check` passed the 11,786-job root
+build and every standalone check with source and tests frozen. Full-check
+log SHA-256:
+`8c3928270ad8cfc504bc0d15dc5a42be6b8528cdbbee71d09eefdfd65810edea`.
