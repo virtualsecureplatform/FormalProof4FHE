@@ -505,3 +505,6 @@ import FormalProof4FHETest.HasteBootsHelperPublicSourceAudit
 
 import FormalProof4FHETest.HasteBootsAllocatedLookupSmoke
 import FormalProof4FHETest.HasteBootsAllocatedLookupAudit
+
+import FormalProof4FHETest.HasteBootsScalarHealingSmoke
+import FormalProof4FHETest.HasteBootsScalarHealingAudit

@@ -23109,3 +23109,57 @@ Validation: eight targeted allocation-backed lookup regressions and seventeen
 exact axiom guards passed (4,901 jobs). `scripts/check` exited successfully,
 including the 11,506-job build and every standalone check. Full-check log
 SHA-256: `5d886a34be2509fd0e3ead89ab5f5e8cb211ebf1c79b641a8d5cb898455cdf83`.
+
+
+## Native outer scalar first-exposure challenge and one-round healing bound
+
+`GoldScalarChallengeLaw` maps the actual shared-budget native collector's three
+canonical Goldilocks coordinates through the proved cubic basis equivalence.
+On a replayable mixed-history fiber at the first positive read of the complete
+input, its finite-prefix event law is the exact completion mass times uniform
+Goldilocks3 probability. Freshness follows from the original first-read
+eligibility, even at an offset beyond the initial candidate cursor; it is not
+a supplied cache certificate. The increasing union over all candidate budgets
+has at most the uniform event probability, without a runtime retry limit or
+conditioning on successful completion.
+
+The resulting agreement bound for distinct degree-D polynomials is D/p^3,
+where p is the Goldilocks modulus. Three sampled coefficients make one extension
+field element; this is not a three-independent-lane agreement experiment and
+does not produce (D/p)^3. The hash state is reconstructed from the same original
+history for the conditional law; no new hash exception is introduced.
+
+`ScalarRoundChallengeMeaning` identifies the literal typed scalar request after
+binding the original round packet with native scalar start/drive, including
+receipt observations. Completion itself derives canonical raw decoding, and
+that raw challenge's mathematical value is exactly the conditional law's value.
+No independent raw-word/extension-value assembly equality is supplied.
+
+`ScalarRoundHealingBound` obtains the passed recurrence from actual message
+and prior-value getters in the checked packet. The received evaluation vector
+constructs its own polynomial and its degree follows from validated native
+metadata. A false prior sum forces this polynomial to differ from the honest
+one. The event of actual native collection, decoding and raw interpolation
+repairing that original equation is bounded by D/p^3 across all candidate
+prefixes on the original first-read posterior fiber.
+
+Eight regressions cover two-coordinate suspension, rejected-candidate byte and
+budget accounting, completion/value projection, a concrete actual healing event
+(zero running claim versus honest X at the zero challenge), first read at offset
+99, no second first-exposure claim after a byte is read, the concrete 1/p^3
+native event bound, and decoding derived from actual completion. Eighteen exact
+axiom guards cover every new public definition/proof.
+
+This is a native one-round conditional bound with fixed packet, prior and honest
+polynomial on the retained fiber. Adaptive whole-scalar-verifier composition,
+causal recovery of those original obligations at adversarial prequeries and
+its coupling to lookup/application false terminals remain open. It does not
+establish outer Fiat--Shamir soundness for the entire PBS application. Original
+Rust/PBS key/table association, concrete profile admission, native BabyBear,
+full modified-PBS lifetime and physical attacker-work/compiler/cache/RNG coupling
+remain open. The final 128-bit actual-attacker-work theorem is not proved.
+
+Validation: eight targeted scalar-healing regressions and eighteen exact
+axiom guards passed (4,402 jobs). `scripts/check` exited successfully, including
+the 11,511-job build and every standalone check. Full-check log SHA-256:
+`67c00dc92205801c1dfaa8c172d8b1a9ab2c9ec9c9d4ce316f9e4652486648b3`.
