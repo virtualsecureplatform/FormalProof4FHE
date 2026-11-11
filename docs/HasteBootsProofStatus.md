@@ -22783,3 +22783,37 @@ Validation: targeted claim-receipt smoke, eight new guards and retained
 source-obligation audit passed (4,677 jobs). `scripts/check` exited successfully,
 including the 11,471-job build and every standalone check. Full-check log
 SHA-256: `346cc1c48b2f967e4f2f9505691343479bf0987e797877842057003f99dc52dc`.
+
+
+## Full source parameters outside the shared context collision event
+
+`GoldContextInput` proves that the actual serialized Goldilocks context input
+is injective in the complete retained parameter record, including query quota,
+split, and raw stored code words. `GoldContextCollision` uses actual computed
+context observations in a truthful containing history to derive parameter
+equality from equal digests outside the existing shared hash bad event.
+It introduces no separate collision assumption or probability charge.
+
+`LookupContextHistory` derives the context subtraces for used outer sources
+and completed original batch receipts from actual lookup execution.
+`LookupSourceParameterAssociation` combines these with accepted claim coverage:
+every used original slot has an accepted original batch query/value pair with
+the same full parameters and root, its first-original registry owner, and the
+received row's native field encoding. The simultaneous theorem covers all
+used slots with one shared bad event. Equality of retained parameters does
+not identify distinct original constructor requests that produce those parameters.
+
+Eight regression cases cover changed quota and split, distinct raw code words
+with equal field values, a deliberately colliding world, actual context logs,
+and repeated identical inputs without a cache collision. Twenty exact axiom
+guards cover the new public declarations.
+
+Next remain original application/helper allocation and exact extractor-log/table
+association, native outer scalar/lookup Fiat--Shamir and application falsity
+reduction. Concrete profile admission, native BabyBear, full modified-PBS
+lifetime and physical attacker-work/compiler/cache/RNG coupling remain open.
+The final 128-bit actual-attacker-work theorem is not proved.
+
+Validation: the targeted smoke and twenty axiom guards passed. `scripts/check`
+exited successfully, including the 11,477-job build and all standalone checks.
+Full-check log SHA-256: `2396db67b9231fdb1f3111c1719ea52d8d7cb5739a4a8488c2f5fac4264a0127`.

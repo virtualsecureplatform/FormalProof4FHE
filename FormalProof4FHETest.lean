@@ -484,3 +484,6 @@ import FormalProof4FHETest.HasteBootsSourceObligationAudit
 
 import FormalProof4FHETest.HasteBootsClaimReceiptCoverageSmoke
 import FormalProof4FHETest.HasteBootsClaimReceiptCoverageAudit
+
+import FormalProof4FHETest.HasteBootsContextAssociationSmoke
+import FormalProof4FHETest.HasteBootsContextAssociationAudit
