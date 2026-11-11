@@ -24898,3 +24898,65 @@ check. Full-check log SHA-256:
 `f8da3c1066a63b70cda4d5cee2f9e77e26d78c68ce442cc308b1980738635802`.
 No proof placeholders, custom axioms, unsafe evaluation, resource-limit
 increases or linter suppressions were introduced.
+
+### Parent-seed refinement for cross-world ancestry
+
+The native parent ledger deliberately retains every compatible parent under
+a partial seed cache. Raw prefix equality alone therefore does not fix full
+parent seeds or justify identifying one original parent across worlds.
+`ParentSeedCandidates` collects all recognized parent-seed inputs from the
+actual prefix, including starts, empty reads, hashes and arbitrary partial
+reads, matching native discovery semantics. Candidate membership proves that
+the strict parent parser succeeds; it does not authenticate the metadata.
+
+`ParentSeedCompletion` adds analysis-only full seed reads for those keys and
+retains the entire old packet. Its replay theorem fixes every candidate's
+full 64-byte seed on the refined fiber, and `matching_on_fiber` fixes the
+whole set of exact seed matches. Several matches may remain; no parent is
+selected by a claimed uniqueness of a partial cache.
+`ParentMetadataReplay` transports chronological semantic source and helper
+ancestry through that fiber. The transferred facts still refer to the
+original raw prefix, not to a replacement history containing auxiliary reads.
+These facts identify context digests and source roots, not authenticated full
+parameter records.
+
+`ScalarParentSeparation` proves that the original typed scalar request is
+rejected by the parent-seed parser: its final field frame has kind 4, whereas
+a recognized parent seed request ends in kind 2. It derives this from the
+actual recovered scalar reader. Completing all recognized parents therefore
+leaves the entire outer scalar SHAKE key unseen, without an independent key
+separation or framing certificate.
+
+`ParentFactorFiber` combines parent-seed completion with receipt completion.
+It projects the joint packet back to both the parent packet and the original
+receipt-only completion packet, using the fixed full receipt blocks rather
+than replacing the original observation history. Semantic ancestry replay,
+scalar-word and equality-point fixation, posterior mismatch bounds, and the
+exact uniform law of any finite scalar SHAKE block all hold on this one
+refined fiber. Reference-world bad-event exclusions and actual input/receipt
+position matching remain explicit. Auxiliary reads are not native attacker
+operations and are not fed into the original root-freezing table definition.
+
+Next, use this stable parent/ancestry data to recover the actual canonical
+binding, original slot addresses and full parameter hash preimages across
+worlds. Residual multiple-parent matching and late parameter identification
+must be accounted for explicitly; this change does not assume them away or
+prove complete source-family equality. Good reference-family construction,
+degree/PCS posterior composition and actual attacker-work accounting remain
+open. The final modified-PBS 128-bit actual-attacker-work theorem is not
+proved. Frozen `Native*` modules, dependencies and kernel resource limits are
+unchanged.
+
+Validation: the regression combines a parent start, a far-offset read at 999
+and an empty descendant read. Both recognized parents are retained. Updating
+an unread seed byte at position 17 preserves the entire original raw packet
+but changes the completed parent packet. The constant-world fixture retains
+two exact matching parents rather than choosing one. Actual helper ancestry
+replays on the completed fiber, and an actual typed scalar challenge is
+rejected by the parent parser. Thirty-seven exact axiom guards passed using
+only standard Lean axioms, with a 4,567-job targeted guarded build.
+`scripts/check` exited successfully, including the 11,697-job root build and
+every standalone check. Full-check log SHA-256:
+`ec35c68bad0954e96ce5d27daadeab487f91b63f79630dcd5850c6f9318d7095`.
+No proof placeholders, custom axioms, unsafe evaluation, resource-limit
+increases or linter suppressions were introduced.
