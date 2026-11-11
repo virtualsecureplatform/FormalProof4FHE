@@ -1116,3 +1116,5 @@ import FormalProof4FHE.HasteBoots.AllocatedIdentitySourceLifetime
 import FormalProof4FHE.HasteBoots.AllocatedIdentityOpeningLifetime
 
 import FormalProof4FHE.HasteBoots.AllocatedOpeningLifetimeBound
+
+import FormalProof4FHE.HasteBoots.AllocatedJointIdentityBound
