@@ -25436,3 +25436,44 @@ axioms. The guarded build completed 4,991 jobs. `scripts/check` passed the
 11,765-job root build and all standalone checks with source and tests frozen.
 Full-check log SHA-256:
 `2de3e3730ac5f10f22898638169e11f4f3781ef3b7ca233b1f8d8978e90a3bb1`.
+
+### Native candidate packet, metadata and profile transport
+
+`JobReferenceCandidate` now retains the actual completed reader's statement
+and transcript links, the existing root-frame allocation domain, and the
+exact completed entry in the output of `recover_at_first`. These are derived
+from the original observed factor view. No independently chosen entry,
+statement or transcript is substituted.
+
+`CandidateScalarPacket` derives recovery of the literal candidate input,
+uniqueness of recovered configurations, and equality of the actual native
+statements and round packets across equal inputs. It identifies the odd
+identity slot `2*jobIndex+1` from the executed native prelude, preserving
+repetitions. Equal original job ordinals therefore identify both its
+identity metadata and its raw received message.
+
+`ChildHeaderProfile` binds the trusted profile at slot 2 of the entire
+canonical decoded child input. `CandidateScalarPacket.header` derives that
+header from the original fork and prelude extension using the retained
+allocation domain. Equal scalar inputs thus identify the actual native
+trusted profiles without a separate profile-equality premise.
+
+`CandidateScalarTest` transports the complete partial/full healing tests,
+including eligibility and prior-dependent honest polynomials, from jointly
+fixed families/factors. It transports their all-budget events with the actual
+native profiles and specializes the refined conditional kernel bound to
+the candidate's actual identity metadata and native factor tables.
+
+The remaining integration must package an actual native healing event as
+an attainable reference witness and discharge the whole event's coverage
+outside the shared bad ledger. These lemmas do not yet prove a bound for
+the whole false-PBS event. Original PCS composition, adaptive lifetime
+composition, profile admission and physical attacker-work refinement remain
+open; the final 128-bit actual-attacker-work theorem remains unproved.
+
+Validation: the 17 new exact axiom guards passed, using only standard Lean
+axioms. The existing reference-selection audit also passed after strengthening
+the candidate constructor (4,997-job guarded build). `scripts/check` passed
+the 11,769-job root build and all standalone checks with source and tests
+frozen. Full-check log SHA-256:
+`a734a2c5e2fb3ec00d9de38d04312c196026a9060a6232a9c44e74518c7212bf`.

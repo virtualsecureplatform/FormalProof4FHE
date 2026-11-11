@@ -623,3 +623,5 @@ import FormalProof4FHETest.HasteBootsJobFamilyAudit
 
 import FormalProof4FHETest.HasteBootsReferenceSelectionSmoke
 import FormalProof4FHETest.HasteBootsReferenceSelectionAudit
+
+import FormalProof4FHETest.HasteBootsCandidateScalarAudit
