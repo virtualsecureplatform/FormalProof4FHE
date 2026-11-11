@@ -472,3 +472,6 @@ import FormalProof4FHETest.HasteBootsSourceLifetimeBridgeAudit
 
 import FormalProof4FHETest.HasteBootsLookupHelperClaimSmoke
 import FormalProof4FHETest.HasteBootsLookupHelperClaimAudit
+
+import FormalProof4FHETest.HasteBootsExtractedTableMeaningSmoke
+import FormalProof4FHETest.HasteBootsExtractedTableMeaningAudit

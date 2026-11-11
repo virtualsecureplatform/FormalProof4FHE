@@ -22546,3 +22546,55 @@ Validation: targeted helper claim smoke and all twelve axiom guards passed
 (4,871 jobs). `scripts/check` exited successfully, including the 11,453-job
 build and every standalone check. Full-check log SHA-256:
 `103dec07363e40e90091d8efa1b5f67571dc4ac968d1e8016175a1571bd21c1a`.
+
+## Native matrix queries on the same common extracted helper table
+
+`QueryRectangularNativeMeaning` derives the ordered semantic matrix list from
+successful native matrix/pair/query interpretation. It identifies the original
+native left and right query weights with the generic front/suffix weights.
+The existing split-fold theorem then proves that the interpreted query folds
+exactly the same rectangular table as the native PCS matrix evaluation. Later
+matrices act after earlier matrices; this is not a commuting-matrix argument.
+The source layout uses only public dimensions and the supplied table, not
+the query, and imposes no honesty or source-padding premise. The right-domain
+transport uses the original message length rather than padded code capacity.
+
+`SingleOpeningExtractedTableMeaning` applies this identity to the existing
+common-source rectangular extractor, preserving its domain, decoder, radius,
+context/root and exact selected source log. `cube` reindexes that same table
+at native low-bit-first cube addresses. It does not decode a second source.
+`rectangular_same` and `cube_same` show that changes to query, claim or response
+data cannot change this table when parameters, context/root and selected log
+are fixed; they do not assert that different exposure logs are equal.
+
+`false_claim_iff` identifies the causal lifetime theorem's native false-claim
+predicate with falsity of the interpreted abstract query on this same common
+cube. `claimed_of_encoded` and `false_claim_of_encoded` transport established
+field-vector encodings, including noncanonical raw aliases, into that
+predicate. Arity transport retains the original query and source coordinates.
+`prepared_dimensions` derives the public split and original message length
+from actual native preparation; `prepared_false_claim_iff` uses those derived
+facts rather than supplied geometry or capacity certificates. These results
+provide the evaluation/table side of the helper claim bridge implemented in
+the preceding section.
+
+The remaining composition must associate those tables and exact exposure logs
+with the original application/helper objects, cover source/alias receipts,
+and derive a false outer obligation from a false lookup/PBS result. Native
+outer scalar/lookup Fiat--Shamir risk is still open. Helper allocation ownership,
+concrete numerical profile admission, native BabyBear and full physical
+attacker-work/compiler/cache/RNG coupling also remain open. This is not the
+final 128-bit actual-attacker-work theorem.
+
+Eight regressions cover a noncommuting original native matrix query and its
+reversal, rectangular/cube evaluation equality, low-bit coordinate order,
+zero-variable folding, independent packing/code widths three/four, a raw field
+alias and dimension facts from the actual single-opening preparation. Twenty
+exact Lean-output guards cover every new public declaration; no axiom beyond
+`propext`, `Classical.choice` and `Quot.sound` occurs. No frozen native source
+files or proof limits changed.
+
+Validation: targeted extracted-table smoke, twenty new guards and retained
+helper-claim audit passed (4,569 jobs). `scripts/check` exited successfully,
+including the 11,457-job build and every standalone check. Full-check log
+SHA-256: `cb838b24505260219bd5ecb33f56400fcbcf64b0c72b7b5bba1d9ce85ab05869`.
