@@ -593,3 +593,6 @@ import FormalProof4FHETest.HasteBootsProgramReceiptAudit
 
 import FormalProof4FHETest.HasteBootsReceiptCollisionSmoke
 import FormalProof4FHETest.HasteBootsReceiptCollisionAudit
+
+import FormalProof4FHETest.HasteBootsFactorFiberSmoke
+import FormalProof4FHETest.HasteBootsFactorFiberAudit

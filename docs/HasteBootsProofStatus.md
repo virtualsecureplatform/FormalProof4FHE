@@ -24832,3 +24832,69 @@ every standalone check. Full-check log SHA-256:
 `10c2b7a78e4c525b7167b926d4b0739e127294bbb23a0b8dd70da5827d3f4b74`.
 No proof placeholders, custom axioms, unsafe evaluation, resource-limit
 increases or linter suppressions were introduced.
+
+### Actual first-read fibers, factor fixation and posterior mismatch
+
+`FirstReadFiber` proves that the active positive read emits its actual next
+observation at the same full-log index. Equality of the entire actual
+pre-read packet therefore transports a `ProgramFirstStreamRead.First`
+witness to another world, preserving its position, offset, count and
+continuation. Any independently recovered first read of the same input in
+that world has that position. Neither future outputs nor completed execution
+logs are assumed equal.
+
+`ProgramFactorFixation` composes actual receipt observations, the transported
+first read, named-payload coverage and receipt candidate completion. Two
+original-position samples on the completed actual pre-read fiber have equal
+raw coefficient values, decoded scalar words or equality points, except for
+the existing fresh-receipt bad event in either world or the reference world's
+program-wide receipt-collision event. The theorem derives both named-payload
+premises at the same fixed prefix; it does not accept them independently.
+Equality of the actual outer inputs and corresponding receipt positions
+remains explicit. No equality of original job metadata or source families is
+silently inferred from these conditions.
+
+`AllocatedFactorSamples.observed` constructs all three original compression,
+reciprocal-offset and equality samples with their actual observations in an
+enclosing program and an actual scalar first-read witness. Native success,
+receipt-log inclusion and scalar capture are recovered from the executed
+allocated outcome. The existing root/statement framing and scalar round
+domain conditions remain explicit; no independent observation or temporal
+certificate is supplied.
+
+`FactorPosteriorMismatch` permits an existential counterfactual sample rather
+than requiring a measurable chooser. If the reference sample is outside the
+fresh-receipt and receipt-collision bad events, every disagreeing observed
+scalar word or equality point at the same input and receipt position lies
+in the other world's fresh-receipt bad event. `scalar_le` and `point_le` lift
+this containment to the conditional measure on the completed pre-read fiber.
+No conditioning on good counterfactual worlds is used to assert uniformity.
+
+`FactorFiberUniform` derives framing of the actual outer scalar input from
+its sample's reader ancestry. Every auxiliary receipt-completion query has a
+distinct key, so the entire outer scalar SHAKE stream remains unseen.
+`block_law` proves the exact uniform law for any finite logical block on the
+same refined fiber used for factor fixation, even when the first physical
+read is short and at an arbitrary far offset. The statement does not require
+that the observed read itself supplies an entire field coefficient.
+
+Next, use these fixed factors and fresh scalar-stream laws in the original
+source-family and degree/PCS posterior reductions, and construct the needed
+good reference families without losing explicit bad-event mass. Cross-world
+original metadata/source-family coupling and actual attacker-work accounting
+still remain. The final modified-PBS 128-bit actual-attacker-work theorem is
+not proved. Frozen `Native*` modules, dependencies and kernel resource limits
+are unchanged.
+
+Validation: the regression updates the future SHAKE byte at offset 999 after
+a start, an empty read at offset 9000 and a hash of the same key. The raw
+pre-read packet remains equal, the transported read keeps its exact position,
+offset and count, and its actual next output uses the changed byte. The full
+later execution logs differ; independently recovered first-read witnesses
+still have the same position. Twenty exact axiom guards passed using only
+standard Lean axioms, with a 4,930-job targeted guarded build. `scripts/check`
+exited successfully, including the 11,690-job root build and every standalone
+check. Full-check log SHA-256:
+`f8da3c1066a63b70cda4d5cee2f9e77e26d78c68ce442cc308b1980738635802`.
+No proof placeholders, custom axioms, unsafe evaluation, resource-limit
+increases or linter suppressions were introduced.
