@@ -24774,3 +24774,61 @@ build and every standalone check. Full-check log SHA-256:
 `eba227325d75c1357dedcffc39123a08c9d9d7ae254dba3d9bea65621abd64e9`.
 No proof placeholders, custom axioms, unsafe evaluation, resource-limit
 increases or linter suppressions were introduced.
+
+### Adaptive SHAKE receipt collisions at first naming
+
+`ReceiptCollisionRisk` supplies the previously separate SHAKE receipt-collision
+probability obligation. It selects a receipt payload when its key is first
+named by a positive SHAKE read at any offset or by a SHA-512 hash query.
+Starts and empty reads do not name keys; later naming of the same raw payload
+is ineligible. The selected payload is absent from the earlier payload set,
+which implies that all of its SHAKE coordinates are unseen.
+
+The event compares the selected key's full 512-bit SHAKE digest against the
+full digests of earlier named keys. Those earlier keys may have only partial
+reads or hash observations, so their full digests need not be known in the
+original prefix. `retained_bound` completes only those earlier keys using
+`ReceiptCandidateCompletion`, retaining the entire original selecting packet.
+The new key is distinct from every completion query and remains wholly
+unseen. On the refined fiber the earlier digests are fixed, giving a target
+bound of `earlierNamedPayloads.card / 2^512`. Averaging the refined posteriors
+proves `averaged_bound` on the original world law. No fresh-full-read claim is
+made for a key already partially observed.
+
+`ReceiptCollisionOnset` proves monotonicity of named payloads and their
+collisions and identifies the first actual observation that introduces a
+collision. `ReceiptProgramObservation` ties that observation's candidate to
+the next causal request at the exact raw-log position, and identifies each
+prefix log with the corresponding take of the full raw log.
+`ProgramReceiptCollision.covers` therefore covers every collision among
+receipt keys named in the complete enclosing program log; `prefix_covers`
+also covers all earlier posterior-prefix collisions returned by receipt
+candidate/fixation arguments. `collision_le` bounds the event by the expected
+sum of first-naming charges over the program lifetime. It adds no per-round,
+per-job, per-factor or collector-retry multiplier.
+
+`combined_le` retains one inherited root/hash event and adds the fresh-receipt
+guessing and SHAKE receipt-collision lifetime integrals separately. It uses
+no independence assumption between these bad events and does not absorb the
+new SHAKE collision risk into the SHA-512 registry hash event.
+
+Next, compose the named original samples and these explicit bad-event bounds
+with the posterior coefficient/factor and degree/PCS reductions. Cross-world
+original metadata/source-family coupling and actual attacker-work accounting
+remain open. Receipt collision probability now has a native-history coverage
+and lifetime-risk bound, but its charge still requires physical-cost coupling.
+The final modified-PBS 128-bit actual-attacker-work theorem is not proved.
+Frozen `Native*` modules, dependencies and kernel resource limits are unchanged.
+
+Validation: the regression includes starts, an empty read, hash naming and a
+partial SHAKE read at offset 999. It detects the actual distinct-key collision
+at the second key's hash naming before either full SHAKE digest is read,
+charges exactly `2^-512` for that first naming with one prior key, and rejects
+recharging the later partial read. The final full-log collision is covered
+by the shared program ledger. Twenty-four exact axiom guards passed using
+only standard Lean axioms; the targeted guarded build passed 4,551 jobs.
+`scripts/check` exited successfully, including the 11,683-job root build and
+every standalone check. Full-check log SHA-256:
+`10c2b7a78e4c525b7167b926d4b0739e127294bbb23a0b8dd70da5827d3f4b74`.
+No proof placeholders, custom axioms, unsafe evaluation, resource-limit
+increases or linter suppressions were introduced.

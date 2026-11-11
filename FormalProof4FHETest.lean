@@ -590,3 +590,6 @@ import FormalProof4FHETest.HasteBootsReceiptCoverageAudit
 
 import FormalProof4FHETest.HasteBootsProgramReceiptSmoke
 import FormalProof4FHETest.HasteBootsProgramReceiptAudit
+
+import FormalProof4FHETest.HasteBootsReceiptCollisionSmoke
+import FormalProof4FHETest.HasteBootsReceiptCollisionAudit
