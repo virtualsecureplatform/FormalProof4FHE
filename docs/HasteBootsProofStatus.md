@@ -22434,3 +22434,63 @@ remain open. The final 128-bit actual-attacker-work theorem is not yet proved.
 Full validation: `scripts/check` exited successfully, including the
 11,444-job build and every subsequent standalone check. Full-check log SHA-256:
 `81c3d8f9a02eb0c328cb7f6589b73ebdbf3b4a0e7f0c27a6fff814e3fae1aa09`.
+
+## Whole-lookup source witnesses and joint lifetime entry
+
+`BatchOpeningProfileLineage` derives preservation of the original parent
+profile through native batch preparation and accepted PCS completion. It
+uses the actual binding, collector header and response-bound index request,
+without a supplied sampler/profile certificate. `SourceClaimProfileLineage`
+proves preservation through raw claim insertion, context/alias decisions,
+all source-loop results and batch sealing, including their error branches.
+
+`DeferredBatchProfileLineage` carries this property through ordered source
+batch dispatch. Its invariant retains the profiles of every earlier accepted
+receipt when later verification stops, packet counts mismatch or an original
+registry index is unavailable. The whole-lookup theorem starts from the actual
+completed helper progress, follows actual source claims and sealing, and
+derives the original lookup parent's profile for all retained source receipts.
+It does not assume equality between helper and source packing parameters.
+
+`SourceOpeningLifetimeWitness.accepted` derives the source call's accepted
+status and observed subtrace from actual whole-lookup execution. `origin`
+uses `RegistryBatchCodeOrigin.ofReceipt`, preserving the selected original
+registry allocation's constructor request, reachable state and completion.
+Retargeting to a fixed public context preserves those data, rather than
+choosing another constructor with equal code. `witness` derives the native
+preparation, strict parsed nonce and receipt profile from this execution.
+Only full-parameter/reference-parent association, framing/allocation bounds
+and falsity of the actual parsed native claim remain inputs. The source
+falsity premise is still the common-source analysis-extractor assertion; it
+is not derived from a false outer lookup/PBS result here.
+
+`SourceOpeningLifetimeWitness.joint_failure` and
+`HelperOpeningLifetimeWitness.joint_failure` put these actual false accepted
+receipts, observed at any causal machine prefix, into the existing joint
+helper/source lifetime failure event. They retain the same oracle world and
+complete machine history, permit distinct scheduler-memory types, and add
+no separate hash charge. Source witnesses can use the fixed reference code
+origin through the existing native-witness conversion; the actual selected
+allocation's provenance is retained by the preceding factory. The existing
+joint lifetime bound therefore applies once the remaining semantic falsity
+premises and numerical profile conditions are established.
+
+Six regression examples cover accepted original native batch preparation and
+finishing, a real second batch's altered-root rejection retaining its first
+original-owner receipt, arbitrary profile metadata at sealing, all raw push
+branches, and constructor-data retention when targeting a reference context.
+Nineteen exact Lean-output guards cover the new public declarations and both
+joint-entry lemmas; only `propext`, `Classical.choice` and `Quot.sound` occur.
+No frozen native files or proof limits changed.
+
+Next remain the original helper allocation/application association and the
+outer scalar/lookup falsity reduction that supplies these actual parsed-claim
+premises. Concrete profile admission and physical attacker-work coupling,
+native BabyBear, full modified-PBS lifetime and compiler/cache/RNG refinement
+are also open. The final 128-bit actual-attacker-work theorem is not proved.
+
+Validation: the targeted source bridge smoke, nineteen new guards and
+retained shared-native audit passed (4,672 jobs). `scripts/check` then exited
+successfully, including the 11,450-job build and all standalone checks.
+Full-check log SHA-256:
+`1bbe17a7daa016b5f3fc993d3ef98c28d17a119d921daed01ade06c388dd4c03`.
