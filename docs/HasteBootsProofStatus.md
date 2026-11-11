@@ -23955,3 +23955,68 @@ fifteen exact axiom guards (4,967 jobs). `scripts/check` exited successfully,
 including the 11,573-job root build and every standalone check. Full-check
 log SHA-256:
 `b390bed7769cf48ead863dd80f7a8e89e22135ec36df51f9dad05e75592d2438`.
+
+### Native identity guards to original causal scalar events (2026-11-11)
+
+`ScalarFinishedSourceEvent.of_claim` transfers a truthful actual returned
+subclaim of an initially false source equation to an actual completed-input
+causal event. Its terminal getter, completed-round point and dimension
+transport follow from native scalar execution. It does not assume an honest
+polynomial, a healing witness or an independently supplied common point.
+
+`LookupGuardSources.vectors` derives typed full-width source vectors from
+original numeric preflight, native proof-shape acceptance, original prelude
+preparation and actual guarding. It identifies the guarded request with the
+original prepared job, derives source count and lane width, and retains the
+ordered original registry-slot getters, including aliases and repetitions.
+`LookupGuardPoints.recover` derives the full scalar dimension and both finite
+point vectors from native scalar/query execution and the original equality
+draw. Neither raw equality-point length nor point correspondence is assumed.
+
+`LookupIdentityView.recover` combines these with actual original producer
+recovery and preflight terminal bounds. It constructs the native terminal
+check at the original producer's literal r/powers, deriving every source
+vector and count/width domain. The recovered producer's completed membership,
+original job identity, gathered slot getters and equality-draw evidence remain
+visible in the result. The view is computed proof output, not a certificate
+required by the protocol theorem.
+
+`LookupIdentityCausalReduction` handles both partial-prefix degree-four and
+full-table degree-three identity grammars. An initially false original identity
+with actual native terminal acceptance yields an actual causal scalar event
+or a wrong original source/helper opening. Helper rows are decoded at their
+original full scalar dimension; helper padding is independent of source
+padding. `LookupIdentityProtocol.reduce` composes the whole original
+preflight/prelude/scalar/guard spine, derives the original odd metadata slot
+from the actual prepared job ordinal and exports both branch reductions. The
+source/helper tables are still fixed interpretation parameters of this
+deterministic reduction. Framing, statement encoding bounds and round domains
+remain explicit.
+
+This closes the native identity-guard/common-point/gathered-list composition
+gap for the fixed-table reduction. It does not yet discharge the original
+caller's allocated table family, source/helper snapshot timing or causal
+fixing of sampled EQ and lookup factors. Those associations must next be
+carried through the actual caller/PCS spine. Global adaptive exposure summation
+(scalar, lookup and seed ordering), PBS falsity composition, concrete profile
+admission, native BabyBear and physical attacker-work/compiler/cache/RNG
+refinement remain open. The final modified-PBS 128-bit actual-attacker-work
+theorem is not proved. Frozen `Native*` files and kernel resource limits are
+unchanged.
+
+Regression coverage includes an actual two-equation, two-round native scalar
+completion and accepting partial-identity guard, with a retained native
+producer, source width four and helper width eight. The original partial
+identity is false initially. A parametric operational regression checks that
+preflight/preparation/completion/guarding recover the actual dimension, full
+source vectors, original slot getters and equality-draw evidence. These are
+scalar/guard and operational-adapter fixtures, not a complete original
+prelude/PBS acceptance example. Seven exact axiom guards cover the new public
+reductions and report only standard Lean axioms. Existing full-table native
+terminal and helper-sum causal regressions remain in the check suite.
+
+Validation: the new identity regressions and seven exact axiom guards passed,
+as did the existing native terminal and helper-sum causal regressions.
+`scripts/check` exited successfully, including the 11,581-job root build and
+every standalone check. Full-check log SHA-256:
+`29af43e1a5e8b58dd3cb91eddfbb73340fbe5801b4bdf4e63c6cf876933cb316`.

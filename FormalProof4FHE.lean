@@ -1027,3 +1027,10 @@ import FormalProof4FHE.HasteBoots.LookupTerminalDecoding
 import FormalProof4FHE.HasteBoots.LookupNativeTerminal
 import FormalProof4FHE.HasteBoots.LookupGuardProducer
 import FormalProof4FHE.HasteBoots.LookupSumCausalReduction
+
+import FormalProof4FHE.HasteBoots.ScalarFinishedSourceEvent
+import FormalProof4FHE.HasteBoots.LookupGuardSources
+import FormalProof4FHE.HasteBoots.LookupGuardPoints
+import FormalProof4FHE.HasteBoots.LookupIdentityView
+import FormalProof4FHE.HasteBoots.LookupIdentityCausalReduction
+import FormalProof4FHE.HasteBoots.LookupIdentityProtocol
