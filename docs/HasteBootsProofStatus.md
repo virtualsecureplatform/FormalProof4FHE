@@ -24510,3 +24510,57 @@ axiom-free, the rest using only standard Lean axioms), with 4,516 smoke /
 11,643-job root build and every standalone check. Full-check log SHA-256:
 `c4d2e44e2a6e0af52b595933dfbc7666f47ca937cadc688e16f5a26e995e46cc`. Frozen `Native*` modules, dependencies and kernel resource
 limits are unchanged.
+
+### Outer scalar inputs bind original prelude receipt groups
+
+`ScalarParentRecovery` packages an actual completed native reader with its
+existing framing/preflight domains. It derives the producing tick, uses the
+unchanged native drive header, and invokes strict scalar execution recovery.
+The recovered pre-statement bytes are exactly the original parent transcript;
+the recovered statement and current packet are also the originals. Equal
+completed-reader inputs therefore bind parent bytes, statement and packet,
+even for different worlds, proofs, budgets and native contexts. No independent
+parent equality or supplied sampling-state witness is needed.
+
+`OriginalScalarReader.original` obtains this package from the original lookup
+execution: parent framing comes from the actual typed-child initializer and
+native prelude extension, and scalar preflight acceptance comes from actual
+scalar completion. Only the existing root-message, statement-message and
+round-message allocation domains remain explicit.
+
+`ScalarReceiptSegmentation.original` pairs that completed reader with the
+actual original prelude receipt view. Equal outer reader inputs now imply
+equal prelude inputs and equal ordered lookup receipt groups and EQ suffix.
+No prelude-input equality, initial receipt count, per-job boundary, or rejected
+offset count is independently supplied. This closes the outer-input-to-prelude
+binding gap identified in the preceding milestone.
+
+`ScalarReceiptMatching` selects compression/accepted-offset receipts with the
+first/last frame of a recovered job, or an individual draw/EQ receipt by its
+index. Equal outer inputs give equal whole native receipt messages at these
+positions. Its refined-fiber adapter then derives retained coefficient
+equality from those messages and traced named payloads, or the explicit SHAKE
+receipt-collision event. No independent digest equality is supplied.
+
+`OriginalScalarReceiptPosition` recovers an actual producer's completed-batch
+index from its native membership and supplies its first/last receipt positions.
+It also derives the original job's EQ position and draw evidence from the
+retained native equality record. The producer index is still existential:
+showing that it equals the selected prepared-job ordinal, and coupling original
+metadata/source families across counterfactual worlds, remain separate work.
+The generic fixation adapter still needs actual collector traces, named-key
+coverage and an equal refined history; these are not inferred from transcript
+bytes alone. Fresh/unnamed receipt risk, SHAKE receipt-collision probabilities,
+posterior averaging, degree/PCS composition and global adaptive work accounting
+remain open. The final modified-PBS 128-bit actual-attacker-work theorem is
+not proved.
+
+Validation: second-round recovery returns the original pre-statement
+parent, mixed rejected-candidate records retain that parent, and two provably
+different SHA-512 worlds with equal completed scalar inputs recover equal
+parents/statements/packets. Twelve exact axiom guards report only standard
+Lean axioms (4,532 targeted jobs). `scripts/check` exited successfully,
+including the 11,650-job root build and every standalone check. Full-check log
+SHA-256:
+`8fb620abfd6f9fd3660cdc169f88c5ee0d299ead498fa47fe0e71f77f6f2766f`. Frozen `Native*` modules, dependencies and kernel resource
+limits are unchanged.
