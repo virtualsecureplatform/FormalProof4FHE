@@ -944,3 +944,8 @@ import FormalProof4FHE.HasteBoots.SourceOpeningObligationLifetime
 import FormalProof4FHE.HasteBoots.DeferredClaimReceiptCoverage
 import FormalProof4FHE.HasteBoots.BatchClaimShape
 import FormalProof4FHE.HasteBoots.LookupSourceReceiptCoverage
+
+import FormalProof4FHE.HasteBoots.GoldContextInput
+import FormalProof4FHE.HasteBoots.GoldContextCollision
+import FormalProof4FHE.HasteBoots.LookupContextHistory
+import FormalProof4FHE.HasteBoots.LookupSourceParameterAssociation
