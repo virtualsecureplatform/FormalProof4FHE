@@ -496,3 +496,6 @@ import FormalProof4FHETest.HasteBootsSourceLogIdentityAudit
 
 import FormalProof4FHETest.HasteBootsHistorySourceSmoke
 import FormalProof4FHETest.HasteBootsHistorySourceAudit
+
+import FormalProof4FHETest.HasteBootsRegistryPublicSourceSmoke
+import FormalProof4FHETest.HasteBootsRegistryPublicSourceAudit

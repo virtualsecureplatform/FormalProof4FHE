@@ -22951,3 +22951,53 @@ Validation: targeted history-source smoke and nineteen exact axiom guards
 passed (4,774 jobs). `scripts/check` exited successfully, including the
 11,490-job build and every standalone check. Full-check log SHA-256:
 `9213f21e679b05ca47fa5bb7cc5bc9bfcfe1e4b5fd1e5f4b0ac4e6ecb01b276c`.
+
+
+## Original registry allocation/public-source ownership and wrong-row reduction
+
+`RegistryPublicSource` gives every original logical registry slot a reference
+extraction context with its original full parameters/root and no call-specific
+query/value payload. Its origin retains the actual reachable immutable-store
+entry's initializer request and configuration. Native prepared geometry
+transports to that full parameter record. The compatibility theorem identifies
+an actual parsed/recovered batch's analysis cube with this original allocated
+executable public cube for every admitted radius.
+
+`LookupSourcePublicOwnership` derives that compatibility from actual completed
+native lookup execution and parameter-store registry collection. Every used
+original slot has an accepted original batch query/value pair, including later
+aliases. The batch origin retains its selected first-original owner's original
+allocation; the reference retains the used original slot's allocation. No
+request/configuration equality between those two constructors is assumed or
+inferred. All original used slots are covered simultaneously outside the same
+complete-history hash bad event, with no per-slot/alias hash charge.
+
+`RegistryPublicSourceObligation` transports the actual original query's unique
+native interpretation to the reference dimensions without changing its ordered
+matrices or original batch index. A wrong received row on the allocated public
+cube implies the native `WrongAt` obligation for every actual parsed/recovered
+nonce. Its `false_claim` theorem derives the inserted and received widths and
+field encoding from the actual prepared value getter and native alias equality,
+then yields the original native batch false-claim event. No row-encoding or
+width certificate is supplied. Raw aliases remain distinct bytes.
+
+Nine regressions cover original registry parameters/root/quota, unequal full
+parameters despite equal raw code/root, empty reference call payloads,
+preparation-derived geometry, the second original query in a shared response
+group, distinct original queries, noncanonical received words, actual original
+batch getter/alias matching, and independent original constructor provenance
+in public-cube compatibility. Nineteen exact Lean-output guards cover all new
+public declarations; only `propext`, `Classical.choice` and `Quot.sound` occur.
+
+This closes logical source registry-allocation/public-table association and the
+wrong-public-row to native false-claim conversion. It does not derive a wrong
+public row from a false application/PBS result, identify the original PBS keys
+with application tables, or finish helper allocation/public-table ownership.
+Native outer scalar/lookup Fiat--Shamir, concrete profile admission, native
+BabyBear, full modified-PBS lifetime and physical attacker-work/compiler/cache/RNG
+coupling remain open. The final 128-bit actual-attacker-work theorem is not proved.
+
+Validation: nine targeted registry/public-source regressions and nineteen exact
+axiom guards passed (4,827 jobs). `scripts/check` exited successfully, including
+the 11,495-job build and every standalone check. Full-check log SHA-256:
+`6780d73b5dc824ac27d082a4e9225c55f8e9b67879577a92781bc1c86833f43e`.
