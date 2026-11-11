@@ -24262,3 +24262,49 @@ passed (4,485 audit-build jobs), reporting only standard Lean axioms.
 standalone check passed. Full-check log SHA-256:
 `9dd246a825313d4afdf949cb1e845732dceb69e6f16574fa70d735db248679b4`. Frozen `Native*` modules, dependencies and kernel resource
 limits are unchanged.
+
+### Earlier receipt keys cover original lookup factors
+
+`ReceiptPayloadView` retains the complete raw consumed-byte payload named by
+each positive receipt-key read at any offset, or by a hash observation. Starts
+and empty reads add no payload. Coordinate knowledge and actual `seen = true`
+each imply payload membership, without a supplied synthetic receipt read.
+Payloads form a finite set with cardinality at most the raw history length.
+
+`ReceiptCoefficientCandidates` deterministically parses fixed positive-width
+chunks from each payload and filters canonical candidates, including rejected
+ones. It proves exact recovery for every `FieldConsumedReplay.Traced` state,
+with fuel derived from the payload length rather than a retry bound. Observed
+receipt keys therefore cover the actual retained coefficient list in a finite
+history-determined set. This set has cardinality at most history length and is
+fixed on equal-history fibers. Distinct raw payloads may decode to the same
+accepted coefficients; these candidates are deduplicated.
+
+`LookupReceiptCandidates` maps that coefficient cover to typed scalar values
+and equality points, retaining the same cardinality bound. Its original-job
+producer adapter derives the collector trace and value correspondence from
+actual batch execution and the original producer membership. Its original
+equality adapter recovers the actual equality request from the successful
+prelude contract. Every retained draw is either in the earlier-key candidate
+set or has an explicitly unseen receipt key. No caller-supplied coefficient
+trace, artificial output, successful sampling certificate, or positive-width
+premise is needed at these Goldilocks original-job boundaries.
+
+This is a finite candidate cover, not single-value counterfactual fixation.
+It does not turn equal receipt digests into equal keys, charge unseen receipt
+risks, or identify history length with physical attacker work. In particular,
+the cardinality lemma alone does not justify an extra history-size multiplier
+in the final work bound. The remaining composition must select or cover the
+actual lookup/EQ factors on each causal fiber, preserve original metadata and
+table families, discharge receipt/collision and seed-order alternatives, then
+apply the conditional degree law and PCS bounds with global adaptive accounting.
+The final modified-PBS 128-bit actual-attacker-work theorem remains open.
+
+Validation: far-offset partial receipts, empty/start observations, repeated
+keys, hash observations, rejected/masked candidate decoding, deduplication and
+malformed-domain regressions passed. Twenty exact axiom guards report only
+standard Lean axioms (4,491 targeted jobs). `scripts/check` exited successfully,
+including the 11,612-job root build and every standalone check. Full-check log
+SHA-256:
+`1aabc5f17fb8e58e4220ba2650d7701d18c8d39b265f82a20c03ef3397fe3636`. Frozen `Native*` modules, dependencies and kernel limits are
+unchanged.

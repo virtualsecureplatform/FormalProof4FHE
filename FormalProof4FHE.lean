@@ -1054,3 +1054,5 @@ import FormalProof4FHE.HasteBoots.AllocatedScalarExposure
 
 import FormalProof4FHE.HasteBoots.LookupConsumedTrace
 import FormalProof4FHE.HasteBoots.LookupProducerConsumed
+
+import FormalProof4FHE.HasteBoots.LookupReceiptCandidates

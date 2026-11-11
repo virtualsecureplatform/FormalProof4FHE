@@ -560,3 +560,6 @@ import FormalProof4FHETest.HasteBootsScalarReadExposureAudit
 
 import FormalProof4FHETest.HasteBootsConsumedReplayAudit
 import FormalProof4FHETest.HasteBootsConsumedReplaySmoke
+
+import FormalProof4FHETest.HasteBootsReceiptCandidatesSmoke
+import FormalProof4FHETest.HasteBootsReceiptCandidatesAudit
