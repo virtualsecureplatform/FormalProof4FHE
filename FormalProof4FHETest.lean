@@ -502,3 +502,6 @@ import FormalProof4FHETest.HasteBootsRegistryPublicSourceAudit
 
 import FormalProof4FHETest.HasteBootsHelperPublicSourceSmoke
 import FormalProof4FHETest.HasteBootsHelperPublicSourceAudit
+
+import FormalProof4FHETest.HasteBootsAllocatedLookupSmoke
+import FormalProof4FHETest.HasteBootsAllocatedLookupAudit

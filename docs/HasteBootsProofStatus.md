@@ -23058,3 +23058,54 @@ Validation: eight targeted helper/public-source regressions and eighteen exact
 axiom guards passed. `scripts/check` exited successfully, including the
 11,501-job build and every standalone check. Full-check log SHA-256:
 `db5ed6e8d2d0d240d96c3c2ac5f5323dbdc3f916fbe1ffaeb88cb8fec898a69c`.
+
+
+## Allocation-backed native lookup entry point
+
+`AllocatedLookupContext.assemble` collects original source references and
+borrows the selected original helper from one immutable logical parameter
+store. Success derives both collection and borrowing equalities. Reachability
+then supplies original good entries for every source slot and for the helper,
+while the statement, proof, parent and verifier fuels remain the template's
+original data. Duplicate and unused references retain their order and roots.
+Either a missing helper or a missing source reference gives explicit failure.
+
+`AllocatedLookupExecution.program` runs the actual native lookup only after
+that assembly succeeds. It returns the context that was actually assembled
+and executed, together with the unchanged native result. Its execution-origin
+proof derives assembly, exact native execution and complete log equality.
+Assembly failure returns `unavailable` with no observations and cannot invoke
+either scheduler, including schedulers that would issue prequeries if called.
+Successful assembly does not imply verifier acceptance; original native prior,
+source rejection and batch outcomes remain native results.
+
+`AllocatedLookupPublicOwnership` composes this execution with both ownership
+factories. Every checked helper ordinal inherits the original allocated
+helper/public cube and original proof root/opening. Every used source slot,
+including aliases, inherits its allocated public cube and accepted original
+query/value pair outside the same complete-history hash bad event. Collection
+and helper borrowing certificates are no longer separate theorem inputs: they
+follow from execution of this allocation-backed entry point. The native
+observation log is unchanged and no hash exception or per-alias union is added.
+
+Eight regressions cover actual constructor-backed ordered collection of source
+handles `[1,0,1]`, roots `[0,1,0]` and quotas `[600,544,600]` while independently
+borrowing helper handle 0 at quota 544; both missing-handle paths; original
+statement/proof/parent/fuel retention; no scheduler observations on either
+failure; and original native empty-registry rejection/log behavior after
+successful assembly. Seventeen exact axiom guards include every new public
+definition/proof plus the wrapper outcome type and constructors.
+
+This closes logical context assembly and ownership for this entry point. It
+does not prove that the Rust/PBS application calls this adapter with its original
+objects, identify original PBS keys with application source tables, or derive
+a wrong public helper/source obligation from a false PBS result. Native outer
+scalar/lookup Fiat--Shamir, concrete profile admission, native BabyBear, full
+modified-PBS lifetime and physical attacker-work/compiler/cache/RNG coupling
+remain open. Context assembly cost is not a physical work bound. The final
+128-bit actual-attacker-work theorem is not proved.
+
+Validation: eight targeted allocation-backed lookup regressions and seventeen
+exact axiom guards passed (4,901 jobs). `scripts/check` exited successfully,
+including the 11,506-job build and every standalone check. Full-check log
+SHA-256: `5d886a34be2509fd0e3ead89ab5f5e8cb211ebf1c79b641a8d5cb898455cdf83`.
