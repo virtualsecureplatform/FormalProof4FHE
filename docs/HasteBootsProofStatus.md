@@ -24090,3 +24090,73 @@ passed, together with twenty-seven exact axiom guards reporting only standard
 Lean axioms. `scripts/check` exited successfully, including the 11,588-job root
 build and every standalone check. Full-check log SHA-256:
 `1a1292731ec81d3854d050d1185f2ae50bdff23a6c441b9bd8726944e09e2f4a`.
+
+### Allocated families at original scalar read frontiers (2026-11-11)
+
+`AllocatedLookupFrontier` lifts positive-read public-cube stability to the
+whole original allocated source/helper family. Given resolution of the
+original keys, arbitrary nonempty answer bytes, offsets and later activity
+retain the same pre-read family, including previously unfrozen keys and
+repeated source slots. The helper stays at its original full row dimension.
+Both append and actual observation-position forms are proved.
+
+`SeedAncestryEmbedding` embeds semantic native ancestry into an arbitrary
+containing raw history. It recomputes each input's first exposure in that
+history, including earlier adversarial prequeries, instead of preserving a
+native-segment index. It does not assert chronology: the existing seed-order
+exception still governs early child/parent exposures.
+
+`LookupScalarSeedQuote` derives the actual fork-seed quote of every completed
+scalar reader from the executed lookup/equality prelude and native scalar
+transcript extension. The original helper-roots frame remains recognizable,
+and every original proof root is a member of the literal pending reader
+input. No sampled seed equality, supplied header or parsed-root membership
+certificate is required. Native roots/statement/round framing bounds remain
+explicit.
+
+`AllocatedRegistrySeed` recovers the native lookup execution and its log
+inclusion from one actual allocated entry-point run reaching completed
+source batches. All original registry slots obtain their actual full
+context-hash/root ancestry in the containing history, with first positions
+recomputed there. The actual initializer segment also derives helper ancestry
+when its original canonical binding is recognized in the prepared parent.
+
+`AllocatedLookupReadStability.allocated_program_read` composes those results:
+at an actual positive observation of an original completed scalar reader in
+an enclosing oracle program, both allocated families equal their pre-read
+families, or that enclosing program has the existing seed-order bad event.
+One shared seed-order event covers all columns, aliases and the helper; it is
+not folded into the separate lifetime hash bad event. An independent ancestry
+or chronological certificate is not a premise of this allocated-caller form.
+Its explicit `Framing` domain still includes valid native parent/preflight
+frames, registry/multiplicity allocation bounds, and recognition of the
+original helper binding with the correct helper context digest. That semantic
+binding-recognition domain has not yet been derived automatically from every
+native preflight loop. Assembly and accepted ownership geometry remain the
+previous milestone's recovered inputs.
+
+This is pointwise table stability at an actual positive read. The observation
+position is explicit; the complete native-collector-to-enclosing-first-read
+selection still needs composition. Fixing sampled lookup/EQ factors and all
+caller metadata across counterfactual pre-read worlds, and connecting the
+resulting fixed test to the conditional D/p^3 law and native PCS risk bounds,
+remain open. Global adaptive exposure summation and PBS falsity composition,
+concrete profile admission, native BabyBear and physical attacker-work/compiler/
+cache/RNG refinement are also open. The final modified-PBS 128-bit actual-
+attacker-work theorem is not proved. Frozen `Native*` files and kernel resource
+limits are unchanged.
+
+Regressions put a descendant prequery before a native segment, recover source
+and helper ancestry at that earlier index, and prove that the same actual
+containing program has the existing seed-order bad event. A native roots-
+binding regression retains the original helper root without a supplied
+parsed-root membership premise. These are ancestry/frontier adapter fixtures,
+not an end-to-end modified-PBS acceptance example. Fifteen exact axiom guards
+cover the new public API.
+
+Validation: containing-history reindexing, early-quote bad-event and native
+root-binding regressions passed, together with fifteen exact axiom guards
+reporting only standard Lean axioms (4,966 targeted jobs). `scripts/check`
+exited successfully, including the 11,595-job root build and every standalone
+check. Full-check log SHA-256:
+`59be6cce91a94f865243662731a1489241eab3d6e7dcd7b74216352cb64f817a`.

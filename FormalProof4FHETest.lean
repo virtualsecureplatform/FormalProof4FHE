@@ -551,3 +551,6 @@ import FormalProof4FHETest.HasteBootsLookupIdentityAudit
 
 import FormalProof4FHETest.HasteBootsLookupExecutionSmoke
 import FormalProof4FHETest.HasteBootsLookupExecutionAudit
+
+import FormalProof4FHETest.HasteBootsAllocatedFrontierSmoke
+import FormalProof4FHETest.HasteBootsAllocatedFrontierAudit

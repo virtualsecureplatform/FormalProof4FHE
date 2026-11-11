@@ -1040,3 +1040,9 @@ import FormalProof4FHE.HasteBoots.LookupOriginalSlots
 import FormalProof4FHE.HasteBoots.LookupExecutionJob
 import FormalProof4FHE.HasteBoots.AllocatedLookupIdentity
 import FormalProof4FHE.HasteBoots.AllocatedLookupTables
+
+import FormalProof4FHE.HasteBoots.SeedAncestryEmbedding
+import FormalProof4FHE.HasteBoots.AllocatedLookupFrontier
+import FormalProof4FHE.HasteBoots.LookupScalarSeedQuote
+import FormalProof4FHE.HasteBoots.AllocatedRegistrySeed
+import FormalProof4FHE.HasteBoots.AllocatedLookupReadStability
