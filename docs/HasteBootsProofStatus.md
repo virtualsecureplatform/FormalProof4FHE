@@ -25123,3 +25123,65 @@ build and every standalone check. Full-check log SHA-256:
 No proof placeholders, custom axioms, unsafe evaluation, resource-limit
 increases or linter suppressions were introduced. Frozen `Native*` modules
 and dependencies are unchanged.
+
+### Causal context-preimage coverage with a late-target charge
+
+`ContextDigestTargets` collects source and helper context digests named by
+recognized complete raw inputs. Starts, empty reads and hash inputs all name
+targets; they do not themselves establish a parameter preimage. Chronological
+source/helper lineage implies target membership, including inherited metadata.
+A known strict shared-parent input names every original registry slot's
+context, including unused and duplicate slots.
+
+`ContextTargetRisk` selects actual first SHA-512 queries from the complete
+mixed-oracle history. A fresh reply hits the previously named target set
+with exact conditional probability `targets.card / 2^512`; repeated hashes
+are ineligible. `ProgramContextTarget` sums these causal charges over the
+whole enclosing program. A named context computed in the full run is already
+observed in a selected old prefix or enters this lifetime event. Its posterior
+averaging theorem retains counterfactual bad mass under any replayable
+selecting history. The target charge is additional to the existing shared
+hash/root, seed-order, receipt and parent-seed collision charges; it is not
+silently absorbed into a collision event.
+
+`RegistryContextObservation` proves complete-history observation of the
+helper and every original registry context from successful native execution.
+`AllocatedContextCoverage` derives these from actual allocated execution,
+then combines actual parent recovery with chronological naming to cover all
+contexts at once outside the single late-target event. No independently
+supplied old-prefix parameter observations or per-slot exception are needed.
+`AllocatedFirstContextCoverage.at_scalar_first` places this conclusion at an
+actual scalar first read using the existing native domains and seed-order
+safety argument.
+
+`GoldContextCoverage.parameters_on_fiber` and `registry_slot_on_fiber` replace
+old-prefix observation assumptions with complete-execution provenance and
+causal naming. They identify full parameter records and original roots, or
+retain the shared reference hash bad event or late-target bad event in either
+world. Counterfactual late-target mass is still explicit. The next composition
+must use its posterior charge rather than assuming every counterfactual world
+is good.
+
+The earlier context-observation gap now has an explicit ideal-oracle risk
+bound and an actual allocated first-read coverage theorem. Whole-family
+correspondence, good reference-family selection, degree/PCS posterior
+composition, adaptive lifetime false-PBS reduction, profile admission and
+physical attacker-work refinement remain open. The final modified-PBS
+128-bit actual-attacker-work theorem is not proved.
+
+The target cardinality also has a syntax bound: at most twice the total byte
+length of all earlier naming inputs, including starts and empty reads. Each
+fresh-hash risk is bounded by this quantity divided by `2^512`. This reuses
+the existing native mention-size proofs and makes no physical-work claim.
+
+Validation: regressions show context naming by a start and an empty read,
+exact `2^-512` fresh-target risk for a singleton target, repeat-hash
+ineligibility, complete native registry-slot observation and forced selection
+of the late-target branch when the old prefix contains no context hash.
+Fifty-six exact axiom guards passed using only standard Lean axioms, with a
+4,964-job guarded build. `scripts/check` exited successfully, including the
+11,728-job root build and every standalone check. Full-check log SHA-256:
+`ef2cac4debe37cff20987ee4a4352505e15d2db2130e1e612090d5d68091df92`.
+No proof placeholders, custom axioms, unsafe evaluation, resource-limit
+increases or linter suppressions were introduced. Frozen `Native*` modules
+and dependencies are unchanged.
