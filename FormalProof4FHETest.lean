@@ -669,3 +669,5 @@ import FormalProof4FHETest.HasteBootsHelperCalibrationSmoke
 import FormalProof4FHETest.HasteBootsHelperCalibrationAudit
 
 import FormalProof4FHETest.HasteBootsAdaptiveBatchFieldAudit
+
+import FormalProof4FHETest.HasteBootsSourceFieldCoverageAudit

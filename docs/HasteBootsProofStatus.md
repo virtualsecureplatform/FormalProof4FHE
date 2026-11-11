@@ -26361,3 +26361,57 @@ a completed program packet. All 32 exact axiom guards passed with only standard
 Lean axioms (5,091-job guarded build). With source/tests frozen, `scripts/check`
 passed the 11,863-job root build and all standalone checks. Full-check log
 SHA-256: `251006115b4ff2d3f9498369d04a0c56dc453c14da525cab1d57cffa07cb0d57`.
+
+## Original indexed source coverage for the adaptive field bound
+
+`ProgramStreamReadCoverage` identifies clean causal-machine packets with the
+exact raw program prefixes. A selected first positive read supplies the
+original position, offset, count and continuation. Whole-history and prefix
+lineage derive the earlier selecting packet and exact output split; silent
+instruction steps are still handled by the existing instruction realization.
+
+`AcceptedBatchFieldCandidate` constructs the adaptive field candidate from
+the actual accepted native batch. Native preparation and parsing supply the
+same field input and context digest; the completed native verifier's observed
+subtrace supplies the complete context computation. Its first positive read
+is the original causal read, including when an adversary exposed the stream
+before native verification or at a far offset. Role and constructor evidence
+come from the supplied original admitted source, rather than new security
+certificates chosen at the field boundary.
+
+`AcceptedBatchAdaptiveCoverage` retains this link when the accepted false
+claim takes the field-proximity branch. `OriginalSourceAdaptiveCoverage`
+transports the original lifetime witnesses to their actual instruction logs
+and applies this strengthened native coverage. It preserves full parameter
+equality, profile equality, original roles and retained constructor data.
+Root disagreement, early receipts and columns remain explicit alternatives.
+
+`IndexedSourceFieldReduction` covers an arbitrary original source index type
+with one common profile. There is no finiteness, source-count or event
+measurability premise. `registry_profiles` discharges common profile equality
+for the actual `RegistryPublicSource.context` family. Outside the shared
+reference lifetime bad events, all original source failures enter either
+one adaptive field lifetime event or the remaining receipt/column event.
+`safe_bound` charges the field event once at `17 / 2^141` times expected
+specified interpreter work. `root_safe_bound` uses the existing joint
+reference bound to match the original ledger's shared-hash-only mask.
+
+`CalibratedAdaptiveSourceLedger.bound` substitutes this original indexed
+field reduction into the scalar/helper/shared-hash ledger. The residual
+probability is now explicitly the common-profile early-receipt event or the
+indexed original column event, rather than the whole original source failure.
+This composition conservatively adds another `1 / 2^159` reference charge;
+it does not claim a newly optimized joint reference accounting.
+
+The adaptive column bound and shared receipt pricing on this raw-program
+lifetime remain required before eliminating that residual probability.
+Whole modified-PBS initial falsity, native domain/seed-order closure, actual
+profile admission, actor-cost separation and physical work pricing are also
+open. The final 128-bit actual-attacker-work theorem remains unproved.
+
+Four regressions check recovered position, exact far-offset/count retention,
+selection of the same first read by prefix lineage, and rejection of an empty
+pending read. All 23 exact axiom guards passed with only standard Lean
+axioms (5,092-job guarded build). With source/tests frozen, `scripts/check`
+passed the 11,871-job root build and all standalone checks. Full-check log
+SHA-256: `c1bf61717f6e75f43228057c20f4559155514362ccca84fe1a398a45e6d4d6e1`.
