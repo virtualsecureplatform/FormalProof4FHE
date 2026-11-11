@@ -1102,3 +1102,5 @@ import FormalProof4FHE.HasteBoots.AllocatedScalarFamily
 import FormalProof4FHE.HasteBoots.JobFamilyPosteriorMismatch
 
 import FormalProof4FHE.HasteBoots.CandidateIdentityTables
+
+import FormalProof4FHE.HasteBoots.CandidateScalarTest
