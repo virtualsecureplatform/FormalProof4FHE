@@ -1015,3 +1015,7 @@ import FormalProof4FHE.HasteBoots.ScalarPublicSourceModel
 
 import FormalProof4FHE.HasteBoots.ScalarCompletedPrefix
 import FormalProof4FHE.HasteBoots.ScalarSourceChallengeBound
+
+import FormalProof4FHE.HasteBoots.SourceFrontierStability
+import FormalProof4FHE.HasteBoots.AllocatedScalarSource
+import FormalProof4FHE.HasteBoots.AllocatedScalarHelper

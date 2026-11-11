@@ -535,3 +535,6 @@ import FormalProof4FHETest.HasteBootsScalarSourceAudit
 
 import FormalProof4FHETest.HasteBootsScalarSourceCausalSmoke
 import FormalProof4FHETest.HasteBootsScalarSourceCausalAudit
+
+import FormalProof4FHETest.HasteBootsSourceFrontierSmoke
+import FormalProof4FHETest.HasteBootsSourceFrontierAudit

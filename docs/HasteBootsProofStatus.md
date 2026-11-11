@@ -23741,3 +23741,74 @@ false-or-event fixtures passed, together with fifteen exact axiom guards
 (4,800 targeted jobs). `scripts/check` exited successfully, including the
 11,557-job root build and every standalone check. Full-check log SHA-256:
 `d2bb12497f96152877b19fa18741829ecb35bdaf6618c4f43567788297edfa32`.
+
+### Pending-read source stability and original allocated scalar factors
+
+`SourceFrontierStability` identifies the executable public-history selector
+with the native causal selector for every history, including the fallback of
+an unrecorded key. A resolved pending positive read freezes exactly the log
+already selected from the earlier history, at every one of the 64 supported
+heights. Every arbitrary positive answer, offset and later continuation keeps
+that same selected log. The public cube and its flattened scalar factor are
+therefore unchanged from the pre-read history. This strengthens plain append
+stability: an existing checkpoint is no longer required when the pending input
+resolves the original full context/root key. Zero-byte observations do not
+supply this guarantee. Pure table stability needs neither a decoding-radius
+premise nor a code-constructor assumption; the separate interpretation and
+source-truth theorems retain their original hypotheses.
+
+Chronological native lineage supplies resolution from the old observed byte
+cache. The position-indexed theorem connects a completed history to its actual
+pre-read prefix. The ancestry theorem covers both source facts and helper
+context facts with their committed roots. It derives the pre-read table or
+returns the existing `SeedQuoteOrder.Bad` event; chronological ancestry is not
+silently assumed, and this exception is not absorbed into the shared hash bad
+event or treated as free. The existing seed-order analysis still has to be
+included in the final adaptive global composition.
+
+`AllocatedScalarSource` builds each source factor from the original registry
+slot of the actually assembled lookup context. The slot's original store
+reference, chosen allocation, full parameters, root, constructor request and
+constructor configuration are derived from assembly. The scalar query evaluates
+that same original factor. Actual native registry initialization supplies its
+complete context/root key and the observed hash of the original full parameter
+serialization, including unused and aliased slots. The key is tied directly to
+the selected allocated object and reference root, without separate parameter,
+code or digest-association certificates from a caller.
+
+`AllocatedScalarHelper` selects the same assembled store's actual borrowed
+helper object and the original proof-root ordinal. Its original parameters and
+constructor provenance are retained, and its source factor has no future
+opening response argument. Source and helper factors both inherit first-read
+stability, including a first freeze at the current read. Their ancestry
+adapters retain the explicit existing seed-order exception. Every packing
+lane, including unused padding, is retained; packing width remains independent
+of the original code block width. These are logical allocation associations,
+not Rust pointer or heap refinements.
+
+Regressions cover a genuinely new source key, arbitrary positive response
+bytes/offsets and later hashes, identical pre-read owners across different
+answers, all supported heights, and zero-byte non-freezing/fallback changes.
+They exercise a four-lane scalar factor, position-indexed mixed-history
+prefixes, actual source and helper ancestry through a descendant read, original
+allocation/root/constructor retention, actual registry key computation, and
+source/helper factor stability. Twenty-five exact axiom guards cover the new
+public API and contain only standard Lean axioms.
+
+This closes the pending-read selector-timing gap when native resolution or
+realized ancestry is supplied, and supplies original allocated source/helper
+factor adapters. The modified PBS caller's exact scalar expression indices,
+coefficients and factor-family assembly still need to be connected to these
+adapters and to the causal source-event theorem. The original native caller's
+scalar pending-input ancestry/root commitment must be composed with its actual
+protocol spine, without supplying independent lineage certificates. Global
+adaptive scalar/lookup/seed-order exposure summation and PBS falsity composition,
+concrete profile admission, native BabyBear and physical attacker-work/compiler/
+cache/RNG refinements remain open. The final modified-PBS 128-bit
+actual-attacker-work theorem is not proved. Frozen `Native*` files and kernel
+resource limits are unchanged.
+
+Validation: nineteen targeted regressions and twenty-five exact axiom guards
+passed (4,915 jobs). `scripts/check` exited successfully, including the
+11,562-job root build and every standalone check. Full-check log SHA-256:
+`f0aedb204babb69325589b65aac30694140b25fcf9c38622dbf4b10dc21ffd25`.
