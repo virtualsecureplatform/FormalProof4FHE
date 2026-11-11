@@ -25565,3 +25565,48 @@ axioms (4,992-job guarded build). `scripts/check` passed the 11,776-job root
 build and all standalone checks with source and tests frozen. Full-check log
 SHA-256:
 `5b51ac4214e724ba7dee298ca5f4d99ee21bf5f0befd52291999ae68629f1620`.
+
+### Original PCS receipt coverage for identity Wrong
+
+`LookupWrongReceipts` maps the identity reduction's `Wrong` alternative to
+actual accepted original receipts. A source mismatch retains the original
+job column and registry address, the actual batch receipt, its original
+query/value pair index, the raw received/inserted rows and their native field
+alias check. The inserted row's field values disagree with the terminal fold
+of the original selected source family. No parameter equality or hash
+collision exclusion is needed merely to find this accepted pair.
+
+The helper branch retains the accepted original single-opening receipt at
+the checked job ordinal, its actual query and raw value packet. Its field
+values disagree with the helper-family fold at the original native point.
+The helper's independent packing width is derived from the original native
+geometry; no zero-padding premise is introduced.
+
+`LookupReceiptQueryMeaning` proves that the actual source and helper raw
+query matrices read as these exact terminal fold queries. Pair semantics
+remain separate from the caller-local extension post-map, including the
+empty-row case. These lemmas identify the actual receipt query matrices,
+rather than accepting query meaning as a caller-supplied certificate.
+
+`AllocatedIdentityReceiptAlternatives.false_identity_receipts` composes the
+receipt coverage with the actual allocated native identity alternatives.
+The original `Wrong` alternative is replaced by an actual accepted source or
+helper row mismatch, alongside attained healing and the same shared
+full-history root/hash event. It preserves the execution, framing, original
+geometry, initial falsity and seed-order premises of the earlier theorem.
+
+These row mismatches are against the original job's complete families.
+For the source branch, owner/reference compatibility outside the existing
+shared hash event must still transport them to the PCS lifetime model's
+own extracted cube and `WrongAt` predicate. The analogous helper obligation
+also needs its extraction/lifetime adapter. No PCS probability bound is
+claimed by this receipt-coverage milestone. Shared bad-event composition,
+adaptive first-read/job composition, whole modified-PBS initial falsity,
+profile admission and physical attacker-work refinement remain open. The
+final 128-bit actual-attacker-work theorem remains unproved.
+
+Validation: all seven new exact axiom guards passed using only standard Lean
+axioms (4,995-job guarded build). `scripts/check` passed the 11,780-job root
+build and every standalone check with source and tests frozen. Full-check
+log SHA-256:
+`fbae470d6fcbb39bb2f797841e5a30ce3b4de08d511955881aa10faad09d6576`.

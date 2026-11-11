@@ -629,3 +629,5 @@ import FormalProof4FHETest.HasteBootsCandidateScalarAudit
 import FormalProof4FHETest.HasteBootsAttainableIdentityAudit
 
 import FormalProof4FHETest.HasteBootsAllocatedHealingAudit
+
+import FormalProof4FHETest.HasteBootsLookupWrongReceiptAudit
