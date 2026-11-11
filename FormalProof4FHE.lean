@@ -1091,3 +1091,5 @@ import FormalProof4FHE.HasteBoots.AllocatedParentData
 import FormalProof4FHE.HasteBoots.GoldContextFiber
 
 import FormalProof4FHE.HasteBoots.SharedParentBindingsData
+
+import FormalProof4FHE.HasteBoots.AllocatedFirstContextCoverage
