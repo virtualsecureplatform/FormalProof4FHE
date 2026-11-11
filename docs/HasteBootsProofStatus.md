@@ -23352,3 +23352,73 @@ Validation: twenty-one targeted scalar-recovery regressions and sixty-two exact
 axiom guards passed (4,418 jobs). `scripts/check` exited successfully, including
 the 11,526-job build and every standalone check. Full-check log SHA-256:
 `d8f6c78588c9e9237ee2cce4dee1811d23b8b092de7858a40bbb145d6212694e`.
+
+## Original native scalar execution coverage and reconstruction equivalence
+
+`ScalarExecutionTranscript` proves an exact frame-history invariant through the
+original native scalar verifier. A ready state retains the original statement
+and the completed packet/receipt blocks. An active sampler retains that history,
+the checked current packet, its exact native pending input, and the native
+challenge label. Completed packet order equals the actual completed-record
+order. Every stored receipt is obtained from literal native field finalization
+and has 80 bytes. Candidate rejection, suspension, successful interpolation and
+terminal/rejection branches preserve the required invariant at every analysis
+prefix. No challenge value is recovered from receipt digest bytes.
+
+`ScalarReconstructionCompleteness` discharges the reconstruction checker from
+native metadata, consecutive ordinals and the original row shapes. Its matrix
+proof establishes native proof-shape acceptance, including every equation's
+trusted variable count and message width. The checked reconstruction therefore
+succeeds for covered original inputs; success is no longer an extra premise.
+Only unexposed suffix rows reuse the selected packet.
+
+`ScalarExecutionRecovery.sampling` covers every active request in an initialized
+original native execution at arbitrary fuel and in arbitrary ideal worlds.
+The original parent decoder and existing statement/returned-packet frame-size
+allocation domains are explicit premises. Actual initialization supplies native
+preflight, the chain invariant supplies preceding packet getters and widths,
+and the active machine invariant supplies the selected packet's ordinal, width
+and original getter. These facts prove exact canonical history framing and
+successful recovery of the selected input. Both preceding and selected packet
+associations are derived from execution, rather than supplied by a caller.
+
+`ScalarExecutionPrefixAgreement` proves the native round counter is monotone
+through preparation, sampling, rejected candidates, interpolation, and arbitrary
+resumed execution. Recovered original packet associations cover every getter
+up to the selected ordinal, including every earlier reached ready state.
+Combining this with the previous execution-equivalence theorem proves that the
+recovered certificate and the original proof have identical entire native state
+and ordered primitive logs through the active original request. The recovered
+parent and initialized state equal the originals. The theorem directly yields
+a successful recovered configuration with the original statement and current
+packet; it does not require per-tick packet agreement witnesses or a supplied
+reconstruction-success certificate. Unvisited future messages can differ.
+
+Fourteen regressions cover initial and partial collection, successful first
+round completion, partial second-round reads, rejection-only prefixes, recovered
+history counts, terminal absence of an active request, monotone native counters,
+actual receipt bytes/size and reconstruction success derived from row shapes.
+An additional universally quantified fixture theorem derives recovery and exact
+reconstructed execution for every analysis budget and oracle world whenever
+the original native verifier is sampling. Its concrete returned-packet allocation
+domain is proved for both original rounds. Twenty-eight exact axiom guards cover
+all new public definitions and theorems. Proofs compile under the existing
+kernel resource limits; no `Native*` module is modified.
+
+This closes the previous general original-native-execution coverage and packet
+association gap for active scalar requests, under the stated framing domains.
+The causal stopped replay must still be linked to the particular first selected
+native request within the global attacker experiment, preserving its prior sum
+and common point across any auxiliary stop. Honest polynomial families and
+their native degree/false-prior obligations must be derived from original PBS
+source tables. Deterministic scalar no-healing/terminal falsity composition,
+global scalar exposure summation, scalar/lookup/PBS falsity composition, concrete
+profile admission, native BabyBear, and physical attacker-work/compiler/cache/RNG
+refinement remain open. The final modified-PBS 128-bit actual-attacker-work
+theorem is not proved.
+
+Validation: fourteen targeted regressions, the arbitrary-budget/world sampling
+coverage fixture theorem, and twenty-eight exact axiom guards passed (4,421
+jobs). `scripts/check` exited successfully, including the 11,532-job build and
+every standalone check. Full-check log SHA-256:
+`211cba2d9b1f1e359c6a27b6d945d5f04ff0c154e665952af510226988f22b0d`.
