@@ -976,3 +976,6 @@ import FormalProof4FHE.HasteBoots.AllocatedLookupPublicOwnership
 import FormalProof4FHE.HasteBoots.GoldScalarChallengeLaw
 import FormalProof4FHE.HasteBoots.ScalarRoundChallengeMeaning
 import FormalProof4FHE.HasteBoots.ScalarRoundHealingBound
+
+import FormalProof4FHE.HasteBoots.ScalarChallengeInputView
+import FormalProof4FHE.HasteBoots.ScalarChallengeInputBound
