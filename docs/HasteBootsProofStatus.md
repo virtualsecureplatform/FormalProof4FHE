@@ -22095,3 +22095,73 @@ actual-attacker-work theorem is not yet proved.
 Full validation: `scripts/check` exited successfully, including the
 11,411-job build and all subsequent standalone checks. Full-check log SHA-256:
 `b8ae1d8199de3ac4ab03423a1c3c744823dd2870bf6248d934baa63297c38bdd`.
+
+
+## Accepted single-opening false claims: column/proximity dichotomy
+
+`RectangularMatrixDisagreement.near_witness` proves the deterministic
+single-matrix analogue of the shared disagreement reduction. A false finished
+claim near a common coded source forces a structured lane response at distance
+at least code minimum distance minus radius. It uses the query-independent
+common extractor, exact padded response and ordered matrix finishing.
+`far_witness` gives a random lane at distance at least radius plus one when
+random code proximity fails. These are deterministic implications, with no
+freshness or independence assumption and no lane union-bound factor.
+
+`SingleOpeningFalseClaimWitness.finishes` derives finishing of the original
+parsed claim from the actual accepted native call. Strict actual nonce
+recovery identifies its original query and raw evaluation response.
+`near_witness` lifts the generic implication to this native accepted call;
+primitive root, capacity and original code dimensions follow from the retained
+constructor, while native preparation supplies nonzero code-symbol width.
+No independent capacity or native finishing certificate is supplied.
+
+`SingleOpeningParsedDraws.values_typed` identifies the values obtained from
+the parsed complete single-opening column input with the original sampler's
+ordered draw list. This pointwise identity requires neither freshness nor a
+fully read receipt; it retains every repeated draw. The original single
+response/column labels and checked request dimensions are used unchanged.
+
+`SingleOpeningConcreteColumnWitness` lifts the near and far distance witnesses
+into the same concrete random/structured family at its minimum distance.
+`SingleOpeningConcreteCoverage.witnessed_event` turns such a witness plus
+actual native acceptance into the concrete column event at the original
+collector budget. The selecting history's recovered source log is preserved
+under the full acceptance suffix; accepted checks and parsed draw values use
+the same native sample and the same actual completed collector.
+`false_claim_cases` covers an accepted false claim, against that original
+source's common extractor, by either this concrete column event or the far
+source/random proximity obstruction. The claim is the original parsed claim;
+no altered transcript, response or source-batch verifier substitutes for it.
+
+`SingleOpeningConcreteExposureCoverage.false_claim_events` places these two
+branches at their actual first-exposure packets: the profile-restricted column
+event at the column boundary, or the concrete field-proximity event at the
+earlier field boundary. Native preparation and the original code constructor
+derive column eligibility; the field branch retains the exact pre-read source
+and original native collector values. This theorem assumes the two causal
+first-exposure boundaries and their history split have been identified.
+Global inherited/early-receipt classification and coverage over arbitrary
+machine prefixes remain the next reduction; this is not yet the combined
+accepted-false-claim lifetime theorem or physical attacker-work bound.
+
+Ten exact Lean-output guards cover all new public declarations; only
+`propext`, `Classical.choice` and `Quot.sound` occur. Five regression examples
+check false structured matrix finishing over a small field, its single lane
+disagreement witness, honest versus wrong lane distances, and the actual
+original single native verifier accepting the original claim but rejecting
+a changed nonzero claim specifically at native claim verification. The matrix
+fixture also proves exact common-source extraction for its encoded table.
+The targeted tests and retained selected-source/family audits passed
+(4,547 jobs), with unchanged proof limits and no frozen native source edits.
+
+Next are the single-opening early-receipt bounds and inherited/field/column
+causal classification, followed by the combined accepted-false-claim lifetime
+bound. Production scalar/lookup Fiat--Shamir, original owner/alias/application
+associations, native BabyBear, complete modified-PBS lifetime and physical
+attacker-work/compiler/cache/RNG refinement remain open. The final 128-bit
+actual-attacker-work theorem is not yet proved.
+
+Full validation: `scripts/check` exited successfully, including the
+11,419-job build and all subsequent standalone checks. Full-check log SHA-256:
+`0004ba952455deb8070231779210a7d35538a8c0ff9665c5ee27034d9373e17a`.

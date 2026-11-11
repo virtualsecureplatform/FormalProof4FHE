@@ -451,3 +451,6 @@ import FormalProof4FHETest.HasteBootsSingleFamilyAudit
 
 import FormalProof4FHETest.HasteBootsSingleSelectedSmoke
 import FormalProof4FHETest.HasteBootsSingleSelectedAudit
+
+import FormalProof4FHETest.HasteBootsSingleFalseClaimSmoke
+import FormalProof4FHETest.HasteBootsSingleFalseClaimAudit
