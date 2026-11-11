@@ -1142,3 +1142,5 @@ import FormalProof4FHE.HasteBoots.AdaptiveBatchFieldLifetime
 import FormalProof4FHE.HasteBoots.CalibratedAdaptiveSourceLedger
 
 import FormalProof4FHE.HasteBoots.CalibratedJointWorkBound
+
+import FormalProof4FHE.HasteBoots.CanonicalAllocatedJobWork
