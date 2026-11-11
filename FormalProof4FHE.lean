@@ -1003,3 +1003,7 @@ import FormalProof4FHE.HasteBoots.ScalarRecoveredStoppedAgreement
 
 import FormalProof4FHE.HasteBoots.ScalarUnboundedReplayLaw
 import FormalProof4FHE.HasteBoots.ScalarRecoveredUnboundedLaw
+
+import FormalProof4FHE.HasteBoots.ScalarCollectorTrace
+import FormalProof4FHE.HasteBoots.ScalarCompletedOrigin
+import FormalProof4FHE.HasteBoots.ScalarCompletedChallenge
