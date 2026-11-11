@@ -1012,3 +1012,6 @@ import FormalProof4FHE.HasteBoots.ScalarSourcePolynomial
 import FormalProof4FHE.HasteBoots.ScalarChainHealing
 import FormalProof4FHE.HasteBoots.ScalarNativeSourceHealing
 import FormalProof4FHE.HasteBoots.ScalarPublicSourceModel
+
+import FormalProof4FHE.HasteBoots.ScalarCompletedPrefix
+import FormalProof4FHE.HasteBoots.ScalarSourceChallengeBound

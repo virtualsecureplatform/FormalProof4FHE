@@ -23681,3 +23681,63 @@ native healing fixtures passed, together with thirty exact axiom guards
 (4,802 targeted jobs). `scripts/check` exited successfully, including the
 11,553-job root build and every standalone check. Full-check log SHA-256:
 `89201a10a4983aa33e3c70aee9de0206591c0d181ee7651e5cba5ee67e127039`.
+
+### Original producer point and source-derived causal scalar events
+
+`ScalarCompletedPrefix` proves persistence of the actual native completed list
+through preparation, collector suspension, decoding/update failure, successful
+completion and arbitrary resumed execution. These are prefix relations, not
+merely membership facts. The existing native chain's consecutive ordinals
+identify the exact position of each completed occurrence. An actual producing
+sampler for that occurrence therefore has exactly the preceding completed list;
+its common point is the literal preceding challenge list. This derives the
+producer-to-healing-prefix association left open in the previous milestone,
+including executions that subsequently reject or remain suspended.
+
+`ScalarSourceChallengeBound` constructs the received polynomial from the
+original message vector and the honest polynomial from fixed factor tables
+and the native prior common point. Width-invalid vectors have an explicit
+total fallback and cannot supply an actual native healing witness. The prior
+eligibility test asserts the two degree bounds and distinctness; these are
+conditions on the causal prior, not conditions on the new challenge. The
+all-budget root event has the existing one-first-exposure D/p^3 bound under the
+original replay-history posterior, with no replay-budget or collector-budget
+multiplier. Eligibility is inside the measured event, not a success-conditioned
+probability space. Actual completed healing derives all eligibility conjuncts
+and root agreement from native round meaning and source-table identities.
+
+The completed-event transfer derives the actual producer point, collector
+completion and original recovered configuration; it requires no independently
+supplied honest polynomial, producer point equality or sampled-value identity.
+The higher-level `false_or_event` theorem starts with a fixed false original
+source equation and its original info getter. It derives all completed message,
+prior and next getters, the pending-round bound and original input recovery.
+It returns either falsity at the actual native current common point or a causal
+source event belonging to an actual completed original input. It introduces no
+union over all batch equations and needs no supplied healing occurrence.
+
+Regressions cover arbitrary worlds and execution budgets, both literal native
+round ordinals, exact occurrence/producer prefixes and points, rejection-only
+persistence, a completed source-derived healing event, its one-exposure cubic
+bound, and the original-false-equation wrapper. Truth at the fixture's returned
+zero point rules out the terminal-falsity branch and forces an actual completed
+input's causal event. Fifteen exact axiom guards cover the new public API;
+only standard Lean axioms occur.
+
+This closes the actual producer/common-point gap and connects deterministic
+scalar source falsity to the existing causal root law at the fixed-table model
+boundary. The modified PBS caller's original factor expressions, allocation
+handles and source roots still need to be associated with these fixed tables.
+The original source ownership must be fixed at or before each relevant first
+exposure; history append stability does not by itself prove this timing.
+Global adaptive scalar/lookup exposure summation and PBS falsity composition,
+concrete profile admission, native BabyBear and the physical attacker-work,
+compiler, cache and RNG refinements remain open. The final modified-PBS 128-bit
+actual-attacker-work theorem is not proved. Frozen `Native*` modules and kernel
+resource limits are unchanged.
+
+Validation: ten regression examples plus named native occurrence and
+false-or-event fixtures passed, together with fifteen exact axiom guards
+(4,800 targeted jobs). `scripts/check` exited successfully, including the
+11,557-job root build and every standalone check. Full-check log SHA-256:
+`d2bb12497f96152877b19fa18741829ecb35bdaf6618c4f43567788297edfa32`.
