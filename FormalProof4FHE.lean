@@ -1063,3 +1063,5 @@ import FormalProof4FHE.HasteBoots.ScalarReceiptFrames
 
 import FormalProof4FHE.HasteBoots.OriginalLookupReceiptOrder
 import FormalProof4FHE.HasteBoots.OrderedReceiptMatching
+
+import FormalProof4FHE.HasteBoots.OriginalReceiptSegmentation

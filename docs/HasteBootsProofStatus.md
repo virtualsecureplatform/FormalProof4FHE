@@ -24458,3 +24458,55 @@ exited successfully, including the 11,634-job root build and every standalone
 check. Full-check log SHA-256:
 `51c4b65bb863d6595da91e99836ab6aca3aab64e8804db80784c724cab060581`. Frozen `Native*` modules, dependencies and kernel resource
 limits are unchanged.
+
+### Label-based original receipt segmentation without supplied counts
+
+`LookupReceiptLabels` derives the actual compression-head/reciprocal-body
+label shape from native execution, including active suspension and every
+rejected offset. `LookupBatchReceiptLabels` supplies this shape for each
+completed job in actual completion order. `EqualityReceiptLabels` derives the
+distinct equality label for every active reader and retained point.
+
+`ReceiptGroupSegmentation` proves unique concatenation into nonempty marked
+groups whose bodies contain no head marker. Its scanner preserves duplicate
+contents; the theorem assumes no body lengths, rejection counts or attempt
+bounds. `ReceiptLabelSegmentation` instantiates this with the literal native
+compression/reciprocal labels. The distinct equality label recovers the entire
+lookup/equality boundary first, then every lookup group. Equal whole receipt
+suffixes therefore identify both the ordered lookup groups and EQ suffix,
+without a supplied previous-group or previous-rejection count.
+
+`LookupInitialReceipt` proves that the original initializer starts with one
+receipt, not zero: raw fork-child framing contains no receipts, but the native
+zero-count typed-extension identity emits exactly one. This count is derived
+for every world and original multiplicity packet. No equality of the initial
+receipt contents is needed to drop this common count.
+
+`OriginalReceiptSegmentation.original` constructs a receipt view from an
+actual original successful execution, using the executed initializer, batch
+and prelude contracts. It retains the actual starting receipt list, actual
+completed-job groups and actual equality draws. `compare` proves that equal
+prelude transcript inputs force equality of every complete job receipt group
+and the entire equality receipt suffix, even for views constructed from
+different worlds and contexts. Neither initial counts, rejected-offset counts,
+per-job boundaries nor independent receipt/digest equalities are supplied.
+Only the existing root-message framing domain remains at construction.
+
+This closes count-free segmentation at the original prelude-input boundary.
+It does not yet recover that boundary from an arbitrary completed outer
+scalar input, nor map a selected producer tag to the same original job index
+across two executions with independently recovered metadata. Those bindings
+remain necessary before applying refined-fiber coefficient fixation to the
+original lookup/EQ factors. Named/fresh receipt coverage, explicit SHAKE
+receipt-collision probabilities, posterior averaging, degree/PCS composition
+and global adaptive work accounting remain open. The final modified-PBS
+128-bit actual-attacker-work theorem is not proved.
+
+Validation: actual native lookup/batch/EQ label regressions, the real
+initializer one-receipt count, marker scanning and duplicate-preserving
+lookup/EQ segmentation passed. Twenty-nine exact axiom guards passed (four
+axiom-free, the rest using only standard Lean axioms), with 4,516 smoke /
+4,517 audit targeted jobs. `scripts/check` exited successfully, including the
+11,643-job root build and every standalone check. Full-check log SHA-256:
+`c4d2e44e2a6e0af52b595933dfbc7666f47ca937cadc688e16f5a26e995e46cc`. Frozen `Native*` modules, dependencies and kernel resource
+limits are unchanged.
