@@ -933,3 +933,7 @@ import FormalProof4FHE.HasteBoots.LookupHelperClaimMeaning
 
 import FormalProof4FHE.HasteBoots.QueryRectangularNativeMeaning
 import FormalProof4FHE.HasteBoots.SingleOpeningExtractedTableMeaning
+
+import FormalProof4FHE.HasteBoots.QueryNativeInterpretationComplete
+import FormalProof4FHE.HasteBoots.SingleOpeningNativeObligation
+import FormalProof4FHE.HasteBoots.HelperOpeningObligationLifetime
