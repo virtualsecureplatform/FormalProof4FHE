@@ -26628,3 +26628,57 @@ audited. All 81 exact axiom guards passed with only standard Lean axioms
 (5,127-job guarded build). With source/tests frozen, `scripts/check` passed
 the 11,915-job root build and all standalone checks. Full-check log SHA-256:
 `c9b7ce135e755e3041b659bfafc6203c34219b935367d021a879be388f9ab0aa`.
+
+## Seed-order safety is now a priced exception
+
+`SeedOrderRiskBudget` prices the existing `SeedQuoteOrder.Bad` ledger directly
+on original raw program positions. The event is the union of a seed quoted by
+an earlier observation and a self-quote in the pending complete input. Prior
+target count is bounded by original log length; the pending quote contributes
+one additional full 512-bit target. Neither the absence of a prior quote nor
+a self-dependency removes that pending-input charge.
+
+Below an analysis threshold, the combined score is at most
+`threshold / 2^512`, since `log.length < threshold` pays for the extra pending
+target. Scores vanish without an actual pending request. Summing across raw
+positions is bounded by specified interpreter work. A Markov split covers
+larger-work executions; the threshold does not constrain execution, query
+count, native retries or dependency-graph size.
+
+`SeedOrderContinuation` retains an original ordering exception through any
+program continuation. `PrivateCoinSeedOrderProbability` uses original finite
+coin-prefix selection to lift the bound to the joint tape/world measure and
+all instruction horizons. `lifetime_le_159` proves that the entire seed-order
+bad lifetime costs at most `1 / 2^159` times expected specified interpreter
+work. There is no tape-support or graph-cardinality fee, no finite expected
+work premise and no caller-supplied measurability assumption on the event.
+
+`SeedOrderIdentityWork.Witness` retains the same actual native job, canonical
+public-table initial falsity, framing, domains and original allocation as
+`CanonicalIdentityWork.Witness`, but has no seed-order safety field.
+`covered` derives either an actual seed-order bad event or the previous safe
+witness, preserving its complete native data. `ordered_bound` retains the
+exact numerical margin of the previous canonical joint ledger.
+
+`SeedOrderIdentityWork.bound` and `work_128` add that seed-order lifetime charge
+and prove the originally false canonical native identity work bound without
+a seed-order premise. Checked finite rational arithmetic proves that the
+old aggregate rate plus `1 / 2^159` still fits `1 / 2^128`. The ordering bad
+event is paid once for the entire execution, rather than once per source,
+helper, quoted edge, job or enclosing-program horizon.
+
+This removes the explicit seed-order safety assumption from this native
+false-identity endpoint. Native framing, round/parent domains, actual profile
+admission and the fixed assembled-reference scope remain explicit. Whole
+modified-PBS initial falsity/application enforcement, actor-cost separation
+and physical attacker-work refinement remain open. The requested final
+public modified-PBS actual-attacker-work theorem remains unproved.
+
+Six regressions distinguish an absent prior quote from a real pending
+self-quote, retain the original bad event and its continuation, check the
+exact nonzero initial charge, and reject charges after completion. The
+first-read selection helper is audited too. All 41 exact axiom guards
+passed with only standard Lean axioms (5,130-job guarded build). With
+source/tests frozen, `scripts/check` passed the 11,921-job root build and all
+standalone checks. Full-check log SHA-256:
+`089f69548a9d2c87c7a508c462c09de049ae2e806775092b0c842a5b9747618c`.

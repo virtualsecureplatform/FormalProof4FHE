@@ -677,3 +677,5 @@ import FormalProof4FHETest.HasteBootsAdaptiveColumnWorkAudit
 import FormalProof4FHETest.HasteBootsCanonicalRadiusAudit
 
 import FormalProof4FHETest.HasteBootsCanonicalScalarAudit
+
+import FormalProof4FHETest.HasteBootsSeedOrderWorkAudit
