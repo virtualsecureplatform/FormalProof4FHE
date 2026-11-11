@@ -25022,3 +25022,61 @@ targeted guarded build. `scripts/check` exited successfully, including the
 `d1d9fa2cfa20908c6996ae2899fd9df52bd804a54e3b5256630897134ff57c2f`.
 No proof placeholders, custom axioms, unsafe evaluation, resource-limit
 increases or linter suppressions were introduced.
+
+### Strict shared-parent registry recovery and observed parameter coupling
+
+`SharedParentInputView` strictly recovers the final adjacent registry,
+grouped multiplicity bytes, flat multiplicity bytes, shared-lookup fork and
+64-byte seed request. It decodes the complete original source vector and
+retains the whole earlier framed preflight prefix. Parser soundness and
+native trailer reconstruction are proved; earlier frames with matching
+labels cannot replace the actual final registry, and swapped grouped/flat
+frames are rejected. Original frame/allocation domains remain explicit.
+
+`OriginalSharedParent.recover` obtains that view from native caller success
+and the actual registration branch. Its sources are the complete computed
+registry, not a set of mentioned context/root pairs. `compare_on_fiber`
+combines strict parsing with parent matching: the whole recovered view is
+equal across the joint fiber or the already bounded parent-seed collision
+event holds. `slot`, `length` and `slot_compare` retain every original
+ordinal, including duplicate and unused slots, and bind corresponding
+ordinals to equal actual context-hash results and roots.
+`AllocatedParentData.recover` supplies the same original view directly from
+an executed allocated verification outcome and native framing; no parsed
+registry or registration-success certificate is supplied independently.
+
+`GoldContextFiber` identifies full Goldilocks parameter records across the
+replay fiber when their actual context computations are observed in the old
+raw prefix and have the same digest. Both observations are transported into
+the reference history; unequal full preimages yield the same existing shared
+root/hash bad event. There is no extra per-slot collision exception.
+`registry_slot` combines this with the matched ordered registry.
+`packed_on_fiber` identifies the entire original public packed table, including
+all packing padding lanes, given matching roots and the explicit observed
+context computations. Arbitrary unrelated verifier-call fields cannot
+substitute a different table once these original parameters and keys match.
+
+The context-observation premises are intentional and not yet derived for
+every adversarial first-read prefix. A native computation occurring later
+cannot be treated as an earlier hash observation. Next, recover actual
+per-request canonical bindings and original slot-address vectors from the
+matched preflight prefix, and establish coverage or an explicit charge for
+late parameter identification. Whole-family correspondence, good reference
+family construction, degree/PCS posterior composition and physical
+attacker-work coupling remain open. The final modified-PBS 128-bit
+actual-attacker-work theorem is not proved. Frozen `Native*` modules,
+dependencies and kernel resource limits are unchanged.
+
+Validation: an actual native prepared parent parses to its full three-entry
+registry, preserving the duplicate slot and unused slot with a different
+context. An earlier empty-registry decoy cannot replace the final registry;
+swapped grouped/flat trailer frames are rejected. A cross-world fixture with
+equal observed digests but different query quotas enters the existing shared
+hash bad event instead of identifying unequal full parameter records.
+Twenty-eight exact axiom guards passed using only standard Lean axioms, with
+a 4,949-job targeted guarded build. `scripts/check` exited successfully,
+including the 11,711-job root build and every standalone check. Full-check log
+SHA-256:
+`eda23526b139d968addcd5a4686a964e4f9b873df56a12de147222cf6b126d0e`.
+No proof placeholders, custom axioms, unsafe evaluation, resource-limit
+increases or linter suppressions were introduced.

@@ -602,3 +602,6 @@ import FormalProof4FHETest.HasteBootsParentCompletionAudit
 
 import FormalProof4FHETest.HasteBootsParentCollisionSmoke
 import FormalProof4FHETest.HasteBootsParentCollisionAudit
+
+import FormalProof4FHETest.HasteBootsSharedParentDataSmoke
+import FormalProof4FHETest.HasteBootsSharedParentDataAudit
