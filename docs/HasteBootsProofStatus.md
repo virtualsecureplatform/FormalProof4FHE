@@ -22320,3 +22320,73 @@ actual-attacker-work theorem is not yet proved.
 Full validation: `scripts/check` exited successfully, including the
 11,433-job build and all subsequent standalone checks. Full-check log SHA-256:
 `27e6e4733663c2520bc8a5d679cc74c7c1608688346cc54794314f473316d458`.
+
+
+## Allocated helper provenance and one-hash joint native opening lifetime
+
+`SingleOpeningConstructorBounds` derives exact code minimum distance and field
+radius admissibility from the original retained single-opening constructor.
+Its numerical prelude corollary needs only packing width at least three and
+`3*radius < blocks-messageBlocks+1`; primitive roots, capacity and field-size
+bounds are derived. Transport to another call with equal full parameters
+keeps the original constructor request and configuration unchanged.
+
+`AllocatedSingleOpeningOrigin` derives completed constructor provenance from
+a good immutable parameter-store entry, and derives entry goodness from a
+reachable store and actual successful handle lookup. The selected entry's
+request/configuration are retained, rather than choosing an arbitrary matching
+code constructor. Full parameter association is required: code equality alone
+does not establish it. The native helper verifier receives a direct parameter
+object, not a source-registry slot, so the logical helper handle lookup and
+`ctx.helper = entry.initialized.parameters` remain explicit boundary evidence.
+This module does not claim to derive physical pointer/heap correspondence.
+
+`HelperOpeningLifetimeWitness.accepted` derives each recorded helper's actual
+single-opening acceptance and observed subtrace from the original ordered
+helper verifier, including receipts before a later helper stops.
+`lookup_accepted` carries this through the original full registered-lookup
+program. `witness` derives the original sampler receipt and strict parsed nonce
+from that accepted call, and constructs a single-opening lifetime witness
+using the selected allocation entry. It assumes original framing/allocation
+length bounds, logical allocation/parameter association, fixed-profile
+association, and falsity of the actual parsed claim against the common-source
+analysis extractor. These are named remaining boundary/semantic obligations,
+not supplied PCS-acceptance, primitive-root or sampler-correctness certificates.
+The outer lookup/PBS falsity reduction is not proved by this factory.
+
+`SharedNativeOpeningLifetime` combines single-helper and source-batch failure
+in one ideal-oracle world and one complete machine history. Each side retains
+its own original parameter set, code origin, packing width, quota, profile,
+radius and scheduler-memory type; no equality of helper/source packing widths
+is imposed. Joint failure is measurable. Clean causal coverage merges the
+shared source-bad event before taking probability bounds. The resulting
+initialized/prelude theorem has exactly one shared complete-program hash
+charge plus the two modes' expected receipt/field/column exposure charges.
+It does not sum the separate lifetime inequalities, which would charge the
+same shared hash failure twice. Prelude rebasing retains every original
+observation. This is joint analysis-extractor opening soundness, not the
+complete outer lookup/PBS or physical attacker-work theorem.
+
+Twenty-seven exact Lean-output guards cover all new public declarations;
+only `propext`, `Classical.choice` and `Quot.sound` occur. Eight regression
+examples and an empty-trace exclusion lemma check independent helper/source
+packing widths three/four with code-symbol width four, equal code but unequal
+full parameter records, lane-major coefficient counts 18/32, different
+constructor requests producing the same stored code, the one-hash joint
+prelude bound at those independent roles, and zero joint failure probability
+for a stopped machine. Reference source-context data are used only to hold
+public parameters; the altered raw query/response data are not claimed to be
+an accepted native call. The targeted tests and retained single/receipt audits
+passed (4,657 jobs), with unchanged proof limits and no frozen native edits.
+
+Next are derivation of the remaining helper allocation/profile associations
+at the enclosing application boundary, composition of outer scalar/lookup
+falsity with this joint opening event, concrete profile admission and actual
+attacker-work coupling. Production scalar/lookup Fiat--Shamir, original
+owner/alias/application associations, native BabyBear, complete modified-PBS
+lifetime and physical attacker-work/compiler/cache/RNG refinement remain open.
+The final 128-bit actual-attacker-work theorem is not yet proved.
+
+Full validation: `scripts/check` exited successfully, including the
+11,439-job build and all subsequent standalone checks. Full-check log SHA-256:
+`e22997bc11d8cc0c135cb3773a5b691a2e4ce93ac0fd2bde10453cafad727b3d`.

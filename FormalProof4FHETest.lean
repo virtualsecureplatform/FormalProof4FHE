@@ -460,3 +460,6 @@ import FormalProof4FHETest.HasteBootsSingleEarlyReceiptAudit
 
 import FormalProof4FHETest.HasteBootsSingleLifetimeSmoke
 import FormalProof4FHETest.HasteBootsSingleLifetimeAudit
+
+import FormalProof4FHETest.HasteBootsSharedNativeLifetimeSmoke
+import FormalProof4FHETest.HasteBootsSharedNativeLifetimeAudit
