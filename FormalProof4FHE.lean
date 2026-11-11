@@ -1051,3 +1051,6 @@ import FormalProof4FHE.HasteBoots.ScalarReadExposure
 import FormalProof4FHE.HasteBoots.LookupScalarTrace
 import FormalProof4FHE.HasteBoots.ProgramFirstStreamRead
 import FormalProof4FHE.HasteBoots.AllocatedScalarExposure
+
+import FormalProof4FHE.HasteBoots.LookupConsumedTrace
+import FormalProof4FHE.HasteBoots.LookupProducerConsumed

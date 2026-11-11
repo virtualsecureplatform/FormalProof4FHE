@@ -24226,3 +24226,39 @@ reporting only standard Lean axioms (4,881 targeted jobs). `scripts/check`
 exited successfully, including the 11,601-job root build and every standalone
 check. Full-check log SHA-256:
 `22f5361b514412239acc7735b103e13935b98875cd41ac277954116f9fe41bdc`.
+
+### Consumed-byte replay and actual lookup producer traces
+
+`FieldConsumedReplay` proves that native field collection retains uniform
+candidate chunks, their exact flattened consumed bytes, and the chronological
+accepted coefficients obtained by filtering every candidate, including rejected
+ones. Initialization, single-candidate advancement, bounded execution and
+receipt completion preserve this invariant. Positive-width chunks are uniquely
+determined by their concatenation. Consequently two traced states with equal
+consumed bytes, or equal raw `NativeFieldReceipt.input` keys, have equal accepted
+coefficient lists, even across different worlds, inputs and execution budgets.
+The theorem has no minimum coefficient count or receipt-length bound; it applies
+to short three-coefficient lookup draws as well as larger PCS draws.
+
+`LookupConsumedTrace` derives this invariant inside actual compression,
+reciprocal-rejection and equality reader machines, across arbitrary budgets and
+suspension. `LookupConsumedBatch` carries it through actual ordered/repeated
+lookup requests and completed selections. `LookupProducerConsumed.producer`
+uses the original executed job's producer membership to obtain this invariant
+without a caller-supplied collector trace certificate.
+
+Regressions cover rejected candidates interleaved with accepted ones, masked
+high bits, fixed-width chunk recovery, and the necessity of positive width.
+Twenty-three exact axiom guards cover the new theorem API. This establishes
+coefficient determinism from a raw receipt key; it does not identify keys from
+equal receipt digests. Deriving counterfactual key fixation from earlier
+observations, explicitly charging fresh-digest/collision risks, and composing
+fixed lookup/EQ factors with the conditional degree bound remain open. The
+final modified-PBS 128-bit actual-attacker-work theorem is not proved.
+
+Validation: targeted replay regressions and all twenty-three axiom guards
+passed (4,485 audit-build jobs), reporting only standard Lean axioms.
+`scripts/check` exited successfully: the 11,607-job root build and every
+standalone check passed. Full-check log SHA-256:
+`9dd246a825313d4afdf949cb1e845732dceb69e6f16574fa70d735db248679b4`. Frozen `Native*` modules, dependencies and kernel resource
+limits are unchanged.
