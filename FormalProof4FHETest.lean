@@ -478,3 +478,6 @@ import FormalProof4FHETest.HasteBootsExtractedTableMeaningAudit
 
 import FormalProof4FHETest.HasteBootsHelperObligationSmoke
 import FormalProof4FHETest.HasteBootsHelperObligationAudit
+
+import FormalProof4FHETest.HasteBootsSourceObligationSmoke
+import FormalProof4FHETest.HasteBootsSourceObligationAudit

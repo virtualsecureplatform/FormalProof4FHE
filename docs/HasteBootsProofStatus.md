@@ -22663,3 +22663,65 @@ Validation: targeted helper-obligation smoke, fourteen new guards and retained
 extracted-table audit passed (4,666 jobs). `scripts/check` exited successfully,
 including the 11,462-job build and every standalone check. Full-check log
 SHA-256: `061274653f5ed06631d02c4bd63035613443a96679e05419cb044bdf8a978e1a`.
+
+## Source-batch obligations on the common extracted cube
+
+`BatchOpeningNativeObligation` derives a typed interpretation for every
+original query in an actually prepared native batch. The original query
+index is retained, including non-owner queries sharing a left-response group.
+Public split dimensions and original message length follow from that same
+preparation. A common rectangular extractor table is reindexed once into a
+cube; the generic arity transport preserves the ordered query and native
+low-bit table coordinates. Each original query's cube fold is exactly its
+native rectangular matrix evaluation on this same extracted table.
+
+Its `false_claim_iff` derives query/value association from strict parsing of
+the original native nonce and the actual checked batch binding. The resulting
+`Wrong` predicate retains the native quantifiers: for each exact recovered
+source log, some original query has a false claim on the common cube. No
+response group is substituted for that query index. `WrongAt` and
+`wrong_of_at` let one specified original query/row supply that branch.
+`claimed_of_encoded` retains the raw row's exact original batch position;
+`alias_encoded` transports only field meaning across a successful native
+alias comparison. Neither original row spelling is rewritten.
+
+`SourceOpeningObligationLifetime.preparation` derives each accepted source
+receipt's prefix execution from actual enclosing lookup/batch execution,
+including receipts before a later stopped batch. `witness` uses the new
+obligation equivalence to derive the native causal false-claim premise of the
+existing lifetime witness. `at_witness` accepts one original query index and
+its actual row getter/field encoding instead of a whole native false-claim
+predicate. Constructor provenance is still selected from the original
+allocated registry through the preceding source witness factory, with profile
+lineage derived from execution. Framing/allocation bounds, full parameter and
+reference-parent association, and wrong obligation against the same selected
+common source remain explicit.
+
+`at_joint_failure` puts this particular source obligation into the existing
+joint helper/source lifetime event at the original machine prefix. It keeps
+one oracle world and complete history, permits an independent helper-memory
+type and reference code origin, and adds no second hash charge. This completes
+the source-batch-obligation-to-opening-risk step. It does not yet derive the
+actual batch row/index from an arbitrary outer source/alias obligation, nor
+derive a wrong outer obligation from a false lookup/PBS application result.
+
+Eight regressions cover two distinct original queries sharing one response
+group, interpretation for every original index, derived dimensions, different
+raw alias spellings with equal field values, the original alias batch index,
+and strict native nonce/claim obligation equivalence on the real batch
+fixture. Eighteen exact Lean-output guards cover new public declarations and
+the generic arity lemma; only `propext`, `Classical.choice` and `Quot.sound`
+occur. No frozen native files or proof limits changed.
+
+Next remain the outer source/alias-to-accepted-receipt association, original
+application/helper allocation and exact common-source-log association, plus
+native outer scalar/lookup Fiat--Shamir and application falsity reduction.
+Concrete numerical profile admission, native BabyBear, full modified-PBS
+lifetime and physical attacker-work/compiler/cache/RNG coupling remain open.
+The final 128-bit actual-attacker-work theorem is not proved.
+
+Validation: targeted source-obligation smoke, eighteen new guards and retained
+helper/extracted-table audits passed (4,676 jobs). `scripts/check` exited
+successfully, including the 11,466-job build and every standalone check.
+Full-check log SHA-256:
+`69764f3f86132890ca688ed6271fd321eebc6aba950503c77d7f4ac71c49872c`.
