@@ -963,3 +963,8 @@ import FormalProof4FHE.HasteBoots.GoldHistoryPublicExtraction
 import FormalProof4FHE.HasteBoots.RegistryPublicSource
 import FormalProof4FHE.HasteBoots.LookupSourcePublicOwnership
 import FormalProof4FHE.HasteBoots.RegistryPublicSourceObligation
+
+import FormalProof4FHE.HasteBoots.AllocatedHelperContext
+import FormalProof4FHE.HasteBoots.HelperPublicSource
+import FormalProof4FHE.HasteBoots.HelperPublicOwnership
+import FormalProof4FHE.HasteBoots.HelperPublicSourceObligation
