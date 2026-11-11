@@ -26833,3 +26833,56 @@ All 43 exact axiom guards passed with standard Lean axioms only (5,137-job
 guarded build). With source/tests frozen, `scripts/check` passed the
 11,934-job root build and all standalone checks. Full-check log SHA-256:
 `3faff2446d26b077ba66eda636fac3208dfad9f22ba822e6352d6e8e161f8b0d`.
+
+## Structural proof reads cannot enlarge canonical encodings
+
+`PrefixCodecReadSize.Nonexpanding` records that a successful prefix read has
+canonical encoded length plus remaining-input length at most the original
+input length. This is proved for the actual usize reader, using the decoded
+wide integer's value bound and the original consumed width. Wider spellings
+may shrink on reencoding; invalid tags and truncation remain failures.
+The property is then proved compositionally for products, transported
+records, repeated elements, vectors, degree-prefixed fixed sequences and
+raw fixed byte arrays. It is not inferred from codec roundtrip alone.
+
+`SharedProofReadSize` instantiates those rules for measured row readers,
+Goldilocks extensions, scalar messages/proofs, root/path digests, columns,
+single and batch openings and all seven shared-proof fields. Its full proof
+bound covers every successful structural read, not only canonical input:
+`encodedProof.length + rest.length ≤ originalInput.length`.
+A bounded source therefore supplies a bounded canonical source for exactly
+the same typed proof, including when the original spelling is wider or the
+reader leaves a suffix. The canonical-source nonexpansion gate left by the
+previous milestone is closed for this specified reader.
+
+`readAll` optionally requires an empty suffix without requiring canonical
+spelling. Its success is equivalent to a successful full structural read.
+`DecodedIdentityWork.Witness` instead retains the original bounded prefix
+buffer, its actual remainder and successful shared-proof read. Conversion
+to the serialized endpoint derives the canonical source internally.
+`ofSerialized` and `failure_iff` prove equivalence of the two failure events;
+`work_128` inherits the prior rate without adding a probability charge,
+normalizing raw field values or losing any native job/allocation data.
+
+Thirteen regressions cover wider outer/row/extension-degree prefixes,
+four- and eight-byte integer forms, a decoded proof with an exact suffix,
+full-packet wider reads, strict trailing/truncated input rejection,
+canonical shrinkage, suffix accounting, construction of a canonical source,
+component-domain recovery and invalid integer tags. The fingerprint helper
+uses codec injectivity to identify the entire original proof, rather than
+checking only its dimensions. Existing Native modules are unchanged.
+
+These are proofs about the specified structural reader. Correspondence with
+Rust/serde's accepted language, exact values, consumed lengths, errors and
+resource behavior remains open, as does binding the byte view to the actual
+native input source. Other remaining gates include original parent/config
+allocation domains, deriving opening-response bounds for original receipts,
+whole modified-PBS initial falsity/application enforcement, actual profile
+admission and the fixed assembled-reference scope, actor-cost separation
+and physical attacker-work refinement. The final public modified-PBS
+actual-attacker-work theorem remains unproved.
+
+All 50 exact axiom guards passed with standard Lean axioms only (5,142-job
+guarded build). With source/tests frozen, `scripts/check` passed the
+11,939-job root build and all standalone checks. Full-check log SHA-256:
+`0628b252b5be9b2702c58e40a7ebc47de876d020b4ce18b8da8b1d34638e1ccc`.
