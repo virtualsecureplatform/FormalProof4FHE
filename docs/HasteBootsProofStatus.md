@@ -26259,3 +26259,63 @@ only standard Lean axioms (5,083-job guarded build). With source and tests
 frozen, `scripts/check` passed the 11,847-job root build and every standalone
 check. Full-check log SHA-256:
 `22329c219000e04b4d0516293c547efa5ad23b25d3079e904bae12897031e92d`.
+
+## Original helper PCS calibrated and integrated (2026-11-11)
+
+`SingleOpeningCalibration` derives the helper's exact field-proximity and
+ordered-column arithmetic from its retained native constructor. Trusted
+full-parameter role matching, including test width, code height, message
+blocks and at least 544 column queries, yields the Goldilocks numerical
+certificate and decoding-radius facts. No numerical code property is taken
+from a proof-supplied parameter substitute.
+
+`PrivateCoinHelperGoldRisk` bounds the helper's original field/column risks
+by the prices of actual issued runtime-coin instructions and their existing
+unconditional lifetime work counter. Silent instructions and stopped states
+have no field/column exposure. `PrivateCoinHelperReceiptWork` proves the
+parallel early-receipt bound for the single-opening collector, retaining all
+native collector budgets and the original prequeries. A high-work Markov
+split is used only in the proof, with no operational retry or runtime cap.
+The three helper hazards together cost at most
+`17 / 2^141 + 1 / 2^255` times expected specified lifetime work.
+
+`PrivateCoinSingleCoverage` derives the actual first column and field
+instruction boundaries from the original mixed history for accepted native
+single openings. `OriginalHelperInstructionCoverage` applies it to the exact
+original helper witnesses realized by the previous section. It transports
+only the proved equal full parameters and profile, preserving the original
+constructor/receipt/source/falsity data. A disagreement enters the one shared
+hash event; outside it, the actual receipt/field/column hazards cover the
+original helper failure.
+
+`OriginalHelperJointProbability` establishes joint measurability of the
+actual helper witness events using truthful-history characterization and
+finite original tape/oracle certificates. The fixed-tape work bound lifts to
+the original independent product measure, without a tape support factor,
+finite expected work premise, or caller-supplied measurability. Original
+helper failures over every enclosing-program horizon outside the shared
+hash event are covered by these exact-log actual witness events.
+
+`CalibratedHelperSourceLedger` substitutes that joint helper bound into the
+existing calibrated reference/scalar/PCS ledger. The remaining explicit
+probability term is now only the indexed original source-family union
+outside the shared hash event. The helper is charged once, and the original
+source indices, full contexts, code origins and radii remain intact.
+
+Composition/calibration of that indexed source-family union is still open;
+the one-source-family bound does not justify an arbitrary family support
+factor or eliminate repeated indices automatically. Whole modified-PBS
+initial falsity, native domain/seed-order closure, admission of the actual
+profiles, actor-cost separation and native physical pricing also remain
+required. The final 128-bit actual-attacker-work theorem remains unproved.
+
+Three regressions reject width two and a 543-query quota for the trusted
+Goldilocks helper role, and show that consuming a private coin creates no
+helper field/column exposure. Exact axiom guards cover all 46 new proof/data
+declarations and these three regressions.
+
+Validation: all 49 exact axiom guards and three regressions passed using
+only standard Lean axioms (5,077-job guarded build). With source and tests
+frozen, `scripts/check` passed the 11,856-job root build and every standalone
+check. Full-check log SHA-256:
+`d7386835b2db03ad8cce01f36efcf015fc156f94b77598e1de197d2c7611de55`.
