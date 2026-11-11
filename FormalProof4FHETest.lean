@@ -475,3 +475,6 @@ import FormalProof4FHETest.HasteBootsLookupHelperClaimAudit
 
 import FormalProof4FHETest.HasteBootsExtractedTableMeaningSmoke
 import FormalProof4FHETest.HasteBootsExtractedTableMeaningAudit
+
+import FormalProof4FHETest.HasteBootsHelperObligationSmoke
+import FormalProof4FHETest.HasteBootsHelperObligationAudit

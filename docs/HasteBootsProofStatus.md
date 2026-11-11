@@ -22598,3 +22598,68 @@ Validation: targeted extracted-table smoke, twenty new guards and retained
 helper-claim audit passed (4,569 jobs). `scripts/check` exited successfully,
 including the 11,457-job build and every standalone check. Full-check log
 SHA-256: `cb838b24505260219bd5ecb33f56400fcbcf64b0c72b7b5bba1d9ce85ab05869`.
+
+## Checked helper obligations enter the joint opening lifetime event
+
+`QueryNativeInterpretationComplete` proves that validated original matrices
+and an exact original pair count admit their typed interpretation. Actual
+single-opening preparation supplies those validation/count facts, so no
+semantic matrix, decoded query or successful-reader certificate is supplied
+by the caller. Zero rounds retain the original constant-vector query.
+
+`SingleOpeningNativeObligation.query` selects the unique successful
+interpretation of that original query. Its read equation and uniqueness are
+proved; it is an analysis value, not a new verifier operation or transcript
+message. `source` reindexes the same common extracted table with dimensions
+derived from actual preparation. `Wrong` is falsity of a specified field
+expectation under that original query on the same cube for every exact
+recovered source log. This retains the common-source/exposure-log semantics
+of the native lifetime predicate.
+
+`SingleOpeningNativeObligation.false_claim_iff` derives parsed query and claim
+association from the original sampler receipt, actual prefix preparation,
+framing and strict nonce parse. It converts an established encoding of the
+original raw claim into equivalence between this abstract obligation and the
+native causal false-claim predicate. Query interpretation, split dimensions
+and parsed query/claim equality are derived, rather than input certificates.
+Noncanonical raw aliases are interpreted in the field and remain unchanged
+in the native transcript.
+
+`HelperOpeningObligationLifetime` composes these results with the actual
+ordered helper verifier. Its `prepared` lemma derives the receipt's original
+prefix execution. `witness` consumes an encoded expected vector and a wrong
+obligation on the common extracted cube, deriving the native false-claim
+premise of the lifetime witness. `checked_witness` selects the accepted helper
+receipt at the checked guard ordinal and derives the encoding of that checked
+outer sum expectation, using the actual guard match and original receipt
+order. Callers no longer provide a native false-claim predicate, decoded
+query, sampler correctness or independent receipt association. Framing and
+allocation-domain bounds, original helper allocation/parameter association,
+reference-parent association and the wrong abstract obligation remain explicit.
+
+`checked_joint_failure` puts this checked-helper branch into the existing
+joint helper/source lifetime event at the original causal machine prefix.
+It preserves the same history, fixed parameter roles and independent source
+scheduler-memory type, and adds no separate hash charge. This proves the
+helper-obligation-to-opening-risk composition; it does not derive the wrong
+obligation from a false outer lookup/PBS result.
+
+Seven regressions cover actual-prefix interpretation, uniqueness of the
+computed raw-query meaning across oracle worlds/prepared data, rejection of
+malformed matrix widths and mismatched pair counts, zero rounds, and the full
+nonce/claim equivalence on the original single-opening sampler fixture.
+Fourteen exact Lean-output guards cover every new public declaration; only
+`propext`, `Classical.choice` and `Quot.sound` occur. No frozen native files or
+proof limits changed.
+
+Next remain the analogous source/alias obligation composition, exact original
+application/helper allocation and common-source-log association, and native
+outer scalar/lookup Fiat--Shamir plus application falsity reduction. Concrete
+numerical profile admission, native BabyBear, full modified-PBS lifetime and
+physical attacker-work/compiler/cache/RNG coupling remain open. The final
+128-bit actual-attacker-work theorem is not proved.
+
+Validation: targeted helper-obligation smoke, fourteen new guards and retained
+extracted-table audit passed (4,666 jobs). `scripts/check` exited successfully,
+including the 11,462-job build and every standalone check. Full-check log
+SHA-256: `061274653f5ed06631d02c4bd63035613443a96679e05419cb044bdf8a978e1a`.
