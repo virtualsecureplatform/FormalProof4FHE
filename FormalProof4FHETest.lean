@@ -643,3 +643,6 @@ import FormalProof4FHETest.HasteBootsScalarLifetimeAudit
 
 import FormalProof4FHETest.HasteBootsScalarWorkSmoke
 import FormalProof4FHETest.HasteBootsScalarWorkAudit
+
+import FormalProof4FHETest.HasteBootsScalarLogWorkSmoke
+import FormalProof4FHETest.HasteBootsScalarLogWorkAudit

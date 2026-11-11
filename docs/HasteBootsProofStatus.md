@@ -25872,3 +25872,56 @@ Validation: all 31 exact axiom guards and five new regressions passed in a
 tests frozen, `scripts/check` passed the 11,811-job root build and every
 standalone check. Full-check log SHA-256:
 `d7d5ec476147a1a80f1946b88a77947b2304c82c02e5d622d8db8564aa157adc`.
+
+## Observation-clock scalar charge paid by specified work (2026-11-11)
+
+`ScalarLogWork` supplies the missing accounting inequality for the original
+pure `Program` charge. A positive-read log entry contributes its literal
+input length to an intermediate potential; starts, hashes and empty reads
+contribute zero. The selected first-read key bytes at each observation
+position are bounded by the next actual emitted entry. Summing finite
+prefixes and then taking the unbounded sum bounds `totalBytes`, and hence
+the original `ScalarLifetimeComposition.totalCharge`, by the full original
+execution's log potential times `4 / Goldilocks^3`. Prefix persistence is
+proved against the same complete program run. No synthetic completion
+queries or local instruction indices enter that observation-clock sum.
+
+`ByteScalarLogWork` bounds this log potential by the existing input-work
+potential, whose closed and runtime-private-coin interpreter accounting was
+already proved. Thus every actual interpreter prefix's original
+observation-clock scalar charge is bounded by its actual final specified
+work counter times the scalar rate. This includes silent instructions;
+there is no assumption that instruction and observation positions coincide.
+Repeated positive reads may be overcounted in the intermediate potential,
+but each is paid by its original issued instruction. The first-read
+security charge still selects the key only once.
+
+The supremum of original observation-clock charges over all private-coin
+instruction horizons is bounded pointwise by the existing specified
+lifetime work. Its joint integral over arbitrary private tapes and worlds
+is bounded by expected specified lifetime work times the scalar rate.
+The existing safe-scalar probability theorem is also instantiated for
+every closed and fixed-private-tape instruction horizon with expected
+specified lifetime work on its right-hand side.
+
+This resolves the previous section's scalar observation/instruction clock
+accounting gap using an inequality through the actual log, rather than
+requiring equality of the two clock sums. It does not yet establish the
+probability of the union over all nonterminating interpreter horizons:
+the full scalar/PCS bad-event ledger must still be composed across the
+compatible horizon family. Native physical primitive/cache/RNG pricing,
+whole modified-PBS initial falsity, native domain/seed-order closure,
+profile admission, and accounting for the other security charges remain
+open. The final 128-bit actual-attacker-work theorem is unproved.
+
+Four regressions exhibit a silent instruction with no observation, the
+following read already selected at observation position zero, repeated
+same-key reads at different offsets retained by the intermediate potential,
+and zero potential for starts/hashes/empty reads. All 15 new theorem
+declarations and four regressions have exact axiom guards.
+
+Validation: the four regressions and all 19 exact axiom guards passed using
+only standard Lean axioms (5,061-job guarded build). With source and tests
+frozen, `scripts/check` passed the 11,815-job root build and all standalone
+checks. Full-check log SHA-256:
+`ffdcbf564f7cab964b67267dd1d2453bafbeffde7421a15ebc567e9a6be1c2d9`.
