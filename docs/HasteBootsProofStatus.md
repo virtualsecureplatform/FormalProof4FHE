@@ -24308,3 +24308,52 @@ including the 11,612-job root build and every standalone check. Full-check log
 SHA-256:
 `1aabc5f17fb8e58e4220ba2650d7701d18c8d39b265f82a20c03ef3397fe3636`. Frozen `Native*` modules, dependencies and kernel limits are
 unchanged.
+
+### Refined receipt conditioning and digest-based factor fixation
+
+`ReceiptCandidateCompletion` is an analysis-only replayable extension of the
+actual selecting history. It retains the entire original packet and queries
+all 64 bytes at each distinct receipt key already named by that history,
+including keys named by partial far-offset reads. Native execution is unchanged.
+Every named receipt digest is fixed on the resulting equal-history fiber.
+Completion reads only receipt-domain keys: any distinct unseen input stays
+unseen, and every framed input is domain-separated without framing-size or
+consumed-length assumptions. The exact fresh-block target law holds under the
+refined posterior, using the existing cached-oracle law rather than assuming
+independence from the auxiliary observations.
+
+`ReceiptDigestFixation` filters earlier payloads by a full receipt digest.
+The filtered set is fixed on the refined fiber and has a unique payload unless
+two distinct earlier named receipt keys have the same full SHAKE digest.
+Consequently traced states from different worlds with named payloads and
+matching receipt digests have equal accepted coefficient lists, or this
+explicit receipt-collision event occurs. Equality of native 80-byte receipt
+messages implies the required digest equality by dropping the length prefix;
+no injectivity or nonwrapping assumption for that prefix is used. A collision
+has two distinct raw query keys and two actual full-output witnesses in the
+auxiliary completion log.
+
+`LookupDigestFixation` transports coefficient fixation to typed lookup scalar
+values and equality points via the existing native value-validity invariants.
+These adapters still take actual draw membership/validity and named-payload
+premises; binding each original draw's receipt message to the selected scalar
+input across counterfactual worlds remains to be composed. Earlier-key
+membership and the unseen-receipt alternative are supplied separately by the
+original-job adapters from the preceding milestone.
+
+The new collision is a SHAKE receipt-block collision, not the existing SHA-512
+registry/cache bad event. No probability bound or free absorption into another
+bad event is claimed. Auxiliary observations are an analysis refinement, not
+physical attacker work. Remaining work includes original transcript binding,
+fresh/unnamed receipt coverage, receipt-collision risk and posterior averaging,
+then conditional degree/PCS composition and global adaptive work accounting.
+The final modified-PBS 128-bit actual-attacker-work theorem is not proved.
+
+Validation: actual partial-read completion, original-prefix retention,
+duplicate-key ordered completion, receipt-domain freshness and a real collision
+under an all-zero oracle passed. Eighteen exact axiom guards report only
+standard Lean axioms (4,428 smoke / 4,426 audit targeted jobs). `scripts/check`
+exited successfully, including the 11,617-job root build and every standalone
+check. Full-check log SHA-256:
+`408b0b0901d9c40536f087685530655c980139655e8be1d44cd829e577d4b5be`. Frozen `Native*` modules, dependencies and kernel resource
+limits are unchanged.

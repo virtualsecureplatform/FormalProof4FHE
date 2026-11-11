@@ -563,3 +563,6 @@ import FormalProof4FHETest.HasteBootsConsumedReplaySmoke
 
 import FormalProof4FHETest.HasteBootsReceiptCandidatesSmoke
 import FormalProof4FHETest.HasteBootsReceiptCandidatesAudit
+
+import FormalProof4FHETest.HasteBootsReceiptFixationSmoke
+import FormalProof4FHETest.HasteBootsReceiptFixationAudit
