@@ -1007,3 +1007,8 @@ import FormalProof4FHE.HasteBoots.ScalarRecoveredUnboundedLaw
 import FormalProof4FHE.HasteBoots.ScalarCollectorTrace
 import FormalProof4FHE.HasteBoots.ScalarCompletedOrigin
 import FormalProof4FHE.HasteBoots.ScalarCompletedChallenge
+
+import FormalProof4FHE.HasteBoots.ScalarSourcePolynomial
+import FormalProof4FHE.HasteBoots.ScalarChainHealing
+import FormalProof4FHE.HasteBoots.ScalarNativeSourceHealing
+import FormalProof4FHE.HasteBoots.ScalarPublicSourceModel

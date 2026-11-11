@@ -23620,3 +23620,64 @@ exact axiom guards passed (4,433 jobs). `scripts/check` exited successfully,
 including the 11,547-job build and every standalone check. Full-check log
 SHA-256:
 `6b21dd5fc150328cb1c5c084087c333aa839b5cf85e464fb371f9f8b35f5f159`.
+
+### Source-derived scalar polynomials and deterministic native healing
+
+`ScalarSourcePolynomial` constructs honest scalar round polynomials from a
+sum of products of original factor tables. It folds each factor at the common
+point prefix before multiplying. Repeated factor indices are allowed: the
+honest degree bound is the expression arity, not a multilinearity claim for
+the product. The module proves the native zero/one recurrence, challenge
+update, degree bound and full-point terminal identity with the product of
+original factor multilinear evaluations. No supplied honest-polynomial
+certificate or independent evaluation witness is required.
+
+`ScalarPublicSourceModel` flattens the existing executable public packed source
+cube into this factor-table representation, including every padding lane.
+Its terminal value is the existing original packed source truth, and its
+query is the original base-field source query encoded in the cubic extension.
+The public-to-analysis equality retains the actual cache-backed code
+constructor and decoding-radius premise. Append stability retains the explicit
+original source-key checkpoint premise. Packing width remains independent of
+code width. The model takes no opening response or claimed source values.
+
+`ScalarChainHealing` proves that a fixed false original equation either remains
+false or has a false-to-true transition among the actual native completed
+records. This uses the existing native chain and its original getters rather
+than a supplied trace, and introduces no union over batch equations.
+`ScalarNativeSourceHealing` derives native equation semantics from actual
+ordered completed-record getters. A healing transition produces distinct
+received and source-derived honest polynomials, derives both degree bounds,
+and proves agreement at the literal retained native challenge. The finished
+native verifier has an actual healing transition whenever an originally false
+claim has become truthful at the returned common point. Missing getters are
+explicit; the truthful terminal getter premise excludes missing-slot vacuity.
+
+Regression tests cover repeated-factor quadratic behavior against the incorrect
+pointwise-product interpolation shortcut, a nonzero fourth packing lane,
+packed terminal evaluation, a consistent two-variable source table and actual
+native zero-message rounds. The source sum is one while the original native
+claim is zero; the first completed zero draw heals it. Tests derive root
+agreement from native round meaning and original getters, and derive the
+completed healing witness from actual native verifier completion. Thirty exact
+axiom guards cover the new public definitions and theorems and contain only
+standard Lean axioms.
+
+The generic honest-polynomial and deterministic scalar no-healing gaps are now
+closed at this table-model boundary. The modified PBS caller's exact arithmetic
+expressions, factor allocations and original roots must still be associated
+with this model. Source ownership must be established at or before scalar
+first exposure; append stability alone does not establish this. The actual
+producing sampler's prior common point must also be associated with the
+chosen chain prefix before composing these healing roots with the causal
+all-budget challenge law. Global adaptive exposure summation, lookup/PBS
+falsity composition, concrete profile admission, native BabyBear and physical
+attacker-work/compiler/cache/RNG refinement remain open. The final modified-PBS
+128-bit actual-attacker-work theorem is not proved. Frozen `Native*` files and
+kernel resource limits are unchanged.
+
+Validation: twelve regression examples plus named source identities and actual
+native healing fixtures passed, together with thirty exact axiom guards
+(4,802 targeted jobs). `scripts/check` exited successfully, including the
+11,553-job root build and every standalone check. Full-check log SHA-256:
+`89201a10a4983aa33e3c70aee9de0206591c0d181ee7651e5cba5ee67e127039`.
