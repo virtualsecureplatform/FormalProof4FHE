@@ -22239,3 +22239,84 @@ actual-attacker-work theorem is not yet proved.
 Full validation: `scripts/check` exited successfully, including the
 11,427-job build and all subsequent standalone checks. Full-check log SHA-256:
 `e2a22b5ae1ca90e7fcf7ca642b013f9ae806ddb2e804366bd6cccba81bf39a2d`.
+
+
+## Combined native single-opening lifetime soundness and measurability
+
+`SingleOpeningCausalCoverage.accepted_coverage` derives the original first
+column boundary from the complete actual machine history. Accepted native
+execution supplies the positive stream exposure. The first-field boundary
+and the exact earlier source history are derived from causal lineage when
+needed; neither packet nor its split is supplied by the caller. The six
+branches are inherited column read, inherited field read, shared checkpoint
+disagreement, and an actual earlier receipt / field / profile-column event.
+Far-offset reads, starts and empty reads retain their existing semantics.
+Falsity is against the original parsed claim and query-independent common
+source extractor at the history-recovered log.
+
+`SingleOpeningEventContext` proves that field and profile-column event
+families depend on fixed parameters plus selected nonce/history data, not a
+future verifier's root, opening, parent transcript, tables, collector budget
+or scheduler. Equal parameters transport the concrete raw/claimed families;
+primitive-root proofs are irrelevant. Lifetime witnesses still require the
+same original public parameters and profile; this does not merge different
+profiles or numerical parameter sets.
+
+`SingleOpeningLifetimeSoundness.Witness` retains the original candidate
+context, native accepted call, actual sampler receipt and parsed nonce. Each
+candidate has `CacheBackedSingleOpening.Origin` provenance from a reachable
+completed native code constructor; no independent primitive-root or capacity
+certificate is supplied. Roots, query/claim/response data, transcript parents,
+collector budgets and schedulers can vary across calls. `Failure` quantifies
+over every accepted false single opening at every finite prefix of the same
+unbounded machine lifetime.
+
+`failure_covered` and `lifetime_bound` combine global causal coverage and the
+three concrete exposure bounds. For arbitrary replayable pasts the inherited
+probability remains explicit. `initialised_bound` removes inherited exposures
+at a clean machine start and bounds all source failures by one shared complete
+program hash charge, plus expected receipt, field and profile-column exposure
+charges. There is no retry, root, lane, owner or number-of-calls multiplier.
+The explicit numerical conditions remain packing width at least three,
+radius below Goldilocks cardinality, and three times radius below the retained
+code minimum distance. `failure_rebase` and `prelude_bound` retain every
+recorded causal prelude observation inside that same charged machine; earlier
+partial field/column reads are not discarded or treated as fresh.
+
+`SingleOpeningLifetimeMeasurable` proves accepted-call and failure-witness
+replay on worlds agreeing with the complete history, even for arbitrary
+scheduler/machine-state types. It replays the original column protocol,
+reconstructs an actual native sampler receipt and pins its completed state and
+pending field input. The reconstructed nonce has the same exact field binding,
+which preserves the original common-source false-claim predicate. No
+world-independence premise is imposed on the native receipt. The finite and
+unbounded failure events are measurable through the recorded-history view.
+Thus the lifetime inequality bounds a measurable ideal-oracle failure event,
+not only an outer-measure envelope.
+
+Twenty-six exact Lean-output guards cover all new public declarations,
+including the witness type/constructor and the replay/measurability proofs.
+Only `propext`, `Classical.choice` and `Quot.sound` occur; the clean initial
+execution is axiom-free. Twelve regressions check derived field/column
+boundaries, full-history recovery of the earlier packet, pre-field hash-log
+selection, inherited far-offset reads, retention of the earlier empty source,
+prelude rebasing and suppression of duplicate exposure charges, impossibility
+of a native accepted-call witness in a stopped machine's empty trace, and
+event invariance when unrelated context data change. The one-hash source test
+uses the symbolic reconstruction/selection lemmas at unchanged default proof
+limits. The targeted tests and retained receipt/false-claim audits passed
+(4,562 jobs), with no frozen native source edits.
+
+This establishes the native Goldilocks single-opening analysis-extractor
+lifetime layer. The complete modified-HasteBoots/PBS theorem remains open.
+Next are original native helper/allocated-parameter association and composition
+with the source-batch and outer lookup/scalar layers, retaining one shared hash
+charge, followed by concrete profile admission and attacker-work coupling.
+Production scalar/lookup Fiat--Shamir, original owner/alias/application
+associations, native BabyBear, complete modified-PBS lifetime and physical
+attacker-work/compiler/cache/RNG refinement remain open. The final 128-bit
+actual-attacker-work theorem is not yet proved.
+
+Full validation: `scripts/check` exited successfully, including the
+11,433-job build and all subsequent standalone checks. Full-check log SHA-256:
+`27e6e4733663c2520bc8a5d679cc74c7c1608688346cc54794314f473316d458`.
