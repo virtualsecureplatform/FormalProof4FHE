@@ -930,3 +930,6 @@ import FormalProof4FHE.HasteBoots.DeferredBatchProfileLineage
 import FormalProof4FHE.HasteBoots.SourceOpeningLifetimeWitness
 
 import FormalProof4FHE.HasteBoots.LookupHelperClaimMeaning
+
+import FormalProof4FHE.HasteBoots.QueryRectangularNativeMeaning
+import FormalProof4FHE.HasteBoots.SingleOpeningExtractedTableMeaning
