@@ -26682,3 +26682,46 @@ passed with only standard Lean axioms (5,130-job guarded build). With
 source/tests frozen, `scripts/check` passed the 11,921-job root build and all
 standalone checks. Full-check log SHA-256:
 `089f69548a9d2c87c7a508c462c09de049ae2e806775092b0c842a5b9747618c`.
+
+## Scalar round framing from bounded canonical proof bytes
+
+`ScalarProofFraming` defines the nested scalar proof's canonical analysis
+codec using the existing native message and vector codecs. It proves varint
+encoded-length monotonicity, ordered collection's count and payload bounds,
+and that every successfully extracted round packet from a nonempty proof
+has encoded length at most that of the complete proof. The first
+certificate's round-count header pays for the packet's round-index header;
+the outer proof count and packet message count agree. No degree, equation
+count cutoff or independent nested-vector-size assumption is substituted
+for the full encoded-length condition.
+
+`nonempty_of_finished` derives the necessary nonempty condition from actual
+native scalar completion: rejected preflight remains terminal, and accepted
+preflight checks a nonempty statement with matching certificate count.
+`roundDomain_of_bytes` therefore supplies the original native `RoundDomain`
+from an exact canonical proof-byte source whose length fits the 64-bit target.
+`bounded_source_iff` makes the remaining obligation precise: such a source
+exists exactly when the canonical full proof encoding fits. This analysis
+reader is not claimed to implement Rust/serde decoding or allocation errors.
+
+`FramedIdentityWork.Witness` carries those bounded canonical proof bytes
+instead of a separately supplied round domain. Its conversion retains the
+same native job, allocation, canonical public-table falsity and all other
+original witness data. `work_128` inherits the seed-order-inclusive bound
+without an additional probability or per-equation charge.
+
+Seven regressions cover all varint width transitions, successful ordered
+extraction, packet/proof encoded sizes, failed round access, the empty-proof
+counterexample to unconditional size dominance, deriving the domain from a
+bounded source and rejecting a trailing byte. Existing Native modules are
+unchanged. Remaining gates include Rust proof decoding/serialization
+refinement, statement/parent and other framing obligations, whole modified-PBS
+initial falsity/application enforcement, actual profile admission and the
+fixed assembled-reference scope, actor-cost separation and physical
+attacker-work refinement. The final public modified-PBS actual-attacker-work
+theorem remains unproved.
+
+All 29 exact axiom guards passed with standard Lean axioms only (5,135-job
+guarded build). With source/tests frozen, `scripts/check` passed the
+11,925-job root build and all standalone checks. Full-check log SHA-256:
+`68f3c01f604d02ac9f2905726afcdc043020a5f2ab836dbce6a4ed19d788bd7a`.

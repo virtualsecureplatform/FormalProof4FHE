@@ -1148,3 +1148,5 @@ import FormalProof4FHE.HasteBoots.CanonicalAllocatedJobWork
 import FormalProof4FHE.HasteBoots.CanonicalIdentityWork
 
 import FormalProof4FHE.HasteBoots.SeedOrderIdentityWork
+
+import FormalProof4FHE.HasteBoots.FramedIdentityWork
