@@ -24672,3 +24672,58 @@ including the 11,664-job root build and every standalone check. Full-check log
 SHA-256:
 `fc54119e7e5108ce5b57acf5893ffe78d203dd8e6d517e27f8f1b57ec414a069`. Frozen `Native*` modules, dependencies and kernel resource
 limits are unchanged.
+
+### Actual native receipt logs and causal first-read coverage
+
+`LookupReceiptLogs` proves that every retained lookup draw's actual
+`finishField` receipt log is a sublist of its machine execution log. The
+invariant survives suspended drives, rejected reciprocal offsets and later
+draws. `LookupBatchReceiptLogs` lifts it through the active job and all
+completed jobs at arbitrary execution budgets. `EqualityReceiptLogs` proves
+the corresponding invariant for every retained equality point.
+`LookupPreludeReceiptLogs.protocol` embeds both families in the successful
+original prelude log. `LookupPreludeTrace` then recovers that prelude as an
+actual segment of the complete successful native caller log, applying origin
+uniqueness to the existing original-job witness. These operational facts
+require no framed-ancestry or independent receipt-observation certificate.
+
+`ReceiptFirstReadCoverage` proves the temporal step on an arbitrary enclosing
+oracle program. Two distinct input keys cannot have the same first positive
+read position. If a receipt key was unseen at the outer scalar first read,
+its own first positive read must come later, and the earlier scalar output
+is in that receipt read's actual prefix. For an original factor sample with
+an actual receipt output, the result is an exhaustive alternative: its raw
+payload was already named at the outer scalar first read, or a later actual
+first receipt read witnesses `FreshReceiptTargetRisk.event`. Starts, empty
+reads, SHA-512 observations and arbitrary positive-read offsets retain their
+existing semantics; no offset-zero or full-width first-read assumption is
+introduced.
+
+`LoggedLookupFactorSamples.scalars` and `.point` now construct the original
+compression, reciprocal-offset and equality samples together with their
+actual full native receipt observations in the caller log. They recover the
+literal retained draws and their raw states; frame/digest equality is never
+used to infer raw-state equality. `Logged.covered` transports each observation
+through a supplied actual caller-log inclusion in an enclosing program and
+applies the known-payload/fresh-target alternative at its outer scalar first
+read. Existing root/statement framing and round-domain conditions remain
+explicit for constructing the scalar receipt views.
+
+Next, compose these original sample witnesses with the allocated enclosing
+program's scalar first-read recovery and the causal lifetime risk bound.
+Use the known-payload branch in receipt candidate/fixation reasoning and
+retain the explicit fresh-hit charge in the other branch. A separate SHAKE
+receipt-collision estimate, cross-world original metadata/source-family
+coupling, posterior degree/PCS composition and global adaptive attacker-work
+accounting still remain. The final modified-PBS 128-bit actual-attacker-work
+theorem is not proved. Frozen `Native*` modules and dependencies are unchanged.
+
+Validation: the mixed-history regression recovers actual first reads and
+proves their strict order despite the earlier start, empty far-offset read
+and SHA-512 observation. Twenty-four exact axiom guards passed; all use only
+standard Lean axioms. The targeted guarded build passed 4,551 jobs.
+`scripts/check` exited successfully, including the 11,673-job root build
+and every standalone check. Full-check log SHA-256:
+`4fe35252fac336fd5811e65c7c74f8524fbce1286814ddfee8d8482bc3770da4`.
+No proof placeholders, custom axioms, unsafe evaluation, resource-limit
+increases or linter suppressions were introduced.
