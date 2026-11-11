@@ -940,3 +940,7 @@ import FormalProof4FHE.HasteBoots.HelperOpeningObligationLifetime
 
 import FormalProof4FHE.HasteBoots.BatchOpeningNativeObligation
 import FormalProof4FHE.HasteBoots.SourceOpeningObligationLifetime
+
+import FormalProof4FHE.HasteBoots.DeferredClaimReceiptCoverage
+import FormalProof4FHE.HasteBoots.BatchClaimShape
+import FormalProof4FHE.HasteBoots.LookupSourceReceiptCoverage
