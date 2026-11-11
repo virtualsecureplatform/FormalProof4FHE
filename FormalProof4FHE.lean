@@ -1100,3 +1100,5 @@ import FormalProof4FHE.HasteBoots.AllocatedFirstParentFamily
 import FormalProof4FHE.HasteBoots.AllocatedScalarFamily
 
 import FormalProof4FHE.HasteBoots.JobFamilyPosteriorMismatch
+
+import FormalProof4FHE.HasteBoots.CandidateIdentityTables
