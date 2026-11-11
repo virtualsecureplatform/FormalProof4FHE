@@ -1078,3 +1078,7 @@ import FormalProof4FHE.HasteBoots.LoggedLookupFactorSamples
 import FormalProof4FHE.HasteBoots.AllocatedReceiptCoverage
 
 import FormalProof4FHE.HasteBoots.ProgramReceiptCollision
+
+import FormalProof4FHE.HasteBoots.AllocatedFactorSamples
+import FormalProof4FHE.HasteBoots.FactorPosteriorMismatch
+import FormalProof4FHE.HasteBoots.FactorFiberUniform
