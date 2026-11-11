@@ -23274,3 +23274,81 @@ Validation: fourteen targeted scalar-replay regressions and twenty-eight exact
 axiom guards passed (4,409 jobs). `scripts/check` exited successfully, including
 the 11,520-job build and every standalone check. Full-check log SHA-256:
 `3f55cf69c15bfe4749f2b5c04ad73e92624f83f6ffc6c0f52483e61c8f649e40`.
+
+## Scalar replay inputs recovered from the selected transcript prefix
+
+`ScalarTranscriptPrefix` strictly walks backward from the selected scalar
+challenge through adjacent complete round blocks to the scalar statement.
+Each preceding block contains the original round packet, typed scalar kind,
+extension-vector kind, exact cubic basis descriptor, original field request,
+and its 80-byte receipt frame. Statement and packet readers require exact
+canonical payload re-encoding with no trailing bytes. The parser retains raw
+field words and receipt bytes, and never scans past a malformed intervening
+frame for an earlier valid statement. Successful parsing proves the exact
+complete frame decomposition. Valid encoded histories with 80-byte receipts
+parse back to their literal original history and selected packet.
+
+`ScalarPrefixProof` transposes the recovered raw message rows into the actual
+native per-equation certificate layout. Its matrix theorem proves native row
+collection equals the original ordered row. Every preceding recovered packet
+and the selected packet are actual native packet getters in the reconstructed
+proof. The original statement supplies dimensions; preceding packet ordinals
+must be consecutive, the selected ordinal must follow them, and the selected
+round must be inside the native variable count. Native proof-shape and
+metadata/interpolation-dimension checks are evaluated before reconstruction
+succeeds. The unexposed certificate suffix reuses the selected row; serialized
+rows are never replaced with default messages or normalized field words.
+
+`ScalarRecoveredReplay` selects this configuration from the original challenge
+input without a world or future response. The executable entry point takes
+only that input, the trusted profile, and an auxiliary replay budget. It derives
+the parent bytes, statement, proof and initialized native state. Failed recovery
+emits no oracle observation. Successful wrapper outcomes derive an exact native
+prefix origin with the full ordered observation log. Initialization and the
+actual scalar chain invariant follow from checked reconstruction. All runs,
+including failed recovery and missed guessed inputs, preserve selected-stream
+nonexposure. The existing adaptive cubic-field agreement bound now consumes
+this recovered configuration and recovered phase rather than separately supplied
+statement/proof/parent/initial-machine associations.
+
+`ScalarProofPrefixExecution` proves native preparation consults only its current
+round packet. At ready states with equal reached packet getters, a native tick
+has identical state and log; sampling, rejection and receipt finalization do
+not consult future packets. Finite executions with equal reached packets have
+identical entire state and ordered primitive logs. Passing native preflight for
+the same parent and statement also gives identical initial states. No equality
+of unvisited certificate suffixes or their later recurrence checks is needed.
+
+Twenty-one regressions cover literal recovery from an actual second-round
+challenge, the original statement/parent/preceding row, native packet getters,
+initialized expected values, seven retained observations, selected-stream
+nonexposure, exact reconstructed phase, malformed adjacent statement despite an
+earlier valid statement, short receipt, wrong ordinal, raw lazy field aliases,
+and filling only the unexposed suffix of a three-round proof. Encoding round-trip
+proofs establish literal recovered configurations. The original three-round
+proof can have a different future message whose recurrence later fails: its
+five-tick prefix still equals the reconstructed proof's prefix, while their
+nine-tick executions demonstrably differ. A well-framed guessed wrong receipt
+parses but actual replay does not reach that selected stream; no challenge is
+inferred from the digest. Malformed input emits no primitive observation. The
+recovered-configuration cubic agreement bound is exercised as well. Sixty-two
+exact axiom guards cover all new public definitions, proofs, record types,
+constructors and projections.
+
+General coverage of the recovered parser by every relevant original initialized
+native execution remains to be proved. Its completeness currently applies to
+encoded histories; tying that decomposition and recovered packet getters to the
+original execution at every adversarial first exposure is still required.
+The general reached-packet execution equivalence is available, but those
+original packet associations must be derived from that coverage. Honest
+polynomials, their native degree/false-prior obligations and original PBS source
+tables still require semantic association. Global scalar exposure summation,
+scalar/lookup/PBS falsity composition, concrete profile admission, native
+BabyBear, and physical attacker-work/compiler/cache/RNG refinement remain open.
+The final modified-PBS 128-bit actual-attacker-work theorem is not proved.
+Frozen `Native*` modules are unchanged.
+
+Validation: twenty-one targeted scalar-recovery regressions and sixty-two exact
+axiom guards passed (4,418 jobs). `scripts/check` exited successfully, including
+the 11,526-job build and every standalone check. Full-check log SHA-256:
+`d8f6c78588c9e9237ee2cce4dee1811d23b8b092de7858a40bbb145d6212694e`.
