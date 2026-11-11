@@ -23001,3 +23001,60 @@ Validation: nine targeted registry/public-source regressions and nineteen exact
 axiom guards passed (4,827 jobs). `scripts/check` exited successfully, including
 the 11,495-job build and every standalone check. Full-check log SHA-256:
 `6780d73b5dc824ac27d082a4e9225c55f8e9b67879577a92781bc1c86833f43e`.
+
+
+## Original allocated helper ownership and public-cube falsity conversion
+
+`AllocatedHelperContext.borrow` reads the selected original helper parameter
+object from the immutable logical store while retaining all other context
+fields. Successful borrowing plus store reachability derives the complete
+helper-parameter association and original entry validity. Missing handles fail
+explicitly. The handle remains an application boundary input; no equality-search
+for an alternative constructor with matching code replaces it.
+
+`HelperPublicSource` builds a reference public-extraction context from that
+original entry and proof root. Its origin retains the entry's original request
+and configuration. Actual single-opening preparation derives the reference
+geometry. Successful parsing and recovered source selection identify the native
+single-opening analysis cube with the whole-history executable public cube
+at every radius satisfying the existing lifetime condition. Independent helper
+packing and code widths are retained; no batch verifier is executed on the
+reference context's empty call payload.
+
+`HelperPublicOwnership` combines successful original borrowing with actual
+completed helper verification. Every checked original ordinal selects the
+accepted receipt, original proof root/opening, original common query and matched
+sum coefficient encoding. Those associations, native preparation and full public
+cube compatibility are conclusions, including for all checked helpers at once.
+There is no added bad event or separate helper hash charge.
+
+`HelperPublicSourceObligation` transports the actual single query interpretation
+and checked sum coefficients to the original reference dimensions. A wrong sum
+coefficient vector on that public cube implies the native single-opening wrong
+obligation for every actual sampler/parsed/recovered view. With the original
+checked receipt's derived encoding it gives the native causal false-claim event,
+which is the input of the existing helper lifetime witness machinery.
+
+Eight regressions include three executable checks of actual six-step native
+constructors/initializers and immutable-store borrowing. Distinct requests with
+blowups 2 and 4 produce the same raw code while retaining separate quotas 544
+and 600 and original handles. Missing handles and pending initialization fail.
+Other checks preserve the original template fields, derive the real single
+query interpretation and geometry, compare the public helper cube, and transport
+sum coefficients. Packing/code widths 4/3 and 3/4 are both exercised. Eighteen
+exact axiom guards cover all new public definitions/proofs; only `propext`,
+`Classical.choice` and `Quot.sound` occur.
+
+Logical helper ownership is now available from successful original borrowing;
+the application assembler must still establish that it borrows its original
+helper object. Physical pointer/heap refinement is not provided. Deriving a
+wrong helper/source public obligation from a false application/PBS result and
+identifying the original PBS keys with application tables remain open. Native
+outer scalar/lookup Fiat--Shamir, concrete profile admission, native BabyBear,
+full modified-PBS lifetime and physical attacker-work/compiler/cache/RNG coupling
+also remain open. The final 128-bit actual-attacker-work theorem is not proved.
+
+Validation: eight targeted helper/public-source regressions and eighteen exact
+axiom guards passed. `scripts/check` exited successfully, including the
+11,501-job build and every standalone check. Full-check log SHA-256:
+`db5ed6e8d2d0d240d96c3c2ac5f5323dbdc3f916fbe1ffaeb88cb8fec898a69c`.
