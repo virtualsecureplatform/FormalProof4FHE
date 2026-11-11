@@ -952,3 +952,6 @@ import FormalProof4FHE.HasteBoots.LookupSourceParameterAssociation
 
 import FormalProof4FHE.HasteBoots.GoldCommonSourceTable
 import FormalProof4FHE.HasteBoots.GoldCommonSourceBinding
+
+import FormalProof4FHE.HasteBoots.SourceSnapshotLogIdentity
+import FormalProof4FHE.HasteBoots.GoldRecoveredSourceTableIdentity
