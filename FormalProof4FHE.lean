@@ -1067,3 +1067,5 @@ import FormalProof4FHE.HasteBoots.OrderedReceiptMatching
 import FormalProof4FHE.HasteBoots.OriginalReceiptSegmentation
 
 import FormalProof4FHE.HasteBoots.OriginalScalarReceiptPosition
+
+import FormalProof4FHE.HasteBoots.OriginalLookupFactorSamples

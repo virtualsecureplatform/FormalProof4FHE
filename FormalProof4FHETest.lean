@@ -578,3 +578,6 @@ import FormalProof4FHETest.HasteBootsReceiptSegmentationAudit
 
 import FormalProof4FHETest.HasteBootsScalarParentSmoke
 import FormalProof4FHETest.HasteBootsScalarParentAudit
+
+import FormalProof4FHETest.HasteBootsProducerOrdinalSmoke
+import FormalProof4FHETest.HasteBootsProducerOrdinalAudit

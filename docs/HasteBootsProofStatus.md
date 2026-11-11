@@ -24564,3 +24564,57 @@ including the 11,650-job root build and every standalone check. Full-check log
 SHA-256:
 `8fb620abfd6f9fd3660cdc169f88c5ee0d299ead498fa47fe0e71f77f6f2766f`. Frozen `Native*` modules, dependencies and kernel resource
 limits are unchanged.
+
+### Exact producer ordinals and original sampled-factor fixation
+
+`LookupScheduleKeys` proves that all original `(request ordinal, repetition)`
+keys are unique, including zero-repetition requests and identical request
+payloads. The native completed batch inherits this uniqueness from its actual
+finished schedule. A unique-key indexed lookup identifies the literal member
+record; equality of table contents or sampled values is not used as identity.
+
+`LookupProducerOrdinal.producer_at` combines actual completed-job order,
+prepared-tag order and key uniqueness. The retained original producer is now
+proved to occupy exactly the selected prepared-job ordinal. No independent
+producer index or record-equality certificate is supplied. This discharges
+the existential-index gap from the preceding milestone.
+
+`LookupProducedEndpoints` derives the first/last retained draw getters and
+literal coefficient decoders from successful native raw production.
+`IndexedScalarReceiptPosition` places both original compression and accepted
+offset receipts at that exact job index. Its endpoint adapter also derives
+both coefficient traces from actual execution. No successful-decoder,
+sampled-value or endpoint-receipt witness is supplied to that adapter.
+
+`LookupFactorFixation` packages receipt-bound coefficient states with their
+native raw scalar word or EQ point evidence. Equal outer scalar inputs and
+same original positions, named payloads, and an equal refined replay history
+fix those raw words or raw point lists, or expose the explicit SHAKE receipt
+collision event. EQ point dimensions are derived equal from equal coefficient
+lengths and the native `count * 3` completeness facts; no independent dimension
+equality is assumed in the point-fixation theorem.
+
+`OriginalLookupFactorSamples` obtains compression, accepted-offset and EQ
+sample packages from the actual original job and completed outer reader.
+It derives their values, traces, original positions and receipt bindings from
+native producer/prelude contracts. The existing root/statement/round framing
+domains remain explicit. This closes sampled-factor packaging at the original
+job boundary, including short three-coefficient lookup draws without the PCS
+minimum-nine-coefficient receipt premise.
+
+The fixation theorems still require named payloads and equal refined history,
+and retain the SHAKE receipt-collision alternative. Cross-world original
+metadata/source-family coupling, unnamed/fresh receipt coverage, collision
+probabilities, posterior averaging, conditional degree/PCS composition and
+global adaptive work accounting remain open. Auxiliary receipt completion is
+not physical attacker work, and no uncharged bad-event absorption is claimed.
+The final modified-PBS 128-bit actual-attacker-work theorem is not proved.
+
+Validation: zero-repetition ordinal retention, absent repetition rejection,
+unique keys for a native batch with identical request payloads, and literal
+raw producer endpoint/decoder recovery passed. Fifteen exact axiom guards
+report only standard Lean axioms (5,011 smoke / 4,528 audit targeted jobs).
+`scripts/check` exited successfully, including the 11,658-job root build and
+every standalone check. Full-check log SHA-256:
+`830cace261fefad8c1169d0c7300231764f3be9d2971ed962b8c0c96ee70897e`. Frozen `Native*` modules, dependencies and kernel resource
+limits are unchanged.
