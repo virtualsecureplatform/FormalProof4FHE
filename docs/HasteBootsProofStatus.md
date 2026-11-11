@@ -25374,3 +25374,65 @@ check. Full-check log SHA-256:
 No proof placeholders, unsafe evaluation, resource-limit increases or linter
 suppressions were introduced. Frozen `Native*` modules and dependencies are
 unchanged.
+
+### Attainable reference candidates and the refined scalar source kernel
+
+`PositionedFactorSamples` retains the actual world, literal scalar input,
+original receipt position and full-program observation of each factor sample.
+Reindexing a first read changes only equal presentations and preserves its
+exact position, offset, count and continuation. `JobReferenceCandidate`
+combines a selected original job family with its observed compression,
+offset and equality-point samples; their raw values are linked to the same
+native producer and equality point. Its constructor derives the package from
+actual allocated execution under the existing framing/seed-order domains, or
+retains the shared full-history root/hash event.
+
+`JobReferenceFixation` fixes complete source/helper functions, raw compression
+and offset words and the full equality-point list together on the joint
+fiber. One good reference excludes the existing reference parent-seed,
+root/hash, late-context, fresh-receipt and receipt-collision events. The
+counterfactual remainder is the union of fresh-receipt and late-context bad
+mass; no per-factor multiplier is introduced.
+
+`AttainableReferenceBound` proves a pointwise choice-or-bad-coverage split.
+A reference is chosen only when a good witness class on the region is
+inhabited. If no such witness exists, the event is covered by bad mass. Its
+outer-measure bound needs neither a measurable chooser nor a lower bound on
+successful-run probability. `JobReferenceSelection` specializes this split
+to attainable native candidate classes with the same literal scalar input
+and original job ordinal. Fixed-reference test bounds compose with one
+retained posterior bad remainder; their native event instantiation is still
+an explicit obligation.
+
+`ReferenceBadLedger` identifies that remainder with the union of the existing
+shared root/hash event and parent-seed, context-target, fresh-receipt and
+receipt-collision ledgers. Measurability, conditional averaging and an
+unconditional event-composition lemma retain the true root/hash probability
+and each lifetime charge once at a fixed analysis prefix. No extra
+reference-selection or per-job ledger is created.
+
+`RefinedScalarSourceKernel.source_bound` places the existing source-derived
+all-budget scalar agreement bound on the joint parent/receipt completion
+fiber. The scalar key remains unseen there. A retained-state wrapper adapts
+the existing eligibility lemma without executing a query, changing the
+observation log or claiming physical work. Fixed table tests pay the literal
+native `D / Goldilocks^3` bound, over all auxiliary and collector budgets.
+`LookupIdentityTableCongruence` and `CandidateIdentityTables` transport the
+actual partial/full factor tables and their source-derived honest
+polynomials for every native prior from joint family/factor fixation. Raw
+word spelling, source padding and independent helper width are retained.
+
+The next integration must transport the native false-acceptance/healing
+witness, including its packet, equation metadata and profile, into these
+fixed-reference tests and compose the original PCS alternative. The
+conditional-reference theorem's witness/coverage/kernel obligations are not
+yet discharged for the whole native false-PBS event. Adaptive first-read
+selection/lifetime composition, profile admission and physical attacker-work
+refinement also remain open. The final modified-PBS 128-bit
+actual-attacker-work theorem is not proved.
+
+Validation: all 46 exact axiom guards passed, with only standard Lean
+axioms. The guarded build completed 4,991 jobs. `scripts/check` passed the
+11,765-job root build and all standalone checks with source and tests frozen.
+Full-check log SHA-256:
+`2de3e3730ac5f10f22898638169e11f4f3781ef3b7ca233b1f8d8978e90a3bb1`.

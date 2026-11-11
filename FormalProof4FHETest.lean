@@ -620,3 +620,6 @@ import FormalProof4FHETest.HasteBootsHelperRootsAudit
 
 import FormalProof4FHETest.HasteBootsJobFamilySmoke
 import FormalProof4FHETest.HasteBootsJobFamilyAudit
+
+import FormalProof4FHETest.HasteBootsReferenceSelectionSmoke
+import FormalProof4FHETest.HasteBootsReferenceSelectionAudit
