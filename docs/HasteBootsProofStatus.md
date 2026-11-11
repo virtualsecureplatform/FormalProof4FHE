@@ -22817,3 +22817,43 @@ The final 128-bit actual-attacker-work theorem is not proved.
 Validation: the targeted smoke and twenty axiom guards passed. `scripts/check`
 exited successfully, including the 11,477-job build and all standalone checks.
 Full-check log SHA-256: `2396db67b9231fdb1f3111c1719ea52d8d7cb5739a4a8488c2f5fac4264a0127`.
+
+
+## Common parameter-indexed table for single and batch openings
+
+`GoldCommonSourceTable` defines the frozen word, rectangular extractor and
+native-dimension cube directly from retained Goldilocks parameters, context
+digest, root, exact selected source log, and decoder radius. These definitions
+have no opening query, claimed value, response record, scheduler or future
+oracle work argument. The native single and batch source cubes are proved
+equal to this table, using split dimensions derived from actual preparation.
+Full-parameter transport preserves the entire table. Single/batch and distinct
+batch call agreement retain the same exact selected log explicitly.
+
+`GoldCommonSourceBinding` derives the parsed context digest and root from
+actual native preparation, sampler receipt (for single openings), framing
+and strict parsing. Both native source cubes therefore equal the table at the
+actual SHA-512 digest of the complete serialized parameter record and the
+original call's commitment root. Callers no longer supply parsed context/root
+association as a semantic assertion.
+
+Eight regression cases cover distinct original queries sharing a response
+group, query/response-independent cube identity at an exact log, actual native
+split geometry, independent packing/code-width addressing (3/4), distinct full
+parameter records retaining the same code, the single extractor bridge, and
+actual parsed batch binding/table association. Twenty exact-output axiom
+guards cover all new public definitions and theorems.
+
+This is a common analysis-extractor table identity, not an efficient public
+application extractor or a proof that different field reads recover the same
+log. Next are exact recovered-log identity from the original source-history
+owner and original application/helper allocation/table association, followed
+by the native outer scalar/lookup Fiat--Shamir and application falsity
+reduction. Concrete profile admission, native BabyBear, full modified-PBS
+lifetime and physical attacker-work/compiler/cache/RNG coupling remain open.
+The final 128-bit actual-attacker-work theorem is not proved.
+
+Validation: targeted common-source smoke and twenty exact axiom guards passed.
+`scripts/check` exited successfully, including the 11,481-job build and all
+standalone checks. Full-check log SHA-256:
+`2ef440e6fec7faba457cf83a27296a966874043ddcc2c5aaafb2ea5126047b85`.
