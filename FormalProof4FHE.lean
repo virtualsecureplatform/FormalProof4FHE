@@ -1122,3 +1122,5 @@ import FormalProof4FHE.HasteBoots.AllocatedJointIdentityBound
 import FormalProof4FHE.HasteBoots.PrivateCoinScalarWork
 
 import FormalProof4FHE.HasteBoots.ByteScalarLogWork
+
+import FormalProof4FHE.HasteBoots.InterpreterScalarLifetime
