@@ -23422,3 +23422,75 @@ coverage fixture theorem, and twenty-eight exact axiom guards passed (4,421
 jobs). `scripts/check` exited successfully, including the 11,532-job build and
 every standalone check. Full-check log SHA-256:
 `211cba2d9b1f1e359c6a27b6d945d5f04ff0c154e665952af510226988f22b0d`.
+
+## Recovered stopped replay retains the actual native scalar prior
+
+`ScalarPriorStability` extracts the original expected vector, common point and
+completed records as one prior. Native preparation preserves all three fields.
+Field execution can change them only when successful interpolation increments
+the round counter. Native execution with an unchanged round counter therefore
+preserves the entire prior, including across rejection, partial collection and
+resumption. The theorem does not assert equality of partially consumed sampler
+states or of transcript receipts.
+
+`ScalarFirstMatch` proves that any finite native prefix reaching a selected
+reader has a least matching control-state index within that prefix. With enough
+auxiliary budget, stopped replay returns that exact original state and ordered
+observation log. Once replay reports a match, every larger auxiliary budget
+returns the identical whole result and log. The matching index is an analysis
+witness, not a native field-sampling retry limit; budget exhaustion remains a
+separate visible outcome.
+
+`ScalarStoppedPrior` derives round identity from original full-input identity.
+Two active native requests with the same full pending input have the same
+recovered original packet, hence the same ordinal and actual machine round.
+This uses strict recovery coverage and deterministic parser uniqueness, with
+no hash-collision or receipt-inversion assumption. Applying round identity to
+the least matching state and a later active sampler, together with monotone
+round counters, proves that the original stopped state has the later sampler's
+exact prior even when that sampler has already consumed accepted or rejected
+candidate bytes.
+
+`ScalarRecoveredStoppedAgreement` proves that original and reconstructed stopped
+executions have identical results and complete ordered logs through a covered
+original request. Packet agreement for every earlier ready state follows from
+recovered original getters and round monotonicity; no per-tick association is
+supplied. The reconstructed parent and initialized state are derived to equal
+the originals. Its `sampler_prior` theorem yields successful input recovery,
+the original statement and current packet, an actual stopped match, and equality
+of the stopped prior with the original active sampler's expected vector, common
+point and completed records. These associations are execution-derived rather
+than caller-supplied fiber witnesses. The recovered program remains a function
+of the selected input, trusted profile and auxiliary budget, with no future
+oracle response argument.
+
+Fourteen regressions cover the original two-round native fixture, plus a theorem
+quantified over every budget and oracle world deriving the recovered stopped
+prior whenever the original verifier is sampling. At native budget seven, two
+second-round coefficients and nine original observations are present; recovered
+replay stops at round entry with zero second-round coefficients and seven
+observations, while retaining exactly the same prior. Tests cover larger-budget
+stability, both pre-match exhaustion states, a well-framed wrong guessed receipt,
+rejection in the preceding round, the proper first-round prior in a rejection-only
+world, a bounded least matching-time witness, and nonexposure of the target in
+replay despite exposure in the original partially consumed sampler. Eighteen
+exact axiom guards cover all new public definitions and theorems. Existing kernel
+resource limits are unchanged, and no `Native*` module is modified.
+
+This closes the prior/point association between causally recovered stopped replay
+and an original active scalar request under the existing framing domains. The
+probability-level union over all successful auxiliary budgets still needs to be
+connected using the proved post-match stability, without charging each budget as
+a new exposure. Eventual collector events must also be lifted to completed native
+rounds. Honest polynomial families and their degree/false-prior obligations must
+be derived from original PBS source tables. Deterministic no-healing/terminal
+falsity composition, global exposure summation, scalar/lookup/PBS falsity
+composition, concrete profile admission, native BabyBear, and physical attacker-
+work/compiler/cache/RNG refinement remain open. The final modified-PBS 128-bit
+actual-attacker-work theorem is not proved.
+
+Validation: fourteen targeted regressions, the arbitrary-budget/world stopped-
+prior fixture theorem, and eighteen exact axiom guards passed (4,424 jobs).
+`scripts/check` exited successfully, including the 11,538-job build and every
+standalone check. Full-check log SHA-256:
+`fb4cdf2ec29768fb2834a092a8da4ba81c873d0c920ef16d4c3184516c38df76`.
