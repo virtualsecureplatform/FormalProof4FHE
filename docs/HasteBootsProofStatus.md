@@ -26034,3 +26034,55 @@ only standard Lean axioms (5,059-job guarded build). With source and tests
 frozen, `scripts/check` passed the 11,825-job root build and every standalone
 check. Full-check log SHA-256:
 `33f8e8613e7e063c06d0411a85ae9a7894ad4ff842b3095c7a3bb1ce3c077e9e`.
+
+## Joint shared hash pricing and original PCS ledger (2026-11-11)
+
+`PrivateCoinSharedHash` lifts the existing runtime interpreter hash-failure
+work bound to the original joint private-tape/oracle space. Finite horizons
+factor through the exact finite strategy selector; the countable coin
+outer-measure envelope retains their actual coin mass. Persistence of the
+native hash bad event along the original truthful logs gives a monotone
+horizon family. Thus the probability of a hash failure at any instruction
+horizon is at most `expected specified lifetime work / 2^159`. No event
+measurability, finite lifetime, or finite expected work premise is supplied.
+
+The same module proves that the original pure-program PCS `SourceBad`
+event is equivalent to the native root-family bad event on that program's
+complete log. This equivalence retains path-dependent completion; auxiliary
+PCS prefix analysis creates no extra hash fee. It splits the scalar global
+bad union into this actual hash lifetime event and the four non-root
+reference lifetime alternatives. The scalar-only bound now prices the hash
+and scalar parts against the same expected specified lifetime work. Their
+combined coefficient is proved at most `1 / 2^158` using the actual
+Goldilocks modulus.
+
+`PrivateCoinJointPcsLedger` joins the scalar event with the original helper
+and indexed source PCS-family failures over all instruction horizons.
+The PCS alternatives retain their original contexts, source origins,
+radii, memory types and executable-program prefixes. Outside the one
+shared hash lifetime event, `SourceBad` is impossible, leaving the original
+PCS failure witnesses. The resulting bound is:
+
+`P[any scalar event or original PCS-family failure] ≤
+  P[any non-root reference bad event] + P[PCS-family failure outside hash]
+  + expected specified lifetime work * (hashRate + scalarRate)`.
+
+This prices and counts the actual hash alternative once across the scalar
+and PCS branches. It does not yet price the remaining non-root reference
+union or the original PCS failures outside hash. In particular no caller-
+supplied probability or security premise is used to hide those remaining
+terms. Their calibrated original-execution bounds, whole modified-PBS
+initial falsity, native domain/seed-order closure, profile admission and
+physical primitive/cache/RNG pricing remain required for the final 128-bit
+actual-attacker-work theorem, which remains unproved.
+
+Three regressions check an empty initial history, absence of manufactured
+hash failures from completion of a pure program, and invariance under a
+private coin outside a finite strategy. Exact axiom guards cover all 13
+new declarations and these three regressions.
+
+Validation: all 16 exact axiom guards and three regressions passed using
+only standard Lean axioms (5,063-job guarded build). With source and tests
+frozen, `scripts/check` passed the 11,829-job root build and every standalone
+check. Full-check log SHA-256:
+`8a546b3bcef36c816764ce22d08bf1a63e44b89cd1dcf06de33f509dc87f1d7b`.

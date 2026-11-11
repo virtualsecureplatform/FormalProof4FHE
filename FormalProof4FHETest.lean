@@ -652,3 +652,6 @@ import FormalProof4FHETest.HasteBootsContinuationAudit
 
 import FormalProof4FHETest.HasteBootsPrivateCoinScalarSmoke
 import FormalProof4FHETest.HasteBootsPrivateCoinScalarAudit
+
+import FormalProof4FHETest.HasteBootsSharedHashLedgerSmoke
+import FormalProof4FHETest.HasteBootsSharedHashLedgerAudit
