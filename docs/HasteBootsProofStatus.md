@@ -26415,3 +26415,75 @@ pending read. All 23 exact axiom guards passed with only standard Lean
 axioms (5,092-job guarded build). With source/tests frozen, `scripts/check`
 passed the 11,871-job root build and all standalone checks. Full-check log
 SHA-256: `c1bf61717f6e75f43228057c20f4559155514362ccca84fe1a398a45e6d4d6e1`.
+
+## Adaptive columns, shared receipts, and the complete analysis work bound
+
+`BatchColumnContextName` recovers the complete column input frames and the
+exact linked field frames. The field-prefix batch binding names its literal
+context/root in the direct ledger, without assuming receipt correctness.
+`BatchColumnParameterCandidate` retains original code origin and calibrated
+role, actual first positive column read and observed full context computation.
+On an equal pre-read replay packet, safe candidates have equal full parameters
+and calibrated radius. The existing shared root/late-context events are the
+only exceptions; digest-to-parameter injectivity is not assumed.
+
+`AdaptiveBatchColumnKernel` compares every competing safe source family on
+a replay fiber to an attained candidate and pays one native column loss.
+The source recovered at the first field read stays fixed by the original past.
+Native domain, quota and matrix-count eligibility remain in the column event.
+Actual observation positions bound its charge by specified interpreter work.
+Continuation preserves attained candidates and the same event. The joint
+`AdaptiveBatchColumnLifetime.safe_bound` costs at most `17 / 2^141` times
+expected specified lifetime work across all instruction horizons, with no
+source-family count or event-measurability premise.
+
+`AcceptedBatchColumnCandidate` derives candidates from accepted native calls.
+`AcceptedBatchJointCoverage` and `OriginalSourceJointCoverage` retain this link
+through native false-claim analysis and original indexed source witnesses on
+their exact instruction logs. Outside shared hash failure, every original
+source failure now enters a common-profile early-receipt event or an attained
+adaptive field/column candidate. Full parameter/profile equality, retained
+constructor provenance and original role admission remain explicit.
+
+`ProgramEarlyReceiptWork` prices the common early-receipt event at raw program
+positions. It masks by log length below a proof-only threshold, then uses
+Markov's inequality for larger expected-work executions. No runtime cap,
+consumed-length decoding or success-floor normalization is introduced.
+`ProgramEarlyReceiptContinuation` proves that the event depends only on its
+selected view and persists through program continuation. The original private
+coin prefix factorization lifts the bound to the joint tape/world lifetime:
+`PrivateCoinEarlyReceiptProbability.lifetime_le_255` charges `1 / 2^255` times
+expected specified work for all raw positions, instruction horizons and native
+collector budgets together.
+
+`IndexedSourceJointProbability` removes the complete indexed source-failure
+probability from the ledger. Its index type is arbitrary, including unbounded
+or repeated original families; there is no cardinality fee. The source rate
+is conservatively `34 / 2^141 + 1 / 2^255` outside shared lifetime reference
+failures. The shared-hash-only version adds the existing `1 / 2^159` reference
+allowance, as in the preceding reduction.
+
+`CalibratedJointWorkBound.bound` composes original helper/source PCS failures,
+scalar analysis failures and one shared hash ledger with no residual probability
+term. Its exact aggregate rate is bounded by `1 / 2^128` using finite rational
+arithmetic and checked coercions. `work_128` proves
+`2^128 * P[scalar/helper/original-source analysis failure] ≤ E[specified interpreter work]`
+under the stated original constructor and calibrated-profile premises, even
+when expected work is infinite. The reference allowance is conservatively
+charged twice; the shared hash event is still charged once.
+
+This is an analysis-event/interpreter-work theorem. It does not establish that
+public modified-PBS false acceptance implies that event, close native domain
+and seed-order obligations, derive admission for the actual application
+profiles, separate honest/verifier work from attacker work, or refine specified
+interpreter charges to physical attacker work. Those application and pricing
+obligations remain before the requested final actual-attacker-work theorem.
+The goal remains active and that final theorem remains unproved.
+
+Six regressions cover exact column context naming and linked frames, far-offset
+column selection, receipt-event invariance under a changed first-read offset,
+and absence of column/receipt exposure after completion. All 74 exact axiom
+guards passed with only standard Lean axioms (5,112-job guarded build). With
+source/tests frozen, `scripts/check` passed the 11,885-job root build and every
+standalone check. Full-check log SHA-256:
+`e834c4b58e40c17a39cca258bed06a1af809015e5a7dc4995f168e77aeb86a94`.

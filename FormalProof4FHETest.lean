@@ -671,3 +671,5 @@ import FormalProof4FHETest.HasteBootsHelperCalibrationAudit
 import FormalProof4FHETest.HasteBootsAdaptiveBatchFieldAudit
 
 import FormalProof4FHETest.HasteBootsSourceFieldCoverageAudit
+
+import FormalProof4FHETest.HasteBootsAdaptiveColumnWorkAudit
