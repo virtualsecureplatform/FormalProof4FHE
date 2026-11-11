@@ -667,3 +667,5 @@ import FormalProof4FHETest.HasteBootsOpeningClockAudit
 
 import FormalProof4FHETest.HasteBootsHelperCalibrationSmoke
 import FormalProof4FHETest.HasteBootsHelperCalibrationAudit
+
+import FormalProof4FHETest.HasteBootsAdaptiveBatchFieldAudit

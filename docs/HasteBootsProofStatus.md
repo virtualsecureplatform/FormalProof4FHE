@@ -26319,3 +26319,45 @@ only standard Lean axioms (5,077-job guarded build). With source and tests
 frozen, `scripts/check` passed the 11,856-job root build and every standalone
 check. Full-check log SHA-256:
 `d7386835b2db03ad8cce01f36efcf015fc156f94b77598e1de197d2c7611de55`.
+
+## Adaptive original-source field candidates
+
+`BatchFieldContextName` proves that the immediate native batch binding in a
+parsed field input names its exact context/root in the direct source ledger.
+`ContextAtFirstRead` derives the pre-read context observation from the complete
+native context computation, outside the existing late-context event. The
+next raw observation is an output and cannot supply the missing hash.
+
+`BatchParameterCandidate` retains the original cache-backed code origin,
+admitted role, common profile, parsed field input, actual first positive
+read and complete context computation. On an equal pre-read replay packet,
+two safe candidates have equal full parameters and equal calibrated radius.
+This uses the existing root/context bad events rather than assuming that a
+digest determines parameters unconditionally. Candidates persist through
+arbitrary enclosing-program continuations.
+
+`AdaptiveBatchFieldKernel` selects an attained safe candidate on each replay
+fiber. Every competing candidate transports to that candidate's field event;
+the conditional bound therefore pays one field loss, with no registry-size
+factor, measurable chooser or success-probability denominator. Summing over
+actual observation positions is bounded by specified interpreter work.
+`AdaptiveBatchFieldLifetime.safe_bound` lifts this to independent tape/world
+execution and all instruction horizons: outside the shared lifetime reference
+bad events, the candidate field union costs at most `17 / 2^141` times expected
+specified lifetime work. Event measurability and finite expected work are not
+additional hypotheses.
+
+This is a candidate-event theorem. Coverage from the indexed original native
+source failure witnesses to these candidates, the adaptive column branch and
+substitution into the final source ledger remain open. It does not yet remove
+the source-union probability term from `CalibratedHelperSourceLedger`.
+Whole modified-PBS initial falsity, native domain/seed-order closure, actual
+profile admission, actor-cost separation and physical pricing remain required.
+The final 128-bit actual-attacker-work theorem remains unproved.
+
+Three regressions check immediate context naming, the next actual far-offset
+positive read following an empty read and same-key hash, and zero charge for
+a completed program packet. All 32 exact axiom guards passed with only standard
+Lean axioms (5,091-job guarded build). With source/tests frozen, `scripts/check`
+passed the 11,863-job root build and all standalone checks. Full-check log
+SHA-256: `251006115b4ff2d3f9498369d04a0c56dc453c14da525cab1d57cffa07cb0d57`.
