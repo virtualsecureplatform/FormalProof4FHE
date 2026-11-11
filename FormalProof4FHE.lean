@@ -1118,3 +1118,5 @@ import FormalProof4FHE.HasteBoots.AllocatedIdentityOpeningLifetime
 import FormalProof4FHE.HasteBoots.AllocatedOpeningLifetimeBound
 
 import FormalProof4FHE.HasteBoots.AllocatedJointIdentityBound
+
+import FormalProof4FHE.HasteBoots.PrivateCoinScalarWork
