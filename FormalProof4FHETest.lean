@@ -554,3 +554,6 @@ import FormalProof4FHETest.HasteBootsLookupExecutionAudit
 
 import FormalProof4FHETest.HasteBootsAllocatedFrontierSmoke
 import FormalProof4FHETest.HasteBootsAllocatedFrontierAudit
+
+import FormalProof4FHETest.HasteBootsScalarReadExposureSmoke
+import FormalProof4FHETest.HasteBootsScalarReadExposureAudit

@@ -24160,3 +24160,69 @@ reporting only standard Lean axioms (4,966 targeted jobs). `scripts/check`
 exited successfully, including the 11,595-job root build and every standalone
 check. Full-check log SHA-256:
 `59be6cce91a94f865243662731a1489241eab3d6e7dcd7b74216352cb64f817a`.
+
+### Actual scalar records to causal first stream reads (2026-11-11)
+
+`ScalarReadExposure` proves that every retained completed native scalar record
+has a real positive eight-byte observation in its original scalar execution
+log. Reachable active samplers have a nonzero remaining coefficient count;
+the producing one-step drive therefore performs a positive read even when
+candidates elsewhere are rejected. Native header preservation identifies that
+read's input with the completed record's exact pending input, and tick-log
+inclusion retains the actual byte cursor and observation in the complete run.
+No independent read-occurrence, freshness or completion-exposure certificate
+is required.
+
+`LookupScalarTrace.recover` recovers the caller's original native origin with
+its actual scalar-log inclusion in the native lookup run. Preflight and native
+prelude execution make the origin functional: geometry and ready-state data
+are unique, and the remaining origin fields are propositions. Consequently
+every recovered origin inherits that same log inclusion. `AllocatedScalarExposure`
+lifts the scalar segment through the allocated entry point to an arbitrary
+containing raw history, deriving inclusion directly from the actual completed
+allocated run.
+
+`ProgramFirstStreamRead` then recovers the unique earliest positive read of
+the complete input in an actual containing program. Its result retains the
+literal residual read command, byte offset/count and continuation, the full
+pre-read history, absence of any earlier positive read of that input, and the
+actual output occurrence. Starts, SHA-512 observations and empty reads remain
+in the history. Far-offset prequeries are eligible, and an earlier adversarial
+partial read is selected instead of a later native collector read. The result
+proves the exact `CausalStreamExposure.firstRead` selector used by the existing
+conditional all-budget scalar law. Its prefix is the actual replayable
+`OracleProgram.runPrefix`, without resetting the oracle history.
+
+`AllocatedScalarExposure.first_stable` connects this recovered selector to the
+allocated family read-stability theorem. For an actual original completed
+scalar record, both public families equal their families at the selected
+causal prefix, or the same enclosing program has the existing shared seed-order
+bad event. The read position, positive output occurrence, fresh-stream premise,
+scalar-log inclusion and ancestry are no longer separately supplied premises
+of this allocated-caller form. The earlier explicit framing/binding-recognition
+domain and accepted ownership geometry remain; this theorem does not derive
+those profile/allocation domains automatically.
+
+This closes the native-record-to-enclosing-first-read selection gap for the
+pointwise table stability adapter. Fixing sampled lookup/EQ factors and caller
+metadata across counterfactual pre-read worlds, transferring the resulting
+fixed test into the conditional D/p^3 law with a complete bad-event cover,
+and applying native PCS risk bounds still need composition. Global adaptive
+exposure summation, PBS falsity composition, concrete profile admission, native
+BabyBear and physical attacker-work/compiler/cache/RNG refinement remain open.
+The final modified-PBS 128-bit actual-attacker-work theorem is not proved.
+Frozen `Native*` files and kernel resource limits are unchanged.
+
+Regressions select a far-offset positive read after a start, an empty read of
+the same input and a SHA-512 query, retaining all three prior observations.
+They also recover a positive producing read from a real two-round scalar
+fixture and select an earlier enclosing same-input prequery in preference to
+that native read. These are scalar/selector adapter fixtures, not end-to-end
+modified-PBS acceptance. Nineteen exact axiom guards cover the new public API.
+
+Validation: far-offset/empty-read/mixed-history selection and actual native
+completed-round exposure regressions passed, with nineteen exact axiom guards
+reporting only standard Lean axioms (4,881 targeted jobs). `scripts/check`
+exited successfully, including the 11,601-job root build and every standalone
+check. Full-check log SHA-256:
+`22f5361b514412239acc7735b103e13935b98875cd41ac277954116f9fe41bdc`.

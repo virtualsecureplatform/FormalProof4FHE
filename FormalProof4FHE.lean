@@ -1046,3 +1046,8 @@ import FormalProof4FHE.HasteBoots.AllocatedLookupFrontier
 import FormalProof4FHE.HasteBoots.LookupScalarSeedQuote
 import FormalProof4FHE.HasteBoots.AllocatedRegistrySeed
 import FormalProof4FHE.HasteBoots.AllocatedLookupReadStability
+
+import FormalProof4FHE.HasteBoots.ScalarReadExposure
+import FormalProof4FHE.HasteBoots.LookupScalarTrace
+import FormalProof4FHE.HasteBoots.ProgramFirstStreamRead
+import FormalProof4FHE.HasteBoots.AllocatedScalarExposure
