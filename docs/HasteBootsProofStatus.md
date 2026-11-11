@@ -25981,3 +25981,56 @@ standard Lean axioms (5,058-job guarded build). With source and tests
 frozen, `scripts/check` passed the 11,820-job root build and every standalone
 check. Full-check log SHA-256:
 `a6dcd4c0eaef4da0e079aa69cc8b7ffe8e598c57b0e6624a12e7bd3e53d56d08`.
+
+## Joint private-coin scalar lifetime probability (2026-11-11)
+
+`PrivateCoinProgramPrefix` proves that agreement on the original interval
+`[cursor, cursor + fuel)` makes the entire finite interpreter program equal,
+including all counterfactual oracle branches. At initial cursor zero this
+factors a finite strategy through a measurable finite tape-prefix selector.
+The canonical restored tape is used only to represent that finite strategy;
+the original infinite private tape and its full probability mass remain in
+the probability space. The instruction horizon is an analysis index, not a
+lifetime or retry cap.
+
+`CountableCoinOuterBound` lifts arbitrary oracle section events through a
+measurable countable selection. For each strategy it takes a measurable
+oracle envelope with the same outer measure, then forms the countable
+product envelope with that strategy's original tape-selection region.
+This bounds the joint outer probability by the integral of the original
+section bounds. It does not assume section-event or joint-event
+measurability, condition on success, or multiply by support size.
+
+`PrivateCoinScalarProbability` applies this to the actual runtime-private-
+coin interpreter at every finite horizon. The fixed-tape scalar bound
+integrates against the original independent tape/oracle product measure,
+and its work term is the existing unconditional expected specified lifetime
+work. Monotonicity of the original attained events then composes all
+horizons by continuity from below. The final joint statement is:
+
+`P[scalar event at some horizon] ≤ P[global reference bad at some horizon]
+  + expected specified lifetime work * 4 / Goldilocks^3`.
+
+The corresponding globally safe event has only the work term. The private
+tape measure is arbitrary; neither finite expected work nor event
+measurability is a caller premise. In particular this resolves the preceding
+section's fixed-tape-to-joint-event gap, without inferring measurability
+from an integral bound on a different score.
+
+The global bad union still needs to be joined with the original PCS
+lifetime alternatives and its remaining charges priced on the same actual
+execution. Whole modified-PBS initial falsity, native domain/seed-order
+closure, profile/numeric admission and physical primitive/cache/RNG pricing
+remain open. This is a scalar component theorem, not the final 128-bit
+actual-attacker-work theorem.
+
+Three regressions distinguish an unused future coin from a consumed one,
+and check that a resumed nonzero cursor ignores an earlier tape coordinate.
+All 11 new proof/transport/event declarations and these three regressions
+have exact axiom guards.
+
+Validation: all 14 exact axiom guards and three regressions passed using
+only standard Lean axioms (5,059-job guarded build). With source and tests
+frozen, `scripts/check` passed the 11,825-job root build and every standalone
+check. Full-check log SHA-256:
+`33f8e8613e7e063c06d0411a85ae9a7894ad4ff842b3095c7a3bb1ce3c077e9e`.

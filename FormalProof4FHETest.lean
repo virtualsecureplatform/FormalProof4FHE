@@ -649,3 +649,6 @@ import FormalProof4FHETest.HasteBootsScalarLogWorkAudit
 
 import FormalProof4FHETest.HasteBootsContinuationSmoke
 import FormalProof4FHETest.HasteBootsContinuationAudit
+
+import FormalProof4FHETest.HasteBootsPrivateCoinScalarSmoke
+import FormalProof4FHETest.HasteBootsPrivateCoinScalarAudit
