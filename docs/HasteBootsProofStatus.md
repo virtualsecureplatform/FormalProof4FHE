@@ -25660,3 +25660,51 @@ axioms (5,001-job guarded build). `scripts/check` passed the 11,786-job root
 build and every standalone check with source and tests frozen. Full-check
 log SHA-256:
 `8c3928270ad8cfc504bc0d15dc5a42be6b8528cdbbee71d09eefdfd65810edea`.
+
+### Original helper PCS lifetime obligation
+
+`AllocatedHelperCube` identifies the original complete helper function with
+the executable public cube selected by the actual borrowed store entry and
+original proof-root ordinal. Its full scalar-row dimension and independent
+helper packing width are transported explicitly. The existing single-opening
+owner/reference compatibility theorem identifies the native extracted cube
+with that whole function for every recovered log under the original PCS
+radius/framing/response domains.
+
+`AllocatedHelperWrongObligation.wrong` combines this with the actual helper
+query matrix reader. A raw received helper row mismatch becomes the native
+single-opening lifetime model's `Wrong` obligation, including the native
+sampling receipt and parsed view. The decoded source log is universally
+quantified. Neither a separate sampled-value identity nor a pointwise cube
+certificate is supplied.
+
+`AllocatedHelperLifetime.witness` derives the actual accepted helper receipt
+at the original checked job ordinal. Its query, raw value packet and proof
+root are recovered directly from native guarding and helper order. The
+original logical helper handle supplies the retained initializer/constructor
+provenance, with full parameter association derived from actual assembly.
+The field encoding of the original checked helper value enters the existing
+`HelperOpeningObligationLifetime.witness`; no additional hash alternative is
+needed for this branch. Reference parameters/profile and the inherited
+admitted-radius/framing/response domains remain explicit.
+
+`AllocatedIdentityOpeningLifetime.false_identity_opening_lifetimes` composes
+both original PCS lifetime adapters with actual native identity coverage.
+An initially false identity equation now yields attained scalar healing,
+an existing source-batch lifetime witness, an existing single-helper
+lifetime witness, or the same shared full-history root/hash event. All
+families and receipt witnesses use the enclosing program's actual completed
+history. No new branch, root or per-job hash charge is introduced.
+
+These witnesses still need to be injected into the shared lifetime event,
+including the original source parameter family, and combined with adaptive
+scalar first-read/job classes. Shared full-history/prefix bad-event
+composition, whole modified-PBS initial falsity, profile admission and
+physical attacker-work refinement remain open. The final 128-bit
+actual-attacker-work theorem remains unproved.
+
+Validation: all seven new exact axiom guards passed using only standard Lean
+axioms (5,003-job guarded build). `scripts/check` passed the 11,791-job root
+build and every standalone check with source and tests frozen. Full-check
+log SHA-256:
+`3ae0b7ab42d09801a1e6edaa78aec1f2f3c8a6f4aa87e792c10c7557e04083b3`.
