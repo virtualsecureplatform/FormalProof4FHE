@@ -25708,3 +25708,51 @@ axioms (5,003-job guarded build). `scripts/check` passed the 11,791-job root
 build and every standalone check with source and tests frozen. Full-check
 log SHA-256:
 `3ae0b7ab42d09801a1e6edaa78aec1f2f3c8a6f4aa87e792c10c7557e04083b3`.
+
+### Enclosing-program PCS lifetime family and shared bound
+
+`ProgramOpeningLifetime` identifies each causal machine-prefix history with
+the actual native program prefix. Path-dependent completion supplies a
+prefix whose entire raw log equals the completed enclosing-program log.
+Actual source/helper witnesses and the full-history root/hash alternative
+therefore enter the same unbounded causal lifetime, without a supplied
+uniform retry or completion cap. Source witnesses can use the original
+registry reference's valid constructor origin without changing the witnessed
+native call, raw query, response, parsed data or false claim.
+
+`OpeningLifetimeFamily` composes one helper and a countable family of complete
+source parameter records. Its coverage retains one common source/hash bad
+event across both PCS branches and every family member. The probability
+bound charges that hash event once, helper exposure once, and the sum of
+the distinct indexed source exposure charges. Independent source radii and
+complete code parameters remain explicit; geometry equality is never used
+to equate complete records. This is an exposure-charge bound, not an
+attacker-work bound or a claim that duplicate source indices are free.
+
+`AllocatedOpeningLifetimeCoverage.source` injects an actual original source
+witness into the lifetime event at its original registry slot. The reference
+constructor provenance comes from the same original registry store.
+`false_identity_covered` now sends actual native false-identity alternatives
+to attained scalar healing or the enclosing program's shared hash/PCS-family
+lifetime event. The original helper reference profile and all existing
+execution, framing, seed-order and PCS admission premises remain explicit.
+
+`AllocatedOpeningLifetimeBound` instantiates the family probability bound
+with the actual helper allocation and original registry objects. Store
+initialization supplies constructor provenance; native geometry supplies
+packing-width lower bounds. The resulting hash supremum and exposure
+charges are over the same original program machine, with no per-source
+multiplication of the hash charge.
+
+Adaptive scalar first-read/job composition and its shared bad remainder
+still need to be joined with this PCS family bound. Source-family exposure
+charges also need their eventual physical-work accounting, including any
+necessary refinement of indexed-family summation. Whole modified-PBS initial
+falsity, profile admission and Rust/cache/RNG attacker-work refinement remain
+open. The final 128-bit actual-attacker-work theorem remains unproved.
+
+Validation: all 11 new exact axiom guards passed using only standard Lean
+axioms (5,006-job guarded build). `scripts/check` passed the 11,796-job root
+build and every standalone check with source and tests frozen. Full-check
+log SHA-256:
+`98012be749e5de86043a79d9d8fb07afe6ba115f566519be85fe05f230178347`.

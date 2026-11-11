@@ -635,3 +635,5 @@ import FormalProof4FHETest.HasteBootsLookupWrongReceiptAudit
 import FormalProof4FHETest.HasteBootsAllocatedSourceLifetimeAudit
 
 import FormalProof4FHETest.HasteBootsAllocatedHelperLifetimeAudit
+
+import FormalProof4FHETest.HasteBootsOpeningLifetimeFamilyAudit
