@@ -689,3 +689,5 @@ import FormalProof4FHETest.HasteBootsSharedProofBytesAudit
 import FormalProof4FHETest.HasteBootsProofReadSizeAudit
 
 import FormalProof4FHETest.HasteBootsOpeningReceiptSourceAudit
+
+import FormalProof4FHETest.HasteBootsHelperReceiptFramingAudit

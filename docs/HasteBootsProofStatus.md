@@ -26940,3 +26940,62 @@ All 40 exact axiom guards passed with standard Lean axioms only (5,152-job
 guarded build). With source/tests frozen, `scripts/check` passed the
 11,944-job root build and all standalone checks. Full-check log SHA-256:
 `0b37eebfbb07ec7da60d86a33aa5f7bf8126a8d6542ac7a6eb498865e5c43600`.
+
+## Helper receipt framing from original parent and checked metadata
+
+`CheckedPcsMetadataSize` bounds raw row, matrix and query encodings using the
+existing usize encoder. Successful native single-opening completion recovers
+both `numVariables < 64` from actual parameter validation and the literal
+query/value/matrix checks from the original binding prefix. For widths at
+most four this proves a 20,530-byte upper bound on the opening metadata,
+without restricting root contents, raw field words, response size, number of
+helpers or enclosing execution length.
+
+`HelperReceiptFramingRecovery.call_domain` obtains those metadata bounds for
+the actual completed helper receipts. Original packet membership and decoded
+proof bytes supply response bounds. The original receipt order therefore
+derives the entire helper-call framing domain, rather than accepting that
+domain as an independent certificate. The trace invariant retains both the
+last accepted framed parent and the framed parent of every recorded helper
+receipt, including earlier receipts when a later call stops or is canceled.
+
+The registry bound used by the existing parent framing theorem is derived
+from the exact source-vector encoding bound. Each source occupies exactly
+128 payload bytes; integer rounding leaves enough room for the conservative
+nine-byte count prefix. This introduces no arbitrary registry-count cutoff.
+Actual registry computation, the original caller's framed bytes, existing
+parent request domain and proof-derived multiplicity bounds then reconstruct
+the lookup-body parent used at helper verification.
+
+`ParentFramedAllocatedJob.Job` consequently has no helper framing field.
+Its conversion reconstructs that field from original parent framing and the
+checked domains, retaining all original job data. Checked roundtrips and
+`truth_toDecoded` preserve the original canonical public-table truth, not a
+replacement identity interpretation. Source receipt framing remains explicit.
+
+`ParentDerivedIdentityWork.work_128` derives the width-at-most-four condition
+from the existing Goldilocks profile admission, then inherits the previous
+bound with no additional probability charge. `failure_iff` proves equivalence
+with the previous failure event on that width domain, which includes every
+already admitted Goldilocks role. No new width premise is required by the
+security endpoint, and no future receipt parent framing is supplied.
+
+Eleven checks exercise actual completed helper receipts and their checked
+metadata, prior-receipt retention after a later stop, cancellation, registry
+boundary arithmetic, oversized-matrix rejection and the native 64-variable
+rejection boundary. A generic receipt lemma avoids elaborating the concrete
+native fixture beyond Lean's default recursion limit; no resource limit or
+linter setting was increased. Existing Native modules are unchanged.
+
+Remaining gates include source receipt framing, original caller/configuration
+allocation domains, Rust/serde read/value/consumption/error/resource
+correspondence and actual byte-source binding, whole modified-PBS initial
+falsity/application enforcement, actual profile admission and the fixed
+assembled-reference scope, actor-cost separation and physical attacker-work
+refinement. The final public modified-PBS actual-attacker-work theorem
+remains unproved.
+
+All 43 exact axiom guards passed with standard Lean axioms only (5,163-job
+guarded build). With source/tests frozen, `scripts/check` passed the
+11,950-job root build and all standalone checks. Full-check log SHA-256:
+`762045b71b3ff6d883739a064c91a501c0560262167ad349d143f8bc6bf49ebb`.
