@@ -23494,3 +23494,63 @@ prior fixture theorem, and eighteen exact axiom guards passed (4,424 jobs).
 `scripts/check` exited successfully, including the 11,538-job build and every
 standalone check. Full-check log SHA-256:
 `fb4cdf2ec29768fb2834a092a8da4ba81c873d0c920ef16d4c3184516c38df76`.
+
+## One-exposure scalar bound over all auxiliary and collector budgets
+
+`ScalarUnboundedReplayLaw` adds an actual-match guard to the prior-dependent
+challenge test. The native stopped result's flag equals its current input-match
+predicate, so an event can occur only after the selected reader has been found.
+Increasing auxiliary budget after such an event preserves the entire state and
+log by the previous stability theorem. Increasing collector fuel preserves
+completed values of the same native sampler. The doubly indexed guarded event
+is therefore monotone in both budgets.
+
+Every pair of finite witness budgets is included in the increasing diagonal at
+their maximum. Measure continuity from below bounds the union over *all* auxiliary
+replay budgets and *all* challenge-candidate prefixes by the same single-exposure
+risk as each finite event, in the original attacker's first-read posterior.
+There is no union-bound factor for replay budgets, no runtime retry cap, and no
+conditioning on replay or sampler success. Measurability is proved for the whole
+all-budget event. In particular, distinct received/honest degree-D polynomial
+families have eventual agreement probability at most D/p^3. Distinctness and
+degree premises are required only on matched eligible states. Ineligible states,
+missed guessed inputs and exhausted auxiliary prefixes cannot contribute roots.
+
+`ScalarRecoveredUnboundedLaw` instantiates this with the configuration recovered
+from the original selected input and the trusted profile. Tests and polynomial
+families can depend on the retained expected vector, common point and completed
+records. Its `original_witness` theorem turns a test satisfied by an original
+active native sampler's actual prior into the guarded all-budget event, using
+the execution-derived recovered stopped-prior identity. The original statement,
+proof, parent and prior need not have been supplied to the causal selector.
+Correspondence of the selected field value to a completed collector remains an
+explicit premise of this transfer; it is not inferred merely from the native
+sampler's type or receipt bytes.
+
+Thirteen regressions cover incomplete auxiliary replay, incomplete coefficient
+collection, rejection-only collection, a successful event with unequal witness
+budgets, coverage by the common diagonal, monotonicity only after a match,
+impossibility of events in unmatched states, whole-event measurability, the
+one-exposure cubic bound with a common-point-dependent polynomial family,
+ineligible identical polynomials at degree zero, and original-prior event
+transfer. A counterexample shows that an *unguarded* exhausted replay event can
+change from true to false as auxiliary budget grows. The proof therefore does
+not silently treat intermediate exhausted states as one fixed challenge test.
+Sixteen exact axiom guards cover all new public definitions and proofs.
+
+This closes the probability-level all-auxiliary-budget union gap recorded in
+the preceding milestone. The event guard and stability proof are both necessary
+for this conclusion. Lifting actual completed native round challenges to their
+eventual collector events is still required. Honest polynomial families and
+native degree/false-prior obligations must still be derived from original PBS
+source tables. Deterministic no-healing/terminal falsity composition, global
+exposure summation, scalar/lookup/PBS falsity composition, concrete profile
+admission, native BabyBear, and physical attacker-work/compiler/cache/RNG
+refinement remain open. The final modified-PBS 128-bit actual-attacker-work
+theorem is not proved. Frozen `Native*` modules and kernel resource limits are
+unchanged.
+
+Validation: thirteen targeted all-budget regressions and sixteen exact axiom
+guards passed (4,427 jobs). `scripts/check` exited successfully, including the
+11,542-job build and every standalone check. Full-check log SHA-256:
+`26d8b1a891331792c803a7a0cc34bfd153ed1f033034ae7f6812f9d430d0c48d`.
