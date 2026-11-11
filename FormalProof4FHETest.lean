@@ -605,3 +605,6 @@ import FormalProof4FHETest.HasteBootsParentCollisionAudit
 
 import FormalProof4FHETest.HasteBootsSharedParentDataSmoke
 import FormalProof4FHETest.HasteBootsSharedParentDataAudit
+
+import FormalProof4FHETest.HasteBootsParentBindingsSmoke
+import FormalProof4FHETest.HasteBootsParentBindingsAudit

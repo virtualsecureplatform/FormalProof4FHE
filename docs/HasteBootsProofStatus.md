@@ -25080,3 +25080,46 @@ SHA-256:
 `eda23526b139d968addcd5a4686a964e4f9b873df56a12de147222cf6b126d0e`.
 No proof placeholders, custom axioms, unsafe evaluation, resource-limit
 increases or linter suppressions were introduced.
+
+
+### Original request bindings and source addresses
+
+`ParentBindingTrace` follows successful native frame, step, loop and preflight
+execution. It recovers one literal binding per original request, in order,
+with the original configuration, the actual helper context computation and
+the contexts of the sources gathered at that request's original slot addresses.
+`ParentBindingsView` strictly decodes the contiguous binding suffix and its
+adjacent request-vector frame. It requires the binding count to equal the
+request count. Malformed canonical binding frames cannot trigger fallback to
+an earlier request frame. Soundness reconstructs the full framed input.
+
+`OriginalParentBindings.recover` derives that view from successful native
+preflight, the original framed caller parent and the explicit native frame
+allocation domain. `AllocatedBindingsData.recover` obtains preflight success
+from an actual allocated verification execution. `SharedParentBindingsData`
+joins this view to the recovered full parent registry using the actual
+preflight bytes. Its joint-fiber comparison fixes both views or enters the
+existing parent-seed collision event; it adds no new collision exception.
+`ParentBindingSlots.binding` links each binding's sources to literal gathering
+from the complete original registry. Duplicate registry entries, repeated
+request addresses, address order and unused registry slots are retained.
+
+This closes the per-request binding recovery milestone. It does not derive
+observation of all parameter preimages before an adversarial first read.
+The next step is coverage of those observations or an explicit charge for
+late context identification, followed by whole-family correspondence, good
+reference family construction, degree/PCS posterior composition and lifetime
+composition. Physical attacker-work refinement remains open. The final
+modified-PBS 128-bit actual-attacker-work theorem is not proved.
+
+Validation: an actual native preflight transcript recovers the original
+request and its binding. Regressions preserve duplicate-slot addressing and
+repeated addresses in order, retain an earlier request-frame decoy, reject a
+malformed canonical binding and reject a missing binding. Twenty-four exact
+axiom guards passed using only standard Lean axioms, with a 4,947-job guarded
+build. `scripts/check` exited successfully, including the 11,719-job root
+build and every standalone check. Full-check log SHA-256:
+`1f6875978923e5ed60c3813d4995d19152db11625cbca300eec2c1479f6da118`.
+No proof placeholders, custom axioms, unsafe evaluation, resource-limit
+increases or linter suppressions were introduced. Frozen `Native*` modules
+and dependencies are unchanged.
