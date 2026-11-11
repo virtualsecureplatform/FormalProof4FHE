@@ -23885,3 +23885,73 @@ new grammar and twenty-eight updated frontier axiom guards (4,920 targeted
 jobs). `scripts/check` exited successfully, including the 11,566-job root
 build and every standalone check. Full-check log SHA-256:
 `bba1204a19d2fe4456f0df0f1094ee036f81db15c33dabfe7e0747c7c317362d`.
+
+### Native terminal decoders, original producer records and causal helper sums
+
+`LookupTerminalDecoding` derives every used source decoder from successful
+native terminal compression. Zero-weight sources still have to decode; no
+projection-success or decoded-source-value certificate is an input. Successful
+raw production fixes the literal compression-power list, its length and its
+field powers. The native full-point getters and pulled scalar query use the
+same original raw point coordinates. The actual helper coefficient vector
+decodes to its literal extension value under the original coefficient-query
+post-map, including the zero-coordinate case.
+
+`LookupNativeTerminal` connects actual native constructed-check acceptance to
+the concrete partial/full source-derived scalar expressions or wrong original
+base-field source/helper openings. It consumes the original successful producer
+call, rather than a supplied ideal y, power-vector identity or successful
+source decoder. Source and helper widths remain independent. The helper-sum
+branch consumes the actual native equality guard, including its field handling
+of raw representatives. Source vectors are typed at their actual matched count
+and width; deriving that typed representation from the caller's gathered raw
+lists and preflight remains part of the caller integration.
+
+`LookupGuardProducer` derives the terminal record at each original job ordinal
+from actual guard execution. It retains request repetitions and source aliases.
+An actually completed native lookup/equality prelude also supplies each job's
+original completed producer and its original request width/table. Neither a
+record/job association nor a producer certificate is supplied separately.
+
+`LookupSumCausalReduction` composes an actually completed native scalar verifier
+and its actual helper-sum guard with the existing all-budget source-event
+transfer. A fixed false original sum yields an actual completed-input causal
+scalar event or a wrong original helper opening. The terminal getter, common
+point and finite point representation are derived from the actual native
+contract and guard; no supplied point equality, honest polynomial, completed
+healing occurrence or sampled-value equality is needed. The original sum-info
+getter remains explicit here and is supplied by `LookupScalarGrammar` for an
+original prelude job. This is a deterministic reduction using fixed original
+helper tables, not yet the global adaptive probability/work composition.
+
+Regressions include literal retained-history production with a zero second
+weight, successful actual native constructed checks and derived decoders,
+malformed zero-weight source rejection, unequal terminal rejection, and native
+partial/full source-expression alternatives at source width four/helper width
+eight. Parametric tests consume original operational prelude/guard completion
+to recover actual job and producer records. A separate two-equation native
+scalar/guard fixture starts with a false sum, completes two shared rounds and
+accepts the terminal guard. Its original helper is truthful at the returned zero
+point, ruling out the wrong-opening branch and forcing a literal completed
+causal source event. These fixtures do not assert end-to-end modified-PBS
+acceptance. Fifteen exact axiom guards cover the new public API and contain
+only standard Lean axioms.
+
+This closes the used-decoder/power-witness gaps in the native terminal adapter
+and composes the helper-sum guard with causal scalar healing. The identity
+branch still needs the analogous native guard/common-point/gathered-list to
+causal-event composition. The caller's actual gathered allocation family,
+source/helper snapshot timing and sampled EQ/lookup inputs must be carried
+through that same original protocol spine, with all raw count/width domains
+derived. Global adaptive scalar/lookup/seed-order exposure summation and PBS
+falsity composition, concrete profile admission, native BabyBear and physical
+attacker-work/compiler/cache/RNG refinement remain open. The final modified-PBS
+128-bit actual-attacker-work theorem is not proved. Frozen `Native*` files and
+kernel resource limits are unchanged.
+
+Validation: twelve targeted regressions plus named native acceptance,
+producer, two-equation completion and causal-event fixtures passed, with
+fifteen exact axiom guards (4,967 jobs). `scripts/check` exited successfully,
+including the 11,573-job root build and every standalone check. Full-check
+log SHA-256:
+`b390bed7769cf48ead863dd80f7a8e89e22135ec36df51f9dad05e75592d2438`.

@@ -1022,3 +1022,8 @@ import FormalProof4FHE.HasteBoots.AllocatedScalarHelper
 
 import FormalProof4FHE.HasteBoots.ScalarLookupExpression
 import FormalProof4FHE.HasteBoots.LookupScalarGrammar
+
+import FormalProof4FHE.HasteBoots.LookupTerminalDecoding
+import FormalProof4FHE.HasteBoots.LookupNativeTerminal
+import FormalProof4FHE.HasteBoots.LookupGuardProducer
+import FormalProof4FHE.HasteBoots.LookupSumCausalReduction
