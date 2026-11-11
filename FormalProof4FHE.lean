@@ -1112,3 +1112,5 @@ import FormalProof4FHE.HasteBoots.AllocatedIdentityAlternatives
 import FormalProof4FHE.HasteBoots.AllocatedIdentityReceiptAlternatives
 
 import FormalProof4FHE.HasteBoots.AllocatedIdentitySourceLifetime
+
+import FormalProof4FHE.HasteBoots.AllocatedIdentityOpeningLifetime
