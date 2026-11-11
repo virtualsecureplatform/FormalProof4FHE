@@ -25756,3 +25756,72 @@ axioms (5,006-job guarded build). `scripts/check` passed the 11,796-job root
 build and every standalone check with source and tests frozen. Full-check
 log SHA-256:
 `98012be749e5de86043a79d9d8fb07afe6ba115f566519be85fe05f230178347`.
+
+### Adaptive scalar lifetime and joint scalar/PCS bound
+
+`GlobalReferenceBad` separates the complete-history root/hash event from the
+four existing parent-seed, context-target, fresh-receipt and receipt-collision
+lifetime events. Root badness persists from every original prefix into the
+completed log. Excluding this single global union supplies every prefix's
+good-reference conditions; no global bad mass is repeated per position/job.
+The non-root probability is bounded by the existing four lifetime charges.
+
+`OracleFiberOuterBound` proves outer-measure upper bounds using the countable
+partition of attainable replay histories. Arbitrary existential events need
+not be assumed measurable, and reference choices need not be measurable.
+All histories retain their original unnormalized mass. Its score version
+averages the same selecting-packet score, including infinite scores, without
+conditioning on a successful world or imposing a positive class-mass floor.
+
+`SafeIdentityKernel` chooses a reference only from an attained globally safe
+class. Safe competitors then have the same original families, factors,
+packet/message, metadata, profile and recovered replay on the joint fiber.
+The class pays only `4 / Goldilocks^3`, with no posterior bad remainder.
+Empty attained classes have zero conditional mass.
+
+`ScalarPositionKernel` removes the union over arbitrary literal inputs:
+the actual original first-read command determines the input on every joint
+fiber. Recovery of that key supplies the literal statement, and the original
+odd identity slot proves that every attained job ordinal is below its
+encoded equation count. A finite union over those ordinals gives a
+prefix-selected charge of `equationCount * 4 / Goldilocks^3`. Missing first
+reads and unrecoverable keys pay zero. Earlier positive reads of the same
+key prevent another charge, even at a different byte offset. Completed
+prefixes and every later extension pay zero. The score depends only on the
+actual original prefix packet; auxiliary completion queries create no work
+or score entries.
+
+`ScalarLifetimeComposition` sums these charges over all analysis positions
+and bounds the union of all globally safe attained identity-healing events
+by the expected sum. No fixed input list, job-count cap, retry cap, uniform
+completion depth or attacker lifetime cutoff is supplied. The full global
+bad event is retained once outside that union.
+
+`JointIdentityLifetimeBound` combines the adaptive scalar event with the
+original helper/source PCS-family lifetime event. The scalar branch's
+full-history root/hash bad event enters the PCS family's same source-bad
+ledger; it is not charged twice. The joint probability bound is one hash
+supremum, helper/source exposure charges, the four global non-root lifetime
+charges, and the expected scalar equation-count charge.
+`AllocatedJointIdentityBound` instantiates this with the actual borrowed
+helper and original registry constructor provenance and packing geometry.
+The prior allocated native identity coverage supplies these alternatives
+under its existing execution/framing/seed-order and admission premises.
+
+Five regressions cover an empty read, malformed far-offset scalar input,
+encoded native statement count, later reads of different bytes on the same
+valid key, and arbitrary extensions after completion.
+
+The remaining goal includes whole modified-PBS initial falsity (and any
+associated initial lookup failure probabilities), discharging the native
+domain/seed-order premises, profile/numeric admission, and coupling all
+logical charges to actual attacker work. Indexed source-family charges may
+need further refinement for that accounting. These logical exposure scores
+are not asserted to be physical work. The final 128-bit
+actual-attacker-work theorem remains unproved.
+
+Validation: all 31 new exact axiom guards and five scalar lifetime regressions
+passed using only standard Lean axioms (5,022-job guarded build).
+`scripts/check` passed the 11,805-job root build and every standalone check
+with source and tests frozen. Full-check log SHA-256:
+`2442865f711cb92a7b68fd5f0046f59f5a63f2c9ad1a0adae721f87c398269a3`.

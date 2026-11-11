@@ -637,3 +637,6 @@ import FormalProof4FHETest.HasteBootsAllocatedSourceLifetimeAudit
 import FormalProof4FHETest.HasteBootsAllocatedHelperLifetimeAudit
 
 import FormalProof4FHETest.HasteBootsOpeningLifetimeFamilyAudit
+
+import FormalProof4FHETest.HasteBootsScalarLifetimeSmoke
+import FormalProof4FHETest.HasteBootsScalarLifetimeAudit
