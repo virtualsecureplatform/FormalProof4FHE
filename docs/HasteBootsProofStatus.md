@@ -24404,3 +24404,57 @@ Eighteen exact axiom guards report only standard Lean axioms (4,456 smoke /
 11,625-job root build and every standalone check. Full-check log SHA-256:
 `3e97b8df392d8f082428282ddcb73d3b8b1b70f6429bf85566fb998416c87c0b`. Frozen `Native*` modules, dependencies and kernel resource
 limits are unchanged.
+
+### Exact native receipt sequences and positional matching
+
+`ReceiptSequence` proves exact list projection of structurally decoded kind-5
+frames through native transcript operations. Valid nonreceipt absorption,
+typed/extension preparation and field initialization preserve the projection;
+field finalization appends exactly its one actual receipt frame. The list
+retains duplicate frames and their multiplicity.
+
+`LookupReceiptOrder` strengthens receipt membership to an equality: the current
+lookup transcript's receipt list is its earlier list followed by all retained
+draw receipts in native order. It holds across arbitrary execution budgets,
+suspension and reciprocal rejection. `LookupBatchReceiptOrder` concatenates
+completed selections in actual job order and then the active selection.
+`EqualityReceiptOrder` similarly appends every retained point receipt after
+the root-bound earlier list, while proving that active pending readers add no
+receipt before completion.
+
+`LookupPreludeReceiptOrder.protocol` composes the actual successful prelude:
+its final receipt list is the original starting list, followed by the ordered
+completed lookup draw lists, followed by the actual equality draw list.
+`OriginalLookupReceiptOrder.sequence` obtains initial framing from the executed
+original child header and instantiates this equality at the original native
+execution boundary. Only the existing root-message framing domain remains
+explicit; no caller-supplied receipt list or chronology is required.
+
+`OrderedReceiptMatching` proves that equal current transcript inputs identify
+the same-index retained receipt message whenever the earlier receipt counts
+agree. Equal earlier contents are not an additional premise: dropping the
+common count recovers equal suffixes. This provides actual whole receipt
+message equality for the existing digest/fixation bridge, without a supplied
+digest equality or byte-offset normalization. It applies to both lookup draws
+and equality points.
+
+The earlier-count and same-current-input premises are explicit. They are not
+yet automatically inferred for a selected original job from equal outer
+scalar inputs across counterfactual worlds. Job/repetition segmentation and
+lookup-to-equality boundaries must still be parsed with the actual labels and
+original metadata; different rejection histories cannot be assumed aligned.
+After this binding, the refined receipt conditioning/fixation lemmas still
+require coverage of named keys and explicit SHAKE receipt-collision accounting.
+Posterior averaging, degree/PCS composition and global adaptive work accounting
+also remain open. The final modified-PBS 128-bit actual-attacker-work theorem
+is not proved.
+
+Validation: native rejected-offset and equality fixtures recover exact
+receipt indices, the batch fixture satisfies ordered concatenation, and a
+negative boundary fixture demonstrates why the earlier-count premise is
+necessary. Twenty-two exact axiom guards passed (one axiom-free, the others
+using only standard Lean axioms), with 4,509 targeted jobs. `scripts/check`
+exited successfully, including the 11,634-job root build and every standalone
+check. Full-check log SHA-256:
+`51c4b65bb863d6595da91e99836ab6aca3aab64e8804db80784c724cab060581`. Frozen `Native*` modules, dependencies and kernel resource
+limits are unchanged.

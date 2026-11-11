@@ -1060,3 +1060,6 @@ import FormalProof4FHE.HasteBoots.LookupReceiptCandidates
 import FormalProof4FHE.HasteBoots.LookupDigestFixation
 
 import FormalProof4FHE.HasteBoots.ScalarReceiptFrames
+
+import FormalProof4FHE.HasteBoots.OriginalLookupReceiptOrder
+import FormalProof4FHE.HasteBoots.OrderedReceiptMatching
