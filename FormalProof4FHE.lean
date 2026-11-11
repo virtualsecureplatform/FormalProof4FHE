@@ -923,3 +923,8 @@ import FormalProof4FHE.HasteBoots.SharedNativeOpeningLifetime
 import FormalProof4FHE.HasteBoots.SingleOpeningProfileLineage
 import FormalProof4FHE.HasteBoots.LookupProfileLineage
 import FormalProof4FHE.HasteBoots.HelperProfileLineage
+
+import FormalProof4FHE.HasteBoots.BatchOpeningProfileLineage
+import FormalProof4FHE.HasteBoots.SourceClaimProfileLineage
+import FormalProof4FHE.HasteBoots.DeferredBatchProfileLineage
+import FormalProof4FHE.HasteBoots.SourceOpeningLifetimeWitness

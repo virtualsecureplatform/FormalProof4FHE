@@ -1,6 +1,7 @@
 module
 public import FormalProof4FHE.HasteBoots.AllocatedSingleOpeningOrigin
 public import FormalProof4FHE.HasteBoots.HelperProfileLineage
+public import FormalProof4FHE.HasteBoots.SharedNativeOpeningLifetime
 @[expose] public section
 
 /-! Actual ordered helper receipts yield the accepted call, native sampling
@@ -85,6 +86,34 @@ theorem witness {B Memory : Type} (dummy : Digest) (ctx : Context B) (choose : N
     responseFits := responseFits
     accepted := nativeAccepted
     falseClaim := falseClaim sample sampler _ parsed }⟩
+
+/-- A false accepted helper receipt at any machine prefix is covered by the
+joint event sharing the source batches' complete-history hash charge. -/
+theorem joint_failure {B Memory : Type} (dummy : Digest) (ctx : Context B) (choose : NativeGoldPcsProgram.Scheduler Memory)
+    (memory : Memory) (world : World) (bound : NativeSharedLookupBody.Bound)
+    (plan : NativeSharedLookupHelpers.Plan NativeGoldPcsOpening.Opening) (status : NativeGoldHelperVerification.Result Memory)
+    (executed : (run (NativeGoldHelperVerification.program ctx choose memory) world).run.1 = .helpers bound plan status)
+    (receipt : Receipt Memory) (member : receipt ∈ status.progress.receipts)
+    (framed : SingleOpeningAvailability.Framed (NativeGoldHelperVerification.context ctx.tables ctx.helper ctx.fieldFuel receipt.before receipt.call))
+    (responseFits : (SingleOpeningColumnLaw.payload receipt.call.opening).length < TranscriptFrame.lengthLimit)
+    (history : List Observation) (observed : (run (NativeGoldHelperVerification.program ctx choose memory) world).run.2.Sublist history)
+    (entries : List Entry) (reachable : NativeGoldParameterStore.Reachable entries) (handle : ℕ) (entry : Entry)
+    (found : entries[handle]? = some entry) (same : ctx.helper = entry.initialized.parameters)
+    (target : NativeGoldPcsExecution.Context) (parameters : ctx.helper = target.parameters)
+    (profile : ctx.parent.profile = target.transcript.profile) (radius : ℕ)
+    (falseClaim : ∀ sample, ∀ sampler : SingleOpeningSamplingReceipt.Receipt
+        (NativeGoldHelperVerification.context ctx.tables ctx.helper ctx.fieldFuel receipt.before receipt.call) world receipt.work sample,
+      ∀ decoded, SingleOpeningChallengeLink.parse (SingleOpeningColumnLaw.input sampler world) = some decoded →
+        SingleOpeningCausalCoverage.FalseClaim dummy _ (AllocatedSingleOpeningOrigin.helperReceipt entries reachable handle entry found ctx same receipt)
+          decoded history radius)
+    {P S A SourceMemory : Type} (past : World → NativeTranscript.Execution P) (initial : P → S)
+    (step : S → OracleMachine.Command S A) (fuel : ℕ)
+    (historyEq : history = (CausalExposureLifetime.history past initial step fuel world).run.2)
+    (source : NativeGoldBatchPcsProgram.Context) (sourceOrigin : CacheBackedCodeOrigin.Origin source) (sourceRadius : ℕ) :
+    SharedNativeOpeningLifetime.Failure Memory SourceMemory dummy target source sourceOrigin radius sourceRadius past initial step world := by
+  obtain ⟨nativeWitness⟩ := witness dummy ctx choose memory world bound plan status executed receipt member framed responseFits history observed
+    entries reachable handle entry found same target parameters profile radius falseClaim
+  exact Or.inl ⟨fuel,by rw [← historyEq]; exact ⟨nativeWitness⟩⟩
 
 end
 end FormalProof4FHE.HasteBoots.HelperOpeningLifetimeWitness
