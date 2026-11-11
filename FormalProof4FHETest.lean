@@ -469,3 +469,6 @@ import FormalProof4FHETest.HasteBootsProfileLineageAudit
 
 import FormalProof4FHETest.HasteBootsSourceLifetimeBridgeSmoke
 import FormalProof4FHETest.HasteBootsSourceLifetimeBridgeAudit
+
+import FormalProof4FHETest.HasteBootsLookupHelperClaimSmoke
+import FormalProof4FHETest.HasteBootsLookupHelperClaimAudit

@@ -22494,3 +22494,55 @@ retained shared-native audit passed (4,672 jobs). `scripts/check` then exited
 successfully, including the 11,450-job build and all standalone checks.
 Full-check log SHA-256:
 `1bbe17a7daa016b5f3fc993d3ef98c28d17a119d921daed01ade06c388dd4c03`.
+
+## Original helper receipts for checked outer sum obligations
+
+`LookupHelperClaimMeaning` connects the actual native terminal guard to the
+accepted single-opening helper at the same original ordinal. From completed
+helper execution it derives the checked helper getter and matched field
+value, all original root/opening getter bounds, exact ordered receipt lookup,
+actual acceptance and the computed common coefficient query. No independent
+helper/root/opening association or preselected receipt is supplied. Repeated
+roots still use the original ordinal and opening packet. This theorem covers
+completed helpers, not an unexecuted suffix after a helper stop.
+
+The actual query models are the native coefficient construction at the
+original terminal point. Since completed native lookup points are nonempty,
+the resulting payload has no post-map and interprets as exactly the abstract
+coefficient query. The typed point reconstruction retains coordinate order.
+Helper padding is independent of source padding: the theorem accepts the
+original helper width `3 + padding` and derives the native dimension gate
+from execution.
+
+The retained raw claim's field interpretation is the padded encoding of the
+checked outer sum expectation. `wrong_helper` therefore turns a wrong helper
+obligation against a specified helper table into a wrong field claim in the
+actual accepted receipt at that same ordinal. `prepared_helpers`,
+`lookup_checked_receipt` and `lookup_wrong_helper` expose these conclusions
+directly from the original registered lookup's actual preparation. Original
+noncanonical sum/helper words need only agree in the field; no raw word,
+transcript message or opening packet is normalized by these proofs.
+
+This is the helper claim association needed by the outer falsity reduction.
+It does not identify the specified helper table with the common-source
+extractor, derive a false obligation from a false application result, or
+prove native outer scalar/lookup Fiat--Shamir soundness. Connecting native
+matrix evaluation to the same extracted helper table, the corresponding
+source/alias receipt association and the outer arithmetic/falsity argument
+remain required before the joint opening lifetime bound proves lookup/PBS
+soundness. Original helper allocation ownership, numerical profile admission,
+native BabyBear and actual physical attacker-work/compiler/cache/RNG coupling
+also remain open. The final 128-bit actual-attacker-work theorem is not proved.
+
+Seven regression examples use the original native guard's noncanonical-alias
+fixture, verify raw-vector inequality alongside field equality, apply the
+semantic guard theorem to its actual checked entry, check helper widths
+three/four and both coefficient-query interpretations, and check ordered
+point reconstruction. Twelve exact Lean-output guards cover all new public
+declarations, using only `propext`, `Classical.choice` and `Quot.sound`.
+No frozen native files or proof limits changed.
+
+Validation: targeted helper claim smoke and all twelve axiom guards passed
+(4,871 jobs). `scripts/check` exited successfully, including the 11,453-job
+build and every standalone check. Full-check log SHA-256:
+`103dec07363e40e90091d8efa1b5f67571dc4ac968d1e8016175a1571bd21c1a`.
