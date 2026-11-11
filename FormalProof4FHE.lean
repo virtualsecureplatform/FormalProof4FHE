@@ -995,3 +995,8 @@ import FormalProof4FHE.HasteBoots.ScalarExecutionTranscript
 import FormalProof4FHE.HasteBoots.ScalarReconstructionCompleteness
 import FormalProof4FHE.HasteBoots.ScalarExecutionRecovery
 import FormalProof4FHE.HasteBoots.ScalarExecutionPrefixAgreement
+
+import FormalProof4FHE.HasteBoots.ScalarPriorStability
+import FormalProof4FHE.HasteBoots.ScalarFirstMatch
+import FormalProof4FHE.HasteBoots.ScalarStoppedPrior
+import FormalProof4FHE.HasteBoots.ScalarRecoveredStoppedAgreement
