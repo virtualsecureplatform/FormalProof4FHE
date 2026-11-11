@@ -25253,3 +25253,63 @@ Full-check log SHA-256:
 No proof placeholders, custom axioms, unsafe evaluation, resource-limit
 increases or linter suppressions were introduced. Frozen `Native*` modules
 and dependencies are unchanged.
+
+### Exact original helper-root vectors at scalar readers
+
+`HelperRootsView` strictly recovers the most recent helper-roots frame from
+complete framed bytes using the exact digest-vector codec. It retains the
+entire original order and repetitions. A malformed latest roots frame is
+rejected without fallback, and a same-label frame of a different kind cannot
+replace the binder. Parser soundness identifies the actual roots frame and
+proves there is no later roots binder. Earlier caller-controlled decoys are
+permitted and cannot replace the actual native binder.
+
+`RootSafeExtension` strengthens valid native transcript extension with the
+fact that no helper-roots frame is appended. The proof covers typed scalar
+and vector requests, candidate retries, suspension/resumption and receipt
+finalization. `RootSafeEquality` derives this property after the actual roots
+binder through equality-point sampling and successful prelude execution.
+`RootSafeScalar` derives it through scalar statement and round binding,
+checked guards, interpolation/decode failures, rejected candidates and every
+completed reader. All work is in new modules; frozen native sources are
+unchanged.
+
+`OriginalHelperRoots.completed_roots` obtains the complete original proof-root
+vector from the literal pending input of every completed native scalar round.
+Its caller framing comes from the actual native fork header. The theorem
+requires only the existing native roots/statement/round allocation domains,
+not an independently supplied roots-frame position or root-membership/order
+certificate. Equal literal scalar inputs therefore fix the full vector and
+every corresponding original ordinal without an oracle exception or equality
+search over roots.
+
+`AllocatedScalarFamily.at_scalar_first` constructs the parent-family package,
+complete original helper-root vector and quoted scalar input directly from
+actual allocated execution at the selected first read. `OriginalScalarFamily`
+compares these data on the existing joint fiber and retains exactly the prior
+parent-seed, root/hash and late-context exceptions. Its helper-table theorem
+now identifies complete packed tables at matching original root ordinals,
+replacing the earlier independent common-root premise. Helper row dimension
+and all helper packing lanes remain intact.
+
+The original helper-root ordinal gap is closed under the existing native
+allocation domains. Assembly of the selected native job's complete source
+and helper functions, including request/job ordinal and dependent dimension
+alignment, remains open. Good reference-family selection, degree/PCS
+posterior composition, adaptive lifetime false-PBS reduction, profile
+admission and physical attacker-work refinement also remain open. The final
+modified-PBS 128-bit actual-attacker-work theorem is not proved.
+
+Validation: regressions recover `[root1, root2, root1]` after an earlier
+single-root decoy, reject a malformed latest binder without fallback, ignore
+a same-label receipt-kind frame and preserve every original ordinal.
+Equality sampling retains the vector for arbitrary worlds and analysis
+budgets. Two actual completed scalar rounds and a rejection-only run retain
+the same native bound roots. Sixty exact axiom guards passed using only
+standard Lean axioms, with a 4,985-job guarded build. `scripts/check` exited
+successfully, including the 11,747-job root build and every standalone check.
+Full-check log SHA-256:
+`730e12e7b6cff63c648807dcb819fd2bbe7a5089feebd03726a52e3880fc9dad`.
+No proof placeholders, custom axioms, unsafe evaluation, resource-limit
+increases or linter suppressions were introduced. Frozen `Native*` modules
+and dependencies are unchanged.

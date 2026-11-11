@@ -614,3 +614,6 @@ import FormalProof4FHETest.HasteBootsContextCoverageAudit
 
 import FormalProof4FHETest.HasteBootsOriginalFamilySmoke
 import FormalProof4FHETest.HasteBootsOriginalFamilyAudit
+
+import FormalProof4FHETest.HasteBootsHelperRootsSmoke
+import FormalProof4FHETest.HasteBootsHelperRootsAudit
