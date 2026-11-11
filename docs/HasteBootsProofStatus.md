@@ -22725,3 +22725,61 @@ helper/extracted-table audits passed (4,676 jobs). `scripts/check` exited
 successfully, including the 11,466-job build and every standalone check.
 Full-check log SHA-256:
 `69764f3f86132890ca688ed6271fd321eebc6aba950503c77d7f4ac71c49872c`.
+
+## Outer used-source and alias claims reach accepted original batch pairs
+
+`DeferredClaimReceiptCoverage` proves that every original inserted claim lies
+in its actual canonical group and that this group is used. A completely
+accepted native dispatcher supplies an accepted receipt for every such group
+from its real sealed packet count and original dispatch order. The receipt's
+owner comes from the original unfiltered registry. Query and value getters
+are then derived at one common index in the same actual prepared batch. This
+is existence of a matching indexed original pair, not a new bijection between
+indistinguishable duplicate claims. No supplied receipt/index association,
+changed grouping or normalized claim is used. Complete-dispatch acceptance
+is required; the theorem does not cover an unverified suffix after a stop.
+
+`BatchClaimShape` derives every prepared query/row pair's original native
+binding check, including the raw row width. Its field-vector encoding follows
+from that actual row length, with original noncanonical words retained.
+
+`LookupSourceReceiptCoverage.source_receipt` composes dispatcher coverage with
+the enclosing lookup's actual source collection. For every used original slot
+it supplies the accepted receipt, original guarded query, one batch index,
+received outer row, inserted row and their computed native field equality.
+It also derives the inserted row's encoding as the received row's field
+coordinates, using native validation rather than a supplied width certificate.
+Both raw rows remain distinct data. The original slot's context digest and
+root are retained in the selected first-original owner's actual context/root,
+and the selected owner precedes the used slot. Original registry membership
+and actual acceptance are conclusions of the theorem.
+
+This closes the logical used-source/alias-to-accepted-query/value-pair
+association needed by the source obligation lifetime factory. It does not
+infer equality of full parameter records from equal computed context digests.
+That requires the corresponding context-input collision/serialization
+argument outside the shared hash bad event. Nor does it yet identify original
+application source tables with the same exact extractor logs or derive a
+wrong outer obligation from a false lookup/PBS result.
+
+Nine regressions use the real accepted deferred fixture with four claims
+inserted through a later alias and one first-original owner receipt. They
+check matching query/value getters, original pair insertion order, owner slot,
+cancellation/later rejection exclusion from complete acceptance, lazy raw-row
+field encoding, native-derived row width, and deliberately unequal parameter
+records sharing the fixture's context/root key. The latter guards against an
+unproved parameter-equality inference. Eight exact Lean-output guards cover
+all new public lemmas; only `propext`, `Classical.choice` and `Quot.sound`
+occur. No frozen native files or proof limits changed.
+
+Next remain context-input/parameter association outside shared hash failure,
+original application/helper allocation and exact extractor-log/table
+association, native outer scalar/lookup Fiat--Shamir and application falsity
+reduction. Concrete numerical profile admission, native BabyBear, full
+modified-PBS lifetime and physical attacker-work/compiler/cache/RNG coupling
+remain open. The final 128-bit actual-attacker-work theorem is not proved.
+
+Validation: targeted claim-receipt smoke, eight new guards and retained
+source-obligation audit passed (4,677 jobs). `scripts/check` exited successfully,
+including the 11,471-job build and every standalone check. Full-check log
+SHA-256: `346cc1c48b2f967e4f2f9505691343479bf0987e797877842057003f99dc52dc`.
