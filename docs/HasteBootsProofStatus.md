@@ -26137,3 +26137,63 @@ only standard Lean axioms (5,052-job guarded build). With source and tests
 frozen, `scripts/check` passed the 11,833-job root build and every standalone
 check. Full-check log SHA-256:
 `31a2db24530d505c1325725081b57c28ed748a5cc888ea510314d8cf78a3e1c2`.
+
+## Joint non-root reference event probability calibrated to work (2026-11-11)
+
+`MaskedOracleBound` proves that a mask determined by a retained selecting
+packet preserves a conditional event bound and averages to the correspondingly
+masked score. It works with arbitrary outer-measure events and projections
+from completed histories; no event measurability or successful-class mass
+premise is supplied.
+
+`ReferenceMaskedEvents` applies this to all four original reference events.
+Context-target and fresh-receipt events use the original replay fiber.
+Parent-seed and receipt-collision events use their original completed fibers,
+projecting to the exact selecting packet retained in the completion payload.
+All four masked bounds combine into the thresholded score from the previous
+section. Neither the mask nor the auxiliary completion creates attacker
+instructions, observations or work charges.
+
+`ReferenceLowProbability` sums these original-position event bounds and
+covers every non-root reference failure on a low-work actual interpreter
+prefix. Both the observation count and naming-input-byte count of every
+raw selecting prefix are bounded by that same interpreter's final specified
+work. Large-work worlds are retained and paid by Markov's inequality on
+unconditional lifetime work. At every fixed private tape and instruction
+horizon the resulting bound is expected specified lifetime work times
+`1 / threshold + 5 * threshold / 2^512`, for any positive analysis threshold.
+No execution or retry limit is introduced, and infinite expectations remain
+valid.
+
+`ReferenceContinuation` retains the literal selecting request and original
+log under arbitrary program continuation. Each of the four non-root bad
+events consequently persists with its original observation position.
+`PrivateCoinReferenceProbability` then lifts the finite-horizon bounds
+through the exact finite private-strategy selector and composes the actual
+joint tape/world horizon union by continuity from below. With analysis
+threshold `2^160`, all four events together are bounded by
+`expected specified lifetime work / 2^159`.
+
+`CalibratedReferencePcsLedger` substitutes this proved joint probability
+bound into the original shared scalar/PCS lifetime ledger. Its remaining
+explicit probability term is the original helper/source PCS-family failure
+outside the one shared hash lifetime event. The four non-root reference
+probabilities are no longer an uncalibrated term in this bound. The specified
+work coefficient is `1/2^159 + hashRate + scalarRate`, preserving the original
+families, receipts, job ordinals and all unsuccessful executions.
+
+Pricing that remaining PCS-family term on the same actual execution,
+whole modified-PBS initial falsity, native domain/seed-order closure,
+profile/numeric admission and physical primitive/cache/RNG pricing remain
+open. The final 128-bit actual-attacker-work theorem remains unproved.
+
+Three regressions check the zero mask, absence of reference events from a
+completed pure program, and the exact strict mask boundary on the original
+mixed start/empty-read/hash selecting history. Exact axiom guards cover all
+24 new declarations and these three regressions.
+
+Validation: all 27 exact axiom guards and three regressions passed using
+only standard Lean axioms (5,070-job guarded build). With source and tests
+frozen, `scripts/check` passed the 11,841-job root build and every standalone
+check. Full-check log SHA-256:
+`73822113d86026049405aa50eb4b4b53e2066ccbafb24b924c258ccb4a4cbc4a`.

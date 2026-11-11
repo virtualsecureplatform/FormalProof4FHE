@@ -658,3 +658,6 @@ import FormalProof4FHETest.HasteBootsSharedHashLedgerAudit
 
 import FormalProof4FHETest.HasteBootsReferenceBudgetSmoke
 import FormalProof4FHETest.HasteBootsReferenceBudgetAudit
+
+import FormalProof4FHETest.HasteBootsReferenceProbabilitySmoke
+import FormalProof4FHETest.HasteBootsReferenceProbabilityAudit
