@@ -1082,3 +1082,5 @@ import FormalProof4FHE.HasteBoots.ProgramReceiptCollision
 import FormalProof4FHE.HasteBoots.AllocatedFactorSamples
 import FormalProof4FHE.HasteBoots.FactorPosteriorMismatch
 import FormalProof4FHE.HasteBoots.FactorFiberUniform
+
+import FormalProof4FHE.HasteBoots.ParentFactorFiber
