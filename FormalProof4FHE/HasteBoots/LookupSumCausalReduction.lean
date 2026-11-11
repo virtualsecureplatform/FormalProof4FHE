@@ -1,7 +1,7 @@
 module
 public import FormalProof4FHE.HasteBoots.LookupGuardProducer
 public import FormalProof4FHE.HasteBoots.LookupScalarGrammar
-public import FormalProof4FHE.HasteBoots.ScalarSourceChallengeBound
+public import FormalProof4FHE.HasteBoots.ScalarFinishedSourceEvent
 @[expose] public section
 
 /-! Actual completed scalar execution and its actual helper-sum guard force
@@ -60,29 +60,12 @@ theorem event_or_wrong {padding : ℕ} (transcript resultTranscript : Transcript
     simp only [List.getElem_ofFn,point]
   rcases LookupNativeTerminal.sum_or_wrong point checked.helper checked.sumClaim.expected evidence.matched helpers with truthful | wrong
   · apply Or.inl
-    have expectedEq : claims.map NativeScalarBatchVerifier.SubClaim.expected =
-        (NativeScalarBatchVerifier.execute statement proof fuel
-          (NativeScalarBatchVerifier.initial transcript statement proof) world).1.state.expected := by
-      rw [linked.batch.2.2.2.2.1,List.map_map]
-      change (NativeScalarBatchVerifier.execute statement proof fuel
-        (NativeScalarBatchVerifier.initial transcript statement proof) world).1.state.expected.map id = _
-      exact List.map_id _
-    have terminalTruth : ScalarChainHealing.value (2*checked.ordinal)
-        (NativeScalarBatchVerifier.execute statement proof fuel
-          (NativeScalarBatchVerifier.initial transcript statement proof) world).1.state.expected =
-      some (ScalarNativeSourceHealing.truth ScalarLookupExpression.sumArity ScalarLookupExpression.sumCoefficient ScalarLookupExpression.sumIndices
-        first.numVariables.val (fun _ cell => PaddedExtension.decode goldilocksBasis (helpers cell))
-        ((NativeScalarBatchVerifier.execute statement proof fuel
-          (NativeScalarBatchVerifier.initial transcript statement proof) world).1.completed.map (fun entry => entry.challenge))) := by
-      rw [← expectedEq,ScalarChainHealing.value,List.getElem?_map,Option.map_map,evidence.sum,Option.map_some]
-      exact congrArg some (truthful.trans (congrArg
-        (ScalarNativeSourceHealing.truth ScalarLookupExpression.sumArity ScalarLookupExpression.sumCoefficient ScalarLookupExpression.sumIndices
-          first.numVariables.val (fun _ cell => PaddedExtension.decode goldilocksBasis (helpers cell))) (rebuilt.trans linked.point)))
-    have alternative := ScalarSourceChallengeBound.false_or_event transcript resultTranscript frames statement proof decoded accepted statementFits
-      domain first head fuel world ScalarLookupExpression.sumArity ScalarLookupExpression.sumCoefficient ScalarLookupExpression.sumIndices
-      (fun _ cell => PaddedExtension.decode goldilocksBasis (helpers cell)) (2*checked.ordinal)
-      (LookupScalarGrammar.sumInfo first.numVariables) infoAt (LookupScalarGrammar.sum_arity first.numVariables) initial
-    exact alternative.resolve_left (fun falseFinal => falseFinal terminalTruth)
+    apply ScalarFinishedSourceEvent.of_claim transcript resultTranscript frames statement proof decoded accepted first head statementFits domain
+      fuel world claims finished ScalarLookupExpression.sumArity ScalarLookupExpression.sumCoefficient ScalarLookupExpression.sumIndices
+      first.numVariables.val rfl (fun _ cell => PaddedExtension.decode goldilocksBasis (helpers cell)) (2*checked.ordinal)
+      (LookupScalarGrammar.sumInfo first.numVariables) infoAt (LookupScalarGrammar.sum_arity first.numVariables) initial checked.sumClaim evidence.sum
+    rw [(linked.claims checked member).2.2.1,← rebuilt]
+    exact truthful
   · exact Or.inr ⟨point,rebuilt,wrong⟩
 
 end
