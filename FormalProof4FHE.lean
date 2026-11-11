@@ -1146,3 +1146,5 @@ import FormalProof4FHE.HasteBoots.CalibratedJointWorkBound
 import FormalProof4FHE.HasteBoots.CanonicalAllocatedJobWork
 
 import FormalProof4FHE.HasteBoots.CanonicalIdentityWork
+
+import FormalProof4FHE.HasteBoots.SeedOrderIdentityWork
