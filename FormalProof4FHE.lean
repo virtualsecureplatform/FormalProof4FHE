@@ -968,3 +968,7 @@ import FormalProof4FHE.HasteBoots.AllocatedHelperContext
 import FormalProof4FHE.HasteBoots.HelperPublicSource
 import FormalProof4FHE.HasteBoots.HelperPublicOwnership
 import FormalProof4FHE.HasteBoots.HelperPublicSourceObligation
+
+import FormalProof4FHE.HasteBoots.AllocatedLookupContext
+import FormalProof4FHE.HasteBoots.AllocatedLookupExecution
+import FormalProof4FHE.HasteBoots.AllocatedLookupPublicOwnership
