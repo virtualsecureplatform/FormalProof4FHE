@@ -26774,3 +26774,62 @@ All 27 exact axiom guards passed with standard Lean axioms only (5,142-job
 guarded build). With source/tests frozen, `scripts/check` passed the
 11,929-job root build and all standalone checks. Full-check log SHA-256:
 `1de935eb163faa5fc4570ab17dc10cc76e69fb02dafff1657e8b4405e6d78062`.
+
+## Full shared-proof serialization supplies component framing domains
+
+`SharedProofByteCodec` adds a compositional canonical analysis codec for the
+complete Goldilocks shared proof. It retains the Rust record's seven-field
+order: grouped multiplicities, helper roots, scalar algebra, original source
+values, helper values, grouped source openings and independent helper
+openings. Reconstructing the typed packet checks its flattened multiplicity
+count; no flat vector is independently supplied. Prefix roundtrip, exact
+roundtrip, injectivity and the equivalence between a bounded canonical source
+and a bound on the complete encoding are proved.
+
+This is an analysis codec assembled from the existing field codecs, not a
+Rust/serde deserializer equivalence or allocation-error refinement. In
+particular, the exact byte view rejects a wider noncanonical count spelling;
+coverage of native inputs accepted with such spellings still needs a
+nonexpansion/refinement argument. The full canonical encoding bound is not
+inferred merely from individual vector or component bounds.
+
+`SharedProofSerializationDomain` proves that flattening's payload words fit
+inside the grouped row payload, while its new count header costs at most
+nine bytes. A full proof containing a root has enough additional serialized
+bytes to cover that header even across varint width changes. Root
+nonemptiness is derived from the retained native job's actual prelude root
+count and job index. No equation-count cutoff or hash assumption is used.
+
+One bounded full proof source therefore supplies root, scalar algebra,
+grouped multiplicity, flattened multiplicity and terminal-value frame bounds,
+as well as every source/helper opening response bound, preserving the
+original vectors and their membership. These bounds include the original
+raw lazy u64 representations rather than normalizing field words.
+
+`SerializedIdentityWork.Witness` carries the bounded full canonical proof
+source. Its conversion derives the previous endpoint's root and multiplicity
+bounds and constructs the scalar byte source from that same proof. It
+retains the original native job, allocation, initial falsity, public-table
+truth and remaining framing/profile domains. `work_128` inherits the prior
+seed-order-inclusive rate with no additional probability charge. This is a
+conditional byte-source endpoint; it does not assert equivalence with all
+arbitrary typed witnesses or establish native deserializer correspondence.
+
+Ten regressions check the literal seven-field wire layout and encoded sizes,
+raw lazy-word retention, prefix roundtrip, trailing/truncated input rejection,
+rejection of a wider count spelling, the 2^32 flatten-header growth case,
+deriving the common serialization domain and both opening-response domains.
+Existing Native modules are unchanged.
+
+Remaining gates include original parent and other byte allocation domains,
+Rust proof decoding/serialization and allocation-error refinement, lifting
+opening-response bounds to actual original receipts without independent
+certificates, whole modified-PBS initial falsity/application enforcement,
+actual profile admission and the fixed assembled-reference scope, actor-cost
+separation and physical attacker-work refinement. The final public
+modified-PBS actual-attacker-work theorem remains unproved.
+
+All 43 exact axiom guards passed with standard Lean axioms only (5,137-job
+guarded build). With source/tests frozen, `scripts/check` passed the
+11,934-job root build and all standalone checks. Full-check log SHA-256:
+`3faff2446d26b077ba66eda636fac3208dfad9f22ba822e6352d6e8e161f8b0d`.
