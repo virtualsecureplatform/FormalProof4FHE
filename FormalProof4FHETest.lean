@@ -526,3 +526,6 @@ import FormalProof4FHETest.HasteBootsScalarStoppedPriorAudit
 
 import FormalProof4FHETest.HasteBootsScalarUnboundedSmoke
 import FormalProof4FHETest.HasteBootsScalarUnboundedAudit
+
+import FormalProof4FHETest.HasteBootsScalarCompletedSmoke
+import FormalProof4FHETest.HasteBootsScalarCompletedAudit

@@ -23554,3 +23554,69 @@ Validation: thirteen targeted all-budget regressions and sixteen exact axiom
 guards passed (4,427 jobs). `scripts/check` exited successfully, including the
 11,542-job build and every standalone check. Full-check log SHA-256:
 `26d8b1a891331792c803a7a0cc34bfd153ed1f033034ae7f6812f9d430d0c48d`.
+
+## Actual completed scalar rounds supply the collector event
+
+`ScalarCollectorTrace` proves that every active scalar collector and every
+retained completed coefficient state is a finite prefix of its original native
+three-coordinate reader in the same ideal world. The start phase retains the
+original pending input and profile, uses the native challenge label, and resets
+only the analysis cursor to the original empty prefix. Native collector
+composition proves this invariant across arbitrarily many one-candidate ticks,
+including rejected candidates and suspended states. Finalization leaves the
+completed coefficient state unchanged. Every completed record retains literal
+native decoding of those coefficients to its stored challenge word. Initial
+failure, failed preparation, invalid decoding and interpolation failure cannot
+invent a completed record.
+
+`ScalarCompletedOrigin` derives an actual producing tick for every retained
+completed record in an initialized execution. The witness includes the original
+sampling machine, native drive completion, original prior expected vector,
+literal decoded challenge, and native interpolation update. Preparation,
+suspension and receipt finalization do not fabricate extra records. The witness
+index is inside the original finite execution prefix; no producing-state or
+collector-completion certificate is supplied by a caller.
+
+`ScalarCompletedChallenge` maps those original coefficient states to the existing
+conditional Goldilocks cubic collector law. A retained challenge word equals
+the collector value at some actual analysis prefix. The recovered phase is the
+same original reader phase, with inherited trusted profile and empty starting
+cursor. Actual completed input recovery derives the original statement and
+packet together with successful collector-value correspondence. The completed-
+record transfer theorem supplies an original producing sampler and transfers a
+test of that sampler's actual prior and literal retained challenge into the
+all-budget causal event. Thus the collector-completion premise remaining in the
+previous active-sampler transfer is discharged for actual completed records.
+No receipt digest is inverted, and no independent ideal challenge is assumed.
+
+Eighteen regressions cover arbitrary-budget/world collector tracing, both native
+completed rounds, the retained raw candidate chunks, partial coefficient
+collection, actual producing ticks at indices three and seven, rejection-only
+prefixes, and recurrence failure retaining only earlier completed records. A
+world that rejects each reader's first all-0xff candidate needs four collector
+attempts for three coefficients and retains 32 consumed bytes; the event is absent
+at collector budget three and present at four. Generic tests derive original
+producing ticks, literal challenge values, and recovered configurations from
+actual completed-record membership. Completed records supply the all-budget prior
+test without a sampled-value or stopped-prior equality premise. A literal second
+native completed round supplies the toy agreement event for 0 and X, and the
+existing one-exposure D/p^3 theorem bounds that same event. This toy polynomial
+pair is a regression fixture, not a claim about PBS source semantics. Twenty-three
+exact axiom guards cover all new public definitions and theorems; the reader-start
+definition has no axiom dependencies, and the remaining guards contain only
+standard Lean axioms.
+
+This closes the actual-completed-round to eventual-collector-event correspondence
+gap recorded in the preceding milestone. Honest polynomial families and their
+degree/false-prior obligations still need to be derived from original PBS source
+tables. Deterministic no-healing/terminal falsity composition, global exposure
+summation, scalar/lookup/PBS falsity composition, concrete profile admission,
+native BabyBear, and physical attacker-work/compiler/cache/RNG refinement remain
+open. The final modified-PBS 128-bit actual-attacker-work theorem is not proved.
+Frozen `Native*` modules and existing kernel resource limits are unchanged.
+
+Validation: eighteen targeted completed-round regressions and twenty-three
+exact axiom guards passed (4,433 jobs). `scripts/check` exited successfully,
+including the 11,547-job build and every standalone check. Full-check log
+SHA-256:
+`6b21dd5fc150328cb1c5c084087c333aa839b5cf85e464fb371f9f8b35f5f159`.
