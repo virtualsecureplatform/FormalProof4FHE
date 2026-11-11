@@ -22165,3 +22165,77 @@ actual-attacker-work theorem is not yet proved.
 Full validation: `scripts/check` exited successfully, including the
 11,419-job build and all subsequent standalone checks. Full-check log SHA-256:
 `0004ba952455deb8070231779210a7d35538a8c0ff9665c5ee27034d9373e17a`.
+
+
+## Single-opening early receipts and first-column classification
+
+`SingleOpeningEarlyReceiptPrefixRisk` selects an actual first positive column
+read with a strictly parsed single-opening nonce and wholly unseen recovered
+field stream. The original atomic-column label is checked, but is shared with
+the batch protocol: protocol separation comes from the original single field,
+binding, response and receipt framing, not distinct column labels. A positive
+partial read of a receipt key contributes its complete raw-prefix candidate;
+starts and empty reads contribute none. The exact conditional target law uses
+the original replayable past. The 72-byte prefix risk is the number of distinct
+prior receipt-prefix targets divided by `2^576`, including arbitrary read
+offsets. Native collection derives the prefix from actual completion, with
+all rejected candidates retained.
+
+`SingleOpeningFreshReceiptDigest` retains the complete actual native collector
+outcome and log. The encoded field input cannot equal any receipt key. Thus
+collection cannot expose a receipt key that was unseen in the original past,
+even though this key depends on the collected bytes. On each retained fiber,
+a fresh receipt digest has probability at most `2^-512`; averaging includes
+both completed and suspended collector states. Whole original receipt payloads
+are compared; no consumed-length decoding or nonwrapping assumption is added.
+
+`SingleOpeningFreshReceiptLifetime` takes the monotone union over all collector
+budgets and all actual machine prefixes, with inherited events explicit and
+no retry or success-floor normalization. `SingleOpeningEarlyReceiptBound`
+combines the already-queried-key and fresh-key branches. For at least nine
+Goldilocks coefficients, its selected risk is
+`(# distinct 72-byte prefix targets)/2^576 + 1/2^512`.
+Conditional, averaged and unbounded lifetime bounds retain actual history;
+these are probability charges, not yet physical attacker-work bounds.
+
+`SingleOpeningEarlyReceiptNative` derives the nine-coefficient lower bound
+from actual preparation at packing width at least three, independently of
+code-symbol width. At the actual first column read, it derives either earlier
+field exposure or the matching early-receipt event at the original native
+collector budget. The true quote and completion come from the native sampler
+receipt and strict linked nonce recovery; no caller receipt-match certificate
+or new freshness assumption is supplied. Any successful parse of this actual
+column nonce then gives either that early event or recovery of the original
+first-field source log.
+
+`SingleOpeningFirstColumnCoverage.accepted_first_column_cover` combines this
+split with actual native false-claim coverage. It leaves shared checkpoint
+disagreement explicit. Otherwise, an actual accepted false claim lies in the
+early-receipt event or has the recovered source log and the profile-restricted
+column event / concrete field-proximity obstruction. This removes the need
+for a supplied first-field packet in the first-column classification. Global
+machine-prefix classification, inherited exposures and placement of the
+remaining proximity obstruction at the appropriate earlier field boundary
+remain to be composed into the accepted-false-claim lifetime theorem.
+
+Fifty-nine exact Lean-output guards cover all new public declarations; only
+`propext`, `Classical.choice` and `Quot.sound` occur. Sixteen regression examples
+cover the nine-coefficient matching quote and suspension at eight, field/key
+separation, partial prior receipt observation and its one-prefix charge,
+exclusion of the fresh branch, the combined numeric charge formula, empty
+receipt queries, far-offset earlier field/column exposure, starts/empty reads,
+the shared single/batch atomic-column label, rejection of an unrelated label,
+and actual native early-receipt recovery at packing width three. The targeted
+build and retained false-claim/selected-source audits passed (4,552 jobs), with
+unchanged proof limits and no frozen native source edits.
+
+Next is global single-opening inherited/first-field/first-column/early-receipt
+causal coverage and its combined accepted-false-claim lifetime bound.
+Production scalar/lookup Fiat--Shamir, original owner/alias/application
+associations, native BabyBear, complete modified-PBS lifetime and physical
+attacker-work/compiler/cache/RNG refinement remain open. The final 128-bit
+actual-attacker-work theorem is not yet proved.
+
+Full validation: `scripts/check` exited successfully, including the
+11,427-job build and all subsequent standalone checks. Full-check log SHA-256:
+`e2a22b5ae1ca90e7fcf7ca642b013f9ae806ddb2e804366bd6cccba81bf39a2d`.
