@@ -24357,3 +24357,50 @@ exited successfully, including the 11,617-job root build and every standalone
 check. Full-check log SHA-256:
 `408b0b0901d9c40536f087685530655c980139655e8be1d44cd829e577d4b5be`. Frozen `Native*` modules, dependencies and kernel resource
 limits are unchanged.
+
+### Actual lookup receipts retained in completed scalar inputs
+
+`LookupReceiptLineage` proves that every retained draw's actual native
+`finishField` result extends to the current lookup transcript. This includes
+compression, accepted and rejected reciprocal draws, suspension and arbitrary
+execution budgets. A separate helper derives the exact finalization transcript
+from an actual finished drive; no independent receipt transcript is supplied.
+`LookupReceiptBatchLineage` preserves these receipt ancestries through later
+ordered/repeated jobs. `EqualityReceiptLineage` retains every equality-point
+receipt through subsequent points and active-reader suspension.
+
+`ScalarReceiptLineage` composes these invariants with the actual prelude
+contract and scalar execution. Each original producer draw and each actual
+ready-machine equality draw has its finalized receipt transcript in the
+ancestry of every actual completed scalar reader's pending input. The adapter
+retains the existing root-message, statement-message and scalar-round framing
+domains; it requires no caller-supplied receipt equality or draw chronology.
+
+`ReceiptFrameView` exposes kind-5 frames through structural decoding, preserving
+both the full receipt message and its label. Its quotation theorem gives the
+exact decomposition into the decoded pending frames, the actual receipt frame,
+and a valid later suffix. `ScalarReceiptFrames` derives pending-input framing
+from the actual original child header and native reader ancestry, then proves
+membership of the original producer/EQ receipt frame in the decoded scalar
+input. This is a framed exposure result rather than a raw byte substring scan.
+
+The new result does not yet identify the same original draw ordinal in two
+counterfactual executions. Matching a particular job's first compression,
+rejected offsets, final accepted offset and equality point across equal scalar
+inputs still requires an ordered transcript parse/selection argument. Receipt
+membership alone cannot justify digest equality for an arbitrarily selected
+pair of draws. After that binding is established, the preceding refined-fiber
+fixation result applies modulo its explicit SHAKE receipt-collision event.
+Receipt-collision probabilities, unnamed/fresh receipt coverage, posterior
+averaging, conditional degree/PCS composition and global adaptive work
+accounting remain open. The final modified-PBS 128-bit actual-attacker-work
+theorem is not proved.
+
+Validation: actual native rejection, ordered-batch and equality fixtures
+passed. Structural decoding retains ten receipt frames after nine rejected
+offsets, four across two completed jobs and two after equality sampling.
+Eighteen exact axiom guards report only standard Lean axioms (4,456 smoke /
+4,455 audit targeted jobs). `scripts/check` exited successfully, including the
+11,625-job root build and every standalone check. Full-check log SHA-256:
+`3e97b8df392d8f082428282ddcb73d3b8b1b70f6429bf85566fb998416c87c0b`. Frozen `Native*` modules, dependencies and kernel resource
+limits are unchanged.

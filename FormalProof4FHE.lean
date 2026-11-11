@@ -1058,3 +1058,5 @@ import FormalProof4FHE.HasteBoots.LookupProducerConsumed
 import FormalProof4FHE.HasteBoots.LookupReceiptCandidates
 
 import FormalProof4FHE.HasteBoots.LookupDigestFixation
+
+import FormalProof4FHE.HasteBoots.ScalarReceiptFrames

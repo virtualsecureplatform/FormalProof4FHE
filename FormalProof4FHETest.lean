@@ -566,3 +566,6 @@ import FormalProof4FHETest.HasteBootsReceiptCandidatesAudit
 
 import FormalProof4FHETest.HasteBootsReceiptFixationSmoke
 import FormalProof4FHETest.HasteBootsReceiptFixationAudit
+
+import FormalProof4FHETest.HasteBootsReceiptLineageSmoke
+import FormalProof4FHETest.HasteBootsReceiptLineageAudit
