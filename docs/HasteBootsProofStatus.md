@@ -25185,3 +25185,71 @@ Fifty-six exact axiom guards passed using only standard Lean axioms, with a
 No proof placeholders, custom axioms, unsafe evaluation, resource-limit
 increases or linter suppressions were introduced. Frozen `Native*` modules
 and dependencies are unchanged.
+
+
+### Original registry/helper family data and packed-table correspondence
+
+`OriginalRegistryFiber.registry` lifts the corresponding-slot context proof
+to equality of the complete original ordered registry, including full
+parameter records, roots, duplicates and unused slots. One shared reference
+root/hash exception and the late-context exception in either world cover the
+whole comparison; there is no per-slot union charge. `CanonicalHelperFiber`
+recovers the helper context equality from the common nonempty literal binding
+sequence and identifies its complete original parameter record. Its covered
+form derives old-prefix observations from chronological helper naming and
+complete native computations using the same late-context ledger.
+
+`OriginalParentFamily.Family` packages the original registry, helper,
+requests, matched parent and binding view together with their native context
+provenance. `AllocatedParentFamily.recover` constructs it from actual allocated
+success, original caller framing and native allocation domains. Nonempty
+bindings follow from successful native numeric preflight and the actual
+request/binding relation. `AllocatedFirstParentFamily.at_scalar_first`
+derives chronological parent naming at an actual scalar first read through
+the existing seed-order argument; no family or time certificate is supplied
+independently. `OriginalParentFamily.compare` fixes the complete registry,
+helper parameters, original request vector and both decoded views on the
+joint fiber, or retains the parent-seed collision, shared reference root/hash
+or either world's late-context exception.
+
+`PackedContextCongruence` and `OriginalPackedFamily.source` identify complete
+packed source tables at corresponding original slots and the same old raw
+history. Row dimension and packing width may have different dependent
+presentations; all original padding lanes remain included. Unrelated PCS
+call fields cannot select a replacement table. The helper theorem identifies
+the complete packed helper table for each common root, preserving its own
+full row dimension and width. `OriginalPackedFamily.slots` proves that the
+literal ordered original request-address vector determines its typed slot
+selector uniquely; aliases cannot be permuted through a different bounds
+proof.
+
+Original helper-root-vector ordinal alignment and assembly of the selected
+native job's whole source/helper functions remain to be derived. The
+root-indexed helper table theorem does not supply that alignment. Good
+reference-family selection, degree/PCS posterior composition, adaptive
+lifetime false-PBS reduction, profile admission and physical attacker-work
+refinement remain open. The final modified-PBS 128-bit actual-attacker-work
+theorem is not proved.
+
+`FamilyPosteriorMismatch` bounds disagreement by any counterfactual original
+family sharing the same quoted scalar input and joint fiber. For a reference
+outside the parent-seed collision, shared root/hash and late-context events,
+a different full registry/helper/request/binding package implies the
+counterfactual world's late-context event. Its conditional mass is retained;
+averaging that mass over the completed joint fiber is bounded by the existing
+whole-program context-target charge. This does not yet construct a good
+reference family or compose the degree/PCS posterior bounds.
+
+Validation: a deliberately colliding world gives identical raw context/root
+vectors for registries with different full records at an unused original
+slot; whole-registry coupling retains the shared exception. Regressions also
+prove uniqueness of the original slot selector, forbid exchanging duplicate
+aliases at slots 0 and 1, and retain all four packed lanes while unrelated
+PCS call fields change. Thirty-one exact axiom guards passed using only
+standard Lean axioms, with a 4,975-job guarded build. `scripts/check` exited
+successfully, including the 11,738-job root build and every standalone check.
+Full-check log SHA-256:
+`93db46bcb3d8c59f4c516ffc30d599dffad4788519e8575996f25fa4ed27acc1`.
+No proof placeholders, custom axioms, unsafe evaluation, resource-limit
+increases or linter suppressions were introduced. Frozen `Native*` modules
+and dependencies are unchanged.
