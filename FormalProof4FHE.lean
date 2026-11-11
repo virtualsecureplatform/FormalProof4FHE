@@ -1000,3 +1000,6 @@ import FormalProof4FHE.HasteBoots.ScalarPriorStability
 import FormalProof4FHE.HasteBoots.ScalarFirstMatch
 import FormalProof4FHE.HasteBoots.ScalarStoppedPrior
 import FormalProof4FHE.HasteBoots.ScalarRecoveredStoppedAgreement
+
+import FormalProof4FHE.HasteBoots.ScalarUnboundedReplayLaw
+import FormalProof4FHE.HasteBoots.ScalarRecoveredUnboundedLaw
