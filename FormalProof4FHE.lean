@@ -937,3 +937,6 @@ import FormalProof4FHE.HasteBoots.SingleOpeningExtractedTableMeaning
 import FormalProof4FHE.HasteBoots.QueryNativeInterpretationComplete
 import FormalProof4FHE.HasteBoots.SingleOpeningNativeObligation
 import FormalProof4FHE.HasteBoots.HelperOpeningObligationLifetime
+
+import FormalProof4FHE.HasteBoots.BatchOpeningNativeObligation
+import FormalProof4FHE.HasteBoots.SourceOpeningObligationLifetime
