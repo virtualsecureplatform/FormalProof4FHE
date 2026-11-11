@@ -20,6 +20,9 @@ structure Candidate {A : Type} (program : Program A) (position : ℕ) (world : W
   compression : ScalarAt program world selection.family.input (.compression selection.index.val)
   offset : ScalarAt program world selection.family.input (.offset selection.index.val)
   point : PointAt program world selection.family.input (.equalityPoint selection.index.val)
+  roots_fit : (NativeRootMessage.encode selection.ctx.proof.roots.val selection.ctx.proof.roots.property).length < TranscriptFrame.lengthLimit
+  reader_statement : compression.value.view.reader.statement = selection.origin.ready.statement
+  reader_transcript : compression.value.view.reader.transcript = selection.origin.ready.equality.transcript
   compression_native : compression.value.word = (selection.origin.ready.jobs.get selection.index).output.y
   offset_native : offset.value.word = (selection.origin.ready.jobs.get selection.index).output.r
   point_native : point.value.point = List.ofFn selection.job.view.eqPoint
@@ -56,7 +59,8 @@ theorem recover_at_first {Memory A : Type} (entries : List Entry) (reachable : N
     (index : Fin origin.ready.jobs.length) (job : LookupExecutionJob.Job origin index) (dummy : Digest) :
     (∃ candidate : Candidate program first.position world,
       candidate.selection.ctx = ctx ∧ candidate.selection.body = lookup.body ∧ candidate.selection.index.val = index.val ∧
-        candidate.selection.family.input = entry.coefficients.phase.pending.input) ∨
+        candidate.selection.family.input = entry.coefficients.phase.pending.input ∧
+        candidate.compression.value.view.reader.entry = entry) ∨
       NativeRootFamilyLifetime.Bad dummy (run program world).run.2 := by
   rcases AllocatedLookupTables.geometry_or_bad entries reachable helperHandle references template chooseHelper chooseBatch memory result executed lookup progress after phase
       origin index job dummy (run program world).run.2 (OracleProgram.run_replay program |>.truthful world) observed with geometry | bad
@@ -77,7 +81,10 @@ theorem recover_at_first {Memory A : Type} (entries : List Entry) (reachable : N
     let pointSample : PointAt program world selection.family.input (.equalityPoint selection.index.val) :=
       ⟨point,by rw [pointView]; rfl,by rw [pointView,input]; rfl,pointAt,pointLog⟩
     exact Or.inl ⟨⟨selection,PositionedFactorSamples.reindex first world family.input rfl input,rfl,
-      compressionSample,offsetSample,pointSample,y,r,eqPoint⟩,rfl,rfl,rfl,input⟩
+      compressionSample,offsetSample,pointSample,rootsFit,
+      (by change compression.view.reader.statement = _; rw [compressionView]; rfl),
+      (by change compression.view.reader.transcript = _; rw [compressionView]; rfl),y,r,eqPoint⟩,rfl,rfl,rfl,input,
+      (by change compression.view.reader.entry = entry; rw [compressionView]; rfl)⟩
   · exact Or.inr bad
 
 end
