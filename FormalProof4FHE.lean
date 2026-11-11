@@ -1108,3 +1108,5 @@ import FormalProof4FHE.HasteBoots.CandidateScalarTest
 import FormalProof4FHE.HasteBoots.AttainableIdentityEvent
 
 import FormalProof4FHE.HasteBoots.AllocatedIdentityAlternatives
+
+import FormalProof4FHE.HasteBoots.AllocatedIdentityReceiptAlternatives
