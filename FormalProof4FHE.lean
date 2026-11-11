@@ -1076,3 +1076,5 @@ import FormalProof4FHE.HasteBoots.FreshReceiptTargetLifetime
 import FormalProof4FHE.HasteBoots.LoggedLookupFactorSamples
 
 import FormalProof4FHE.HasteBoots.AllocatedReceiptCoverage
+
+import FormalProof4FHE.HasteBoots.ProgramReceiptCollision
