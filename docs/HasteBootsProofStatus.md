@@ -23812,3 +23812,76 @@ Validation: nineteen targeted regressions and twenty-five exact axiom guards
 passed (4,915 jobs). `scripts/check` exited successfully, including the
 11,562-job root build and every standalone check. Full-check log SHA-256:
 `f0aedb204babb69325589b65aac30694140b25fcf9c38622dbf4b10dc21ffd25`.
+
+### Correct helper row dimension and concrete native lookup scalar grammars
+
+Inspecting the actual coefficient query exposed a modeling mismatch in the
+preceding `AllocatedScalarHelper.factor`: source lane flattening had also been
+used for helper factors, adding lane coordinates to a helper row dimension
+that already equals the full scalar dimension. Its stability statements were
+valid for that function, but the function did not describe the native helper
+query. This milestone replaces that factor with decoding of each original
+helper row. The helper point now has exactly the original helper row dimension;
+no lane-count exponent or extra point coordinates are accepted by the API.
+A new coefficient-query identity proves that the actual helper query evaluates
+this factor. No zero-padding assumption on the original table is introduced.
+Source factors retain their distinct, required lane flattening and read all
+original source lanes. The frontier proof now factors through the common
+public cube, so both query types retain the same causal pre-read guarantee.
+
+`ScalarLookupExpression` instantiates the concrete helper-sum grammar and the
+partial/full reciprocal identity grammars with source-derived honest
+polynomials. Initial truths are the original helper sum and EQ-weighted
+reciprocal residual sum. The partial grammar keeps EQ, helper, compressed source
+and active-prefix mask as separate MLE factors; the full grammar uses its
+locally derived affine source shift by r. Honest degrees one, four and three
+are derived for every point prefix, not supplied as polynomial certificates.
+At the full point the exact source-derived truths equal the existing native
+terminal formula. Original source tables flatten into the common point while
+helper tables decode at that same point's row dimension. Source and helper
+padding widths are independent.
+
+The checked-terminal reduction now returns truth of these concrete scalar
+source expressions or a wrong original source/helper opening. The helper-sum
+check has the same alternative for its original coefficient opening. These
+results retain actual query/post-map decoding premises; they do not assume PCS
+authentication or replace the original openings with extension commitments.
+
+`LookupScalarGrammar` derives each job's native sum and identity metadata
+slots from an actually completed lookup/equality prelude, retaining original
+request and repetition order. It derives the matching initial public table sum
+from the original request-indexed multiplicities and the actual producer's
+inverse vector, followed by the original zero identity claim. No independent
+job-order or statement certificate is supplied. The literal native full-prefix
+test selects degree three; the other branch selects degree four. Their
+corresponding expression-arity bounds and the sum degree-one bound are derived.
+
+Regressions prove tight cubic and quartic honest polynomial examples and their
+different off-cube values, helper-sum terminal meaning, and the corrected
+helper/source padding distinction. A nonzero fourth lane decodes to zero under
+the helper coefficient query while the source scalar query still reads its
+value nine. Mixed source width four/helper width eight tests use the same
+original two-coordinate point. Native metadata tests preserve repeated-job
+ordering and the full/partial branch, and an actual-prelude theorem test
+consumes only the operational completion premise. The updated frontier tests
+use the corrected helper API. Twenty-five new grammar axiom guards and
+twenty-eight updated frontier/allocation guards contain only standard Lean
+axioms; no proof limits were increased.
+
+This closes the helper-factor semantic mismatch and the concrete grammar,
+degree, initial-claim/metadata and terminal-expression identities at their
+explicit table/query boundary. The native caller's actual gathered allocation
+family, sampled powers/EQ point, raw terminal decoding and original opening
+ownership must still be composed with these identities and the causal scalar
+event theorem along the actual protocol spine. Global adaptive scalar/lookup/
+seed-order summation, PBS falsity composition, concrete profile admission,
+native BabyBear and physical attacker-work/compiler/cache/RNG refinement remain
+open. The final modified-PBS 128-bit actual-attacker-work theorem is not proved.
+Frozen `Native*` files remain unchanged.
+
+Validation: fifteen new grammar/query regressions plus named tight-degree
+fixtures and the nineteen updated frontier regressions passed, with twenty-five
+new grammar and twenty-eight updated frontier axiom guards (4,920 targeted
+jobs). `scripts/check` exited successfully, including the 11,566-job root
+build and every standalone check. Full-check log SHA-256:
+`bba1204a19d2fe4456f0df0f1094ee036f81db15c33dabfe7e0747c7c317362d`.

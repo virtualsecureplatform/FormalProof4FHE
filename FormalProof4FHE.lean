@@ -1019,3 +1019,6 @@ import FormalProof4FHE.HasteBoots.ScalarSourceChallengeBound
 import FormalProof4FHE.HasteBoots.SourceFrontierStability
 import FormalProof4FHE.HasteBoots.AllocatedScalarSource
 import FormalProof4FHE.HasteBoots.AllocatedScalarHelper
+
+import FormalProof4FHE.HasteBoots.ScalarLookupExpression
+import FormalProof4FHE.HasteBoots.LookupScalarGrammar

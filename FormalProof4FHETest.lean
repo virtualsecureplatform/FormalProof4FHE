@@ -538,3 +538,6 @@ import FormalProof4FHETest.HasteBootsScalarSourceCausalAudit
 
 import FormalProof4FHETest.HasteBootsSourceFrontierSmoke
 import FormalProof4FHETest.HasteBootsSourceFrontierAudit
+
+import FormalProof4FHETest.HasteBootsLookupScalarGrammarSmoke
+import FormalProof4FHETest.HasteBootsLookupScalarGrammarAudit
