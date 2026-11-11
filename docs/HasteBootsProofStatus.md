@@ -25925,3 +25925,59 @@ only standard Lean axioms (5,061-job guarded build). With source and tests
 frozen, `scripts/check` passed the 11,815-job root build and all standalone
 checks. Full-check log SHA-256:
 `ffdcbf564f7cab964b67267dd1d2453bafbeffde7421a15ebc567e9a6be1c2d9`.
+
+## Scalar event lifetime across interpreter horizons (2026-11-11)
+
+`ProgramContinuationPrefix` proves that appending an arbitrary causal
+continuation preserves every active original prefix's log. The retained
+residual is the original residual bound to that continuation. Its first
+positive read has the same observation ordinal, offset, count, freshness
+and original output entry, even when the continuation changes the result
+type or reads the same key again later.
+
+`CandidateContinuation` transports original attained native candidates and
+packets along this extension. It retains the original registry, helper,
+request sequence, parent lineage, scalar input, job ordinal, allocation,
+geometry, completed reader, message and native factor values. Original
+context/receipt observations remain sublogs of the extended execution.
+The candidate's source/helper functions use exactly the same pre-read log,
+so its entire scalar test is unchanged. Consequently the attained scalar
+event persists with the original observation position under an arbitrary
+continuation; no new reference witness or test is chosen.
+
+`InterpreterScalarLifetime` applies this persistence to the actual closed
+and runtime-private-coin interpreters' exact suspension/resumption identity.
+Their attained scalar events form monotone families over instruction
+horizons. Continuity from below for measures of directed, possibly
+nonmeasurable sets bounds the union of all these events outside the union
+of all global bad ledgers by the same expected specified lifetime work
+charge as at each horizon. No horizon sum, retry/termination cap, finite
+expectation premise or successful-run conditioning occurs.
+
+The unrestricted scalar lifetime bound is one actual lifetime bad-event
+union plus `expected specified lifetime work * 4 / Goldilocks^3`. The
+private-coin probability statements currently apply to every fixed-tape
+section of the original runtime execution. A joint tape/world probability
+statement, shared scalar/PCS lifetime bad-ledger composition and pricing of
+the remaining bad-event charges still require proof. The earlier joint
+integral bound on the lifetime scalar charge is already available, but is
+not asserted to prove joint-event measurability by itself.
+
+This closes the previous section's scalar event union over all compatible
+interpreter horizons. It does not discharge the lifetime bad union or the
+whole modified-PBS false-acceptance event. Native physical pricing,
+initial lookup falsity/probabilities, native domain/seed-order closure and
+profile/numeric admission remain open; the final 128-bit theorem is still
+unproved.
+
+Four regressions extend the existing mixed start/empty-read/hash/far-read
+program with a different result type and a later same-key read. They check
+the original position/offset/count, original and later output entries, and
+preservation of the selecting prefix. Exact axiom guards cover all 22 new
+proof/transport declarations and these four regressions.
+
+Validation: all 26 exact axiom guards and four regressions passed using only
+standard Lean axioms (5,058-job guarded build). With source and tests
+frozen, `scripts/check` passed the 11,820-job root build and every standalone
+check. Full-check log SHA-256:
+`a6dcd4c0eaef4da0e079aa69cc8b7ffe8e598c57b0e6624a12e7bd3e53d56d08`.

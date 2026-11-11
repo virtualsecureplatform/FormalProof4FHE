@@ -646,3 +646,6 @@ import FormalProof4FHETest.HasteBootsScalarWorkAudit
 
 import FormalProof4FHETest.HasteBootsScalarLogWorkSmoke
 import FormalProof4FHETest.HasteBootsScalarLogWorkAudit
+
+import FormalProof4FHETest.HasteBootsContinuationSmoke
+import FormalProof4FHETest.HasteBootsContinuationAudit
