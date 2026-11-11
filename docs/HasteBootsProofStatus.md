@@ -26725,3 +26725,52 @@ All 29 exact axiom guards passed with standard Lean axioms only (5,135-job
 guarded build). With source/tests frozen, `scripts/check` passed the
 11,925-job root build and all standalone checks. Full-check log SHA-256:
 `68f3c01f604d02ac9f2905726afcdc043020a5f2ab836dbce6a4ed19d788bd7a`.
+
+## Recover parent framing and helper binding from the retained native job
+
+`LookupFramingRecovery.job_prepared` follows the actual allocated execution
+through helper verification, the native lookup protocol and the original
+parent entry point. It recovers successful parent preparation rather than
+assuming that a numerically valid configuration or a framed prefix implies
+success. `job_requests_nonempty` derives nonemptiness from the job's retained
+membership in the original request list.
+
+The generic `parents` theorem uses the original successful preflight's
+ordered binding trace. It reconstructs the preflight frames from the original
+caller frames, literal request vector and emitted bindings, then appends the
+actual final registry frame. It retains the full original registry and its
+context computation, including aliases and unused entries. A binding in
+those exact frames supplies the helper context actually computed by that
+execution; no independent binding selection, helper association, decoded
+prepared parent or collision-free context assumption is supplied.
+
+`job_framing` converts this recovered evidence to the existing allocated
+framing interface and derives the Goldilocks helper digest using its original
+native hash computation. `RecoveredParentIdentityWork.Witness` consequently
+has no independent `AllocatedLookupReadStability.Framing` field. The native
+job, original parent framing, parent domain and the registry/grouped/flat
+encoded-size bounds derive it internally. `work_128` inherits the prior
+seed-order-inclusive endpoint, with bounded canonical scalar proof bytes and
+no new probability charge. `ofFramed` and `failure_iff` prove that the new
+interface preserves the entire previous failure event; this removes redundant
+certificates without restricting the event being bounded.
+
+Nine named checks exercise domain construction, decoding the recovered
+parent, membership and actual context of the helper binding, successful
+preparation with a changed serialized helper, rejection of helper substitution
+in the fixture world, full registry-frame retention, duplicate/unused slots,
+and failed registration after a valid preflight prefix. The changed-helper
+check is a concrete ideal-world regression, not a global hash-injectivity
+claim. Existing Native modules are unchanged.
+
+Remaining gates include original parent and other byte allocation domains,
+Rust proof decoding/serialization and allocation-error refinement, whole
+modified-PBS initial falsity/application enforcement, actual profile admission
+and the fixed assembled-reference scope, actor-cost separation and physical
+attacker-work refinement. The requested final public modified-PBS
+actual-attacker-work theorem remains unproved.
+
+All 27 exact axiom guards passed with standard Lean axioms only (5,142-job
+guarded build). With source/tests frozen, `scripts/check` passed the
+11,929-job root build and all standalone checks. Full-check log SHA-256:
+`1de935eb163faa5fc4570ab17dc10cc76e69fb02dafff1657e8b4405e6d78062`.

@@ -681,3 +681,5 @@ import FormalProof4FHETest.HasteBootsCanonicalScalarAudit
 import FormalProof4FHETest.HasteBootsSeedOrderWorkAudit
 
 import FormalProof4FHETest.HasteBootsScalarFramingAudit
+
+import FormalProof4FHETest.HasteBootsLookupFramingRecoveryAudit
