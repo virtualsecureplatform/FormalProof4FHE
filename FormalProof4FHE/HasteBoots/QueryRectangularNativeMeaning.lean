@@ -1,7 +1,7 @@
 module
 public import FormalProof4FHE.HasteBoots.SingleOpeningFixedResponseData
 public import FormalProof4FHE.HasteBoots.NativeGoldQueryProjection
-public import FormalProof4FHE.HasteBoots.SubclaimSourceLayout
+public import FormalProof4FHE.HasteBoots.QueryReindex
 @[expose] public section
 
 /-! Successful native interpretation uses the exact ordered matrix list and
@@ -121,6 +121,20 @@ theorem fold_source (length : parameters.code.messageLength.val = 2^back)
   unfold matrixEvaluation
   exact (finCongr length.symm).sum_comp (fun index => ∑ left,
     (SingleOpeningFixedResponseData.right parameters raw index * SingleOpeningFixedResponseData.left parameters raw left) *ᵥ table left index)
+
+end
+noncomputable section
+
+/-- Preserve the original query and public table layout across its arity index. -/
+theorem fold_source_arity {n : ℕ} (parameters : Parameters Stored) (raw : Query) (back : ℕ)
+    (query : ExtensionQuery.Broadcast Goldilocks parameters.width.val n)
+    (read : interpret parameters.width.val n ⟨raw.models,none⟩ = some query)
+    (length : parameters.code.messageLength.val = 2^back) (arity : n = parameters.leftVariables.val + back)
+    (table : Fin (2^parameters.leftVariables.val) → Fin parameters.code.messageLength.val → Fin parameters.width.val → Goldilocks) :
+    query.query.fold (QueryReindex.source arity (source parameters back length table)) =
+      matrixEvaluation (SingleOpeningFixedResponseData.left parameters raw) (SingleOpeningFixedResponseData.right parameters raw) table := by
+  subst n
+  exact fold_source parameters raw back query read length table
 
 end
 end FormalProof4FHE.HasteBoots.QueryRectangularNativeMeaning
