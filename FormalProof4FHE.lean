@@ -990,3 +990,8 @@ import FormalProof4FHE.HasteBoots.ScalarTranscriptPrefix
 import FormalProof4FHE.HasteBoots.ScalarPrefixProof
 import FormalProof4FHE.HasteBoots.ScalarRecoveredReplay
 import FormalProof4FHE.HasteBoots.ScalarProofPrefixExecution
+
+import FormalProof4FHE.HasteBoots.ScalarExecutionTranscript
+import FormalProof4FHE.HasteBoots.ScalarReconstructionCompleteness
+import FormalProof4FHE.HasteBoots.ScalarExecutionRecovery
+import FormalProof4FHE.HasteBoots.ScalarExecutionPrefixAgreement
