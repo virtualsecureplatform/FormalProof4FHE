@@ -928,3 +928,5 @@ import FormalProof4FHE.HasteBoots.BatchOpeningProfileLineage
 import FormalProof4FHE.HasteBoots.SourceClaimProfileLineage
 import FormalProof4FHE.HasteBoots.DeferredBatchProfileLineage
 import FormalProof4FHE.HasteBoots.SourceOpeningLifetimeWitness
+
+import FormalProof4FHE.HasteBoots.LookupHelperClaimMeaning
