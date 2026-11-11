@@ -673,3 +673,5 @@ import FormalProof4FHETest.HasteBootsAdaptiveBatchFieldAudit
 import FormalProof4FHETest.HasteBootsSourceFieldCoverageAudit
 
 import FormalProof4FHETest.HasteBootsAdaptiveColumnWorkAudit
+
+import FormalProof4FHETest.HasteBootsCanonicalRadiusAudit

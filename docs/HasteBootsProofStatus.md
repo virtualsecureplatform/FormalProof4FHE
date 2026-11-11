@@ -26487,3 +26487,70 @@ guards passed with only standard Lean axioms (5,112-job guarded build). With
 source/tests frozen, `scripts/check` passed the 11,885-job root build and every
 standalone check. Full-check log SHA-256:
 `e834c4b58e40c17a39cca258bed06a1af809015e5a7dc4995f168e77aeb86a94`.
+
+## Independent retained-parameter radii in native identity coverage
+
+Inspection of the application-to-analysis link found an important interface
+mismatch: the existing allocated identity alternatives interpret all source
+and helper tables with one common radius, whereas the calibrated joint bound
+uses each original role's radius. The actual Goldilocks source and helper
+role radii differ. Equating them would impose an unjustified application
+premise, so the new coverage uses independently derived radii instead.
+
+`ParameterDecodingRadius.ofParameters` computes the decoding radius solely
+from the retained row-code height and message-block dimension. Source and
+helper calibration each prove equality with their corresponding admitted
+role radius. The original constructor and calibration derive the required
+`3 * radius < distance` facts. Context/root hashes, claims, query values,
+scheduler state and future responses do not select the radius.
+
+`CanonicalAllocatedTables` decodes each original source slot using that slot's
+parameter radius, and the helper using its own parameter radius. Original
+allocation records, roots, packing padding and row/column casts are retained.
+Aliases of one original slot share the same complete table and radius.
+`CanonicalAllocatedFamilyFixation` proves that these actual canonical source
+and helper families agree on the existing original replay fiber, outside the
+same reference bad alternatives. Radius agreement is derived from full
+parameter equality, separately for each original object. This prepares the
+canonical tables for the remaining scalar-candidate recovery step.
+
+`CanonicalAllocatedOpeningCoverage` recovers the original accepted source
+receipt and pair for a wrong canonical source fold. Only that source's own
+radius condition is needed; a wrong source does not require a common radius
+valid for unrelated registry entries. It yields the original indexed batch
+lifetime failure at the exact calibrated source radius.
+`CanonicalAllocatedHelperCoverage` applies the analogous independent radius
+to the actual original helper receipt, deriving its original single-opening
+lifetime failure at the calibrated helper radius.
+
+`CanonicalAllocatedJob` retains a native completed job, its original allocated
+context, source-slot map, geometry, framing and enclosing-program observation
+subtrace. Its wrong-fold event is defined using the actual canonical public
+families. `wrong_covered` derives the existing original PCS family lifetime
+or shared full-history hash alternative. `CanonicalAllocatedJobWork.work_128`
+therefore proves the 128-bit specified-work bound for any original native
+wrong-fold job across all runtime private-coin instruction horizons, using
+the actual allocated helper/source constructors and common parent profile.
+The scalar event used in this bound is only an over-approximation from the
+existing joint theorem; wrong-fold coverage itself enters the PCS branch.
+
+`CanonicalAllocatedIdentity.false_identity` also derives native scalar healing
+or those calibrated PCS failures from an originally false identity claim
+interpreted against the canonical public tables. It retains the original
+full/partial branch, completed scalar reader and native messages. Canonical
+healing has not yet been recovered into the priced attained scalar event;
+no whole false-identity probability bound is claimed here.
+
+Whole modified-PBS initial falsity and application-stage enforcement, native
+round-domain/seed-order closure, actual profile admission, actor-cost
+separation and physical work pricing remain open. The final public modified-PBS
+actual-attacker-work theorem is still unproved and the goal remains active.
+
+Five regressions include two genuine retained code constructors on the same
+domain whose different message dimensions require radii 10 and 9. They also
+check that calibrated source/helper roles have different radii and that a
+quota change does not select another decoder. All 35 exact axiom guards
+passed with only standard Lean axioms (5,118-job guarded build). With
+source/tests frozen, `scripts/check` passed the 11,895-job root build and all
+standalone checks. Full-check log SHA-256:
+`b32b5da716242cfac5899479d8f658eb38c8af39b5b0613f8a0d9e6e897300ce`.
