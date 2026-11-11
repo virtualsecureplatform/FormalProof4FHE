@@ -1096,3 +1096,5 @@ import FormalProof4FHE.HasteBoots.AllocatedFirstContextCoverage
 
 import FormalProof4FHE.HasteBoots.FamilyPosteriorMismatch
 import FormalProof4FHE.HasteBoots.AllocatedFirstParentFamily
+
+import FormalProof4FHE.HasteBoots.AllocatedScalarFamily
