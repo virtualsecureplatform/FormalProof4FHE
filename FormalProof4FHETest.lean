@@ -625,3 +625,5 @@ import FormalProof4FHETest.HasteBootsReferenceSelectionSmoke
 import FormalProof4FHETest.HasteBootsReferenceSelectionAudit
 
 import FormalProof4FHETest.HasteBootsCandidateScalarAudit
+
+import FormalProof4FHETest.HasteBootsAttainableIdentityAudit

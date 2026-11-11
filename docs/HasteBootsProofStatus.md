@@ -25477,3 +25477,49 @@ the candidate constructor (4,997-job guarded build). `scripts/check` passed
 the 11,769-job root build and all standalone checks with source and tests
 frozen. Full-check log SHA-256:
 `a734a2c5e2fb3ec00d9de38d04312c196026a9060a6232a9c44e74518c7212bf`.
+
+### Attainable identity-healing event bound
+
+`CandidateIdentityTest` combines the native full/partial identity tests using
+the input-bound equation metadata. Its branch lemmas recover the native
+logical-length test; it proves the actual metadata degree is at most four.
+Both branches therefore satisfy a single conditional `4 / Goldilocks^3`
+kernel bound, without adding a branch union factor.
+
+`AttainableIdentityEvent.Packet` retains an actual candidate on the literal
+scalar-input/original-job class, the original message at the odd identity
+slot and its uniquely recovered configuration. Test transport identifies the
+whole all-budget event, including the actual native trusted profile, across
+jointly fixed candidates. The conditional event theorem discharges reference
+choice, safe-world fixed-test coverage and the kernel bound for the
+candidate-level healing event. An empty good class is still covered by the
+existing posterior bad remainder. No success-mass floor, measurable chooser
+or reference-selection charge is assumed.
+
+`covered_conditional_le` applies that argument to events supplying these
+witnesses outside the same bad ledger. `covered_event_le` averages the bound
+for a measurable covered event at a fixed analysis position, charging the
+existing shared root/hash mass and each lifetime ledger once. Native-event
+coverage and measurability are explicit premises of this adapter; the
+candidate-level existential event is not silently assumed measurable.
+
+`JobReferenceCandidate.recover_at_first` now also preserves the exact
+original origin/job and transports the complete selected source/helper
+functions to their actual completed-execution counterparts. This uses the
+existing actual-read stability theorem and seed-order safety. Its alternative
+remains the shared full-history root/hash event, which native-event coverage
+must retain separately from the prefix bad remainder.
+
+The whole accepted-false-PBS event is not yet covered. Next integration must
+use the exact origin/job and source/helper transport to lift its native
+healing witness, retain the original PCS alternative and full-history
+root/hash alternative, and compose adaptive first-read/job classes. Profile
+admission and physical attacker-work refinement remain open. The final
+128-bit actual-attacker-work theorem remains unproved.
+
+Validation: all 10 new exact axiom guards passed using only standard Lean
+axioms. The existing reference-selection and candidate-scalar audits also
+passed after strengthening native recovery (4,996-job guarded build).
+`scripts/check` passed the 11,772-job root build and every standalone check
+with source and tests frozen. Full-check log SHA-256:
+`dce0b2c010da53fd8f73d866139e51b4cfcd113196fcec12e4ab399ee21054b2`.
