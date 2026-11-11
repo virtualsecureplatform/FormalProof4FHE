@@ -108,6 +108,56 @@ theorem scalar_read_at (ctx : Context) (dummy context root : Digest) (history : 
   rw [parts] at stable
   exact stable
 
+/-- Position-indexed stability of the common public cube, without changing
+its row dimension. Both source and coefficient-helper queries use this cube. -/
+theorem cube_read_at (ctx : Context) (dummy context root : Digest) (history : List Observation) (radius : ℕ)
+    (capacity : GoldCommonSourceTable.Capacity ctx.parameters) (geometry : GoldHistorySourceTable.Geometry ctx.parameters)
+    (position : ℕ) (input : Input) (offset : ℕ) (values : Input) (positive : values ≠ [])
+    (positioned : history[position]? = some (.output input offset values))
+    (resolved : (context,root) ∈ NativeParentLedger.resolve
+      (NativeRootFamilyHistory.reconstruct encoding dummy (history.take position)).1.1
+      (NativeRootFamilyHistory.reconstruct encoding dummy (history.take position)).1.2 input) :
+    GoldHistoryPublicExtraction.cube ctx dummy context root history radius capacity geometry =
+      GoldHistoryPublicExtraction.cube ctx dummy context root (history.take position) radius capacity geometry := by
+  obtain ⟨bound,entryEq⟩ := List.getElem?_eq_some_iff.mp positioned
+  have parts := List.take_append_drop position history
+  rw [List.drop_eq_getElem_cons bound,entryEq] at parts
+  have stable := cube_read ctx dummy context root (history.take position) (history.drop (position+1)) radius capacity geometry
+    input offset values positive resolved
+  rw [parts] at stable
+  exact stable
+
+/-- Actual source ancestry fixes the table at the pre-read history, except
+for the existing seed-quote-order bad event. This covers off-path and partially
+observed streams and does not assume a chronological ancestry certificate. -/
+theorem ancestry_cube_read {S A : Type} (step : S → OracleMachine.Command S A) (fuel : ℕ) (initial : S) (world : World)
+    (ctx : Context) (dummy context root : Digest) (radius : ℕ)
+    (capacity : GoldCommonSourceTable.Capacity ctx.parameters) (geometry : GoldHistorySourceTable.Geometry ctx.parameters)
+    (parent : Input) (parentIndex : ℕ) (fact : NativeSeedAncestry.Fact)
+    (realized : NativeSeedAncestry.Realized world (OracleProgram.run (OracleMachine.take step fuel initial) world).run.2
+      parent parentIndex fact)
+    (position : ℕ) (input : Input) (offset : ℕ) (values : Input) (positive : values ≠ [])
+    (positioned : (OracleProgram.run (OracleMachine.take step fuel initial) world).run.2[position]? = some (.output input offset values))
+    (quoted : NativeChildSeedView.quote input = some (InputIndexedOracle.block world parent 0 64))
+    (member : (context,root) ∈ NativeSeedAncestry.Keys input fact) :
+    GoldHistoryPublicExtraction.cube ctx dummy context root
+        (OracleProgram.run (OracleMachine.take step fuel initial) world).run.2 radius capacity geometry =
+      GoldHistoryPublicExtraction.cube ctx dummy context root
+        ((OracleProgram.run (OracleMachine.take step fuel initial) world).run.2.take position) radius capacity geometry ∨
+      SeedQuoteOrder.Bad step initial world := by
+  by_cases safe : ¬SeedQuoteOrder.Bad step initial world
+  · apply Or.inl
+    have resolved := realized.before_read_resolves step fuel initial world safe position input offset values positive positioned quoted
+      (context,root) member
+    have nativeResolved : (context,root) ∈ NativeParentLedger.resolve
+        (NativeRootFamilyHistory.reconstruct encoding dummy
+          ((OracleProgram.run (OracleMachine.take step fuel initial) world).run.2.take position)).1.1
+        (NativeRootFamilyHistory.reconstruct encoding dummy
+          ((OracleProgram.run (OracleMachine.take step fuel initial) world).run.2.take position)).1.2 input := by
+      simpa only [NativeRootFamilyHistory.reconstruct,NativeRootFamilyHistory.initial,NativeRootFamilyState.fold_parent] using resolved
+    exact cube_read_at ctx dummy context root _ radius capacity geometry position input offset values positive positioned nativeResolved
+  · exact Or.inr (not_not.mp safe)
+
 /-- Actual source ancestry fixes the table at the pre-read history, except
 for the existing seed-quote-order bad event. This covers off-path and partially
 observed streams and does not assume a chronological ancestry certificate. -/
@@ -127,18 +177,12 @@ theorem ancestry_scalar_read {S A : Type} (step : S → OracleMachine.Command S 
       ScalarPublicSourceModel.publicScalar ctx dummy context root
         ((OracleProgram.run (OracleMachine.take step fuel initial) world).run.2.take position) radius capacity geometry width shape ∨
       SeedQuoteOrder.Bad step initial world := by
-  by_cases safe : ¬SeedQuoteOrder.Bad step initial world
+  rcases ancestry_cube_read step fuel initial world ctx dummy context root radius capacity geometry parent parentIndex fact
+      realized position input offset values positive positioned quoted member with same | bad
   · apply Or.inl
-    have resolved := realized.before_read_resolves step fuel initial world safe position input offset values positive positioned quoted
-      (context,root) member
-    have nativeResolved : (context,root) ∈ NativeParentLedger.resolve
-        (NativeRootFamilyHistory.reconstruct encoding dummy
-          ((OracleProgram.run (OracleMachine.take step fuel initial) world).run.2.take position)).1.1
-        (NativeRootFamilyHistory.reconstruct encoding dummy
-          ((OracleProgram.run (OracleMachine.take step fuel initial) world).run.2.take position)).1.2 input := by
-      simpa only [NativeRootFamilyHistory.reconstruct,NativeRootFamilyHistory.initial,NativeRootFamilyState.fold_parent] using resolved
-    exact scalar_read_at ctx dummy context root _ radius capacity geometry width shape position input offset values positive positioned nativeResolved
-  · exact Or.inr (not_not.mp safe)
+    unfold ScalarPublicSourceModel.publicScalar ScalarPublicSourceModel.publicPacked
+    rw [same]
+  · exact Or.inr bad
 
 end
 end FormalProof4FHE.HasteBoots.SourceFrontierStability

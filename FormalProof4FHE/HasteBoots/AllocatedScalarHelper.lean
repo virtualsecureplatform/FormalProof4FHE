@@ -44,34 +44,51 @@ theorem origin_data : (origin entries reachable handle references template ctx a
     (origin entries reachable handle references template ctx assembled index).config =
       (entry entries reachable handle references template ctx assembled).config := ⟨rfl,rfl⟩
 
-/-- Original helper parameters, original proof root, all packing lanes. -/
+/-- A helper coefficient query uses one decoded extension value per original
+row. Its row dimension is already the full scalar dimension: helper packing
+lanes must not become additional point coordinates. -/
 def factor (dummy context : Digest) (history : List Observation) (radius : ℕ)
     (geometry : GoldHistorySourceTable.Geometry (reference entries reachable handle references template ctx assembled index).parameters)
-    {padding c : ℕ} (width : (reference entries reachable handle references template ctx assembled index).parameters.width.val = 3+padding)
-    (shape : 3+padding = 2^c) :=
-  ScalarPublicSourceModel.publicScalar (reference entries reachable handle references template ctx assembled index) dummy context
-    (ctx.proof.roots.val.get index) history radius
-    ((origin entries reachable handle references template ctx assembled index).capacityAt _ rfl) geometry width shape
+    {padding : ℕ} (width : (reference entries reachable handle references template ctx assembled index).parameters.width.val = 3+padding) :=
+  fun cell => PaddedExtension.decode NativeExtensionFields.goldilocksBasis
+    (ScalarPublicSourceModel.publicPacked (reference entries reachable handle references template ctx assembled index) dummy context
+      (ctx.proof.roots.val.get index) history radius
+      ((origin entries reachable handle references template ctx assembled index).capacityAt _ rfl) geometry width cell)
+
+/-- The actual coefficient query evaluates exactly this decoded-row helper
+factor, without any zero-padding assumption on the original table. -/
+theorem query (dummy context : Digest) (history : List Observation) (radius : ℕ)
+    (geometry : GoldHistorySourceTable.Geometry (reference entries reachable handle references template ctx assembled index).parameters)
+    {padding : ℕ} (width : (reference entries reachable handle references template ctx assembled index).parameters.width.val = 3+padding)
+    (point : Fin (reference entries reachable handle references template ctx assembled index).parameters.numVariables.val → NativeExtensionFields.Goldilocks3) :
+    (ExtensionQuery.coefficientsQuery NativeExtensionFields.goldilocksBasis point).evaluate
+      (ScalarPublicSourceModel.publicPacked (reference entries reachable handle references template ctx assembled index) dummy context
+        (ctx.proof.roots.val.get index) history radius
+        ((origin entries reachable handle references template ctx assembled index).capacityAt _ rfl) geometry width) =
+      PaddedExtension.encode (padding := padding) NativeExtensionFields.goldilocksBasis
+        (ExtensionQuery.evaluate _ point (factor entries reachable handle references template ctx assembled index dummy context history radius geometry width)) :=
+  ExtensionQuery.coefficients_evaluate _ point _
 
 theorem read (dummy context : Digest) (before after : List Observation) (radius : ℕ)
     (geometry : GoldHistorySourceTable.Geometry (reference entries reachable handle references template ctx assembled index).parameters)
-    {padding c : ℕ} (width : (reference entries reachable handle references template ctx assembled index).parameters.width.val = 3+padding)
-    (shape : 3+padding = 2^c) (input : Input) (offset : ℕ) (values : Input) (positive : values ≠ [])
+    {padding : ℕ} (width : (reference entries reachable handle references template ctx assembled index).parameters.width.val = 3+padding)
+    (input : Input) (offset : ℕ) (values : Input) (positive : values ≠ [])
     (resolved : (context,ctx.proof.roots.val.get index) ∈ NativeParentLedger.resolve
       (NativeRootFamilyHistory.reconstruct NativeGoldColumnAuthentication.encoding dummy before).1.1
       (NativeRootFamilyHistory.reconstruct NativeGoldColumnAuthentication.encoding dummy before).1.2 input) :
     factor entries reachable handle references template ctx assembled index dummy context
-        (before ++ .output input offset values :: after) radius geometry width shape =
-      factor entries reachable handle references template ctx assembled index dummy context before radius geometry width shape :=
-  SourceFrontierStability.scalar_read _ _ _ _ _ _ _ _ _ width shape input offset values positive resolved
+        (before ++ .output input offset values :: after) radius geometry width =
+      factor entries reachable handle references template ctx assembled index dummy context before radius geometry width := by
+  unfold factor ScalarPublicSourceModel.publicPacked
+  rw [SourceFrontierStability.cube_read _ _ _ _ _ _ _ _ _ input offset values positive resolved]
 
 /-- Actual helper-context ancestry and the committed original root supply the
-pre-read table, with the existing seed-order bad event kept explicit. -/
+pre-read decoded helper, with the existing seed-order bad event kept explicit. -/
 theorem ancestry_read {S A : Type} (step : S → OracleMachine.Command S A) (fuel : ℕ) (initial : S) (world : World)
     (dummy context : Digest) (radius : ℕ)
     (geometry : GoldHistorySourceTable.Geometry (reference entries reachable handle references template ctx assembled index).parameters)
-    {padding c : ℕ} (width : (reference entries reachable handle references template ctx assembled index).parameters.width.val = 3+padding)
-    (shape : 3+padding = 2^c) (parent : Input) (parentIndex : ℕ)
+    {padding : ℕ} (width : (reference entries reachable handle references template ctx assembled index).parameters.width.val = 3+padding)
+    (parent : Input) (parentIndex : ℕ)
     (realized : NativeSeedAncestry.Realized world (OracleProgram.run (OracleMachine.take step fuel initial) world).run.2
       parent parentIndex (.helper context))
     (position : ℕ) (input : Input) (offset : ℕ) (values : Input) (positive : values ≠ [])
@@ -79,13 +96,18 @@ theorem ancestry_read {S A : Type} (step : S → OracleMachine.Command S A) (fue
     (quoted : NativeChildSeedView.quote input = some (InputIndexedOracle.block world parent 0 64))
     (committed : ctx.proof.roots.val.get index ∈ NativeParentLedger.roots input) :
     factor entries reachable handle references template ctx assembled index dummy context
-        (OracleProgram.run (OracleMachine.take step fuel initial) world).run.2 radius geometry width shape =
+        (OracleProgram.run (OracleMachine.take step fuel initial) world).run.2 radius geometry width =
       factor entries reachable handle references template ctx assembled index dummy context
-        ((OracleProgram.run (OracleMachine.take step fuel initial) world).run.2.take position) radius geometry width shape ∨
+        ((OracleProgram.run (OracleMachine.take step fuel initial) world).run.2.take position) radius geometry width ∨
       SeedQuoteOrder.Bad step initial world := by
-  apply SourceFrontierStability.ancestry_scalar_read step fuel initial world _ dummy context _ radius _ geometry width shape
-    parent parentIndex (.helper context) realized position input offset values positive positioned quoted
-  exact List.mem_map.mpr ⟨ctx.proof.roots.val.get index,committed,rfl⟩
+  have member : (context,ctx.proof.roots.val.get index) ∈ NativeSeedAncestry.Keys input (.helper context) :=
+    List.mem_map.mpr ⟨ctx.proof.roots.val.get index,committed,rfl⟩
+  rcases SourceFrontierStability.ancestry_cube_read step fuel initial world _ dummy context _ radius _ geometry
+      parent parentIndex (.helper context) realized position input offset values positive positioned quoted member with same | bad
+  · apply Or.inl
+    unfold factor ScalarPublicSourceModel.publicPacked
+    rw [same]
+  · exact Or.inr bad
 
 end
 end FormalProof4FHE.HasteBoots.AllocatedScalarHelper

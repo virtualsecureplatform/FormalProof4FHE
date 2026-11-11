@@ -30,6 +30,14 @@ import FormalProof4FHE.HasteBoots.AllocatedScalarHelper
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.SourceFrontierStability.scalar_read_at
 
+/-- info: 'FormalProof4FHE.HasteBoots.SourceFrontierStability.cube_read_at' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.SourceFrontierStability.cube_read_at
+
+/-- info: 'FormalProof4FHE.HasteBoots.SourceFrontierStability.ancestry_cube_read' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.SourceFrontierStability.ancestry_cube_read
+
 /-- info: 'FormalProof4FHE.HasteBoots.SourceFrontierStability.ancestry_scalar_read' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.SourceFrontierStability.ancestry_scalar_read
@@ -93,6 +101,10 @@ import FormalProof4FHE.HasteBoots.AllocatedScalarHelper
 /-- info: 'FormalProof4FHE.HasteBoots.AllocatedScalarHelper.factor' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.AllocatedScalarHelper.factor
+
+/-- info: 'FormalProof4FHE.HasteBoots.AllocatedScalarHelper.query' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.AllocatedScalarHelper.query
 
 /-- info: 'FormalProof4FHE.HasteBoots.AllocatedScalarHelper.read' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in

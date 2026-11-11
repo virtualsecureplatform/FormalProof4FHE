@@ -181,15 +181,15 @@ example (index : Fin ctx.proof.roots.val.length) :
 
 example (index : Fin ctx.proof.roots.val.length) (dummy context : Digest) (earlier later : List Observation) (radius : ℕ)
     (sizes : GoldHistorySourceTable.Geometry (AllocatedScalarHelper.reference entries reachable handle references template ctx assembled index).parameters)
-    {padding c : ℕ} (width : (AllocatedScalarHelper.reference entries reachable handle references template ctx assembled index).parameters.width.val = 3+padding)
-    (shape : 3+padding = 2^c) (input : Input) (offset : ℕ) (values : Input) (positive : values ≠ [])
+    {padding : ℕ} (width : (AllocatedScalarHelper.reference entries reachable handle references template ctx assembled index).parameters.width.val = 3+padding)
+    (input : Input) (offset : ℕ) (values : Input) (positive : values ≠ [])
     (found : (context,ctx.proof.roots.val.get index) ∈ NativeParentLedger.resolve
       (NativeRootFamilyHistory.reconstruct NativeGoldColumnAuthentication.encoding dummy earlier).1.1
       (NativeRootFamilyHistory.reconstruct NativeGoldColumnAuthentication.encoding dummy earlier).1.2 input) :
     AllocatedScalarHelper.factor entries reachable handle references template ctx assembled index dummy context
-        (earlier ++ .output input offset values :: later) radius sizes width shape =
-      AllocatedScalarHelper.factor entries reachable handle references template ctx assembled index dummy context earlier radius sizes width shape :=
-  AllocatedScalarHelper.read entries reachable handle references template ctx assembled index dummy context earlier later radius sizes width shape input offset values positive found
+        (earlier ++ .output input offset values :: later) radius sizes width =
+      AllocatedScalarHelper.factor entries reachable handle references template ctx assembled index dummy context earlier radius sizes width :=
+  AllocatedScalarHelper.read entries reachable handle references template ctx assembled index dummy context earlier later radius sizes width input offset values positive found
 
 end Allocated
 end
