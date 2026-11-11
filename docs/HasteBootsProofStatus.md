@@ -26554,3 +26554,77 @@ passed with only standard Lean axioms (5,118-job guarded build). With
 source/tests frozen, `scripts/check` passed the 11,895-job root build and all
 standalone checks. Full-check log SHA-256:
 `b32b5da716242cfac5899479d8f658eb38c8af39b5b0613f8a0d9e6e897300ce`.
+
+## Priced canonical scalar healing and native false-identity work
+
+`CanonicalCandidateFixation` combines the original retained metadata/factor
+fixation with `CanonicalAllocatedFamilyFixation`. Each candidate keeps its
+actual original source/helper tables at their independent parameter-derived
+radii. Full parameter equality fixes those radii on the same original replay
+fiber. The metadata proof reuses the earlier radius-parametric fixation at
+zero; this does not decode the canonical source/helper tables at radius zero.
+Their complete function equality is proved separately.
+
+`CanonicalCandidateTables`, `CanonicalCandidateScalarTest` and
+`CanonicalCandidateTest` construct and fix the complete full/partial native
+healing test for every retained prior. Native identity metadata still chooses
+one branch; messages come from the original odd equation slot of the actual
+completed reader. The canonical test has the same conditional `4 / p^3`
+Goldilocks-extension allowance as the earlier scalar analysis.
+`CanonicalAttainableEvent` uses the original attained packet/class, preserving
+the same input, original job ordinal, reader, message and recovered replay.
+`CanonicalSafeIdentityKernel` covers competing safe candidates by an attained
+reference, without a measurable chooser or successful-class denominator.
+
+`CanonicalScalarPositionKernel` reuses the original literal input and encoded
+equation-count score. It adds no count over possible contexts, source roles,
+helper roots or decoding radii. `CanonicalScalarLifetime` therefore reuses the
+proved scalar observation-clock work charge. `CanonicalCandidateContinuation`
+retains the exact packet and canonical test under arbitrary continuation.
+`PrivateCoinCanonicalScalarProbability` lifts the result to all instruction
+horizons and the original independent tape/world measure, outside one shared
+reference lifetime bad event. Event measurability and finite expected work
+are not additional premises.
+
+`CanonicalAllocatedReadStability` applies original native ancestry stability
+separately at each source's own radius and at the helper's radius. A single
+seed-order safety premise resolves the common alternative for all these
+applications. `CanonicalJobReferenceRecovery` retains the actual full native
+reader, original factors and complete canonical families at the first scalar
+read. `CanonicalAllocatedCandidateEvent` transports the actual native test to
+that candidate. `CanonicalAllocatedHealing` closes the previously explicit
+canonical healing-to-attained-event gap, with the original shared hash
+alternative retained.
+
+`CanonicalJointPcsLedger` and `CanonicalJointWorkBound` compose canonical
+scalar healing with the same original helper/source PCS and one shared hash
+ledger. The aggregate numerical allowance is exactly the preceding
+`CalibratedJointWorkBound.rate`; the reference allowance remains conservatively
+charged twice, with no new parameter/radius factor.
+
+`CanonicalNativeHealingCoverage` reconstructs the actual allocated entry-point
+execution directly from a retained native job and its successful assembly.
+No new caller-supplied allocated/native log equality is needed. An originally
+false identity interpreted against the canonical public tables now enters
+the priced canonical scalar event or original calibrated PCS/hash lifetime.
+`CanonicalIdentityWork.work_128` proves
+`2^128 * P[originally false canonical native identity] ≤ E[specified interpreter work]`
+for its explicitly defined witness event across all original runtime-coin
+instruction horizons. The witness retains actual native execution, framing,
+round domain, parent domain and seed-order safety; original constructor and
+role admission are supplied by the theorem's allocated targets.
+
+This endpoint concerns originally false native identity equations in a fixed
+assembled reference context. It does not derive whole modified-PBS initial
+falsity or all application-stage enforcement, close native framing/domain/
+seed-order obligations unconditionally, derive actual profile admission, or
+refine specified work to actual attacker work with actor-cost separation.
+Those remain required for the requested final theorem, which remains unproved.
+
+Four regressions reject canonical healing after completion, on silent private
+coin-only steps, at an empty read, and at a repeated positive read of an
+already exposed stream. Their general no-first-read exclusion helper is also
+audited. All 81 exact axiom guards passed with only standard Lean axioms
+(5,127-job guarded build). With source/tests frozen, `scripts/check` passed
+the 11,915-job root build and all standalone checks. Full-check log SHA-256:
+`c9b7ce135e755e3041b659bfafc6203c34219b935367d021a879be388f9ab0aa`.
