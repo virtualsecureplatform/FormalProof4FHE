@@ -26086,3 +26086,54 @@ only standard Lean axioms (5,063-job guarded build). With source and tests
 frozen, `scripts/check` passed the 11,829-job root build and every standalone
 check. Full-check log SHA-256:
 `8a546b3bcef36c816764ce22d08bf1a63e44b89cd1dcf06de33f509dc87f1d7b`.
+
+## Non-root reference risk scores paid by original work (2026-11-11)
+
+`ProgramObservationClock` proves completion at the exact length of the
+original program's actual log. Every later analysis prefix has no next
+primitive request. Any nonnegative packet score that vanishes without a
+request and is bounded by a constant therefore has its full unbounded sum
+bounded by that constant times the original observation count. This uses
+path-dependent actual completion, not a uniform program-depth assumption.
+
+`ReferenceRiskBudget` connects all four existing non-root reference scores
+to original observed data. Recognized parent-key and receipt-payload counts
+are bounded by log length. Context targets are bounded by twice the logged
+input bytes; fresh-receipt targets are bounded by those same bytes. Starts
+and empty reads remain in the context/parent naming budget, while receipt
+digest naming excludes them. The combined original risk is bounded by:
+
+`(2 * observationCount + 3 * inputBytes) / 2^512`.
+
+Masking only the score at prefixes where both counts are below an arbitrary
+analysis threshold bounds each selecting-packet score by
+`5 * threshold / 2^512`. The mask does not modify, reject, stop or truncate
+the interpreter, oracle log, private tape or adversarial execution.
+The full sum of these four thresholded scores is bounded by the original
+closed or runtime-private-coin interpreter's specified final work counter
+at every actual instruction horizon. The supremum of all such private-coin
+horizon charges is bounded pointwise by specified lifetime work times the
+same rate, and its original joint tape/world integral by the existing
+unconditional expected specified lifetime work times that rate. Infinite
+work and infinite expectations are retained.
+
+This establishes the accounting side for the four non-root reference
+scores. The probability side still requires the masked conditional-event
+bounds on their original/parent-completed/receipt-completed fibers, followed
+by the high-work Markov split and compatible lifetime event composition.
+The score integral is not asserted to prove that missing event bound.
+The PCS failures outside the shared hash event, whole modified-PBS initial
+falsity, native domain/seed-order closure, profile/numeric admission and
+native physical pricing also remain open. The final 128-bit theorem is
+unproved.
+
+Three regressions check naming bytes from starts/empty reads/hashes, a zero
+analysis threshold, and absence of requests on every extension after the
+actual five-observation mixed execution. Exact axiom guards cover all 23
+new declarations and these three regressions.
+
+Validation: all 26 exact axiom guards and three regressions passed using
+only standard Lean axioms (5,052-job guarded build). With source and tests
+frozen, `scripts/check` passed the 11,833-job root build and every standalone
+check. Full-check log SHA-256:
+`31a2db24530d505c1325725081b57c28ed748a5cc888ea510314d8cf78a3e1c2`.
