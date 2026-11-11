@@ -1124,3 +1124,5 @@ import FormalProof4FHE.HasteBoots.PrivateCoinScalarWork
 import FormalProof4FHE.HasteBoots.ByteScalarLogWork
 
 import FormalProof4FHE.HasteBoots.InterpreterScalarLifetime
+
+import FormalProof4FHE.HasteBoots.PrivateCoinScalarProbability
