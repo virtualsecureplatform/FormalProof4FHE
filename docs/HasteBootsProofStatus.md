@@ -23212,3 +23212,65 @@ Validation: twelve targeted scalar-input regressions and thirty-four exact
 axiom guards passed (4,408 jobs). `scripts/check` exited successfully, including
 the 11,515-job build and every standalone check. Full-check log SHA-256:
 `3ea0e028e5c175603b46065c4a4f700134a5d8acb92ca16e331783a8082964a4`.
+
+## Native scalar replay before the selected stream is exposed
+
+`ScalarAncestorExposure` proves that actual native candidate collection cannot
+read a different SHAKE input. The proof includes every rejected candidate,
+resumption and arbitrary finite shared budgets. Actual receipt finalization
+cannot read any strictly parsed scalar input: its ASCII domain prefix lies
+outside the framed transcript language. A successfully finalized reader also
+strictly extends its original transcript input. These are structural facts;
+they do not declare an adversarially guessed input fresh.
+
+`ScalarStoppedReplay` runs the original scalar verifier's `tick` program and
+stops when the native sampling control names the selected input. Reader starts
+are retained; the selected reader's first candidate is not read. Native
+preflight, recurrence checking, interpolation, expected values, common point,
+completed records, rejection and suspension are unchanged. Each returned state
+and its entire ordered observation log equal an actual native execution prefix.
+On a prefix before the first selected reader, stopped and native execution are
+exactly equal. Initialization derives the existing native chain invariant for
+the returned machine, rather than assuming a recovered prior expected vector.
+Every finite stopped replay leaves the selected stream unseen, including its
+receipt queries. Appending it to an unseen original history preserves freshness
+of all selected SHAKE coordinates.
+
+`ScalarReplayChallengeLaw` refines the original attacker history by this
+replayable native execution, retaining both complete logs and original state.
+A challenge test can depend on the replayed machine state. On the refined
+fiber, that state is fixed and the cubic Goldilocks challenge has its actual
+shared-budget completion mass times the uniform field law. Averaging these
+fibers returns an exact law in the original first-exposure posterior. Uniform
+test bounds survive this adaptive selection. A union over every challenge
+candidate budget gives the same bound for eventual agreement of distinct
+degree-D polynomial families selected from the replayed machine: D/p^3.
+No replay-success or sampler-success conditioning is used. The auxiliary replay
+budget is finite analysis history, not a native runtime retry cap.
+
+Fourteen regressions cover an actual two-round native verifier. Successful
+replay completes round one and stops at round two with its actual prior sum and
+common point. All seven observations remain, including the three eight-byte
+candidate reads, the 64-byte receipt read and both starts. A rejection-only
+world instead keeps sampling the first round and retains forty consumed bytes.
+Other regressions cover zero budget, stopped-state idempotence, exact five-tick
+native-prefix identity, initialized chain invariants, receipt nonexposure, and
+a polynomial family whose constant coefficient depends on the replayed common
+point length. Twenty-eight exact axiom guards cover all new public definitions
+and proofs.
+
+This supplies causal auxiliary replay and adaptive polynomial-test probability
+composition. The replay still receives a fixed original statement/proof/initial
+machine; deriving that reconstruction from the selected input's preceding
+frames remains open. Honest polynomial families must still be derived from the
+original application/source table and replayed point, with native metadata,
+false-prior and degree obligations discharged. No global scalar first-exposure
+sum, scalar/lookup/PBS falsity composition, concrete-profile admission, native
+BabyBear implementation, or physical attacker-work/compiler/cache/RNG coupling
+is claimed here. The final modified-PBS 128-bit attacker-work theorem remains
+open. Frozen `Native*` modules are unchanged.
+
+Validation: fourteen targeted scalar-replay regressions and twenty-eight exact
+axiom guards passed (4,409 jobs). `scripts/check` exited successfully, including
+the 11,520-job build and every standalone check. Full-check log SHA-256:
+`3f55cf69c15bfe4749f2b5c04ad73e92624f83f6ffc6c0f52483e61c8f649e40`.
