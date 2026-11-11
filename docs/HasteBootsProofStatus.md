@@ -25825,3 +25825,50 @@ passed using only standard Lean axioms (5,022-job guarded build).
 `scripts/check` passed the 11,805-job root build and every standalone check
 with source and tests frozen. Full-check log SHA-256:
 `2442865f711cb92a7b68fd5f0046f59f5a63f2c9ad1a0adae721f87c398269a3`.
+
+## Scalar metadata and specified interpreter work (2026-11-11)
+
+`ScalarMetadataSize` proves that each equation in a successfully recovered
+native scalar key contributes at least two statement metadata bytes. The
+proof follows the actual bincode usize varint codec and transcript frames;
+it does not assume eight-byte integers. The equation count is consequently
+bounded by the selected literal input's byte length.
+
+`ScalarEquationWork` decomposes the existing observation-clock scalar charge
+exactly into the first-read equation count times `4 / Goldilocks^3`, both
+pointwise and in expectation. It bounds those equation counts by selected
+key bytes without finite lifetime or finite expectation assumptions.
+
+`ClosedByteScalarWork` prices the same generic first-read count at actual
+issued closed-byte instructions. Every selected key's length is bounded by
+that instruction's specified price. Summing over all instruction indices
+bounds the instruction-clock scalar charge by the existing lifetime work
+counter times the scalar rate.
+
+`PrivateCoinScalarWork` transports this instruction bound through runtime
+private-coin instructions and the original fixed-tape execution sections.
+The joint expected charge is bounded by the existing expected work counter
+for an arbitrary private-tape measure, without conditioning on success,
+preloading a fuel-dependent coin tape, truncating the execution, or assuming
+finite expected work.
+
+These are specified interpreter work bounds. In particular, this change does
+not yet identify the enclosing pure `Program` observation-clock scalar sum
+with the instruction-clock sum: silent byte instructions require an exact
+trace/clock refinement, retaining first-read uniqueness. Nor does it price
+native Rust primitives, caches, or physical RNG work. Those obligations
+remain necessary before substituting actual attacker work into the joint
+security bound. Whole modified-PBS initial falsity, native domain/seed-order
+closure, numeric/profile admission, and the other charge-accounting
+obligations listed above remain open. The final 128-bit theorem is unproved.
+
+Five regressions cover the 250/251 varint-width boundary, minimal two-byte
+metadata, the recovered equation count of the existing native scalar key,
+empty reads, and runtime coin-only instructions. Exact axiom guards cover
+all 26 new proof declarations and these five regressions.
+
+Validation: all 31 exact axiom guards and five new regressions passed in a
+5,058-job guarded build using only standard Lean axioms. With source and
+tests frozen, `scripts/check` passed the 11,811-job root build and every
+standalone check. Full-check log SHA-256:
+`d7d5ec476147a1a80f1946b88a77947b2304c82c02e5d622d8db8564aa157adc`.

@@ -640,3 +640,6 @@ import FormalProof4FHETest.HasteBootsOpeningLifetimeFamilyAudit
 
 import FormalProof4FHETest.HasteBootsScalarLifetimeSmoke
 import FormalProof4FHETest.HasteBootsScalarLifetimeAudit
+
+import FormalProof4FHETest.HasteBootsScalarWorkSmoke
+import FormalProof4FHETest.HasteBootsScalarWorkAudit
