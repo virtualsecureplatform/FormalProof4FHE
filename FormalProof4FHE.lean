@@ -1069,3 +1069,6 @@ import FormalProof4FHE.HasteBoots.OriginalReceiptSegmentation
 import FormalProof4FHE.HasteBoots.OriginalScalarReceiptPosition
 
 import FormalProof4FHE.HasteBoots.OriginalLookupFactorSamples
+
+import FormalProof4FHE.HasteBoots.LookupSampleReceiptTargets
+import FormalProof4FHE.HasteBoots.FreshReceiptTargetLifetime

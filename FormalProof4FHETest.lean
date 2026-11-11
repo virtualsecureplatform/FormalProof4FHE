@@ -581,3 +581,6 @@ import FormalProof4FHETest.HasteBootsScalarParentAudit
 
 import FormalProof4FHETest.HasteBootsProducerOrdinalSmoke
 import FormalProof4FHETest.HasteBootsProducerOrdinalAudit
+
+import FormalProof4FHETest.HasteBootsFreshReceiptTargetSmoke
+import FormalProof4FHETest.HasteBootsFreshReceiptTargetAudit

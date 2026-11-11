@@ -24618,3 +24618,57 @@ report only standard Lean axioms (5,011 smoke / 4,528 audit targeted jobs).
 every standalone check. Full-check log SHA-256:
 `830cace261fefad8c1169d0c7300231764f3be9d2971ed962b8c0c96ee70897e`. Frozen `Native*` modules, dependencies and kernel resource
 limits are unchanged.
+
+### Causal fresh receipt-target risk and lifetime charges
+
+`ReceiptDigestTargets` extracts full 64-byte digest targets from structurally
+decoded kind-5 receipt messages of exactly 80 bytes in earlier query keys.
+Positive SHAKE reads at arbitrary offsets and hash observations name targets;
+starts and empty reads do not. Targets are deduplicated. Actual native receipt
+frames supply target membership without a digest-guess premise. Receipt-domain
+keys themselves are outside the framed language and add no synthetic targets.
+Target cardinality is bounded by the total length of qualifying named inputs;
+this is a finite syntax bound, not a physical-work identification.
+
+`FreshReceiptTargetRisk` selects an actual first positive read at a valid
+receipt key from the complete causal packet. It derives whole-key freshness,
+including when the first read is far beyond the digest's initial 64 bytes.
+The exact conditional target-hit probability is `targets.card / 2^512` on the
+original replay fiber. Earlier starts, empty same-key reads and independent
+SHA-512 observations do not spoil this law; any earlier positive SHAKE read
+of that key prevents selection. Measurability, exact posterior averaging and
+the named-input-length probability bound are proved from the existing cached
+oracle law. No full-digest denominator is asserted for an already partially
+observed SHAKE key.
+
+`FreshReceiptTargetLifetime` bounds the union over all actual machine prefixes
+by one lifetime sum of those causal charges, retaining an inherited event.
+It introduces no collector-budget, retry-count or completion-normalization
+factor. These are probability charges, not native runtime or physical work.
+
+`LookupSampleReceiptTargets` derives that an original-position lookup/EQ
+sample's actual receipt frame occurs in its completed outer scalar input,
+using the sample's native reader ancestry and receipt binding. An earlier
+positive observation of that input therefore names its actual digest target.
+When the sample's receipt key is the selected next first read, this yields the
+fresh target-hit event without a caller-supplied frame-membership or digest
+target witness.
+
+This supplies the fresh-hit law and its sample-level coverage adapter. The
+whole native false-acceptance reduction still needs to recover every required
+first receipt read in the enclosing program and prove the relevant earlier
+scalar observation occurs before it. Explicit SHAKE receipt-collision risk,
+cross-world original metadata/source-family coupling, posterior composition
+with the degree/PCS tests and global attacker-work coupling remain open.
+The final modified-PBS 128-bit actual-attacker-work theorem is not proved.
+
+Validation: duplicate target naming, ignored start/empty observations,
+receipt-domain rejection, same-key SHA-512 independence, a first read at
+offset 999 and later-read ineligibility passed. The actual prefix fixture
+has exact conditional hit probability `2^-512`. Twenty-two exact axiom guards
+passed (one axiom-free; the rest use only standard Lean axioms), with 4,537
+smoke / 4,536 audit targeted jobs. `scripts/check` exited successfully,
+including the 11,664-job root build and every standalone check. Full-check log
+SHA-256:
+`fc54119e7e5108ce5b57acf5893ffe78d203dd8e6d517e27f8f1b57ec414a069`. Frozen `Native*` modules, dependencies and kernel resource
+limits are unchanged.
