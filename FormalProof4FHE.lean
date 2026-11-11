@@ -979,3 +979,9 @@ import FormalProof4FHE.HasteBoots.ScalarRoundHealingBound
 
 import FormalProof4FHE.HasteBoots.ScalarChallengeInputView
 import FormalProof4FHE.HasteBoots.ScalarChallengeInputBound
+
+import FormalProof4FHE.HasteBoots.ScalarAncestorExposure
+
+import FormalProof4FHE.HasteBoots.ScalarStoppedReplay
+
+import FormalProof4FHE.HasteBoots.ScalarReplayChallengeLaw
