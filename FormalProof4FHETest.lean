@@ -463,3 +463,6 @@ import FormalProof4FHETest.HasteBootsSingleLifetimeAudit
 
 import FormalProof4FHETest.HasteBootsSharedNativeLifetimeSmoke
 import FormalProof4FHETest.HasteBootsSharedNativeLifetimeAudit
+
+import FormalProof4FHETest.HasteBootsProfileLineageSmoke
+import FormalProof4FHETest.HasteBootsProfileLineageAudit

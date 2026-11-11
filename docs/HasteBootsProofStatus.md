@@ -22390,3 +22390,47 @@ The final 128-bit actual-attacker-work theorem is not yet proved.
 Full validation: `scripts/check` exited successfully, including the
 11,439-job build and all subsequent standalone checks. Full-check log SHA-256:
 `e22997bc11d8cc0c135cb3773a5b691a2e4ce93ac0fd2bde10453cafad727b3d`.
+## Derived profile lineage for the native helper lifetime bridge
+
+`SingleOpeningProfileLineage` derives profile preservation from the actual
+binding, completed field collector and original atomic column request. It
+covers the retained sampler receipt, prepared work and accepted native PCS
+program, without introducing framing, freshness or worker certificates. The
+existing collector header invariant handles rejected candidates and resumption.
+
+`LookupProfileLineage` follows context framing, request preflight and registry
+registration to the retained detached-child parent. Every finish, including
+rejection, preserves the input parent's profile. A successful native lookup
+body therefore returns the original parent profile. This uses the actual
+launch and finish contracts; it assumes neither scalar soundness nor
+checkpoint injectivity, and it does not prove outer lookup soundness.
+
+`HelperProfileLineage` proves an invariant for the ordered native helper trace:
+its last accepted transcript and every retained receipt's before/after states
+have the original parent profile. Preexisting receipts are covered by an
+explicit initial invariant; the production loop starts with no receipts.
+The result covers both completion and a later helper stop, and carries through
+the enclosing lookup program even if subsequent source verification fails.
+`HelperOpeningLifetimeWitness.witness` now derives receipt profile equality
+from this execution invariant. Its reference-context association is only
+`ctx.parent.profile = target.transcript.profile`; callers no longer supply a
+separate equality for an arbitrary receipt. Logical allocation/parameter
+association, framing bounds and actual parsed-claim falsity remain explicit.
+
+Six regression examples exercise the original single-opening sampler, the
+actual repeated-helper fixture stopping after one acceptance, scheduler
+cancellation, arbitrary nonconstant profiles/worlds/fuels, and detached finish
+metadata. Sixteen exact Lean-output axiom guards cover the new profile
+lemmas; only `propext`, `Classical.choice` and `Quot.sound` occur. Targeted
+profile smoke and updated lifetime-witness builds passed, with unchanged
+proof limits and no frozen native edits.
+
+Next remain original helper allocation ownership at the application boundary,
+outer scalar/lookup falsity composition with the joint helper/source opening
+event, concrete profile admission and actual attacker-work coupling. Native
+BabyBear, complete modified-PBS lifetime, and compiler/cache/RNG refinement
+remain open. The final 128-bit actual-attacker-work theorem is not yet proved.
+
+Full validation: `scripts/check` exited successfully, including the
+11,444-job build and every subsequent standalone check. Full-check log SHA-256:
+`81c3d8f9a02eb0c328cb7f6589b73ebdbf3b4a0e7f0c27a6fff814e3fae1aa09`.

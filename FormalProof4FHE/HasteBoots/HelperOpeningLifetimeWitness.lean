@@ -1,11 +1,11 @@
 module
 public import FormalProof4FHE.HasteBoots.AllocatedSingleOpeningOrigin
-public import FormalProof4FHE.HasteBoots.NativeGoldLookupVerification
+public import FormalProof4FHE.HasteBoots.HelperProfileLineage
 @[expose] public section
 
 /-! Actual ordered helper receipts yield the accepted call, native sampling
 receipt and parsed single-opening data used by lifetime soundness. Logical
-allocation-handle/parameter and fixed-profile association remain explicit;
+allocation-handle/parameter and reference-parent association remain explicit;
 physical pointer and outer application falsity are not assumed proved. -/
 namespace FormalProof4FHE.HasteBoots.HelperOpeningLifetimeWitness
 open NativeGoldHelperVerification (Context Receipt)
@@ -57,7 +57,7 @@ theorem witness {B Memory : Type} (dummy : Digest) (ctx : Context B) (choose : N
     (entries : List Entry) (reachable : NativeGoldParameterStore.Reachable entries) (handle : ℕ) (entry : Entry)
     (found : entries[handle]? = some entry) (same : ctx.helper = entry.initialized.parameters)
     (target : NativeGoldPcsExecution.Context) (parameters : ctx.helper = target.parameters)
-    (profile : receipt.before.profile = target.transcript.profile) (radius : ℕ)
+    (profile : ctx.parent.profile = target.transcript.profile) (radius : ℕ)
     (falseClaim : ∀ sample, ∀ sampler : SingleOpeningSamplingReceipt.Receipt
         (NativeGoldHelperVerification.context ctx.tables ctx.helper ctx.fieldFuel receipt.before receipt.call) world receipt.work sample,
       ∀ decoded, SingleOpeningChallengeLink.parse (SingleOpeningColumnLaw.input sampler world) = some decoded →
@@ -72,7 +72,7 @@ theorem witness {B Memory : Type} (dummy : Digest) (ctx : Context B) (choose : N
   exact ⟨{
     candidate := NativeGoldHelperVerification.context ctx.tables ctx.helper ctx.fieldFuel receipt.before receipt.call
     sameParameters := parameters
-    sameProfile := profile
+    sameProfile := (HelperProfileLineage.receipt_profiles ctx choose memory world bound plan status executed receipt member).1.trans profile
     origin := AllocatedSingleOpeningOrigin.helperReceipt entries reachable handle entry found ctx same receipt
     choose := choose
     verifierFuel := ctx.workerFuel

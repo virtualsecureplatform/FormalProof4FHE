@@ -920,3 +920,6 @@ import FormalProof4FHE.HasteBoots.SingleOpeningConstructorBounds
 import FormalProof4FHE.HasteBoots.AllocatedSingleOpeningOrigin
 import FormalProof4FHE.HasteBoots.HelperOpeningLifetimeWitness
 import FormalProof4FHE.HasteBoots.SharedNativeOpeningLifetime
+import FormalProof4FHE.HasteBoots.SingleOpeningProfileLineage
+import FormalProof4FHE.HasteBoots.LookupProfileLineage
+import FormalProof4FHE.HasteBoots.HelperProfileLineage
