@@ -1128,3 +1128,5 @@ import FormalProof4FHE.HasteBoots.InterpreterScalarLifetime
 import FormalProof4FHE.HasteBoots.PrivateCoinScalarProbability
 
 import FormalProof4FHE.HasteBoots.PrivateCoinJointPcsLedger
+
+import FormalProof4FHE.HasteBoots.ReferenceRiskBudget
