@@ -959,3 +959,7 @@ import FormalProof4FHE.HasteBoots.GoldRecoveredSourceTableIdentity
 import FormalProof4FHE.HasteBoots.SourceHistoryOwnerLog
 import FormalProof4FHE.HasteBoots.GoldHistorySourceTable
 import FormalProof4FHE.HasteBoots.GoldHistoryPublicExtraction
+
+import FormalProof4FHE.HasteBoots.RegistryPublicSource
+import FormalProof4FHE.HasteBoots.LookupSourcePublicOwnership
+import FormalProof4FHE.HasteBoots.RegistryPublicSourceObligation
