@@ -661,3 +661,6 @@ import FormalProof4FHETest.HasteBootsReferenceBudgetAudit
 
 import FormalProof4FHETest.HasteBootsReferenceProbabilitySmoke
 import FormalProof4FHETest.HasteBootsReferenceProbabilityAudit
+
+import FormalProof4FHETest.HasteBootsOpeningClockSmoke
+import FormalProof4FHETest.HasteBootsOpeningClockAudit

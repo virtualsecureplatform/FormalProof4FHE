@@ -26197,3 +26197,65 @@ only standard Lean axioms (5,070-job guarded build). With source and tests
 frozen, `scripts/check` passed the 11,841-job root build and every standalone
 check. Full-check log SHA-256:
 `73822113d86026049405aa50eb4b4b53e2066ccbafb24b924c258ccb4a4cbc4a`.
+
+## Original PCS witnesses on actual instruction logs (2026-11-11)
+
+`InstructionLogRealization` proves that every prefix of the actual runtime-
+coin observation log is exactly the log of an original instruction prefix
+within the original horizon. Each issued instruction emits at most one
+observation, while silent instructions and runtime coins keep their actual
+clock positions. This realizes every raw program analysis prefix, including
+prefixes after completion, without extending or discarding observations.
+
+`PrivateCoinOpeningWitness` transports the original helper and source PCS
+witnesses from their pure-program analysis prefixes to these exact actual
+instruction logs. Only equality of the log index is used. The original
+native candidate, completed reader, scheduler, receipt, response, extractor
+source, false-claim proof, parameter/profile equalities, radius and code
+origin are retained. The family theorem retains the original source index,
+including repeated parameter/profile entries. No retrospective witness
+extension, future source stability premise, or supplied clock mapping is
+needed.
+
+`OriginalBatchInstructionCoverage` applies the runtime native batch coverage
+theorem to each such original source witness. Its actual constructor facts
+come from the same original `CacheBackedCodeOrigin`; equality of full
+parameters and profile transports the candidate's field/column hazards to
+the original context. A disagreement enters the one shared actual hash
+lifetime event. Outside that event, the original failure is covered by the
+actual instruction-clock receipt, field and column hazards. The existing
+Goldilocks role calibration consequently bounds the fixed-tape original
+source-family event by the existing expected specified lifetime work.
+
+`OriginalBatchJointProbability` proves joint measurability of actual native
+witness events using their truthful-history characterization and the finite
+tape/oracle certificates of the original interpreter. It integrates the
+fixed-tape bound against the original independent product measure. For one
+original source parameter/profile family with its original constructor,
+width admission and Goldilocks role match, the original source failure at
+any enclosing-program horizon outside the shared hash event is bounded by:
+
+`expected specified lifetime work * (17 / 2^141 + 1 / 2^255)`.
+
+No finite tape support, termination cutoff, conditional-on-success work,
+or caller-supplied event measurability is assumed. The original event need
+not itself be given as measurable: it is covered by the proved measurable
+actual-witness event on identical logs.
+
+Helper witness realization is complete, but helper instruction-hazard work
+calibration and composition of the indexed original source-family union
+remain open. The new one-family bound is not asserted to price an arbitrary
+unbounded family sum. Whole modified-PBS initial falsity, native domain/seed-
+order closure, profile/numeric admission, actor-cost separation and native
+physical pricing remain necessary. The final 128-bit theorem is unproved.
+
+Three regressions check the raw/instruction clock mismatch caused by a
+silent constant, exact log realization after completion with repeated reads,
+and a runtime coin that advances local state without emitting an observation.
+Exact axiom guards cover all 19 new declarations and these three regressions.
+
+Validation: all 22 exact axiom guards and three regressions passed using
+only standard Lean axioms (5,083-job guarded build). With source and tests
+frozen, `scripts/check` passed the 11,847-job root build and every standalone
+check. Full-check log SHA-256:
+`22329c219000e04b4d0516293c547efa5ad23b25d3079e904bae12897031e92d`.
