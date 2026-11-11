@@ -599,3 +599,6 @@ import FormalProof4FHETest.HasteBootsFactorFiberAudit
 
 import FormalProof4FHETest.HasteBootsParentCompletionSmoke
 import FormalProof4FHETest.HasteBootsParentCompletionAudit
+
+import FormalProof4FHETest.HasteBootsParentCollisionSmoke
+import FormalProof4FHETest.HasteBootsParentCollisionAudit

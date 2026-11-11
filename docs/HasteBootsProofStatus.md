@@ -24960,3 +24960,65 @@ every standalone check. Full-check log SHA-256:
 `ec35c68bad0954e96ce5d27daadeab487f91b63f79630dcd5850c6f9318d7095`.
 No proof placeholders, custom axioms, unsafe evaluation, resource-limit
 increases or linter suppressions were introduced.
+
+### Bounded parent-seed collisions and raw-parent coupling
+
+`ParentSeedCollisionRisk` charges a recognized parent input at its first
+naming by any actual request, including starts and empty reads. Eligibility
+requires that the key is absent from the earlier parent candidate set. This
+implies whole-key SHAKE nonexposure; a later partial or full read of the same
+key is not charged again. The event compares the new key's complete 64-byte
+seed against the complete seeds of earlier recognized parent keys.
+
+The earlier keys may have only partial observations. `retained_bound`
+completes only those earlier parent seeds, retains the original selecting
+packet, and keeps the distinct newly named key wholly unseen. It bounds the
+conditional event by `earlierParentKeys.card / 2^512`. `averaged_bound`
+transfers that bound to the original world law. No full-block fresh law is
+claimed after a key has already been partially read.
+
+`ParentSeedCollisionOnset` identifies the first naming observation that
+introduces a collision, and `ParentSeedObservation` ties it to the actual
+next request at that raw-log position. `ProgramParentSeedCollision` covers
+both full-program and earlier-prefix parent-seed collisions by one lifetime
+sum of first-naming charges. `combined_le` adds this charge once to the
+existing inherited and receipt-event bounds. The parent-seed event remains
+separate from SHAKE receipt collisions, fresh receipt guesses and the shared
+SHA-512 root/hash event; no independence or per-job union factor is used.
+
+`ParentMatchFixation.on_fiber` compares parent candidates in two worlds on
+the joint parent/receipt fiber. If both match the same quoted child seed,
+the raw parent inputs are equal or the reference world's parent-seed
+collision ledger holds. The proof transports the counterfactual parent's
+full seed to the reference world and retains the collision branch rather
+than assuming a partial cache has one compatible parent.
+`known_on_fiber` derives candidate membership from semantic helper ancestry.
+
+`AllocatedParentPrefix.known` recovers that ancestry in the actual scalar
+first-read prefix from executed allocated verification and native framing.
+It uses the existing seed-order exception to establish chronology, recovers
+the original quoted seed from the completed scalar input, and retains the
+actual first-read witness. No parent index, prefix membership or independent
+chronological certificate is supplied. The seed-order bad event is still an
+explicit obligation, not removed by the new collision estimate.
+
+Next, recover the original canonical binding, request/slot addresses and
+full parameter hash preimages from these matched raw parent inputs. Complete
+source-family equality, good reference-family construction, degree/PCS
+posterior composition and physical attacker-work coupling remain open. The
+new parent-seed collision charge also needs that physical-cost coupling.
+The final modified-PBS 128-bit actual-attacker-work theorem is not proved.
+Frozen `Native*` modules, dependencies and kernel resource limits are unchanged.
+
+Validation: the regression's second parent is first named by an empty read.
+Its full-seed collision is charged with exactly `2^-512` risk when one parent
+was named earlier, despite neither full seed block being physically read.
+A repeated read of the first parent is ineligible. The final distinct-key
+collision is covered by the lifetime ledger, and the two-match fixture takes
+the explicit collision branch of the parent-coupling theorem. Thirty-one
+exact axiom guards passed using only standard Lean axioms, with a 4,946-job
+targeted guarded build. `scripts/check` exited successfully, including the
+11,705-job root build and every standalone check. Full-check log SHA-256:
+`d1d9fa2cfa20908c6996ae2899fd9df52bd804a54e3b5256630897134ff57c2f`.
+No proof placeholders, custom axioms, unsafe evaluation, resource-limit
+increases or linter suppressions were introduced.
