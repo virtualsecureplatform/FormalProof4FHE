@@ -23163,3 +23163,52 @@ Validation: eight targeted scalar-healing regressions and eighteen exact
 axiom guards passed (4,402 jobs). `scripts/check` exited successfully, including
 the 11,511-job build and every standalone check. Full-check log SHA-256:
 `67c00dc92205801c1dfaa8c172d8b1a9ab2c9ec9c9d4ce316f9e4652486648b3`.
+
+
+## Causal recovery of the original outer scalar round packet
+
+`ScalarChallengeInputView` strictly parses the five adjacent native frames:
+round messages, typed scalar kind, extension-vector kind, the exact cubic
+basis descriptor (degree 3, binomial constant 7), and the Goldilocks scalar
+field request. The complete round payload is decoded and re-encoded exactly;
+trailing bytes and an earlier matching round label cannot replace its original
+packet. Raw field words, round ordinal, message order and canonical parent
+frames are retained. Parsing yields the exact native pending input, and literal
+native requests with valid original framing yield this view. A complete input
+has one uniquely recovered packet, without a hash-collision assumption.
+
+`ScalarChallengeInputBound.select` recovers the view from the original causal
+first positive read before executing it. Neither an oracle world nor future
+response is an argument to selection. Its origin supplies the actual input,
+first-exposure eligibility and exact parsed phase. The one-round native healing
+bound now consumes this parsed input and its recovered packet instead of a
+separately supplied packet association.
+
+A received degree-D message has degree below its encoded packet and full input
+lengths. Consequently D/p^3 is bounded by the corresponding encoded-input-length
+charge. These proofs use actual variable bincode integer encodings, including
+noncanonical field words, rather than a fixed eight-byte assumption. This is
+an exposure-accounting size bound, not a physical work/compiler/cache bound.
+
+Twelve regressions cover the online verifier's actual first scalar request,
+original ordinal/messages, field-equivalent but byte-distinct raw zero aliases,
+different resulting challenge inputs, actual message lengths 9 versus 25 bytes,
+trailing payload bytes despite an earlier good round, vector/scalar kind
+confusion, wrong basis descriptor, reordered suffix frames, degree/input size,
+causal packet selection and the native healing bound from the parsed input.
+Thirty-four exact axiom guards cover public definitions/proofs and the view
+type, constructor and projections.
+
+This closes original packet recovery at scalar first exposure. Original prior
+sums, honest polynomials and admitted metadata must still be tied to the same
+retained fiber; parsing by itself does not authenticate those application
+obligations. Adaptive whole-verifier exposure summation and scalar/lookup/PBS
+falsity composition remain open, as do Rust/PBS original-key/table association,
+concrete profile admission, native BabyBear, full modified-PBS lifetime and
+physical attacker-work/compiler/cache/RNG coupling. The final 128-bit
+actual-attacker-work theorem is not proved.
+
+Validation: twelve targeted scalar-input regressions and thirty-four exact
+axiom guards passed (4,408 jobs). `scripts/check` exited successfully, including
+the 11,515-job build and every standalone check. Full-check log SHA-256:
+`3ea0e028e5c175603b46065c4a4f700134a5d8acb92ca16e331783a8082964a4`.
