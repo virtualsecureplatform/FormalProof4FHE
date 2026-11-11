@@ -25313,3 +25313,64 @@ Full-check log SHA-256:
 No proof placeholders, custom axioms, unsafe evaluation, resource-limit
 increases or linter suppressions were introduced. Frozen `Native*` modules
 and dependencies are unchanged.
+
+### Complete selected native job-family correspondence
+
+`OriginalJobOrdinal` recovers the actual prepared job tags from native
+prelude success and the original request vector. Corresponding job ordinals
+therefore retain the same original request, request ordinal and repetition;
+actual producer values cannot choose a replacement request. The complete
+original registry also fixes source row dimension and packing width in both
+executions. Literal ordered address vectors determine the selected original
+slot at every corresponding column, including repeated addresses and aliases.
+
+`PackedFamilyReindex` transports complete packed functions through the exact
+dependent row casts used by the native source and helper construction.
+`AllocatedFamilyFunctions` proves congruence of the existing
+`AllocatedLookupTables.sourceAt`, `sources` and `helpers` functions. The new
+allocation record only abbreviates their original constructor/provenance
+arguments. All source columns, row coordinates and padding lanes are retained.
+The helper keeps its own full scalar row dimension and independent width;
+its root is selected by the actual job's original proof-root ordinal.
+`families_on_fiber` couples the whole pair in one branch, with the existing
+parent-seed collision, shared reference root/hash and either world's
+late-context exceptions. There is no per-column or separate helper charge.
+
+`AllocatedJobFamily.recover_at_first` derives a selected job package from
+actual allocated execution. Original assembly follows from the executed
+caller; geometry comes from original PCS ownership or the existing shared
+full-history root/hash event. The actual first-read stability theorem links
+the package's prefix functions to the original complete-execution-history
+functions, rather than assuming a source/helper snapshot equality. Existing
+native domains and seed-order safety remain explicit. The package retains
+the actual context, body, job ordinal, quoted scalar input and exact original
+source/helper functions.
+
+`JobFamilyPosteriorMismatch` bounds disagreement of the complete selected
+functions by counterfactual late-context mass at a fixed joint analysis-prefix
+fiber, retaining the literal scalar input and original job ordinal. For a
+good reference, a competing package cannot change either function outside
+that event. Its conditional mass averages to the existing lifetime target
+charge at each fixed prefix; this is not a new per-job ledger and does not
+by itself compose adaptively selected positions.
+
+This closes assembly/correspondence of the selected original native job's
+source/helper functions at corresponding ordinals. Selecting good attainable
+reference families, combining factor and family posterior remainders with
+degree/PCS bounds, adaptive lifetime false-PBS reduction, profile admission
+and physical attacker-work refinement remain open. The final modified-PBS
+128-bit actual-attacker-work theorem is not proved.
+
+Validation: regressions retain two repetitions of the first request followed
+by the second request in original tag order, preserve repeated source
+addresses `[2,1,2]`, and transport the whole source function with distinct
+nonzero fourth-lane values. Helper reindexing retains a high scalar-row bit
+with three helper lanes while sources have four lanes. Twenty-six exact
+axiom guards passed, with no custom axioms; the generic row-cast transport
+lemma is axiom-free. The guarded build completed 4,978 jobs. `scripts/check`
+exited successfully, including the 11,754-job root build and every standalone
+check. Full-check log SHA-256:
+`2ad5f569f09a882c30605ccb0d3a34c8167ad95368c3616dd3ed4eb68a5262b8`.
+No proof placeholders, unsafe evaluation, resource-limit increases or linter
+suppressions were introduced. Frozen `Native*` modules and dependencies are
+unchanged.

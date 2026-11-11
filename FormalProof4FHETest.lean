@@ -617,3 +617,6 @@ import FormalProof4FHETest.HasteBootsOriginalFamilyAudit
 
 import FormalProof4FHETest.HasteBootsHelperRootsSmoke
 import FormalProof4FHETest.HasteBootsHelperRootsAudit
+
+import FormalProof4FHETest.HasteBootsJobFamilySmoke
+import FormalProof4FHETest.HasteBootsJobFamilyAudit
