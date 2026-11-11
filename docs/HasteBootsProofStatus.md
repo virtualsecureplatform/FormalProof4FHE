@@ -22902,3 +22902,52 @@ Validation: targeted mixed-stream smoke and seven exact axiom guards passed
 (4,732 jobs). `scripts/check` exited successfully, including the 11,485-job
 build and every standalone check. Full-check log SHA-256:
 `def728b4c670a056bb747134c6fa86eb234da2aaac770bf981a3dafdf5e73c51`.
+
+
+## Complete-history source ownership and executable public cube identity
+
+`SourceHistoryOwnerLog` selects a log by full context/root through the existing
+stored-byte snapshot lookup on the complete mixed public history. Any actual
+native checkpoint for that key forces the selected log to be the original
+checkpoint log. Canonical single/batch field recovery therefore identifies the
+same whole-history result. Appending arbitrary observations preserves a recorded
+key's selection. For an unseen key, the existing selector still falls back to
+the current hash log; no pre-recording stability is claimed.
+
+`GoldHistorySourceTable` supplies one parameter-indexed complete-history table
+per context/root. Actual prepared and strictly parsed single/batch openings
+use this table whenever their canonical field input has recovered a source.
+The computed parameter digest, original root and exact owner-log association
+are derived from execution and causal replay rather than supplied equalities.
+The complete table is stable under later history after the key is recorded.
+
+`GoldHistoryPublicExtraction` runs the existing executable public extractor at
+that owner log and reindexes its result into the native cube. It proves equality
+with the common analysis table using the original reachable retained constructor
+and the existing lifetime condition `3*r < D`; constructor-derived domain size
+also gives the unique-decoding condition. An actual native batch source equals
+this whole-history executable cube. A direct executable congruence proof shows
+that only retained parameters are read from call records: changing queries,
+values, responses, parent, tables or verifier fuel cannot change the result.
+This adds no hash exception, supplied backend-validity certificate, or new
+constructor request chosen merely for an equal code.
+
+Regressions check whole-history selection of the original one-entry log,
+arbitrary later-history stability, the deliberately unstable unseen-key
+fallback, full root-byte ownership, actual native parsed-field association,
+actual batch-source/public-cube identity, and executable independence after
+removing query/value lists and setting verifier fuel to zero. Nineteen exact
+axiom guards cover every new public definition and proof.
+
+This establishes functional public extraction compatibility at the recorded
+source boundary. It does not establish application allocation/table ownership,
+runtime source-size production, physical/compiler/backend cost refinement or
+the final application falsity reduction. Native outer scalar/lookup Fiat--Shamir,
+concrete profile admission, native BabyBear, full modified-PBS lifetime and
+physical attacker-work/compiler/cache/RNG coupling remain open. The final
+128-bit actual-attacker-work theorem is not proved.
+
+Validation: targeted history-source smoke and nineteen exact axiom guards
+passed (4,774 jobs). `scripts/check` exited successfully, including the
+11,490-job build and every standalone check. Full-check log SHA-256:
+`9213f21e679b05ca47fa5bb7cc5bc9bfcfe1e4b5fd1e5f4b0ac4e6ecb01b276c`.
