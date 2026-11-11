@@ -1156,3 +1156,5 @@ import FormalProof4FHE.HasteBoots.RecoveredParentIdentityWork
 import FormalProof4FHE.HasteBoots.SerializedIdentityWork
 
 import FormalProof4FHE.HasteBoots.DecodedIdentityWork
+
+import FormalProof4FHE.HasteBoots.ReceiptDerivedIdentityWork

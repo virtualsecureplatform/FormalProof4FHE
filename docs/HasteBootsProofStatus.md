@@ -26886,3 +26886,57 @@ All 50 exact axiom guards passed with standard Lean axioms only (5,142-job
 guarded build). With source/tests frozen, `scripts/check` passed the
 11,939-job root build and all standalone checks. Full-check log SHA-256:
 `0628b252b5be9b2702c58e40a7ebc47de876d020b4ce18b8da8b1d34638e1ccc`.
+
+## Original receipt positions derive response-size domains
+
+`OpeningReceiptProofSource` proves that every completed source receipt's
+opening is the proof's source-opening packet at the same original packet
+index. The source dispatcher trace supplies its literal group/packet zip;
+this address is not replaced by an alias registry slot or a root lookup.
+For helpers, actual parent/helper completion supplies the original handoff
+plan and receipt order. The plan's literal root/value/opening zip retains
+the helper packet at that same index, including repeated roots.
+
+These position theorems derive membership in the original proof vectors.
+The already proved full-proof serialization domain then supplies response
+frame bounds for the actual source and helper receipts. No independently
+selected opening, response-size certificate, hash injectivity assumption,
+additional probability charge or family-cardinality factor is introduced.
+
+`DecodedAllocatedJob.Job` retains the same native execution, scheduler,
+memory, origin, job index, geometry, full observed log and remaining source/
+helper framing inputs as `CanonicalAllocatedJob.Job`. It carries the bounded
+decoded proof buffer and suffix, while omitting both `sourceResponseFits`
+and `helperResponseFits`. Actual prelude root count establishes a nonempty
+root vector; structural-reader nonexpansion supplies the full canonical
+proof bound; original receipt positions derive the omitted size fields.
+Both job conversions have checked roundtrip theorems, preserving all
+original data while proof irrelevance handles the derived certificates.
+
+`ReceiptDerivedIdentityWork.Witness` uses this job directly.
+`failure_iff` proves equivalence with the preceding decoded-prefix endpoint,
+and `work_128` inherits its complete seed-order-inclusive bound. This closes
+the independent opening-response size-certificate gate for these retained
+native jobs; the separate source/helper parent framing inputs remain.
+
+Ten checks use the existing completed native batch fixture to recover its
+original proof packet and derive its actual receipt response bound from
+proof bytes, retain the aliased source claims and owner/packet distinctions,
+check repeated-root helper packet indices and surviving truncated-zip
+indices, and exclude canceled/later-failed dispatchers from the completed
+branch. The proof-byte envelope in the size test supplies serialization
+evidence; it is not asserted to be a complete accepted lookup proof.
+Existing Native modules are unchanged.
+
+Remaining gates include source/helper and original parent/config framing
+allocation domains, Rust/serde read/value/consumption/error/resource
+correspondence and actual byte-source binding, whole modified-PBS initial
+falsity/application enforcement, actual profile admission and the fixed
+assembled-reference scope, actor-cost separation and physical attacker-work
+refinement. The final public modified-PBS actual-attacker-work theorem
+remains unproved.
+
+All 40 exact axiom guards passed with standard Lean axioms only (5,152-job
+guarded build). With source/tests frozen, `scripts/check` passed the
+11,944-job root build and all standalone checks. Full-check log SHA-256:
+`0b37eebfbb07ec7da60d86a33aa5f7bf8126a8d6542ac7a6eb498865e5c43600`.
