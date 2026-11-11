@@ -1084,3 +1084,5 @@ import FormalProof4FHE.HasteBoots.FactorPosteriorMismatch
 import FormalProof4FHE.HasteBoots.FactorFiberUniform
 
 import FormalProof4FHE.HasteBoots.ParentFactorFiber
+
+import FormalProof4FHE.HasteBoots.AllocatedParentPrefix
