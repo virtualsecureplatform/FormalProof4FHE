@@ -949,3 +949,6 @@ import FormalProof4FHE.HasteBoots.GoldContextInput
 import FormalProof4FHE.HasteBoots.GoldContextCollision
 import FormalProof4FHE.HasteBoots.LookupContextHistory
 import FormalProof4FHE.HasteBoots.LookupSourceParameterAssociation
+
+import FormalProof4FHE.HasteBoots.GoldCommonSourceTable
+import FormalProof4FHE.HasteBoots.GoldCommonSourceBinding
