@@ -24020,3 +24020,73 @@ as did the existing native terminal and helper-sum causal regressions.
 `scripts/check` exited successfully, including the 11,581-job root build and
 every standalone check. Full-check log SHA-256:
 `29af43e1a5e8b58dd3cb91eddfbb73340fbe5801b4bdf4e63c6cf876933cb316`.
+
+### Allocated caller jobs and original public identity tables (2026-11-11)
+
+`LookupExecutionOrigin.recover` derives numeric preflight, native proof-shape
+checking, the actual child start and ready prelude, completed scalar execution
+and terminal guarding from one completed native caller run. The returned
+origin derives source packing padding from the actual accepted query instead
+of requiring a packing-width certificate. All original registry slots have
+the actual caller's source dimension and packing width; their full code
+parameters and constructor provenance are not identified with each other.
+The helper's original full scalar dimension and independently permitted
+packing width (source width or three) follow from native preflight.
+
+`LookupOriginalSlots` recovers typed column-to-registry addresses in original
+request order, preserving repeated addresses. Every selected address is used
+by native deferred source verification. Its opening theorem relates each typed
+column to the literal original registry proof row. `LookupExecutionJob`
+recovers one original prepared job with those addresses, its literal native
+producer, equality draw, terminal view and original proof-row getters. Both
+identity reductions now consume this executed job without separately supplied
+preflight, scalar completion, point, dimension, metadata-slot or producer
+certificates. Framing, statement encoding bounds and round domains remain
+explicit.
+
+`AllocatedLookupIdentity.recover` derives that native origin and successful
+source/helper assembly from one actual allocated entry-point run reaching
+completed deferred verification. Each selected source address retains its
+original immutable-store handle/reference root, reachable initializer and
+complete parameters. `owned_or_bad` gives original public-table ownership for
+all selected columns and the actual checked helper, outside the same existing
+lifetime hash bad event. It does not add a per-column or per-alias hash charge,
+and ownership does not assume that an opening is truthful.
+
+`AllocatedLookupTables.geometry_or_bad` derives the source/helper table
+geometries from that accepted ownership. The public source family uses the
+original allocated contexts, full parameter hashes, original roots and an
+explicit history/radius. Only row dimension and packing width are transported
+to the native common geometry. Repeated original slot addresses yield the
+same table, including nonzero padding. The helper family uses the original
+proof-root ordinal and one packed row per full scalar coordinate cell; helper
+packing lanes are not flattened into additional scalar coordinates. Its
+padding is derived independently from the actual helper width. Both full and
+partial causal-event-or-wrong-opening reductions now instantiate these
+allocated public families, replacing independently supplied source/helper
+tables at this boundary.
+
+The chosen history remains explicit. The next obligation is to derive the
+whole selected family's pre-read stability and the sampled lookup/EQ factor
+fixing from the actual scalar challenge input/ancestry, retaining the existing
+seed-order exception. Original public ownership must then connect wrong
+openings to their native PCS risk bounds. Global adaptive exposure summation
+and PBS falsity composition, concrete profile admission, native BabyBear and
+physical attacker-work/compiler/cache/RNG refinement remain open. The final
+modified-PBS 128-bit actual-attacker-work theorem is not proved. Logical
+immutable-store handles are not physical pointer/heap refinement. Frozen
+`Native*` files and kernel resource limits are unchanged.
+
+Regressions exercise original slots `[1,0,1]` with an unused registry slot,
+derived repeated addresses, literal original raw opening rows, actual source
+use and source-width-four/helper-width-three preflight. Out-of-bounds slots,
+raw count mismatch and nonuniform unused registry entries are rejected by the
+actual numeric preflight. These are operational adapter fixtures, not a full
+modified-PBS acceptance example. Twenty-seven exact axiom guards cover the
+new recovery, table-family and reduction API.
+
+Validation: targeted repeated-slot/opening/use and malformed-domain regressions
+passed, together with twenty-seven exact axiom guards reporting only standard
+Lean axioms. `scripts/check` exited successfully, including the 11,588-job root
+build and every standalone check. Full-check log SHA-256:
+`1a1292731ec81d3854d050d1185f2ae50bdff23a6c441b9bd8726944e09e2f4a`.

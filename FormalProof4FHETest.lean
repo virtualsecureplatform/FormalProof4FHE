@@ -548,3 +548,6 @@ import FormalProof4FHETest.HasteBootsLookupNativeTerminalAudit
 
 import FormalProof4FHETest.HasteBootsLookupIdentitySmoke
 import FormalProof4FHETest.HasteBootsLookupIdentityAudit
+
+import FormalProof4FHETest.HasteBootsLookupExecutionSmoke
+import FormalProof4FHETest.HasteBootsLookupExecutionAudit

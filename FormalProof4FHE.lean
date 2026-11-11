@@ -1034,3 +1034,9 @@ import FormalProof4FHE.HasteBoots.LookupGuardPoints
 import FormalProof4FHE.HasteBoots.LookupIdentityView
 import FormalProof4FHE.HasteBoots.LookupIdentityCausalReduction
 import FormalProof4FHE.HasteBoots.LookupIdentityProtocol
+
+import FormalProof4FHE.HasteBoots.LookupExecutionOrigin
+import FormalProof4FHE.HasteBoots.LookupOriginalSlots
+import FormalProof4FHE.HasteBoots.LookupExecutionJob
+import FormalProof4FHE.HasteBoots.AllocatedLookupIdentity
+import FormalProof4FHE.HasteBoots.AllocatedLookupTables
