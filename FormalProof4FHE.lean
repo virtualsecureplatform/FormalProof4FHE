@@ -1236,3 +1236,5 @@ import FormalProof4FHE.HasteBoots.OwnedBlindRotationCoverage
 import FormalProof4FHE.HasteBoots.OwnedNTTBindingCoverage
 
 import FormalProof4FHE.HasteBoots.CrossStageSourceCoherence
+
+import FormalProof4FHE.HasteBoots.CallerBoundStageRoots

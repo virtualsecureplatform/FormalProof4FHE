@@ -759,3 +759,5 @@ import FormalProof4FHETest.HasteBootsOwnedBlindRotationAudit
 import FormalProof4FHETest.HasteBootsOwnedNTTBindingAudit
 
 import FormalProof4FHETest.HasteBootsCrossStageSourceAudit
+
+import FormalProof4FHETest.HasteBootsCallerBoundRootsAudit

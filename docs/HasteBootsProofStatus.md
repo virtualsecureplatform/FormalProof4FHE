@@ -28974,3 +28974,40 @@ lemma has no axioms; the coherence results use only `propext`,
 `Classical.choice` and `Quot.sound`. Full `scripts/check` exited successfully,
 including the 12,169-job root build and all standalone checks. Full-check log
 SHA-256: `61511d4b7e56bb00f64185aeabb7725b851da634701d42935aeadf2f01adb531`.
+
+
+### Caller-bound public roots for authenticated NTT/Hadamard children (2026-11-12)
+
+`CallerBoundStageRoots.ntt` preserves a child factory's original commitment
+computation, shared calls and private memory, and replaces only its returned
+public root pair with the enclosing statement's coefficient/evaluation roots.
+`hadamard` similarly takes original digit/result roots from the caller and
+setup key roots through `OwnedHadamardSoundness.stage`. These adapters model
+child checks whose public commitments have already been fixed by their caller;
+they do not prove correspondence with the Rust caller.
+
+`ntt_witness_roots` and `hadamard_witness_roots` derive every public root slot
+from support of the actual adapted authenticated witness. Original child
+commitment callbacks may be arbitrary; they cannot replace these public roots.
+`witness_root_association` derives the NTT-evaluation/Hadamard-factor root
+equality from the two supported executions and their common caller wiring.
+There is no independent equality premise for those child-selected roots.
+
+`witness_source_association` combines that derived association with the
+cross-stage coherence theorem. The two fresh decoded source tables agree
+outside the existing shared checkpoint collision event. Encoding, decoding
+domain and parameter-tag identity remain explicit, and both fresh snapshots
+must occur in a common audited checkpoint history. Total-dimension transport
+is derived from the stage schemes' common PCS geometry.
+
+This removes the independent root-association premise for caller-bound model
+children. It does not yet establish that the full Rust PBS execution invokes
+these adapted children or supplies their common-history membership and
+parameter associations. Parent transcript compilation, full accepted-failure
+coverage, supported-profile admission and physical attacker-work accounting
+remain open. The ultimate security theorem remains unproved.
+
+Validation: all six exact axiom guards passed with only permitted standard
+axioms (`propext`, `Classical.choice`, `Quot.sound`). Full `scripts/check`
+exited successfully, including the 12,171-job root build and all standalone
+checks. Full-check log SHA-256: `9dfb64c66ddb77274351229cf94c5440c07c59d4480e170d559c4fb0469c30d0`.
