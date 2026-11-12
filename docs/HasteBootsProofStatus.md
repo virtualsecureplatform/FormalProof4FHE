@@ -28824,3 +28824,33 @@ Validation: all 28 exact guards passed and all three scope regressions
 compiled. Full `scripts/check` exited successfully, including the 12,161-job
 root build and all standalone checks. Full-check log SHA-256:
 `9c7a3ac30a09e70a5a9807574680f22afa21ffd6569966f175b4990cc00d78fc`.
+
+### Earliest complete-PBS arithmetic stage coverage (2026-11-12)
+
+`PBSFirstStageCoverage.first_stage_coverage` refines complete corrected-PBS
+wrong-output coverage into an accumulator constraint failure, an explicit
+blind-rotation relation/source failure at the earliest invalid round, an
+explicit signed key-switch relation/source failure, or a public extraction
+failure. The selected blind-rotation witness proves all strictly earlier
+rounds satisfy their complete stage predicates. `first_failure` derives this
+ordering from finite failure; it requires no positive dimension premise.
+
+`BlindFailure` exposes both monomial and external-product relations and their
+input, public-power, canonical digit, original key and result bindings.
+`KeyFailure` exposes the final relation and canonical negative-mask digit,
+original key and result bindings. The concrete round uses the same original
+controls, active-row addresses and packing dimensions as the complete PBS
+arithmetic theorem. No verifier-acceptance, source authenticity, Fiat--Shamir
+or probability premise is replaced by a correctness certificate here.
+
+This is deterministic arithmetic localization. It does not connect the
+seventeen native verifier contexts to these stages or prove the whole-PBS
+security/work theorem. Those connections, supported-profile admission,
+application provenance and physical attacker-work refinement remain open.
+
+Validation: all four exact axiom guards passed, permitting only `propext`,
+`Classical.choice` and `Quot.sound`. Full `scripts/check` exited successfully,
+including the 12,163-job root build and every standalone check. The first
+full-check attempt could not write its log because the filesystem containing
+`/tmp` was full; the successful rerun logged to the workspace filesystem.
+Full-check log SHA-256: `93588ef787b29deebcce7167b0a40dfa469dca0db09b109228e9730c4a1e6342`.
