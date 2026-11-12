@@ -29178,3 +29178,41 @@ Validation: all fourteen exact axiom guards passed, permitting only
 axioms. Full `scripts/check` exited successfully, including the 12,180-job
 root build and all standalone checks. Full-check log SHA-256:
 `34c2e107a178034d4cd7a41a908a8d35a5a6b5fa91b6832b4e5c2509dc0d7710`.
+
+
+### Concrete reached NTT enforcement of Hadamard source transforms (2026-11-12)
+
+`HadamardNTTEnforcement.false_transform_coverage` fixes the child NTT transform
+through `PackedNTT.scheme`, then runs it in the existing caller-bound,
+short-circuit Hadamard/NTT composition. An accepted incorrect transform from
+ANY original coefficient row to the corresponding original Hadamard factor
+exposes the concrete reached NTT's `OwnedNTTSoundness.OriginalRisk` or the
+common final-history checkpoint collision event. No row-count union is added.
+
+The proof derives cross-stage source identity from the composed run. It also
+recovers the NTT coefficient AND evaluation owner checkpoints at their actual
+recording time and derives their final membership from actual child support.
+It supplies no standalone child-from-empty witness, root-equality certificate,
+separate final checkpoint flag or transform-correctness assumption. The initial
+audit invariant and encoding/domain/tag association remain explicit, as in the
+underlying arbitrary-incoming-state composition theorem.
+
+`canonical_digit_coverage` connects a false canonical-digit transform to this
+reached NTT risk. It exposes an original input-source mismatch, failed linear
+reconstruction, failed comparison-table membership, that original NTT risk,
+or the existing shared collision event. Canonical-digit correctness is derived
+from the existing reconstruction/comparison theorem rather than assumed. The
+original coefficient-row/decomposition-registry association remains explicit;
+it is not inferred from verifier acceptance.
+
+These are pointwise accepted-failure reductions, not yet a probability/work
+bound for the adaptive composed NTT risk. Full PBS original source/parameter
+wiring, accepted coverage for all other stages, native byte/transcript
+correspondence, supported-profile admission and shared arithmetic/PCS/physical
+attacker-work composition remain required. The ultimate modified-HasteBoots
+security theorem remains unproved.
+
+Validation: both exact axiom guards passed with only permitted standard
+axioms (`propext`, `Classical.choice`, `Quot.sound`). Full `scripts/check`
+exited successfully, including the 12,182-job root build and all standalone
+checks. Full-check log SHA-256: `984e3a7e8f130a697604b7696357091e76cc4046467897b1107b03d09eff8b32`.

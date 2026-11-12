@@ -769,3 +769,5 @@ import FormalProof4FHETest.HasteBootsHadamardNTTCompositionAudit
 import FormalProof4FHETest.HasteBootsHadamardNTTSourceAudit
 
 import FormalProof4FHETest.HasteBootsPackedPBSReferencesAudit
+
+import FormalProof4FHETest.HasteBootsHadamardNTTEnforcementAudit

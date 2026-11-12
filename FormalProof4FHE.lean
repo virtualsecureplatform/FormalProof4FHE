@@ -1247,3 +1247,5 @@ import FormalProof4FHE.HasteBoots.HadamardNTTComposition
 import FormalProof4FHE.HasteBoots.HadamardNTTSourceAssociation
 
 import FormalProof4FHE.HasteBoots.PackedPBSOriginalReferences
+
+import FormalProof4FHE.HasteBoots.HadamardNTTEnforcement
