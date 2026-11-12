@@ -1170,3 +1170,5 @@ import FormalProof4FHE.HasteBoots.StatementDerivedIdentityWork
 import FormalProof4FHE.HasteBoots.ResidentCallerIdentityWork
 
 import FormalProof4FHE.HasteBoots.HeapProofIdentityWork
+
+import FormalProof4FHE.HasteBoots.SequencedInputIdentityWork

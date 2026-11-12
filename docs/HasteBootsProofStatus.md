@@ -27293,3 +27293,64 @@ All 51 exact axiom guards passed with standard Lean axioms only (5,183-job
 guarded build). With source/tests frozen, `scripts/check` passed the
 11,976-job root build and all standalone checks. Full-check log SHA-256:
 `a9a5109b66dc8b1817855a797840a0d0f41dcb386fe6ea8e8498e7fb8408fe13`.
+
+## All input reads belong to one successful heap operation sequence
+
+`HeapReadExecution.Execution` retains one complete successful
+`NativeReferenceMachine.run` from its empty state. `step_origin` splits that
+same run around an original operation, recovering its actual before/after
+states and successful continuation. A named `Observation` identifies an
+original read operation by its exact preceding/following operation lists,
+reference index, offset and layout, and identifies the fresh output at that
+position. A final or unrelated output cannot stand in for that read.
+
+`Observation.origin` recovers the resident reference/lease access, original
+heap pointer and exact loaded bytes through the existing native access-read
+observation theorem. It also proves that this read preserves the heap and
+pushes precisely these bytes on the output list. The derived `buffer` uses
+this recovered pre-state rather than a separately selected heap state.
+`prefix_reachable` proves that pre-state is reachable by the original prefix
+from empty memory, and `length_eq`/`fits` inherit its checked layout bounds.
+Writes, allocation, borrowing and revocation can occur elsewhere in the
+trace; the result does not impose a read-only execution assumption.
+
+`SequencedCallerInputs.Inputs` associates the original serialized request
+vector, every execution-derived canonical binding, complete registry and
+original proof byte vector with observations of this **same execution**.
+Its `buffers` and `proofSource` derive the preceding resident interfaces;
+`proof_decoded` composes the original proof parse with its recovered native
+read. No individual original buffer is justified by an unrelated heap state.
+The interface does not impose an artificial global order between input
+classes: their actual operation positions determine their order.
+
+`SequencedInputIdentityWork.toHeap` composes those derived caller and proof
+buffers into the heap-proof endpoint, retaining the original native job and
+canonical truth. `failure_iff` characterizes this event as the preceding
+resident-caller event together with one such complete input realization.
+`work_128` inherits the same profile assumptions, security rate and specified
+interpreter expected work through the existing heap-proof bound; no new
+probability term is introduced.
+
+Nine named smoke checks run one original checked operation sequence that
+allocates, initializes, borrows and reads three distinct buffers containing
+proof, canonical binding and registry bytes. They check proof decoding with
+its wider varint/suffix, message framing, the reachable source prefix, exact
+output ordering, rejection of the final output as the earlier proof source,
+and rejection of a read through a revoked reference. These are reference-
+machine component executions, not an extracted Rust verifier invocation or
+whole accepted modified-PBS fixture.
+
+This establishes sequencing within the checked heap model. Mapping one real
+Rust invocation, its serializer/deserializer calls and exact input-read
+positions to this operation sequence remains open. Original caller-parent
+framing, Rust codec/value/consumption/error/resource correspondence, whole
+modified-PBS initial falsity/application enforcement, actual profile
+admission and fixed assembled-reference scope, actor-cost separation and
+physical attacker-work refinement also remain open. Existing Native modules
+are unchanged. The final public modified-PBS actual-attacker-work theorem
+remains unproved.
+
+All 48 exact axiom guards passed with standard Lean axioms only (5,214-job
+guarded build). With source/tests frozen, `scripts/check` passed the
+11,981-job root build and all standalone checks. Full-check log SHA-256:
+`4a3803f6ffe4800093be27ec692ac39aa3b99415151c0d57b2bd2b72fa10beef`.
