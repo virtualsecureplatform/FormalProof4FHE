@@ -1271,3 +1271,11 @@ import FormalProof4FHE.HasteBoots.PackedPBSNTTLoop
 import FormalProof4FHE.HasteBoots.PackedPBSHadamardNTT
 
 import FormalProof4FHE.HasteBoots.PackedPBSHadamardNTTProbability
+
+import FormalProof4FHE.HasteBoots.CommittedStoppingSafeBound
+
+import FormalProof4FHE.HasteBoots.CommittedOpeningSafeBound
+
+import FormalProof4FHE.HasteBoots.ZeroCheckConditionalSoundness
+
+import FormalProof4FHE.HasteBoots.HadamardConditionalSoundness

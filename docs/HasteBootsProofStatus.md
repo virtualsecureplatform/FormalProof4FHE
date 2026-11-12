@@ -29427,3 +29427,40 @@ Validation: all fourteen exact axiom guards passed, permitting only
 `propext`, `Classical.choice` and `Quot.sound`; `publicRoots` has no axioms.
 Full `scripts/check` exited successfully, including the 12,198-job root build
 and all standalone checks. Full-check log SHA-256: `af8e29f8dc1b52276a4e26bb9b6c69a2bbbc1d02af8764b418cc8f5d3bc4cdef`.
+
+
+### 2026-11-12: conditional original-factor ZeroCheck and typed Hadamard bound
+
+`CommittedStoppingSafeBound.soundness` and
+`CommittedOpeningSafeBound.soundness` bound actual stopped factor openings
+from any audited incoming state outside its final collision event. Query
+selection retains commitment memory, and each native worker receives the
+actual preceding private memory. Disabled and rejected branches keep their
+actual execution. Neither theorem resets the cache or adds a hash charge.
+
+`ZeroCheckConditionalSoundness.original_safe_bound` extends the original-owner
+ZeroCheck argument to that incoming history. Matching owner roots and actual
+checkpoint membership suffice to reuse original decoded sources outside the
+shared collision event. Its bound includes all three ZeroCheck arithmetic
+terms and the PCS error for every original factor. Acceptance is derived from
+the actual supported execution; truthfulness and worker flags are not supplied
+as security certificates.
+
+`HadamardConditionalSoundness.native_original_safe_bound` instantiates degree
+two using typed native interpolation messages. The interpolation theorem supplies
+the polynomial degree bounds; all `2*count+1` original digit, key and result
+openings remain in the PCS term. Trusted characteristic, dimensions, decoding
+radius and domain-distance constraints remain explicit.
+
+These are conditional local bounds. Their collision exclusion is an event
+restriction, intended for composition with ONE enclosing program hash charge;
+it is not an assumption that the attacker never collides. Composition of the
+false Hadamard event with the complete NTT loop remains the next obligation.
+Whole-PBS coverage, concrete supported-profile admission, transcript/Rust
+correspondence and physical/actor-separated work refinement remain open. The
+ultimate 128-bit expected-work theorem is still unproved.
+
+Validation: full `scripts/check` passed, including the 12,203-job root build
+and every standalone check. Ten exact axiom guards passed, permitting only
+`propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
+`75c4673b1fbe4619fc471d09ea3d2f1b4f22e5bc98ec07f5af936d4e216a6afe`.
