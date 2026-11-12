@@ -29095,3 +29095,43 @@ Validation: all nine exact axiom guards passed with only permitted standard
 axioms (`propext`, `Classical.choice`, `Quot.sound`). Full `scripts/check`
 exited successfully, including the 12,176-job root build and all standalone
 checks. Full-check log SHA-256: `dacb7a7f35b410af873f1f051ace1c801d8b783cf3955aa9661413a4adcebabf`.
+
+
+### Source association derived from the composed Hadamard/NTT run (2026-11-12)
+
+`HadamardNTTSourceAssociation.child_supports` recovers both original child
+supports from a reached `HadamardNTTComposition.witness`. The Hadamard child
+starts at the actual enclosing state, and NTT starts at that child's actual
+final state. Neither child is justified by a standalone run from empty.
+`fixed_roots` works for arbitrary incoming histories and continuations;
+`root_functions` derives both caller/setup root vectors from these actual
+child supports, retaining their commitment calls and private memory.
+
+`source_association` proves that the reached original NTT evaluation source
+and selected original Hadamard factor agree, up to the existing shared
+checkpoint collision event. The proof derives the original root equality,
+both requested checkpoint memberships, retention through NTT and final auditing
+from the ONE composed supported run. It requires no separate root association,
+child-from-empty witness, checkpoint membership or final-state audit certificate.
+It admits an arbitrary incoming state with its initial audit invariant.
+
+`source_drift_bound` starts the actual composed short-circuit program from
+empty, discharging the incoming invariant internally. All reached association
+failures for this selected child/factor are bounded by ONE whole-program
+expected collision charge. Rejected Hadamard paths execute no NTT child and
+incur no fictitious NTT continuation charge.
+
+Encoding, decoding-domain and trusted parameter-tag identity remain explicit
+caller metadata obligations; they are not inferred merely from equal roots.
+The schemes' common packing geometry derives total-dimension transport. The
+result is for the existing authenticated program composition, not Rust
+byte/transcript correspondence or a whole-PBS accepted-false-output theorem.
+Remaining work includes native caller metadata and all child-stage linkage,
+concrete supported-profile admission, full shared arithmetic/PCS/work accounting
+and physical attacker-work refinement. The ultimate security theorem remains
+unproved.
+
+Validation: all seven exact axiom guards passed with only permitted standard
+axioms (`propext`, `Classical.choice`, `Quot.sound`). Full `scripts/check`
+exited successfully, including the 12,178-job root build and all standalone
+checks. Full-check log SHA-256: `66f965e9956efde9924387f187d5ff2527c53dd36f2e1b25ee59d2569531a29c`.

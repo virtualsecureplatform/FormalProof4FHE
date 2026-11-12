@@ -765,3 +765,5 @@ import FormalProof4FHETest.HasteBootsCallerBoundRootsAudit
 import FormalProof4FHETest.HasteBootsSequentialStageHistoryAudit
 
 import FormalProof4FHETest.HasteBootsHadamardNTTCompositionAudit
+
+import FormalProof4FHETest.HasteBootsHadamardNTTSourceAudit
