@@ -31547,3 +31547,50 @@ Validation: full `scripts/check` exited successfully, including the 12,381-job
 root build and every standalone check. Default resource limits were retained;
 frozen Native modules and vendor sources are unchanged. Full-check log SHA-256:
 `8751e049e9cda605df8c4c261d7fdadfc2f2e5e3549eea1f1361cf4ca1bebef4`.
+
+### Native padded final-extraction adapter
+
+Added `KeySwitchPaddedExtraction`. Its trusted stage opens only the caller
+family's last coefficient root, `family.coefficients (Fin.last d)`, with the
+factory's own physical layout, high-zero padding, code and domain. The stage
+preserves commitment callback work and its returned private memory while fixing
+the increment root. `witness_roots` proves this association on every supported
+execution, including executions that later reject.
+
+The native equation is increment times public extraction mask minus public
+target. The factor list is exactly `[()]`; mask and target are fixed public
+tables, not extra private commitments. The stage fixes degree-two native shape,
+consecutive interpolation nodes and typed first/round evaluation messages.
+`original_safe_bound` derives both message degree bounds and the resulting
+ZeroCheck rate, plus exactly one private-root PCS error, outside the inherited
+final Bad event. It requires public code/radius facts and an audited incoming
+state, and introduces no supplied child-security or replay certificate and no
+local collision charge.
+
+The accumulator callback supplies the raw blind-rotation endpoint. The stage
+applies `NativePBS.bias` once before constructing the target. `target_body`
+proves the resulting body entry is output body minus raw endpoint body minus
+q/8. `native_lut_bias` and `target_body_native` prove agreement with the native
+stride-one LUT bias under the public check that the ring size is at least two.
+This check matters at the otherwise degenerate one-coefficient ring.
+
+`relation` identifies the checked polynomial with the existing authenticated
+extraction relation. `extraction_of_relation` derives canonical extraction when
+the private logical source is the packed increment. The deterministic theorem
+`wrong_extraction_implies_originalRisk` connects accepted incorrect extraction
+to the bounded original-owner event, given the retained source interpretation.
+That interpretation remains explicit; it is not inferred from digest equality.
+
+The concrete adapter is now available, but has not yet been appended after the
+full PBS shared-comparison execution or included in its joint bound. Common
+source interpretations, complete accepted-false-output coverage, native public
+parameter associations, profile admission, production refinements, adaptive
+composition and actor-separated physical attacker-work accounting also remain
+open. The final 128-bit theorem remains unproved. The module is exported and an
+imported audit guards eight declarations, all using only `propext`,
+`Classical.choice` and `Quot.sound`.
+
+Validation: full `scripts/check` exited successfully, including the 12,383-job
+root build and all standalone checks. Default resource limits were retained;
+frozen Native modules and vendor sources are unchanged. Full-check log SHA-256:
+`e82360e545c6fedc27455b1da17ce3da38cbf927956ba6da15c60cb772a2e172`.
