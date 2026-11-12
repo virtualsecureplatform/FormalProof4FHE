@@ -1185,3 +1185,5 @@ import FormalProof4FHE.HasteBoots.LookupInitialPairedWork
 import FormalProof4FHE.HasteBoots.LookupEqualityResidual
 
 import FormalProof4FHE.HasteBoots.EqualityFamilyCandidate
+
+import FormalProof4FHE.HasteBoots.EqualityFactorCandidate
