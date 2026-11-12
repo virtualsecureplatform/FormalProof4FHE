@@ -1447,3 +1447,7 @@ import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchInput
 import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchInputProbability
 
 import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchInputNativeJointBound
+
+import FormalProof4FHE.HasteBoots.AmbientHeterogeneousBatchOpening
+
+import FormalProof4FHE.HasteBoots.PaddedNTT

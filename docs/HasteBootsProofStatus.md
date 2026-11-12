@@ -30830,3 +30830,48 @@ full new audit imported. All 19 new exact axiom guards passed, using only
 `propext`, `Classical.choice` and `Quot.sound`. Frozen Native modules and vendor
 source were unchanged. Full-check log SHA-256:
 `d3440a33dbb5178d4271d36c89a1d2dff7c11fdf18885435dc4bdb6ca912c3b0`.
+
+### 2026-11-12: padded NTT links with independent physical PCS geometry
+
+`AmbientHeterogeneousBatchOpening.soundness` derives the original-root native
+batch opening rate on arbitrary inherited audited histories. Each listed source
+uses its own matrix dimensions, domain, code dimension, query count and root
+height. The proof reuses the actual heterogeneous native workers and recorded
+source reduction; it adds no local hash charge or child security hypothesis.
+
+`PaddedNTT` implements the paired coefficient/evaluation NTT component with a
+common logical row/compression query and independent physical PCS geometry for
+each root. The logical query is extended with fixed high-zero selectors and
+reindexed to each source's physical tensor split. `source_evaluation` proves
+that this is precisely evaluation on that root's logical source view. Private
+padding outside the selected slice is not constrained to zero.
+
+The component computes the opening queries and terminal claims, executes the
+actual heterogeneous opening loop, and retains the complete inherited state.
+Full-state projection, owner recording/retention, audit preservation and bad-event
+persistence are proved. Accepted false fresh relations imply an arithmetic or
+opening risk; final-recorded original owners are related to fresh snapshots
+outside the same final collision exception. The resulting rate is row testing
+plus packed compression plus ONE PCS error for each of the two physical sources.
+There is no row-repetition multiplier on the PCS errors and no component charge.
+
+`nativeScheme` fixes caller roots, native consecutive nodes and the exact
+`PackedNTT.butterflyLinear` transform while preserving commitment work and
+private memory. Root binding also holds on rejection. `native_relation` relates
+the checked rows to `PackedNTT.Relation`; `native_original_safe_bound` derives
+the corresponding rate from explicit geometry/code-distance assumptions.
+
+This is the paired component, not yet the scheduled final `d+1` loop. Next is a
+dependent result interface retaining each scheduled index and incoming private
+memory, followed by composition after the actual accepted known-input opening.
+Then come the product relation, canonical negative-mask decomposition/comparison
+and extraction. Earlier physical-layout refinements, concrete profile admission,
+complete accepted-false-output coverage, production transcript refinement,
+adaptive repeated proofs and physical attacker-work accounting remain open.
+The final 128-bit theorem is unproved.
+
+Validation: full `scripts/check` exited successfully, including the 12,319-job
+root build and all standalone checks. Both modules are exported, and all 15 new
+exact axiom guards are imported and pass with only `propext`, `Classical.choice`
+and `Quot.sound`. Frozen Native modules and vendor sources are unchanged.
+Full-check log SHA-256: `8402978b1837ab010111f9504987dfff8fab14ea6a9dc3615c3ad0240e73e5e7`.
