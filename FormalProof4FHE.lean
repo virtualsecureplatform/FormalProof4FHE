@@ -1220,3 +1220,6 @@ import FormalProof4FHE.HasteBoots.PrivateCoinOffsetClassProbability
 
 import FormalProof4FHE.HasteBoots.CallerOffsetPositionCoverage
 import FormalProof4FHE.HasteBoots.PrivateCoinOffsetPositionProbability
+
+import FormalProof4FHE.HasteBoots.PrivateCoinLookupChallengeProbability
+import FormalProof4FHE.HasteBoots.CallerOffsetWorkCoverage

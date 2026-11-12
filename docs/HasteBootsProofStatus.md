@@ -28649,3 +28649,60 @@ vector below `2^64` bytes, and `ScalarLogWork.program_bytes` bounds total
 first-read key bytes by the interpreter-accounted log potential. Their use
 for compression aggregation and joint expected-work charging is not proved
 by this milestone.
+
+### Reciprocal lifetime charging to specified interpreter work (2026-11-12)
+
+`LookupStreamWorkRate.key_length` derives a 64-byte lower bound for every
+original lookup stream input from its literal quoted parent seed and strict
+framing parser. The original wire-domain reciprocal degree cap `2^65` obeys
+`budget / q^3 ≤ 64 / 2^132`, proved with exact arithmetic. Thus the selecting
+stream key's byte length pays the complete degree bound at rate `2^-132`.
+
+`OffsetWorkPosition` bounds the whole attained safe reciprocal event at one
+original first-read position by a score selected from the original prefix:
+`selectedKeyBytes * 2^-132`. An empty selecting fiber pays zero, as do stopped
+or already-exposed streams. There is no union over input, job or degree
+classes and no use of a later successful-read normalization.
+
+`OffsetLifetimeWork` composes all original selecting positions into one safe
+lifetime probability bound. Its total charge is exactly the existing
+first-read byte potential times the rate. `ScalarLogWork.program_bytes` and
+`ByteScalarLogWork.private_prefix_bytes` account for that potential using the
+specified interpreter's actual instruction work counter; log length is not
+defined to be attacker work. Arbitrary earlier partial/far-offset prequeries,
+rejected native offsets, source/query order and suspension remain covered.
+
+`PrivateCoinOffsetWorkProbability.safe_bound` lifts the result to arbitrary
+original private-coin measures and every instruction horizon without a query,
+retry or lifetime cutoff. `safe_work_132` proves
+`2^132 * P[any attained original reciprocal event and no lifetime reference bad event] ≤ E[specified interpreter work]`.
+The separate `bound` retains one explicit lifetime reference-bad probability.
+This closes reciprocal first-read-position charging in the specified model;
+it does not identify interpreter work with physical attacker work.
+
+`CallerOffsetWorkCoverage` connects actual rebuilt caller reciprocal misses
+and original tuple nonmembership to this lifetime event, preserving existing
+arithmetic/compression and shared seed-order/reference alternatives.
+`PrivateCoinLookupChallengeProbability` combines arithmetic scalar/equality
+and reciprocal safe events with summed work rates under one excluded global
+reference ledger. PCS, compression and whole application output enforcement
+remain separate obligations.
+
+Three accounting regressions cover far-offset partial prequeries paid once
+across later offsets, zero-byte reads charged zero, and an infinite position
+sum that stops charging after actual completion. Thirty-eight exact axiom
+guards permit only `propext`, `Classical.choice` and `Quot.sound`; the guarded
+target completed 5,314 jobs. Native modules, vendor code and resource limits
+remain unchanged.
+
+Remaining work includes original first-compression input/job aggregation and
+its work charge, combined PCS/hash/reference accounting for the full lookup
+failure, whole false-PBS output enforcement, supported-profile/application
+provenance, actor-cost separation, Rust execution/cost correspondence and
+physical attacker-work refinement. The complete 128-bit actual-attacker-work
+security theorem remains unproved.
+
+Validation: all 38 exact guards passed and all three accounting regressions
+compiled. Full `scripts/check` exited successfully, including the 12,142-job
+root build and all standalone checks. Full-check log SHA-256:
+`8c7ff28addee170eb5e4ec884eddae7a34e6d21e91ed07da2a2355023e9461aa`.
