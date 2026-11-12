@@ -1403,3 +1403,11 @@ import FormalProof4FHE.HasteBoots.PackedPBSAccumulatorProbability
 import FormalProof4FHE.HasteBoots.PackedPBSAccumulatorJointBound
 
 import FormalProof4FHE.HasteBoots.PackedPBSAccumulatorNativeJointBound
+
+import FormalProof4FHE.HasteBoots.AmbientNTT
+
+import FormalProof4FHE.HasteBoots.AmbientNTTSequence
+
+import FormalProof4FHE.HasteBoots.AmbientNTTSequenceSoundness
+
+import FormalProof4FHE.HasteBoots.AmbientMonomialNTT

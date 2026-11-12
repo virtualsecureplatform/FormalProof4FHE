@@ -30389,3 +30389,61 @@ root build and every standalone check. Six new exact axiom guards passed,
 using only `propext`, `Classical.choice` and `Quot.sound`. Frozen Native modules
 and vendor source were unchanged. Full-check log SHA-256:
 `446a79f70a4c97af63953214d2e5cd714ac0f7c92c0d2075e31c1c29a4145da8`.
+
+### 2026-11-12: monomial NTT calls preserve the mixed-height PBS history
+
+`AmbientNTT` lifts authenticated NTT soundness to an arbitrary inherited ambient
+height map. Only the coefficient/evaluation source tags must have the local
+matrix height. Sources retain the same decoded table and low-coefficient/high-
+row layout through `QueryReindex`; the state, earlier comparison helpers, cache,
+log and monitor are never converted to a uniform-height state or reset.
+
+Full-state projection, fresh-root recording, inherited audits, retention of
+all earlier checkpoint owners and persistent bad events hold on supported
+success and rejection paths. Row/compression arithmetic and both native PCS
+batches have their derived rates outside the same final ambient exception.
+`original_safe_bound` transfers this bound to arbitrary matching recorded
+original owners, including owners selected after execution. The fresh-owner
+inclusion lemma ensures that the original event does not omit ordinary accepted
+false prefix-frozen relations. No local hash charge or supplied source-truth/
+worker-success/PCS-security certificate is introduced.
+
+`AmbientNTTSequence` retains the actual incoming private memory, original child
+prefix and child final state at each ordered NTT call. Erasure recovers the
+existing stopped child program loop, including rejected and skipped suffixes.
+`AmbientNTTSequenceSoundness` derives child audits, exact accepted index order,
+actual retained-child support and persistence of both earlier and child-end bad
+events. Earlier owners and audits survive the complete loop.
+
+Its `derived_original_safe_union_bound` applies the derived per-child NTT
+arithmetic/PCS bound to every actually reached audited incoming state and sums
+the numeric caps over the trusted index list. A clear final loop state excludes
+every retained child's bad event. Encoding consistency, local geometry, bases,
+decoding conditions and numeric calibration remain explicit; no independent
+child-from-empty experiment or per-child security assumption is used.
+
+`AmbientMonomialNTT` instantiates exactly the native two-call order
+`[false,true]`. Trusted caller coefficient/evaluation roots and global encoding
+override factory fields, and `PackedNTT.scheme` fixes the exact packed butterfly
+transform using its primitive-root proof. Factory commitment work, returned
+memory and other callbacks remain in the actual execution. Supported child and
+retained-entry root theorems derive the enclosing root pairs rather than assume
+equality of separately selected roots. The original-owner safe rate is the sum
+of the two derived child caps, outside one final ambient exception and without
+another availability/collision charge.
+
+Still required: bind this component's coefficient references to accumulator
+objects 0/1 and its two evaluation roots to their retained native parameter
+objects; append it after actual accumulator acceptance. Construct the ambient
+public-plan ZeroCheck and its final two original evaluation openings, then
+compose complete monomial verification and final key switching and finish
+accepted false-output coverage. Concrete callback/tag/domain/layout/byte/
+transcript and optimized integer-kernel refinement, profile admission,
+adaptive/repeated-proof composition and physical/actor-separated attacker work
+remain open. The final 128-bit expected-work false-PBS theorem remains unproved.
+
+Validation: full `scripts/check` exited successfully, including the 12,291-job
+root build and every standalone check. Twenty-six new exact axiom guards passed,
+using only `propext`, `Classical.choice` and `Quot.sound`. Frozen Native modules
+and vendor source were unchanged. Full-check log SHA-256:
+`25f08b7ade65b3a22598cb9ccfb65a1e79abf55b09417b24efcf11f64feee155`.
