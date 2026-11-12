@@ -97,5 +97,34 @@ theorem native_original_risk_bound [Fintype Digest] [NeZero m] [NeZero b]
   have bound := native.trans (calibrated index member incoming)
   simpa only [NTTConditionalSoundness.witness,LocalSafeRisk,encoding index member incoming] using bound
 
+/-- The numerical NTT safe-rate sum holds from any audited incoming history,
+so a caller can prepend an earlier stage without restarting the loop. -/
+theorem native_safe_union_bound [NeZero m] [NeZero b]
+    (enc : MerkleOracle.Encoding Input Digest (List F)) (dummy : Digest)
+    (indices : List Index) (basis : Module.Basis (Fin b) F K)
+    (enough : m ≤ Fintype.card (Fin (2^height))) (capacity : 2^suffix ≤ m*b)
+    (radius : Index → ℕ) (epsilon : Index → ENNReal)
+    (encoding : ∀ index ∈ indices, ∀ memory, (factory index memory).encoding = enc)
+    (small : ∀ index ∈ indices, ∀ memory, ((radius index : ℕ) : ℚ≥0) <
+      (Code.minDist (ReedSolomon.code (SymbolLift.liftedDomain (K := K) (factory index memory).domain) m :
+        Set (Fin (2^height) → K)) : ℚ≥0)/3)
+    (calibrated : ∀ index ∈ indices, ∀ memory,
+      HadamardNTTProbability.rate (K := K) (factory index memory) (radius index) ≤ epsilon index)
+    (memory : Memory)
+    (initial : CheckpointExecution.State (Input := Input) (Digest := Digest) (RecordedSourceCoherence.Shape Cfg height))
+    (audited : CheckpointExecution.Audited enc dummy (RecordedSourceCoherence.Shape Cfg height) initial) :
+    Pr{let outcome ← (witness factory enc dummy indices memory initial)}[
+      AnySafeRisk factory dummy capacity radius outcome.1] ≤ (indices.map epsilon).sum := by
+  apply safe_union_bound factory enc dummy indices capacity radius epsilon _ memory initial audited
+  intro index member incoming state inheritedAudit
+  have inherited : CheckpointExecution.Audited (factory index incoming).encoding dummy
+      (RecordedSourceCoherence.Shape Cfg height) state := by
+    rw [encoding index member incoming]
+    exact inheritedAudit
+  have native := NTTConditionalSoundness.original_safe_bound (factory index incoming) basis dummy enough capacity
+    (radius index) (small index member incoming) state inherited
+  have bound := native.trans (calibrated index member incoming)
+  simpa only [NTTConditionalSoundness.witness,LocalSafeRisk,encoding index member incoming] using bound
+
 end
 end FormalProof4FHE.HasteBoots.NTTLoopProbability

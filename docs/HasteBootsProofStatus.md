@@ -29383,3 +29383,47 @@ Validation: all ten exact axiom guards passed with only permitted standard
 axioms (`propext`, `Classical.choice`, `Quot.sound`). Full `scripts/check`
 exited successfully, including the 12,195-job root build and all standalone
 checks. Full-check log SHA-256: `2665bb546c0e6a058bbfaf2dea5b9169222729754d35797efda5e0e0dfd1b20a`.
+
+
+### Original Hadamard prefix followed by the entire concrete NTT loop (2026-11-12)
+
+`PackedPBSHadamardNTT.program` composes the existing original-root Hadamard
+program with the complete fixed-slot concrete NTT loop. Both stages use the
+SAME original reference family. The loop receives the Hadamard child's ACTUAL
+RETURNED PRIVATE MEMORY and starts at its final shared state. Hadamard rejection
+skips every loop child. `project_witness` proves exact erasure of the retained
+Hadamard and child-loop histories to that actual short-circuit composition.
+
+`public_roots_stable` retains setup-key slots from the same original family.
+`reached_loop` derives first-stage acceptance and both actual supports from
+the composed run, without standalone child-from-empty witnesses. `hadamard_roots`
+recovers the exact original Hadamard prefix vector from arbitrary commitment
+callbacks. `accepted_slots_bound` gives a retained NTT child for EVERY original
+slot, with its coefficient root and the SAME evaluation root as the original
+Hadamard prefix factor. No independent cross-stage root equality is supplied.
+
+`NTTLoopProbability.native_safe_union_bound` extends the numerical conditional
+NTT loop interface to arbitrary audited incoming histories. The new
+`PackedPBSHadamardNTTProbability.safe_ntt_risk_bound` derives the inherited
+audit for each supported Hadamard outcome and averages the whole-loop safe
+rate sum over those actual outcomes. Rejected first-stage paths contribute
+no reached-loop event.
+
+`ntt_risk_bound` covers all retained original NTT risks after that prefix by
+the summed arithmetic/PCS rate caps plus ONE expected collision charge on the
+ENTIRE Hadamard-plus-loop program. Every earlier child exception persists to
+the shared final event; no separate prefix, child or source-alias hash charge
+is added. Encoding, decoding-radius and numerical rate calibration remain
+explicit trusted-profile obligations.
+
+This bounds NTT risks after the original Hadamard prefix. It does not yet add
+the probability of a false original Hadamard relation or cover the remaining
+PBS stages. Strict caller proof decoding and parameter-to-scheme wiring,
+whole-PBS false-output coverage, byte/transcript correspondence, concrete profile
+admission and physical/actor-separated work refinement remain required. The
+ultimate modified-HasteBoots security theorem remains unproved.
+
+Validation: all fourteen exact axiom guards passed, permitting only
+`propext`, `Classical.choice` and `Quot.sound`; `publicRoots` has no axioms.
+Full `scripts/check` exited successfully, including the 12,198-job root build
+and all standalone checks. Full-check log SHA-256: `af8e29f8dc1b52276a4e26bb9b6c69a2bbbc1d02af8764b418cc8f5d3bc4cdef`.
