@@ -27417,3 +27417,81 @@ All 23 exact axiom guards passed with standard Lean axioms only (5,198-job
 guarded build). With source/tests frozen, `scripts/check` passed the
 11,986-job root build and all standalone checks. Full-check log SHA-256:
 `129d781f098d57633c51a8920db00ae35ad1f74d1de6ad21a5e0a9971c2c964c`.
+
+## Adaptive native sum healing and paired-equation specified-work security
+
+`CanonicalSumCandidate` recovers the original even-slot sum info and message
+from the candidate's input-bound statement and actual completed round packet.
+The same literal input and original job ordinal identify both across worlds.
+The existing canonical fixation result fixes the complete helper family at
+its own parameter-derived radius. From its heterogeneous family equality and
+original dimension/padding alignment, `tables_fixed` and `honest_fixed` fix
+the entire sum table and honest polynomial for every native prior.
+`test_fixed` therefore fixes the full received-versus-honest sum test, without
+assuming a selected polynomial or inferring table equality from dimensions.
+The original first-exposure conditional kernel has degree-one loss.
+
+`CanonicalSumAttainableEvent` retains the original even message, recovered
+configuration and original attained candidate. Transport uses the same
+canonical replay fiber and full helper fixation. `CanonicalSafeSumKernel`
+handles attained safe classes, including empty classes, outside the existing
+global reference bad event. Its per-class conditional bound is
+`1 / goldilocksModulus^3`. `CanonicalSumPositionKernel` unions original jobs
+and positions with the existing input-bound equation-count score. For this
+composition it conservatively uses the existing degree-four scalar charge,
+rather than claiming a sharper total charge without a separate score proof.
+`CanonicalSumLifetime` obtains the corresponding specified-work bound over
+all original positions, excluding the same global reference bad event once.
+
+`CanonicalAllocatedSumEvent`, `CanonicalAllocatedSumHealing` and
+`CanonicalNativeSumCoverage` connect actual native initially false even-slot
+equations to that attained sum lifetime event, or the existing shared hash
+and calibrated original PCS alternatives. Recovery retains the original
+completed reader, exact even message address, original job ordinal, original
+native origin and complete canonical helper cube. It reuses the original
+first-read recovery and actual allocated caller log; no independently chosen
+sum candidate, helper association or source-derived polynomial is supplied.
+
+`CanonicalSumContinuation` preserves those attained packets and their tests
+through original program continuation. `PrivateCoinCanonicalSumProbability`
+then covers every finite analysis prefix and all original private-tape mass,
+using the existing countable envelope/outer-measure argument. The existential
+native events are not assumed measurable.
+
+`PrivateCoinPairedScalarProbability` combines identity and sum events outside
+one shared global reference bad ledger. Its scalar rate is explicitly the
+sum of two existing scalar-work rates. `CanonicalPairedJointPcsLedger` shares
+one original PCS family and one full-history hash ledger across both kinds
+of equations. `CanonicalPairedJointWorkBound.rate` is the preceding calibrated
+joint rate plus the additional `4 / goldilocksModulus^3` conservative scalar
+charge. Its finite NNReal representation and exact arithmetic prove this
+larger rate is still at most `2^-128`. The added sum charge is not omitted,
+and hash/reference or PCS mass is not duplicated per scalar kind.
+
+`CanonicalPairedIdentityWork.work_128` now proves the specified-interpreter
+expected-work bound for an originally false sum **or** identity equation on
+an actual retained allocated native job. Its core framing, domain, seed-order
+and admission evidence remains explicit, as at the preceding core endpoint.
+`ofIdentity` and `identity_included` embed the preceding identity-only witness
+and failure event, retaining the same native job. This extends the covered
+scalar failure event; it does not assert whole-PBS initial falsity.
+
+Seven named regression checks cover no-read and completed pure executions,
+silent private coins, repeated and empty reads, the necessity of complete
+helper-family fixation despite equal dimensions, and retention of an actual
+native even-slot healing fixture. These are kernel/input and native scalar
+component checks, not a complete nonempty accepted modified-PBS execution.
+No resource limits are increased; existing Native modules remain unchanged.
+
+Remaining gates include transporting the paired core result through the
+existing derived-framing/seed-order and sequenced-heap input interfaces,
+lookup tuple/compression/reciprocal initial-falsity coverage, whole modified-PBS
+application enforcement, original caller-parent framing, Rust invocation/
+codec/input-read correspondence, actual profile admission and fixed assembled-
+reference scope, actor-cost separation and physical attacker-work refinement.
+The final public modified-PBS actual-attacker-work theorem remains unproved.
+
+All 76 exact axiom guards passed with standard Lean axioms only (5,232-job
+guarded build). With source/tests frozen, `scripts/check` passed the
+12,002-job root build and all standalone checks. Full-check log SHA-256:
+`58b42d870df04aa8b24a8f3870c20ff026d1d9a51be7fa2203bda25b68a1e5fc`.
