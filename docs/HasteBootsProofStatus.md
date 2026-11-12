@@ -27238,3 +27238,58 @@ All 48 exact axiom guards passed with standard Lean axioms only (5,176-job
 guarded build). With source/tests frozen, `scripts/check` passed the
 11,971-job root build and all standalone checks. Full-check log SHA-256:
 `858637faa4a3f287877a66da6b131e77bd4eadd7d60ec51bffb6bc621d1402be`.
+
+## The proof decoder consumes its recorded checked heap range
+
+`ResidentProofDecode.read` composes the existing checked native heap-range
+read with the specified structural shared-proof codec. `read_iff` exposes the
+exact loaded bytes and successful parse; load failures and parse failures
+remain failures. `recover` retains that same original input, including wider
+varint spellings and a suffix. Its source vector's allocation bound follows
+from the checked native range, not an independent vector-size certificate.
+`Source.consumed_bound` bounds canonical reencoding plus the original suffix
+by the actual read layout, using the existing nonexpanding decoder theorem.
+`Source.original_bytes` identifies the source with any successful read of
+that same memory/pointer/layout; it never replaces the original bytes with a
+canonical encoding.
+
+`ResidentDecodedAllocatedJob.Job` retains the original completed native
+lookup execution, provenance, job index, allocation geometry and full-log
+observation evidence. Instead of a separately supplied proof byte vector,
+it records a heap state, pointer, layout and successful composed read/decode
+of the exact `ctx.proof` and suffix. `toCaller` recovers the old byte-vector
+interface from that operation. `original_read` binds those bytes to the
+recorded heap read, while `bytes_ofCaller` and `toCaller_ofCaller` show that
+adding a resident buffer to an existing job and converting back preserves
+the entire original job and its bytes. Truth-preservation theorems retain
+the same canonical public tables and initial identity falsity.
+
+`HeapProofIdentityWork` composes this job with the original caller message
+buffers. Its `work_128` inherits the same profile admissions, security rate
+and specified-interpreter expected work. `failure_iff` characterizes the new
+event as the preceding resident-caller event together with realization of
+its exact proof byte vector by a checked resident read. It does not assert
+that every abstract source vector can inhabit a native allocation. No
+cryptographic probability term or sampler count restriction is added.
+
+Thirteen named smoke checks use actual checked allocation/bulk-write/read
+operations for a proof with a noncanonical wider count prefix and retained
+suffix. They check original byte/vector identity, nonexpanding consumption,
+raw lazy-word retention, and rejection of lost provenance, an invalid tag
+and a truncated proof. These are structural decoder/heap component fixtures,
+not a whole accepted nonempty modified-PBS run.
+
+This closes the explicit heap-byte association within the checked model;
+it does not identify these heap states with the real Rust deserializer's
+execution. Whole Rust codec/value/consumption/error/resource correspondence,
+sequencing of caller/proof buffer reads in one original heap execution,
+original caller-parent framing, whole modified-PBS initial falsity and
+application enforcement, actual profile admission and fixed-reference scope,
+actor-cost separation and physical attacker-work refinement remain open.
+Existing Native modules are unchanged. The final public modified-PBS
+actual-attacker-work theorem remains unproved.
+
+All 51 exact axiom guards passed with standard Lean axioms only (5,183-job
+guarded build). With source/tests frozen, `scripts/check` passed the
+11,976-job root build and all standalone checks. Full-check log SHA-256:
+`a9a5109b66dc8b1817855a797840a0d0f41dcb386fe6ea8e8498e7fb8408fe13`.

@@ -699,3 +699,5 @@ import FormalProof4FHETest.HasteBootsEqualityFramingRecoveryAudit
 import FormalProof4FHETest.HasteBootsScalarStatementSizeAudit
 
 import FormalProof4FHETest.HasteBootsResidentMessageBoundsAudit
+
+import FormalProof4FHETest.HasteBootsResidentProofDecodeAudit
