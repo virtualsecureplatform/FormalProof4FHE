@@ -691,3 +691,5 @@ import FormalProof4FHETest.HasteBootsProofReadSizeAudit
 import FormalProof4FHETest.HasteBootsOpeningReceiptSourceAudit
 
 import FormalProof4FHETest.HasteBootsHelperReceiptFramingAudit
+
+import FormalProof4FHETest.HasteBootsSourceFramingRecoveryAudit

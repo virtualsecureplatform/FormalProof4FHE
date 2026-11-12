@@ -26999,3 +26999,71 @@ All 43 exact axiom guards passed with standard Lean axioms only (5,163-job
 guarded build). With source/tests frozen, `scripts/check` passed the
 11,950-job root build and all standalone checks. Full-check log SHA-256:
 `762045b71b3ff6d883739a064c91a501c0560262167ad349d143f8bc6bf49ebb`.
+
+## Source receipt framing from original collection and checked batches
+
+`SourceClaimGroupCardinality` connects the collector's recorded claim slots,
+unique computed context/root keys and original registry initialization. It
+proves that each canonical group contains at most one inserted claim in the
+actual completed lookup pipeline. This concerns complete context-digest/root
+keys, preserves original slots and imposes no cutoff on the total number of
+groups. The raw dispatcher still supports larger batches; this bound is a
+property of shared source collection, not a change to that dispatcher.
+
+`CheckedBatchMetadataSize` recovers variable-count and matrix/query/value
+checks from actual native batch completion. At admitted widths at most four,
+a singleton batch has at most 20,612 metadata bytes. The singleton premise
+is supplied by the original collector invariant. Response bytes come from
+the original proof packets, retaining their raw field representations.
+
+`AllocatedSourceClaimFraming` derives source-claim frame bounds only on
+branches whose literal native binding checks pass. Rejected dimensions emit
+no claim frame. Parameter-store initialization supplies the variable-count
+bound for every original registry slot; existing profile admissions supply
+the widths. Context failure, alias rejection, allocation errors and stopped
+prefixes preserve append-only framing without independent query/value size
+certificates.
+
+`CollectedBatchFramingRecovery` combines the framed helper result, actual
+source collection and native batch trace. Each passed batch supplies its
+checked metadata; original packet response bounds supply the other message
+size. The trace retains prior receipt framing through a later stopped call,
+without requiring a framing certificate for any future receipt.
+
+`CallerFramedAllocatedJob.Job` now carries no source or helper receipt
+framing fields and no independent response-size fields. Original caller
+framing, retained allocation provenance and decoded proof bytes derive them.
+Checked job roundtrips and `truth_toParent` preserve all original data and
+the same canonical public-table truth.
+
+`CallerDerivedIdentityWork.work_128` derives all required width bounds from
+the same existing Goldilocks admissions and inherits the preceding security
+rate. `failure_iff` proves equivalence on those admitted width domains. No
+new caller width, group-count, receipt-framing or response-size premise is
+introduced by this endpoint, and no new probability charge is added.
+
+Seventeen named checks exercise actual alias collection and unique groups,
+original claim addresses, a completed singleton native batch and its recovered
+receipt framing, alias-rejection prefixes and dimension rejection. A raw
+four-claim dispatcher case remains valid as a regression against imposing the
+collector's singleton invariant on the broader dispatcher. These are stage
+fixtures, not a claim of complete modified-PBS acceptance or Rust refinement.
+Existing Native modules are unchanged.
+
+Remaining gates include original caller/configuration framing allocation
+domains, original scalar equality-transcript/statement framing, Rust/serde
+read/value/consumption/error/resource correspondence and actual byte-source
+binding, whole modified-PBS initial falsity/application enforcement, actual
+profile admission and the fixed assembled-reference scope, actor-cost
+separation and physical attacker-work refinement. The final public
+modified-PBS actual-attacker-work theorem remains unproved.
+
+All 64 exact axiom guards passed with standard Lean axioms only (5,175-job
+guarded build). With source/tests frozen, `scripts/check` passed the
+11,958-job root build and all standalone checks. Full-check log SHA-256:
+`db97fd516b45f3a6485288630cecae8cb85b28b026f43ed5227f4f00835c2b8f`.
+
+After removing a trailing blank line in the generated audit, the complete
+`scripts/check` passed again on the final source/test state (11,958 jobs
+and all standalone checks). Final log SHA-256:
+`5a2cd7c8882914b153748729e6587e094a517965948d3db808c1a08d99b2c3d2`.
