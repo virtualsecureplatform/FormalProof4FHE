@@ -27170,3 +27170,71 @@ All 35 exact axiom guards passed with standard Lean axioms only (5,169-job
 guarded build). With source/tests frozen, `scripts/check` passed the
 11,966-job root build and all standalone checks. Full-check log SHA-256:
 `4d8c37004e8b2d520e23354ced532ef4c9e2aa2db1b60f454ae644204845c0ca`.
+
+## Original checked message buffers supply caller and registry framing
+
+`ResidentMessageBounds.Buffer` records a memory state, pointer, layout and
+successful `NativeByteRange.loadRange` of the exact original serialized
+message. `length_le` derives its byte count from the checked range's layout
+and initialization checks, including the existing 64-bit signed allocation
+bound. It introduces no new allocator limit. `fits` therefore supplies the
+frame payload bound without an independent byte-size certificate.
+
+For canonical bindings, `frame_budget` compares the conservative caller bound
+with the exact serialized message length plus nine bytes of possible vector
+header slack. A successful checked resident read leaves ample space below
+the transcript's unsigned 64-bit frame limit. `binding_fits` and `calls_fit`
+transfer that fact along original request/binding relations, retaining the
+original gathered slot order, repeated slots and the actual helper context.
+No group-count or request-count cutoff is imposed.
+
+`CallerSerializationOrigin` recovers successful original preparation from the
+actual completed helper/native caller, then derives its ordered binding trace
+and complete computed source registry. The `bindings` and `sources` operands
+are selected from those execution conclusions. `Buffers` supplies checked
+reads only for the original request vector, those bindings and that registry;
+it does not supply an independent request order or context association.
+`parent_domain` and `registry_fits` recover the previous abstract framing
+premises. Determinism of the original context computation identifies every
+computed registry with this same retained registry.
+
+`ResidentCallerIdentityWork.Witness` replaces `parentDomain` and `registryFits`
+with these original checked message buffers. Its conversions preserve the
+same job data and falsity claim. `work_128` inherits the preceding specified
+interpreter expected-work bound and profile admissions, with no extra
+probability charge. `failure_iff` identifies its event with the
+preceding event **together with resident-buffer realization**. It does not
+claim unconditional equivalence to every unbounded abstract native caller.
+Proving that actual Rust caller serialization supplies these reads remains
+an explicit implementation obligation; individual buffer states are not yet
+a proof of one whole Rust heap execution or its cost.
+
+Twelve named smoke checks exercise successful checked allocation/bulk-write
+of actual request, binding and registry bytes, recovered caller domains,
+original aliases and unused slots, oversized layout rejection, missing
+pointer provenance, byte-suffix mutation and a changed helper digest with
+unchanged encoded length. The latter cannot replace the original heap read,
+by the existing exact payload injectivity theorem. These are component
+fixtures, not whole modified-PBS acceptance or physical-work proofs.
+
+The source-path inspection used the canonical backend at local HasteBoots
+commit `dff353006322693cab3dc6b654f82151f658f294`:
+`snarks/src/packed_extension_lookup/canonical.rs` constructs the per-source
+context/root pairs and the canonical bind label, and
+`pcs/src/matrix_weighted/backend.rs` supplies the modeled registry domain.
+The legacy `packed_extension_lookup/shared.rs` has different framing and is
+not this endpoint's target. This inspection is source mapping, not a proved
+Rust/serde correspondence. Existing Native modules remain unchanged.
+
+Remaining gates include realization and sequencing of original caller
+serialization buffers, original caller-parent framing, Rust/serde
+read/value/consumption/error/resource correspondence and actual proof-byte
+source binding, whole modified-PBS initial falsity/application enforcement,
+actual profile admission and the fixed assembled-reference scope, actor-cost
+separation and physical attacker-work refinement. The final public modified-PBS
+actual-attacker-work theorem remains unproved.
+
+All 48 exact axiom guards passed with standard Lean axioms only (5,176-job
+guarded build). With source/tests frozen, `scripts/check` passed the
+11,971-job root build and all standalone checks. Full-check log SHA-256:
+`858637faa4a3f287877a66da6b131e77bd4eadd7d60ec51bffb6bc621d1402be`.
