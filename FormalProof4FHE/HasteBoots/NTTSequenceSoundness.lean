@@ -174,5 +174,39 @@ theorem accepted_indices (accepted : outcome.1.accepted = true) :
     (step factory) indices memory initial (erase outcome.1,outcome.2) projected accepted
   simpa only [erase,List.map_map,Function.comp_def] using covered
 
+
+include supported in
+/-- Each retained entry comes from its actual selected factory and an actual
+incoming state; no independent child-from-empty support is required. -/
+theorem retained_child_support
+    (entry : Index × Memory × Child (F := F) (Input := Input) (Digest := Digest) (Cfg := Cfg) (Response := Response)
+      (Memory := Memory) (CommitMemory := CommitMemory) (b := b) (c := c) (r := r) (k := k)
+      (front := front) (queries := queries) (height := height))
+    (member : entry ∈ outcome.1.results) :
+    ∃ before, entry.2.2 ∈ support (MultiCommitmentPrefix.witness enc dummy (RecordedSourceCoherence.Shape Cfg height)
+      (CommittedJointMatrixOpening.requests (factory entry.1 entry.2.1).tag [false,true])
+      (factory entry.1 entry.2.1).commit (AuthenticatedNTT.continuation (factory entry.1 entry.2.1)) before) := by
+  induction indices generalizing memory initial outcome with
+  | nil =>
+    have equal := eq_of_mem_support_pure _ supported
+    subst outcome
+    cases member
+  | cons index rest ih =>
+    simp only [witness,support_bind,Set.mem_iUnion] at supported
+    obtain ⟨child,childSupported,remainder⟩ := supported
+    by_cases passes : AuthenticatedNTT.accepted child.2.1 = true
+    · simp only [passes,ite_true,support_bind,support_pure,Set.mem_iUnion,Set.mem_singleton_iff] at remainder
+      obtain ⟨later,laterSupported,equal⟩ := remainder
+      subst outcome
+      rcases List.mem_cons.mp member with first | tail
+      · subst entry
+        exact ⟨initial,childSupported⟩
+      · exact ih child.2.1.2.memory child.2.2 later laterSupported tail
+    · simp [passes] at remainder
+      subst outcome
+      have first := List.mem_singleton.mp member
+      subst entry
+      exact ⟨initial,childSupported⟩
+
 end
 end FormalProof4FHE.HasteBoots.NTTSequenceSoundness

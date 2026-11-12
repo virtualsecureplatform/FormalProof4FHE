@@ -1265,3 +1265,5 @@ import FormalProof4FHE.HasteBoots.NTTSequence
 import FormalProof4FHE.HasteBoots.NTTSequenceSoundness
 
 import FormalProof4FHE.HasteBoots.NTTLoopProbability
+
+import FormalProof4FHE.HasteBoots.PackedPBSNTTLoop

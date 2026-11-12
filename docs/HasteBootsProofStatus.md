@@ -29339,3 +29339,47 @@ Validation: all eighteen exact axiom guards passed with only permitted
 standard axioms (`propext`, `Classical.choice`, `Quot.sound`). Full
 `scripts/check` exited successfully, including the 12,193-job root build and
 all standalone checks. Full-check log SHA-256: `f68f7b2d17b4bb581b0e139f68a9b667fbad6f605f7592a4388eaa74d9c36222`.
+
+
+### Original reference slots instantiate the concrete packed-PBS NTT loop (2026-11-12)
+
+`PackedPBSNTTLoop.factory` fixes each concrete butterfly NTT child to the
+coefficient/evaluation roots in `PackedPBSOriginalReferences.Family`, while
+retaining the underlying factory's commitment calls, private memory and proof
+callbacks. `program` and `witness` use the FIXED trusted list
+`List.finRange (count+1)`; the prover does not supply a child-index list. The
+complete blind-rotation caller instantiates `count = 2*d`. `project_witness`
+proves exact erasure to those existing child programs, preserving early return,
+private memory handoff and shared final history.
+
+`NTTSequenceSoundness.retained_child_support` recovers every retained child's
+actual factory-selected support at an actual incoming state. `retained_roots`
+uses it to derive the child's entire public root pair, without a standalone
+child-from-empty witness or separate root-binding certificate. `accepted_slots`
+proves exact trusted order for an accepted packed loop; `all_slots_bound`
+recovers a retained child with both original roots for every original slot,
+including the final result slot.
+
+`retained_evaluation_alias` joins these runtime-derived prefix roots to
+successful original parameter-store collections. The retained child and its
+NTT/Hadamard registry views share one original `GoodEntry`, full parameter
+object and evaluation root. Shape equality alone is not used as source identity.
+
+`original_risk_bound` instantiates the proved loop probability theorem for
+this fixed original-slot concrete NTT family. Its bound is the summed numerical
+arithmetic/PCS rate caps plus ONE collision charge on the actual packed loop
+program. The encoding association, decoding-radius conditions and numerical
+rate caps remain explicit trusted-profile obligations, uniform over private
+memory-dependent factories.
+
+This binds the model's original public reference family to the concrete child
+loop. The full Rust PBS caller still needs strict proof decoding/count validation,
+parameter-to-scheme wiring, Hadamard-prefix composition and all remaining child
+stages/false-output coverage. Native byte/transcript correspondence, concrete
+profile admission and physical/actor-separated work refinement also remain
+required. The ultimate modified-HasteBoots security theorem remains unproved.
+
+Validation: all ten exact axiom guards passed with only permitted standard
+axioms (`propext`, `Classical.choice`, `Quot.sound`). Full `scripts/check`
+exited successfully, including the 12,195-job root build and all standalone
+checks. Full-check log SHA-256: `2665bb546c0e6a058bbfaf2dea5b9169222729754d35797efda5e0e0dfd1b20a`.

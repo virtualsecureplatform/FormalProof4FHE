@@ -777,3 +777,5 @@ import FormalProof4FHETest.HasteBootsNTTConditionalAudit
 import FormalProof4FHETest.HasteBootsHadamardNTTProbabilityAudit
 
 import FormalProof4FHETest.HasteBootsNTTLoopAudit
+
+import FormalProof4FHETest.HasteBootsPackedPBSNTTLoopAudit
