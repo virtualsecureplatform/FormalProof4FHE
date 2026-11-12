@@ -711,3 +711,5 @@ import FormalProof4FHETest.HasteBootsCanonicalSumAudit
 import FormalProof4FHETest.HasteBootsSequencedInputPairedAudit
 
 import FormalProof4FHETest.HasteBootsLookupInitialArithmeticAudit
+
+import FormalProof4FHETest.HasteBootsGoldEqualityPointAudit

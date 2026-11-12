@@ -27614,3 +27614,64 @@ Validation: all 32 exact axiom guards passed using only `propext`,
 frozen, `scripts/check` passed the 12,011-job root build and every standalone
 check. Full-check log SHA-256:
 `f4016e5807a4066e57789ac8c9d91fc6e6581d3ecc1b141850d75669b8944ac4`.
+
+## Native equality-vector law and original residual exposure
+
+`GoldEqualityPointLaw` assembles consecutive blocks of three canonical
+Goldilocks coefficients through the original cubic basis. Its assembly is an
+equivalence, yielding the joint uniform law on the whole equality vector.
+The conditional native law retains the shared candidate-budget completion
+mass for `n*3` coefficients. Its all-budget version includes every suspension
+and rejection, without a retry cap or conditioning on successful completion.
+`eventual_residual_bound` gives `n / goldilocksModulus^3` for a fixed nonzero
+Boolean residual at a causally fresh native vector input. Cubic coefficients
+form extension elements; they do not supply an independent three-lane power.
+
+`EqualityCollectorTrace` proves that active and completed initialized native
+equality collectors are finite prefixes of their original reader. The source
+invariant survives native collection, receipt finalization and arbitrary
+analysis pauses. `draw_point` recovers a collector budget returning the exact
+original stored point, deriving its interpretation from initialized execution.
+No supplied completed-point distribution or replacement sampler is used.
+
+`LookupEqualityExposure.original` recovers this actual vector collector for
+an original retained allocated lookup job from its successful native prelude.
+It retains the job's original draw index and the native raw-word point order.
+`LookupEqualityResidual.miss` transports the canonical decoded residual from
+the scalar full-point dimension to the original native geometry dimension,
+using the actual job's dimension equality. Nonzeroness and the vanishing
+weighted sum are preserved along with the same original draw and collector.
+`of_miss` puts the original equality exception into an all-budget collector
+event. `conditional_bound` bounds that event with the complete residual held
+fixed and first positive read supplied by the causal selector.
+
+This closes the native vector-law and original-collector interpretation
+obligations, not the adaptive equality exception from
+`LookupInitialPairedWork.work_with_equality_exception`. That exception varies
+the original job and decoded tables with the oracle world. Before pricing it,
+new equality-prefix candidate recovery must fix the complete canonical
+source/helper families, r, y, mask and dimensions on the relevant replay fiber,
+with explicit reference/receipt bad alternatives. Existing scalar candidate
+fixation uses a later scalar input containing equality receipts and cannot be
+silently reused before the equality draw. Original first-read recovery,
+finite job/position coverage, lifetime/private-tape composition and a shared
+joint-work charge remain necessary.
+
+Seven named regressions check consecutive triple order, suspension before a
+whole vector completes, rejected-vector suspension, zero-dimensional completion,
+two actual initialized equality draws and their distinct original inputs after
+the first receipt. These remain component checks, not a complete accepted
+false modified-PBS execution. Existing Native modules and resource limits are
+unchanged.
+
+Tuple compression/reciprocal detection pricing, whole modified-PBS application
+enforcement, original caller-parent provenance, Rust invocation/codec/input-read
+correspondence, supported profile admission, fixed assembled-reference scope,
+actor-cost separation and physical attacker-work refinement remain open.
+The final actual-attacker-work theorem is not proved.
+
+Validation: all 38 exact axiom guards passed using only `propext`,
+`Classical.choice` and `Quot.sound` (5,231-job guarded build). With source/tests
+frozen, `scripts/check` passed the 12,017-job root build and every standalone
+check. Full-check log SHA-256:
+`1e1279c955357b6dbe367d814153342c90b7c890343fc3132cde5b0fbeba9e5a`.
