@@ -29783,3 +29783,35 @@ Validation: full `scripts/check` passed, including the 12,231-job root build
 and every standalone check. Fifteen exact axiom guards passed, permitting only
 `propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
 `757ab8626c3363ac0a536d18792fd1af091cfb990a8d0f728b99ff28e20f24f3`.
+
+### 2026-11-12: transport inherited checkpoints across phase geometries
+
+`CheckpointShapeTransport` reconfigures only ghost extraction geometry. Every
+checkpoint keeps its exact tag, root and cumulative query log, in the same order;
+the shared cache, full hash log and persistent failure bit are copied verbatim.
+The history round-trip and recorded-owner equivalence preserve original owners.
+
+`Compatible` requires the two shape functions to agree at EVERY already-recorded
+tag. Under this structural condition, digest/payload stability is equivalent,
+the inherited audit transfers and hash updates commute with reconfiguration,
+including the failure monitor. Root recording commutes unconditionally as data;
+`compatible_record` proves that preserving compatibility across a new recording
+requires exactly the old obligations plus agreement at its newly recorded tag.
+The shared `CheckpointCollision.Bad` event is unchanged, without a new charge.
+
+This supports changing the heights of previously unused helper contexts when
+entering mixed-height comparisons after the fixed-height reconstruction prefix.
+It does NOT justify changing the shape of an already-recorded context. The
+concrete continuation still must establish the recorded-tag condition, including
+any callback-generated records; arbitrary prover callbacks cannot silently be
+assumed to satisfy it. No native transcript/driver correspondence is claimed.
+
+The concrete comparison continuation, second half and remaining PBS bindings,
+profile admission, adaptive/repeated-proof composition and actual attacker-work
+refinement remain open. The final 128-bit false-PBS expected-work theorem is
+still unproved.
+
+Validation: full `scripts/check` passed, including the 12,233-job root build
+and every standalone check. Ten exact axiom guards passed, permitting only
+`propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
+`a17c2e94aad25b44a3ba3d19565fb7c1030dac0e8f5a97e0d4b90550523c2b49`.

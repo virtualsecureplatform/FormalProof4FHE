@@ -1321,3 +1321,5 @@ import FormalProof4FHE.HasteBoots.MixedWidthPrivateLookupConditional
 import FormalProof4FHE.HasteBoots.MixedWidthOwnedLookupConditional
 
 import FormalProof4FHE.HasteBoots.PackedPBSComparisonReferences
+
+import FormalProof4FHE.HasteBoots.CheckpointShapeTransport
