@@ -29640,3 +29640,54 @@ Validation: full `scripts/check` passed, including the 12,216-job root build
 and every standalone check. Twelve exact axiom guards passed, permitting only
 `propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
 `e646222d157b1038ecc01436cbc54f2f4220328e2314a65ec84ed118be430ca2`.
+
+
+### 2026-11-12: reached first reconstruction and original coefficient coherence
+
+The inspected Rust verifier performs Hadamard, all `2*d+1` NTT children, then
+linear reconstruction AND comparisons for half zero before proceeding to half
+one. `PackedPBSFirstReconstruction` extends the proved prefix through the first
+reconstruction only, leaving the comparison boundary explicit. It does not
+move the second reconstruction ahead of those comparison calls.
+
+`project_witness` proves exact erasure to the composed shared program,
+including rejection branches and the real NTT-returned private memory/state.
+`reached_reconstruction` derives actual predecessor acceptance and both
+supports. `reconstruction_roots` derives the first input root and every
+original first-half coefficient root from the actual child commitment outcome.
+All borrow roots and the original commitment callback/memory remain present.
+
+`PackedPBSDecompositionReferences` identifies the native input/digit/borrow
+registry order. Its successful collector alias theorem shows that each linear
+digit and the corresponding NTT coefficient borrow the SAME original retained
+parameter object/root, rather than independently matching code geometry.
+
+`PackedPBSReconstructionCoherence.digit_source_association` closes that
+first-half provenance boundary outside the common final collision event.
+Both actual snapshots are proved recorded after reconstruction; the final
+audit is inherited through the accepted loop and actual linear execution.
+Root equality follows from supported original-slot binding. Encoding, domain,
+context tag, fixed decoder radius and layout compatibility remain explicit
+trusted-context obligations. No source-equality or safety certificate is supplied.
+
+`PackedPBSFirstReconstructionProbability.safe_linear_risk_bound` averages the
+conditional reconstruction rate over the actual supported predecessor returns.
+Rejected NTT paths execute no reconstruction. The arbitrary incoming audit,
+actual private memory and original registry openings are retained; the bound
+adds no local hash charge. Combining all prefix arithmetic terms under one
+whole-program charge and then extending through comparisons remains required.
+
+Rust call-order inspection used `snarks/src/packed_pbs/canonical.rs` SHA-256
+`e3483f591648daeea2d7f2a9a0e656bb5b5d08117e7e0c24a39fb42175ae7eb5` and
+`snarks/src/packed_decomposition/canonical/shared.rs` SHA-256
+`4c34141a9c58ea126d7238b7fa7db28d1e3147153605bef0650c959efa9fe1c8` in the sibling
+HasteBoots checkout. This is source inspection, not a proved byte/transcript
+refinement. Comparison stages, second-half completion, the remaining PBS
+stages/bindings, concrete profile admission, adaptive/repeated-proof composition
+and physical/actor-separated work refinement remain open. The final 128-bit
+expected-work false-PBS theorem is unproved.
+
+Validation: full `scripts/check` passed, including the 12,221-job root build
+and every standalone check. Sixteen exact axiom guards passed, permitting only
+`propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
+`a69b40b399521af714bd379ad346321a99b61d5dbc40f56d2966829efa8b0a2a`.

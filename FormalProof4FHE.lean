@@ -1297,3 +1297,11 @@ import FormalProof4FHE.HasteBoots.LinearConditionalSoundness
 import FormalProof4FHE.HasteBoots.DecompositionConditionalSoundness
 
 import FormalProof4FHE.HasteBoots.PackedCoefficientDecomposition
+
+import FormalProof4FHE.HasteBoots.PackedPBSDecompositionReferences
+
+import FormalProof4FHE.HasteBoots.PackedPBSFirstReconstruction
+
+import FormalProof4FHE.HasteBoots.PackedPBSReconstructionCoherence
+
+import FormalProof4FHE.HasteBoots.PackedPBSFirstReconstructionProbability
