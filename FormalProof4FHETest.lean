@@ -771,3 +771,5 @@ import FormalProof4FHETest.HasteBootsHadamardNTTSourceAudit
 import FormalProof4FHETest.HasteBootsPackedPBSReferencesAudit
 
 import FormalProof4FHETest.HasteBootsHadamardNTTEnforcementAudit
+
+import FormalProof4FHETest.HasteBootsNTTConditionalAudit

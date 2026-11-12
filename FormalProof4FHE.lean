@@ -1249,3 +1249,9 @@ import FormalProof4FHE.HasteBoots.HadamardNTTSourceAssociation
 import FormalProof4FHE.HasteBoots.PackedPBSOriginalReferences
 
 import FormalProof4FHE.HasteBoots.HadamardNTTEnforcement
+
+import FormalProof4FHE.HasteBoots.CommittedPrefixSafeBound
+
+import FormalProof4FHE.HasteBoots.CommittedBatchSafeBound
+
+import FormalProof4FHE.HasteBoots.NTTConditionalSoundness

@@ -29216,3 +29216,46 @@ Validation: both exact axiom guards passed with only permitted standard
 axioms (`propext`, `Classical.choice`, `Quot.sound`). Full `scripts/check`
 exited successfully, including the 12,182-job root build and all standalone
 checks. Full-check log SHA-256: `984e3a7e8f130a697604b7696357091e76cc4046467897b1107b03d09eff8b32`.
+
+
+### Conditional original-source NTT probability from arbitrary incoming histories (2026-11-12)
+
+`CommittedPrefixSafeBound.event_bound` averages a committed stage's arithmetic
+bound over its actual commitment prefixes from ANY audited incoming shared
+state. Accepted failures outside the final shared checkpoint collision event
+are bounded by arithmetic loss alone. Final auditing is derived from actual
+supported execution. The lemma adds no independent child hash charge and does
+not restart a stage from empty.
+
+`CommittedBatchSafeBound.soundness` instantiates that result for the actual
+native stopped PCS batch sequence. Every original factor pays its matrix
+opening error once for the whole batch. Actual received claims, cache replay,
+root recording and disabled/rejected paths remain in the program. The common
+terminal collision event is excluded and left to the whole caller's ledger.
+
+`NTTConditionalSoundness.witness` retains the existing authenticated NTT
+program's prefix from an arbitrary actual incoming state. `fresh_recorded`
+and `audited_witness` derive recording and final auditing from that execution.
+`truth_risk_bound` retains the uniform row-detection/compression bound across
+all actual commitment prefixes. `opening_safe_bound` pays exactly the two
+original-root PCS errors outside the final common collision event.
+
+`original_safe_bound` handles any matching recorded owner family, including
+postselected original owners. Outside the SAME final collision event, source
+reuse reduces to the fresh-source interpretation and actual accepted-stage
+coverage. Its bound is `(r/card(F))^k + c*((2*b-1)/card(F))^b` plus the two
+original PCS batch errors. There is no row/claim repetition multiplier,
+child-from-empty premise or extra child hash charge. The incoming audit
+invariant is the one inherited from a preceding supported caller stage.
+
+This supplies a quantitative conditional interface for an NTT reached after
+Hadamard; averaging it over the complete caller and charging the final shared
+collision event still need to be connected. Native original parameter wiring,
+all other PBS stages, byte/transcript correspondence, concrete supported-profile
+admission and full physical attacker-work refinement remain required. The
+ultimate modified-HasteBoots security theorem remains unproved.
+
+Validation: all eight exact axiom guards passed with only permitted standard
+axioms (`propext`, `Classical.choice`, `Quot.sound`). Full `scripts/check`
+exited successfully, including the 12,186-job root build and all standalone
+checks. Full-check log SHA-256: `14ec9366b6e3758217bcafe3ae501fc3b9c747faf354c4dd7d90397da5ca42f2`.
