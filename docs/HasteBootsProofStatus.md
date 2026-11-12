@@ -31105,3 +31105,59 @@ root build and every standalone check. All three new modules are exported and
 the imported audit contains 21 exact axiom guards: two have no axioms and the
 others use only `propext`, `Classical.choice` and `Quot.sound`. Frozen Native
 modules and vendor sources are unchanged. Full-check log SHA-256: `25568504a6250e1502ab039812a6d5572912a691dee799a1ebceb75f6c338764`.
+
+### 2026-11-12: padded canonical reconstruction with exact singleton openings
+
+`PaddedLinear` checks packed linear identities on logical tables while each
+original source retains its own physical tensor split, padding, code dimension,
+domain, query count and root height. Its common logical query is extended with
+fixed high-zero selectors and reindexed to each physical layout. The evaluation
+equality is proved on the original physical decoder's logical source view;
+private cells outside that view are not constrained to zero.
+
+The trusted root/context/query/value fields override factory claims. Each
+source retains its original singleton `prepare`, response, attachment and
+worker programs and returned private memory. `continuation_single` proves exact
+transition equality with the native singleton loop, using the existing
+`SingletonOpening.step_eq` proof for its one-claim interface. This includes
+preparation BEFORE the private test, rejection, actual column checks and worker
+work. It is not a resampling or transcript-equivalence assumption, and introduces
+no additional batch-mixing challenge.
+
+Full-state projection, original owner recording/retention, inherited audits and
+bad-event persistence hold on arbitrary incoming histories. Accepted false
+logical identities expose a truthful false linear packet or an incorrect native
+opening. The resulting original-owner rate is ONE logical compression term
+`n*((2*b-1)/card F)^b` plus the sum of the actual source-specific PCS errors,
+under the same final collision exclusion. Original final-recorded owners are
+related to the fresh snapshots outside that exclusion; no replay, false-prefix
+or child-security certificate is supplied and no local collision charge is added.
+
+`KeySwitchPaddedReconstruction` specializes the native relation list to radix
+reconstruction and zero first/last borrows, in the exact input/digits/borrows
+registry order. It fixes native consecutive nodes and the caller input reference
+and original digit coefficient roots from `Family d`; only borrow roots come
+from the retained commit callback. Supported execution derives the input/digit
+root bindings even on rejection. `relation` identifies the checked list with
+`DecompositionLinear.Relation`, and `preflight` proves the fixed list passes at
+an admitted positive width. The original-owner soundness rate is derived from
+`PaddedLinear` with each source's own explicit code facts.
+
+Source review: canonical decomposition verification appends d+1 borrow roots,
+builds the registry from input, d digits and borrows, then calls packed linear
+verification before its comparison requests. The native relation list in
+`../HasteBoots/snarks/src/packed_decomposition.rs` is reconstruction plus the two
+borrow endpoint identities. The input's negative-mask meaning comes from the
+preceding known-input check; connecting that existing input reference, the
+accepted product's returned memory/state and these new reconstruction calls is
+next. Then comparison and extraction must be composed. Concrete profile source/
+decoder association, full accepted-false-output coverage, parameter admission,
+production transcript/byte/field/kernel refinements, adaptive repeated proofs
+and physical attacker-work accounting remain open. The final 128-bit theorem
+remains unproved.
+
+Validation: full `scripts/check` exited successfully, including the 12,340-job
+root build and every standalone check. Both modules are exported; the imported
+audit contains 16 exact axiom guards, all passing with only `propext`,
+`Classical.choice` and `Quot.sound`. Frozen Native modules and vendor source are
+unchanged. Full-check log SHA-256: `4cce905fee21909a900e67ec4d20761c749685948ada9976c98d1e0dbb6b1643`.

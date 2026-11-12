@@ -1479,3 +1479,7 @@ import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchProduct
 import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchProductProbability
 
 import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchProductNativeJointBound
+
+import FormalProof4FHE.HasteBoots.PaddedLinear
+
+import FormalProof4FHE.HasteBoots.KeySwitchPaddedReconstruction
