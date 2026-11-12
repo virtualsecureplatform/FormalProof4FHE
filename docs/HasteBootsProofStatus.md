@@ -30084,3 +30084,51 @@ Validation: full `scripts/check` passed, including the 12,263-job root build
 and every standalone check. Seventeen exact axiom guards passed, permitting only
 `propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
 `7cfa6c88b4447ca5c8e7df8240258424e2102cc68101294989c6cd188527ced8`.
+
+### 2026-11-12: second reconstruction follows the accepted first comparison
+
+`PackedPBSSecondReconstruction.program` appends the other half's native
+reconstruction AFTER the first comparison call. The comparison return interface
+is the existing selection paired with a `ShortCircuitSequence.Outcome`, matching
+the concrete shared lookup PCS result. Entry reads that returned opening loop's
+computed acceptance field and forwards its actual returned memory. No separate
+acceptance predicate or replacement memory is supplied to the new call. All
+prior rejection paths skip the second reconstruction.
+
+The new reconstruction fixes the TRUE-half original input/digit roots, retains
+received borrow roots and uses the trusted global encoding. Its ambient witness
+starts at the first comparison's exact final state. No second geometry switch
+occurs: earlier source/helper checkpoints, hash/cache/log and persistent monitor
+remain in the same mixed-height handler. `project_witness` proves full-state
+erasure to the actual extended program. `reached_reconstruction` derives the
+actual predecessor support, comparison acceptance and precise child support;
+`roots` derives the other half's original roots even on later rejection paths.
+
+`before_audited` and `audited_witness` inherit audits from actual full-state
+projection. `retains` preserves earlier source/helper snapshots through every
+reached child; `bad_persistent` prevents any branch from clearing an earlier
+exception. `final_bad_le_charge` gives ONE shared availability/collision charge
+on the entire prefix through this second reconstruction, including rejected work.
+The initial pre-comparison scope condition is unchanged; the new ambient child
+needs no further history reconfiguration.
+
+`PackedPBSSecondReconstructionProbability.safe_second_risk_bound` averages the
+derived native original-owner linear/PCS bound over actually reached accepted
+comparison returns. Local source-height geometry, code/decoding conditions and
+numeric calibration remain explicit. No source truth, borrow honesty or incoming
+safety certificate is assumed; audits come from the inherited run. The earlier-
+event and earlier-safe-event lemmas transfer previous arithmetic budgets through
+this continuation without a losslessness or independence assumption or another
+hash charge.
+
+Still required: append the second comparison call, combine all second-half risks
+under the whole-PBS charge and finish remaining PBS source bindings; bind callback
+fields to concrete native byte programs and retained parameter/tag/domain/layout
+geometry; establish native request/transcript correspondence, concrete profile
+admission, adaptive/repeated-proof composition and physical/actor-separated
+attacker work. The final 128-bit expected-work false-PBS theorem remains unproved.
+
+Validation: full `scripts/check` passed, including the 12,266-job root build
+and every standalone check. Twelve exact axiom guards passed, permitting only
+`propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
+`df7d7d0fe7a5e6a68d305cd6d1d9a6dd2c1f7527d64b3328234700ddb6475ffb`.

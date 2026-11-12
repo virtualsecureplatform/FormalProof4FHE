@@ -1369,3 +1369,7 @@ import FormalProof4FHE.HasteBoots.AmbientCommittedBatchSafeBound
 import FormalProof4FHE.HasteBoots.AmbientLinear
 
 import FormalProof4FHE.HasteBoots.AmbientDecompositionSoundness
+
+import FormalProof4FHE.HasteBoots.PackedPBSSecondReconstruction
+
+import FormalProof4FHE.HasteBoots.PackedPBSSecondReconstructionProbability
