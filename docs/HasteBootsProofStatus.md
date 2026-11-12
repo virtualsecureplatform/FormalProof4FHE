@@ -28057,3 +28057,66 @@ Validation: all 32 exact axiom guards passed, using only `propext`,
 `Classical.choice` and `Quot.sound`. With source/tests frozen, `scripts/check`
 passed the 12,059-job root build and every standalone check. Full-check log
 SHA-256: `3e20d538f28f0d5394ec6816b79a2f53db7896f6949c082a79754526eb5f3455`.
+
+
+## Original caller equality recovery and arithmetic work without an exception remainder
+
+`EqualityCollectorLogs` retains each original equality collector's initialized
+raw read trace as a sublist of the actual equality machine log, across
+rejected coefficients, suspension, resumption and later draws. A completed
+positive-dimensional vector therefore supplies an actual positive field-stream
+read. Receipt queries alone are not treated as field-stream exposure.
+
+`CallerEqualityFamily` reconstructs the allocated execution from the caller's
+original allocation and successful native run. Its recovered candidate retains
+exactly the caller's allocation, origin, index, job, geometry and complete
+canonical source/helper tables. `CallerEqualityExposure` embeds the original
+collector trace through the prelude and native verification into the enclosing
+program and recovers its earliest stream read, including earlier adversarial
+prequeries at arbitrary offsets. No independent first-exposure certificate is
+required by the final caller recovery.
+
+`CallerEqualityResidual` transports the complete masked residual between the
+original scalar cube and native cube. Original draw evidence identifies the
+point in the same coordinate order; seed-order safety supplies complete-table
+stability at the original first read. The zero-dimensional case cannot have
+a nonzero residual and vanishing weighted sum, so an actual missed residual
+itself supplies the positive dimension needed by exposure recovery.
+
+`CallerEqualityRecovery.covered` recovers an attained `EqualityLifetime.Event`
+from `LookupInitialArithmetic.EqualityMiss` on the same original caller data.
+It derives framing from the existing sequenced input realization, recovers
+original r/y endpoint factors from observed native execution and uses the
+stored native draw to witness the all-budget candidate kernel.
+
+`LookupInitialWork.work_128` now proves
+`2^128 * P[LookupInitialPairedWork.Failure] <= E[specified lifetime work]`.
+It has no additive equality-exception remainder. Initially false paired
+scalar equations use the original scalar/PCS coverage; actual equality misses
+use the recovered attained event. Their reference/hash and PCS charges remain
+shared in the enlarged joint ledger. The seed-order exception is charged once,
+and exact finite arithmetic proves that the resulting rate still fits
+`2^-128`. The original helper/source calibration, code-origin and fixed
+assembled-reference hypotheses remain visible. The original nonpassing
+reciprocal witness constructor can feed this theorem without an initially
+false scalar assumption.
+
+Five native-execution regressions check an incomplete triple, completion after
+suspension retaining all original eight-byte reads, exposure despite rejected
+coefficients, observed inputs for both completed original points and a
+zero-dimensional draw that emits a receipt without exposing its field input.
+These are component regressions, not an accepted false modified-PBS fixture.
+Existing Native modules, vendor code and resource limits remain unchanged.
+
+Remaining gates include pricing tuple compression/reciprocal detection from
+original public lookup nonmembership, reducing a false modified-PBS output to
+these original arithmetic/lookup failures, original caller-parent provenance,
+Rust invocation/codec/input-read correspondence, supported profile admission,
+fixed assembled-reference scope, actor-cost separation and physical attacker
+work refinement. The ultimate actual-attacker-work theorem is not proved.
+
+Validation: all 34 exact axiom guards passed using only `propext`,
+`Classical.choice` and `Quot.sound` (5,273-job guarded build). With source/tests
+frozen, `scripts/check` passed the 12,067-job root build and every standalone
+check. Full-check log SHA-256:
+`a60d331b86138b2f5fa632b24acfdb7b3dd3b1bfe1933b61514ab31191b65743`.

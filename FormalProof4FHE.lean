@@ -1195,3 +1195,5 @@ import FormalProof4FHE.HasteBoots.SafeEqualityClassKernel
 import FormalProof4FHE.HasteBoots.EqualityLogWork
 
 import FormalProof4FHE.HasteBoots.CanonicalLookupJointWorkBound
+
+import FormalProof4FHE.HasteBoots.LookupInitialWork
