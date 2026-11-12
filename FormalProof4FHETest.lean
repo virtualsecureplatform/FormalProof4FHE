@@ -817,3 +817,5 @@ import FormalProof4FHETest.HasteBootsSecondComparisonsAudit
 import FormalProof4FHETest.HasteBootsBothHalvesJointAudit
 
 import FormalProof4FHETest.HasteBootsAmbientAccumulatorAudit
+
+import FormalProof4FHETest.HasteBootsPackedPBSAccumulatorAudit

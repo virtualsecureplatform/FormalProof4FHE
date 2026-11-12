@@ -1391,3 +1391,11 @@ import FormalProof4FHE.HasteBoots.AmbientDependentBatchOpening
 import FormalProof4FHE.HasteBoots.PackedAccumulatorOracle
 
 import FormalProof4FHE.HasteBoots.AmbientAccumulator
+
+import FormalProof4FHE.HasteBoots.PackedPBSAccumulatorReferences
+
+import FormalProof4FHE.HasteBoots.OwnedAmbientAccumulator
+
+import FormalProof4FHE.HasteBoots.PackedPBSAccumulator
+
+import FormalProof4FHE.HasteBoots.PackedPBSAccumulatorProbability

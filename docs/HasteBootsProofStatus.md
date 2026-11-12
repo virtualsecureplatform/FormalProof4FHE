@@ -30280,3 +30280,59 @@ root build and every standalone check. Twenty new exact axiom guards passed,
 using only `propext`, `Classical.choice` and `Quot.sound`; no frozen Native module
 or vendor source was changed. Full-check log SHA-256:
 `e681f71271790e62ed6175801a5063f568a4b9aa841c5e8e73342a8ab4763dd1`.
+
+### 2026-11-12: accumulator follows the accepted second comparison
+
+`PackedPBSAccumulatorReferences` fixes the native seven-source registry: four
+original accumulator objects, the original Hadamard result coefficient and the
+two original decomposition inputs. Root/reference slot theorems cover every
+role. Successful parameter-store collections prove that the result coefficient
+aliases its NTT object, and each input aliases its half's reconstruction object,
+including the retained initialized parameter allocation and root. These logical
+allocation identities do not yet establish a Rust heap/byte refinement.
+
+`PackedPBSAccumulator.program` appends the actual accumulator stage only after
+the second comparison's returned opening loop accepts. It forwards that loop's
+actual final memory. Its factory override fixes the global encoding, borrows all
+seven root references through a pure commitment emission, and initializes private
+memory from that emission. No replacement root family or entry acceptance bit
+is supplied. Earlier rejected paths skip this call.
+
+The ambient witness starts at the second comparison's exact final monitor
+state, preserving both decomposition halves, all helpers, the cache, log and
+checkpoint registry. Full-state erasure proves equality to the extended actual
+program. `reached_accumulator` derives predecessor support, comparison acceptance
+and exact child support. `roots` fixes every borrowed root on every reached
+branch, including later rejection. Earlier checkpoints persist; bad events
+persist on all branches; audits follow from the inherited execution. The final
+bad-event bound uses ONE charge on the entire prefix through the accumulator,
+including actual rejected-path work.
+
+`OwnedAmbientAccumulator.original_safe_bound` transfers the stage's derived
+bound from fresh snapshots to arbitrary original recorded owners with the same
+roots. Owners may be chosen after execution. Outside the SAME final exception,
+source coherence and the trusted front/suffix transport identify all seven
+original tables with their prefix-frozen views. No owner-honesty or additional
+availability/collision-security premise or charge is introduced.
+
+`PackedPBSAccumulatorProbability.safe_original_accumulator_bound` averages this
+original-owner compression-plus-seven-PCS bound over actually reached accepted
+second-comparison returns, deriving audits and using their actual memory/state.
+Numeric calibration, decoding and local source-height geometry remain explicit.
+Earlier-event and earlier-safe-event lemmas carry existing risks through the
+continuation without independence, losslessness or another local hash charge.
+
+Still required: combine earlier arithmetic and original accumulator risks in
+one concrete theorem under the extended charge; append monomial verification
+and final key switching in driver order; finish accepted false-output coverage.
+Logical reference aliases still need binding to actual native tags, domains,
+layouts, endpoint contexts, callbacks and byte/transcript programs. Concrete
+profile admission, adaptive/repeated-proof composition and physical/actor-
+separated attacker work remain open. The final 128-bit expected-work false-PBS
+theorem remains unproved.
+
+Validation: full `scripts/check` exited successfully, including the 12,283-job
+root build and every standalone check. Nineteen new exact axiom guards passed,
+using only `propext`, `Classical.choice` and `Quot.sound`. Frozen Native modules
+and vendor source were unchanged. Full-check log SHA-256:
+`c99f7fc07d5bf7b493fa1e59fbb55d7a8cd790f90779facaacbe6ac694599920`.
