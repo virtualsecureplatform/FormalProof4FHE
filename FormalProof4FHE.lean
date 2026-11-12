@@ -1473,3 +1473,9 @@ import FormalProof4FHE.HasteBoots.AmbientHeterogeneousSingleOpening
 import FormalProof4FHE.HasteBoots.PaddedZeroCheck
 
 import FormalProof4FHE.HasteBoots.KeySwitchPaddedProduct
+
+import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchProduct
+
+import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchProductProbability
+
+import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchProductNativeJointBound

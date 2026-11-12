@@ -31049,3 +31049,59 @@ root build and every standalone check. All five modules are exported and the
 new imported audit contains 19 exact axiom guards, passing within the whitelist
 `propext`, `Classical.choice` and `Quot.sound`. Frozen Native modules and vendor
 sources are unchanged. Full-check log SHA-256: `0770f1fdf940dc1f74cb5de2af979a72aad997e5e9a5769e7035dbdbf91d5d7a`.
+
+### 2026-11-12: final key-switch product appended after actual NTT acceptance
+
+`PackedPBSKeySwitchProduct` appends the padded native product to the existing
+PBS execution after the final key-switch NTT loop actually accepts. The product
+uses that loop's returned private memory and complete mixed-height shared state;
+earlier rejection skips it. The final digit count, packing width and logical
+coefficient dimension are retained, while each product source keeps its own
+physical padding, tensor split, code and root height.
+
+The product result retains a sigma containing the incoming private memory that
+selected its factory and dependent physical result type. `reached_product` and
+its continuation lemma derive actual NTT presence/acceptance, predecessor
+support, exact selected memory and support in the actual product execution.
+Full-state projection erases only analysis data. Continuation-level lemmas
+preserve the predecessor and its recorded owners/exceptions; the whole-prefix
+lemmas retain these properties and derive audits on every branch. The proofs
+stay within the default heartbeat limits by factoring the actual continuation,
+without replacing the executed protocol or assuming child security.
+
+`product_roots` derives the original final caller family on every reached
+product, including rejection. `digit_evaluation_root` and
+`result_evaluation_root` identify its evaluation factors with the corresponding
+scheduled final NTT roots; both are axiom-free equalities. Parameter-object,
+context/tag and decoder associations for the concrete native profile remain
+separate obligations, not consequences of equality of geometry or root bytes.
+
+`PackedPBSKeySwitchProductProbability` transfers earlier safe events and derives
+the product rate by averaging the standalone native theorem over actual reached
+NTT returns. Their audits come from the full preceding PBS execution. Both
+child-final and enclosing-final versions are proved, using explicit per-source
+PCS facts and numeric calibration uniform in actual private memory.
+
+`PackedPBSKeySwitchProductNativeJointBound` derives all preceding native rates
+plus the final product cap under the SAME extended final exclusion. The native
+risk-or-bad theorem adds ONE full-prefix execution-hazard charge, including all
+earlier rejected paths. Its generic composition premises are discharged by the
+previous concrete native theorem and the derived reached-product theorem. The
+state comparison is proved per returned optional NTT result, avoiding large
+implicit normalization and any increase in resource limits.
+
+Next: native canonical negative-mask decomposition, its reconstruction and
+comparison checks, followed by extraction. Source review confirms that the
+canonical verifier appends borrow roots, runs packed linear reconstruction over
+input, digits and borrows, then comparison requests. The reconstruction needs
+a logical/physical padding adapter preserving each source's own native opening
+parameters. Complete accepted-false-output coverage, earlier physical source/
+decoder associations, profile admission, production transcript/byte/field/kernel
+refinements, adaptive repeated proofs and physical attacker-work accounting
+remain open. The final 128-bit security theorem remains unproved.
+
+Validation: full `scripts/check` exited successfully, including the 12,337-job
+root build and every standalone check. All three new modules are exported and
+the imported audit contains 21 exact axiom guards: two have no axioms and the
+others use only `propext`, `Classical.choice` and `Quot.sound`. Frozen Native
+modules and vendor sources are unchanged. Full-check log SHA-256: `25568504a6250e1502ab039812a6d5572912a691dee799a1ebceb75f6c338764`.
