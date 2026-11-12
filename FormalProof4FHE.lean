@@ -1279,3 +1279,5 @@ import FormalProof4FHE.HasteBoots.CommittedOpeningSafeBound
 import FormalProof4FHE.HasteBoots.ZeroCheckConditionalSoundness
 
 import FormalProof4FHE.HasteBoots.HadamardConditionalSoundness
+
+import FormalProof4FHE.HasteBoots.PackedPBSHadamardNTTJointBound

@@ -29464,3 +29464,46 @@ Validation: full `scripts/check` passed, including the 12,203-job root build
 and every standalone check. Ten exact axiom guards passed, permitting only
 `propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
 `75c4673b1fbe4619fc471d09ea3d2f1b4f22e5bc98ec07f5af936d4e216a6afe`.
+
+
+### 2026-11-12: joint original Hadamard and complete NTT-loop bound
+
+`PackedPBSHadamardNTTJointBound` closes the previous missing false-Hadamard
+probability term in the actual original-root Hadamard-before-NTT program.
+The joint event includes an accepted false Hadamard relation on any matching
+recorded owner family, an original-source risk in any reached NTT child, or
+the final shared collision event. The loop still receives the actual Hadamard
+private memory and shared history; rejection skips it.
+
+`safe_hadamard_risk_bound` first controls the already determined safe
+Hadamard event after the adaptive loop. `safe_risk_bound` combines it with
+the complete reached-loop rate sum from ANY audited incoming history, outside
+the final collision event. Earlier Hadamard or child collisions persist to
+that final event; no independent child run, cache reset or union over possible
+histories is introduced.
+
+`risk_or_bad_bound` bounds the joint event from empty initialization by the
+three degree-two ZeroCheck terms, PCS error for all `2*count+1` original
+factors, the full `count+1` NTT rate-cap sum, and ONE expected hash charge on
+the ENTIRE actual Hadamard-plus-loop program. The final collision event is
+included within the same bound, ready for later source-coherence reductions.
+
+`native_risk_or_bad_bound` and `native_safe_risk_bound` instantiate the actual
+composed program with typed native interpolation messages. Their polynomial
+degree bounds come from interpolation, rather than assumptions about arbitrary
+prover polynomials. Trusted characteristic/node-size, domain/distance,
+encoding, dimension and per-slot numerical calibration conditions remain
+explicit. The native conditional theorem leaves hashing to an enclosing PBS
+caller so subsequent stage composition can still charge it once.
+
+This establishes a joint risk bound for this composed stage, not the final
+false-PBS theorem. Connecting the remaining canonical PBS failure cases and
+source bindings to actual reached stage events remains required, together with
+concrete supported-profile admission, adaptive/repeated-proof composition,
+transcript/Rust correspondence and physical/actor-separated work refinement.
+The ultimate 128-bit expected-work security theorem remains unproved.
+
+Validation: full `scripts/check` passed, including the 12,205-job root build
+and every standalone check. Six exact axiom guards passed, permitting only
+`propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
+`60300b06bcc82b4ea91c7a9d2ed4683ce7aa8a3191c353c0ae8c86cab4d6cd30`.
