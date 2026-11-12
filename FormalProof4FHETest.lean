@@ -707,3 +707,5 @@ import FormalProof4FHETest.HasteBootsHeapReadExecutionAudit
 import FormalProof4FHETest.HasteBootsLookupViewSumAudit
 
 import FormalProof4FHETest.HasteBootsCanonicalSumAudit
+
+import FormalProof4FHETest.HasteBootsSequencedInputPairedAudit

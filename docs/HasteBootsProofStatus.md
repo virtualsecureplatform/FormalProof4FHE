@@ -27495,3 +27495,61 @@ All 76 exact axiom guards passed with standard Lean axioms only (5,232-job
 guarded build). With source/tests frozen, `scripts/check` passed the
 12,002-job root build and all standalone checks. Full-check log SHA-256:
 `58b42d870df04aa8b24a8f3870c20ff026d1d9a51be7fa2203bda25b68a1e5fc`.
+
+## Paired equations inherit derived framing and sequenced input provenance
+
+`SeedOrderPairedWork` removes seed-order safety from the paired core witness.
+It covers each original failed execution by the same original ordering bad
+event or the ordered paired core event, and charges ordering exceptions once
+through the existing joint private-tape/oracle lifetime bound. Its rate is
+`CanonicalPairedJointWorkBound.rate + 2^-159`. Exact finite-rate arithmetic
+proves that this enlarged rate remains at most `2^-128`; the extra sum scalar
+charge and seed-order charge are both retained.
+
+`CallerPairedPreparation` derives the core security preconditions independently
+of which original equation is false. The original caller job and its one
+sequenced input realization reconstruct the canonical allocated job through
+the existing source/helper receipt framing recovery. Complete message-domain
+proofs come from the original read/decode and checked message buffers.
+`round_domain` uses successful original scalar completion and bounded algebra
+bytes. `framing` recovers original parent binding/registry ancestry from that
+same native execution and caller parent, rather than taking an intermediate
+framing certificate. `truths` preserves both the original canonical helper-sum
+truth and the original canonical source/helper identity truth.
+
+`SequencedInputPairedWork.Witness` has the same retained original caller job,
+input observations in one complete heap operation sequence, and original
+framed caller-parent evidence as the preceding sequenced identity witness.
+Its only changed claim is that the original sum or identity equation is
+initially false. It carries no additional receipt-framing, response-size,
+round-domain, statement-size, equality-decoding, helper association or
+seed-order safety certificate. `toSeedOrder` derives those remaining
+preconditions. The required width bounds are derived from the existing
+helper/source profile admissions in `work_128`, not stored as new caller
+premises.
+
+`SequencedInputPairedWork.work_128` proves the 128-bit specified-interpreter
+expected-work bound for this broader event on the original sequenced input
+interface. `ofIdentity` and `identity_included` preserve the exact preceding
+native job, input trace and caller-parent data while embedding every old
+identity-only failure. The result still assumes an original false scalar
+equation; it does not identify whole-PBS false output with that event.
+
+The new universal Lean conversion, truth-preservation, event-inclusion and
+rate theorems are checked directly, alongside the existing native sum,
+seed-order exception, decoder and heap-operation regression suite. No tests
+are added merely to restate record construction. Existing Native modules
+remain unchanged and no resource limits are increased.
+
+Remaining gates include lookup tuple/compression/reciprocal initial-falsity
+coverage, whole modified-PBS application enforcement, original caller-parent
+framing, Rust invocation/codec/input-read correspondence, actual profile
+admission and fixed assembled-reference scope, actor-cost separation and
+physical attacker-work refinement. The final public modified-PBS
+actual-attacker-work theorem remains unproved.
+
+Validation: all 21 new declarations passed exact axiom guards, using only
+`propext`, `Classical.choice` and `Quot.sound` (5,224-job guarded build).
+With source/tests frozen, `scripts/check` passed the 12,006-job root build
+and all standalone checks. Full-check log SHA-256:
+`af7a9815d79654ef422c10c3a68552345f5e473c80c915f10f462c7447e669b2`.
