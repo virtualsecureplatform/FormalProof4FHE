@@ -1287,3 +1287,7 @@ import FormalProof4FHE.HasteBoots.NTTSequenceHistory
 import FormalProof4FHE.HasteBoots.PackedPBSLoopEnforcement
 
 import FormalProof4FHE.HasteBoots.PackedPBSLoopFunctionBound
+
+import FormalProof4FHE.HasteBoots.PackedHadamardRows
+
+import FormalProof4FHE.HasteBoots.PackedPBSExternalProductCoverage

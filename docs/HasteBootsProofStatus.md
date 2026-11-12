@@ -29553,3 +29553,45 @@ Validation: full `scripts/check` passed, including the 12,209-job root build
 and every standalone check. Fourteen exact axiom guards passed, permitting only
 `propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
 `a8dee6cf42e20ebca98796fef08982d5f633c8bc8399f723250f6513da2d71b9`.
+
+
+### 2026-11-12: original coefficient/external-product coverage
+
+`PackedHadamardRows` derives the application polynomial addresses directly
+from the original NTT row layout. `project_eq_row` proves that selecting a
+Hadamard polynomial at these addresses is exactly the original row after
+transporting total dimensions, preserving coefficient bits, row bits and
+lanes. Native half-major digit slots and the final result slot have explicit
+expected-coefficient and evaluation-factor identities.
+
+`PackedPBSExternalProductCoverage.evaluation_coverage` uses acceptance of the
+actual complete loop to obtain a retained child at ANY trusted slot. A false
+evaluation binding then exposes a mismatch to that child's original coefficient
+row or the existing whole-loop `WrongTransform` event. Root/slot coverage comes
+from actual support; no independently executed NTT child or evaluation-binding
+certificate is assumed.
+
+`external_product_coverage` applies this reduction to a wrong blind-rotation
+external product. Digit and result evaluation bindings are no longer supplied
+as hypotheses. The conclusion exposes original coefficient-row mismatches to
+canonical digits/the claimed result, a trusted control-key evaluation binding
+failure, or the original Hadamard/whole-loop transform event already bounded
+in the preceding milestone. Hadamard acceptance is derived from the actual
+reached loop. All original factors and their openings remain present.
+
+`external_product_family_coverage` covers any family of round/half projections
+within those same original sources. All such failures feed the SAME Hadamard
+and transform event, without a union over application rows or round projections.
+
+This is a coverage bridge, not an unconditional false-external-product bound:
+coefficient provenance, canonical decomposition/lookup checks and trusted key
+bindings still need their actual-stage reductions. Remaining canonical PBS
+stages, concrete profile admission, adaptive/repeated-proof composition,
+transcript/Rust correspondence and physical/actor-separated work refinement
+also remain open. The full 128-bit expected-work security theorem is unproved.
+
+Validation: full `scripts/check` passed, including the 12,212-job root build
+and every standalone check. Ten exact axiom guards passed, permitting only
+`propext`, `Classical.choice` and `Quot.sound`; both slot identities use only
+`propext`. Full-check log SHA-256:
+`d18c197f6227947b0925665b26e4e9689ef2001cd4e63ca6f3ccd8c19d1e5ee2`.
