@@ -799,3 +799,5 @@ import FormalProof4FHETest.HasteBootsReconstructionJointAudit
 import FormalProof4FHETest.HasteBootsConditionalComparisonAudit
 
 import FormalProof4FHETest.HasteBootsCheckpointShapeAudit
+
+import FormalProof4FHETest.HasteBootsFirstComparisonAudit

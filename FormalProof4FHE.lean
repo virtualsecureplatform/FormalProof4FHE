@@ -1323,3 +1323,11 @@ import FormalProof4FHE.HasteBoots.MixedWidthOwnedLookupConditional
 import FormalProof4FHE.HasteBoots.PackedPBSComparisonReferences
 
 import FormalProof4FHE.HasteBoots.CheckpointShapeTransport
+
+import FormalProof4FHE.HasteBoots.PackedPBSComparisonStage
+
+import FormalProof4FHE.HasteBoots.PackedPBSFirstComparisons
+
+import FormalProof4FHE.HasteBoots.PackedPBSRequestComparisonStage
+
+import FormalProof4FHE.HasteBoots.PackedPBSFirstComparisonSoundness

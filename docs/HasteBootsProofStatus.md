@@ -29815,3 +29815,59 @@ Validation: full `scripts/check` passed, including the 12,233-job root build
 and every standalone check. Ten exact axiom guards passed, permitting only
 `propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
 `a17c2e94aad25b44a3ba3d19565fb7c1030dac0e8f5a97e0d4b90550523c2b49`.
+
+### 2026-11-12: first comparisons follow the actual reconstruction return
+
+`PackedPBSComparisonStage` fixes comparison sources to the reconstruction
+registry with ONLY its input column removed. Its source phase is a pure reuse
+of those roots and the final opening memory, before the actual helper middle.
+It keeps the two recording times, per-context heights and original snapshot
+owners. Projection recovers both the shared handler and canonical cached run;
+all returns retain inherited audits, failures and recorded owners.
+
+`PackedPBSFirstComparisons.program` appends this call immediately after the
+first-half reconstruction, before any second-half reconstruction. It executes
+comparisons only when BOTH the reconstruction algebra and its opening loop
+accept, and forwards the actual final opening memory. Rejected Hadamard/NTT,
+reconstruction and opening paths remain in the program. Its witness transports
+the whole inherited ghost history rather than starting a fresh hash/cache run.
+`project_witness` proves exact canonical answer/cache correspondence without a
+geometry compatibility premise: geometry never changes real oracle answers.
+
+`reached_comparisons` derives the full predecessor support, reconstruction
+acceptance and exact comparison support. `comparison_sources` fixes the entire
+digit/borrow registry and memory; `comparison_digit_roots` derives first-half
+digit roots from the original PBS coefficient family. `comparison_retains`
+preserves every original checkpoint snapshot through the comparison run.
+`final_audited` transfers and preserves the audit under the explicit recorded-
+context geometry condition. `finish_bad_persistent` prevents any branch from
+clearing the earlier collision event. `safe_comparison_bound` averages over
+actual supported predecessor returns without assuming continuation losslessness.
+
+`PackedPBSRequestComparisonStage.scheme` instantiates that call with the actual
+private request sampler, adaptive helper builder, ordered EQ/common scalar
+batch, computed terminal guard and grouped original PCS. It preserves each
+request's literal table, source slots, active size and repetition count, and
+every source/helper width, layout, query count and tree height. Its original-
+owner conditional theorem is the existing derived rate on this exact program.
+
+`PackedPBSFirstComparisonSoundness.original_false_comparison_bound` applies
+that rate to the actual extended PBS prefix: outside the final shared collision
+event, an accepted false original comparison tuple has probability at most the
+request-specific repeated pair error budget plus common algebra and grouped
+original PCS errors. It adds no local collision charge. This is an ideal private-
+coin theorem with syntactic message-degree constraints, not a byte/Fiat--Shamir
+refinement or an admission certificate for the native profiling parameters.
+
+Still required: derive recorded-tag compatibility and parameter/domain/layout
+association from concrete driver/callback scope; join the earlier arithmetic
+risks and comparisons under a whole-prefix charge through the geometry boundary;
+complete the second half and remaining PBS source bindings; establish native
+request/transcript correspondence, concrete profile admission, adaptive/repeated-
+proof composition and physical/actor-separated actual work. The final 128-bit
+expected-attacker-work false-PBS theorem remains unproved.
+
+Validation: full `scripts/check` passed, including the 12,238-job root build
+and every standalone check. Nineteen exact axiom guards passed, permitting only
+`propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
+`6d1492a7d5b5f9455bf38047189cdaa6713abf6936c0665f352f3db35b45f306`.
