@@ -813,3 +813,5 @@ import FormalProof4FHETest.HasteBootsAmbientLinearAudit
 import FormalProof4FHETest.HasteBootsSecondReconstructionAudit
 
 import FormalProof4FHETest.HasteBootsSecondComparisonsAudit
+
+import FormalProof4FHETest.HasteBootsBothHalvesJointAudit

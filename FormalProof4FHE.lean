@@ -1379,3 +1379,9 @@ import FormalProof4FHE.HasteBoots.PackedPBSSecondComparisons
 import FormalProof4FHE.HasteBoots.PackedPBSSecondComparisonProbability
 
 import FormalProof4FHE.HasteBoots.PackedPBSSecondComparisonSoundness
+
+import FormalProof4FHE.HasteBoots.PackedPBSDecompositionJointBound
+
+import FormalProof4FHE.HasteBoots.PackedPBSSecondHalfJointBound
+
+import FormalProof4FHE.HasteBoots.PackedPBSBothHalvesJointBound

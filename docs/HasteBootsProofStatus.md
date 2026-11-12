@@ -30172,3 +30172,55 @@ root build and all standalone checks. Fourteen exact axiom guards passed: the
 execution identity needs no axioms, and the remaining declarations use only
 `propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
 `be959fab6aebdafb0673d8b54aa307cff25631344eb05b6b8c8636dfdb20e4c9`.
+
+### 2026-11-12: both decomposition halves share one derived bound
+
+`PackedPBSFirstHalfJointBound.native_safe_joint_bound` exposes the derived
+Hadamard, full NTT loop, first reconstruction and first request-comparison rate
+outside the first comparison's final exception. The existing charged theorem
+now uses this safe theorem. Later stages can reuse its arithmetic rate without
+paying an intermediate checkpoint charge.
+
+`PackedPBSDecompositionJointBound.safe_joint_bound` transfers first-half events
+through the second reconstruction and comparison, transfers second-reconstruction
+events through the final comparison and unions all three risks under the same
+final exception. Its `risk_or_bad_bound` adds exactly one expected-hazard charge
+on the complete two-half program. Adaptive helper work, rejection and possibly
+nonreturning continuations require neither independence nor losslessness.
+
+`PackedPBSSecondHalfJointBound.native_risk_or_bad_bound` derives the second
+reconstruction rate and concrete private request-comparison rate, combines them
+with an earlier safe rate and adds that whole-prefix charge. Its lookup-query
+sampling parameter is named so specialization can preserve the supplied sampler
+at the inherited context heights rather than infer a different default sampler.
+
+`PackedPBSBothHalvesJointBound.native_risk_or_bad_bound` instantiates the earlier
+safe rate with the native first-half theorem. Thus NO earlier security bound is
+a hypothesis of the combined theorem. The event covers original Hadamard/NTT/
+first-reconstruction risks, accepted original false first-comparison tuples,
+original second-reconstruction risks, accepted original false second-comparison
+tuples and the persistent final bad event. The rate is the sum of all derived
+arithmetic rates plus ONE charge on the actual full prefix. Both comparisons
+have separate fields, tables, widths, repetitions, domains, layouts, callbacks
+and PCS analysis fields. Their contexts share the inherited height map. The
+first comparison's returned opening memory has the same execution-memory type,
+so the second reconstruction receives its actual returned memory.
+
+Numeric calibration, code distance, bases, local source geometry, trusted
+encoding equality and the pre-comparison recording-scope condition remain
+explicit. This is a combined bound through both decomposition halves, not yet
+an accepted-false-PBS or actual-attacker-work theorem. The runtime callback
+fields have not been refined to concrete native byte/transcript programs.
+
+Still required: append accumulator/source, monomial and final key-switch checks
+in the native driver order and connect accepted false PBS outputs to covered
+original-source risks; complete parameter/tag/domain/layout and byte/transcript
+bindings, concrete profile admission, adaptive/repeated-proof composition and
+physical/actor-separated attacker work. The final 128-bit expected-work
+false-PBS theorem remains unproved.
+
+Validation: full `scripts/check` exited successfully, including the 12,274-job
+root build and every standalone check. Five new exact axiom guards passed with
+only `propext`, `Classical.choice` and `Quot.sound`; existing audits also passed.
+Full-check log SHA-256:
+`5cbba366baafe57916c9c13fb18eefd097271e9b135414187a9510de721216b8`.
