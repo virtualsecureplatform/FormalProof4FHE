@@ -31460,3 +31460,50 @@ root build and every standalone check. Both modules are exported and the importe
 audit contains two exact axiom guards, each limited to `propext`,
 `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
 `daba55ca14950e38c394cef3096cbc3cad0c04de7934cb39a02169244735926e`.
+
+## 2026-11-12: operational comparison erasure and one whole-prefix hash charge
+
+Added `RetainedPaddedComparisonExecution`. Its operational continuation reads
+the actual reconstruction emission and linear/opening result, computes the same
+acceptance guard, and invokes the native comparison on the same roots and
+opening memory. Erasure removes analysis snapshots and duplicate reconstruction data carried by
+the ghost child index. The raw comparison result retains the reconstruction
+factory's memory index, actual source emission, helper return and verifier result.
+
+`project_finish` proves exact local distributional equality on every branch,
+including skipped reconstruction, rejected linear checks and later comparison
+rejection. `project_bind` composes that equality with a proved predecessor
+erasure, keeping the earlier experiment opaque. Neither proof assumes source
+truth, hash safety, child security or losslessness of prover callbacks.
+
+`PackedPBSKeySwitchComparisonExecution.program` is the complete operational Lean
+prefix through final comparison. Its specialized `project_witness` erases the
+retained PBS witness to exactly this program, using the existing reconstruction
+projection and the same compatible/scoped initial-history conditions. The
+comparison continues the actual full state and shared cache rather than
+starting another hash experiment.
+
+`final_bad_le_charge` bounds the enlarged witness's final Bad by ONE execution
+hazard charge on that complete operational prefix. Its charge includes all
+actually reached comparison calls and earlier work on paths that reject or skip
+comparison. The
+new `PackedPBSKeySwitchComparisonNativeJointBound.native_risk_or_bad_bound`
+combines this result with the existing joint native arithmetic bound: the union
+of arithmetic risks or final Bad is bounded by the native rate sum plus that
+single enlarged-program charge. All component rates remain derived from the
+executed native model; no child-security or replay certificate is introduced.
+
+This is still the shared oracle-program charge, which includes verifier/setup
+queries. It is NOT yet physical attacker-work accounting. Extraction remains to
+be appended. Typed canonical/parameter-store instantiation, common decoded-source
+interpretations, complete accepted-false-output coverage, numeric profile
+admission, production refinements and adaptive composition also remain open.
+The final 128-bit theorem remains unproved. Default resource limits were retained;
+frozen Native modules and vendor sources are unchanged.
+
+Validation: full `scripts/check` exited successfully, including the 12,379-job
+root build and every standalone check. Both new execution modules are exported,
+and the imported audit has seven exact axiom guards (including the operational
+program and the extended native risk-or-bad theorem), all limited to `propext`,
+`Classical.choice` and `Quot.sound`. Full-check log SHA-256:
+`998075edb839fad7ab5e5962eda1c66fc6990cb6065bd1ae4510f23e4e113e60`.
