@@ -28182,3 +28182,73 @@ Validation: all 40 exact axiom guards passed using only `propext`,
 frozen, `scripts/check` passed the 12,074-job root build and every standalone
 check. Full-check log SHA-256:
 `ae68bf2f70a0c3916d561b0e6130734ca27a65964c11fa0500889f93f02700f8`.
+
+
+## Original lookup source fixation and whole compression-test recovery
+
+`LookupDrawSeedQuote` derives the actual caller fork seed quoted by every
+retained native lookup draw, including rejected offsets, before any later
+helper-root frame or scalar statement is required. `LookupSourceReadStability`
+uses the original registered-source ancestry and shared seed-order exception
+to fix each complete decoded source column at an actual positive lookup read.
+Each column retains its original parameter-derived decoding radius. No helper
+root or independently supplied source snapshot is used.
+
+`LookupSourceCandidate` retains the original allocation, origin, job ordinal,
+geometry, raw draw, earliest read and original parent-family provenance. Its
+source family at that read equals the same complete-run canonical source
+family outside the existing seed-order bad event. Its comparison theorem
+compares complete source families and original registry/helper/request
+metadata on the existing parent-factor fiber, retaining the same parent-seed,
+root/hash and context-target bad alternatives.
+
+`CallerLookupSourceRecovery` derives candidate parent chronology and source
+ancestry from actual allocated caller execution and the sequenced input
+framing interface. `recover_first` also derives the earliest read from the
+observed original collector, including earlier adversarial prequeries, so
+the caller need not supply an independent first-exposure certificate.
+
+`LookupTupleTest` interprets the original flattened source lanes in native
+low-lane/high-row order and retains exactly the original logical active
+prefix. Its compression test contains both a real tuple nonmembership
+witness and coverage of every hashed source by a public row. The complete
+test is fixed on the existing completed fiber, including source shape,
+request metadata and public row order. Public rows currently use the
+request's width with explicit zero fill for missing entries; this does not
+prove that a malformed or ragged original request was validated. Recovering
+validated public shapes and the corresponding native producer-hash bridge
+remains an obligation.
+
+`LookupCompressionKernel` supplies the fixed-candidate all-budget native
+compression event, a primitive causal bound of
+`tableSize * (columns-1) / goldilocksModulus^3`, event fixation on the completed
+fiber and actual retained-draw inclusion. Empty nonmembership classes have
+zero event mass; no union over every source position is introduced.
+`CallerCompressionRecovery.recover` turns a compression miss of the caller's
+complete decoded tuple family at its literal produced y into an attained
+candidate/kernel event on the same original job and stream.
+
+Refined-fiber input freshness, adaptive attained-class selection, continuation
+and all-horizon/lifetime work charging for these compression events remain
+open. The reciprocal numerator still needs its complete source/y/public-count
+fixation and corresponding adaptive work composition. These rates have not
+yet been added to `LookupInitialWork.work_128`; its arithmetic-failure event
+has not silently been broadened to original public lookup nonmembership.
+
+Six component regressions check native lane order, the exact five-position
+active prefix rather than all eight padded positions, original public row
+order, an actual nonmember tuple, that family's compression miss at y=0 and
+explicit zero fill of an unvalidated short public row. The tests do not claim
+an accepted false modified-PBS execution. Existing Native modules, vendor code
+and resource limits remain unchanged.
+
+Whole false-PBS output enforcement, original caller-parent provenance, Rust
+execution/codec/input-read correspondence, supported profile admission, fixed
+assembled-reference scope, actor-cost separation and physical attacker-work
+refinement remain open. The ultimate security theorem is not proved.
+
+Validation: all 33 exact axiom guards passed using only `propext`,
+`Classical.choice` and `Quot.sound` (5,257-job guarded build). With source/tests
+frozen, `scripts/check` passed the 12,083-job root build and every standalone
+check. Full-check log SHA-256:
+`8eefdeefe4ace61498d65f9add349495e0f2783a6fe113f057d9ceb8f7bbd11a`.

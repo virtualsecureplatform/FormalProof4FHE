@@ -1200,3 +1200,5 @@ import FormalProof4FHE.HasteBoots.LookupInitialWork
 
 import FormalProof4FHE.HasteBoots.CallerLookupScalars
 import FormalProof4FHE.HasteBoots.LookupPairChallengeBounds
+
+import FormalProof4FHE.HasteBoots.CallerCompressionRecovery
