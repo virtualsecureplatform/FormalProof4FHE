@@ -27812,3 +27812,69 @@ Validation: all 39 exact axiom guards passed using only `propext`,
 frozen, `scripts/check` passed the 12,034-job root build and every standalone
 check. Full-check log SHA-256:
 `0c216c98a1e32885161d1bd7fd0b24ea551058f74813434c403b1ad9f0b72d3f`.
+
+## Whole residual fixation and canonical equality-input kernels
+
+`EqualityResidualCongruence.packed` represents the exact pointwise masked
+reciprocal residual over original flattened source lanes and independently
+decoded helper lanes. Its congruence theorem retains source/helper padding,
+row/column dimensions, raw r/y words and the original active count.
+`native_transport` carries the full Boolean table through the original job's
+native/scalar dimension equality without choosing a new table or point.
+
+`EqualityCandidateResidual.alignment` derives source dimensions, helper width,
+original request and native equality dimension from original family comparison
+and the same original job ordinal. `residual_fixed` combines that metadata
+with the preceding canonical-family and r/y fixation. The complete residual
+is therefore fixed on the same refined prefix fiber outside the existing
+reference bad alternatives. `test_fixed` fixes the whole nonzero-residual /
+vanishing-EQ test while leaving the equality point as its argument.
+`scalar_full` identifies the candidate's prefix construction with the exact
+complete-run canonical source/helper families under the original seed-order
+safety condition; it takes no additional ancestry or stability certificate.
+
+`EqualityCollectorInputCongruence.program_congr` proves structural equality of
+coefficient-collector programs with the same pending input and cursor. Labels
+and transcript profiles do not influence collection, and future reads/rejected
+candidates are retained. Native projected coefficient values and cubic-vector
+values inherit this equality. The original equality reader, which starts with
+an empty consumed prefix, can use a canonical phase for its exact original
+input without a profile-equality premise or replacement sampled values.
+
+`EqualityCandidateKernel.Event` uses this canonical original input and the
+fixed candidate residual over all collector budgets. `of_test` recovers the
+same original initialized equality collector when the stored native point
+misses the residual. `event_fixed` transports the complete event between
+same-input/original-job candidates on the refined fiber. `conditional_bound`
+proves native-dimension / `goldilocksModulus^3` loss on a replayable fresh-input
+fiber. `first_bound` derives its causal selector from the candidate's stored
+original first read. The current equality point is not fixed or conditioned
+away.
+
+This primitive first-read bound is not yet the attained-reference bound on
+`ParentFactorFiber.extend`. Parent-seed and receipt auxiliary queries must be
+shown to leave the original equality input unseen. Receipt-key separation
+can use its framed input, while parent-key separation needs the exact native
+pending field-request suffix, without borrowing a later scalar parser.
+Attained-class coverage, refined conditional pricing, all-position/lifetime/
+private-tape composition and the joint work charge remain before the adaptive
+equality exception is discharged. No new term has been absorbed into the
+128-bit rate.
+
+Five named regressions check original coefficients, invariance to differing
+phase labels/profiles, changed values at a shifted cursor, and the distinct
+inactive/active masked residuals with the same zero helper tables. These are
+component checks, not a complete accepted false modified-PBS execution.
+Existing Native modules and resource limits remain unchanged.
+
+Tuple compression/reciprocal detection pricing, whole modified-PBS application
+enforcement, original caller-parent provenance, Rust invocation/codec/input-read
+correspondence, supported profile admission, fixed assembled-reference scope,
+actor-cost separation and physical attacker-work refinement remain open.
+The final actual-attacker-work theorem is not proved.
+
+Validation: all 34 exact axiom guards passed using only `propext`,
+`Classical.choice` and `Quot.sound` (5,249-job guarded build). With source/tests
+frozen, `scripts/check` passed the 12,040-job root build and every standalone
+check. Full-check log SHA-256:
+`a5d1869cafb4fed188ff72f8a04aa8faeac25f29ae048957699fadd9e172fd95`.
