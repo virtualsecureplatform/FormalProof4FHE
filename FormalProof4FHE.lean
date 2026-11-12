@@ -1491,3 +1491,9 @@ import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchReconstruction
 import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchReconstructionProbability
 
 import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchReconstructionNativeJointBound
+
+import FormalProof4FHE.HasteBoots.PaddedMixedWidthLookupOpeningFamily
+
+import FormalProof4FHE.HasteBoots.PaddedMixedWidthLookupGroupedOpening
+
+import FormalProof4FHE.HasteBoots.PaddedMixedWidthSharedLookupPCS

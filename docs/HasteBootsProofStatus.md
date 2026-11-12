@@ -31219,3 +31219,37 @@ root build and every standalone check. All four modules are exported and the
 imported audit contains 20 exact axiom guards, all within `propext`,
 `Classical.choice` and `Quot.sound`. Frozen Native modules and vendor sources are
 unchanged. Full-check log SHA-256: `649e5b9090ea05831f7f02a235add8382be6b8991e494e67a48d02ac474b3a96`.
+
+## 2026-11-12: physical padding for shared canonical comparison openings
+
+Added `PaddedMixedWidthLookupOpeningFamily`,
+`PaddedMixedWidthLookupGroupedOpening` and `PaddedMixedWidthSharedLookupPCS`.
+Each original source/helper now has its own physical high-zero padding and PCS
+split, in addition to the existing distinct source/helper packed widths. Logical
+source rows and helper dimensions remain those used by the shared scalar
+terminal. The source view is the decoded physical table's zero high-bit slice;
+the physical query is the logical query extended by the fixed high-zero query
+and transported to that root's actual PCS split. No new commitments or verifier
+challenges are introduced by this adapter.
+
+The source/helper wrong-value equivalences and the covered-job union theorem
+connect these views to actual matrix evaluations. Grouped opening soundness
+retains one arithmetic loss per original root with its own geometry, domain,
+radius and analysis alphabet. The shared PCS layer retains the actual successful
+terminal selection, returned private memory and helper-before-source schedule;
+its acceptance reduction and arithmetic bound now operate on the padded views.
+The existing logical terminal reduction is reused, with its unchanged packet
+construction made explicit at the interface.
+
+This is an adapter milestone. The padded staged scalar/request/owned-source
+interfaces and their connection to the final reconstruction's actual digit and
+borrow registry are still required. Extraction and full accepted-false-output
+coverage, profile admission, production refinements, adaptive composition and
+physical attacker-work accounting remain open. The final 128-bit theorem remains
+unproved. Frozen Native modules and vendor sources are unchanged.
+
+Validation: full `scripts/check` exited successfully, including the 12,349-job
+root build and every standalone check. The three modules are exported; the
+imported audit checks all ten new theorems with exact axiom guards, using only
+`propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
+`ef37ab304f021723b0b1fc7e30250cb547f0ab08329c128312886d8036a8d3d5`.
