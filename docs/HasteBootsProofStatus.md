@@ -31359,3 +31359,62 @@ root build and all standalone checks. The four modules are exported and the
 imported audit has eight exact axiom guards, including the configuration
 constructor; all are limited to `propext`, `Classical.choice` and `Quot.sound`.
 Full-check log SHA-256: `8160a6d7a37ac51d8702f48aa41ebd89ed1b6ec8ea25defcba07d278ca5c205e`.
+
+## 2026-11-12: final shared comparison in the complete retained PBS execution
+
+`PackedPBSKeySwitchComparisons.witness` now appends final shared comparison to
+the actual complete reconstruction witness. Earlier rejected/skipped branches
+remain in the predecessor experiment. Only a present reconstruction whose
+native linear packet and opening loop both accept enables comparison. The
+selected index retains the actual reconstruction emission and result; source
+roots and opening memory come from that return. Each comparison source context
+is fixed to its corresponding reconstruction slot. Full incoming history is
+passed unchanged to the reached comparison, without restarting the hash cache.
+The comparison factory may retain memory-dependent helper/result types.
+
+`RetainedPaddedComparison` derives selection/support provenance, earlier-event
+monotonicity, earlier safe-event monotonicity under the same extended final Bad,
+and audit preservation from the actual comparison program. None of these
+requires losslessness of untrusted callbacks. `audited_bind` consumes the whole
+predecessor audit function while keeping its experiment opaque. The concrete
+`audited_witness` proof alias specializes that invariant to the exact complete
+PBS predecessor and actual comparison continuation. Explicit predecessor types
+and this function interface keep the proofs within the existing resource limits;
+no resource increases, linter suppression or new axioms were introduced.
+
+`RetainedPaddedComparisonProbability.selected_safe_bound` averages only over
+computed selected children of supported predecessor returns. Skipped and rejected
+reconstruction paths contribute zero comparison risk. Its concrete request
+instance, `RetainedPaddedComparisonNativeBound.safe_bound`, discharges the local
+bound from the executed private request sampler, shared scalar verifier and
+per-original-root PCS theorem. It requires code/domain/radius facts, source-tag
+association and numeric calibration, with no supplied child-security, replay or
+source-truth certificate.
+
+`PackedPBSKeySwitchComparisonBound.safe_comparison_bound` specializes this result
+to the actual full PBS witness. All supported predecessor audits are derived
+from the existing reconstruction audit. The new comparison's original-owner
+false-acceptance event is bounded under the enclosing final Bad exclusion by
+its private request-pair budget plus shared scalar arithmetic plus each original
+root's PCS arithmetic, calibrated uniformly in reached private memory. This
+component adds no local hash charge. The typed canonical request constructor
+from the previous milestone can instantiate its request-data interface; the
+new theorem still exposes that configuration factory and its public association
+facts explicitly.
+
+Next: specialize that factory with the typed canonical requests and admitted
+parameter-store objects, join the comparison component to all preceding native
+arithmetic rates, and project the enlarged witness to one operational program
+for its one whole-execution hazard charge. Extraction, common decoded-source
+interpretation across aliased roots, complete accepted-false-output coverage,
+numeric profile admission, production transcript/byte/field/kernel refinements,
+adaptive composition and physical attacker-work accounting remain open. The
+ultimate 128-bit theorem remains unproved. Frozen Native modules and vendor
+sources are unchanged.
+
+Validation: full `scripts/check` exited successfully, including the 12,373-job
+root build and every standalone check. All five modules are exported. The
+imported audit checks ten declarations, including the specialized audit function
+and complete witness, with exact axiom guards limited to `propext`,
+`Classical.choice` and `Quot.sound`. Full-check log SHA-256:
+`6abba86a30fd23fa147d2ede27763c533af8e79617bb8af328579db45f0dc641`.

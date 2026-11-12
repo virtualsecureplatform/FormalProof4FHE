@@ -1529,3 +1529,13 @@ import FormalProof4FHE.HasteBoots.KeySwitchPaddedComparisonConfig
 import FormalProof4FHE.HasteBoots.PaddedReconstructionComparison
 
 import FormalProof4FHE.HasteBoots.KeySwitchPaddedComparison
+
+import FormalProof4FHE.HasteBoots.RetainedPaddedComparison
+
+import FormalProof4FHE.HasteBoots.RetainedPaddedComparisonProbability
+
+import FormalProof4FHE.HasteBoots.RetainedPaddedComparisonNativeBound
+
+import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchComparisons
+
+import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchComparisonBound
