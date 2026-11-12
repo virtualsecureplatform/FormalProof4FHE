@@ -30987,3 +30987,65 @@ root build and every standalone check. All three modules are exported and the
 new imported audit contains 14 exact axiom guards, all passing with only
 `propext`, `Classical.choice` and `Quot.sound`. Frozen Native modules and vendor
 sources are unchanged. Full-check log SHA-256: `9c5737a4e01f4cb82fd08f269fe16ad5518462cd9bc25ed1c87b709524e94d59`.
+
+### 2026-11-12: padded final key-switch product with native single openings
+
+`HeterogeneousSingleOpening` executes ordered original-root single openings with
+independent physical tensor splits, code dimensions, domains, query counts and
+root heights. Each scheduled factor runs its actual `NativeMatrixVerifier.step`
+on the shared returned private memory and history. Results retain the scheduled
+source index. No one-claim batch or extra batch-mixing challenge is substituted
+for the native single-opening transcript.
+
+`RecordedHeterogeneousSingleOpening` reduces accepted incorrect original claims
+to arithmetic failure or global availability disagreement, deriving literal
+checks and worker replay from the actual successful native steps. Original
+snapshots may have distinct earlier recording times. It derives the sum of
+source-specific PCS arithmetic errors uniformly over the actual incoming state.
+`AmbientHeterogeneousSingleOpening.soundness` freezes the actual pre-query root
+snapshots and applies this reduction on arbitrary inherited audited histories,
+paying each listed source's PCS error under the same final exception and adding
+no local collision charge.
+
+`PaddedZeroCheck` combines the actual packed ZeroCheck and computed EQ/terminal
+checks with that native single-opening loop. Each original physical decoder is
+viewed through its own dimension reindexing and fixed high-zero suffix; the
+logical query evaluation is proved equal to its physical PCS evaluation. Padding
+outside the selected logical slice is not constrained to zero. The verifier
+computes the matrix queries and uses the actual checked terminal values.
+
+Full-state projection, fresh owner recording, earlier owner retention, audits
+and bad-event persistence are proved. Accepted false logical relations expose a
+ZeroCheck arithmetic event or an incorrect original opening. The arithmetic
+error is averaged over actual commitment outcomes; original final-recorded
+owners agree with the fresh sources outside the same final exception. The
+result is the three ZeroCheck arithmetic terms plus the actual list's sum of
+source-specific single-opening PCS errors, without child security assumptions
+or additional collision charges.
+
+`KeySwitchPaddedProduct` fixes the native factor order to digit evaluation/key
+pairs followed by the original evaluation result. It uses the caller's retained
+`Family d` roots, native consecutive nodes, typed interpolation messages and the
+exact degree-two expression `sum_i digitEval[i]*keyEval[i] - resultEval`.
+`relation` identifies its vanishing predicate with `PBSHadamard.Relation`;
+`witness_roots` binds the caller roots even on rejection. Its original-owner
+soundness theorem derives both message degree bounds from typed interpolation,
+with explicit per-source PCS facts and no degree/replay/child-security certificate.
+Source review of canonical `verify_inner` in `packed_relation.rs` confirms one
+`parameters.verify` call per source, in the listed order. Production byte and
+transcript refinement is still separate.
+
+Next: append this component after actual acceptance of the retained final NTT
+loop, preserve its returned memory/state and original root aliases, and extend
+the concrete whole-PBS joint bound. Then compose canonical negative-mask
+decomposition/comparison and extraction. Earlier physical-layout/source/decoder
+associations, complete accepted-false-output coverage, profile admission,
+production transcript/byte/field/kernel refinements, adaptive repeated proofs
+and physical attacker-work accounting remain open. The final 128-bit security
+theorem remains unproved.
+
+Validation: full `scripts/check` exited successfully, including the 12,333-job
+root build and every standalone check. All five modules are exported and the
+new imported audit contains 19 exact axiom guards, passing within the whitelist
+`propext`, `Classical.choice` and `Quot.sound`. Frozen Native modules and vendor
+sources are unchanged. Full-check log SHA-256: `0770f1fdf940dc1f74cb5de2af979a72aad997e5e9a5769e7035dbdbf91d5d7a`.

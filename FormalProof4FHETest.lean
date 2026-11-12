@@ -843,3 +843,5 @@ import FormalProof4FHETest.HasteBootsPaddedNTTAudit
 import FormalProof4FHETest.HasteBootsKeySwitchPaddedNTTAudit
 
 import FormalProof4FHETest.HasteBootsPackedPBSKeySwitchNTTAudit
+
+import FormalProof4FHETest.HasteBootsKeySwitchPaddedProductAudit
