@@ -30765,3 +30765,68 @@ root build and every standalone check. All 17 new exact axiom guards passed,
 using only `propext`, `Classical.choice` and `Quot.sound`. Frozen Native modules
 and vendor source were unchanged. Full-check log SHA-256:
 `bdae92724e1a9e527de507070b1bb585d606755ee29492399257bcbe9a080fe9`.
+
+
+### 2026-11-12: final key-switch input appended with the actual accumulator endpoint
+
+`AccumulatorEndpoint` reads the published final accumulator context in original
+coefficient/half order. Native address evaluation is proved, and a pure
+caller-root borrower is proved to emit exactly the private memory that selected
+its accumulator factory. It does not substitute the later worker memory for
+that original factory-selection memory.
+
+`PackedPBSKeySwitchInput.program` extends the existing PBS prefix with the
+padded final key-switch known-input opening. Entry requires the actual monomial
+product terminal AND private-opening loop to accept. The input prover factory
+receives that loop's returned private memory; all earlier rejection skips this
+work. The public table is built from the retained accumulator emission's
+original context, not from a second independently supplied endpoint vector.
+The caller input reference fixes the opened root and the existing encoding is
+retained. Logical query dimension, physical padding and PCS geometry remain
+separate from previous stage parameters.
+
+Full-state projection includes the exact endpoint, returned memory/state,
+context binding, fresh logical query, fixed high-zero physical suffix and
+native single-opening workers. `accumulator_present` derives that a supported
+present product already contains its accumulator result, so the extra internal
+structural match cannot skip such a result. Reaching the input derives prior
+support and computed acceptance; root binding follows even on later rejection.
+Earlier owners, audits and bad events survive all branches. The new final bad
+event has one charge over the complete actually executed extended PBS prefix.
+
+`endpoint_context` traces supported returns back through the monomial product,
+NTT loop and accumulator call. It derives equality of the retained emission
+memory with the actual predecessor's accumulator-factory argument, then proves
+that the new input uses the SAME endpoint context as that actual accumulator
+call. No endpoint equality or callback/refinement certificate is assumed.
+
+`PackedPBSKeySwitchInputProbability` transfers earlier events and safe events
+and derives the known-input rate over the actual reached product returns. The
+rate is logical-variable packed compression plus ONE native PCS error, outside
+the same extended final exception. Both raw child-final and enclosing-final
+forms are proved. The abstract composition lemma is discharged by derived
+native bounds in the concrete native theorem; it is not a supplied child
+security hypothesis there.
+
+`PackedPBSKeySwitchInputNativeJointBound` derives all previous native arithmetic
+rates plus this input cap under the extended final exclusion, and adds ONE
+whole-prefix charge when including the final exception itself. Audits are
+constructed from the actual empty initial state and projection. Code distance,
+geometry, bases, numeric calibration and earlier recording scope remain
+explicit. The proof compiles within the default resource limits.
+
+Next: final `d+1` NTTs, product relation, canonical negative-mask decomposition/
+comparison and extraction in native order. Their source interfaces must preserve
+logical/physical padding and each source's trusted PCS parameters. Earlier
+stage padding/decoder association, parameter/endpoint/byte/field/transcript/
+optimized-kernel refinement, complete accepted-false-output coverage, concrete
+profile admission, adaptive repeated-proof composition and physical/actor-
+separated attacker work remain open. The generic execution-hazard charge is not
+yet physical attacker work. The final 128-bit theorem remains unproved.
+
+Validation: full `scripts/check` exited successfully, including the 12,316-job
+root build and every standalone check, with all new modules exported and the
+full new audit imported. All 19 new exact axiom guards passed, using only
+`propext`, `Classical.choice` and `Quot.sound`. Frozen Native modules and vendor
+source were unchanged. Full-check log SHA-256:
+`d3440a33dbb5178d4271d36c89a1d2dff7c11fdf18885435dc4bdb6ca912c3b0`.

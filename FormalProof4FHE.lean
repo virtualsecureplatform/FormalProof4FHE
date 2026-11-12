@@ -1439,3 +1439,11 @@ import FormalProof4FHE.HasteBoots.QueryHighZeroPadding
 import FormalProof4FHE.HasteBoots.AmbientKnownInput
 
 import FormalProof4FHE.HasteBoots.KeySwitchKnownInput
+
+import FormalProof4FHE.HasteBoots.AccumulatorEndpoint
+
+import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchInput
+
+import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchInputProbability
+
+import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchInputNativeJointBound

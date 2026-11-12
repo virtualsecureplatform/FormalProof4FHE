@@ -835,3 +835,5 @@ import FormalProof4FHETest.HasteBootsPackedPBSMonomialProductAudit
 import FormalProof4FHETest.HasteBootsPackedPBSMonomialNativeJointAudit
 
 import FormalProof4FHETest.HasteBootsKeySwitchKnownInputAudit
+
+import FormalProof4FHETest.HasteBootsPackedPBSKeySwitchInputAudit
