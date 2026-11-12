@@ -1212,3 +1212,5 @@ import FormalProof4FHE.HasteBoots.LookupParentPayloadBound
 import FormalProof4FHE.HasteBoots.CallerReciprocalKernel
 
 import FormalProof4FHE.HasteBoots.CallerLookupMultiplicityRecovery
+
+import FormalProof4FHE.HasteBoots.CallerLookupOffsetRecovery

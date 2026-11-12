@@ -28481,3 +28481,55 @@ Validation: all 26 exact guards passed (5,276-job guarded target), and
 all three regressions compiled. Full `scripts/check` exited successfully,
 including the 12,109-job root build and all standalone checks. Full-check
 log SHA-256: `f981eb079401b27f44a19b7a88fa020d33ac23c66e58751d9336c7e6eac74a1f`.
+
+### Original y fixation and refined reciprocal kernel (2026-11-12)
+
+`LookupDrawReceiptOrder` proves the exact receipt prefix in every retained
+native draw's pending input, excluding that draw's own receipt and all later
+trials. `LookupDrawReceiptBatch` lifts this invariant and native receipt labels
+through original batch initialization, suspension, request actions and all
+completed jobs. `LookupCompressionReceipt.last` derives the literal original
+first draw and its decoded produced y from native execution, and identifies
+its receipt as the last compression-labeled receipt in the original accepted
+offset's input. Earlier job receipts and arbitrarily many rejected offsets
+cannot replace it. Equal rejection counts are not required.
+
+`QuotedReceiptCoverage.named` applies the existing lifetime fresh-receipt
+ledger to any actual receipt quoted by a stream input, without requiring a
+later outer scalar reader or helper-root binding. Actual receipt outputs and
+original earliest positive reads suffice; earlier adversarial prequeries
+remain covered. No new probability charge or per-job receipt event is added.
+
+`LookupOffsetCompressionFixation.y_fixed` uses this original receipt,
+consumed-byte replay and the existing parent/receipt-completed fiber to fix
+the original produced y. The existing good/counter-bad conditions discharge
+receipt naming and digest collision alternatives. `test_fixed` combines y,
+source, original public row and original multiplicity fixation and removes
+the explicit y-equality premise of the preceding milestone.
+
+`LookupOffsetKernel` fixes both the whole reciprocal event and its degree
+complexity across that same fiber. Its causal refined-fiber bound is
+`(activeCount + publicRowCount - 1) / q^3`, over all budgets of the original
+trial, with the characteristic guard explicit. `CallerLookupOffsetRecovery`
+derives original receipt logs from actual caller execution, recovers the
+attained original accepted-offset candidate from the same reciprocal miss,
+and derives the guard for its refined bound from rebuilt execution. Neither
+a chosen y nor an independent receipt log/digest/count certificate is supplied.
+
+Three frame/language regressions check a prior job plus duplicate rejected
+offsets, absence of compression receipts, and rejection of raw receipt query
+keys as framed reciprocal inputs. They are component fixtures, not a complete
+accepted false-PBS execution. Forty-one exact axiom guards permit only
+`propext`, `Classical.choice` and `Quot.sound`; the guarded target completed
+5,285 jobs. Native modules, vendor code and resource limits remain unchanged.
+
+Adaptive reciprocal class recovery, continuation and lifetime probability/
+work composition remain open, as does justified compression-class work
+aggregation. Whole false-PBS enforcement, Rust execution and physical
+attacker-work refinement are still required. The complete 128-bit actual-work
+security theorem remains unproved.
+
+Validation: all 41 exact guards passed and all three component regressions
+compiled. Full `scripts/check` exited successfully, including the 12,118-job
+root build and all standalone checks. Full-check log SHA-256:
+`100359cd74531d6ca85b27de3c540ce6abbac18f00d80f29c940f2162647b8bd`.
