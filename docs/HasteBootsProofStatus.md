@@ -29595,3 +29595,48 @@ and every standalone check. Ten exact axiom guards passed, permitting only
 `propext`, `Classical.choice` and `Quot.sound`; both slot identities use only
 `propext`. Full-check log SHA-256:
 `d18c197f6227947b0925665b26e4e9689ef2001cd4e63ca6f3ccd8c19d1e5ee2`.
+
+
+### 2026-11-12: conditional reconstruction and canonical coefficient failures
+
+`LinearConditionalSoundness.original_safe_bound` proves original-owner linear
+soundness from ANY audited incoming shared history outside its final collision
+event. Actual commitment memory, common-query linear work and the stopped
+native factor loop are retained. Matching root/checkpoint owners reuse the
+same original registry. The bound contains the common linear arithmetic term
+and the PCS error for every original column, with no local hash charge.
+The fresh-source case and its actual checkpoint recording are included.
+
+`DecompositionConditionalSoundness.native_original_safe_bound` specializes
+this to the trusted reconstruction and borrow-endpoint relations with
+caller-selected original input/digit roots. All `2*d+2` original columns,
+including borrow columns, retain their native openings. Native nodes are
+installed from the characteristic bound; no linear-validity, safety or
+opening certificate is assumed. This conditional theorem is ready to follow
+other stages without restarting the shared execution or charging hashing again.
+
+`PackedCoefficientDecomposition` further reduces the previous external-product
+coefficient mismatch. A wrong canonical digit now exposes a mismatch between
+the retained original NTT coefficient and its selected decomposition digit,
+or a concrete input-source, reconstruction/borrow-endpoint, or lookup-membership
+failure. The final result coefficient retains its separate claimed-result
+provenance failure. No canonical-digit or reconstruction truth is supplied.
+
+`external_product_coverage` combines this with the actual accepted
+Hadamard-before-NTT execution. Its alternatives are the explicit decomposition
+constraints/provenance, original result provenance, trusted setup-key binding,
+or the already bounded original Hadamard/transform event. The native digit
+slot order and actual retained child membership are preserved.
+
+This does not yet assert that acceptance of the entire PBS verifier discharges
+all those alternatives. Wiring the actual following reconstruction and lookup
+programs to the same original root/context family, proving source coherence
+across them, and covering the remaining canonical PBS stages remain required.
+Concrete profile admission, adaptive/repeated-proof composition, transcript/Rust
+correspondence and physical/actor-separated work refinement are also open.
+The full 128-bit expected-work false-PBS theorem remains unproved.
+
+Validation: full `scripts/check` passed, including the 12,216-job root build
+and every standalone check. Twelve exact axiom guards passed, permitting only
+`propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
+`e646222d157b1038ecc01436cbc54f2f4220328e2314a65ec84ed118be430ca2`.

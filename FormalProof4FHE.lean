@@ -1291,3 +1291,9 @@ import FormalProof4FHE.HasteBoots.PackedPBSLoopFunctionBound
 import FormalProof4FHE.HasteBoots.PackedHadamardRows
 
 import FormalProof4FHE.HasteBoots.PackedPBSExternalProductCoverage
+
+import FormalProof4FHE.HasteBoots.LinearConditionalSoundness
+
+import FormalProof4FHE.HasteBoots.DecompositionConditionalSoundness
+
+import FormalProof4FHE.HasteBoots.PackedCoefficientDecomposition
