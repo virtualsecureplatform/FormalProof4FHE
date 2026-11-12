@@ -1417,3 +1417,11 @@ import FormalProof4FHE.HasteBoots.PackedPBSMonomialReferences
 import FormalProof4FHE.HasteBoots.PackedPBSMonomialNTT
 
 import FormalProof4FHE.HasteBoots.PackedPBSMonomialNTTProbability
+
+import FormalProof4FHE.HasteBoots.AmbientSingleChecks
+
+import FormalProof4FHE.HasteBoots.AmbientCommittedOpeningSafeBound
+
+import FormalProof4FHE.HasteBoots.AmbientPublicZeroCheck
+
+import FormalProof4FHE.HasteBoots.MonomialPublicZeroCheck

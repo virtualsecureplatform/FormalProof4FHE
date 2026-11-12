@@ -30504,3 +30504,45 @@ root build and every standalone check. Twenty new exact axiom guards passed,
 using only `propext`, `Classical.choice` and `Quot.sound`. Frozen Native modules
 and vendor source were unchanged. Full-check log SHA-256:
 `93ed468de184aee85bf6fd9aa0182650d1228e52ae4ccee27ddc8d38b1263fa9`.
+
+
+### 2026-11-12: ambient monomial public-plan soundness component
+
+`AmbientSingleChecks` and `AmbientCommittedOpeningSafeBound` derive the actual
+native single-opening bound in an arbitrary audited ambient state. Each source
+needs only its own matching tag height. Successful native checks and replay
+produce either the arithmetic event or a checkpoint disagreement; the resulting
+PCS bound excludes the final ambient bad event without adding a local hash
+charge or changing the runtime sampler.
+
+`AmbientPublicZeroCheck` lifts the existing public-factor ZeroCheck program to
+that same ambient state. It proves full-state projection, checkpoint retention,
+audits, persistence and soundness for original recorded private source owners.
+The native interpolation implementation supplies the message-degree proofs.
+Its bound combines the derived ZeroCheck terms and one PCS error per private
+source, outside the same final bad event. No child security certificate,
+independence or losslessness hypothesis is introduced.
+
+`MonomialPublicZeroCheck` specializes this component to input times public
+monomial table equals output. The trusted two-term expression and private source
+order are fixed. Its public table is the materialized signed monomial NTT word;
+the existing optimized evaluator is proved to fold this SAME table. Configuration
+fixes both private roots and this public table while preserving actual commitment
+work, returned memory and subsequent callbacks. The native soundness theorem
+therefore has exactly two private PCS errors. Original-owner vanishing is proved
+equivalent to the pointwise monomial product relation.
+
+This is a standalone verified component, not yet the appended PBS stage. Next:
+append it after actual acceptance of both monomial NTTs, connect the retained
+evaluation roots and original owners, and combine earlier and monomial rates
+under one final execution charge. Check native per-source geometry compatibility
+before instantiating a concrete profile. Final key switching, accepted-false
+output coverage, callback/byte/transcript and optimized-kernel refinement,
+concrete profile admission, repeated-proof composition and physical attacker
+work remain open. The final 128-bit expected-work theorem remains unproved.
+
+Validation: full `scripts/check` exited successfully, including the 12,300-job
+root build and every standalone check. All 22 new exact axiom guards passed,
+using only `propext`, `Classical.choice` and `Quot.sound`. Frozen Native modules
+and vendor source were unchanged. Full-check log SHA-256:
+`617622a0bd9451ae842b9426e527ea40db0c5ced9a6d9e3f379499216fa7f412`.
