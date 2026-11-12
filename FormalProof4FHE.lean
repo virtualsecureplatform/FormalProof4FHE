@@ -1307,3 +1307,17 @@ import FormalProof4FHE.HasteBoots.PackedPBSReconstructionCoherence
 import FormalProof4FHE.HasteBoots.PackedPBSFirstReconstructionProbability
 
 import FormalProof4FHE.HasteBoots.PackedPBSReconstructionJointBound
+
+import FormalProof4FHE.HasteBoots.StagedPrefixSafeBound
+
+import FormalProof4FHE.HasteBoots.MixedWidthLookupConditionalSoundness
+
+import FormalProof4FHE.HasteBoots.MixedWidthLookupOwnerConditional
+
+import FormalProof4FHE.HasteBoots.MixedWidthOwnedRequestConditional
+
+import FormalProof4FHE.HasteBoots.MixedWidthPrivateLookupConditional
+
+import FormalProof4FHE.HasteBoots.MixedWidthOwnedLookupConditional
+
+import FormalProof4FHE.HasteBoots.PackedPBSComparisonReferences

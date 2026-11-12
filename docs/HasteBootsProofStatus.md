@@ -29731,3 +29731,55 @@ Validation: full `scripts/check` passed, including the 12,223-job root build
 and every standalone check. Eight exact axiom guards passed, permitting only
 `propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
 `49dd0f0242da59b7ae8e8e1acca7b1a694df33d0d5f573d0a7bbcd7db8182b4b`.
+
+
+### 2026-11-12: conditional original comparison tuples with mixed widths/heights
+
+`StagedPrefixSafeBound` preserves the actual source recording BEFORE pair/helper
+work and the later helper recording. Its audit and arithmetic reduction work
+from ANY audited incoming shared history, outside the final collision event.
+They neither reset the source/cache state nor add a local hash charge.
+
+`MixedWidthLookupConditionalSoundness.bad_prefix_safe_bound` bounds the actual
+ordered EQ, common scalar batch, computed terminal guard and grouped original
+PCS when a sampled job does not pass. Source/helper widths, per-root heights,
+layouts, query counts and analysis fields remain distinct. Rejected branches
+and actual private commitment/helper memory remain in the staged program.
+
+`MixedWidthPrivateLookupConditional.false_acceptance_safe_bound` adds the
+actual private request sampler and adaptive helper builder. Every request keeps
+its literal table, source slots and configured repetition count. The pair term
+is the existing maximum request-specific repeated error budget, not a union
+over requests. The compiler supplies the actual sampled pair projection;
+prover behavior cannot replace it with a different pair vector.
+
+`MixedWidthLookupOwnerConditional` and `MixedWidthOwnedRequestConditional`
+reuse any matching original owner family recorded in the final history,
+including an owner family selected after execution. Complete original columns
+and request tuples agree with the actual pre-pair sources outside the SAME
+collision event. Fixed per-root context, domain, layout and decoding conditions
+remain explicit; root equality alone is not a source-truth certificate.
+
+`MixedWidthOwnedLookupConditional.false_acceptance_safe_bound` combines these
+facts: an accepted false original comparison tuple is bounded by private-pair,
+common algebra and original grouped PCS errors from the inherited audit. There
+is no collision charge within this theorem; the enclosing PBS caller owns it.
+This is an ideal-private-coin theorem with syntactic message-degree constraints,
+not yet a native Fiat--Shamir/byte or physical-work refinement.
+
+`PackedPBSComparisonReferences` derives the exact comparison registry as the
+reconstruction digit/borrow registry with only the input column removed. Its
+collector theorem proves that EVERY comparison source and its reconstruction
+column borrow the same retained native parameter object/root, including borrows.
+No independently rebuilt equal-looking parameter geometry substitutes for identity.
+
+Appending this concrete comparison program after the reached reconstruction,
+completing the second half and remaining PBS stages/bindings, native request/
+transcript correspondence, concrete profile admission, adaptive/repeated-proof
+composition and physical/actor-separated work refinement remain required.
+The final 128-bit expected-work false-PBS theorem remains unproved.
+
+Validation: full `scripts/check` passed, including the 12,231-job root build
+and every standalone check. Fifteen exact axiom guards passed, permitting only
+`propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
+`757ab8626c3363ac0a536d18792fd1af091cfb990a8d0f728b99ff28e20f24f3`.
