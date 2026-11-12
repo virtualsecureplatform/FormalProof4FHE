@@ -27675,3 +27675,69 @@ Validation: all 38 exact axiom guards passed using only `propext`,
 frozen, `scripts/check` passed the 12,017-job root build and every standalone
 check. Full-check log SHA-256:
 `1e1279c955357b6dbe367d814153342c90b7c890343fc3132cde5b0fbeba9e5a`.
+
+## Original families and table stability at equality first reads
+
+`EqualityInputFamilyView.recover` parses the complete ordered original
+helper-root vector and original caller seed quote directly from a retained
+equality reader's pending input. It uses successful original preparation and
+root-safe equality execution, so no later scalar input or completed equality
+receipt is supplied. `parsed_root` also places each original root in the
+native ancestry ledger without changing its ordinal or deduplicating roots.
+
+`AllocatedEqualityParentPrefix.known` derives the original helper-parent
+naming fact before the equality first positive read, from actual allocated
+execution, original observation inclusion/framing and the existing seed-order
+argument. `AllocatedEqualityParentFamily.at_equality_first` recovers the same
+original parent-family data at this earlier prefix. `with_roots` packages it
+with the ordered helper roots in the existing general family representation.
+These results require no scalar statement-size or round-domain premise.
+
+`EqualityLookupReadStability.program_read` proves that complete-run decoded
+source/helper tables agree with the tables reconstructed before a positive
+equality read. Original source/helper semantic ancestry is resolved using the
+seed quote and roots in this actual input. The direct allocated form derives
+whole-family ancestry from original execution. `CanonicalEqualityReadStability`
+specializes the argument separately at each source column's parameter-derived
+radius and at the helper's own radius. One shared seed-order exception is
+retained across the entire family.
+
+`EqualityFamilyCandidate.Candidate` retains an original allocated job, its
+original-index equality draw, family input, exact first read, derived semantic
+ancestry and root serialization domain. It contains no later scalar reader,
+current equality receipt or independent decoded table. `recover` constructs
+it from the actual allocated execution and original job geometry.
+`tables_at_first` identifies its canonical prefix tables with the complete-run
+tables, under seed-order safety, without a separately supplied ancestry or
+stability certificate. `families_on_fiber` compares the complete canonical
+source/helper families between same-input/original-job classes on the original
+refined prefix fiber. The original parent-seed, root/hash and context-target
+exceptions stay explicit. Thus canonical family recovery/comparison now
+applies at equality inputs rather than relying on later scalar input syntax.
+
+This is not yet fixation of the whole residual. The original r/y factors,
+logical mask and dimension alignment must be composed with these canonical
+families on the equality fiber. Receipt recovery must use the correct earlier
+lookup positions without assuming that the current equality receipt exists.
+First-read candidate coverage, attained-reference conditional pricing,
+all-position/lifetime/private-tape composition and the joint work charge
+remain to discharge the adaptive equality exception. No new probability term
+has been absorbed into the existing 128-bit rate.
+
+Five named regressions parse both original equality reader inputs, preserve
+two duplicate-root jobs, tolerate an earlier decoy roots binder and retain
+ledger naming for the duplicate root. They are native component checks, not
+a complete accepted false modified-PBS execution. Existing Native modules and
+resource limits remain unchanged.
+
+Tuple compression/reciprocal detection pricing, whole modified-PBS application
+enforcement, original caller-parent provenance, Rust invocation/codec/input-read
+correspondence, supported profile admission, fixed assembled-reference scope,
+actor-cost separation and physical attacker-work refinement remain open.
+The final actual-attacker-work theorem is not proved.
+
+Validation: all 24 exact axiom guards passed using only `propext`,
+`Classical.choice` and `Quot.sound` (5,238-job guarded build). With source/tests
+frozen, `scripts/check` passed the 12,025-job root build and every standalone
+check. Full-check log SHA-256:
+`2c3a309efc40c3330f3945464dd60afc37263b817a9bc0ddf5c6ff34a4ed4da2`.
