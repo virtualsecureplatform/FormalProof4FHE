@@ -31302,3 +31302,60 @@ root build and all standalone checks. All twelve new modules are exported; the
 imported audit has sixteen exact theorem axiom guards, all limited to `propext`,
 `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
 `aa25ccb53b877ca69d478ea11abe19cb49de4a21c047cc37bcc9ec058253bd26`.
+
+## 2026-11-12: typed canonical requests and actual reconstruction handoff
+
+Added `PaddedPBSRequestComparisonStage`, the physical-padding instance of the
+post-reconstruction request comparator. Its original-owner false-acceptance
+bound is derived from the padded audited-history theorem, with the literal
+request sampler, adaptive helper work and grouped PCS continuation.
+
+`KeySwitchPaddedComparisonConfig.parameters` constructs the logical canonical
+request data directly. There is one request per digit with uniform configured
+repetitions, slots `[i, digits+i, digits+i+1]`, and the literal modulus-digit
+transition table in digit-major/incoming-borrow-minor order. Coverage of every
+digit and borrow, including the last outgoing borrow, is proved structurally.
+The existing table and slot formalizations match the locally inspected native
+`packed_decomposition.rs::comparison_requests` and `Config::comparison_table`.
+
+The received scalar message type carries two sum evaluations and D+1 identity
+evaluations for each job. The driver preserves all callback programs, receiver
+and private memory, and fixes interpretation to interpolation at the native
+consecutive nodes. Both message-degree fields in the resulting request
+configuration are derived from interpolation, not supplied as prover-behavior
+or security premises. Public dimensions, positive digit/repetition counts,
+radix, characteristic/interpolation capacity and full-branch shape remain
+explicit. Native checked configuration and its computed digit count still need
+to be associated with these public parameters; this does not certify a numeric
+profile or a serialized-message implementation.
+
+`PaddedReconstructionComparison.continuation` computes the actual native linear
+acceptance guard, skips comparison on rejection and otherwise starts the real
+comparison witness on the returned root array, opening memory and complete
+history. Source contexts are fixed to the corresponding reconstruction slots;
+helper callbacks and the comparison continuation are retained. Its support,
+source and audit theorems derive the exact reached execution, including a later
+comparison rejection.
+
+`KeySwitchPaddedComparison.registry` combines actual native reconstruction and
+comparison supports. Comparison digit slots are the caller's original
+coefficient roots, borrow slots are the actual reconstruction emission's borrow
+roots, and private memory/history are the literal linear return. No independent
+comparison roots or source-identity certificate are used. These are root,
+context and execution-provenance facts: equality of physical decoded source
+interpretations still requires the same code/domain/radius associations.
+
+Next: instantiate the padded request comparator with this typed canonical
+configuration, append the local handoff to the full retained PBS prefix and
+average its derived acceptance bound over actual reconstruction returns. The
+shared source interpretation/parameter associations, extraction, full false
+output coverage, numeric profile admission, production refinements, adaptive
+composition and physical attacker-work accounting remain open. The ultimate
+128-bit theorem is unproved. Frozen Native modules and vendor sources are
+unchanged.
+
+Validation: full `scripts/check` exited successfully, including the 12,367-job
+root build and all standalone checks. The four modules are exported and the
+imported audit has eight exact axiom guards, including the configuration
+constructor; all are limited to `propext`, `Classical.choice` and `Quot.sound`.
+Full-check log SHA-256: `8160a6d7a37ac51d8702f48aa41ebd89ed1b6ec8ea25defcba07d278ca5c205e`.

@@ -855,3 +855,5 @@ import FormalProof4FHETest.HasteBootsPackedPBSKeySwitchReconstructionAudit
 import FormalProof4FHETest.HasteBootsPaddedMixedWidthLookupAudit
 
 import FormalProof4FHETest.HasteBootsPaddedMixedWidthOwnedAudit
+
+import FormalProof4FHETest.HasteBootsKeySwitchPaddedComparisonAudit

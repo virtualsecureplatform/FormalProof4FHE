@@ -1521,3 +1521,11 @@ import FormalProof4FHE.HasteBoots.PaddedMixedWidthStagedPrivateSharedLookup
 import FormalProof4FHE.HasteBoots.PaddedMixedWidthStagedSharedLookup
 
 import FormalProof4FHE.HasteBoots.PaddedMixedWidthStagedSharedLookupSoundness
+
+import FormalProof4FHE.HasteBoots.PaddedPBSRequestComparisonStage
+
+import FormalProof4FHE.HasteBoots.KeySwitchPaddedComparisonConfig
+
+import FormalProof4FHE.HasteBoots.PaddedReconstructionComparison
+
+import FormalProof4FHE.HasteBoots.KeySwitchPaddedComparison
