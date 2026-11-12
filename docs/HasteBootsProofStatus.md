@@ -28854,3 +28854,44 @@ including the 12,163-job root build and every standalone check. The first
 full-check attempt could not write its log because the filesystem containing
 `/tmp` was full; the successful rerun logged to the workspace filesystem.
 Full-check log SHA-256: `93588ef787b29deebcce7167b0a40dfa469dca0db09b109228e9730c4a1e6342`.
+
+
+### Original-owner blind-rotation external-product coverage (2026-11-12)
+
+`OwnedBlindRotationCoverage` connects incorrect coefficient-domain external
+products to the existing authenticated Hadamard program's recorded-original
+risk event. Its `tables` retain every original digit/key pair and result from
+`OriginalFactorExceptionUnion.originalSources`, with trusted setup key roots
+through `OwnedHadamardSoundness.stage`. Addresses select round/half coordinates
+inside these sources; no independently interpreted per-round source is used.
+
+`accepted_wrong_external_implies_original` uses literal NTT source bindings
+and original checkpoint membership/root equalities. It proves that an incorrect
+external product accepted by this authenticated program has a false original
+Hadamard relation. `accepted_wrong_external_coverage` removes the binding
+correctness premises: it exposes a particular half/source/level digit or key
+binding failure, a result binding failure, or that same original risk event.
+
+`accepted_wrong_external_family_coverage` handles arbitrary index families
+of round addresses, controls, differences and results over one original
+factor family and one accepted outcome. Any incorrect product yields a source
+binding failure at an index or ONE shared original relation risk. The pointwise
+reduction introduces no round-count probability multiplier. This theorem does
+not assert independence of the projections or reinterpret the original keys.
+
+`accepted_wrong_external_of_constraints` derives canonical digit polynomials
+from full reconstruction, every original comparison-table membership and
+coefficient-digit NTT bindings. It does not assume the desired external-product
+equality. Original key/result and coefficient-source NTT bindings remain
+explicit obligations.
+
+These are bridges for the existing authenticated interactive program, not
+claims of correspondence with the Rust byte verifier. Native transcript
+compilation, source/key layout, whole-PBS acceptance coverage, concrete profile
+admission and shared end-to-end attacker-work accounting remain open. The
+ultimate modified-HasteBoots security theorem is still unproved.
+
+Validation: all five exact axiom guards passed with only `propext`,
+`Classical.choice` and `Quot.sound`. Full `scripts/check` exited successfully,
+including the 12,165-job root build and all standalone checks. Full-check log
+SHA-256: `ccb6256c91d4566aec5f894c3fc4e8a0ed904d56dee157fcb02b4b728bd54829`.

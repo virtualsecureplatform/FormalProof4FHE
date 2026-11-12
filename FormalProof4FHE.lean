@@ -1230,3 +1230,5 @@ import FormalProof4FHE.HasteBoots.DynamicLookupMembershipWork
 import FormalProof4FHE.HasteBoots.ScopedRebuiltLookup
 
 import FormalProof4FHE.HasteBoots.PBSFirstStageCoverage
+
+import FormalProof4FHE.HasteBoots.OwnedBlindRotationCoverage
