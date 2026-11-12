@@ -27878,3 +27878,69 @@ Validation: all 34 exact axiom guards passed using only `propext`,
 frozen, `scripts/check` passed the 12,040-job root build and every standalone
 check. Full-check log SHA-256:
 `a5d1869cafb4fed188ff72f8a04aa8faeac25f29ae048957699fadd9e172fd95`.
+
+## Refined equality freshness and adaptive attained-class bounds
+
+`EqualityInputSeparation.field_rejected` distinguishes the exact native
+field-request suffix (kind 4, with the original 16-byte modulus and 8-byte
+count payload) from recognized parent-seed requests. Typed equality begin
+supplies this property. The separation invariant survives native collector
+suspension and receipt finalization and holds for every completed draw of an
+initialized equality request. `original` derives it from successful original
+preparation and framing, without a later scalar parser or an independent
+pending-suffix certificate.
+
+`RefinedEqualityKernel` combines that parent-key separation with strict
+framing of the actual equality input. Completing recognized parent-seed keys
+cannot read this input, and domain-separated receipt keys cannot equal its
+framed bytes. The original input therefore remains unseen after the same
+`ParentFactorFiber.extend` used for canonical-family and r/y fixation.
+A retained-state selector describes that eligibility without executing or
+charging an auxiliary attacker operation. `bound` applies the native vector
+law on this exact refined posterior, and `bound_63` uses the original native
+job's dimension limit to obtain the uniform `63 / goldilocksModulus^3` rate.
+
+`EqualityClassKernel` selects references only from actually inhabited good
+original input/job classes on the same refined fiber. If a good class is
+empty, its event is covered by the existing posterior bad remainder. Its
+class event quantifies over original equality candidates and their complete
+all-budget residual kernel; it does not posit a successful-run probability
+floor or a measurable reference selector.
+
+`SafeEqualityClassKernel.covered_conditional` handles any event covered by
+such attained classes outside `GlobalReferenceBad.Bad`. Whole residual/event
+fixation transports each event world to the attained reference. The refined
+kernel then gives `63 / goldilocksModulus^3` per original input/job class.
+Empty attained event fibers contribute zero. `conditional` supplies the
+actual safe class event, and outer-measure averaging gives the unconditional
+per-class bound without measurability assumptions on the existential class
+or chooser. The global reference bad event stays separate, so it can be
+charged once for the whole execution rather than once per class.
+
+This closes refined-stream freshness and adaptive per-class conditional
+pricing. It does not yet discharge the full equality exception in
+`LookupInitialPairedWork.work_with_equality_exception`. Original false-PBS/
+lookup coverage must reach the class event; finite original-job/input-class
+coverage and original-position scoring, all-position/lifetime/private-tape
+composition and the joint work charge remain. No new equality charge has
+been absorbed into the existing 128-bit rate.
+
+Five named native regressions distinguish first, later and zero-dimensional
+equality inputs from parent requests, retain the pending suffix across an
+actual rejected/suspended collector, and confirm that a genuine native
+parent-seed request remains recognized. Parser branch decisions are proved
+from decoded frame kinds rather than treated as executable classical choices.
+These are component checks, not a complete accepted false modified-PBS run.
+Existing Native modules and resource limits remain unchanged.
+
+Tuple compression/reciprocal detection pricing, whole modified-PBS application
+enforcement, original caller-parent provenance, Rust invocation/codec/input-read
+correspondence, supported profile admission, fixed assembled-reference scope,
+actor-cost separation and physical attacker-work refinement remain open.
+The final actual-attacker-work theorem is not proved.
+
+Validation: all 32 exact axiom guards passed using only `propext`,
+`Classical.choice` and `Quot.sound` (5,254-job guarded build). With source/tests
+frozen, `scripts/check` passed the 12,046-job root build and every standalone
+check. Full-check log SHA-256:
+`a23b032c77a245853bad8b455921533043d1802a8ffab38713007c37ff3c9b77`.
