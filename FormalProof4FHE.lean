@@ -1359,3 +1359,13 @@ import FormalProof4FHE.HasteBoots.ZeroCheckRecordingScope
 import FormalProof4FHE.HasteBoots.PackedPBSRecordingScope
 
 import FormalProof4FHE.HasteBoots.PackedPBSFirstHalfCallbackBound
+
+import FormalProof4FHE.HasteBoots.AmbientMatrixSource
+
+import FormalProof4FHE.HasteBoots.AmbientBatchChecks
+
+import FormalProof4FHE.HasteBoots.AmbientCommittedBatchSafeBound
+
+import FormalProof4FHE.HasteBoots.AmbientLinear
+
+import FormalProof4FHE.HasteBoots.AmbientDecompositionSoundness

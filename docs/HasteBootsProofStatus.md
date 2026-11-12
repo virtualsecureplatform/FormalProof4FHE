@@ -30031,3 +30031,56 @@ Validation: full `scripts/check` passed, including the 12,257-job root build
 and every standalone check. Thirty-six exact axiom guards passed, permitting only
 `propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
 `5b041ba1695af214286beec085b504725f2cb7055ed51525a29d9f93af703b4f`.
+
+### 2026-11-12: ambient linear/reconstruction soundness preserves mixed helper history
+
+`AmbientMatrixSource` interprets a fixed-height matrix checkpoint within a
+shared state whose OTHER contexts may have arbitrary perfect-tree heights.
+Only the opened tag must match the local protocol height. Its immutable
+root/log view preserves same-root whole-word and decoded-source coherence
+outside the existing ambient exception. It does not alter the ambient state.
+
+`AmbientBatchChecks.wrong_implies_arithmetic_or_disagreement` generalizes the
+native grouped-batch authentication reduction to that state. Successful native
+worker replay, literal coverage/coordinate/finish checks and a wrong claim
+imply the original arithmetic event or the SAME ambient availability disagreement.
+`AmbientCommittedBatchSafeBound.soundness` averages the actual original-root
+batches from an arbitrary audited mixed-height incoming state. Every original
+root pays its existing whole-batch PCS rate; no local hash charge is introduced.
+There is no restriction on recording callbacks beyond the actual ambient handler.
+
+`AmbientLinear.witness` runs the EXISTING `AuthenticatedLinear.program` through
+the ambient handler. `project_witness` proves full-state erasure, including the
+actual cache, cumulative log, ordered checkpoint history and persistent monitor.
+`retains` preserves EVERY inherited checkpoint, including previous comparison
+helpers whose heights differ from the current linear sources. `bad_persistent`
+retains every prior collision or monitor failure. Source roots record at the
+actual post-commit log; no commitment work or rejected branch is omitted.
+
+`AmbientLinear.original_safe_bound` derives the same common-query linear error
+plus all original-root PCS errors from an arbitrary audited ambient state,
+outside its final shared exception. The original owner family may be selected
+after execution. Fresh-source false acceptance is included in that event via
+`fresh_risk_implies_original`; the owner event does not assume source truth.
+Only the current source tags need the current matrix height. Unrelated helper
+heights and all their monitor obligations remain in the execution.
+
+`AmbientDecompositionSoundness.native_original_safe_bound` specializes this to
+native interpolation, caller-selected original input/digit roots and all original
+borrow roots/endpoints, with all 2*d+2 source openings. Its `roots` theorem derives
+the actual fixed input/digit roots from supported commitment execution. This
+supplies the previously missing ambient interface for the second reconstruction;
+its numeric/decoding/local-geometry conditions remain explicit.
+
+Still required: append that second reconstruction and its comparisons in actual
+order, join their risks under the whole-PBS charge and finish remaining PBS source
+bindings; bind callback fields to concrete compiled native byte programs and
+retained parameter/tag/domain/layout geometry; establish native request/transcript
+correspondence, concrete profile admission, adaptive/repeated-proof composition
+and physical/actor-separated attacker work. The final 128-bit expected-work
+false-PBS theorem remains unproved.
+
+Validation: full `scripts/check` passed, including the 12,263-job root build
+and every standalone check. Seventeen exact axiom guards passed, permitting only
+`propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
+`7cfa6c88b4447ca5c8e7df8240258424e2102cc68101294989c6cd188527ced8`.
