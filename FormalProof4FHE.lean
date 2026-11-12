@@ -1411,3 +1411,9 @@ import FormalProof4FHE.HasteBoots.AmbientNTTSequence
 import FormalProof4FHE.HasteBoots.AmbientNTTSequenceSoundness
 
 import FormalProof4FHE.HasteBoots.AmbientMonomialNTT
+
+import FormalProof4FHE.HasteBoots.PackedPBSMonomialReferences
+
+import FormalProof4FHE.HasteBoots.PackedPBSMonomialNTT
+
+import FormalProof4FHE.HasteBoots.PackedPBSMonomialNTTProbability

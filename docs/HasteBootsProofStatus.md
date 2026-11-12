@@ -30447,3 +30447,60 @@ root build and every standalone check. Twenty-six new exact axiom guards passed,
 using only `propext`, `Classical.choice` and `Quot.sound`. Frozen Native modules
 and vendor source were unchanged. Full-check log SHA-256:
 `25f08b7ade65b3a22598cb9ccfb65a1e79abf55b09417b24efcf11f64feee155`.
+
+### 2026-11-12: monomial NTTs follow computed accumulator acceptance
+
+`PackedPBSMonomialReferences` fixes the two coefficient references to original
+accumulator objects 0/1 and the two evaluation references to one retained
+evaluation-parameter allocation. Successful parameter-store collections prove
+that each NTT coefficient object aliases the matching accumulator object, and
+that the later public-plan private opening references alias the exact NTT
+evaluation objects. Both parameter allocation identity and root are retained;
+these logical aliases still require native callback/byte/heap refinement.
+
+`PackedPBSMonomialNTT.program` appends the two native NTT calls only when BOTH
+returned accumulator flags accept: its computed arithmetic check and actual
+opening loop. Entry uses that opening loop's returned private memory. Earlier
+rejection skips the entire component; a rejected first NTT skips the second.
+The polynomial size and primitive root are the enclosing PBS values, while the
+monomial PCS packing, row count, repetition count, width, response type and
+commitment-memory type have separate explicit parameters.
+
+Full-state projection identifies the ambient witness with the actual extended
+program. `reached_ntt` derives accumulator support, both computed acceptance
+flags and the exact incoming memory/state. `accepted_indices` derives the
+trusted `[false,true]` order for an accepted loop. Retained-entry root proofs
+fix both calls to accumulator roots 0/1 and their matching evaluation roots,
+including calls whose own or later work rejects.
+
+`AmbientNTTSequenceSoundness.child_retains` preserves any recorded checkpoint
+from a retained child to the loop's final state. The new prefix's
+`retained_source_recorded` applies it to each actual NTT prefix-frozen source.
+Thus the later public-plan check can reuse the SAME immutable original source
+owners, not only equal root digests. Earlier source/helper owners, audits and
+persistent bad events also survive every branch without a handler reset or
+second geometry switch. `final_bad_le_charge` bounds the final exception by
+ONE charge over the whole extended PBS program, including all rejected work.
+
+`PackedPBSMonomialNTTProbability.safe_original_ntt_bound` averages the derived
+two-call original-source rate over actual reached accumulator returns. Incoming
+audits follow from earlier full-state projection; local geometry, code distance,
+capacity, bases and numeric calibration remain explicit. The rate is the sum
+of the two calibrated native row/compression/two-PCS caps. Earlier-event and
+earlier-safe-event lemmas transfer previous risks without independence,
+losslessness or another local availability/collision charge.
+
+Still required: construct and append the ambient public-plan ZeroCheck and its
+two final original evaluation openings, using the retained owners above; combine
+all monomial/earlier arithmetic rates under the complete execution's one charge.
+Then compose final key switching and finish accepted false-output coverage.
+Concrete callback/tag/domain/layout/endpoint/byte/transcript and optimized
+integer-kernel refinement, profile admission, adaptive/repeated-proof composition
+and physical/actor-separated attacker work remain open. The final 128-bit
+expected-work false-PBS theorem remains unproved.
+
+Validation: full `scripts/check` exited successfully, including the 12,295-job
+root build and every standalone check. Twenty new exact axiom guards passed,
+using only `propext`, `Classical.choice` and `Quot.sound`. Frozen Native modules
+and vendor source were unchanged. Full-check log SHA-256:
+`93ed468de184aee85bf6fd9aa0182650d1228e52ae4ccee27ddc8d38b1263fa9`.

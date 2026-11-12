@@ -234,6 +234,39 @@ theorem audited_witness (audited : CheckpointExecution.Audited enc dummy (Ambien
   exact CheckpointExecution.audited_run (QueryImpl.ofLift unifSpec ProbComp) enc dummy
     (AmbientMatrixSource.Shape heights) (program factory indices memory) initial audited _ actual
 
+include supported in
+/-- Every checkpoint recorded at a retained child's end remains available at
+the loop's final state, even if a later child rejects. -/
+theorem child_retains
+    (entry : Index × Memory × Child heights (F := F) (Input := Input) (Digest := Digest) (Cfg := Cfg) (Response := Response)
+      (Memory := Memory) (CommitMemory := CommitMemory) (b := b) (c := c) (r := r) (k := k)
+      (front := front) (queries := queries) (height := height))
+    (member : entry ∈ outcome.1.results) (tag : Cfg)
+    (saved : AmbientMatrixSource.Snapshot Input Digest heights tag)
+    (recorded : ⟨tag,saved⟩ ∈ entry.2.2.2.2.checkpoints.checkpoints) :
+    ⟨tag,saved⟩ ∈ outcome.2.checkpoints.checkpoints := by
+  induction indices generalizing memory initial outcome with
+  | nil =>
+    have equal := eq_of_mem_support_pure _ supported
+    subst outcome
+    cases member
+  | cons index rest ih =>
+    simp only [witness,support_bind,Set.mem_iUnion] at supported
+    obtain ⟨child,childSupported,remainder⟩ := supported
+    by_cases passes : AuthenticatedNTT.accepted child.2.1 = true
+    · simp only [passes,ite_true,support_bind,support_pure,Set.mem_iUnion,Set.mem_singleton_iff] at remainder
+      obtain ⟨later,laterSupported,equal⟩ := remainder
+      subst outcome
+      rcases List.mem_cons.mp member with first | tail
+      · subst entry
+        exact retains factory heights enc dummy rest child.2.1.2.memory child.2.2 later laterSupported tag saved recorded
+      · exact ih child.2.1.2.memory child.2.2 later laterSupported tail
+    · simp [passes] at remainder
+      subst outcome
+      have first := List.mem_singleton.mp member
+      subst entry
+      exact recorded
+
 /-- Original-source risks at retained child ends, before excluding failures. -/
 def AnyOriginalRisk (dummy : Digest) (capacity : 2^suffix ≤ m*b) (radius : Index → ℕ)
     (trace : Trace heights (F := F) (Index := Index) (Input := Input) (Digest := Digest) (Cfg := Cfg) (Response := Response)
