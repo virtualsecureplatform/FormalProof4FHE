@@ -27114,3 +27114,59 @@ All 35 exact axiom guards passed with standard Lean axioms only (5,167-job
 guarded build). With source/tests frozen, `scripts/check` passed the
 11,962-job root build and all standalone checks. Full-check log SHA-256:
 `8cf58fbd1d9b223b675e67269b1e0ae17c45e2c8e2d7f9037eb8041513248a2f`.
+
+## Scalar statement framing from executed construction and retained allocation
+
+`CheckedScalarStatementSize` bounds the original independent scalar statement
+without introducing a job-count cutoff. A raw Goldilocks extension occupies
+at most 28 bytes, including its degree-three header and all three original
+u64 representatives. This includes noncanonical lazy words. The actual lookup
+metadata has maximum multiplicand count at most four; its allocated helper's
+variable count is below 64. Each original info therefore occupies two bytes.
+Each original lookup job contributes two infos and two claims, giving the
+bound `18 + 60 * jobs.length` with both outer vector headers included.
+
+`allocated_numVariables` follows the helper handle through the actual
+assembled reachable parameter store, the retained initializer's successful
+geometry build and its checked basic parameter domain. It requires no new
+profile admission or independently selected parameter object. The native
+prelude contract transfers the helper dimension to every constructed info,
+provides the exact statement build, and identifies both statement vector
+lengths and the original job/root count.
+
+The original proof root payload contains 64 bytes per job. Its actual bounded
+encoding, already derived from the retained proof decoder, implies that
+`18 + 60 * jobs.length` fits the frame length domain. This arithmetic does
+not assert that the conservative statement bound is at most the root packet
+length; it uses the existing frame capacity and original root count.
+`retained_fits` composes these results for the actual retained caller job,
+with no scalar statement byte-size certificate supplied by its caller.
+
+`StatementDerivedIdentityWork.Witness` omits `statementFits` as well as the
+previously removed receipt-framing and equality-decoding certificates.
+`toExecution` derives the missing bound, while `data_toExecution` and
+`ofExecution_toExecution` preserve the original job and witness data.
+`failure_iff` proves equivalence to the preceding execution-derived failure
+event without new admission or width premises. `work_128` inherits the same
+security rate and specified-interpreter expected-work bound; this change
+adds no probability charge.
+
+Ten named smoke checks cover maximum raw lazy words, exact extension byte
+sizes, full versus partial equations at variable count 63, actual native
+statement construction, the root-paid framing bound, missing multiplicity
+rejection and the wider varint header at variable count 251. The metadata
+fixtures do not assert complete modified-PBS acceptance or Rust refinement.
+Existing Native modules remain unchanged, with no resource-limit increases.
+
+Remaining gates include original caller/configuration framing and registry
+allocation domains, Rust/serde read/value/consumption/error/resource
+correspondence and actual byte-source binding, whole modified-PBS initial
+falsity/application enforcement, actual profile admission and the fixed
+assembled-reference scope, actor-cost separation and physical attacker-work
+refinement. The final public modified-PBS actual-attacker-work theorem
+remains unproved.
+
+All 35 exact axiom guards passed with standard Lean axioms only (5,169-job
+guarded build). With source/tests frozen, `scripts/check` passed the
+11,966-job root build and all standalone checks. Full-check log SHA-256:
+`4d8c37004e8b2d520e23354ced532ef4c9e2aa2db1b60f454ae644204845c0ca`.
