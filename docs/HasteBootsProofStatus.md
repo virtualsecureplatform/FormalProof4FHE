@@ -31507,3 +31507,43 @@ and the imported audit has seven exact axiom guards (including the operational
 program and the extended native risk-or-bad theorem), all limited to `propext`,
 `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
 `998075edb839fad7ab5e5962eda1c66fc6990cb6065bd1ae4510f23e4e113e60`.
+
+### Padded public-factor ZeroCheck with prepared singleton openings
+
+Added `PaddedPublicZeroCheck`, the physical-padding interface required for the
+final extraction relation. Private roots have independent physical layouts,
+padding, tags, domains and PCS parameters. Logical queries are extended by high
+zero coordinates and transported to each root's physical shape. Public tables
+are computed from the commitment emission before query selection and enter the
+relation directly; they are not committed or charged as private PCS openings.
+
+The actual continuation uses `SingletonOpening.toBatch` with one claim per
+private root. `continuation_single` proves exact equality with singleton steps,
+including preparation before the random test, callback work, private memory and
+short-circuit rejection. The wrapper fixes each root, query and checked value.
+The full-state projection, checkpoint recording, owner retention, auditing and
+Bad persistence are proved for the executed commitment/continuation program.
+
+`original_safe_bound` bounds accepted false relations over retained original
+private sources outside the same final Bad event by the packed ZeroCheck
+arithmetic rate plus the sum of the private roots' own PCS rates. Equality of
+original and fresh private sources is derived from recorded owners and the
+collision exclusion, while the public tables remain the same fixed tables.
+This introduces no second collision charge. Degree bounds and public code facts
+are still explicit hypotheses of this generic interface.
+
+This is an extraction prerequisite, not yet the concrete extraction adapter or
+its append to the full PBS execution. The native adapter must use the retained
+last coefficient root, verifier-computed mask and target, and the native body
+bias exactly once. Typed interpolation, native parameter associations, complete
+accepted-false-output coverage, numerical profile admission, production
+refinements, adaptive composition and actor-separated physical attacker-work
+accounting remain open. The final 128-bit security theorem remains unproved.
+
+The module is exported and its imported audit guards twelve declarations. Direct
+axiom inspection found only `propext`, `Classical.choice` and `Quot.sound`.
+
+Validation: full `scripts/check` exited successfully, including the 12,381-job
+root build and every standalone check. Default resource limits were retained;
+frozen Native modules and vendor sources are unchanged. Full-check log SHA-256:
+`8751e049e9cda605df8c4c261d7fdadfc2f2e5e3549eea1f1361cf4ca1bebef4`.
