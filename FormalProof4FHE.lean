@@ -1259,3 +1259,9 @@ import FormalProof4FHE.HasteBoots.NTTConditionalSoundness
 import FormalProof4FHE.HasteBoots.HadamardNTTProbability
 
 import FormalProof4FHE.HasteBoots.HadamardNTTFunctionBound
+
+import FormalProof4FHE.HasteBoots.NTTSequence
+
+import FormalProof4FHE.HasteBoots.NTTSequenceSoundness
+
+import FormalProof4FHE.HasteBoots.NTTLoopProbability

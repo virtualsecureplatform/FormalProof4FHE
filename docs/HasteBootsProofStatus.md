@@ -29298,3 +29298,44 @@ Validation: all five exact axiom guards passed with only permitted standard
 axioms (`propext`, `Classical.choice`, `Quot.sound`). Full `scripts/check`
 exited successfully, including the 12,189-job root build and all standalone
 checks. Full-check log SHA-256: `a76743984210359d736b62914363343ea88ab12e75b2f1cb8a874bb6f6b863ed`.
+
+
+### Ordered NTT child loop with memory handoff and one collision charge (2026-11-12)
+
+`NTTSequence` executes the existing authenticated NTT child programs in a
+trusted order with actual early return. Each stage factory receives the PRIVATE
+MEMORY returned by its predecessor's native batch loop. The analysis witness
+retains each child's original prefix, incoming private memory and final shared
+state; the next stage starts at that exact state. `project_witness` proves
+that erasing those retained observations recovers the literal existing
+short-circuit child loop, including failed attempts and skipped suffixes.
+
+`NTTSequenceSoundness.child_audited` derives each inherited audit from the
+actual committed child execution. `safe_union_bound` sums uniform conditional
+local-safe errors over the trusted list of possible attempts while using each
+reached actual memory/state. `bad_persistent` and `child_bad_persistent` prove
+that every earlier child exception reaches the loop's final common exception.
+`accepted_indices` proves that an accepted loop attempted the full trusted
+child list in order; an analysis trace cannot hide skipped children.
+
+`NTTLoopProbability.original_risk_bound` covers ANY retained original-owner
+NTT risk with the sum of the conditional local-safe errors plus ONE expected
+collision charge on the actual loop program. Child hash charges are not added
+or multiplied by loop length. `native_original_risk_bound` instantiates the
+conditional interface using the proved original NTT row/compression/PCS bound.
+Its encoding associations, PCS decoding conditions and per-index numerical
+rate caps remain explicit. Those caps constrain actual error expressions;
+they are not relation-truth or verifier-correctness flags.
+
+This is a loop of existing authenticated child programs, with a homogeneous
+trusted packing geometry and arbitrary memory-dependent factories. The complete
+native PBS caller still has to supply its validated `2*d+1` child list,
+original parameter/root wiring and transcript correspondence, and connect
+whole-PBS false-output coverage to these retained risks. Concrete profile
+admission, all remaining PBS stages and physical/actor-separated attacker-work
+composition remain required. The ultimate security theorem remains unproved.
+
+Validation: all eighteen exact axiom guards passed with only permitted
+standard axioms (`propext`, `Classical.choice`, `Quot.sound`). Full
+`scripts/check` exited successfully, including the 12,193-job root build and
+all standalone checks. Full-check log SHA-256: `f68f7b2d17b4bb581b0e139f68a9b667fbad6f605f7592a4388eaa74d9c36222`.
