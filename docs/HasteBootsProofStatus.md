@@ -30224,3 +30224,59 @@ root build and every standalone check. Five new exact axiom guards passed with
 only `propext`, `Classical.choice` and `Quot.sound`; existing audits also passed.
 Full-check log SHA-256:
 `5cbba366baafe57916c9c13fb18eefd097271e9b135414187a9510de721216b8`.
+
+### 2026-11-12: authenticated accumulator stage in ambient history
+
+`AmbientDependentBatchOpening` extends the existing native batch argument to
+claim counts depending on both the common query packet and source. A source
+still has exactly one native shared-test/shared-column batch. Its conditional
+safe bound sums one PCS arithmetic error per listed source, without a batch-
+length multiplier. Trusted encoding/domain/roots override the behavior factory;
+all actual native worker checks, rejection branches and inherited mixed-height
+history are retained. This supplies the accumulator's differing batch sizes.
+
+`PackedAccumulatorOracle` generates the native ordered seven-source query
+lists: the base query everywhere, initial-row and shifted queries for input,
+two selected-half queries for difference, and the final-row query for output.
+The source order is input, monomial product, difference, output, Hadamard sum
+product and the two decomposition input sources. It accepts raw per-source
+value lists, checks their lengths, and computes subtraction, addition, both
+duplicated-half identities, both endpoints and cyclic continuity. Equal query
+positions do not assume equal adversarial values. `program_checked` proves
+that an accepted supported packet has the computed arithmetic flag.
+`truthful_check` connects those literal checks to all seven residuals;
+`truthful_bound` derives one common fresh-query compression rate despite
+adaptive received values and arbitrary shared-oracle callback work.
+
+`AmbientAccumulator.Scheme` assembles that packet selector and all seven native
+batch openings. The trusted common-query maps and exact positional values
+replace factory-supplied query/value fields. `layout`, `queryCast`, `tableCast`
+and `fold_table` preserve the native front/suffix split and fix one decoded
+table per source before sampling any query; selected/shifted queries cannot
+choose new source tables. Full-state projection, inherited audit propagation,
+checkpoint retention, fresh-root recording and persistent bad events are proved
+for arbitrary supported paths, including rejection.
+
+`false_acceptance_safe_bound` derives the probability of a false prefix-frozen
+accumulator source family passing both computed arithmetic and actual native
+openings, outside the final ambient bad event. The rate is ONE compression term
+plus SEVEN PCS errors. It assumes no truthful-value, worker-success or supplied
+PCS-security certificate. Only the inherited audit and explicit numeric,
+geometry, basis, capacity and decoding conditions are needed. No local hash
+charge is introduced; the enclosing complete execution must pay it once.
+
+Still required: append this stage after actual second-comparison acceptance,
+reuse its returned memory, bind all seven roots to the retained accumulator,
+Hadamard coefficient and decomposition-input references, and transfer the bound
+to those original checkpoint owners. The context's endpoint/start/finish values,
+layout and callbacks still need native driver/parameter and byte/transcript
+bindings. Monomial and final key-switch composition, accepted false-output
+coverage, concrete profile admission, adaptive/repeated-proof composition and
+physical/actor-separated attacker work remain open. The final 128-bit
+expected-work false-PBS theorem remains unproved.
+
+Validation: full `scripts/check` exited successfully, including the 12,278-job
+root build and every standalone check. Twenty new exact axiom guards passed,
+using only `propext`, `Classical.choice` and `Quot.sound`; no frozen Native module
+or vendor source was changed. Full-check log SHA-256:
+`e681f71271790e62ed6175801a5063f568a4b9aa841c5e8e73342a8ab4763dd1`.

@@ -1385,3 +1385,9 @@ import FormalProof4FHE.HasteBoots.PackedPBSDecompositionJointBound
 import FormalProof4FHE.HasteBoots.PackedPBSSecondHalfJointBound
 
 import FormalProof4FHE.HasteBoots.PackedPBSBothHalvesJointBound
+
+import FormalProof4FHE.HasteBoots.AmbientDependentBatchOpening
+
+import FormalProof4FHE.HasteBoots.PackedAccumulatorOracle
+
+import FormalProof4FHE.HasteBoots.AmbientAccumulator
