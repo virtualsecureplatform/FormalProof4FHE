@@ -1457,3 +1457,9 @@ import FormalProof4FHE.HasteBoots.PaddedNTTSequence
 import FormalProof4FHE.HasteBoots.PaddedNTTSequenceSoundness
 
 import FormalProof4FHE.HasteBoots.KeySwitchPaddedNTT
+
+import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchNTT
+
+import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchNTTProbability
+
+import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchNTTNativeJointBound

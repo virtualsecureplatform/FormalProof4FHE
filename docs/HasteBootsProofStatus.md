@@ -30933,3 +30933,57 @@ root build and every standalone check. All three new modules are exported; the
 new imported audit contains 21 exact axiom guards, all passing with only
 `propext`, `Classical.choice` and `Quot.sound`. Frozen Native modules and vendor
 sources are unchanged. Full-check log SHA-256: `3ac77584f6bbae9331df06963667b638924f2c7d1cc858df6377e6ac014113ee`.
+
+### 2026-11-12: final key-switch NTT loop appended to the actual PBS prefix
+
+`PackedPBSKeySwitchNTT` appends the ordered padded final NTT loop after
+`PackedPBSKeySwitchInput.program`. Entry requires a present known-input result
+and its actual private-opening loop to accept. The NTT factories receive that
+opening loop's actual returned private memory and complete mixed-height state.
+Earlier rejection skips all new calls. The final key-switch digit count and
+root family are independent of the earlier bootstrapping decomposition count.
+
+Full-state projection preserves all preceding PBS work, endpoint and input-root
+binding, the actual opening gate, scheduled caller-root pairs, native nodes and
+butterflies, source-dependent physical padding/layouts, rejection and returned
+memory. `reached_ntt` derives presence/acceptance of the actual known-input check,
+actual predecessor support and the exact native loop support on its returned
+memory/state. All predecessor owners and bad events persist; the whole extended
+execution inherits its audit. `final_bad_le_charge` adds one charge over the
+entire actually executed prefix, including all earlier rejects and reached new
+calls, without per-child collision charges.
+
+`PackedPBSKeySwitchNTTProbability` transfers earlier events and safe events to
+the extended final history. It derives the final NTT sum by averaging the
+standalone native loop bound over the actual reached known-input returns. Each
+reached input's audit comes from the full preceding PBS execution. The derived
+bound uses explicit per-source code geometry, distance assumptions and numeric
+caps uniform in private memory, without a replay or child-security certificate.
+Both child-final and enclosing-final safe forms are proved.
+
+`PackedPBSKeySwitchNTTNativeJointBound.native_safe_joint_bound` derives all native
+arithmetic rates through Hadamard, the earlier full NTT loop, both reconstruction/
+comparison halves, accumulator, monomial NTTs and public product, final known
+input and the new final NTT loop under the SAME extended final exclusion.
+`native_risk_or_bad_bound` includes the final exception with ONE full-prefix
+execution-hazard charge. The generic probability-composition premises are
+discharged by the existing derived native theorem and the new derived NTT theorem.
+No child soundness certificate is assumed in either concrete native statement.
+The proofs compile within the default resource limits.
+
+Next is the final packed product relation over original evaluation/key sources,
+followed by canonical negative-mask decomposition/comparison and extraction.
+These interfaces must preserve each source's physical geometry/padding and the
+actual native single-opening transcript, not replace a single opening by a
+one-claim batch with extra challenge draws. Earlier physical-layout/source/
+decoder associations, full accepted-false-output coverage, concrete profile
+admission, production transcript/byte/field/kernel refinements, repeated adaptive
+proofs and actor-separated physical attacker work remain open. The generic
+execution-hazard charge is not yet physical attacker work. The final 128-bit
+security theorem remains unproved.
+
+Validation: full `scripts/check` exited successfully, including the 12,327-job
+root build and every standalone check. All three modules are exported and the
+new imported audit contains 14 exact axiom guards, all passing with only
+`propext`, `Classical.choice` and `Quot.sound`. Frozen Native modules and vendor
+sources are unchanged. Full-check log SHA-256: `9c5737a4e01f4cb82fd08f269fe16ad5518462cd9bc25ed1c87b709524e94d59`.
