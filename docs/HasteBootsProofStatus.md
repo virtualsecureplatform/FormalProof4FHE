@@ -31253,3 +31253,52 @@ root build and every standalone check. The three modules are exported; the
 imported audit checks all ten new theorems with exact axiom guards, using only
 `propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
 `ef37ab304f021723b0b1fc7e30250cb547f0ab08329c128312886d8036a8d3d5`.
+
+## 2026-11-12: padded shared requests and original-owner acceptance bounds
+
+Extended the physical-padding adapter through the staged shared lookup, request
+compiler, private request sampling and original-owner interfaces. The padded
+staged and request parameters are aliases of the existing logical parameters:
+tables, multiplicities, source slots, scalar driver and syntactic message-degree
+bounds are reused. Physical geometry appears in the source/helper views and
+opening factory. In particular, pre-pair request tuples now use the same
+high-zero slice as the padded terminal's original-source view.
+
+`PaddedMixedWidthStagedSharedLookupSoundness` proves the scalar-plus-PCS bound
+for accepting a nonpassing sampled job. `PaddedMixedWidthStagedPrivateSharedLookup`
+adds the actual request-specific private-pair error budget, preserving each
+request's repetition count and adaptive helper work. The request compiler
+preserves request-major/repetition-minor order, literal tables and covered
+original slots. This is not a replacement with independent per-limb executions.
+
+`PaddedMixedWidthOwnedLookupSources` and its conditional companion prove that
+matching recorded owner columns equal the fresh pre-pair columns outside the
+existing history Bad. The proof transports full physical decoded-column
+coherence through arity transport and high-zero slicing. Context, original root,
+geometry, domain and radius remain fixed; digest equality alone is insufficient.
+The owned request layer preserves original slot aliases and derives the
+original-false event reduction without a source-truth certificate.
+
+`PaddedMixedWidthOwnedLookupConditional.false_acceptance_safe_bound` now gives
+an original-owner false-acceptance bound from any audited incoming history:
+request-pair error budget plus shared scalar arithmetic plus per-original-root
+PCS arithmetic, outside the same execution's final Bad. It adds no local hash
+charge. The empty-history companion supplies the existing one whole-execution
+hazard charge. These are proved using the actual computed terminal selection,
+returned private memory and helper-before-source opening order, with no supplied
+child-security or replay law. All proofs use the existing resource limits.
+
+Next: instantiate the native canonical comparison requests on the final
+reconstruction's actual digit/borrow registry, fix the native typed scalar
+message interpretation, and append that verifier on the reconstruction's actual
+accepted return. Final extraction, full accepted-false-output coverage, earlier
+source/decoder associations, numeric profile admission, production refinements,
+adaptive composition and physical attacker-work accounting remain open. The
+final 128-bit theorem remains unproved. Frozen Native modules and vendor sources
+are unchanged.
+
+Validation: full `scripts/check` exited successfully, including the 12,362-job
+root build and all standalone checks. All twelve new modules are exported; the
+imported audit has sixteen exact theorem axiom guards, all limited to `propext`,
+`Classical.choice` and `Quot.sound`. Full-check log SHA-256:
+`aa25ccb53b877ca69d478ea11abe19cb49de4a21c047cc37bcc9ec058253bd26`.
