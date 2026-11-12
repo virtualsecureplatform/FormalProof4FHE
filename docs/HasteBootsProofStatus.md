@@ -30709,3 +30709,59 @@ root build and every standalone check. All three new exact axiom guards passed,
 using only `propext`, `Classical.choice` and `Quot.sound`. Frozen Native modules
 and vendor source were unchanged. Full-check log SHA-256:
 `f5f34d3335678ea83d03ccd17d393b0416cf36d421eb64e20d4ee58e86cdd5ad`.
+
+
+### 2026-11-12: padded final key-switch known-input opening soundness
+
+`QueryHighZeroPadding` models the masked backend's actual query extension:
+append fixed high-variable `(I,0)` pairs, with no extra random draws. The query
+evaluates exactly the all-zero high-variable slice of the SAME physical source.
+Its source-address theorem preserves the original low native addresses. No
+virtual commitment or restriction on other private padding cells is introduced.
+This follows the extension used by `matrix_weighted/masked_polyfrim.rs`.
+
+`AmbientKnownInput` implements context binding, a fresh ordered packed query,
+and ONE actual private single opening against a fixed verifier table. Its
+expected value is computed from that table, overriding any factory value.
+The scheme explicitly separates logical query dimension from physical PCS
+front/suffix geometry using a trusted padding count and dimension equality.
+Source events compare only the logical slice of the physical decoder, so honest
+private padding is not incorrectly required to equal the public input table.
+
+Full-state projection includes commitment work, context binding, private query
+draws and the native worker loop. The source is recorded before the query;
+earlier owners, audits and bad events survive all paths. Native context binding
+runs before sampling and hands its actual returned private memory to opening
+work. Wrong original owners may be selected after execution; matching recorded
+owners agree outside the same final bad event.
+
+The derived safe rate is logical-variable compression error
+`n*((2*b-1)/card(F))^b` plus ONE native single-opening PCS error. There is no
+assumed input-authenticity, replay, worker-success or child-security certificate,
+and no local availability/collision charge. Arbitrary inherited audited states
+and unrelated helper heights are retained.
+
+`KeySwitchKnownInput` fixes the caller encoding/root, consecutive native nodes
+and verifier table: two copies of the NEGATED accumulator mask in original
+coefficient/half order, as in `input_dimensions`. Row and address theorems
+identify this table at the same addresses used by later NTTs. Actual supported
+executions retain the caller root even on rejection. A wrong original input row
+in an accepted run yields the bounded original-owner event; root identity is
+derived from stage support rather than supplied as an acceptance certificate.
+
+This verified component is not yet appended to `PackedPBSMonomialProduct`.
+Next: attach it after actual product/opening acceptance, forwarding the returned
+memory/state and the same public final accumulator; then compose final `d+1`
+NTTs, product relation, canonical decomposition/comparison and extraction in
+native order. Earlier stage interfaces still need their corresponding logical/
+physical padding and decoder associations before concrete masked-profile
+admission. Parameter/endpoint/byte/field/transcript/optimized-kernel refinement,
+complete accepted-false-output coverage, adaptive repeated-proof composition
+and physical/actor-separated attacker work remain open. The final 128-bit
+expected-work false-PBS theorem remains unproved.
+
+Validation: full `scripts/check` exited successfully, including the 12,311-job
+root build and every standalone check. All 17 new exact axiom guards passed,
+using only `propext`, `Classical.choice` and `Quot.sound`. Frozen Native modules
+and vendor source were unchanged. Full-check log SHA-256:
+`bdae92724e1a9e527de507070b1bb585d606755ee29492399257bcbe9a080fe9`.

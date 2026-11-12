@@ -1433,3 +1433,9 @@ import FormalProof4FHE.HasteBoots.PackedPBSMonomialProduct
 import FormalProof4FHE.HasteBoots.PackedPBSMonomialProductProbability
 
 import FormalProof4FHE.HasteBoots.PackedPBSMonomialNativeJointBound
+
+import FormalProof4FHE.HasteBoots.QueryHighZeroPadding
+
+import FormalProof4FHE.HasteBoots.AmbientKnownInput
+
+import FormalProof4FHE.HasteBoots.KeySwitchKnownInput
