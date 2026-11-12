@@ -1345,3 +1345,17 @@ import FormalProof4FHE.HasteBoots.PackedPBSComparisonChargedSoundness
 import FormalProof4FHE.HasteBoots.PackedPBSComparisonJointBound
 
 import FormalProof4FHE.HasteBoots.PackedPBSFirstHalfJointBound
+
+import FormalProof4FHE.HasteBoots.CheckpointProgramScope
+
+import FormalProof4FHE.HasteBoots.MatrixOpeningRecordScope
+
+import FormalProof4FHE.HasteBoots.LinearRecordingScope
+
+import FormalProof4FHE.HasteBoots.NTTRecordingScope
+
+import FormalProof4FHE.HasteBoots.ZeroCheckRecordingScope
+
+import FormalProof4FHE.HasteBoots.PackedPBSRecordingScope
+
+import FormalProof4FHE.HasteBoots.PackedPBSFirstHalfCallbackBound

@@ -805,3 +805,5 @@ import FormalProof4FHETest.HasteBootsFirstComparisonAudit
 import FormalProof4FHETest.HasteBootsComparisonScopeAudit
 
 import FormalProof4FHETest.HasteBootsFirstHalfJointAudit
+
+import FormalProof4FHETest.HasteBootsDriverCallbackScopeAudit

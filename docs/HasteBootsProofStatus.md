@@ -29972,3 +29972,62 @@ Validation: full `scripts/check` passed, including the 12,249-job root build
 and every standalone check. Five exact axiom guards passed, permitting only
 `propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
 `40830928eeeaca3a9f30e763f9bb56c32d21d8d1912e6ed00a5fc9d88d16ec3a`.
+
+### 2026-11-12: derive assembled prefix scope from all callback and tag sites
+
+`CheckpointProgramScope` derives scope through private sampling/interpretation,
+interactive challenge-response-draw continuations, commitment recording, actual
+short-circuit loops and interleaved hash-worker pools. Private draws and worker
+ticks add no recording sites. Scheduler/provider work remains unrestricted
+except for its explicit recording scope, on every residual-worker/private-memory
+branch. Early rejection and cancellation retain all preceding callback work.
+
+`MatrixOpeningRecordScope` accounts for EVERY batch/matrix provider, response,
+per-root preparation and scheduler callback. The actual native column worker
+programs introduce only primitive hashes; their computed coverage/check/worker
+flags introduce no recording sites. Matrix, grouped batch and exact singleton
+opening steps derive scope from those callback facts. Existing Native* modules
+remain unchanged.
+
+`LinearRecordingScope` derives scope for common query selection, original-factor
+openings and the complete reconstruction registry. Its callback facts survive
+caller-fixed input/digit root overrides and native interpolation. `NTTRecordingScope`
+derives scope through received/bound row proposals, guarded compression and both
+original-root opening batches. `ZeroCheckRecordingScope` derives it through the
+first-message boundary, every ordinary sumcheck round, computed EQ terminal,
+terminal binding and original-factor openings; native interpolation preserves
+its callback facts as well.
+
+`PackedPBSRecordingScope.program` composes these results for the ACTUAL existing
+pre-comparison PBS program. It retains fixed Hadamard digit/setup roots, fixed
+original NTT roots and proved transforms, native reconstruction nodes, exact
+private-memory handoffs and rejected paths. The program's recording-scope fact
+is derived from its individual callback scopes and trusted context tags, rather
+than accepted as a whole-program premise.
+
+`PackedPBSFirstHalfCallbackBound.native_risk_or_bad_bound` applies that assembled
+scope to the joint typed-native-message Hadamard/NTT/first-reconstruction and
+concrete first-comparison theorem. It keeps every previously derived arithmetic
+rate and the ONE whole extended-program hash/availability charge. The theorem
+has callback/tag geometry premises, not terminal stability/source-truth or
+whole-program-scope premises. The earlier `CompiledCheckpointScope.compile`
+theorem supplies arbitrary native compiled callbacks' scope once their concrete
+field bindings are established. No callback honesty or hash-query cutoff is
+introduced.
+
+Still required: bind those callback fields to the concrete compiled native
+byte programs and establish their retained parameter/tag/domain/layout geometry;
+complete the second half in actual verification order and remaining PBS source
+bindings; establish native request/transcript correspondence, concrete profile
+admission, adaptive/repeated-proof composition and physical/actor-separated
+attacker work. The final 128-bit expected-work false-PBS theorem remains unproved.
+
+Second-half composition must retain the first comparison's mixed-height helper
+checkpoints and persistent monitor. The existing uniform-shape linear witness
+interface needs an ambient-geometry generalization before that half can be
+composed while preserving the complete shared history.
+
+Validation: full `scripts/check` passed, including the 12,257-job root build
+and every standalone check. Thirty-six exact axiom guards passed, permitting only
+`propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
+`5b041ba1695af214286beec085b504725f2cb7055ed51525a29d9f93af703b4f`.
