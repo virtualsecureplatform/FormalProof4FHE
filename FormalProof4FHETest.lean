@@ -703,3 +703,5 @@ import FormalProof4FHETest.HasteBootsResidentMessageBoundsAudit
 import FormalProof4FHETest.HasteBootsResidentProofDecodeAudit
 
 import FormalProof4FHETest.HasteBootsHeapReadExecutionAudit
+
+import FormalProof4FHETest.HasteBootsLookupViewSumAudit

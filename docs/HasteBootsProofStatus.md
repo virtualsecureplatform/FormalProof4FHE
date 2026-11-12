@@ -27354,3 +27354,66 @@ All 48 exact axiom guards passed with standard Lean axioms only (5,214-job
 guarded build). With source/tests frozen, `scripts/check` passed the
 11,981-job root build and all standalone checks. Full-check log SHA-256:
 `4a3803f6ffe4800093be27ec692ac39aa3b99415151c0d57b2bd2b72fa10beef`.
+
+## The original even-slot helper-sum equation has native failure coverage
+
+The preceding 128-bit work endpoints concern initially false **identity**
+equations at slots `2 * job + 1`. A native shared lookup also checks its
+helper-sum equation at slot `2 * job`. This stage adds that missing native
+arithmetic alternative; it does not silently enlarge the already priced
+identity failure event.
+
+`LookupViewSumReduction.event_or_wrong` uses an original recovered lookup
+view, its actual completed scalar batch, the literal even-slot sum claim
+and the actual helper-sum equality guard. The completed batch contract
+derives that the sum and identity subclaims share the original returned
+point and dimension. If the initial sum equation is false, truthful helper
+folding forces a literal completed-input scalar healing event at that even
+slot. Otherwise the original helper opening is wrong. No point equality,
+healing flag or independently chosen helper row is supplied as an assumption.
+
+`AllocatedSumAlternatives.false_sum_or_wrong` recovers the sum metadata,
+claim address and guard match from the original successful prelude/body and
+retained original job. The helper cube is the same canonical public table
+at its own parameter-derived decoding radius. `false_sum_helper` reduces
+the wrong-helper branch directly to its existing native single-opening
+lifetime failure and needs only the helper calibration, without source
+profile admission. `false_sum` embeds the result in the existing shared
+opening-family alternatives. `false_pair` combines sum and identity cases:
+if either original equation is initially false, its actual healing event,
+the one shared source/hash bad event, or an original calibrated PCS failure
+must occur. This is logical coverage, not yet a probability bound for the
+enlarged paired-equation event.
+
+`SumCausalChallengeBound.conditional_bound` specializes the existing actual
+first-read conditional scalar theorem to the degree-one sum metadata. For
+fixed helper tables its conditional loss is exactly bounded by
+`1 / goldilocksModulus^3`, with the same replay, recovered input and native
+first-read conditions as the generic theorem. It covers its union over
+native collector budgets and auxiliary replay. It cannot be applied to
+world-dependent canonical tables without the corresponding fixation and
+attainability argument. The current canonical adaptive candidate/event
+machinery still targets odd-slot identity messages; extending it to these
+even-slot sum messages and composing their lifetime/work charge remains open.
+
+Eleven named checks reuse an actual completed native two-equation scalar
+execution and guard. Both original equations are false relative to the
+specified helper table. Truth of the original helper opening rules out the
+wrong-opening branch, leaving a literal even-slot healing event. A changed
+helper table instead gives a wrong helper opening at the same native point.
+The checks also retain distinct degree-one sum and degree-four partial
+identity metadata. These are original scalar/guard fixtures, not whole
+modified-PBS acceptance or an adaptive sum probability proof.
+
+Remaining gates include adaptive sum-candidate fixation/recovery and joint
+lifetime pricing, lookup tuple/compression/reciprocal initial-falsity
+coverage, whole modified-PBS application enforcement, original caller-parent
+framing, Rust execution/codec/input-read correspondence, actual profile
+admission and fixed assembled-reference scope, actor-cost separation and
+physical attacker-work refinement. Existing Native modules are unchanged.
+The final public modified-PBS actual-attacker-work theorem remains unproved.
+
+All 23 exact axiom guards passed with standard Lean axioms only (5,198-job
+guarded build). With source/tests frozen, `scripts/check` passed the
+11,986-job root build and all standalone checks. Full-check log SHA-256:
+`129d781f098d57633c51a8920db00ae35ad1f74d1de6ad21a5e0a9971c2c964c`.

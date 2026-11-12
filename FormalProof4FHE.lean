@@ -1172,3 +1172,6 @@ import FormalProof4FHE.HasteBoots.ResidentCallerIdentityWork
 import FormalProof4FHE.HasteBoots.HeapProofIdentityWork
 
 import FormalProof4FHE.HasteBoots.SequencedInputIdentityWork
+
+import FormalProof4FHE.HasteBoots.AllocatedSumAlternatives
+import FormalProof4FHE.HasteBoots.SumCausalChallengeBound
