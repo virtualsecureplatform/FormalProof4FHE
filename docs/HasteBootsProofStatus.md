@@ -29926,3 +29926,49 @@ Validation: full `scripts/check` passed, including the 12,246-job root build
 and every standalone check. Seventeen exact axiom guards passed, permitting only
 `propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
 `957a1d656267807893f36481213e159d78928df68e850bfbdfcd5c10d27e8f50`.
+
+### 2026-11-12: joint earlier-stage and first-comparison arithmetic budget
+
+`PackedPBSComparisonJointBound.finish_prior` proves every actual comparison
+continuation keeps its exact predecessor. `earlier_safe_event_le` combines
+this with persistent failure/collision history: an earlier arithmetic event
+outside the extended final exception cannot gain probability after comparison
+work. The proof uses actual supported returns and permits stopped or nonreturning
+continuations; it assumes neither losslessness nor independence between stages.
+`safe_joint_bound` then adds the earlier and comparison arithmetic rates outside
+the SAME extended final exception.
+
+`PackedPBSFirstHalfJointBound.native_risk_or_bad_bound` instantiates both sides
+with their existing DERIVED bounds. Its event contains all original Hadamard,
+retained NTT and reached first-reconstruction risks, accepted false ORIGINAL
+first-comparison tuples, and the shared final exception. Its rate is:
+
+- native Hadamard rate + the sum of calibrated original NTT rates + the calibrated
+  first-reconstruction rate;
+- request-specific repeated pair budget + common comparison algebra rate +
+  original grouped comparison PCS rates;
+- ONE expected hash/availability charge on the actual whole extended program.
+
+The native typed-message ZeroCheck degree checks are retained. The earlier PCS
+analysis field and comparison extension/PCS analysis fields remain separate.
+Comparison source/helper widths, heights, layouts, query counts, literal tables
+and repetition counts remain unchanged. No local authentication charge is added,
+and the earlier standalone charged theorem is not unioned with another charged
+comparison theorem.
+
+The theorem still requires structural scope for the actual pre-comparison
+program and the existing numeric/encoding/decoding calibration conditions. It
+does not assume prior source truth or helper honesty. False decoded-source tuple
+coverage does not yet identify every wrong native coefficient/PBS output; that
+requires the remaining concrete source/domain/layout/parameter and driver bindings.
+
+Still required: derive assembled native prefix scope/parameter association,
+complete the second half in actual verification order and the remaining PBS
+source bindings, native request/transcript correspondence, concrete profile
+admission, adaptive/repeated-proof composition and physical/actor-separated
+attacker work. The final 128-bit expected-work false-PBS theorem remains unproved.
+
+Validation: full `scripts/check` passed, including the 12,249-job root build
+and every standalone check. Five exact axiom guards passed, permitting only
+`propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
+`40830928eeeaca3a9f30e763f9bb56c32d21d8d1912e6ed00a5fc9d88d16ec3a`.

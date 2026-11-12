@@ -1341,3 +1341,7 @@ import FormalProof4FHE.HasteBoots.CompiledCheckpointScope
 import FormalProof4FHE.HasteBoots.PackedPBSComparisonSharedExecution
 
 import FormalProof4FHE.HasteBoots.PackedPBSComparisonChargedSoundness
+
+import FormalProof4FHE.HasteBoots.PackedPBSComparisonJointBound
+
+import FormalProof4FHE.HasteBoots.PackedPBSFirstHalfJointBound

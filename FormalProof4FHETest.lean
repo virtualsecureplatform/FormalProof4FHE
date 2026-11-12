@@ -803,3 +803,5 @@ import FormalProof4FHETest.HasteBootsCheckpointShapeAudit
 import FormalProof4FHETest.HasteBootsFirstComparisonAudit
 
 import FormalProof4FHETest.HasteBootsComparisonScopeAudit
+
+import FormalProof4FHETest.HasteBootsFirstHalfJointAudit
