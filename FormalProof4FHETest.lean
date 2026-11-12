@@ -829,3 +829,5 @@ import FormalProof4FHETest.HasteBootsPackedPBSMonomialNTTAudit
 import FormalProof4FHETest.HasteBootsMonomialPublicZeroAudit
 
 import FormalProof4FHETest.HasteBootsAmbientMonomialProductAudit
+
+import FormalProof4FHETest.HasteBootsPackedPBSMonomialProductAudit

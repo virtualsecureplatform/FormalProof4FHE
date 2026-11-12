@@ -30605,3 +30605,57 @@ root build and every standalone check. All 16 new exact axiom guards passed,
 using only `propext`, `Classical.choice` and `Quot.sound`. Frozen Native modules
 and vendor source were unchanged. Full-check log SHA-256:
 `31c6081082654e69bf06f502e0d11dccb91175cdf8200dd898f9d57ca72e481e`.
+
+
+### 2026-11-12: public monomial product appended to the retained PBS prefix
+
+`PackedPBSMonomialProduct.program` extends the existing PBS program through
+`PackedPBSMonomialNTT` with the native public-plan ZeroCheck and two private
+single openings. Entry requires a present NTT result and its actual acceptance.
+The product factory receives that loop's returned private memory; earlier
+rejection skips the continuation. The enclosing encoding, public plan and
+retained evaluation roots replace the corresponding factory fields. NTTs are
+not rerun, no new handler is installed, and the final state retains the complete
+mixed-height PBS history.
+
+Full-state projection identifies the new witness with this extended program,
+including all skipped/rejected branches and the prior shape transport. Reaching
+the product derives support of the earlier PBS prefix, actual NTT acceptance,
+trusted two-call order and the exact incoming memory/state. Product root binding
+uses the caller's original evaluation pair. Every checkpoint from the previous
+prefix survives the new work; `retained_source_recorded` specifically preserves
+each retained NTT source owner through the product's final state. Earlier bad
+events persist. The full prefix inherits its audit, and `final_bad_le_charge`
+charges the entire extended PBS execution once, including earlier rejected work.
+
+`witness_factorization` reassociates that SAME execution into the actual
+accumulator prefix followed by the complete monomial component. It is a proof
+equality, not runtime replay. This exposes the accepted accumulator's returned
+memory and state so the already-derived joint monomial theorem applies there.
+
+`PackedPBSMonomialProductProbability` transfers earlier events and earlier safe
+events without independence, losslessness or another authentication charge.
+`safe_original_product_bound` derives the public product's original-owner rate
+over the reached NTT returns. `safe_native_monomial_bound` uses the factorization
+to derive the two NTT caps plus the product cap inside the full PBS prefix,
+outside its SAME final bad event. The incoming audit follows from actual
+accumulator-prefix projection. Code distance, local geometry, capacity, bases
+and uniform numeric calibration remain explicit; no child security certificate
+or acceptance flag is supplied as a soundness hypothesis. NTT/product analysis
+fields and PCS response/commitment-memory types remain separate interfaces.
+
+Next: combine earlier PBS arithmetic risks with this derived monomial rate
+under the extended final exclusion and its one whole-PBS charge, then append
+final key switching. Native parameter/code/decoder associations, concrete
+geometry compatibility (or heterogeneous source interfaces), complete
+accepted-false-output coverage, native callback/byte/transcript/optimized-kernel
+refinement, profile admission, adaptive/repeated-proof composition and
+physical/actor-separated attacker work remain open. Logical root/allocation
+aliases and recorded-owner retention do not discharge those associations.
+The final 128-bit expected-work false-PBS theorem remains unproved.
+
+Validation: full `scripts/check` exited successfully, including the 12,305-job
+root build and every standalone check. All 15 new exact axiom guards passed,
+using only `propext`, `Classical.choice` and `Quot.sound`. Frozen Native modules
+and vendor source were unchanged. Full-check log SHA-256:
+`ff266fef9f3313603b7b173f402af04c74ddf17a402380f5c00d5410b111f0e1`.
