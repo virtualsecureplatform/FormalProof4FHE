@@ -1205,3 +1205,6 @@ import FormalProof4FHE.HasteBoots.CallerCompressionRecovery
 
 import FormalProof4FHE.HasteBoots.CallerCompressionClassRecovery
 import FormalProof4FHE.HasteBoots.PrivateCoinCompressionClassProbability
+
+import FormalProof4FHE.HasteBoots.RebuiltCallerLookupCoverage
+import FormalProof4FHE.HasteBoots.LookupParentPayloadBound

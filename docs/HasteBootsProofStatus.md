@@ -28327,3 +28327,81 @@ Validation: all 49 exact axiom guards passed using only `propext`,
 frozen, `scripts/check` passed the 12,091-job root build and every standalone
 check. Full-check log SHA-256:
 `9686b1664364f8d34e5a2518419df30c6057f731c6d13f8b15ec0b7f6825c5a6`.
+
+
+## Rebuilt request execution, literal public arithmetic and parent payload bounds
+
+`LookupRequestRebuild` rebuilds typed original wire requests using the
+existing native configuration checks and normalization. Its model theorem
+identifies the result with `NativeSharedLookupConfig.rebuild`; successful
+rebuilding derives native validity, preserves request length/order, source
+slots, logical lengths, repetitions and semantic public tables. No Boolean
+validation certificate is supplied to this operation.
+
+`RebuiltLookupExecution.program` performs rebuilding before the existing
+allocated native lookup entry point. Invalid configurations return an
+explicit invalid outcome without allocation/verifier calls or oracle reads.
+Successful execution derives the actual assembled context's rebuilt requests
+and their validity, preserving the exact existing native verification log.
+This is a logical constructor/entry-point adapter. Rust invocation/constructor
+correspondence and physical constructor cost are not asserted by it. Existing
+unrebuilt caller records have not silently acquired a validation premise;
+results needing validated shapes explicitly use successful rebuilt execution.
+
+`LookupValidatedPublicTable` proves that rectangular original rows are
+exact finite raw tuples. The earlier width interpretation has no missing
+entries on this domain. The native raw table compression equals the ordered
+public tuple hashes. Successful native production supplies the nonzero r,
+public pole exclusions and literal multiplicity-weighted public total.
+
+`RebuiltJobPublicGeometry` derives the selected original job's rectangular
+public rows, positive reciprocal domain and active-count characteristic
+bound from the same rebuilt execution. Independently, `counts` and
+`counts_vector` recover the exact multiplicity length and original request
+ordinal association from actual native proof checking and prepared-job order.
+The caller supplies neither a rectangular finite table nor a matched count
+vector as a new certificate.
+
+`RebuiltCallerLookupCoverage.nonmember_covered` reduces nonmembership of an
+original complete decoded source tuple to one of three events on that same
+job: the existing native arithmetic work witness, the compression miss at
+the literal produced y, or a missing hashed source whose nonzero reciprocal
+numerator vanishes at the literal produced r. Its nonpassing branch derives
+all original row/count associations needed by `ofNonpassing`; its reciprocal
+branch derives numerator nonzeroness from the original configuration's
+characteristic guard and root evaluation from actual native production.
+Compression and reciprocal miss probabilities still need their remaining
+adaptive lifetime work composition before full lookup soundness is claimed.
+
+`LookupRequestPayloadSize` bounds the sum of validated per-request
+compression complexities by the exact serialized request-vector payload.
+Each raw usize word consumes at least one byte; variable bincode headers and
+raw representatives are retained, without a fixed eight-byte word assumption.
+`LookupParentPayloadBound` places that payload inside the original parsed
+parent's actual request frame and bounds selected original complexity by
+the parent input length. `rebuilt_candidate` and `rebuilt_kernel_bound`
+discharge validation from actual rebuilt execution, yielding the refined
+compression bound `parent.input.length / q^3` for that candidate. This is a
+size/charging interface, not yet an amortized work theorem over repetitions,
+positions, reused parents or every input/job class.
+
+Six regressions check ragged/zero-repetition rejection, semantic duplicate
+rows with distinct lazy raw words, canonicalization preserving slots/order/
+repetitions, exact native compressed rows, actual variable-length wire sizes
+and rejection before any allocation/verifier oracle log. They are component
+checks, not an accepted false-PBS fixture. Existing Native modules, vendor
+code and resource limits remain unchanged.
+
+Remaining work includes justified aggregation and lifetime work charging of
+compression classes, reciprocal source/y/count fixation and adaptive work
+composition, whole false-PBS output enforcement, original caller-parent
+provenance, Rust execution/codec/read correspondence, supported profile
+admission, fixed assembled-reference scope, actor-cost separation and physical
+attacker-work refinement. The ultimate security theorem is not proved.
+
+Validation: all 57 exact axiom guards passed, allowing only `propext`,
+`Classical.choice` and `Quot.sound`; the guarded target completed 5,275 jobs.
+All six regression declarations compiled. The full `scripts/check` exited
+successfully, including the 12,100-job root build and all standalone checks.
+Full-check log SHA-256:
+`f410163e472095802f0541891cb659c57670c40c6603a098429f72481c5440d0`.
