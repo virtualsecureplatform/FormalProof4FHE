@@ -27067,3 +27067,50 @@ After removing a trailing blank line in the generated audit, the complete
 `scripts/check` passed again on the final source/test state (11,958 jobs
 and all standalone checks). Final log SHA-256:
 `5a2cd7c8882914b153748729e6587e094a517965948d3db808c1a08d99b2c3d2`.
+
+## Equality transcript decoding from native execution
+
+`EqualityFramingRecovery.start_framed` derives structural framing from the
+actual native typed child initializer, including its fork header and identity
+receipt. This result holds for any parent input; it does not assert that an
+arbitrary parent was valid, registered or observed. Original caller ancestry
+and parent framing remain explicit in the work-bound witness.
+
+`prelude_framed` composes this initialization with the original successful
+lookup/equality prelude. It uses the actual root packet's byte bound, the
+fixed Goldilocks descriptor and the existing append-only sampler invariants.
+It applies to arbitrary request counts and finite lookup/equality prefixes,
+without introducing a job-count cutoff or assuming any future transcript
+framing. `ready_framed` obtains the root bound from the retained original
+proof-byte decoder; `ready_decoded` supplies the literal complete frame
+parse used by the existing scalar security reduction.
+
+`ExecutionDerivedIdentityWork.Witness` removes both the frame-list field and
+the independent equality-transcript decoding certificate. Its conversion to
+the preceding caller witness derives that certificate from execution.
+`data_toCaller` and `ofCaller_toCaller` retain the same original job data;
+`failure_iff` proves equality of the old and new failure events without
+additional admissions. `work_128` inherits the same security rate, profile
+premises and specified-interpreter expected work, adding no probability
+charge.
+
+Twelve named smoke checks cover a malformed parent whose initialized child
+has valid framing, two completed zero-dimensional equality draws and their
+framed transcript, actual empty-prelude completion/framing, and rejection
+of empty scalar metadata, unmatched roots and an unfinished lookup prefix.
+The fixtures do not claim a complete nonempty modified-PBS acceptance run.
+The general retained-job theorem uses its actual successful native execution.
+Existing Native modules remain unchanged; no resource limits are raised.
+
+Remaining gates include the scalar statement byte bound, original
+caller/configuration framing and registry allocation domains, Rust/serde
+read/value/consumption/error/resource correspondence and actual byte-source
+binding, whole modified-PBS initial falsity/application enforcement, actual
+profile admission and the fixed assembled-reference scope, actor-cost
+separation and physical attacker-work refinement. The final public
+modified-PBS actual-attacker-work theorem remains unproved.
+
+All 35 exact axiom guards passed with standard Lean axioms only (5,167-job
+guarded build). With source/tests frozen, `scripts/check` passed the
+11,962-job root build and all standalone checks. Full-check log SHA-256:
+`8cf58fbd1d9b223b675e67269b1e0ae17c45e2c8e2d7f9037eb8041513248a2f`.
