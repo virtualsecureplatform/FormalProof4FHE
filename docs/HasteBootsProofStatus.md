@@ -28405,3 +28405,37 @@ All six regression declarations compiled. The full `scripts/check` exited
 successfully, including the 12,100-job root build and all standalone checks.
 Full-check log SHA-256:
 `f410163e472095802f0541891cb659c57670c40c6603a098429f72481c5440d0`.
+
+### Original accepted reciprocal draw kernel (2026-11-12)
+
+`LookupReciprocalKernel` retains missing hashed-source membership in its
+all-budget original-trial event. Its causal bound is
+`(activeCount + publicRowCount - 1) / q^3`, with active count below the
+characteristic. The no-missing-source branch is empty and is proved without
+selecting a witness or imposing a positive event floor. The bound does not
+condition on accepted offsets or divide by the accepted-domain probability.
+
+`CallerReciprocalKernel` uses the same original caller job's complete decoded
+source tuples, literal produced y, public table and actual proof multiplicities.
+`recover` derives its attained reciprocal event from the original retained
+last draw and recovers the earliest positive stream observation, including
+possible earlier adversarial reads. `nonmember_covered` connects rebuilt
+execution tuple nonmembership to arithmetic/compression failure or this exact
+attained reciprocal stream. `first_bound` derives the characteristic guard
+from rebuilt execution and bounds the reference world's frozen statement.
+
+This is not yet a bound on adaptive caller statements. Source/y/count
+fixation across the conditioning fiber and aggregation/work charging over
+original offset trials remain required. The ultimate 128-bit actual-work
+security theorem remains unproved.
+
+Three mathematical regressions check a repeated missing source with an
+allowed passing offset, a public-pole numerator root excluded by the native
+domain guard, and an empty source family with no reciprocal event. Thirteen
+exact guarded axiom checks allow only `propext`, `Classical.choice` and
+`Quot.sound`; the guarded target completed 5,273 jobs. Native modules and
+vendor code remain unchanged.
+
+Validation: full `scripts/check` exited successfully, including the
+12,104-job root build and all standalone checks. Full-check log SHA-256:
+`497314e4970d57206a72db19f80df3a21344d671eaa169e7cedaa75eefc68968`.
