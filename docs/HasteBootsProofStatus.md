@@ -28586,3 +28586,66 @@ Validation: all 29 exact guards passed and both exposure regressions
 compiled. Full `scripts/check` exited successfully, including the 12,124-job
 root build and all standalone checks. Full-check log SHA-256:
 `f6e8ce068842b9c51fabecdd2655b3dafeb0f0fb25d026325b11d08986c361c2`.
+
+### Aggregating reciprocal inputs, jobs and degree classes (2026-11-12)
+
+`LookupJobReceiptPrefix` links each completed native job's draw prefixes to
+exactly the preceding completed jobs in actual batch order. It uses the
+existing unique request/repetition keys and original producer ordinal rather
+than a separately supplied producer-position certificate.
+
+`LookupCompressionCount` proves that each native job contributes one
+compression receipt marker, reciprocal retries contribute none, and the
+actual typed-child extension identity contributes none. `LookupOffsetOrdinal`
+derives `compressionReceiptCount(input) = originalJobIndex + 1` for the literal
+accepted-offset input. Thus equal original offset inputs imply equal prepared
+job ordinals across worlds and programs, without a bad-event exclusion or
+an equality of rejection counts.
+
+`OffsetPositionKernel` aggregates every attained reciprocal input, original
+job ordinal and actual degree class at one original earliest-read position.
+The prefix determines the input, its compression markers determine the job,
+and the existing good fiber fixes the degree. `cost_alternative` prices the
+whole event by one attained reference's actual cost, or proves the fiber
+null. It introduces no union multiplier over input, job or complexity indices.
+`conditional` and `bound` give the corresponding uniform degree-budget bound.
+
+`OffsetDegreeBudget.complexity` derives a uniform cap `2^65` from the original
+wire request's table-length and logical-length u64 domains. The cap is not a
+128-bit work bound. It ensures that the bounded position event includes every
+original attained reciprocal class, without a caller-supplied complexity cap.
+
+`OffsetPositionContinuation` preserves the aggregated event through actual
+program continuation. `PrivateCoinOffsetPositionProbability` bounds all of
+these classes at one position across arbitrary original private tapes and
+all instruction horizons. `original_safe_bound` derives the wire-domain
+budget and excludes the existing reference bad event over all horizons once.
+`CallerOffsetPositionCoverage` connects the same actual reciprocal miss and
+original public tuple nonmembership to this aggregated position event,
+retaining the existing arithmetic/compression and shared bad alternatives.
+
+Three marker regressions cover varying reciprocal retry counts, identical
+looking repeated jobs versus the typed identity receipt, and same-label
+metadata absorptions that are not kind-5 receipts. Fifty exact axiom guards
+permit only `propext`, `Classical.choice` and `Quot.sound`; the guarded target
+completed 5,309 jobs. Native modules, vendor code and resource limits remain
+unchanged.
+
+The reciprocal union over original first-read positions still needs justified
+expected-work charging. Compression input/job aggregation and amortization
+of reused parent payloads remain open, together with whole false-PBS output
+enforcement, supported-profile/application provenance, actor-cost separation,
+Rust execution/cost correspondence and physical attacker-work refinement.
+The complete 128-bit actual-work security theorem is not proved.
+
+Validation: all 50 exact guards passed and all three marker regressions
+compiled. Full `scripts/check` exited successfully, including the 12,134-job
+root build and all standalone checks. Full-check log SHA-256:
+`cff173d239d89696f0da59a61bf2bcaee6753bcb32a412e7b3fe2f25b2e4e9af`.
+
+Next charging interfaces identified by read-only inspection: actual
+`SequencedCallerInputs.Inputs.parent_domain` bounds the serialized request
+vector below `2^64` bytes, and `ScalarLogWork.program_bytes` bounds total
+first-read key bytes by the interpreter-accounted log potential. Their use
+for compression aggregation and joint expected-work charging is not proved
+by this milestone.

@@ -1217,3 +1217,6 @@ import FormalProof4FHE.HasteBoots.CallerLookupOffsetRecovery
 
 import FormalProof4FHE.HasteBoots.CallerLookupClassCoverage
 import FormalProof4FHE.HasteBoots.PrivateCoinOffsetClassProbability
+
+import FormalProof4FHE.HasteBoots.CallerOffsetPositionCoverage
+import FormalProof4FHE.HasteBoots.PrivateCoinOffsetPositionProbability
