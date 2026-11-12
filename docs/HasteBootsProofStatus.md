@@ -28439,3 +28439,45 @@ vendor code remain unchanged.
 Validation: full `scripts/check` exited successfully, including the
 12,104-job root build and all standalone checks. Full-check log SHA-256:
 `497314e4970d57206a72db19f80df3a21344d671eaa169e7cedaa75eefc68968`.
+
+### Original reciprocal multiplicity and source-prefix fixation (2026-11-12)
+
+`LookupMultiplicityFixation.Candidate` retains the original lookup source
+candidate and its actual grouped multiplicity payload in the parsed parent.
+`compare` fixes the complete original raw multiplicity list on matching
+lookup inputs and the existing parent-completed fiber, retaining only the
+existing parent-seed collision alternative. `row_fixed` selects the same
+original request ordinal through prepared-job order, including repetitions.
+`fixed` combines this with existing source/registry/request fixation on the
+existing good fiber, without a separate exception per count or source row.
+
+`LookupReciprocalStatement` constructs the whole reciprocal test from that
+source prefix, ordered original public rows and actual raw count row.
+`test_fixed` proves equality of the complete test across the fiber once the
+original compression value y agrees. This y equality remains an explicit
+premise: deriving it from the earlier compression receipt is still open.
+`test_full` identifies prefix sources with the complete canonical sources
+outside the existing seed-order event.
+
+`CallerLookupMultiplicityRecovery` derives the grouped-payload link from
+actual allocated execution, parsing and original serialization domains.
+`kernel` turns the same caller's actual reciprocal miss into an attained
+prefix-test event, enriched candidate and earliest positive read on its
+literal accepted offset stream. No independently supplied parent/count
+association or chosen challenge value is introduced.
+
+Three regressions exercise distinct grouped rows with identical flattened
+payloads, earlier stale same-label frames versus the actual adjacent payload,
+and lazy raw count spellings versus canonical semantic values. Twenty-six
+exact axiom guards cover the new declarations and permit only `propext`,
+`Classical.choice` and `Quot.sound`.
+
+The remaining reciprocal fixation obligation is the original y at the first
+offset read; lifetime trial aggregation and actual-work composition also
+remain open. The complete 128-bit actual-attacker-work security theorem is
+not proved. Native modules, vendor code and resource limits are unchanged.
+
+Validation: all 26 exact guards passed (5,276-job guarded target), and
+all three regressions compiled. Full `scripts/check` exited successfully,
+including the 12,109-job root build and all standalone checks. Full-check
+log SHA-256: `f981eb079401b27f44a19b7a88fa020d33ac23c66e58751d9336c7e6eac74a1f`.

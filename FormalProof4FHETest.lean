@@ -737,3 +737,5 @@ import FormalProof4FHETest.HasteBootsRefinedCompressionAudit
 import FormalProof4FHETest.HasteBootsRebuiltLookupAudit
 
 import FormalProof4FHETest.HasteBootsReciprocalKernelAudit
+
+import FormalProof4FHETest.HasteBootsLookupMultiplicityAudit
