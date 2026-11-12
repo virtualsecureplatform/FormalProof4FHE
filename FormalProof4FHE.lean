@@ -1197,3 +1197,6 @@ import FormalProof4FHE.HasteBoots.EqualityLogWork
 import FormalProof4FHE.HasteBoots.CanonicalLookupJointWorkBound
 
 import FormalProof4FHE.HasteBoots.LookupInitialWork
+
+import FormalProof4FHE.HasteBoots.CallerLookupScalars
+import FormalProof4FHE.HasteBoots.LookupPairChallengeBounds

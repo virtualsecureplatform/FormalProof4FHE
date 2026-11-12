@@ -727,3 +727,5 @@ import FormalProof4FHETest.HasteBootsEqualityWorkAudit
 import FormalProof4FHETest.HasteBootsEqualityLifetimeAudit
 
 import FormalProof4FHETest.HasteBootsCallerEqualityAudit
+
+import FormalProof4FHETest.HasteBootsLookupScalarKernelAudit

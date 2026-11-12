@@ -28120,3 +28120,65 @@ Validation: all 34 exact axiom guards passed using only `propext`,
 frozen, `scripts/check` passed the 12,067-job root build and every standalone
 check. Full-check log SHA-256:
 `a60d331b86138b2f5fa632b24acfdb7b3dd3b1bfe1933b61514ab31191b65743`.
+
+
+## Original lookup scalar collectors and causal pair-challenge bounds
+
+`LookupCollectorTrace` proves that every active and retained original lookup
+compression/offset collector is an initialized three-coordinate execution.
+Its complete raw read log remains a sublist of the actual challenge log across
+coefficient rejection, suspension, offset rejection and finalization. A
+completed scalar entails a genuine positive field-stream read, independently
+of its receipt. `LookupBatchCollectorTrace` preserves this invariant through
+the original batch scheduler and completed-job list.
+
+`LookupScalarKernel` identifies the actual retained draw, and separately its
+raw decoded Goldilocks word, with a result of the all-budget scalar law on the
+exact original stream input. Canonical phases change only irrelevant label
+and profile metadata; the input and initial cursor remain unchanged.
+`CallerLookupScalars.endpoints` embeds the original job's native batch trace
+through the successful prelude and verification into the containing program.
+It recovers scalar-law witnesses and earliest positive reads for that same
+producer's literal first y and last accepted r, rather than selecting
+independent replacement samples. Rejected offset draws remain in the trace.
+
+`LookupPairChallengeBounds.tuple_family` proves the causal all-budget
+compression-family miss bound `tableSize * (width-1) / q^3`, for fixed
+original source/table tuples with an actual nonmember. One bad source is
+chosen before y; there is no extra union over all source positions.
+`reciprocal_root` proves `(sourceCount+tableSize-1) / q^3` for an original
+initialized offset trial when a hashed source is missing and sourceCount
+is below the Goldilocks characteristic. `reciprocal_passes` retains the
+literal nonzero/pole-exclusion guard and implies the cleared numerator root.
+It prices the trial before acceptance, so it does not condition on eventual
+success or divide by the accepted reciprocal-domain probability. Both bounds
+include every coefficient-collector budget and every suspended prefix.
+
+These are fixed-test causal kernels, not yet adaptive caller-job lifetime
+bounds. Complete source/table/multiplicity fixation at the original lookup
+reads, recovery of validated original public request/count shapes, adaptive
+class selection, continuation and lifetime work charging for the pair events
+remain to be composed. In particular the new rates have not been inserted
+into `LookupInitialWork.work_128`, and that theorem's failure event has not
+been broadened to all original lookup nonmembership. No independent-pair
+amplification is inferred from extension coordinates or reused draws.
+
+Six regressions check a completed native pair, retained forbidden offsets,
+canonical coefficient rejection, positive observations of retained inputs,
+distinct original retry inputs and a genuine tuple-compression collision.
+The accepted/forbidden-offset fixtures instantiate the generic native machine
+over ZMod 17 with its one-coordinate basis; the coefficient-rejection fixture
+uses the actual Goldilocks cubic collector. They are component checks, not
+an accepted false modified-PBS fixture. Existing Native modules, vendor code
+and resource limits remain unchanged.
+
+The whole false-PBS output reduction, original caller-parent provenance, Rust
+execution/codec/read correspondence, supported profile admission, fixed
+assembled-reference scope, actor-cost separation and physical attacker-work
+refinement remain open. The ultimate security theorem is not proved.
+
+Validation: all 40 exact axiom guards passed using only `propext`,
+`Classical.choice` and `Quot.sound` (5,255-job guarded build). With source/tests
+frozen, `scripts/check` passed the 12,074-job root build and every standalone
+check. Full-check log SHA-256:
+`ae68bf2f70a0c3916d561b0e6130734ca27a65964c11fa0500889f93f02700f8`.
