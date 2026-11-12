@@ -749,3 +749,5 @@ import FormalProof4FHETest.HasteBootsOffsetPositionAudit
 import FormalProof4FHETest.HasteBootsOffsetWorkAudit
 
 import FormalProof4FHETest.HasteBootsFirstCompressionWorkAudit
+
+import FormalProof4FHETest.HasteBootsDynamicLookupScopeAudit

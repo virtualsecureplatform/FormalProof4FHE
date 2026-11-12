@@ -28769,3 +28769,58 @@ Validation: all 57 exact guards passed and all three mathematical
 regressions compiled. Full `scripts/check` exited successfully, including
 the 12,155-job root build and all standalone checks. Full-check log SHA-256:
 `e3a865a406d8b6f0ee329f5bb7d795c735473ae3ada8cd50df60328c8d0f9f79`.
+
+### Dynamic lookup proof contexts within fixed assembly scope (2026-11-12)
+
+`LookupAssemblyScope.Scope` retains one original successful allocation with
+its immutable parameter store, helper handle and ordered source references.
+A `View` records an actual assembly of a dynamic template under that scope
+and the original trusted profile. `registry` and `helper` derive the full
+original registry/root/order and helper-parameter equalities from assembly.
+`retemplate` and `ofTemplate` construct views for arbitrary later templates;
+only their registry/helper fields are supplied by the original store. Proofs,
+requests, tables, parent inputs and all execution/analysis fuels may vary.
+
+The scope's source family is indexed by `(view, originalSlot)`. It retains
+each view's literal public extraction context and the same original cached
+constructor provenance. Calibration is derived from the original anchor's
+admitted source parameters, with slot addresses transported through the full
+registry equality. It is not supplied separately for each changing proof.
+All family members share the fixed trusted profile. The existing indexed
+source bound covers this family without a probability union over views or
+proof objects.
+
+`LookupPcsFamilyInclusion.include_family` embeds the original per-view PCS
+failure into that indexed family, preserving exact contexts, origins and
+radii. `DynamicLookupMembershipWork.Failure` existentially permits a view to
+be chosen at each original instruction horizon and execution. `work_128`
+proves the same `2^128 * P[dynamic original tuple nonmembership] ≤ E[specified interpreter work]`
+bound as the previous fixed-context endpoint, under the original anchor's
+helper/source calibration premises. The fixed context/proof restriction is
+removed within this fixed original store/handle/reference/profile scope.
+Shared seed-order, reference, hash and PCS charges remain unchanged.
+
+`ScopedRebuiltLookup.program` invokes the actual rebuilt entry point with
+the original scope's store and references. `recover` derives its dynamic
+view, profile and literal normalized-request template from successful
+execution, rather than asking for an independent context/assembly match.
+The caller's trusted-profile premise remains explicit.
+
+Three regressions check that distinct proof objects remain distinct assembled
+contexts while retaining the same original source references, that parent
+inputs and all analysis fuels can change while store associations persist,
+and that a missing original helper cannot form a successful scope. Twenty-eight
+exact axiom guards permit only `propext`, `Classical.choice` and `Quot.sound`;
+the guarded target completed 5,336 jobs. Native modules, vendor code and
+resource limits remain unchanged.
+
+This does not yet cover arbitrary changing parameter stores, reference vectors
+or trusted profiles, nor does it prove whole modified-PBS false-output coverage
+or function enforcement. Concrete supported-profile and original application
+provenance, actor-cost separation, Rust execution/codec correspondence and
+physical attacker-work refinement remain required for the ultimate theorem.
+
+Validation: all 28 exact guards passed and all three scope regressions
+compiled. Full `scripts/check` exited successfully, including the 12,161-job
+root build and all standalone checks. Full-check log SHA-256:
+`9c7a3ac30a09e70a5a9807574680f22afa21ffd6569966f175b4990cc00d78fc`.

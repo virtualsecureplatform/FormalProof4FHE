@@ -1225,3 +1225,6 @@ import FormalProof4FHE.HasteBoots.PrivateCoinLookupChallengeProbability
 import FormalProof4FHE.HasteBoots.CallerOffsetWorkCoverage
 
 import FormalProof4FHE.HasteBoots.LookupMembershipWork
+
+import FormalProof4FHE.HasteBoots.DynamicLookupMembershipWork
+import FormalProof4FHE.HasteBoots.ScopedRebuiltLookup
