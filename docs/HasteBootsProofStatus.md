@@ -29135,3 +29135,46 @@ Validation: all seven exact axiom guards passed with only permitted standard
 axioms (`propext`, `Classical.choice`, `Quot.sound`). Full `scripts/check`
 exited successfully, including the 12,178-job root build and all standalone
 checks. Full-check log SHA-256: `66f965e9956efde9924387f187d5ff2527c53dd36f2e1b25ee59d2569531a29c`.
+
+
+### Original parameter references shared by PBS NTT/Hadamard slots (2026-11-12)
+
+`PackedPBSOriginalReferences.Family` retains original coefficient, evaluation
+and key parameter handles and their original root vectors. The Hadamard list
+uses native digit/key pair indices `2*i`/`2*i+1` and the final result at `2*count`,
+through the existing proved `PBSHadamard.address` bijection. An NTT child retains
+its coefficient/evaluation references in that order. `evaluationFactor` selects
+the matching digit factor or final result for EVERY original evaluation slot,
+including the zero-pair boundary. Keys retain their own setup handle and roots.
+
+`evaluation_reference`, `hadamard_slot` and `ntt_evaluation` prove exact original
+reference identity at these native positions. `collected_alias` uses the actual
+immutable `NativeGoldParameterStore.collect` execution to recover the same
+retained entry behind two references. It does not infer identity from shape,
+root equality alone, or a new caller-supplied parameter equality certificate.
+
+`original_evaluation_alias` applies that result to successful NTT and Hadamard
+collections. Both selected oracles have the SAME FULL ORIGINAL PARAMETER OBJECT
+and original evaluation root. Reachability supplies the original constructor's
+`GoodEntry`; aliased handles, repeated roots and the final result slot are
+retained. `collected_oracles_equal` exposes equality of the actual collected
+oracle values.
+
+`context_inputs_equal` proves equality of literal native parameter-context
+serialization inputs, including the retained row-code object. `context_programs_equal`
+proves equality of the actual `NativeBrakedownContext.context` programs used
+by both views. These results preserve context rejection: they do not assert
+successful serialization or fabricate a context digest. Equal geometry alone
+is never used to associate domains, encodings or parameter identities.
+
+The full PBS caller still has to be connected to this original-reference
+family and to the authenticated child schemes. Native byte/transcript execution
+correspondence, all remaining stage relations, supported-profile admission and
+complete shared arithmetic/PCS/physical attacker-work composition remain open.
+The ultimate modified-HasteBoots security theorem remains unproved.
+
+Validation: all fourteen exact axiom guards passed, permitting only
+`propext`, `Classical.choice` and `Quot.sound`; four declarations have no
+axioms. Full `scripts/check` exited successfully, including the 12,180-job
+root build and all standalone checks. Full-check log SHA-256:
+`34c2e107a178034d4cd7a41a908a8d35a5a6b5fa91b6832b4e5c2509dc0d7710`.

@@ -1245,3 +1245,5 @@ import FormalProof4FHE.HasteBoots.ShortCircuitStageHistory
 import FormalProof4FHE.HasteBoots.HadamardNTTComposition
 
 import FormalProof4FHE.HasteBoots.HadamardNTTSourceAssociation
+
+import FormalProof4FHE.HasteBoots.PackedPBSOriginalReferences
