@@ -785,3 +785,5 @@ import FormalProof4FHETest.HasteBootsPackedPBSHadamardNTTAudit
 import FormalProof4FHETest.HasteBootsZeroCheckConditionalAudit
 
 import FormalProof4FHETest.HasteBootsPackedPBSJointBoundAudit
+
+import FormalProof4FHETest.HasteBootsPackedPBSLoopFunctionAudit

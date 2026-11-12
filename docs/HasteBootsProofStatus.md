@@ -29507,3 +29507,49 @@ Validation: full `scripts/check` passed, including the 12,205-job root build
 and every standalone check. Six exact axiom guards passed, permitting only
 `propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
 `60300b06bcc82b4ea91c7a9d2ed4683ce7aa8a3191c353c0ae8c86cab4d6cd30`.
+
+
+### 2026-11-12: complete-loop original-source transform enforcement
+
+`NTTSequenceHistory` proves that original checkpoints survive the actual
+ordered loop, every retained child checkpoint remains in its final history,
+and acceptance of the loop derives actual acceptance of every retained child.
+The final audit comes from the exact erased program at the inherited state.
+These facts include early return and actual private-memory handoff.
+
+`PackedPBSLoopEnforcement.source_association` relates ANY retained child's
+evaluation source to the corresponding original Hadamard factor. Both snapshots
+are proved recorded in the actual final history. Roots are derived from actual
+support and the original reference family. Matching encoding, domain, parameter
+tag and one fixed decoding radius are still explicit trusted-context obligations;
+root equality alone does not identify a decoded source.
+
+`false_transform_coverage` then reduces a wrong transform at any retained
+original row to an existing child original-source risk or the same final
+collision event. The actual accepted loop supplies the child's acceptance;
+no per-child acceptance or NTT-truthfulness certificate is required. All row
+and retained-slot choices share the same risk union and collision event.
+
+`PackedPBSLoopFunctionBound.native_original_relation_bound` quantitatively
+covers the union of an accepted false original Hadamard relation, ANY wrong
+transform against its original factor in the accepted complete NTT loop, and
+the final shared collision event. The bound is the degree-two Hadamard rate
+plus the trusted complete NTT rate-cap sum plus ONE expected hash charge on
+the exact typed-message Hadamard-plus-loop program. No row-count multiplier
+or source-alias hash charge is introduced.
+
+`native_safe_original_relation_bound` provides the corresponding conditional
+bound from any audited incoming history for further PBS composition. Typed
+interpolation supplies the Hadamard degree bounds. Decoding radius is uniform
+across the compared sources, rather than silently identifying different decoders.
+
+The remaining work includes canonical digit/reconstruction/lookup and trusted
+key/input/output bindings for the PBS application, all remaining reached stages,
+supported-profile admission, adaptive/repeated-proof composition, transcript/Rust
+correspondence and physical/actor-separated work refinement. This stage bound
+does not yet prove the full 128-bit expected-work false-PBS theorem.
+
+Validation: full `scripts/check` passed, including the 12,209-job root build
+and every standalone check. Fourteen exact axiom guards passed, permitting only
+`propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
+`a8dee6cf42e20ebca98796fef08982d5f633c8bc8399f723250f6513da2d71b9`.

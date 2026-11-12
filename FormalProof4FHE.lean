@@ -1281,3 +1281,9 @@ import FormalProof4FHE.HasteBoots.ZeroCheckConditionalSoundness
 import FormalProof4FHE.HasteBoots.HadamardConditionalSoundness
 
 import FormalProof4FHE.HasteBoots.PackedPBSHadamardNTTJointBound
+
+import FormalProof4FHE.HasteBoots.NTTSequenceHistory
+
+import FormalProof4FHE.HasteBoots.PackedPBSLoopEnforcement
+
+import FormalProof4FHE.HasteBoots.PackedPBSLoopFunctionBound
