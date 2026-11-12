@@ -30132,3 +30132,43 @@ Validation: full `scripts/check` passed, including the 12,266-job root build
 and every standalone check. Twelve exact axiom guards passed, permitting only
 `propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
 `df7d7d0fe7a5e6a68d305cd6d1d9a6dd2c1f7527d64b3328234700ddb6475ffb`.
+
+### 2026-11-12: second comparison follows the second reconstruction
+
+`PackedPBSSecondComparisons.program` appends the second comparison only after
+actual acceptance of the second reconstruction, using its returned digit/borrow
+roots and opening memory. The witness continues in the first comparison's mixed
+height geometry without resetting checkpoints, cache, log or collision monitor.
+`sharedScheme` changes only ghost height metadata; its `shared_program` identity
+proves the executable comparison unchanged. The concrete request compiler in the
+soundness theorem is instantiated with this same geometry.
+
+Full-state projection, reached-child support, exact source reuse and true-half
+original digit-root provenance are proved. Earlier checkpoint snapshots persist;
+earlier bad events remain bad on every supported branch, including rejection.
+Audits follow from the inherited execution. `final_bad_le_charge` bounds the
+whole prefix through both reconstructions and comparisons using ONE shared
+expected-hazard charge, including rejected work.
+
+`PackedPBSSecondComparisonProbability` transfers earlier events and safe events
+through the continuation and averages conditional comparison bounds over the
+actual reached prefix. `PackedPBSSecondComparisonSoundness` instantiates this
+with the concrete private request comparator: original false source tuples that
+are accepted outside the final bad event have the derived private-pair budget
+plus common algebra and grouped PCS rates. The proof inherits incoming audits;
+it does not assume helper honesty, source truth or independence. Numeric,
+decoding, geometry, initial audit/compatibility and earlier recording-scope
+conditions remain explicit.
+
+Still required: combine first-half, second reconstruction and second comparison
+risks in one concrete bound; append the remaining PBS checks and finish source,
+parameter, tag, domain and layout bindings. Concrete native byte/transcript
+correspondence, profile admission, adaptive/repeated-proof composition and
+physical/actor-separated attacker work remain open. The final 128-bit
+expected-work false-PBS theorem remains unproved.
+
+Validation: full `scripts/check` exited successfully, including the 12,270-job
+root build and all standalone checks. Fourteen exact axiom guards passed: the
+execution identity needs no axioms, and the remaining declarations use only
+`propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
+`be959fab6aebdafb0673d8b54aa307cff25631344eb05b6b8c8636dfdb20e4c9`.

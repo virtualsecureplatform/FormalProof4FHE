@@ -811,3 +811,5 @@ import FormalProof4FHETest.HasteBootsDriverCallbackScopeAudit
 import FormalProof4FHETest.HasteBootsAmbientLinearAudit
 
 import FormalProof4FHETest.HasteBootsSecondReconstructionAudit
+
+import FormalProof4FHETest.HasteBootsSecondComparisonsAudit

@@ -1373,3 +1373,9 @@ import FormalProof4FHE.HasteBoots.AmbientDecompositionSoundness
 import FormalProof4FHE.HasteBoots.PackedPBSSecondReconstruction
 
 import FormalProof4FHE.HasteBoots.PackedPBSSecondReconstructionProbability
+
+import FormalProof4FHE.HasteBoots.PackedPBSSecondComparisons
+
+import FormalProof4FHE.HasteBoots.PackedPBSSecondComparisonProbability
+
+import FormalProof4FHE.HasteBoots.PackedPBSSecondComparisonSoundness
