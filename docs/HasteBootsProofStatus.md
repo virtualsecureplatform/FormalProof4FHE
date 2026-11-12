@@ -27553,3 +27553,64 @@ Validation: all 21 new declarations passed exact axiom guards, using only
 With source/tests frozen, `scripts/check` passed the 12,006-job root build
 and all standalone checks. Full-check log SHA-256:
 `af7a9815d79654ef422c10c3a68552345f5e473c80c915f10f462c7447e669b2`.
+
+## Native initial arithmetic reduces to paired work with an equality exception
+
+`LookupInitialArithmetic` derives the literal original even-slot public sum
+and odd-slot zero from successful native preparation, with counts addressed
+by the original request ordinal. It interprets the canonical helper sum and
+both full/partial identity truths as the actual EQ-weighted masked reciprocal
+residual. Source flattening and independent helper decoding use the original
+job geometry and canonical allocated families. `false_pair_iff` characterizes
+the exact original scalar falsity condition by helper-total mismatch or a
+nonzero weighted residual. `obstruction` covers a concrete sum/pointwise
+reciprocal violation by that original scalar event or `EqualityMiss`, which
+requires a nonzero Boolean residual and its vanishing at the actual EQ point.
+It does not infer pointwise correctness from a zero weighted sum.
+
+`LookupProducerArithmetic.produced` derives nonzero r, excluded public poles,
+the original compressed public table and its inverse-vector semantics directly
+from successful raw production. `public_total` retains arbitrary list/zip
+semantics; `public_total_vectors` identifies the literal native total with
+the finite reciprocal sum for rectangular original public rows/counts.
+`job_obstruction` therefore covers reciprocal nonpassing using the actual
+native producer, without a supplied nonzero-r or public-total certificate.
+Original table shape and request-indexed count association remain explicit
+at `LookupInitialPairedWork.ofNonpassing`; they are not arbitrary replacement
+tables or an assumption that a scalar claim is initially false.
+
+`LookupInitialPairedWork.Witness` retains the original caller job, sequenced
+input observations and original caller-parent framing. Its arithmetic claim
+is a false helper total or a nonzero pointwise masked residual. `ofNonpassing`
+constructs this witness from reciprocal nonpassing over rectangular original
+public rows and their actual counts. `covered`/`failure_covered` reduce its
+all-prefix event to the existing paired scalar event or an equality miss on
+the same witness. `work_with_equality_exception` proves
+`2^128 * P[arithmetic failure] <= specified expected work +
+2^128 * P[actual equality exception]`. The new probability term is explicit;
+no adaptive equality security charge is silently absorbed into the 128-bit rate.
+
+`fixed_residual_bound` proves dimension/cardinality loss for an independent
+uniform EQ point after the entire original residual is fixed. It is not a
+bound on the actual adaptive exception above. Conditional fixation of the
+canonical decoded families, the native equality draw law and all-prefix
+work pricing still need composition before the exception can be discharged.
+Tuple compression/reciprocal detection also remain to be priced in the native
+joint work ledger before reciprocal nonpassing covers arbitrary false lookups.
+
+Five named regression checks demonstrate a truthful helper total with
+nonzero reciprocal errors, cancellation at the midpoint EQ draw, detection
+at an endpoint and absence of an equality miss in dimension zero. These are
+arithmetic component checks, not a complete accepted false modified-PBS run.
+Existing Native modules and resource limits remain unchanged.
+
+Whole modified-PBS application enforcement, original caller-parent provenance,
+Rust invocation/codec/input-read correspondence, supported profile admission,
+fixed assembled-reference scope, actor-cost separation and physical attacker-work
+refinement remain open. The final actual-attacker-work theorem is not proved.
+
+Validation: all 32 exact axiom guards passed using only `propext`,
+`Classical.choice` and `Quot.sound` (5,232-job guarded build). With source/tests
+frozen, `scripts/check` passed the 12,011-job root build and every standalone
+check. Full-check log SHA-256:
+`f4016e5807a4066e57789ac8c9d91fc6e6581d3ecc1b141850d75669b8944ac4`.

@@ -1179,3 +1179,5 @@ import FormalProof4FHE.HasteBoots.SumCausalChallengeBound
 import FormalProof4FHE.HasteBoots.CanonicalPairedIdentityWork
 
 import FormalProof4FHE.HasteBoots.SequencedInputPairedWork
+
+import FormalProof4FHE.HasteBoots.LookupInitialPairedWork
