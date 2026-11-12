@@ -1399,3 +1399,7 @@ import FormalProof4FHE.HasteBoots.OwnedAmbientAccumulator
 import FormalProof4FHE.HasteBoots.PackedPBSAccumulator
 
 import FormalProof4FHE.HasteBoots.PackedPBSAccumulatorProbability
+
+import FormalProof4FHE.HasteBoots.PackedPBSAccumulatorJointBound
+
+import FormalProof4FHE.HasteBoots.PackedPBSAccumulatorNativeJointBound

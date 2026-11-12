@@ -66,6 +66,95 @@ local notation "EarlierOutcome" => PackedPBSSecondReconstructionProbability.Befo
   (b := b) (c := c) (r := r) (k := k) (n := n) (front := front) (suffix := suffix)
   (queries := queries) (height := height) first
 
+/-- The derived second-half rates combine with the earlier safe rate outside
+the final exception, without an intermediate checkpoint charge. -/
+theorem native_safe_joint_bound [NeZero m] [NeZero b] [∀ root : MixedWidthLookupOpeningFamily.Root (2*d+1) (∑ i, repetitions i), NeZero (packedWidth (e + padding) (e + helperPadding) root)] [∀ root, NeZero (layout g root).m]
+    (analysisBasis : ∀ root, Module.Basis (Fin (packedWidth (e + padding) (e + helperPadding) root)) (ZMod q) (L root))
+    (dummy : Digest)
+    (config : MixedWidthRequestSharedLookup.Parameters (ZMod q) K LookupMessage LookupMemory Cfg Input Digest Memory HelperMemory
+      e padding lookupC lookupRow (2*d+1) requests widths sizes repetitions mode)
+    (p : ℕ) [CharP K p] (small : 2 * 1 ≤ p)
+    (domain : ∀ root, Fin (2 ^ first.heights (tag root)) ↪ (ZMod q))
+    (enough : ∀ root, g.m root ≤ Fintype.card (Fin (2 ^ first.heights (tag root))))
+    (capacity : ∀ root, 2 ^ g.suffix root ≤ g.m root * packedWidth (e + padding) (e + helperPadding) root) (radius : MixedWidthLookupOpeningFamily.Root (2*d+1) (∑ i, repetitions i) → ℕ)
+    (fallback : Packet (ZMod q) K (e + padding) (2*d+1) (lookupC + lookupRow) (∑ i, repetitions i))
+    (behavior : MixedWidthStagedSharedLookup.Emission (2*d+1) (∑ i, repetitions i) Digest Memory (RequestLookupPairMiddle.Memory K HelperMemory repetitions) →
+      MixedWidthSharedLookupPCS.Selection (ZMod q) K LookupMemory (e + padding) (2*d+1) (∑ i, repetitions i) (lookupC + lookupRow) →
+      (root : MixedWidthLookupOpeningFamily.Root (2*d+1) (∑ i, repetitions i)) → Protocol (ZMod q) Input Digest Cfg LookupResponse LookupMemory (packedWidth (e + padding) (e + helperPadding)) first.heights tag (layout g) root)
+    (pairEnough : ∀ index, sizes index + 1 < Fintype.card K) (lookupSmall : ∀ index, config.active index < p)
+    (build : MixedWidthStagedSharedLookup.SourceEmission (2*d+1) Digest Memory → RequestLookupPairs.Vector K repetitions →
+      OracleComp (SharedSequence.Shared Cfg Input Digest) (MixedWidthStagedSharedLookup.HelperEmission (∑ i, repetitions i) Digest HelperMemory))
+    (distance : ∀ root, (radius root : ℚ≥0) <
+      (Code.minDist (ReedSolomon.code (SymbolLift.liftedDomain (K := L root) (domain root)) (g.m root) :
+        Set (Fin (2 ^ first.heights (tag root)) → L root)) : ℚ≥0) / 3)
+    (nativeBasis : Module.Basis (Fin b) (ZMod q) P)
+    (nativeEnough : m ≤ Fintype.card (Fin (2^height))) (nativeCapacity : 2^suffix ≤ m*b)
+    (nativeRadius : ℕ) (linearEpsilon : ENNReal)
+    (geometry : ∀ memory factor, first.heights ((secondBase memory).tag factor) = height)
+    (linearSmall : ∀ memory, (nativeRadius : ℚ≥0) <
+      (Code.minDist (ReedSolomon.code (SymbolLift.liftedDomain (K := P) (secondBase memory).domain) m :
+        Set (Fin (2^height) → P)) : ℚ≥0)/3)
+    (linearCalibrated : ∀ memory,
+      (((front+suffix : ℕ) : ENNReal)*(((((2*b-1 : ℕ) : ENNReal)/Fintype.card (ZMod q))^b))) +
+      ((2*d+2 : ℕ) : ENNReal)*JointMatrixOpening.error (K := P) (m := m) (b := b) (queries := queries)
+        (secondBase memory).domain nativeRadius ≤ linearEpsilon)
+    (earlier : EarlierOutcome → Prop) (earlierRate : ENNReal)
+    (earlier_bound : Pr{let before ← (PackedPBSFirstComparisons.witness length psi primitive family inputs base hs nodesEnough radix linearBase dummy first
+      (CheckpointExecution.empty (RecordedSourceCoherence.Shape Cfg height)))}[
+      earlier before ∧ ¬CheckpointCollision.Bad (AmbientMatrixSource.Shape first.heights) (PackedPBSFirstComparisons.finalState first before)] ≤ earlierRate)
+    (restricted : CheckpointRecordScope.Scoped
+      (fun tag => RecordedSourceCoherence.Shape Cfg height tag = Skeleton.perfect (first.heights tag))
+      (PackedPBSFirstReconstruction.program length psi primitive family inputs base hs nodesEnough radix linearBase)) :
+    let comparator := PackedPBSRequestComparisonStage.scheme hs.encoding config p small domain fallback behavior pairEnough build
+    Pr{let outcome ← (PackedPBSSecondComparisons.witness length psi primitive family inputs base hs nodesEnough radix linearBase dummy first comparator secondBase
+      (CheckpointExecution.empty (RecordedSourceCoherence.Shape Cfg height)))}[
+      ((earlier outcome.1.1 ∨ ∃ compared child, outcome.1.1.2 = some compared ∧ outcome.1.2 = some child ∧
+          AmbientLinear.OriginalRisk first.heights
+            (PackedPBSSecondReconstruction.reconstruction family inputs hs nodesEnough radix secondBase compared.2.2.1.2.memory)
+            dummy nativeCapacity nativeRadius child) ∨
+        ∃ compared, outcome.2 = some compared ∧
+          (MixedWidthOwnedRequestSources.OriginalFalse hs.encoding dummy config domain capacity radius compared ∧
+            compared.2.2.1.2.accepted = true)) ∧
+      ¬CheckpointCollision.Bad (AmbientMatrixSource.Shape first.heights) (finalState first comparator outcome)] ≤
+      ((earlierRate + linearEpsilon) + (RequestLookupPairMiddle.errorBudget (Fintype.card K) widths sizes config.active repetitions +
+        (error K mode (lookupC + lookupRow) + MixedWidthStagedSharedLookup.pcsError (d := e) (padding := padding) (helperPadding := helperPadding) (g := g) L domain radius))) := by
+  dsimp only
+  let comparator := PackedPBSRequestComparisonStage.scheme hs.encoding config p small domain fallback behavior pairEnough build
+  have initial := CheckpointExecution.good_empty hs.encoding dummy (RecordedSourceCoherence.Shape Cfg height)
+  have incoming : CheckpointExecution.Audited hs.encoding dummy (RecordedSourceCoherence.Shape Cfg height)
+      (CheckpointExecution.empty (Input := Input) (Digest := Digest) (RecordedSourceCoherence.Shape Cfg height)) :=
+    ⟨initial.1,fun _ => initial.2.2⟩
+  have compatible : CheckpointShapeTransport.Compatible (RecordedSourceCoherence.Shape Cfg height)
+      (AmbientMatrixSource.Shape first.heights)
+      (CheckpointExecution.empty (Input := Input) (Digest := Digest) (RecordedSourceCoherence.Shape Cfg height)).checkpoints := by
+    intro tag entry member
+    cases member
+  have linear := PackedPBSSecondReconstructionProbability.safe_second_risk_bound length psi primitive family inputs base hs
+    nodesEnough radix linearBase dummy first secondBase nativeBasis nativeEnough nativeCapacity nativeRadius linearEpsilon
+    geometry linearSmall linearCalibrated _ incoming compatible restricted
+  have comparison := PackedPBSSecondComparisonSoundness.original_false_comparison_bound length psi primitive family inputs base hs
+    nodesEnough radix linearBase first secondBase analysisBasis dummy config p small domain enough capacity radius fallback behavior
+    pairEnough lookupSmall build distance _ incoming compatible restricted
+  dsimp only at comparison
+  refine PackedPBSDecompositionJointBound.safe_joint_bound length psi primitive family inputs base hs nodesEnough radix linearBase
+    dummy first comparator secondBase (CheckpointExecution.empty (RecordedSourceCoherence.Shape Cfg height)) earlier
+    (fun before => ∃ compared child, before.1.2 = some compared ∧ before.2 = some child ∧
+      AmbientLinear.OriginalRisk first.heights
+        (PackedPBSSecondReconstruction.reconstruction family inputs hs nodesEnough radix secondBase compared.2.2.1.2.memory)
+        dummy nativeCapacity nativeRadius child)
+    (fun compared => MixedWidthOwnedRequestSources.OriginalFalse hs.encoding dummy config domain capacity radius compared ∧
+      compared.2.2.1.2.accepted = true) earlierRate linearEpsilon _ earlier_bound ?_ comparison
+  convert linear using 1
+  apply prEvent_congr
+  intro before
+  constructor
+  · rintro ⟨⟨compared,child,equalCompared,equalChild,risk⟩,clear⟩
+    refine ⟨compared,child,equalCompared,equalChild,risk,?_⟩
+    simpa only [PackedPBSSecondComparisons.beforeState,PackedPBSSecondReconstruction.finalState,equalChild] using clear
+  · rintro ⟨compared,child,equalCompared,equalChild,risk,clear⟩
+    refine ⟨⟨compared,child,equalCompared,equalChild,risk⟩,?_⟩
+    simpa only [PackedPBSSecondComparisons.beforeState,PackedPBSSecondReconstruction.finalState,equalChild] using clear
+
 /-- The actual second reconstruction and request comparison contribute their
 derived rates to an earlier safe bound; the whole execution pays one charge. -/
 theorem native_risk_or_bad_bound [Fintype Digest] [NeZero m] [NeZero b] [∀ root : MixedWidthLookupOpeningFamily.Root (2*d+1) (∑ i, repetitions i), NeZero (packedWidth (e + padding) (e + helperPadding) root)] [∀ root, NeZero (layout g root).m]

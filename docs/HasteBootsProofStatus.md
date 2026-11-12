@@ -30336,3 +30336,56 @@ root build and every standalone check. Nineteen new exact axiom guards passed,
 using only `propext`, `Classical.choice` and `Quot.sound`. Frozen Native modules
 and vendor source were unchanged. Full-check log SHA-256:
 `c99f7fc07d5bf7b493fa1e59fbb55d7a8cd790f90779facaacbe6ac694599920`.
+
+### 2026-11-12: one derived native bound through the accumulator
+
+`PackedPBSSecondHalfJointBound.native_safe_joint_bound` and
+`PackedPBSBothHalvesJointBound.native_safe_joint_bound` expose the derived
+arithmetic rates outside their final exception, before charging checkpoint
+failures. Their charged APIs remain available. Later continuations can consume
+these safe forms without carrying an intermediate hash charge into a longer
+execution.
+
+`PackedPBSAccumulatorJointBound.safe_joint_bound` transfers the earlier safe
+event through actual adaptive accumulator work and combines it with the
+accumulator safe event under the SAME extended final exception. Its charged
+form adds one expected-hazard charge on the exact full program through the
+accumulator, including rejected paths. It requires no losslessness or
+independence assumption.
+
+`PackedPBSAccumulatorNativeJointBound.native_safe_joint_bound` instantiates
+this composition with ALL derived component bounds: native typed-message
+Hadamard, the complete 2*d+1 NTT loop, first reconstruction, first private
+request comparison, second reconstruction, second private request comparison
+and the original-owner accumulator. The two lookup configurations remain
+separate. Both return opening memory in the actual execution-memory type,
+which closes the native stage handoffs. The accumulator retains its separate
+width, dimensions, response type and PCS analysis field.
+
+The event is the union of original earlier arithmetic risks, both accepted
+original false comparison events and accepted false original-owner accumulator
+constraints. Numeric calibration and the previously explicit encoding, code,
+geometry, scope and parameter conditions remain. NO earlier security bound or
+assumed accumulator-security certificate is supplied to the combined theorem.
+Its rate is the derived earlier arithmetic sum plus the derived accumulator
+compression/seven-PCS cap, outside the single final bad event.
+
+`native_risk_or_bad_bound` reuses that safe theorem and adds exactly ONE charge
+on the complete actual extended execution. Neither decomposition, comparison
+nor accumulator contributes another local checkpoint charge. The safe form is
+also exported so monomial/key-switch continuations can extend this execution
+without repeating the charge.
+
+Still required: construct and compose the monomial stage (its two NTT calls,
+public-plan ZeroCheck and two original evaluation openings), then final key
+switching, and finish accepted false-output coverage. Logical reference/tag/
+domain/layout/endpoint bindings still need concrete native callback and
+byte/transcript refinement. Concrete profile admission, adaptive/repeated-proof
+composition and physical/actor-separated attacker work remain open. The final
+128-bit expected-work false-PBS theorem remains unproved.
+
+Validation: full `scripts/check` exited successfully, including the 12,286-job
+root build and every standalone check. Six new exact axiom guards passed,
+using only `propext`, `Classical.choice` and `Quot.sound`. Frozen Native modules
+and vendor source were unchanged. Full-check log SHA-256:
+`446a79f70a4c97af63953214d2e5cd714ac0f7c92c0d2075e31c1c29a4145da8`.
