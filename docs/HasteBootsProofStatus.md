@@ -30659,3 +30659,53 @@ root build and every standalone check. All 15 new exact axiom guards passed,
 using only `propext`, `Classical.choice` and `Quot.sound`. Frozen Native modules
 and vendor source were unchanged. Full-check log SHA-256:
 `ff266fef9f3313603b7b173f402af04c74ddf17a402380f5c00d5410b111f0e1`.
+
+
+### 2026-11-12: all arithmetic rates through the monomial product share one charge
+
+`PackedPBSMonomialNativeJointBound.native_safe_joint_bound` derives the complete
+arithmetic rate through the public monomial product. It invokes the derived
+native accumulator-prefix theorem, transfers its earlier event through the
+actual monomial NTT and public-product continuations, and combines it with the
+joint monomial rate derived at the actual accumulator return. There is no
+supplied earlier security-bound premise or child soundness certificate.
+
+The resulting explicit rate contains native Hadamard soundness, the full
+`2*d+1` NTT sum, both reconstructions, both canonical request-comparison budgets,
+the original-source accumulator cap, both monomial NTT caps and the public
+product cap. Every arithmetic event excludes the SAME final bad event of
+`PackedPBSMonomialProduct`. Earlier rejected work and adaptive private-memory
+handoffs remain in the execution. Code distance, source geometry, capacity,
+bases, numeric calibration and the earlier recording scope remain explicit.
+Monomial/product analysis fields are separate from earlier PCS and comparison
+analysis fields.
+
+`native_risk_or_bad_bound` adds that final exception with ONE charge over the
+complete actual PBS program through the public product, including all rejected
+paths. It uses the safe theorem above and the extended program's derived final
+bad-event bound; no intermediate availability/collision charge is added.
+`risk_or_bad_of_safe` isolates the generic probability partition, allowing the
+large dependent native theorem to compile within the default heartbeat limit.
+No resource limits were increased.
+
+This bounds the listed original-source arithmetic risks and final exception.
+It does not yet identify accepted false PBS outputs with that union, and its
+generic execution hazard is not yet physical attacker work. Native
+parameter/code/decoder/endpoint associations, geometry compatibility (or
+heterogeneous source interfaces), callback/byte/transcript/optimized-kernel
+refinement, concrete profile admission and adaptive repeated-proof composition
+remain open. The final 128-bit expected-work theorem remains unproved.
+
+Next is the final key-switch operational composition. Source review of
+`packed_key_switch/canonical/protocol.rs` confirmed its order: public-input
+single opening; `d+1` NTTs; product relation; canonical negative-mask digit
+reconstruction/comparison; public-mask/target extraction ZeroCheck; final
+private single opening. The public-input root must be checked against the
+actual verifier-computed negative-mask table rather than assumed authentic.
+This order differs from the main PBS prefix and must be preserved.
+
+Validation: full `scripts/check` exited successfully, including the 12,307-job
+root build and every standalone check. All three new exact axiom guards passed,
+using only `propext`, `Classical.choice` and `Quot.sound`. Frozen Native modules
+and vendor source were unchanged. Full-check log SHA-256:
+`f5f34d3335678ea83d03ccd17d393b0416cf36d421eb64e20d4ee58e86cdd5ad`.

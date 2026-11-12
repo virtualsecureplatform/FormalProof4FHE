@@ -1431,3 +1431,5 @@ import FormalProof4FHE.HasteBoots.AmbientMonomialProduct
 import FormalProof4FHE.HasteBoots.PackedPBSMonomialProduct
 
 import FormalProof4FHE.HasteBoots.PackedPBSMonomialProductProbability
+
+import FormalProof4FHE.HasteBoots.PackedPBSMonomialNativeJointBound
