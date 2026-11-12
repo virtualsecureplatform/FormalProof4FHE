@@ -27944,3 +27944,71 @@ Validation: all 32 exact axiom guards passed using only `propext`,
 frozen, `scripts/check` passed the 12,046-job root build and every standalone
 check. Full-check log SHA-256:
 `a23b032c77a245853bad8b455921533043d1802a8ffab38713007c37ff3c9b77`.
+
+## Original equality positions and specified byte-work pricing
+
+`EqualityInputJobCount.parsed_length` bounds the complete ordered helper-root
+vector by its literal framed input size, retaining the actual root codec and
+its 64-byte root payloads without assuming a fixed-size count header.
+`ordinal_lt` uses successful original preparation's root/job count equality
+and the candidate's actual family parser. Every original job ordinal is thus
+strictly below the original equality input length; repeated roots remain
+separate positions and no unique-root or supplied job-count premise is used.
+
+`EqualityPositionKernel` covers all eligible original input/job classes at
+one original observation-clock position. The candidate's exact first read
+fixes the selected input on the refined fiber. Its original job ordinal lies
+in the finite input-length cover. The safe per-class bound therefore yields
+an input-length times `63 / goldilocksModulus^3` score. Empty reads, completed
+programs and streams seen earlier have zero score. The charge is deliberately
+conservative and does not require a successful parser for unrelated inputs.
+Its measurability follows from the original replayable prefix.
+
+`EqualityLifetime.safe_bound` sums these charges over all original positions
+for the adaptive equality-class event outside `GlobalReferenceBad.Bad`.
+`bound` retains the existing global bad ledger once, alongside the total new
+equality charge, rather than duplicating it per class or position.
+
+`EqualityLogWork.charge_eq` identifies the total charge with the existing
+first-read input-byte potential times the explicit equality rate. The full
+logged byte potential bounds that first-read potential. Actual specified
+private byte-interpreter prefixes pay the logged bytes, so the equality
+charge is bounded by their original work counter times the same rate.
+`private_lifetime_charge` bounds the supremum of all horizon charges by
+specified lifetime work, and `private_expected_charge` integrates it over
+the original private-tape/oracle product law. This is not a new definition
+of physical attacker work.
+
+`private_safe_probability` now proves a safe equality-event probability bound
+for every finite original instruction horizon, using fixed-tape expected
+specified lifetime work times `63 / goldilocksModulus^3`. The bound includes
+all original observation positions and native collector budgets within that
+horizon. A probability bound on the union of all instruction horizons still
+requires continuation transport/monotonicity; a uniform bound for individual
+horizons is not silently treated as a bound on their union.
+
+Remaining equality work includes continuation and all-horizon/private-tape
+probability composition, recovery of the original retained native equality
+exception into these attained classes, and the joint scalar/PCS/hash work
+ledger. The explicit 63/q^3 rate has not yet been absorbed into the 128-bit
+joint theorem or used to claim that the equality exception in
+`LookupInitialPairedWork.work_with_equality_exception` is discharged.
+
+Five named regressions check zero charge for an empty read, the first
+positive read's input-length charge, zero new charge for a repeated stream,
+zero charge after halt and retention of all three original observations with
+both positive reads in logged work. These remain component checks, not a
+complete accepted false modified-PBS run. Existing Native modules and resource
+limits remain unchanged.
+
+Tuple compression/reciprocal detection pricing, whole modified-PBS application
+enforcement, original caller-parent provenance, Rust invocation/codec/input-read
+correspondence, supported profile admission, fixed assembled-reference scope,
+actor-cost separation and physical attacker-work refinement remain open.
+The final actual-attacker-work theorem is not proved.
+
+Validation: all 32 exact axiom guards passed using only `propext`,
+`Classical.choice` and `Quot.sound` (5,256-job guarded build). With source/tests
+frozen, `scripts/check` passed the 12,052-job root build and every standalone
+check. Full-check log SHA-256:
+`eeb86c8cc54349fa55593a2cfb769102b2fe762dbb8f872f098b6ed854705bdc`.

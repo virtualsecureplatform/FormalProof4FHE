@@ -721,3 +721,5 @@ import FormalProof4FHETest.HasteBootsEqualityFactorAudit
 import FormalProof4FHETest.HasteBootsEqualityResidualAudit
 
 import FormalProof4FHETest.HasteBootsRefinedEqualityAudit
+
+import FormalProof4FHETest.HasteBootsEqualityWorkAudit
