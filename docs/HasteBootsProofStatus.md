@@ -29691,3 +29691,43 @@ Validation: full `scripts/check` passed, including the 12,221-job root build
 and every standalone check. Sixteen exact axiom guards passed, permitting only
 `propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
 `a69b40b399521af714bd379ad346321a99b61d5dbc40f56d2966829efa8b0a2a`.
+
+
+### 2026-11-12: one joint charge through first reconstruction
+
+`PackedPBSReconstructionJointBound` composes all original Hadamard risks,
+all retained original NTT risks and the reached original reconstruction
+registry risk on the exact extended prefix. Its `finalState` covers both
+skipped reconstruction and actual returned reconstruction states.
+
+`earlier_event_le` controls any fixed predecessor event after arbitrary
+adaptive reconstruction work, without a losslessness premise. The separately
+proved `before_bad_persistent` carries the predecessor's shared collision
+exception to the exact final state. Rejected NTT paths retain their actual
+state and perform no reconstruction work.
+
+`native_safe_joint_bound` adds the three degree-two Hadamard terms and all
+original factor PCS errors, the complete NTT rate-cap sum, and the conditional
+reconstruction rate cap from ANY audited incoming history, outside the final
+shared collision event. Typed native interpolation supplies the Hadamard
+degree bounds. The actual NTT-returned memory and shared state select the
+reconstruction factory; no child run restarts from empty.
+
+`native_risk_or_bad_bound` covers the same joint risk OR the final collision
+from empty initialization. It pays ONE expected hash charge on the ENTIRE
+Hadamard/NTT/first-reconstruction program. No earlier/later boundary, source
+reuse, rejected path or per-child hash charge is added. Numeric domain/radius,
+encoding and deterministic rate calibration remain explicit trusted-profile
+obligations; this is not a concrete 128-bit profile certificate.
+
+The conditional theorem leaves collision charging to a future enclosing
+comparison/remaining-PBS composition. The first-half comparison boundary,
+second half, remaining canonical PBS bindings and stages, concrete profile
+admission, adaptive/repeated-proof composition, transcript/Rust correspondence
+and physical/actor-separated work refinement remain required. The final
+128-bit expected-work false-PBS theorem remains unproved.
+
+Validation: full `scripts/check` passed, including the 12,223-job root build
+and every standalone check. Eight exact axiom guards passed, permitting only
+`propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
+`49dd0f0242da59b7ae8e8e1acca7b1a694df33d0d5f573d0a7bbcd7db8182b4b`.

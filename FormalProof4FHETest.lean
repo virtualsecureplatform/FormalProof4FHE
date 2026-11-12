@@ -793,3 +793,5 @@ import FormalProof4FHETest.HasteBootsPackedPBSExternalProductAudit
 import FormalProof4FHETest.HasteBootsConditionalDecompositionAudit
 
 import FormalProof4FHETest.HasteBootsFirstReconstructionAudit
+
+import FormalProof4FHETest.HasteBootsReconstructionJointAudit

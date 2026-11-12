@@ -1305,3 +1305,5 @@ import FormalProof4FHE.HasteBoots.PackedPBSFirstReconstruction
 import FormalProof4FHE.HasteBoots.PackedPBSReconstructionCoherence
 
 import FormalProof4FHE.HasteBoots.PackedPBSFirstReconstructionProbability
+
+import FormalProof4FHE.HasteBoots.PackedPBSReconstructionJointBound
