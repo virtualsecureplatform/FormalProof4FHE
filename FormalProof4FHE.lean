@@ -1202,3 +1202,6 @@ import FormalProof4FHE.HasteBoots.CallerLookupScalars
 import FormalProof4FHE.HasteBoots.LookupPairChallengeBounds
 
 import FormalProof4FHE.HasteBoots.CallerCompressionRecovery
+
+import FormalProof4FHE.HasteBoots.CallerCompressionClassRecovery
+import FormalProof4FHE.HasteBoots.PrivateCoinCompressionClassProbability

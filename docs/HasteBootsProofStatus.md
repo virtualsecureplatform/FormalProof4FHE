@@ -28252,3 +28252,78 @@ Validation: all 33 exact axiom guards passed using only `propext`,
 frozen, `scripts/check` passed the 12,083-job root build and every standalone
 check. Full-check log SHA-256:
 `8eefdeefe4ace61498d65f9add349495e0f2783a6fe113f057d9ceb8f7bbd11a`.
+
+
+## Refined lookup freshness, adaptive compression classes and all-horizon class probability
+
+`LookupInputSeparation` derives from actual initialized native lookup and
+batch execution that compression and reciprocal field inputs end in kind-4
+request frames and are rejected by the parent-seed input parser. Suspension,
+coefficient rejection, completed offset rejection and resumption preserve
+that distinction. This is not an assumption about a later scalar input or
+a final helper-root frame.
+
+`RefinedCompressionKernel` proves that neither parent-seed auxiliary
+completion nor named consumed-byte receipt completion exposes the original
+lookup stream. Its exact fixed-candidate compression bound therefore holds
+on the same `ParentFactorFiber` that fixes the complete source tuple test.
+The numerator is the original request complexity
+`table.length * (columns-1)`. The refinement uses the retained original first
+read and exact raw input; no fresh replacement query is added to actual work.
+
+`CompressionClassKernel` builds attained adaptive classes indexed by original
+input, job ordinal and actual request complexity. Outside the one shared
+global reference bad event, each class has bound `cost/q^3`. References are
+chosen only from attained event worlds on the fiber; empty classes contribute
+zero without a success floor or measurable chooser. `cost_unique` proves
+that safe candidates at the same input/job on the completed fiber have the
+same actual complexity. `cost_alternative` handles events spanning all
+complexity indices by that one attained cost or zero mass, so no extra union
+loss over possible cost values is introduced. The unindexed `Lifetime` event
+retains every candidate through its own actual complexity, without assuming
+an external cap or discarding large requests.
+
+`CompressionContinuation` preserves the original source candidate, exact
+complexity, first-read position, complete tuple test and kernel through
+actual program continuation. Both individual classes and the full lifetime
+event are monotone across private byte-interpreter instruction horizons.
+It does not assert that a safe event remains safe after arbitrary later work.
+`CallerCompressionClassRecovery.covered` recovers original caller compression
+misses into attained safe classes or the existing seed-order/global reference
+bad alternatives, with those alternatives retained once outside the class.
+
+`PrivateCoinCompressionClassProbability` proves the all-instruction-horizon
+safe bound for each original input/job/cost/position class under arbitrary
+private-tape measures. It uses countable finite tape prefixes and the proved
+class continuation, and excludes the global reference bad event once across
+all horizons. The bound is `coins(univ) * cost/q^3`, hence `cost/q^3` for a
+probability measure. This is a per-class probability theorem, not an
+expected-work bound on the union of every class.
+
+The remaining compression work is a justified finite/dynamic aggregation
+over original inputs, positions and jobs with actual lifetime work charging.
+The original request-size/shape and producer-hash bridges are also still
+needed. Reciprocal numerator/source/y/count fixation and adaptive work
+composition remain open. The new class rates have not been inserted into
+`LookupInitialWork.work_128` or used to claim full lookup nonmembership
+soundness. Whole false-PBS output enforcement, original caller-parent
+provenance, Rust execution/codec/read correspondence, supported profile
+admission, fixed assembled-reference scope, actor-cost separation and physical
+attacker-work refinement remain open. The ultimate security theorem is not
+proved.
+
+Six component regressions check the initial native lookup field key, both
+retained forbidden-offset keys, original-input preservation under Goldilocks
+coefficient suspension, receipt-key separation, a far-offset eligible read
+after a partial parent read and both auxiliary completion passes, and positive
+recognition of a native parent key. The forbidden-offset fixtures use the
+existing small-characteristic native machine; the suspension fixture uses
+the actual Goldilocks cubic collector. They are not an accepted false-PBS
+fixture. Existing Native modules, vendor code and resource limits remain
+unchanged.
+
+Validation: all 49 exact axiom guards passed using only `propext`,
+`Classical.choice` and `Quot.sound` (5,280-job guarded build). With source/tests
+frozen, `scripts/check` passed the 12,091-job root build and every standalone
+check. Full-check log SHA-256:
+`9686b1664364f8d34e5a2518419df30c6057f731c6d13f8b15ec0b7f6825c5a6`.

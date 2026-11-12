@@ -731,3 +731,5 @@ import FormalProof4FHETest.HasteBootsCallerEqualityAudit
 import FormalProof4FHETest.HasteBootsLookupScalarKernelAudit
 
 import FormalProof4FHETest.HasteBootsLookupSourceFixationAudit
+
+import FormalProof4FHETest.HasteBootsRefinedCompressionAudit
