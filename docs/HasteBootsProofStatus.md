@@ -29053,3 +29053,45 @@ no axioms; all other declarations use only `propext`, `Classical.choice` and
 `Quot.sound`. Full `scripts/check` exited successfully, including the
 12,173-job root build and all standalone checks. Full-check log SHA-256:
 `e9efe9a8753c039831af0210c645e872b2b2cd758dc8484164cd5e3b5d2f5412`.
+
+
+### Short-circuit Hadamard/NTT composition on the actual retained history (2026-11-12)
+
+`ShortCircuitStageHistory` composes committed stages with a caller continuation
+test on the first stage's actual emission/result. If the test fails, the
+second commitment, root annotations and continuation do not execute. `witness`
+retains the first actual final state on that branch, or starts the second
+stage at that state on the reached branch. `project_witness` proves exact
+erasure to the actual short-circuit program, including results and final state.
+
+`reached_second` derives both passage of the caller test and supported
+sequential history for any reached second stage. `same_request_sources_eq_or_bad`
+uses that history to derive both requested checkpoint memberships and the
+final audit, exposing only the existing shared collision event. It does not
+require separate child-from-empty support or final recording certificates.
+
+`source_drift_bound` charges all reached shared-request source disagreements
+ONCE on the actual SHORT-CIRCUIT program. Its expected collision charge does
+not include a fictitious second child on rejected paths. The proof uses exact
+erasure and supported-execution coverage, with no request-count union.
+
+`HadamardNTTComposition.program` instantiates this control flow with the
+existing caller-bound authenticated Hadamard and NTT child programs, in the
+native caller's Hadamard-before-NTT order. The Hadamard child's actual accepted
+flag controls whether NTT executes. The common original evaluation root comes
+from the caller-bound factor registry, with key roots retained from setup.
+`witness` retains both original recording times; `project_witness` proves exact
+erasure to those existing child programs and their actual early-return branch.
+The shared handler uses the Hadamard encoding; eventual NTT soundness requires
+its encoding/parameter association to be established by the caller.
+
+This is an authenticated-program composition instance, not Rust byte/transcript
+correspondence. Whole-PBS caller metadata/root association, all remaining child
+stages and accepted-path coverage, concrete supported-profile admission and
+end-to-end physical attacker-work accounting remain open. The ultimate
+modified-HasteBoots security theorem remains unproved.
+
+Validation: all nine exact axiom guards passed with only permitted standard
+axioms (`propext`, `Classical.choice`, `Quot.sound`). Full `scripts/check`
+exited successfully, including the 12,176-job root build and all standalone
+checks. Full-check log SHA-256: `dacb7a7f35b410af873f1f051ace1c801d8b783cf3955aa9661413a4adcebabf`.

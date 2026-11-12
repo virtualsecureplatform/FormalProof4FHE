@@ -1240,3 +1240,6 @@ import FormalProof4FHE.HasteBoots.CrossStageSourceCoherence
 import FormalProof4FHE.HasteBoots.CallerBoundStageRoots
 
 import FormalProof4FHE.HasteBoots.SequentialStageHistory
+
+import FormalProof4FHE.HasteBoots.ShortCircuitStageHistory
+import FormalProof4FHE.HasteBoots.HadamardNTTComposition
