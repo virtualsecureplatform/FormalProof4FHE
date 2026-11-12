@@ -1539,3 +1539,7 @@ import FormalProof4FHE.HasteBoots.RetainedPaddedComparisonNativeBound
 import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchComparisons
 
 import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchComparisonBound
+
+import FormalProof4FHE.HasteBoots.RetainedPaddedComparisonJointBound
+
+import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchComparisonNativeJointBound

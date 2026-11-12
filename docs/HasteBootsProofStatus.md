@@ -31418,3 +31418,45 @@ imported audit checks ten declarations, including the specialized audit function
 and complete witness, with exact axiom guards limited to `propext`,
 `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
 `6abba86a30fd23fa147d2ede27763c533af8e79617bb8af328579db45f0dc641`.
+
+## 2026-11-12: joint native arithmetic bound through final comparison
+
+Added `RetainedPaddedComparisonJointBound.safe_joint_bound`. Earlier arithmetic
+risks are carried through the actual reached-or-skipped comparison by the
+proved earlier safe-event inequality, then joined with the reached comparison
+risk under the SAME extended final Bad exclusion. This probability bookkeeping
+requires no losslessness assumption and adds no hash charge.
+
+`PackedPBSKeySwitchComparisonNativeJointBound.native_safe_joint_bound` derives
+both component rates from the existing native reconstruction joint theorem and
+the executed final shared request-comparison theorem. Its conclusion covers the
+union of all native arithmetic risks through the final comparison: earlier
+Hadamard/NTTs, both reconstructions/comparisons, accumulator, monomial stages,
+known input, final key-switch NTTs/product/reconstruction and the final shared
+comparison. The right side is the preceding native rate sum plus the final
+comparison cap. The latter is calibrated from private request-pair, common
+scalar and per-original-root PCS errors. No child-security or replay certificate
+is supplied to the concrete theorem; code facts and numeric calibrations remain
+explicit.
+
+The comparison scheme and its dependent result types retain the actual first
+scheme's height projection and native-scheme encoding projection. The final
+state is expressed by the canonical retained continuation on that same staged
+reconstruction factory, so its dependencies match the execution's precisely.
+These are the existing encoding, heights and returned state, not new runtime
+values. This interface avoids expanding the complete earlier execution during
+conversion and compiles within the existing default resource limits.
+
+The enlarged witness still needs projection to its operational program and a
+single whole-execution hazard charge covering its comparison work. The typed
+canonical factory/parameter-store instantiation, extraction, common decoded
+source interpretations, complete accepted-false-output coverage, numeric profile
+admission, production refinements, adaptive composition and physical attacker
+work accounting remain open. The final 128-bit theorem remains unproved. Frozen
+Native modules and vendor sources are unchanged.
+
+Validation: full `scripts/check` exited successfully, including the 12,376-job
+root build and every standalone check. Both modules are exported and the imported
+audit contains two exact axiom guards, each limited to `propext`,
+`Classical.choice` and `Quot.sound`. Full-check log SHA-256:
+`daba55ca14950e38c394cef3096cbc3cad0c04de7934cb39a02169244735926e`.
