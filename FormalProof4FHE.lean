@@ -1331,3 +1331,13 @@ import FormalProof4FHE.HasteBoots.PackedPBSFirstComparisons
 import FormalProof4FHE.HasteBoots.PackedPBSRequestComparisonStage
 
 import FormalProof4FHE.HasteBoots.PackedPBSFirstComparisonSoundness
+
+import FormalProof4FHE.HasteBoots.CheckpointRecordScope
+
+import FormalProof4FHE.HasteBoots.CheckpointScopedTransport
+
+import FormalProof4FHE.HasteBoots.CompiledCheckpointScope
+
+import FormalProof4FHE.HasteBoots.PackedPBSComparisonSharedExecution
+
+import FormalProof4FHE.HasteBoots.PackedPBSComparisonChargedSoundness

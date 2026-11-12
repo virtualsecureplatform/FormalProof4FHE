@@ -29871,3 +29871,58 @@ Validation: full `scripts/check` passed, including the 12,238-job root build
 and every standalone check. Nineteen exact axiom guards passed, permitting only
 `propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
 `6d1492a7d5b5f9455bf38047189cdaa6713abf6936c0665f352f3db35b45f306`.
+
+### 2026-11-12: structural record scope and one charge across the geometry boundary
+
+`CheckpointRecordScope.Scoped` uses VCVio's existing `allPathsSatisfy` traversal
+to constrain only root-recording tags. Hash inputs, private queries and adaptive
+answers are unrestricted. The traversal includes query nodes even when no
+continuation returns. Pure/bind/map/query and trusted `RecordRoots.program`
+closure lemmas support compositional scope derivations. `compatible_run` derives
+geometry compatibility on actual supported histories from syntax and the incoming
+history, rather than assuming terminal compatibility as a semantic certificate.
+
+`CheckpointScopedTransport.run` proves full-state equality between a scoped
+prefix executed under its old geometry and under its later continuation's
+geometry. Every checkpoint root, snapshot log, list position, hash log/cache
+and persistent monitor bit is retained. One-step transport needs agreement only
+at already-recorded tags; the syntax restriction preserves that agreement after
+future recordings. Previously unused helper tags can still have distinct heights.
+
+`CompiledCheckpointScope.compile` proves that the EXISTING native compiler emits
+no checkpoint annotations, on all start/read/hash branches and for every reader
+backend. It therefore satisfies ANY recording scope. This is a structural fact,
+not an honesty restriction or a SHAKE/Fiat--Shamir distribution assertion. The
+existing Native* modules and vendor sources were not modified.
+
+`PackedPBSComparisonSharedExecution.prefix_compatible` discharges the earlier
+terminal-history premise from the actual first-reconstruction program's structural
+scope. `project_witness` strengthens canonical-cache erasure to exact FULL shared
+state erasure for the extended Hadamard, NTT-loop, first reconstruction and first
+comparison program. All rejection paths keep their actual prior work and state.
+`final_bad_le_charge` charges their shared final exception ONCE on this whole
+mixed-height execution. `risk_or_bad_bound` combines any conditional arithmetic
+risk with that charge without creating another local authentication loss.
+
+`PackedPBSComparisonChargedSoundness.false_comparison_or_bad_bound` applies this
+to the concrete private request comparator. Accepted false ORIGINAL comparison
+tuples, together with the final shared exception event, are bounded by the
+request-specific repeated pair error budget, common algebra and original grouped
+PCS errors, plus ONE expected hash charge on the entire extended program.
+There is no terminal-compatibility premise; the remaining structural scope premise
+must be derived from the assembled concrete driver's trusted record sites and
+callback wiring. The native compiler theorem supplies the callback part once
+that wiring is established. No native profile admission or actual-work theorem
+is inferred from this ideal private-coin result.
+
+Still required: assemble the concrete PBS prefix scope/parameter association,
+combine earlier arithmetic risks with the comparison risk under this charge,
+complete the second half and remaining PBS source bindings, native request/
+transcript correspondence, concrete profile admission, adaptive/repeated-proof
+composition and physical/actor-separated attacker work. The final 128-bit
+expected-work false-PBS theorem remains unproved.
+
+Validation: full `scripts/check` passed, including the 12,246-job root build
+and every standalone check. Seventeen exact axiom guards passed, permitting only
+`propext`, `Classical.choice` and `Quot.sound`. Full-check log SHA-256:
+`957a1d656267807893f36481213e159d78928df68e850bfbdfcd5c10d27e8f50`.
