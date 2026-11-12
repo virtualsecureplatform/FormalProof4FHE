@@ -839,3 +839,5 @@ import FormalProof4FHETest.HasteBootsKeySwitchKnownInputAudit
 import FormalProof4FHETest.HasteBootsPackedPBSKeySwitchInputAudit
 
 import FormalProof4FHETest.HasteBootsPaddedNTTAudit
+
+import FormalProof4FHETest.HasteBootsKeySwitchPaddedNTTAudit

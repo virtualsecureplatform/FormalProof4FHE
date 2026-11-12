@@ -30875,3 +30875,61 @@ root build and all standalone checks. Both modules are exported, and all 15 new
 exact axiom guards are imported and pass with only `propext`, `Classical.choice`
 and `Quot.sound`. Frozen Native modules and vendor sources are unchanged.
 Full-check log SHA-256: `8402978b1837ab010111f9504987dfff8fab14ea6a9dc3615c3ad0240e73e5e7`.
+
+### 2026-11-12: ordered final key-switch padded NTT loop
+
+`PaddedNTTSequence` executes the actual short-circuit sequence of padded NTT
+calls with per-index, per-incoming-memory physical PCS layouts. The result type
+retains a sigma containing the scheduled index and the incoming private memory
+that selected the factory. A separate theorem proves that this retained index
+is the scheduled index, not a prover-selected tag. Each child receives the
+actual prior opening loop's returned memory and complete shared state; rejected
+calls are retained and skipped suffixes perform no work.
+
+Full-state projection erases only analysis data. The loop preserves the incoming
+audit, original source owners and bad events, and forwards each retained child's
+owners and failure event to the final history. Accepted loops attempt the
+complete trusted index list in order, and every retained call actually accepts.
+Each retained payload has support in its actual selected child's execution on
+an incoming state, without replaying it from empty history.
+
+`PaddedNTTSequenceSoundness` derives the sum of row/compression and two independent
+physical PCS errors over the trusted possible calls. Arithmetic/code facts and
+numeric caps are uniform in the actual incoming private memory. The generic
+conditional composition lemma is discharged by `PaddedNTT.original_safe_bound`
+in the derived theorem; no child security certificate is assumed there. The
+same final clear history excludes all child exceptions. Accepted false logical
+relations give matching original-owner risks using snapshots recorded by the
+actual execution, so their probability has the same derived bound. No local
+collision charge is introduced.
+
+`KeySwitchPaddedNTT` specializes the loop to `List.finRange (d+1)` and the caller's
+`PackedPBSOriginalReferences.Family d`. Its factories fix each scheduled
+coefficient/evaluation root pair, native consecutive nodes, and exact packed
+butterfly transform. Root binding holds even for a rejecting call. Acceptance
+attempts exactly d+1 calls in native order. This specialization uses two logical
+polynomial rows and b row repetitions, where b is the packing width, as in the
+native canonical key-switch geometry and NTT challenge generation. Both the
+original-owner and accepted-false logical-relation error sums are derived.
+
+Source evidence: canonical `verify_inner` in
+`../HasteBoots/snarks/src/packed_key_switch/canonical/protocol.rs` verifies the
+known input and then loops over `0..=d`; `Config::validate_geometry` in
+`../HasteBoots/snarks/src/packed_key_switch.rs` fixes 2*N logical cells, while
+`packed_ntt::Shape` derives two polynomial rows and uses its width for the row
+challenge count. Physical padding and code parameters remain separate per root.
+This is source review plus the Lean component model, not a byte-level refinement.
+
+Next: append this loop after the existing actual accepted known-input opening,
+using its returned memory/state, and extend the derived whole-PBS joint bound.
+Then compose the final product relation, canonical negative-mask decomposition/
+comparison and extraction. Earlier physical-layout/source/decoder associations,
+complete accepted-false-output coverage, concrete profile admission, production
+transcript refinement, repeated adaptive proofs and physical attacker-work
+accounting remain open. The final 128-bit security theorem is unproved.
+
+Validation: full `scripts/check` exited successfully, including the 12,323-job
+root build and every standalone check. All three new modules are exported; the
+new imported audit contains 21 exact axiom guards, all passing with only
+`propext`, `Classical.choice` and `Quot.sound`. Frozen Native modules and vendor
+sources are unchanged. Full-check log SHA-256: `3ac77584f6bbae9331df06963667b638924f2c7d1cc858df6377e6ac014113ee`.
