@@ -28895,3 +28895,43 @@ Validation: all five exact axiom guards passed with only `propext`,
 `Classical.choice` and `Quot.sound`. Full `scripts/check` exited successfully,
 including the 12,165-job root build and all standalone checks. Full-check log
 SHA-256: `ccb6256c91d4566aec5f894c3fc4e8a0ed904d56dee157fcb02b4b728bd54829`.
+
+
+### Concrete original-owner NTT row-binding coverage (2026-11-12)
+
+`OwnedNTTBindingCoverage` connects false polynomial-row transform bindings
+to `OwnedNTTSoundness.OriginalRisk` for `PackedNTT.scheme`. This constructor
+replaces the factory transform with the proved packed butterfly linear map;
+no arbitrary-transform equality or NTT truth certificate is assumed.
+`original_sources_scheme` proves that both original source interpretations
+are unchanged by this replacement.
+
+`accepted_wrong_transform_implies_original` derives a false complete original
+row relation from a wrong coefficient/evaluation transform at any original row,
+using the existing proved equivalence with the odd bit-reversed PBS transform.
+The result retains both recorded owners, their root equalities and literal
+checkpoint membership, and the same accepted authenticated NTT outcome.
+
+`accepted_wrong_family_coverage` permits arbitrary families of row projections
+and application polynomials. An incorrect transform exposes a coefficient-row
+association failure, an evaluation-row association failure, or ONE original
+NTT risk event over the same two sources. No row-count union factor is added.
+Source associations remain obligations; acceptance alone does not establish
+that an application polynomial names a particular original committed row.
+
+`fresh_wrong_transform_implies_original` obtains the original checkpoints
+from support of the actual concrete authenticated NTT witness. Fresh-source
+coverage requires no independently supplied recording certificate. The
+primitive root, packing length, original source geometry and successful
+accepted outcome remain explicit.
+
+These bridges do not establish Rust transcript/codec correspondence or the
+cross-stage original-root/source associations. Connecting decomposition,
+NTT, Hadamard, accumulator and final extraction to the complete native PBS
+execution, supported-profile admission and shared physical attacker-work
+accounting remain open. The ultimate security theorem remains unproved.
+
+Validation: all four exact axiom guards passed with only `propext`,
+`Classical.choice` and `Quot.sound`. Full `scripts/check` exited successfully,
+including the 12,167-job root build and all standalone checks. Full-check log
+SHA-256: `6d474b2d9c5bf3a23a19751c7b41eb23e55c1c7f2ff980749b11a2c226dd67be`.

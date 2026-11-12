@@ -1232,3 +1232,5 @@ import FormalProof4FHE.HasteBoots.ScopedRebuiltLookup
 import FormalProof4FHE.HasteBoots.PBSFirstStageCoverage
 
 import FormalProof4FHE.HasteBoots.OwnedBlindRotationCoverage
+
+import FormalProof4FHE.HasteBoots.OwnedNTTBindingCoverage
