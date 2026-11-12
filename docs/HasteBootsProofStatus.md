@@ -28533,3 +28533,56 @@ Validation: all 41 exact guards passed and all three component regressions
 compiled. Full `scripts/check` exited successfully, including the 12,118-job
 root build and all standalone checks. Full-check log SHA-256:
 `100359cd74531d6ca85b27de3c540ce6abbac18f00d80f29c940f2162647b8bd`.
+
+### Adaptive original reciprocal classes and private horizons (2026-11-12)
+
+`OffsetClassKernel` indexes attained original accepted-offset candidates by
+stream input, original job ordinal and actual reciprocal degree complexity.
+The class retains the active-count characteristic guard. Its conditional
+safe-class bound is `cost / q^3` on the same parent/receipt-completed fiber;
+it uses an attained reference when one exists and proves the empty case
+without a positive probability floor. `cost_unique` and `cost_alternative`
+retain all possible actual complexities without a separate union loss over
+cost indices. No accepted-domain normalization is introduced.
+
+`OffsetContinuation` preserves the original native candidate, grouped count
+link, last-draw association, actual receipt logs, earliest stream read,
+source-prefix test and all-budget kernel through actual program binding.
+Exact class indices and the characteristic guard persist. It proves
+monotonicity under resumed private byte-machine instruction horizons.
+
+`PrivateCoinOffsetClassProbability` bounds each safe class across arbitrary
+private-coin measures and all instruction horizons by
+`coins(univ) * cost / q^3`. The reference bad event is excluded across all
+horizons and added once in the corresponding bound. The proof uses finite
+private-tape prefixes, actual continuation and outer conditional bounds;
+it does not assume a measurable chosen reference or a uniform retry cap.
+
+`CallerLookupClassCoverage.reciprocal` derives an attained original safe
+class from the same caller's reciprocal miss and rebuilt execution, modulo
+the existing shared seed-order/reference bad alternatives. `nonmember`
+combines both native challenge families: original public tuple nonmembership
+reaches the existing arithmetic work witness, shared lifetime bad events,
+an attained compression class or an attained reciprocal class. Literal y/r,
+original rows and counts, and original job addresses remain connected to
+actual caller execution rather than supplied as new flags.
+
+Two exposure regressions establish that naming a stream via a start and a
+zero-byte read creates no attained class at any position, and that the next
+positive read retains its literal observation ordinal and arbitrary offset.
+Twenty-nine exact axiom guards permit only `propext`, `Classical.choice` and
+`Quot.sound`; the guarded target completed 5,302 jobs. Native modules,
+vendor code and resource limits remain unchanged.
+
+These are per-class probability bounds and actual caller coverage, not a
+bound on the union of all inputs/jobs/positions. Justified aggregation and
+expected-work charging across compression and reciprocal classes remain
+required. Whole false-PBS enforcement, supported-profile admission, original
+caller-parent/application provenance, Rust execution/cost correspondence and
+physical attacker-work refinement also remain open. The complete 128-bit
+actual-work security theorem is not proved.
+
+Validation: all 29 exact guards passed and both exposure regressions
+compiled. Full `scripts/check` exited successfully, including the 12,124-job
+root build and all standalone checks. Full-check log SHA-256:
+`f6e8ce068842b9c51fabecdd2655b3dafeb0f0fb25d026325b11d08986c361c2`.

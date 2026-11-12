@@ -1214,3 +1214,6 @@ import FormalProof4FHE.HasteBoots.CallerReciprocalKernel
 import FormalProof4FHE.HasteBoots.CallerLookupMultiplicityRecovery
 
 import FormalProof4FHE.HasteBoots.CallerLookupOffsetRecovery
+
+import FormalProof4FHE.HasteBoots.CallerLookupClassCoverage
+import FormalProof4FHE.HasteBoots.PrivateCoinOffsetClassProbability

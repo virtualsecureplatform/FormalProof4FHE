@@ -741,3 +741,5 @@ import FormalProof4FHETest.HasteBootsReciprocalKernelAudit
 import FormalProof4FHETest.HasteBootsLookupMultiplicityAudit
 
 import FormalProof4FHETest.HasteBootsLookupCompressionReceiptAudit
+
+import FormalProof4FHETest.HasteBootsOffsetClassAudit
