@@ -1551,3 +1551,7 @@ import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchComparisonExecution
 import FormalProof4FHE.HasteBoots.PaddedPublicZeroCheck
 
 import FormalProof4FHE.HasteBoots.KeySwitchPaddedExtraction
+
+import FormalProof4FHE.HasteBoots.RetainedPaddedExtraction
+
+import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchExtraction

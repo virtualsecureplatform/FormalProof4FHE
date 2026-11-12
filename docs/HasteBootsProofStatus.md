@@ -31594,3 +31594,50 @@ Validation: full `scripts/check` exited successfully, including the 12,383-job
 root build and all standalone checks. Default resource limits were retained;
 frozen Native modules and vendor sources are unchanged. Full-check log SHA-256:
 `e82360e545c6fedc27455b1da17ce3da38cbf927956ba6da15c60cb772a2e172`.
+
+### Extraction appended to the actual full PBS comparison execution
+
+Added `RetainedPaddedExtraction` and `PackedPBSKeySwitchExtraction`. The latter
+executes the existing full PBS witness through final shared comparison and
+binds the extraction continuation to its actual result. Its selector reads the
+returned comparison opening acceptance flag and private memory. An absent
+comparison or retained accumulator skips extraction. The full predecessor is
+retained as part of the selected child index; no successful-prefix result,
+replay certificate or independently chosen endpoint is supplied.
+
+The raw endpoint is read from the retained accumulator outcome's original
+factory context, selected by that outcome's emitted memory. A public exponent
+equality transports the coefficient index to extraction geometry. The public
+output is fixed by the caller, and `KeySwitchPaddedExtraction.stage` constructs
+the mask and once-biased target from this endpoint before extraction queries.
+The child opens the caller family's retained last coefficient root using its
+own physical source geometry. `get_spec` proves that a selected extraction has
+both an actual retained accumulator and an actual accepted comparison return,
+with precisely the private opening memory used to select its extraction
+factory. Thus the endpoint's absent-case fallback is unreachable on selected
+paths.
+
+The generic continuation proves actual reached-child support, preservation of
+the supported predecessor in a complete bind, and monotonicity of earlier safe
+events under the same final collision exclusion. Its audit preservation follows
+from the executed padded public ZeroCheck. The concrete `audited_witness` uses
+the complete existing comparison audit as one invariant function and proves
+audit preservation through every reached/rejected/skipped extraction path.
+`finalState` uses the actual extraction full state, or the comparison full state
+when extraction is skipped; no history is reset.
+
+This extends the actual witness but not yet its operational erasure, enlarged
+whole-program hash charge or joint arithmetic risk bound. Those must be updated
+to include extraction. Original-source interpretation and complete
+accepted-false-output coverage, native parameter associations, numeric profile
+admission, production refinements, adaptive composition and actor-separated
+physical attacker-work accounting remain open. The final 128-bit theorem is
+still unproved. Both modules are exported; the imported audit guards twelve
+execution and bookkeeping declarations. Direct inspection found no axioms for
+`RetainedPaddedExtraction.select` and only `propext`, `Classical.choice` and
+`Quot.sound` for the remaining eleven declarations.
+
+Validation: full `scripts/check` exited successfully, including the 12,386-job
+root build and every standalone check. Default resource limits were retained;
+frozen Native modules and vendor sources are unchanged. Full-check log SHA-256:
+`772d9b7a0168bb7bb97cfd361696eedaced8a27df1675d060568120cc2489cfd`.
