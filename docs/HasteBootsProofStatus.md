@@ -29011,3 +29011,45 @@ Validation: all six exact axiom guards passed with only permitted standard
 axioms (`propext`, `Classical.choice`, `Quot.sound`). Full `scripts/check`
 exited successfully, including the 12,171-job root build and all standalone
 checks. Full-check log SHA-256: `9dfb64c66ddb77274351229cf94c5440c07c59d4480e170d559c4fb0469c30d0`.
+
+
+### Actual sequential stage histories and one shared source-drift charge (2026-11-12)
+
+`SequentialStageHistory` supplies a two-stage committed execution in which
+the second stage starts at the FIRST STAGE'S ACTUAL FINAL SHARED STATE.
+Its commitment, root requests and continuation may depend on the first
+stage's actual emission and result. The generic stage emissions and results
+may differ. Neither child restarts from an empty history.
+
+`witness` retains each original post-commit state for analysis.
+`project_witness` proves that erasing both analysis snapshots recovers the
+literal sequential `MultiCommitmentPrefix.program` execution, with both
+actual stage results and exactly the final shared history. `witness_retains`
+and `witness_recorded` hold for arbitrary incoming states, including already
+failed monitors. `both_recorded` derives membership of both stages' requested
+snapshots in the final common history, at their actual distinct recording times.
+
+`audited_final` derives the final audit from the composed supported execution
+and its incoming invariant. `same_request_sources_eq_or_bad` then compares
+two occurrences of the same context/root request, deriving BOTH memberships
+and the final audit internally. It exposes only the existing shared checkpoint
+collision event as the alternative to equal original decoded sources.
+
+`source_drift_bound` starts the actual composed program from empty and bounds
+ALL shared-request source disagreements by ONE expected collision charge on
+that program. There is no request-count, alias-count or separate child hash
+charge. The proof uses the erasure theorem and supported-execution coverage,
+rather than independent standalone child witnesses.
+
+This establishes common-history composition for generic committed stages.
+The full native PBS caller still needs to instantiate the stages and their
+parameter/root wiring, including actual accepted-path control flow. Native
+transcript/codec correspondence, complete stage arithmetic/PCS/work composition,
+supported-profile admission and physical attacker-work refinement remain open.
+The ultimate modified-HasteBoots security theorem remains unproved.
+
+Validation: all nine exact axiom guards passed. The composed program uses
+no axioms; all other declarations use only `propext`, `Classical.choice` and
+`Quot.sound`. Full `scripts/check` exited successfully, including the
+12,173-job root build and all standalone checks. Full-check log SHA-256:
+`e9efe9a8753c039831af0210c645e872b2b2cd758dc8484164cd5e3b5d2f5412`.

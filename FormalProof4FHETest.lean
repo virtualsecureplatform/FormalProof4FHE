@@ -761,3 +761,5 @@ import FormalProof4FHETest.HasteBootsOwnedNTTBindingAudit
 import FormalProof4FHETest.HasteBootsCrossStageSourceAudit
 
 import FormalProof4FHETest.HasteBootsCallerBoundRootsAudit
+
+import FormalProof4FHETest.HasteBootsSequentialStageHistoryAudit
