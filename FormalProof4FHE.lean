@@ -1425,3 +1425,5 @@ import FormalProof4FHE.HasteBoots.AmbientCommittedOpeningSafeBound
 import FormalProof4FHE.HasteBoots.AmbientPublicZeroCheck
 
 import FormalProof4FHE.HasteBoots.MonomialPublicZeroCheck
+
+import FormalProof4FHE.HasteBoots.AmbientMonomialProduct

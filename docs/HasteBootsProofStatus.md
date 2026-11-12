@@ -30546,3 +30546,62 @@ root build and every standalone check. All 22 new exact axiom guards passed,
 using only `propext`, `Classical.choice` and `Quot.sound`. Frozen Native modules
 and vendor source were unchanged. Full-check log SHA-256:
 `617622a0bd9451ae842b9426e527ea40db0c5ced9a6d9e3f379499216fa7f412`.
+
+
+### 2026-11-12: monomial NTTs compose with the public product on one history
+
+`AmbientMonomialProduct.program` runs the trusted two-call monomial NTT loop,
+then invokes the fixed public-plan ZeroCheck and its two private openings only
+when the actual loop accepts. The product factory receives that loop's actual
+returned private memory. The logical NTT dimensions are specialized to the
+monomial table: width `2^lanes`, coefficient variables `cells`, and row variables
+`rows+1`. PCS response types, commitment memories and code parameters remain
+separate explicit interfaces for the NTT and product phases.
+
+The retained witness uses the same ambient state throughout. Full-state
+projection identifies it with the complete composed program, including failed
+NTTs, skipped product work and rejected private openings. Reaching the product
+implies both NTT calls occurred in trusted order. Product root binding fixes its
+two private roots to the same caller evaluation roots used by those NTT calls.
+Every original checkpoint recorded by a retained NTT child survives to the
+product's final state; no equal-root substitute replaces checkpoint ownership.
+Audits and earlier bad events persist, and earlier safe events transfer without
+assuming independence or losslessness.
+
+`safe_original_product_bound` derives and averages native public-plan soundness
+over the actual reached NTT returns, deriving the incoming audit. The earlier
+NTT original-source rate transfers under the product's final exclusion.
+`native_safe_joint_bound` derives both child bounds and adds the two NTT caps
+and product cap under that SAME final bad event. Local geometry, code distance,
+capacity, bases and numeric calibration remain explicit; no child security
+bound or acceptance certificate is supplied.
+
+`final_bad_le_charge` refers to the complete actual monomial program, including
+all rejected work. `native_risk_or_bad_bound` combines the derived arithmetic
+rate with that ONE charge for an empty-start monomial component. This is a
+generic execution-hazard charge, not physical attacker work. When composing
+with the enclosing PBS prefix, use the safe bound and the complete PBS final
+charge rather than adding the component charge.
+
+Still required: attach this product continuation to the retained result of
+`PackedPBSMonomialNTT` without rerunning the NTTs, and combine all earlier PBS
+risks under the extended final exception. Native parameter review confirmed
+that `packed_ntt.rs` validates logical width/variable count but opens each side
+with its own PCS parameters; the native profiling harness also selects physical
+geometry separately by role and opening budget. The current NTT interface's
+common code geometry therefore needs explicit profile compatibility evidence
+or a heterogeneous per-source extension before concrete instantiation. Root
+and logical allocation aliases alone do not prove that compatibility or the
+source/table/decoder associations needed for accepted-false coverage.
+
+Final key switching, complete accepted-false output coverage, native
+callback/byte/transcript/optimized-kernel refinement, concrete profile
+admission, adaptive repeated-proof composition and physical/actor-separated
+attacker work remain open. The final 128-bit expected-work theorem remains
+unproved.
+
+Validation: full `scripts/check` exited successfully, including the 12,302-job
+root build and every standalone check. All 16 new exact axiom guards passed,
+using only `propext`, `Classical.choice` and `Quot.sound`. Frozen Native modules
+and vendor source were unchanged. Full-check log SHA-256:
+`31c6081082654e69bf06f502e0d11dccb91175cdf8200dd898f9d57ca72e481e`.
