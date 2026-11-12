@@ -27741,3 +27741,74 @@ Validation: all 24 exact axiom guards passed using only `propext`,
 frozen, `scripts/check` passed the 12,025-job root build and every standalone
 check. Full-check log SHA-256:
 `2c3a309efc40c3330f3945464dd60afc37263b817a9bc0ddf5c6ff34a4ed4da2`.
+
+## Earlier lookup factors are fixed at original equality inputs
+
+`HelperRootsBoundary` strictly parses the most recent helper-roots binder
+and retains the full framed transcript before that binder. It rejects a
+malformed last binder rather than falling back to an earlier frame. Native
+binding supplies the boundary; root-safe equality extensions preserve it.
+Soundness reconstructs the full original framed input around the recovered
+boundary, including the exact earlier frame list.
+
+`EqualityLookupReceiptView.recover` uses the original successful prelude to
+recover the completed lookup transcript before equality sampling. Its view
+retains the original job receipt groups, including rejected reciprocal draws,
+and has no equality receipt suffix. Equal equality inputs fix this boundary
+and therefore the complete original job grouping. This does not use the
+current equality receipt or a later scalar input. Duplicate frames and roots
+remain lists with original ordinal semantics.
+
+`OriginalEqualityLookupFactors` recovers raw endpoint samples from successful
+original production: the first receipt of the original job group decodes to
+its y word, and the last decodes to its accepted r word. Exact original
+producer position and coefficient traces come from initialized native
+execution. `EqualityLookupFactorFixation` compares their coefficient vectors
+and raw words on receipt-completed fibers, retaining the explicit named-key
+and receipt-digest collision obligations.
+
+`ProgramEqualityLookupFactors` discharges payload naming for actual logged
+receipt observations using the existing `ProgramReceiptCoverage.Bad` event.
+A receipt frame is proved to occur in the actual equality input by boundary
+soundness, not assumed to be a digest target. Its first receipt read and
+chronology follow from the original complete program. Counterfactual naming
+uses the transported original first read on the same completed prefix fiber.
+The resulting raw-word fixation retains only the existing program-wide
+receipt-coverage and receipt-collision alternatives. `LoggedEqualityLookupFactors`
+derives both endpoint receipt observations from the original native protocol
+and its actual inclusion in the enclosing program history.
+
+`EqualityFactorCandidate.attach` constructs both observed original factors
+for an existing original equality-family candidate. Its `fixed` theorem fixes
+the complete canonical source/helper families and the original raw y/r words
+on the same refined equality prefix fiber and original job class. The existing
+reference `Good` and counterfactual bad alternatives are used; no new per-factor
+charge, supplied sampled-word equality, named-payload certificate or equality
+receipt is introduced. The current equality point is not fixed by this theorem.
+
+Remaining equality obligations are alignment of the original request/mask and
+native/scalar dimensions with these families and factors, transport of the
+whole residual and event to an attained fixed reference, first-read candidate
+coverage, conditional vector-kernel pricing, all-position/lifetime/private-tape
+composition and the joint work charge. The adaptive equality exception in
+`LookupInitialPairedWork.work_with_equality_exception` is not discharged yet,
+and no new term has been absorbed into its 128-bit rate.
+
+Five named regressions recover the same original lookup boundary before and
+after an earlier equality receipt, preserve the last binder despite an earlier
+decoy and duplicate roots, reject a malformed latest binder, and distinguish
+a receipt-kind frame from a same-label roots binder. They are native component
+checks, not a complete accepted false modified-PBS run. Existing Native modules
+and resource limits remain unchanged.
+
+Tuple compression/reciprocal detection pricing, whole modified-PBS application
+enforcement, original caller-parent provenance, Rust invocation/codec/input-read
+correspondence, supported profile admission, fixed assembled-reference scope,
+actor-cost separation and physical attacker-work refinement remain open.
+The final actual-attacker-work theorem is not proved.
+
+Validation: all 39 exact axiom guards passed using only `propext`,
+`Classical.choice` and `Quot.sound` (5,244-job guarded build). With source/tests
+frozen, `scripts/check` passed the 12,034-job root build and every standalone
+check. Full-check log SHA-256:
+`0c216c98a1e32885161d1bd7fd0b24ea551058f74813434c403b1ad9f0b72d3f`.
