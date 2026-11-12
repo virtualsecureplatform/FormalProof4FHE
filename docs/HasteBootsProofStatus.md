@@ -28935,3 +28935,42 @@ Validation: all four exact axiom guards passed with only `propext`,
 `Classical.choice` and `Quot.sound`. Full `scripts/check` exited successfully,
 including the 12,167-job root build and all standalone checks. Full-check log
 SHA-256: `6d474b2d9c5bf3a23a19751c7b41eb23e55c1c7f2ff980749b11a2c226dd67be`.
+
+
+### NTT/Hadamard source aliases in a shared checkpoint history (2026-11-12)
+
+`CrossStageSourceCoherence.tables_eq_or_bad` transports recorded-source
+coherence through stage dimension casts, including equality of dependent
+parameter tags. It retains the same encoding, decoding domain, front/suffix
+geometry, width, radius and both literal checkpoint memberships. Same-root
+source disagreement reaches the existing whole-history checkpoint collision
+event. `source_trans` proves that successive total-dimension transports
+preserve cube addresses and lanes; it depends on no axioms.
+
+`ntt_hadamard_eq_or_bad` instantiates this transport for an original NTT
+evaluation source and a recorded original Hadamard factor. The latter retains
+the trusted-key-root stage constructor. Total-dimension equality is derived
+from the schemes' actual common PCS geometry, rather than supplied separately.
+Full source equality follows from the explicit encoding/domain/tag/root
+associations, or the same shared checkpoint collision event occurs.
+
+`ntt_hadamard_family_eq_or_bad` establishes all factor associations at once
+for an arbitrary family of NTT schemes and one original Hadamard factor
+family. There is one common audited checkpoint history and one bad event,
+with no probability union over aliases, factor slots or row projections.
+This removes an independent per-alias source-equality premise from subsequent
+composition when the required original metadata/root associations are known.
+
+The module does not infer parameter/tag identity from digest equality, change
+packing geometry, or erase decoding-radius requirements. The complete PBS
+execution still has to derive these metadata and root associations from its
+actual public setup, emitted commitments and child invocations. Rust
+transcript/codec correspondence, whole-PBS accepted-failure/work composition,
+supported-profile admission and physical attacker-work refinement remain open.
+The ultimate security theorem is still unproved.
+
+Validation: all four exact axiom guards passed. The dimension-transport
+lemma has no axioms; the coherence results use only `propext`,
+`Classical.choice` and `Quot.sound`. Full `scripts/check` exited successfully,
+including the 12,169-job root build and all standalone checks. Full-check log
+SHA-256: `61511d4b7e56bb00f64185aeabb7725b851da634701d42935aeadf2f01adb531`.
