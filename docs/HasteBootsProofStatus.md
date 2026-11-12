@@ -28012,3 +28012,48 @@ Validation: all 32 exact axiom guards passed using only `propext`,
 frozen, `scripts/check` passed the 12,052-job root build and every standalone
 check. Full-check log SHA-256:
 `eeb86c8cc54349fa55593a2cfb769102b2fe762dbb8f872f098b6ed854705bdc`.
+
+
+## Equality continuation, all-horizon probability and joint arithmetic work
+
+`EqualityContinuation` transports original first-exposure ancestry, selected
+families, observed endpoint factors, residuals and equality events through
+program continuation. This proves monotonicity across actual private byte
+interpreter horizons.
+
+`PrivateCoinEqualityProbability` bounds the union over all instruction
+horizons under the original private-tape/oracle product measure. Its safe
+charge is expected specified lifetime work times `63 / goldilocksModulus^3`;
+the shared global reference bad event is excluded once across all horizons.
+The proof uses countable finite tape prefixes and monotone continuity of
+measure and does not require a normalized private-tape measure.
+
+`PrivateCoinLookupArithmeticProbability` combines paired scalar events with
+these equality events. `CanonicalLookupJointPcsLedger` retains the original
+shared reference/hash and PCS ledger once. `CanonicalLookupJointWorkBound`
+adds the equality rate to the existing exact finite rate and proves that
+the enlarged rate remains at most `2^-128`. Its `work_128` theorem bounds
+the enlarged intermediate arithmetic/PCS event by expected specified byte
+interpreter work. The theorem preserves the original helper/source profile
+and code-origin admission hypotheses.
+
+This does not yet discharge `LookupInitialPairedWork.EqualityException`: the
+actual original caller exception must still be recovered into an attained
+equality candidate/event. Seed-order integration at that caller endpoint,
+tuple compression/reciprocal detection pricing, whole modified-PBS output
+enforcement, original caller-parent provenance, Rust invocation/codec/read
+correspondence, supported profile admission and physical attacker-work
+refinement remain open. The ultimate accepted-false-PBS theorem is not proved.
+
+Existing Native modules, vendor code and resource limits remain unchanged.
+
+Five component regressions check preservation of the original read log and
+first charge, zero fresh charge for a repeated input, the new-input charge
+and all continued logged work. They do not assert a complete accepted false
+modified-PBS execution. All new declarations and regressions have exact
+axiom guards.
+
+Validation: all 32 exact axiom guards passed, using only `propext`,
+`Classical.choice` and `Quot.sound`. With source/tests frozen, `scripts/check`
+passed the 12,059-job root build and every standalone check. Full-check log
+SHA-256: `3e20d538f28f0d5394ec6816b79a2f53db7896f6949c082a79754526eb5f3455`.
