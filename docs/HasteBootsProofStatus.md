@@ -29259,3 +29259,42 @@ Validation: all eight exact axiom guards passed with only permitted standard
 axioms (`propext`, `Classical.choice`, `Quot.sound`). Full `scripts/check`
 exited successfully, including the 12,186-job root build and all standalone
 checks. Full-check log SHA-256: `14ec9366b6e3758217bcafe3ae501fc3b9c747faf354c4dd7d90397da5ca42f2`.
+
+
+### Caller-level averaging and quantitative original-transform enforcement (2026-11-12)
+
+`HadamardNTTProbability.safe_risk_bound` averages conditional original NTT
+soundness over the ACTUAL supported Hadamard outcomes. Each reached child
+starts at its predecessor's real final shared state. The incoming audit is
+derived from supported Hadamard execution, then transported through the
+explicit encoding association. Rejected first-stage paths contribute no
+reached NTT event. No standalone child-from-empty witness is used.
+
+`rate` retains one row-detection term, one compression term and the two
+original PCS batch errors. `covered_bound` composes a supported caller-event
+reduction with that averaged rate and ONE collision charge on the actual
+short-circuit Hadamard/NTT program. NTT risk outside the final collision event
+is separated once; source-association and original-owner exceptions are
+absorbed by that SAME whole-caller charge, not added again per child or alias.
+The incoming audit is discharged from the actual empty initialization.
+
+`HadamardNTTFunctionBound.false_transform_bound` instantiates this quantitative
+interface with the proved false-transform coverage of the reached concrete
+butterfly NTT. The event includes an accepted child and a false transform at
+ANY original coefficient row against the original Hadamard factor. Its bound
+is the averaged NTT arithmetic/PCS rate plus the actual caller's single shared
+expected collision charge, with no row-count multiplier or independent source
+association/recording certificate. Original parameter encoding/domain/tag
+associations, primitive root, packing length and PCS conditions stay explicit.
+
+This is quantitative enforcement for one selected Hadamard/NTT pair, not a
+whole-PBS 128-bit security or physical attacker-work theorem. Full original
+caller wiring, all other child stages and repeated/adaptive proof composition,
+native byte/transcript correspondence, supported-profile admission and
+physical/actor-separated work refinement remain required. The ultimate
+modified-HasteBoots security theorem remains unproved.
+
+Validation: all five exact axiom guards passed with only permitted standard
+axioms (`propext`, `Classical.choice`, `Quot.sound`). Full `scripts/check`
+exited successfully, including the 12,189-job root build and all standalone
+checks. Full-check log SHA-256: `a76743984210359d736b62914363343ea88ab12e75b2f1cb8a874bb6f6b863ed`.

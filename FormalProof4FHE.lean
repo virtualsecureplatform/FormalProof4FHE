@@ -1255,3 +1255,7 @@ import FormalProof4FHE.HasteBoots.CommittedPrefixSafeBound
 import FormalProof4FHE.HasteBoots.CommittedBatchSafeBound
 
 import FormalProof4FHE.HasteBoots.NTTConditionalSoundness
+
+import FormalProof4FHE.HasteBoots.HadamardNTTProbability
+
+import FormalProof4FHE.HasteBoots.HadamardNTTFunctionBound
