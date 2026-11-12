@@ -28706,3 +28706,66 @@ Validation: all 38 exact guards passed and all three accounting regressions
 compiled. Full `scripts/check` exited successfully, including the 12,142-job
 root build and all standalone checks. Full-check log SHA-256:
 `8c7ff28addee170eb5e4ec884eddae7a34e6d21e91ed07da2a2355023e9461aa`.
+
+### Full original lookup membership: 128-bit specified-work bound (2026-11-12)
+
+`LookupCompressionOrdinal` identifies the original first-compression job by
+its preceding compression-receipt count. `FirstCompressionCandidate` retains
+that literal first draw and derives a `2^64` complexity cap from the validated
+original serialized request vector. Actual sequenced caller buffers supply
+the serialization limit; neither an attacker-declared degree bound nor a new
+charge for each repetition's shared parent payload is used.
+
+`FirstCompressionWorkPosition` aggregates all admitted original compression
+inputs/jobs at one first read and prices the entire original tuple test by
+selected key bytes at `2^-132`. `FirstCompressionLifetime` and its continuation
+and private-coin lift cover all original positions, budgets, repetitions,
+private tapes and instruction horizons. The safe compression lifetime branch
+satisfies the same `2^132 * probability ≤ expected specified interpreter work`
+bound as the reciprocal branch.
+
+`CallerLookupWorkCoverage` derives the literal first draw and its payload cap
+from actual rebuilt execution and original caller input domains. Original
+public tuple nonmembership now reaches the existing arithmetic witness,
+shared seed-order/reference exceptions, or work-priced original compression/
+reciprocal lifetime events. No unpriced native miss branch remains at this
+lookup-level coverage interface.
+
+`PrivateCoinAllLookupChallengeProbability.safe_work_130` combines scalar,
+equality, compression and reciprocal safe events with exact finite rates.
+`CanonicalAllLookupJointPcsLedger` and `CanonicalAllLookupJointWorkBound`
+compose these events, explicit lifetime reference failures and the original
+PCS families while sharing root/hash/reference charges once. Their combined
+specified-work rate remains below `2^-128` with the original helper/source
+calibration premises.
+
+`LookupMembershipWork.Witness` records an actual rebuilt caller execution,
+original sequenced input/framing and nonmembership of a complete decoded
+source tuple in its original public table. `work_128` proves, for a fixed
+original context/allocation and the original helper/source admission premises,
+`2^128 * P[any such witness over all instruction horizons] ≤ E[specified interpreter work]`.
+The seed-order alternative is included once in the exact finite rate. This
+extends the earlier arithmetic-only endpoint to original tuple membership.
+It is not a theorem about every false PBS output or physical attacker work,
+and it does not remove the fixed-context/allocation scope.
+
+Three regressions cover maximal legal repetitions sharing one small table
+payload, width-one hashing injective at every challenge, and an explicit
+nonmember tuple that passes the reciprocal relation at a compression collision
+with an allowed offset. The latter is a mathematical lookup-pair fixture,
+not an accepted false-PBS execution. Fifty-seven exact axiom guards cover all
+new declarations, permitting only `propext`, `Classical.choice` and `Quot.sound`;
+the guarded target completed 5,331 jobs. Native modules, vendor code and
+resource limits remain unchanged.
+
+Remaining requirements for the ultimate theorem include dynamic caller/proof
+scope with fixed original assembled references, whole false-PBS output
+coverage and function enforcement, concrete supported-profile admission,
+original caller/application provenance, actor-cost separation, Rust execution/
+codec correspondence and physical attacker-work refinement. The complete
+modified-HasteBoots 128-bit actual-attacker-work theorem remains unproved.
+
+Validation: all 57 exact guards passed and all three mathematical
+regressions compiled. Full `scripts/check` exited successfully, including
+the 12,155-job root build and all standalone checks. Full-check log SHA-256:
+`e3a865a406d8b6f0ee329f5bb7d795c735473ae3ada8cd50df60328c8d0f9f79`.
