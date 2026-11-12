@@ -31161,3 +31161,61 @@ root build and every standalone check. Both modules are exported; the imported
 audit contains 16 exact axiom guards, all passing with only `propext`,
 `Classical.choice` and `Quot.sound`. Frozen Native modules and vendor source are
 unchanged. Full-check log SHA-256: `4cce905fee21909a900e67ec4d20761c749685948ada9976c98d1e0dbb6b1643`.
+
+### 2026-11-12: canonical final reconstruction appended to the shared PBS prefix
+
+`DependentStageContinuation` factors execution bookkeeping for a reached-or-skipped
+memory-dependent child. Supported results preserve their actual predecessor;
+reaching a child derives its selected memory tag and actual incoming-state
+support. State invariants and earlier safe events are transferred through the
+actual continuation without losslessness or replay. Its local preservation
+premises are discharged from concrete child execution facts, not supplied child
+security bounds. This avoids repeatedly normalizing the entire preceding PBS
+history in each continuation proof.
+
+`PackedPBSKeySwitchReconstruction` appends native canonical reconstruction after
+the product's actual terminal AND opening-loop acceptance. The child receives
+the product loop's returned private memory and full mixed-height state. The
+existing known-input reference and original final digit coefficient family fix
+its source roots; a separate final key-switch radix is kept independent of the
+earlier bootstrapping radix. Only borrow roots come from the retained commit
+callback. Every source retains its own physical padding and PCS geometry.
+
+The dependent result retains the incoming memory that selected its reconstruction
+factory. `reached_reconstruction` derives product presence/acceptance, actual
+predecessor support, exact memory equality and actual child support. Full-state
+projection removes only analysis data. Owners, audits and earlier exceptions
+survive all executed and skipped paths; root binding is derived even on a later
+reconstruction rejection. The continuation helper is instantiated with the
+actual `PaddedLinear` witness, preserving native singleton preparation, queries,
+column attachment, worker work and returned memory.
+
+`PackedPBSKeySwitchReconstructionProbability` derives the reconstruction rate by
+averaging the standalone native bound over actual reached accepted product
+returns. Their audits come from the preceding full execution. Both child-final
+and enclosing-final forms are proved. The rate is one logical linear-compression
+term plus source-specific PCS errors, bounded uniformly in actual private
+memory, without a supplied child-security or replay certificate.
+
+`PackedPBSKeySwitchReconstructionNativeJointBound` derives all preceding native
+PBS rates plus the final reconstruction cap under the SAME extended final
+exclusion. Its risk-or-bad companion adds ONE full-prefix execution-hazard charge,
+including earlier rejects and skipped work. The new proofs compile within the
+default resource limits.
+
+Next: shared canonical comparison on the reconstruction's actual digit/borrow
+registry, then extraction. Source review confirms that the masked PBS profile
+uses the shared backend; its decomposition first verifies the same linear list
+and then calls shared comparison over digits followed by borrows. The current
+mixed-width opening geometry has exact logical source/helper arities, so physical
+high-zero padding needs an explicit adapter before concrete masked-profile
+instantiation. Complete accepted-false-output coverage, earlier source/decoder
+associations, numeric profile admission, production transcript/byte/field/kernel
+refinements, adaptive repeated proofs and physical attacker-work accounting
+remain open. The final 128-bit theorem remains unproved.
+
+Validation: full `scripts/check` exited successfully, including the 12,345-job
+root build and every standalone check. All four modules are exported and the
+imported audit contains 20 exact axiom guards, all within `propext`,
+`Classical.choice` and `Quot.sound`. Frozen Native modules and vendor sources are
+unchanged. Full-check log SHA-256: `649e5b9090ea05831f7f02a235add8382be6b8991e494e67a48d02ac474b3a96`.
