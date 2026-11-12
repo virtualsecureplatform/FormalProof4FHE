@@ -31641,3 +31641,52 @@ Validation: full `scripts/check` exited successfully, including the 12,386-job
 root build and every standalone check. Default resource limits were retained;
 frozen Native modules and vendor sources are unchanged. Full-check log SHA-256:
 `772d9b7a0168bb7bb97cfd361696eedaced8a27df1675d060568120cc2489cfd`.
+
+### Native extraction risk averaged and joined to the full PBS bound
+
+Added `RetainedPaddedExtractionProbability`,
+`RetainedPaddedExtractionNativeBound`, `RetainedPaddedExtractionJointBound`,
+`PackedPBSKeySwitchExtractionBound` and
+`PackedPBSKeySwitchExtractionNativeJointBound`.
+
+The probability interface averages only over actually selected children of
+supported predecessors. Skipped comparison branches have zero extraction risk;
+no losslessness assumption is needed. The native interface discharges the local
+bound from `KeySwitchPaddedExtraction.original_safe_bound`, deriving degree laws
+from typed interpolation messages. It permits source-specific code facts and
+radii, with an explicit public calibration into a uniform component budget.
+It does not assume a child-security, replay or truthful-source certificate.
+
+`PackedPBSKeySwitchExtractionBound.safe_extraction_bound` specializes this to
+the actual complete comparison witness. Its incoming audit is the derived
+whole-prefix comparison audit. The selected extraction uses the actual returned
+comparison memory, retained accumulator endpoint and caller's original last
+coefficient root, as in the execution module. The component budget is the native
+extraction ZeroCheck rate plus exactly one private PCS error. Public mask/target
+tables incur no private-root PCS errors.
+
+`PackedPBSKeySwitchExtractionNativeJointBound.native_safe_joint_bound` joins
+all earlier native risks through the final shared comparison with the actually
+reached extraction original-owner risk. Its right-hand side is the previous
+native rate sum plus the extraction budget. All events use the same final Bad
+exclusion of the extended witness. The bound is a proof-valued abbreviation of
+the generic joint rule applied to the two derived native bounds, with the prior
+and extraction predicates/rates explicit. The canonical `first.heights` and
+native scheme encoding are retained in the dependent constructor types; this
+keeps the declaration within default elaboration limits.
+
+This finishes the conditional joint arithmetic/PCS rate through extraction.
+It does not yet extend operational erasure or the whole-program collision
+charge to extraction, so the earlier comparison-prefix charge must not be
+reused as though it covered the final opening. Original-source interpretation
+and complete accepted-false-output coverage, native parameter associations,
+numeric profile admission, production refinements, adaptive composition and
+actor-separated physical attacker-work accounting also remain open. The final
+128-bit theorem remains unproved. All five modules are exported. The imported
+audit guards their five main bounds; direct axiom inspection found only
+`propext`, `Classical.choice` and `Quot.sound`.
+
+Validation: full `scripts/check` exited successfully, including the 12,392-job
+root build and all standalone checks. Default resource limits were retained;
+frozen Native modules and vendor sources are unchanged. Full-check log SHA-256:
+`88041138fa67257cdb524ab7a28c083bd27af5f5f769f22b4072850368aecd79`.

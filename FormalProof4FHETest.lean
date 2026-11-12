@@ -869,3 +869,5 @@ import FormalProof4FHETest.HasteBootsPaddedPublicZeroCheckAudit
 import FormalProof4FHETest.HasteBootsKeySwitchPaddedExtractionAudit
 
 import FormalProof4FHETest.HasteBootsPackedPBSKeySwitchExtractionAudit
+
+import FormalProof4FHETest.HasteBootsPackedPBSKeySwitchExtractionBoundAudit
