@@ -1925,3 +1925,9 @@ import FormalProof4FHE.HasteBoots.AmbientNTTSequenceAccepted
 import FormalProof4FHE.HasteBoots.AcceptedMonomialNTT
 
 import FormalProof4FHE.HasteBoots.AcceptedMonomialProductRotation
+
+import FormalProof4FHE.HasteBoots.AmbientSourceDescriptor
+
+import FormalProof4FHE.HasteBoots.MonomialSourceAssociation
+
+import FormalProof4FHE.HasteBoots.MonomialRotationProbability

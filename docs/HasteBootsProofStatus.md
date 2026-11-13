@@ -34198,3 +34198,54 @@ limit was changed.
 
 Full `scripts/check` exited 0: 12,660 build jobs and all standalone checks.
 Full-check log SHA-256: `fc93ccf9fb9b05061e9019607d28752d7bc9e7c32d687c1a47e96b4e3f4f5139`.
+
+## Monomial decoder association and semantic native rotation rate
+
+`AmbientSourceDescriptor` packages the actual unpadded source's public physical
+parameters, transporting its local domain to the checked height of its ambient
+tag. The original decoded source is proved equal to this same owner's canonical
+native-address view. Associated complete descriptors and retained equal roots
+identify two such logical sources outside the existing final exception. Domain,
+code dimensions, degree, radius and tag association are not inferred from equal
+digests alone.
+
+`MonomialSourceAssociation.sources_eq_or_bad` discharges the previously exposed
+NTT/public-product source-value mismatch. Both original evaluation owners are
+recovered from the actual supported combined monomial execution, their caller
+roots are identified, and their checkpoint membership is retained through the
+actual public-product continuation. The final audit is derived from the actual
+inherited initial audit. Source agreement follows from explicit public decoder
+association and that one final history; no independent source-value certificate,
+root sampling, state reset, alias loss or separate exception is introduced.
+`all_rotations_or_risks` now gives every active coefficient-domain rotation in
+both halves outside the already bounded NTT/product original-risk families and
+the same final Bad event.
+
+`MonomialRotationProbability.AcceptedWrong` is a raw event on the actual retained
+combined run: an accepted product with an incorrect decoded coefficient-domain
+rotation. Its support receipt selects the existing NTT children, without
+conditioning or normalizing the distribution. `accepted_wrong_safe_le_risks`
+transfers this semantic event, outside the final exception, into the original
+native risk union. `native_safe_bound` derives the corresponding sum of the two
+NTT arithmetic rates and the public-product rate, using the existing native
+component theorems and their explicit numeric/code-distance calibration. It
+starts at the caller's arbitrary inherited audited state, including nonempty
+setup history. No child success-probability bound is a premise.
+
+Remaining: admit the required public descriptor association for concrete
+factories, identify the NTT coefficient rows with the accumulator's original
+sources, complete canonical decomposition/honest external-product semantics,
+and lift full PBS-output failure through the full setup/verifier execution.
+The existing whole native theorem still bounds accepted-false key-switch
+increments relative to the actual accumulator; this milestone does not change
+that event to full PBS output. Production parameter/representation admission,
+FS/ROM/grinding, adaptive attempts and physical attacker-work accounting remain
+outstanding, and the production 128-query profile is still uncertified.
+
+All 14 declarations have directly inspected exact axiom guards using only
+`propext`, `Classical.choice`, `Quot.sound`, or fewer. All three new source modules
+compile at default Lean resources, without frozen Native/vendor edits, resource
+increases, custom axioms, admitted proofs or linter suppression.
+
+Full `scripts/check` exited 0: 12,666 build jobs and all standalone checks.
+Full-check log SHA-256: `b999433d488c3f4a71b418416ab66cdfaf5b52d9cb8bc33a992ecf0b4ad307ed`.
