@@ -1681,3 +1681,17 @@ import FormalProof4FHE.HasteBoots.RectangularStagedOpening
 import FormalProof4FHE.HasteBoots.ConstructedGoldStagedLookup
 
 import FormalProof4FHE.HasteBoots.RectangularStagedSquareCompatibility
+
+import FormalProof4FHE.HasteBoots.RectangularStagedException
+
+import FormalProof4FHE.HasteBoots.RectangularLookupGroupedOpening
+
+import FormalProof4FHE.HasteBoots.RectangularSharedLookupPCS
+
+import FormalProof4FHE.HasteBoots.RectangularStagedSharedLookup
+
+import FormalProof4FHE.HasteBoots.RectangularStagedLookupSoundness
+
+import FormalProof4FHE.HasteBoots.RectangularLookupConditionalSoundness
+
+import FormalProof4FHE.HasteBoots.ConstructedGoldLookupConditional

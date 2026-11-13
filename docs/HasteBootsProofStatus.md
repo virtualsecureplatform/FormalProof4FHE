@@ -32475,3 +32475,50 @@ source associations, trusted key and accumulator coverage, accepted false-output
 coverage, numeric profile admission, production refinements, adaptive composition
 and actual attacker-work accounting remain open. The final 128-bit security
 theorem is unproved.
+
+
+### Rectangular lookup algebra and conditional soundness (2026-11-13)
+
+Added `RectangularStagedException` and `RectangularLookupGroupedOpening`.
+Accepted source/sum-helper/identity-helper wrong-opening events are exactly the
+staged original-root PCS wrong-value event. The complete staged bound includes
+that event OR the final common history exception with one whole-run charge,
+without adding another authentication charge for the exception.
+
+`RectangularSharedLookupPCS` connects actual computed terminal selection to
+the rectangular worker loop. A missing terminal packet cannot enable an
+accepted opening; the fallback cannot bypass rejection. Accepted packets reduce
+to scalar arithmetic, original-root rectangular PCS arithmetic, or the common
+availability disagreement. The arithmetic bound retains the same actual
+selection/provider/worker execution and sums one PCS term per original root.
+
+`RectangularStagedSharedLookup` and `RectangularStagedLookupSoundness` connect
+ordered EQ, the shared scalar batch and actual terminal data to rectangular
+source/helper tables. Nonpassing lookup jobs accepted by the staged run, OR its
+final history exception, have scalar arithmetic plus rectangular PCS arithmetic
+plus one complete-run availability charge. `RectangularLookupConditionalSoundness`
+proves the corresponding bound from an arbitrary audited incoming history,
+outside the final collision event, without an additional hash charge.
+
+`ConstructedGoldLookupConditional` instantiates the audited-history theorem
+with completed native Gold role allocations: source packing four, helper
+packing three, code symbols four. Domain size, positive degree and rectangular
+capacity are derived from the native constructors. Radius conditions remain
+explicit public analysis premises; the existing conditional role policy does
+not certify the current production profile or final 128-bit target.
+
+All seven modules are exported. Direct inspection and 32 imported exact axiom
+guards cover every named declaration: eleven have no axioms, one uses only
+`propext`, and twenty use `propext`, `Classical.choice` and `Quot.sound`. Frozen
+Native and vendor files remain unchanged; default resource limits were retained.
+Full `scripts/check` exited 0, including 12,474 root-build jobs and every
+standalone check. Full-check log SHA-256:
+`b31b623307856beae8468d975b656daea93b8c4ac1eb658f74e85083e0b127ff`.
+
+The next probability link is false original source values through private
+pair/repetition sampling to nonpassing lookup jobs, using these rectangular
+views. Original-owner associations and complete native comparison integration
+must then use that link. Trusted key/accumulator coverage, full accepted
+false-output coverage, numeric profile admission, production refinements,
+adaptive composition and actual attacker-work accounting also remain open.
+The final 128-bit security theorem is unproved.
