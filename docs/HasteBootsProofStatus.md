@@ -31740,3 +31740,38 @@ Validation: full `scripts/check` exited successfully, including the 12,395-job
 root build and all standalone checks. Frozen Native modules and vendor sources
 are unchanged. Full-check log SHA-256:
 `99b437afd9047c10aad185994167bde6f8db5e2f48027b56a7ea8c818ac3b7cf`.
+
+### Complete native risk-or-Bad bound through extraction
+
+Added `PackedPBSKeySwitchExtractionNativeJointBound.native_risk_or_bad_bound`.
+It combines the derived native arithmetic/PCS joint bound through extraction
+with `PackedPBSKeySwitchExtractionExecution.final_bad_le_charge` on the same
+complete witness. The result bounds the union of all original-owner stage
+risks and final Bad by the native component rate sum plus one operational
+`ExpectedHazard.charge`. No per-stage collision charges are accumulated.
+
+The executed constructors remain the actual typed native Hadamard driver,
+request comparisons, accumulator, monomial NTT/product, known-input check,
+final key-switch NTT/product/reconstruction/shared comparison, and extraction.
+The last comparison retains the canonical first-scheme heights and native
+encoding projections, and extraction uses its returned memory and retained
+endpoint. Component rates are derived from the executed model, subject to the
+explicit public code/radius/calibration facts; no child-security or replay law
+is supplied. The new bound is a proof-valued abbreviation of the generic
+risk-or-Bad union lemma applied to the two concrete proved bounds.
+
+This completes the conditional protocol-risk composition for the current full
+PBS model. It is not yet accepted-false-output security: common original-source
+interpretation, full semantic coverage, native public parameter associations,
+numeric profile admission, production refinements, adaptive composition and
+actor-separated physical attacker-work accounting remain open. In particular,
+the charge includes modeled verifier/setup oracle work and must not be renamed
+attacker work. The final 128-bit theorem remains unproved. The existing module
+export exposes the new declaration. Direct axiom inspection found only
+`propext`, `Classical.choice` and `Quot.sound`; the imported bound audit now
+contains its sixth exact guard. Default resource limits were retained.
+
+Validation: full `scripts/check` exited successfully, including the 12,395-job
+root build and all standalone checks. Frozen Native modules and vendor sources
+are unchanged. Full-check log SHA-256:
+`0f4ba5623eee0e5a39b70a123ae73b7a84583d7be2d7694e75210efe2437150b`.
