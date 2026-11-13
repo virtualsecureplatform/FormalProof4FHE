@@ -303,5 +303,229 @@ abbrev ntt_family_retains_witness {Index : Type} {familyB : ℕ} (dummy : Digest
   CheckpointHistoryChain.families_of_retains (F := ZMod q) (Index := Index) (b := familyB) (H := first.heights)
     _ _ _ (ntt_retains_witness length psi primitive family inputs base hs nodesEnough radix linearBase dummy first second secondBase accumulators factory monoLength evaluations monoBase firstSmall roundSmall zeroNodesEnough rotations zeroBase accLength inputReference inputLength inputSmall inputBase finalFamily finalNodes finalLength finalBase productFirstSmall productRoundSmall productNodes productBase finalRadix reconstructionBase comparisonBase extractionLog positive output extractionFirstSmall extractionRoundSmall extractionNodes extractionBase initial)
 
+omit [SampleableType (ZMod q)] [SampleableType (Fin (cells+rows) → ZMod q)]
+  [SampleableType (Fin (2^lanes) → ((Fin (2^lanes) → ZMod q) × ZMod q))] in
+/-- Retain all checkpoints from the actual product return through the complete final witness. -/
+abbrev product_retains_witness (dummy : Digest) (first : PackedPBSComparisonStage.Scheme Cfg Input Memory Helper Return d)
+    (second : PackedPBSComparisonStage.Scheme Cfg Input Memory SecondHelper Return2 d)
+    (secondBase : Memory → AuthenticatedLinear.Scheme (ZMod q) Input Digest Cfg Response Memory CommitMemory
+      (2*d+2) b front suffix m queries height)
+    (accumulators : Fin 4 → NativeGoldParameterStore.Reference) (factory : Memory → AccScheme)
+    (monoLength : 2^cells*(2^lanes) = 2^log) (evaluations : PackedPBSMonomialReferences.Evaluations)
+    (monoBase : Bool → Memory → MonoScheme)
+    (firstSmall : (2*(2^lanes)-1)*2+1 ≤ q) (roundSmall : (2*(2^lanes)-1)*3+1 ≤ q)
+    (zeroNodesEnough : 2*(2^lanes) ≤ (2*(2^lanes)-1)*2+1)
+    (rotations : Fin rounds → Fin (2*(2^(cells+lanes)))) (zeroBase : Memory → ZeroScheme)
+    (accLength : 2^accC*accB = 2^log) (inputReference : NativeGoldParameterStore.Reference)
+    (inputLength : 2^inputC*inputB = 2^log) (inputSmall : 2*inputB ≤ q) (inputBase : Memory → InputScheme)
+    (finalFamily : PackedPBSOriginalReferences.Family finalD) (finalNodes : 2*finalB ≤ q)
+    (finalLength : 2^finalC*finalB = 2^log)
+    (finalBase : Fin (finalD+1) → Memory → PaddedNTT.Scheme (ZMod q) Input Digest Cfg FinalResponse Memory FinalCommitMemory first.heights finalB finalC 1 finalB)
+    [∀ index memory side, SampleableType (InteractiveAuthenticatedOpening.TestMatrix (ZMod q) (2^((finalBase index memory).code side).front) finalB)]
+    [∀ index memory side, SampleableType (Fin ((finalBase index memory).code side).queries → Fin (2^first.heights ((finalBase index memory).tag side)))]
+    (productFirstSmall : (2*finalB-1)*2+1 ≤ q) (productRoundSmall : (2*finalB-1)*3+1 ≤ q)
+    (productNodes : 2*finalB ≤ (2*finalB-1)*2+1)
+    (productBase : Memory → KeySwitchPaddedProduct.Scheme (q := q) (d := finalD) (b := finalB) (n := finalC)
+      (Input := Input) (Cfg := Cfg) (Response := ProductResponse) (Memory := Memory) (CommitMemory := ProductCommitMemory) (heights := first.heights))
+    [∀ memory factor, SampleableType (InteractiveAuthenticatedOpening.TestMatrix (ZMod q) (2^((productBase memory).code factor).front) finalB)]
+    [∀ memory factor, SampleableType (Fin ((productBase memory).code factor).queries → Fin (2^first.heights ((productBase memory).tag factor)))]
+    (finalRadix : ZMod q)
+    (reconstructionBase : Memory → PaddedLinear.Scheme (ZMod q) Input Digest Cfg ReconstructionResponse Memory ReconstructionCommitMemory first.heights (2*finalD+2) finalB (1+finalC))
+    [∀ memory factor, SampleableType (InteractiveAuthenticatedOpening.TestMatrix (ZMod q) (2^((reconstructionBase memory).code factor).front) finalB)]
+    [∀ memory factor, SampleableType (Fin ((reconstructionBase memory).code factor).queries → Fin (2^first.heights ((reconstructionBase memory).tag factor)))]
+    (comparisonBase : (memory : Memory) → PackedPBSComparisonStage.Scheme Cfg Input Memory (FinalHelper memory) (FinalReturn memory) finalD)
+    (extractionLog : extractionC+extractionLanes = log) (positive : 0 < dimension)
+    (output : NativePublic.Ciphertext q dimension)
+    (extractionFirstSmall : (2*(2^extractionLanes)-1)*2+1 ≤ q)
+    (extractionRoundSmall : (2*(2^extractionLanes)-1)*3+1 ≤ q)
+    (extractionNodes : 2*(2^extractionLanes) ≤ (2*(2^extractionLanes)-1)*2+1)
+    (extractionBase : Memory → KeySwitchPaddedExtraction.Scheme (q := q) (c := extractionC) (lanes := extractionLanes)
+      (Input := Input) (Cfg := Cfg) (Response := ExtractionResponse) (Memory := Memory)
+      (CommitMemory := ExtractionCommitMemory) (heights := first.heights))
+    [∀ memory factor, SampleableType (InteractiveAuthenticatedOpening.TestMatrix (ZMod q) (2^((extractionBase memory).code factor).front) (2^extractionLanes))]
+    [∀ memory factor, SampleableType (Fin ((extractionBase memory).code factor).queries → Fin (2^first.heights ((extractionBase memory).tag factor)))]
+    [SampleableType (Fin (2^extractionLanes) → ZMod q)]
+    [SampleableType (PackedZeroReduction.Points (ZMod q) extractionC (2^extractionLanes))]
+    [SampleableType (Fin (2^extractionLanes) → Fin (2^extractionLanes) → ZMod q)]
+    (initial : CheckpointExecution.State (Input := Input) (Digest := Digest) (RecordedSourceCoherence.Shape Cfg height))
+
+ :=
+
+
+  RetainedExtractionHistory.propagate_retains_bind (H := first.heights)
+    (Before := Complete first second finalBase productBase reconstructionBase comparisonBase)
+    (fun before memory => KeySwitchPaddedExtraction.stage (extractionBase memory) hs.encoding finalFamily positive
+      (fun _ => endpoint first second finalBase productBase reconstructionBase comparisonBase factory accLength extractionLog before)
+      (fun _ => output) extractionFirstSmall extractionRoundSmall extractionNodes)
+    (get first second finalBase productBase reconstructionBase comparisonBase)
+    (PackedPBSKeySwitchComparisons.finalState first second finalBase productBase reconstructionBase comparisonBase)
+    dummy
+    (fun before : Complete first second finalBase productBase reconstructionBase comparisonBase =>
+      PackedPBSKeySwitchProduct.finalState first second finalBase productBase before.1.1)
+    (PackedPBSKeySwitchComparisons.witness length psi primitive family inputs base hs nodesEnough radix linearBase dummy first second secondBase accumulators factory monoLength evaluations monoBase firstSmall roundSmall zeroNodesEnough rotations zeroBase accLength inputReference inputLength inputSmall inputBase finalFamily finalNodes finalLength finalBase productFirstSmall productRoundSmall productNodes productBase finalRadix reconstructionBase comparisonBase initial)
+    (PackedPBSKeySwitchComparisons.product_retains_witness length psi primitive family inputs base hs nodesEnough radix linearBase dummy first second secondBase accumulators factory monoLength evaluations monoBase firstSmall roundSmall zeroNodesEnough rotations zeroBase accLength inputReference inputLength inputSmall inputBase finalFamily finalNodes finalLength finalBase productFirstSmall productRoundSmall productNodes productBase finalRadix reconstructionBase comparisonBase initial)
+
+omit [SampleableType (ZMod q)] [SampleableType (Fin (cells+rows) → ZMod q)]
+  [SampleableType (Fin (2^lanes) → ((Fin (2^lanes) → ZMod q) × ZMod q))] in
+/-- Retain any family recorded at the actual product return in the final history. -/
+abbrev product_family_retains_witness {Index : Type} {familyB : ℕ} (dummy : Digest) (first : PackedPBSComparisonStage.Scheme Cfg Input Memory Helper Return d)
+    (second : PackedPBSComparisonStage.Scheme Cfg Input Memory SecondHelper Return2 d)
+    (secondBase : Memory → AuthenticatedLinear.Scheme (ZMod q) Input Digest Cfg Response Memory CommitMemory
+      (2*d+2) b front suffix m queries height)
+    (accumulators : Fin 4 → NativeGoldParameterStore.Reference) (factory : Memory → AccScheme)
+    (monoLength : 2^cells*(2^lanes) = 2^log) (evaluations : PackedPBSMonomialReferences.Evaluations)
+    (monoBase : Bool → Memory → MonoScheme)
+    (firstSmall : (2*(2^lanes)-1)*2+1 ≤ q) (roundSmall : (2*(2^lanes)-1)*3+1 ≤ q)
+    (zeroNodesEnough : 2*(2^lanes) ≤ (2*(2^lanes)-1)*2+1)
+    (rotations : Fin rounds → Fin (2*(2^(cells+lanes)))) (zeroBase : Memory → ZeroScheme)
+    (accLength : 2^accC*accB = 2^log) (inputReference : NativeGoldParameterStore.Reference)
+    (inputLength : 2^inputC*inputB = 2^log) (inputSmall : 2*inputB ≤ q) (inputBase : Memory → InputScheme)
+    (finalFamily : PackedPBSOriginalReferences.Family finalD) (finalNodes : 2*finalB ≤ q)
+    (finalLength : 2^finalC*finalB = 2^log)
+    (finalBase : Fin (finalD+1) → Memory → PaddedNTT.Scheme (ZMod q) Input Digest Cfg FinalResponse Memory FinalCommitMemory first.heights finalB finalC 1 finalB)
+    [∀ index memory side, SampleableType (InteractiveAuthenticatedOpening.TestMatrix (ZMod q) (2^((finalBase index memory).code side).front) finalB)]
+    [∀ index memory side, SampleableType (Fin ((finalBase index memory).code side).queries → Fin (2^first.heights ((finalBase index memory).tag side)))]
+    (productFirstSmall : (2*finalB-1)*2+1 ≤ q) (productRoundSmall : (2*finalB-1)*3+1 ≤ q)
+    (productNodes : 2*finalB ≤ (2*finalB-1)*2+1)
+    (productBase : Memory → KeySwitchPaddedProduct.Scheme (q := q) (d := finalD) (b := finalB) (n := finalC)
+      (Input := Input) (Cfg := Cfg) (Response := ProductResponse) (Memory := Memory) (CommitMemory := ProductCommitMemory) (heights := first.heights))
+    [∀ memory factor, SampleableType (InteractiveAuthenticatedOpening.TestMatrix (ZMod q) (2^((productBase memory).code factor).front) finalB)]
+    [∀ memory factor, SampleableType (Fin ((productBase memory).code factor).queries → Fin (2^first.heights ((productBase memory).tag factor)))]
+    (finalRadix : ZMod q)
+    (reconstructionBase : Memory → PaddedLinear.Scheme (ZMod q) Input Digest Cfg ReconstructionResponse Memory ReconstructionCommitMemory first.heights (2*finalD+2) finalB (1+finalC))
+    [∀ memory factor, SampleableType (InteractiveAuthenticatedOpening.TestMatrix (ZMod q) (2^((reconstructionBase memory).code factor).front) finalB)]
+    [∀ memory factor, SampleableType (Fin ((reconstructionBase memory).code factor).queries → Fin (2^first.heights ((reconstructionBase memory).tag factor)))]
+    (comparisonBase : (memory : Memory) → PackedPBSComparisonStage.Scheme Cfg Input Memory (FinalHelper memory) (FinalReturn memory) finalD)
+    (extractionLog : extractionC+extractionLanes = log) (positive : 0 < dimension)
+    (output : NativePublic.Ciphertext q dimension)
+    (extractionFirstSmall : (2*(2^extractionLanes)-1)*2+1 ≤ q)
+    (extractionRoundSmall : (2*(2^extractionLanes)-1)*3+1 ≤ q)
+    (extractionNodes : 2*(2^extractionLanes) ≤ (2*(2^extractionLanes)-1)*2+1)
+    (extractionBase : Memory → KeySwitchPaddedExtraction.Scheme (q := q) (c := extractionC) (lanes := extractionLanes)
+      (Input := Input) (Cfg := Cfg) (Response := ExtractionResponse) (Memory := Memory)
+      (CommitMemory := ExtractionCommitMemory) (heights := first.heights))
+    [∀ memory factor, SampleableType (InteractiveAuthenticatedOpening.TestMatrix (ZMod q) (2^((extractionBase memory).code factor).front) (2^extractionLanes))]
+    [∀ memory factor, SampleableType (Fin ((extractionBase memory).code factor).queries → Fin (2^first.heights ((extractionBase memory).tag factor)))]
+    [SampleableType (Fin (2^extractionLanes) → ZMod q)]
+    [SampleableType (PackedZeroReduction.Points (ZMod q) extractionC (2^extractionLanes))]
+    [SampleableType (Fin (2^extractionLanes) → Fin (2^extractionLanes) → ZMod q)]
+    (initial : CheckpointExecution.State (Input := Input) (Digest := Digest) (RecordedSourceCoherence.Shape Cfg height))
+
+ :=
+  CheckpointHistoryChain.families_of_retains (F := ZMod q) (Index := Index) (b := familyB) (H := first.heights)
+    _ _ _ (product_retains_witness length psi primitive family inputs base hs nodesEnough radix linearBase dummy first second secondBase accumulators factory monoLength evaluations monoBase firstSmall roundSmall zeroNodesEnough rotations zeroBase accLength inputReference inputLength inputSmall inputBase finalFamily finalNodes finalLength finalBase productFirstSmall productRoundSmall productNodes productBase finalRadix reconstructionBase comparisonBase extractionLog positive output extractionFirstSmall extractionRoundSmall extractionNodes extractionBase initial)
+
+omit [SampleableType (ZMod q)] [SampleableType (Fin (cells+rows) → ZMod q)]
+  [SampleableType (Fin (2^lanes) → ((Fin (2^lanes) → ZMod q) × ZMod q))] in
+/-- Retain all checkpoints from the actual reconstruction return through the complete final witness. -/
+abbrev reconstruction_retains_witness (dummy : Digest) (first : PackedPBSComparisonStage.Scheme Cfg Input Memory Helper Return d)
+    (second : PackedPBSComparisonStage.Scheme Cfg Input Memory SecondHelper Return2 d)
+    (secondBase : Memory → AuthenticatedLinear.Scheme (ZMod q) Input Digest Cfg Response Memory CommitMemory
+      (2*d+2) b front suffix m queries height)
+    (accumulators : Fin 4 → NativeGoldParameterStore.Reference) (factory : Memory → AccScheme)
+    (monoLength : 2^cells*(2^lanes) = 2^log) (evaluations : PackedPBSMonomialReferences.Evaluations)
+    (monoBase : Bool → Memory → MonoScheme)
+    (firstSmall : (2*(2^lanes)-1)*2+1 ≤ q) (roundSmall : (2*(2^lanes)-1)*3+1 ≤ q)
+    (zeroNodesEnough : 2*(2^lanes) ≤ (2*(2^lanes)-1)*2+1)
+    (rotations : Fin rounds → Fin (2*(2^(cells+lanes)))) (zeroBase : Memory → ZeroScheme)
+    (accLength : 2^accC*accB = 2^log) (inputReference : NativeGoldParameterStore.Reference)
+    (inputLength : 2^inputC*inputB = 2^log) (inputSmall : 2*inputB ≤ q) (inputBase : Memory → InputScheme)
+    (finalFamily : PackedPBSOriginalReferences.Family finalD) (finalNodes : 2*finalB ≤ q)
+    (finalLength : 2^finalC*finalB = 2^log)
+    (finalBase : Fin (finalD+1) → Memory → PaddedNTT.Scheme (ZMod q) Input Digest Cfg FinalResponse Memory FinalCommitMemory first.heights finalB finalC 1 finalB)
+    [∀ index memory side, SampleableType (InteractiveAuthenticatedOpening.TestMatrix (ZMod q) (2^((finalBase index memory).code side).front) finalB)]
+    [∀ index memory side, SampleableType (Fin ((finalBase index memory).code side).queries → Fin (2^first.heights ((finalBase index memory).tag side)))]
+    (productFirstSmall : (2*finalB-1)*2+1 ≤ q) (productRoundSmall : (2*finalB-1)*3+1 ≤ q)
+    (productNodes : 2*finalB ≤ (2*finalB-1)*2+1)
+    (productBase : Memory → KeySwitchPaddedProduct.Scheme (q := q) (d := finalD) (b := finalB) (n := finalC)
+      (Input := Input) (Cfg := Cfg) (Response := ProductResponse) (Memory := Memory) (CommitMemory := ProductCommitMemory) (heights := first.heights))
+    [∀ memory factor, SampleableType (InteractiveAuthenticatedOpening.TestMatrix (ZMod q) (2^((productBase memory).code factor).front) finalB)]
+    [∀ memory factor, SampleableType (Fin ((productBase memory).code factor).queries → Fin (2^first.heights ((productBase memory).tag factor)))]
+    (finalRadix : ZMod q)
+    (reconstructionBase : Memory → PaddedLinear.Scheme (ZMod q) Input Digest Cfg ReconstructionResponse Memory ReconstructionCommitMemory first.heights (2*finalD+2) finalB (1+finalC))
+    [∀ memory factor, SampleableType (InteractiveAuthenticatedOpening.TestMatrix (ZMod q) (2^((reconstructionBase memory).code factor).front) finalB)]
+    [∀ memory factor, SampleableType (Fin ((reconstructionBase memory).code factor).queries → Fin (2^first.heights ((reconstructionBase memory).tag factor)))]
+    (comparisonBase : (memory : Memory) → PackedPBSComparisonStage.Scheme Cfg Input Memory (FinalHelper memory) (FinalReturn memory) finalD)
+    (extractionLog : extractionC+extractionLanes = log) (positive : 0 < dimension)
+    (output : NativePublic.Ciphertext q dimension)
+    (extractionFirstSmall : (2*(2^extractionLanes)-1)*2+1 ≤ q)
+    (extractionRoundSmall : (2*(2^extractionLanes)-1)*3+1 ≤ q)
+    (extractionNodes : 2*(2^extractionLanes) ≤ (2*(2^extractionLanes)-1)*2+1)
+    (extractionBase : Memory → KeySwitchPaddedExtraction.Scheme (q := q) (c := extractionC) (lanes := extractionLanes)
+      (Input := Input) (Cfg := Cfg) (Response := ExtractionResponse) (Memory := Memory)
+      (CommitMemory := ExtractionCommitMemory) (heights := first.heights))
+    [∀ memory factor, SampleableType (InteractiveAuthenticatedOpening.TestMatrix (ZMod q) (2^((extractionBase memory).code factor).front) (2^extractionLanes))]
+    [∀ memory factor, SampleableType (Fin ((extractionBase memory).code factor).queries → Fin (2^first.heights ((extractionBase memory).tag factor)))]
+    [SampleableType (Fin (2^extractionLanes) → ZMod q)]
+    [SampleableType (PackedZeroReduction.Points (ZMod q) extractionC (2^extractionLanes))]
+    [SampleableType (Fin (2^extractionLanes) → Fin (2^extractionLanes) → ZMod q)]
+    (initial : CheckpointExecution.State (Input := Input) (Digest := Digest) (RecordedSourceCoherence.Shape Cfg height))
+
+ :=
+
+
+  RetainedExtractionHistory.propagate_retains_bind (H := first.heights)
+    (Before := Complete first second finalBase productBase reconstructionBase comparisonBase)
+    (fun before memory => KeySwitchPaddedExtraction.stage (extractionBase memory) hs.encoding finalFamily positive
+      (fun _ => endpoint first second finalBase productBase reconstructionBase comparisonBase factory accLength extractionLog before)
+      (fun _ => output) extractionFirstSmall extractionRoundSmall extractionNodes)
+    (get first second finalBase productBase reconstructionBase comparisonBase)
+    (PackedPBSKeySwitchComparisons.finalState first second finalBase productBase reconstructionBase comparisonBase)
+    dummy
+    (fun before : Complete first second finalBase productBase reconstructionBase comparisonBase =>
+      PackedPBSKeySwitchReconstruction.finalState first second finalBase productBase reconstructionBase before.1)
+    (PackedPBSKeySwitchComparisons.witness length psi primitive family inputs base hs nodesEnough radix linearBase dummy first second secondBase accumulators factory monoLength evaluations monoBase firstSmall roundSmall zeroNodesEnough rotations zeroBase accLength inputReference inputLength inputSmall inputBase finalFamily finalNodes finalLength finalBase productFirstSmall productRoundSmall productNodes productBase finalRadix reconstructionBase comparisonBase initial)
+    (PackedPBSKeySwitchComparisons.reconstruction_retains_witness length psi primitive family inputs base hs nodesEnough radix linearBase dummy first second secondBase accumulators factory monoLength evaluations monoBase firstSmall roundSmall zeroNodesEnough rotations zeroBase accLength inputReference inputLength inputSmall inputBase finalFamily finalNodes finalLength finalBase productFirstSmall productRoundSmall productNodes productBase finalRadix reconstructionBase comparisonBase initial)
+
+omit [SampleableType (ZMod q)] [SampleableType (Fin (cells+rows) → ZMod q)]
+  [SampleableType (Fin (2^lanes) → ((Fin (2^lanes) → ZMod q) × ZMod q))] in
+/-- Retain any family recorded at the actual reconstruction return in the final history. -/
+abbrev reconstruction_family_retains_witness {Index : Type} {familyB : ℕ} (dummy : Digest) (first : PackedPBSComparisonStage.Scheme Cfg Input Memory Helper Return d)
+    (second : PackedPBSComparisonStage.Scheme Cfg Input Memory SecondHelper Return2 d)
+    (secondBase : Memory → AuthenticatedLinear.Scheme (ZMod q) Input Digest Cfg Response Memory CommitMemory
+      (2*d+2) b front suffix m queries height)
+    (accumulators : Fin 4 → NativeGoldParameterStore.Reference) (factory : Memory → AccScheme)
+    (monoLength : 2^cells*(2^lanes) = 2^log) (evaluations : PackedPBSMonomialReferences.Evaluations)
+    (monoBase : Bool → Memory → MonoScheme)
+    (firstSmall : (2*(2^lanes)-1)*2+1 ≤ q) (roundSmall : (2*(2^lanes)-1)*3+1 ≤ q)
+    (zeroNodesEnough : 2*(2^lanes) ≤ (2*(2^lanes)-1)*2+1)
+    (rotations : Fin rounds → Fin (2*(2^(cells+lanes)))) (zeroBase : Memory → ZeroScheme)
+    (accLength : 2^accC*accB = 2^log) (inputReference : NativeGoldParameterStore.Reference)
+    (inputLength : 2^inputC*inputB = 2^log) (inputSmall : 2*inputB ≤ q) (inputBase : Memory → InputScheme)
+    (finalFamily : PackedPBSOriginalReferences.Family finalD) (finalNodes : 2*finalB ≤ q)
+    (finalLength : 2^finalC*finalB = 2^log)
+    (finalBase : Fin (finalD+1) → Memory → PaddedNTT.Scheme (ZMod q) Input Digest Cfg FinalResponse Memory FinalCommitMemory first.heights finalB finalC 1 finalB)
+    [∀ index memory side, SampleableType (InteractiveAuthenticatedOpening.TestMatrix (ZMod q) (2^((finalBase index memory).code side).front) finalB)]
+    [∀ index memory side, SampleableType (Fin ((finalBase index memory).code side).queries → Fin (2^first.heights ((finalBase index memory).tag side)))]
+    (productFirstSmall : (2*finalB-1)*2+1 ≤ q) (productRoundSmall : (2*finalB-1)*3+1 ≤ q)
+    (productNodes : 2*finalB ≤ (2*finalB-1)*2+1)
+    (productBase : Memory → KeySwitchPaddedProduct.Scheme (q := q) (d := finalD) (b := finalB) (n := finalC)
+      (Input := Input) (Cfg := Cfg) (Response := ProductResponse) (Memory := Memory) (CommitMemory := ProductCommitMemory) (heights := first.heights))
+    [∀ memory factor, SampleableType (InteractiveAuthenticatedOpening.TestMatrix (ZMod q) (2^((productBase memory).code factor).front) finalB)]
+    [∀ memory factor, SampleableType (Fin ((productBase memory).code factor).queries → Fin (2^first.heights ((productBase memory).tag factor)))]
+    (finalRadix : ZMod q)
+    (reconstructionBase : Memory → PaddedLinear.Scheme (ZMod q) Input Digest Cfg ReconstructionResponse Memory ReconstructionCommitMemory first.heights (2*finalD+2) finalB (1+finalC))
+    [∀ memory factor, SampleableType (InteractiveAuthenticatedOpening.TestMatrix (ZMod q) (2^((reconstructionBase memory).code factor).front) finalB)]
+    [∀ memory factor, SampleableType (Fin ((reconstructionBase memory).code factor).queries → Fin (2^first.heights ((reconstructionBase memory).tag factor)))]
+    (comparisonBase : (memory : Memory) → PackedPBSComparisonStage.Scheme Cfg Input Memory (FinalHelper memory) (FinalReturn memory) finalD)
+    (extractionLog : extractionC+extractionLanes = log) (positive : 0 < dimension)
+    (output : NativePublic.Ciphertext q dimension)
+    (extractionFirstSmall : (2*(2^extractionLanes)-1)*2+1 ≤ q)
+    (extractionRoundSmall : (2*(2^extractionLanes)-1)*3+1 ≤ q)
+    (extractionNodes : 2*(2^extractionLanes) ≤ (2*(2^extractionLanes)-1)*2+1)
+    (extractionBase : Memory → KeySwitchPaddedExtraction.Scheme (q := q) (c := extractionC) (lanes := extractionLanes)
+      (Input := Input) (Cfg := Cfg) (Response := ExtractionResponse) (Memory := Memory)
+      (CommitMemory := ExtractionCommitMemory) (heights := first.heights))
+    [∀ memory factor, SampleableType (InteractiveAuthenticatedOpening.TestMatrix (ZMod q) (2^((extractionBase memory).code factor).front) (2^extractionLanes))]
+    [∀ memory factor, SampleableType (Fin ((extractionBase memory).code factor).queries → Fin (2^first.heights ((extractionBase memory).tag factor)))]
+    [SampleableType (Fin (2^extractionLanes) → ZMod q)]
+    [SampleableType (PackedZeroReduction.Points (ZMod q) extractionC (2^extractionLanes))]
+    [SampleableType (Fin (2^extractionLanes) → Fin (2^extractionLanes) → ZMod q)]
+    (initial : CheckpointExecution.State (Input := Input) (Digest := Digest) (RecordedSourceCoherence.Shape Cfg height))
+
+ :=
+  CheckpointHistoryChain.families_of_retains (F := ZMod q) (Index := Index) (b := familyB) (H := first.heights)
+    _ _ _ (reconstruction_retains_witness length psi primitive family inputs base hs nodesEnough radix linearBase dummy first second secondBase accumulators factory monoLength evaluations monoBase firstSmall roundSmall zeroNodesEnough rotations zeroBase accLength inputReference inputLength inputSmall inputBase finalFamily finalNodes finalLength finalBase productFirstSmall productRoundSmall productNodes productBase finalRadix reconstructionBase comparisonBase extractionLog positive output extractionFirstSmall extractionRoundSmall extractionNodes extractionBase initial)
+
 end
 end FormalProof4FHE.HasteBoots.PackedPBSKeySwitchExtraction

@@ -16,6 +16,11 @@ def Retains (before after : State Input Digest H) : Prop :=
   ∀ tag (saved : AmbientMatrixSource.Snapshot Input Digest H tag),
     ⟨tag,saved⟩ ∈ before.checkpoints.checkpoints → ⟨tag,saved⟩ ∈ after.checkpoints.checkpoints
 
+/-- A stage starts with all of its own recorded checkpoints. -/
+theorem refl (state : State Input Digest H) : Retains state state := by
+  intro tag saved recorded
+  exact recorded
+
 theorem trans {first second last : State Input Digest H}
     (earlier : Retains first second) (later : Retains second last) : Retains first last := by
   intro tag saved recorded

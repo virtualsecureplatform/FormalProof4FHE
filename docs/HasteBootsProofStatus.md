@@ -32148,3 +32148,61 @@ Validation: full `scripts/check` exited successfully, including the 12,430-job
 root build and every standalone check. Frozen Native modules and vendor sources
 are unchanged. Full-check log SHA-256:
 `4cd5d1ebe8c1dca0f70785332379c143fe36ffded63f65ed6ce2da29355899f5`.
+
+
+### Executed product and reconstruction families with final retention
+
+Added `ExecutedPaddedSourceFamily`, `ExecutedKeySwitchProduct` and
+`ExecutedKeySwitchReconstruction`. The generic constructors use each stage's
+actual prefix snapshots, roots and physical decoder/domain/capacity/radius
+parameters. The actual supported witnesses prove every anchor recorded. No
+independent owner-availability or private source-value witness is supplied.
+
+The native product specialization constructs its digit-evaluation/key-evaluation/
+result family and proves its roots are exactly the caller's native product roots.
+The literal original tables equal the constructed family views. Actual acceptance
+outside the existing original-owner risk therefore enforces both the complete
+Hadamard relation and its pointwise product sum on the decoded evaluation arrays.
+This remains an evaluation-domain identity, not a claim of coefficient-domain
+convolution by itself.
+
+The native reconstruction specialization constructs input/digit/borrow anchors
+from its actual prefix. Input and digit roots are the caller's originals; borrow
+roots are the newly emitted roots preserved by the constructor. Actual acceptance
+outside the existing original-owner risk enforces field radix reconstruction and
+zero endpoint borrows on the complete family tables and on both halves of their
+constructed ciphertexts. Canonical radix digits still require the comparison
+membership constraints and the admitted radix/field-size facts proved separately.
+
+Each specialization reduces an accepted false relation of its constructed family
+to the existing native original-owner risk. The probability reductions preserve
+the same final collision exclusion used by the native local bounds. Exact views
+of the same snapshots require no extra collision premise; comparison of different
+recorded anchors continues to use the single audited collision event.
+
+Extended the complete-witness history composition to retain checkpoints and
+arbitrary families from the actual product return and actual reconstruction
+return through all later stages. These are concrete instantiations of the native
+full PBS witnesses, not separately replayed executions. Together with the NTT
+family retention and family append operation, these interfaces provide the
+recording facts needed to combine the families in the final history without
+changing their anchors or decoded views.
+
+The remaining full-run assembly must recover the reached accepted stages from
+the final accepted result, instantiate these constructed families at those actual
+returns, and derive the native public parameter-store associations identifying
+the shared slots. Comparison/input/extraction owner construction and association,
+trusted key-source association, accumulator trace coverage, full accepted false
+output coverage, numeric profile admission, earlier masked-profile and production
+refinements, adaptive composition and physical attacker-work accounting remain
+open. The final 128-bit theorem remains unproved.
+
+All three new modules are exported. Direct axiom inspection covered 32 new
+constructions and proofs/aliases. Five use only `propext` and `Quot.sound`; the
+remaining 27 also use `Classical.choice`. The imported audit has 32 exact guards.
+Default resource and linter limits were retained.
+
+Validation: full `scripts/check` exited successfully, including the 12,434-job
+root build and every standalone check. Frozen Native modules and vendor sources
+are unchanged. Full-check log SHA-256:
+`9c796476930a339acf285f7a9a6f80b6945ca31a4ba6b6f490513d55a6e43b4b`.

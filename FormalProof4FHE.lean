@@ -1623,3 +1623,9 @@ import FormalProof4FHE.HasteBoots.CheckpointHistoryChain
 import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchReconstructionSupport
 
 import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchFinalHistory
+
+import FormalProof4FHE.HasteBoots.ExecutedPaddedSourceFamily
+
+import FormalProof4FHE.HasteBoots.ExecutedKeySwitchProduct
+
+import FormalProof4FHE.HasteBoots.ExecutedKeySwitchReconstruction
