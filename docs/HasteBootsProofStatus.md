@@ -32745,3 +32745,39 @@ final 128-bit security theorem is unproved.
 Full `scripts/check` exited 0: 12,507 build jobs and all standalone checks.
 Full-check log SHA-256: `43f60680bfdb0a3c14aae9f673356a1cb2d3f3aa5dc2cc7132dde0dfd83425a9`. Frozen Native/vendor sources and default
 resource limits remain unchanged.
+
+
+### Rectangular final comparison in the complete prefix risk union (2026-11-13)
+
+Added `PackedPBSRectangularComparisonJointBound.native_safe_joint_bound` and
+`native_risk_or_bad_bound`. They compose the actual previously proved native
+prefix risks through final canonical reconstruction with the derived
+rectangular final-comparison rate in the same
+`PackedPBSKeySwitchComparisons.witness`. The safe theorem retains one common
+final Bad exclusion. The second theorem bounds the union of those arithmetic
+risks and final Bad, adding exactly one `ExpectedHazard.charge` for the complete
+`PackedPBSKeySwitchComparisonExecution.program`, including the final comparison.
+
+The new final child uses independent packing/code widths, base-field row
+samples, rectangular capacity and distance, and the full logical-shape repeated
+request budget. Its rate has no supplied epsilon or calibration premise and
+adds no request-count factor. Actual predecessor rate bounds and audits are
+obtained from their existing execution theorems; rejected/nonreturning children
+are covered by retained comparison bookkeeping without losslessness premises.
+
+This is an integration step, not a claim that every comparison is rectangular:
+the earlier first/second comparisons still use the existing square schemes and
+their existing public rate conditions. Their rectangular replacements and the
+resulting downstream risk-event propagation remain next. The single operational
+collision charge counts complete execution work; it is not yet identified with
+actual attacker work. Complete reference/descriptor maps, honest setup and
+accumulator coverage, accepted false-output coverage, numeric profile admission,
+production refinements and adaptive composition remain open. The final 128-bit
+security theorem is unproved.
+
+Both theorems are exported and directly inspected with imported exact axiom
+guards accepting only `propext`, `Classical.choice` and `Quot.sound`.
+
+Full `scripts/check` exited 0: 12,508 build jobs and all standalone checks.
+Full-check log SHA-256: `47060e6fc44e160aeb6d2fe2f301cd222a5751a3f7ee96ce4a2f8e18bd684067`. Frozen Native/vendor sources and default
+resource limits remain unchanged.

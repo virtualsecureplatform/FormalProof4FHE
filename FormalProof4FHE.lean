@@ -1751,3 +1751,5 @@ import FormalProof4FHE.HasteBoots.RetainedRectangularComparisonBound
 import FormalProof4FHE.HasteBoots.ConstructedGoldRetainedComparison
 
 import FormalProof4FHE.HasteBoots.PackedPBSRectangularComparisonBound
+
+import FormalProof4FHE.HasteBoots.PackedPBSRectangularComparisonJointBound
