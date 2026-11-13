@@ -33597,3 +33597,50 @@ unproved.
 
 Full `scripts/check` exited 0: 12,580 build jobs and all standalone checks.
 Full-check log SHA-256: `6fdcf651943bee30f049643aaa129e7a824c0d3bd9bc7b1203fedf195e3038a9`.
+
+## Canonical increment coverage for the original honest key (2026-11-13)
+
+Added `ExecutedHonestKeySwitchIncrement.Correct`, `.Coverage`, and
+`.increment_or_risks`. Correctness now states equality of the actual final-world
+NTT result with `CanonicalKeySwitch.increment` using the original coefficient
+key and the actual accumulator mask, rather than the inverse-NTT key merely
+constructed from selected product slots. The coverage theorem reuses the
+existing executed lookup, reconstruction, known-input, NTT and product coverage
+and identifies the selected key through supported multi-level honest setup.
+
+The final audit follows from supported setup from empty and supported shared
+continuation returning the same final state; it is not a separate premise.
+Product recording and checkpoint retention give the actual key slots. The
+native product's literal root-preservation theorem plus the public equality
+`family.keys = built.1` supplies their setup association. The existing
+`withKeys` constructor installs this equality directly. No decoded-key equality,
+setup-transform identity, honest-table equality or final-audit certificate is
+assumed. Degree/capacity/distance/transform and existing public stage-routing
+conditions remain explicit.
+
+The resulting disjunction has exactly the previous failure branches: false
+lookup, reconstruction risk, known-input risk, NTT risk, product risk, or the
+same final `CheckpointCollision.Bad`. Honest-key association is combined
+pointwise, so no separate setup-error term or second history charge is added.
+The source result and accumulator context still come from the actual retained
+operations; honest full blind-rotation/PBS-output semantics remain separate.
+
+All three public declarations have directly inspected imported exact axiom
+guards and use only `propext`, `Classical.choice`, and `Quot.sound`. Final targeted
+build passed at default resources (10 seconds). Frozen Native/vendor modules
+and resource settings were untouched.
+
+Next instantiate this result from the complete PBS supported witness, deriving
+all child supports and retention facts there, with the caller family populated
+from the executed setup roots. Native product geometry must remain associated
+with the same fixed setup descriptor across memory-dependent factory choices;
+its constructed geometry routing supplies that public association. Lift the
+accepted-false honest-increment event into the joint setup/PBS probability
+experiment, including setup in the single history charge. Honest accumulator
+and monomial/PBS-output semantics, native numeric/representation/Rust/memory,
+FS/ROM/grinding, adaptive composition and physical attacker-work accounting
+remain open. The production 128-query profile and final 128-bit security/work
+theorem remain unproved.
+
+Full `scripts/check` exited 0: 12,582 build jobs and all standalone checks.
+Full-check log SHA-256: `76643efd5c9280d1cdc224ab4251b6da6c4448cec72d3ef2d03437e3cb4e9e33`.

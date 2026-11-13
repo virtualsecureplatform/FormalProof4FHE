@@ -967,3 +967,5 @@ import FormalProof4FHETest.HasteBootsExecutedHonestEvaluationKeyAudit
 import FormalProof4FHETest.HasteBootsExecutedHonestProductKeyAudit
 
 import FormalProof4FHETest.HasteBootsExecutedHonestProductJointAudit
+
+import FormalProof4FHETest.HasteBootsExecutedHonestKeySwitchIncrementAudit

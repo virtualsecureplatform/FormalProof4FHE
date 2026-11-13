@@ -1845,3 +1845,5 @@ import FormalProof4FHE.HasteBoots.ExecutedHonestEvaluationKey
 import FormalProof4FHE.HasteBoots.ExecutedHonestProductKey
 
 import FormalProof4FHE.HasteBoots.ExecutedHonestProductJoint
+
+import FormalProof4FHE.HasteBoots.ExecutedHonestKeySwitchIncrement
