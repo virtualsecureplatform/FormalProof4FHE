@@ -1647,3 +1647,9 @@ import FormalProof4FHE.HasteBoots.RectangularSubclaimSourceLayout
 import FormalProof4FHE.HasteBoots.AmbientRectangularSource
 
 import FormalProof4FHE.HasteBoots.RecordedRectangularSource
+
+import FormalProof4FHE.HasteBoots.SharedRectangularMatrixSampling
+
+import FormalProof4FHE.HasteBoots.SharedRectangularBatchSampling
+
+import FormalProof4FHE.HasteBoots.RectangularAuthenticatedColumnChecks

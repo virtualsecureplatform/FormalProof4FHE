@@ -32308,3 +32308,38 @@ parameters, shared adaptive sampling and worker acceptance bounds, instantiating
 the executed full-run families, trusted key and accumulator associations, accepted
 false-output coverage, numeric profile admission, production refinements and
 actual attacker-work accounting. The final 128-bit security theorem is unproved.
+
+
+### Rectangular shared sampling and authenticated coordinate bridge (2026-11-13)
+
+Added `SharedRectangularMatrixSampling` and `SharedRectangularBatchSampling`.
+They interpret the rectangular fixed-word kernels under the actual shared cached
+hash handler, retaining arbitrary response work and its resulting state. Their
+continuation theorems retain the arithmetic bounds through all later shared
+work, including rejecting paths. Test width, packing width and code-symbol
+width are independent. The proximity term is the rectangular kernel's
+`(distance / field cardinality)^testWidth`, with the existing maximum of column
+miss bounds; no square extension-field rate is substituted. The batch event
+covers any original query using one fixed extracted table and one ordered draw,
+without a factor for the number of queries, groups or lanes.
+
+Added `RectangularAuthenticatedColumnChecks`: replay authentication of whole
+native columns plus their literal coordinate checks implies rectangular semantic
+checks. Both response families and all groups share the same frozen word and
+availability exception. The batch theorem retains its random-test obligation
+even for zero groups. This module consumes replay/coordinate facts; deriving
+those facts directly from the computed worker acceptance flag and composing the
+probability bound with the complete verifier is the next connection.
+
+All three modules are exported. Direct inspection and nine imported exact axiom
+guards report only `propext`, `Classical.choice` and `Quot.sound`. Frozen Native
+modules and vendor sources remain unchanged; no resource limits were raised.
+Full `scripts/check` exited 0, including 12,449 root-build jobs and every
+standalone check. Full-check log SHA-256:
+`cd43b332fac860a2071d9154593865d26d310f0188f9b425dd4398c794ae545b`.
+
+Remaining obligations still include constructed rectangular descriptors, full
+worker/verifier integration, executed accepted-run source associations, trusted
+key and accumulator coverage, accepted false-output coverage, numeric profile
+admission, production refinements, adaptive composition and actual attacker-work
+accounting. The final 128-bit security theorem remains unproved.
