@@ -34967,3 +34967,58 @@ resource increases or linter suppression were used.
 
 Full `scripts/check` exited 0: 12,734 build jobs and all standalone checks.
 Full-check log SHA-256: `3a9d70be759d451b26e58b61a09e2a5bd498532ffb7d3b5f1463e3b6878c6f83`.
+
+## Rotation mismatch discharged in the actual monomial continuation
+
+`PackedPBSMonomialAccumulatorFrame` connects the actual reached monomial product
+to its literal accumulator return and complete accumulator-prefix support.
+It derives both accumulator acceptance gates from reaching the monomial NTT.
+The accumulator's entire checkpoint history survives the two real NTT calls and
+the public monomial product. Input/product table agreement between the native
+output interface and monomial interface is definitional equality of the SAME
+original source buffers, not a supplied decoded-value certificate. The final
+native audit is derived through the actual prefix and geometry transition with
+explicit public scope/compatibility premises.
+
+`PackedPBSMonomialBlindRotationCoverage.output_or_risks` lifts the previous
+native-output reduction into that full supported monomial continuation. The
+concrete active-row rotation mismatch is now DISCHARGED by the already proved
+actual monomial checks and their original source associations. No rotation truth
+or externally supplied accumulator acceptance/audit/owner-retention certificate
+is used in this combined theorem. The decoded actual context output equals the
+complete active `NativeBlindRotation.run`, or one of the EXISTING first/second
+lookup/reconstruction, accumulator, original Hadamard/NTT-loop, monomial NTT or
+monomial public-product risks occurs, or the SAME final Bad occurs.
+
+There is no remaining unbounded rotation-mismatch alternative, new source-alias
+error, or per-round/per-half loss. The actual public-product acceptance flag,
+full decoder/geometry/radius/routing admissions, final structural checkpoint
+query-soundness invariant and public start/finish indices remain explicit.
+Padded rows remain in the checks; only the original active controls and public
+exponents execute in the reference run.
+
+`output_from_setup_or_risks` derives the factual control receipt, initial audit
+and compatibility from actual hash-only setup support returning exactly this
+caller's roots and native initial state. These are not separately supplied
+setup certificates, and setup safety is not assumed. Public original-phase
+recording scope remains explicit.
+
+Remaining: match the actual context's initial/final fields and round metadata
+to the intended public PBS statement, compose honest blind-rotation output with
+the key-switch input/result, derive the final structural query invariant from
+the combined whole execution, integrate both setups/full verification in one
+joint program/charge and lift the complete false-output event to arithmetic
+bounds. Concrete production parameter/codec/layout/radius/representation/key-
+generation/Rust admission, FS/ROM/grinding, adaptive attempts and physical
+attacker-work accounting remain unfinished. The existing whole-history charged
+theorem remains selected key-switch increment security. Full PBS-output security
+and the 128-bit work target are not proved; the production 128-query profile is
+uncertified.
+
+All ten declarations compile at default Lean resources and have directly
+inspected exact axiom guards for only `propext`, `Classical.choice` and
+`Quot.sound`. No frozen Native/vendor edits, custom axioms, admitted proofs,
+resource increases or linter suppression were used.
+
+Full `scripts/check` exited 0: 12,738 build jobs and all standalone checks.
+Full-check log SHA-256: `8236fca7ea510c0e397c361b9d074c0cb690b8e050fbe4e69e81dc61e017798c`.

@@ -1999,3 +1999,7 @@ import FormalProof4FHE.HasteBoots.ExecutedAccumulatorTrace
 import FormalProof4FHE.HasteBoots.PackedPBSAccumulatorLinkage
 
 import FormalProof4FHE.HasteBoots.PackedPBSNativeBlindRotationCoverage
+
+import FormalProof4FHE.HasteBoots.PackedPBSMonomialAccumulatorFrame
+
+import FormalProof4FHE.HasteBoots.PackedPBSMonomialBlindRotationCoverage
