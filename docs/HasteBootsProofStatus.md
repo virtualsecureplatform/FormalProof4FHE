@@ -35155,3 +35155,52 @@ linter suppression were used.
 
 Full `scripts/check` exited 0: 12,752 build jobs and all standalone checks.
 Full-check log SHA-256: `c070d4b18432fc000e65c3db67c79bbcabcd894ac1d6c9dae140f13d075e6930`.
+
+## Retained increment values and actual extraction composition (2026-11-13)
+
+`RecordedSourceWorldTransport.cipher_slot_eq_or_bad` proves that a source slot's
+ciphertext decoded in an earlier canonical source world equals its value in a
+later world when the actual checkpoints are retained and the later history is
+audited, or the later collision event holds. `equality_persistent` carries an
+established canonical increment equality across that history change. Neither
+lemma assumes decoded owner/value equality or adds a second collision event.
+
+`ExecutedExtractionNTTLink.owner_recorded` derives the actual extraction owner's
+root and checkpoint membership from supported extraction execution. The root
+is the caller's last key-switch coefficient root. The accepted NTT family is
+constructed from its own actual supported accepted NTT execution.
+`increment_eq_ntt_or_bad` associates these owners under equality of their full
+public decoder descriptors. `increment_eq_world_or_bad` identifies the decoded
+extraction increment with that accepted NTT result slot in the final canonical
+source world used by the key-switch increment proof. These relations are
+proved, rather than supplied source-value interpretations.
+
+`extraction_world_or_risks` derives canonical extraction of that same result
+slot from actual extraction acceptance, or the extraction's existing original
+risk or the same final collision event. `output_of_earlier_increment_or_risks`
+then carries canonical signed-increment correctness at the earlier comparison
+state to the extraction history and composes it with accepted extraction. Its
+output is partial extraction of the canonical switched, once-biased endpoint.
+The only additional tail exception is the already existing extraction risk;
+there is no new owner mismatch event, extra collision charge, or row union.
+
+The earlier canonical increment equality remains an explicit premise of the
+last composition theorem, corresponding to the existing executed honest
+increment result. Supported NTT/extraction executions, checkpoint retention,
+final audit and public descriptor association are explicit. They still need
+to be instantiated from the same complete PBS extraction witness and combined
+with the accepted increment/setup coverage and public blind-rotation result.
+This chunk does not claim that those separate supported executions already
+form one joint full-verifier experiment. Full false-PBS-output probability
+lifting, both setups/full verification in one charged execution, production
+admissions, FS/ROM/grinding, adaptive attempts and actual physical attacker-work
+accounting remain unfinished. The 128-bit work target is not proved and the
+production 128-query profile remains uncertified.
+
+All seven declarations compile at default Lean resources and have directly
+inspected exact guards for only `propext`, `Classical.choice` and `Quot.sound`.
+No frozen Native/vendor edits, admitted proofs, custom axioms, resource increases
+or linter suppression were used.
+
+Full `scripts/check` exited 0: 12,756 build jobs and all standalone checks.
+Full-check log SHA-256: `ff2c48cae25531a1e9b3b03f2d2837ec39f4b740303ae05bfa5401bbca317ace`.
