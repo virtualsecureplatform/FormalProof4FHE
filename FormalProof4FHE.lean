@@ -1971,3 +1971,5 @@ import FormalProof4FHE.HasteBoots.ExecutedTransportedRectangularRadixWidth
 import FormalProof4FHE.HasteBoots.PackedPBSRectangularCanonicalDigits
 
 import FormalProof4FHE.HasteBoots.RecordedNTTProjection
+
+import FormalProof4FHE.HasteBoots.PackedPBSDifferenceDigitNTT

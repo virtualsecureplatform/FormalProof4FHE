@@ -34698,3 +34698,49 @@ admitted proofs, resource increases or linter suppression were used.
 
 Full `scripts/check` exited 0: 12,706 build jobs and all standalone checks.
 Full-check log SHA-256: `20dd5162db72de56ccfcb9ea042189da2bf6bc7d4ff289d885281fbb2ed1dea0`.
+
+## Retained NTT digit rows of actual accumulator differences
+
+`PackedPBSDifferenceDigitNTT` composes real rectangular canonical-difference
+coverage with the original retained NTT coefficient-source association in the
+same supported PBS accumulator prefix. `digitEntry_exists` derives actual
+execution of every trusted half/limb slot from original-loop acceptance.
+`digitEntry` selects that retained call; membership, exact caller slot and the
+native algebra/opening acceptance are proved, rather than supplied independently.
+No child verifier is replayed.
+
+`First.canonical_digit_rows_or_risks` and
+`Second.canonical_digit_rows_or_risks` identify every coefficient row of the
+selected actual NTT call with `NativeBlindRotation.digit` of the ACTUAL decoded
+accumulator difference half. They cover every stored round and both physical
+output halves, retaining the real rectangular lookup's active/padding layout
+and explicit public coefficient/round geometry. The original caller digit slot
+derives root association to the executed reconstruction family; its recording
+is derived from the full retained PBS prefix. Only public full-decoder
+association and actual encoding matches are required for this source use.
+
+The source equality uses the same later audited history and Bad event. The
+only additional alternatives in the final coverage are the existing original
+lookup, first/second reconstruction and accumulator risks. No extra alias loss,
+assumed canonical digit, input value, separate availability receipt, retained
+child certificate or acceptance certificate is introduced.
+
+Remaining: align original NTT evaluations with the original Hadamard sources
+through the retained history and compose their existing native risk bounds;
+derive honest control-key evaluation/source semantics; establish actual
+external products, then full trace, endpoints and PBS-output composition and
+probability lifting. Native child acceptance does not by itself prove its
+transform relation; these coefficient-source results do not yet prove external
+products. Concrete production parameter/codec/layout/radius/representation
+admission remains explicit. The whole-history charged theorem is still about
+selected key-switch increments. Full PBS-output security, FS/ROM/grinding,
+adaptive attempts and actual physical attacker-work accounting remain unfinished;
+the production 128-query profile remains uncertified.
+
+All seven declarations compile at default Lean resources and have directly
+inspected exact axiom guards for `propext`, `Classical.choice` and `Quot.sound`.
+No frozen Native/vendor edits, custom axioms, admitted proofs, resource increases
+or linter suppression were used.
+
+Full `scripts/check` exited 0: 12,708 build jobs and all standalone checks.
+Full-check log SHA-256: `93c4e0e37cdfd71bd98197146bf54ea1d66802b13b65f4555a202318dcb8bdc4`.
