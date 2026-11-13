@@ -1,6 +1,8 @@
 module
 public import FormalProof4FHE.HasteBoots.RetainedPaddedComparison
 public import FormalProof4FHE.HasteBoots.RecordedFamilyHistory
+public import FormalProof4FHE.HasteBoots.DependentStageSupport
+public import FormalProof4FHE.HasteBoots.CheckpointHistoryChain
 @[expose] public section
 
 /-! Original source owners and entire constructed families survive the actual
@@ -63,6 +65,29 @@ theorem family_retains_bind (dummy : Digest) (prior : ProbComp Before)
     RecordedPaddedSourceFamily.Recorded (world outcome.1) (finalState base comparison state outcome) := by
   intro index
   exact retains_bind base comparison get state dummy prior outcome supported _ _ (recorded index)
+
+/-- The predecessor in the retained return belongs to the actual full prior,
+including when the child is skipped or rejects. -/
+theorem predecessor_supported_bind (dummy : Digest) (prior : ProbComp Before)
+    (outcome : Before × Option (Sigma (Child base comparison)))
+    (supported : outcome ∈ support (prior >>= finish base comparison get state dummy)) :
+    outcome.1 ∈ support prior :=
+  DependentStageSupport.predecessor_supported_bind (RetainedPaddedComparison.select base get) state (RetainedPaddedComparison.child base comparison dummy) prior outcome supported
+
+/-- Consume the complete predecessor retention proof as one invariant,
+without expanding the preceding experiment at this continuation. -/
+theorem propagate_retains_bind (dummy : Digest)
+    (earlier : Before → CheckpointExecution.State (Input := Input) (Digest := Digest) (AmbientMatrixSource.Shape H))
+    (prior : ProbComp Before)
+    (incoming : ∀ before ∈ support prior, CheckpointHistoryChain.Retains (earlier before) (state before))
+    (outcome : Before × Option (Sigma (Child base comparison)))
+    (supported : outcome ∈ support (prior >>= finish base comparison get state dummy)) :
+    CheckpointHistoryChain.Retains (earlier outcome.1) (finalState base comparison state outcome) := by
+  apply CheckpointHistoryChain.append_retains (select base get) state (child base comparison dummy) (fun _ result => result.2.2.2) earlier prior incoming ?_ outcome supported
+  intro reconstructed initial result present tag saved recorded
+  exact PackedPBSComparisonStage.retains (base reconstructed.1).encoding dummy
+    (PaddedReconstructionComparison.stage (base reconstructed.1) (comparison reconstructed.1))
+    reconstructed.2.1.1.1 reconstructed.2.2.1.2.memory initial tag saved recorded result present
 
 end
 end FormalProof4FHE.HasteBoots.RetainedComparisonHistory

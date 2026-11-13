@@ -1,6 +1,8 @@
 module
 public import FormalProof4FHE.HasteBoots.RetainedPaddedExtraction
 public import FormalProof4FHE.HasteBoots.RecordedFamilyHistory
+public import FormalProof4FHE.HasteBoots.DependentStageSupport
+public import FormalProof4FHE.HasteBoots.CheckpointHistoryChain
 @[expose] public section
 
 /-! Recorded original sources survive the actual optional public extraction
@@ -63,6 +65,27 @@ theorem family_retains_bind (dummy : Digest) (prior : ProbComp Before)
     RecordedPaddedSourceFamily.Recorded (world outcome.1) (finalState base state outcome) := by
   intro index
   exact retains_bind base get state dummy prior outcome supported _ _ (recorded index)
+
+/-- The predecessor in the retained return belongs to the actual full prior,
+including when the child is skipped or rejects. -/
+theorem predecessor_supported_bind (dummy : Digest) (prior : ProbComp Before)
+    (outcome : Before × Option (Sigma (Child base)))
+    (supported : outcome ∈ support (prior >>= finish base get state dummy)) :
+    outcome.1 ∈ support prior :=
+  DependentStageSupport.predecessor_supported_bind (RetainedPaddedExtraction.select get) state (RetainedPaddedExtraction.child base dummy) prior outcome supported
+
+/-- Consume the complete predecessor retention proof as one invariant,
+without expanding the preceding experiment at this continuation. -/
+theorem propagate_retains_bind (dummy : Digest)
+    (earlier : Before → CheckpointExecution.State (Input := Input) (Digest := Digest) (AmbientMatrixSource.Shape H))
+    (prior : ProbComp Before)
+    (incoming : ∀ before ∈ support prior, CheckpointHistoryChain.Retains (earlier before) (state before))
+    (outcome : Before × Option (Sigma (Child base)))
+    (supported : outcome ∈ support (prior >>= finish base get state dummy)) :
+    CheckpointHistoryChain.Retains (earlier outcome.1) (finalState base state outcome) := by
+  apply CheckpointHistoryChain.append_retains (select get) state (child base dummy) (fun _ result => result.2.2) earlier prior incoming ?_ outcome supported
+  intro selected initial result present tag saved recorded
+  exact PaddedPublicZeroCheck.retains (base selected.1 selected.2) dummy initial result present tag saved recorded
 
 end
 end FormalProof4FHE.HasteBoots.RetainedExtractionHistory

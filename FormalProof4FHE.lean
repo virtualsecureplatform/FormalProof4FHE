@@ -1615,3 +1615,11 @@ import FormalProof4FHE.HasteBoots.RetainedExtractionHistory
 import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchComparisonsHistory
 
 import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchExtractionHistory
+
+import FormalProof4FHE.HasteBoots.DependentStageSupport
+
+import FormalProof4FHE.HasteBoots.CheckpointHistoryChain
+
+import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchReconstructionSupport
+
+import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchFinalHistory

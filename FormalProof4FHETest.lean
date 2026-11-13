@@ -887,3 +887,5 @@ import FormalProof4FHETest.HasteBootsDecodedIncrementAudit
 import FormalProof4FHETest.HasteBootsAcceptedKeySwitchNTTAudit
 
 import FormalProof4FHETest.HasteBootsRetainedFamilyHistoryAudit
+
+import FormalProof4FHETest.HasteBootsFullFinalHistoryAudit

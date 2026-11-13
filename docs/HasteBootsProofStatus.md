@@ -32101,3 +32101,50 @@ Validation: full `scripts/check` exited successfully, including the 12,425-job
 root build and every standalone check. Frozen Native modules and vendor sources
 are unchanged. Full-check log SHA-256:
 `dd768bcee60a1adcbc978a942b7255a82a4f49261d88ff98fbbcb1471e17498d`.
+
+
+### Complete final-witness retention of NTT source families
+
+Added `DependentStageSupport`, `CheckpointHistoryChain`,
+`PackedPBSKeySwitchReconstructionSupport` and `PackedPBSKeySwitchFinalHistory`,
+and extended the comparison/extraction history interfaces.
+
+Checkpoint retention now composes from the actual final NTT-prefix state through
+product, reconstruction, comparison and extraction in one complete supported
+PBS witness. The concrete `PackedPBSKeySwitchExtraction.ntt_retains_witness`
+uses the actual product and reconstruction constructors and the actual optional
+comparison and extraction continuations. It does not require separately replayed
+intermediate executions. It covers reached, skipped and rejected branches.
+The family corollary, `ntt_family_retains_witness`, retains every anchor of any
+family recorded at that NTT-prefix state, independently of later packing widths.
+It therefore transports the recording fact supplied by the earlier accepted-loop
+family construction to the final extraction history without reselecting owners
+or supplying a source-value interpretation.
+
+The generic composition keeps the complete predecessor experiment opaque and
+consumes its checkpoint-retention proof as one invariant function. Concrete
+proof aliases instantiate this first for product plus reconstruction, then
+comparison, then extraction. Whole-function family lifting avoids expanding the
+full dependent predecessor at each anchor. All instantiations build under the
+default resource and linter limits. New predecessor-support lemmas also recover
+the actual supported earlier return through generic continuations and the
+concrete reconstruction/comparison witnesses.
+
+This closes the missing complete-witness retention interface for the final NTT
+family. The remaining semantic assembly must select the reached accepted NTT
+loop from the full accepted result, apply its construction/transform facts,
+extend the family with later key/input/borrow owners and derive the native public
+parameter-store associations that identify shared presentations. Full accepted false output coverage, accumulator trace coverage, trusted key-source association,
+numeric profile admission, earlier masked-profile and production refinements,
+adaptive composition and physical attacker-work accounting remain open. The
+final 128-bit theorem remains unproved.
+
+The four new modules are exported. Direct axiom inspection covered fifteen
+proofs/aliases and the checkpoint-retention predicate. Six use only `propext`
+and `Quot.sound`; the remaining ten also use `Classical.choice`. The imported
+audit has sixteen exact guards. No resource limits or linters were relaxed.
+
+Validation: full `scripts/check` exited successfully, including the 12,430-job
+root build and every standalone check. Frozen Native modules and vendor sources
+are unchanged. Full-check log SHA-256:
+`4cd5d1ebe8c1dca0f70785332379c143fe36ffded63f65ed6ce2da29355899f5`.
