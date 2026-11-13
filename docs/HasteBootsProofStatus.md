@@ -32713,3 +32713,35 @@ Complete reference/descriptor maps, trusted setup/accumulator coverage, accepted
 false-output coverage, numeric profile admission, production refinements,
 adaptive composition and actual attacker-work accounting remain open. The
 final 128-bit security theorem is unproved.
+
+
+### Complete PBS final rectangular comparison (2026-11-13)
+
+Added `PackedPBSRectangularComparisonBound.safe_comparison_bound`. It bounds
+accepted false original-owner requests in the final comparison of the actual
+`PackedPBSKeySwitchComparisons.witness`, outside that execution's final Bad
+event. The incoming audit is obtained from the supported complete
+`PackedPBSKeySwitchReconstruction.witness`; no child soundness certificate or
+per-memory calibration inequality is assumed.
+
+The concrete child uses `RectangularPBSComparisonStage`: packing width and code
+symbol width are independent, capacity uses degree times symbol width, and
+row samples lie in the base field. The uniform rate is the full logical-shape
+request/repetition budget plus scalar lookup error plus rectangular PCS error.
+It adds no request-count union factor or separate collision charge. Public
+domain/capacity/distance conditions and encoding/tag associations remain
+explicit. Earlier first/second comparisons are still abstract stage arguments;
+this theorem does not certify their concrete rectangular implementations.
+
+The module is exported and an imported exact axiom guard checks its named
+theorem against `propext`, `Classical.choice` and `Quot.sound`. The next step is
+to propagate this final comparison rate into the complete native prefix risk
+union, then replace the earlier square comparison wrappers. Complete
+reference/descriptor maps, honest setup and accumulator coverage, accepted
+false-output coverage, numeric profile admission, production refinements,
+adaptive composition and actual attacker-work accounting remain open. The
+final 128-bit security theorem is unproved.
+
+Full `scripts/check` exited 0: 12,507 build jobs and all standalone checks.
+Full-check log SHA-256: `43f60680bfdb0a3c14aae9f673356a1cb2d3f3aa5dc2cc7132dde0dfd83425a9`. Frozen Native/vendor sources and default
+resource limits remain unchanged.
