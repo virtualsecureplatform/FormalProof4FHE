@@ -34120,3 +34120,37 @@ profile and final 128-bit security/work theorem remain unproved.
 
 Full `scripts/check` exited 0: 12,642 build jobs and all standalone checks.
 Full-check log SHA-256: `e836b7cc5738698c605a37e1e45aca0155eeb3462ad407572b3cd8f6c0c07a7e`.
+
+## Whole honest setup and native verifier history charge
+
+`RetainedPaddedComparisonProjection` and `PackedPBSComparisonHistoryProgram`
+project the retained comparison witness onto one actual shared-handler program,
+preserving the verifier's selection gate, emitted roots, private data and final
+state on every accepted, rejected and skipped branch. `HonestSetupScope` proves
+that the actual hash-only honest key setup is scoped under any checkpoint
+predicate and transports it between checkpoint geometries.
+
+`PackedPBSHonestHistoryProgram` combines actual setup and the full verifier
+program. Its projection theorem installs the returned key roots and retains
+the setup's cache and log. Initialization supplies checkpoint compatibility
+for supported setup returns. The resulting terminal Bad probability is bounded
+by one `ExpectedHazard.charge` for this whole program, starting empty before
+setup. No state reset after setup, safe-setup premise, separate setup exception,
+conditioning, independent-root assumption or query cutoff is introduced.
+
+`PackedPBSNativeHonestChargedBound.accepted_false_bound` now bounds the actual
+native accepted-false increment probability by that whole-execution charge
+plus the previously derived full native arithmetic error rate. Existing setup,
+semantic routing, recording scope, degree, distance and numeric premises remain
+explicit. The charge is computed from the actual program rather than supplied
+as an independent probability certificate. All 34 new declarations have exact
+axiom audits, using only the permitted standard Lean axioms or fewer.
+
+Remaining: full honest accumulator/monomial and PBS-output semantics, concrete
+production parameter and representation admission, FS/ROM and grinding,
+adaptive attempts, and interpreting the charge and arithmetic rate in terms
+of actual physical attacker work. This milestone does not certify the
+production 128-query profile or the final 128-bit security/work theorem.
+
+Full `scripts/check` exited 0: 12,652 build jobs and all standalone checks.
+Full-check log SHA-256: `646e51d27df1e55a4ede1d445115b53a1e9abd28d276892dc9f6979fe39ab764`.

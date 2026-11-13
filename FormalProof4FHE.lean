@@ -1907,3 +1907,13 @@ import FormalProof4FHE.HasteBoots.PackedPBSRectangularComparisonPrefixBound
 import FormalProof4FHE.HasteBoots.PackedPBSNativeSetupSafeBound
 
 import FormalProof4FHE.HasteBoots.PackedPBSNativeHonestIncrementBound
+
+import FormalProof4FHE.HasteBoots.RetainedPaddedComparisonProjection
+
+import FormalProof4FHE.HasteBoots.HonestSetupScope
+
+import FormalProof4FHE.HasteBoots.PackedPBSComparisonHistoryProgram
+
+import FormalProof4FHE.HasteBoots.PackedPBSHonestHistoryProgram
+
+import FormalProof4FHE.HasteBoots.PackedPBSNativeHonestChargedBound
