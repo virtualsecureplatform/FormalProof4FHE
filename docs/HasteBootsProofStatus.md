@@ -34467,3 +34467,38 @@ axioms, admitted proofs or linter suppression.
 
 Full `scripts/check` exited 0: 12,684 build jobs and all standalone checks.
 Full-check log SHA-256: `a09aefa63e845c01b52485f79038132dc130b59afc180c724f47824e9a776d37`.
+
+## First-half canonical coefficients in the original NTT execution
+
+`PackedPBSFirstDigitNTTAssociation` now derives the actual original NTT-loop
+support from the reached first reconstruction. Its `originalRetained` theorem
+carries every copied original checkpoint through that reconstruction, the real
+geometry transition and first comparison into any later retained history. It
+does not assume individual NTT-owner availability or replay the original loop.
+
+`digit_row_eq_or_bad` associates an actual retained first-half NTT coefficient
+row with the executed reconstruction's digit polynomial. The caller digit slot
+derives the root equality; complete public decoder metadata supplies the source
+interpretation. `canonical_digit_row_or_risks` then identifies that row with the
+native canonical digit of the executed input polynomial, outside the existing
+lookup/old-linear risks or the same later Bad event. The first linear factory's
+encoding association remains explicit because runtime does not overwrite it.
+
+Both halves now have actual canonical digit-to-NTT coefficient provenance.
+These are pointwise source results, not NTT-transform or Hadamard truth, and do
+not yet identify the decomposition inputs with accumulator differences. Next
+are those input associations, original result-to-accumulator external-source
+association and honest control-key semantics, followed by full trace/output
+composition and probability lifting. The existing whole-history charged theorem
+still concerns selected key-switch increments. Full PBS-output security,
+production admission, FS/ROM/grinding, adaptive attempts and actual physical
+attacker-work bounds remain unfinished; the production 128-query profile is
+uncertified.
+
+All four declarations were directly inspected and have exact axiom guards for
+`propext`, `Classical.choice` and `Quot.sound`. The module compiles at default
+resources without frozen Native/vendor edits, custom axioms, admitted proofs,
+resource increases or linter suppression.
+
+Full `scripts/check` exited 0: 12,686 build jobs and all standalone checks.
+Full-check log SHA-256: `d07adb3ba5b9fee93f6ce17e91de4e1d43441558810d93c457a4fc447d01f310`.

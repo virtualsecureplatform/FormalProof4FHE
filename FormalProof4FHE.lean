@@ -1949,3 +1949,5 @@ import FormalProof4FHE.HasteBoots.PackedPBSFirstCanonicalDigits
 import FormalProof4FHE.HasteBoots.TransportedOriginalNTTSource
 
 import FormalProof4FHE.HasteBoots.PackedPBSSecondDigitNTTAssociation
+
+import FormalProof4FHE.HasteBoots.PackedPBSFirstDigitNTTAssociation
