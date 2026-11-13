@@ -909,3 +909,5 @@ import FormalProof4FHETest.HasteBootsRectangularLookupCompositionAudit
 import FormalProof4FHETest.HasteBootsRectangularPrivateLookupAudit
 
 import FormalProof4FHETest.HasteBootsRectangularDecodedLookupAudit
+
+import FormalProof4FHETest.HasteBootsExecutedCommonFamilyAudit

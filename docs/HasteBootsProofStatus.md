@@ -32620,3 +32620,51 @@ comparison integration, trusted key/accumulator coverage, full accepted
 false-output coverage, numeric profile admission, production refinements,
 adaptive composition and actual attacker-work accounting remain open. The
 final 128-bit security theorem is unproved.
+
+
+### Executed constraints on a common family and evaluation-key meaning (2026-11-13)
+
+Added `RecordedFamilyEmbedding`: complete decoded tables and constructed
+ciphertexts transfer from an executed family to a common retained family using
+only public descriptor/root associations and actual recorded-owner membership,
+under the existing single final audited collision exclusion.
+
+`ExecutedReconstructionCommonFamily`, `ExecutedProductCommonFamily`,
+`ExecutedNTTCommonFamily` and `ExecutedKnownInputCommonFamily` apply this to
+supported accepted native operations. Actual reconstruction gives radix and
+endpoint-borrow constraints; actual product gives the evaluation product sum;
+actual selected NTT children give digit/result transforms; and the actual
+known-input check gives both negative-mask halves. Each semantic failure exposes
+its original-owner risk OR the same final collision event. Local anchors are
+retained through the supplied checkpoint-retention relation, which can be
+instantiated by the existing complete-run history theorems. No decoded-value
+association or separate replay certificate is supplied.
+
+The NTT adapter proves that selected-child decoded rows are literally the
+accepted loop family's own rows. It therefore needs only the later global audit
+and collision exclusion for family transfer, without an extra local NTT-return
+audit/no-Bad premise.
+
+The native reference family has evaluation-key roots, not separate coefficient-key
+roots. `DecodedEvaluationKey` constructs coefficient keys by the inverse of the
+primitive-root NTT, proves both inverse identities and the key transform, and
+provides a setup-association lemma from an actual setup transform identity.
+`RectangularEvaluationKeySwitch` uses those constructed keys in its increment
+and wrong-increment coverage theorems. Thus only the actual digit/result NTTs
+are checked; no coefficient-key commitment or extra key-NTT stage is invented.
+Trusted honest-setup association remains a separate obligation.
+
+All seven modules are exported. Direct inspection and 22 imported exact axiom
+guards cover every named declaration; all use only `propext`, `Classical.choice`
+and `Quot.sound`. Frozen Native/vendor sources and default resource limits
+remain unchanged. Full `scripts/check` exited 0, including 12,500 root-build
+jobs and every standalone check. Full-check log SHA-256:
+`4d762b1afe24d8de274952a4bfd6857f241594930692523e51edab67e8af3c3b`.
+
+Next, the retained comparison-stage adapter/probability wrapper must instantiate
+the rectangular private-request bound inside the complete PBS run. Actual
+reference/descriptor maps must assemble the common family and its accepted
+operation facts there. Trusted setup/accumulator coverage, full accepted
+false-output coverage, numeric profile admission, production refinements,
+adaptive composition and actual attacker-work accounting remain open. The
+final 128-bit security theorem is unproved.
