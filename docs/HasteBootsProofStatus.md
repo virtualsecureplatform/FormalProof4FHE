@@ -31883,3 +31883,39 @@ Validation: full `scripts/check` exited successfully, including the 12,405-job
 root build and all standalone checks. Frozen Native modules and vendor sources
 are unchanged. Full-check log SHA-256:
 `a6961ed42506ac4485f601f337acd044dea6ee1e8e71d9b73c59cec5f2cb9637`.
+
+
+### Decoded product, reconstruction and known-input constraints
+
+Added four non-Native modules connecting the executed padded stages to values
+constructed directly from their retained original source tables. Product soundness
+yields the pointwise sum-of-products identity on decoded evaluation arrays.
+Reconstruction yields field-valued radix reconstruction and zero endpoint borrows.
+The actual known-input stage fixes both decoded input halves to the negative
+accumulator mask. A fixed-height descriptor adapter preserves the existing
+physical decoder, domain, radius and logical high-zero padding.
+
+Each constraint transfers to a common recorded source family under public
+descriptor associations, recorded-root facts, an audited global history and
+exclusion of its single collision event. Stage-local owner recording remains
+separate from retention in that global history; later family anchors need not
+already exist at an earlier stage. No independently supplied source-value
+interpretation is assumed.
+
+These constraints do not yet identify canonical radix digits or establish a
+coefficient-domain convolution. The next semantic step is to transfer comparison
+lookup membership to the same digit/borrow family and apply radix canonicity,
+then combine the NTT and product equations into the canonical signed increment.
+Instantiation from the full accepted run, native parameter-store associations,
+trusted public-key source association, accumulator trace coverage, numeric profile
+admission, production refinements, adaptive composition and physical attacker-work
+accounting remain open. The final 128-bit security theorem remains unproved.
+
+All four modules are exported. Direct axiom inspection of 16 theorems found only
+`propext`, `Classical.choice` and `Quot.sound`; the imported audit records exact
+guards. Default resource limits were retained.
+
+Validation: full `scripts/check` exited successfully, including the 12,410-job
+root build and every standalone check. Frozen Native modules and vendor sources
+are unchanged. Full-check log SHA-256:
+`591d1c4daeb930d868b7c23177d6291468b7d33e2afe5bd71482de35f556da00`.

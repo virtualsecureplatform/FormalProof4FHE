@@ -1585,3 +1585,11 @@ import FormalProof4FHE.HasteBoots.PackedCipherSource
 import FormalProof4FHE.HasteBoots.DecodedPaddedNTT
 
 import FormalProof4FHE.HasteBoots.DecodedPaddedExtraction
+
+import FormalProof4FHE.HasteBoots.DecodedPaddedProduct
+
+import FormalProof4FHE.HasteBoots.DecodedPaddedReconstruction
+
+import FormalProof4FHE.HasteBoots.DecodedKnownInput
+
+import FormalProof4FHE.HasteBoots.FixedHeightPaddedSource
