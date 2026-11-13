@@ -32522,3 +32522,53 @@ must then use that link. Trusted key/accumulator coverage, full accepted
 false-output coverage, numeric profile admission, production refinements,
 adaptive composition and actual attacker-work accounting also remain open.
 The final 128-bit security theorem is unproved.
+
+
+### Rectangular private requests and original-owner soundness (2026-11-13)
+
+Added `RectangularRequestLookup`, `RectangularPrivateSharedLookup` and
+`RectangularPrivateLookupConditional`. Request-major/repetition-minor compilation
+preserves literal tables, prefix-fixed multiplicities, source slot order and
+actual sampled pairs. Source tuples freeze at the pre-pair checkpoint and use
+rectangular capacity. False source tuples with all sampled jobs passing have
+the existing maximum request-specific repeated error, without a request-count
+union factor. Combining this bound with scalar/rectangular PCS soundness covers
+false accepted source requests OR final Bad from empty, and false accepted
+requests outside final Bad from any audited incoming history.
+
+Added `RectangularOwnedLookupSources`, `RectangularOwnedRequestSources`,
+`RectangularLookupOwnerConditional`, `RectangularOwnedRequestConditional`,
+`RectangularOwnedLookupConditional` and `RectangularOwnedPrivateSharedLookup`.
+Original owner families may be selected after execution. Matching context,
+root and actual final-history membership give equality of whole decoded source
+columns with the pre-pair source columns, outside the existing final collision
+event. Complete tuple equality then transfers original-owner false requests to
+the fresh-source probability event. No source-truth, decoder-value equality or
+separate replay certificate is supplied; no extra collision charge or adaptive
+owner-selection union factor is introduced.
+
+`ConstructedGoldPrivateLookupConditional` specializes the complete audited-history
+original-owner bound to native-derived Gold role geometry/domain/capacity:
+source packing four, helper packing three, code symbols four. Its right side
+is pair/repetition error plus scalar arithmetic and rectangular PCS errors.
+A generic lemma derives radius below the field cardinality from positive degree,
+nonempty domain, its embedding and the distance condition; the native caller
+therefore supplies no separate large-field-radius certificate. The conditional
+role-admission policy and public distance/pair-size conditions remain explicit.
+
+All ten modules are exported. Direct inspection and 31 imported exact axiom
+guards cover all named declarations: one has no axioms, three use `propext` and
+`Quot.sound`, and 27 additionally use `Classical.choice`. Frozen Native/vendor
+files and default resource limits remain unchanged. Full `scripts/check`
+exited 0, including 12,485 root-build jobs and every standalone check.
+Full-check log SHA-256:
+`6b2801859ab170f00b55a2dd45259c092384f26b7a4b58746fb6ae4af6891959`.
+
+The next connection is the decoded-source lookup membership API used by radix
+and key-switch coverage. It must consume the new rectangular original-owner
+event while preserving square four-wide original-source decoding and allowing
+three-packed/four-symbol helpers. Complete native comparison integration,
+full accepted-run source association, trusted key/accumulator coverage, accepted
+false-output coverage, numeric profile admission, production refinements,
+adaptive composition and actual attacker-work accounting remain open. The
+final 128-bit security theorem is unproved.

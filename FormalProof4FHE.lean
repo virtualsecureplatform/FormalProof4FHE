@@ -1695,3 +1695,23 @@ import FormalProof4FHE.HasteBoots.RectangularStagedLookupSoundness
 import FormalProof4FHE.HasteBoots.RectangularLookupConditionalSoundness
 
 import FormalProof4FHE.HasteBoots.ConstructedGoldLookupConditional
+
+import FormalProof4FHE.HasteBoots.RectangularRequestLookup
+
+import FormalProof4FHE.HasteBoots.RectangularPrivateSharedLookup
+
+import FormalProof4FHE.HasteBoots.RectangularPrivateLookupConditional
+
+import FormalProof4FHE.HasteBoots.RectangularOwnedLookupSources
+
+import FormalProof4FHE.HasteBoots.RectangularOwnedRequestSources
+
+import FormalProof4FHE.HasteBoots.RectangularLookupOwnerConditional
+
+import FormalProof4FHE.HasteBoots.RectangularOwnedRequestConditional
+
+import FormalProof4FHE.HasteBoots.RectangularOwnedLookupConditional
+
+import FormalProof4FHE.HasteBoots.RectangularOwnedPrivateSharedLookup
+
+import FormalProof4FHE.HasteBoots.ConstructedGoldPrivateLookupConditional
