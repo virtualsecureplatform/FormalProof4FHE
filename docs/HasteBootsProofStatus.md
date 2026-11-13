@@ -32343,3 +32343,44 @@ worker/verifier integration, executed accepted-run source associations, trusted
 key and accumulator coverage, accepted false-output coverage, numeric profile
 admission, production refinements, adaptive composition and actual attacker-work
 accounting. The final 128-bit security theorem remains unproved.
+
+
+### Rectangular batch verifier with computed worker acceptance (2026-11-13)
+
+Added `RectangularBatchChecks`, `RectangularStoppingOpening` and
+`RectangularBatchVerifier`. Their column type retains independent packed-row
+and code-symbol widths. Query grouping and representative selection use the
+existing computed native layout; every original right query checks its own
+finish value. The verifier receives columns, rejects bad sorted/deduplicated
+position coverage before starting workers, and otherwise calls the existing
+`NativeBatchColumnWorkerPool.program`. Preparation precedes fresh sampling.
+The returned flag combines actual worker acceptance with deterministic checks;
+no replay certificate or provider-supplied success flag is an input.
+
+Supported accepted runs authenticate their columns in every later cache.
+Wrong accepted values relative to the immutable rectangular decoded table imply
+the batch arithmetic event or the shared checkpoint availability disagreement.
+The complete prepared verifier run has one rectangular arithmetic bound; false
+accepted values outside that disagreement have the same bound. The result
+includes zero-group coordinate behavior and retains worker and preparation
+work on rejecting paths. No per-query, group or lane union factor is added.
+
+`RectangularBatchSquareCompatibility` embeds an existing square protocol and
+proves exact equality of `next`, deterministic checks, sampled step and full
+prepared step. Thus square specialization preserves the entire oracle program,
+including preparation, coverage rejection and worker scheduling.
+
+All four modules are exported. Direct axiom inspection and 29 imported exact
+guards cover their named types, definitions and theorems. Five declarations use
+only `propext`; the other 24 also use `Classical.choice` and `Quot.sound`. No
+frozen Native or vendor files changed, and default resource limits were retained.
+Full `scripts/check` exited 0, including 12,454 root-build jobs and every
+standalone check. Full-check log SHA-256:
+`3a1f5da9b54958aa42456ee50d4a83d5ce8cb47744af562842516a0dabc58cc9`.
+
+The padded mixed-width lookup integration still uses square helper capacity;
+connecting its constructed native helper descriptors and opening path to this
+rectangular verifier is still required. Full-run source association, trusted
+key and accumulator coverage, accepted false-output coverage, numeric profile
+admission, production refinements, adaptive composition and physical
+attacker-work accounting remain open. The final 128-bit theorem is unproved.

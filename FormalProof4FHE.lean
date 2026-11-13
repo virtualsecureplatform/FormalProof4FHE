@@ -1653,3 +1653,11 @@ import FormalProof4FHE.HasteBoots.SharedRectangularMatrixSampling
 import FormalProof4FHE.HasteBoots.SharedRectangularBatchSampling
 
 import FormalProof4FHE.HasteBoots.RectangularAuthenticatedColumnChecks
+
+import FormalProof4FHE.HasteBoots.RectangularBatchChecks
+
+import FormalProof4FHE.HasteBoots.RectangularStoppingOpening
+
+import FormalProof4FHE.HasteBoots.RectangularBatchVerifier
+
+import FormalProof4FHE.HasteBoots.RectangularBatchSquareCompatibility
