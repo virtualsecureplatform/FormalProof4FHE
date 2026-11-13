@@ -923,3 +923,5 @@ import FormalProof4FHETest.HasteBootsRectangularFullPrefixAudit
 import FormalProof4FHETest.HasteBootsRecordedSourceWorldAudit
 
 import FormalProof4FHETest.HasteBootsExecutedWorldLinksAudit
+
+import FormalProof4FHETest.HasteBootsConstructedGoldRoutingAudit

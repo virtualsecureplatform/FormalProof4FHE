@@ -32948,3 +32948,54 @@ unproved.
 
 Full `scripts/check` exited 0: 12,530 build jobs and all standalone checks.
 Full-check log SHA-256: `62652a9f24c8c31d302f393d13207edc873f56fde42bab6305d35effb8bf1cf3`.
+
+
+### Native final key-switch source routing constructors (2026-11-13)
+
+Added `ConstructedGoldKeySwitchRouting`. Its source descriptor and geometry
+come from the completed final original-source allocation in the classical
+native role bundle. `geometry_matches_final_role` identifies that descriptor
+with every role routed to the final source allocation, including coefficient,
+evaluation, key, input and borrow roles, at one decoder radius. Native queries,
+domain, degree, dimensions and capacity are taken from that allocation.
+
+The NTT, reconstruction and product constructors install this geometry while
+retaining the raw protocol callbacks and private memories. Their
+`*_parameters` theorems show that the complete native arithmetic/root
+constructors preserve exactly the common decoder descriptor. Hence their
+public routing equalities can be discharged by these descriptor identities;
+no cross-stage decoded-table or descriptor certificate is needed when these
+constructors are instantiated. Logical NTT/reconstruction arity 1+c and
+product arity c+1 keep the same physical descriptor.
+
+`ConstructedGoldFinalComparisonRouting.context` fixes original sources to the
+same final source allocation and helpers to the distinct final helper
+allocation. Its `source_parameters` theorem matches every original lookup
+source to the arithmetic descriptor. `widths` preserves four-wide originals,
+three-wide helper tests and four-wide code symbols. Checked source/helper
+logical fits remain explicit; no square helper capacity is assumed.
+
+`ConstructedGoldKnownInputRouting` handles the fixed-height known-input stage.
+It installs the same descriptor's tag/domain and derived logical padding,
+retaining the raw known-input callbacks. Its parameter theorem survives the
+caller-root/negative-mask constructor and agrees with the common final source
+descriptor. Negative-mask semantics still require the actual executed check;
+metadata construction alone asserts no source truth or acceptance.
+
+All three modules are exported. Sixteen directly inspected declarations have
+imported exact axiom guards accepting only `propext`, `Classical.choice` and
+`Quot.sound`. Frozen Native/vendor sources and default resource limits remain
+unchanged. The role bundle's existing admission policy remains conditional;
+these constructors do not certify the current production 128-query profile.
+
+Next, instantiate the executed world-link/transform theorems with these native
+factories, identify the actual known-input and comparison owners with
+reconstruction's canonical slots, and combine the derived constraints into
+increment coverage for the complete PBS witness. Honest setup/key association,
+canonical accumulator/monomial semantics, accepted false-PBS output coverage,
+numeric profile admission, production refinements, adaptive composition and
+actual attacker-work accounting remain open. The final 128-bit security
+theorem is unproved.
+
+Full `scripts/check` exited 0: 12,534 build jobs and all standalone checks.
+Full-check log SHA-256: `29e0f4c4a29bbb1a05816b48cf598701948439d9513d6647d1e41006b4e6c735`.

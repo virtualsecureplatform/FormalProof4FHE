@@ -1789,3 +1789,9 @@ import FormalProof4FHE.HasteBoots.ExecutedKnownInputWorld
 import FormalProof4FHE.HasteBoots.ExecutedNTTWorldLinks
 
 import FormalProof4FHE.HasteBoots.ExecutedKeySwitchWorldTransforms
+
+import FormalProof4FHE.HasteBoots.ConstructedGoldKeySwitchRouting
+
+import FormalProof4FHE.HasteBoots.ConstructedGoldFinalComparisonRouting
+
+import FormalProof4FHE.HasteBoots.ConstructedGoldKnownInputRouting
