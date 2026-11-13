@@ -1937,3 +1937,7 @@ import FormalProof4FHE.HasteBoots.DecodedAccumulatorRows
 import FormalProof4FHE.HasteBoots.PackedPBSAccumulatorMonomialSources
 
 import FormalProof4FHE.HasteBoots.PackedPBSAccumulatorRotationCoverage
+
+import FormalProof4FHE.HasteBoots.ExecutedAmbientRectangularRadix
+
+import FormalProof4FHE.HasteBoots.PackedPBSSecondCanonicalDigits

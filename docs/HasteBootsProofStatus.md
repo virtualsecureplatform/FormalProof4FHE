@@ -34306,3 +34306,60 @@ custom axioms, admitted proofs or linter suppression.
 
 Full `scripts/check` exited 0: 12,672 build jobs and all standalone checks.
 Full-check log SHA-256: `855e6796965ae1ace516d09026d467db36aeb2ead417704ea9fddedfb55488e4`.
+
+## Executed ambient reconstruction and canonical second-half digits
+
+`ExecutedAmbientRectangularRadix` supplies the unpadded ambient counterpart of
+the existing padded key-switch canonical-digit argument. It constructs the
+reconstruction family from actual fresh owners and complete physical-decoder
+metadata, proves that the literal original sources equal that family's logical
+view, and retains those owners through the actual reached comparison and any
+later retained history. The comparison sources use their literal incoming logs
+before adaptive helper work. Source tags, public decoder association, slot order,
+public modulus-digit tables and full active lookup coverage remain explicit
+public admission obligations.
+
+The reached original-owner rectangular lookup enforces every modulus-digit
+transition on the same reconstructed family outside its existing OriginalFalse
+or final Bad event. Native reconstruction and zero endpoint borrows then imply
+canonical quotient/remainder digits outside the original linear-risk event as
+well. Neither truthful lookup membership nor reconstruction validity is supplied
+as a premise; each follows from clearing its actual existing risk event. No new
+probability loss, state reset, independent-root assumption or conditioning is
+introduced.
+
+`PackedPBSSecondCanonicalDigits` instantiates this bridge on the actual supported
+complete PBS prefix through the second comparison. It derives the enabled
+reconstruction return, predecessor opening memory, both child supports and native
+acceptance gate from that same execution. Its constructed source family has the
+original second-half input root and the same original digit roots consumed by
+the external-product NTT calls; actual support also proves every family owner
+remains recorded in a later retained final history.
+
+`canonical_digits_or_risks` gives canonical integer digits on all original source
+coordinates. `canonical_polynomials_or_risks` turns these into equality with
+`NativeBlindRotation.digit` on polynomial rows read at the supplied native
+addresses when the public radix is `2^bits`. The input polynomial is constructed
+from the executed original input source, rather than supplied with an assumed
+canonical-digit binding. Both theorems expose the existing lookup/linear risks
+or the same final Bad event.
+
+This is pointwise coverage, not yet a full-output probability bound. Remaining:
+handle the first-half reconstruction across its existing geometry transport,
+associate both halves' input/digit sources with the decoded accumulator and
+external-product NTT coefficients, and derive honest original control-key and
+external-product semantics. Full accumulator endpoint/trace composition and
+PBS-output failure lifting through the whole setup/verifier bound still follow.
+Public production parameter/descriptor/representation admission, FS/ROM/grinding,
+adaptive attempts and physical attacker-work accounting remain outstanding.
+The whole native theorem still bounds accepted-false key-switch increments
+relative to the actual accumulator; the production 128-query profile remains
+uncertified.
+
+All 20 declarations have directly inspected exact axiom guards using only
+`propext`, `Classical.choice`, and `Quot.sound`. Both modules compile at default
+Lean resources, without frozen Native/vendor edits, resource increases, custom
+axioms, admitted proofs or linter suppression.
+
+Full `scripts/check` exited 0: 12,676 build jobs and all standalone checks.
+Full-check log SHA-256: `efe50aa2903a4f732ec72e01def3f1efd15d318b01d4209b6ff3382ccf480596`.
