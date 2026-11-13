@@ -34799,3 +34799,63 @@ or linter suppression were used.
 
 Full `scripts/check` exited 0: 12,714 build jobs and all standalone checks.
 Full-check log SHA-256: `19203c711ae5b1c2a257edfcf2b3443174176eb04ef9fd5a12dd5715c48bf48a`.
+
+## Honest control-key setup and actual original key polynomials
+
+`HonestControlKeyTable` materializes evaluation matrices from the supplied actual
+coefficient control rows. Native key slots retain source-half-major/limb order;
+the full stored-round axis, both output halves, coefficient bits and lanes are
+preserved. `polynomial` proves that every constructed source polynomial is the
+native transform of its corresponding coefficient control row. Physical buffers
+use deterministic zero padding beyond the full logical source, with public
+fit conditions; no decoded value or transform identity is assumed.
+
+`HonestControlKeySetup.program` actually runs the shared leaf/node hash builder
+and returns the control commitment roots, without early checkpoint annotations.
+`initialized` derives its factual label/root/query receipt, coherence, sound
+checkpoint-query invariant, audit and compatibility with every later extraction
+geometry from supported setup at empty. `withKeys` installs the returned roots
+in the original caller family, and `mono` preserves factual query receipts
+through chronological log extension.
+
+`HonestControlKeyTranscript.polynomials_or_bad` recovers these evaluation rows
+from honest setup queries present in actual native key snapshots. It uses final
+checkpoint/cache soundness, code degree/unique-radius admission, public fit and
+the same final Bad event; a separate audit premise was unnecessary and removed.
+It does not assume decoded-table equality, key coefficients in the source world,
+or a transform certificate.
+
+`PackedPBSHonestControlKeys` connects this recovery to the actual supported PBS
+accumulator prefix and its copied original Hadamard family. `prefix_log` derives
+that the original key snapshots contain all incoming setup queries, including
+actual commitment callback calls. `key_root` derives their literal caller key
+roots. `keys_or_bad` therefore identifies every original Hadamard key polynomial
+with the honest native control transform, using only the factual incoming setup
+receipt and public decoding/layout admission plus actual final recording/cache
+soundness. `keys_from_setup_or_bad` removes that separately supplied receipt:
+actual shared setup support must return EXACTLY the caller's control roots and
+the native initial state, and the proof derives the receipt itself. Both cover
+all stored rounds, source halves, gadget limbs and output halves, without a new
+alias probability loss or independently sampled source world.
+
+Remaining: compose actual digit/result-row and original native NTT/Hadamard
+relations with these honest control keys to prove actual external products;
+complete trace/endpoint/PBS-output composition and probability lifting; combine
+control-key setup, key-switch setup and the full verifier in one whole joint
+program/charge. The receipt form already permits intervening setup work via
+chronological extension; the direct setup form currently anchors native initial
+state to that control setup return. Actual coefficient controls are trusted
+setup input data here; concrete production key-generation/layout/Rust admission
+remains required. Concrete parameter/codec/radius/representation admission,
+FS/ROM/grinding, adaptive attempts and physical attacker-work accounting remain
+unfinished. The existing whole-history charged theorem is still selected
+key-switch increment security; the production 128-query profile is uncertified.
+
+All 17 declarations compile at default Lean resources and have directly
+inspected exact axiom guards. `Controls` uses only `propext`, `withKeys` uses no
+axioms, and the other 15 declarations use only `propext`, `Classical.choice`, and
+`Quot.sound`. No frozen Native/vendor edits, custom axioms, admitted proofs,
+resource increases or linter suppression were used.
+
+Full `scripts/check` exited 0: 12,722 build jobs and all standalone checks.
+Full-check log SHA-256: `0df735763ecc49d398c5f8eea6fdd2a9c0c16516e458949e822565a28b85d365`.

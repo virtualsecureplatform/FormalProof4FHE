@@ -1979,3 +1979,11 @@ import FormalProof4FHE.HasteBoots.TransportedOriginalHadamardSource
 import FormalProof4FHE.HasteBoots.TransportedOriginalNTTBinding
 
 import FormalProof4FHE.HasteBoots.PackedPBSOriginalTransformCoverage
+
+import FormalProof4FHE.HasteBoots.HonestControlKeyTable
+
+import FormalProof4FHE.HasteBoots.HonestControlKeySetup
+
+import FormalProof4FHE.HasteBoots.HonestControlKeyTranscript
+
+import FormalProof4FHE.HasteBoots.PackedPBSHonestControlKeys
