@@ -1817,3 +1817,7 @@ import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchIncrement
 import FormalProof4FHE.HasteBoots.KeySwitchTailRisk
 
 import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchAcceptedIncrement
+
+import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchIncrementEvents
+
+import FormalProof4FHE.HasteBoots.PackedPBSRectangularIncrementBound

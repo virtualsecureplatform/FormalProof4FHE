@@ -33318,3 +33318,62 @@ security theorem is unproved.
 
 Full `scripts/check` exited 0: 12,552 build jobs and all standalone checks.
 Full-check log SHA-256: `0b17bdab275643745ef26b1d569dab6023781e7343df245983e4daf71cb2d100`.
+
+
+## 2026-11-13: native accepted incorrect-canonical-increment probability bound
+
+Added and exported `PackedPBSKeySwitchIncrementEvents`. `ExecutionResult` reads
+the actual complete experiment return type. `CorrectOutput` describes canonical
+increment correctness using the operations stored in that returned execution,
+their literal NTT/product support and acceptance evidence, and their retained
+histories at its final comparison state. The decoded world and evaluation key
+are constructed from that history; they are not supplied by a caller.
+`AcceptedFalse` requires the actual returned comparison acceptance flag and the
+failure of `CorrectOutput`. `TailFailure` is the same selected tail-risk event
+with earlier event False, or the complete execution's final history Bad.
+
+`accepted_false_event_le` proves the supported-event probability inclusion for
+the named complete witness. It obtains the actual operations from the previous
+accepted coverage interface. A correct branch constructs `CorrectOutput` and
+contradicts the event; the remaining branches enter the same tail event or final
+Bad. The proof needs neither losslessness nor a child probability/security
+certificate. Public routing, radix/table/activity, scope and initial audit
+conditions remain explicit.
+
+Added and exported `PackedPBSRectangularIncrementBound` with
+`native_accepted_false_canonical_increment_bound`. It instantiates that inclusion
+with the concrete native first/second/final rectangular comparison schemes,
+four-source input/final key-switch shapes, length `finalC + 2`, and the canonical
+final request shape (width 3, size twice the radix, one request per digit).
+Combining it with `native_tail_risk_or_bad_bound` gives an explicit bound on the
+probability of accepted incorrect canonical increments by the existing full
+native error sum plus its single ExpectedHazard history charge. The rectangular
+helper padding stays independent; the theorem does not impose a square helper
+capacity condition. The existing native rate admissions and public semantic
+routing/table conditions are premises, rather than supplied child security
+bounds. This is now a single native probability theorem, not only separate
+pointwise and risk-probability interfaces.
+
+All six new public declarations have directly inspected imported exact axiom
+guards. The result-type helper uses no axioms; the other five use only `propext`,
+`Classical.choice` and `Quot.sound`. Explicit scheme types and the actual
+experiment return type keep the declarations complete and proofs within default
+resources (final targeted builds: 6.4 and 4.6 seconds). No frozen Native/vendor
+source, resource limit, custom axiom or linter suppression was changed.
+
+Next derive honest setup/evaluation-key association through the constructed
+registry and retained source ownership, obtaining the setup transform identity
+needed by `DecodedEvaluationKey.key_eq_of_setup` rather than assuming it as a
+new security certificate. Canonical accumulator/monomial semantics and accepted
+false-PBS output coverage must then use the same complete joint event, preserving
+one history charge and avoiding a second addition of earlier-stage rates.
+Concrete admission/routing discharge, numeric profile certification, production
+field/codec/Rust/memory refinements, FS/ROM freshness and grinding, adaptive
+composition and actual attacker-work accounting remain open. The production
+128-query profile is not certified; the final 128-bit security theorem is
+unproved. The new theorem concerns the canonical increment relative to the
+constructed evaluation key and actual accumulator context, not yet the full
+honestly initialized PBS specification.
+
+Full `scripts/check` exited 0: 12,556 build jobs and all standalone checks.
+Full-check log SHA-256: `87d0da8d300dad05abbe3e1fae87368636a0b6973a47bc011a96602d320c1d8d`.
