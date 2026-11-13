@@ -34502,3 +34502,48 @@ resource increases or linter suppression.
 
 Full `scripts/check` exited 0: 12,686 build jobs and all standalone checks.
 Full-check log SHA-256: `d07adb3ba5b9fee93f6ce17e91de4e1d43441558810d93c457a4fc447d01f310`.
+
+## Executed accumulator decomposition-input bridge
+
+`DecodedAccumulatorConstraints` derives both duplicate-half identities and
+coefficient-trace arithmetic from the existing full native accumulator
+residuals. It decodes every original stored row, including padding, without
+requiring a separately supplied packed trace. Each original duplicated input
+row is the selected difference half at either physical output half.
+
+`ExecutedAccumulatorInputs` constructs the original source owners from an actual
+supported `AmbientAccumulator.witness` return. `full_holds_or_risk` derives full
+original-source constraints from the actual arithmetic and opening acceptance
+gates, or exhibits the existing `OwnedAmbientAccumulator.OriginalRisk` with
+those literal fresh recorded owners. It does not add a new probability event.
+
+`input_table_eq_or_bad` associates a recorded reconstruction input with the
+executed accumulator's corresponding duplicated source. It requires complete
+public decoder metadata and caller-root association, the reconstruction family's
+recording receipt, actual later retention and audit. Source-value equality is
+derived, not supplied. `input_row_or_risks` composes this association with the
+actual accepted accumulator constraints to derive the selected difference
+polynomial, with only the existing accumulator OriginalRisk or the same final
+Bad alternative. `address_ntt` proves that these physical coefficient addresses
+are the original NTT row addresses; `input_ntt_rows_or_risks` presents the result
+at those addresses for every stored round and both physical output halves.
+
+Remaining integration: instantiate the input bridge with both actually executed
+canonical reconstruction families in the full PBS prefix, deriving their
+recording and caller-root associations there. The module is an execution-level
+bridge, not yet that full-prefix composition. The original result coefficient
+to accumulator external source association and honest control-key semantics,
+full external-product/trace/output composition and probability lifting remain.
+The whole-history charged theorem is still about selected key-switch increments;
+full PBS-output security, production admission, FS/ROM/grinding, adaptive
+attempts and actual physical work accounting remain unfinished. The production
+128-query profile remains uncertified.
+
+All 14 declarations were directly inspected and receive exact axiom guards:
+`duplicate` uses only `propext`; the others use only `propext`,
+`Classical.choice` and `Quot.sound`. Both source modules compile at default Lean
+resources without Native/vendor edits, custom axioms, admitted proofs, resource
+increases or linter suppression.
+
+Full `scripts/check` exited 0: 12,690 build jobs and all standalone checks.
+Full-check log SHA-256: `9356bc1ffe35c82977902d84eddb087fb583c7f8c8236248b94c610ea81d574e`.

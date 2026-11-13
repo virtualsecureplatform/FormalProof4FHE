@@ -1951,3 +1951,7 @@ import FormalProof4FHE.HasteBoots.TransportedOriginalNTTSource
 import FormalProof4FHE.HasteBoots.PackedPBSSecondDigitNTTAssociation
 
 import FormalProof4FHE.HasteBoots.PackedPBSFirstDigitNTTAssociation
+
+import FormalProof4FHE.HasteBoots.DecodedAccumulatorConstraints
+
+import FormalProof4FHE.HasteBoots.ExecutedAccumulatorInputs
