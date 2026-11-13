@@ -33504,3 +33504,51 @@ the final 128-bit security/work theorem is proved.
 
 Full `scripts/check` exited 0: 12,572 build jobs and all standalone checks.
 Full-check log SHA-256: `63057d8623dfdd5f41a660d14dccb4ac77c41da18b2d99a24661a339e938187f`.
+
+## Executed multi-level honest evaluation-key setup (2026-11-13)
+
+Added `ExecutedHonestMatrixBatch.program`: each level commits its honest matrix
+through the existing shared-oracle builder and records its computed root, then
+passes the same state to the next level. The returned root vector contains
+actual outputs rather than caller-supplied roots. `receipts` derives the actual
+per-level prefix transcripts and label trees, with checkpoint membership for
+each returned root. Empty batches, repeated tags, repeated roots and repeated
+queries are allowed. `owners_retained` carries these snapshots through arbitrary
+supported continuation and realizes all of them using one final shared cache.
+The per-level prefixes are existentially derived from execution.
+
+Added `ExecutedHonestEvaluationKey.setup`, committing the forward-transform
+matrices of every level of the original coefficient key. The supported setup
+and continuation theorem associates verifier-selected canonical inverse-NTT
+key slots with that original key, or the single final
+`CheckpointCollision.Bad` event. All honest setup audit, cache and checkpoint
+receipts are execution-derived. Selection still requires the public parameter
+and returned-root matches and actual selected-source recording. Capacity,
+unique-decoding distance and primitive-transform conditions remain explicit.
+No decoded-key or transform-identity certificate is assumed.
+
+`joint` feeds these returned roots directly into its continuation within one
+shared oracle program. `joint_associated_key_or_bad` proves the same honest-key
+association from support of this complete setup/verifier execution from empty;
+there is no independently fixed setup-root distribution or detached verifier
+execution. It does not yet instantiate the continuation with the concrete native
+PBS verifier, prove registry selection matches, or bound its full accepted-false
+PBS event.
+
+All seven public declarations have directly inspected imported exact axiom
+guards and use only `propext`, `Classical.choice`, and `Quot.sound`. Final targeted
+builds passed at default resources (3.3 seconds for the batch, 3.9 seconds for
+the joint key theorem). Frozen Native/vendor modules and resource settings were
+untouched.
+
+Next connect actual native registry/root selection to these returned roots and
+instantiate the joint continuation with PBS. Extend the canonical increment
+coverage to honestly initialized full PBS output, preserving the one shared
+history charge and including setup in that history. Canonical accumulator and
+monomial semantics, native numeric/representation/Rust/memory refinements,
+FS/ROM/grinding, adaptive composition and physical attacker-work obligations
+remain open. The production 128-query profile and final 128-bit security/work
+theorem remain unproved.
+
+Full `scripts/check` exited 0: 12,576 build jobs and all standalone checks.
+Full-check log SHA-256: `7048ab17ddc3048a3c9d7823b463ae7e1b04224a460e68935a3ced2e306fbe45`.

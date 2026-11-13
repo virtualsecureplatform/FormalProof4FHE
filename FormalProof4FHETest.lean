@@ -959,3 +959,7 @@ import FormalProof4FHETest.HasteBootsHonestExecutedEvaluationKeyAudit
 import FormalProof4FHETest.HasteBootsExecutedHonestCommitmentAudit
 
 import FormalProof4FHETest.HasteBootsExecutedHonestMatrixAudit
+
+import FormalProof4FHETest.HasteBootsExecutedHonestMatrixBatchAudit
+
+import FormalProof4FHETest.HasteBootsExecutedHonestEvaluationKeyAudit
