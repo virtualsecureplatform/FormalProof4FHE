@@ -35304,3 +35304,51 @@ admitted proofs, custom axioms, resource increases or linter suppression were us
 
 Full `scripts/check` exited 0: 12,762 build jobs and all standalone checks.
 Full-check log SHA-256: `3f39864ac4d2970ec9ba64e81acc0e1e362d294ac762aafeced14a2f73e82007`.
+
+## Actual final-output coverage from the honest-increment event (2026-11-13)
+
+`PackedPBSHonestExtractionOutput` adds five declarations in
+`PackedPBSKeySwitchExtraction.HonestOutput`. The complete witness uses the
+native width-four final packing, canonical final radix and the same rectangular
+comparison-return shape as the existing honest-increment event.
+
+`increment_of_correct_output` proves that
+`PackedPBSHonestIncrementEvents.CorrectOutput` supplies exactly the comparison-
+world increment equality required by the complete-witness extraction theorem.
+The literal optional-result positions identify its NTT and known-input returns
+with `SelectedNTT.ntt` and `SelectedNTT.known`; the comparison return is likewise
+identified with `Frame.comparison`. The actual extraction endpoint is proved
+equal to the retained accumulator context read in that event. No source-value,
+selected-child or endpoint-equality certificate is assumed.
+
+`output_of_correct_increment_or_risks` composes that existing event with actual
+accepted extraction. `output_or_failures` and `wrong_output_implies_failures`
+remove the correctness premise by reducing an incorrect accepted final output
+to the existing `PackedPBSHonestIncrementEvents.AcceptedFalse` event at the same
+comparison predecessor, the extraction original risk, or the single actual
+final collision event. `wrong_safe_output_implies_failures` refines this to the
+earlier safe increment event or the safe extraction original risk under the
+one final collision exclusion. Earlier collision persistence is derived from
+the complete witness. This preserves the interfaces for earlier-event lifting
+and one whole-execution authentication charge, without a second collision term.
+
+The output target is canonical key switching and partial extraction of the
+once-biased actual retained accumulator endpoint. The final wrong-output
+coverage has no decoded increment-correctness premise; its increment failure
+is the existing honest event whose setup-backed bounds are already available.
+Those bounds and the extraction bound still need to be instantiated and lifted
+together for this complete final-output event. This is not yet full public PBS
+output security: the public-bound blind-rotation result must be joined with the
+same endpoint and risk union. Both setups and full verification in one charged
+experiment, full false-PBS-output probability lifting, production admissions,
+FS/ROM/grinding, adaptive attempts and actual physical attacker-work accounting
+remain unfinished. The 128-bit work target is not proved; the production
+128-query profile remains uncertified.
+
+All five declarations compile at default Lean resources with directly inspected
+exact guards for only `propext`, `Classical.choice` and `Quot.sound`. No frozen
+Native/vendor edits, admitted proofs, custom axioms, resource increases or
+linter suppression were used.
+
+Full `scripts/check` exited 0: 12,764 build jobs and all standalone checks.
+Full-check log SHA-256: `877e9940b29311fab9d040d8d7208ad34fb8dad343d60cbf72262646181b0069`.
