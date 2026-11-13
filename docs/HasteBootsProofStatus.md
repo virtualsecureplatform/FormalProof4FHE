@@ -33181,3 +33181,46 @@ accounting remain open. The final 128-bit security theorem is unproved.
 
 Full `scripts/check` exited 0: 12,545 build jobs and all standalone checks.
 Full-check log SHA-256: `a5c28d36eeb36ae4156dd12a3e33b6c3db10c03d9af2161e2f71bc4ba6a06b0e`.
+
+
+### Extract the complete reached key-switch tail (2026-11-13)
+
+Added the axiom-free `ReachedPairFacts.extend` composition lemma. It takes two
+actual optional-result reachability theorems and applies the earlier one to the
+same supported stored predecessor pair, retaining its computed gate and payload.
+It never inspects or expands either probability computation and assumes no
+security, source-truth, replay or losslessness certificate.
+
+Extended `PackedPBSReachedKeySwitch` with `product_facts`, `ntt_facts` and
+`input_facts`, instantiating this composition with the existing concrete stage
+reachability theorems. From a returned final comparison in the named complete
+PBS witness, the resulting nested facts retain the literal comparison,
+reconstruction, product, NTT and known-input calls and their actual states,
+memories, predecessor support and computed gates. The known-input support also
+identifies its actual accumulator endpoint context and monomial-product
+predecessor/gate. No per-stage supported execution is supplied as an additional
+caller hypothesis. Final comparison acceptance remains a separate computed
+flag; merely returning a comparison does not assert that it passed.
+
+The old complete predecessor interfaces remain intact. The new facts are
+composed through whole named interfaces, so the full prefix is kept opaque and
+all proofs build under the default heartbeat limits. No frozen Native/vendor
+source or resource setting changes.
+
+The helper is exported and four directly inspected declarations have imported
+exact axiom guards: the helper accepts no axioms; the three concrete wrappers
+accept only `propext`, `Classical.choice` and `Quot.sound`. Existing reachability
+guards continue to audit their earlier interfaces.
+
+Next, use these extracted calls and the existing final checkpoint-retention
+chain to instantiate `ExecutedKeySwitchIncrement` in the complete witness,
+including the native four-lane/length specialization and public decoder routing.
+Carry the final comparison's acceptance flag when matching semantic failure
+branches to the rectangular probability bound. Honest setup/key association,
+canonical accumulator/monomial semantics, accepted false-PBS output coverage,
+numeric profile admission, production refinements, adaptive composition and
+actual attacker-work accounting remain open. The final 128-bit security theorem
+is unproved.
+
+Full `scripts/check` exited 0: 12,546 build jobs and all standalone checks.
+Full-check log SHA-256: `a2dac46f1fc2eed896f219883319826d7aaa0b53956b563a72a31adb5763cd5b`.

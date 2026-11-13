@@ -1,4 +1,5 @@
 module
+import all FormalProof4FHE.HasteBoots.ReachedPairFacts
 import all FormalProof4FHE.HasteBoots.RetainedComparisonReached
 import all FormalProof4FHE.HasteBoots.PackedPBSReachedKeySwitch
 
@@ -29,3 +30,19 @@ import all FormalProof4FHE.HasteBoots.PackedPBSReachedKeySwitch
 /-- info: 'FormalProof4FHE.HasteBoots.PackedPBSReachedKeySwitch.reconstruction_facts' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.PackedPBSReachedKeySwitch.reconstruction_facts
+
+/-- info: 'FormalProof4FHE.HasteBoots.ReachedPairFacts.extend' does not depend on any axioms -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.ReachedPairFacts.extend
+
+/-- info: 'FormalProof4FHE.HasteBoots.PackedPBSReachedKeySwitch.product_facts' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.PackedPBSReachedKeySwitch.product_facts
+
+/-- info: 'FormalProof4FHE.HasteBoots.PackedPBSReachedKeySwitch.ntt_facts' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.PackedPBSReachedKeySwitch.ntt_facts
+
+/-- info: 'FormalProof4FHE.HasteBoots.PackedPBSReachedKeySwitch.input_facts' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.PackedPBSReachedKeySwitch.input_facts

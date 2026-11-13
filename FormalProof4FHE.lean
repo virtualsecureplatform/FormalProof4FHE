@@ -1809,3 +1809,5 @@ import FormalProof4FHE.HasteBoots.ExecutedKeySwitchIncrement
 import FormalProof4FHE.HasteBoots.RetainedComparisonReached
 
 import FormalProof4FHE.HasteBoots.PackedPBSReachedKeySwitch
+
+import FormalProof4FHE.HasteBoots.ReachedPairFacts
