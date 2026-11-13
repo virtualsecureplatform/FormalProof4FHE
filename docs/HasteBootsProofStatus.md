@@ -35352,3 +35352,50 @@ linter suppression were used.
 
 Full `scripts/check` exited 0: 12,764 build jobs and all standalone checks.
 Full-check log SHA-256: `877e9940b29311fab9d040d8d7208ad34fb8dad343d60cbf72262646181b0069`.
+
+## Probability lifting for actual accepted final key-switch output (2026-11-13)
+
+`RetainedCanonicalOutput.Wrong` defines accepted incorrect canonical key-switch
+output for a returned extraction child; skipped and rejected branches do not
+count. `Risk` is the original-owner extraction risk of the literal returned
+child. `split_bad` and `bound_with_bad` separate one exception probability from
+a proved safe-event bound, without a losslessness or conditional-security
+assumption.
+
+`PackedPBSHonestExtractionProbability.safe_probability_le` proves a probability
+inequality for the actual complete extraction witness. Outside its actual
+final collision event, accepted incorrect final output is bounded by the sum
+of the existing safe honest-increment failure probability in the complete
+comparison predecessor and the safe reached-extraction original-risk probability
+in the full extended witness. The proof uses the actual supported return,
+`HonestOutput.wrong_safe_output_implies_failures`, earlier-event lifting through
+the optional extraction continuation, and a union bound. It assumes no component
+rate or conditional child-security certificate. The public decoder association
+is required uniformly for the actual supported returned children; initial audit,
+record scope, geometry and output-dimension conditions remain explicit.
+
+`probability_le` adds the probability of the same actual final collision event
+once. Its conclusion bounds accepted incorrect canonical final key-switch
+output by that final collision probability plus the two safe arithmetic-event
+probabilities. No source-value correctness premise, extra owner mismatch event,
+second authentication term, success-conditioning division, returning-mass or
+losslessness assumption is introduced.
+
+This is event-to-event probability lifting, not yet a concrete numeric security
+bound. The existing native honest-increment and extraction arithmetic bounds
+must be instantiated for the same public configurations, and authentication
+must be charged on the combined actual setup plus verification history. The
+output target still key-switches the once-biased actual retained accumulator;
+the public-bound blind-rotation result must be joined to obtain the complete
+public PBS output event. Both setups/full verification in one charged experiment,
+production admissions, FS/ROM/grinding, adaptive attempts and physical attacker-
+work accounting remain unfinished. Full PBS security and the 128-bit work target
+are not proved; the production 128-query profile remains uncertified.
+
+All six declarations compile at default Lean resources and have directly
+inspected exact guards for only `propext`, `Classical.choice` and `Quot.sound`.
+No frozen Native/vendor edits, admitted proofs, custom axioms, resource increases
+or linter suppression were used.
+
+Full `scripts/check` exited 0: 12,768 build jobs and all standalone checks.
+Full-check log SHA-256: `8d8df386abd36bb8a21a73cf2d6c9e52687b969b972b9e7d001b61de337aa56e`.
