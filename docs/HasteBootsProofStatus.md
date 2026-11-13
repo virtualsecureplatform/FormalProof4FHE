@@ -35251,3 +35251,56 @@ proofs, custom axioms, resource increases or linter suppression were used.
 
 Full `scripts/check` exited 0: 12,758 build jobs and all standalone checks.
 Full-check log SHA-256: `0538396cee11e606eb9dd81db07d70929e7055f97235330dde0afd1c5c12883c`.
+
+## Actual accepted NTT selection and complete-witness extraction semantics (2026-11-13)
+
+`PackedPBSExtractionNTT` adds eleven declarations in
+`PackedPBSKeySwitchExtraction.SelectedNTT`. `selected` derives the literal
+stored known-input and key-switch NTT results from the single supported complete
+extraction witness. `known`, `ntt`, `facts`, `known_eq` and `ntt_eq` expose those
+same actual returns; `ntt_passed` and `ntt_supported` derive the computed NTT gate
+and its actual supported call at the known-input end and returned private memory.
+`ntt_comparison_retained`, `ntt_retained` and `known_retained` preserve their
+checkpoints through the selected comparison and actual final extraction.
+
+`PackedPBSExtractionSemantics` specializes final key-switch and extraction
+packing to width four and the same ring size, retaining generic original PBS
+packing. It adds two declarations in `PackedPBSKeySwitchExtraction.Semantics`.
+`extraction_or_risks` applies the actual extraction-to-NTT semantic link to this
+complete witness. Accepted extraction enforces canonical extraction of the
+actual accepted NTT coefficient result decoded in the actual final source world,
+or the existing extraction original risk or the same actual final collision
+event. Component supports, NTT acceptance, returned private memories, retention
+and final audit are all derived from the complete witness. The caller supplies
+only the existing initial audit, public record/geometry conditions, full public
+decoder association, admitted output dimension and actual extraction acceptance.
+There is no supplied source-value equality or common owner family.
+
+`output_of_increment_or_risks` composes canonical signed-increment correctness
+at this same witness's literal comparison end with accepted extraction. It
+returns the caller's output equals partial extraction of the canonical switched,
+once-biased actual accumulator endpoint, or the extraction original risk or the
+same final collision event. The earlier correctness premise names the selected
+NTT result in the actual comparison source world. All its stage-support and
+history inputs now come from one complete execution rather than separately
+supported component experiments. No new mismatch event or collision charge is
+introduced.
+
+Canonical increment correctness remains an explicit semantic premise of the
+second theorem; it still needs to be discharged by the existing honest-key setup
+and increment coverage, matching the literal selected result and endpoint.
+The public-bound blind-rotation result must then be joined with the same actual
+output and final risk union. Both setups and full verification in one charged
+experiment, complete false-PBS-output probability lifting, production admissions,
+FS/ROM/grinding, adaptive attempts and actual physical attacker-work accounting
+remain unfinished. Full PBS-output security and the 128-bit work target are not
+proved; the production 128-query profile remains uncertified.
+
+All thirteen declarations compile at default Lean resources and have directly
+inspected exact guards for only `propext`, `Classical.choice` and `Quot.sound`.
+Selected values are kept locally opaque to avoid elaborating their complete
+existential support derivations during rewriting. No frozen Native/vendor edits,
+admitted proofs, custom axioms, resource increases or linter suppression were used.
+
+Full `scripts/check` exited 0: 12,762 build jobs and all standalone checks.
+Full-check log SHA-256: `3f39864ac4d2970ec9ba64e81acc0e1e362d294ac762aafeced14a2f73e82007`.
