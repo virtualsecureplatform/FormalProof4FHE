@@ -951,3 +951,7 @@ import FormalProof4FHETest.HasteBootsHonestPaddedSourceAudit
 import FormalProof4FHETest.HasteBootsHonestRecordedMatrixAudit
 
 import FormalProof4FHETest.HasteBootsHonestRecordedEvaluationKeyAudit
+
+import FormalProof4FHETest.HasteBootsRecordedCheckpointQueriesAudit
+
+import FormalProof4FHETest.HasteBootsHonestExecutedEvaluationKeyAudit

@@ -33421,3 +33421,39 @@ production 128-query profile and final 128-bit security theorem remain unproved.
 
 Full `scripts/check` exited 0: 12,564 build jobs and all standalone checks.
 Full-check log SHA-256: `01da2bd8ba35c5633befcaca9d4d2a949f0780196ff9e8545f42d36c6b46104c`.
+
+## Execution-derived checkpoint cache receipts (2026-11-13)
+
+Added `RecordedCheckpointQueries.Sound`: every entry of every recorded
+cumulative transcript remains in the current shared cache with its original
+answer. The empty execution satisfies it. Recording establishes the property
+for the actual current log by cache/log coherence, while supported hash steps
+preserve all prior entries by cache monotonicity. Private steps leave it
+unchanged. The resulting supported-run invariant applies to arbitrary adaptive
+interleavings, with no query bound or collision-freedom assumption.
+
+Added `HonestExecutedEvaluationKey.associated_key_of_run_or_bad`. For a supported
+complete shared execution from empty, the honest-key association bridge now
+derives both its final audit and frozen transcript cache receipts from that
+execution. No separately supplied final-state audit or log/cache certificate is
+needed. Public capacity/distance/transform conditions, actual checkpoint
+membership, and selected descriptor/root agreement remain explicit. The result
+still uses the same final `CheckpointCollision.Bad` event, so this bridge does
+not introduce a separate probability loss or history charge.
+
+All seven new declarations have directly inspected imported exact axiom guards.
+`Sound` and `empty` use only `propext` and `Quot.sound`; the other five use only
+`propext`, `Classical.choice`, and `Quot.sound`. Targeted builds passed at default
+resources (3.1 and 2.3 seconds). No frozen Native/vendor code or proof resource
+setting was modified.
+
+Next execute the honest commitment builder in the actual shared oracle handler,
+record its computed root and actual cumulative transcript, and derive its final
+checkpoint membership through arbitrary verifier continuation. Connect these
+receipts and public root/descriptor selection to native setup and the joint
+accepted-false PBS event. The final security/work theorem and production
+128-query certification remain open, together with the previously listed native
+numeric, representation, FS/ROM, adaptive and physical-work obligations.
+
+Full `scripts/check` exited 0: 12,568 build jobs and all standalone checks.
+Full-check log SHA-256: `4e460b943b72a357a37b8d87f049c47ac059838b6d192b1bc0eeecdfb5cb7027`.

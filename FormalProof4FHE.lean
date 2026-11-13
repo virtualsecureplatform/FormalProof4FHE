@@ -1829,3 +1829,7 @@ import FormalProof4FHE.HasteBoots.HonestPaddedSource
 import FormalProof4FHE.HasteBoots.HonestRecordedMatrix
 
 import FormalProof4FHE.HasteBoots.HonestRecordedEvaluationKey
+
+import FormalProof4FHE.HasteBoots.RecordedCheckpointQueries
+
+import FormalProof4FHE.HasteBoots.HonestExecutedEvaluationKey
