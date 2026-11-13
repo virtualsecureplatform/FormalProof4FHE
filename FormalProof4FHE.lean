@@ -1605,3 +1605,13 @@ import FormalProof4FHE.HasteBoots.DecodedFamilyNTT
 import FormalProof4FHE.HasteBoots.DecodedKeySwitchIncrement
 
 import FormalProof4FHE.HasteBoots.AcceptedKeySwitchNTT
+
+import FormalProof4FHE.HasteBoots.RecordedFamilyHistory
+
+import FormalProof4FHE.HasteBoots.RetainedComparisonHistory
+
+import FormalProof4FHE.HasteBoots.RetainedExtractionHistory
+
+import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchComparisonsHistory
+
+import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchExtractionHistory

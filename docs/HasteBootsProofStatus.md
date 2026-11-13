@@ -32051,3 +32051,53 @@ Validation: full `scripts/check` exited successfully, including the 12,419-job
 root build and every standalone check. Frozen Native modules and vendor sources
 are unchanged. Full-check log SHA-256:
 `b9db38643b42f41559cee553ecbaa17167ce82ddd8047b3368b3c069390f7438`.
+
+
+### Family extension and retention through concrete final continuations
+
+Added `RecordedFamilyHistory`, `RetainedComparisonHistory`,
+`RetainedExtractionHistory`, `PackedPBSKeySwitchComparisonsHistory` and
+`PackedPBSKeySwitchExtractionHistory`.
+
+The family extension operation preserves every old anchor, descriptor, caller
+root and logical view while adding a disjoint set of newly recorded roots.
+Recording the extended family is equivalent to recording both components.
+Slots sharing the same public descriptor and root agree only through their
+recorded owners and the final audit outside the existing collision event;
+there is no digest-alone equality or supplied source-value interpretation.
+A generic shared-program theorem also retains every anchor through actual
+supported oracle execution.
+
+Concrete comparison and public-extraction continuations now preserve individual
+predecessor checkpoints and complete predecessor families on reached, skipped,
+accepted and rejected branches. The proofs derive local retention from the
+literal comparison and padded public extraction witnesses. They consume the
+complete predecessor bind without expanding the earlier PBS execution. Family
+packing width is independent of the continuation's opening width, so history
+retention does not impose a false common-width restriction.
+
+The two full-PBS history modules instantiate these retention results with the
+actual complete `PackedPBSKeySwitchComparisons.witness` and
+`PackedPBSKeySwitchExtraction.witness`, including the native reconstruction and
+extraction constructors, selected memory, endpoint and returned states. Their
+proof aliases build under default resource limits. They provide the previously
+missing tail-retention interfaces needed to compose existing product and
+reconstruction retention with the accepted NTT family's recorded anchors.
+
+The single theorem connecting the execution-built NTT family through the entire
+full witness remains to be assembled. Extending it with later key/input/borrow
+owners and deriving the native public parameter-store associations also remain
+open, followed by full accepted-false-output coverage, accumulator trace coverage,
+trusted key-source association, numeric profile admission, earlier masked-profile
+and production refinements, adaptive composition and physical attacker-work
+accounting. The final 128-bit theorem remains unproved.
+
+All five modules are exported. Direct axiom inspection covered eleven helper
+theorems, four concrete proof aliases and the family extension definition. Two
+use only `propext` and `Quot.sound`; the other fourteen use only those axioms and
+`Classical.choice`. The imported audit has sixteen exact guards.
+
+Validation: full `scripts/check` exited successfully, including the 12,425-job
+root build and every standalone check. Frozen Native modules and vendor sources
+are unchanged. Full-check log SHA-256:
+`dd768bcee60a1adcbc978a942b7255a82a4f49261d88ff98fbbcb1471e17498d`.
