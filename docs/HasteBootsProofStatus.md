@@ -35105,3 +35105,53 @@ or linter suppression were used.
 
 Full `scripts/check` exited 0: 12,746 build jobs and all standalone checks.
 Full-check log SHA-256: `75bd6d555fa23be2e12eda0544b6468b05a2531911a179bde92bde5be1298832`.
+
+## Public endpoint reader and canonical PBS stage composition (2026-11-13)
+
+`PublicAccumulatorEndpoint.value_eq_decode` proves that the key-switch
+`AccumulatorEndpoint.value` reader and the blind-rotation endpoint decoder use
+exactly the same coefficient/half layout. `value_public`, `value_public_cast`
+and `factory_value` recover the public-bound caller claim at every private
+memory, including the extraction reader's exponent cast. No endpoint-value
+association certificate is required.
+
+`PackedPBSPublicExtractionEndpoint.endpoint_eq_claim` applies this bridge to
+the actual final-extraction endpoint function over its retained complete PBS
+comparison return. It obtains accumulator presence from the actual `get`
+selection, excludes the fallback, and proves that the endpoint read by the
+extraction continuation is the caller's public accumulator claim. Its selection
+premise is the actual comparison-return gate, not an assumed semantic endpoint
+or source truth. Supported extraction execution already supplies this gate
+through `RetainedPaddedExtraction.reached_bind`; assembling that application
+with all selected stage support remains part of the full output proof.
+
+`CanonicalPBSStageComposition.output_of_stages` composes blind-rotation output,
+the canonical signed key-switch increment and the extraction equation into
+partial extraction of the switched biased accumulator. `output_eq_evaluate`
+targets the existing corrected `CanonicalPBS.evaluate` with the actual public
+frontend/key rows. `bias_mask` records that the single q/8 body bias leaves the
+mask used by canonical negative-mask decomposition unchanged. The frozen
+`NativePBS.evaluate` uses the older key-switch convention and is not substituted
+for this target. The existing `CanonicalPBS` trace and coverage API is preserved.
+
+The composition lemmas are deterministic: their increment and extraction
+relations are explicit premises, not yet derived jointly from the complete
+accepted verifier in one source world. The accepted increment theorem still
+concerns the comparison-stage final state; extraction's selected coefficient
+owner and final state must be associated with that result. The actual public
+blind-rotation result, these endpoint readers, and the accepted tail bounds
+must still be joined with retained history and the same final bad event. Both
+setups/full verification in one charged execution, production/frontend/key-
+generation/codec/layout admission, complete false-output probability bounds,
+FS/ROM/grinding, adaptive attempts and actual physical attacker-work accounting
+remain unfinished. Full PBS-output security and the 128-bit work target are
+not proved; the production 128-query profile remains uncertified.
+
+All eight declarations compile at default Lean resources with directly
+inspected exact axiom guards. `bias_mask` uses only `propext` and `Quot.sound`;
+the other seven use only `propext`, `Classical.choice` and `Quot.sound`. No frozen
+Native/vendor edits, admitted proofs, custom axioms, resource increases or
+linter suppression were used.
+
+Full `scripts/check` exited 0: 12,752 build jobs and all standalone checks.
+Full-check log SHA-256: `c070d4b18432fc000e65c3db67c79bbcabcd894ac1d6c9dae140f13d075e6930`.
