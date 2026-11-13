@@ -33224,3 +33224,45 @@ is unproved.
 
 Full `scripts/check` exited 0: 12,546 build jobs and all standalone checks.
 Full-check log SHA-256: `a2dac46f1fc2eed896f219883319826d7aaa0b53956b563a72a31adb5763cd5b`.
+
+
+## 2026-11-13: complete-witness decoded key-switch increment coverage
+
+Added `ExecutedKeySwitchIncrement.Coverage` as the named conclusion of the
+existing `increment_or_risks` theorem, preserving its exact canonical increment
+or executed failure disjunction.
+
+Added and exported `PackedPBSKeySwitchIncrement.CompleteCoverage` and
+`increment_coverage`. Starting with a supported returned final comparison in the
+named complete PBS witness, the theorem selects the actual product, NTT,
+known-input, monomial and accumulator outcomes. It obtains their literal
+supports and computed predecessor gates from `PackedPBSReachedKeySwitch`, and
+derives the final audit and checkpoint retention from the complete execution.
+It then instantiates the decoded increment theorem at the four-source,
+`finalC + 2` length specialization, using the actual accumulator endpoint context.
+No per-operation support, gate, history-retention certificate or decoded semantic
+world is supplied as an additional caller hypothesis. Public decoder routing,
+capacity/radius conditions, radix tables/full activity and initial audit/scope
+conditions remain explicit.
+
+A small program-equality transport keeps the support premise aligned with the
+named witness. Support is locally opaque during elaboration, avoiding reduction
+of the complete probability computation. The clean wrapper builds under default
+resources (14 seconds in the targeted build). No frozen Native/vendor source,
+resource limit, custom axiom or linter suppression was changed.
+
+Four new declarations have directly inspected, imported exact axiom guards:
+`Coverage`, `CompleteCoverage`, its `verified` projection and `increment_coverage`.
+They use only `propext`, `Classical.choice` and `Quot.sound`; the existing increment
+theorem retains its guard.
+
+Next, carry the final comparison acceptance flag when matching these semantic
+failure branches to the complete rectangular probability bound. Returning a
+comparison does not assert that it passed. Honest setup/key association,
+canonical accumulator/monomial semantics, accepted false-PBS output coverage,
+numeric profile admission, production refinements, adaptive composition and
+actual attacker-work accounting remain open. The final 128-bit security theorem
+is unproved; the production 128-query profile is not certified.
+
+Full `scripts/check` exited 0: 12,548 build jobs and all standalone checks.
+Full-check log SHA-256: `1dbf8edcfa935120a1849d39a00460b19d5ea66d3d837345060eaf91537bed20`.

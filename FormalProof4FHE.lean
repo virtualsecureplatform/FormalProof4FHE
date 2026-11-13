@@ -1811,3 +1811,5 @@ import FormalProof4FHE.HasteBoots.RetainedComparisonReached
 import FormalProof4FHE.HasteBoots.PackedPBSReachedKeySwitch
 
 import FormalProof4FHE.HasteBoots.ReachedPairFacts
+
+import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchIncrement

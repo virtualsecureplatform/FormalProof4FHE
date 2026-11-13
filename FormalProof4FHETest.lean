@@ -933,3 +933,5 @@ import FormalProof4FHETest.HasteBootsExecutedRectangularRadixAudit
 import FormalProof4FHETest.HasteBootsExecutedKeySwitchIncrementAudit
 
 import FormalProof4FHETest.HasteBootsPackedPBSReachedKeySwitchAudit
+
+import FormalProof4FHETest.HasteBootsPackedPBSKeySwitchIncrementAudit
