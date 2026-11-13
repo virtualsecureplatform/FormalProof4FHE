@@ -32572,3 +32572,51 @@ full accepted-run source association, trusted key/accumulator coverage, accepted
 false-output coverage, numeric profile admission, production refinements,
 adaptive composition and actual attacker-work accounting remain open. The
 final 128-bit security theorem is unproved.
+
+
+### Rectangular decoded membership and key-switch coverage (2026-11-13)
+
+Added `RectangularSourceSquareView` and `RectangularLookupSourceInterpretation`.
+Every rectangular comparison column is its canonical recorded-source logical
+view. Only original sources with equal packing/code-symbol widths are viewed
+through the existing square source family; helper widths remain independent.
+This avoids requiring the incompatible square helper capacity anywhere in the
+source membership or common-family transfer API.
+
+`RectangularDecodedLookup` derives membership in the actual public request
+table from exclusion of the new original-owner false-source event. Full activity
+covers every original row/lane, and recorded-root/public-parameter associations
+transfer whole columns to a common audited family under the same final Bad
+exclusion. `RectangularDecodedRadix` then derives the literal modulus-digit
+transition constraints and canonical quotient/remainder digits for that family.
+
+`ConstructedGoldLookupInterpretation.source_parameters` proves exact equality
+between native comparison source parameters and the constructed original-source
+role descriptors used by NTT/reconstruction/product families. Its column theorem
+identifies their entire decoded logical views without any private-value equality
+premise. Native helpers retain three packed lanes and four code symbols.
+
+`RectangularDecodedKeySwitch.increment_of_not_false` composes executed
+rectangular comparison membership with field reconstruction, known negative-mask
+input, NTTs and pointwise product constraints to identify the canonical signed
+increment. `wrong_increment_coverage` exposes the actual rectangular lookup
+failure event, final collision event, or a failed reconstruction/input/NTT/product
+constraint. The key is decoded from the same family; trusted setup association
+remains separate. Four-wide original-source packing and three-dimensional lookup
+extension geometry are fixed explicitly in this local composition.
+
+All six modules are exported. Direct inspection and 17 imported exact axiom
+guards cover all named declarations: three use `propext` and `Quot.sound`, and
+fourteen additionally use `Classical.choice`. Frozen Native/vendor files and
+default resource limits remain unchanged. Full `scripts/check` exited 0,
+including 12,492 root-build jobs and every standalone check.
+Full-check log SHA-256:
+`5c9655be7f2ed6d30c95b27f2712086a3ef245d416e1d2bbaedbeacce9d6bdcc`.
+
+Next, the accepted-operation reconstruction/product/NTT facts and known-input
+association must be transported onto this same family in the complete PBS run,
+then related to their existing original-owner risk events. Complete native
+comparison integration, trusted key/accumulator coverage, full accepted
+false-output coverage, numeric profile admission, production refinements,
+adaptive composition and actual attacker-work accounting remain open. The
+final 128-bit security theorem is unproved.

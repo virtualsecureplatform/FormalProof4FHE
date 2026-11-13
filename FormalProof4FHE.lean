@@ -1715,3 +1715,15 @@ import FormalProof4FHE.HasteBoots.RectangularOwnedLookupConditional
 import FormalProof4FHE.HasteBoots.RectangularOwnedPrivateSharedLookup
 
 import FormalProof4FHE.HasteBoots.ConstructedGoldPrivateLookupConditional
+
+import FormalProof4FHE.HasteBoots.RectangularSourceSquareView
+
+import FormalProof4FHE.HasteBoots.RectangularLookupSourceInterpretation
+
+import FormalProof4FHE.HasteBoots.RectangularDecodedLookup
+
+import FormalProof4FHE.HasteBoots.RectangularDecodedRadix
+
+import FormalProof4FHE.HasteBoots.ConstructedGoldLookupInterpretation
+
+import FormalProof4FHE.HasteBoots.RectangularDecodedKeySwitch
