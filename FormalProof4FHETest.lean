@@ -963,3 +963,7 @@ import FormalProof4FHETest.HasteBootsExecutedHonestMatrixAudit
 import FormalProof4FHETest.HasteBootsExecutedHonestMatrixBatchAudit
 
 import FormalProof4FHETest.HasteBootsExecutedHonestEvaluationKeyAudit
+
+import FormalProof4FHETest.HasteBootsExecutedHonestProductKeyAudit
+
+import FormalProof4FHETest.HasteBootsExecutedHonestProductJointAudit

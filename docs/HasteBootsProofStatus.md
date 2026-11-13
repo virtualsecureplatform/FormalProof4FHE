@@ -33552,3 +33552,48 @@ theorem remain unproved.
 
 Full `scripts/check` exited 0: 12,576 build jobs and all standalone checks.
 Full-check log SHA-256: `7048ab17ddc3048a3c9d7823b463ae7e1b04224a460e68935a3ced2e306fbe45`.
+
+## Honest setup roots routed into the native product (2026-11-13)
+
+Added `ExecutedHonestProductKey`. Honest setup descriptors are constructed from
+the actual key factors' product geometry; `withKeys` installs setup's returned
+root vector in the existing borrowed-reference family. A supported native
+product preserves these literal original roots. Its actual recorded family
+therefore has the matching descriptors and setup roots by construction, without
+caller-supplied root/descriptor association equalities. With supported setup and
+continuation, product support and checkpoint retention, its canonical final-world
+inverse-NTT key equals the original coefficient key or the existing final
+`CheckpointCollision.Bad` event. Numeric capacity/distance and primitive-root
+conditions remain explicit.
+
+Added `ExecutedHonestProductJoint`. Its oracle program performs all honest key
+commitments and then the existing native typed product program, feeding the
+computed setup roots directly into its original key references. Its analysis
+witness retains the setup state and product prefix; `project` proves that
+snapshot erasure is exactly the actual complete shared-oracle execution.
+`parts` derives the supported setup and product executions from support of that
+one witness. `key_or_bad` identifies the actual product's canonical key from
+that complete supported witness, deriving the child supports and all honest
+setup/recording/association receipts. No separately assumed child execution or
+public root/descriptor matching certificate occurs in this joint theorem.
+The theorem does not require product acceptance to identify its original key.
+
+All nine public declarations have directly inspected imported exact axiom
+guards. `withKeys` uses no axioms; the other eight use only `propext`,
+`Classical.choice`, and `Quot.sound`. Targeted builds passed at default resources
+(3.9 seconds for the routing bridge, 4.4 seconds for the joint theorem). No
+frozen Native/vendor source or resource settings were changed.
+
+Next instantiate the complete PBS continuation with this constructed root
+family, propagate honest key association to its final retained product slots,
+and replace the constructed key in canonical increment coverage by the original
+key. Carry the full setup/verifier history in the probability theorem, with one
+history charge; finish accumulator/monomial and complete PBS-output semantics.
+The current joint theorem covers setup plus the product, not yet full PBS or
+Rust/native memory refinement. Numeric production certification, field/codec,
+FS/ROM/grinding, adaptive composition and actual attacker-work accounting remain
+open. The final 128-bit theorem and production 128-query certification remain
+unproved.
+
+Full `scripts/check` exited 0: 12,580 build jobs and all standalone checks.
+Full-check log SHA-256: `6fdcf651943bee30f049643aaa129e7a824c0d3bd9bc7b1203fedf195e3038a9`.

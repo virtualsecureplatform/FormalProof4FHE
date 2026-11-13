@@ -1841,3 +1841,7 @@ import FormalProof4FHE.HasteBoots.ExecutedHonestMatrix
 import FormalProof4FHE.HasteBoots.ExecutedHonestMatrixBatch
 
 import FormalProof4FHE.HasteBoots.ExecutedHonestEvaluationKey
+
+import FormalProof4FHE.HasteBoots.ExecutedHonestProductKey
+
+import FormalProof4FHE.HasteBoots.ExecutedHonestProductJoint
