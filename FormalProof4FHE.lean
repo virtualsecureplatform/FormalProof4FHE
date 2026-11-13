@@ -1813,3 +1813,7 @@ import FormalProof4FHE.HasteBoots.PackedPBSReachedKeySwitch
 import FormalProof4FHE.HasteBoots.ReachedPairFacts
 
 import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchIncrement
+
+import FormalProof4FHE.HasteBoots.KeySwitchTailRisk
+
+import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchAcceptedIncrement

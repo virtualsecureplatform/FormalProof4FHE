@@ -116,9 +116,9 @@ variable {K LookupMessage LookupMemory ConfigHelperMemory RetainedMemory Result 
     (lookupRadius : Root (2*d+1) (∑ i, repetitions i) → ℕ)
     (sourceSymbols : ∀ source, symbolWidth (.inl source) = 4)
 
-/-- The decoded final-family increment equality or one of its actual executed
-lookup, reconstruction, known-input, NTT, product or history failure events. -/
-def Coverage : Prop :=
+/-- Canonical signed increment equality in the source world constructed from
+the actual retained history and selected key-switch operations. -/
+def Correct : Prop :=
     let world := RecordedSourceWorld.family (F := ZMod q) (b := 4) state
     let evaluations := RecordedSourceWorld.slot (ExecutedKeySwitchProduct.sourceFamily product enc family firstSmall roundSmall productNodes productCapacity productRadius productOutcome.1) state (CheckpointHistoryChain.family_recorded (ExecutedKeySwitchProduct.sourceFamily product enc family firstSmall roundSmall productNodes productCapacity productRadius productOutcome.1) productOutcome.2.2 state productRetained (ExecutedKeySwitchProduct.sourceFamily_recorded product enc family firstSmall roundSmall productNodes productCapacity productRadius dummy productInitial productOutcome productSupported))
     let result := RecordedSourceWorld.slot (AcceptedKeySwitchNTT.sourceFamily base enc family nodesEnough psi primitive dummy memory initial outcome supported capacity radius passes) state (CheckpointHistoryChain.family_recorded (AcceptedKeySwitchNTT.sourceFamily base enc family nodesEnough psi primitive dummy memory initial outcome supported capacity radius passes) outcome.2 state nttRetained (AcceptedKeySwitchNTT.sourceFamily_recorded base enc family nodesEnough psi primitive dummy memory initial outcome supported capacity radius passes)) (Fin.last d,false)
@@ -126,7 +126,12 @@ def Coverage : Prop :=
       CanonicalKeySwitch.increment bits
         (DecodedEvaluationKey.key (c+2) psi primitive
           (fun level => PackedCipherSource.familyCipher (c := c) (lanes := 2) world enc dummy (evaluations (.inl (level,true)))))
-        (accumulator false) ∨
+        (accumulator false)
+
+/-- The decoded final-family increment equality or one of its actual executed
+lookup, reconstruction, known-input, NTT, product or history failure events. -/
+def Coverage : Prop :=
+    Correct (bits := bits) base enc family nodesEnough psi primitive dummy memory initial outcome supported capacity radius passes state nttRetained product firstSmall roundSmall productNodes productCapacity productRadius productInitial productOutcome productSupported productRetained accumulator ∨
       RectangularOwnedRequestSources.OriginalFalse enc dummy config domain lookupCapacity lookupRadius comparisonOutcome ∨ PaddedLinear.OriginalRisk (KeySwitchPaddedReconstruction.stage reconstruction enc input family nodesEnough (2^bits : ZMod q)) dummy reconstructionCapacity reconstructionRadius reconstructionOutcome ∨ AmbientKnownInput.OriginalRisk heights (KeySwitchKnownInput.stage nodesEnough enc input.root (Nat.pow_add 2 c 2).symm accumulator known) dummy knownCapacity knownRadius knownOutcome ∨ PaddedNTTSequenceSoundness.AnyOriginalRisk (KeySwitchPaddedNTT.factory base enc family nodesEnough (Nat.pow_add 2 c 2).symm psi primitive) enc dummy capacity radius outcome.1 ∨ PaddedZeroCheck.OriginalRisk (KeySwitchPaddedProduct.stage product enc family firstSmall roundSmall productNodes) dummy productCapacity productRadius productOutcome ∨ CheckpointCollision.Bad (AmbientMatrixSource.Shape heights) state
 
 include supported reconstructionSupported productSupported knownSupported comparisonSupported
@@ -157,7 +162,7 @@ theorem increment_or_risks
     (radixLarge : 1 < 2^bits) (radixSmall : 2^bits < q) (enough : q-1 < (2^bits)^d) :
     Coverage (bits := bits) (tag := tag) (g := g) (symbolWidth := symbolWidth)
       base enc family nodesEnough psi primitive dummy memory initial outcome supported capacity radius passes state nttRetained reconstruction input reconstructionCapacity reconstructionRadius reconstructionOutcome product firstSmall roundSmall productNodes productCapacity productRadius productInitial productOutcome productSupported productRetained known accumulator knownCapacity knownRadius knownOutcome comparison comparisonOutcome config domain lookupCapacity lookupRadius := by
-  dsimp only [Coverage]
+  dsimp only [Coverage,Correct]
   classical
   by_cases falseLookup : RectangularOwnedRequestSources.OriginalFalse enc dummy config domain lookupCapacity lookupRadius comparisonOutcome
   · exact Or.inr (Or.inl falseLookup)

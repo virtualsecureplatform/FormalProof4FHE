@@ -33266,3 +33266,55 @@ is unproved; the production 128-query profile is not certified.
 
 Full `scripts/check` exited 0: 12,548 build jobs and all standalone checks.
 Full-check log SHA-256: `1dbf8edcfa935120a1849d39a00460b19d5ea66d3d837345060eaf91537bed20`.
+
+
+## 2026-11-13: accepted increment coverage and the bounded tail-risk event
+
+Named `ExecutedKeySwitchIncrement.Correct` for the canonical signed increment
+equality in the constructed retained-history world. `Coverage` now references
+that definition, preserving its previous equality-or-executed-failure statement.
+
+Added and exported `KeySwitchTailRisk`: the actual optional-result nesting for
+known input, key-switch NTT, product, reconstruction and final comparison.
+`of_selected_failures` and `correct_or_risk` inject semantic failure branches
+using the selected monomial product and accumulator and all six stored-option
+identities. Lookup failure contributes only with the final comparison's
+acceptance predicate. `mono_earlier` and `probability_mono_earlier` embed the
+semantic tail event (whose earlier event is False) into the complete risk union
+without an extra union factor or history charge.
+
+Added and exported `PackedPBSKeySwitchAcceptedIncrement.AcceptedCoverage` and
+`accepted_increment_coverage`. The adapter specializes the generic final return
+to the structured comparison return and reads its actual `accepted` field.
+For a supported accepted complete witness it derives the actual selected
+operations, supports and retained histories, and concludes `Correct` or the
+named tail event or final history Bad. It uses the previous complete coverage
+interface and extracts the actual selected reconstruction from the same witness;
+no replay, supplied child-security certificate or decoded world is introduced.
+
+The existing complete rectangular safe and risk-or-Bad bounds now state their
+events with this same `KeySwitchTailRisk.Risk` definition. Their original proofs
+check against the new statement, verifying the nested event alignment. Added
+`native_tail_risk_or_bad_bound`, deriving the probability bound for the tail-only
+event from the complete native theorem. It retains the complete native rate sum
+and the single existing ExpectedHazard charge. All targeted proofs build under
+default resources; no frozen Native/vendor file, resource limit, custom axiom
+or linter suppression was changed.
+
+Fourteen new declarations have directly inspected and imported exact axiom
+guards. Eight structural event/inclusion declarations use no axioms; the other
+six use only `propext`, `Classical.choice` and `Quot.sound`. Existing increment
+and complete probability guards still pass.
+
+Next define the accepted incorrect-canonical-increment event explicitly, prove
+its supported-event inclusion using the accepted coverage adapter, specialize
+to the concrete rectangular comparison and combine with the native tail bound.
+This is not yet a single probability theorem for incorrect increments. Honest
+setup/evaluation-key association, canonical accumulator/monomial semantics,
+accepted false-PBS output coverage, numeric profile admission, production
+refinements, adaptive composition and actual attacker-work accounting remain
+open. The production 128-query profile is not certified and the final 128-bit
+security theorem is unproved.
+
+Full `scripts/check` exited 0: 12,552 build jobs and all standalone checks.
+Full-check log SHA-256: `0b17bdab275643745ef26b1d569dab6023781e7343df245983e4daf71cb2d100`.
