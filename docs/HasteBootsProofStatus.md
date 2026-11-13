@@ -33377,3 +33377,47 @@ honestly initialized PBS specification.
 
 Full `scripts/check` exited 0: 12,556 build jobs and all standalone checks.
 Full-check log SHA-256: `87d0da8d300dad05abbe3e1fae87368636a0b6973a47bc011a96602d320c1d8d`.
+
+## Honest commitment and evaluation-key association bridge (2026-11-13)
+
+Added `HonestMerkleTranscript`, `HonestPaddedSource`, `HonestRecordedMatrix`,
+and `HonestRecordedEvaluationKey`. The first executes the existing effectful
+Merkle builder against a deterministic hash interpreter and proves the exact
+returned tree and cumulative query transcript, including repeated queries.
+Logged collision-free responses recover the original payloads through the
+existing extractor. Leaves and internal nodes use the same unaddressed oracle;
+no disjoint-domain or global hash-injectivity assumption is introduced.
+
+Physical matrix padding now provably recovers packed logical ciphertexts under
+the public capacity inequality. Honest encoded matrix columns have computed
+roots and transcripts; sufficient degree capacity and decoding distance recover
+the original physical table. In a retained final history, factual transcript
+cache entries and checkpoint membership establish this recovery or the existing
+final `CheckpointCollision.Bad` event.
+
+Evaluation-key commitments are constructed from forward transforms of the
+original coefficient key. Their retained canonical inverse-NTT key equals that
+original key, or the same final Bad event. The verifier-selected-source theorem
+uses public descriptor and root equality to transfer this conclusion to actual
+selected slots; it permits aliases. Neither a decoded-table equality nor a
+setup-transform equality is supplied as a security certificate.
+
+All 33 public declarations have imported exact axiom guards based on directly
+inspected `#print axioms` output: five use no axioms, two use `propext` and
+`Quot.sound`, one uses only `propext`, and the other 25 use only `propext`,
+`Classical.choice`, and `Quot.sound`. No frozen Native/vendor source, resource
+limit, linter suppression or custom axiom was changed.
+
+This is a semantic bridge, not yet a joint native setup security theorem.
+Native setup must generate and record these commitments in the same oracle
+history as verification. Its supported execution must establish the factual
+cache and checkpoint receipts, and its registry routing must establish the
+public descriptor/root associations. Then extend the accepted-false canonical
+increment event to honest setup and the full PBS output, with canonical
+accumulator/monomial semantics and one shared history charge. Native numeric
+admission, production field/codec/Rust/memory refinement, FS/ROM and grinding,
+adaptive composition, and actual attacker-work accounting remain open. The
+production 128-query profile and final 128-bit security theorem remain unproved.
+
+Full `scripts/check` exited 0: 12,564 build jobs and all standalone checks.
+Full-check log SHA-256: `01da2bd8ba35c5633befcaca9d4d2a949f0780196ff9e8545f42d36c6b46104c`.

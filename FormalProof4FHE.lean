@@ -1821,3 +1821,11 @@ import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchAcceptedIncrement
 import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchIncrementEvents
 
 import FormalProof4FHE.HasteBoots.PackedPBSRectangularIncrementBound
+
+import FormalProof4FHE.HasteBoots.HonestMerkleTranscript
+
+import FormalProof4FHE.HasteBoots.HonestPaddedSource
+
+import FormalProof4FHE.HasteBoots.HonestRecordedMatrix
+
+import FormalProof4FHE.HasteBoots.HonestRecordedEvaluationKey
