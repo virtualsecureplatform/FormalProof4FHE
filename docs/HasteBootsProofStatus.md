@@ -32384,3 +32384,49 @@ rectangular verifier is still required. Full-run source association, trusted
 key and accumulator coverage, accepted false-output coverage, numeric profile
 admission, production refinements, adaptive composition and physical
 attacker-work accounting remain open. The final 128-bit theorem is unproved.
+
+
+### Native-constructed rectangular lookup protocols (2026-11-13)
+
+Added `ConstructedGoldRectangularSource`. Completed native code/parameter
+construction determines the descriptor's split, degree, domain and capacity,
+with packing and code-symbol width taken from distinct retained fields. Native
+role equality identifies the complete indexed descriptor; fixed-width helper
+views transport only public indices to three packed lanes and four code symbols.
+
+Added `RectangularPaddedLookupOpeningFamily`, reusing the existing logical
+terminal packet, source/helper queries, values and grouping. Independent symbol
+widths determine physical words and message capacity. The source and both helper
+sum/identity wrong-value equivalences are proved with the rectangular decoder.
+With structural source-slot coverage, the job-local wrong-opening union is
+exactly the original-root PCS wrong-value union, without an extra claim factor.
+The operational bind fixes these queries and values in the rectangular verifier.
+
+`ConstructedGoldLookupGeometry` derives physical splits, query quotas and
+high-zero padding from actual native allocated roles and logical arity bounds.
+All code-symbol widths are four, including three-lane helpers; rectangular
+capacity follows from the actual completed constructor and existing role policy.
+`ConstructedGoldLookupProtocol` combines that geometry/domain with a native
+three-dimensional extension basis and actual terminal packet. It fixes the
+encoding, domain, root, queries and values in the worker protocol while retaining
+behavioral callbacks. Its wrong-value predicate is exactly the rectangular
+verifier predicate with constructor-derived capacity.
+
+All four modules are exported. Direct axiom inspection and 39 exact imported
+guards cover all named declarations: one has no axioms and 38 use only
+`propext`, `Classical.choice` and `Quot.sound`. Default resource limits were
+retained; frozen Native modules and vendor sources remain unchanged. Full
+`scripts/check` exited 0, including 12,459 root-build jobs and all standalone
+checks. Full-check log SHA-256:
+`a3a986beaaf46d656b88736400cca0e160f77600bc9c687bedadb6b1239c59ca`.
+
+This provides the native per-root protocol binding and terminal algebra. The
+complete staged lookup loop still uses the square variable-height wrapper;
+rectangular variable-height and staged-loop integration remain required before
+claiming the helper connection end to end. Source-before-helper recording order
+and the one-final-availability-charge rule must be preserved. Existing role
+admission remains conditional and does not certify the current production
+profile. Full-run source association, trusted key/accumulator coverage, accepted
+false-output coverage, numeric profile admission, production refinements,
+adaptive composition and actual attacker-work accounting remain open. The
+final 128-bit security theorem is unproved.

@@ -1661,3 +1661,11 @@ import FormalProof4FHE.HasteBoots.RectangularStoppingOpening
 import FormalProof4FHE.HasteBoots.RectangularBatchVerifier
 
 import FormalProof4FHE.HasteBoots.RectangularBatchSquareCompatibility
+
+import FormalProof4FHE.HasteBoots.ConstructedGoldRectangularSource
+
+import FormalProof4FHE.HasteBoots.RectangularPaddedLookupOpeningFamily
+
+import FormalProof4FHE.HasteBoots.ConstructedGoldLookupGeometry
+
+import FormalProof4FHE.HasteBoots.ConstructedGoldLookupProtocol

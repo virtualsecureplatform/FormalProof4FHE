@@ -899,3 +899,5 @@ import FormalProof4FHETest.HasteBootsRectangularSourceAudit
 import FormalProof4FHETest.HasteBootsRectangularSamplingAudit
 
 import FormalProof4FHETest.HasteBootsRectangularVerifierAudit
+
+import FormalProof4FHETest.HasteBootsConstructedRectangularLookupAudit
