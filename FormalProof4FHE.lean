@@ -1741,3 +1741,11 @@ import FormalProof4FHE.HasteBoots.ExecutedNTTCommonFamily
 import FormalProof4FHE.HasteBoots.ExecutedKnownInputCommonFamily
 
 import FormalProof4FHE.HasteBoots.RectangularEvaluationKeySwitch
+
+import FormalProof4FHE.HasteBoots.LookupRequestBudget
+
+import FormalProof4FHE.HasteBoots.RectangularPBSComparisonStage
+
+import FormalProof4FHE.HasteBoots.RetainedRectangularComparisonBound
+
+import FormalProof4FHE.HasteBoots.ConstructedGoldRetainedComparison

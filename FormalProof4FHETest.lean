@@ -911,3 +911,5 @@ import FormalProof4FHETest.HasteBootsRectangularPrivateLookupAudit
 import FormalProof4FHETest.HasteBootsRectangularDecodedLookupAudit
 
 import FormalProof4FHETest.HasteBootsExecutedCommonFamilyAudit
+
+import FormalProof4FHETest.HasteBootsRetainedRectangularComparisonAudit

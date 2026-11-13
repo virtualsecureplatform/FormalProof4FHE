@@ -32668,3 +32668,48 @@ operation facts there. Trusted setup/accumulator coverage, full accepted
 false-output coverage, numeric profile admission, production refinements,
 adaptive composition and actual attacker-work accounting remain open. The
 final 128-bit security theorem is unproved.
+
+
+### Retained rectangular comparison and derived uniform rates (2026-11-13)
+
+Added `RectangularPBSComparisonStage`, compiling the actual private request
+sampler, adaptive helper construction and rectangular grouped PCS continuation
+into the existing post-reconstruction stage interface. Source roots and opening
+memory come from the selected linear return; verification retains the actual
+incoming shared history and computed acceptance gate.
+
+`RetainedRectangularComparisonBound` applies the executed rectangular
+original-owner theorem to supported predecessor states. Skipped/rejected
+reconstruction branches contribute no child failure. Its concrete bound uses
+public encoding/tag associations and predecessor audits, with no replay,
+source-truth or child-security certificate. The predecessor remains opaque at
+this interface, preserving the existing default-resource proof strategy.
+
+`LookupRequestBudget` proves monotonicity in active row counts and derives a
+uniform pair/repetition budget from the checked logical-shape equation.
+`uniform_safe_bound` therefore computes one rate valid for all retained memories,
+without a supplied calibration inequality. It retains the maximum of the
+request-specific repeated errors and introduces no request-count union factor.
+
+`ConstructedGoldRetainedComparison` specializes the adapter to native-derived
+four-wide sources, three-wide helpers and four-symbol codes. Degree, domain
+size, capacity and the large-field-radius premise are derived from native
+construction and the public distance condition. `safe_joint_bound` combines
+this concrete comparison rate with a predecessor risk bound under the same
+final history exclusion, adding no hash charge. The enclosing PBS theorem is
+still responsible for the single final collision charge.
+
+All four modules are exported. Direct inspection and nine imported exact axiom
+guards cover every named declaration; all use only `propext`, `Classical.choice`
+and `Quot.sound`. Frozen Native/vendor sources and default resource limits
+remain unchanged. Full `scripts/check` exited 0, including 12,505 root-build
+jobs and every standalone check. Full-check log SHA-256:
+`cccb983d8234e2d2d49d4856714929a8ddeecbefe870992bf953e25a48d55c62`.
+
+Next, instantiate this adapter in the named complete-PBS comparison prefix
+(the existing `PackedPBSKeySwitchComparisonBound` invokes the square adapter)
+and propagate the rectangular rates into the native prefix risk union.
+Complete reference/descriptor maps, trusted setup/accumulator coverage, accepted
+false-output coverage, numeric profile admission, production refinements,
+adaptive composition and actual attacker-work accounting remain open. The
+final 128-bit security theorem is unproved.
