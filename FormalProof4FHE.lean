@@ -1917,3 +1917,11 @@ import FormalProof4FHE.HasteBoots.PackedPBSComparisonHistoryProgram
 import FormalProof4FHE.HasteBoots.PackedPBSHonestHistoryProgram
 
 import FormalProof4FHE.HasteBoots.PackedPBSNativeHonestChargedBound
+
+import FormalProof4FHE.HasteBoots.PackedMonomialRotation
+
+import FormalProof4FHE.HasteBoots.AmbientNTTSequenceAccepted
+
+import FormalProof4FHE.HasteBoots.AcceptedMonomialNTT
+
+import FormalProof4FHE.HasteBoots.AcceptedMonomialProductRotation

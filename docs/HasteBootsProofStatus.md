@@ -34154,3 +34154,47 @@ production 128-query profile or the final 128-bit security/work theorem.
 
 Full `scripts/check` exited 0: 12,652 build jobs and all standalone checks.
 Full-check log SHA-256: `646e51d27df1e55a4ede1d445115b53a1e9abd28d276892dc9f6979fe39ab764`.
+
+## Accepted monomial execution to coefficient-domain rotations
+
+`PackedMonomialRotation` identifies the native public-product allocation with
+the monomial NTT allocation by flat address. It constructs complete polynomial
+rows using the original round bits and high ciphertext-half bit. The decoded
+fixed public source is exactly `PublicMonomialTable.table`; active rows therefore
+supply the required monomial powers without an assumed public-factor binding.
+The checked product and the two original NTT relations imply the corresponding
+coefficient-domain rotations. Padding remains in the full source relation.
+
+`AmbientNTTSequenceAccepted.accepted_children` derives each retained child's
+acceptance from the actual short-circuit loop. `AcceptedMonomialNTT` selects the
+two calls from the actual supported accepted trace, recovers their original
+checkpoint owners and caller coefficient/evaluation roots, and derives every
+row's native transform outside the existing original-risk union. It does not
+execute a replacement child experiment or require child support from empty.
+
+`AcceptedMonomialProductRotation` applies these results to the actual combined
+NTT/public-product witness. Its `rotation_coverage` exposes an existing native
+NTT risk, an existing public-product risk, or a specific mismatch between their
+full original decoded evaluation sources. `all_rotations_or_risks` gives all
+active rounds and both halves simultaneously outside those same alternatives;
+there is no extra per-round probability loss. No source-value equality or
+per-stage success-probability bound is supplied as a premise.
+
+The remaining source mismatch is explicit, not discharged: public decoder/tag/
+root descriptor association and common-history coherence must identify these
+owners outside the existing final Bad event. The constructed NTT coefficient
+rows must then be associated with the accumulator sources, and composed with
+canonical decomposition and honest external-product keys to finish the full
+PBS-output semantics. Whole-program event lifting and numeric bounds remain
+the existing setup/verifier results; this milestone does not yet extend their
+accepted-false increment event to full PBS output. Physical attacker-work,
+FS/ROM/grinding, adaptive attempts and production parameter/representation
+admission remain outstanding. The 128-query profile remains uncertified.
+
+All 24 new declarations have directly inspected exact axiom guards using only
+`propext`, `Classical.choice`, `Quot.sound`, or fewer. All four source modules
+compile at default Lean resources; no frozen Native/vendor module or resource
+limit was changed.
+
+Full `scripts/check` exited 0: 12,660 build jobs and all standalone checks.
+Full-check log SHA-256: `fc93ccf9fb9b05061e9019607d28752d7bc9e7c32d687c1a47e96b4e3f4f5139`.
