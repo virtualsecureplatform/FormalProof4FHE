@@ -1877,3 +1877,7 @@ import FormalProof4FHE.HasteBoots.ExecutedProductKeyReceipt
 import FormalProof4FHE.HasteBoots.HonestKeySetupReceipts
 
 import FormalProof4FHE.HasteBoots.PackedPBSHonestIncrement
+
+import FormalProof4FHE.HasteBoots.PackedPBSHonestAcceptedIncrement
+
+import FormalProof4FHE.HasteBoots.PackedPBSHonestIncrementEvents

@@ -33830,3 +33830,54 @@ adaptive composition and physical attacker-work accounting. The production
 
 Full `scripts/check` exited 0: 12,612 build jobs and all standalone checks.
 Full-check log SHA-256: `811dccbe78c41d8736078195324d744749f89cb18eb3c5d3cc05952e8c7c15d6`.
+
+## Accepted-false increment reduction for the original key (2026-11-13)
+
+Added `PackedPBSHonestAcceptedIncrement.AcceptedCoverage` and
+`.accepted_increment_coverage`. Actual acceptance of the final returned
+comparison specializes complete honest-key increment coverage to original-key
+correctness, the existing named `KeySwitchTailRisk.Risk` with the selected
+accepted false-lookup branch, or the same final history Bad event. All stored
+operation selections, child supports, acceptance gates and checkpoint retention
+come from the complete supported PBS witness. Factual setup-query receipts,
+initial invariants, fixed public setup/product geometry routing and numeric
+admission conditions remain explicit and can be derived/instantiated by the
+actual setup wrapper and constructed geometry interfaces.
+
+Added `PackedPBSHonestIncrementEvents`. `CorrectOutput` states original-key
+canonical increment equality for the actual selected retained operations.
+`AcceptedFalse` requires a returned comparison whose literal acceptance flag
+is true and failure of that correctness property. `TailFailure` is exactly the
+existing selected tail risk or the final history exception; honest setup does
+not add a separate failure branch or union factor. The supported pointwise
+`accepted_false_implies_failure` theorem derives containment of the honest
+accepted-false event in that same risk event. `accepted_false_event_le` lifts it
+to a probability inequality in the actual complete experiment, without
+losslessness or supplied child security/probability bounds. This is a reduction
+to the actual tail-risk probability, not yet a concrete numeric bound for the
+joint honest setup/PBS execution.
+
+The pointwise interface is available for binding setup and PBS without making
+a conditional probability certificate an assumption. Its statement introduces
+the supported return after reducing the result-type wrapper, keeping proof
+elaboration within default resources. The final targeted build passed in
+8.1 seconds; accepted coverage passed in 16 seconds. All nine new public
+declarations, including the coverage field, have directly inspected imported
+exact axiom guards. The result-type helper uses no axioms; the other eight use
+only `propext`, `Classical.choice`, and `Quot.sound`. No resource limit, linter
+suppression, custom axiom or frozen Native/vendor source was changed.
+
+Next bind actual hash-only setup with the complete PBS witness, populate the
+caller key-root vector from the computed setup return and derive its receipt,
+audit and initial invariants from that run. Use the supported pointwise theorem
+to obtain the joint accepted-false event reduction. The existing numeric native
+tail bound starts from empty: it must not be applied unchanged to the nonempty
+setup cache/log. Extend its safe arithmetic bound to the audited prefix and
+account for setup plus verification with one shared history charge, then close
+full PBS output/accumulator/monomial semantics and production numeric,
+representation/Rust/memory, FS/ROM/grinding, adaptive and physical attacker-work
+obligations. Neither the production 128-query profile nor the final 128-bit
+security/work theorem is proved.
+
+Full `scripts/check` exited 0: 12,616 build jobs and all standalone checks.
+Full-check log SHA-256: `76f0ad6390d5ac49ece54c8079ae09a147c92be8623b5b7e8637ee0851d03e1b`.
