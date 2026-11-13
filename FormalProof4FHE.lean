@@ -2012,3 +2012,4 @@ import FormalProof4FHE.HasteBoots.CanonicalPBSStageComposition
 import FormalProof4FHE.HasteBoots.PackedPBSPublicExtractionEndpoint
 import FormalProof4FHE.HasteBoots.RecordedSourceWorldTransport
 import FormalProof4FHE.HasteBoots.ExecutedExtractionNTTLink
+import FormalProof4FHE.HasteBoots.PackedPBSExtractionFrame

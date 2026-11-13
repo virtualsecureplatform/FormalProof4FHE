@@ -35204,3 +35204,50 @@ or linter suppression were used.
 
 Full `scripts/check` exited 0: 12,756 build jobs and all standalone checks.
 Full-check log SHA-256: `ff2c48cae25531a1e9b3b03f2d2837ec39f4b740303ae05bfa5401bbca317ace`.
+
+## Operational frame of the complete PBS extraction witness (2026-11-13)
+
+`PackedPBSExtractionFrame` exposes thirteen declarations in
+`PackedPBSKeySwitchExtraction.Frame`. They begin with one supported return of
+the actual complete `PackedPBSKeySwitchExtraction.witness`, including all
+original PBS stages, key-switch stages, final comparison and extraction. No
+independently supplied child support, acceptance flag, private-memory label or
+checkpoint-retention certificate is needed for these operational facts.
+
+`reached` derives the literal predecessor support, selected extraction memory,
+actual comparison gate and child extraction support. `retained` preserves the
+comparison-end checkpoints at the actual extraction end. `audited` derives the
+final audit from the original initial audit plus the existing public geometry
+compatibility and record-scope conditions. `bad_persistent` carries the earlier
+collision event to that same actual extraction state.
+
+`comparison` selects the actual comparison return stored by this predecessor.
+`comparison_eq`, `comparison_accepted`, `comparison_memory` and
+`comparison_supported` derive its stored position, acceptance, exact opening
+memory and support in the complete comparison witness. `comparison_state`
+identifies the predecessor's final state with that literal comparison end;
+`comparison_retained` and `extraction_supported` express retention and extraction
+support using that exact state. `ntt_facts` applies the existing reached-stage
+interface to the same supported comparison, obtaining its actual predecessor
+NTT/product/reconstruction facts. These are facts about the single complete
+execution, not separately replayed component experiments.
+
+The frame makes the operational inputs to `ExecutedExtractionNTTLink` available
+from the complete witness. Applying that semantic composition still requires
+selecting its NTT and coefficient descriptors, instantiating the earlier honest
+increment coverage, joining the public-bound blind-rotation output and matching
+the same final risk union. It does not itself establish canonical increment
+truth, correct public PBS output or a probability bound. Both setups/full
+verification in one charged experiment, complete false-output lifting,
+production admissions, FS/ROM/grinding, adaptive attempts and actual physical
+attacker-work accounting remain unfinished. The 128-bit work target is not
+proved and the production 128-query profile remains uncertified.
+
+All thirteen declarations compile at default Lean resources and have directly
+inspected exact guards for only `propext`, `Classical.choice` and `Quot.sound`.
+The nested result parameters are explicit and support is kept locally opaque
+as in the existing proof frames. No frozen Native/vendor edits, admitted
+proofs, custom axioms, resource increases or linter suppression were used.
+
+Full `scripts/check` exited 0: 12,758 build jobs and all standalone checks.
+Full-check log SHA-256: `0538396cee11e606eb9dd81db07d70929e7055f97235330dde0afd1c5c12883c`.
