@@ -33937,3 +33937,54 @@ attacker-work obligations. Neither production 128-query security nor the final
 
 Full `scripts/check` exited 0: 12,618 build jobs and all standalone checks.
 Full-check log SHA-256: `696f251b414cf2f5f4256628b4e84d9be3ac9dce2990c73590e9088c60474f66`.
+
+## Native arithmetic bounds from audited nonempty prefixes (2026-11-13)
+
+Added ten prefix-state native-bound overlays, covering the first rectangular
+comparison, second comparison, combined decomposition, accumulator, monomial
+NTTs/product, key-switch known input, final NTT loop, product, reconstruction,
+and final rectangular comparison. Each `native_safe_joint_bound` now receives
+the actual initial shared state, its audit, and extraction-shape compatibility,
+rather than constructing an empty state inside the native wrapper. Earlier
+component rates are derived by composing the prefix-state theorems; the final
+combined theorem does not assume a caller-supplied earlier security bound.
+The modular second-comparison helper retains its original earlier-bound
+interface, which the combined decomposition theorem discharges internally.
+
+`PackedPBSRectangularComparisonPrefixBound.native_safe_joint_bound` establishes
+the same complete native arithmetic sum for the actual complete PBS execution
+starting at any audited compatible prefix. All private/hash work and rejected
+or skipped branches remain in the original witness; there is no reset of the
+prefix cache, log, checkpoints or monitor. Numeric calibration, distance,
+capacity, field/transform, public geometry and phase-recording-scope conditions
+remain explicit. Semantic shape compatibility is retained rather than replaced
+by the weaker factual cache-receipt property.
+
+Added `.native_safe_tail_bound`, bounding the selected key-switch tail with
+`earlier = False` by that same complete arithmetic sum. It follows by pointwise
+monotonicity into the complete risk event. Both results bound the unconditional
+safe part `Pr[risk ∧ ¬ final Bad]`; they are not probabilities conditioned on
+Bad being absent and introduce no normalization or independence assumption.
+No separate prefix-error rate, association-error term, union factor or history
+charge was added. The final history exception must still be bounded once over
+the actual joint setup/verifier execution.
+
+All eleven new public declarations have directly inspected imported exact
+axiom guards and use only `propext`, `Classical.choice`, and `Quot.sound`. Final
+targeted builds passed at default resources: prefix stages take approximately
+3–7 seconds and the complete comparison/tail module 10 seconds. No frozen
+Native/vendor source, resource limit, linter suppression or custom axiom was
+changed. The existing empty-state native bounds remain available unchanged.
+
+Next instantiate this prefix-state tail bound at each actual honest setup
+return and average it over the joint setup/PBS witness. Combine it with the
+proved original-key accepted-false event containment outside final Bad.
+Construct/project the actual whole shared oracle execution and bound final Bad
+with its one ExpectedHazard charge, including setup work. Then close honest
+accumulator/monomial and full PBS-output semantics, production numeric and
+representation/Rust/memory admission, FS/ROM/grinding, adaptive composition and
+physical attacker-work accounting. The production 128-query profile and final
+128-bit security/work theorem remain unproved.
+
+Full `scripts/check` exited 0: 12,638 build jobs and all standalone checks.
+Full-check log SHA-256: `fb5f3defc29c5119fd7d31702f61e7ad0e0bae85faf280752fcb3ec455db90cb`.

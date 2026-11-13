@@ -1883,3 +1883,23 @@ import FormalProof4FHE.HasteBoots.PackedPBSHonestAcceptedIncrement
 import FormalProof4FHE.HasteBoots.PackedPBSHonestIncrementEvents
 
 import FormalProof4FHE.HasteBoots.PackedPBSHonestSetupJoint
+
+import FormalProof4FHE.HasteBoots.PackedPBSFirstRectangularPrefixBound
+
+import FormalProof4FHE.HasteBoots.PackedPBSSecondRectangularPrefixBound
+
+import FormalProof4FHE.HasteBoots.PackedPBSDecompositionPrefixBound
+
+import FormalProof4FHE.HasteBoots.PackedPBSAccumulatorPrefixBound
+
+import FormalProof4FHE.HasteBoots.PackedPBSMonomialPrefixBound
+
+import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchInputPrefixBound
+
+import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchNTTPrefixBound
+
+import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchProductPrefixBound
+
+import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchReconstructionPrefixBound
+
+import FormalProof4FHE.HasteBoots.PackedPBSRectangularComparisonPrefixBound
