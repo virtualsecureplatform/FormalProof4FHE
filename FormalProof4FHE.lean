@@ -1931,3 +1931,9 @@ import FormalProof4FHE.HasteBoots.AmbientSourceDescriptor
 import FormalProof4FHE.HasteBoots.MonomialSourceAssociation
 
 import FormalProof4FHE.HasteBoots.MonomialRotationProbability
+
+import FormalProof4FHE.HasteBoots.DecodedAccumulatorRows
+
+import FormalProof4FHE.HasteBoots.PackedPBSAccumulatorMonomialSources
+
+import FormalProof4FHE.HasteBoots.PackedPBSAccumulatorRotationCoverage

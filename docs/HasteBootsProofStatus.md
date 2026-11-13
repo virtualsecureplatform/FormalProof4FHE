@@ -34249,3 +34249,60 @@ increases, custom axioms, admitted proofs or linter suppression.
 
 Full `scripts/check` exited 0: 12,666 build jobs and all standalone checks.
 Full-check log SHA-256: `b999433d488c3f4a71b418416ab66cdfaf5b52d9cb8bc33a992ecf0b4ad307ed`.
+
+## Actual accumulator rows and reached monomial rotation coverage
+
+`DecodedAccumulatorRows` constructs ciphertext rows directly from complete
+original accumulator tables, preserving all padded rows, polynomial coefficients
+and halves. Packing after decoding returns the entire original table; decoding
+a packed table returns the original rows. Its NTT view only regroups dimensions,
+and its monomial row polynomial is proved to be the same accumulator decode.
+The physical-decoder logical view also respects this exact address regrouping.
+No independently supplied coefficient trace is required by this bridge.
+
+`PackedPBSAccumulatorMonomialSources` works with the actual supported PBS prefix
+through its accepted monomial NTT loop. It recovers the reached accumulator,
+second-comparison predecessor, actual factory memory, both child supports and
+original checkpoint owners. The selected monomial coefficient roots are the
+same caller accumulator objects 0/1. Actual checkpoint retention carries both
+sets of owners to any later retained audited state. Under explicit complete
+public decoder association, `sources_eq_or_bad` identifies the monomial original
+coefficient sources with the original accumulator input/product tables, and
+`coefficient_rows_eq_or_bad` identifies every decoded row polynomial. Both use
+one later Bad event, without a source-value assumption or alias probability loss.
+
+`PackedPBSAccumulatorRotationCoverage` derives the exact NTT-prefix support,
+acceptance gate, product support and complete monomial-component support from
+the reached product in the full PBS prefix. This is a factorization of the same
+supported execution at the actual accumulator return, not a replay or a child
+initialized from empty. It derives the actual incoming component audit and
+final product audit from the original inherited prefix audit and existing
+scope/geometry transport premises.
+
+Its `all_rotations_or_risks` proves rotations for the decoded actual accumulator
+input/product rows at every active stored round and both ciphertext halves,
+outside the existing monomial NTT/product original-risk families and the same
+final Bad event. Coefficient-to-accumulator and evaluation-to-product association
+are explicit public physical-decoder metadata obligations. The previous separate
+coefficient trace and coefficient-source value binding are no longer premises.
+No new arithmetic error, independent-root assumption, conditioning, state reset,
+query cutoff or per-round exception is introduced.
+
+Remaining: admit the public associations and dimensions/round bounds for concrete
+factories, derive canonical decomposition and honest external-product identities
+on these same accumulator sources, and combine the accumulator equations and
+public endpoints to obtain full honest blind rotation/PBS-output correctness.
+The semantic output event then needs lifting through the whole setup/verifier
+bound. Existing numeric rates and the whole-history charge are unchanged; the
+whole native theorem still concerns accepted-false key-switch increments relative
+to the actual accumulator. FS/ROM/grinding, adaptive attempts, production parameter
+and representation admission, and physical attacker-work accounting remain
+outstanding. The production 128-query profile remains uncertified.
+
+All 33 declarations have directly inspected exact axiom guards using only
+`propext`, `Classical.choice`, `Quot.sound`, or fewer. All three modules compile
+at default Lean resources, without frozen Native/vendor edits, resource increases,
+custom axioms, admitted proofs or linter suppression.
+
+Full `scripts/check` exited 0: 12,672 build jobs and all standalone checks.
+Full-check log SHA-256: `855e6796965ae1ace516d09026d467db36aeb2ead417704ea9fddedfb55488e4`.
