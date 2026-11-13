@@ -35060,3 +35060,48 @@ resource increases or linter suppression were used.
 
 Full `scripts/check` exited 0: 12,742 build jobs and all standalone checks.
 Full-check log SHA-256: `e30b4b02e13eaf0731ae9003ed8addaa178f24e0cf4042ffd0aa7efee4ecda04`.
+
+## Public-bound accumulator endpoints and round metadata (2026-11-13)
+
+`PublicAccumulatorContext` constructs the accumulator context from the caller's
+initial ciphertext, claimed final ciphertext and native round count. It packs
+both endpoint halves in the existing native coefficient order and fixes the
+cyclic start/finish indices. `bind` overrides a behavior scheme's context;
+`queries_length` proves the context change preserves every opening packet's
+arity, allowing its dependent build callback to be transported without changing
+private behavior. The ambient verifier still overwrites the opening roots,
+query locations and expected values. `factory` applies this binding at every
+private-memory branch. The endpoint decode lemmas recover the caller's two
+ciphertexts exactly.
+
+`PackedPBSPublicBlindRotation.output_from_setup_or_risks` specializes the actual
+complete monomial-product witness to this configured factory and the actual
+honest control-key setup. Its conclusion is now directly
+`claimed = NativeBlindRotation.run bits controlsAndRotations publicInitial`,
+or the same ten existing risk events, including the same final collision event.
+It has no endpoint equality, start-index, finish-index or final query-consistency
+premise. The endpoint equalities and both round-index equalities follow from
+construction; final query consistency and setup audit/receipt/compatibility
+follow from the same actual supported execution as before.
+
+This deliberately configures the verifier with a trusted public context; it
+does not prove that an arbitrary previously supplied behavior factory already
+has that context, or claim a native implementation refinement. The actual
+supported witness in the theorem runs with the public-bound factory. Public
+controls, exponents and initial ciphertext still require correspondence with the
+intended PBS input/LUT/key-generation and concrete representation. Existing
+public source-descriptor, decoding, arithmetic-dimension and record-scope
+admissions remain explicit. Key-switch input/result composition, both setups
+and full verification in one charged execution, full false-output probability
+bounds, production admissions, FS/ROM/grinding, adaptive attempts and actual
+physical attacker-work accounting remain unfinished. Full PBS-output security
+and the 128-bit work target are not proved; the production 128-query profile
+remains uncertified.
+
+All seven declarations compile at default Lean resources and have directly
+inspected exact guards for only `propext`, `Classical.choice` and `Quot.sound`.
+No frozen Native/vendor edits, admitted proofs, custom axioms, resource increases
+or linter suppression were used.
+
+Full `scripts/check` exited 0: 12,746 build jobs and all standalone checks.
+Full-check log SHA-256: `75bd6d555fa23be2e12eda0544b6468b05a2531911a179bde92bde5be1298832`.
