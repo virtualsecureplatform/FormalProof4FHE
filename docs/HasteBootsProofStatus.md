@@ -33136,3 +33136,48 @@ remain open. The final 128-bit security theorem is unproved.
 
 Full `scripts/check` exited 0: 12,542 build jobs and all standalone checks.
 Full-check log SHA-256: `ea1f4eb244f08fa5507843ec4abfef053a70b3ef5e76722a3f0d3d6f75b10f29`.
+
+
+### Extract reached final key-switch calls from the complete PBS witness (2026-11-13)
+
+Added `RetainedComparisonReached` operational lemmas for the actual retained
+comparison bind. A returned comparison supplies its supported predecessor,
+selected reconstruction and computed linear acceptance gate. When the incoming
+state is the selected reconstruction's actual end state, the child is the
+literal `PaddedReconstructionComparison.continuation` used by the semantic
+proofs. Existing supported-reconstruction facts lift through this returned
+comparison without replaying or re-expanding the predecessor experiment.
+
+`PackedPBSReachedKeySwitch` instantiates these interfaces in the named complete
+`PackedPBSKeySwitchComparisons.witness`. `reached_witness` extracts the raw
+reached call; `reached_comparison` identifies the optional comparison
+continuation after the actual accepted reconstruction. `reconstruction_facts`
+also discharges the predecessor facts with the concrete
+`PackedPBSKeySwitchReconstruction.reached_reconstruction` theorem. It therefore
+extracts the actual product selection/gate, supported product predecessor,
+returned-memory identity and literal linear reconstruction support from the
+complete PBS run, with no caller-supplied replay or operational certificate.
+No security or source-truth premise is used.
+
+The complete predecessor types remain behind whole named interfaces, following
+the existing retention wrappers. This avoids repeated expansion of the full
+probability program and first-stage height/encoding dependencies; the resulting
+proofs build within the unchanged default heartbeat limits. A returned optional
+comparison is not by itself a proof of comparison acceptance: its computed
+acceptance flag still belongs in the final accepted-run coverage.
+
+Both modules are exported. Seven directly inspected declarations have imported
+exact axiom guards accepting only `propext`, `Classical.choice` and `Quot.sound`.
+Frozen Native/vendor sources and default resource limits remain unchanged.
+
+Next, continue extracting the actual final NTT and known-input supports/gates
+through these predecessor interfaces, combine them with the existing final
+checkpoint-retention chain, and instantiate `ExecutedKeySwitchIncrement` on the
+complete witness. Match its accepted failure branches to the rectangular
+probability theorem. Honest setup/key association, canonical accumulator and
+monomial semantics, accepted false-PBS output coverage, numeric profile
+admission, production refinements, adaptive composition and actual attacker-work
+accounting remain open. The final 128-bit security theorem is unproved.
+
+Full `scripts/check` exited 0: 12,545 build jobs and all standalone checks.
+Full-check log SHA-256: `a5c28d36eeb36ae4156dd12a3e33b6c3db10c03d9af2161e2f71bc4ba6a06b0e`.

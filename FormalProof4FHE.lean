@@ -1805,3 +1805,7 @@ import FormalProof4FHE.HasteBoots.ExecutedComparisonWorld
 import FormalProof4FHE.HasteBoots.ExecutedRectangularRadix
 
 import FormalProof4FHE.HasteBoots.ExecutedKeySwitchIncrement
+
+import FormalProof4FHE.HasteBoots.RetainedComparisonReached
+
+import FormalProof4FHE.HasteBoots.PackedPBSReachedKeySwitch
