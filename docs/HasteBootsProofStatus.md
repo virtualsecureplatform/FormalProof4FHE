@@ -31775,3 +31775,55 @@ Validation: full `scripts/check` exited successfully, including the 12,395-job
 root build and all standalone checks. Frozen Native modules and vendor sources
 are unchanged. Full-check log SHA-256:
 `0f4ba5623eee0e5a39b70a123ae73b7a84583d7be2d7694e75210efe2437150b`.
+
+### Canonical decoded sources and recorded owner families
+
+Added `PaddedSourceAddress`, `RecordedPaddedSource`,
+`RecordedPaddedSourceFamily`, `PaddedStageSourceInterpretation` and
+`PaddedLookupSourceInterpretation`.
+
+`PaddedSourceAddress.padded_source` proves that high-zero padding followed by
+the physical tensor-dimension transport reads precisely the original native
+low addresses of one decoded matrix. Distinct padding counts and logical
+dimensions agree at a shared native address. The result applies to the actual
+`MatrixOpeningSecurity.extract` decoder, not just arbitrary logical tables.
+
+`RecordedPaddedSource.Parameters` fixes the context, physical front/suffix,
+message degree, domain, capacity and decoder radius for a root interpretation.
+The decoded matrix is independent of the returned query and logical padding.
+Recorded aliases of the same root under this descriptor have equal available
+words and therefore the same decoded matrix outside the existing final Bad.
+The descriptor keeps radius fixed, avoiding the otherwise possible mismatch
+between a successful decode and the fallback under different radius choices.
+
+`RecordedPaddedSourceFamily.exists_recorded` constructs one anchor owner per
+caller root from actual checkpoint availability. Family tables are then decoded
+from those owners; no decoded-table or source-truth witness is supplied. Any
+other recorded use of a root agrees with the anchor outside the same final
+exception. Association lemmas allow a stage's descriptor to be matched to its
+family slot by public decoder-metadata equality. This is a context/code/domain/
+radius association, not an assumed equality of decoded source values.
+
+The stage normalization theorems identify the literal source definitions of
+padded NTT, linear reconstruction, private product and public-factor ZeroCheck
+with these canonical native-address views. The lookup normalization likewise
+covers the original private source columns of the actual shared comparison,
+while leaving its independent helper widths alone. These equalities have no
+source-value premises and introduce no further collision charge.
+
+This supplies common-source interpretation interfaces for the padded stages;
+it does not yet instantiate one global family for the complete PBS run or prove
+accepted-false-output coverage. Availability of all required caller roots on
+accepted paths and actual native parameter-store descriptor associations still
+need to be assembled, along with the coefficient/reference semantic trace.
+Earlier uniform-stage masked-profile refinements, numeric admission, production
+refinements, adaptive composition and physical attacker-work accounting also
+remain open. The final 128-bit theorem remains unproved. All five modules are
+exported, and an imported audit guards all 22 new theorems. Direct inspection
+found only `propext`, `Classical.choice` and `Quot.sound`; default resource limits
+were retained.
+
+Validation: full `scripts/check` exited successfully, including the 12,401-job
+root build and all standalone checks. Frozen Native modules and vendor sources
+are unchanged. Full-check log SHA-256:
+`c85507310e879b1e7b9bc502b069e7b6fab87d001baa7ff2025d23e41d37d4fe`.

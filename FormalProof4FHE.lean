@@ -1569,3 +1569,13 @@ import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchExtractionNativeJointBound
 import FormalProof4FHE.HasteBoots.RetainedPaddedExtractionExecution
 
 import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchExtractionExecution
+
+import FormalProof4FHE.HasteBoots.PaddedSourceAddress
+
+import FormalProof4FHE.HasteBoots.RecordedPaddedSource
+
+import FormalProof4FHE.HasteBoots.RecordedPaddedSourceFamily
+
+import FormalProof4FHE.HasteBoots.PaddedStageSourceInterpretation
+
+import FormalProof4FHE.HasteBoots.PaddedLookupSourceInterpretation
