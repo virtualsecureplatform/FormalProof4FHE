@@ -34069,3 +34069,54 @@ final 128-bit security/work theorem is proved.
 
 Full `scripts/check` exited 0: 12,640 build jobs and all standalone checks.
 Full-check log SHA-256: `eb03f0df68c67a1a2eb64601a2faa1bb62c0b13e5c583f19b46064efe25978ba`.
+
+## Native original-key accepted-false increment bound (2026-11-13)
+
+Added `PackedPBSNativeHonestIncrementBound`, specializing the actual joint
+honest setup/PBS witness to four-lane input and final key-switch transforms,
+`log = finalC + 2`, the configured radix, and the semantic theorem's final
+rectangular lookup dimensions and public table sizes. Setup returns the
+installed key roots and the full initial verifier state; caches, logs,
+checkpoints and monitors are retained. The proposition-valued accepted,
+exception and safe-tail experiments all observe this same joint witness.
+
+`safe_experiment_eq` proves equality of the semantic safe-tail probability
+and `PackedPBSNativeSetupSafeBound.experiment`, rather than assuming matching
+experiments or a child-security certificate. The instantiation shares the
+four-lane sampler between input and final transforms and uses the native
+verifier's canonical finite-function query samplers. The computation comparison
+normalizes the encoding/height and instance expressions, then compares the
+setup and verifier continuations separately using the existing monad laws.
+No sampling law, independence assumption or extra association error is added.
+
+`native_safe_bound` applies the previously derived full native arithmetic
+rate to this semantic safe-tail experiment. `accepted_false_partition` then
+instantiates the original-key semantic partition at these same concrete
+schemes. Finally, `accepted_false_bound` proves
+`Pr[actual accepted false increment] ≤ Pr[actual final Bad] + full native rate`.
+The rate is derived from the native component theorems and their arithmetic
+calibration/distance/capacity premises; it is not supplied as a caller's
+probability bound. There is one actual whole-history exception probability,
+no separate setup exception, no cache/log reset and no normalization by the
+probability of avoiding Bad. Rejected and skipped branches remain in the
+complete witness.
+
+The honest setup geometry, degree/distance/padding, coefficient/evaluation/
+known-input/lookup descriptor routing, source width, public table/radix and
+phase-recording-scope obligations remain explicit. This is the selected
+canonical increment relative to the actual accumulator context, not yet
+honest full PBS-output correctness. All eight new declarations have directly
+inspected exact axiom guards using only `propext`, `Classical.choice`, and
+`Quot.sound`; the targeted module builds at default Lean resources (62 seconds).
+No frozen Native/vendor code, resource limit, linter suppression or custom
+axiom was changed.
+
+Next bound the exposed final-history exception using the one actual whole
+setup/verifier execution's ExpectedHazard, with setup work retained. Complete
+honest accumulator/monomial and full PBS-output semantics, concrete production
+numeric and representation/Rust/memory admission, FS/ROM/grinding, adaptive
+composition and physical attacker-work accounting. The production 128-query
+profile and final 128-bit security/work theorem remain unproved.
+
+Full `scripts/check` exited 0: 12,642 build jobs and all standalone checks.
+Full-check log SHA-256: `e836b7cc5738698c605a37e1e45aca0155eeb3462ad407572b3cd8f6c0c07a7e`.
