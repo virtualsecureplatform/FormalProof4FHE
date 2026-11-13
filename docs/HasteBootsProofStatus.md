@@ -34547,3 +34547,50 @@ increases or linter suppression.
 
 Full `scripts/check` exited 0: 12,690 build jobs and all standalone checks.
 Full-check log SHA-256: `9356bc1ffe35c82977902d84eddb087fb583c7f8c8236248b94c610ea81d574e`.
+
+## Both decomposition inputs in the actual PBS accumulator prefix
+
+`PackedPBSDecompositionAccumulatorInputs` instantiates the executed-input bridge
+in `PackedPBSAccumulator.witness`. The two comparison predecessors, their real
+opening memories, and the actual configured accumulator execution are derived
+from the supported PBS return. `firstRetained` and `secondRetained` carry the
+complete saved checkpoint histories through the real second reconstruction,
+comparison and accumulator stages to any later retained final state.
+
+`firstRecorded` and `secondRecorded` derive availability of the actually
+constructed reconstruction families. `firstInputRoot` and `secondInputRoot`
+derive the root associations from the literal borrowed accumulator root slots
+and the reached original reconstructions. Neither availability nor a decoded
+input value is an additional certificate in the two final input theorems.
+
+`first_input_rows_or_risks` and `second_input_rows_or_risks` identify each executed
+input with its selected actual accumulator difference half, at every stored
+round and either physical output half, using literal original NTT coefficient
+addresses. Both alternatives are the SAME accumulator OriginalRisk and the SAME
+later Bad; these results introduce no new source-alias event or arithmetic rate.
+They retain public full-decoder association and the first factory's explicit
+encoding association, plus actual later audit/retention and accumulator gates.
+
+The module fixes the shared scalar width to `2^lanes` as in the coefficient
+accumulator/monomial decoding. Its reconstruction source constructors use the
+`e := 2^lanes, padding := 0` presentation ONLY for total-width source/recording
+lemmas; no lookup configuration is specialized, changed or certified by this
+choice. Canonical lookup composition with the production rectangular layout
+still needs its actual width/layout admission and matching source presentation.
+
+Remaining: combine these actual input identifications with canonical digit/NTT
+coefficient coverage in the same full prefix; associate the original result
+coefficient with the accumulator external source; derive honest control-key
+semantics; then complete external-product, trace, endpoint and PBS-output
+composition and probability lifting. The whole-history charged theorem still
+concerns selected key-switch increments. Production admission, FS/ROM/grinding,
+adaptive attempts and actual physical attacker-work accounting remain unproved;
+the production 128-query profile remains uncertified.
+
+All 19 declarations compile at default Lean resources and have directly
+inspected exact axiom guards for `propext`, `Classical.choice`, and `Quot.sound`.
+No frozen Native/vendor changes, custom axioms, admitted proofs, resource
+increases or linter suppression were used.
+
+Full `scripts/check` exited 0: 12,692 build jobs and all standalone checks.
+Full-check log SHA-256: `a9f2b5a91f274c8254331626e1ec1a7a7eb3f1699170a76b961441203292c185`.
