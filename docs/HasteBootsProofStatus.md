@@ -33764,3 +33764,69 @@ theorem remain unproved.
 
 Full `scripts/check` exited 0: 12,604 build jobs and all standalone checks.
 Full-check log SHA-256: `0a8795b06e29c03784c9d363b5483ca0f7f5efb233fc19fdc90d21fe082c2bdc`.
+
+## Complete PBS increment coverage for the original honest key (2026-11-13)
+
+Added `PackedPBSHonestIncrement.CompleteCoverage` and `.increment_coverage`.
+For the complete supported PBS witness that reaches the final comparison, the
+theorem derives its actual product/NTT/known-input/monomial/accumulator returns,
+their literal child supports and gates, and checkpoint retention. Its conclusion
+is now `ExecutedHonestKeySwitchIncrement.Coverage` for the original coefficient
+key, using the actual accumulator mask. Honest-key association is no longer
+only a standalone product or per-operation result.
+
+The proof uses the complete NTT-prefix chronology to carry setup observations
+into the actual product input and the complete PBS comparison history theorem
+to derive final frozen-cache receipts. The native product's root preservation
+and retained source snapshots identify its actual canonical key. Public setup
+descriptors are fixed across memory-dependent factory choices; explicit public
+geometry routing transports the factual setup observations to each reached
+product descriptor. Capacity, decoding-distance and transform conditions remain
+explicit. The supported witness derives every child support, gate and retention
+fact, rather than receiving them as caller certificates.
+
+Added `HonestKeyQueryReceipt.Receipt`, a factual record of computed Merkle label
+trees, their returned roots, and their actual queries included in the shared
+log. `of_setup` derives it from supported hash-only setup. Descriptor congruence
+transports its dependent labels; chronological extension preserves it. The
+separate decoding-distance congruence lemma handles the descriptor-dependent
+column domain by equality elimination. This receipt is not a decoded-key,
+honest-table, transform-identity or probability-bound certificate.
+`ExecutedProductKeyReceipt.key_eq_or_bad` consumes these actual observations at
+a native product, obtaining the original key or the same final Bad event.
+
+`HonestKeySetupReceipts.program` returns the computed root vector after actual
+hash-only setup. Its `.initialized` theorem derives the setup-query receipt,
+cache coherence, frozen-cache receipts, audit and compatibility with every
+later extraction shape from support of that execution from empty. Installing
+this root vector in the caller family supplies the receipt for its key roots;
+no roots or initialization certificates need be chosen independently of setup.
+The complete coverage interface still explicitly requires the initial receipt,
+audit and operational invariant, so a joint setup/PBS wrapper must feed in these
+execution-derived facts and the actual returned roots.
+
+The failure disjunction remains precisely false lookup, reconstruction risk,
+known-input risk, NTT risk, product risk, or the existing final Bad. Association
+is combined pointwise; no new failure branch, union factor or history charge
+is added. This remains canonical increment coverage for the actual accumulator
+context, not yet the full honest PBS output specification or its accepted-false
+probability bound.
+
+All eleven new public declarations (including the complete-coverage field)
+have directly inspected imported exact axiom guards and use only `propext`,
+`Classical.choice`, and `Quot.sound`. The final complete-witness proof builds at
+default resources in 16 seconds; setup initialization takes 3.5 seconds. No
+frozen Native/vendor module, resource limit, linter suppression or custom axiom
+was changed.
+
+Next specialize complete accepted-comparison coverage and the accepted-false
+increment event to the original honest key. Wrap actual setup and the complete
+PBS witness together with computed roots and initialization facts, then extend
+the native probability theorem over that shared setup/verifier history using
+one history charge. Finish canonical accumulator/monomial and full output
+semantics, production numeric/representation/Rust/memory, FS/ROM/grinding,
+adaptive composition and physical attacker-work accounting. The production
+128-query profile and final 128-bit security/work theorem remain unproved.
+
+Full `scripts/check` exited 0: 12,612 build jobs and all standalone checks.
+Full-check log SHA-256: `811dccbe78c41d8736078195324d744749f89cb18eb3c5d3cc05952e8c7c15d6`.

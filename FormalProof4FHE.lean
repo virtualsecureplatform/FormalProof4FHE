@@ -1869,3 +1869,11 @@ import FormalProof4FHE.HasteBoots.PackedPBSReconstructionQueryHistory
 import FormalProof4FHE.HasteBoots.PackedPBSComparisonQueryHistory
 
 import FormalProof4FHE.HasteBoots.HonestSetupInitialHistory
+
+import FormalProof4FHE.HasteBoots.HonestKeyQueryReceipt
+
+import FormalProof4FHE.HasteBoots.ExecutedProductKeyReceipt
+
+import FormalProof4FHE.HasteBoots.HonestKeySetupReceipts
+
+import FormalProof4FHE.HasteBoots.PackedPBSHonestIncrement
