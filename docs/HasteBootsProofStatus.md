@@ -33644,3 +33644,65 @@ theorem remain unproved.
 
 Full `scripts/check` exited 0: 12,582 build jobs and all standalone checks.
 Full-check log SHA-256: `76643efd5c9280d1cdc224ab4251b6da6c4448cec72d3ef2d03437e3cb4e9e33`.
+
+## Honest setup queries across heterogeneous PBS geometries (2026-11-13)
+
+Full-PBS integration exposed a real geometry constraint: its initial shared
+history uses the first stage's single height, whereas final evaluation-key
+commitments can have other heights. Recording every honest key root in that
+initial history and then using `CheckpointShapeTransport.Compatible` would
+require equal shapes at all those setup tags. That equality is not established
+and must not be silently assumed. The earlier recorded-setup bridges remain
+valid for compatible histories, but the full pipeline needs setup hash queries
+without prematurely recording roots at the first stage's shape.
+
+Added `HonestMatrixSetupTrace.program`, which executes the existing Merkle
+builder for every honest matrix through the actual shared cached hash handler
+and returns its complete label trees. It adds no checkpoint annotations.
+`queries_logged` proves that every actual leaf/internal-node query is in the
+returned shared log, including repeats. `builder_checkpoints` and `checkpoints`
+prove that single and multi-matrix setup leave the checkpoint history unchanged.
+The setup execution shape is arbitrary and need not equal any matrix's shape.
+`SharedHashLog.step` and `.run` establish chronological log extension through
+arbitrary private/hash/recording interleavings. Existing shape transport copies
+the hash log verbatim.
+
+Added `HonestMatrixTranscript` word/decoded/logical recovery for an actual later
+source snapshot whose log contains the setup queries and whose root is the
+computed setup root. The snapshot may contain arbitrary intervening queries;
+its log need not be exactly the setup transcript. Added
+`HonestEvaluationKeyTranscript.key_eq_or_bad`, identifying the canonical
+final-world key using those actual source snapshots and setup query inclusion,
+with collision freedom discharged by the existing final Bad event. No supplied
+decoded-table equality or transform-identity certificate occurs.
+
+`ExecutedHonestProductTranscript.prefix_log` derives log extension from product
+input to its actual commitment snapshot. Its `.key_eq_or_bad` combines supported
+honest setup (at any shape), chronology into the product input, the supported
+native product's literal root preservation, and final source retention. It
+obtains original-key association from setup queries included in the product's
+native source snapshots. There is no setup checkpoint membership or equality
+between setup and product extraction shapes. The chronology prefix and final
+audit/cache-receipt invariant are factual execution obligations still to be
+derived from the complete PBS witness; they are not semantic source equalities.
+
+All twelve new public declarations have directly inspected imported exact
+axiom guards and use only `propext`, `Classical.choice`, and `Quot.sound`.
+The final native product bridge builds in 3.7 seconds at default resources;
+explicit family/recording arguments and locally opaque support avoid unfolding
+the complete probability programs during elaboration. No resource limit,
+linter suppression, custom axiom or frozen Native/vendor source was changed.
+
+Next run this hash-only honest setup before the homogeneous first-PBS phase,
+use unchanged empty checkpoints for initial shape compatibility, and propagate
+its actual log through all shape changes and reached stages into the product
+snapshots. Derive the remaining final audit/cache-receipt invariant from that
+joint witness, then instantiate honest canonical increment coverage and the
+accepted-false event bound. Full PBS output/accumulator semantics, numeric
+production certification, representation/Rust/memory, FS/ROM/grinding, adaptive
+composition and physical attacker-work obligations remain open. Neither the
+production 128-query profile nor the final 128-bit security/work theorem is
+proved.
+
+Full `scripts/check` exited 0: 12,592 build jobs and all standalone checks.
+Full-check log SHA-256: `822036de2e5c78e58cf0638124e1f34d10025ea554f3e90345aa56ca30894a6a`.

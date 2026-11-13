@@ -1847,3 +1847,13 @@ import FormalProof4FHE.HasteBoots.ExecutedHonestProductKey
 import FormalProof4FHE.HasteBoots.ExecutedHonestProductJoint
 
 import FormalProof4FHE.HasteBoots.ExecutedHonestKeySwitchIncrement
+
+import FormalProof4FHE.HasteBoots.SharedHashLog
+
+import FormalProof4FHE.HasteBoots.HonestMatrixTranscript
+
+import FormalProof4FHE.HasteBoots.HonestMatrixSetupTrace
+
+import FormalProof4FHE.HasteBoots.HonestEvaluationKeyTranscript
+
+import FormalProof4FHE.HasteBoots.ExecutedHonestProductTranscript
