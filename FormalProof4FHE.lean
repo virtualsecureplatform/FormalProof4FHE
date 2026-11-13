@@ -1973,3 +1973,9 @@ import FormalProof4FHE.HasteBoots.PackedPBSRectangularCanonicalDigits
 import FormalProof4FHE.HasteBoots.RecordedNTTProjection
 
 import FormalProof4FHE.HasteBoots.PackedPBSDifferenceDigitNTT
+
+import FormalProof4FHE.HasteBoots.TransportedOriginalHadamardSource
+
+import FormalProof4FHE.HasteBoots.TransportedOriginalNTTBinding
+
+import FormalProof4FHE.HasteBoots.PackedPBSOriginalTransformCoverage

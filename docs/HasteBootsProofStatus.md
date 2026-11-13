@@ -34744,3 +34744,58 @@ or linter suppression were used.
 
 Full `scripts/check` exited 0: 12,708 build jobs and all standalone checks.
 Full-check log SHA-256: `93c4e0e37cdfd71bd98197146bf54ea1d66802b13b65f4555a202318dcb8bdc4`.
+
+## Original Hadamard world and all native NTT transform bindings
+
+`TransportedOriginalHadamardSource` constructs copied owners and one source
+family for every original digit/key/result factor from the actual Hadamard
+prefix. Every copied owner preserves its original root and complete saved log;
+recording is derived through the actual original NTT loop, geometry transport
+and later retention. The native Hadamard logical cube is `n+1`, preserved in
+both source interpretation and arithmetic. Original NTT evaluation-factor roots
+are derived from the same literal caller references.
+
+Its `relation_or_risk` derives the real native Hadamard identity on these copied
+original sources, or the existing `OriginalFactorExceptionUnion.OriginalRisk`
+for the actual original Hadamard return. The relation and original acceptance
+are not supplied as certificates. Pure copying does not add an exception or
+rerun the Hadamard stage under the later geometry.
+
+`TransportedOriginalNTTBinding` associates each actual NTT evaluation source
+with its copied original Hadamard factor using complete public decoder metadata
+and the same later audited history. `transforms_or_risks` derives the TRUE native
+NTT relation from accepted original child support, or exhibits the existing
+`NTTLoopProbability.AnyRisk` with the child's actual fresh owners. It then
+composes that relation with evaluation-source association, retaining native
+coefficient addresses and dimension transports. The only alternatives are the
+existing original-loop risk and the same later Bad, without an extra alias loss
+or a separately charged earlier collision event.
+
+`PackedPBSOriginalTransformCoverage` instantiates these results in the actual
+supported PBS accumulator prefix. `hadamard_recorded` derives complete original
+Hadamard-family recording through the full prefix. `all_transforms_or_risks`
+provides all retained original NTT bindings together, with one loop risk for ALL
+calls and rows. `native_relations_or_risks` combines the original Hadamard
+identity and every original NTT binding in ONE actual recorded source world,
+or the existing Hadamard/loop risks or the same later Bad occur. Native loop and
+child acceptance are derived from reaching reconstruction; no child is replayed
+and no relation or source-value truth is assumed.
+
+Remaining: compose these actual transform bindings with the already proved
+actual difference-digit and external-result rows; derive honest control-key
+evaluation/source semantics; establish actual external products, then full
+trace/endpoint/PBS-output composition and probability lifting. This source-world
+native relation result does not identify arbitrary caller key roots with honest
+control keys. Concrete production parameter/codec/layout/radius/representation
+admission remains required. The whole-history charged theorem still concerns
+selected key-switch increments. Full PBS-output security, FS/ROM/grinding,
+adaptive attempts and actual physical attacker-work accounting remain unfinished;
+the production 128-query profile remains uncertified.
+
+All 15 declarations compile at default Lean resources and have directly
+inspected exact axiom guards for `propext`, `Classical.choice` and `Quot.sound`.
+No frozen Native/vendor edits, custom axioms, admitted proofs, resource increases
+or linter suppression were used.
+
+Full `scripts/check` exited 0: 12,714 build jobs and all standalone checks.
+Full-check log SHA-256: `19203c711ae5b1c2a257edfcf2b3443174176eb04ef9fd5a12dd5715c48bf48a`.
