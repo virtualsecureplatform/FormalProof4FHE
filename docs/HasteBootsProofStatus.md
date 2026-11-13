@@ -34594,3 +34594,49 @@ increases or linter suppression were used.
 
 Full `scripts/check` exited 0: 12,692 build jobs and all standalone checks.
 Full-check log SHA-256: `a9f2b5a91f274c8254331626e1ec1a7a7eb3f1699170a76b961441203292c185`.
+
+## Original result coefficient and actual accumulator external source
+
+`PackedPBSResultAccumulatorSource` recovers the original NTT loop from the same
+supported PBS execution reaching the accumulator. `originalRetained` carries
+its complete copied checkpoint history through both reconstructions,
+comparisons and the actual accumulator to any retained later audited state.
+The actual accumulator external owner is constructed from its fresh snapshot;
+`external_root` derives that native slot four borrows the final original NTT
+coefficient root, without a supplied root-value certificate.
+
+`result_source_eq_or_bad` derives complete decoded-source equality between a
+retained original result coefficient source and that actual accumulator external
+source, using full public decoder association, actual histories and encoding
+matches. `result_rows_eq_or_bad` identifies every stored coefficient row with
+the actual decoded accumulator external-product row when the public coefficient
+and round layouts are matched (`c = cells`, `r = rows+1`). It covers all stored
+rows and both halves; it does not replace native bit/order layout by an assumed
+result polynomial value.
+
+`originalAccepted` derives loop acceptance from the actually reached first
+reconstruction. `resultEntry_exists` uses the accepted trusted slot order to
+locate the literal final result slot in that same retained trace. `resultEntry`
+selects this executed call without launching a new NTT experiment.
+`retained_result_rows_eq_or_bad` consequently needs no caller-supplied retained
+result child, membership or slot certificate. Its only exception is the same
+later Bad; no new source-alias probability loss is introduced.
+
+Remaining: combine canonical digit-to-NTT coverage and the actual input-difference
+associations in the full prefix (including the actual rectangular-width/layout
+presentation); derive honest control-key source semantics; compose the existing
+native NTT/Hadamard relations to actual external products; then finish trace,
+endpoint and full PBS-output composition and probability lifting. These source
+results do not establish transform or external-product truth on their own.
+The whole-history charged theorem remains selected key-switch increment
+security. Full production admission, FS/ROM/grinding, adaptive attempts and
+physical attacker-work accounting remain unfinished; the production 128-query
+profile is uncertified.
+
+All 14 declarations compile at default resources and have directly inspected
+exact axiom guards for only `propext`, `Classical.choice` and `Quot.sound`.
+No frozen Native/vendor edits, custom axioms, admitted proofs, resource increases
+or linter suppression were used.
+
+Full `scripts/check` exited 0: 12,694 build jobs and all standalone checks.
+Full-check log SHA-256: `d06c7d3ba1ab06122d8e8431cc4c76d9647a9cbed61f860860d4f1b1d0e0b276`.

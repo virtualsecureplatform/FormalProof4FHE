@@ -1957,3 +1957,5 @@ import FormalProof4FHE.HasteBoots.DecodedAccumulatorConstraints
 import FormalProof4FHE.HasteBoots.ExecutedAccumulatorInputs
 
 import FormalProof4FHE.HasteBoots.PackedPBSDecompositionAccumulatorInputs
+
+import FormalProof4FHE.HasteBoots.PackedPBSResultAccumulatorSource
