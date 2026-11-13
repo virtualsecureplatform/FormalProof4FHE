@@ -1801,3 +1801,5 @@ import FormalProof4FHE.HasteBoots.ExecutedKnownInputWorldLink
 import FormalProof4FHE.HasteBoots.ExecutedComparisonOwners
 
 import FormalProof4FHE.HasteBoots.ExecutedComparisonWorld
+
+import FormalProof4FHE.HasteBoots.ExecutedRectangularRadix

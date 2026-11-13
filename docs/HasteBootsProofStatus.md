@@ -33046,3 +33046,48 @@ remain open. The final 128-bit security theorem is unproved.
 
 Full `scripts/check` exited 0: 12,538 build jobs and all standalone checks.
 Full-check log SHA-256: `2711f40b7eead4d9d4cf30f3448d06be27199413ff9bef3eb6fd0148e0a9a828`.
+
+
+### Executed rectangular lookup enforces canonical reconstruction digits (2026-11-13)
+
+Added `ExecutedRectangularRadix`. Its owners are the literal original snapshots
+from the actual reached comparison prefix. `owners_recorded` derives their
+recording from comparison support, using only the public source decoder routing
+and the reconstruction-provided contexts. The comparison's complete retained
+history supplies the common final-state owners; no owner family, caller-root
+association, world-recording certificate or source-value equality is supplied.
+
+`lookup_or_false_or_bad` instantiates the rectangular original-owner/radix
+theorem on the actual predecessor reconstruction's canonical final-history
+slots. Full configured comparisons with the public modulus-digit tables enforce
+all radix lookup cells, or expose that comparison outcome's OriginalFalse or
+the same final Bad. Slot/table order, full activity and exact public decoder
+routing remain explicit. The new native routing constructors discharge the
+source descriptor equalities; no equality of helper packing/code widths occurs.
+
+`canonical_digits_or_risks` also derives reconstruction acceptance from the
+actually reached comparison and obtains the executed linear constraints outside
+reconstruction's OriginalRisk. It transports those complete decoded constraints
+to the same canonical family and combines them with the lookup to prove every
+digit is the actual input's quotient/remainder digit at every logical cell and
+lane. The failure alternatives are exactly lookup OriginalFalse, reconstruction
+OriginalRisk and final Bad. No decoded decomposition relation or digit-value
+certificate is assumed. The fixed relation-list equality and public radix/range
+conditions are explicit; native reconstruction fixes the relation list itself.
+
+The module is exported. Four directly inspected declarations have imported
+exact axiom guards accepting only `propext`, `Classical.choice` and `Quot.sound`.
+Frozen Native/vendor sources and default resource limits remain unchanged.
+These are pointwise semantic coverage results, with no additional probability
+or collision charge. Comparison acceptance must still be carried by the final
+accepted-run coverage to use the already proved accepted-false probability rate.
+
+Next, combine these lookup/digit constraints with the derived mask, NTT and
+product constraints into key-switch increment coverage for the complete PBS
+witness. Honest setup/key association, canonical accumulator/monomial semantics,
+accepted false-PBS output coverage, numeric profile admission, production
+refinements, adaptive composition and actual attacker-work accounting remain
+open. The final 128-bit security theorem is unproved.
+
+Full `scripts/check` exited 0: 12,540 build jobs and all standalone checks.
+Full-check log SHA-256: `00215aefbe0691a21724cbc5b3e0c563ca3dec23dc327be34ae9ceff426c65b5`.
