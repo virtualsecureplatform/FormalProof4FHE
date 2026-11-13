@@ -31690,3 +31690,53 @@ Validation: full `scripts/check` exited successfully, including the 12,392-job
 root build and all standalone checks. Default resource limits were retained;
 frozen Native modules and vendor sources are unchanged. Full-check log SHA-256:
 `88041138fa67257cdb524ab7a28c083bd27af5f5f769f22b4072850368aecd79`.
+
+### Operational projection and one full PBS collision charge through extraction
+
+Added `RetainedPaddedExtractionExecution` and
+`PackedPBSKeySwitchExtractionExecution`. The generic extraction factory factors
+through an explicit erasure of the predecessor. This prevents ghost checkpoint
+snapshots from becoming inputs to the operational extraction program. The raw
+continuation reads only operational predecessor data, computes the actual
+comparison gate and returned opening memory, and runs the native padded public
+ZeroCheck with its prepared singleton opening. Rejected/skipped branches and
+callback oracle work are preserved exactly.
+
+The concrete module defines the complete snapshot erasure and operational
+prefix type. `erased_accumulator` and `erased_comparison` identify the retained
+raw returns. `get_erases` proves unchanged comparison acceptance and opening
+memory, and `endpoint_erases` proves that raw and ghost executions read the
+same original accumulator factory context and coefficient index. The raw
+extraction scheme therefore computes the same once-biased public mask/target
+and opens the same caller increment root. `ghostScheme_erases` and
+`finish_erases` prove the full factory/continuation association without a
+supplied replay or endpoint certificate.
+
+`program` appends the operational extraction to the already proved full
+comparison program. `project_witness` composes the predecessor's projection
+with the executed child projection, yielding an exact shared full-state
+equality after snapshot erasure. It preserves all actually reached calls and
+all preceding rejected work; it does not replay the prefix or reset history.
+
+`final_bad_le_charge` applies the checkpoint collision theorem to this complete
+program from empty state. One `ExpectedHazard.charge` now covers the whole PBS
+execution through the final extraction opening. The source-scope restriction
+needed by the initial recorded-to-ambient shape transport remains explicit.
+No per-stage collision charges are added. The charge still counts shared
+oracle-program work, including verifier/setup calls; it is NOT yet physical
+attacker work.
+
+The conditional arithmetic/PCS joint bound through extraction and the complete
+operational collision bound are now both available. Their final risk-or-Bad
+combination remains to be stated. Original-source interpretation and complete
+accepted-false-output coverage, native parameter associations, numeric profile
+admission, production refinements, adaptive composition and actor-separated
+physical attacker-work accounting remain open. The final 128-bit theorem is
+unproved. Both modules are exported. The imported audit guards twelve main
+execution/erasure declarations, all using only `propext`, `Classical.choice`
+and `Quot.sound` after direct inspection. Default resource limits were retained.
+
+Validation: full `scripts/check` exited successfully, including the 12,395-job
+root build and all standalone checks. Frozen Native modules and vendor sources
+are unchanged. Full-check log SHA-256:
+`99b437afd9047c10aad185994167bde6f8db5e2f48027b56a7ea8c818ac3b7cf`.

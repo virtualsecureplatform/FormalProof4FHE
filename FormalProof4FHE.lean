@@ -1565,3 +1565,7 @@ import FormalProof4FHE.HasteBoots.RetainedPaddedExtractionJointBound
 import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchExtractionBound
 
 import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchExtractionNativeJointBound
+
+import FormalProof4FHE.HasteBoots.RetainedPaddedExtractionExecution
+
+import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchExtractionExecution
