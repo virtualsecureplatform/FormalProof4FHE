@@ -32824,3 +32824,46 @@ final 128-bit security theorem is unproved.
 Full `scripts/check` exited 0: 12,514 build jobs and all standalone checks.
 Full-check log SHA-256: `6cad07e067e5adbb692224833112b2f86bae5b950df4e6bfa4c086d8ac674c2e`. Frozen Native/vendor sources and default
 resource limits remain unchanged.
+
+
+### All three rectangular comparisons in the complete PBS prefix (2026-11-13)
+
+Added the six `PackedPBS{Accumulator,Monomial,KeySwitchInput,KeySwitchNTT,
+KeySwitchProduct,KeySwitchReconstruction}RectangularBound` modules and updated
+`PackedPBSRectangularComparisonJointBound` to consume this chain. The earlier
+`PackedPBSRectangularDecompositionBound` now supplies its actual two rectangular
+comparison risks to the accumulator. Those risks propagate through the reached
+monomial, known-input, final NTT, product and canonical reconstruction calls,
+then join the final rectangular comparison in the complete executed witness.
+The first and second comparisons are no longer square schemes in this chain.
+
+Each stage's safe theorem derives its predecessor bound from the preceding
+concrete execution theorem. The complete final theorem has no supplied
+predecessor-security certificate. All three comparison rates use independent
+packing/code-symbol widths, base-field row samples, rectangular capacity and
+block-code distance. The first two retain their actual configured active-row
+request budgets; the final comparison uses its derived uniform logical-shape
+budget over reached memories. No request-count union factor is introduced.
+The public parameter conditions for non-comparison native arithmetic stages
+are unchanged.
+
+Every prefix has a risk-or-Bad corollary with a single charge for its complete
+operational program. Composition uses the safe variants, so the complete PBS
+bound pays only one collision charge, including all comparison work. Rejected
+and nonreturning paths are retained by the existing execution bookkeeping.
+This operational charge has not been identified with actual attacker work.
+
+The six new modules are exported. Direct inspection covers 15 declarations,
+with 13 new imported exact axiom guards and the two existing final-comparison
+joint guards, all accepting only `propext`, `Classical.choice` and `Quot.sound`.
+Frozen Native/vendor sources and default resource limits remain unchanged.
+
+Next, actual native reference/descriptor maps must assemble the common family
+and discharge the operation-to-world associations for the final accepted-output
+coverage theorem. Honest setup/evaluation-key association, canonical accumulator
+and monomial semantics, numeric profile admission, production refinements,
+adaptive composition and actual attacker-work accounting remain open. The
+final 128-bit security theorem is unproved.
+
+Full `scripts/check` exited 0: 12,521 build jobs and all standalone checks.
+Full-check log SHA-256: `a5cbb9493533bcda7dc251e8ebf9d39444cde62f32dee43fa70f7100cb746d0f`.

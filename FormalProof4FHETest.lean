@@ -917,3 +917,5 @@ import FormalProof4FHETest.HasteBootsRetainedRectangularComparisonAudit
 import FormalProof4FHETest.HasteBootsPackedPBSRectangularComparisonAudit
 
 import FormalProof4FHETest.HasteBootsRectangularDecompositionAudit
+
+import FormalProof4FHETest.HasteBootsRectangularFullPrefixAudit

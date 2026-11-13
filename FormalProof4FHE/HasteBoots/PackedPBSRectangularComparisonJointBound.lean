@@ -1,5 +1,5 @@
 module
-public import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchReconstructionNativeJointBound
+public import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchReconstructionRectangularBound
 public import FormalProof4FHE.HasteBoots.PackedPBSRectangularComparisonBound
 public import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchComparisonExecution
 public import FormalProof4FHE.HasteBoots.RetainedPaddedComparisonJointBound
@@ -8,15 +8,15 @@ public import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchReconstructionProbabi
 
 /-! Combine the existing native predecessor rates with the actual rectangular
 final comparison, retaining one collision charge for the complete execution.
-Earlier comparison stages still use their existing square implementations. -/
+All three comparison stages use rectangular original-owner lookup soundness. -/
 namespace FormalProof4FHE.HasteBoots.PackedPBSRectangularComparisonJointBound
 open OracleSpec OracleComp BinaryTree Matrix MerkleTreeMultiExtractability
 open NativeRootMessage (Digest)
 open PackedPBSFirstComparisons (priorState finalState)
 open scoped Classical BigOperators
 open FormalProof4FHE.HasteBoots.InteractiveAuthenticatedOpening
-open FormalProof4FHE.HasteBoots.VariableWidthBatchOpening
-open FormalProof4FHE.HasteBoots.MixedWidthLookupOpeningFamily
+open FormalProof4FHE.HasteBoots.RectangularVariableWidthOpening
+open FormalProof4FHE.HasteBoots.PaddedMixedWidthLookupOpeningFamily
 open FormalProof4FHE.HasteBoots.MixedWidthSharedLookupPCSAlgebra
 noncomputable section
 variable {q log d b c r k n front suffix m queries height : ℕ} [Fact q.Prime]
@@ -37,13 +37,11 @@ variable {K LookupMessage LookupResponse HelperMemory : Type}
   {widths sizes repetitions : Fin requests → ℕ} {mode : Mode}
   {heights : Cfg → ℕ} {tag : Root (2*d+1) (∑ i, repetitions i) → Cfg}
   {g : Geometry lookupC lookupRow (2*d+1) (∑ i, repetitions i)}
-  {L : Root (2*d+1) (∑ i, repetitions i) → Type}
+  {symbolWidth : Root (2*d+1) (∑ i, repetitions i) → ℕ}
   [SampleableType (Fin 1 → K)] [SampleableType (Fin (lookupC+lookupRow) → K)]
   [∀ root, SampleableType (TestMatrix (ZMod q) (2 ^ (layout g root).front) (packedWidth (e+padding) (e+helperPadding) root))]
   [∀ root, SampleableType (Fin (layout g root).queries → Fin (2 ^ heights (tag root)))]
-  [∀ root, Field (L root)] [∀ root, Algebra (ZMod q) (L root)]
-  [∀ root, Fintype (L root)] [∀ root, DecidableEq (L root)]
-  [∀ root, SampleableType ((Fin (2 ^ (layout g root).front) × Fin (packedWidth (e+padding) (e+helperPadding) root)) → L root)]
+  [∀ root, SampleableType ((Fin (2 ^ (layout g root).front) × Fin (packedWidth (e+padding) (e+helperPadding) root)) → ZMod q)]
 
 variable {SecondK SecondLookupMessage SecondLookupResponse SecondHelperMemory : Type}
   [Field SecondK] [Algebra (ZMod q) SecondK] [Fintype SecondK] [DecidableEq SecondK] [SampleableType SecondK]
@@ -51,13 +49,11 @@ variable {SecondK SecondLookupMessage SecondLookupResponse SecondHelperMemory : 
   {secondWidths secondSizes secondRepetitions : Fin secondRequests → ℕ} {secondMode : Mode}
   {secondTag : Root (2*d+1) (∑ i, secondRepetitions i) → Cfg}
   {secondG : Geometry secondLookupC secondLookupRow (2*d+1) (∑ i, secondRepetitions i)}
-  {SecondL : Root (2*d+1) (∑ i, secondRepetitions i) → Type}
+  {secondSymbolWidth : Root (2*d+1) (∑ i, secondRepetitions i) → ℕ}
   [SampleableType (Fin 1 → SecondK)] [SampleableType (Fin (secondLookupC+secondLookupRow) → SecondK)]
   [∀ root, SampleableType (TestMatrix (ZMod q) (2 ^ (layout secondG root).front) (packedWidth (secondE+secondPadding) (secondE+secondHelperPadding) root))]
   [∀ root, SampleableType (Fin (layout secondG root).queries → Fin (2 ^ heights (secondTag root)))]
-  [∀ root, Field (SecondL root)] [∀ root, Algebra (ZMod q) (SecondL root)]
-  [∀ root, Fintype (SecondL root)] [∀ root, DecidableEq (SecondL root)]
-  [∀ root, SampleableType ((Fin (2 ^ (layout secondG root).front) × Fin (packedWidth (secondE+secondPadding) (secondE+secondHelperPadding) root)) → SecondL root)]
+  [∀ root, SampleableType ((Fin (2 ^ (layout secondG root).front) × Fin (packedWidth (secondE+secondPadding) (secondE+secondHelperPadding) root)) → ZMod q)]
 
 variable {AccResponse AccP : Type} {accB accC accR accFront accSuffix accM accQueries accHeight : ℕ}
   [Field AccP] [Algebra (ZMod q) AccP] [Fintype AccP] [DecidableEq AccP]
@@ -177,42 +173,42 @@ theorem native_safe_joint_bound [NeZero m] [NeZero b] [NeZero accM] [NeZero accB
       (((front+suffix : ℕ) : ENNReal)*(((((2*b-1 : ℕ) : ENNReal)/Fintype.card (ZMod q))^b))) +
       ((2*d+2 : ℕ) : ENNReal)*JointMatrixOpening.error (K := P) (m := m) (b := b) (queries := queries)
         (linearBase memory).domain nativeRadius ≤ linearEpsilon)
-    [∀ root : Root (2*d+1) (∑ i, repetitions i), NeZero (packedWidth (e+padding) (e+helperPadding) root)] [∀ root, NeZero (layout g root).m]
-    (analysisBasis : ∀ root, Module.Basis (Fin (packedWidth (e + padding) (e + helperPadding) root)) (ZMod q) (L root))
-    (config : MixedWidthRequestSharedLookup.Parameters (ZMod q) K LookupMessage Memory Cfg Input Digest Memory HelperMemory
+    [∀ root : Root (2*d+1) (∑ i, repetitions i), NeZero (symbolWidth root)] [∀ root, NeZero (layout g root).m]
+    (config : RectangularRequestLookup.Parameters (ZMod q) K LookupMessage Memory Cfg Input Digest Memory HelperMemory
       e padding lookupC lookupRow (2*d+1) requests widths sizes repetitions mode)
     (p : ℕ) [CharP K p] (small : 2 * 1 ≤ p)
     (domain : ∀ root, Fin (2 ^ heights (tag root)) ↪ (ZMod q))
     (lookupEnough : ∀ root, g.m root ≤ Fintype.card (Fin (2 ^ heights (tag root))))
-    (lookupCapacity : ∀ root, 2 ^ g.suffix root ≤ g.m root * packedWidth (e + padding) (e + helperPadding) root) (lookupRadius : Root (2*d+1) (∑ i, repetitions i) → ℕ)
+    (lookupCapacity : ∀ root, 2 ^ g.suffix root ≤ g.m root * symbolWidth root) (lookupRadius : Root (2*d+1) (∑ i, repetitions i) → ℕ)
     (fallback : Packet (ZMod q) K (e + padding) (2*d+1) (lookupC + lookupRow) (∑ i, repetitions i))
-    (behavior : MixedWidthStagedSharedLookup.Emission (2*d+1) (∑ i, repetitions i) Digest Memory (RequestLookupPairMiddle.Memory K HelperMemory repetitions) →
-      MixedWidthSharedLookupPCS.Selection (ZMod q) K Memory (e + padding) (2*d+1) (∑ i, repetitions i) (lookupC + lookupRow) →
-      (root : Root (2*d+1) (∑ i, repetitions i)) → Protocol (ZMod q) Input Digest Cfg LookupResponse Memory (packedWidth (e + padding) (e + helperPadding)) heights tag (layout g) root)
+    (behavior : RectangularStagedSharedLookup.Emission (2*d+1) (∑ i, repetitions i) Digest Memory (RequestLookupPairMiddle.Memory K HelperMemory repetitions) →
+      RectangularSharedLookupPCS.Selection (ZMod q) K Memory (e + padding) (2*d+1) (∑ i, repetitions i) (lookupC + lookupRow) →
+      (root : Root (2*d+1) (∑ i, repetitions i)) → Protocol (ZMod q) Input Digest Cfg LookupResponse Memory (packedWidth (e + padding) (e + helperPadding)) symbolWidth heights tag (layout g) root)
     (pairEnough : ∀ index, sizes index + 1 < Fintype.card K) (lookupSmall : ∀ index, config.active index < p)
-    (build : MixedWidthStagedSharedLookup.SourceEmission (2*d+1) Digest Memory → RequestLookupPairs.Vector K repetitions →
-      OracleComp (SharedSequence.Shared Cfg Input Digest) (MixedWidthStagedSharedLookup.HelperEmission (∑ i, repetitions i) Digest HelperMemory))
-    (distance : ∀ root, (lookupRadius root : ℚ≥0) <
-      (Code.minDist (ReedSolomon.code (SymbolLift.liftedDomain (K := L root) (domain root)) (g.m root) :
-        Set (Fin (2 ^ heights (tag root)) → L root)) : ℚ≥0) / 3)
-    [∀ root : Root (2*d+1) (∑ i, secondRepetitions i), NeZero (packedWidth (secondE+secondPadding) (secondE+secondHelperPadding) root)] [∀ root, NeZero (layout secondG root).m]
-    (secondAnalysisBasis : ∀ root, Module.Basis (Fin (packedWidth (secondE + secondPadding) (secondE + secondHelperPadding) root)) (ZMod q) (SecondL root))
-    (secondConfig : MixedWidthRequestSharedLookup.Parameters (ZMod q) SecondK SecondLookupMessage Memory Cfg Input Digest Memory SecondHelperMemory
+    (build : RectangularStagedSharedLookup.SourceEmission (2*d+1) Digest Memory → RequestLookupPairs.Vector K repetitions →
+      OracleComp (SharedSequence.Shared Cfg Input Digest) (RectangularStagedSharedLookup.HelperEmission (∑ i, repetitions i) Digest HelperMemory))
+    (distanceLarge : ∀ root, lookupRadius root < Fintype.card (ZMod q))
+    (distance : ∀ root, 3*lookupRadius root <
+      Code.minDist (BlockCode.code (domain root) (g.m root) (symbolWidth root) :
+        Set (Fin (2 ^ heights (tag root)) → Fin (symbolWidth root) → ZMod q)))
+    [∀ root : Root (2*d+1) (∑ i, secondRepetitions i), NeZero (secondSymbolWidth root)] [∀ root, NeZero (layout secondG root).m]
+    (secondConfig : RectangularRequestLookup.Parameters (ZMod q) SecondK SecondLookupMessage Memory Cfg Input Digest Memory SecondHelperMemory
       secondE secondPadding secondLookupC secondLookupRow (2*d+1) secondRequests secondWidths secondSizes secondRepetitions secondMode)
     (secondP : ℕ) [CharP SecondK secondP] (secondSmall : 2 * 1 ≤ secondP)
     (secondDomain : ∀ root, Fin (2 ^ heights (secondTag root)) ↪ (ZMod q))
     (secondLookupEnough : ∀ root, secondG.m root ≤ Fintype.card (Fin (2 ^ heights (secondTag root))))
-    (secondLookupCapacity : ∀ root, 2 ^ secondG.suffix root ≤ secondG.m root * packedWidth (secondE + secondPadding) (secondE + secondHelperPadding) root) (secondLookupRadius : Root (2*d+1) (∑ i, secondRepetitions i) → ℕ)
+    (secondLookupCapacity : ∀ root, 2 ^ secondG.suffix root ≤ secondG.m root * secondSymbolWidth root) (secondLookupRadius : Root (2*d+1) (∑ i, secondRepetitions i) → ℕ)
     (secondFallback : Packet (ZMod q) SecondK (secondE + secondPadding) (2*d+1) (secondLookupC + secondLookupRow) (∑ i, secondRepetitions i))
-    (secondBehavior : MixedWidthStagedSharedLookup.Emission (2*d+1) (∑ i, secondRepetitions i) Digest Memory (RequestLookupPairMiddle.Memory SecondK SecondHelperMemory secondRepetitions) →
-      MixedWidthSharedLookupPCS.Selection (ZMod q) SecondK Memory (secondE + secondPadding) (2*d+1) (∑ i, secondRepetitions i) (secondLookupC + secondLookupRow) →
-      (root : Root (2*d+1) (∑ i, secondRepetitions i)) → Protocol (ZMod q) Input Digest Cfg SecondLookupResponse Memory (packedWidth (secondE + secondPadding) (secondE + secondHelperPadding)) heights secondTag (layout secondG) root)
+    (secondBehavior : RectangularStagedSharedLookup.Emission (2*d+1) (∑ i, secondRepetitions i) Digest Memory (RequestLookupPairMiddle.Memory SecondK SecondHelperMemory secondRepetitions) →
+      RectangularSharedLookupPCS.Selection (ZMod q) SecondK Memory (secondE + secondPadding) (2*d+1) (∑ i, secondRepetitions i) (secondLookupC + secondLookupRow) →
+      (root : Root (2*d+1) (∑ i, secondRepetitions i)) → Protocol (ZMod q) Input Digest Cfg SecondLookupResponse Memory (packedWidth (secondE + secondPadding) (secondE + secondHelperPadding)) secondSymbolWidth heights secondTag (layout secondG) root)
     (secondPairEnough : ∀ index, secondSizes index + 1 < Fintype.card SecondK) (secondLookupSmall : ∀ index, secondConfig.active index < secondP)
-    (secondBuild : MixedWidthStagedSharedLookup.SourceEmission (2*d+1) Digest Memory → RequestLookupPairs.Vector SecondK secondRepetitions →
-      OracleComp (SharedSequence.Shared Cfg Input Digest) (MixedWidthStagedSharedLookup.HelperEmission (∑ i, secondRepetitions i) Digest SecondHelperMemory))
-    (secondDistance : ∀ root, (secondLookupRadius root : ℚ≥0) <
-      (Code.minDist (ReedSolomon.code (SymbolLift.liftedDomain (K := SecondL root) (secondDomain root)) (secondG.m root) :
-        Set (Fin (2 ^ heights (secondTag root)) → SecondL root)) : ℚ≥0) / 3)
+    (secondBuild : RectangularStagedSharedLookup.SourceEmission (2*d+1) Digest Memory → RequestLookupPairs.Vector SecondK secondRepetitions →
+      OracleComp (SharedSequence.Shared Cfg Input Digest) (RectangularStagedSharedLookup.HelperEmission (∑ i, secondRepetitions i) Digest SecondHelperMemory))
+    (secondDistanceLarge : ∀ root, secondLookupRadius root < Fintype.card (ZMod q))
+    (secondDistance : ∀ root, 3*secondLookupRadius root <
+      Code.minDist (BlockCode.code (secondDomain root) (secondG.m root) (secondSymbolWidth root) :
+        Set (Fin (2 ^ heights (secondTag root)) → Fin (secondSymbolWidth root) → ZMod q)))
     (secondBase : Memory → AuthenticatedLinear.Scheme (ZMod q) Input Digest Cfg Response Memory CommitMemory
       (2*d+2) b front suffix m queries height)
     (secondLinearEpsilon : ENNReal)
@@ -375,21 +371,21 @@ theorem native_safe_joint_bound [NeZero m] [NeZero b] [NeZero accM] [NeZero accB
       Code.minDist (BlockCode.code (compareDomain root) (compareG.m root) (compareSymbolWidth root) :
         Set (Fin (2^heights (compareTag root)) → Fin (compareSymbolWidth root) → ZMod q))) :
     let ns := AuthenticatedZeroCheck.nativeScheme q 2 firstSmall roundSmall hadNodes hs
-    let first := PackedPBSRequestComparisonStage.scheme hs.encoding config p small domain fallback behavior pairEnough build
-    let second := PackedPBSRequestComparisonStage.scheme hs.encoding secondConfig secondP secondSmall secondDomain secondFallback secondBehavior secondPairEnough secondBuild
+    let first := RectangularPBSComparisonStage.scheme (helperPadding := helperPadding) hs.encoding config p small domain fallback behavior pairEnough build
+    let second := RectangularPBSComparisonStage.scheme (helperPadding := secondHelperPadding) hs.encoding secondConfig secondP secondSmall secondDomain secondFallback secondBehavior secondPairEnough secondBuild
     let comparison := (fun memory => RectangularPBSComparisonStage.scheme (helperPadding := compareHelperPadding) (heights := first.heights) ns.encoding (compareConfig memory) compareP compareSmall compareDomain compareFallback (compareBehavior memory) comparePairEnough (compareBuild memory))
     Pr{let outcome ← (PackedPBSKeySwitchComparisons.witness length psi primitive family inputs base ns nodesEnough radix linearBase dummy first second secondBase accumulators factory monoLength evaluations monoBase zeroFirstSmall zeroRoundSmall zeroNodesEnough rotations zeroBase
       accLength inputReference inputLength inputSmall inputBase finalFamily finalNodes finalLength finalBase productFirstSmall productRoundSmall productNodes productBase finalRadix reconstructionBase comparison (CheckpointExecution.empty (RecordedSourceCoherence.Shape Cfg height)))}[
       (((fun outcome => (((fun outcome => (((fun outcome => (((fun outcome => (((fun previous => (((fun prior => ((((PackedPBSReconstructionJointBound.Risk length psi primitive family inputs base ns nodesEnough radix linearBase dummy nativeCapacity nativeRadius prior.1.1.1.1 ∨
           ∃ compared, prior.1.1.1.2 = some compared ∧
-            MixedWidthOwnedRequestSources.OriginalFalse hs.encoding dummy config domain lookupCapacity lookupRadius compared ∧
+            RectangularOwnedRequestSources.OriginalFalse hs.encoding dummy config domain lookupCapacity lookupRadius compared ∧
               compared.2.2.1.2.accepted = true) ∨
         ∃ compared child, prior.1.1.1.2 = some compared ∧ prior.1.1.2 = some child ∧
           AmbientLinear.OriginalRisk heights
             (PackedPBSSecondReconstruction.reconstruction family inputs ns nodesEnough radix secondBase compared.2.2.1.2.memory)
             dummy nativeCapacity nativeRadius child) ∨
         ∃ compared, prior.1.2 = some compared ∧
-          (MixedWidthOwnedRequestSources.OriginalFalse hs.encoding dummy secondConfig secondDomain secondLookupCapacity secondLookupRadius compared ∧
+          (RectangularOwnedRequestSources.OriginalFalse hs.encoding dummy secondConfig secondDomain secondLookupCapacity secondLookupRadius compared ∧
             compared.2.2.1.2.accepted = true)) ∨ ∃ compared child, prior.1.2 = some compared ∧ prior.2 = some child ∧
         OwnedAmbientAccumulator.OriginalRisk heights
           (PackedPBSAccumulator.accumulator family inputs ns accumulators factory compared.2.2.1.2.memory)
@@ -410,9 +406,9 @@ theorem native_safe_joint_bound [NeZero m] [NeZero b] [NeZero accM] [NeZero accB
           comparison (PackedPBSKeySwitchReconstruction.finalState first second finalBase productBase reconstructionBase) outcome)] ≤
       (((((((((((PackedPBSHadamardNTTJointBound.rate (K := P) hs nativeRadius + ((List.finRange (2*d+1)).map nttEpsilon).sum) + linearEpsilon) +
         (RequestLookupPairMiddle.errorBudget (Fintype.card K) widths sizes config.active repetitions +
-          (error K mode (lookupC+lookupRow) + MixedWidthStagedSharedLookup.pcsError (d := e) (padding := padding) (helperPadding := helperPadding) (g := g) L domain lookupRadius))) + secondLinearEpsilon) +
+          (error K mode (lookupC+lookupRow) + RectangularStagedSharedLookup.pcsError (d := e) (padding := padding) (helperPadding := helperPadding) (g := g) (symbolWidth := symbolWidth) domain lookupRadius))) + secondLinearEpsilon) +
         (RequestLookupPairMiddle.errorBudget (Fintype.card SecondK) secondWidths secondSizes secondConfig.active secondRepetitions +
-          (error SecondK secondMode (secondLookupC+secondLookupRow) + MixedWidthStagedSharedLookup.pcsError (d := secondE) (padding := secondPadding) (helperPadding := secondHelperPadding) (g := secondG) SecondL secondDomain secondLookupRadius))) + accEpsilon) + ((monoEpsilon false + monoEpsilon true) + zeroEpsilon)) + inputEpsilon) + ((List.finRange (finalD+1)).map finalEpsilon).sum) + productEpsilon) + reconstructionEpsilon) + (RequestLookupPairMiddle.errorBudget (Fintype.card CompareK) compareWidths compareSizes
+          (error SecondK secondMode (secondLookupC+secondLookupRow) + RectangularStagedSharedLookup.pcsError (d := secondE) (padding := secondPadding) (helperPadding := secondHelperPadding) (g := secondG) (symbolWidth := secondSymbolWidth) secondDomain secondLookupRadius))) + accEpsilon) + ((monoEpsilon false + monoEpsilon true) + zeroEpsilon)) + inputEpsilon) + ((List.finRange (finalD+1)).map finalEpsilon).sum) + productEpsilon) + reconstructionEpsilon) + (RequestLookupPairMiddle.errorBudget (Fintype.card CompareK) compareWidths compareSizes
         (fun _ => 2^(compareC+compareRow)) compareRepetitions +
       (error CompareK compareMode (compareC+compareRow) + RectangularStagedSharedLookup.pcsError
         (d := compareE) (padding := comparePadding) (helperPadding := compareHelperPadding)
@@ -425,11 +421,11 @@ theorem native_safe_joint_bound [NeZero m] [NeZero b] [NeZero accM] [NeZero accB
       (CheckpointExecution.empty (Input := Input) (Digest := Digest) (RecordedSourceCoherence.Shape Cfg height)).checkpoints := by
     intro tag saved member
     cases member
-  have previous := PackedPBSKeySwitchReconstructionNativeJointBound.native_safe_joint_bound length psi primitive family inputs base firstSmall roundSmall hadNodes hs
+  have previous := PackedPBSKeySwitchReconstructionRectangularBound.native_safe_joint_bound length psi primitive family inputs base firstSmall roundSmall hadNodes hs
     nodesEnough radix linearBase nativeBasis dummy nativeEnough nativeCapacity nativeRadius nttEpsilon linearEpsilon nttEncoding linearEncoding
-    hadSmall nttSmall linearSmall nttCalibrated linearCalibrated analysisBasis config p small domain lookupEnough lookupCapacity lookupRadius
-    fallback behavior pairEnough lookupSmall build distance secondAnalysisBasis secondConfig secondP secondSmall secondDomain secondLookupEnough
-    secondLookupCapacity secondLookupRadius secondFallback secondBehavior secondPairEnough secondLookupSmall secondBuild secondDistance
+    hadSmall nttSmall linearSmall nttCalibrated linearCalibrated config p small domain lookupEnough lookupCapacity lookupRadius
+    fallback behavior pairEnough lookupSmall build distanceLarge distance secondConfig secondP secondSmall secondDomain secondLookupEnough
+    secondLookupCapacity secondLookupRadius secondFallback secondBehavior secondPairEnough secondLookupSmall secondBuild secondDistanceLarge secondDistance
     secondBase secondLinearEpsilon secondGeometry secondLinearSmall secondLinearCalibrated accumulators factory accBasis accEnough accCapacity
     accRadius accEpsilon accGeometry accSmall accCalibrated monoLength evaluations monoBase zeroFirstSmall zeroRoundSmall zeroNodesEnough rotations zeroBase
     monoBasis monoEnough monoCapacity monoRadius monoEpsilon monoGeometry monoSmall monoCalibrated
@@ -438,24 +434,24 @@ theorem native_safe_joint_bound [NeZero m] [NeZero b] [NeZero accM] [NeZero accB
     finalBasis finalEnough finalCapacity finalRadius finalEpsilon finalSmall finalCalibrated productFirstSmall productRoundSmall productNodes productBase
     productBasis productEnough productCapacity productRadius productEpsilon productSmall productCalibrated finalRadix reconstructionBase
     reconstructionBasis reconstructionEnough reconstructionCapacity reconstructionRadius reconstructionEpsilon reconstructionSmall reconstructionCalibrated restricted
-  have compared := PackedPBSRectangularComparisonBound.safe_comparison_bound length psi primitive family inputs base (AuthenticatedZeroCheck.nativeScheme q 2 firstSmall roundSmall hadNodes hs) nodesEnough radix linearBase dummy (PackedPBSRequestComparisonStage.scheme hs.encoding config p small domain fallback behavior pairEnough build) (PackedPBSRequestComparisonStage.scheme hs.encoding secondConfig secondP secondSmall secondDomain secondFallback secondBehavior secondPairEnough secondBuild) secondBase accumulators factory monoLength evaluations monoBase zeroFirstSmall zeroRoundSmall zeroNodesEnough rotations zeroBase
+  have compared := PackedPBSRectangularComparisonBound.safe_comparison_bound length psi primitive family inputs base (AuthenticatedZeroCheck.nativeScheme q 2 firstSmall roundSmall hadNodes hs) nodesEnough radix linearBase dummy (RectangularPBSComparisonStage.scheme (helperPadding := helperPadding) hs.encoding config p small domain fallback behavior pairEnough build) (RectangularPBSComparisonStage.scheme (helperPadding := secondHelperPadding) hs.encoding secondConfig secondP secondSmall secondDomain secondFallback secondBehavior secondPairEnough secondBuild) secondBase accumulators factory monoLength evaluations monoBase zeroFirstSmall zeroRoundSmall zeroNodesEnough rotations zeroBase
       accLength inputReference inputLength inputSmall inputBase finalFamily finalNodes finalLength finalBase productFirstSmall productRoundSmall productNodes productBase finalRadix reconstructionBase (CheckpointExecution.empty (RecordedSourceCoherence.Shape Cfg height)) compatible restricted audited compareTags compareConfig compareP compareSmall compareDomain compareEnough compareCapacity compareRadius compareFallback compareBehavior comparePairEnough compareLookupSmall compareBuild compareDistanceLarge compareDistance
   dsimp only at previous compared ⊢
   unfold PackedPBSKeySwitchComparisons.witness at compared ⊢
-  have joiner := RetainedPaddedComparisonJointBound.safe_joint_bound (H := (PackedPBSRequestComparisonStage.scheme hs.encoding config p small domain fallback behavior pairEnough build).heights) (Before := (PriorBefore (PackedPBSRequestComparisonStage.scheme hs.encoding config p small domain fallback behavior pairEnough build) (PackedPBSRequestComparisonStage.scheme hs.encoding secondConfig secondP secondSmall secondDomain secondFallback secondBehavior secondPairEnough secondBuild) finalBase productBase × Option (PackedPBSKeySwitchReconstruction.ReconstructionChild (PackedPBSRequestComparisonStage.scheme hs.encoding config p small domain fallback behavior pairEnough build).heights reconstructionBase)))
-    (fun memory => KeySwitchPaddedReconstruction.stage (reconstructionBase memory) (AuthenticatedZeroCheck.nativeScheme q 2 firstSmall roundSmall hadNodes hs).encoding inputReference finalFamily finalNodes finalRadix) (fun memory => RectangularPBSComparisonStage.scheme (helperPadding := compareHelperPadding) (heights := (PackedPBSRequestComparisonStage.scheme hs.encoding config p small domain fallback behavior pairEnough build).heights) (AuthenticatedZeroCheck.nativeScheme q 2 firstSmall roundSmall hadNodes hs).encoding (compareConfig memory) compareP compareSmall compareDomain compareFallback (compareBehavior memory) comparePairEnough (compareBuild memory)) (fun before : (PriorBefore (PackedPBSRequestComparisonStage.scheme hs.encoding config p small domain fallback behavior pairEnough build) (PackedPBSRequestComparisonStage.scheme hs.encoding secondConfig secondP secondSmall secondDomain secondFallback secondBehavior secondPairEnough secondBuild) finalBase productBase × Option (PackedPBSKeySwitchReconstruction.ReconstructionChild (PackedPBSRequestComparisonStage.scheme hs.encoding config p small domain fallback behavior pairEnough build).heights reconstructionBase)) => before.2)
-    (PackedPBSKeySwitchReconstruction.finalState (PackedPBSRequestComparisonStage.scheme hs.encoding config p small domain fallback behavior pairEnough build) (PackedPBSRequestComparisonStage.scheme hs.encoding secondConfig secondP secondSmall secondDomain secondFallback secondBehavior secondPairEnough secondBuild) finalBase productBase reconstructionBase) dummy (PackedPBSKeySwitchReconstruction.witness length psi primitive family inputs base (AuthenticatedZeroCheck.nativeScheme q 2 firstSmall roundSmall hadNodes hs) nodesEnough radix linearBase dummy (PackedPBSRequestComparisonStage.scheme hs.encoding config p small domain fallback behavior pairEnough build) (PackedPBSRequestComparisonStage.scheme hs.encoding secondConfig secondP secondSmall secondDomain secondFallback secondBehavior secondPairEnough secondBuild) secondBase accumulators factory monoLength evaluations monoBase zeroFirstSmall zeroRoundSmall zeroNodesEnough rotations zeroBase
+  have joiner := RetainedPaddedComparisonJointBound.safe_joint_bound (H := (RectangularPBSComparisonStage.scheme (helperPadding := helperPadding) hs.encoding config p small domain fallback behavior pairEnough build).heights) (Before := (PriorBefore (RectangularPBSComparisonStage.scheme (helperPadding := helperPadding) hs.encoding config p small domain fallback behavior pairEnough build) (RectangularPBSComparisonStage.scheme (helperPadding := secondHelperPadding) hs.encoding secondConfig secondP secondSmall secondDomain secondFallback secondBehavior secondPairEnough secondBuild) finalBase productBase × Option (PackedPBSKeySwitchReconstruction.ReconstructionChild (RectangularPBSComparisonStage.scheme (helperPadding := helperPadding) hs.encoding config p small domain fallback behavior pairEnough build).heights reconstructionBase)))
+    (fun memory => KeySwitchPaddedReconstruction.stage (reconstructionBase memory) (AuthenticatedZeroCheck.nativeScheme q 2 firstSmall roundSmall hadNodes hs).encoding inputReference finalFamily finalNodes finalRadix) (fun memory => RectangularPBSComparisonStage.scheme (helperPadding := compareHelperPadding) (heights := (RectangularPBSComparisonStage.scheme (helperPadding := helperPadding) hs.encoding config p small domain fallback behavior pairEnough build).heights) (AuthenticatedZeroCheck.nativeScheme q 2 firstSmall roundSmall hadNodes hs).encoding (compareConfig memory) compareP compareSmall compareDomain compareFallback (compareBehavior memory) comparePairEnough (compareBuild memory)) (fun before : (PriorBefore (RectangularPBSComparisonStage.scheme (helperPadding := helperPadding) hs.encoding config p small domain fallback behavior pairEnough build) (RectangularPBSComparisonStage.scheme (helperPadding := secondHelperPadding) hs.encoding secondConfig secondP secondSmall secondDomain secondFallback secondBehavior secondPairEnough secondBuild) finalBase productBase × Option (PackedPBSKeySwitchReconstruction.ReconstructionChild (RectangularPBSComparisonStage.scheme (helperPadding := helperPadding) hs.encoding config p small domain fallback behavior pairEnough build).heights reconstructionBase)) => before.2)
+    (PackedPBSKeySwitchReconstruction.finalState (RectangularPBSComparisonStage.scheme (helperPadding := helperPadding) hs.encoding config p small domain fallback behavior pairEnough build) (RectangularPBSComparisonStage.scheme (helperPadding := secondHelperPadding) hs.encoding secondConfig secondP secondSmall secondDomain secondFallback secondBehavior secondPairEnough secondBuild) finalBase productBase reconstructionBase) dummy (PackedPBSKeySwitchReconstruction.witness length psi primitive family inputs base (AuthenticatedZeroCheck.nativeScheme q 2 firstSmall roundSmall hadNodes hs) nodesEnough radix linearBase dummy (RectangularPBSComparisonStage.scheme (helperPadding := helperPadding) hs.encoding config p small domain fallback behavior pairEnough build) (RectangularPBSComparisonStage.scheme (helperPadding := secondHelperPadding) hs.encoding secondConfig secondP secondSmall secondDomain secondFallback secondBehavior secondPairEnough secondBuild) secondBase accumulators factory monoLength evaluations monoBase zeroFirstSmall zeroRoundSmall zeroNodesEnough rotations zeroBase
       accLength inputReference inputLength inputSmall inputBase finalFamily finalNodes finalLength finalBase productFirstSmall productRoundSmall productNodes productBase finalRadix reconstructionBase (CheckpointExecution.empty (RecordedSourceCoherence.Shape Cfg height)))
     (fun outcome => (((fun outcome => (((fun outcome => (((fun outcome => (((fun previous => (((fun prior => ((((PackedPBSReconstructionJointBound.Risk length psi primitive family inputs base (AuthenticatedZeroCheck.nativeScheme q 2 firstSmall roundSmall hadNodes hs) nodesEnough radix linearBase dummy nativeCapacity nativeRadius prior.1.1.1.1 ∨
           ∃ compared, prior.1.1.1.2 = some compared ∧
-            MixedWidthOwnedRequestSources.OriginalFalse hs.encoding dummy config domain lookupCapacity lookupRadius compared ∧
+            RectangularOwnedRequestSources.OriginalFalse hs.encoding dummy config domain lookupCapacity lookupRadius compared ∧
               compared.2.2.1.2.accepted = true) ∨
         ∃ compared child, prior.1.1.1.2 = some compared ∧ prior.1.1.2 = some child ∧
           AmbientLinear.OriginalRisk heights
             (PackedPBSSecondReconstruction.reconstruction family inputs (AuthenticatedZeroCheck.nativeScheme q 2 firstSmall roundSmall hadNodes hs) nodesEnough radix secondBase compared.2.2.1.2.memory)
             dummy nativeCapacity nativeRadius child) ∨
         ∃ compared, prior.1.2 = some compared ∧
-          (MixedWidthOwnedRequestSources.OriginalFalse hs.encoding dummy secondConfig secondDomain secondLookupCapacity secondLookupRadius compared ∧
+          (RectangularOwnedRequestSources.OriginalFalse hs.encoding dummy secondConfig secondDomain secondLookupCapacity secondLookupRadius compared ∧
             compared.2.2.1.2.accepted = true)) ∨ ∃ compared child, prior.1.2 = some compared ∧ prior.2 = some child ∧
         OwnedAmbientAccumulator.OriginalRisk heights
           (PackedPBSAccumulator.accumulator family inputs (AuthenticatedZeroCheck.nativeScheme q 2 firstSmall roundSmall hadNodes hs) accumulators factory compared.2.2.1.2.memory)
@@ -469,9 +465,9 @@ theorem native_safe_joint_bound [NeZero m] [NeZero b] [NeZero accM] [NeZero accB
         (reconstructionCapacity reconstructed.1) (reconstructionRadius reconstructed.1) reconstructed.2)))
     (fun result => RectangularOwnedRequestSources.OriginalFalse hs.encoding dummy (compareConfig result.1.1) compareDomain compareCapacity compareRadius result.2 ∧ result.2.2.2.1.2.accepted = true) (((((((((((PackedPBSHadamardNTTJointBound.rate (K := P) hs nativeRadius + ((List.finRange (2*d+1)).map nttEpsilon).sum) + linearEpsilon) +
         (RequestLookupPairMiddle.errorBudget (Fintype.card K) widths sizes config.active repetitions +
-          (error K mode (lookupC+lookupRow) + MixedWidthStagedSharedLookup.pcsError (d := e) (padding := padding) (helperPadding := helperPadding) (g := g) L domain lookupRadius))) + secondLinearEpsilon) +
+          (error K mode (lookupC+lookupRow) + RectangularStagedSharedLookup.pcsError (d := e) (padding := padding) (helperPadding := helperPadding) (g := g) (symbolWidth := symbolWidth) domain lookupRadius))) + secondLinearEpsilon) +
         (RequestLookupPairMiddle.errorBudget (Fintype.card SecondK) secondWidths secondSizes secondConfig.active secondRepetitions +
-          (error SecondK secondMode (secondLookupC+secondLookupRow) + MixedWidthStagedSharedLookup.pcsError (d := secondE) (padding := secondPadding) (helperPadding := secondHelperPadding) (g := secondG) SecondL secondDomain secondLookupRadius))) + accEpsilon) + ((monoEpsilon false + monoEpsilon true) + zeroEpsilon)) + inputEpsilon) + ((List.finRange (finalD+1)).map finalEpsilon).sum) + productEpsilon) + reconstructionEpsilon) (RequestLookupPairMiddle.errorBudget (Fintype.card CompareK) compareWidths compareSizes
+          (error SecondK secondMode (secondLookupC+secondLookupRow) + RectangularStagedSharedLookup.pcsError (d := secondE) (padding := secondPadding) (helperPadding := secondHelperPadding) (g := secondG) (symbolWidth := secondSymbolWidth) secondDomain secondLookupRadius))) + accEpsilon) + ((monoEpsilon false + monoEpsilon true) + zeroEpsilon)) + inputEpsilon) + ((List.finRange (finalD+1)).map finalEpsilon).sum) + productEpsilon) + reconstructionEpsilon) (RequestLookupPairMiddle.errorBudget (Fintype.card CompareK) compareWidths compareSizes
         (fun _ => 2^(compareC+compareRow)) compareRepetitions +
       (error CompareK compareMode (compareC+compareRow) + RectangularStagedSharedLookup.pcsError
         (d := compareE) (padding := comparePadding) (helperPadding := compareHelperPadding)
@@ -514,42 +510,42 @@ theorem native_risk_or_bad_bound [Fintype Digest] [NeZero m] [NeZero b] [NeZero 
       (((front+suffix : ℕ) : ENNReal)*(((((2*b-1 : ℕ) : ENNReal)/Fintype.card (ZMod q))^b))) +
       ((2*d+2 : ℕ) : ENNReal)*JointMatrixOpening.error (K := P) (m := m) (b := b) (queries := queries)
         (linearBase memory).domain nativeRadius ≤ linearEpsilon)
-    [∀ root : Root (2*d+1) (∑ i, repetitions i), NeZero (packedWidth (e+padding) (e+helperPadding) root)] [∀ root, NeZero (layout g root).m]
-    (analysisBasis : ∀ root, Module.Basis (Fin (packedWidth (e + padding) (e + helperPadding) root)) (ZMod q) (L root))
-    (config : MixedWidthRequestSharedLookup.Parameters (ZMod q) K LookupMessage Memory Cfg Input Digest Memory HelperMemory
+    [∀ root : Root (2*d+1) (∑ i, repetitions i), NeZero (symbolWidth root)] [∀ root, NeZero (layout g root).m]
+    (config : RectangularRequestLookup.Parameters (ZMod q) K LookupMessage Memory Cfg Input Digest Memory HelperMemory
       e padding lookupC lookupRow (2*d+1) requests widths sizes repetitions mode)
     (p : ℕ) [CharP K p] (small : 2 * 1 ≤ p)
     (domain : ∀ root, Fin (2 ^ heights (tag root)) ↪ (ZMod q))
     (lookupEnough : ∀ root, g.m root ≤ Fintype.card (Fin (2 ^ heights (tag root))))
-    (lookupCapacity : ∀ root, 2 ^ g.suffix root ≤ g.m root * packedWidth (e + padding) (e + helperPadding) root) (lookupRadius : Root (2*d+1) (∑ i, repetitions i) → ℕ)
+    (lookupCapacity : ∀ root, 2 ^ g.suffix root ≤ g.m root * symbolWidth root) (lookupRadius : Root (2*d+1) (∑ i, repetitions i) → ℕ)
     (fallback : Packet (ZMod q) K (e + padding) (2*d+1) (lookupC + lookupRow) (∑ i, repetitions i))
-    (behavior : MixedWidthStagedSharedLookup.Emission (2*d+1) (∑ i, repetitions i) Digest Memory (RequestLookupPairMiddle.Memory K HelperMemory repetitions) →
-      MixedWidthSharedLookupPCS.Selection (ZMod q) K Memory (e + padding) (2*d+1) (∑ i, repetitions i) (lookupC + lookupRow) →
-      (root : Root (2*d+1) (∑ i, repetitions i)) → Protocol (ZMod q) Input Digest Cfg LookupResponse Memory (packedWidth (e + padding) (e + helperPadding)) heights tag (layout g) root)
+    (behavior : RectangularStagedSharedLookup.Emission (2*d+1) (∑ i, repetitions i) Digest Memory (RequestLookupPairMiddle.Memory K HelperMemory repetitions) →
+      RectangularSharedLookupPCS.Selection (ZMod q) K Memory (e + padding) (2*d+1) (∑ i, repetitions i) (lookupC + lookupRow) →
+      (root : Root (2*d+1) (∑ i, repetitions i)) → Protocol (ZMod q) Input Digest Cfg LookupResponse Memory (packedWidth (e + padding) (e + helperPadding)) symbolWidth heights tag (layout g) root)
     (pairEnough : ∀ index, sizes index + 1 < Fintype.card K) (lookupSmall : ∀ index, config.active index < p)
-    (build : MixedWidthStagedSharedLookup.SourceEmission (2*d+1) Digest Memory → RequestLookupPairs.Vector K repetitions →
-      OracleComp (SharedSequence.Shared Cfg Input Digest) (MixedWidthStagedSharedLookup.HelperEmission (∑ i, repetitions i) Digest HelperMemory))
-    (distance : ∀ root, (lookupRadius root : ℚ≥0) <
-      (Code.minDist (ReedSolomon.code (SymbolLift.liftedDomain (K := L root) (domain root)) (g.m root) :
-        Set (Fin (2 ^ heights (tag root)) → L root)) : ℚ≥0) / 3)
-    [∀ root : Root (2*d+1) (∑ i, secondRepetitions i), NeZero (packedWidth (secondE+secondPadding) (secondE+secondHelperPadding) root)] [∀ root, NeZero (layout secondG root).m]
-    (secondAnalysisBasis : ∀ root, Module.Basis (Fin (packedWidth (secondE + secondPadding) (secondE + secondHelperPadding) root)) (ZMod q) (SecondL root))
-    (secondConfig : MixedWidthRequestSharedLookup.Parameters (ZMod q) SecondK SecondLookupMessage Memory Cfg Input Digest Memory SecondHelperMemory
+    (build : RectangularStagedSharedLookup.SourceEmission (2*d+1) Digest Memory → RequestLookupPairs.Vector K repetitions →
+      OracleComp (SharedSequence.Shared Cfg Input Digest) (RectangularStagedSharedLookup.HelperEmission (∑ i, repetitions i) Digest HelperMemory))
+    (distanceLarge : ∀ root, lookupRadius root < Fintype.card (ZMod q))
+    (distance : ∀ root, 3*lookupRadius root <
+      Code.minDist (BlockCode.code (domain root) (g.m root) (symbolWidth root) :
+        Set (Fin (2 ^ heights (tag root)) → Fin (symbolWidth root) → ZMod q)))
+    [∀ root : Root (2*d+1) (∑ i, secondRepetitions i), NeZero (secondSymbolWidth root)] [∀ root, NeZero (layout secondG root).m]
+    (secondConfig : RectangularRequestLookup.Parameters (ZMod q) SecondK SecondLookupMessage Memory Cfg Input Digest Memory SecondHelperMemory
       secondE secondPadding secondLookupC secondLookupRow (2*d+1) secondRequests secondWidths secondSizes secondRepetitions secondMode)
     (secondP : ℕ) [CharP SecondK secondP] (secondSmall : 2 * 1 ≤ secondP)
     (secondDomain : ∀ root, Fin (2 ^ heights (secondTag root)) ↪ (ZMod q))
     (secondLookupEnough : ∀ root, secondG.m root ≤ Fintype.card (Fin (2 ^ heights (secondTag root))))
-    (secondLookupCapacity : ∀ root, 2 ^ secondG.suffix root ≤ secondG.m root * packedWidth (secondE + secondPadding) (secondE + secondHelperPadding) root) (secondLookupRadius : Root (2*d+1) (∑ i, secondRepetitions i) → ℕ)
+    (secondLookupCapacity : ∀ root, 2 ^ secondG.suffix root ≤ secondG.m root * secondSymbolWidth root) (secondLookupRadius : Root (2*d+1) (∑ i, secondRepetitions i) → ℕ)
     (secondFallback : Packet (ZMod q) SecondK (secondE + secondPadding) (2*d+1) (secondLookupC + secondLookupRow) (∑ i, secondRepetitions i))
-    (secondBehavior : MixedWidthStagedSharedLookup.Emission (2*d+1) (∑ i, secondRepetitions i) Digest Memory (RequestLookupPairMiddle.Memory SecondK SecondHelperMemory secondRepetitions) →
-      MixedWidthSharedLookupPCS.Selection (ZMod q) SecondK Memory (secondE + secondPadding) (2*d+1) (∑ i, secondRepetitions i) (secondLookupC + secondLookupRow) →
-      (root : Root (2*d+1) (∑ i, secondRepetitions i)) → Protocol (ZMod q) Input Digest Cfg SecondLookupResponse Memory (packedWidth (secondE + secondPadding) (secondE + secondHelperPadding)) heights secondTag (layout secondG) root)
+    (secondBehavior : RectangularStagedSharedLookup.Emission (2*d+1) (∑ i, secondRepetitions i) Digest Memory (RequestLookupPairMiddle.Memory SecondK SecondHelperMemory secondRepetitions) →
+      RectangularSharedLookupPCS.Selection (ZMod q) SecondK Memory (secondE + secondPadding) (2*d+1) (∑ i, secondRepetitions i) (secondLookupC + secondLookupRow) →
+      (root : Root (2*d+1) (∑ i, secondRepetitions i)) → Protocol (ZMod q) Input Digest Cfg SecondLookupResponse Memory (packedWidth (secondE + secondPadding) (secondE + secondHelperPadding)) secondSymbolWidth heights secondTag (layout secondG) root)
     (secondPairEnough : ∀ index, secondSizes index + 1 < Fintype.card SecondK) (secondLookupSmall : ∀ index, secondConfig.active index < secondP)
-    (secondBuild : MixedWidthStagedSharedLookup.SourceEmission (2*d+1) Digest Memory → RequestLookupPairs.Vector SecondK secondRepetitions →
-      OracleComp (SharedSequence.Shared Cfg Input Digest) (MixedWidthStagedSharedLookup.HelperEmission (∑ i, secondRepetitions i) Digest SecondHelperMemory))
-    (secondDistance : ∀ root, (secondLookupRadius root : ℚ≥0) <
-      (Code.minDist (ReedSolomon.code (SymbolLift.liftedDomain (K := SecondL root) (secondDomain root)) (secondG.m root) :
-        Set (Fin (2 ^ heights (secondTag root)) → SecondL root)) : ℚ≥0) / 3)
+    (secondBuild : RectangularStagedSharedLookup.SourceEmission (2*d+1) Digest Memory → RequestLookupPairs.Vector SecondK secondRepetitions →
+      OracleComp (SharedSequence.Shared Cfg Input Digest) (RectangularStagedSharedLookup.HelperEmission (∑ i, secondRepetitions i) Digest SecondHelperMemory))
+    (secondDistanceLarge : ∀ root, secondLookupRadius root < Fintype.card (ZMod q))
+    (secondDistance : ∀ root, 3*secondLookupRadius root <
+      Code.minDist (BlockCode.code (secondDomain root) (secondG.m root) (secondSymbolWidth root) :
+        Set (Fin (2 ^ heights (secondTag root)) → Fin (secondSymbolWidth root) → ZMod q)))
     (secondBase : Memory → AuthenticatedLinear.Scheme (ZMod q) Input Digest Cfg Response Memory CommitMemory
       (2*d+2) b front suffix m queries height)
     (secondLinearEpsilon : ENNReal)
@@ -712,21 +708,21 @@ theorem native_risk_or_bad_bound [Fintype Digest] [NeZero m] [NeZero b] [NeZero 
       Code.minDist (BlockCode.code (compareDomain root) (compareG.m root) (compareSymbolWidth root) :
         Set (Fin (2^heights (compareTag root)) → Fin (compareSymbolWidth root) → ZMod q))) :
     let ns := AuthenticatedZeroCheck.nativeScheme q 2 firstSmall roundSmall hadNodes hs
-    let first := PackedPBSRequestComparisonStage.scheme hs.encoding config p small domain fallback behavior pairEnough build
-    let second := PackedPBSRequestComparisonStage.scheme hs.encoding secondConfig secondP secondSmall secondDomain secondFallback secondBehavior secondPairEnough secondBuild
+    let first := RectangularPBSComparisonStage.scheme (helperPadding := helperPadding) hs.encoding config p small domain fallback behavior pairEnough build
+    let second := RectangularPBSComparisonStage.scheme (helperPadding := secondHelperPadding) hs.encoding secondConfig secondP secondSmall secondDomain secondFallback secondBehavior secondPairEnough secondBuild
     let comparison := (fun memory => RectangularPBSComparisonStage.scheme (helperPadding := compareHelperPadding) (heights := first.heights) ns.encoding (compareConfig memory) compareP compareSmall compareDomain compareFallback (compareBehavior memory) comparePairEnough (compareBuild memory))
     Pr{let outcome ← (PackedPBSKeySwitchComparisons.witness length psi primitive family inputs base ns nodesEnough radix linearBase dummy first second secondBase accumulators factory monoLength evaluations monoBase zeroFirstSmall zeroRoundSmall zeroNodesEnough rotations zeroBase
       accLength inputReference inputLength inputSmall inputBase finalFamily finalNodes finalLength finalBase productFirstSmall productRoundSmall productNodes productBase finalRadix reconstructionBase comparison (CheckpointExecution.empty (RecordedSourceCoherence.Shape Cfg height)))}[
       ((((fun outcome => (((fun outcome => (((fun outcome => (((fun outcome => (((fun previous => (((fun prior => ((((PackedPBSReconstructionJointBound.Risk length psi primitive family inputs base ns nodesEnough radix linearBase dummy nativeCapacity nativeRadius prior.1.1.1.1 ∨
           ∃ compared, prior.1.1.1.2 = some compared ∧
-            MixedWidthOwnedRequestSources.OriginalFalse hs.encoding dummy config domain lookupCapacity lookupRadius compared ∧
+            RectangularOwnedRequestSources.OriginalFalse hs.encoding dummy config domain lookupCapacity lookupRadius compared ∧
               compared.2.2.1.2.accepted = true) ∨
         ∃ compared child, prior.1.1.1.2 = some compared ∧ prior.1.1.2 = some child ∧
           AmbientLinear.OriginalRisk heights
             (PackedPBSSecondReconstruction.reconstruction family inputs ns nodesEnough radix secondBase compared.2.2.1.2.memory)
             dummy nativeCapacity nativeRadius child) ∨
         ∃ compared, prior.1.2 = some compared ∧
-          (MixedWidthOwnedRequestSources.OriginalFalse hs.encoding dummy secondConfig secondDomain secondLookupCapacity secondLookupRadius compared ∧
+          (RectangularOwnedRequestSources.OriginalFalse hs.encoding dummy secondConfig secondDomain secondLookupCapacity secondLookupRadius compared ∧
             compared.2.2.1.2.accepted = true)) ∨ ∃ compared child, prior.1.2 = some compared ∧ prior.2 = some child ∧
         OwnedAmbientAccumulator.OriginalRisk heights
           (PackedPBSAccumulator.accumulator family inputs ns accumulators factory compared.2.2.1.2.memory)
@@ -746,9 +742,9 @@ theorem native_risk_or_bad_bound [Fintype Digest] [NeZero m] [NeZero b] [NeZero 
           comparison (PackedPBSKeySwitchReconstruction.finalState first second finalBase productBase reconstructionBase) outcome))] ≤
       ((((((((((((PackedPBSHadamardNTTJointBound.rate (K := P) hs nativeRadius + ((List.finRange (2*d+1)).map nttEpsilon).sum) + linearEpsilon) +
         (RequestLookupPairMiddle.errorBudget (Fintype.card K) widths sizes config.active repetitions +
-          (error K mode (lookupC+lookupRow) + MixedWidthStagedSharedLookup.pcsError (d := e) (padding := padding) (helperPadding := helperPadding) (g := g) L domain lookupRadius))) + secondLinearEpsilon) +
+          (error K mode (lookupC+lookupRow) + RectangularStagedSharedLookup.pcsError (d := e) (padding := padding) (helperPadding := helperPadding) (g := g) (symbolWidth := symbolWidth) domain lookupRadius))) + secondLinearEpsilon) +
         (RequestLookupPairMiddle.errorBudget (Fintype.card SecondK) secondWidths secondSizes secondConfig.active secondRepetitions +
-          (error SecondK secondMode (secondLookupC+secondLookupRow) + MixedWidthStagedSharedLookup.pcsError (d := secondE) (padding := secondPadding) (helperPadding := secondHelperPadding) (g := secondG) SecondL secondDomain secondLookupRadius))) + accEpsilon) + ((monoEpsilon false + monoEpsilon true) + zeroEpsilon)) + inputEpsilon) + ((List.finRange (finalD+1)).map finalEpsilon).sum) + productEpsilon) + reconstructionEpsilon) + (RequestLookupPairMiddle.errorBudget (Fintype.card CompareK) compareWidths compareSizes
+          (error SecondK secondMode (secondLookupC+secondLookupRow) + RectangularStagedSharedLookup.pcsError (d := secondE) (padding := secondPadding) (helperPadding := secondHelperPadding) (g := secondG) (symbolWidth := secondSymbolWidth) secondDomain secondLookupRadius))) + accEpsilon) + ((monoEpsilon false + monoEpsilon true) + zeroEpsilon)) + inputEpsilon) + ((List.finRange (finalD+1)).map finalEpsilon).sum) + productEpsilon) + reconstructionEpsilon) + (RequestLookupPairMiddle.errorBudget (Fintype.card CompareK) compareWidths compareSizes
         (fun _ => 2^(compareC+compareRow)) compareRepetitions +
       (error CompareK compareMode (compareC+compareRow) + RectangularStagedSharedLookup.pcsError
         (d := compareE) (padding := comparePadding) (helperPadding := compareHelperPadding)
@@ -760,9 +756,9 @@ theorem native_risk_or_bad_bound [Fintype Digest] [NeZero m] [NeZero b] [NeZero 
       accLength inputReference inputLength inputSmall inputBase finalFamily finalNodes finalLength finalBase productFirstSmall productRoundSmall productNodes productBase finalRadix reconstructionBase comparison) (CheckpointExecution.empty (AmbientMatrixSource.Shape first.heights)) := by
   have safe := native_safe_joint_bound length psi primitive family inputs base firstSmall roundSmall hadNodes hs
     nodesEnough radix linearBase nativeBasis dummy nativeEnough nativeCapacity nativeRadius nttEpsilon linearEpsilon nttEncoding linearEncoding
-    hadSmall nttSmall linearSmall nttCalibrated linearCalibrated analysisBasis config p small domain lookupEnough lookupCapacity lookupRadius
-    fallback behavior pairEnough lookupSmall build distance secondAnalysisBasis secondConfig secondP secondSmall secondDomain secondLookupEnough
-    secondLookupCapacity secondLookupRadius secondFallback secondBehavior secondPairEnough secondLookupSmall secondBuild secondDistance
+    hadSmall nttSmall linearSmall nttCalibrated linearCalibrated config p small domain lookupEnough lookupCapacity lookupRadius
+    fallback behavior pairEnough lookupSmall build distanceLarge distance secondConfig secondP secondSmall secondDomain secondLookupEnough
+    secondLookupCapacity secondLookupRadius secondFallback secondBehavior secondPairEnough secondLookupSmall secondBuild secondDistanceLarge secondDistance
     secondBase secondLinearEpsilon secondGeometry secondLinearSmall secondLinearCalibrated accumulators factory accBasis accEnough accCapacity
     accRadius accEpsilon accGeometry accSmall accCalibrated monoLength evaluations monoBase zeroFirstSmall zeroRoundSmall zeroNodesEnough rotations zeroBase
     monoBasis monoEnough monoCapacity monoRadius monoEpsilon monoGeometry monoSmall monoCalibrated
@@ -772,12 +768,12 @@ theorem native_risk_or_bad_bound [Fintype Digest] [NeZero m] [NeZero b] [NeZero 
     productBasis productEnough productCapacity productRadius productEpsilon productSmall productCalibrated finalRadix reconstructionBase
     reconstructionBasis reconstructionEnough reconstructionCapacity reconstructionRadius reconstructionEpsilon reconstructionSmall reconstructionCalibrated restricted
     compareTags compareConfig compareP compareSmall compareDomain compareEnough compareCapacity compareRadius compareFallback compareBehavior comparePairEnough compareLookupSmall compareBuild compareDistanceLarge compareDistance
-  have failure := PackedPBSKeySwitchComparisonExecution.final_bad_le_charge length psi primitive family inputs base (AuthenticatedZeroCheck.nativeScheme q 2 firstSmall roundSmall hadNodes hs) nodesEnough radix linearBase dummy (PackedPBSRequestComparisonStage.scheme hs.encoding config p small domain fallback behavior pairEnough build) (PackedPBSRequestComparisonStage.scheme hs.encoding secondConfig secondP secondSmall secondDomain secondFallback secondBehavior secondPairEnough secondBuild) secondBase accumulators factory monoLength evaluations monoBase zeroFirstSmall zeroRoundSmall zeroNodesEnough rotations zeroBase
-      accLength inputReference inputLength inputSmall inputBase finalFamily finalNodes finalLength finalBase productFirstSmall productRoundSmall productNodes productBase finalRadix reconstructionBase (fun memory => RectangularPBSComparisonStage.scheme (helperPadding := compareHelperPadding) (heights := (PackedPBSRequestComparisonStage.scheme hs.encoding config p small domain fallback behavior pairEnough build).heights) (AuthenticatedZeroCheck.nativeScheme q 2 firstSmall roundSmall hadNodes hs).encoding (compareConfig memory) compareP compareSmall compareDomain compareFallback (compareBehavior memory) comparePairEnough (compareBuild memory)) restricted
+  have failure := PackedPBSKeySwitchComparisonExecution.final_bad_le_charge length psi primitive family inputs base (AuthenticatedZeroCheck.nativeScheme q 2 firstSmall roundSmall hadNodes hs) nodesEnough radix linearBase dummy (RectangularPBSComparisonStage.scheme (helperPadding := helperPadding) hs.encoding config p small domain fallback behavior pairEnough build) (RectangularPBSComparisonStage.scheme (helperPadding := secondHelperPadding) hs.encoding secondConfig secondP secondSmall secondDomain secondFallback secondBehavior secondPairEnough secondBuild) secondBase accumulators factory monoLength evaluations monoBase zeroFirstSmall zeroRoundSmall zeroNodesEnough rotations zeroBase
+      accLength inputReference inputLength inputSmall inputBase finalFamily finalNodes finalLength finalBase productFirstSmall productRoundSmall productNodes productBase finalRadix reconstructionBase (fun memory => RectangularPBSComparisonStage.scheme (helperPadding := compareHelperPadding) (heights := (RectangularPBSComparisonStage.scheme (helperPadding := helperPadding) hs.encoding config p small domain fallback behavior pairEnough build).heights) (AuthenticatedZeroCheck.nativeScheme q 2 firstSmall roundSmall hadNodes hs).encoding (compareConfig memory) compareP compareSmall compareDomain compareFallback (compareBehavior memory) comparePairEnough (compareBuild memory)) restricted
   dsimp only at safe failure ⊢
   unfold PackedPBSKeySwitchComparisons.witness at safe ⊢
   unfold PackedPBSKeySwitchComparisonExecution.program
-  exact PackedPBSMonomialNativeJointBound.risk_or_bad_of_safe _ _ _ _ _ safe failure
+  exact PackedPBSMonomialRectangularBound.risk_or_bad_of_safe _ _ _ _ _ safe failure
 
 end
 end FormalProof4FHE.HasteBoots.PackedPBSRectangularComparisonJointBound
