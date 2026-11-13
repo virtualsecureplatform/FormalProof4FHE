@@ -32909,3 +32909,42 @@ composition and actual attacker-work accounting remain open. The final
 
 Full `scripts/check` exited 0: 12,527 build jobs and all standalone checks.
 Full-check log SHA-256: `91852ae31a5e5d2408ef29225655529698ce214db8396ff272559f383592c55b`.
+
+
+### Executed cross-stage NTT source identities and transforms (2026-11-13)
+
+Added `ExecutedNTTWorldLinks.selected_index`, deriving the requested schedule
+index of the actual child selected from the accepted NTT trace. The
+`coefficient_slot` and `evaluation_slot` theorems identify its canonical
+final-history slots with respectively the reconstruction digit and product
+factor slots. Actual support supplies the caller coefficient/evaluation root
+identities. The product mapping covers every d+1 NTT, including the result.
+Only exact public decoder routing over possible private memories remains
+explicit; there is no supplied root-alias, decoded-table equality, final safety
+or source-truth certificate. Checkpoint recording is obtained from supported
+execution and retention into the common final history.
+
+`ExecutedKeySwitchWorldTransforms` uses those slot equalities and the actual
+accepted NTT loop to prove the digit and result transforms across the executed
+reconstruction/product sources in the canonical final-history family. Each
+result gives the semantic transform or the same executed loop AnyOriginalRisk
+or final Bad. It assumes no decoded transform or per-stage semantic relation.
+These are pointwise semantic coverage results and add no probability/collision
+charge. Reconstruction/product acceptance is not needed merely to identify
+their original sources.
+
+Both modules are exported. Five directly inspected named theorems have imported
+exact axiom guards accepting only `propext`, `Classical.choice` and `Quot.sound`.
+Frozen Native/vendor sources and default resource limits remain unchanged.
+
+Next, instantiate public decoder routing with the native geometry constructors,
+link the known-input and rectangular lookup slots to reconstruction, and combine
+these derived constraints with product/reconstruction acceptance into increment
+coverage for the complete PBS witness. Honest setup/key association, canonical
+accumulator/monomial semantics, accepted false-PBS output coverage, numeric
+profile admission, production refinements, adaptive composition and actual
+attacker-work accounting remain open. The final 128-bit security theorem is
+unproved.
+
+Full `scripts/check` exited 0: 12,530 build jobs and all standalone checks.
+Full-check log SHA-256: `62652a9f24c8c31d302f393d13207edc873f56fde42bab6305d35effb8bf1cf3`.

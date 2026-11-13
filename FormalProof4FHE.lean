@@ -1785,3 +1785,7 @@ import FormalProof4FHE.HasteBoots.ExecutedProductWorld
 import FormalProof4FHE.HasteBoots.ExecutedNTTWorld
 
 import FormalProof4FHE.HasteBoots.ExecutedKnownInputWorld
+
+import FormalProof4FHE.HasteBoots.ExecutedNTTWorldLinks
+
+import FormalProof4FHE.HasteBoots.ExecutedKeySwitchWorldTransforms
