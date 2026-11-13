@@ -33988,3 +33988,45 @@ physical attacker-work accounting. The production 128-query profile and final
 
 Full `scripts/check` exited 0: 12,638 build jobs and all standalone checks.
 Full-check log SHA-256: `fb5f3defc29c5119fd7d31702f61e7ad0e0bae85faf280752fcb3ec455db90cb`.
+
+## Native safe-tail arithmetic averaged over actual setup (2026-11-13)
+
+Added `PackedPBSNativeSetupSafeBound.experiment`, which first runs the actual
+hash-only honest-key setup from empty, then runs the complete native PBS
+verifier with the setup's returned roots installed and its returned shared
+state. The experiment returns the proposition that the selected key-switch
+tail risk occurred outside the actual final history exception. Its `prEvent`
+is the unconditional true mass of that proposition, not conditioning on
+absence of Bad. Setup caches/logs/checkpoints/monitors are not reset, and
+rejected or skipped verifier branches are still part of execution.
+
+`.native_safe_tail_bound` derives the same full native arithmetic error sum
+for this experiment. For each supported setup return it obtains the audit
+and shape compatibility from `HonestKeySetupReceipts.initialized`, applies
+the native prefix-state tail theorem, then averages over the actual setup
+execution. No caller-supplied child success bound, independent root
+assumption, extra association error, setup losslessness assumption or
+normalization factor is introduced. The small `.prop_bind_le` helper handles
+proposition-valued continuations using the existing support-based probability
+bound. Encoding/height scheme definitions remain aligned with the native
+prefix theorem to avoid expanding the verifier during dependent conversion.
+
+This is the arithmetic step for the actual setup/verifier execution. The
+setup key dimensions remain generic here; connecting the honest-original-key
+accepted-false event requires the existing semantic routing, dimension and
+scope obligations and the matching specialization. It does not establish
+full PBS-output correctness or an attacker-work bound. Next connect that
+accepted-false event to this native experiment and bound final Bad once via
+the whole shared execution's ExpectedHazard charge, including setup. Honest
+accumulator/monomial semantics, production numeric/representation/Rust/memory
+admission, FS/ROM/grinding, adaptive composition and physical attacker-work
+accounting remain open. The production 128-query profile and final 128-bit
+security/work theorem remain unproved.
+
+All three new declarations have directly inspected exact axiom audits using
+only `propext`, `Classical.choice`, and `Quot.sound`. The targeted module builds
+at default Lean resources (13 seconds). No frozen Native/vendor module,
+resource limit, linter suppression or custom axiom was changed.
+
+Full `scripts/check` exited 0: 12,640 build jobs and all standalone checks.
+Full-check log SHA-256: `2253702ada78a821456d85025e1d8a7723422cad25114385f6abb7f0e2ed7f6f`.

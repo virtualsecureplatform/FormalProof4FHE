@@ -1903,3 +1903,5 @@ import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchProductPrefixBound
 import FormalProof4FHE.HasteBoots.PackedPBSKeySwitchReconstructionPrefixBound
 
 import FormalProof4FHE.HasteBoots.PackedPBSRectangularComparisonPrefixBound
+
+import FormalProof4FHE.HasteBoots.PackedPBSNativeSetupSafeBound
