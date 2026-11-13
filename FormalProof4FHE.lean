@@ -1833,3 +1833,7 @@ import FormalProof4FHE.HasteBoots.HonestRecordedEvaluationKey
 import FormalProof4FHE.HasteBoots.RecordedCheckpointQueries
 
 import FormalProof4FHE.HasteBoots.HonestExecutedEvaluationKey
+
+import FormalProof4FHE.HasteBoots.ExecutedHonestCommitment
+
+import FormalProof4FHE.HasteBoots.ExecutedHonestMatrix

@@ -33457,3 +33457,50 @@ numeric, representation, FS/ROM, adaptive and physical-work obligations.
 
 Full `scripts/check` exited 0: 12,568 build jobs and all standalone checks.
 Full-check log SHA-256: `4e460b943b72a357a37b8d87f049c47ac059838b6d192b1bc0eeecdfb5cb7027`.
+
+## Executed honest commitment and matrix recovery (2026-11-13)
+
+Added `ExecutedHonestCommitment`. Its `program` runs the existing addressed
+Merkle builder with leaf and internal-node queries routed into the same shared
+cached hash oracle as verification. `commit` records the computed root directly
+after that execution. Supported execution produces the exact cumulative
+transcript of all actual builder queries, including cache hits and repeats.
+Recording therefore establishes membership of the snapshot containing the
+computed root and that actual transcript. Arbitrary supported verifier
+continuation preserves this specific checkpoint.
+
+The final cache's total answer function realizes the returned tree: agreement
+with the actual query/response pairs suffices, without response injectivity or
+global hash injectivity. Consequently the earlier deterministic honest-commitment
+model exactly represents this executed snapshot using the final shared cache.
+The answer function is derived after execution, not assumed independent of setup
+or verification. This is a semantic representation, not an independent random
+oracle distribution claim.
+
+Added `ExecutedHonestMatrix.owner_retained` and `.logical_or_bad`. A supported
+honest encoded-matrix commitment from empty followed by arbitrary supported
+shared continuation now establishes its canonical final-world logical table
+semantics or the same final `CheckpointCollision.Bad` event. Actual setup and
+continuation derive all audit, recorded-owner and transcript/cache receipts;
+none is supplied as an independent caller certificate. Public degree-capacity
+and unique-decoding-distance inequalities remain explicit. This theorem covers
+a complete single-matrix setup/continuation execution in the abstract shared
+handler, not yet the native multi-level evaluation-key setup.
+
+All eleven public declarations have directly inspected imported exact axiom
+guards: the program, commitment and tree-realization lemma use no axioms; the
+two final-cache realization lemmas use only `propext` and `Quot.sound`; the other
+six use only `propext`, `Classical.choice`, and `Quot.sound`. Final targeted
+builds passed at default resources (3.7 and 3.3 seconds). Frozen Native/vendor
+modules and proof resource settings were untouched.
+
+Next compose the actual matrix commitments across evaluation-key levels,
+associate native setup registry descriptors and selected roots with those
+computed commitments, and combine the honest key/accumulator semantics with
+the full accepted-false PBS event in one shared history. Native/Rust setup
+refinement and numeric/field/codec/memory, FS/ROM, adaptive composition and actual
+attacker-work obligations remain open. Neither production 128-query security nor
+the final 128-bit security/work theorem is proved.
+
+Full `scripts/check` exited 0: 12,572 build jobs and all standalone checks.
+Full-check log SHA-256: `63057d8623dfdd5f41a660d14dccb4ac77c41da18b2d99a24661a339e938187f`.
