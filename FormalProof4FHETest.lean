@@ -879,3 +879,5 @@ import FormalProof4FHETest.HasteBootsPaddedSourceInterpretationAudit
 import FormalProof4FHETest.HasteBootsDecodedPaddedStageAudit
 
 import FormalProof4FHETest.HasteBootsDecodedCoefficientConstraintsAudit
+
+import FormalProof4FHETest.HasteBootsDecodedRadixAudit

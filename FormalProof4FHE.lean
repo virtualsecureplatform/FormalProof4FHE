@@ -1593,3 +1593,9 @@ import FormalProof4FHE.HasteBoots.DecodedPaddedReconstruction
 import FormalProof4FHE.HasteBoots.DecodedKnownInput
 
 import FormalProof4FHE.HasteBoots.FixedHeightPaddedSource
+
+import FormalProof4FHE.HasteBoots.DecodedPaddedLookup
+
+import FormalProof4FHE.HasteBoots.DecodedRadixCanonicity
+
+import FormalProof4FHE.HasteBoots.DecodedCipherRadixConstraints

@@ -31919,3 +31919,47 @@ Validation: full `scripts/check` exited successfully, including the 12,410-job
 root build and every standalone check. Frozen Native modules and vendor sources
 are unchanged. Full-check log SHA-256:
 `591d1c4daeb930d868b7c23177d6291468b7d33e2afe5bd71482de35f556da00`.
+
+
+### Comparison membership and canonical negative-mask digits
+
+Added `DecodedPaddedLookup`, `DecodedRadixCanonicity` and
+`DecodedCipherRadixConstraints`. Excluding the existing original-owner comparison
+failure gives public-table membership at every active scalar position of the
+actual owned request. For a fully active request, the proof covers every packed
+row/lane using the literal scalar address equivalence and flatten recovery.
+Partial requests retain only their active-position claim; no inactive membership
+is inferred.
+
+Complete comparison columns transfer to the common recorded source family under
+public decoder associations, retained-root identities, the audited global history
+and its single collision exclusion. The native radix slot order and literal
+modulus-digit public tables then give `RadixCanonicity.LookupAt` on that family's
+digit/borrow registry. Combined with field reconstruction, zero endpoint borrows,
+`1 < radix < q` and `q-1 < radix^digits`, the executed comparisons identify each
+decoded digit as the canonical quotient/remainder of the decoded input.
+
+The ciphertext bridge proves that pointwise reconstruction of the constructed
+ciphertexts covers their entire original packed tables. Packed canonical digits
+then identify both constructed polynomial halves with
+`NativeBlindRotation.digit bits level (-mask)` when the known-input value is the
+negative mask. The family tables are proved equal to these exact ciphertext
+packings, so this step introduces no independent private interpretation witness.
+
+These are composable semantic bridges. The radix theorem still takes the public
+slot/table metadata associations and reconstruction relation; their native
+constructor and full-run instantiation must be assembled with the already proved
+stage results. The native parameter-store and global owner-family associations,
+canonical signed key-product increment, accumulator trace coverage, trusted key
+source association, numeric profile admission, production refinements, adaptive
+composition and physical attacker-work accounting remain open. The final 128-bit
+security theorem remains unproved.
+
+All three modules are exported. Direct axiom inspection of ten theorems found
+only `propext`, `Classical.choice` and `Quot.sound`; the imported audit has ten
+exact guards. Default resource limits were retained.
+
+Validation: full `scripts/check` exited successfully, including the 12,414-job
+root build and every standalone check. Frozen Native modules and vendor sources
+are unchanged. Full-check log SHA-256:
+`48a6438d06836571d575c5c73d1545c1e5ce4fa28543902f36958f789c9d82ed`.
