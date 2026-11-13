@@ -32206,3 +32206,73 @@ Validation: full `scripts/check` exited successfully, including the 12,434-job
 root build and every standalone check. Frozen Native modules and vendor sources
 are unchanged. Full-check log SHA-256:
 `9c796476930a339acf285f7a9a6f80b6945ca31a4ba6b6f490513d55a6e43b4b`.
+
+
+### Constructor-derived public source descriptors and role associations
+
+Added six non-Native modules: `ConstructedGoldSourceDescriptor`,
+`ConstructedGoldSourceBorrowing`, `ConstructedGoldRoleSourceDescriptors`,
+`PaddedSourceGeometry`, `ConstructedKeySwitchSourceParameters` and
+`ConstructedGoldSourceCoherence`.
+
+Completed native parameter construction now supplies a canonical original-source
+descriptor. Physical front/suffix dimensions and message length come from the
+checked parameter initializer. Domain primitive-root facts, padded message
+capacity and degree bounds come from the actual completed code constructor.
+The native Merkle geometry height is proved equal to the NTT domain height.
+The descriptor fixes the entire retained parameter object as its context tag,
+and retains a single supplied analysis radius. Logical padding follows from
+physical arity rather than an independent source-value or padding assertion.
+
+The store resolver reads actual immutable handles, derives `GoodEntry` from
+reachable allocation, checks the public test and code-symbol widths and returns
+the canonical descriptor. Successful resolution has constructor provenance;
+equal handles reuse one descriptor even when the source roots differ. The
+actual collected registry resolves to descriptors tagged by its exact retained
+parameter objects and preserves each reference's root. Equality of full native
+context bytes also determines the descriptor; digest-only or height-only
+parameter equality is not assumed.
+
+For the existing admitted classical role bundle, all final coefficient,
+evaluation, key, input and borrow roles use the same allocated parameter object.
+Their complete source descriptors are therefore equal at a fixed radius.
+Source geometries at different logical arities preserve that same physical
+decoder. NTT, linear and private-product constructors install these public
+geometries and use physical workers supplied at the derived types, retaining the
+raw logical callbacks and commitment computations. The trusted native NTT,
+product and reconstruction arithmetic/root constructors are proved to preserve
+the installed source descriptors. These constructions provide a way to derive
+metadata association premises when the full-run factories are instantiated;
+they do not assert that arbitrary existing raw factories already use them.
+
+Native role allocation now derives full table agreement for two recorded
+original-source owners with the same root outside the existing final audited
+collision event. The native-address version also covers different logical
+query arities. No private table equality or decoder-association certificate is
+an input to these coherence theorems.
+
+The width distinction is explicit: Goldilocks original-source roles have four
+test lanes and four code-symbol lanes; helpers have three test lanes and four
+code-symbol lanes. The square source adapter requires both retained widths to
+match. Connecting native helpers requires the rectangular worker path and must
+not instantiate the square helper model with incompatible native capacity or
+response geometry. The existing role admission policy remains conditional; no
+current production profile or final 128-bit admission is newly certified here.
+
+Remaining work includes instantiating the constructed geometry factories and
+families in the actual reached accepted full run, comparison/input/extraction
+association, the rectangular helper-worker connection, trusted key-source
+association, accumulator trace coverage, full accepted false output coverage,
+numeric profile admission, production/codec/physical refinements, adaptive
+composition and physical attacker-work accounting. The final 128-bit theorem
+remains unproved.
+
+All six modules are exported. Direct axiom inspection covered all 52 new named
+definitions and theorems. Two use only `propext`, eleven also use `Quot.sound`,
+and the remaining 39 also use `Classical.choice`. The imported audit has 52 exact
+guards. Default resource and linter limits were retained.
+
+Validation: full `scripts/check` exited successfully, including the 12,441-job
+root build and every standalone check. Frozen Native modules and vendor sources
+are unchanged. Full-check log SHA-256:
+`4b22e1b23cbfccba6a146d86b321d313bd9ac0955883e35dce990947dd241ac4`.

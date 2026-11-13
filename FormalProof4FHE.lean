@@ -1629,3 +1629,15 @@ import FormalProof4FHE.HasteBoots.ExecutedPaddedSourceFamily
 import FormalProof4FHE.HasteBoots.ExecutedKeySwitchProduct
 
 import FormalProof4FHE.HasteBoots.ExecutedKeySwitchReconstruction
+
+import FormalProof4FHE.HasteBoots.ConstructedGoldSourceDescriptor
+
+import FormalProof4FHE.HasteBoots.ConstructedGoldSourceBorrowing
+
+import FormalProof4FHE.HasteBoots.ConstructedGoldRoleSourceDescriptors
+
+import FormalProof4FHE.HasteBoots.PaddedSourceGeometry
+
+import FormalProof4FHE.HasteBoots.ConstructedKeySwitchSourceParameters
+
+import FormalProof4FHE.HasteBoots.ConstructedGoldSourceCoherence
