@@ -34859,3 +34859,59 @@ resource increases or linter suppression were used.
 
 Full `scripts/check` exited 0: 12,722 build jobs and all standalone checks.
 Full-check log SHA-256: `0df735763ecc49d398c5f8eea6fdd2a9c0c16516e458949e822565a28b85d365`.
+
+## Actual native external products with honestly initialized controls
+
+`PackedPBSNativeExternalProduct` composes the actual selected digit/result NTT
+coefficient rows, original native Hadamard/NTT relations and honest control-key
+evaluations into the coefficient-domain native external product at every stored
+round. Its `DigitRows` and `ResultRows` predicates describe the literal retained
+calls rather than a new experiment. This deterministic helper's semantic
+premises are all discharged in the coverage module below.
+
+`PackedPBSNativeExternalProductCoverage.external_products_or_risks` derives
+EVERY semantic input to that composition from the previously proved actual
+prefix/source/lookup/native/setup coverage. No assumed canonical digit, input
+value, result coefficient, transform relation, honest key-value equality or
+external-product identity is a premise. Public full-decoder routing, real
+rectangular lookup configurations, native coefficient/round dimensions,
+code/radius admission, actual accepted accumulator gates and final structural
+history audit/soundness/retention remain explicit. The honest key physical-fit
+condition is now derived from native/public dimensions rather than supplied as
+an extra admission.
+
+The result identifies the ACTUAL decoded accumulator external row with
+`NativeBlindRotation.externalProduct` of the honestly initialized control row
+and ACTUAL decoded difference, simultaneously for all stored rounds. The only
+alternatives are the eight EXISTING events: first lookup, first reconstruction,
+second lookup, second reconstruction, accumulator, original Hadamard, original
+NTT-loop risks, or the SAME later Bad. There is no new semantic/source-alias
+exception and no extra per-round, per-half or per-limb union factor.
+
+`external_products_from_setup_or_risks` removes the standalone factual control
+receipt using actual shared hash-only setup support returning exactly the
+caller's control roots and native initial state. It derives the receipt; it does
+not assume setup safety, restart the verifier from empty, or replace the
+original shared cache/history. The receipt form remains useful when other
+honest setup work intervenes, using chronological extension.
+
+Remaining: combine the proved rotations, external products and full original
+accumulator arithmetic/continuity/endpoints into actual blind-rotation trace and
+output correctness, then compose the already proved key-switch increment with
+that honest output. Integrate control-key and key-switch setups plus full
+verification into one whole joint program/charge, lift the full-output false
+event to the native arithmetic bounds, and discharge concrete production
+parameter/codec/layout/radius/representation/key-generation/Rust admission.
+FS/ROM/grinding, adaptive attempts and physical attacker-work accounting remain
+unfinished. The existing whole-history charged theorem is still selected
+key-switch increment security; full PBS-output probability/security and the
+128-bit work target are not proved. The production 128-query profile remains
+uncertified.
+
+All five declarations compile at default Lean resources and have directly
+inspected exact axiom guards for only `propext`, `Classical.choice` and
+`Quot.sound`. No frozen Native/vendor edits, custom axioms, admitted proofs,
+resource increases or linter suppression were used.
+
+Full `scripts/check` exited 0: 12,726 build jobs and all standalone checks.
+Full-check log SHA-256: `e6bd94e3bae95a7dc32fe36d7ec1844fbb7b5f4fd3b116e553c0b11015683036`.

@@ -1987,3 +1987,7 @@ import FormalProof4FHE.HasteBoots.HonestControlKeySetup
 import FormalProof4FHE.HasteBoots.HonestControlKeyTranscript
 
 import FormalProof4FHE.HasteBoots.PackedPBSHonestControlKeys
+
+import FormalProof4FHE.HasteBoots.PackedPBSNativeExternalProduct
+
+import FormalProof4FHE.HasteBoots.PackedPBSNativeExternalProductCoverage
