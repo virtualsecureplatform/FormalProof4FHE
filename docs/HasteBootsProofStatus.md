@@ -35022,3 +35022,41 @@ resource increases or linter suppression were used.
 
 Full `scripts/check` exited 0: 12,738 build jobs and all standalone checks.
 Full-check log SHA-256: `8236fca7ea510c0e397c361b9d074c0cb690b8e050fbe4e69e81dc61e017798c`.
+
+## Complete-execution query receipts for native blind rotation (2026-11-13)
+
+`PackedPBSMonomialQueryHistory.final_history` projects the supported complete
+monomial-product witness into its single shared checkpoint handler, transports
+the initial frozen query receipts across the checkpoint geometry, and derives
+final cached-query consistency, hash-cache coherence and the initial-to-final
+hash-log prefix. It uses initial coherence and query consistency plus the
+existing public geometry/scope conditions; it assumes no final query invariant.
+
+`PackedPBSMonomialBlindRotationExecutable.output_from_setup_or_risks` obtains
+those initial invariants from the actual supported honest control-key setup
+returning the caller's roots and exact initial execution state. The native
+blind-rotation output theorem now derives final query consistency from the same
+complete execution, alongside the already derived setup receipt, audit and
+geometry compatibility. Its conclusion retains the same ten existing risk
+events and the same final checkpoint-collision event. No new error term or
+rotation/row union factor is introduced.
+
+This is pointwise correctness for the actual accumulator context, subject to
+the existing public descriptor associations, decoder admissions, start/finish
+metadata, record scope and actual product acceptance. It does not establish
+that the context fields equal the intended public PBS statement. That matching,
+key-switch input/result composition, a single control-key plus key-switch setup
+and full-verifier charged execution, complete false-output probability bounds,
+production parameter/codec/layout/key-generation admission, FS/ROM/grinding,
+adaptive attempts and physical attacker-work accounting remain unfinished.
+The existing charged theorem still concerns a selected key-switch increment.
+Full PBS-output security and the 128-bit work target remain unproved; the
+production 128-query profile remains uncertified.
+
+Both new declarations compile at default Lean resources and have directly
+inspected exact axiom guards for only `propext`, `Classical.choice` and
+`Quot.sound`. No frozen Native/vendor edits, custom axioms, admitted proofs,
+resource increases or linter suppression were used.
+
+Full `scripts/check` exited 0: 12,742 build jobs and all standalone checks.
+Full-check log SHA-256: `e30b4b02e13eaf0731ae9003ed8addaa178f24e0cf4042ffd0aa7efee4ecda04`.
