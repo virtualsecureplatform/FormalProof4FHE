@@ -1941,3 +1941,7 @@ import FormalProof4FHE.HasteBoots.PackedPBSAccumulatorRotationCoverage
 import FormalProof4FHE.HasteBoots.ExecutedAmbientRectangularRadix
 
 import FormalProof4FHE.HasteBoots.PackedPBSSecondCanonicalDigits
+
+import FormalProof4FHE.HasteBoots.ExecutedTransportedRectangularRadix
+
+import FormalProof4FHE.HasteBoots.PackedPBSFirstCanonicalDigits

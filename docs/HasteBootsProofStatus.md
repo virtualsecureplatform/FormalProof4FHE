@@ -34363,3 +34363,56 @@ axioms, admitted proofs or linter suppression.
 
 Full `scripts/check` exited 0: 12,676 build jobs and all standalone checks.
 Full-check log SHA-256: `efe50aa2903a4f732ec72e01def3f1efd15d318b01d4209b6ff3382ccf480596`.
+
+## Canonical first-half digits through the original geometry transition
+
+`ExecutedTransportedRectangularRadix` proves canonical digits using the original
+fixed-height linear execution and the reached comparison in the later ambient
+geometry. It constructs the later family by copying each original fresh owner's
+root and complete saved log. `original_logical` proves that this preserves the
+original physical decoder interpretation at matching local heights. Recording
+comes from the actual inherited `MultiCommitmentPrefix` support, then from the
+literal history transport and actual comparison retention. The old linear
+program is not rerun under another handler, and no new empty state is inserted.
+
+The reconstruction relation is derived outside the existing old-phase
+`OwnedLinearSoundness.OriginalRisk`; comparison membership is derived outside
+the existing rectangular OriginalFalse event. The same later audited history
+and final Bad event cover source reuse. Public local geometry, comparison tags,
+complete decoder association, slot order, full lookup coverage and modulus-digit
+tables remain explicit admission conditions. No extra transport/alias error,
+independence, conditioning or query cutoff is introduced.
+
+`PackedPBSFirstCanonicalDigits` recovers the actual first reconstruction return,
+preceding original NTT loop, returned factory memory, both execution supports and
+native acceptance gate from the supported full PBS prefix. Its source family
+retains the original first-half input and digit roots and is proved recorded in
+any later retained history. The factory/global encoding equality is explicit:
+this runtime does not overwrite the first linear factory's encoding, so the
+proof neither changes that factory nor silently assumes the encodings match.
+
+`canonical_digits_or_risks` establishes canonical integer digits on all original
+source coordinates. `canonical_polynomials_or_risks` establishes equality with
+`NativeBlindRotation.digit` on polynomial rows of that executed input when the
+public radix is `2^bits`. Its only failure alternatives are the existing lookup
+and old-phase reconstruction risks and the one later Bad event. Together with
+the previous second-half result, both halves now have executed-source canonical
+digit coverage; no canonical digit/source-value certificate is a premise.
+
+Remaining: associate these same input/digit families with the actual accumulator
+sources and external-product NTT coefficient rows, derive honest control-key and
+external-product semantics, and finish accumulator endpoint/trace and full
+PBS-output composition. The new results are pointwise coverage; full-output event
+lifting and the expected physical attacker-work theorem remain unproved. Public
+production parameter/encoding/descriptor and representation admission, FS/ROM/
+grinding and adaptive attempts remain outstanding. The whole native theorem still
+bounds accepted-false key-switch increments relative to the actual accumulator,
+and the production 128-query profile remains uncertified.
+
+All 21 declarations have directly inspected exact axiom guards using only
+`propext`, `Classical.choice`, and `Quot.sound`. Both source modules compile at
+default Lean resources, without frozen Native/vendor edits, resource increases,
+custom axioms, admitted proofs or linter suppression.
+
+Full `scripts/check` exited 0: 12,680 build jobs and all standalone checks.
+Full-check log SHA-256: `3ffb6e6699246f2a92fd1b2c82ce68ce095780db19b122506b46ef57f892e5ea`.
