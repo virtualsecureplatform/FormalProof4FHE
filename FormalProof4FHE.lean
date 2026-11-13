@@ -1641,3 +1641,9 @@ import FormalProof4FHE.HasteBoots.PaddedSourceGeometry
 import FormalProof4FHE.HasteBoots.ConstructedKeySwitchSourceParameters
 
 import FormalProof4FHE.HasteBoots.ConstructedGoldSourceCoherence
+
+import FormalProof4FHE.HasteBoots.RectangularSubclaimSourceLayout
+
+import FormalProof4FHE.HasteBoots.AmbientRectangularSource
+
+import FormalProof4FHE.HasteBoots.RecordedRectangularSource

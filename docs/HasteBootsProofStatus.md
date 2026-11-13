@@ -32276,3 +32276,35 @@ Validation: full `scripts/check` exited successfully, including the 12,441-job
 root build and every standalone check. Frozen Native modules and vendor sources
 are unchanged. Full-check log SHA-256:
 `4b22e1b23cbfccba6a146d86b321d313bd9ac0955883e35dce990947dd241ac4`.
+
+
+### Rectangular recorded-source foundation (2026-11-13)
+
+Added `RectangularSubclaimSourceLayout`, `AmbientRectangularSource` and
+`RecordedRectangularSource`. Packing width and code-symbol width are independent;
+message capacity is bounded by degree times code-symbol width. This accommodates
+the native helper geometry (three packed/test lanes, four code symbols) without
+using an invalid square capacity assumption.
+
+The new decoder fixes one query-independent physical table per recorded owner,
+provides logical high-zero padded views, preserves equal flat source addresses
+across logical arities, and proves agreement for recorded owners sharing a root
+unless the existing final checkpoint collision event occurs. The ambient word
+uses the existing native whole-column payload address order. Exact square
+specialization theorems recover the existing ambient and recorded decoders.
+
+All three modules are exported; the imported audit contains 20 exact axiom
+guards. Two declarations use `propext` and `Quot.sound`; eighteen additionally
+use `Classical.choice`. No custom axioms, resource-limit changes, or changes to
+frozen Native modules or vendor sources were introduced.
+
+Validation: full `scripts/check` exited 0, including the 12,445-job root build
+and every standalone check. Full-check log SHA-256:
+`e12fad0864018430bd9784edb603e7595df7193505d9d230de66f14643925901`.
+
+This is the source foundation, not yet the rectangular helper-worker connection.
+Remaining work includes deriving rectangular descriptors from constructed native
+parameters, shared adaptive sampling and worker acceptance bounds, instantiating
+the executed full-run families, trusted key and accumulator associations, accepted
+false-output coverage, numeric profile admission, production refinements and
+actual attacker-work accounting. The final 128-bit security theorem is unproved.
