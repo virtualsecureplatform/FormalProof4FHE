@@ -33091,3 +33091,48 @@ open. The final 128-bit security theorem is unproved.
 
 Full `scripts/check` exited 0: 12,540 build jobs and all standalone checks.
 Full-check log SHA-256: `00215aefbe0691a21724cbc5b3e0c563ca3dec23dc327be34ae9ceff426c65b5`.
+
+
+### Assemble executed key-switch increment coverage (2026-11-13)
+
+Added `ExecutedKeySwitchIncrement.increment_or_risks`, composing the actual
+supported final key-switch NTT loop, known-input check, product, reconstruction
+and reached rectangular comparison on their common final checkpoint history.
+It constructs the world and all source indices from those executions. It
+supplies the decomposition relation, full radix lookup, negative-mask halves,
+digit/result NTT transforms and product identity from the executed-operation
+theorems, rather than assuming any decoded semantic relation or source truth.
+Reconstruction acceptance is derived from reached comparison support.
+
+The result is the canonical signed key-switch increment of the actual
+accumulator mask, using the coefficient key constructed by inverse NTT from the
+actual product evaluation-key slots, or the disjunction of comparison
+OriginalFalse, reconstruction OriginalRisk, known-input OriginalRisk, NTT-loop
+AnyOriginalRisk, product OriginalRisk and the same final Bad. No coefficient-key
+owner or extra key-NTT stage is invented. Honest-setup association of this
+constructed key remains separate. Native four-lane source packing is explicit;
+helper code/test widths remain independently parameterized in the rectangular
+comparison interface.
+
+Actual support, retention into the shared final state, its audit, NTT/known-input/
+product acceptance, public decoder routing, slot/table order, full activity and
+public primitive-root/radix/range conditions remain explicit. The preceding
+native routing constructors discharge the public descriptor equalities upon
+instantiation. The logical lookup arity 1+c is transported to c+1 without changing
+physical decoding. This theorem adds no probability or collision charge.
+
+The module is exported and its directly inspected theorem has an imported exact
+axiom guard accepting only `propext`, `Classical.choice` and `Quot.sound`. Frozen
+Native/vendor sources and default resource limits remain unchanged.
+
+Next, extract these supported operation facts/retentions and their acceptance
+conditions from the named complete PBS witness, and match the resulting risk
+branches with its rectangular prefix probability bound. In particular, final
+accepted-run coverage must retain comparison acceptance to apply the proved
+accepted-false rate. Honest setup/key association, canonical accumulator/monomial
+semantics, accepted false-PBS output coverage, numeric profile admission,
+production refinements, adaptive composition and actual attacker-work accounting
+remain open. The final 128-bit security theorem is unproved.
+
+Full `scripts/check` exited 0: 12,542 build jobs and all standalone checks.
+Full-check log SHA-256: `ea1f4eb244f08fa5507843ec4abfef053a70b3ef5e76722a3f0d3d6f75b10f29`.

@@ -929,3 +929,5 @@ import FormalProof4FHETest.HasteBootsConstructedGoldRoutingAudit
 import FormalProof4FHETest.HasteBootsExecutedInputComparisonLinksAudit
 
 import FormalProof4FHETest.HasteBootsExecutedRectangularRadixAudit
+
+import FormalProof4FHETest.HasteBootsExecutedKeySwitchIncrementAudit
