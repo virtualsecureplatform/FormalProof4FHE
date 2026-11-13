@@ -1599,3 +1599,7 @@ import FormalProof4FHE.HasteBoots.DecodedPaddedLookup
 import FormalProof4FHE.HasteBoots.DecodedRadixCanonicity
 
 import FormalProof4FHE.HasteBoots.DecodedCipherRadixConstraints
+
+import FormalProof4FHE.HasteBoots.DecodedFamilyNTT
+
+import FormalProof4FHE.HasteBoots.DecodedKeySwitchIncrement

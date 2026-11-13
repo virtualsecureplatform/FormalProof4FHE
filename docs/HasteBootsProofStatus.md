@@ -31963,3 +31963,45 @@ Validation: full `scripts/check` exited successfully, including the 12,414-job
 root build and every standalone check. Frozen Native modules and vendor sources
 are unchanged. Full-check log SHA-256:
 `48a6438d06836571d575c5c73d1545c1e5ce4fa28543902f36958f789c9d82ed`.
+
+
+### Canonical signed increment and local key-switch output composition
+
+Added `DecodedFamilyNTT` and `DecodedKeySwitchIncrement`. The first transfers
+the actual native padded NTT equation to both halves of the common recorded
+coefficient/evaluation roots, under public descriptor associations and retained
+owner facts outside the same global audited collision event.
+
+The increment composition consumes field reconstruction and zero endpoint
+borrows, literal radix lookup membership, the negative-mask known-input equation,
+all coefficient/evaluation NTT equations and the pointwise product identity.
+Canonical digits are derived internally. Negacyclic transform injectivity then
+identifies the result with `CanonicalKeySwitch.increment bits key mask`, including
+the native negative-mask sign and convolution. The family specialization builds
+every coefficient, evaluation, result and key ciphertext directly from its
+recorded decoded table; it introduces no independent source-value interpretation.
+The key here is the key decoded from those roots. Its association with the
+trusted public key remains an explicit future obligation.
+
+A wrong decoded increment is now covered by failure of reconstruction, an
+original radix lookup, known input, a native NTT equation or the pointwise
+product. Adding the final `CanonicalKeySwitch.Extraction` constraint gives the
+local output equation for the native canonical switch. These results compose
+semantic equations; they do not yet prove accepted-false-output coverage for the
+full operational run or turn the existing native risk bound into that event.
+
+Next, instantiate these equations from all reached stages in one accepted run,
+derive their public parameter-store and retained owner-family associations,
+and connect the extraction stage to the same result. Accumulator trace coverage,
+trusted key source association, numeric profile admission, earlier masked-profile
+and production refinements, adaptive composition and physical attacker-work
+accounting remain open. The final 128-bit security theorem remains unproved.
+
+Both modules are exported. Direct axiom inspection of five theorems found only
+`propext`, `Classical.choice` and `Quot.sound`; the imported audit has five exact
+guards. Default resource limits were retained.
+
+Validation: full `scripts/check` exited successfully, including the 12,417-job
+root build and every standalone check. Frozen Native modules and vendor sources
+are unchanged. Full-check log SHA-256:
+`f0d71437af83d49952b87c1dfa5764430e1d0e8b152fba3d1f501d68e209c3ab`.
