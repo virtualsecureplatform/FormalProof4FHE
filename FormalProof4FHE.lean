@@ -1857,3 +1857,15 @@ import FormalProof4FHE.HasteBoots.HonestMatrixSetupTrace
 import FormalProof4FHE.HasteBoots.HonestEvaluationKeyTranscript
 
 import FormalProof4FHE.HasteBoots.ExecutedHonestProductTranscript
+
+import FormalProof4FHE.HasteBoots.CheckpointQueryHistory
+
+import FormalProof4FHE.HasteBoots.ComparisonQueryHistory
+
+import FormalProof4FHE.HasteBoots.PackedPBSNTTQueryHistory
+
+import FormalProof4FHE.HasteBoots.PackedPBSReconstructionQueryHistory
+
+import FormalProof4FHE.HasteBoots.PackedPBSComparisonQueryHistory
+
+import FormalProof4FHE.HasteBoots.HonestSetupInitialHistory

@@ -33706,3 +33706,61 @@ proved.
 
 Full `scripts/check` exited 0: 12,592 build jobs and all standalone checks.
 Full-check log SHA-256: `822036de2e5c78e58cf0638124e1f34d10025ea554f3e90345aa56ca30894a6a`.
+
+## Complete PBS chronology and frozen-cache receipts (2026-11-13)
+
+Added `CheckpointQueryHistory.transport_sound` and `.run`. Frozen transcript
+cache receipts transport across extraction shapes without requiring shape
+compatibility: transport copies roots, saved logs and the cache verbatim.
+Shape compatibility remains required by the separate semantic history
+projection; it has not been removed or weakened. A supported shared run
+establishes chronological log extension plus preservation of coherence and all
+recorded transcript/cache receipts.
+
+`PackedPBSNTTQueryHistory.query_history` and
+`PackedPBSReconstructionQueryHistory.query_history` use the existing exact
+full-state witness projections. They derive the original incoming log as a
+prefix of the actual returned log, cache coherence, and every frozen-cache
+receipt through all earlier phases and the final NTT/reconstruction work.
+Skipped and rejected paths are covered. No replay, child security bound,
+semantic source equality or new history charge is assumed.
+
+`ComparisonQueryHistory` provides these facts for a literal executed native
+comparison and for its retained predecessor continuation/bind. The comparison
+encoding need not be equated to another encoding for these purely operational
+invariants. `PackedPBSComparisonQueryHistory.query_history` composes this with
+the reconstruction prefix and establishes chronology, coherence and frozen
+receipts for the complete PBS witness, including its final comparison. The
+full predecessor is kept opaque and the existing witness projections ensure
+the facts concern the actual returned state.
+
+`HonestSetupInitialHistory.initialized` derives the corresponding initial
+conditions from supported hash-only honest setup from empty. It supplies cache
+coherence, frozen-cache receipts, the actual audit, and compatibility with every
+later extraction geometry because setup provably leaves the empty checkpoint
+history unchanged. It does not discard recorded sources, reset the shared
+cache/log/monitor, or assume a setup-independent oracle history.
+
+All nine new declarations have directly inspected imported exact axiom guards.
+The shape-transport receipt lemma uses only `propext` and `Quot.sound`; the other
+eight use only `propext`, `Classical.choice`, and `Quot.sound`. Targeted builds
+passed at default resources (10 and 14 seconds for full prefix projections,
+3.8 seconds for comparison preservation, 14 seconds for the complete witness,
+and 3.5 seconds for setup initialization). No frozen Native/vendor module,
+resource limit, linter suppression or custom axiom was changed.
+
+Next combine setup query receipts and these actual PBS chronology facts to
+instantiate the honest-key transcript bridge at the reached product slots.
+The NTT-prefix theorem supplies chronology into product input; the complete
+comparison theorem supplies final cache receipts. Use a fixed public setup
+descriptor across memory-dependent product factory choices, transporting the
+factual setup query receipts via the constructed geometry routing. Then lift
+honest canonical increment coverage into the complete accepted-false PBS event
+and its joint setup/verifier probability bound with one history charge.
+Full output/accumulator semantics, production numeric/representation/Rust/memory,
+FS/ROM/grinding, adaptive composition and physical attacker-work obligations
+remain open. The production 128-query profile and final 128-bit security/work
+theorem remain unproved.
+
+Full `scripts/check` exited 0: 12,604 build jobs and all standalone checks.
+Full-check log SHA-256: `0a8795b06e29c03784c9d363b5483ca0f7f5efb233fc19fdc90d21fe082c2bdc`.
