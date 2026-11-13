@@ -1959,3 +1959,15 @@ import FormalProof4FHE.HasteBoots.ExecutedAccumulatorInputs
 import FormalProof4FHE.HasteBoots.PackedPBSDecompositionAccumulatorInputs
 
 import FormalProof4FHE.HasteBoots.PackedPBSResultAccumulatorSource
+
+import FormalProof4FHE.HasteBoots.RecordedSourceWidth
+
+import FormalProof4FHE.HasteBoots.RectangularDecodedRadixWidth
+
+import FormalProof4FHE.HasteBoots.ExecutedAmbientRectangularRadixWidth
+
+import FormalProof4FHE.HasteBoots.ExecutedTransportedRectangularRadixWidth
+
+import FormalProof4FHE.HasteBoots.PackedPBSRectangularCanonicalDigits
+
+import FormalProof4FHE.HasteBoots.RecordedNTTProjection

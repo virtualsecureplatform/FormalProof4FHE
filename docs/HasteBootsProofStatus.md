@@ -34640,3 +34640,61 @@ or linter suppression were used.
 
 Full `scripts/check` exited 0: 12,694 build jobs and all standalone checks.
 Full-check log SHA-256: `d06c7d3ba1ab06122d8e8431cc4c76d9647a9cbed61f860860d4f1b1d0e0b276`.
+
+## Actual rectangular lookup layouts and canonical difference digits
+
+`RecordedSourceWidth` transports a recorded source family using only a public
+equality of total scalar widths. Roots, checkpoint recording, decoded scalars
+at cast lanes and native reconstruction relations are preserved. This is type
+transport of the same source, not replacement of an executed lookup or its
+active/padding configuration.
+
+`RectangularDecodedRadixWidth` transfers original-owner lookup membership and
+canonical-digit enforcement from the REAL `e, padding` request configuration to
+an executed reconstruction family of publicly equal total width. The new
+`ExecutedAmbientRectangularRadixWidth` and
+`ExecutedTransportedRectangularRadixWidth` overlays use this transfer on the
+actual ambient second reconstruction and original fixed-height first
+reconstruction, respectively. They retain the original query/log histories,
+real comparison owners, endpoint-borrow/linear constraints and existing native
+risk events. The first old-phase execution is never rerun under new geometry.
+
+`PackedPBSRectangularCanonicalDigits.First` and `.Second` instantiate these
+results in the actual supported PBS accumulator prefix. Both expose integer
+and polynomial canonical-digit coverage for the actual rectangular lookup
+configuration using the explicit public equality `2^lanes = e+padding`; the
+actual lookup split, helper widths, request slots, tables and full active-row
+premises are preserved. This discharges the previous source-presentation gap:
+no `e := 2^lanes, padding := 0` LOOKUP configuration is substituted.
+
+`RecordedNTTProjection.same_address` preserves polynomial projection across the
+two native logical dimension presentations. Each half's `input_dimensions`
+derives physical row arity from the complete public input-decoder association.
+Each `canonical_difference_or_risks` then composes real rectangular canonical
+digits with the previously derived actual input-to-accumulator identity. Every
+stored round and both physical output halves now have canonical native digit
+polynomials of the ACTUAL accumulator difference. Neither an input value nor a
+source family recording certificate is an additional semantic premise. The
+only alternatives are the existing original lookup, first/second reconstruction,
+accumulator risks and the same later Bad event; no new alias error is added.
+
+Remaining: compose these difference-digit polynomials with the retained original
+NTT coefficient-row association (including actual public coefficient/round
+layout); derive honest control-key evaluation/source semantics; combine true
+native NTT and Hadamard relations to actual external products; finish full
+trace/endpoint/PBS-output composition and probability lifting. Concrete
+production width/descriptor/radius/representation admission remains required;
+the new public width equality is not a proof of those concrete parameters.
+The whole-history charged theorem still concerns selected key-switch increments.
+Full PBS-output security, FS/ROM/grinding, adaptive attempts and physical
+attacker-work accounting remain unfinished; the production 128-query profile
+is uncertified.
+
+All 33 declarations compile at default Lean resources and have directly
+inspected exact axiom guards. The width family/root/recording transports use
+only `propext` and `Quot.sound`; all remaining declarations use only `propext`,
+`Classical.choice` and `Quot.sound`. No frozen Native/vendor edits, custom axioms,
+admitted proofs, resource increases or linter suppression were used.
+
+Full `scripts/check` exited 0: 12,706 build jobs and all standalone checks.
+Full-check log SHA-256: `20dd5162db72de56ccfcb9ea042189da2bf6bc7d4ff289d885281fbb2ed1dea0`.
