@@ -32781,3 +32781,46 @@ guards accepting only `propext`, `Classical.choice` and `Quot.sound`.
 Full `scripts/check` exited 0: 12,508 build jobs and all standalone checks.
 Full-check log SHA-256: `47060e6fc44e160aeb6d2fe2f301cd222a5751a3f7ee96ce4a2f8e18bd684067`. Frozen Native/vendor sources and default
 resource limits remain unchanged.
+
+
+### Both decomposition comparisons use rectangular PCS (2026-11-13)
+
+Added `PackedPBSFirstRectangularComparison` and
+`PackedPBSSecondRectangularComparison`. Their original-false accepted-request
+bounds apply to the actual first/second comparison witnesses and supported
+incoming audits. Both compile `RectangularPBSComparisonStage`, independently
+parameterizing packing width and code-symbol width, sampling rows over the base
+field and using rectangular capacity/distance conditions. No extension-field
+basis or square helper-capacity premise is retained for either comparison.
+
+`PackedPBSFirstRectangularHalfBound` joins the first concrete comparison rate
+with the native Hadamard/NTT/reconstruction risks. The second-half adapter joins
+the reached second reconstruction and rectangular comparison with an earlier
+safe event. `PackedPBSRectangularDecompositionBound` discharges that earlier
+bound with the first-half theorem. Its two named theorems therefore derive all
+rates for the actual two-decomposition run, with no overall earlier-security
+certificate. The first comparison returns the actual memory consumed by the
+second reconstruction. Pair budgets retain the maximum of request-specific
+repeated errors, without a request-count union factor. Source/helper packing
+widths and code widths remain public parameters, allowing native 4/3/4 layouts.
+
+The safe theorem keeps one final Bad exclusion. The risk-or-Bad theorem adds
+one expected collision charge for the entire operational two-decomposition
+prefix, including both comparison computations. No intermediate collision
+charges or losslessness assumptions are introduced. Existing non-comparison
+native arithmetic stages keep their own public geometry/rate conditions.
+
+All five modules are exported; eight directly inspected theorems have imported
+exact axiom guards accepting only `propext`, `Classical.choice` and `Quot.sound`.
+The rectangular two-decomposition rate must now propagate through the
+accumulator, monomial and later key-switch prefix wrappers; the previously
+added complete-PBS final-comparison joint theorem still calls the older
+predecessor wrappers until that propagation is implemented. Complete native
+reference/descriptor maps, honest setup and accumulator coverage, accepted
+false-output coverage, numeric profile admission, production refinements,
+adaptive composition and actual attacker-work accounting remain open. The
+final 128-bit security theorem is unproved.
+
+Full `scripts/check` exited 0: 12,514 build jobs and all standalone checks.
+Full-check log SHA-256: `6cad07e067e5adbb692224833112b2f86bae5b950df4e6bfa4c086d8ac674c2e`. Frozen Native/vendor sources and default
+resource limits remain unchanged.

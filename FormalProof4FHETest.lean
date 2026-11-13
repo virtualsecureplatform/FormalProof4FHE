@@ -915,3 +915,5 @@ import FormalProof4FHETest.HasteBootsExecutedCommonFamilyAudit
 import FormalProof4FHETest.HasteBootsRetainedRectangularComparisonAudit
 
 import FormalProof4FHETest.HasteBootsPackedPBSRectangularComparisonAudit
+
+import FormalProof4FHETest.HasteBootsRectangularDecompositionAudit

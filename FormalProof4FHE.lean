@@ -1753,3 +1753,13 @@ import FormalProof4FHE.HasteBoots.ConstructedGoldRetainedComparison
 import FormalProof4FHE.HasteBoots.PackedPBSRectangularComparisonBound
 
 import FormalProof4FHE.HasteBoots.PackedPBSRectangularComparisonJointBound
+
+import FormalProof4FHE.HasteBoots.PackedPBSFirstRectangularComparison
+
+import FormalProof4FHE.HasteBoots.PackedPBSSecondRectangularComparison
+
+import FormalProof4FHE.HasteBoots.PackedPBSFirstRectangularHalfBound
+
+import FormalProof4FHE.HasteBoots.PackedPBSSecondRectangularHalfBound
+
+import FormalProof4FHE.HasteBoots.PackedPBSRectangularDecompositionBound
