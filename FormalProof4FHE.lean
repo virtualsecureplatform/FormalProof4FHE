@@ -1669,3 +1669,15 @@ import FormalProof4FHE.HasteBoots.RectangularPaddedLookupOpeningFamily
 import FormalProof4FHE.HasteBoots.ConstructedGoldLookupGeometry
 
 import FormalProof4FHE.HasteBoots.ConstructedGoldLookupProtocol
+
+import FormalProof4FHE.HasteBoots.RectangularVariableHeightVerifier
+
+import FormalProof4FHE.HasteBoots.RectangularVariableWidthOpening
+
+import FormalProof4FHE.HasteBoots.RectangularRecordedOpening
+
+import FormalProof4FHE.HasteBoots.RectangularStagedOpening
+
+import FormalProof4FHE.HasteBoots.ConstructedGoldStagedLookup
+
+import FormalProof4FHE.HasteBoots.RectangularStagedSquareCompatibility

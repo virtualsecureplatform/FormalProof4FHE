@@ -32430,3 +32430,48 @@ profile. Full-run source association, trusted key/accumulator coverage, accepted
 false-output coverage, numeric profile admission, production refinements,
 adaptive composition and actual attacker-work accounting remain open. The
 final 128-bit security theorem is unproved.
+
+
+### Rectangular heterogeneous staged PCS execution (2026-11-13)
+
+Added `RectangularVariableHeightVerifier`, `RectangularVariableWidthOpening`,
+`RectangularRecordedOpening` and `RectangularStagedOpening`. Accepted native
+workers provide authentication in later global caches with unrelated context
+heights. Each root retains independent packing/code-symbol widths, its own
+physical split, degree, query quota and immutable recorded checkpoint. The
+dependent root loop short-circuits normally and its wrong-value event reduces
+to actual batch arithmetic or one global availability disagreement. Arithmetic
+losses are summed over attempted original roots, with no extra factor for
+claims, groups or lanes. The two-prefix theorem records source roots before
+adaptive helper construction, records helpers afterwards, and charges
+availability once for the complete execution. It does not assume equality of
+source words frozen at different phases or supply replay certificates.
+
+`ConstructedGoldStagedLookup` instantiates this execution with the native-derived
+lookup geometry, domain, width policy and trusted terminal packet binding.
+Positive degree, domain size and message capacity follow from actual completed
+native constructors. Sources use four packed lanes, helpers three, and all code
+symbols use four lanes. Radius conditions remain explicit public arithmetic
+conditions; no square extension-field rate or production-profile admission is
+substituted. The resulting theorem covers wrong PCS values against their
+original source/helper checkpoints in the actual staged worker execution.
+
+`RectangularStagedSquareCompatibility.continuation_eq` proves exact equality of
+the complete staged continuation under square specialization. It retains
+helper-first verification, short-circuiting, preparation and worker scheduling.
+
+All six modules are exported. Direct inspection and 40 imported exact axiom
+guards cover all named declarations: twelve have no axioms, one uses only
+`propext`, seven use `propext` and `Quot.sound`, and twenty additionally use
+`Classical.choice`. Default resource limits were retained. Frozen Native and
+vendor files are unchanged. Full `scripts/check` exited 0, including 12,466
+root-build jobs and every standalone check. Full-check log SHA-256:
+`e2a366f32462ae7f18bf650f59de2b9548d26b202c221bb7d46ec5ebdbbbde9c`.
+
+The PCS staged-loop connection is now available. The comparison/lookup algebra
+still needs its `AllPass`, arithmetic and original-source failure events linked
+to rectangular helper tables and this new staged theorem. Full accepted-run
+source associations, trusted key and accumulator coverage, accepted false-output
+coverage, numeric profile admission, production refinements, adaptive composition
+and actual attacker-work accounting remain open. The final 128-bit security
+theorem is unproved.
