@@ -32999,3 +32999,50 @@ theorem is unproved.
 
 Full `scripts/check` exited 0: 12,534 build jobs and all standalone checks.
 Full-check log SHA-256: `29e0f4c4a29bbb1a05816b48cf598701948439d9513d6647d1e41006b4e6c735`.
+
+
+### Executed known-input and comparison owners identify reconstruction slots (2026-11-13)
+
+Added `ExecutedKnownInputWorldLink`. `input_slot` identifies the actual fresh
+known-input checkpoint with the supported reconstruction's canonical input
+slot. Both stages use the same caller reference; reconstruction's expected-root
+theorem derives its input identity, so no root-alias or owner-equality premise
+is supplied. Public decoder routing remains explicit and is discharged for the
+native constructors by their common-descriptor theorems. The negative-mask
+coverage result now acts on reconstruction's canonical input, or exposes the
+actual known-input OriginalRisk or final Bad. The input is not assumed honest.
+
+`ExecutedComparisonOwners` constructs the literal original-source snapshots
+from the incoming log before adaptive helper work. Its actual-witness recording
+theorem follows them through helper execution, helper root registration and the
+final continuation, on every supported returned path. No acceptance, audit,
+losslessness or decoded source truth is required for this recording fact.
+
+`ExecutedComparisonWorld` decodes these owners with the actual predecessor
+reconstruction's public descriptors. Supported reached comparison execution
+fixes each source root to the corresponding native `linearSlot`; the input is
+omitted and all digit/borrow columns, including newly committed borrows, remain.
+Both the actual comparison family and predecessor family are retained into the
+same final state. `source_slot` proves their canonical indices agree without a
+root/owner/source-value association. `logical_on_reconstruction_or_bad` then
+transports the whole decoded comparison family to the reconstruction's common
+slots under the single final audited-history exception. Rectangular lookup
+interpretation must still instantiate its source decoder with these descriptors;
+the new family constructor alone does not assert that arbitrary raw lookup
+parameters match reconstruction.
+
+All three modules are exported. Eleven directly inspected declarations have
+imported exact axiom guards accepting only `propext`, `Classical.choice` and
+`Quot.sound` (two guards exclude choice). Frozen Native/vendor sources and
+default resource limits remain unchanged.
+
+Next, instantiate rectangular lookup/radix constraints with these actual source
+owners and native metadata, then assemble the derived reconstruction, mask,
+NTT and product constraints into key-switch increment coverage in the complete
+PBS witness. Honest setup/key association, canonical accumulator/monomial
+semantics, accepted false-PBS output coverage, numeric profile admission,
+production refinements, adaptive composition and actual attacker-work accounting
+remain open. The final 128-bit security theorem is unproved.
+
+Full `scripts/check` exited 0: 12,538 build jobs and all standalone checks.
+Full-check log SHA-256: `2711f40b7eead4d9d4cf30f3448d06be27199413ff9bef3eb6fd0148e0a9a828`.

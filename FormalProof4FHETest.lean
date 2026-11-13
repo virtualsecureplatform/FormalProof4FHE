@@ -925,3 +925,5 @@ import FormalProof4FHETest.HasteBootsRecordedSourceWorldAudit
 import FormalProof4FHETest.HasteBootsExecutedWorldLinksAudit
 
 import FormalProof4FHETest.HasteBootsConstructedGoldRoutingAudit
+
+import FormalProof4FHETest.HasteBootsExecutedInputComparisonLinksAudit
