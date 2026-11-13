@@ -1881,3 +1881,5 @@ import FormalProof4FHE.HasteBoots.PackedPBSHonestIncrement
 import FormalProof4FHE.HasteBoots.PackedPBSHonestAcceptedIncrement
 
 import FormalProof4FHE.HasteBoots.PackedPBSHonestIncrementEvents
+
+import FormalProof4FHE.HasteBoots.PackedPBSHonestSetupJoint

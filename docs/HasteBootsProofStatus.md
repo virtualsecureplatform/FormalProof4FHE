@@ -33881,3 +33881,59 @@ security/work theorem is proved.
 
 Full `scripts/check` exited 0: 12,616 build jobs and all standalone checks.
 Full-check log SHA-256: `76f0ad6390d5ac49ece54c8079ae09a147c92be8623b5b7e8637ee0851d03e1b`.
+
+## Actual joint honest setup/PBS event reduction (2026-11-13)
+
+Added `PackedPBSHonestSetupJoint.witness`. It executes hash-only honest key
+setup from empty, retains the actual computed root vector and full setup state,
+then runs the complete PBS witness with those roots installed by `withKeys`
+and that setup state as its initial state. Cache, hash log, checkpoint history
+and monitor are not reset between setup and PBS. The caller's other source
+references remain explicit. `parts` derives the literal supported setup and
+PBS executions from support of this one joint return.
+
+`AcceptedFalse` and `TailFailure` are the corresponding actual complete-PBS
+events at the returned setup roots/state. The joint
+`accepted_false_implies_failure` theorem obtains setup's factual query receipt,
+coherence, frozen-cache receipts, audit and shape compatibility from
+`HonestKeySetupReceipts.initialized`, then applies complete supported original-key
+increment coverage. None of these initialization facts, a root-vector equality,
+or detached child execution/security certificate is supplied as a premise.
+Fixed setup/product descriptor routing, public verifier routing/tables/activity,
+phase-recording scope and numeric capacity/distance/transform conditions remain
+explicit.
+
+`accepted_false_event_le` bounds joint accepted-false increment probability by
+the actual joint tail-risk or final-Bad probability. Setup observations and PBS
+queries belong to the same execution and shared cache. No setup-independent
+oracle distribution, separate association-error term, losslessness premise,
+new union factor or extra history charge is assumed. This is an actual joint
+event reduction; a concrete joint numeric rate/history-charge bound is still
+required.
+
+`JointResult` supplies a shared name for the native return type, with a reference
+native computation used only to determine that type. Its empty-state reference
+is not the executed verifier initial state: the witness body passes the actual
+returned setup state to PBS. Explicitly named local instances and direct
+instance arguments avoid repeated inference through the complete native return
+types. The final joint theorem and probability reduction build in 7.0 seconds
+at default resources, after earlier elaboration-only failures were resolved.
+No resource limit, linter suppression, custom axiom or frozen Native/vendor
+source was changed.
+
+All eight public declarations have directly inspected imported exact axiom
+guards. `ExecutionResult` uses no axioms; the other seven use only `propext`,
+`Classical.choice`, and `Quot.sound`.
+
+Next extend the native safe tail bound to the audited nonempty setup prefix,
+then bound the one actual shared setup/verifier history exception with its
+whole-run ExpectedHazard charge. The existing numeric native theorem starts
+from empty and must not be applied unchanged to the setup return. Instantiate
+public descriptor routing and numeric production admission, complete honest
+accumulator/monomial and full PBS-output semantics, and close the remaining
+field/codec/Rust/memory, FS/ROM/grinding, adaptive composition and physical
+attacker-work obligations. Neither production 128-query security nor the final
+128-bit security/work theorem is proved.
+
+Full `scripts/check` exited 0: 12,618 build jobs and all standalone checks.
+Full-check log SHA-256: `696f251b414cf2f5f4256628b4e84d9be3ac9dce2990c73590e9088c60474f66`.
