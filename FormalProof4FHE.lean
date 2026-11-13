@@ -1991,3 +1991,11 @@ import FormalProof4FHE.HasteBoots.PackedPBSHonestControlKeys
 import FormalProof4FHE.HasteBoots.PackedPBSNativeExternalProduct
 
 import FormalProof4FHE.HasteBoots.PackedPBSNativeExternalProductCoverage
+
+import FormalProof4FHE.HasteBoots.DecodedAccumulatorTrace
+
+import FormalProof4FHE.HasteBoots.ExecutedAccumulatorTrace
+
+import FormalProof4FHE.HasteBoots.PackedPBSAccumulatorLinkage
+
+import FormalProof4FHE.HasteBoots.PackedPBSNativeBlindRotationCoverage

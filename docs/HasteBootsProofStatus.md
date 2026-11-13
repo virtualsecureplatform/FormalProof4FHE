@@ -34915,3 +34915,55 @@ resource increases or linter suppression were used.
 
 Full `scripts/check` exited 0: 12,726 build jobs and all standalone checks.
 Full-check log SHA-256: `e6bd94e3bae95a7dc32fe36d7ec1844fbb7b5f4fd3b116e553c0b11015683036`.
+
+## Constructed original trace, endpoints and native-output reduction
+
+`DecodedAccumulatorTrace` constructs both endpoint ciphertexts and the complete
+coefficient trace from the original source arrays. Endpoint packing/unpacking
+and `repack` are exact inverses, including every lane and half; no separate
+packed-trace witness is supplied. The only round-geometry association fixes the
+actual start/finish indices to the public padded-wrap and last-active indices.
+`linkage_of_holds` derives both endpoint identities and the complete cyclic
+continuity relation from the original native residuals. Both boundary terms
+remain, including when the last active row equals the last padded row.
+
+Its trace/run theorems execute only active rounds in their original order.
+`ExecutedAccumulatorTrace` derives the required arithmetic/endpoint/linkage
+constraints from the actual accepted accumulator arithmetic and opening gates,
+or exhibits the EXISTING accumulator OriginalRisk. `PackedPBSAccumulatorLinkage`
+instantiates this construction in the actual reached PBS accumulator prefix.
+These results decode the actual context's initial/final fields; they do NOT
+silently identify arbitrary behavior-factory context data with an intended
+public PBS statement.
+
+`PackedPBSNativeBlindRotationCoverage.output_or_rotation_or_risks` composes that
+accepted-check linkage with the proved ACTUAL external-product coverage. The
+actual decoded context output equals `NativeBlindRotation.run` of the active
+honest controls and public exponents, OR a concrete active-row rotation mismatch
+occurs, OR one of the same eight existing native risks/final Bad occurs. The
+trace, input/output endpoint identities and external-product truths are derived,
+not supplied as semantic certificates. A setup-backed variant derives the
+control receipt from actual shared setup support returning the caller roots and
+native initial state. No per-round endpoint or accumulator risk is added.
+
+IMPORTANT remaining step: eliminate the explicit rotation mismatch by lifting
+the already proved actual monomial-stage rotation coverage to this SAME reached
+accumulator source and retained full prefix. The mismatch is exposed and is NOT
+yet asserted to be a bounded native risk by these new theorems. Also derive the
+public context association (round indices and intended initial/claimed final
+ciphertexts), compose honest blind-rotation output with the key-switch result,
+integrate both setups and the full verifier in one joint program/charge, and
+lift the full-output false event to native arithmetic bounds. Concrete production
+parameter/codec/layout/radius/representation/key-generation/Rust admission,
+FS/ROM/grinding, adaptive attempts and physical attacker-work accounting remain
+unfinished. The existing whole-history charged theorem remains selected
+key-switch increment security; full PBS-output security and the 128-bit work
+target are not proved. The production 128-query profile remains uncertified.
+
+All 14 declarations compile at default Lean resources and have directly
+inspected exact axiom guards for only `propext`, `Classical.choice` and
+`Quot.sound`. No frozen Native/vendor edits, custom axioms, admitted proofs,
+resource increases or linter suppression were used.
+
+Full `scripts/check` exited 0: 12,734 build jobs and all standalone checks.
+Full-check log SHA-256: `3a9d70be759d451b26e58b61a09e2a5bd498532ffb7d3b5f1463e3b6878c6f83`.
