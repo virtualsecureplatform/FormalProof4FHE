@@ -32867,3 +32867,45 @@ final 128-bit security theorem is unproved.
 
 Full `scripts/check` exited 0: 12,521 build jobs and all standalone checks.
 Full-check log SHA-256: `a5cbb9493533bcda7dc251e8ebf9d39444cde62f32dee43fa70f7100cb746d0f`.
+
+
+### Construct the common family from the final history (2026-11-13)
+
+Added `RecordedSourceWorld`. Its indices are the public decoder-descriptor/root
+pairs for which an owner is actually recorded in the selected final state.
+`family` chooses a recorded owner for each available pair and decodes it with
+that descriptor; `recorded` proves every chosen owner belongs to the same final
+history. No decoded-table or externally supplied common-family certificate is
+assumed. `slot` embeds any actually recorded local family by its literal
+metadata. `slot_eq` proves that equal descriptors and caller roots give the
+same index independently of the availability evidence. Different descriptors
+are not silently identified from root equality alone. Logical/cipher transport
+uses the existing audited-history coherence theorem outside the same final Bad.
+
+Added `ExecutedReconstructionWorld`, `ExecutedProductWorld`, `ExecutedNTTWorld`
+and `ExecutedKnownInputWorld`. These instantiate the canonical final-history
+family for actual supported executed operations. Acceptance gives respectively
+the decomposition relation, Hadamard identity, all selected NTT transforms and
+both negative-mask halves, or exposes that operation's executed OriginalRisk
+(or loop AnyOriginalRisk) or final Bad. Each wrapper derives its local recorded
+family from actual support and checkpoint retention. Known-input `slot` is
+constructed directly from its fresh checkpoint and the checked caller root.
+There is no supplied common family, decoded-source-value map or world-recording
+premise. Audits, actual support, acceptance and retention remain explicit.
+
+All five modules are exported. Thirteen directly inspected declarations have
+imported exact axiom guards; they use only `propext`, `Classical.choice` and
+`Quot.sound` (four guards exclude choice). Frozen Native/vendor sources and
+default resource limits remain unchanged.
+
+Next, discharge cross-stage equality of the canonical indices using actual
+caller-root identities and native public descriptor constructors, integrate
+the rectangular comparison's canonical slots and assemble the key-switch
+increment coverage theorem in the complete witness. Honest setup/key
+association, canonical accumulator/monomial semantics, accepted false-PBS
+output coverage, numeric profile admission, production refinements, adaptive
+composition and actual attacker-work accounting remain open. The final
+128-bit security theorem is unproved.
+
+Full `scripts/check` exited 0: 12,527 build jobs and all standalone checks.
+Full-check log SHA-256: `91852ae31a5e5d2408ef29225655529698ce214db8396ff272559f383592c55b`.
