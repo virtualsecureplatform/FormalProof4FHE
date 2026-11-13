@@ -1579,3 +1579,9 @@ import FormalProof4FHE.HasteBoots.RecordedPaddedSourceFamily
 import FormalProof4FHE.HasteBoots.PaddedStageSourceInterpretation
 
 import FormalProof4FHE.HasteBoots.PaddedLookupSourceInterpretation
+
+import FormalProof4FHE.HasteBoots.PackedCipherSource
+
+import FormalProof4FHE.HasteBoots.DecodedPaddedNTT
+
+import FormalProof4FHE.HasteBoots.DecodedPaddedExtraction

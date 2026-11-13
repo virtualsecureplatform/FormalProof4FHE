@@ -31827,3 +31827,59 @@ Validation: full `scripts/check` exited successfully, including the 12,401-job
 root build and all standalone checks. Frozen Native modules and vendor sources
 are unchanged. Full-check log SHA-256:
 `c85507310e879b1e7b9bc502b069e7b6fab87d001baa7ff2025d23e41d37d4fe`.
+
+### Construct decoded ciphertexts and derive native NTT/extraction semantics
+
+Added `PackedCipherSource`, `DecodedPaddedNTT` and `DecodedPaddedExtraction`.
+
+`PackedCipherSource.equivalence` proves that complete logical source tables and
+coefficient-domain ciphertexts are equivalent. `unpack_pack` and `pack_unpack`
+retain every coefficient, lane and half. The inverse is constructive in the
+source table: no equality to an independently supplied semantic value is
+required. Native polynomial addressing and ciphertext-half ordering are proved
+against the existing extraction packing. NTT row coordinates and extraction
+coordinates construct the same value; flattening a row gives the corresponding
+polynomial half. A recorded family therefore supplies one `familyCipher` per
+root in both presentations.
+
+`DecodedPaddedNTT.native_transform_of_not_risk` proves that an accepted native
+butterfly call outside its original-owner risk enforces the exact negacyclic
+transform of the constructed coefficient ciphertext into the constructed
+evaluation ciphertext, for each half. The trusted `PaddedNTT.nativeScheme`
+supplies the butterfly map, and the primitive-root theorem supplies its equality
+to negacyclic evaluation. No transform/source-value certificate is assumed.
+`cipher_family_eq_or_bad` identifies these values with common family values
+from public decoder-descriptor equality and recorded-owner/root facts, outside
+the same final Bad.
+
+`DecodedPaddedExtraction.increment` constructs the increment from the retained
+private source. `source_eq_pack` derives the previously explicit private-table
+interpretation equality using the packing inverse. Consequently,
+`wrong_implies_risk` and `extraction_of_not_risk` enforce canonical extraction
+of this decoded root value without a supplied increment interpretation witness.
+`semantic_safe_bound` bounds accepted incorrect extraction of the constructed
+value by the existing native ZeroCheck rate plus one PCS error, under the same
+final collision exclusion. The decoded increment agrees with a common family
+ciphertext under public descriptor association and recorded-root facts.
+
+These are local semantic bridges for the actual padded stages, not yet full
+accepted-false-output coverage. The common family still needs to be instantiated
+from all reached roots of the full accepted run, its native parameter-store
+associations derived, and the remaining reconstruction/comparison/product/
+accumulator constraints assembled into the coefficient reference trace. In
+particular, the decoded increment still must be proved equal to the canonical
+signed key-product increment from those earlier constraints. Trusted public-key
+source association, numeric profile admission, earlier masked-profile and
+production refinements, adaptive composition and physical attacker-work
+accounting remain open. The final 128-bit theorem remains unproved.
+
+All three modules are exported. Direct axiom inspection covered 21 new theorems
+and the packing equivalence: two use no axioms, one uses only `propext` and
+`Quot.sound`, and the remaining nineteen use only `propext`, `Classical.choice`
+and `Quot.sound`. The imported audit has 22 exact guards. Default resource
+limits were retained.
+
+Validation: full `scripts/check` exited successfully, including the 12,405-job
+root build and all standalone checks. Frozen Native modules and vendor sources
+are unchanged. Full-check log SHA-256:
+`a6961ed42506ac4485f601f337acd044dea6ee1e8e71d9b73c59cec5f2cb9637`.
