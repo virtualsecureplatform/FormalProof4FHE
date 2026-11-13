@@ -1945,3 +1945,7 @@ import FormalProof4FHE.HasteBoots.PackedPBSSecondCanonicalDigits
 import FormalProof4FHE.HasteBoots.ExecutedTransportedRectangularRadix
 
 import FormalProof4FHE.HasteBoots.PackedPBSFirstCanonicalDigits
+
+import FormalProof4FHE.HasteBoots.TransportedOriginalNTTSource
+
+import FormalProof4FHE.HasteBoots.PackedPBSSecondDigitNTTAssociation

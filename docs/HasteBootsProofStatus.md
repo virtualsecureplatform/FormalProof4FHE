@@ -34416,3 +34416,54 @@ custom axioms, admitted proofs or linter suppression.
 
 Full `scripts/check` exited 0: 12,680 build jobs and all standalone checks.
 Full-check log SHA-256: `3ffb6e6699246f2a92fd1b2c82ce68ce095780db19b122506b46ef57f892e5ea`.
+
+## Original external-product NTT sources and second-half canonical coefficients
+
+`TransportedOriginalNTTSource` interprets each actual retained original NTT child
+through its exact source owner, caller coefficient/evaluation root and physical
+decoder. The complete saved log is copied across the existing geometry change.
+Recording comes from the actual supported Hadamard-plus-NTT loop, with no new
+child execution or independent availability receipt. Public encoding and local
+height association prove that its literal row source is the copied owner's
+canonical logical source. Complete decoder/root association then identifies it
+with another recorded family under one final audited history. Row regrouping
+preserves the exact native coefficient and lane addresses.
+
+`PackedPBSSecondDigitNTTAssociation` recovers that original Hadamard/NTT execution
+from the supported complete second-comparison PBS prefix. It derives the actual
+first-comparison return, first linear child, original completed NTT loop and
+inherited first-linear execution support. `originalRetained` carries every copied
+original NTT checkpoint through the first linear stage, geometry transition,
+first comparison, second linear stage and second comparison into any later
+retained final history. The per-child retention chain is proved, not supplied.
+No state is reset and no program is replayed.
+
+`digit_row_eq_or_bad` identifies every actual retained second-half digit NTT
+coefficient row with the corresponding digit polynomial of the constructed
+executed second reconstruction. The root equality follows from the same original
+caller coefficient slot; public metadata association supplies decoder identity,
+not a decoded source-value equality. `canonical_digit_row_or_risks` composes this
+with the already derived canonical-digit theorem, obtaining equality with
+`NativeBlindRotation.digit` of that executed original input polynomial. Its only
+failure alternatives are the existing second lookup/linear risks and the same
+final Bad event. This is source/canonical-digit provenance; the NTT-transform
+and Hadamard-relation risk events are still needed for external-product truth.
+
+Remaining: instantiate the analogous first-half coefficient association, identify
+both original decomposition inputs with the actual accumulator difference sources,
+and connect the actual result source and honest control-key evaluations. Full
+external-product, endpoint/trace and PBS-output composition and full-output event
+lifting remain outstanding. These new results are pointwise and do not change
+the existing native arithmetic rates or whole-history charge. The whole native
+theorem still concerns accepted-false key-switch increments relative to the actual
+accumulator. Production parameter/encoding/descriptor and representation admission,
+FS/ROM/grinding, adaptive attempts and physical attacker-work accounting remain
+unproved; the production 128-query profile remains uncertified.
+
+All 18 declarations have directly inspected exact axiom guards using only
+`propext`, `Classical.choice`, and `Quot.sound`. Both modules compile at default
+Lean resources, without frozen Native/vendor edits, resource increases, custom
+axioms, admitted proofs or linter suppression.
+
+Full `scripts/check` exited 0: 12,684 build jobs and all standalone checks.
+Full-check log SHA-256: `a09aefa63e845c01b52485f79038132dc130b59afc180c724f47824e9a776d37`.
