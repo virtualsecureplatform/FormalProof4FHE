@@ -35399,3 +35399,47 @@ or linter suppression were used.
 
 Full `scripts/check` exited 0: 12,768 build jobs and all standalone checks.
 Full-check log SHA-256: `8d8df386abd36bb8a21a73cf2d6c9e52687b969b972b9e7d001b61de337aa56e`.
+
+## Native arithmetic bound for the reached extraction term (2026-11-13)
+
+`ExtractionNativeRate.rate` names the executed extraction's first/round
+arithmetic formula plus the original coefficient-opening error. `bound` takes
+its supremum over the actual factory's private-memory branches; `le_bound`
+provides the uniform public arithmetic calibration required by the existing
+native theorem. This uses no conditional child-security certificate or assumed
+component probability rate.
+
+`PackedPBSHonestExtractionNativeBound.extraction_risk_le` instantiates the
+existing native extraction bound for the same complete PBS extraction witness
+and the exact original-risk event used by `OutputProbability`. Its predecessor
+audit is derived from the original incoming audit and existing scope/geometry
+conditions. Required field basis, nonzero code dimensions, domain capacity,
+codeword capacity and decoding-distance admissions remain explicit.
+
+`safe_output_le` substitutes that native arithmetic expression for the safe
+reached-extraction probability. `output_le` does so in the unconditional
+accepted-wrong-final-output bound, retaining the existing safe honest-increment
+predecessor probability and the one actual final collision probability. There
+is no additional authentication term, semantic increment-correctness premise,
+conditional-security assumption or losslessness requirement.
+
+The rate is a symbolic supremum of public code/radius expressions; no concrete
+production calibration or finiteness/smallness of that supremum is asserted.
+Production code descriptors and radii must still be shown to satisfy a useful
+uniform budget. The honest-increment event probability remains to be replaced
+by its setup-backed native arithmetic bound, and the final collision event by
+one charge on the actual combined setup and verification history. The target
+still switches the once-biased actual retained accumulator; the public-bound
+blind-rotation result must be joined to obtain full public PBS output security.
+Both setups/full verification in one charged experiment, production admissions,
+FS/ROM/grinding, adaptive attempts and physical attacker-work accounting remain
+unfinished. The 128-bit work target is not proved and the production 128-query
+profile remains uncertified.
+
+All six declarations compile at default Lean resources and have directly
+inspected exact guards for only `propext`, `Classical.choice` and `Quot.sound`.
+No frozen Native/vendor edits, admitted proofs, custom axioms, resource increases
+or linter suppression were used.
+
+Full `scripts/check` exited 0: 12,772 build jobs and all standalone checks.
+Full-check log SHA-256: `a31ee9cb7cdb05c3b096dbc02c8e5f5861e2d87b93b42dd67b90dff627d7a7b1`.
