@@ -883,3 +883,5 @@ import FormalProof4FHETest.HasteBootsDecodedCoefficientConstraintsAudit
 import FormalProof4FHETest.HasteBootsDecodedRadixAudit
 
 import FormalProof4FHETest.HasteBootsDecodedIncrementAudit
+
+import FormalProof4FHETest.HasteBootsAcceptedKeySwitchNTTAudit

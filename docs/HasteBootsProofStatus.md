@@ -32005,3 +32005,49 @@ Validation: full `scripts/check` exited successfully, including the 12,417-job
 root build and every standalone check. Frozen Native modules and vendor sources
 are unchanged. Full-check log SHA-256:
 `f0d71437af83d49952b87c1dfa5764430e1d0e8b152fba3d1f501d68e209c3ab`.
+
+
+### Accepted native NTT execution constructs its own recorded family
+
+Added `AcceptedKeySwitchNTT`. From support in the actual accepted ordered
+key-switch NTT loop, the proof selects a retained child for each scheduled
+index. Its dependent sigma index agrees with the schedule. Child support is
+obtained at its actual incoming state; no independent child-from-empty support
+or original-owner authenticity premise is required.
+
+The child's fresh coefficient/evaluation owners have exactly the caller's
+scheduled roots and are recorded both at the child end and at the loop end.
+The module constructs a `RecordedPaddedSourceFamily.Family` over
+`Fin (d+1) × Bool` from these actual owners and each selected child's actual
+decoder/domain/capacity/radius descriptor. It proves the constructed family is
+recorded and retains exactly the caller coefficient/evaluation roots. Thus the
+family is constructed from execution rather than supplied as a private-source
+interpretation or a root-availability certificate.
+
+Outside the existing union of original-owner risks and the final loop collision
+event, every one of the d+1 constructed coefficient/evaluation pairs satisfies
+the native negacyclic transform on both ciphertext halves. The initial audit is
+propagated through the actual loop. A false-transform event is defined using the
+family built from that same supported accepted outcome, then reduced to the
+existing original-owner risk union under the same final exclusion. Composing
+with the native loop bound yields the derived d+1 NTT rate, including its
+per-source physical PCS errors, for this decoded semantic event.
+
+This completes actual-loop instantiation of the final NTT family. The next
+step is to retain these anchors through the later product, reconstruction,
+comparison and extraction stages, extend the family to their additional roots,
+and derive the public native parameter-store associations needed to identify
+all presentations. Full accepted-false-output coverage, accumulator trace
+coverage, trusted key-source association, numeric profile admission, earlier
+masked-profile and production refinements, adaptive composition and physical
+attacker-work accounting remain open. The final 128-bit theorem remains unproved.
+
+The module is exported. Direct axiom inspection covered nine theorems and the
+two family-selection/construction definitions; all use only `propext`,
+`Classical.choice` and `Quot.sound`. The imported audit has eleven exact guards.
+Default resource limits were retained.
+
+Validation: full `scripts/check` exited successfully, including the 12,419-job
+root build and every standalone check. Frozen Native modules and vendor sources
+are unchanged. Full-check log SHA-256:
+`b9db38643b42f41559cee553ecbaa17167ce82ddd8047b3368b3c069390f7438`.

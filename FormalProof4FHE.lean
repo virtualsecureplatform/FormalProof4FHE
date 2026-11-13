@@ -1603,3 +1603,5 @@ import FormalProof4FHE.HasteBoots.DecodedCipherRadixConstraints
 import FormalProof4FHE.HasteBoots.DecodedFamilyNTT
 
 import FormalProof4FHE.HasteBoots.DecodedKeySwitchIncrement
+
+import FormalProof4FHE.HasteBoots.AcceptedKeySwitchNTT
