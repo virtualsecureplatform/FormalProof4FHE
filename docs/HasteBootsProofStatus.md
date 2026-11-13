@@ -34030,3 +34030,42 @@ resource limit, linter suppression or custom axiom was changed.
 
 Full `scripts/check` exited 0: 12,640 build jobs and all standalone checks.
 Full-check log SHA-256: `2253702ada78a821456d85025e1d8a7723422cad25114385f6abb7f0e2ed7f6f`.
+
+## Accepted-false partition in the actual setup/PBS execution (2026-11-13)
+
+Extended `PackedPBSHonestSetupJoint` with `FinalBad`, the exception of the
+actual final retained history, and `TailRisk`, the selected tail risk using
+the setup return's installed key roots. `tail_failure_iff` proves that the
+existing `TailFailure` event is exactly `TailRisk ∨ FinalBad` for that same
+joint return. The risk is exposed directly, rather than defined by an assumed
+child probability bound or a different execution.
+
+`accepted_false_safe_event_le` now bounds the actual original-key accepted
+false increment event outside `FinalBad` by `TailRisk ∧ ¬ FinalBad` in the
+same setup/verifier witness. `accepted_false_partition_bound` obtains
+`Pr[AcceptedFalse] ≤ Pr[FinalBad] + Pr[TailRisk ∧ ¬ FinalBad]`. It composes
+the supported semantic containment with the existing probability partition
+lemma; there is one final-history exception probability, no independent setup
+exception, no normalization, no independence or losslessness premise, and no
+caller-supplied child security bound. The existing honest setup geometry,
+degree/distance/capacity, routing, public table/radix and phase-scope
+obligations remain explicit. No change was made to those conditions or the
+existing event proofs.
+
+All five additions build at default resources (the joint module takes about
+10 seconds) and have directly inspected exact axiom guards using only
+`propext`, `Classical.choice`, and `Quot.sound`. No frozen Native/vendor module,
+resource limit, linter suppression or custom axiom was changed.
+
+Next specialize this exposed safe tail to the configured native experiment
+and apply `PackedPBSNativeSetupSafeBound.native_safe_tail_bound`, discharging
+the dimension/descriptor matching rather than assuming a child security
+certificate. Bound the one final `FinalBad` probability from the whole shared
+setup/verifier execution's ExpectedHazard, then address honest accumulator/
+monomial and full PBS-output semantics, production numeric and representation/
+Rust/memory admission, FS/ROM/grinding, adaptive composition and physical
+attacker-work accounting. Neither the production 128-query profile nor the
+final 128-bit security/work theorem is proved.
+
+Full `scripts/check` exited 0: 12,640 build jobs and all standalone checks.
+Full-check log SHA-256: `eb03f0df68c67a1a2eb64601a2faa1bb62c0b13e5c583f19b46064efe25978ba`.

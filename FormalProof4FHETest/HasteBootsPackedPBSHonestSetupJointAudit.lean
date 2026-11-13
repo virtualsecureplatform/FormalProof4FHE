@@ -32,3 +32,23 @@ import all FormalProof4FHE.HasteBoots.PackedPBSHonestSetupJoint
 /-- info: 'FormalProof4FHE.HasteBoots.PackedPBSHonestSetupJoint.accepted_false_event_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.PackedPBSHonestSetupJoint.accepted_false_event_le
+
+/-- info: 'FormalProof4FHE.HasteBoots.PackedPBSHonestSetupJoint.FinalBad' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.PackedPBSHonestSetupJoint.FinalBad
+
+/-- info: 'FormalProof4FHE.HasteBoots.PackedPBSHonestSetupJoint.TailRisk' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.PackedPBSHonestSetupJoint.TailRisk
+
+/-- info: 'FormalProof4FHE.HasteBoots.PackedPBSHonestSetupJoint.tail_failure_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.PackedPBSHonestSetupJoint.tail_failure_iff
+
+/-- info: 'FormalProof4FHE.HasteBoots.PackedPBSHonestSetupJoint.accepted_false_safe_event_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.PackedPBSHonestSetupJoint.accepted_false_safe_event_le
+
+/-- info: 'FormalProof4FHE.HasteBoots.PackedPBSHonestSetupJoint.accepted_false_partition_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.PackedPBSHonestSetupJoint.accepted_false_partition_bound
