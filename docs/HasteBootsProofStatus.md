@@ -35757,3 +35757,54 @@ production 128-query profile remains uncertified.
 
 Full `scripts/check` exited 0: 12,806 build jobs and all standalone checks.
 Full-check log SHA-256: `87a0bae43e237d7ffa14bb50d1eb5749d577936704ba5d475e8a49ebff7300f6`.
+
+### 2026-11-14 — Recover retained extraction from the combined setup game
+
+`PackedPBSFixedInitialExtractionHistory` factors the retained comparison and
+extraction execution at supplied key roots and an arbitrary populated initial
+state. Its `prior` retains those roots and that exact initial state alongside
+the actual comparison witness; it performs no setup call. `project_prior` and
+`project_witness` identify the retained computation with the existing raw
+`verifierProgram` under the same shared handler, including the complete final
+monitor state. They require the existing geometry-compatibility and
+record-scope conditions, without assuming empty initialization or a component
+security bound.
+
+`recover_supported` inverts that exact projection for every supported raw
+return, including rejected and skipped branches. `prior_supported` identifies
+the roots and initial state used by a retained predecessor.
+`fixed_initial_supported` repackages a reached extraction child into the
+existing `PackedPBSKeySwitchExtraction.witness`, preserving its literal
+comparison predecessor, generated roots, initial state, selected memory and
+extraction child. Existing complete-verifier soundness interfaces can thus
+consume this execution rather than an unrelated marginal or freshly
+initialized run.
+
+`PackedPBSJointSetupStatefulExtraction.stateful_supported` applies this bridge
+to the actual combined control-key/key-switch setup and full raw verifier
+program. Both receipts and readiness at the verifier's fixed geometry are
+derived from the same supported combined execution. It supplies a supported
+retained comparison/extraction execution whose erased return and complete
+final state equal that raw return and final state. The scoped first-stage
+condition is stated for the actual generated control roots. No independent
+setup receipt, audit, soundness or compatibility certificate is supplied by
+the caller. Normalizing the family-independent return-type definitions makes
+the application compile at default Lean resources.
+
+All eight new declarations have directly inspected exact guards for
+`propext`, `Classical.choice` and `Quot.sound`. No frozen Native/vendor edits,
+admitted proofs, custom axioms, resource increases or linter suppression were
+introduced.
+
+The bridge establishes execution identity and supported semantic inputs; it
+does not yet lift the native arithmetic probability bounds to the combined
+game. Deriving uniform fixed-initial bounds and composing them with public
+CanonicalPBS output semantics remains next. The single full authentication
+charge from the preceding milestone remains available for that same raw game.
+Physical attacker-work accounting, concrete production calibration,
+representation/key-generation refinements, FS/ROM/grinding and adaptive
+attempts remain unfinished. Full PBS security and the 128-bit work target are
+not proved; the production 128-query profile remains uncertified.
+
+Full `scripts/check` exited 0: 12,810 build jobs and all standalone checks.
+Full-check log SHA-256: `404c12cebdbc33b29ade1e64dbcc1963cac004c5390f4688f299f499c3de0c47`.
