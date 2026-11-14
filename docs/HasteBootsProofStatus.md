@@ -35534,3 +35534,49 @@ Full PBS security and the 128-bit work target remain unproved; the production
 
 Full `scripts/check` exited 0: 12,780 build jobs and all standalone checks.
 Full-check log SHA-256: `bd27532def869b1e30da2be612c492633c3ee0f83acc1f75afaa4ddb2931aef1`.
+
+
+### 2026-11-14 — bound output failure in the actual setup/extraction program
+
+`PackedPBSHonestExtractionJointOutput.wrong_safe_output_implies_failures`
+applies the existing complete fixed-initial output coverage theorem to the
+support reconstructed from the actual joint setup and verifier. The generated
+keys and exact setup end state are used throughout. Initial audit and shape
+compatibility are derived from `HonestKeySetupReceipts.initialized`, rather
+than required as independent premises. Public descriptor association, output
+shape, record scope and decoder parameters remain explicit.
+
+`PackedPBSHonestExtractionJointProbability.safe_probability_le` bounds the
+accepted wrong canonical key-switch/extraction output event in that actual
+joint program by its actual safe predecessor increment-failure probability
+and reached safe extraction-risk probability. It derives the equality between
+the literal returned child's predecessor and the actual comparison predecessor
+from full-program support. `probability_le` adds exactly one final
+setup-plus-comparison-plus-extraction authentication exception. No independent
+setup experiment, conditional component-security bound, losslessness assumption
+or success-conditioned probability is introduced.
+
+`PackedPBSHonestExtractionJointNativeOutput.safe_output_le` and `output_le`
+substitute the derived `ExtractionNativeRate.bound` for the safe extraction
+term. Their field-basis, code/domain-capacity, nonzero-code and decoding-distance
+admissions remain explicit. These are bounds for canonical key-switch and
+extraction applied to the actual reached accumulator endpoint; matching that
+endpoint to the public full PBS computation is still outstanding.
+
+All five new declarations compile at default Lean resources, with directly
+inspected exact axiom guards for only `propext`, `Classical.choice` and
+`Quot.sound`. Frozen Native/vendor modules were not changed; no admitted proofs,
+custom axioms, resource increases or linter suppressions were introduced.
+
+Next, the safe predecessor increment probability must be bounded by the
+configured native arithmetic rate without adding a second authentication
+exception. Actual blind-rotation control-key setup must still be composed with
+key-switch setup and the full verifier in one program. Public CanonicalPBS
+output matching, the full authentication/work charge, concrete production
+calibration, production/representation/key-generation refinements,
+FS/ROM/grinding, adaptive attempts and physical attacker-work accounting remain
+unfinished. Full PBS security and the 128-bit work target are not proved; the
+production 128-query profile remains uncertified.
+
+Full `scripts/check` exited 0: 12,786 build jobs and all standalone checks.
+Full-check log SHA-256: `70981ea9c878f6763fbe247438efa619189cf03ae2027ab636f076a7b44ea0d9`.
