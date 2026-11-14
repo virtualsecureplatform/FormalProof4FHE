@@ -36004,3 +36004,69 @@ target are not proved; the production 128-query profile remains uncertified.
 
 Full `scripts/check` exited 0: 12,842 build jobs and all standalone checks.
 Full-check log SHA-256: `ef3af1064d5e67880ea57e12d2cc6e5595af7956cafcac9748c491163b4dc026`.
+
+### 2026-11-14 — Reduce public CanonicalPBS output failure in the actual game
+
+`PublicAccumulatorLog.cast`, its identity/roundtrip laws and `exponent_eq`
+transport coefficient arrays between equal ring exponents. The required
+exponent equality follows from the existing packed-length geometry by
+injectivity of powers of two; no new packing restriction or assumed endpoint
+value is introduced. `factory` uses the existing public context constructor at
+the physical packing exponent, and `factory_value` proves that every actual
+private-memory branch's endpoint reader recovers the logical public claim.
+
+`PackedPBSPublicExtractionEndpointAtLog.endpoint_eq_claim` extends the selected
+endpoint theorem to the common ring size used by key switching/extraction.
+The actual comparison selection supplies accumulator presence and excludes the
+endpoint fallback. This works for arbitrary accumulator packing dimensions
+whose existing length equality gives that common ring, rather than fixing the
+accumulator to the four-lane key-switch packing.
+
+`PackedPBSJointSetupPublicOutput` instantiates the complete two-setup witness
+with this public-bound accumulator factory. Its initial endpoint is constructed
+from the actual public frontend inputs and stride. The trusted key-switch
+setup uses `publicKey.switching` directly. `accepted` counts only a literal
+returned extraction child whose verifier accepted. `wrong` now targets
+`CanonicalPBS.evaluate brBits bits stride shape publicKey publicInput`,
+including public preprocessing, blind rotation, one body bias, canonical
+negative-mask switching and extraction. `wrongClaim` is the same actual
+accepted-extraction gate conjoined with the public accumulator claim differing
+from the public blind-rotation result. Blind correctness is not a premise.
+
+The concrete `endpoint_eq_claim` theorem derives the selected child's endpoint
+from actual complete-witness support, retained predecessor equality and the
+public factory theorem. It takes no endpoint-value or decoder certificate.
+`wrong_implies_failures` then proves that a supported accepted wrong public PBS
+output implies either `wrongClaim` or the existing accepted wrong canonical
+key-switch/extraction event. Rewriting the derived endpoint and comparing the
+claim with the public blind result preserves the single body bias.
+
+`safe_probability_le` lifts that inclusion to two safe events on the same
+literal full return, without conditioning on safety or assuming losslessness.
+`probability_le` adds only one full final authentication event.
+`charged_probability_le` replaces that probability with the established actual
+combined setup/verifier/extraction history charge. The directly inspected
+conclusion has three probability terms: one public false-output probability
+on the left and the two remaining safe-event probabilities on the right. It
+has one complete history charge and no separate authentication-failure
+probability. No component probability/security bound is supplied as a premise.
+
+All 15 new declarations have directly inspected exact axiom guards using only
+`propext`, `Classical.choice` and `Quot.sound`, or fewer axioms. They compile at
+default Lean resources. No frozen Native/vendor edits, admitted proofs, custom
+axioms, resource increases or linter suppression were introduced.
+
+This establishes the public evaluator target and its actual-witness failure
+reduction; it does not yet make the public blind-claim event small. Next,
+recover the reached blind-rotation prefix and actual control receipt, bind its
+public row/rotation/reference associations, and apply the existing public
+blind-rotation risk coverage to that same claim. The native final-stage rate
+must also be instantiated at this public factory so both safe events receive
+derived arithmetic bounds under one final history charge. Physical
+attacker-work accounting, concrete production calibration,
+representation/key-generation refinements, FS/ROM/grinding and adaptive
+attempts remain unfinished. Full PBS security and the 128-bit work target are
+not proved; the production 128-query profile remains uncertified.
+
+Full `scripts/check` exited 0: 12,848 build jobs and all standalone checks.
+Full-check log SHA-256: `5505dacdbfb24a5c304cf597039575d42adedc98a89026032acc46c9ed9d2675`.
