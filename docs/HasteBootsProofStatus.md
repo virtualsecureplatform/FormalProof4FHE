@@ -35862,3 +35862,62 @@ proved; the production 128-query profile remains uncertified.
 
 Full `scripts/check` exited 0: 12,814 build jobs and all standalone checks.
 Full-check log SHA-256: `63df1222157a7a8865d189fc54100be1c296eefc789e20c04c403be874a40a1f`.
+
+### 2026-11-14 — Bound accepted incorrect increments after both setups
+
+`PackedPBSJointSetupIncrement.witness` retains the actual control-key setup
+return, the actual key-switch setup return that follows it, and the literal
+comparison/verifier return. The first family receives the generated control
+roots, the final family receives the generated key-switch roots, and the
+verifier starts from the final end of both setups. Its canonical result-type
+prototype is independent of runtime initialization; the executed witness uses
+the actual populated setup state.
+
+`AcceptedFalse`, `TailRisk`, `TailFailure` and `FinalBad` describe events on that
+same retained return. The accepted-false target remains the original key's
+canonical increment at the actual once-biased accumulator endpoint.
+`parts` recovers both actual setup support and the subsequent actual comparison
+support. `accepted_false_implies_failure` derives the key-switch receipt,
+coherent cache, sound recorded queries, audit and geometry compatibility from
+`HonestJointKeySetup.initialized` on that actual combined setup. It applies
+the existing fixed-initial semantic reduction without a detached child
+security or history certificate.
+
+The pointwise implication yields `accepted_false_event_le`,
+`accepted_false_safe_event_le` and `accepted_false_partition_bound`. The safe
+inclusion uses accepted-false and absence of final authentication failure on
+the same literal return; it introduces no probability conditioned on safety
+and requires no losslessness premise. Existing original-key setup geometry,
+distance margins, public radix tables, routing and canonicity conditions remain
+explicit, with the first-stage record scope uniform over generated control
+roots.
+
+`PackedPBSNativeJointIncrementBound` specializes these statements to the
+configured native opening and rectangular lookup schemes.
+`safe_experiment_eq` identifies the semantic safe-tail experiment with
+`PackedPBSNativeJointSetupSafeBound.experiment`, preserving the actual setup
+roots, initial/final history and concrete sampling factories.
+`native_safe_bound` substitutes the derived arithmetic rate.
+`accepted_false_bound` gives the accepted-incorrect-increment probability at
+most one actual final authentication-failure probability plus the native
+stage-rate sum. `safe_bound` bounds its safe part by that stage-rate sum alone.
+Directly inspected conclusions contain respectively two probability terms
+with one `badExperiment`, and one probability term with no `badExperiment`;
+no residual tail-risk probability remains.
+
+All 24 added declarations have directly inspected exact axiom guards using
+only `propext`, `Classical.choice` and `Quot.sound`, or fewer axioms. They compile
+at default Lean resources. No frozen Native/vendor edits, admitted proofs,
+custom axioms, resource increases or linter suppression were introduced.
+
+These results concern the actual combined setup/comparison prefix. Next,
+extend its retained witness through extraction, apply the safe increment rate
+to that same prefix, and combine the extraction risk with the one full final
+history charge. Public CanonicalPBS output composition, physical attacker-work
+accounting, concrete production calibration, representation/key-generation
+refinements, FS/ROM/grinding and adaptive attempts remain unfinished. Full PBS
+security and the 128-bit work target are not proved; the production 128-query
+profile remains uncertified.
+
+Full `scripts/check` exited 0: 12,818 build jobs and all standalone checks.
+Full-check log SHA-256: `d9c987e04acfa64535045ec62ded13188b7cb462223cea27db44ab337905a4ec`.
