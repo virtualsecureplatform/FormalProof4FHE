@@ -35639,3 +35639,63 @@ profile remains uncertified.
 
 Full `scripts/check` exited 0: 12,792 build jobs and all standalone checks.
 Full-check log SHA-256: `509997d94e3e4e7d7c7db629e1e510daa5b1fa7e3523465f23e3780115552e1a`.
+
+
+### 2026-11-14 — charge the complete honest setup/verifier/extraction history
+
+`DependentStageContinuationProjection` supplies exact raw-program projection
+for dependent continuations whose children have factual execution identities.
+It preserves the selected index, returned data and full final state through
+reached and skipped branches. `RetainedPaddedExtractionProjection` specializes
+the same pattern to extraction and proves a whole predecessor/extraction
+charge from the actual predecessor projection and initial safety. Neither
+interface assumes a component security bound or losslessness.
+
+`PackedPBSExtractionErasure.get_erase` and `endpoint_erase` prove that erasing
+internal snapshots preserves the actual extraction gate, selected private
+memory and accumulator endpoint, including absent/rejected branches and the
+endpoint fallback. The raw computation still returns the complete final
+monitor state separately from its erased protocol packets.
+
+`PackedPBSHonestExtractionHistoryProgram.program` performs actual key-switch
+setup, the full retained verifier and final extraction under one shared oracle
+handler. `project_child` uses the executed extraction witness's projection;
+`project_witness` composes it with the existing actual setup/verifier
+projection from empty. The raw child explicitly uses the extraction factory's
+matrix and query samplers for its selected memory. This prevents inference
+from substituting generic finite-function samplers, and the exact projection
+checks that the raw program matches the retained witness.
+
+`bad_event_eq` identifies the actual complete final authentication event with
+that raw execution. `charge` accumulates `ExpectedHazard` over the full program,
+including setup hash work and rejected/skipped verification paths.
+`bad_le_charge` derives the bound from the empty monitor state and the existing
+whole-execution collision theorem. It requires the original record-scope
+condition and finite digest type; no independent incoming audit, safety or
+setup-root certificate is supplied by the caller.
+
+`PackedPBSNativeHonestOutputBound.charge`, `bad_le_charge` and
+`charged_output_le` specialize this history charge to the configured native
+schemes. The inspected final proposition has one accepted-wrong-output
+probability, one actual setup-through-extraction charge and the two derived
+native arithmetic rates. No residual authentication-failure probability,
+increment-failure probability or reached extraction-risk probability remains.
+The output event still concerns canonical key-switch/extraction applied to the
+once-biased actual reached accumulator endpoint.
+
+All 35 new declarations have directly inspected exact axiom guards using only
+`propext`, `Classical.choice` and `Quot.sound`, or fewer axioms. They compile at
+default Lean resources. No frozen Native/vendor edits, admitted proofs, custom
+axioms, resource increases or linter suppression were introduced.
+
+The full shared charge is an expected oracle-history hazard, not yet a proved
+bound in physical attacker work. Actual blind-rotation control-key setup must
+still be joined to this setup program, and the actual endpoint must be matched
+to the public full CanonicalPBS output event. Concrete production calibration,
+production/representation/key-generation refinements, FS/ROM/grinding,
+adaptive attempts and physical attacker-work accounting remain unfinished.
+Full PBS security and the 128-bit work target are not proved; the production
+128-query profile remains uncertified.
+
+Full `scripts/check` exited 0: 12,800 build jobs and all standalone checks.
+Full-check log SHA-256: `74fd71955a244093c9e735cb8a5e3b588cece819fc6935165e91d204b2ae952f`.
