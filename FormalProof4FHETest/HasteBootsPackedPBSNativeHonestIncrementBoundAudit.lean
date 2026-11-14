@@ -32,3 +32,15 @@ import all FormalProof4FHE.HasteBoots.PackedPBSNativeHonestIncrementBound
 /-- info: 'FormalProof4FHE.HasteBoots.PackedPBSNativeHonestIncrementBound.accepted_false_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.PackedPBSNativeHonestIncrementBound.accepted_false_bound
+
+/-- info: 'FormalProof4FHE.HasteBoots.PackedPBSNativeHonestIncrementBound.safeAcceptedExperiment' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.PackedPBSNativeHonestIncrementBound.safeAcceptedExperiment
+
+/-- info: 'FormalProof4FHE.HasteBoots.PackedPBSNativeHonestIncrementBound.safe_event_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.PackedPBSNativeHonestIncrementBound.safe_event_le
+
+/-- info: 'FormalProof4FHE.HasteBoots.PackedPBSNativeHonestIncrementBound.safe_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.PackedPBSNativeHonestIncrementBound.safe_bound

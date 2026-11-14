@@ -35580,3 +35580,62 @@ production 128-query profile remains uncertified.
 
 Full `scripts/check` exited 0: 12,786 build jobs and all standalone checks.
 Full-check log SHA-256: `70981ea9c878f6763fbe247438efa619189cf03ae2027ab636f076a7b44ea0d9`.
+
+
+### 2026-11-14 — compose native increment and extraction output rates
+
+`PackedPBSNativeHonestIncrementBound.safeAcceptedExperiment` evaluates the
+accepted-false increment predicate and exclusion of the final authentication
+exception on one literal return of the actual native setup/verifier program.
+`safe_event_le` bounds this correlated safe event by the same execution's safe
+tail risk; `safe_bound` substitutes the existing configured native arithmetic
+expression. This interface deliberately leaves the exception inside the event
+so extraction can extend it and charge one shared final exception.
+
+`PackedPBSHonestExtractionAssociation.SourceAssociation` stores the existing
+uniform public source-descriptor equality for each supported return of actual
+setup and extraction. Its single field is the same descriptor admission used
+by the earlier output theorem, rather than a component probability bound.
+`PackedPBSHonestExtractionAssociatedNativeBound.safe_output_le` applies that
+field at the actual supported return and reuses native extraction soundness.
+The proof structure avoids repeatedly unfolding the large dependent callback
+while specializing the native scheme parameters.
+
+`PackedPBSNativeHonestOutputBound.safe_increment_probability_le` identifies
+the raw safe predecessor probability needed by the output theorem with the
+configured native safe increment experiment. Its proof normalizes scheme
+projections together with their dependent sampler instance types.
+`safe_output_le` then composes that derived native increment rate with
+`ExtractionNativeRate.bound`. `output_le` adds one actual final joint
+authentication exception. The final bound contains neither a residual
+increment-failure probability nor a reached extraction-risk probability.
+
+The configured program contains actual key-switch setup, native Hadamard and
+comparison schemes, the complete verifier and final extraction, sharing the
+same cache, transcript and checkpoint history. The output predicate remains
+accepted wrong canonical key-switch/extraction output applied to the once-
+biased actual reached accumulator endpoint. The native arithmetic expression
+retains the existing public code/basis/distance, geometry, key-degree/margin,
+decoder/routing, radix/table and rate-calibration admissions. The extraction
+rate supremum has not been calibrated to a concrete production value.
+
+The two final native output proof aliases have directly inspected inferred
+propositions: each has the actual joint program and accepted wrong-output
+event; the unconditional proposition contains one final `Bad` probability and
+the two native arithmetic rates. All ten new proof interfaces, including the
+association type, constructor and projection, have directly inspected exact
+axiom guards for only `propext`, `Classical.choice` and `Quot.sound`.
+All compile at default Lean resources. No frozen Native/vendor edits, admitted
+proofs, custom axioms, resource increases or linter suppression were used.
+
+Next, the actual joint authentication exception must be charged through final
+extraction under the full setup-plus-verification query/work history. Actual
+blind-rotation control-key setup is still separate, and the public full
+CanonicalPBS output event still needs matching. Concrete production calibration,
+production/representation/key-generation refinements, FS/ROM/grinding, adaptive
+attempts and physical attacker-work accounting remain unfinished. Full PBS
+security and the 128-bit work target are not proved; the production 128-query
+profile remains uncertified.
+
+Full `scripts/check` exited 0: 12,792 build jobs and all standalone checks.
+Full-check log SHA-256: `509997d94e3e4e7d7c7db629e1e510daa5b1fa7e3523465f23e3780115552e1a`.
