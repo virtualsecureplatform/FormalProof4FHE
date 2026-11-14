@@ -35921,3 +35921,86 @@ profile remains uncertified.
 
 Full `scripts/check` exited 0: 12,818 build jobs and all standalone checks.
 Full-check log SHA-256: `d9c987e04acfa64535045ec62ded13188b7cb462223cea27db44ab337905a4ec`.
+
+### 2026-11-14 — One full output charge after both actual key setups
+
+`PackedPBSJointSetupExtraction.witness` extends the actual two-setup/comparison
+witness through retained extraction. It keeps both setup returns, the actual
+comparison predecessor, selected extraction memory and extraction child. Its
+`comparison_audited` derives the comparison-end audit from actual combined
+setup support and the existing scoped verifier theorem. `audited_witness`
+propagates this audit through reached and skipped extraction.
+`earlier_safe_event_le` transports earlier safe events through that actual
+continuation without losslessness or a conditional security premise.
+`PackedPBSJointSetupExtractionNativeBound.extraction_risk_le` derives the
+native extraction rate for the same witness under explicit public
+basis/domain/capacity/distance admissions.
+
+`PackedPBSJointSetupExtractionAssembly` derives setup support, both receipts
+and readiness from the actual combined execution. A reached extraction child
+repackages into the existing complete fixed-initial verifier using the actual
+generated control roots, generated key-switch roots and final setup state.
+The repackaged child's final monitor state is unchanged. Selected-NTT
+interfaces now use that actual control-root family when consuming this
+fixed-initial support, rather than the caller's pre-setup root prototype.
+
+`PackedPBSJointSetupExtractionOutput.wrong_safe_output_implies_failures`
+applies the existing complete-verifier output reduction with these factual
+initialization inputs. An accepted wrong canonical key-switch/extraction
+output outside the full final authentication event implies either the actual
+predecessor's safe accepted-incorrect increment event or actual safe extraction
+risk. `PackedPBSJointSetupExtractionProbability` lifts that pointwise
+inclusion to the same full witness's probability. Its native companion
+substitutes the derived extraction rate. Public source-descriptor association
+remains explicit and tied to supported actual returns through
+`PackedPBSJointSetupExtractionAssociation.SourceAssociation` and its checked
+projection; it is not a component probability/security premise.
+
+`PackedPBSJointSetupIncrementHistoryProgram` projects the two-setup/comparison
+witness into one raw shared-oracle program from empty. It retains key-switch
+roots and erased verifier data while the actual program also computes and
+installs control roots. Setup geometry is transported before the verifier
+without changing actual roots, accumulated cache/log or monitor state.
+`PackedPBSJointSetupExtractionHistoryProgram.project_witness` extends that
+exact raw projection through the executed extraction sampler, preserving the
+full final state and every rejected/skipped branch. `bad_event_eq` identifies
+the retained final authentication event with that raw execution;
+`bad_le_charge` bounds it by one complete `ExpectedHazard` charge, including
+both actual key setups and all verification/extraction work.
+
+`PackedPBSNativeJointOutputBound.safe_increment_probability_le` substitutes
+the preceding milestone's derived native two-setup increment rate.
+`safe_output_le` and `output_le` combine that rate with native extraction under
+one final history event. `charged_output_le` replaces that event's probability
+by the actual complete history charge. Its directly inspected conclusion has
+one accepted-wrong-output probability, one
+`PackedPBSJointSetupExtractionHistoryProgram.charge`, and the two derived
+native arithmetic rates. It has no residual authentication-failure,
+increment-failure or reached extraction-risk probability.
+
+`PackedPBSJointSetupHistoryAgreement.verifierSuffix_eq` proves exact equality
+of the raw extraction gates, endpoints and sampling factories with the
+established combined verifier suffix after actual control roots are installed.
+`program_eq_setup_suffix` factors both real setup calls from the same full
+raw program. `existing_program_eq` proves that erasing the extra returned
+outer root pair from `PackedPBSJointSetupHistoryProgram.program` gives exactly
+the raw program used by this output bound. This is equality of oracle
+computations, preserving all actual queries and samplers; no alternate setup
+or independent root/state distribution is substituted.
+
+All 54 added declarations have directly inspected exact axiom guards using
+only `propext`, `Classical.choice` and `Quot.sound`, or fewer axioms. They compile
+at default Lean resources. No frozen Native/vendor edits, admitted proofs,
+custom axioms, resource increases or linter suppression were introduced.
+
+The target output here is still canonical key-switch/extraction of the actual
+once-biased reached accumulator endpoint. The public full CanonicalPBS result
+must next be connected to that same retained accumulator, with blind-rotation
+semantic failure events covered in the same execution. The shared hazard
+charge is not yet a proved physical attacker-work bound. Concrete production
+calibration, representation/key-generation refinements, FS/ROM/grinding and
+adaptive attempts remain unfinished. Full PBS security and the 128-bit work
+target are not proved; the production 128-query profile remains uncertified.
+
+Full `scripts/check` exited 0: 12,842 build jobs and all standalone checks.
+Full-check log SHA-256: `ef3af1064d5e67880ea57e12d2cc6e5595af7956cafcac9748c491163b4dc026`.
