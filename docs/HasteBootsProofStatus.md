@@ -35495,3 +35495,42 @@ or linter suppression were used.
 
 Full `scripts/check` exited 0: 12,776 build jobs and all standalone checks.
 Full-check log SHA-256: `8284196eb40011cd88fde803ffa7ed2f1d6fb46be505b6fa385b5f5e89696bd9`.
+
+
+### 2026-11-14 — reconstruct extraction support from actual honest setup
+
+`RetainedExtractionAssembly.finish_supported` and `bind_supported` give the
+converse execution interface to extraction reachability: a supported actual
+predecessor, its computed accepting gate and its supported literal child
+reconstruct support of the complete retained extraction program. They assume
+neither a child-security bound nor losslessness.
+
+`PackedPBSHonestExtractionAssembly` uses the actual joint setup/comparison/
+extraction witness. `setup_supported` recovers its setup execution from the
+empty state, and `initialized` derives receipts, cache coherence, query soundness,
+audit and shape compatibility from that execution. `fixed_initial_supported`
+repackages the same child under its literal comparison predecessor and proves
+support of the existing complete fixed-initial extraction witness. That witness
+uses the keys returned by setup and the exact setup end state.
+`fixed_final_state_eq` proves equality of its complete final state with the
+joint execution, preserving the hash cache, transcript, checkpoints and flag.
+This permits the fixed-initial output coverage interface to be applied to the
+setup-backed execution without introducing an independently chosen initial
+state or replaying extraction.
+
+All six declarations compile at default Lean resources. Directly inspected
+axioms are exactly `propext`, `Classical.choice` and `Quot.sound`; exact guards
+are imported by the test root. No frozen Native/vendor modules were changed,
+and no admitted proofs, custom axioms or resource increases were introduced.
+
+The next step is applying output coverage to this reconstructed support and
+matching its safe increment failure with the setup-backed native bound, while
+charging one final authentication failure event. The combined blind-rotation
+control-key setup, public CanonicalPBS false-output event, concrete production
+calibration, representation/key-generation refinements, FS/ROM/grinding,
+adaptive attempts and physical attacker-work accounting remain unfinished.
+Full PBS security and the 128-bit work target remain unproved; the production
+128-query profile remains uncertified.
+
+Full `scripts/check` exited 0: 12,780 build jobs and all standalone checks.
+Full-check log SHA-256: `bd27532def869b1e30da2be612c492633c3ee0f83acc1f75afaa4ddb2931aef1`.
