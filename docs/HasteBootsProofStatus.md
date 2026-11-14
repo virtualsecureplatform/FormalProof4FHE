@@ -35699,3 +35699,61 @@ Full PBS security and the 128-bit work target are not proved; the production
 
 Full `scripts/check` exited 0: 12,800 build jobs and all standalone checks.
 Full-check log SHA-256: `74fd71955a244093c9e735cb8a5e3b588cece819fc6935165e91d204b2ae952f`.
+
+### 2026-11-14 — Combine actual control-key and key-switch setup histories
+
+`HonestSetupContinuation.Ready` packages coherent cache, sound recorded
+queries, audited checkpoints and compatibility with subsequent verifier
+geometries. Actual hash-only setup preserves these properties from a populated
+initial state. Geometry transport preserves them, and transporting back
+restores the complete original state.
+
+`HonestJointKeySetup.program` executes actual blind-rotation control-key setup
+followed by actual key-switch setup under one handler. Its retained witness
+preserves the intermediate control setup state. Exact projection and support
+lemmas derive both receipts in the final setup log and readiness of the actual
+verifier start; neither receipt nor an initialized state is supplied as an
+independent caller certificate.
+
+`PackedPBSJointSetupHistoryProgram.program` installs both generated root maps
+and executes the existing comparison/verifier/extraction suffix from that same
+setup state. The old complete key-switch program now has a factored
+`verifierProgram` and an exact setup-bind equality. `control_prefix_eq` shows
+that erasing the extra returned key-switch roots gives actual control setup
+followed by the existing complete key-switch program, with the generated
+control roots installed. Key-switch setup is executed once.
+
+The combined retained witness projects exactly to this raw program. Its
+support supplies both initial receipts, readiness at the actual verifier start
+at either its ambient or a chosen transported geometry, and both receipts in
+the full final log. Final coherence, query soundness and audit follow from the
+actual verifier continuation. `bad_le_charge` bounds its final authentication
+failure by one `ExpectedHazard` charge covering both setups, verification and
+extraction from empty, including rejected and skipped branches.
+
+`PackedPBSPublicBlindRotation.output_from_receipt_or_risks` exposes the existing
+public blind-rotation semantics using a factual initial control receipt and
+`Ready`. The original control-only setup theorem retains its signature and
+now delegates to this interface after deriving those facts from actual setup.
+This makes the semantic proof usable after a further honest key setup without
+requiring a reset to an empty cache or query log.
+
+All 35 added declarations have exact, directly inspected axiom guards using
+only `propext`, `Classical.choice` and `Quot.sound`, or fewer axioms. The existing
+public setup wrapper was also re-audited. No frozen Native/vendor edits,
+admitted proofs, custom axioms, resource increases or linter suppression were
+introduced.
+
+The old native arithmetic output bound has not yet been lifted to this new
+combined game. Its previous key-switch-only initialization must not be
+silently reused after control setup. Recovering the corresponding stateful
+verifier support, deriving uniform native bounds from the combined initial
+receipts, and matching the resulting output to public full CanonicalPBS remain
+next steps. The shared charge is still oracle-history hazard rather than a
+physical attacker-work bound. Concrete production calibration, representation
+and key-generation refinements, FS/ROM/grinding and adaptive attempts remain
+unfinished. Full PBS security and the 128-bit work target are not proved; the
+production 128-query profile remains uncertified.
+
+Full `scripts/check` exited 0: 12,806 build jobs and all standalone checks.
+Full-check log SHA-256: `87a0bae43e237d7ffa14bb50d1eb5749d577936704ba5d475e8a49ebff7300f6`.

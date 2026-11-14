@@ -56,3 +56,11 @@ import all FormalProof4FHE.HasteBoots.PackedPBSHonestExtractionHistoryProgram
 /-- info: 'FormalProof4FHE.HasteBoots.PackedPBSHonestExtractionHistoryProgram.bad_le_charge' depends on axioms: [propext, Classical.choice, Quot.sound] -/
 #guard_msgs (whitespace := lax) in
 #print axioms FormalProof4FHE.HasteBoots.PackedPBSHonestExtractionHistoryProgram.bad_le_charge
+
+/-- info: 'FormalProof4FHE.HasteBoots.PackedPBSHonestExtractionHistoryProgram.verifierProgram' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.PackedPBSHonestExtractionHistoryProgram.verifierProgram
+
+/-- info: 'FormalProof4FHE.HasteBoots.PackedPBSHonestExtractionHistoryProgram.program_eq_setup_bind' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms FormalProof4FHE.HasteBoots.PackedPBSHonestExtractionHistoryProgram.program_eq_setup_bind
