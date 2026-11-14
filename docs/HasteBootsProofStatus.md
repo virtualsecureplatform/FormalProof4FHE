@@ -35808,3 +35808,57 @@ not proved; the production 128-query profile remains uncertified.
 
 Full `scripts/check` exited 0: 12,810 build jobs and all standalone checks.
 Full-check log SHA-256: `404c12cebdbc33b29ade1e64dbcc1963cac004c5390f4688f299f499c3de0c47`.
+
+### 2026-11-14 — Derive native arithmetic rate after both actual key setups
+
+`HonestJointSetupScope.control` and `joint` prove that actual control-key and
+key-switch setup satisfy every checkpoint-recording scope: their commitment
+builders only make hash calls. `transport` moves the complete actual combined
+setup execution between verifier geometries from a compatible populated
+incoming state. `from_empty` transports empty initialization before both
+setups. `witness_from_empty` projects the retained combined setup witness to
+that raw execution at the target geometry. Both generated root maps and the
+complete final cache, chronological query log and monitor state are preserved;
+no independently sampled root distribution or reset state is substituted.
+
+`PackedPBSNativeJointSetupSafeBound.continuation` is the native comparison
+verifier's actual safe tail-risk event at supplied control roots, key-switch
+roots and a populated initial state. `experiment` executes both actual honest
+setups under the same handler, installs their respective generated roots and
+runs this continuation from the actual final setup state.
+`native_safe_tail_bound` derives its arithmetic rate using the existing native
+fixed-initial bound, averaged over supported actual setup returns. Audit and
+geometry compatibility come from `HonestJointKeySetup.initialized`, without
+caller-supplied history certificates or a component probability inequality.
+The public first-stage record-scope premise is uniform over generated control
+roots. Existing geometry, distance, basis and per-test rate-calibration
+conditions remain explicit.
+
+`ambientExperiment` executes the same combined raw setup at the full verifier's
+ambient geometry, then transports that actual populated setup end to the
+fixed-initial verifier geometry. `experiment_eq_ambient` proves exact equality
+of these complete probability experiments using the setup witness projection
+and geometry roundtrip. `native_ambient_safe_tail_bound` consequently derives
+the same arithmetic rate for that ambient-setup experiment. Its directly
+inspected conclusion has one safe-event probability bounded by the derived
+stage-rate sum; it has no residual setup-event probability or independent
+incoming-state certificate.
+
+All eleven new declarations have directly inspected exact guards for
+`propext`, `Classical.choice` and `Quot.sound`. They compile at default Lean
+resources. No frozen Native/vendor edits, admitted proofs, custom axioms,
+resource increases or linter suppression were introduced.
+
+This is an arithmetic tail-event bound after the combined actual setups, not
+yet an accepted-wrong-output bound for the full combined PBS/extraction game.
+Next, identify its retained comparison predecessor with the full game's
+prefix, propagate final safety back to it and combine the semantic
+accepted-wrong-output inclusion with the extraction rate and single complete
+history charge. Public CanonicalPBS output composition and physical
+attacker-work accounting remain unfinished, as do concrete production
+calibration, representation/key-generation refinements, FS/ROM/grinding and
+adaptive attempts. Full PBS security and the 128-bit work target are not
+proved; the production 128-query profile remains uncertified.
+
+Full `scripts/check` exited 0: 12,814 build jobs and all standalone checks.
+Full-check log SHA-256: `63df1222157a7a8865d189fc54100be1c296eefc789e20c04c403be874a40a1f`.
