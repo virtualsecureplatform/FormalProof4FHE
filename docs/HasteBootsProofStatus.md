@@ -35443,3 +35443,55 @@ or linter suppression were used.
 
 Full `scripts/check` exited 0: 12,772 build jobs and all standalone checks.
 Full-check log SHA-256: `a31ee9cb7cdb05c3b096dbc02c8e5f5861e2d87b93b42dd67b90dff627d7a7b1`.
+
+## Actual key-switch setup, complete comparison and final extraction in one witness (2026-11-14)
+
+`PackedPBSHonestExtractionJoint.witness` extends the existing actual honest
+key-switch setup/PBS comparison witness with its computed final extraction
+continuation. Setup runs from the empty state, its generated key roots are
+installed in the comparison verifier by the predecessor, and extraction starts
+at that comparison's actual returned state and opening memory. The same cache,
+transcript and complete checkpoint history are carried through; setup and
+verification are not independently replayed or reset.
+
+`extraction_keys_eq` proves that installing the generated key roots leaves the
+literal extraction stage unchanged: it borrows the original final coefficient
+root. `reached`, `retains_witness` and `finalState` expose actual optional-child
+support, full history retention and the actual final state. `earlier_safe_event_le`
+lifts earlier safe events from the existing setup-backed witness through the
+extraction continuation without a losslessness or conditional-security premise.
+This supplies the execution interface needed to reuse its native honest-
+increment bounds without separating setup history from extraction.
+
+`comparison_audited` derives the predecessor audit directly from supported
+actual setup. Its initial audit and all shape-compatibility facts come from
+`HonestKeySetupReceipts.initialized`; none is supplied independently.
+`audited_witness` propagates that audit through the full extraction witness.
+Only the existing public initial record-scope condition is required.
+
+`PackedPBSHonestExtractionJointNativeBound.extraction_risk_le` applies the
+executed native extraction theorem to this same setup-backed witness and
+bounds the safe reached extraction risk by `ExtractionNativeRate.bound`.
+It retains the explicit public field-basis, code/domain-capacity, nonzero-code
+and decoding-distance admissions. No component probability bound or independent
+initial audit/geometry certificate is assumed.
+
+This joint witness currently contains actual key-switch setup, comparison
+verification and final extraction. Actual blind-rotation control-key setup is
+not yet composed into the same program. The final wrong-output event and its
+honest-increment safe event still need to be matched across this joint witness
+and the fixed-initial-state output interfaces, then combined with the native
+honest-increment rate and one full setup-plus-verification authentication charge.
+The public-bound blind-rotation output, concrete production rate calibration,
+production/code/representation/key-generation admissions, FS/ROM/grinding,
+adaptive attempts and physical attacker-work accounting remain unfinished.
+Full PBS security and the 128-bit work target are not proved; the production
+128-query profile remains uncertified.
+
+All nine declarations compile at default Lean resources and have directly
+inspected exact guards for only `propext`, `Classical.choice` and `Quot.sound`.
+No frozen Native/vendor edits, admitted proofs, custom axioms, resource increases
+or linter suppression were used.
+
+Full `scripts/check` exited 0: 12,776 build jobs and all standalone checks.
+Full-check log SHA-256: `8284196eb40011cd88fde803ffa7ed2f1d6fb46be505b6fa385b5f5e89696bd9`.
